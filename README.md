@@ -1,8 +1,19 @@
 # docker-mailserver
 
+A fullstack but simple mailserver (smtp, imap, antispam, antivirus...)
+
+Includes:
+- postfix
+- courier-imap
+- spamassasin
+- clamav
+- amavis
+
+Only config files, no *sql database required.
+
 ## installation
 
-TODO when automatic build will be enabled.
+	docker pull tvial/docker-mailserver
 
 ## build
 
@@ -25,6 +36,11 @@ TODO when automatic build will be enabled.
 	    - ./configs/spamassassin:/etc/spamassassin
 	  environment:
 	    docker_mail_domain: "my-domain.com"
+	    # format is user@domain.tld|clear_password
 	    docker_mail_users:
 	      - "username1@my-domain.com|username1password"
 	      - "username2@my-domain.com|username2password"
+
+# wanna help?
+
+Fork, improve and PR. ;-)

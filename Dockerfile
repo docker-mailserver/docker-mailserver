@@ -19,7 +19,7 @@ RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis
 RUN adduser amavis clamav
-RUN echo "/dev/shm   /var/lib/amavis   tmpfs defaults,noexec,nodev,nosuid,size=150m,mode=750,uid=$(id -u amavis),gid=$(id -g clamav) 0 0" >> /etc/fstab
+# RUN echo "/dev/shm   /var/lib/amavis   tmpfs defaults,noexec,nodev,nosuid,size=150m,mode=750,uid=$(id -u amavis),gid=$(id -g clamav) 0 0" >> /etc/fstab
 
 # Enables Clamav
 RUN mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav

@@ -33,9 +33,6 @@ chown -R 5000:5000 /var/mail
 echo "Creating /etc/mailname"
 echo $docker_mail_domain > /etc/mailname
 
-# echo "Mouting /var/lib/amavis as tmpfs"
-# mount /var/lib/amavis
-
 echo "Starting daemons"
 /etc/init.d/fam start
 /etc/init.d/saslauthd start
