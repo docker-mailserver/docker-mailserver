@@ -5,6 +5,7 @@ echo "Regenerating 'vmailbox' for given users"
 echo "docker_mail_users => $docker_mail_users"
 
 echo "# WARNING: this file is auto-generated. Do not modify locally" > /etc/postfix/vmailbox
+echo $docker_mail_users | sed -r 's/\[|\]|\x27| //g' | sed -r 's/,/\n/g' > /tmp/docker_mail_users
 while IFS=$'|' read -r login pass
 do
 	# Setting variables for better readability
@@ -20,7 +21,8 @@ do
 	mkdir -p /var/mail/ifusio.com
 	maildirmake /var/mail/${domain}/${user}
 
-done < /etc/postfix/docker-mail-users
+done < /tmp/docker_mail_users
+rm /tmp/docker_mail_users
 makeuserdb
 
 echo "Postmap configurations"

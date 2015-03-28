@@ -1,6 +1,6 @@
 # docker-mailserver
 
-A fullstack but simple mailserver (smtp, imap, antispam, antivirus...)
+A fullstack but simple mail  server (smtp, imap, antispam, antivirus...)
 
 Includes:
 - postfix
