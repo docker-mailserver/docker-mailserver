@@ -31,11 +31,13 @@ postmap /etc/postfix/virtual
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
+mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav
 
 echo "Creating /etc/mailname"
 echo $docker_mail_domain > /etc/mailname
 
 echo "Starting daemons"
+/etc/init.d/rsyslog start
 /etc/init.d/fam start
 /etc/init.d/saslauthd start
 /etc/init.d/courier-authdaemon start
@@ -48,5 +50,5 @@ echo "Starting daemons"
 echo "Listing SASL users"
 sasldblistusers2
 
-echo "Starting supervisord"
+echo "Starting..."
 tail -f /var/log/mail.log

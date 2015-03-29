@@ -3,6 +3,7 @@
 A fullstack but simple mail  server (smtp, imap, antispam, antivirus...)
 
 Includes:
+
 - postfix
 - courier-imap
 - spamassasin
@@ -23,6 +24,7 @@ Only config files, no *sql database required.
 
 	mail:
 	  build: .
+	  # or use 'image: tvial/docker-mailserver'
 	  hostname: mail
 	  domainname: my-domain.com
 	  ports:
@@ -31,9 +33,7 @@ Only config files, no *sql database required.
 	  - "587:587"
 	  - "993:993"
 	  volumes:
-	    - ./configs/courier:/etc/courier
 	    - ./configs/postfix:/etc/postfix
-	    - ./configs/spamassassin:/etc/spamassassin
 	  environment:
 	    docker_mail_domain: "my-domain.com"
 	    # format is user@domain.tld|clear_password
