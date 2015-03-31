@@ -28,6 +28,11 @@ RUN adduser amavis clamav
 RUN (crontab -l ; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN freshclam
 
+# Configures Postfix
+ADD postfix/main.cf /etc/postfix/main.cf
+ADD postfix/master.cf /etc/postfix/master.cf
+ADD postfix/sasl/smtpd.conf /etc/postfix/sasl/smtpd.conf
+
 # Start-mailserver script
 ADD start-mailserver.sh /usr/local/bin/start-mailserver.sh
 RUN chmod +x /usr/local/bin/start-mailserver.sh
