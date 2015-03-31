@@ -5,7 +5,7 @@ A fullstack but simple mail server (smtp, imap, antispam, antivirus...)
 Includes:
 
 - postfix with smtp auth
-- courier-imap
+- courier-imap with ssl support
 - amavis
 - spamassasin
 - clamav
@@ -14,6 +14,8 @@ Additional informations:
 
 - only config files, no *sql database required
 - mails are stored in `/var/mail/${domain}/${username}`
+- email login are full email address (`username1@my-domain.com`)
+- ssl is strongly recommended
 
 ## installation
 
