@@ -20,15 +20,17 @@ do
 	echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
 	mkdir -p /var/mail/${domain}
 	maildirmake /var/mail/${domain}/${user}
+	echo ${domain} >> /tmp/vhost.tmp
 
 done < /tmp/docker_mail_users
 rm /tmp/docker_mail_users
 makeuserdb
 
 echo "Postfix configurations"
-sed -i -r 's/DOCKER_MAIL_DOMAIN/$docker_mail_domain/g' /etc/postfix/main.cf
 postmap /etc/postfix/vmailbox
-[ -f /etc/postfix/virtual ] && postmap /etc/postfix/virtual
+touch /etc/postfix/virtual && postmap /etc/postfix/virtual
+sed -i -r 's/DOCKER_MAIL_DOMAIN/'"$docker_mail_domain"'/g' /etc/postfix/main.cf
+cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
@@ -43,6 +45,7 @@ echo "Starting daemons"
 /etc/init.d/saslauthd start
 /etc/init.d/courier-authdaemon start
 /etc/init.d/courier-imap start
+/etc/init.d/courier-imap-ssl start
 /etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start
 /etc/init.d/amavis start
