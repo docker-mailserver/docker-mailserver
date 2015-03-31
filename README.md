@@ -44,6 +44,11 @@ Additional informations:
 	      - "username1@my-domain.com|username1password"
 	      - "username2@my-domain.com|username2password"
 
+# todo
+
+Things to do or to improve are stored on [Github](https://github.com/tomav/docker-mailserver/issues), some open by myself.
+Feel free to improve this docker image.
+
 # wanna help?
 
 Fork, improve and PR. ;-)
