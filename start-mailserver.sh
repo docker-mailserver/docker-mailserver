@@ -18,7 +18,7 @@ do
 	userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
 	echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
 	echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
-	mkdir -p /var/mail/ifusio.com
+	mkdir -p /var/mail/${domain}
 	maildirmake /var/mail/${domain}/${user}
 
 done < /tmp/docker_mail_users
