@@ -25,9 +25,10 @@ done < /tmp/docker_mail_users
 rm /tmp/docker_mail_users
 makeuserdb
 
-echo "Postmap configurations"
+echo "Postfix configurations"
+sed -i -r 's/DOCKER_MAIL_DOMAIN/$docker_mail_domain/g' /etc/postfix/main.cf
 postmap /etc/postfix/vmailbox
-postmap /etc/postfix/virtual
+[ -f /etc/postfix/virtual ] && postmap /etc/postfix/virtual
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail

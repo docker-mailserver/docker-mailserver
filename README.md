@@ -1,16 +1,19 @@
 # docker-mailserver
 
-A fullstack but simple mail  server (smtp, imap, antispam, antivirus...)
+A fullstack but simple mail server (smtp, imap, antispam, antivirus...)
 
 Includes:
 
-- postfix
+- postfix with smtp auth
 - courier-imap
+- amavis
 - spamassasin
 - clamav
-- amavis
 
-Only config files, no *sql database required.
+Additional informations:
+
+- only config files, no *sql database required
+- mails are stored in `/var/mail/${domain}/${username}`
 
 ## installation
 
@@ -32,8 +35,6 @@ Only config files, no *sql database required.
 	  - "143:143"
 	  - "587:587"
 	  - "993:993"
-	  volumes:
-	    - ./configs/postfix:/etc/postfix
 	  environment:
 	    docker_mail_domain: "my-domain.com"
 	    # format is user@domain.tld|clear_password
