@@ -1,32 +1,11 @@
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
-
-# Debian specific:  Specifying a file name will cause the first
-# line of that file to be used as the name.  The Debian default
-# is /etc/mailname.
-# myorigin = /etc/mailname
-
 smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
 biff = no
-
-# appending .domain is the MUA's job.
 append_dot_mydomain = no
-
-# Uncomment the next line to generate "delayed mail" warnings
-#delay_warning_time = 4h
-
 readme_directory = no
 
-# TLS parameters
-smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
-smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
-smtpd_use_tls=yes
-smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-
-# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
-# information on enabling SSL in the smtp client.
-
+# Basic configuration
 myhostname = DOCKER_MAIL_DOMAIN
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
@@ -38,18 +17,27 @@ recipient_delimiter = +
 inet_interfaces = all
 inet_protocols = all
 
+# TLS parameters
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+smtpd_tls_security_level = may
+smtpd_use_tls=yes
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 smtpd_sender_restrictions = permit_mynetworks
+smtp_tls_security_level = may
+
+# SASL
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_path = smtpd
-cyrus_sasl_config_path = /etc/postfix/sasl
 smtpd_sasl_type = cyrus
 smtpd_sasl_security_options = noanonymous, noplaintext
-broken_sasl_auth_clients = yes
 smtpd_sasl_local_domain = $myhostname
+cyrus_sasl_config_path = /etc/postfix/sasl
+broken_sasl_auth_clients = yes
 
+# Mail directory
 virtual_mailbox_base = /var/mail
 virtual_mailbox_domains = /etc/postfix/vhost
 virtual_mailbox_maps = hash:/etc/postfix/vmailbox
