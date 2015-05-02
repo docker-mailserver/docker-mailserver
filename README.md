@@ -43,6 +43,7 @@ Additional informations:
 	    docker_mail_users:
 	      - "username1@my-domain.com|username1password"
 	      - "username2@my-domain.com|username2password"
+	    # format is user@domain.tld|list,of,aliases,comma,separated
 	    docker_mail_aliases:
 	      - "username1@my-domain.com|alias1,alias2,alias3"
 	      - "username2@my-domain.com|alias4"
