@@ -16,6 +16,7 @@ Additional informations:
 - mails are stored in `/var/mail/${domain}/${username}`
 - email login are full email address (`username1@my-domain.com`)
 - ssl is strongly recommended
+- do not add whitespace in `$docker_mail_users` or `$docker_mail_aliases`
 
 ## installation
 
@@ -28,8 +29,7 @@ Additional informations:
 ## docker-compose template
 
 	mail:
-	  build: .
-	  # or use 'image: tvial/docker-mailserver'
+	  image: tvial/docker-mailserver
 	  hostname: mail
 	  domainname: my-domain.com
 	  ports:
@@ -43,6 +43,9 @@ Additional informations:
 	    docker_mail_users:
 	      - "username1@my-domain.com|username1password"
 	      - "username2@my-domain.com|username2password"
+	    docker_mail_aliases:
+	      - "username1@my-domain.com|alias1,alias2,alias3"
+	      - "username2@my-domain.com|alias4"
 
 # todo
 
