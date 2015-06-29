@@ -1,6 +1,8 @@
 # docker-mailserver
 
-A fullstack but simple mail server (smtp, imap, antispam, antivirus...)
+A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
+Only configuration files, no SQL database. Keep it simple and versioned.
+Easy to deploy and upgrade.
 
 Includes:
 
@@ -8,7 +10,7 @@ Includes:
 - courier-imap with ssl support
 - amavis
 - spamassasin
-- clamav
+- clamav with automatic updates
 
 Additional informations:
 
@@ -51,6 +53,25 @@ Additional informations:
 	    docker_mail_aliases:
 	      - "username1@my-domain.com|alias1,alias2,alias3"
 	      - "username2@my-domain.com|alias4"
+
+	# usage
+	docker-compose up -d mail
+
+# client configuration
+
+	# imap
+	username:  				<username1@my-domain.com>
+	password:  				<username1password>
+	server:    				<your-server-ip-or-hostname>
+	imap port: 				143 or 993 with ssl (recommended)
+	imap path prefix: INBOX
+	auth method:			md5 challenge-response
+
+	# smtp
+	smtp port:				25 or 587 with ssl (recommended)
+	username:  				<username1@my-domain.com>
+	password:  				<username1password>
+	auth method:			md5 challenge-response
 
 # todo
 
