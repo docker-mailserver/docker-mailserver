@@ -64,7 +64,7 @@ Additional informations:
 	password:  				<username1password>
 	server:    				<your-server-ip-or-hostname>
 	imap port: 				143 or 993 with ssl (recommended)
-	imap path prefix: INBOX
+	imap path prefix:		INBOX
 	auth method:			md5 challenge-response
 
 	# smtp
