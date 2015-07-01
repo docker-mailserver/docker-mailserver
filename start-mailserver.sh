@@ -26,6 +26,7 @@ makeuserdb
 
 echo "Regenerating 'virtual' for given aliases"
 echo $docker_mail_aliases | sed -r 's/\[|\]|\x27|//g' | sed -r 's/, /\n/g' > /tmp/docker_mail_aliases
+echo "" > /etc/postfix/virtual
 while IFS=$'|' read -r login aliases
 do
   arr=$(echo $aliases | tr "," "\n")
@@ -37,6 +38,7 @@ do
     echo "$alias@$domain\t$login" >> /etc/postfix/virtual
   done
 done < /tmp/docker_mail_aliases
+rm /tmp/docker_mail_aliases
 
 echo "Postfix configurations"
 postmap /etc/postfix/vmailbox
