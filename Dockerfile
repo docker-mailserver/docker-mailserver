@@ -25,6 +25,7 @@ RUN adduser clamav amavis
 RUN adduser amavis clamav
 
 # Enables Clamav
+RUN chmod 644 /etc/clamav/freshclam.conf
 RUN (crontab -l ; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN freshclam
 
