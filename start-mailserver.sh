@@ -26,7 +26,6 @@ makeuserdb
 
 echo "Regenerating 'virtual' for given aliases"
 echo $docker_mail_aliases | sed -r 's/\[|\]|\x27|//g' | sed -r 's/, /\n/g' > /tmp/docker_mail_aliases
-echo "" > /etc/postfix/virtual
 while IFS=$'|' read -r login aliases
 do
   arr=$(echo $aliases | tr "," "\n")
@@ -52,6 +51,12 @@ mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav
 
 echo "Creating /etc/mailname"
 echo $docker_mail_domain > /etc/mailname
+
+echo "Configuring Spamassassin"
+echo "required_hits 5.0" >> /etc/mail/spamassassin/local.cf
+echo "report_safe 0" >> /etc/mail/spamassassin/local.cf
+echo "required_score 5" >> /etc/mail/spamassassin/local.cf
+echo "rewrite_header Subject ***SPAM***" >> /etc/mail/spamassassin/local.cf
 
 echo "Starting daemons"
 /etc/init.d/rsyslog start
