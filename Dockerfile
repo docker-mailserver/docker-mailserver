@@ -2,7 +2,7 @@ FROM ubuntu:14.04
 MAINTAINER Thomas VIAL
 
 # Packages
-RUN apt-get update -q
+RUN apt-get update -q --fix-missing
 RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl courier-authdaemon supervisor libfam0 fam amavisd-new spamassassin clamav-daemon libnet-dns-perl libmail-spf-perl pyzor razor arj bzip2 cabextract cpio file gzip nomarch pax unzip zip zoo rsyslog
 RUN apt-get autoclean
