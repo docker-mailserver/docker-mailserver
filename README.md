@@ -20,8 +20,9 @@ Additional informations:
 - ssl is strongly recommended
 - do not add whitespace in `$docker_mail_users` or `$docker_mail_aliases`
 - user accounts are managed in `./postfix/accounts.cf`
+- redirections are managed in `./postfix/redirects.cf`
 - antispam are rules are managed in `./spamassassin/rules.cf`
-- both files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
+- files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
 
 ## installation
 
