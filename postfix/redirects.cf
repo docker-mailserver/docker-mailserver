@@ -1,1 +1,1 @@
-user@domain.tld | otheruser@domain.tld otheruser@otherdomain.tld
+user@domain.tld | otheruser@domain.tld,otheruser@otherdomain.tld
