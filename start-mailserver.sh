@@ -5,8 +5,10 @@ echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
 # rm /etc/postfix/virtual.db
 # rm /etc/postfix/vmailbox
 # rm /etc/postfix/vmailbox.db
-echo "# WARNING: this file is auto-generated. Do not modify locally" > /etc/postfix/vmailbox
-while IFS=$'|' read -r login pass aliases
+echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
+echo "# WARNING: this file is auto-generated. Modify redirects.cf in postfix directory on host" > /etc/postfix/virtual
+# Creating users
+while IFS=$'|' read -r login pass
 do
 
   # Setting variables for better readability
@@ -22,18 +24,11 @@ do
   mkdir -p /var/mail/${domain}
   maildirmake /var/mail/${domain}/${user}
   echo ${domain} >> /tmp/vhost.tmp
-
-  # Aliases
-  arr=$(echo $aliases | tr "," "\n")
-  for alias in $arr
-  do
-    echo "$alias@$domain redirects to $login"
-    echo "$alias@$domain\t$login" >> /etc/postfix/virtual
-  done
-
 done < /tmp/postfix/accounts.cf
 makeuserdb
 
+#creating virtuals and redirects
+cp /tmp/postfix/virtual /etc/postfix/virtual
 echo "Postfix configurations"
 postmap /etc/postfix/vmailbox
 postmap /etc/postfix/virtual
