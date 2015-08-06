@@ -27,14 +27,8 @@ do
 done < /tmp/postfix/accounts.cf
 makeuserdb
 
-#creating virtuals
-while IFS=$'|' read -r from to
-do
-  echo "from : '$from' aliases: '$to'"
-  # Let's go!
-  echo "$from\t$to" >> /etc/postfix/virtual
-done < /tmp/postfix/redirects.cf
-
+#creating virtuals and redirects
+cp /tmp/postfix/virtual /etc/postfix/virtual
 echo "Postfix configurations"
 postmap /etc/postfix/vmailbox
 postmap /etc/postfix/virtual
