@@ -1,0 +1,4 @@
+#Mail redirection from user@domain.tld to otheruser@domain.tld and otheruser@otherdomain.tld
+user@domain.tld|otheruser@domain.tld,otheruser@otherdomain.tld
+#Mail redirection from postmaster@domain.tld and hostmaster@domain.tld to user@domain.tld
+user@domain.tld| postmaster,hostmaster
