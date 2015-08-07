@@ -6,7 +6,6 @@ echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
 # rm /etc/postfix/vmailbox
 # rm /etc/postfix/vmailbox.db
 echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
-echo "# WARNING: this file is auto-generated. Modify redirects.cf in postfix directory on host" > /etc/postfix/virtual
 # Creating users
 while IFS=$'|' read -r login pass
 do
@@ -27,8 +26,9 @@ do
 done < /tmp/postfix/accounts.cf
 makeuserdb
 
-#creating virtuals and redirects
+#copying virtual file
 cp /tmp/postfix/virtual /etc/postfix/virtual
+
 echo "Postfix configurations"
 postmap /etc/postfix/vmailbox
 postmap /etc/postfix/virtual
