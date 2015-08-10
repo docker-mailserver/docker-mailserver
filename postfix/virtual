@@ -1,4 +1,7 @@
-#Mail redirection from user@domain.tld to otheruser@domain.tld and otheruser@otherdomain.tld
-user1@domain.tld otheruser@domain.tld otheruser@otherdomain.tld
-#Mail redirection from postmaster@domain.tld and hostmaster@domain.tld to user@domain.tld
-user2@domain.tld postmaster hostmaster
+#
+# ALIAS => from alias@domain.tld (alias) to user@domain.tld (real account)
+# alias@domain.tld user@domain.tld
+#
+# FORWARD => from redirect@domain.tld to a list of internal/external email addresses
+# redirect@domain.tld otheruser@domain.tld otheruser@otherdomain.tld
+#

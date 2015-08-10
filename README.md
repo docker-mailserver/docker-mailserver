@@ -18,9 +18,8 @@ Additional informations:
 - mails are stored in `/var/mail/${domain}/${username}`
 - email login are full email address (`username1@my-domain.com`)
 - ssl is strongly recommended
-- do not add whitespace in `$docker_mail_users` or `$docker_mail_aliases`
 - user accounts are managed in `./postfix/accounts.cf`
-- redirections are managed in `./postfix/redirects.cf`
+- aliases and fowards/redirects are managed in `./postfix/virtual`
 - antispam are rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
 
@@ -60,7 +59,8 @@ Volumes allow to:
 - Manage mail users, passwords and aliases
 
 # usage
-docker-compose up -d mail
+
+	docker-compose up -d mail
 
 # client configuration
 
