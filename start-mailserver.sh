@@ -25,8 +25,7 @@ do
   echo ${domain} >> /tmp/vhost.tmp
 done < /tmp/postfix/accounts.cf
 makeuserdb
-
-#copying virtual file
+# Copying virtual file
 cp /tmp/postfix/virtual /etc/postfix/virtual
 
 echo "Postfix configurations"
