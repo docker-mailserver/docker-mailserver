@@ -16,6 +16,7 @@ Additional informations:
 
 - only config files, no *sql database required
 - mails are stored in `/var/mail/${domain}/${username}`
+- you should use a data volume container for `/var/mail` for data persistence
 - email login are full email address (`username1@my-domain.com`)
 - ssl is strongly recommended
 - user accounts are managed in `./postfix/accounts.cf`
@@ -33,7 +34,7 @@ Additional informations:
 
 ## run
 
-	docker run -v "$(pwd)/postfix":/tmp/postfix -v "$(pwd)/spamassassin":/tmp/spamassassin -p "25:25" -p "143:143" -p "587:587" -p "993:993" -e docker_mail_domain=my-domain.com -t tvial/docker-mailserver
+	docker run --name mail -v "$(pwd)/postfix":/tmp/postfix -v "$(pwd)/spamassassin":/tmp/spamassassin -p "25:25" -p "143:143" -p "587:587" -p "993:993" -h mail.my-domain.com -t tvial/docker-mailserver
 
 ## docker-compose template (recommended)
 
@@ -47,11 +48,9 @@ Additional informations:
 	  - "143:143"
 	  - "587:587"
 	  - "993:993"
-	  environment:
-	    docker_mail_domain: "my-domain.com"
 	  volumes:
-	  - ./spamassassin:/tmp/spamassassin/:ro
-	  - ./postfix:/tmp/postfix/:ro
+	  - ./spamassassin:/tmp/spamassassin/
+	  - ./postfix:/tmp/postfix/
 
 Volumes allow to:
 
