@@ -33,7 +33,7 @@ Additional informations:
 
 ## run
 
-	docker run -p "25:25" -p "143:143" -p "587:587" -p "993:993" -e docker_mail_domain=my-domain.com -t tvial/docker-mailserver
+	docker run -v "$(pwd)/postfix":/tmp/postfix -v "$(pwd)/spamassassin":/tmp/spamassassin -p "25:25" -p "143:143" -p "587:587" -p "993:993" -e docker_mail_domain=my-domain.com -t tvial/docker-mailserver
 
 ## docker-compose template (recommended)
 
