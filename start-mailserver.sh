@@ -36,8 +36,12 @@ cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
 if [ -e "/tmp/postfix/ssl/$(hostname).csr" ]; then
   echo "Adding $(hostname) csr/key SSL certificate"
   cp -r /tmp/postfix/ssl /etc/postfix/ssl 
-  sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$docker_mail_cert'.csr/g' /etc/postfix/main.cf
-  sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$docker_mail_cert'.key/g' /etc/postfix/main.cf
+  # Postfix configuration
+  sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'.csr/g' /etc/postfix/main.cf
+  sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'.key/g' /etc/postfix/main.cf
+  ln -s /etc/postfix/ssl/$(hostname).csr /etc/ssl/certs/$(hostname).pem
+  # Courier configuration
+  sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/ssl\/certs\/'$(hostname)'.pem/g' /etc/courier/imapd-ssl
 fi
 
 echo "Fixing permissions"
