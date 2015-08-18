@@ -33,15 +33,17 @@ sed -i -r 's/DOCKER_MAIL_DOMAIN/'"$(hostname -d)"'/g' /etc/postfix/main.cf
 cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
 
 # Adding SSL certificate if provided in 'postfix/ssl' folder
-if [ -e "/tmp/postfix/ssl/$(hostname).csr" ]; then
-  echo "Adding $(hostname) csr/key SSL certificate"
+if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ]; then
+  echo "Adding $(hostname) SSL certificate"
   cp -r /tmp/postfix/ssl /etc/postfix/ssl 
   # Postfix configuration
-  sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'.csr/g' /etc/postfix/main.cf
-  sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'.key/g' /etc/postfix/main.cf
-  ln -s /etc/postfix/ssl/$(hostname).csr /etc/ssl/certs/$(hostname).pem
+  sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-cert.pem/g' /etc/postfix/main.cf
+  sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-key.pem/g' /etc/postfix/main.cf
+  sed -i -r 's/#smtpd_tls_CAfile=/smtpd_tls_CAfile=\/etc\/postfix\/ssl\/demoCA\/cacert.pem/g' /etc/postfix/main.cf
+  sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/demoCA\/cacert.pem/g' /etc/postfix/main.cf
+  ln -s /etc/postfix/ssl/demoCA/cacert.pem /etc/ssl/certs/cacert-$(hostname).pem
   # Courier configuration
-  sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/ssl\/certs\/'$(hostname)'.pem/g' /etc/courier/imapd-ssl
+  sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
 fi
 
 echo "Fixing permissions"

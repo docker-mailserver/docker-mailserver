@@ -1,4 +1,17 @@
 #!/bin/sh
 
 FQDN=$(hostname)
-openssl req -new -newkey rsa:2048 -nodes -keyout /ssl/$FQDN.key -out /ssl/$FQDN.csr
+
+cd /ssl
+# Create CA certificate
+/usr/lib/ssl/misc/CA.pl -newca
+# Create an unpassworded private key and create an unsigned public key certificate
+openssl req -new -nodes -keyout /ssl/$FQDN-key.pem -out /ssl/$FQDN-req.pem -days 3652
+# Sign the public key certificate with CA certificate
+openssl ca -out /ssl/$FQDN-cert.pem -infiles /ssl/$FQDN-req.pem
+# Combine certificates for courier
+cat /ssl/$FQDN-key.pem /ssl/$FQDN-cert.pem >> /ssl/$FQDN-combined.pem
+
+# chmod 644 /etc/postfix/foo-cert.pem /etc/postfix/cacert.pem
+# chmod 400 /etc/postfix/foo-key.pem
+
