@@ -12,6 +12,3 @@ openssl ca -out /ssl/$FQDN-cert.pem -infiles /ssl/$FQDN-req.pem
 # Combine certificates for courier
 cat /ssl/$FQDN-key.pem /ssl/$FQDN-cert.pem >> /ssl/$FQDN-combined.pem
 
-# chmod 644 /etc/postfix/foo-cert.pem /etc/postfix/cacert.pem
-# chmod 400 /etc/postfix/foo-key.pem
-

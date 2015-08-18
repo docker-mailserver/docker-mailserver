@@ -69,9 +69,20 @@ You can easily generate en SSL certificate by using the following command:
 
 	docker run -ti --rm -v "$(pwd)"/postfix/ssl:/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
 
+	# Press enter
+	# Enter a password when needed
+	# Fill information like Country, Organisation name
+	# Fill "mail.my-domain.com" as FQDN
+	# Don't fill extras
+	# Enter same password when needed
+	# Sign the certificate? [y/n]:y
+	# 1 out of 1 certificate requests certified, commit? [y/n]y
+
 	# will generate:
-	# postfix/ssl/mail.my-domain.com.key
-	# postfix/ssl/mail.my-domain.com.csr
+	# postfix/ssl/mail.my-domain.com-key.pem (used in postfix)
+	# postfix/ssl/mail.my-domain.com-req.pem
+	# postfix/ssl/mail.my-domain.com-cert.pem (used in postfix)
+	# postfix/ssl/mail.my-domain.com-combined.pem (used for courier)
 
 Note that the certificate will be generate for the container `fqdn`, that is passed as `-h` argument.
 
