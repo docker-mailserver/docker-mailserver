@@ -8,8 +8,6 @@ mail:
   - "143:143"
   - "587:587"
   - "993:993"
-  environment:
-    docker_mail_domain: "my-domain.com"
   volumes:
-  - ./spamassassin:/tmp/spamassassin/:ro
-  - ./postfix:/tmp/postfix/:ro
+  - ./spamassassin:/tmp/spamassassin/
+  - ./postfix:/tmp/postfix/

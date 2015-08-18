@@ -1,0 +1,4 @@
+#!/bin/sh
+
+FQDN=$(hostname)
+openssl req -new -newkey rsa:2048 -nodes -keyout /ssl/$FQDN.key -out /ssl/$FQDN.csr

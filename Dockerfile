@@ -33,6 +33,8 @@ RUN freshclam
 ADD postfix/main.cf /etc/postfix/main.cf
 ADD postfix/master.cf /etc/postfix/master.cf
 ADD postfix/sasl/smtpd.conf /etc/postfix/sasl/smtpd.conf
+ADD bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
+RUN chmod +x /usr/local/bin/generate-ssl-certificate
 
 # Start-mailserver script
 ADD start-mailserver.sh /usr/local/bin/start-mailserver.sh

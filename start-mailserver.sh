@@ -2,8 +2,10 @@
 
 echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
 echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
+
 # Checking that /tmp/postfix/accounts.cf ends with a newline
 sed -i -e '$a\' /tmp/postfix/accounts.cf
+
 # Creating users
 while IFS=$'|' read login pass
 do
@@ -29,6 +31,14 @@ postmap /etc/postfix/vmailbox
 postmap /etc/postfix/virtual
 sed -i -r 's/DOCKER_MAIL_DOMAIN/'"$(hostname -d)"'/g' /etc/postfix/main.cf
 cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
+
+# Adding SSL certificate if name provided as $docker_mail_cert env
+if [ -e "/tmp/postfix/ssl/$(hostname).csr" ]; then
+  echo "Adding $(hostname) csr/key SSL certificate"
+  cp -r /tmp/postfix/ssl /etc/postfix/ssl 
+  sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$docker_mail_cert'.csr/g' /etc/postfix/main.cf
+  sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$docker_mail_cert'.key/g' /etc/postfix/main.cf
+fi
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail

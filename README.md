@@ -61,6 +61,24 @@ Volumes allow to:
 
 	docker-compose up -d mail
 
+# configure ssl
+
+## generate ssl certificate
+
+You can easily generate en SSL certificate by using the following command:
+
+	docker run -ti --rm -v "$(pwd)"/postfix/ssl:/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
+
+	# will generate:
+	# postfix/ssl/mail.my-domain.com.key
+	# postfix/ssl/mail.my-domain.com.csr
+
+Note that the certificate will be generate for the container `fqdn`, that is passed as `-h` argument.
+
+## configure ssl certificate (convention over configuration)
+
+If a matching certificate (with `.key` and `.csr` files) is found in `postfix/ssl`, it will be automatically configured in postfix. You just have to place `mail.my-domain.com.key` and `mail.my-domain.com.csr` for domain `mail.my-domain.com` in `postfix/ssl` folder.
+
 # client configuration
 
 	# imap
