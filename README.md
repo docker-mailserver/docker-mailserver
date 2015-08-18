@@ -18,11 +18,11 @@ Additional informations:
 - mails are stored in `/var/mail/${domain}/${username}`
 - you should use a data volume container for `/var/mail` for data persistence
 - email login are full email address (`username1@my-domain.com`)
-- ssl is strongly recommended
 - user accounts are managed in `./postfix/accounts.cf`
 - aliases and fowards/redirects are managed in `./postfix/virtual`
 - antispam are rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
+- ssl is strongly recommended, you can provide a specific certificate (csr/key files), see below
 
 ## installation
 
