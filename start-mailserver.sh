@@ -32,7 +32,7 @@ postmap /etc/postfix/virtual
 sed -i -r 's/DOCKER_MAIL_DOMAIN/'"$(hostname -d)"'/g' /etc/postfix/main.cf
 cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
 
-# Adding SSL certificate if name provided as $docker_mail_cert env
+# Adding SSL certificate if provided in 'postfix/ssl' folder
 if [ -e "/tmp/postfix/ssl/$(hostname).csr" ]; then
   echo "Adding $(hostname) csr/key SSL certificate"
   cp -r /tmp/postfix/ssl /etc/postfix/ssl 
