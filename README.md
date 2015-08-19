@@ -20,7 +20,7 @@ Additional informations:
 - email login are full email address (`username1@my-domain.com`)
 - user accounts are managed in `./postfix/accounts.cf`
 - aliases and fowards/redirects are managed in `./postfix/virtual`
-- antispam are rules are managed in `./spamassassin/rules.cf`
+- antispam rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
 - ssl is strongly recommended, you can provide a specific certificate, see below
 
