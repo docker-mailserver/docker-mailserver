@@ -63,9 +63,9 @@ Volumes allow to:
 
 # configure ssl
 
-## generate ssl certificate
+## generate self-signed ssl certificate
 
-You can easily generate en SSL certificate by using the following command:
+You can easily generate a self-signed SSL certificate by using the following command:
 
 	docker run -ti --rm -v "$(pwd)"/postfix/ssl:/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
 
