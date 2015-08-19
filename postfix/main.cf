@@ -6,7 +6,7 @@ append_dot_mydomain = no
 readme_directory = no
 
 # Basic configuration
-myhostname = DOCKER_MAIL_DOMAIN
+# myhostname = 
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 mydestination = localhost.localdomain, localhost

@@ -29,7 +29,6 @@ cp /tmp/postfix/virtual /etc/postfix/virtual
 echo "Postfix configurations"
 postmap /etc/postfix/vmailbox
 postmap /etc/postfix/virtual
-sed -i -r 's/DOCKER_MAIL_DOMAIN/'"$(hostname -d)"'/g' /etc/postfix/main.cf
 cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
 
 # Adding SSL certificate if provided in 'postfix/ssl' folder
