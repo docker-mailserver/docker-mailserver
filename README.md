@@ -22,7 +22,7 @@ Additional informations:
 - aliases and fowards/redirects are managed in `./postfix/virtual`
 - antispam rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
-- ssl is strongly recommended, you can provide a specific certificate, see below
+- ssl is strongly recommended, you can provide a self-signed certificate, see below
 
 ## installation
 
@@ -56,6 +56,7 @@ Volumes allow to:
 
 - Insert custom antispam rules
 - Manage mail users, passwords and aliases
+- Manage SSL certificates
 
 # usage
 
