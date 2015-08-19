@@ -47,8 +47,8 @@ if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
   sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-cert.pem/g' /etc/postfix/main.cf
   sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-key.pem/g' /etc/postfix/main.cf
   sed -i -r 's/#smtpd_tls_CAfile=/smtpd_tls_CAfile=\/etc\/postfix\/ssl\/demoCA\/cacert.pem/g' /etc/postfix/main.cf
-  sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/demoCA\/cacert.pem/g' /etc/postfix/main.cf
-  ln -s /etc/postfix/ssl/demoCA/cacert.pem /etc/ssl/certs/cacert-$(hostname).pem
+  sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
+  ln -s /etc/postfix/ssl/cacert.pem /etc/ssl/certs/cacert-$(hostname).pem
 
   # Courier configuration
   sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
