@@ -22,7 +22,7 @@ Additional informations:
 - aliases and fowards/redirects are managed in `./postfix/virtual`
 - antispam are rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
-- ssl is strongly recommended, you can provide a specific certificate (csr/key files), see below
+- ssl is strongly recommended, you can provide a specific certificate, see below
 
 ## installation
 
@@ -80,15 +80,16 @@ You can easily generate a self-signed SSL certificate by using the following com
 
 	# will generate:
 	# postfix/ssl/mail.my-domain.com-key.pem (used in postfix)
-	# postfix/ssl/mail.my-domain.com-req.pem
+	# postfix/ssl/mail.my-domain.com-req.pem (only used to generate other files)
 	# postfix/ssl/mail.my-domain.com-cert.pem (used in postfix)
-	# postfix/ssl/mail.my-domain.com-combined.pem (used for courier)
+	# postfix/ssl/mail.my-domain.com-combined.pem (used in courier)
+	# postfix/ssl/demoCA/cacert.pem (certificate authority)
 
 Note that the certificate will be generate for the container `fqdn`, that is passed as `-h` argument.
 
 ## configure ssl certificate (convention over configuration)
 
-If a matching certificate (with `.key` and `.csr` files) is found in `postfix/ssl`, it will be automatically configured in postfix. You just have to place `mail.my-domain.com.key` and `mail.my-domain.com.csr` for domain `mail.my-domain.com` in `postfix/ssl` folder.
+If a matching certificate (files listed above) is found in `postfix/ssl`, it will be automatically setup in postfix and courier-imap-ssl. You just have to place them in `postfix/ssl` folder.
 
 # client configuration
 
