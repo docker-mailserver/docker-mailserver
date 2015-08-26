@@ -12,7 +12,9 @@ Includes:
 - spamassasin
 - clamav with automatic updates
 
-Additional informations:
+Why I created this container: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+
+## informations:
 
 - only config files, no *sql database required
 - mails are stored in `/var/mail/${domain}/${username}`
