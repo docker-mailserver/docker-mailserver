@@ -1,35 +1,49 @@
 #!/bin/sh
 
-echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
-echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
+die () {
+  echo >&2 "$@"
+  exit 1
+}
 
-# Checking that /tmp/postfix/accounts.cf ends with a newline
-sed -i -e '$a\' /tmp/postfix/accounts.cf
+if [ -f /tmp/postfix/accounts.cf ]; then
+  echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
+  echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
 
-# Creating users
-while IFS=$'|' read login pass
-do
-  # Setting variables for better readability
-  user=$(echo ${login} | cut -d @ -f1)
-  domain=$(echo ${login} | cut -d @ -f2)
-  # Let's go!
-  echo "user '${user}' for domain '${domain}' with password '********'"
-  echo "${login} ${domain}/${user}/" >> /etc/postfix/vmailbox
-  /usr/sbin/userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
-  echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
-  echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
-  mkdir -p /var/mail/${domain}
-  maildirmake /var/mail/${domain}/${user}
-  echo ${domain} >> /tmp/vhost.tmp
-done < /tmp/postfix/accounts.cf
-makeuserdb
-# Copying virtual file
-cp /tmp/postfix/virtual /etc/postfix/virtual
+  # Checking that /tmp/postfix/accounts.cf ends with a newline
+  sed -i -e '$a\' /tmp/postfix/accounts.cf
+
+  # Creating users
+  while IFS=$'|' read login pass
+  do
+    # Setting variables for better readability
+    user=$(echo ${login} | cut -d @ -f1)
+    domain=$(echo ${login} | cut -d @ -f2)
+    # Let's go!
+    echo "user '${user}' for domain '${domain}' with password '********'"
+    echo "${login} ${domain}/${user}/" >> /etc/postfix/vmailbox
+    /usr/sbin/userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
+    echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
+    echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
+    mkdir -p /var/mail/${domain}
+    maildirmake /var/mail/${domain}/${user}
+    echo ${domain} >> /tmp/vhost.tmp
+  done < /tmp/postfix/accounts.cf
+  makeuserdb
+  cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
+else
+  echo "==> Warning: '/tmp/postfix/accounts.cf' is not provided. No mail account created."
+fi
+
+if [ -f /tmp/postfix/virtual ]; then
+  # Copying virtual file
+  cp /tmp/postfix/virtual /etc/postfix/virtual
+else
+  echo "==> Warning: '/tmp/postfix/virtual' is not provided. No mail alias created."
+fi
 
 echo "Postfix configurations"
-postmap /etc/postfix/vmailbox
-postmap /etc/postfix/virtual
-cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
+touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
+touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
 # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
 if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
