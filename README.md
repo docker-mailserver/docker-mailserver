@@ -12,7 +12,7 @@ Includes:
 - spamassasin
 - clamav with automatic updates
 
-Why I created this container: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
 ## informations:
 
