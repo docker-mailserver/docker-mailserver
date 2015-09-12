@@ -85,7 +85,6 @@ cp /tmp/spamassassin/rules.cf /etc/spamassassin/
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
-/etc/init.d/fam start
 /etc/init.d/saslauthd start
 /etc/init.d/courier-authdaemon start
 /etc/init.d/courier-imap start
