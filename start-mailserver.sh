@@ -29,7 +29,6 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/accounts.cf
   makeuserdb
-  cat /tmp/vhost.tmp | sort | uniq >> /etc/postfix/vhost && rm /tmp/vhost.tmp
 else
   echo "==> Warning: '/tmp/postfix/accounts.cf' is not provided. No mail account created."
 fi
@@ -37,8 +36,18 @@ fi
 if [ -f /tmp/postfix/virtual ]; then
   # Copying virtual file
   cp /tmp/postfix/virtual /etc/postfix/virtual
+  while IFS=$' ' read from to
+  do
+    # Setting variables for better readability
+    domain=$(echo ${from} | cut -d @ -f2)
+    echo ${domain} >> /tmp/vhost.tmp
+  done < /tmp/postfix/virtual
 else
   echo "==> Warning: '/tmp/postfix/virtual' is not provided. No mail alias created."
+fi
+
+if [ -f /tmp/vhost.tmp ]; then
+  cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
 
 echo "Postfix configurations"
