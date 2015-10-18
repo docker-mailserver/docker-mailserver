@@ -27,4 +27,3 @@ fixtures:
 tests:
 	# Start tests
 	./test/test.sh
-
