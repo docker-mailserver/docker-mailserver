@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set up test framework
-# wget -q https://raw.github.com/lehmannro/assert.sh/master/assert.sh
+wget -q https://raw.github.com/lehmannro/assert.sh/master/assert.sh
 source assert.sh
 
 # Testing user creation
