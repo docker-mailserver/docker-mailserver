@@ -1,5 +1,5 @@
 NAME = tvial/docker-mailserver
-VERSION = travis
+VERSION = $(TRAVIS_BUILD_ID)
 
 all: build run prepare fixtures tests
 
