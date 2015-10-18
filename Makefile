@@ -19,6 +19,7 @@ prepare:
 	docker exec mail /bin/sh -c 'echo "" > /var/log/mail.log'
 
 fixtures:
+	# Sending test mails
 	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-001" user@localhost.localdomain'
 	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-002" nouser@localhost.localdomain'
 	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-003" alias1@localhost.localdomain'
