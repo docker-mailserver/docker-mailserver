@@ -27,6 +27,8 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 - antispam rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
 - ssl is strongly recommended, you can provide a self-signed certificate, see below
+- [includes integration tests](https://travis-ci.org/tomav/docker-mailserver) 
+- [builds automated on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
 ## installation
 
@@ -119,4 +121,4 @@ Feel free to improve this docker image.
 
 # wanna help?
 
-Fork, improve and PR. ;-)
+Fork, improve, add tests and PR. ;-)
