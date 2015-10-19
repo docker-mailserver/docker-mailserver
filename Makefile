@@ -11,7 +11,7 @@ run:
 	cp test/accounts.cf postfix/
 	cp test/virtual postfix/
 	# Run container
-	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -h mail.my-domain.com -t $(NAME):$(VERSION)
+	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -v "`pwd`/test":/tmp/test -h mail.my-domain.com -t $(NAME):$(VERSION)
 	sleep 15
 
 prepare:
@@ -20,11 +20,15 @@ prepare:
 
 fixtures:
 	# Sending test mails
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-001" user@localhost.localdomain'
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-002" nouser@localhost.localdomain'
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-003" alias1@localhost.localdomain'
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-004" alias2@localhost.localdomain'
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/amavis-spam.txt"		
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/amavis-virus.txt"		
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-alias-external.txt"		
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-alias-local.txt"		
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-user.txt"		
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/non-existing-user.txt"
+	# Wait for mails to be analyzed
+	sleep 10
 
 tests:
 	# Start tests
-	./test/test.sh
+	/bin/bash ./test/test.sh
