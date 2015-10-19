@@ -1,6 +1,6 @@
 # docker-mailserver
 
-[![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg)](https://travis-ci.org/tomav/docker-mailserver)
+[![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=master)](https://travis-ci.org/tomav/docker-mailserver)
 
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).  
 Only configuration files, no SQL database. Keep it simple and versioned.  
