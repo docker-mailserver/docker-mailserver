@@ -11,8 +11,8 @@ run:
 	cp test/accounts.cf postfix/
 	cp test/virtual postfix/
 	# Run container
-	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -h mail.my-domain.com -t $(NAME):$(VERSION)
-	sleep 15
+	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -v "`pwd`/test":/tmp/test -h mail.my-domain.com -t $(NAME):$(VERSION)
+	sleep 10
 
 prepare:
 	# Reinitialize logs 
@@ -20,11 +20,12 @@ prepare:
 
 fixtures:
 	# Sending test mails
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-001" user@localhost.localdomain'
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-002" nouser@localhost.localdomain'
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-003" alias1@localhost.localdomain'
-	docker exec mail /bin/sh -c 'echo "This is a test mail" | mail -s "TEST-004" alias2@localhost.localdomain'
+	for file in test/email-templates/*.txt ; do \
+	    docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/$$file" ; \
+	done
+	# Wait for mails to be analyzed
+	sleep 10
 
 tests:
 	# Start tests
-	./test/test.sh
+	/bin/bash ./test/test.sh
