@@ -20,9 +20,7 @@ prepare:
 
 fixtures:
 	# Sending test mails
-	for file in test/email-templates/*.txt ; do \
-	    docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/$$file" ; \
-	done
+	for file in test/email-templates/*.txt ; do docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/$$file" ;	done
 	# Wait for mails to be analyzed
 	sleep 10
 
