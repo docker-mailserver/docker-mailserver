@@ -79,7 +79,8 @@ You can easily generate a self-signed SSL certificate by using the following com
 	# Press enter
 	# Enter a password when needed
 	# Fill information like Country, Organisation name
-	# Fill "mail.my-domain.com" as FQDN
+	# Fill "my-domain.com" as FQDN for CA, and "mail.my-domain.com" for the certificate.
+	# They HAVE to be different, otherwise you'll get a `TXT_DB error number 2`
 	# Don't fill extras
 	# Enter same password when needed
 	# Sign the certificate? [y/n]:y
