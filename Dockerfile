@@ -5,7 +5,7 @@ MAINTAINER Thomas VIAL
 RUN apt-get update -q --fix-missing
 RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat
-RUN apt-get autoclean
+RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Saslauthd
 RUN rm -rf /var/run/saslauthd && ln -s /var/spool/postfix/var/run/saslauthd /var/run/saslauthd
