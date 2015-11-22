@@ -94,6 +94,7 @@ You can easily generate a self-signed SSL certificate by using the following com
 	# postfix/ssl/demoCA/cacert.pem (certificate authority)
 
 Note that the certificate will be generate for the container `fqdn`, that is passed as `-h` argument.
+Check the following page for more information regarding [postfix and SSL/TLS configuration](http://www.mad-hacking.net/documentation/linux/applications/mail/using-ssl-tls-postfix-courier.xml).
 
 ## configure ssl certificate (convention over configuration)
 
