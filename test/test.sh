@@ -10,6 +10,10 @@ assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/saslauthd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/clamd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/amavisd-new'" 0
 
+# Testing IMAP server
+assert_raises "docker exec mail nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'Courier-IMAP ready'" 0
+assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 143 < /tmp/test/email-templates/test-imap.txt'" 0
+
 # Testing user creation
 assert "docker exec mail sasldblistusers2" "user1@localhost.localdomain: userPassword\nuser2@otherdomain.tld: userPassword"
 assert "docker exec mail ls -A /var/mail/localhost.localdomain/user1" "cur\nnew\ntmp"
