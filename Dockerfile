@@ -13,7 +13,7 @@ RUN adduser postfix sasl
 RUN echo 'NAME="saslauthd"\nSTART=yes\nMECHANISMS="sasldb"\nTHREADS=0\nPWDIR=/var/spool/postfix/var/run/saslauthd\nPIDFILE="${PWDIR}/saslauthd.pid"\nOPTIONS="-n 0 -r -m /var/spool/postfix/var/run/saslauthd"' > /etc/default/saslauthd
 
 # Configures Courier
-RUN sed -i -r 's/daemons=5/daemons=0/g' /etc/courier/authdaemonrc
+RUN sed -i -r 's/daemons=5/daemons=1/g' /etc/courier/authdaemonrc
 RUN sed -i -r 's/authmodulelist="authpam"/authmodulelist="authuserdb"/g' /etc/courier/authdaemonrc
 
 # Enables Spamassassin and CRON updates
