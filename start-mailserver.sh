@@ -59,13 +59,6 @@ case $DMS_SSL in
   "letsencrypt" )
     # letsencrypt folders and files mounted in /etc/letsencrypt
 
-      # Adding certificates from Letsencrypt and IdenTrust
-      # curl https://letsencrypt.org/certs/isrgrootx1.pem -so /etc/ssl/certs/isrgrootx1.pem
-      # curl https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem -so /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem
-      # curl https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem -so /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
-      # curl https://letsencrypt.org/certs/letsencryptauthorityx1.pem -so /etc/ssl/certs/letsencryptauthorityx1.pem
-      # curl https://letsencrypt.org/certs/letsencryptauthorityx2.pem -so /etc/ssl/certs/letsencryptauthorityx2.pem
-
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf

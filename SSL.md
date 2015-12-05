@@ -7,14 +7,30 @@ There are multiple options to enable SSL:
 
 ## let's encrypt
 
-To enable Let's Encrypt on your mail server, you have to add en environment variable `DMS_SSL` with value `letsencrypt`.
-You also have to mount your `letsencrypt` folder to `/etc/letsencrypt`.
+To enable Let's Encrypt on your mail server, you have to add en environment variable `DMS_SSL` with value `letsencrypt` (see `docker-compose.yml.dist`)
+You also have to mount your `letsencrypt` folder to `/etc/letsencrypt` and it should look like that:
 
+    ├── etc
+    │   └── letsencrypt
+    │       ├── accounts
+    │       ├── archive
+    │       │   └── mail.domain.com
+    │       │       ├── cert1.pem
+    │       │       ├── chain1.pem
+    │       │       ├── fullchain1.pem
+    │       │       └── privkey1.pem
+    │       ├── csr
+    │       ├── keys
+    │       ├── live
+    │       │   └── mail.domain.com
+    │       │       ├── cert.pem -> ../../archive/mail.domain.com/cert1.pem
+    │       │       ├── chain.pem -> ../../archive/mail.domain.com/chain1.pem
+    │       │       ├── combined.pem
+    │       │       ├── fullchain.pem -> ../../archive/mail.domain.com/fullchain1.pem
+    │       │       └── privkey.pem -> ../../archive/mail.domain.com/privkey1.pem
+    │       └── renewal
 
-
-TO BE FINISHED WHEN IT WILL BE TESTED
-
-
+You don't have anything else to do.
 
 ## self signed certificates
 
