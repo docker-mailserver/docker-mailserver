@@ -26,7 +26,7 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 - aliases and fowards/redirects are managed in `./postfix/virtual`
 - antispam rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
-- ssl is strongly recommended, you can provide a self-signed certificate, see below
+- ssl is strongly recommended, read [SSL.md](SSL.md) to use LetsEncrypt or Self-Signed Certificates
 - [includes integration tests](https://travis-ci.org/tomav/docker-mailserver) 
 - [builds automated on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
@@ -40,23 +40,32 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 
 ## run
 
-	docker run --name mail -v "$(pwd)/postfix":/tmp/postfix -v "$(pwd)/spamassassin":/tmp/spamassassin -p "25:25" -p "143:143" -p "587:587" -p "993:993" -h mail.my-domain.com -t tvial/docker-mailserver
+	docker run --name mail \
+    -v "$(pwd)/postfix":/tmp/postfix \
+    -v "$(pwd)/spamassassin":/tmp/spamassassin \
+    -v "$(pwd)/letsencrypt/etc":/etc/letsencrypt \
+    -p "25:25" -p "143:143" -p "587:587" -p "993:993" \
+    -e DMS_SSL=letsencrypt \
+    -h mail.domain.com \
+    -t tvial/docker-mailserver
 
 ## docker-compose template (recommended)
 
-	mail:
-	  # image: tvial/docker-mailserver
-	  build: .
-	  hostname: mail
-	  domainname: my-domain.com
-	  ports:
-	  - "25:25"
-	  - "143:143"
-	  - "587:587"
-	  - "993:993"
-	  volumes:
-	  - ./spamassassin:/tmp/spamassassin/
-	  - ./postfix:/tmp/postfix/
+    mail:
+      image: tvial/docker-mailserver
+      hostname: mail
+      domainname: domain.com
+      ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+      volumes:
+      - ./spamassassin:/tmp/spamassassin/
+      - ./postfix:/tmp/postfix/
+      - ./letsencrypt/etc:/etc/letsencrypt
+      environment:
+      - DMS_SSL=letsencrypt
 
 Volumes allow to:
 
