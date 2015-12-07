@@ -2,7 +2,7 @@ mail:
   # image: tvial/docker-mailserver
   build: .
   hostname: mail
-  domainname: my-domain.com
+  domainname: domain.com
   ports:
   - "25:25"
   - "143:143"
@@ -11,3 +11,6 @@ mail:
   volumes:
   - ./spamassassin:/tmp/spamassassin/
   - ./postfix:/tmp/postfix/
+  - ./letsencrypt/etc:/etc/letsencrypt
+  environment:
+  - DMS_SSL=letsencrypt

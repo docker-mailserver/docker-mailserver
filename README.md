@@ -26,7 +26,7 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 - aliases and fowards/redirects are managed in `./postfix/virtual`
 - antispam rules are managed in `./spamassassin/rules.cf`
 - files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
-- ssl is strongly recommended, you can provide a self-signed certificate, see below
+- ssl is strongly recommended, read [SSL.md](SSL.md) to use LetsEncrypt or Self-Signed Certificates
 - [includes integration tests](https://travis-ci.org/tomav/docker-mailserver) 
 - [builds automated on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
@@ -40,23 +40,32 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 
 ## run
 
-	docker run --name mail -v "$(pwd)/postfix":/tmp/postfix -v "$(pwd)/spamassassin":/tmp/spamassassin -p "25:25" -p "143:143" -p "587:587" -p "993:993" -h mail.my-domain.com -t tvial/docker-mailserver
+	docker run --name mail \
+    -v "$(pwd)/postfix":/tmp/postfix \
+    -v "$(pwd)/spamassassin":/tmp/spamassassin \
+    -v "$(pwd)/letsencrypt/etc":/etc/letsencrypt \
+    -p "25:25" -p "143:143" -p "587:587" -p "993:993" \
+    -e DMS_SSL=letsencrypt \
+    -h mail.domain.com \
+    -t tvial/docker-mailserver
 
 ## docker-compose template (recommended)
 
-	mail:
-	  # image: tvial/docker-mailserver
-	  build: .
-	  hostname: mail
-	  domainname: my-domain.com
-	  ports:
-	  - "25:25"
-	  - "143:143"
-	  - "587:587"
-	  - "993:993"
-	  volumes:
-	  - ./spamassassin:/tmp/spamassassin/
-	  - ./postfix:/tmp/postfix/
+    mail:
+      image: tvial/docker-mailserver
+      hostname: mail
+      domainname: domain.com
+      ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+      volumes:
+      - ./spamassassin:/tmp/spamassassin/
+      - ./postfix:/tmp/postfix/
+      - ./letsencrypt/etc:/etc/letsencrypt
+      environment:
+      - DMS_SSL=letsencrypt
 
 Volumes allow to:
 
@@ -68,53 +77,21 @@ Volumes allow to:
 
 	docker-compose up -d mail
 
-# configure ssl
-
-## generate self-signed ssl certificate
-
-You can easily generate a self-signed SSL certificate by using the following command:
-
-	docker run -ti --rm -v "$(pwd)"/postfix/ssl:/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
-
-	# Press enter
-	# Enter a password when needed
-	# Fill information like Country, Organisation name
-	# Fill "my-domain.com" as FQDN for CA, and "mail.my-domain.com" for the certificate.
-	# They HAVE to be different, otherwise you'll get a `TXT_DB error number 2`
-	# Don't fill extras
-	# Enter same password when needed
-	# Sign the certificate? [y/n]:y
-	# 1 out of 1 certificate requests certified, commit? [y/n]y
-
-	# will generate:
-	# postfix/ssl/mail.my-domain.com-key.pem (used in postfix)
-	# postfix/ssl/mail.my-domain.com-req.pem (only used to generate other files)
-	# postfix/ssl/mail.my-domain.com-cert.pem (used in postfix)
-	# postfix/ssl/mail.my-domain.com-combined.pem (used in courier)
-	# postfix/ssl/demoCA/cacert.pem (certificate authority)
-
-Note that the certificate will be generate for the container `fqdn`, that is passed as `-h` argument.
-Check the following page for more information regarding [postfix and SSL/TLS configuration](http://www.mad-hacking.net/documentation/linux/applications/mail/using-ssl-tls-postfix-courier.xml).
-
-## configure ssl certificate (convention over configuration)
-
-If a matching certificate (files listed above) is found in `postfix/ssl`, it will be automatically setup in postfix and courier-imap-ssl. You just have to place them in `postfix/ssl` folder.
-
 # client configuration
 
-	# imap
-	username:  				<username1@my-domain.com>
-	password:  				<username1password>
-	server:    				<your-server-ip-or-hostname>
-	imap port: 				143 or 993 with ssl (recommended)
-	imap path prefix:		INBOX
-	auth method:			md5 challenge-response
+    # imap
+    username:         <username1@my-domain.com>
+    password:         <username1password>
+    server:           <your-server-ip-or-hostname>
+    imap port:        143 or 993 with ssl (recommended)
+    imap path prefix:   INBOX
+    auth method:      md5 challenge-response
 
-	# smtp
-	smtp port:				25 or 587 with ssl (recommended)
-	username:  				<username1@my-domain.com>
-	password:  				<username1password>
-	auth method:			md5 challenge-response
+    # smtp
+    smtp port:        25 or 587 with ssl (recommended)
+    username:         <username1@my-domain.com>
+    password:         <username1password>
+    auth method:      md5 challenge-response
 
 # todo
 

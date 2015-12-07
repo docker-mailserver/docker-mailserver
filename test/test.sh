@@ -38,7 +38,7 @@ assert_raises "docker exec mail grep -- '-> <external1@otherdomain.tld>' /var/lo
 # Testing that a SPAM is rejected
 assert_raises "docker exec mail grep 'Blocked SPAM' /var/log/mail.log | grep spam@external.tld"
 
-# TODO: Testing that a Virus is rejected
+# Testing that a Virus is rejected
 assert_raises "docker exec mail grep 'Blocked INFECTED' /var/log/mail.log | grep virus@external.tld"
 
 # Testing presence of freshclam CRON

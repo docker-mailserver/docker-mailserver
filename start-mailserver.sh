@@ -54,28 +54,50 @@ echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
-# Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
-&& [ -e "/tmp/postfix/ssl/$(hostname)-key.pem"  ] \
-&& [ -e "/tmp/postfix/ssl/$(hostname)-combined.pem" ] \
-&& [ -e "/tmp/postfix/ssl/demoCA/cacert.pem" ]; then
-  echo "Adding $(hostname) SSL certificate"
-  mkdir -p /etc/postfix/ssl
-  cp /tmp/postfix/ssl/$(hostname)-cert.pem /etc/postfix/ssl
-  cp /tmp/postfix/ssl/$(hostname)-key.pem /etc/postfix/ssl
-  cp /tmp/postfix/ssl/$(hostname)-combined.pem /etc/postfix/ssl
-  cp /tmp/postfix/ssl/demoCA/cacert.pem /etc/postfix/ssl
+# SSL Configuration
+case $DMS_SSL in
+  "letsencrypt" )
+    # letsencrypt folders and files mounted in /etc/letsencrypt
 
-  # Postfix configuration
-  sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-cert.pem/g' /etc/postfix/main.cf
-  sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-key.pem/g' /etc/postfix/main.cf
-  sed -i -r 's/#smtpd_tls_CAfile=/smtpd_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
-  sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
-  ln -s /etc/postfix/ssl/cacert.pem /etc/ssl/certs/cacert-$(hostname).pem
+      # Postfix configuration
+      sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
+      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
 
-  # Courier configuration
-  sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
-fi
+      # Courier configuration
+      cat /etc/letsencrypt/live/$(hostname)/privkey.pem /etc/letsencrypt/live/$(hostname)/cert.pem > /etc/letsencrypt/live/$(hostname)/combined.pem
+      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/imapd-ssl
+
+      echo "SSL configured with letsencrypt certificates"
+
+    ;;
+
+  "self-signed" )
+    # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
+    if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
+    && [ -e "/tmp/postfix/ssl/$(hostname)-key.pem"  ] \
+    && [ -e "/tmp/postfix/ssl/$(hostname)-combined.pem" ] \
+    && [ -e "/tmp/postfix/ssl/demoCA/cacert.pem" ]; then
+      echo "Adding $(hostname) SSL certificate"
+      mkdir -p /etc/postfix/ssl
+      cp /tmp/postfix/ssl/$(hostname)-cert.pem /etc/postfix/ssl
+      cp /tmp/postfix/ssl/$(hostname)-key.pem /etc/postfix/ssl
+      cp /tmp/postfix/ssl/$(hostname)-combined.pem /etc/postfix/ssl
+      cp /tmp/postfix/ssl/demoCA/cacert.pem /etc/postfix/ssl
+
+      # Postfix configuration
+      sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-cert.pem/g' /etc/postfix/main.cf
+      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-key.pem/g' /etc/postfix/main.cf
+      sed -i -r 's/#smtpd_tls_CAfile=/smtpd_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
+      sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
+      ln -s /etc/postfix/ssl/cacert.pem /etc/ssl/certs/cacert-$(hostname).pem
+
+      # Courier configuration
+      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
+    fi
+
+    ;;
+
+esac
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
