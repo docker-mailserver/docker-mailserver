@@ -40,5 +40,13 @@ RUN chmod +x /usr/local/bin/generate-ssl-certificate
 # Start-mailserver script
 ADD start-mailserver.sh /usr/local/bin/start-mailserver.sh
 RUN chmod +x /usr/local/bin/start-mailserver.sh
-CMD /usr/local/bin/start-mailserver.sh
 
+# SMTP ports
+EXPOSE  25
+EXPOSE  587
+
+# IMAP ports
+EXPOSE  143
+EXPOSE  993
+
+CMD /usr/local/bin/start-mailserver.sh
