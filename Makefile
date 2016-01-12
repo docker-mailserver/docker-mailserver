@@ -12,7 +12,7 @@ run:
 	cp test/virtual postfix/
 	# Run container
 	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -v "`pwd`/test":/tmp/test -h mail.my-domain.com -t $(NAME):$(VERSION)
-	sleep 15
+	sleep 25
 
 prepare:
 	# Reinitialize logs 

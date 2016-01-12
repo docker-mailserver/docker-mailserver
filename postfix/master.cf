@@ -73,7 +73,7 @@ smtp-amavis     unix    -       -       -       -       2       smtp
   -o disable_dns_lookups=yes
   -o max_use=20
 
-127.0.0.1:10025 inet    n       -       -       -       -       smtpd
+127.0.0.1:10025 inet    n       -       n       -       -       smtpd
   -o content_filter=
   -o local_recipient_maps=
   -o relay_recipient_maps=
