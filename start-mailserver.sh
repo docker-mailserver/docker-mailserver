@@ -25,7 +25,9 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
     echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
     mkdir -p /var/mail/${domain}
-    maildirmake /var/mail/${domain}/${user}
+    if [ ! -d "/var/mail/${domain}/${user}" ]; then
+      maildirmake "/var/mail/${domain}/${user}"
+    fi
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/accounts.cf
   makeuserdb
