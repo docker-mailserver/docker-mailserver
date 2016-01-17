@@ -1,5 +1,4 @@
 .DS_Store
 docker-compose.yml
 postfix/ssl/*
-assert.sh*
 letsencrypt/

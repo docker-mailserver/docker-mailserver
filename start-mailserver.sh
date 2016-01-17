@@ -104,6 +104,7 @@ esac
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
 mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav
+chown postfix.sasl /etc/sasldb2
 
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
