@@ -11,7 +11,13 @@ run:
 	cp test/accounts.cf postfix/
 	cp test/virtual postfix/
 	# Run container
-	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -v "`pwd`/test":/tmp/test -h mail.my-domain.com -t $(NAME):$(VERSION)
+	docker run -d --name mail \
+	    -v "`pwd`/postfix":/tmp/postfix \
+	    -v "`pwd`/spamassassin":/tmp/spamassassin \
+	    -v "`pwd`/test":/tmp/test \
+	    -h mail.my-domain.com \
+	    -e domainname=my-domain.com \
+	    -t $(NAME):$(VERSION)
 	sleep 25
 
 prepare:

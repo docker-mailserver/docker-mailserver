@@ -1,0 +1,12 @@
+# Command-line options specified here will override the contents of
+# /etc/opendkim.conf. See opendkim(8) for a complete list of options.
+#DAEMON_OPTS=""
+#
+# Uncomment to specify an alternate socket
+# Note that setting this will override any Socket value in opendkim.conf
+#SOCKET="local:/var/run/opendkim/opendkim.sock" # default
+#SOCKET="inet:54321" # listen on all interfaces on port 54321
+#SOCKET="inet:12345@localhost" # listen on loopback on port 12345
+#SOCKET="inet:12345@192.0.2.1" # listen on 192.0.2.1 on port 12345
+
+SOCKET="inet:12301@localhost"

@@ -1,9 +1,54 @@
-#!/bin/sh
+#!/bin/bash
 
 die () {
   echo >&2 "$@"
   exit 1
 }
+
+# DKIM Setup
+mkdir -p /etc/opendkim/keys/$domainname
+if [ ! -f "/etc/opendkim/keys/$domainname/mail.private" ]; then
+  echo "Creating DKIM private key /etc/opendkim/keys/$domainname/mail.private"
+  pushd /etc/opendkim/keys/$domainname
+  opendkim-genkey --subdomains --domain=$domainname --selector=mail
+  popd
+  echo ""
+  echo "DKIM PUBLIC KEY ################################################################"
+  cat /etc/opendkim/keys/$domainname/mail.txt
+  echo "################################################################################"
+fi
+# Write to KeyTable if necessary
+if [ ! -f "/etc/opendkim/KeyTable" ]; then
+  echo "Creating DKIM KeyTable"
+  echo "mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private" > /etc/opendkim/KeyTable
+fi
+# Write to SigningTable if necessary
+if [ ! -f "/etc/opendkim/SigningTable" ]; then
+  echo "Creating DKIM SigningTable"
+  echo "*@$domainname mail._domainkey.$domainname" > /etc/opendkim/SigningTable
+fi
+echo "Changing permissions on /etc/opendkim"
+# chown entire directory
+chown -R opendkim:opendkim /etc/opendkim/
+# And make sure permissions are right
+chmod -R 0700 /etc/opendkim/keys/
+
+# Opendkim:
+echo ""
+echo "opendkim.conf"
+cat /etc/opendkim.conf
+echo ""
+echo "TrustedHosts"
+cat /etc/opendkim/TrustedHosts
+echo ""
+echo "SigningTable"
+cat /etc/opendkim/SigningTable
+echo ""
+echo "KeyTable"
+cat /etc/opendkim/KeyTable
+echo ""
+
+
 
 if [ -f /tmp/postfix/accounts.cf ]; then
   echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
@@ -66,7 +111,7 @@ case $DMS_SSL in
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
 
       # Courier configuration
-      cat /etc/letsencrypt/live/$(hostname)/privkey.pem /etc/letsencrypt/live/$(hostname)/cert.pem > /etc/letsencrypt/live/$(hostname)/combined.pem
+      cat "/etc/letsencrypt/live/$(hostname)/privkey.pem" "/etc/letsencrypt/live/$(hostname)/cert.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/imapd-ssl
 
       echo "SSL configured with letsencrypt certificates"
@@ -75,15 +120,15 @@ case $DMS_SSL in
 
   "self-signed" )
     # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-    if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
+    if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
     && [ -e "/tmp/postfix/ssl/$(hostname)-key.pem"  ] \
     && [ -e "/tmp/postfix/ssl/$(hostname)-combined.pem" ] \
     && [ -e "/tmp/postfix/ssl/demoCA/cacert.pem" ]; then
       echo "Adding $(hostname) SSL certificate"
       mkdir -p /etc/postfix/ssl
-      cp /tmp/postfix/ssl/$(hostname)-cert.pem /etc/postfix/ssl
-      cp /tmp/postfix/ssl/$(hostname)-key.pem /etc/postfix/ssl
-      cp /tmp/postfix/ssl/$(hostname)-combined.pem /etc/postfix/ssl
+      cp "/tmp/postfix/ssl/$(hostname)-cert.pem" /etc/postfix/ssl
+      cp "/tmp/postfix/ssl/$(hostname)-key.pem" /etc/postfix/ssl
+      cp "/tmp/postfix/ssl/$(hostname)-combined.pem" /etc/postfix/ssl
       cp /tmp/postfix/ssl/demoCA/cacert.pem /etc/postfix/ssl
 
       # Postfix configuration
@@ -91,10 +136,12 @@ case $DMS_SSL in
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-key.pem/g' /etc/postfix/main.cf
       sed -i -r 's/#smtpd_tls_CAfile=/smtpd_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
       sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
-      ln -s /etc/postfix/ssl/cacert.pem /etc/ssl/certs/cacert-$(hostname).pem
+      ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-$(hostname).pem"
 
       # Courier configuration
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
+
+      echo "SSL configured with self-signed/custom certificates"
     fi
 
     ;;
@@ -126,6 +173,7 @@ cron
 /etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start
 /etc/init.d/amavis start
+/etc/init.d/opendkim start
 /etc/init.d/postfix start
 
 echo "Listing SASL users"
