@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Set up test framework
-wget -q https://raw.github.com/lehmannro/assert.sh/master/assert.sh -O assert.sh
 source assert.sh
 
 # Testing that services are running
@@ -12,11 +11,13 @@ assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/amavisd-new'" 
 
 # Testing IMAP server
 assert_raises "docker exec mail nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'Courier-IMAP ready'" 0
-assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 143 < /tmp/test/email-templates/test-imap.txt'" 0
+assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 143 < /tmp/test/auth/imap-auth.txt'" 0
 
 # Testing SASL
 assert_raises "docker exec mail testsaslauthd -u user2 -r otherdomain.tld -p mypassword | grep 'OK \"Success.\"'" 0
 assert_raises "docker exec mail testsaslauthd -u user2 -r otherdomain.tld -p BADPASSWORD | grep 'NO \"authentication failed\"'" 0
+assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-plain.txt' | grep 'Authentication successful'"
+assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login.txt' | grep 'Authentication successful'"
 
 # Testing user creation
 assert "docker exec mail sasldblistusers2" "user1@localhost.localdomain: userPassword\nuser2@otherdomain.tld: userPassword"
