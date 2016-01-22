@@ -39,9 +39,6 @@ smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_exclude_ciphers = aNULL, LOW, EXP, MEDIUM, ADH, AECDH, MD5, DSS, ECDSA, CAMELLIA128, 3DES, CAMELLIA256, RSA+AES, eNULL
 
 # SASL
-smtp_sasl_auth_enable = yes
-smtp_sasl_type = cyrus
-smtp_sasl_security_options = noanonymous
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_path = smtpd
 smtpd_sasl_type = cyrus
