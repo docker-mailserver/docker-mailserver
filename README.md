@@ -93,6 +93,16 @@ Volumes allow to:
     password:         <username1password>
     auth method:      md5 challenge-response
 
+# backups
+
+Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
+
+    docker run --rm \
+    --volumes-from maildata_1 \
+    -v "$(pwd)":/backups \
+    -ti tvial/docker-mailserver \
+    tar cvzf /backups/docker-mailserver-`date +%y%m%d-%H%M%S`.tgz /var/mail
+
 # todo
 
 Things to do or to improve are stored on [Github](https://github.com/tomav/docker-mailserver/issues), some open by myself.
