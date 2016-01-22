@@ -32,3 +32,7 @@ fixtures:
 tests:
 	# Start tests
 	/bin/bash ./test/test.sh
+
+clean:
+	# Get default files back
+	git checkout postfix/accounts.cf postfix/virtual
