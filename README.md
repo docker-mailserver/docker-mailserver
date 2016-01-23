@@ -30,7 +30,7 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 - ssl is strongly recommended, read [SSL.md](SSL.md) to use LetsEncrypt or Self-Signed Certificates
 - [includes integration tests](https://travis-ci.org/tomav/docker-mailserver) 
 - [builds automated on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
-- dkim public key will be echoed to log. If you have your previous configuration, you cant mount volume with it `-v "$(pwd)/opendkim":/etc/opendkim"`
+- dkim public key will be echoed to log. If you have your previous configuration, you can mount volume with it `-v "$(pwd)/opendkim":/etc/opendkim"`
 
 ## installation
 
@@ -48,7 +48,6 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
     -v "$(pwd)/letsencrypt/etc":/etc/letsencrypt \
     -p "25:25" -p "143:143" -p "587:587" -p "993:993" \
     -e DMS_SSL=letsencrypt \
-    -e domainname=domain.com \
     -h mail.domain.com \
     -t tvial/docker-mailserver
 

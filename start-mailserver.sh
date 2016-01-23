@@ -5,51 +5,6 @@ die () {
   exit 1
 }
 
-# DKIM Setup
-mkdir -p /etc/opendkim/keys/$domainname
-if [ ! -f "/etc/opendkim/keys/$domainname/mail.private" ]; then
-  echo "Creating DKIM private key /etc/opendkim/keys/$domainname/mail.private"
-  pushd /etc/opendkim/keys/$domainname
-  opendkim-genkey --subdomains --domain=$domainname --selector=mail
-  popd
-  echo ""
-  echo "DKIM PUBLIC KEY ################################################################"
-  cat /etc/opendkim/keys/$domainname/mail.txt
-  echo "################################################################################"
-fi
-# Write to KeyTable if necessary
-if [ ! -f "/etc/opendkim/KeyTable" ]; then
-  echo "Creating DKIM KeyTable"
-  echo "mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private" > /etc/opendkim/KeyTable
-fi
-# Write to SigningTable if necessary
-if [ ! -f "/etc/opendkim/SigningTable" ]; then
-  echo "Creating DKIM SigningTable"
-  echo "*@$domainname mail._domainkey.$domainname" > /etc/opendkim/SigningTable
-fi
-echo "Changing permissions on /etc/opendkim"
-# chown entire directory
-chown -R opendkim:opendkim /etc/opendkim/
-# And make sure permissions are right
-chmod -R 0700 /etc/opendkim/keys/
-
-# Opendkim:
-echo ""
-echo "opendkim.conf"
-cat /etc/opendkim.conf
-echo ""
-echo "TrustedHosts"
-cat /etc/opendkim/TrustedHosts
-echo ""
-echo "SigningTable"
-cat /etc/opendkim/SigningTable
-echo ""
-echo "KeyTable"
-cat /etc/opendkim/KeyTable
-echo ""
-
-
-
 if [ -f /tmp/postfix/accounts.cf ]; then
   echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
   echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
@@ -100,6 +55,48 @@ fi
 echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
+
+# DKIM
+grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
+  mkdir -p /etc/opendkim/keys/$domainname
+  if [ ! -f "/etc/opendkim/keys/$domainname/mail.private" ]; then
+    echo "Creating DKIM private key /etc/opendkim/keys/$domainname/mail.private"
+    pushd /etc/opendkim/keys/$domainname
+    opendkim-genkey --subdomains --domain=$domainname --selector=mail
+    popd
+    echo ""
+    echo "DKIM PUBLIC KEY ################################################################"
+    cat /etc/opendkim/keys/$domainname/mail.txt
+    echo "################################################################################"
+  fi
+  # Write to KeyTable if necessary
+  keytableentry="mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private"
+  if [ ! -f "/etc/opendkim/KeyTable" ]; then
+    echo "Creating DKIM KeyTable"
+    echo "mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private" > /etc/opendkim/KeyTable
+  else
+    if ! grep -q "$keytableentry" "/etc/opendkim/KeyTable" ; then
+      echo $keytableentry >> /etc/opendkim/KeyTable
+    fi
+  fi
+  # Write to SigningTable if necessary
+  signingtableentry="*@$domainname mail._domainkey.$domainname"
+  if [ ! -f "/etc/opendkim/SigningTable" ]; then
+    echo "Creating DKIM SigningTable"
+    echo "*@$domainname mail._domainkey.$domainname" > /etc/opendkim/SigningTable
+  else
+    if ! grep -q "$signingtableentry" "/etc/opendkim/SigningTable" ; then
+      echo $signingtableentry >> /etc/opendkim/SigningTable
+    fi
+  fi
+done
+
+echo "Changing permissions on /etc/opendkim"
+# chown entire directory
+chown -R opendkim:opendkim /etc/opendkim/
+# And make sure permissions are right
+chmod -R 0700 /etc/opendkim/keys/
+
 
 # SSL Configuration
 case $DMS_SSL in

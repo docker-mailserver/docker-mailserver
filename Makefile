@@ -16,7 +16,6 @@ run:
 	    -v "`pwd`/spamassassin":/tmp/spamassassin \
 	    -v "`pwd`/test":/tmp/test \
 	    -h mail.my-domain.com \
-	    -e domainname=my-domain.com \
 	    -t $(NAME):$(VERSION)
 	sleep 25
 
