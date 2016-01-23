@@ -69,6 +69,12 @@ case $DMS_SSL in
       cat /etc/letsencrypt/live/$(hostname)/privkey.pem /etc/letsencrypt/live/$(hostname)/cert.pem > /etc/letsencrypt/live/$(hostname)/combined.pem
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/imapd-ssl
 
+      # POP3 courier configuration
+      sed -i -r 's/POP3_TLS_REQUIRED=0/POP3_TLS_REQUIRED=1/g' /etc/courier/pop3d-ssl
+      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'-combined.pem/g' /etc/courier/pop3d-ssl
+      # needed to support gmail
+      sed -i -r 's/TLS_TRUSTCERTS=\/etc\/ssl\/certs/TLS_TRUSTCERTS=\/etc\/letsencrypt\/live\/'$(hostname)'-fullchain.pem/g' /etc/courier/pop3d-ssl
+
       echo "SSL configured with letsencrypt certificates"
 
     ;;
@@ -95,6 +101,10 @@ case $DMS_SSL in
 
       # Courier configuration
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
+
+      # POP3 courier configuration
+      sed -i -r 's/POP3_TLS_REQUIRED=0/POP3_TLS_REQUIRED=1/g' /etc/courier/pop3d-ssl
+      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/pop3d-ssl
     fi
 
     ;;
@@ -123,6 +133,13 @@ cron
 /etc/init.d/courier-authdaemon start
 /etc/init.d/courier-imap start
 /etc/init.d/courier-imap-ssl start
+
+if [ "$ENABLE_POP3" = 1 ]; then
+  echo "Starting POP3 services"
+  /etc/init.d/courier-pop start
+  /etc/init.d/courier-pop-ssl start
+fi
+
 /etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start
 /etc/init.d/amavis start
