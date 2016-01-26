@@ -14,6 +14,7 @@ Includes:
 - spamassasin
 - clamav with automatic updates
 - opendkim
+- opendmarc (basic setup)
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - optional pop3 server (add `-e ENABLE_POP3=1` to enable pop3 server)
 
