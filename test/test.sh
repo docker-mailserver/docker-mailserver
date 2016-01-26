@@ -9,6 +9,7 @@ assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/saslauthd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/clamd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/amavisd-new'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 1
+assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/opendkim'" 0
 
 # Testing services of pop3 container
 assert_raises "docker exec mail_pop3 ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 0
@@ -64,6 +65,9 @@ assert_raises "docker exec mail grep ': error:' /var/log/mail.log" 1
 # Testing that pop3 container log don't display errors
 assert_raises "docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail.log" 1
 assert_raises "docker exec mail_pop3 grep ': error:' /var/log/mail.log" 1
+
+# Testing OpenDKIM
+assert "docker exec mail cat /etc/opendkim/KeyTable | wc -l | sed -e 's/^[ \t]*//'" "2"
 
 # Ending tests
 assert_end 
