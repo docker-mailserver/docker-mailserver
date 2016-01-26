@@ -4,7 +4,10 @@ MAINTAINER Thomas VIAL
 # Packages
 RUN apt-get update -q --fix-missing
 RUN apt-get -y upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl \
+    courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
+    pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat \
+    opendkim opendkim-tools
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Saslauthd
@@ -29,6 +32,14 @@ RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl pass
 RUN chmod 644 /etc/clamav/freshclam.conf
 RUN (crontab -l ; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN freshclam
+
+# Configure DKIM (opendkim)
+RUN mkdir -p /etc/opendkim/keys
+ADD postfix/TrustedHosts /etc/opendkim/TrustedHosts
+# DKIM config files
+ADD postfix/opendkim.conf /etc/opendkim.conf
+ADD postfix/default-opendkim /etc/default/opendkim
+
 
 # Configures Postfix
 ADD postfix/main.cf /etc/postfix/main.cf

@@ -13,6 +13,7 @@ Includes:
 - amavis
 - spamassasin
 - clamav with automatic updates
+- opendkim
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
@@ -29,6 +30,7 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 - ssl is strongly recommended, read [SSL.md](SSL.md) to use LetsEncrypt or Self-Signed Certificates
 - [includes integration tests](https://travis-ci.org/tomav/docker-mailserver) 
 - [builds automated on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
+- dkim public key will be echoed to log. If you have your previous configuration, you can mount volume with it `-v "$(pwd)/opendkim":/etc/opendkim"`
 
 ## installation
 

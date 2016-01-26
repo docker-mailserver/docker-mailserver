@@ -58,3 +58,8 @@ virtual_gid_maps = static:5000
 # Additional option for filtering
 content_filter = smtp-amavis:[127.0.0.1]:10024
 
+# Milters used by DKIM
+milter_protocol = 2
+milter_default_action = accept
+smtpd_milters = inet:localhost:12301
+non_smtpd_milters = inet:localhost:12301
