@@ -99,10 +99,10 @@ chmod -R 0700 /etc/opendkim/keys/
 
 # DMARC
 # if ther is no AuthservID create it
-if [ `cat /etc/opendmarc.conf | grep AuthservID | wc -l` -eq 0 ]; then
+if [ `cat /etc/opendmarc.conf | grep -w AuthservID | wc -l` -eq 0 ]; then
   echo "AuthservID $hostname" >> /etc/opendmarc.conf
 fi
-if [ `cat /etc/opendmarc.conf | grep TrustedAuthservIDs | wc -l` -eq 0 ]; then
+if [ `cat /etc/opendmarc.conf | grep -w TrustedAuthservIDs | wc -l` -eq 0 ]; then
   echo "TrustedAuthservIDs $hostname" >> /etc/opendmarc.conf
 fi
 if [ ! -f "/etc/opendmarc/ignore.hosts" ]; then
