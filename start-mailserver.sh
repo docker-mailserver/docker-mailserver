@@ -97,6 +97,20 @@ chown -R opendkim:opendkim /etc/opendkim/
 # And make sure permissions are right
 chmod -R 0700 /etc/opendkim/keys/
 
+# DMARC
+# if ther is no AuthservID create it
+if [ `cat /etc/opendmarc.conf | grep -w AuthservID | wc -l` -eq 0 ]; then
+  echo "AuthservID $hostname" >> /etc/opendmarc.conf
+fi
+if [ `cat /etc/opendmarc.conf | grep -w TrustedAuthservIDs | wc -l` -eq 0 ]; then
+  echo "TrustedAuthservIDs $hostname" >> /etc/opendmarc.conf
+fi
+if [ ! -f "/etc/opendmarc/ignore.hosts" ]; then
+  mkdir -p /etc/opendmarc/
+  echo "localhost" >> /etc/opendmarc/ignore.hosts
+fi
+
+
 
 # SSL Configuration
 case $DMS_SSL in
@@ -188,6 +202,7 @@ fi
 /etc/init.d/clamav-daemon start
 /etc/init.d/amavis start
 /etc/init.d/opendkim start
+/etc/init.d/opendmarc start
 /etc/init.d/postfix start
 
 echo "Listing SASL users"
