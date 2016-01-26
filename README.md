@@ -14,6 +14,8 @@ Includes:
 - spamassasin
 - clamav with automatic updates
 - opendkim
+- [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
+- optional pop3 server (add `-e ENABLE_POP3=1` to enable pop3 server)
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 

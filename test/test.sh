@@ -3,15 +3,23 @@
 # Set up test framework
 source assert.sh
 
-# Testing that services are running
+# Testing that services are running and pop3 is disabled
 assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/postfix/master'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/saslauthd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/clamd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/amavisd-new'" 0
+assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 1
+
+# Testing services of pop3 container
+assert_raises "docker exec mail_pop3 ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 0
 
 # Testing IMAP server
 assert_raises "docker exec mail nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'Courier-IMAP ready'" 0
 assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 143 < /tmp/test/auth/imap-auth.txt'" 0
+
+# Testing POP3 server on pop3 container
+assert_raises "docker exec mail_pop3 nc -w 1 0.0.0.0 110 | grep '+OK'" 0
+assert_raises "docker exec mail_pop3 /bin/sh -c 'nc -w 1 0.0.0.0 110 < /tmp/test/auth/pop3-auth.txt'" 0
 
 # Testing SASL
 assert_raises "docker exec mail testsaslauthd -u user2 -r otherdomain.tld -p mypassword | grep 'OK \"Success.\"'" 0
@@ -52,6 +60,10 @@ assert "docker exec mail crontab -l" "0 1 * * * /usr/bin/freshclam --quiet"
 # Testing that log don't display errors
 assert_raises "docker exec mail grep 'non-null host address bits in' /var/log/mail.log" 1
 assert_raises "docker exec mail grep ': error:' /var/log/mail.log" 1
+
+# Testing that pop3 container log don't display errors
+assert_raises "docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail.log" 1
+assert_raises "docker exec mail_pop3 grep ': error:' /var/log/mail.log" 1
 
 # Ending tests
 assert_end 
