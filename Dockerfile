@@ -5,9 +5,9 @@ MAINTAINER Thomas VIAL
 RUN apt-get update -q --fix-missing
 RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl \
-    courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
+    courier-pop courier-pop-ssl courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
     pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat \
-    opendkim opendkim-tools
+    opendkim opendkim-tools 
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Saslauthd
@@ -59,5 +59,9 @@ EXPOSE  587
 # IMAP ports
 EXPOSE  143
 EXPOSE  993
+
+# POP3 ports
+EXPOSE  110
+EXPOSE  995
 
 CMD /usr/local/bin/start-mailserver.sh
