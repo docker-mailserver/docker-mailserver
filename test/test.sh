@@ -69,5 +69,9 @@ assert_raises "docker exec mail_pop3 grep ': error:' /var/log/mail.log" 1
 # Testing OpenDKIM
 assert "docker exec mail cat /etc/opendkim/KeyTable | wc -l | sed -e 's/^[ \t]*//'" "2"
 
+# Testing OpenDMARC
+assert "docker exec mail cat /etc/opendmarc.conf | grep ^AuthservID | wc -l" "1"
+assert "docker exec mail cat /etc/opendmarc.conf | grep ^TrustedAuthservID | wc -l" "1"
+
 # Ending tests
 assert_end 
