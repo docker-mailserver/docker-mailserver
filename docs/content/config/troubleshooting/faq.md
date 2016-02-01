@@ -1,5 +1,3 @@
-# FAQ
-
 ### What kind of database are you using?
 None. No *sql database required.  
 This image is based on config files that can be versioned.  
