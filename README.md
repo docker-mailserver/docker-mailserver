@@ -22,7 +22,7 @@ Includes:
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
-Before you open an issue, please have a look this `README`, the [FAQ](wiki/FAQ) and Postfix documentation. 
+Before you open an issue, please have a look this `README`, the [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ) and Postfix documentation. 
 
 ## Usage
 
