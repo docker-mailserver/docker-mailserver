@@ -11,55 +11,30 @@ Includes:
 - postfix with smtp auth
 - courier-imap with ssl support
 - amavis
-- spamassasin
+- spamassasin supporting custom rules
 - clamav with automatic updates
 - opendkim
-- opendmarc (basic setup)
+- opendmarc 
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- optional pop3 server (add `-e ENABLE_POP3=1` to enable pop3 server)
+- optional pop3 server
+- [integration tests](https://travis-ci.org/tomav/docker-mailserver) 
+- [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
-## informations:
+Before you open an issue, please have a look this `README`, the [FAQ](wiki/FAQ) and Postfix documentation. 
 
-- only config files, no *sql database required
-- mails are stored in `/var/mail/${domain}/${username}`
-- you should use a data volume container for `/var/mail` for data persistence
-- email login are full email address (`username1@my-domain.com`)
-- user accounts are managed in `./postfix/accounts.cf`
-- aliases and fowards/redirects are managed in `./postfix/virtual`
-- antispam rules are managed in `./spamassassin/rules.cf`
-- files must be mounted to `/tmp` in your container (see `docker-compose.yml` template)
-- ssl is strongly recommended, read [SSL.md](SSL.md) to use LetsEncrypt or Self-Signed Certificates
-- [includes integration tests](https://travis-ci.org/tomav/docker-mailserver) 
-- [builds automated on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
-- dkim public key will be echoed to log. If you have your previous configuration, you can mount volume with it `-v "$(pwd)/opendkim":/etc/opendkim"`
+## Usage
 
-## installation
+    # get latest image
+  	docker pull tvial/docker-mailserver
 
-	docker pull tvial/docker-mailserver
-
-## build
-
-	docker build -t tvial/docker-mailserver .
-
-## run
-
-	docker run --name mail \
-    -v "$(pwd)/postfix":/tmp/postfix \
-    -v "$(pwd)/spamassassin":/tmp/spamassassin \
-    -v "$(pwd)/letsencrypt/etc":/etc/letsencrypt \
-    -p "25:25" -p "143:143" -p "587:587" -p "993:993" \
-    -e DMS_SSL=letsencrypt \
-    -h mail.domain.com \
-    -t tvial/docker-mailserver
-
-## docker-compose template (recommended)
-
+    # create a "docker-compose.yml" file containing:  
     mail:
       image: tvial/docker-mailserver
       hostname: mail
       domainname: domain.com
+      # your FQDN will be 'mail.domain.com'
       ports:
       - "25:25"
       - "143:143"
@@ -68,51 +43,60 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
       volumes:
       - ./spamassassin:/tmp/spamassassin/
       - ./postfix:/tmp/postfix/
-      - ./letsencrypt/etc:/etc/letsencrypt
-      environment:
-      - DMS_SSL=letsencrypt
 
-Volumes allow to:
+    # start he container
+  	docker-compose up -d mail
 
-- Insert custom antispam rules
-- Manage mail users, passwords and aliases
-- Manage SSL certificates
+## Managing users and aliases
 
-# usage
+### Users
 
-	docker-compose up -d mail
+Users are managed in `postfix/accounts.cf`.  
+Just add the full email address and its password separated by a pipe.  
 
-# client configuration
+Example:
 
-    # imap
-    username:         <username1@my-domain.com>
-    password:         <username1password>
-    server:           <your-server-ip-or-hostname>
-    imap port:        143 or 993 with ssl (recommended)
-    imap path prefix:   INBOX
-    auth method:      md5 challenge-response
+    user1@domain.tld|mypassword
+    user2@otherdomain.tld|myotherpassword
 
-    # smtp
-    smtp port:        25 or 587 with ssl (recommended)
-    username:         <username1@my-domain.com>
-    password:         <username1password>
-    auth method:      md5 challenge-response
+### Aliases
 
-# backups
+Please first read [Postfix documentation on virtual aliases](http://www.postfix.org/VIRTUAL_README.html#virtual_alias).
 
-Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
+Aliases are managed in `postfix/virtual`.  
+An alias is a full email address that will be:
+* delivered to an existing account in `postfix/accounts.cf`
+* redirected to one or more other email adresses
 
-    docker run --rm \
-    --volumes-from maildata_1 \
-    -v "$(pwd)":/backups \
-    -ti tvial/docker-mailserver \
-    tar cvzf /backups/docker-mailserver-`date +%y%m%d-%H%M%S`.tgz /var/mail
+Alias and target are space separated. 
 
-# todo
+Example:
+
+    # Alias to existing account
+    alias1@domain.tld user1@domain.tld
+
+    # Forward to external email address
+    alias2@domain.tld external@gmail.com
+
+## Environment variables
+
+* DMS_SSL
+  * *empty* (default) => SSL disabled
+  * letsencrypt => Enables Let's Encrypt certificates
+  * self-signed => Enables self-signed certificates
+* ENABLE_POP3
+  * *empty* (default) => POP3 service disabled
+  * 1 => Enables POP3 service
+
+## SSL
+
+Please read [SSL.md](SSL.md) for more information.
+
+## Todo
 
 Things to do or to improve are stored on [Github](https://github.com/tomav/docker-mailserver/issues), some open by myself.
 Feel free to improve this docker image.
 
-# wanna help?
+## Wanna help?
 
 Fork, improve, add tests and PR. ;-)
