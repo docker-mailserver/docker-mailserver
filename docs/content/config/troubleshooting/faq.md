@@ -30,3 +30,15 @@ Antispam rules are managed in `spamassassin/rules.cf`.
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
 The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
+
+### What about backups?
+
+## Backups
+
+Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
+
+    docker run --rm \
+    --volumes-from maildata_1 \
+    -v "$(pwd)":/backups \
+    -ti tvial/docker-mailserver \
+    tar cvzf /backups/docker-mailserver-`date +%y%m%d-%H%M%S`.tgz /var/mail
