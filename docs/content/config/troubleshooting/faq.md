@@ -33,8 +33,6 @@ The only thing is that we provide a `self-signed` certificate tool and a `letsen
 
 ### What about backups?
 
-## Backups
-
 Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
 
     docker run --rm \
