@@ -8,8 +8,9 @@ assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/postfix/master'
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/saslauthd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/clamd'" 0
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/amavisd-new'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 1
 assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/opendkim'" 0
+assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/opendmarc'" 0
+assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 1
 
 # Testing services of pop3 container
 assert_raises "docker exec mail_pop3 ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 0
@@ -38,7 +39,7 @@ assert "docker exec mail cat /etc/postfix/vhost" "localhost.localdomain\notherdo
 
 # Testing that mail is received for existing user
 assert_raises "docker exec mail grep 'status=sent (delivered to maildir)' /var/log/mail.log" 0
-assert "docker exec mail ls -A /var/mail/localhost.localdomain/user1/new | wc -l | sed -e 's/^[ \t]*//'" "2"
+assert "docker exec mail ls -A /var/mail/localhost.localdomain/user1/new | wc -l" "2"
 
 # Testing that mail is rejected for non existing user
 assert_raises "docker exec mail grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail.log" 0
@@ -50,10 +51,10 @@ assert_raises "docker exec mail grep 'to=<user1@localhost.localdomain>, orig_to=
 assert_raises "docker exec mail grep -- '-> <external1@otherdomain.tld>' /var/log/mail.log" 0
 
 # Testing that a SPAM is rejected
-assert_raises "docker exec mail grep 'Blocked SPAM' /var/log/mail.log | grep spam@external.tld"
+assert_raises "docker exec mail grep 'Blocked SPAM' /var/log/mail.log | grep spam@external.tld" 0
 
 # Testing that a Virus is rejected
-assert_raises "docker exec mail grep 'Blocked INFECTED' /var/log/mail.log | grep virus@external.tld"
+assert_raises "docker exec mail grep 'Blocked INFECTED' /var/log/mail.log | grep virus@external.tld" 0
 
 # Testing presence of freshclam CRON
 assert "docker exec mail crontab -l" "0 1 * * * /usr/bin/freshclam --quiet"
@@ -67,11 +68,15 @@ assert_raises "docker exec mail_pop3 grep 'non-null host address bits in' /var/l
 assert_raises "docker exec mail_pop3 grep ': error:' /var/log/mail.log" 1
 
 # Testing OpenDKIM
-assert "docker exec mail cat /etc/opendkim/KeyTable | wc -l | sed -e 's/^[ \t]*//'" "2"
+assert "docker exec mail cat /etc/opendkim/KeyTable | wc -l" "2"
+assert "docker exec mail ls -l /etc/opendkim/keys/ | grep '^d' | wc -l" "2"
 
 # Testing OpenDMARC
 assert "docker exec mail cat /etc/opendmarc.conf | grep ^AuthservID | wc -l" "1"
 assert "docker exec mail cat /etc/opendmarc.conf | grep ^TrustedAuthservID | wc -l" "1"
+
+# Testing hostname config
+assert "docker exec mail cat /etc/mailname" "my-domain.com"
 
 # Ending tests
 assert_end 
