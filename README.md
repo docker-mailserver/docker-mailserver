@@ -88,6 +88,8 @@ Example:
   * *empty* (default) => POP3 service disabled
   * 1 => Enables POP3 service
 
+Please read [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/start-mailserver.sh) to understand what's expected.  
+
 ## SSL
 
 Please read [SSL.md](SSL.md) for more information.
