@@ -14,6 +14,7 @@ run:
 	# Run containers
 	docker run -d --name mail -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -v "`pwd`/test":/tmp/test -h mail.my-domain.com -t $(NAME):$(VERSION)
 	docker run -d --name mail_pop3 -v "`pwd`/postfix":/tmp/postfix -v "`pwd`/spamassassin":/tmp/spamassassin -v "`pwd`/test":/tmp/test -e ENABLE_POP3=1 -h mail.my-domain.com -t $(NAME):$(VERSION)
+	# Wait for containers to fully start
 	sleep 60
 
 fixtures:
@@ -34,4 +35,5 @@ tests:
 clean:
 	# Get default files back
 	git checkout postfix/accounts.cf postfix/virtual
+	# Remove running test containers
 	docker rm -f mail mail_pop3
