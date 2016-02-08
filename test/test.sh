@@ -78,5 +78,12 @@ assert "docker exec mail cat /etc/opendmarc.conf | grep ^TrustedAuthservID | wc 
 # Testing hostname config
 assert "docker exec mail cat /etc/mailname" "my-domain.com"
 
+# Testing presence of LetsEncrypt signed certs
+assert_raises "docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem" "0"
+assert_raises "docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem" "0"
+
+# Testing generated ssl certs
+assert_raises "docker exec mail openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'" "0"
+
 # Ending tests
 assert_end 

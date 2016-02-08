@@ -7,7 +7,7 @@ RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl \
     courier-pop courier-pop-ssl courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
     pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat \
-    opendkim opendkim-tools opendmarc
+    opendkim opendkim-tools opendmarc curl
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Saslauthd
@@ -44,13 +44,16 @@ ADD postfix/default-opendkim /etc/default/opendkim
 ADD postfix/opendmarc.conf /etc/opendmarc.conf
 ADD postfix/default-opendmarc /etc/default/opendmarc
 
-
 # Configures Postfix
 ADD postfix/main.cf /etc/postfix/main.cf
 ADD postfix/master.cf /etc/postfix/master.cf
 ADD postfix/sasl/smtpd.conf /etc/postfix/sasl/smtpd.conf
 ADD bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
 RUN chmod +x /usr/local/bin/generate-ssl-certificate
+
+# Get LetsEncrypt signed certificate
+RUN curl https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem
+RUN curl https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
 
 # Start-mailserver script
 ADD start-mailserver.sh /usr/local/bin/start-mailserver.sh
