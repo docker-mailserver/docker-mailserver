@@ -48,3 +48,13 @@ To use the certificate:
 
 * add an `DMS_SSL=self-signed` to your container environment variables
 * if a matching certificate (files listed above) is found in `postfix/ssl`, it will be automatically setup in postfix and courier-imap-ssl. You just have to place them in `postfix/ssl` folder.
+
+### Testing certificate
+
+From your host:
+
+    docker exec mail openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/
+
+And you should see the certificate chain, the server certificate and:
+
+    Verify return code: 0 (ok)
