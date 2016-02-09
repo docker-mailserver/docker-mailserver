@@ -120,7 +120,7 @@ case $DMS_SSL in
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
 
       # Courier configuration
-      cat  "/etc/letsencrypt/live/$(hostname)/cert.pem" "/etc/letsencrypt/live/$(hostname)/chain.pem" "/etc/letsencrypt/live/$(hostname)/privkey.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
+      cat "/etc/letsencrypt/live/$(hostname)/cert.pem" "/etc/letsencrypt/live/$(hostname)/chain.pem" "/etc/letsencrypt/live/$(hostname)/privkey.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/imapd-ssl
 
       # POP3 courier configuration
