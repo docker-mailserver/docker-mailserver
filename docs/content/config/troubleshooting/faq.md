@@ -5,7 +5,7 @@ You'll probably want to `push` your config updates to your server and restart th
 
 ### Where are emails stored?
 Mails are stored in `/var/mail/${domain}/${username}`.  
-You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` for data persistence. Otherwise, your data may be lost.
+You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
 
 ### How can I use data volume container as proposed above?
 
