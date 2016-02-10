@@ -1,5 +1,3 @@
-# docker-mailserver with ssl
-
 There are multiple options to enable SSL:
 
 * using [letsencrypt](https://letsencrypt.org/) (recommended)
@@ -7,7 +5,7 @@ There are multiple options to enable SSL:
 
 After installation, you can test your setup with [checktls.com](https://www.checktls.com/TestReceiver).
 
-## let's encrypt (recommended)
+### Let's encrypt (recommended)
 
 To enable Let's Encrypt on your mail server, you have to:
 
@@ -18,7 +16,7 @@ To enable Let's Encrypt on your mail server, you have to:
 
 You don't have anything else to do. Enjoy.
 
-## self signed certificates
+### Self-signed certificates (testing only)
 
 You can easily generate a self-signed SSL certificate by using the following command:
 
