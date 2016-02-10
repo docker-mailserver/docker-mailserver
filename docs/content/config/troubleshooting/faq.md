@@ -5,7 +5,17 @@ You'll probably want to `push` your config updates to your server and restart th
 
 ### Where are emails stored?
 Mails are stored in `/var/mail/${domain}/${username}`.  
-You should use a data volume container for `/var/mail` for data persistence. Otherwise, your data may be lost.
+You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` for data persistence. Otherwise, your data may be lost.
+
+### What about backups?
+
+Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
+
+    docker run --rm \
+    --volumes-from maildata_1 \
+    -v "$(pwd)":/backups \
+    -ti tvial/docker-mailserver \
+    tar cvzf /backups/docker-mailserver-`date +%y%m%d-%H%M%S`.tgz /var/mail
 
 ### How can I configure my email client?
 Login are full email address (`user@domain.com`).  
@@ -30,13 +40,3 @@ Antispam rules are managed in `spamassassin/rules.cf`.
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
 The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
-
-### What about backups?
-
-Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
-
-    docker run --rm \
-    --volumes-from maildata_1 \
-    -v "$(pwd)":/backups \
-    -ti tvial/docker-mailserver \
-    tar cvzf /backups/docker-mailserver-`date +%y%m%d-%H%M%S`.tgz /var/mail
