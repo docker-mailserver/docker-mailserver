@@ -31,8 +31,8 @@ assert_raises "docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/
 
 # Testing user creation
 assert "docker exec mail sasldblistusers2" "user1@localhost.localdomain: userPassword\nuser2@otherdomain.tld: userPassword"
-assert "docker exec mail ls -A /var/mail/localhost.localdomain/user1" "cur\nnew\ntmp"
-assert "docker exec mail ls -A /var/mail/otherdomain.tld/user2" "cur\nnew\ntmp"
+assert "docker exec mail ls -A /var/mail/localhost.localdomain/user1" ".Drafts\n.Sent\n.Trash\ncourierimapsubscribed\ncur\nnew\ntmp"
+assert "docker exec mail ls -A /var/mail/otherdomain.tld/user2" ".Drafts\n.Sent\n.Trash\ncourierimapsubscribed\ncur\nnew\ntmp"
 
 # Testing `vhost` creation
 assert "docker exec mail cat /etc/postfix/vhost" "localhost.localdomain\notherdomain.tld"
