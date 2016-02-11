@@ -27,6 +27,12 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     mkdir -p /var/mail/${domain}
     if [ ! -d "/var/mail/${domain}/${user}" ]; then
       maildirmake "/var/mail/${domain}/${user}"
+      maildirmake "/var/mail/${domain}/${user}/.Sent"
+      maildirmake "/var/mail/${domain}/${user}/.Trash"
+      maildirmake "/var/mail/${domain}/${user}/.Drafts"
+      echo -e "INBOX\nINBOX.Sent\nINBOX.Trash\nInbox.Drafts" >> "/var/mail/${domain}/${user}/courierimapsubscribed"
+      touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
+
     fi
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/accounts.cf
