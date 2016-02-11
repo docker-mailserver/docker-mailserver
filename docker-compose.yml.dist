@@ -2,6 +2,7 @@ mail:
   image: tvial/docker-mailserver
   hostname: mail
   domainname: domain.com
+  privileged: true
   ports:
   - "25:25"
   - "143:143"
