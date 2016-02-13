@@ -2,7 +2,8 @@ mail:
   image: tvial/docker-mailserver
   hostname: mail
   domainname: domain.com
-  privileged: true
+  cap_add:
+  - NET_ADMIN
   ports:
   - "25:25"
   - "143:143"
