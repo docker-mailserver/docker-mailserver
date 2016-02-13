@@ -4,16 +4,17 @@
 source assert.sh
 
 # Testing that services are running and pop3 is disabled
-assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/postfix/master'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/saslauthd'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/clamd'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/amavisd-new'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/opendkim'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/sbin/opendmarc'" 0
-assert_raises "docker exec mail ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 1
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/lib/postfix/master'" 0
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'" 0
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'" 0
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'" 0
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'" 0
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'" 0
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/courierpop3d'" 1
+assert_raises "docker exec mail ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'" 0
 
 # Testing services of pop3 container
-assert_raises "docker exec mail_pop3 ps aux --forest | grep '/usr/lib/courier/courier/courierpop3d'" 0
+assert_raises "docker exec mail_pop3 ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/courierpop3d'" 0
 
 # Testing IMAP server
 assert_raises "docker exec mail nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'Courier-IMAP ready'" 0
@@ -85,5 +86,23 @@ assert_raises "docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-enc
 # Testing generated ssl certs
 assert_raises "docker exec mail openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'" "0"
 
+# Testing fail2ban
+assert_raises "docker exec mail fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'" 1
+
+docker exec mail fail2ban-client set sasl delignoreip 127.0.0.1/8 &> /dev/null
+
+docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt' &> /dev/null
+docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt' &> /dev/null
+docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt' &> /dev/null
+
+sleep 10
+assert_raises "docker exec mail fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'" 0
+
+docker exec mail fail2ban-client set sasl addignoreip 127.0.0.1/8 &> /dev/null
+docker exec mail fail2ban-client set sasl unbanip 127.0.0.1 &> /dev/null
+
+sleep 10
+assert_raises "docker exec mail fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'" 1
+
 # Ending tests
-assert_end 
+assert_end
