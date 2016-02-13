@@ -95,11 +95,13 @@ docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login
 docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt' &> /dev/null
 docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt' &> /dev/null
 
+sleep 10
 assert_raises "docker exec mail fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'" 0
 
 docker exec mail fail2ban-client set sasl addignoreip 127.0.0.1/8 &> /dev/null
 docker exec mail fail2ban-client set sasl unbanip 127.0.0.1 &> /dev/null
 
+sleep 10
 assert_raises "docker exec mail fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'" 1
 
 # Ending tests
