@@ -15,6 +15,7 @@ Includes:
 - clamav with automatic updates
 - opendkim
 - opendmarc 
+- fail2ban
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - optional pop3 server
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver) 
