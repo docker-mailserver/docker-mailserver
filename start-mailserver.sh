@@ -182,10 +182,9 @@ echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
 
 echo "Configuring Spamassassin"
-echo "required_hits 5.0" >> /etc/mail/spamassassin/local.cf
-echo "report_safe 0" >> /etc/mail/spamassassin/local.cf
-echo "required_score 5" >> /etc/mail/spamassassin/local.cf
-echo "rewrite_header Subject ***SPAM***" >> /etc/mail/spamassassin/local.cf
+echo "required_score 5" >> /etc/spamassassin/local.cf
+echo "report_safe 0" >> /etc/spamassassin/local.cf
+echo "rewrite_header Subject ***SPAM***" >> /etc/spamassassin/local.cf
 cp /tmp/spamassassin/rules.cf /etc/spamassassin/
 
 
