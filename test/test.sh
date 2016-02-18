@@ -68,6 +68,14 @@ assert_raises "docker exec mail grep ': error:' /var/log/mail.log" 1
 assert_raises "docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail.log" 1
 assert_raises "docker exec mail_pop3 grep ': error:' /var/log/mail.log" 1
 
+# Testing Spamssassin config in Amavis
+assert_raises "docker exec mail_pop3 grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'" 0
+assert_raises "docker exec mail_pop3 grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'" 0
+assert_raises "docker exec mail_pop3 grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'" 0
+assert_raises "docker exec mail grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 1.0'" 0
+assert_raises "docker exec mail grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'" 0
+assert_raises "docker exec mail grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'" 0
+
 # Testing OpenDKIM
 assert "docker exec mail cat /etc/opendkim/KeyTable | wc -l" "2"
 assert "docker exec mail ls -l /etc/opendkim/keys/ | grep '^d' | wc -l" "2"
