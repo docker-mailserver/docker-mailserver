@@ -182,11 +182,10 @@ echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
 
 echo "Configuring Spamassassin"
-echo "required_score 5" >> /etc/spamassassin/local.cf
-echo "report_safe 0" >> /etc/spamassassin/local.cf
-echo "rewrite_header Subject ***SPAM***" >> /etc/spamassassin/local.cf
+SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
+SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
+SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
 cp /tmp/spamassassin/rules.cf /etc/spamassassin/
-
 
 echo "Configuring fail2ban"
 # enable filters
