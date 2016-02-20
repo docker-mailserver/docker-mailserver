@@ -94,6 +94,9 @@ Example:
   * *6.31* (default) => add 'spam detected' headers at that level
 * SA_KILL
   * *6.31* (default) => triggers spam evasive actions)
+* SASL_PASSWORD
+  * *empty* (default) => No sasl_passwd will be created
+  * *string* => A /etc/postfix/sasl_passwd will be created with that content and postmap will be run on it
 
 Please read [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/start-mailserver.sh) to understand what's expected.  
 
