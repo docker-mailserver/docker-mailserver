@@ -173,6 +173,15 @@ case $DMS_SSL in
 
 esac
 
+if [ -f /tmp/postfix/main.cf ]; then
+  while read line; do
+    postconf -e "$line"
+  done < /tmp/postfix/main.cf
+  echo "Loaded '/tmp/postfix/main.cf'"
+else
+  echo "==> Warning: '/tmp/postfix/main.cf' is not provided. No extra postfix settings loaded."
+fi
+
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
 mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav
