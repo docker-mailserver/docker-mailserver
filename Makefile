@@ -41,7 +41,7 @@ fixtures:
 
 tests:
 	# Start tests
-	/bin/bash ./test/test.sh
+	./test/bats/bats test/tests.bats
 
 clean:
 	# Get default files back
