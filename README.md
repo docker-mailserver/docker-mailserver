@@ -110,7 +110,7 @@ Feel free to improve this docker image.
 
 - Fork
 - Improve
-- Add integration tests in `test/test.sh`
+- Add integration tests in `test/tests.bats`
 - Build image and run tests using `make`  
 - Document your improvements
 - Commit, push and make a pull-request
