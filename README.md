@@ -94,6 +94,8 @@ Example:
   * *6.31* (default) => add 'spam detected' headers at that level
 * SA_KILL
   * *6.31* (default) => triggers spam evasive actions)
+* SMTP_ONLY
+  * do not launch any courier daemons (imap, pop3)
 
 Please read [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/start-mailserver.sh) to understand what's expected.  
 
