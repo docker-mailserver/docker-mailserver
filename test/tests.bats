@@ -47,9 +47,25 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking process: courierpop3d (disabled using SMTP_ONLY)" {
+  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/courierpop3d'"
+  [ "$status" -eq 1 ]
+}
+
+
 #
 # imap
 #
+
+@test "checking process: courier imaplogin (enabled in default configuration)" {
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/imaplogin'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking process: courier imaplogin (disabled using SMTP_ONLY)" {
+  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/imaplogin'"
+  [ "$status" -eq 1 ]
+}
 
 @test "checking imap: server is ready with STARTTLS" {
   run docker exec mail /bin/bash -c "nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'Courier-IMAP ready'"

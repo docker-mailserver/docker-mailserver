@@ -229,11 +229,15 @@ echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
 /etc/init.d/saslauthd start
+
+if [ "$SMTP_ONLY" != 1 ]; then
+
 /etc/init.d/courier-authdaemon start
 /etc/init.d/courier-imap start
 /etc/init.d/courier-imap-ssl start
 
-if [ "$ENABLE_POP3" = 1 ]; then
+fi
+if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   echo "Starting POP3 services"
   /etc/init.d/courier-pop start
   /etc/init.d/courier-pop-ssl start
