@@ -70,7 +70,7 @@ Antispam rules are managed in `spamassassin/rules.cf`.
 You can use the same certificates you use with another mail server.  
 The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
 
-### I just moved from my old mail server to docker-mailserver but "it doesn't work".
+### I just moved from my old mail server but "it doesn't work".
 If this migration implies a DNS modification, be sure to wait for DNS propagation before opening an issue.
 Few examples of symptoms can be found [here](https://github.com/tomav/docker-mailserver/issues/95) or [here](https://github.com/tomav/docker-mailserver/issues/97).  
 This could be related to a modification of your `MX` record, or the IP mapped to `mail.my-domain.tld`.
