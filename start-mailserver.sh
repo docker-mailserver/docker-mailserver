@@ -158,7 +158,7 @@ case $DMS_SSL in
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/courier/pop3d-ssl
 
       echo "SSL configured with CA signed/custom certificates"
-      
+
     fi
     ;;
 
@@ -224,6 +224,8 @@ sed -i "/^findtime *=/c\findtime = 10800"   /etc/fail2ban/jail.conf
 # avoid warning on startup
 echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 
+# continue to write the log information in the newly created file after rotating the old log file
+sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
 
 echo "Starting daemons"
 cron
