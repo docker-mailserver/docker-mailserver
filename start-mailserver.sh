@@ -202,7 +202,7 @@ if [ -f /tmp/postfix/main.cf ]; then
   done < /tmp/postfix/main.cf
   echo "Loaded '/tmp/postfix/main.cf'"
 else
-  echo "==> Warning: '/tmp/postfix/main.cf' is not provided. No extra postfix settings loaded."
+  echo "'/tmp/postfix/main.cf' not provided. No extra postfix settings loaded."
 fi
 
 if [ ! -z "$SASL_PASSWD" ]; then
