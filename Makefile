@@ -9,6 +9,7 @@ build:
 run:
 	# Copy test files
 	cp test/accounts.cf postfix/
+	cp test/main.cf postfix/
 	cp test/virtual postfix/
 	# Run containers
 	docker run -d --name mail \
@@ -51,6 +52,6 @@ tests:
 
 clean:
 	# Get default files back
-	git checkout postfix/accounts.cf postfix/virtual
+	git checkout postfix/accounts.cf postfix/main.cf postfix/virtual
 	# Remove running test containers
 	docker rm -f mail mail_pop3 mail_smtponly
