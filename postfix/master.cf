@@ -72,6 +72,7 @@ smtp-amavis     unix    -       -       -       -       2       smtp
   -o smtp_send_xforward_command=yes
   -o disable_dns_lookups=yes
   -o max_use=20
+  -o smtp_tls_security_level=none
 
 127.0.0.1:10025 inet    n       -       n       -       -       smtpd
   -o content_filter=
@@ -92,3 +93,4 @@ smtp-amavis     unix    -       -       -       -       2       smtp
   -o smtpd_client_connection_count_limit=0
   -o smtpd_client_connection_rate_limit=0
   -o receive_override_options=no_header_body_checks,no_unknown_recipient_checks
+  -o smtp_tls_security_level=none

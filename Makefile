@@ -9,6 +9,7 @@ build:
 run:
 	# Copy test files
 	cp test/accounts.cf postfix/
+	cp test/main.cf postfix/
 	cp test/virtual postfix/
 	# Run containers
 	docker run -d --name mail \
@@ -18,6 +19,7 @@ run:
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
+		-e SASL_PASSWD=testing \
 		-h mail.my-domain.com -t $(NAME)
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/postfix":/tmp/postfix \
@@ -36,11 +38,11 @@ run:
 
 fixtures:
 	# Sending test mails
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/amavis-spam.txt"		
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/amavis-virus.txt"		
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-alias-external.txt"		
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-alias-local.txt"		
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-user.txt"		
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/amavis-spam.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/amavis-virus.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-alias-external.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-alias-local.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/existing-user.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/test/email-templates/non-existing-user.txt"
 	# Wait for mails to be analyzed
 	sleep 10
@@ -51,6 +53,6 @@ tests:
 
 clean:
 	# Get default files back
-	git checkout postfix/accounts.cf postfix/virtual
+	git checkout postfix/accounts.cf postfix/main.cf postfix/virtual
 	# Remove running test containers
 	docker rm -f mail mail_pop3 mail_smtponly

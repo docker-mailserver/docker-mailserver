@@ -1,0 +1,2 @@
+max_idle = 600s
+readme_directory = /tmp
