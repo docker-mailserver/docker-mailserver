@@ -139,6 +139,29 @@ case $DMS_SSL in
 
     ;;
 
+  "custom" )
+    # Adding CA signed SSL certificate if provided in 'postfix/ssl' folder
+    if [ -e "/tmp/postfix/ssl/$(hostname)-full.pem" ]; then
+      echo "Adding $(hostname) SSL certificate"
+      mkdir -p /etc/postfix/ssl
+      cp "/tmp/postfix/ssl/$(hostname)-full.pem" /etc/postfix/ssl
+
+      # Postfix configuration
+      sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
+      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
+
+      # Courier configuration
+      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/courier/imapd-ssl
+
+      # POP3 courier configuration
+      sed -i -r 's/POP3_TLS_REQUIRED=0/POP3_TLS_REQUIRED=1/g' /etc/courier/pop3d-ssl
+      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/courier/pop3d-ssl
+
+      echo "SSL configured with CA signed/custom certificates"
+      
+    fi
+    ;;
+
   "self-signed" )
     # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
     if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
@@ -226,11 +249,15 @@ echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
 /etc/init.d/saslauthd start
+
+if [ "$SMTP_ONLY" != 1 ]; then
+
 /etc/init.d/courier-authdaemon start
 /etc/init.d/courier-imap start
 /etc/init.d/courier-imap-ssl start
 
-if [ "$ENABLE_POP3" = 1 ]; then
+fi
+if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   echo "Starting POP3 services"
   /etc/init.d/courier-pop start
   /etc/init.d/courier-pop-ssl start
