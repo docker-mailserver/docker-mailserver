@@ -105,6 +105,11 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking sasl: sasl_passwd.db exists" {
+  run docker exec mail [ -f /etc/postfix/sasl_passwd.db ]
+  [ "$status" -eq 0 ]
+}
+
 #
 # smtp
 #
