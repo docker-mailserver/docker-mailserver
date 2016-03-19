@@ -1,1 +1,2 @@
-user@domain.tld|mypassword
+user1@localhost.localdomain|mypassword
+user2@otherdomain.tld|mypassword
