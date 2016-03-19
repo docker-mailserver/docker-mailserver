@@ -263,8 +263,8 @@ if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   /etc/init.d/courier-pop-ssl start
 fi
 
-/etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start
+/etc/init.d/spamassassin start
 /etc/init.d/amavis start
 /etc/init.d/opendkim start
 /etc/init.d/opendmarc start
