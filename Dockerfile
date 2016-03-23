@@ -49,7 +49,9 @@ ADD postfix/main.cf /etc/postfix/main.cf
 ADD postfix/master.cf /etc/postfix/master.cf
 ADD postfix/sasl/smtpd.conf /etc/postfix/sasl/smtpd.conf
 ADD bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
+ADD bin/generate-user-databases /usr/local/bin/generate-user-databases
 RUN chmod +x /usr/local/bin/generate-ssl-certificate
+RUN chmod +x /usr/local/bin/generate-user-databases
 
 # Get LetsEncrypt signed certificate
 RUN curl https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem

@@ -5,6 +5,22 @@ die () {
   exit 1
 }
 
+mkpaths () {
+  test ! -z "$1" && domain=$1 || die "mkpaths: no domain provided... Exiting"
+  test ! -z "$2" && user=$2 || die "mkpaths: no user provided... Exiting"
+
+  mkdir -p /var/mail/${domain}
+  if [ ! -d "/var/mail/${domain}/${user}" ]; then
+    maildirmake "/var/mail/${domain}/${user}"
+    maildirmake "/var/mail/${domain}/${user}/.Sent"
+    maildirmake "/var/mail/${domain}/${user}/.Trash"
+    maildirmake "/var/mail/${domain}/${user}/.Drafts"
+    echo -e "INBOX\nINBOX.Sent\nINBOX.Trash\nInbox.Drafts" >> "/var/mail/${domain}/${user}/courierimapsubscribed"
+    touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
+  fi
+  echo ${domain} >> /tmp/vhost.tmp
+}
+
 if [ -f /tmp/postfix/accounts.cf ]; then
   echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
   echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
@@ -24,21 +40,35 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     /usr/sbin/userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
     echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
     echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
-    mkdir -p /var/mail/${domain}
-    if [ ! -d "/var/mail/${domain}/${user}" ]; then
-      maildirmake "/var/mail/${domain}/${user}"
-      maildirmake "/var/mail/${domain}/${user}/.Sent"
-      maildirmake "/var/mail/${domain}/${user}/.Trash"
-      maildirmake "/var/mail/${domain}/${user}/.Drafts"
-      echo -e "INBOX\nINBOX.Sent\nINBOX.Trash\nInbox.Drafts" >> "/var/mail/${domain}/${user}/courierimapsubscribed"
-      touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
-
-    fi
-    echo ${domain} >> /tmp/vhost.tmp
+    # Create the expected maildir paths
+    mkpaths ${domain} ${user}
   done < /tmp/postfix/accounts.cf
   makeuserdb
 else
-  echo "==> Warning: '/tmp/postfix/accounts.cf' is not provided. No mail account created."
+  CDB="/etc/courier/userdb"
+  SASLDB="/etc/sasldb2"
+  if [ -f /tmp/postfix/userdb -a -f /tmp/postfix/sasldb2 ]; then
+    # User databases have been already prepared
+    echo "Found user databases already setup"
+    cp /tmp/postfix/userdb ${CDB}
+    chown root:root ${CDB}
+    chmod 600 ${CDB}
+    cp /tmp/postfix/sasldb2 ${SASLDB}
+    chown postfix:sasl ${SASLDB}
+    chmod 660 ${SASLDB}
+    echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
+    echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
+    # Create the expected maildir paths
+    awk '{u=substr($1,1,index($1,"@")-1); d=substr($1,index($1,"@")+1,length($1)); print u" "d}' ${CDB} | \
+      while read user domain; do
+        mkpaths ${domain} ${user}
+        echo "${user}@${domain} ${domain}/${user}/" >> /etc/postfix/vmailbox
+      done
+    makeuserdb
+  else
+    echo "==> Accounts: '/tmp/postfix/accounts.cf' OR '/tmp/postfix/userdb' and '/tmp/postfix/sasldb2'"
+    echo "==>  Warning: None of those files are provided. No mail account created."
+  fi
 fi
 
 if [ -f /tmp/postfix/virtual ]; then
