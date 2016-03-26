@@ -196,6 +196,26 @@ case $DMS_SSL in
 
 esac
 
+if [ -f /tmp/postfix/main.cf ]; then
+  while read line; do
+    postconf -e "$line"
+  done < /tmp/postfix/main.cf
+  echo "Loaded '/tmp/postfix/main.cf'"
+else
+  echo "'/tmp/postfix/main.cf' not provided. No extra postfix settings loaded."
+fi
+
+if [ ! -z "$SASL_PASSWD" ]; then
+  echo "$SASL_PASSWD" > /etc/postfix/sasl_passwd
+  postmap hash:/etc/postfix/sasl_passwd
+  rm /etc/postfix/sasl_passwd
+  chown root:root /etc/postfix/sasl_passwd.db
+  chmod 0600 /etc/postfix/sasl_passwd.db
+  echo "Loaded SASL_PASSWORD"
+else
+  echo "==> Warning: 'SASL_PASSWORD' is not provided. /etc/postfix/sasl_passwd not created."
+fi
+
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
 mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav
