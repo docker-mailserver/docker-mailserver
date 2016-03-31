@@ -120,6 +120,10 @@ fi
 case $DMS_SSL in
   "letsencrypt" )
     # letsencrypt folders and files mounted in /etc/letsencrypt
+      # add eol to all files before concatenation
+      sed -i -e '$a\' /etc/letsencrypt/live/$(hostname)/cert.pem
+      sed -i -e '$a\' /etc/letsencrypt/live/$(hostname)/chain.pem
+      sed -i -e '$a\' /etc/letsencrypt/live/$(hostname)/privkey.pem
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
