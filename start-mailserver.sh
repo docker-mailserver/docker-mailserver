@@ -269,7 +269,11 @@ fi
 /etc/init.d/opendkim start
 /etc/init.d/opendmarc start
 /etc/init.d/postfix start
-/etc/init.d/fail2ban start
+
+if [ "$ENABLE_FAIL2BAN" = 1 ]; then
+  echo "Starting fail2ban service"
+  /etc/init.d/fail2ban start
+fi
 
 echo "Listing SASL users"
 sasldblistusers2

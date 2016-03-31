@@ -32,8 +32,13 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: fail2ban" {
+@test "checking process: fail2ban (disabled in default configuration)" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking process: fail2ban (fail2ban server enabled)" {
+  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
   [ "$status" -eq 0 ]
 }
 
@@ -311,26 +316,26 @@
 #
 
 @test "checking fail2ban: localhost is not banned" {
-  run docker exec mail /bin/sh -c "fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 1 ]
 }
 
 @test "checking fail2ban: ban ip on multiple failed login" {
-  docker exec mail fail2ban-client status sasl
-  docker exec mail fail2ban-client set sasl delignoreip 127.0.0.1/8
-  docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
-  docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
-  docker exec mail /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
+  docker exec mail_fail2ban fail2ban-client status sasl
+  docker exec mail_fail2ban fail2ban-client set sasl delignoreip 127.0.0.1/8
+  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
+  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
+  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
   sleep 5
-  run docker exec mail /bin/sh -c "fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking fail2ban: unban ip works" {
-  docker exec mail fail2ban-client set sasl addignoreip 127.0.0.1/8
-  docker exec mail fail2ban-client set sasl unbanip 127.0.0.1
+  docker exec mail_fail2ban fail2ban-client set sasl addignoreip 127.0.0.1/8
+  docker exec mail_fail2ban fail2ban-client set sasl unbanip 127.0.0.1
   sleep 5
-  run docker exec mail /bin/sh -c "fail2ban-client status sasl | grep 'IP list:\s*127.0.0.1'"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 1 ]
 }
 
