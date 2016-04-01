@@ -140,13 +140,13 @@
 }
 
 @test "checking smtp: delivers mail to existing account" {
-  run docker exec mail /bin/sh -c "grep 'status=sent (delivered to maildir)' /var/log/mail.log | wc -l"
+  run docker exec mail /bin/sh -c "grep 'status=sent (delivered to maildir)' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
 }
 
 @test "checking smtp: delivers mail to existing alias" {
-  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail.log | grep 'status=sent' | wc -l"
+  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
@@ -158,25 +158,25 @@
 }
 
 @test "checking smtp: rejects mail to unknown user" {
-  run docker exec mail /bin/sh -c "grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail.log | wc -l"
+  run docker exec mail /bin/sh -c "grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
 
 @test "checking smtp: redirects mail to external alias" {
-  run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail.log | wc -l"
+  run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
 
 @test "checking smtp: rejects spam" {
-  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail.log | grep spam@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep spam@external.tld | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
 
 @test "checking smtp: rejects virus" {
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail.log | grep virus@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep virus@external.tld | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
@@ -349,14 +349,14 @@
   [ "$output" = "0 1 * * * /usr/bin/freshclam --quiet" ]
 }
 
-@test "checking system: /var/log/mail.log is error free" {
-  run docker exec mail grep 'non-null host address bits in' /var/log/mail.log
+@test "checking system: /var/log/mail/mail.log is error free" {
+  run docker exec mail grep 'non-null host address bits in' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
-  run docker exec mail grep ': error:' /var/log/mail.log
+  run docker exec mail grep ': error:' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
-  run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail.log
+  run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
-  run docker exec mail_pop3 grep ': error:' /var/log/mail.log
+  run docker exec mail_pop3 grep ': error:' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
 }
 
