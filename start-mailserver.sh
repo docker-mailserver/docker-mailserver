@@ -120,17 +120,18 @@ fi
 case $DMS_SSL in
   "letsencrypt" )
     # letsencrypt folders and files mounted in /etc/letsencrypt
-      # add eol to all files before concatenation
-      sed -i -e '$a\' /etc/letsencrypt/live/$(hostname)/cert.pem
-      sed -i -e '$a\' /etc/letsencrypt/live/$(hostname)/chain.pem
-      sed -i -e '$a\' /etc/letsencrypt/live/$(hostname)/privkey.pem
+    if [ -e "/etc/letsencrypt/live/$(hostname)/cert.pem" ] \
+    && [ -e "/etc/letsencrypt/live/$(hostname)/chain.pem" ] \
+    && [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
+      echo "Adding $(hostname) SSL certificate"
+      # create combined.pem from (cert|chain|privkey).pem with eol after each .pem
+      sed -e '$a\' -s "/etc/letsencrypt/live/$(hostname)/{cert,chain,privkey}.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
 
       # Courier configuration
-      cat "/etc/letsencrypt/live/$(hostname)/cert.pem" "/etc/letsencrypt/live/$(hostname)/chain.pem" "/etc/letsencrypt/live/$(hostname)/privkey.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
       sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/imapd-ssl
 
       # POP3 courier configuration
@@ -141,6 +142,7 @@ case $DMS_SSL in
 
       echo "SSL configured with letsencrypt certificates"
 
+    fi
     ;;
 
   "custom" )
