@@ -21,18 +21,21 @@ run:
 		-e SA_KILL=3.0 \
 		-e SASL_PASSWD=testing \
 		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/postfix":/tmp/postfix \
 		-v "`pwd`/spamassassin":/tmp/spamassassin \
 		-v "`pwd`/test":/tmp/test \
 		-e ENABLE_POP3=1 \
 		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/postfix":/tmp/postfix \
 		-v "`pwd`/spamassassin":/tmp/spamassassin \
 		-v "`pwd`/test":/tmp/test \
 		-e SMTP_ONLY=1 \
 		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/postfix":/tmp/postfix \
 		-v "`pwd`/spamassassin":/tmp/spamassassin \
@@ -40,7 +43,7 @@ run:
 		-e ENABLE_FAIL2BAN=1 \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
-	sleep 60
+	sleep 15
 
 fixtures:
 	# Sending test mails

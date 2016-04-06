@@ -240,7 +240,7 @@ awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[couriersmtp]" || $1=="[courierau
        else if ($1=="logpath" && unit==1) $3="/var/log/mail/mail.log";
       print;
       if (unit==1 && $1~/\[/ && $1!~/postfix|couriersmtp|courierauth|sasl/) unit=0;
-}'/etc/fail2ban/jail.conf > /tmp/jail.conf.new && mv /tmp/jail.conf.new /etc/fail2ban/jail.conf && rm -f /tmp/jail.conf.new
+}' /etc/fail2ban/jail.conf > /tmp/jail.conf.new && mv /tmp/jail.conf.new /etc/fail2ban/jail.conf && rm -f /tmp/jail.conf.new
 
 # increase ban time and find time to 3h
 sed -i "/^bantime *=/c\bantime = 10800"     /etc/fail2ban/jail.conf
