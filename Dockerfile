@@ -4,20 +4,16 @@ MAINTAINER Thomas VIAL
 # Packages
 RUN apt-get update -q --fix-missing
 RUN apt-get -y upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix sasl2-bin courier-imap courier-imap-ssl \
-    courier-pop courier-pop-ssl courier-authdaemon supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix dovecot-core dovecot-imapd dovecot-pop3d \
+    supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
     pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat \
     opendkim opendkim-tools opendmarc curl fail2ban
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
-# Configures Saslauthd
-RUN rm -rf /var/run/saslauthd && ln -s /var/spool/postfix/var/run/saslauthd /var/run/saslauthd
-RUN adduser postfix sasl
-RUN echo 'NAME="saslauthd"\nSTART=yes\nMECHANISMS="sasldb"\nTHREADS=0\nPWDIR=/var/spool/postfix/var/run/saslauthd\nPIDFILE="${PWDIR}/saslauthd.pid"\nOPTIONS="-n 0 -c -m /var/spool/postfix/var/run/saslauthd"' > /etc/default/saslauthd
-
-# Configures Courier
-RUN sed -i -r 's/daemons=5/daemons=1/g' /etc/courier/authdaemonrc
-RUN sed -i -r 's/authmodulelist="authpam"/authmodulelist="authuserdb"/g' /etc/courier/authdaemonrc
+# Configures Dovecot
+RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
+ADD dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
+ADD dovecot/10-*.conf /etc/dovecot/conf.d/
 
 # Enables Spamassassin and CRON updates
 RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
@@ -47,7 +43,6 @@ ADD postfix/default-opendmarc /etc/default/opendmarc
 # Configures Postfix
 ADD postfix/main.cf /etc/postfix/main.cf
 ADD postfix/master.cf /etc/postfix/master.cf
-ADD postfix/sasl/smtpd.conf /etc/postfix/sasl/smtpd.conf
 ADD bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
 RUN chmod +x /usr/local/bin/generate-ssl-certificate
 
