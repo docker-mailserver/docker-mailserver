@@ -19,7 +19,7 @@ run:
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
-		-e SASL_PASSWD=testing \
+		-e SASL_PASSWORD=testing \
 		-h mail.my-domain.com -t $(NAME)
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/postfix":/tmp/postfix \
