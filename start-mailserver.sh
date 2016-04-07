@@ -231,7 +231,6 @@ fi
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
-mkdir -p /var/log/clamav && chown -R clamav:root /var/log/clamav
 
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
@@ -240,14 +239,16 @@ echo "Configuring Spamassassin"
 SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
 SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
 SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
-cp /tmp/spamassassin/rules.cf /etc/spamassassin/
+test -e /tmp/spamassassin/rules.cf && cp /tmp/spamassassin/rules.cf /etc/spamassassin/
 
 echo "Configuring fail2ban"
 # enable filters
-perl -i -0pe 's/(\[postfix\]\n\n).*\n/\1enabled  = true\n/'     /etc/fail2ban/jail.conf
-perl -i -0pe 's/(\[couriersmtp\]\n\n).*\n/\1enabled  = true\n/' /etc/fail2ban/jail.conf
-perl -i -0pe 's/(\[courierauth\]\n\n).*\n/\1enabled  = true\n/' /etc/fail2ban/jail.conf
-perl -i -0pe 's/(\[sasl\]\n\n).*\n/\1enabled  = true\n/'        /etc/fail2ban/jail.conf
+awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[couriersmtp]" || $1=="[courierauth]" || $1=="[sasl]") {unit=1;}
+      if ($1=="enabled" && unit==1) $3="true";
+       else if ($1=="logpath" && unit==1) $3="/var/log/mail/mail.log";
+      print;
+      if (unit==1 && $1~/\[/ && $1!~/postfix|couriersmtp|courierauth|sasl/) unit=0;
+}' /etc/fail2ban/jail.conf > /tmp/jail.conf.new && mv /tmp/jail.conf.new /etc/fail2ban/jail.conf && rm -f /tmp/jail.conf.new
 
 # increase ban time and find time to 3h
 sed -i "/^bantime *=/c\bantime = 10800"     /etc/fail2ban/jail.conf
@@ -258,6 +259,17 @@ echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 
 # continue to write the log information in the newly created file after rotating the old log file
 sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
+
+# Setup logging
+mkdir -p /var/log/mail && chown syslog:root /var/log/mail
+touch /var/log/mail/clamav.log && chown -R clamav:root /var/log/mail/clamav.log
+touch /var/log/mail/freshclam.log &&  chown -R clamav:root /var/log/mail/freshclam.log
+sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.d/50-default.conf
+sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf
+sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf
+sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon
+sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-freshclam
+sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
 
 echo "Starting daemons"
 cron
@@ -292,4 +304,4 @@ echo "Listing users"
 /usr/sbin/dovecot user '*'
 
 echo "Starting..."
-tail -f /var/log/mail.log
+tail -f /var/log/mail/mail.log
