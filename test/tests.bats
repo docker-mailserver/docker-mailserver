@@ -116,6 +116,16 @@
 }
 
 #
+# logs
+#
+
+@test "checking logs: mail related logs should be located in a subdirectory" {
+  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail'|wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 3 ]
+}
+
+#
 # smtp
 #
 
