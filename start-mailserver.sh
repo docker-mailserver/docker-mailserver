@@ -59,8 +59,10 @@ if [ -f /tmp/postfix/virtual ]; then
   while IFS=$' ' read from to
   do
     # Setting variables for better readability
+    uname=$(echo ${from} | cut -d @ -f1)
     domain=$(echo ${from} | cut -d @ -f2)
-    echo ${domain} >> /tmp/vhost.tmp
+    # if they are equal it means the line looks like: "user1     other@domain.tld"
+    test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/virtual
 else
   echo "==> Warning: '/tmp/postfix/virtual' is not provided. No mail alias created."
@@ -243,12 +245,35 @@ test -e /tmp/spamassassin/rules.cf && cp /tmp/spamassassin/rules.cf /etc/spamass
 
 echo "Configuring fail2ban"
 # enable filters
-awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[couriersmtp]" || $1=="[courierauth]" || $1=="[sasl]") {unit=1;}
+awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[dovecot]" || $1=="[sasl]") {unit=1;}
       if ($1=="enabled" && unit==1) $3="true";
        else if ($1=="logpath" && unit==1) $3="/var/log/mail/mail.log";
       print;
-      if (unit==1 && $1~/\[/ && $1!~/postfix|couriersmtp|courierauth|sasl/) unit=0;
+      if (unit==1 && $1~/\[/ && $1!~/postfix|dovecot|sasl/) unit=0;
 }' /etc/fail2ban/jail.conf > /tmp/jail.conf.new && mv /tmp/jail.conf.new /etc/fail2ban/jail.conf && rm -f /tmp/jail.conf.new
+
+cat > /etc/fail2ban/filter.d/dovecot.conf << _EOF_
+# Fail2Ban filter Dovecot authentication and pop3/imap server
+#
+
+[INCLUDES]
+
+before = common.conf
+
+[Definition]
+
+_daemon = (auth|dovecot(-auth)?|auth-worker)
+
+failregex = ^%(__prefix_line)s(pam_unix(\(dovecot:auth\))?:)?\s+authentication failure; logname=\S* uid=\S* euid=\S* tty=dovecot ruser=\S* rhost=<HOST>(\s+user=\S*)?\s*$
+            ^%(__prefix_line)s(pop3|imap)-login: (Info: )?(Aborted login|Disconnected)(: Inactivity)? \(((no auth attempts|auth failed, \d+ attempts)( in \d+ secs)?|tried to use (disabled|disallowed) \S+ auth)\):( user=<\S*>,)?( method=\S+,)? rip=<HOST>, lip=(\d{1,3}\.){3}\d{1,3}(, session=<\w+>)?(, TLS( handshaking)?(: Disconnected)?)?\s*$
+            ^%(__prefix_line)s(Info|dovecot: auth\(default\)): pam\(\S+,<HOST>\): pam_authenticate\(\) failed: (User not known to the underlying authentication module: \d+ Time\(s\)|Authentication failure \(password mismatch\?\))\s*$
+            ^\s.*passwd-file\(\S*,<HOST>\): unknown user.*$
+            (?: pop3-login|imap-login): .*(?:Authentication failure|Aborted login \(auth failed|Aborted login \(tried to use disabled|Disconnected \(auth failed).*rip=(?P<host>\S*),.*
+
+## ^%(__prefix_line)spasswd-file\(\S*,<HOST>\): unknown user.*$
+ignoreregex =
+_EOF_
+
 
 # increase ban time and find time to 3h
 sed -i "/^bantime *=/c\bantime = 10800"     /etc/fail2ban/jail.conf
