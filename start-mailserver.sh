@@ -11,8 +11,20 @@ if [ -f /tmp/postfix/accounts.cf ]; then
 
   # Checking that /tmp/postfix/accounts.cf ends with a newline
   sed -i -e '$a\' /tmp/postfix/accounts.cf
+  # Configuring Dovecot
+  echo -n > /etc/dovecot/userdb
+  chown dovecot:dovecot /etc/dovecot/userdb
+  chmod 640 /etc/dovecot/userdb
+  cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
+  # Disable pop3 (it will be eventually enabled later in the script, if requested)
+  mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
+  sed -i -e 's/#ssl = yes/ssl = yes/g' /etc/dovecot/conf.d/10-master.conf
+  sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
+  sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
+  sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
 
   # Creating users
+  # pass is encrypted
   while IFS=$'|' read login pass
   do
     # Setting variables for better readability
@@ -21,22 +33,22 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     # Let's go!
     echo "user '${user}' for domain '${domain}' with password '********'"
     echo "${login} ${domain}/${user}/" >> /etc/postfix/vmailbox
-    /usr/sbin/userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
-    echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
-    echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
+    # user database for dovecot has the following format:
+    # user:password:uid:gid:(gecos):home:(shell):extra_fields
+    # Example : ${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::userdb_mail=maildir:/var/mail/${domain}/${user}
+    echo "${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::" >> /etc/dovecot/userdb
     mkdir -p /var/mail/${domain}
     if [ ! -d "/var/mail/${domain}/${user}" ]; then
-      maildirmake "/var/mail/${domain}/${user}"
-      maildirmake "/var/mail/${domain}/${user}/.Sent"
-      maildirmake "/var/mail/${domain}/${user}/.Trash"
-      maildirmake "/var/mail/${domain}/${user}/.Drafts"
-      echo -e "INBOX\nINBOX.Sent\nINBOX.Trash\nInbox.Drafts" >> "/var/mail/${domain}/${user}/courierimapsubscribed"
+      maildirmake.dovecot "/var/mail/${domain}/${user}"
+      maildirmake.dovecot "/var/mail/${domain}/${user}/.Sent"
+      maildirmake.dovecot "/var/mail/${domain}/${user}/.Trash"
+      maildirmake.dovecot "/var/mail/${domain}/${user}/.Drafts"
+      echo -e "INBOX\nSent\nTrash\nDrafts" >> "/var/mail/${domain}/${user}/subscriptions"
       touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
 
     fi
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/accounts.cf
-  makeuserdb
 else
   echo "==> Warning: '/tmp/postfix/accounts.cf' is not provided. No mail account created."
 fi
@@ -47,8 +59,10 @@ if [ -f /tmp/postfix/virtual ]; then
   while IFS=$' ' read from to
   do
     # Setting variables for better readability
+    uname=$(echo ${from} | cut -d @ -f1)
     domain=$(echo ${from} | cut -d @ -f2)
-    echo ${domain} >> /tmp/vhost.tmp
+    # if they are equal it means the line looks like: "user1     other@domain.tld"
+    test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/virtual
 else
   echo "==> Warning: '/tmp/postfix/virtual' is not provided. No mail alias created."
@@ -63,39 +77,46 @@ touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
 # DKIM
-grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
-  mkdir -p /etc/opendkim/keys/$domainname
-  if [ ! -f "/etc/opendkim/keys/$domainname/mail.private" ]; then
-    echo "Creating DKIM private key /etc/opendkim/keys/$domainname/mail.private"
-    pushd /etc/opendkim/keys/$domainname
-    opendkim-genkey --subdomains --domain=$domainname --selector=mail
-    popd
-    echo ""
-    echo "DKIM PUBLIC KEY ################################################################"
-    cat /etc/opendkim/keys/$domainname/mail.txt
-    echo "################################################################################"
-  fi
-  # Write to KeyTable if necessary
-  keytableentry="mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private"
-  if [ ! -f "/etc/opendkim/KeyTable" ]; then
-    echo "Creating DKIM KeyTable"
-    echo "mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private" > /etc/opendkim/KeyTable
-  else
-    if ! grep -q "$keytableentry" "/etc/opendkim/KeyTable" ; then
-      echo $keytableentry >> /etc/opendkim/KeyTable
+# Check if keys are already available
+if [ -e "/tmp/postfix/opendkim/KeyTable" ]; then
+  mkdir -p /etc/opendkim
+  cp -a /tmp/postfix/opendkim/* /etc/opendkim/
+  echo "DKIM keys added for : `ls -C /etc/opendkim/keys/`"
+else 
+  grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
+    mkdir -p /etc/opendkim/keys/$domainname
+    if [ ! -f "/etc/opendkim/keys/$domainname/mail.private" ]; then
+      echo "Creating DKIM private key /etc/opendkim/keys/$domainname/mail.private"
+      pushd /etc/opendkim/keys/$domainname
+      opendkim-genkey --subdomains --domain=$domainname --selector=mail
+      popd
+      echo ""
+      echo "DKIM PUBLIC KEY ################################################################"
+      cat /etc/opendkim/keys/$domainname/mail.txt
+      echo "################################################################################"
     fi
-  fi
-  # Write to SigningTable if necessary
-  signingtableentry="*@$domainname mail._domainkey.$domainname"
-  if [ ! -f "/etc/opendkim/SigningTable" ]; then
-    echo "Creating DKIM SigningTable"
-    echo "*@$domainname mail._domainkey.$domainname" > /etc/opendkim/SigningTable
-  else
-    if ! grep -q "$signingtableentry" "/etc/opendkim/SigningTable" ; then
-      echo $signingtableentry >> /etc/opendkim/SigningTable
+    # Write to KeyTable if necessary
+    keytableentry="mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private"
+    if [ ! -f "/etc/opendkim/KeyTable" ]; then
+      echo "Creating DKIM KeyTable"
+      echo "mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private" > /etc/opendkim/KeyTable
+    else
+      if ! grep -q "$keytableentry" "/etc/opendkim/KeyTable" ; then
+        echo $keytableentry >> /etc/opendkim/KeyTable
+      fi
     fi
-  fi
-done
+    # Write to SigningTable if necessary
+    signingtableentry="*@$domainname mail._domainkey.$domainname"
+    if [ ! -f "/etc/opendkim/SigningTable" ]; then
+      echo "Creating DKIM SigningTable"
+      echo "*@$domainname mail._domainkey.$domainname" > /etc/opendkim/SigningTable
+    else
+      if ! grep -q "$signingtableentry" "/etc/opendkim/SigningTable" ; then
+        echo $signingtableentry >> /etc/opendkim/SigningTable
+      fi
+    fi
+  done
+fi
 
 echo "Changing permissions on /etc/opendkim"
 # chown entire directory
@@ -104,7 +125,7 @@ chown -R opendkim:opendkim /etc/opendkim/
 chmod -R 0700 /etc/opendkim/keys/
 
 # DMARC
-# if ther is no AuthservID create it
+# if there is no AuthservID create it
 if [ `cat /etc/opendmarc.conf | grep -w AuthservID | wc -l` -eq 0 ]; then
   echo "AuthservID $(hostname)" >> /etc/opendmarc.conf
 fi
@@ -125,20 +146,15 @@ case $DMS_SSL in
     && [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
       echo "Adding $(hostname) SSL certificate"
       # create combined.pem from (cert|chain|privkey).pem with eol after each .pem
-      sed -e '$a\' -s "/etc/letsencrypt/live/$(hostname)/{cert,chain,privkey}.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
+      sed -e '$a\' -s /etc/letsencrypt/live/$(hostname)/{cert,chain,privkey}.pem > /etc/letsencrypt/live/$(hostname)/combined.pem
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
 
-      # Courier configuration
-      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/imapd-ssl
-
-      # POP3 courier configuration
-      sed -i -r 's/POP3_TLS_REQUIRED=0/POP3_TLS_REQUIRED=1/g' /etc/courier/pop3d-ssl
-      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/letsencrypt\/live\/'$(hostname)'\/combined.pem/g' /etc/courier/pop3d-ssl
-      # needed to support gmail
-      sed -i -r 's/TLS_TRUSTCERTS=\/etc\/ssl\/certs/TLS_TRUSTCERTS=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/courier/pop3d-ssl
+      # Dovecot configuration
+      sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
+      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
       echo "SSL configured with letsencrypt certificates"
 
@@ -156,12 +172,9 @@ case $DMS_SSL in
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
       sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
 
-      # Courier configuration
-      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/courier/imapd-ssl
-
-      # POP3 courier configuration
-      sed -i -r 's/POP3_TLS_REQUIRED=0/POP3_TLS_REQUIRED=1/g' /etc/courier/pop3d-ssl
-      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/courier/pop3d-ssl
+      # Dovecot configuration
+      sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/postfix\/ssl\/'$(hostname)'-full\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
+      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/'$(hostname)'-full\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
       echo "SSL configured with CA signed/custom certificates"
 
@@ -178,6 +191,8 @@ case $DMS_SSL in
       mkdir -p /etc/postfix/ssl
       cp "/tmp/postfix/ssl/$(hostname)-cert.pem" /etc/postfix/ssl
       cp "/tmp/postfix/ssl/$(hostname)-key.pem" /etc/postfix/ssl
+      # Force permission on key file
+      chmod 600 /etc/postfix/ssl/$(hostname)-key.pem
       cp "/tmp/postfix/ssl/$(hostname)-combined.pem" /etc/postfix/ssl
       cp /tmp/postfix/ssl/demoCA/cacert.pem /etc/postfix/ssl
 
@@ -188,12 +203,9 @@ case $DMS_SSL in
       sed -i -r 's/#smtp_tls_CAfile=/smtp_tls_CAfile=\/etc\/postfix\/ssl\/cacert.pem/g' /etc/postfix/main.cf
       ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-$(hostname).pem"
 
-      # Courier configuration
-      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/imapd.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/imapd-ssl
-
-      # POP3 courier configuration
-      sed -i -r 's/POP3_TLS_REQUIRED=0/POP3_TLS_REQUIRED=1/g' /etc/courier/pop3d-ssl
-      sed -i -r 's/TLS_CERTFILE=\/etc\/courier\/pop3d.pem/TLS_CERTFILE=\/etc\/postfix\/ssl\/'$(hostname)'-combined.pem/g' /etc/courier/pop3d-ssl
+      # Dovecot configuration
+      sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/postfix\/ssl\/'$(hostname)'-combined\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
+      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/'$(hostname)'-key\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
       echo "SSL configured with self-signed/custom certificates"
 
@@ -224,7 +236,6 @@ fi
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
-chown postfix.sasl /etc/sasldb2
 
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
@@ -237,12 +248,35 @@ test -e /tmp/spamassassin/rules.cf && cp /tmp/spamassassin/rules.cf /etc/spamass
 
 echo "Configuring fail2ban"
 # enable filters
-awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[couriersmtp]" || $1=="[courierauth]" || $1=="[sasl]") {unit=1;}
+awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[dovecot]" || $1=="[sasl]") {unit=1;}
       if ($1=="enabled" && unit==1) $3="true";
        else if ($1=="logpath" && unit==1) $3="/var/log/mail/mail.log";
       print;
-      if (unit==1 && $1~/\[/ && $1!~/postfix|couriersmtp|courierauth|sasl/) unit=0;
+      if (unit==1 && $1~/\[/ && $1!~/postfix|dovecot|sasl/) unit=0;
 }' /etc/fail2ban/jail.conf > /tmp/jail.conf.new && mv /tmp/jail.conf.new /etc/fail2ban/jail.conf && rm -f /tmp/jail.conf.new
+
+cat > /etc/fail2ban/filter.d/dovecot.conf << _EOF_
+# Fail2Ban filter Dovecot authentication and pop3/imap server
+#
+
+[INCLUDES]
+
+before = common.conf
+
+[Definition]
+
+_daemon = (auth|dovecot(-auth)?|auth-worker)
+
+failregex = ^%(__prefix_line)s(pam_unix(\(dovecot:auth\))?:)?\s+authentication failure; logname=\S* uid=\S* euid=\S* tty=dovecot ruser=\S* rhost=<HOST>(\s+user=\S*)?\s*$
+            ^%(__prefix_line)s(pop3|imap)-login: (Info: )?(Aborted login|Disconnected)(: Inactivity)? \(((no auth attempts|auth failed, \d+ attempts)( in \d+ secs)?|tried to use (disabled|disallowed) \S+ auth)\):( user=<\S*>,)?( method=\S+,)? rip=<HOST>, lip=(\d{1,3}\.){3}\d{1,3}(, session=<\w+>)?(, TLS( handshaking)?(: Disconnected)?)?\s*$
+            ^%(__prefix_line)s(Info|dovecot: auth\(default\)): pam\(\S+,<HOST>\): pam_authenticate\(\) failed: (User not known to the underlying authentication module: \d+ Time\(s\)|Authentication failure \(password mismatch\?\))\s*$
+            ^\s.*passwd-file\(\S*,<HOST>\): unknown user.*$
+            (?: pop3-login|imap-login): .*(?:Authentication failure|Aborted login \(auth failed|Aborted login \(tried to use disabled|Disconnected \(auth failed).*rip=(?P<host>\S*),.*
+
+## ^%(__prefix_line)spasswd-file\(\S*,<HOST>\): unknown user.*$
+ignoreregex =
+_EOF_
+
 
 # increase ban time and find time to 3h
 sed -i "/^bantime *=/c\bantime = 10800"     /etc/fail2ban/jail.conf
@@ -268,19 +302,18 @@ sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
-/etc/init.d/saslauthd start
+##/etc/init.d/saslauthd start
 
 if [ "$SMTP_ONLY" != 1 ]; then
-
-/etc/init.d/courier-authdaemon start
-/etc/init.d/courier-imap start
-/etc/init.d/courier-imap-ssl start
-
+  # Here we are starting sasl and imap, not pop3 because it's disabled by default
+  echo " * Starting dovecot services"
+  /usr/sbin/dovecot -F -c /etc/dovecot/dovecot.conf &
 fi
+
 if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   echo "Starting POP3 services"
-  /etc/init.d/courier-pop start
-  /etc/init.d/courier-pop-ssl start
+  mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
+  /usr/sbin/dovecot reload
 fi
 
 /etc/init.d/spamassassin start
@@ -295,8 +328,8 @@ if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   /etc/init.d/fail2ban start
 fi
 
-echo "Listing SASL users"
-sasldblistusers2
+echo "Listing users"
+/usr/sbin/dovecot user '*'
 
 echo "Starting..."
 tail -f /var/log/mail/mail.log

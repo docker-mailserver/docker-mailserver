@@ -1,7 +1,8 @@
-NAME = tvial/docker-mailserver
+NAME = tvial/docker-mailserver:dovecot
 
-all: build run fixtures tests clean
-all-no-build: run fixtures tests clean
+#all: build run fixtures tests clean
+#all-no-build: run fixtures tests clean
+all: build 
 
 build:
 	docker build --no-cache -t $(NAME) . 

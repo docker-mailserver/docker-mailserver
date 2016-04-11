@@ -9,7 +9,7 @@ Easy to deploy and upgrade.
 Includes:
 
 - postfix with smtp auth
-- courier-imap with ssl support
+- dovecot for sasl, imap (and optional pop3) with ssl support
 - amavis
 - spamassasin supporting custom rules
 - clamav with automatic updates
@@ -17,7 +17,6 @@ Includes:
 - opendmarc 
 - fail2ban
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- optional pop3 server
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver) 
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
@@ -45,7 +44,7 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
       - ./spamassassin:/tmp/spamassassin/
       - ./postfix:/tmp/postfix/
 
-    # start he container
+    # start the container
   	docker-compose up -d mail
 
 ## Managing users and aliases
@@ -53,12 +52,22 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
 ### Users
 
 Users are managed in `postfix/accounts.cf`.  
-Just add the full email address and its password separated by a pipe.  
+Just add the full email address and its encrypted password separated by a pipe.  
 
 Example:
 
-    user1@domain.tld|mypassword
-    user2@otherdomain.tld|myotherpassword
+    user1@domain.tld|mypassword-encrypted
+    user2@otherdomain.tld|myotherpassword-encrypted
+
+To generate the password you could run for example the following:
+
+    docker run --rm -ti tvial/docker-mailserver doveadm pw -s MD5-CRYPT -u user1@domain.tld
+
+You will be asked for a password (and for a confirmation of the password). Just copy all the output string in the file `postfix/accounts.cf`.
+
+    The `doveadm pw` command let you choose between several encryption schemes for the password.
+    Use doveadm pw -l to get a list of the currently supported encryption schemes.
+
 
 ### Aliases
 
