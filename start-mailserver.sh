@@ -125,7 +125,7 @@ case $DMS_SSL in
     && [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
       echo "Adding $(hostname) SSL certificate"
       # create combined.pem from (cert|chain|privkey).pem with eol after each .pem
-      sed -e '$a\' -s "/etc/letsencrypt/live/$(hostname)/{cert,chain,privkey}.pem" > "/etc/letsencrypt/live/$(hostname)/combined.pem"
+      sed -e '$a\' -s /etc/letsencrypt/live/$(hostname)/{cert,chain,privkey}.pem > /etc/letsencrypt/live/$(hostname)/combined.pem
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
