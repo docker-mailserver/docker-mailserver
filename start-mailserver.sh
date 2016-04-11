@@ -58,6 +58,9 @@ if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
 
+# manual mailbox configuration (reference http://www.postfix.org/VIRTUAL_README.html#virtual_mailbox)
+cat /tmp/postfix/vmailbox >> /etc/postfix/vmailbox
+
 echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
