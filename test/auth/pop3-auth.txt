@@ -1,0 +1,4 @@
+USER user1@localhost.localdomain
+PASS mypassword
+LIST
+quit

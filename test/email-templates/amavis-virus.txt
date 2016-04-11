@@ -1,0 +1,33 @@
+HELO mail.external.tld
+MAIL FROM: virus@external.tld
+RCPT TO: user1@localhost.localdomain
+DATA
+From: Docker Mail Server <dockermailserver@external.tld>
+To: Existing Local User <user1@localhost.localdomain>
+Date: Sat, 22 May 2010 07:43:25 -0400
+Subject: Test Message
+
+Content-type: multipart/mixed; boundary="emailboundary"
+MIME-version: 1.0
+
+This is a multi-part message in MIME format.
+--emailboundary
+Content-type: text/plain
+
+This is the body of the message.
+
+--emailboundary
+Content-type: application/octet-stream
+Content-transfer-encoding: base64
+
+UEsDBAoAAAAAAOCYuCg8z1FoRAAAAEQAAAAJAAAAZWljYXIuY29tWDVPIVAlQEFQ
+WzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNU
+LUZJTEUhJEgrSCpQSwECFAAKAAAAAADgmLgoPM9RaEQAAABEAAAACQAAAAAAAAAB
+ACAA/4EAAAAAZWljYXIuY29tUEsFBgAAAAABAAEANwAAAGsAAAAAAA==
+
+
+--emailboundary--
+
+.
+QUIT
+

@@ -1,0 +1,64 @@
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+
+# Basic configuration
+# myhostname = 
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+mydestination = 
+relayhost = 
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.17.0.0/16
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+inet_protocols = all
+
+# TLS parameters
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+#smtpd_tls_CAfile=
+#smtp_tls_CAfile=
+smtpd_tls_security_level = may
+smtpd_use_tls=yes
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination
+smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+smtpd_sender_restrictions = permit_mynetworks
+smtp_tls_security_level = may
+smtp_tls_loglevel = 1
+tls_ssl_options = NO_COMPRESSION
+tls_high_cipherlist=EDH+CAMELLIA:EDH+aRSA:EECDH+aRSA+AESGCM:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:+CAMELLIA256:+AES256:+CAMELLIA128:+AES128:+SSLv3:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ECDSA:CAMELLIA256-SHA:AES256-SHA:CAMELLIA128-SHA:AES128-SHA
+smtpd_tls_protocols=!SSLv2,!SSLv3
+smtp_tls_protocols=!SSLv2,!SSLv3
+smtpd_tls_mandatory_ciphers = high
+smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
+smtpd_tls_exclude_ciphers = aNULL, LOW, EXP, MEDIUM, ADH, AECDH, MD5, DSS, ECDSA, CAMELLIA128, 3DES, CAMELLIA256, RSA+AES, eNULL
+
+# SASL
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_path = private/auth
+smtpd_sasl_type = dovecot
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_local_domain = $myhostname
+broken_sasl_auth_clients = yes
+
+# Mail directory
+virtual_mailbox_base = /var/mail
+virtual_mailbox_domains = /etc/postfix/vhost
+virtual_mailbox_maps = hash:/etc/postfix/vmailbox
+virtual_alias_maps = hash:/etc/postfix/virtual
+virtual_uid_maps = static:5000
+virtual_gid_maps = static:5000
+
+# Additional option for filtering
+content_filter = smtp-amavis:[127.0.0.1]:10024
+
+# Milters used by DKIM
+milter_protocol = 2
+milter_default_action = accept
+smtpd_milters = inet:localhost:12301,inet:localhost:54321
+non_smtpd_milters = inet:localhost:12301,inet:localhost:54321
