@@ -44,7 +44,7 @@ fi
 if [ -f /tmp/postfix/virtual ]; then
   # Copying virtual file
   cp /tmp/postfix/virtual /etc/postfix/virtual
-  while IFS=$' ' read from to
+  while read from to
   do
     # Setting variables for better readability
     domain=$(echo ${from} | cut -d @ -f2)
