@@ -44,7 +44,7 @@ fi
 if [ -f /tmp/postfix/virtual ]; then
   # Copying virtual file
   cp /tmp/postfix/virtual /etc/postfix/virtual
-  while IFS=$' ' read from to
+  while read from to
   do
     # Setting variables for better readability
     domain=$(echo ${from} | cut -d @ -f2)
@@ -57,6 +57,9 @@ fi
 if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
+
+# manual mailbox configuration (reference http://www.postfix.org/VIRTUAL_README.html#virtual_mailbox)
+cat /tmp/postfix/vmailbox >> /etc/postfix/vmailbox
 
 echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
