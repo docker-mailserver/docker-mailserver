@@ -12,8 +12,8 @@ RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
-ADD dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
-ADD dovecot/10-*.conf /etc/dovecot/conf.d/
+ADD target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
+ADD target/dovecot/10-*.conf /etc/dovecot/conf.d/
 
 # Enables Spamassassin and CRON updates
 RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
@@ -31,19 +31,19 @@ RUN freshclam
 
 # Configure DKIM (opendkim)
 RUN mkdir -p /etc/opendkim/keys
-ADD postfix/TrustedHosts /etc/opendkim/TrustedHosts
+ADD target/opendkim/TrustedHosts /etc/opendkim/TrustedHosts
 # DKIM config files
-ADD postfix/opendkim.conf /etc/opendkim.conf
-ADD postfix/default-opendkim /etc/default/opendkim
+ADD target/opendkim/opendkim.conf /etc/opendkim.conf
+ADD target/opendkim/default-opendkim /etc/default/opendkim
 
 # Configure DMARC (opendmarc)
-ADD postfix/opendmarc.conf /etc/opendmarc.conf
-ADD postfix/default-opendmarc /etc/default/opendmarc
+ADD target/opendmarc/opendmarc.conf /etc/opendmarc.conf
+ADD target/opendmarc/default-opendmarc /etc/default/opendmarc
 
 # Configures Postfix
-ADD postfix/main.cf /etc/postfix/main.cf
-ADD postfix/master.cf /etc/postfix/master.cf
-ADD bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
+ADD target/postfix/main.cf /etc/postfix/main.cf
+ADD target/postfix/master.cf /etc/postfix/master.cf
+ADD target/bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
 RUN chmod +x /usr/local/bin/generate-ssl-certificate
 
 # Get LetsEncrypt signed certificate
@@ -51,7 +51,7 @@ RUN curl https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/s
 RUN curl https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
 
 # Start-mailserver script
-ADD start-mailserver.sh /usr/local/bin/start-mailserver.sh
+ADD target/start-mailserver.sh /usr/local/bin/start-mailserver.sh
 RUN chmod +x /usr/local/bin/start-mailserver.sh
 
 # SMTP ports

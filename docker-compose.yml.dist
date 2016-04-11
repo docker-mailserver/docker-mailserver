@@ -1,5 +1,6 @@
 mail:
-  image: tvial/docker-mailserver
+  # image: tvial/docker-mailserver
+  build: .
   hostname: mail
   domainname: domain.com
   cap_add:
@@ -10,6 +11,4 @@ mail:
   - "587:587"
   - "993:993"
   volumes:
-  - ./spamassassin:/tmp/spamassassin/
-  - ./postfix:/tmp/postfix/
-  environment:
+  - ./config/:/tmp/docker-mailserver/

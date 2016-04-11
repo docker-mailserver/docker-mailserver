@@ -5,12 +5,15 @@ die () {
   exit 1
 }
 
-if [ -f /tmp/postfix/accounts.cf ]; then
+#
+# Users
+#
+if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
-  echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
+  echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
 
-  # Checking that /tmp/postfix/accounts.cf ends with a newline
-  sed -i -e '$a\' /tmp/postfix/accounts.cf
+  # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
+  sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
   # Configuring Dovecot
   echo -n > /etc/dovecot/userdb
   chown dovecot:dovecot /etc/dovecot/userdb
@@ -24,7 +27,7 @@ if [ -f /tmp/postfix/accounts.cf ]; then
   sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
 
   # Creating users
-  # pass is encrypted
+  # 'pass' is encrypted
   while IFS=$'|' read login pass
   do
     # Setting variables for better readability
@@ -33,9 +36,10 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     # Let's go!
     echo "user '${user}' for domain '${domain}' with password '********'"
     echo "${login} ${domain}/${user}/" >> /etc/postfix/vmailbox
-    # user database for dovecot has the following format:
+    # User database for dovecot has the following format:
     # user:password:uid:gid:(gecos):home:(shell):extra_fields
-    # Example : ${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::userdb_mail=maildir:/var/mail/${domain}/${user}
+    # Example :
+    # ${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::userdb_mail=maildir:/var/mail/${domain}/${user}
     echo "${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::" >> /etc/dovecot/userdb
     mkdir -p /var/mail/${domain}
     if [ ! -d "/var/mail/${domain}/${user}" ]; then
@@ -50,26 +54,29 @@ if [ -f /tmp/postfix/accounts.cf ]; then
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/postfix/accounts.cf
 else
-  echo "==> Warning: '/tmp/postfix/accounts.cf' is not provided. No mail account created."
+  echo "==> Warning: 'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 fi
 
-if [ -f /tmp/postfix/virtual ]; then
+#
+# Aliases
+#
+if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
   # Copying virtual file
-  cp /tmp/postfix/virtual /etc/postfix/virtual
-  while IFS=$' ' read from to
+  cp /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
+  while read from to
   do
     # Setting variables for better readability
     uname=$(echo ${from} | cut -d @ -f1)
     domain=$(echo ${from} | cut -d @ -f2)
     # if they are equal it means the line looks like: "user1     other@domain.tld"
-    test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
-  done < /tmp/postfix/virtual
+    test "$uname" != "$domain" && echo ${domain} >> /tmp/docker-mailserver/tmp/vhost.tmp
+  done < /tmp/docker-mailserver/postfix-virtual.cf
 else
-  echo "==> Warning: '/tmp/postfix/virtual' is not provided. No mail alias created."
+  echo "==> Warning: 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
 fi
 
-if [ -f /tmp/vhost.tmp ]; then
-  cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
+if [ -f /tmp/docker-mailserver/tmp/vhost.tmp ]; then
+  cat /tmp/docker-mailserver/tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/docker-mailserver/tmp/vhost.tmp
 fi
 
 echo "Postfix configurations"
@@ -78,9 +85,9 @@ touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
 # DKIM
 # Check if keys are already available
-if [ -e "/tmp/postfix/opendkim/KeyTable" ]; then
+if [ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
   mkdir -p /etc/opendkim
-  cp -a /tmp/postfix/opendkim/* /etc/opendkim/
+  cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
   echo "DKIM keys added for : `ls -C /etc/opendkim/keys/`"
 else 
   grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
@@ -214,11 +221,14 @@ case $DMS_SSL in
 
 esac
 
-if [ -f /tmp/postfix/main.cf ]; then
+#
+# Override Postfix configuration
+#
+if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   while read line; do
     postconf -e "$line"
-  done < /tmp/postfix/main.cf
-  echo "Loaded '/tmp/postfix/main.cf'"
+  done < /tmp/docker-mailserver/postfix-main.cf
+  echo "Loaded 'config/postfix-main.cf'"
 else
   echo "'/tmp/postfix/main.cf' not provided. No extra postfix settings loaded."
 fi
@@ -302,7 +312,6 @@ sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
-##/etc/init.d/saslauthd start
 
 if [ "$SMTP_ONLY" != 1 ]; then
   # Here we are starting sasl and imap, not pop3 because it's disabled by default

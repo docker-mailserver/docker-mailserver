@@ -1,7 +1,0 @@
-#
-# ALIAS => from alias@domain.tld (alias) to user@domain.tld (real account), space separated
-# alias@domain.tld user@domain.tld
-#
-# FORWARD => from redirect@domain.tld to a list of internal/external email addresses, space separated
-# redirect@domain.tld otheruser@domain.tld otheruser@otherdomain.tld
-#

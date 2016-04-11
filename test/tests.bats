@@ -7,11 +7,6 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: saslauthd" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
-  [ "$status" -eq 0 ]
-}
-
 @test "checking process: clamd" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   [ "$status" -eq 0 ]
@@ -41,22 +36,6 @@
   run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
   [ "$status" -eq 0 ]
 }
-
-@test "checking process: courierpop3d (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/courierpop3d'"
-  [ "$status" -eq 1 ]
-}
-
-@test "checking process: courierpop3d (pop3 server enabled)" {
-  run docker exec mail_pop3 /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/courierpop3d'"
-  [ "$status" -eq 0 ]
-}
-
-@test "checking process: courierpop3d (disabled using SMTP_ONLY)" {
-  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/courierpop3d'"
-  [ "$status" -eq 1 ]
-}
-
 
 #
 # imap
