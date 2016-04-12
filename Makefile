@@ -1,4 +1,5 @@
-NAME = tvial/docker-mailserver:dovecot
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+NAME = tvial/docker-mailserver:$(BRANCH)
 
 # all: build run fixtures tests clean
 #all-no-build: run fixtures tests clean
