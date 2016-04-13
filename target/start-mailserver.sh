@@ -6,6 +6,12 @@ die () {
 }
 
 #
+# Preparing
+#
+
+mkdir -p /tmp/docker-mailserver/tmp
+
+#
 # Users
 #
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
@@ -51,8 +57,8 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
       touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
 
     fi
-    echo ${domain} >> /tmp/vhost.tmp
-  done < /tmp/postfix/accounts.cf
+    echo ${domain} >> /tmp/docker-mailserver/tmp/vhost.tmp
+  done < /tmp/docker-mailserver/postfix-accounts.cf
 else
   echo "==> Warning: 'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 fi
