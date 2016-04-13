@@ -41,23 +41,23 @@
 # imap
 #
 
-@test "checking process: courier imaplogin (enabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/imaplogin'"
+@test "checking process: dovecot imaplogin (enabled in default configuration)" {
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: courier imaplogin (disabled using SMTP_ONLY)" {
-  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/courier/courier/imaplogin'"
+@test "checking process: dovecot imaplogin (disabled using SMTP_ONLY)" {
+  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
   [ "$status" -eq 1 ]
 }
 
 @test "checking imap: server is ready with STARTTLS" {
-  run docker exec mail /bin/bash -c "nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'Courier-IMAP ready'"
+  run docker exec mail /bin/bash -c "nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking imap: authentication works" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/test/auth/imap-auth.txt"
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver/test/auth/imap-auth.txt"
   [ "$status" -eq 0 ]
 }
 
@@ -71,7 +71,7 @@
 }
 
 @test "checking pop: authentication works" {
-  run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/test/auth/pop3-auth.txt"
+  run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver/test/auth/pop3-auth.txt"
   [ "$status" -eq 0 ]
 }
 
@@ -109,22 +109,22 @@
 #
 
 @test "checking smtp: authentication works with good password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication fails with wrong password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication works with good password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication fails with wrong password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
   [ "$status" -eq 0 ]
 }
 
@@ -312,9 +312,9 @@
 @test "checking fail2ban: ban ip on multiple failed login" {
   docker exec mail_fail2ban fail2ban-client status sasl
   docker exec mail_fail2ban fail2ban-client set sasl delignoreip 127.0.0.1/8
-  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
-  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
-  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/test/auth/smtp-auth-login-wrong.txt'
+  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
   sleep 5
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 0 ]

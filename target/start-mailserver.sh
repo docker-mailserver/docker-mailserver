@@ -322,7 +322,7 @@ cron
 if [ "$SMTP_ONLY" != 1 ]; then
   # Here we are starting sasl and imap, not pop3 because it's disabled by default
   echo " * Starting dovecot services"
-  /usr/sbin/dovecot -F -c /etc/dovecot/dovecot.conf &
+  /usr/sbin/dovecot -c /etc/dovecot/dovecot.conf
 fi
 
 if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
@@ -340,6 +340,7 @@ fi
 
 if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   echo "Starting fail2ban service"
+  touch /var/log/auth.log
   /etc/init.d/fail2ban start
 fi
 
