@@ -1,9 +1,8 @@
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 NAME = tvial/docker-mailserver:$(BRANCH)
 
-# all: build-no-cache run fixtures tests clean
-#all-no-build: run fixtures tests clean
-all: build-no-cache
+all: build-no-cache run fixtures tests clean
+all-fast: build run fixtures tests clean
 
 build-no-cache:
 	docker build --no-cache -t $(NAME) .
