@@ -6,10 +6,10 @@ NAME = tvial/docker-mailserver:$(BRANCH)
 all: build-no-cache 
 
 build-no-cache:
-	docker build --no-cache -t $(NAME) . 
+	docker build --no-cache -t $(NAME) .
 
 build:
-	docker build --no-cache -t $(NAME) . 
+	docker build --no-cache -t $(NAME) .
 
 run:
 	# Run containers
