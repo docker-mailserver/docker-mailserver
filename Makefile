@@ -3,13 +3,13 @@ NAME = tvial/docker-mailserver:$(BRANCH)
 
 # all: build-no-cache run fixtures tests clean
 #all-no-build: run fixtures tests clean
-all: build-no-cache 
+all: build-no-cache
 
 build-no-cache:
-	docker build --no-cache -t $(NAME) . 
+	docker build --no-cache -t $(NAME) .
 
 build:
-	docker build --no-cache -t $(NAME) . 
+	docker build -t $(NAME) .
 
 run:
 	# Run containers
