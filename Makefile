@@ -8,7 +8,7 @@ build:
 
 run:
 	# Copy test files
-	cp test/accounts.cf postfix/
+	cp -a test/accounts-db/ postfix/
 	cp test/main.cf postfix/
 	cp test/virtual postfix/
 	# Run containers
@@ -62,6 +62,6 @@ tests:
 
 clean:
 	# Get default files back
-	git checkout postfix/accounts.cf postfix/main.cf postfix/virtual
+	git checkout postfix/accounts-db postfix/main.cf postfix/virtual
 	# Remove running test containers
 	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban

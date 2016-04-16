@@ -21,6 +21,19 @@ mkpaths () {
   echo ${domain} >> /tmp/vhost.tmp
 }
 
+# must exit with explicit message!
+if [ -f /tmp/postfix/accounts.cf ]; then
+  echo "======================================================================================="
+  echo "SECURITY WARNING ==> ABORTED startup !"
+  echo "The image no longer support running with clear text passwords in accounts.cf!"
+  echo "Accounts must be setup with their utility (generate-user-databases) before starting up"
+  echo "that image AND accounts.cf must be removed when user DBs are setup."
+  echo "If your DBs are already setup please remove the file accounts.cf and restart."
+  echo "For more infos please read the README.md"
+  echo "======================================================================================="
+  exit 1
+fi
+
 if [ -f /tmp/postfix/accounts-db/userdb -a -f /tmp/postfix/accounts-db/sasldb2 ]; then
   CDB="/etc/courier/userdb"
   SASLDB="/etc/sasldb2"
@@ -42,34 +55,8 @@ if [ -f /tmp/postfix/accounts-db/userdb -a -f /tmp/postfix/accounts-db/sasldb2 ]
     done
   makeuserdb
 else 
-  # should exit with explicit message!
-  if [ -f /tmp/postfix/accounts.cf ]; then
-    echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
-    echo "# WARNING: this file is auto-generated. Modify accounts.cf in postfix directory on host" > /etc/postfix/vmailbox
-  
-    # Checking that /tmp/postfix/accounts.cf ends with a newline
-    sed -i -e '$a\' /tmp/postfix/accounts.cf
-  
-    # Creating users
-    while IFS=$'|' read login pass
-    do
-      # Setting variables for better readability
-      user=$(echo ${login} | cut -d @ -f1)
-      domain=$(echo ${login} | cut -d @ -f2)
-      # Let's go!
-      echo "user '${user}' for domain '${domain}' with password '********'"
-      echo "${login} ${domain}/${user}/" >> /etc/postfix/vmailbox
-      /usr/sbin/userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
-      echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
-      echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
-      # Create the expected maildir paths
-      mkpaths ${domain} ${user}
-    done < /tmp/postfix/accounts.cf
-    makeuserdb
-  else
-      echo "==> Accounts: '/tmp/postfix/userdb' and '/tmp/postfix/sasldb2' OR '/tmp/postfix/accounts.cf' "
-      echo "==>  Warning: None of those files are provided. No mail account created."
-  fi
+  echo "==> Accounts: '/tmp/postfix/userdb' and '/tmp/postfix/sasldb2' missing.' "
+  echo "==>  Warning: User databases have not been provided. No mail account created."
 fi
 
 if [ -f /tmp/postfix/virtual ]; then
