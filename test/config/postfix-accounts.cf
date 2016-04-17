@@ -1,2 +1,2 @@
-user1@localhost.localdomain|mypassword
-user2@otherdomain.tld|mypassword
+user1@localhost.localdomain|{MD5-CRYPT}$1$agWCql3M$ATBimsiJ4EETYnG/yLWwr.
+user2@otherdomain.tld|{MD5-CRYPT}$1$31q82qPz$vprzqppi3chSsK8SgWT8d/
