@@ -79,13 +79,13 @@
 # sasl
 #
 
-@test "checking sasl: testsaslauthd works with good password" {
-  run docker exec mail /bin/sh -c "testsaslauthd -u user2 -r otherdomain.tld -p mypassword | grep 'OK \"Success.\"'"
+@test "checking sasl: doveadm auth test works with good password" {
+  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld mypassword | grep 'auth succeeded'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking sasl: testsaslauthd fails with bad password" {
-  run docker exec mail /bin/sh -c "testsaslauthd -u user2 -r otherdomain.tld -p BADPASSWORD | grep 'NO \"authentication failed\"'"
+@test "checking sasl: doveadm auth test fails with bad password" {
+  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld BADPASSWORD | grep 'auth failed'"
   [ "$status" -eq 0 ]
 }
 
@@ -109,22 +109,22 @@
 #
 
 @test "checking smtp: authentication works with good password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication fails with wrong password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication works with good password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication fails with wrong password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
   [ "$status" -eq 0 ]
 }
 
@@ -175,10 +175,10 @@
 #
 
 @test "checking accounts: user accounts" {
-  run docker exec mail sasldblistusers2
+  run docker exec mail doveadm user '*'
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "user1@localhost.localdomain: userPassword" ]
-  [ "${lines[1]}" = "user2@otherdomain.tld: userPassword" ]
+  [ "${lines[0]}" = "user1@localhost.localdomain" ]
+  [ "${lines[1]}" = "user2@otherdomain.tld" ]
 }
 
 @test "checking accounts: user mail folders for user1" {
@@ -187,10 +187,15 @@
   [ "${lines[0]}" = ".Drafts" ]
   [ "${lines[1]}" = ".Sent" ]
   [ "${lines[2]}" = ".Trash" ]
-  [ "${lines[3]}" = "courierimapsubscribed" ]
-  [ "${lines[4]}" = "cur" ]
-  [ "${lines[5]}" = "new" ]
-  [ "${lines[6]}" = "tmp" ]
+  [ "${lines[3]}" = "cur" ]
+  [ "${lines[4]}" = "dovecot-uidlist" ]
+  [ "${lines[5]}" = "dovecot-uidvalidity" ]
+  [ "${lines[6]}" = "dovecot-uidvalidity.5712dae3" ]
+  [ "${lines[7]}" = "dovecot.index.cache" ]
+  [ "${lines[8]}" = "dovecot.index.log" ]
+  [ "${lines[9]}" = "new" ]
+  [ "${lines[10]}" = "subscriptions" ]
+  [ "${lines[11]}" = "tmp" ]
 }
 
 @test "checking accounts: user mail folders for user2" {
@@ -199,9 +204,9 @@
   [ "${lines[0]}" = ".Drafts" ]
   [ "${lines[1]}" = ".Sent" ]
   [ "${lines[2]}" = ".Trash" ]
-  [ "${lines[3]}" = "courierimapsubscribed" ]
-  [ "${lines[4]}" = "cur" ]
-  [ "${lines[5]}" = "new" ]
+  [ "${lines[3]}" = "cur" ]
+  [ "${lines[4]}" = "new" ]
+  [ "${lines[5]}" = "subscriptions" ]
   [ "${lines[6]}" = "tmp" ]
 }
 
@@ -217,9 +222,9 @@
 }
 
 @test "checking postfix: main.cf overrides" {
-  run docker exec mail grep -q 'max_idle = 600s' /tmp/postfix/main.cf
+  run docker exec mail grep -q 'max_idle = 600s' /tmp/docker-mailserver/postfix-main.cf
   [ "$status" -eq 0 ]
-  run docker exec mail grep -q 'readme_directory = /tmp' /tmp/postfix/main.cf
+  run docker exec mail grep -q 'readme_directory = /tmp' /tmp/docker-mailserver/postfix-main.cf
   [ "$status" -eq 0 ]
 }
 
