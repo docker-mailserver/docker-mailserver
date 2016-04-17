@@ -3,6 +3,7 @@ NAME = tvial/docker-mailserver:$(BRANCH)
 
 all: build-no-cache run fixtures tests clean
 all-fast: build run fixtures tests clean
+no-build: run fixtures tests clean
 
 build-no-cache:
 	docker build --no-cache -t $(NAME) .
@@ -58,4 +59,4 @@ tests:
 
 clean:
 	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban
+	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer

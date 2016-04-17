@@ -24,9 +24,12 @@ RUN adduser clamav amavis
 RUN adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
 
+# Configure Fail2ban
+ADD target/fail2ban/jail.conf /etc/fail2ban/jail.conf
+
 # Enables Clamav
 RUN chmod 644 /etc/clamav/freshclam.conf
-RUN (crontab -l ; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
+RUN (crontab; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN freshclam
 
 # Configure DKIM (opendkim)

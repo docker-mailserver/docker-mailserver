@@ -292,27 +292,33 @@
 # fail2ban
 #
 
-@test "checking fail2ban: localhost is not banned" {
+@test "checking fail2ban: localhost is not banned because ignored" {
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "grep 'ignoreip = 127.0.0.1/8' /etc/fail2ban/jail.conf"
+  [ "$status" -eq 0 ]
 }
 
 @test "checking fail2ban: ban ip on multiple failed login" {
-  docker exec mail_fail2ban fail2ban-client status sasl
-  docker exec mail_fail2ban fail2ban-client set sasl delignoreip 127.0.0.1/8
-  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec mail_fail2ban /bin/sh -c 'nc -w 1 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  sleep 5
-  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
+  # Getting mail_fail2ban container IP
+  MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
+  # Create a container which will send wront authentications and should banned
+  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver/test -d tvial/docker-mailserver:v2 tail -f /var/log/faillog
+  FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
+  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  sleep 10
+  # Checking that FAIL_AUTH_MAILER_IP is banned in mail_fail2ban
+  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && fail2ban-client status sasl | grep '$FAIL_AUTH_MAILER_IP' "
   [ "$status" -eq 0 ]
 }
 
 @test "checking fail2ban: unban ip works" {
-  docker exec mail_fail2ban fail2ban-client set sasl addignoreip 127.0.0.1/8
-  docker exec mail_fail2ban fail2ban-client set sasl unbanip 127.0.0.1
+  docker exec mail_fail2ban fail2ban-client set sasl unbanip $FAIL_AUTH_MAILER_IP
   sleep 5
-  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*$FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 1 ]
 }
 
