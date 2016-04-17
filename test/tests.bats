@@ -304,10 +304,11 @@
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
   # Create a container which will send wront authentications and should banned
   docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver/test -d tvial/docker-mailserver:v2 tail -f /var/log/faillog
-  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc -w 1 $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
   sleep 5
   # Checking that FAIL_AUTH_MAILER_IP is banned in mail_fail2ban
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
@@ -316,6 +317,7 @@
 }
 
 @test "checking fail2ban: unban ip works" {
+  FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
   docker exec mail_fail2ban fail2ban-client set sasl unbanip $FAIL_AUTH_MAILER_IP
   sleep 5
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*$FAIL_AUTH_MAILER_IP'"
