@@ -52,7 +52,7 @@
 }
 
 @test "checking imap: server is ready with STARTTLS" {
-  run docker exec mail /bin/bash -c "nc -w 1 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
+  run docker exec mail /bin/bash -c "nc -w 5 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
   [ "$status" -eq 0 ]
 }
 
@@ -182,32 +182,15 @@
 }
 
 @test "checking accounts: user mail folders for user1" {
-  run docker exec mail ls -A /var/mail/localhost.localdomain/user1
+  run docker exec mail /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = ".Drafts" ]
-  [ "${lines[1]}" = ".Sent" ]
-  [ "${lines[2]}" = ".Trash" ]
-  [ "${lines[3]}" = "cur" ]
-  [ "${lines[4]}" = "dovecot-uidlist" ]
-  [ "${lines[5]}" = "dovecot-uidvalidity" ]
-  [ "${lines[6]}" = "dovecot-uidvalidity.5712dae3" ]
-  [ "${lines[7]}" = "dovecot.index.cache" ]
-  [ "${lines[8]}" = "dovecot.index.log" ]
-  [ "${lines[9]}" = "new" ]
-  [ "${lines[10]}" = "subscriptions" ]
-  [ "${lines[11]}" = "tmp" ]
+  [ "$output" -eq 7 ]
 }
 
 @test "checking accounts: user mail folders for user2" {
-  run docker exec mail ls -A /var/mail/otherdomain.tld/user2
+  run docker exec mail /bin/bash -c "ls -A /var/mail/otherdomain.tld/user2 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = ".Drafts" ]
-  [ "${lines[1]}" = ".Sent" ]
-  [ "${lines[2]}" = ".Trash" ]
-  [ "${lines[3]}" = "cur" ]
-  [ "${lines[4]}" = "new" ]
-  [ "${lines[5]}" = "subscriptions" ]
-  [ "${lines[6]}" = "tmp" ]
+  [ "$output" -eq 7 ]
 }
 
 #
