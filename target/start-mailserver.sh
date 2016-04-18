@@ -176,10 +176,10 @@ case $DMS_SSL in
 
   "custom" )
     # Adding CA signed SSL certificate if provided in 'postfix/ssl' folder
-    if [ -e "/tmp/postfix/ssl/$(hostname)-full.pem" ]; then
+    if [ -e "/tmp/docker-mailserver/ssl/$(hostname)-full.pem" ]; then
       echo "Adding $(hostname) SSL certificate"
       mkdir -p /etc/postfix/ssl
-      cp "/tmp/postfix/ssl/$(hostname)-full.pem" /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/$(hostname)-full.pem" /etc/postfix/ssl
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
@@ -196,18 +196,18 @@ case $DMS_SSL in
 
   "self-signed" )
     # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-    if [ -e "/tmp/postfix/ssl/$(hostname)-cert.pem" ] \
-    && [ -e "/tmp/postfix/ssl/$(hostname)-key.pem"  ] \
-    && [ -e "/tmp/postfix/ssl/$(hostname)-combined.pem" ] \
-    && [ -e "/tmp/postfix/ssl/demoCA/cacert.pem" ]; then
+    if [ -e "/tmp/docker-mailserver/ssl/$(hostname)-cert.pem" ] \
+    && [ -e "/tmp/docker-mailserver/ssl/$(hostname)-key.pem"  ] \
+    && [ -e "/tmp/docker-mailserver/ssl/$(hostname)-combined.pem" ] \
+    && [ -e "/tmp/docker-mailserver/ssl/demoCA/cacert.pem" ]; then
       echo "Adding $(hostname) SSL certificate"
       mkdir -p /etc/postfix/ssl
-      cp "/tmp/postfix/ssl/$(hostname)-cert.pem" /etc/postfix/ssl
-      cp "/tmp/postfix/ssl/$(hostname)-key.pem" /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/$(hostname)-cert.pem" /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/$(hostname)-key.pem" /etc/postfix/ssl
       # Force permission on key file
       chmod 600 /etc/postfix/ssl/$(hostname)-key.pem
-      cp "/tmp/postfix/ssl/$(hostname)-combined.pem" /etc/postfix/ssl
-      cp /tmp/postfix/ssl/demoCA/cacert.pem /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/$(hostname)-combined.pem" /etc/postfix/ssl
+      cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-cert.pem/g' /etc/postfix/main.cf
@@ -236,7 +236,7 @@ if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   done < /tmp/docker-mailserver/postfix-main.cf
   echo "Loaded 'config/postfix-main.cf'"
 else
-  echo "'/tmp/postfix/main.cf' not provided. No extra postfix settings loaded."
+  echo "'/tmp/docker-mailserver/main.cf' not provided. No extra postfix settings loaded."
 fi
 
 if [ ! -z "$SASL_PASSWD" ]; then
@@ -260,7 +260,10 @@ echo "Configuring Spamassassin"
 SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
 SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
 SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
-test -e /tmp/spamassassin/rules.cf && cp /tmp/spamassassin/rules.cf /etc/spamassassin/
+test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
+
+# Disable logrotate config for fail2ban if not enabled
+test -z "$ENABLE_FAIL2BAN"&& rm -f /etc/logrotate.d/fail2ban
 
 echo "Starting daemons"
 cron
