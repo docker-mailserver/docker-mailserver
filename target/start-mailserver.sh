@@ -262,19 +262,19 @@ SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag
 SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
 test -e /tmp/spamassassin/rules.cf && cp /tmp/spamassassin/rules.cf /etc/spamassassin/
 
-# continue to write the log information in the newly created file after rotating the old log file
-sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
+# # continue to write the log information in the newly created file after rotating the old log file
+# sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
 
-# Setup logging
-mkdir -p /var/log/mail && chown syslog:root /var/log/mail
-touch /var/log/mail/clamav.log && chown -R clamav:root /var/log/mail/clamav.log
-touch /var/log/mail/freshclam.log &&  chown -R clamav:root /var/log/mail/freshclam.log
-sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.d/50-default.conf
-sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf
-sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf
-sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon
-sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-freshclam
-sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
+# # Setup logging
+# mkdir -p /var/log/mail && chown syslog:root /var/log/mail
+# touch /var/log/mail/clamav.log && chown -R clamav:root /var/log/mail/clamav.log
+# touch /var/log/mail/freshclam.log &&  chown -R clamav:root /var/log/mail/freshclam.log
+# sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.d/50-default.conf
+# sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf
+# sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf
+# sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon
+# sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-freshclam
+# sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
 
 echo "Starting daemons"
 cron
@@ -292,6 +292,7 @@ if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   /usr/sbin/dovecot reload
 fi
 
+# Start services related to SMTP
 /etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start
 /etc/init.d/amavis start
