@@ -51,6 +51,18 @@ ADD target/postfix/master.cf /etc/postfix/master.cf
 ADD target/bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
 RUN chmod +x /usr/local/bin/generate-ssl-certificate
 
+# Configuring Logs
+RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
+RUN mkdir -p /var/log/mail && chown syslog:root /var/log/mail
+RUN touch /var/log/mail/clamav.log && chown -R clamav:root /var/log/mail/clamav.log
+RUN touch /var/log/mail/freshclam.log &&  chown -R clamav:root /var/log/mail/freshclam.log
+RUN sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.d/50-default.conf
+RUN sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf
+RUN sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf
+RUN sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon
+RUN sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-freshclam
+RUN sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
+
 # Get LetsEncrypt signed certificate
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
