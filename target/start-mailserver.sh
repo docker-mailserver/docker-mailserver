@@ -262,45 +262,6 @@ SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag
 SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
 test -e /tmp/spamassassin/rules.cf && cp /tmp/spamassassin/rules.cf /etc/spamassassin/
 
-echo "Configuring fail2ban"
-# enable filters
-awk 'BEGIN{unit=0}{if ($1=="[postfix]" || $1=="[dovecot]" || $1=="[sasl]") {unit=1;}
-      if ($1=="enabled" && unit==1) $3="true";
-       else if ($1=="logpath" && unit==1) $3="/var/log/mail/mail.log";
-      print;
-      if (unit==1 && $1~/\[/ && $1!~/postfix|dovecot|sasl/) unit=0;
-}' /etc/fail2ban/jail.conf > /tmp/jail.conf.new && mv /tmp/jail.conf.new /etc/fail2ban/jail.conf && rm -f /tmp/jail.conf.new
-
-cat > /etc/fail2ban/filter.d/dovecot.conf << _EOF_
-# Fail2Ban filter Dovecot authentication and pop3/imap server
-#
-
-[INCLUDES]
-
-before = common.conf
-
-[Definition]
-
-_daemon = (auth|dovecot(-auth)?|auth-worker)
-
-failregex = ^%(__prefix_line)s(pam_unix(\(dovecot:auth\))?:)?\s+authentication failure; logname=\S* uid=\S* euid=\S* tty=dovecot ruser=\S* rhost=<HOST>(\s+user=\S*)?\s*$
-            ^%(__prefix_line)s(pop3|imap)-login: (Info: )?(Aborted login|Disconnected)(: Inactivity)? \(((no auth attempts|auth failed, \d+ attempts)( in \d+ secs)?|tried to use (disabled|disallowed) \S+ auth)\):( user=<\S*>,)?( method=\S+,)? rip=<HOST>, lip=(\d{1,3}\.){3}\d{1,3}(, session=<\w+>)?(, TLS( handshaking)?(: Disconnected)?)?\s*$
-            ^%(__prefix_line)s(Info|dovecot: auth\(default\)): pam\(\S+,<HOST>\): pam_authenticate\(\) failed: (User not known to the underlying authentication module: \d+ Time\(s\)|Authentication failure \(password mismatch\?\))\s*$
-            ^\s.*passwd-file\(\S*,<HOST>\): unknown user.*$
-            (?: pop3-login|imap-login): .*(?:Authentication failure|Aborted login \(auth failed|Aborted login \(tried to use disabled|Disconnected \(auth failed).*rip=(?P<host>\S*),.*
-
-## ^%(__prefix_line)spasswd-file\(\S*,<HOST>\): unknown user.*$
-ignoreregex =
-_EOF_
-
-
-# increase ban time and find time to 3h
-sed -i "/^bantime *=/c\bantime = 10800"     /etc/fail2ban/jail.conf
-sed -i "/^findtime *=/c\findtime = 10800"   /etc/fail2ban/jail.conf
-
-# avoid warning on startup
-echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
-
 # continue to write the log information in the newly created file after rotating the old log file
 sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
 
