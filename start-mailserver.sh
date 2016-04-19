@@ -116,6 +116,13 @@ grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
       echo $signingtableentry >> /etc/opendkim/SigningTable
     fi
   fi
+
+  # Creates TrustedHosts if missing
+  if [ ! -f "/etc/opendkim/TrustedHosts" ]; then
+    echo "Creating DKIM TrustedHosts";
+    echo "127.0.0.1" > /etc/opendkim/TrustedHosts
+    echo "localhost" >> /etc/opendkim/TrustedHosts
+  fi
 done
 
 echo "Changing permissions on /etc/opendkim"
