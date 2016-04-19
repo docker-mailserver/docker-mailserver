@@ -94,7 +94,7 @@ touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 if [ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
   mkdir -p /etc/opendkim
   cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-  echo "DKIM keys added for : `ls -C /etc/opendkim/keys/`"
+  echo "DKIM keys added for: `ls -C /etc/opendkim/keys/`"
 else 
   grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
     mkdir -p /etc/opendkim/keys/$domainname
@@ -236,7 +236,7 @@ if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   done < /tmp/docker-mailserver/postfix-main.cf
   echo "Loaded 'config/postfix-main.cf'"
 else
-  echo "'/tmp/docker-mailserver/main.cf' not provided. No extra postfix settings loaded."
+  echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/main.cf' not provided."
 fi
 
 if [ ! -z "$SASL_PASSWD" ]; then
@@ -245,9 +245,9 @@ if [ ! -z "$SASL_PASSWD" ]; then
   rm /etc/postfix/sasl_passwd
   chown root:root /etc/postfix/sasl_passwd.db
   chmod 0600 /etc/postfix/sasl_passwd.db
-  echo "Loaded SASL_PASSWORD"
+  echo "Loaded SASL_PASSWD"
 else
-  echo "==> Warning: 'SASL_PASSWORD' is not provided. /etc/postfix/sasl_passwd not created."
+  echo "==> Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
 fi
 
 echo "Fixing permissions"
