@@ -195,7 +195,15 @@
 # accounts
 #
 
+@test "checking accounts.cf: if present shouldn't start the container" {
+  cp `pwd`/postfix/disab.accounts.cf `pwd`/postfix/accounts.cf
+  run docker run --rm --name test_on_accounts -v "$(pwd)/postfix":/tmp/postfix `docker inspect --format '{{ .Config.Image }}' mail`
+  [ "$status" -eq 1 ]
+  [ "${lines[1]}" = "SECURITY WARNING ==> ABORTED startup !" ]
+}
+
 @test "checking accounts: user accounts" {
+  rm -f `pwd`/postfix/accounts.cf
   run docker exec mail sasldblistusers2
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "user1@localhost.localdomain: userPassword" ]
