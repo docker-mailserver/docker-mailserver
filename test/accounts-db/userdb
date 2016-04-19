@@ -1,0 +1,2 @@
+user1@localhost.localdomain	mail=/var/mail/localhost.localdomain/user1|home=/var/mail/localhost.localdomain/user1|gid=5000|systempw=$1$iq3AGWp2$sCcf9iFXH.cfpbkxhjnxv1|uid=5000
+user2@otherdomain.tld	home=/var/mail/otherdomain.tld/user2|systempw=$1$NEKWjXTp$H1KY2dUwE5EZ8Nitiotdu0|gid=5000|uid=5000|mail=/var/mail/otherdomain.tld/user2

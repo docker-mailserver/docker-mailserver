@@ -52,13 +52,21 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
 
 ### Users
 
-Users are managed in `postfix/accounts.cf`.  
+Users are managed in `postfix/accounts.cf` with the helper script `generate-user-databases`. 
 Just add the full email address and its password separated by a pipe.  
 
 Example:
 
     user1@domain.tld|mypassword
     user2@otherdomain.tld|myotherpassword
+
+Then the user databases for courier and cyrus sasl with encrypted passwords must be generated with the following:
+
+    docker run -ti --rm -v "$(pwd)"/postfix:/tmp/postfix -h mail.domain.com -t tvial/docker-mailserver generate-user-databases
+
+The needed DBs will then be found inside `postfix/accounts-db/` folder.
+
+For **security reason** clear text passwords are no longer allowed on running instances of the image. For that reason the file `postfix/accounts.cf` MUST be removed before starting up the container (it will not start up if that file is still there).
 
 ### Aliases
 

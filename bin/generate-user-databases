@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Generate the courier and sasl databases
+if [ -f /tmp/postfix/accounts.cf ]; then
+  # Checking that /tmp/postfix/accounts.cf ends with a newline
+  sed -i -e '$a\' /tmp/postfix/accounts.cf
+
+  # Creating users
+  while IFS=$'|' read login pass
+  do
+    # Setting variables for better readability
+    user=$(echo ${login} | cut -d @ -f1)
+    domain=$(echo ${login} | cut -d @ -f2)
+    # Let's go!
+    echo "user '${user}' for domain '${domain}' with password '********'"
+    /usr/sbin/userdb ${login} set uid=5000 gid=5000 home=/var/mail/${domain}/${user} mail=/var/mail/${domain}/${user}
+    echo "${pass}" | userdbpw -md5 | userdb ${login} set systempw
+    echo "${pass}" | saslpasswd2 -p -c -u ${domain} ${login}
+  done < /tmp/postfix/accounts.cf
+  mkdir -p /tmp/postfix/accounts-db
+  cp /etc/courier/userdb /tmp/postfix/accounts-db/userdb
+  cp /etc/sasldb2 /tmp/postfix/accounts-db/sasldb2
+  echo "Courier and Sasl databases populated with user accounts"
+fi
