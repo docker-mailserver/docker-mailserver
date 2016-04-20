@@ -34,8 +34,6 @@ RUN (crontab; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | c
 RUN freshclam
 
 # Configure DKIM (opendkim)
-RUN mkdir -p /etc/opendkim/keys
-ADD target/opendkim/TrustedHosts /etc/opendkim/TrustedHosts
 # DKIM config files
 ADD target/opendkim/opendkim.conf /etc/opendkim.conf
 ADD target/opendkim/default-opendkim /etc/default/opendkim

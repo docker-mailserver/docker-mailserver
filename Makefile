@@ -15,8 +15,7 @@ run:
 	# Run containers
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/config/test-opendkim":/tmp/docker-mailserver/opendkim \
-		-v "`pwd`/test":/tmp/docker-mailserver/test \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
@@ -25,19 +24,19 @@ run:
 	sleep 15
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver/test \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_POP3=1 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver/test \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver/test \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FAIL2BAN=1 \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
@@ -45,12 +44,12 @@ run:
 
 fixtures:
 	# Sending test mails
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver/test/email-templates/amavis-spam.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver/test/email-templates/amavis-virus.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver/test/email-templates/existing-alias-external.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver/test/email-templates/existing-alias-local.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver/test/email-templates/existing-user.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver/test/email-templates/non-existing-user.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
+	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
 	# Wait for mails to be analyzed
 	sleep 10
 
@@ -61,4 +60,4 @@ tests:
 clean:
 	# Remove running test containers
 	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer
-	rm -rf config/opendkim config/test-opendkim config/tmp
+	rm -rf "$(pwd)/test/config/empty" && mkdir -p "$(pwd)/test/config/empty"

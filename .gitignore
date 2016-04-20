@@ -3,4 +3,3 @@ docker-compose.yml
 postfix/ssl/*
 letsencrypt/
 .idea
-config/tmp

@@ -57,7 +57,7 @@
 }
 
 @test "checking imap: authentication works" {
-  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver/test/auth/imap-auth.txt"
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
   [ "$status" -eq 0 ]
 }
 
@@ -71,7 +71,7 @@
 }
 
 @test "checking pop: authentication works" {
-  run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver/test/auth/pop3-auth.txt"
+  run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/pop3-auth.txt"
   [ "$status" -eq 0 ]
 }
 
@@ -109,22 +109,22 @@
 #
 
 @test "checking smtp: authentication works with good password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication fails with wrong password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication works with good password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking smtp: authentication fails with wrong password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
   [ "$status" -eq 0 ]
 }
 
@@ -249,18 +249,15 @@
   [ "$output" -eq 2 ]
 }
 
-@test "checking opendkim: /etc/opendkim/KeyTable should not exist because not provided" {
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/KeyTable"
-  [ "$status" -eq 1 ]
-}
-
-@test "checking opendkim: generator works as expected" {
+@test "checking opendkim: generator creates keys, tables and TrustedHosts" {
   run docker run --rm \
-  -v "$(pwd)/config":/tmp/docker-mailserver \
-  -v "$(pwd)/config/test-opendkim":/tmp/docker-mailserver/opendkim \
+  -v "$(pwd)/test/config/empty/":/tmp/docker-mailserver/ \
+  -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+  -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
   -ti tvial/docker-mailserver:v2 generate-dkim-config | wc -l
   [ "$status" -eq 0 ]
-  [ "$output" -eq 4 ]
+  [ "$output" -eq 5 ]
+  rm -rf "$(pwd)/test/config/empty" && mkdir -p "$(pwd)/test/config/empty"
 }
 
 #
@@ -317,12 +314,12 @@
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
   # Create a container which will send wront authentications and should banned
-  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver/test -d tvial/docker-mailserver:v2 tail -f /var/log/faillog
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver/test/auth/smtp-auth-login-wrong.txt'
+  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d tvial/docker-mailserver:v2 tail -f /var/log/faillog
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   sleep 5
   # Checking that FAIL_AUTH_MAILER_IP is banned in mail_fail2ban
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
