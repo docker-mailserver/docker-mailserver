@@ -1,10 +1,10 @@
 mail:
-  # image: tvial/docker-mailserver
-  build: .
+  image: tvial/docker-mailserver:v2
+  # build: .
   hostname: mail
   domainname: domain.com
-  cap_add:
-  - NET_ADMIN
+  volumes_from:
+   - maildata
   ports:
   - "25:25"
   - "143:143"

@@ -1,6 +1,12 @@
 # docker-mailserver
 
-[![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=master)](https://travis-ci.org/tomav/docker-mailserver)
+```
+#
+# CURRENTLY IN BETA
+#
+```
+
+[![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=v2)](https://travis-ci.org/tomav/docker-mailserver)
 
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).  
 Only configuration files, no SQL database. Keep it simple and versioned.  
@@ -22,16 +28,23 @@ Includes:
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
-Before you open an issue, please have a look this `README`, the [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ) and Postfix documentation. 
+Before you open an issue, please have a look this `README`, the [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ) and Postfix/Dovecot documentation. 
 
-## Usage
+## Project architecture
 
-    # get latest image
-  	docker pull tvial/docker-mailserver
+    ├── config                    # User: personal configurations
+    ├── docker-compose.yml.dist   # User: 'docker-compose.yml' example
+    ├── target                    # Developers: default server configurations
+    └── test                      # Developers: integration tests
+
+## Basic usage
+
+    # get v2 image
+  	docker pull tvial/docker-mailserver:2
 
     # create a "docker-compose.yml" file containing:  
     mail:
-      image: tvial/docker-mailserver
+      image: tvial/docker-mailserver:2
       hostname: mail
       domainname: domain.com
       # your FQDN will be 'mail.domain.com'
@@ -41,41 +54,49 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
       - "587:587"
       - "993:993"
       volumes:
-      - ./spamassassin:/tmp/spamassassin/
-      - ./postfix:/tmp/postfix/
+      - ./config/:/tmp/docker-mailserver/
+
+    # Create your first mail account
+    mkdir -p config
+    docker run --rm \
+      -e MAIL_USER=username@domain.tld \
+      -e MAIL_PASS=mypassword \
+      -ti tvial/docker-mailserver:v2 \
+      /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
     # start the container
   	docker-compose up -d mail
+
+You're done!
 
 ## Managing users and aliases
 
 ### Users
 
-Users are managed in `postfix/accounts.cf`.  
+As you've seen above, users are managed in `config/postfix-accounts.cf`.  
 Just add the full email address and its encrypted password separated by a pipe.  
 
 Example:
 
-    user1@domain.tld|mypassword-encrypted
-    user2@otherdomain.tld|myotherpassword-encrypted
+    user1@domain.tld|{SCHEME}mypassword-encrypted
+    user2@otherdomain.tld|{SCHEME}myotherpassword-encrypted
 
 To generate the password you could run for example the following:
 
-    docker run --rm -ti tvial/docker-mailserver doveadm pw -s MD5-CRYPT -u user1@domain.tld
+    docker run --rm -ti tvial/docker-mailserver:v2 doveadm pw -s CRAM-MD5 -u user1@domain.tld
 
-You will be asked for a password (and for a confirmation of the password). Just copy all the output string in the file `postfix/accounts.cf`.
+You will be asked for a password (and for a confirmation of the password). Just copy all the output string in the file `config/postfix-accounts.cf`.
 
     The `doveadm pw` command let you choose between several encryption schemes for the password.
     Use doveadm pw -l to get a list of the currently supported encryption schemes.
-
 
 ### Aliases
 
 Please first read [Postfix documentation on virtual aliases](http://www.postfix.org/VIRTUAL_README.html#virtual_alias).
 
-Aliases are managed in `postfix/virtual`.  
+Aliases are managed in `config/postfix-virtual.cf`.  
 An alias is a full email address that will be:
-* delivered to an existing account in `postfix/accounts.cf`
+* delivered to an existing account in `config/postfix-accounts.cf`
 * redirected to one or more other email adresses
 
 Alias and target are space separated. 
@@ -106,7 +127,7 @@ Example:
   * *6.31* (default) => add 'spam detected' headers at that level
 * SA_KILL
   * *6.31* (default) => triggers spam evasive actions
-* SASL_PASSWORD
+* SASL_PASSWD
   * *empty* (default) => No sasl_passwd will be created
   * *string* => A /etc/postfix/sasl_passwd will be created with that content and postmap will be run on it
 * ENABLE_FAIL2BAN
@@ -121,7 +142,7 @@ Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserve
 
 ## Todo
 
-Things to do or to improve are stored on [Github](https://github.com/tomav/docker-mailserver/issues), some open by myself.
+Things to do or to improve are stored on [Github](https://github.com/tomav/docker-mailserver/issues).
 Feel free to improve this docker image.
 
 ## Contribute

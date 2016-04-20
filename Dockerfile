@@ -7,8 +7,7 @@ RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix dovecot-core dovecot-imapd dovecot-pop3d \
     supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
     pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat \
-    opendkim opendkim-tools opendmarc curl fail2ban sasl2-bin
-RUN apt-get autoclean && rm -rf /var/lib/apt/lists/*
+    opendkim opendkim-tools opendmarc curl fail2ban && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
