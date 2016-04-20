@@ -47,8 +47,8 @@ ADD target/opendmarc/default-opendmarc /etc/default/opendmarc
 # Configures Postfix
 ADD target/postfix/main.cf /etc/postfix/main.cf
 ADD target/postfix/master.cf /etc/postfix/master.cf
-ADD target/bin/generate-ssl-certificate /usr/local/bin/generate-ssl-certificate
-RUN chmod +x /usr/local/bin/generate-ssl-certificate
+ADD target/bin/generate-ssl-certificate target/bin/generate-dkim-config /usr/local/bin/
+RUN chmod +x /usr/local/bin/*
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf

@@ -249,6 +249,20 @@
   [ "$output" -eq 2 ]
 }
 
+@test "checking opendkim: /etc/opendkim/KeyTable should not exist because not provided" {
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/KeyTable"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking opendkim: generator works as expected" {
+  run docker run --rm \
+  -v "$(pwd)/config":/tmp/docker-mailserver \
+  -v "$(pwd)/config/test-opendkim":/tmp/docker-mailserver/opendkim \
+  -ti tvial/docker-mailserver:v2 generate-dkim-config | wc -l
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 4 ]
+}
+
 #
 # opendmarc
 #

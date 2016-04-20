@@ -15,6 +15,7 @@ run:
 	# Run containers
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test/config/test-opendkim":/tmp/docker-mailserver/opendkim \
 		-v "`pwd`/test":/tmp/docker-mailserver/test \
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
@@ -60,3 +61,4 @@ tests:
 clean:
 	# Remove running test containers
 	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer
+	rm -rf config/opendkim config/test-opendkim config/tmp

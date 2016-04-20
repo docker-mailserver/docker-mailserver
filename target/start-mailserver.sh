@@ -95,40 +95,8 @@ if [ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
   mkdir -p /etc/opendkim
   cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
   echo "DKIM keys added for: `ls -C /etc/opendkim/keys/`"
-else 
-  grep -vE '^(\s*$|#)' /etc/postfix/vhost | while read domainname; do
-    mkdir -p /etc/opendkim/keys/$domainname
-    if [ ! -f "/etc/opendkim/keys/$domainname/mail.private" ]; then
-      echo "Creating DKIM private key /etc/opendkim/keys/$domainname/mail.private"
-      pushd /etc/opendkim/keys/$domainname
-      opendkim-genkey --subdomains --domain=$domainname --selector=mail
-      popd
-      echo ""
-      echo "DKIM PUBLIC KEY ################################################################"
-      cat /etc/opendkim/keys/$domainname/mail.txt
-      echo "################################################################################"
-    fi
-    # Write to KeyTable if necessary
-    keytableentry="mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private"
-    if [ ! -f "/etc/opendkim/KeyTable" ]; then
-      echo "Creating DKIM KeyTable"
-      echo "mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private" > /etc/opendkim/KeyTable
-    else
-      if ! grep -q "$keytableentry" "/etc/opendkim/KeyTable" ; then
-        echo $keytableentry >> /etc/opendkim/KeyTable
-      fi
-    fi
-    # Write to SigningTable if necessary
-    signingtableentry="*@$domainname mail._domainkey.$domainname"
-    if [ ! -f "/etc/opendkim/SigningTable" ]; then
-      echo "Creating DKIM SigningTable"
-      echo "*@$domainname mail._domainkey.$domainname" > /etc/opendkim/SigningTable
-    else
-      if ! grep -q "$signingtableentry" "/etc/opendkim/SigningTable" ; then
-        echo $signingtableentry >> /etc/opendkim/SigningTable
-      fi
-    fi
-  done
+else
+  echo "No DKIM key provided. Check the documentation to find how to get your keys."
 fi
 
 echo "Changing permissions on /etc/opendkim"

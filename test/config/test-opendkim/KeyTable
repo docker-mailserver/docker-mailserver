@@ -1,0 +1,2 @@
+mail._domainkey.localhost.localdomain localhost.localdomain:mail:/tmp/docker-mailserver/opendkim/keys/localhost.localdomain/mail.private
+mail._domainkey.otherdomain.tld otherdomain.tld:mail:/tmp/docker-mailserver/opendkim/keys/otherdomain.tld/mail.private

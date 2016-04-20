@@ -137,6 +137,16 @@ Example:
 
 Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/v2/start-mailserver.sh) to understand what's expected.  
 
+## OpenDKIM
+
+You have prepared your mail accounts? Now you can generate DKIM keys using the following command:
+
+    docker run --rm \
+      -v "$(pwd)/config":/tmp/docker-mailserver \
+      -ti tvial/docker-mailserver:v2 generate-dkim-config 
+
+Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
+
 ## SSL
 
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/SSL) for more information.
