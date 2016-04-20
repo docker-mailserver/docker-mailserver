@@ -232,6 +232,8 @@ test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserve
 
 # Disable logrotate config for fail2ban if not enabled
 test -z "$ENABLE_FAIL2BAN"&& rm -f /etc/logrotate.d/fail2ban
+# Fix cron.daily for spamassassin
+sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload/g' /etc/cron.daily/spamassassin
 
 echo "Starting daemons"
 cron
