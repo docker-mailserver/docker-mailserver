@@ -34,22 +34,22 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
 
     ├── config                    # User: personal configurations
     ├── docker-compose.yml.dist   # User: 'docker-compose.yml' example
-    ├── target                    # Developers: default server configurations
-    └── test                      # Developers: integration tests
+    ├── target                    # Developer: default server configurations
+    └── test                      # Developer: integration tests
 
 ## Basic usage
 
     # get v2 image
-  	docker pull tvial/docker-mailserver:2
+    docker pull tvial/docker-mailserver:v2
 
     # create a "docker-compose.yml" file containing:  
     mail:
-      image: tvial/docker-mailserver:2
+      image: tvial/docker-mailserver:v2
       hostname: mail
       domainname: domain.com
       # your FQDN will be 'mail.domain.com'
       ports:
-      - "25:25"
+      - "25:v25"
       - "143:143"
       - "587:587"
       - "993:993"
@@ -57,6 +57,7 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
       - ./config/:/tmp/docker-mailserver/
 
     # Create your first mail account
+    # Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
     mkdir -p config
     docker run --rm \
       -e MAIL_USER=username@domain.tld \
@@ -134,7 +135,7 @@ Example:
   * *empty* (default) => fail2ban service disabled
   * 1 => Enables fail2ban service
 
-Please read [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/start-mailserver.sh) to understand what's expected.  
+Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/v2/start-mailserver.sh) to understand what's expected.  
 
 ## SSL
 
