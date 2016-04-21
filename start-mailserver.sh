@@ -230,13 +230,13 @@ case $DMS_SSL in
 
 esac
 
-if [ -f /tmp/postfix/main.cf ]; then
+if [ -f /tmp/postfix/runtime.main.cf ]; then
   while read line; do
     postconf -e "$line"
-  done < /tmp/postfix/main.cf
-  echo "Loaded '/tmp/postfix/main.cf'"
+  done < /tmp/postfix/runtime.main.cf
+  echo "Loaded '/tmp/postfix/runtime.main.cf'"
 else
-  echo "'/tmp/postfix/main.cf' not provided. No extra postfix settings loaded."
+  echo "'/tmp/postfix/runtime.main.cf' not provided. No extra postfix settings loaded."
 fi
 
 if [ ! -z "$SASL_PASSWORD" ]; then

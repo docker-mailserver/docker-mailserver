@@ -245,10 +245,10 @@
   [ "${lines[1]}" = "otherdomain.tld" ]
 }
 
-@test "checking postfix: main.cf overrides" {
-  run docker exec mail grep -q 'max_idle = 600s' /tmp/postfix/main.cf
+@test "checking postfix: runtime.main.cf overrides" {
+  run docker exec mail grep -q 'max_idle = 600s' /tmp/postfix/runtime.main.cf
   [ "$status" -eq 0 ]
-  run docker exec mail grep -q 'readme_directory = /tmp' /tmp/postfix/main.cf
+  run docker exec mail grep -q 'readme_directory = /tmp' /tmp/postfix/runtime.main.cf
   [ "$status" -eq 0 ]
 }
 
