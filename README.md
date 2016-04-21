@@ -8,9 +8,9 @@
 
 [![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=v2)](https://travis-ci.org/tomav/docker-mailserver)
 
-A fullstack but simple mail server (smtp, imap, antispam, antivirus...).  
-Only configuration files, no SQL database. Keep it simple and versioned.  
-Easy to deploy and upgrade.  
+A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
+Only configuration files, no SQL database. Keep it simple and versioned.
+Easy to deploy and upgrade.
 
 Includes:
 
@@ -20,15 +20,15 @@ Includes:
 - spamassasin supporting custom rules
 - clamav with automatic updates
 - opendkim
-- opendmarc 
+- opendmarc
 - fail2ban
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- [integration tests](https://travis-ci.org/tomav/docker-mailserver) 
+- [integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
-Before you open an issue, please have a look this `README`, the [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ) and Postfix/Dovecot documentation. 
+Before you open an issue, please have a look this `README`, the [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ) and Postfix/Dovecot documentation.
 
 ## Project architecture
 
@@ -42,7 +42,7 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
     # get v2 image
     docker pull tvial/docker-mailserver:v2
 
-    # create a "docker-compose.yml" file containing:  
+    # create a "docker-compose.yml" file containing:
     mail:
       image: tvial/docker-mailserver:v2
       hostname: mail
@@ -66,7 +66,7 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
     # start the container
-  	docker-compose up -d mail
+    docker-compose up -d mail
 
 You're done!
 
@@ -74,8 +74,8 @@ You're done!
 
 ### Users
 
-As you've seen above, users are managed in `config/postfix-accounts.cf`.  
-Just add the full email address and its encrypted password separated by a pipe.  
+As you've seen above, users are managed in `config/postfix-accounts.cf`.
+Just add the full email address and its encrypted password separated by a pipe.
 
 Example:
 
@@ -95,12 +95,12 @@ You will be asked for a password (and for a confirmation of the password). Just 
 
 Please first read [Postfix documentation on virtual aliases](http://www.postfix.org/VIRTUAL_README.html#virtual_alias).
 
-Aliases are managed in `config/postfix-virtual.cf`.  
+Aliases are managed in `config/postfix-virtual.cf`.
 An alias is a full email address that will be:
 * delivered to an existing account in `config/postfix-accounts.cf`
 * redirected to one or more other email adresses
 
-Alias and target are space separated. 
+Alias and target are space separated.
 
 Example:
 
@@ -135,7 +135,7 @@ Example:
   * *empty* (default) => fail2ban service disabled
   * 1 => Enables fail2ban service
 
-Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/v2/start-mailserver.sh) to understand what's expected.  
+Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/v2/start-mailserver.sh) to understand what's expected.
 
 ## OpenDKIM
 
@@ -143,7 +143,7 @@ You have prepared your mail accounts? Now you can generate DKIM keys using the f
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti tvial/docker-mailserver:v2 generate-dkim-config 
+      -ti tvial/docker-mailserver:v2 generate-dkim-config
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
@@ -161,6 +161,6 @@ Feel free to improve this docker image.
 - Fork
 - Improve
 - Add integration tests in `test/tests.bats`
-- Build image and run tests using `make`  
+- Build image and run tests using `make`
 - Document your improvements
 - Commit, push and make a pull-request
