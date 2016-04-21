@@ -250,13 +250,32 @@
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts" {
+  rm -rf "$(pwd)/test/config/empty" && mkdir -p "$(pwd)/test/config/empty"
   run docker run --rm \
-  -v "$(pwd)/test/config/empty/":/tmp/docker-mailserver/ \
-  -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-  -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-  -ti tvial/docker-mailserver:v2 generate-dkim-config | wc -l
+    -v "$(pwd)/test/config/empty/":/tmp/docker-mailserver/ \
+    -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+    -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+    tvial/docker-mailserver:v2 /bin/sh -c 'generate-dkim-config | wc -l' 
   [ "$status" -eq 0 ]
   [ "$output" -eq 5 ]
+  # Check keys for localhost.localdomain
+  run docker run --rm \
+    -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
+    tvial/docker-mailserver:v2 /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l' 
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  # Check keys for otherdomain.tld
+  run docker run --rm \
+    -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
+    tvial/docker-mailserver:v2 /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l' 
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
+    tvial/docker-mailserver:v2 /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l" 
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 4 ]
   rm -rf "$(pwd)/test/config/empty" && mkdir -p "$(pwd)/test/config/empty"
 }
 
