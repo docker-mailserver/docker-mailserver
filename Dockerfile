@@ -4,9 +4,9 @@ MAINTAINER Thomas VIAL
 # Packages
 RUN apt-get update -q --fix-missing
 RUN apt-get -y upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vim postfix dovecot-core dovecot-imapd dovecot-pop3d \
-    supervisor gamin amavisd-new spamassassin clamav clamav-daemon libnet-dns-perl libmail-spf-perl \
-    pyzor razor arj bzip2 cabextract cpio file gzip nomarch p7zip pax unzip zip zoo rsyslog mailutils netcat \
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+	postfix dovecot-core dovecot-imapd dovecot-pop3d gamin amavisd-new spamassassin razor pyzor \
+	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip zip rsyslog \
     opendkim opendkim-tools opendmarc curl fail2ban && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Dovecot
@@ -33,6 +33,11 @@ RUN chmod 644 /etc/clamav/freshclam.conf
 RUN (crontab; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN freshclam
 
+# Enables Pyzor and Razor
+USER amavis
+RUN razor-admin -create && razor-admin -register && pyzor discover
+USER root
+
 # Configure DKIM (opendkim)
 # DKIM config files
 ADD target/opendkim/opendkim.conf /etc/opendkim.conf
@@ -43,8 +48,7 @@ ADD target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 ADD target/opendmarc/default-opendmarc /etc/default/opendmarc
 
 # Configures Postfix
-ADD target/postfix/main.cf /etc/postfix/main.cf
-ADD target/postfix/master.cf /etc/postfix/master.cf
+ADD target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 ADD target/bin/generate-ssl-certificate target/bin/generate-dkim-config /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
