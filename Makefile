@@ -1,5 +1,4 @@
-BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-NAME = tvial/docker-mailserver:$(BRANCH)
+NAME = tvial/docker-mailserver:testing
 
 all: build-no-cache run fixtures tests clean
 all-fast: build run fixtures tests clean
@@ -51,7 +50,7 @@ fixtures:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
 	# Wait for mails to be analyzed
-	sleep 10
+	sleep 20
 
 tests:
 	# Start tests
@@ -60,4 +59,3 @@ tests:
 clean:
 	# Remove running test containers
 	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer
-	rm -rf "$(pwd)/test/config/empty" && mkdir -p "$(pwd)/test/config/empty"
