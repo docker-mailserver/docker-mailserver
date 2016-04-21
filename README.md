@@ -66,7 +66,7 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
     # start the container
-  	docker-compose up -d mail
+    docker-compose up -d mail
 
 You're done!
 
