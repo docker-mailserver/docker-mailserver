@@ -52,7 +52,7 @@
 }
 
 @test "checking imap: server is ready with STARTTLS" {
-  run docker exec mail /bin/bash -c "nc -w 5 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
+  run docker exec mail /bin/bash -c "nc -w 2 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
   [ "$status" -eq 0 ]
 }
 
@@ -313,7 +313,7 @@
 #
 
 @test "checking ssl: generated default cert is installed" {
-  run docker exec mail /bin/sh -c "openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
+  run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
   [ "$status" -eq 0 ]
 }
 
@@ -343,6 +343,9 @@
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
   run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && fail2ban-client status sasl | grep '$FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 0 ]
+  # Checking that FAIL_AUTH_MAILER_IP is banned in /etc/hosts.deny
+  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && grep 'ALL: $FAIL_AUTH_MAILER_IP' /etc/hosts.deny"
+  [ "$status" -eq 0 ]
 }
 
 @test "checking fail2ban: unban ip works" {
@@ -350,6 +353,9 @@
   docker exec mail_fail2ban fail2ban-client set sasl unbanip $FAIL_AUTH_MAILER_IP
   sleep 5
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*$FAIL_AUTH_MAILER_IP'"
+  [ "$status" -eq 1 ]
+  # Checking that FAIL_AUTH_MAILER_IP is unbanned in /etc/hosts.deny
+  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && grep 'ALL: $FAIL_AUTH_MAILER_IP' /etc/hosts.deny"
   [ "$status" -eq 1 ]
 }
 
