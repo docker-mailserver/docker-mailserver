@@ -149,7 +149,7 @@ Value in **bold** is the default value.
 ##### SASL_PASSWD
 
   - **empty** => No sasl_passwd will be created
-  - *string* => `/etc/postfix/sasl_passwd` will be created with the string as password
+  - string => `/etc/postfix/sasl_passwd` will be created with the string as password
 
 ##### SMTP_ONLY
 
