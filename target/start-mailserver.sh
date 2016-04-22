@@ -18,6 +18,7 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   echo -n > /etc/dovecot/userdb
   chown dovecot:dovecot /etc/dovecot/userdb
   chmod 640 /etc/dovecot/userdb
+: <<'END'
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
   # Disable pop3 (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
@@ -25,6 +26,7 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
+END
 
   # Creating users
   # 'pass' is encrypted
@@ -42,15 +44,15 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
     # ${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::userdb_mail=maildir:/var/mail/${domain}/${user}
     echo "${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::" >> /etc/dovecot/userdb
     mkdir -p /var/mail/${domain}
-    if [ ! -d "/var/mail/${domain}/${user}" ]; then
-      maildirmake.dovecot "/var/mail/${domain}/${user}"
-      maildirmake.dovecot "/var/mail/${domain}/${user}/.Sent"
-      maildirmake.dovecot "/var/mail/${domain}/${user}/.Trash"
-      maildirmake.dovecot "/var/mail/${domain}/${user}/.Drafts"
-      echo -e "INBOX\nSent\nTrash\nDrafts" >> "/var/mail/${domain}/${user}/subscriptions"
-      touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
-
-    fi
+#    if [ ! -d "/var/mail/${domain}/${user}" ]; then
+#      maildirmake.dovecot "/var/mail/${domain}/${user}"
+#      maildirmake.dovecot "/var/mail/${domain}/${user}/.Sent"
+#      maildirmake.dovecot "/var/mail/${domain}/${user}/.Trash"
+#      maildirmake.dovecot "/var/mail/${domain}/${user}/.Drafts"
+#      echo -e "INBOX\nSent\nTrash\nDrafts" >> "/var/mail/${domain}/${user}/subscriptions"
+#      touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
+#
+#    fi
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/docker-mailserver/postfix-accounts.cf
 else
@@ -79,6 +81,7 @@ if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
 
+: <<'END'
 echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
@@ -211,6 +214,7 @@ if [ ! -z "$SASL_PASSWD" ]; then
 else
   echo "==> Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
 fi
+END
 
 echo "Fixing permissions"
 chown -R 5000:5000 /var/mail
@@ -218,6 +222,7 @@ chown -R 5000:5000 /var/mail
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
 
+: <<'END'
 echo "Configuring Spamassassin"
 SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
 SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
@@ -232,6 +237,7 @@ sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
+END
 
 if [ "$SMTP_ONLY" != 1 ]; then
   # Here we are starting sasl and imap, not pop3 because it's disabled by default
@@ -244,6 +250,8 @@ if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
   /usr/sbin/dovecot reload
 fi
+
+: <<'END'
 
 # Start services related to SMTP
 /etc/init.d/spamassassin start
@@ -258,9 +266,11 @@ if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   touch /var/log/auth.log
   /etc/init.d/fail2ban start
 fi
+END
 
 echo "Listing users"
 /usr/sbin/dovecot user '*'
+
 
 echo "Starting..."
 tail -f /var/log/mail/mail.log

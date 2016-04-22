@@ -24,6 +24,7 @@ RUN apk add --no-cache \
 # https://pkgs.alpinelinux.org/package/v3.3/main/x86/dkimproxy
 #RUN apk add opendkim --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 #################################
+RUN apk add shadow --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
@@ -44,7 +45,9 @@ RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/conf.d/spamd
 #RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 #RUN adduser clamav amavis
 #RUN adduser amavis clamav
-#RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
+# Trying to make dovecot start
+RUN groupadd docker
+RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
 
 # Configure Fail2ban
 ADD target/fail2ban/jail.conf /etc/fail2ban/jail.conf
@@ -61,12 +64,12 @@ RUN (crontab -l; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - 
 #RUN freshclam
 #################################
 
-# Configure DKIM (opendkim)
-RUN mkdir -p /etc/opendkim/keys
-ADD target/opendkim/TrustedHosts /etc/opendkim/TrustedHosts
-# DKIM config files
-ADD target/opendkim/opendkim.conf /etc/opendkim.conf
-ADD target/opendkim/default-opendkim /etc/default/opendkim
+## Configure DKIM (opendkim)
+#RUN mkdir -p /etc/opendkim/keys
+#ADD target/opendkim/TrustedHosts /etc/opendkim/TrustedHosts
+## DKIM config files
+#ADD target/opendkim/opendkim.conf /etc/opendkim.conf
+#ADD target/opendkim/default-opendkim /etc/default/opendkim
 
 # Configure DMARC (opendmarc)
 ADD target/opendmarc/opendmarc.conf /etc/opendmarc.conf
