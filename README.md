@@ -105,7 +105,7 @@ Please first read [Postfix documentation on virtual aliases](http://www.postfix.
 Aliases are managed in `config/postfix-virtual.cf`.
 An alias is a full email address that will be:
 * delivered to an existing account in `config/postfix-accounts.cf`
-* redirected to one or more other email adresses
+* redirected to one or more other email addresses
 
 Alias and target are space separated.
 
