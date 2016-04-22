@@ -29,7 +29,7 @@ RUN apk add shadow --update-cache --repository http://dl-3.alpinelinux.org/alpin
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
 RUN cp -a /etc/ssl/dovecot/server.pem /etc/dovecot/dovecot.pem
-RUN mkdir /etc/dovecot/private && cp -a /etc/ssl/dovecot/server.pem /etc/dovecot/private/dovecot.pem
+RUN mkdir /etc/dovecot/private && cp -a /etc/ssl/dovecot/server.key /etc/dovecot/private/dovecot.pem
 ADD target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 ADD target/dovecot/10-*.conf /etc/dovecot/conf.d/
 
