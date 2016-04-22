@@ -14,6 +14,7 @@ RUN apk add --no-cache \
       dovecot \
       fail2ban \
       freshclam \
+      netcat-openbsd \
       postfix \
       rsyslog \
       spamassassin
