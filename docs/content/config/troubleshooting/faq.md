@@ -63,6 +63,8 @@ Please have a look to the `README` in order to manage users and aliases.
     username:           <user1@domain.tld>
     password:           <mypassword>
 
+Please use `STARTTLS`.
+
 ### How can I manage my custom Spamassassin rules?
 Antispam rules are managed in `spamassassin/rules.cf`.  
 
