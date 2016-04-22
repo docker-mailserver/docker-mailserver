@@ -115,6 +115,8 @@ Example:
 
 ## Environment variables
 
+Value in **bold** s the default value.
+
 ##### DMS_SSL
 
   - **empty** => SSL disabled
