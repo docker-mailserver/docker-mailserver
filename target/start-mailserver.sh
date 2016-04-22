@@ -114,6 +114,7 @@ if [ ! -f "/etc/opendmarc/ignore.hosts" ]; then
   mkdir -p /etc/opendmarc/
   echo "localhost" >> /etc/opendmarc/ignore.hosts
 fi
+END
 
 # SSL Configuration
 case $DMS_SSL in
@@ -192,6 +193,7 @@ case $DMS_SSL in
 
 esac
 
+: <<'END'
 #
 # Override Postfix configuration
 #
