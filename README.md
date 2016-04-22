@@ -60,7 +60,7 @@ Before you open an issue, please have a look this `README`, the [FAQ](https://gi
     # Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
     mkdir -p config
     docker run --rm \
-      -e MAIL_USER=username@domain.tld \
+      -e MAIL_USER=user1@domain.tld \
       -e MAIL_PASS=mypassword \
       -ti tvial/docker-mailserver:v2 \
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
@@ -84,7 +84,10 @@ Example:
 
 To generate the password you could run for example the following:
 
-    docker run --rm -ti tvial/docker-mailserver:v2 doveadm pw -s CRAM-MD5 -u user1@domain.tld
+    docker run --rm \
+      -e MAIL_USER=user1@domain.tld \
+      -ti tvial/docker-mailserver:v2 \
+      /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER )"'
 
 You will be asked for a password. Just copy all the output string in the file `config/postfix-accounts.cf`.
 
@@ -112,28 +115,44 @@ Example:
 
 ## Environment variables
 
-* DMS_SSL
-  * *empty* (default) => SSL disabled
-  * letsencrypt => Enables Let's Encrypt certificates
-  * self-signed => Enables self-signed certificates
-* ENABLE_POP3
-  * *empty* (default) => POP3 service disabled
-  * 1 => Enables POP3 service
-* SMTP_ONLY
-  * *empty* (default) => courier daemons might start
-  * *1 => do not launch any courier daemons (imap, pop3)
-* SA_TAG
-  * *2.0* (default) => add spam info headers if at, or above that level
-* SA_TAG2
-  * *6.31* (default) => add 'spam detected' headers at that level
-* SA_KILL
-  * *6.31* (default) => triggers spam evasive actions
-* SASL_PASSWD
-  * *empty* (default) => No sasl_passwd will be created
-  * *string* => A /etc/postfix/sasl_passwd will be created with that content and postmap will be run on it
-* ENABLE_FAIL2BAN
-  * *empty* (default) => fail2ban service disabled
-  * 1 => Enables fail2ban service
+##### DMS_SSL
+
+  - **empty** => SSL disabled
+  - letsencrypt => Enables Let's Encrypt certificates
+  - custom => Enables custom certificates
+  - self-signed => Enables self-signed certificates
+
+##### ENABLE_POP3
+
+  - **empty** => POP3 service disabled
+  - 1 => Enables POP3 service
+
+##### ENABLE_FAIL2BAN
+
+  - **empty** => fail2ban service disabled
+  - 1 => Enables fail2ban service
+
+##### SA_TAG
+
+  - **2.0** => add spam info headers if at, or above that level
+
+##### SA_TAG2
+
+  - **6.31** => add 'spam detected' headers at that level
+
+##### SA_KILL
+
+  - **6.31** => triggers spam evasive actions
+
+##### SASL_PASSWD
+
+  - **empty** => No sasl_passwd will be created
+  - *string* => `/etc/postfix/sasl_passwd` will be created with the string as password
+
+##### SMTP_ONLY
+
+  - **empty** => all daemons start
+  - 1 => only launch postfix smtp
 
 Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/v2/start-mailserver.sh) to understand what's expected.
 
@@ -144,6 +163,8 @@ You have prepared your mail accounts? Now you can generate DKIM keys using the f
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:v2 generate-dkim-config
+
+Don't forget to mount `config/opendkim/` to `/tmp/docker-mailserver/opendkim/` in order to use it.
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
