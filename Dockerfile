@@ -7,7 +7,7 @@ RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
 	postfix dovecot-core dovecot-imapd dovecot-pop3d gamin amavisd-new spamassassin razor pyzor \
 	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip zip rsyslog \
-    opendkim opendkim-tools opendmarc curl fail2ban && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+    opendkim opendkim-tools opendmarc curl fail2ban ed && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
