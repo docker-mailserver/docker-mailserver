@@ -115,7 +115,7 @@ Example:
 
 ## Environment variables
 
-Value in **bold** s the default value.
+Value in **bold** is the default value.
 
 ##### DMS_SSL
 
