@@ -81,10 +81,10 @@ if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
 
-: <<'END'
 echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
+: <<'END'
 
 # DKIM
 # Check if keys are already available
@@ -262,13 +262,14 @@ fi
 /etc/init.d/opendkim start
 /etc/init.d/opendmarc start
 /etc/init.d/postfix start
+END
+postfix start
 
 if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   echo "Starting fail2ban service"
   touch /var/log/auth.log
   /etc/init.d/fail2ban start
 fi
-END
 
 echo "Listing users"
 /usr/sbin/dovecot user '*'
