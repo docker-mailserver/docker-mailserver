@@ -29,8 +29,8 @@ RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl pass
 
 # Configure Fail2ban
 ADD target/fail2ban/jail.conf /etc/fail2ban/jail.conf
-# ADD target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
-# RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
+ADD target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
+RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 
 # Enables Clamav
 RUN chmod 644 /etc/clamav/freshclam.conf
