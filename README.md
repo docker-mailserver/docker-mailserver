@@ -134,6 +134,13 @@ Value in **bold** is the default value.
   - **empty** => fail2ban service disabled
   - 1 => Enables fail2ban service
 
+If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
+
+    cap_add:
+      - NET_ADMIN
+
+Otherwise, `iptables` won't be able to ban IPs.
+
 ##### SA_TAG
 
   - **2.0** => add spam info headers if at, or above that level
