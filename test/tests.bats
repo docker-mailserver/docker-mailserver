@@ -322,7 +322,7 @@
 #
 
 @test "checking fail2ban: localhost is not banned because ignored" {
-  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*127.0.0.1'"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 1 ]
   run docker exec mail_fail2ban /bin/sh -c "grep 'ignoreip = 127.0.0.1/8' /etc/fail2ban/jail.conf"
   [ "$status" -eq 0 ]
@@ -336,26 +336,24 @@
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   sleep 5
   # Checking that FAIL_AUTH_MAILER_IP is banned in mail_fail2ban
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
-  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && fail2ban-client status sasl | grep '$FAIL_AUTH_MAILER_IP'"
+  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && fail2ban-client status postfix-sasl | grep '$FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 0 ]
   # Checking that FAIL_AUTH_MAILER_IP is banned in /etc/hosts.deny
-  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && grep 'ALL: $FAIL_AUTH_MAILER_IP' /etc/hosts.deny"
+  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && iptables -L | grep 'REJECT     all  --  $FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking fail2ban: unban ip works" {
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
-  docker exec mail_fail2ban fail2ban-client set sasl unbanip $FAIL_AUTH_MAILER_IP
+  docker exec mail_fail2ban fail2ban-client set postfix-sasl unbanip $FAIL_AUTH_MAILER_IP
   sleep 5
-  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status sasl | grep 'IP list:.*$FAIL_AUTH_MAILER_IP'"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep 'IP list:.*$FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 1 ]
   # Checking that FAIL_AUTH_MAILER_IP is unbanned in /etc/hosts.deny
-  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && grep 'ALL: $FAIL_AUTH_MAILER_IP' /etc/hosts.deny"
+  run docker exec mail_fail2ban /bin/sh -c "export FAIL_AUTH_MAILER_IP=$FAIL_AUTH_MAILER_IP && iptables -L | grep 'REJECT     all  --  $FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 1 ]
 }
 
@@ -366,7 +364,7 @@
 @test "checking system: freshclam cron is enabled" {
   run docker exec mail crontab -l
   [ "$status" -eq 0 ]
-  [ "$output" = "0 1 * * * /usr/bin/freshclam --quiet" ]
+  [ "$output" = "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ]
 }
 
 @test "checking system: /var/log/mail/mail.log is error free" {

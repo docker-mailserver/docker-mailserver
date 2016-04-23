@@ -2,12 +2,16 @@ FROM ubuntu:14.04
 MAINTAINER Thomas VIAL
 
 # Packages
-RUN apt-get update -q --fix-missing
-RUN apt-get -y upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
+	apt-get -y upgrade && \
+	apt-get -y install --no-install-recommends \
 	postfix dovecot-core dovecot-imapd dovecot-pop3d gamin amavisd-new spamassassin razor pyzor \
 	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip zip rsyslog \
-    opendkim opendkim-tools opendmarc curl fail2ban ed && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+    opendkim opendkim-tools opendmarc curl fail2ban ed iptables && \
+	curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
+	apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
+	apt-get update -q --fix-missing && apt-get -y upgrade fail2ban && \
+    apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
@@ -25,12 +29,12 @@ RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl pass
 
 # Configure Fail2ban
 ADD target/fail2ban/jail.conf /etc/fail2ban/jail.conf
-ADD target/fail2ban/filters.d/dovecot.conf /etc/fail2ban/filters.d/dovecot.conf
+ADD target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 
 # Enables Clamav
 RUN chmod 644 /etc/clamav/freshclam.conf
-RUN (crontab; echo "0 1 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
+RUN (crontab; echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN freshclam
 
 # Enables Pyzor and Razor

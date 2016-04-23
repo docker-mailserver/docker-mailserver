@@ -37,6 +37,7 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FAIL2BAN=1 \
+		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 15
