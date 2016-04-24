@@ -12,7 +12,7 @@ Adapt this file with your FQDN.
 
     services:
       mail:
-        image: tvial/docker-mailserver:testing
+        image: tvial/docker-mailserver:v2
         # build: .
         hostname: mail
         domainname: domain.com
