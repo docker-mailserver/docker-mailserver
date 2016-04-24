@@ -116,7 +116,7 @@ Please read [how the container starts](https://github.com/tomav/docker-mailserve
 
 ## SSL
 
-Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/SSL) for more information.
+Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
 
 ## Todo
 
