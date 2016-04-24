@@ -19,8 +19,6 @@ Assuming that you use `docker-compose` and a data volume container named `mailda
 
 ### How can I configure my email client?
 Login are full email address (`user@domain.com`).  
-Both login and password are managed in `postfix/accounts.cf` file.  
-Please have a look to the `README` in order to manage users and aliases.  
 
     # imap
     username:           <user1@domain.tld>
