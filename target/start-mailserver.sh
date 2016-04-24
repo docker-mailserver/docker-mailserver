@@ -49,7 +49,6 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
       maildirmake.dovecot "/var/mail/${domain}/${user}/.Drafts"
       echo -e "INBOX\nSent\nTrash\nDrafts" >> "/var/mail/${domain}/${user}/subscriptions"
       touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
-
     fi
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/docker-mailserver/postfix-accounts.cf
@@ -89,15 +88,14 @@ if [ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
   mkdir -p /etc/opendkim
   cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
   echo "DKIM keys added for: `ls -C /etc/opendkim/keys/`"
+  echo "Changing permissions on /etc/opendkim"
+  # chown entire directory
+  chown -R opendkim:opendkim /etc/opendkim/
+  # And make sure permissions are right
+  chmod -R 0700 /etc/opendkim/keys/
 else
   echo "No DKIM key provided. Check the documentation to find how to get your keys."
 fi
-
-echo "Changing permissions on /etc/opendkim"
-# chown entire directory
-chown -R opendkim:opendkim /etc/opendkim/
-# And make sure permissions are right
-chmod -R 0700 /etc/opendkim/keys/
 
 # DMARC
 # if there is no AuthservID create it
@@ -113,7 +111,7 @@ if [ ! -f "/etc/opendmarc/ignore.hosts" ]; then
 fi
 
 # SSL Configuration
-case $DMS_SSL in
+case $SSL_TYPE in
   "letsencrypt" )
     # letsencrypt folders and files mounted in /etc/letsencrypt
     if [ -e "/etc/letsencrypt/live/$(hostname)/cert.pem" ] \
@@ -225,7 +223,7 @@ SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kil
 test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 
 # Disable logrotate config for fail2ban if not enabled
-test -z "$ENABLE_FAIL2BAN"&& rm -f /etc/logrotate.d/fail2ban
+test -z "$ENABLE_FAIL2BAN" && rm -f /etc/logrotate.d/fail2ban
 # Fix cron.daily for spamassassin
 sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload/g' /etc/cron.daily/spamassassin
 

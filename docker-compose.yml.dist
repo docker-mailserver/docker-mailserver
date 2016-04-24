@@ -1,14 +1,26 @@
-mail:
-  image: tvial/docker-mailserver:v2
-  # build: .
-  hostname: mail
-  domainname: domain.com
-  volumes_from:
-   - maildata
-  ports:
-  - "25:25"
-  - "143:143"
-  - "587:587"
-  - "993:993"
-  volumes:
-  - ./config/:/tmp/docker-mailserver/
+version: '2'
+
+services:
+  mail:
+    image: tvial/docker-mailserver:v2
+    hostname: mail
+    domainname: domain.com
+    container_name: mail
+    volumes:
+    - maildata:/var/mail
+    ports:
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
+    volumes:
+    - ./config/:/tmp/docker-mailserver/
+    - ./opendkim/:/tmp/docker-mailserver/opendkim/
+    environment:
+    - ENABLE_FAIL2BAN=1
+    cap_add:
+    - NET_ADMIN
+
+volumes:
+  maildata:
+    driver: local
