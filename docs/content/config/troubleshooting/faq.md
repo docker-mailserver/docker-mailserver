@@ -7,35 +7,6 @@ You'll probably want to `push` your config updates to your server and restart th
 Mails are stored in `/var/mail/${domain}/${username}`.  
 You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
 
-### How can I use data volume container as proposed above?
-
-Here is a `docker-compose.yml` example which use a data volume container for email storage named `maildata`.
-
-    maildata:
-      image: ubuntu
-      volumes:
-        - /var/mail
-      command: /bin/true
-
-    mail:
-      image: "tvial/docker-mailserver"
-      hostname: "mail"
-      domainname: "domain.com"
-      volumes_from:
-       - maildata
-      ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
-      volumes:
-      - ./spamassassin:/tmp/spamassassin/
-      - ./postfix:/tmp/postfix/
-      - ./opendkim/keys:/etc/opendkim/keys
-      - ./letsencrypt/etc:/etc/letsencrypt
-      environment:
-      - DMS_SSL=letsencrypt
-
 ### What about backups?
 
 Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
@@ -66,7 +37,7 @@ Please have a look to the `README` in order to manage users and aliases.
 Please use `STARTTLS`.
 
 ### How can I manage my custom Spamassassin rules?
-Antispam rules are managed in `spamassassin/rules.cf`.  
+Antispam rules are managed in `config/spamassassin-rules.cf`.  
 
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
