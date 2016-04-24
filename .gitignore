@@ -1,6 +1,4 @@
 .DS_Store
 docker-compose.yml
-postfix/ssl/*
-letsencrypt/
 .idea
 test/config/empty/
