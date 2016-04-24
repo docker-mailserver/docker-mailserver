@@ -10,7 +10,7 @@ After installation, you can test your setup with [checktls.com](https://www.chec
 To enable Let's Encrypt on your mail server, you have to:
 
 * get your certificate using [letsencrypt client](https://github.com/letsencrypt/letsencrypt)
-* add an environment variable `DMS_SSL` with value `letsencrypt` (see `docker-compose.yml.dist`)
+* add an environment variable `SSL_TYPE` with value `letsencrypt` (see `docker-compose.yml.dist`)
 * mount your whole `letsencrypt` folder to `/etc/letsencrypt`
 * the certs folder name located in `letsencrypt/live/` must be the `fqdn` of your container responding to the `hostname` command.
 
