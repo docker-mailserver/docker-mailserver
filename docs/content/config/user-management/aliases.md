@@ -1,0 +1,16 @@
+Please first read [Postfix documentation on virtual aliases](http://www.postfix.org/VIRTUAL_README.html#virtual_alias).
+
+Aliases are managed in `config/postfix-virtual.cf`.
+An alias is a full email address that will be:
+* delivered to an existing account in `config/postfix-accounts.cf`
+* redirected to one or more other email addresses
+
+Alias and target are space separated.
+
+Example:
+
+    # Alias to existing account
+    alias1@domain.tld user1@domain.tld
+
+    # Forward to external email address
+    alias2@domain.tld external@gmail.com
