@@ -1,8 +1,8 @@
 NAME = tvial/docker-mailserver:testing
 
-all: build-no-cache run fixtures tests clean
-all-fast: build run fixtures tests clean
-no-build: run fixtures tests clean
+all: build-no-cache generate-accounts run fixtures tests clean
+all-fast: build generate-accounts run fixtures tests clean
+no-build: generate-accounts run fixtures tests clean
 
 build-no-cache:
 	docker build --no-cache -t $(NAME) .
@@ -10,6 +10,10 @@ build-no-cache:
 build:
 	docker build -t $(NAME) .
 
+generate-accounts:
+	docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s CRAM-MD5 -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
+	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s CRAM-MD5 -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
+	
 run:
 	# Run containers
 	docker run -d --name mail \
