@@ -3,6 +3,11 @@ None. No *sql database required.
 This image is based on config files that can be versioned.  
 You'll probably want to `push` your config updates to your server and restart the container to apply changes.  
 
+### What are the file format?
+
+Of course file are Unix format with LF line endings.
+Please do not use CLRF.
+
 ### Where are emails stored?
 Mails are stored in `/var/mail/${domain}/${username}`.  
 You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
