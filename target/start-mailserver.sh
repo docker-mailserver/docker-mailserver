@@ -9,6 +9,8 @@ die () {
 # Users
 #
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
+  echo "Checking file line endings"
+  sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
   echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
   echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
 

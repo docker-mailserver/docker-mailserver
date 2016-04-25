@@ -2,3 +2,4 @@
 docker-compose.yml
 .idea
 test/config/empty/
+test/config/postfix-accounts.cf
