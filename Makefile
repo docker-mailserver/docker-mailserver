@@ -24,19 +24,21 @@ run:
 		-e SA_KILL=3.0 \
 		-e SASL_PASSWD=testing \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	sleep 20
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
 		-e ENABLE_POP3=1 \
+		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	sleep 20
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	sleep 20
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -44,7 +46,7 @@ run:
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
-	sleep 15
+	sleep 20
 
 fixtures:
 	# Sending test mails
@@ -55,7 +57,7 @@ fixtures:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
 	# Wait for mails to be analyzed
-	sleep 20
+	sleep 10
 
 tests:
 	# Start tests

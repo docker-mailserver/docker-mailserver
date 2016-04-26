@@ -300,25 +300,40 @@
 }
 
 #
-# letsencrypt
+# ssl
 #
 
-@test "checking letsencrypt: lets-encrypt-x1-cross-signed.pem is installed" {
+@test "checking ssl: generated default cert works correctly" {
+  run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking ssl: lets-encrypt-x1-cross-signed.pem is installed" {
   run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem
   [ "$status" -eq 0 ]
 }
 
-@test "checking letsencrypt: lets-encrypt-x2-cross-signed.pem is installed" {
+@test "checking ssl: lets-encrypt-x2-cross-signed.pem is installed" {
   run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
   [ "$status" -eq 0 ]
 }
 
-#
-# ssl
-#
+@test "checking ssl: letsencrypt configuration is correct" {
+  run docker exec mail_pop3 /bin/sh -c 'grep -ir "/etc/letsencrypt/live/mail.my-domain.com/" /etc/postfix/main.cf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  run docker exec mail_pop3 /bin/sh -c 'grep -ir "/etc/letsencrypt/live/mail.my-domain.com/" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+}
 
-@test "checking ssl: generated default cert is installed" {
-  run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
+@test "checking ssl: letsencrypt combined.pem generated correctly" {
+  run docker exec mail_pop3 ls -1 /etc/letsencrypt/live/mail.my-domain.com/combined.pem
+  [ "$status" -eq 0 ]
+}
+
+@test "checking ssl: letsencrypt cert works correctly" {
+  run docker exec mail_pop3 /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
   [ "$status" -eq 0 ]
 }
 
