@@ -3,3 +3,4 @@ docker-compose.yml
 .idea
 test/config/empty/
 test/config/postfix-accounts.cf
+test/config/letsencrypt/mail.my-domain.com/combined.pem

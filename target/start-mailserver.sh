@@ -118,6 +118,7 @@ case $SSL_TYPE in
     # letsencrypt folders and files mounted in /etc/letsencrypt
     if [ -e "/etc/letsencrypt/live/$(hostname)/cert.pem" ] \
     && [ -e "/etc/letsencrypt/live/$(hostname)/chain.pem" ] \
+    && [ -e "/etc/letsencrypt/live/$(hostname)/fullchain.pem" ] \
     && [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
       echo "Adding $(hostname) SSL certificate"
       # create combined.pem from (cert|chain|privkey).pem with eol after each .pem
@@ -131,7 +132,7 @@ case $SSL_TYPE in
       sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
       sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
-      echo "SSL configured with letsencrypt certificates"
+      echo "SSL configured with 'letsencrypt' certificates"
 
     fi
     ;;
@@ -151,7 +152,7 @@ case $SSL_TYPE in
       sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/postfix\/ssl\/'$(hostname)'-full\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
       sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/'$(hostname)'-full\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
-      echo "SSL configured with CA signed/custom certificates"
+      echo "SSL configured with 'CA signed/custom' certificates"
 
     fi
     ;;
@@ -182,7 +183,7 @@ case $SSL_TYPE in
       sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/postfix\/ssl\/'$(hostname)'-combined\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
       sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/'$(hostname)'-key\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
-      echo "SSL configured with self-signed/custom certificates"
+      echo "SSL configured with 'self-signed' certificates"
 
     fi
     ;;
