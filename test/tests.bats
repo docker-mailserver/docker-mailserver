@@ -255,25 +255,25 @@
     -v "$(pwd)/test/config/empty/":/tmp/docker-mailserver/ \
     -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
     -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    tvial/docker-mailserver:testing /bin/sh -c 'generate-dkim-config | wc -l' 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l' 
   [ "$status" -eq 0 ]
   [ "$output" -eq 5 ]
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
-    tvial/docker-mailserver:testing /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l' 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l' 
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
   # Check keys for otherdomain.tld
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
-    tvial/docker-mailserver:testing /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l' 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l' 
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
-    tvial/docker-mailserver:testing /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l" 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l" 
   [ "$status" -eq 0 ]
   [ "$output" -eq 4 ]
 }
@@ -332,7 +332,7 @@
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
   # Create a container which will send wront authentications and should banned
-  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d tvial/docker-mailserver:testing tail -f /var/log/faillog
+  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d `docker inspect --format '{{ .Config.Image }}' mail` tail -f /var/log/faillog
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
