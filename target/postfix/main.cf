@@ -24,10 +24,6 @@ smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
 #smtp_tls_CAfile=
 smtpd_tls_security_level = may
 smtpd_use_tls=yes
-smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination
-smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
-smtpd_sender_restrictions = permit_mynetworks
 smtp_tls_security_level = may
 smtp_tls_loglevel = 1
 tls_ssl_options = NO_COMPRESSION
@@ -37,6 +33,17 @@ smtp_tls_protocols=!SSLv2,!SSLv3
 smtpd_tls_mandatory_ciphers = high
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_exclude_ciphers = aNULL, LOW, EXP, MEDIUM, ADH, AECDH, MD5, DSS, ECDSA, CAMELLIA128, 3DES, CAMELLIA256, RSA+AES, eNULL
+
+# Settings to prevent SPAM early
+smtpd_helo_required = yes
+smtpd_delay_reject = yes
+smtpd_helo_restrictions = permit_mynetworks, reject_invalid_hostname, permit
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination,
+    reject_unauth_pipelining, reject_invalid_hostname, reject_non_fqdn_hostname, reject_unknown_recipient_domain,
+    reject_rbl_client dnsbl.sorbs.net, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
+smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
+smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
 
 # SASL
 smtpd_sasl_auth_enable = yes
