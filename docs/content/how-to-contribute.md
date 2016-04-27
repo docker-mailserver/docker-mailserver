@@ -10,12 +10,15 @@
 
 When `v2` will be released, the development workflow will be:
 
-- Fork
-- Improve
+- Fork and clone your fork
+- Create a branch using `git checkout -b branch_name`
+- Code :-)
 - Add integration tests in `test/tests.bats`
 - Use `make` to build image locally and run tests
 - Document your improvements
 - Commit, push and make a pull-request on `develop` branch
-- When tests are green, your branch is merged and tested on real servers by contributors
-- When feedback is positive, develop is merged on master
+- When tests are green, your branch is merged to `develop`
+- Docker builds a new `develop` image
+- `:develop` image is tested on real servers by contributors
+- When feedback is positive, `develop` is merged on `master`
 
