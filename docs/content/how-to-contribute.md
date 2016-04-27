@@ -16,7 +16,7 @@ When `v2` will be released, the development workflow will be:
 - Add integration tests in `test/tests.bats`
 - Use `make` to build image locally and run tests
 - Document your improvements
-- Commit, push and make a pull-request
+- [Commit](https://help.github.com/articles/closing-issues-via-commit-messages/), push and make a pull-request
 - When tests are green, your branch is merged to `master`
 - Docker builds a new `latest` image
 
