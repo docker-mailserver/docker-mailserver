@@ -21,4 +21,5 @@ When `v2` will be released, the development workflow will be:
 - Docker builds a new `develop` image
 - `:develop` image is tested on real servers by contributors
 - When feedback is positive, `develop` is merged on `master`
+- Docker builds a new `latest` image
 
