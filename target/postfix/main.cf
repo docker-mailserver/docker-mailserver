@@ -61,6 +61,8 @@ virtual_mailbox_maps = hash:/etc/postfix/vmailbox
 virtual_alias_maps = hash:/etc/postfix/virtual
 virtual_uid_maps = static:5000
 virtual_gid_maps = static:5000
+# Enable Dovecot Sieve
+virtual_transport = dovecot
 
 # Additional option for filtering
 content_filter = smtp-amavis:[127.0.0.1]:10024

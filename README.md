@@ -22,6 +22,7 @@ Includes:
 - opendkim
 - opendmarc
 - fail2ban
+- basic sieve support using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)

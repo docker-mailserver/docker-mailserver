@@ -5,7 +5,7 @@ MAINTAINER Thomas VIAL
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
 	apt-get -y upgrade && \
 	apt-get -y install --no-install-recommends \
-	postfix dovecot-core dovecot-imapd dovecot-pop3d gamin amavisd-new spamassassin razor pyzor \
+	postfix dovecot-core dovecot-imapd dovecot-pop3d dovecot-sieve gamin amavisd-new spamassassin razor pyzor \
 	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
     opendkim opendkim-tools opendmarc curl fail2ban ed iptables && \
 	curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
@@ -16,6 +16,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
+RUN sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf
 ADD target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 ADD target/dovecot/10-*.conf /etc/dovecot/conf.d/
 
