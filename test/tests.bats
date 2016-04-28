@@ -129,9 +129,9 @@
 }
 
 @test "checking smtp: delivers mail to existing account" {
-  run docker exec mail /bin/sh -c "grep 'status=sent (delivered to maildir)' /var/log/mail/mail.log | wc -l"
+  run docker exec mail /bin/sh -c "grep 'status=sent (delivered via dovecot service)' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 2 ]
+  [ "$output" -eq 3 ]
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -408,4 +408,14 @@
   run docker exec mail cat /etc/mailname
   [ "$status" -eq 0 ]
   [ "$output" = "my-domain.com" ]
+}
+
+#
+# sieve
+#
+
+@test "checking sieve: user1 should have received 1 email in folder INBOX.spam" {
+  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
 }
