@@ -17,8 +17,8 @@ The development workflow is the following:
 - Use `make` to build image locally and run tests
 - Document your improvements
 - [Commit](https://help.github.com/articles/closing-issues-via-commit-messages/), push and make a pull-request
-- Branch is automatically tested on Travis
-- When tests are green, your branch is merged to `master`
-- Master is automatically tested on Travis
+- Pull-request is automatically tested on Travis
+- When tests are green, your branch is merged into `master`
+- `master` is automatically tested on Travis
 - Docker builds a new `latest` image
 
