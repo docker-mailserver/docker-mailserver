@@ -5,7 +5,7 @@ MAINTAINER Thomas VIAL
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
 	apt-get -y upgrade && \
 	apt-get -y install --no-install-recommends \
-	postfix dovecot-core dovecot-imapd dovecot-pop3d dovecot-sieve gamin amavisd-new spamassassin razor pyzor \
+	postfix dovecot-core dovecot-imapd dovecot-pop3d dovecot-sieve dovecot-managesieved gamin amavisd-new spamassassin razor pyzor \
 	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
     opendkim opendkim-tools opendmarc curl fail2ban ed iptables && \
 	curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
@@ -74,6 +74,6 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /et
 ADD target/bin/generate-ssl-certificate target/bin/generate-dkim-config target/start-mailserver.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
-EXPOSE 25 587 143 993 110 995
+EXPOSE 25 587 143 993 110 995 4190
 
 CMD /usr/local/bin/start-mailserver.sh

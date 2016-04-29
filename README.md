@@ -113,6 +113,11 @@ If you enable Fail2Ban, don't forget to add the following lines to your `docker-
 
 Otherwise, `iptables` won't be able to ban IPs.
 
+##### ENABLE_MANAGESIEVE
+
+  - **empty** => Managesieve service disabled
+  - 1 => Enables Managesieve on port 4190
+
 ##### SA_TAG
 
   - **2.0** => add spam info headers if at, or above that level
