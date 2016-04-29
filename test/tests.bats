@@ -420,7 +420,7 @@
   [ "$output" = 1 ]
 }
 
-@test "checking manage sieve: server is ready when ENABLE_MANAGE_SIEVE has been set" {
+@test "checking manage sieve: server is ready when ENABLE_MANAGESIEVE has been set" {
   run docker exec mail /bin/bash -c "nc -z 0.0.0.0 4190"
   [ "$status" -eq 0 ]
 }

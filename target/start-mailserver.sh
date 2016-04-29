@@ -237,7 +237,7 @@ cron
 
 # Enable Managesieve service by setting the symlink
 # to the configuration file Dovecot will actually find
-if [ "$ENABLE_MANAGE_SIEVE" = 1 ]; then
+if [ "$ENABLE_MANAGESIEVE" = 1 ]; then
   mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 fi
 

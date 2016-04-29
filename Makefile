@@ -23,7 +23,7 @@ run:
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
 		-e SASL_PASSWD=testing \
-		-e ENABLE_MANAGE_SIEVE=1 \
+		-e ENABLE_MANAGESIEVE=1 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
 	docker run -d --name mail_pop3 \
