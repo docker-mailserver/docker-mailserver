@@ -419,3 +419,13 @@
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
+
+@test "checking manage sieve: server is ready when ENABLE_MANAGE_SIEVE has been set" {
+  run docker exec mail /bin/bash -c "nc -z 0.0.0.0 4190"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking manage sieve: disabled per default" {
+  run docker exec mail_pop3 /bin/bash -c "nc -z 0.0.0.0 4190"
+  [ "$status" -ne 0 ]
+}

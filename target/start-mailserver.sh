@@ -23,6 +23,7 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
   # Disable pop3 (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
+  mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
   sed -i -e 's/#ssl = yes/ssl = yes/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
@@ -233,6 +234,12 @@ sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
+
+# Enable Managesieve service by setting the symlink
+# to the configuration file Dovecot will actually find
+if [ "$ENABLE_MANAGE_SIEVE" = 1 ]; then
+  mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
+fi
 
 if [ "$SMTP_ONLY" != 1 ]; then
   # Here we are starting sasl and imap, not pop3 because it's disabled by default
