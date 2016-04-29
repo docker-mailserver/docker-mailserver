@@ -18,7 +18,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
 RUN sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf
 ADD target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
-ADD target/dovecot/10-*.conf /etc/dovecot/conf.d/
+ADD target/dovecot/??-*.conf /etc/dovecot/conf.d/
 
 # Enables Spamassassin and CRON updates
 RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin

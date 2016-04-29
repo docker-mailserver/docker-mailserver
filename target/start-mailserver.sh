@@ -53,6 +53,8 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
       echo -e "INBOX\nSent\nTrash\nDrafts" >> "/var/mail/${domain}/${user}/subscriptions"
       touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
     fi
+    # Copy user provided sieve file, if present
+    test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
     echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/docker-mailserver/postfix-accounts.cf
 else
@@ -76,14 +78,6 @@ if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
 else
   echo "==> Warning: 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
 fi
-
-if [ -f /tmp/vhost.tmp ]; then
-  cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
-fi
-
-echo "Postfix configurations"
-touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
-touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
 # DKIM
 # Check if keys are already available
@@ -191,6 +185,14 @@ case $SSL_TYPE in
 
 esac
 
+if [ -f /tmp/vhost.tmp ]; then
+  cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
+fi
+
+echo "Postfix configurations"
+touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
+touch /etc/postfix/virtual && postmap /etc/postfix/virtual
+
 #
 # Override Postfix configuration
 #
@@ -200,7 +202,7 @@ if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   done < /tmp/docker-mailserver/postfix-main.cf
   echo "Loaded 'config/postfix-main.cf'"
 else
-  echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/main.cf' not provided."
+  echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
 fi
 
 if [ ! -z "$SASL_PASSWD" ]; then
