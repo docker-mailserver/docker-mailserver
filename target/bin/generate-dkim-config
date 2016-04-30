@@ -33,10 +33,10 @@ grep -vE '^(\s*$|#)' /tmp/vhost | while read domainname; do
 	fi
 
 	# Write to KeyTable if necessary
-	keytableentry="mail._domainkey.$domainname $domainname:mail:/tmp/docker-mailserver/opendkim/keys/$domainname/mail.private"
+	keytableentry="mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private"
 	if [ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
 		echo "Creating DKIM KeyTable"
-	 	echo "mail._domainkey.$domainname $domainname:mail:/tmp/docker-mailserver/opendkim/keys/$domainname/mail.private" > /tmp/docker-mailserver/opendkim/KeyTable
+		echo $keytableentry > /tmp/docker-mailserver/opendkim/KeyTable
 	else
 		if ! grep -q "$keytableentry" "/tmp/docker-mailserver/opendkim/KeyTable" ; then
 	    	echo $keytableentry >> /tmp/docker-mailserver/opendkim/KeyTable
