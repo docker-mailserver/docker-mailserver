@@ -26,7 +26,6 @@ Adapt this file with your FQDN.
         - "993:993"
         volumes:
         - ./config/:/tmp/docker-mailserver/
-        - ./opendkim/:/tmp/docker-mailserver/opendkim/
 
     volumes:
       maildata:
