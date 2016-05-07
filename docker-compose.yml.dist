@@ -15,7 +15,6 @@ services:
     - "993:993"
     volumes:
     - ./config/:/tmp/docker-mailserver/
-    - ./opendkim/:/tmp/docker-mailserver/opendkim/
     environment:
     - ENABLE_FAIL2BAN=1
     cap_add:
