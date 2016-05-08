@@ -1,13 +1,5 @@
 # docker-mailserver [![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=v2)](https://travis-ci.org/tomav/docker-mailserver)
 
-
-```
-#
-# CURRENTLY IN RELEASE CANDIDATE
-#
-```
-
-
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
@@ -35,7 +27,7 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 #### Get v2 image
  
-    docker pull tvial/docker-mailserver:v2
+    docker pull tvial/docker-mailserver
 
 #### Create a `docker-compose.yml`
 
@@ -45,7 +37,7 @@ Adapt this file with your FQDN.
 
     services:
       mail:
-        image: tvial/docker-mailserver:v2
+        image: tvial/docker-mailserver
         # build: .
         hostname: mail
         domainname: domain.com
@@ -71,14 +63,14 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
       -e MAIL_PASS=mypassword \
-      -ti tvial/docker-mailserver:v2 \
+      -ti tvial/docker-mailserver \
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
 #### Generate DKIM keys 
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti tvial/docker-mailserver:v2 generate-dkim-config
+      -ti tvial/docker-mailserver generate-dkim-config
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
