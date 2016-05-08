@@ -50,14 +50,13 @@ Adapt this file with your FQDN.
         hostname: mail
         domainname: domain.com
         container_name: mail
-        volumes:
-        - maildata:/var/mail
         ports:
         - "25:25"
         - "143:143"
         - "587:587"
         - "993:993"
         volumes:
+        - maildata:/var/mail
         - ./config/:/tmp/docker-mailserver/
 
     volumes:
