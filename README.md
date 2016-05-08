@@ -25,9 +25,9 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 ## Usage
 
-#### Get v2 image
+#### Get latest image
  
-    docker pull tvial/docker-mailserver
+    docker pull tvial/docker-mailserver:latest
 
 #### Create a `docker-compose.yml`
 
@@ -37,7 +37,7 @@ Adapt this file with your FQDN.
 
     services:
       mail:
-        image: tvial/docker-mailserver
+        image: tvial/docker-mailserver:latest
         # build: .
         hostname: mail
         domainname: domain.com
@@ -63,14 +63,14 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
       -e MAIL_PASS=mypassword \
-      -ti tvial/docker-mailserver \
+      -ti tvial/docker-mailserver:latest \
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
 #### Generate DKIM keys 
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti tvial/docker-mailserver generate-dkim-config
+      -ti tvial/docker-mailserver:latest generate-dkim-config
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
