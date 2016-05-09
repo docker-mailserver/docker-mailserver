@@ -2,7 +2,7 @@
 
 #### Get v2 image
  
-    docker pull tvial/docker-mailserver:v2
+    docker pull tvial/docker-mailserver:latest 
 
 #### Create a `docker-compose.yml`
 
