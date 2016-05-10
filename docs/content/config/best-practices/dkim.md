@@ -3,7 +3,7 @@ Once its done, just run:
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti tvial/docker-mailserver:v2 generate-dkim-config
+      -ti tvial/docker-mailserver:latest generate-dkim-config
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
