@@ -11,7 +11,7 @@ To generate the password you could run for example the following:
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
       -e MAIL_PASS=mypassword \
-      -ti tvial/docker-mailserver:v2 \
+      -ti tvial/docker-mailserver:latest \
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s CRAM-MD5 -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
 You will be asked for a password. Just copy all the output string in the file `config/postfix-accounts.cf`.
