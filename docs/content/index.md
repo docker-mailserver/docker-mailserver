@@ -35,6 +35,7 @@ Adapt this file with your FQDN.
 Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
 
     mkdir -p config
+    touch config/postfix-accounts.cf
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
       -e MAIL_PASS=mypassword \
