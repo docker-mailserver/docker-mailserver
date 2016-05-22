@@ -216,8 +216,10 @@ else
   echo "==> Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
 fi
 
-echo "Fixing permissions"
-chown -R 5000:5000 /var/mail
+if [ $(stat -c %g:%u /var/mail) != 5000:5000 ]; then                      
+  echo "Fixing permissions"
+  chown -R 5000:5000 /var/mail                              
+fi 
 
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
