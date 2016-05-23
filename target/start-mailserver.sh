@@ -222,8 +222,13 @@ else
   echo "==> Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
 fi
 
-echo "Fixing permissions"
-chown -R 5000:5000 /var/mail
+# Fix permissions, but skip this if 3 levels deep the user id is already set
+if [ `find /var/mail -maxdepth 3 \! -user 5000 | grep -c .` != 0 ]; then
+  echo "Fixing /var/mail permissions"
+  chown -R 5000:5000 /var/mail
+else
+  echo "Permissions in /var/mail look OK"
+fi
 
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname
