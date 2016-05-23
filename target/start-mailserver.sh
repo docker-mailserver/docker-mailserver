@@ -231,7 +231,8 @@ if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
     "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
     "smtp_use_tls = yes" \
     "smtp_tls_security_level = encrypt" \
-    "smtp_tls_note_starttls_offer = yes"
+    "smtp_tls_note_starttls_offer = yes" \
+    "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
 fi
 
 # Install SASL passwords
