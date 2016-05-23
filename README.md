@@ -1,6 +1,7 @@
 # docker-mailserver [![Build Status](https://travis-ci.org/tve/docker-mailserver.svg?branch=master)](https://travis-ci.org/tve/docker-mailserver)
 
-This is a fork of https://github.com/tomav/docker-mailserver with some additional features:
+This is a fork of https://github.com/tomav/docker-mailserver with some additional features
+described below.
 
 ### Sending outbound mail via Amazon SES
 
