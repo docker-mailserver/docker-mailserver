@@ -211,8 +211,28 @@ else
   echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
 fi
 
+# Support general SASL password
+rm -f /etc/postfix/sasl_passwd
 if [ ! -z "$SASL_PASSWD" ]; then
-  echo "$SASL_PASSWD" > /etc/postfix/sasl_passwd
+  echo "$SASL_PASSWD" >> /etc/postfix/sasl_passwd
+fi
+
+# Support outgoing email relay via Amazon SES
+if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
+  echo "Setting up outgoing email via AWS SES host $AWS_SES_HOST"
+  echo "[$AWS_SES_HOST]:25 $AWS_SES_USERPASS" >>/etc/postfix/sasl_passwd
+  postconf -e \
+    "relayhost = [$AWS_SES_HOST]:25" \
+    "smtp_sasl_auth_enable = yes" \
+    "smtp_sasl_security_options = noanonymous" \
+    "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
+    "smtp_use_tls = yes" \
+    "smtp_tls_security_level = encrypt" \
+    "smtp_tls_note_starttls_offer = yes"
+fi
+
+# Install SASL passwords
+if [ -f /etc/postfix/sasl_passwd ]; then
   postmap hash:/etc/postfix/sasl_passwd
   rm /etc/postfix/sasl_passwd
   chown root:root /etc/postfix/sasl_passwd.db
