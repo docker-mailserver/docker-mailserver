@@ -82,7 +82,10 @@ if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
   # Copying regexp alias file
   echo "Adding regexp alias file postfix-regexp.cf"
   cp /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-  sed -i -e "/^virtual_alias_maps/a| regexp:/etc/postfix/regexp|" /etc/postfix/main.cf
+  sed -i -e '/^virtual_alias_maps/{
+    s/ regexp:.*//
+    s/$/ regexp:\/etc\/postfix\/regexp/
+    }' /etc/postfix/main.cf
 fi
 
 # DKIM
