@@ -78,6 +78,12 @@ if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
 else
   echo "==> Warning: 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
 fi
+if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
+  # Copying regexp alias file
+  echo "Adding regexp alias file postfix-regexp.cf"
+  cp /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
+  sed -i -e "/^virtual_alias_maps/a|/etc/postfix/regexp|" /tmp/docker-mailserver/target/postfix/main.cf
+fi
 
 # DKIM
 # Check if keys are already available
