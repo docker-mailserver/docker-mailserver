@@ -131,7 +131,7 @@
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'status=sent (delivered via dovecot service)' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 3 ]
+  [ "$output" -eq 4 ]
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -161,7 +161,7 @@
 @test "checking smtp: redirects mail to external aliases" {
   run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 1 ]
+  [ "$output" = 2 ]
 }
 
 @test "checking smtp: rejects spam" {
