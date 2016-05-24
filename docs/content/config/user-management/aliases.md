@@ -1,5 +1,7 @@
 Please first read [Postfix documentation on virtual aliases](http://www.postfix.org/VIRTUAL_README.html#virtual_alias).
 
+### Configuring aliases
+
 Aliases are managed in `config/postfix-virtual.cf`.
 An alias is a full email address that will be:
 * delivered to an existing account in `config/postfix-accounts.cf`
@@ -14,3 +16,11 @@ Example:
 
     # Forward to external email address
     alias2@domain.tld external@gmail.com
+
+### Configuring regexp aliases
+
+Additional regexp aliases can be configured by placing them into config/postfix-regexp.cf. The regexp aliases get evaluated after the virtual aliases (postfix-virtual.cf). For example, the following config/postfix-regexp.cf causes all email to "test" users to be delivered to qa@example.com:
+
+```
+/^test[0-9][0-9]*@example.com/ qa@example.com
+```
