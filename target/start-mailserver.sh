@@ -268,6 +268,29 @@ test -z "$ENABLE_FAIL2BAN" && rm -f /etc/logrotate.d/fail2ban
 # Fix cron.daily for spamassassin
 sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload/g' /etc/cron.daily/spamassassin
 
+# Consolidate all state that should be persisted across container restarts into one mounted
+# directory
+statedir=/var/mail-state
+if [ "$ONE_DIR" = 1 -a -d $statedir ]; then
+  echo "Consolidating all state onto $statedir"
+  for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassasin /var/lib/fail2ban; do
+    dest=$statedir/`echo $d | sed -e 's/.var.//; s/\//-/g'`
+    if [ -d $dest ]; then
+      echo "  Destination $dest exists, linking $d to it"
+      rm -rf $d
+      ln -s $dest $d
+    elif [ -d $d ]; then
+      echo "  Moving contents of $d to $dest:" `ls $d`
+      mv $d $dest
+      ln -s $dest $d
+    else
+      echo "  Linking $d to $dest"
+      mkdir -p $dest
+      ln -s $dest $d
+    fi
+  done
+fi
+
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start

@@ -19,11 +19,13 @@ run:
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-v "`pwd`/test/onedir":/var/mail-state \
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
 		-e SASL_PASSWD=testing \
 		-e ENABLE_MANAGESIEVE=1 \
+		-e ONE_DIR=1 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
 	docker run -d --name mail_pop3 \
