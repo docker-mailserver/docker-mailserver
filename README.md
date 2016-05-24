@@ -1,32 +1,4 @@
-# docker-mailserver [![Build Status](https://travis-ci.org/tve/docker-mailserver.svg?branch=master)](https://travis-ci.org/tve/docker-mailserver)
-
-This is a fork of https://github.com/tomav/docker-mailserver with some additional features
-described below.
-
-### Sending outbound mail via Amazon SES
-
-Instead of letting postfix deliver mail directly it is possible to forward outgoing email
-through Amazon SES (Simple Email Service). To enable this feature, define the following two
-environment variables in the `docker-compose.yml` with the appropriate values for your AWS SES
-subscription (the values for `AWS_SES_USERPASS` are the "SMTP username" and "SMTP password"
-provided when yuo create SMTP credentials for SES):
-```
-    environment:
-    - AWS_SES_HOST=email-smtp.us-east-1.amazonaws.com
-    - AWS_SES_USERPASS=AKIAXXXXXXXXXXXXXXXX:kqXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-### Configuring regexp aliases
-
-Additional regexp aliases can be configured by placing them into `config/postfix-regexp.cf`.
-The regexp aliases get evaluated after the virtual aliases (`postfix-cirtual.cf`). For example,
-the following `config/postfix-regexp.cf` causes all email to test users to be delivered
-to `qa@example.com`:
-```
-/^test[0-9][0-9]*@example.com/ qa@example.com
-```
-
-## Overview
+# docker-mailserver [![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=master)](https://travis-ci.org/tomav/docker-mailserver)
 
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
