@@ -78,6 +78,15 @@ if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
 else
   echo "==> Warning: 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
 fi
+if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
+  # Copying regexp alias file
+  echo "Adding regexp alias file postfix-regexp.cf"
+  cp /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
+  sed -i -e '/^virtual_alias_maps/{
+    s/ regexp:.*//
+    s/$/ regexp:\/etc\/postfix\/regexp/
+    }' /etc/postfix/main.cf
+fi
 
 # DKIM
 # Check if keys are already available
@@ -205,8 +214,29 @@ else
   echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
 fi
 
+# Support general SASL password
+rm -f /etc/postfix/sasl_passwd
 if [ ! -z "$SASL_PASSWD" ]; then
-  echo "$SASL_PASSWD" > /etc/postfix/sasl_passwd
+  echo "$SASL_PASSWD" >> /etc/postfix/sasl_passwd
+fi
+
+# Support outgoing email relay via Amazon SES
+if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
+  echo "Setting up outgoing email via AWS SES host $AWS_SES_HOST"
+  echo "[$AWS_SES_HOST]:25 $AWS_SES_USERPASS" >>/etc/postfix/sasl_passwd
+  postconf -e \
+    "relayhost = [$AWS_SES_HOST]:25" \
+    "smtp_sasl_auth_enable = yes" \
+    "smtp_sasl_security_options = noanonymous" \
+    "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
+    "smtp_use_tls = yes" \
+    "smtp_tls_security_level = encrypt" \
+    "smtp_tls_note_starttls_offer = yes" \
+    "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
+fi
+
+# Install SASL passwords
+if [ -f /etc/postfix/sasl_passwd ]; then
   postmap hash:/etc/postfix/sasl_passwd
   rm /etc/postfix/sasl_passwd
   chown root:root /etc/postfix/sasl_passwd.db
@@ -216,8 +246,13 @@ else
   echo "==> Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
 fi
 
-echo "Fixing permissions"
-chown -R 5000:5000 /var/mail
+# Fix permissions, but skip this if 3 levels deep the user id is already set
+if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
+  echo "Fixing /var/mail permissions"
+  chown -R 5000:5000 /var/mail
+else
+  echo "Permissions in /var/mail look OK"
+fi
 
 echo "Creating /etc/mailname"
 echo $(hostname -d) > /etc/mailname

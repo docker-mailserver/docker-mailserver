@@ -131,7 +131,7 @@
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'status=sent (delivered via dovecot service)' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 3 ]
+  [ "$output" -eq 4 ]
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -140,10 +140,16 @@
   [ "$output" = 1 ]
 }
 
-@test "checking smtp: user1 should have received 2 mails" {
+@test "checking smtp: delivers mail to regexp alias" {
+  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
+@test "checking smtp: user1 should have received 3 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 2 ]
+  [ "$output" = 3 ]
 }
 
 @test "checking smtp: rejects mail to unknown user" {
@@ -152,10 +158,10 @@
   [ "$output" = 1 ]
 }
 
-@test "checking smtp: redirects mail to external alias" {
+@test "checking smtp: redirects mail to external aliases" {
   run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 1 ]
+  [ "$output" = 2 ]
 }
 
 @test "checking smtp: rejects spam" {
