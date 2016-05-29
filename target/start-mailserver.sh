@@ -290,6 +290,11 @@ if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
   /usr/sbin/dovecot reload
 fi
 
+if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
+  cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
+  /usr/sbin/dovecot reload
+fi
+
 # Start services related to SMTP
 /etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start

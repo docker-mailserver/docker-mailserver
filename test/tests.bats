@@ -223,6 +223,18 @@
 }
 
 #
+# dovecot
+#
+
+@test "checking dovecot: config additions" {
+  run docker exec mail grep -q 'mail_max_userip_connections = 69' /tmp/docker-mailserver/dovecot.cf
+  [ "$status" -eq 0 ]
+  run docker exec mail /bin/sh -c "doveconf | grep 'mail_max_userip_connections = 69'"
+  [ "$status" -eq 0 ]
+  [ "$output" = 'mail_max_userip_connections = 69' ]
+}
+
+#
 # spamassassin
 #
 
@@ -266,25 +278,25 @@
     -v "$(pwd)/test/config/empty/":/tmp/docker-mailserver/ \
     -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
     -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l' 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
   [ "$status" -eq 0 ]
   [ "$output" -eq 5 ]
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l' 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
   # Check keys for otherdomain.tld
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l' 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l" 
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 4 ]
 }
