@@ -13,3 +13,22 @@ mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 	  "p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN" )  ; ----- DKIM key mail for domain.tld
 
 ```
+
+## Verify-only
+
+If you want DKIm to only verify incoming emails, the following version of /etc/opendkim.conf may be useful (right now there is no easy mechanism for installing it other than forking the repo):
+```
+# This is a simple config file verifying messages only
+
+#LogWhy                 yes
+Syslog                  yes
+SyslogSuccess           yes
+
+Socket                  inet:12301@localhost
+PidFile               /var/run/opendkim/opendkim.pid
+
+ReportAddress           postmaster@voneicken.com
+SendReports             yes
+
+Mode                    v
+```
