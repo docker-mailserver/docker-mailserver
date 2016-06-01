@@ -25,7 +25,7 @@ Syslog                  yes
 SyslogSuccess           yes
 
 Socket                  inet:12301@localhost
-PidFile               /var/run/opendkim/opendkim.pid
+PidFile                 /var/run/opendkim/opendkim.pid
 
 ReportAddress           postmaster@my-domain.com
 SendReports             yes
