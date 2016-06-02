@@ -263,8 +263,13 @@ SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag
 SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
 test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 
-# Disable logrotate config for fail2ban if not enabled
-test -z "$ENABLE_FAIL2BAN" && rm -f /etc/logrotate.d/fail2ban
+if [ "$ENABLE_FAIL2BAN" = 1 ]; then
+  test -e /tmp/docker-mailserver/fail2ban-jail.cf && cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local
+else
+  # Disable logrotate config for fail2ban if not enabled
+  rm -f /etc/logrotate.d/fail2ban
+fi
+
 # Fix cron.daily for spamassassin
 sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload/g' /etc/cron.daily/spamassassin
 
