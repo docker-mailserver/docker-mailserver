@@ -366,6 +366,23 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking fail2ban: fail2ban-jail.cf overrides" {
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get sshd          bantime   | grep 10800";  [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get postfix       bantime   | grep 10800";  [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get dovecot       bantime   | grep 10800";  [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get postfix-sasl  bantime   | grep 10800";  [ "$status" -eq 1 ]
+
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get sshd          findtime  | grep 600";    [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get postfix       findtime  | grep 600";    [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get dovecot       findtime  | grep 600";    [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get postfix-sasl  findtime  | grep 600";    [ "$status" -eq 1 ]
+
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get sshd          maxretry  | grep 3";      [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get postfix       maxretry  | grep 3";      [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get dovecot       maxretry  | grep 3";      [ "$status" -eq 1 ]
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get postfix-sasl  maxretry  | grep 3";      [ "$status" -eq 1 ]
+}
+
 @test "checking fail2ban: ban ip on multiple failed login" {
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
