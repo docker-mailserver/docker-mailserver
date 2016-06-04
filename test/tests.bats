@@ -369,7 +369,7 @@
 @test "checking fail2ban: fail2ban-jail.cf overrides" {
   FILTERS=(sshd postfix dovecot postfix-sasl)
 
-  for FILTER in "${arr[@]}"; do
+  for FILTER in "${FILTERS[@]}"; do
     run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get $FILTER bantime"
     [ "$output" = 1234 ]
 
