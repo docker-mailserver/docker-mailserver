@@ -23,7 +23,7 @@ if [ ! -z "$1" ]; then
   fi
  fi
  ENTRY=$(echo "$USER|$(doveadm pw -s SHA512-CRYPT -u $USER -p $PASS)")
- echo $ENTRY >> $DATABASE
+ echo "$ENTRY" >> $DATABASE
 else
  usage
 fi
