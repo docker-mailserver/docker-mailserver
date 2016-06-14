@@ -180,11 +180,6 @@
 # accounts
 #
 
-@test "checking accounts: generated 'postfix-accounts.cf' matches template" {
-  run diff test/config/example.postfix-accounts.cf test/config/postfix-accounts.cf
-  [ "$status" -eq 0 ]
-}
-
 @test "checking accounts: user accounts" {
   run docker exec mail doveadm user '*'
   [ "$status" -eq 0 ]
