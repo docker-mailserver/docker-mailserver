@@ -71,7 +71,7 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /et
   curl -s https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
 
 # Start-mailserver script
-ADD target/bin/generate-ssl-certificate target/bin/generate-dkim-config target/start-mailserver.sh /usr/local/bin/
+ADD target/bin/generate-ssl-certificate target/bin/generate-dkim-config target/start-mailserver.sh target/addmailuser target/delmailuser /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
