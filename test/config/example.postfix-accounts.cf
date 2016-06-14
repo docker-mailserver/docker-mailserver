@@ -1,2 +1,2 @@
-user1@localhost.localdomain|{CRAM-MD5}de5924752ad74e36bc271a8dc7fad4b2d341f21f05382f20dedf1fdfbd5a1717
-user2@otherdomain.tld|{CRAM-MD5}de5924752ad74e36bc271a8dc7fad4b2d341f21f05382f20dedf1fdfbd5a1717
+user1@localhost.localdomain|{SHA512-CRYPT}$6$6Xxcp1JSbIopyWIC$LdrPrPSAdDuOZOZhaQsmuqFa8gyZ.F43Bh8vHNCd2zumwaj9DdM6v7gkMwOP0Fn4IartmPvF5CdVCzV1pdx7M1
+user2@otherdomain.tld|{SHA512-CRYPT}$6$OVDJp7HtL3U2d2c7$jxVpLBYBfNLekpsx6Ih3uAg640iGXXGPgKno8uDK31/FIL1rRf7Uh.go/xTyD5PQNsr/pOPkJb2b1QS7Ovnll0
