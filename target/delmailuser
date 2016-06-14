@@ -8,6 +8,7 @@ function usage {
 }
 
 if [ ! -z "$1" ]; then
+ USER=$1
  ENTRIES=$(grep "$USER" -vi $DATABASE)
  echo "$ENTRIES" > $DATABASE
 else
