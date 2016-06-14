@@ -471,3 +471,23 @@
   run docker exec mail_pop3 /bin/bash -c "nc -z 0.0.0.0 4190"
   [ "$status" -ne 0 ]
 }
+
+#
+# accounts
+#
+
+@test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser user3@domain.tld mypassword"
+
+  run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
+}
+
+@test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
+
+  run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 1 ]
+  [ -z "$output" ]
+}
