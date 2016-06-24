@@ -203,7 +203,7 @@ touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
 #
-# Override Postfix configuration
+# Override Postfix configuration: main.cf
 #
 if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   while read line; do
@@ -212,6 +212,18 @@ if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   echo "Loaded 'config/postfix-main.cf'"
 else
   echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
+fi
+
+#
+# Override Postfix configuration: master.cf
+#
+if [ -f /tmp/docker-mailserver/postfix-master.cf ]; then
+  while read line; do
+    postconf -M "$line"
+  done < /tmp/docker-mailserver/postfix-master.cf
+  echo "Loaded 'config/postfix-master.cf'"
+else
+  echo "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided."
 fi
 
 # Support general SASL password
