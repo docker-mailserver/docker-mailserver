@@ -140,6 +140,30 @@ Otherwise, `iptables` won't be able to ban IPs.
   - custom => Enables custom certificates
   - self-signed => Enables self-signed certificates
 
+__custom__
+
+Mount your certs : 
+
+  -v ./certs/$(hostname)-full.pem:/tmp/docker-mailserver/ssl/$(hostname)-full.pem -v ./certs/$(hostname)-key.pem:/tmp/docker-mailserver/ssl/$(hostname)-key.pem
+
+with : 
+
+ - $(hostname)-full.pem : your certificate + intermediate certificate 
+ - $(hostname)-key.pem : your certificate private key 
+
+__self-signed__
+
+  -v ./certs/$(hostname)-full.pem:/tmp/docker-mailserver/ssl/$(hostname)-cert.pem -v ./certs/$(hostname)-key.pem:/tmp/docker-mailserver/ssl/$(hostname)-key.pem
+  -v ./certs/$(hostname)-full.pem:/tmp/docker-mailserver/ssl/$(hostname)-combined.pem -v ./certs/demoCA/cacert.pem:/tmp/docker-mailserver/ssl/demoCA/cacert.pem
+
+with : 
+
+ - $(hostname)-cert.pem : your generated certificate
+ - $(hostname)-key.pem : your certificate private key 
+ - $(hostname)-combined.pem : your generate certificate + cacert
+ - demoCA/cacert.pem : your csr (self signed intermediate certificate)
+
+
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
 
 
