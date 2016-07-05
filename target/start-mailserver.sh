@@ -147,6 +147,7 @@ case $SSL_TYPE in
       echo "Adding $(hostname) SSL certificate"
       mkdir -p /etc/postfix/ssl
       cp "/tmp/docker-mailserver/ssl/$(hostname)-full.pem" /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/$(hostname)-key.pem" /etc/postfix/ssl
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
