@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FQDN=$(hostname)
+FQDN=$(hostname --fqdn)
 
 cd /ssl
 # Create CA certificate
@@ -11,4 +11,3 @@ openssl req -new -nodes -keyout /ssl/$FQDN-key.pem -out /ssl/$FQDN-req.pem -days
 openssl ca -out /ssl/$FQDN-cert.pem -infiles /ssl/$FQDN-req.pem
 # Combine certificates for courier
 cat /ssl/$FQDN-key.pem /ssl/$FQDN-cert.pem > /ssl/$FQDN-combined.pem
-
