@@ -23,7 +23,7 @@ run:
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
-		-e SASL_PASSWD=testing \
+		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
 		-e ONE_DIR=1 \
 		-h mail.my-domain.com -t $(NAME)
