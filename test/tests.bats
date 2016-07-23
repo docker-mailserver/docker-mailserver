@@ -131,11 +131,17 @@
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'status=sent (delivered via dovecot service)' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 5 ]
+  [ "$output" -eq 6 ]
 }
 
 @test "checking smtp: delivers mail to existing alias" {
   run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
+@test "checking smtp: delivers mail to existing catchall" {
+  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
@@ -146,10 +152,10 @@
   [ "$output" = 1 ]
 }
 
-@test "checking smtp: user1 should have received 3 mails" {
+@test "checking smtp: user1 should have received 5 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 4 ]
+  [ "$output" = 5 ]
 }
 
 @test "checking smtp: rejects mail to unknown user" {
@@ -206,8 +212,9 @@
 @test "checking postfix: vhost file is correct" {
   run docker exec mail cat /etc/postfix/vhost
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "localhost.localdomain" ]
-  [ "${lines[1]}" = "otherdomain.tld" ]
+  [ "${lines[0]}" = "localdomain2.com" ]
+  [ "${lines[1]}" = "localhost.localdomain" ]
+  [ "${lines[2]}" = "otherdomain.tld" ]
 }
 
 @test "checking postfix: main.cf overrides" {
@@ -275,7 +282,7 @@
     -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
     `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
   [ "$status" -eq 0 ]
-  [ "$output" -eq 5 ]
+  [ "$output" -eq 6 ]
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
