@@ -49,6 +49,7 @@ smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_path = /var/spool/postfix/private/auth
 smtpd_sasl_type = dovecot
+dovecot_destination_recipient_limit = 1
 
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $myhostname
