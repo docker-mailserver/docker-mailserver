@@ -131,7 +131,7 @@
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'status=sent (delivered via dovecot service)' /var/log/mail/mail.log | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 4 ]
+  [ "$output" -eq 5 ]
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -149,7 +149,7 @@
 @test "checking smtp: user1 should have received 3 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 3 ]
+  [ "$output" = 4 ]
 }
 
 @test "checking smtp: rejects mail to unknown user" {
@@ -426,6 +426,8 @@
 
 @test "checking system: /var/log/mail/mail.log is error free" {
   run docker exec mail grep 'non-null host address bits in' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mail grep 'mail system configuration error' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
   run docker exec mail grep ': error:' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
