@@ -33,6 +33,8 @@ smtp_tls_protocols=!SSLv2,!SSLv3
 smtpd_tls_mandatory_ciphers = high
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_exclude_ciphers = aNULL, LOW, EXP, MEDIUM, ADH, AECDH, MD5, DSS, ECDSA, CAMELLIA128, 3DES, CAMELLIA256, RSA+AES, eNULL
+smtpd_tls_CApath = /etc/ssl/certs
+smtp_tls_CApath = /etc/ssl/certs
 
 # Settings to prevent SPAM early
 smtpd_helo_required = yes
