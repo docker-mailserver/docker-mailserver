@@ -28,6 +28,7 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
+  sed -i -e 's/sieve = ~\/\.dovecot\.sieve/sieve = ~\/sieve\/\.dovecot\.sieve/g' /etc/dovecot/conf.d/90-sieve.conf
 
   # Creating users
   # 'pass' is encrypted
