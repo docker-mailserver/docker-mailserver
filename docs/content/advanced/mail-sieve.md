@@ -33,7 +33,7 @@ For more examples or a detailed description of the Sieve language have a look at
 
 ### Manage Sieve
 
-The [Manage Sieve](http://wiki1.dovecot.org/ManageSieve) extension allows users to modify their Sieve script by themselves. The authentication mechanisms are the same as for the main dovecot service. ManageSieve runs on port `4190` and needs to be enabled using the `ENABLE_MANAGESIEVE=1` environment variable.
+The [Manage Sieve](http://wiki2.dovecot.org/Pigeonhole/ManageSieve) extension allows users to modify their Sieve script by themselves. The authentication mechanisms are the same as for the main dovecot service. ManageSieve runs on port `4190` and needs to be enabled using the `ENABLE_MANAGESIEVE=1` environment variable.
 
 ```
 (docker-compose.yml)
