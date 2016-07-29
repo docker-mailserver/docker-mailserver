@@ -264,6 +264,7 @@ SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kil
 test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 
 if [ "$ENABLE_FAIL2BAN" = 1 ]; then
+  echo "Fail2ban enabled"
   test -e /tmp/docker-mailserver/fail2ban-jail.cf && cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local
 else
   # Disable logrotate config for fail2ban if not enabled
@@ -303,6 +304,7 @@ cron
 # Enable Managesieve service by setting the symlink
 # to the configuration file Dovecot will actually find
 if [ "$ENABLE_MANAGESIEVE" = 1 ]; then
+  echo "Sieve management enabled"
   mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 fi
 
