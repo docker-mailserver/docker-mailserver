@@ -326,8 +326,10 @@ if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
 fi
 
 # Start services related to SMTP
-/etc/init.d/spamassassin start
 /etc/init.d/clamav-daemon start
+if ! [ "$DISABLE_SPAMASSASSIN" = 1 ]; then
+  /etc/init.d/spamassassin start
+fi
 if ! [ "$DISABLE_AMAVIS" = 1 ]; then
   /etc/init.d/amavis start
 fi

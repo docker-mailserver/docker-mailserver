@@ -42,6 +42,11 @@
   [ "$status" -eq 1 ]
 }
 
+@test "checking process: spamassassin (spamassassin disabled by DISABLE_SPAMASSASSIN)" {
+  run docker exec mail_disabled_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep ''/usr/sbin/spamd'"
+  [ "$status" -eq 1 ]
+}
+
 #
 # imap
 #
