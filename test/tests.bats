@@ -37,6 +37,11 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking process: amavis (amavis disabled by DISABLE_AMAVIS)" {
+  run docker exec mail_disabled_amavis /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
+  [ "$status" -eq 1 ]
+}
+
 #
 # imap
 #
