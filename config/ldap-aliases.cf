@@ -1,0 +1,13 @@
+server_host = ldap://virtual.domain.com
+server_port = 389
+search_base = dc=mail,dc=domain,dc=com
+query_filter = (&(objectClass=CourierMailAlias) (mail=%s))
+result_attribute = maildrop
+bind = yes
+bind_dn = cn=readonly,dc=domain,dc=com
+bind_pw = 123456789
+version = 3
+
+tls_ca_cert_file = /etc/postfix/ssl/cacert.pem
+tls_cert = /etc/postfix/ssl/mail.domain.com-full.pem
+tls_key = /etc/postfix/ssl/mail.domain.com-key.pem
