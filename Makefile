@@ -55,7 +55,9 @@ fixtures:
 
 tests:
 	# Start tests
-	./test/bats/bats test/tests.bats
+	if [ -z $ENABLE_POP3 ]; then
+		./test/bats/bats test/ENABLE_POP3.bats
+	fi
 
 clean:
 	# Remove running test container
