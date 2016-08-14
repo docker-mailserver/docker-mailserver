@@ -2,8 +2,12 @@ language: bash
 sudo: required
 services:
   - docker
+before_script:
+  - make build-no-cache generate-accounts run fixtures
 script:
-  - make all
+  - make tests 
+after_script:
+  - make clean
 env:
   - ENABLE_POP3=0
   - ENABLE_POP3=1
@@ -14,7 +18,7 @@ env:
   - SMTP_ONLY=0
   - SMTP_ONLY=1
   - SASL_PASSWD=
-  - SASL_PASSWD="bar.com username:password"
+  - SASL_PASSWD="external-domain.com username:password"
   - ONE_DIR=0
   - ONE_DIR=1
   - SA_TAG=

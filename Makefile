@@ -20,15 +20,15 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
-		-e ENABLE_POP3=$ENABLE_POP3 \
-		-e ENABLE_FAIL2BAN=$ENABLE_FAIL2BAN \
-		-e ENABLE_MANAGESIEVE=$ENABLE_MANAGESIEVE \
-		-e SMTP_ONLY=$SMTP_ONLY \
-		-e SA_TAG=$SA_TAG \
-		-e SA_TAG2=$SA_TAG2 \
-		-e SA_KILL=$SA_KILL \
-		-e SASL_PASSWD=$SASL_PASSWD \
-		-e ONE_DIR=$ONE_DIR \
+		-e ENABLE_POP3=$$ENABLE_POP3 \
+		-e ENABLE_FAIL2BAN=$$ENABLE_FAIL2BAN \
+		-e ENABLE_MANAGESIEVE=$$ENABLE_MANAGESIEVE \
+		-e SMTP_ONLY=$$SMTP_ONLY \
+		-e SA_TAG=$$SA_TAG \
+		-e SA_TAG2=$$SA_TAG2 \
+		-e SA_KILL=$$SA_KILL \
+		-e SASL_PASSWD=$$SASL_PASSWD \
+		-e ONE_DIR=$$ONE_DIR \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 20
@@ -58,5 +58,5 @@ tests:
 	./test/bats/bats test/tests.bats
 
 clean:
-	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav
+	# Remove running test container
+	docker rm -f mail 

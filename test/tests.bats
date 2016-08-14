@@ -27,15 +27,23 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: fail2ban (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
-  [ "$status" -eq 1 ]
-}
+if [ $ENABLE_FAIL2BAN = 0 ]; then
 
-@test "checking process: fail2ban (fail2ban server enabled)" {
-  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
-  [ "$status" -eq 0 ]
-}
+  @test "checking process: fail2ban (disabled in default configuration)" {
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+    [ "$status" -eq 1 ]
+  }
+
+fi
+
+if [ $ENABLE_FAIL2BAN = 1 ]; then
+
+  @test "checking process: fail2ban (fail2ban server enabled)" {
+    run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+    [ "$status" -eq 0 ]
+  }
+
+fi
 
 @test "checking process: amavis (amavis disabled by DISABLE_AMAVIS)" {
   run docker exec mail_disabled_amavis /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
@@ -82,8 +90,6 @@
 
 if [ $ENABLE_POP3 = 1 ]; then
 
-  echo "Testing POP3"
-
   @test "checking pop: server is ready" {
     run docker exec mail /bin/bash -c "nc -w 1 0.0.0.0 110 | grep '+OK'"
     [ "$status" -eq 0 ]
@@ -100,20 +106,24 @@ fi
 # sasl
 #
 
-@test "checking sasl: doveadm auth test works with good password" {
-  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld mypassword | grep 'auth succeeded'"
-  [ "$status" -eq 0 ]
-}
+if [ $SASL_PASSWD == "external-domain.com username:password" ]; then
 
-@test "checking sasl: doveadm auth test fails with bad password" {
-  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld BADPASSWORD | grep 'auth failed'"
-  [ "$status" -eq 0 ]
-}
+  @test "checking sasl: doveadm auth test works with good password" {
+    run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld mypassword | grep 'auth succeeded'"
+    [ "$status" -eq 0 ]
+  }
 
-@test "checking sasl: sasl_passwd.db exists" {
-  run docker exec mail [ -f /etc/postfix/sasl_passwd.db ]
-  [ "$status" -eq 0 ]
-}
+  @test "checking sasl: doveadm auth test fails with bad password" {
+    run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld BADPASSWORD | grep 'auth failed'"
+    [ "$status" -eq 0 ]
+  }
+
+  @test "checking sasl: sasl_passwd.db exists" {
+    run docker exec mail [ -f /etc/postfix/sasl_passwd.db ]
+    [ "$status" -eq 0 ]
+  }
+
+fi
 
 #
 # logs
@@ -261,23 +271,49 @@ fi
 # spamassassin
 #
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
-  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
-  [ "$status" -eq 0 ]
-  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
-  [ "$status" -eq 0 ]
-  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
-  [ "$status" -eq 0 ]
-}
+if [ -z $SA_TAG ]; then
+  @test "checking spamassassin: docker env variables are set correctly (default)" {
+    run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
+    [ "$status" -eq 0 ]
+  }
+fi
 
-@test "checking spamassassin: docker env variables are set correctly (custom)" {
-  run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 1.0'"
-  [ "$status" -eq 0 ]
-  run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
-  [ "$status" -eq 0 ]
-  run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
-  [ "$status" -eq 0 ]
-}
+if [ -z $SA_TAG2 ]; then
+  @test "checking spamassassin: docker env variables are set correctly (default)" {
+    run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
+    [ "$status" -eq 0 ]
+  }
+fi
+
+if [ -z $SA_KILL ]; then
+  @test "checking spamassassin: docker env variables are set correctly (default)" {
+    run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
+    [ "$status" -eq 0 ]
+  }
+fi
+
+
+if [ -n $SA_TAG ]; then
+  @test "checking spamassassin: docker env variables are set correctly (default)" {
+    run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= $SA_TAG'"
+    [ "$status" -eq 0 ]
+  }
+fi
+
+if [ -n $SA_TAG2 ]; then
+  @test "checking spamassassin: docker env variables are set correctly (default)" {
+    run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= $SA_TAG2'"
+    [ "$status" -eq 0 ]
+  }
+fi
+
+if [ -n $SA_KILL ]; then
+  @test "checking spamassassin: docker env variables are set correctly (default)" {
+    run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= $SA_KILL'"
+    [ "$status" -eq 0 ]
+  }
+fi
+
 
 #
 # opendkim
