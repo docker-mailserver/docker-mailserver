@@ -13,3 +13,16 @@
   run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/pop3-auth.txt"
   [ "$status" -eq 0 ]
 }
+
+
+
+
+@test "checking pop: server is ready" {
+  run docker exec mail /bin/bash -c "nc -w 1 0.0.0.0 110 | grep '+OK'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking pop: authentication works" {
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/pop3-auth.txt"
+  [ "$status" -eq 0 ]
+}
