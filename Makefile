@@ -27,7 +27,7 @@ run:
 		-e SA_TAG=$(SA_TAG) \
 		-e SA_TAG2=$(SA_TAG2) \
 		-e SA_KILL=$(SA_KILL) \
-		-e SASL_PASSWD=$(SASL_PASSWD) \
+		-e SASL_PASSWD="$(SASL_PASSWD)" \
 		-e ONE_DIR=$(ONE_DIR) \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
