@@ -55,7 +55,7 @@ fixtures:
 
 tests:
 	# Start tests
-	if [ -z $(ENABLE_POP3) ]; then
+	if [ -z $ENABLE_POP3 ]; then
 		./test/bats/bats test/ENABLE_POP3.bats
 	fi
 
