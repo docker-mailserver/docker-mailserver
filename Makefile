@@ -59,6 +59,10 @@ ifdef ENABLE_POP3
 	@echo "ENABLE_POP3 => $(ENABLE_POP3)"
 	./test/bats/bats test/ENABLE_POP3.bats
 endif
+ifdef SASL_PASSWD
+	@echo "SASL_PASSWD => $(SASL_PASSWD)"
+	./test/bats/bats test/SASL_PASSWD.bats
+endif
 
 clean:
 	# Remove running test container
