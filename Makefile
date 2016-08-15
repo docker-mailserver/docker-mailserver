@@ -54,10 +54,11 @@ fixtures:
 	sleep 10
 
 tests:
-	# Start tests
-	ifdef($(ENABLE_POP3))
-		./test/bats/bats test/ENABLE_POP3.bats
-	endif
+# Start tests
+ifdef ENABLE_POP3
+	@echo "ENABLE_POP3 => $(ENABLE_POP3)"
+	./test/bats/bats test/ENABLE_POP3.bats
+endif
 
 clean:
 	# Remove running test container
