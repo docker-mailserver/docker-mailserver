@@ -11,22 +11,22 @@ after_script:
 env:
   - ENABLE_POP3=0
   - ENABLE_POP3=1
-  - ENABLE_FAIL2BAN=0
-  - ENABLE_FAIL2BAN=1
-  - ENABLE_MANAGESIEVE=0
-  - ENABLE_MANAGESIEVE=1
-  - SMTP_ONLY=0
-  - SMTP_ONLY=1
+  # - ENABLE_FAIL2BAN=0
+  # - ENABLE_FAIL2BAN=1
+  # - ENABLE_MANAGESIEVE=0
+  # - ENABLE_MANAGESIEVE=1
+  # - SMTP_ONLY=0
+  # - SMTP_ONLY=1
   - SASL_PASSWD=
   - SASL_PASSWD="external-domain.com username:password"
-  - ONE_DIR=0
-  - ONE_DIR=1
-  - SA_TAG=
-  - SA_TAG=1.0
-  - SA_TAG2=
-  - SA_TAG2=2.0
-  - SA_KILL=
-  - SA_KILL=3.0
+  # - ONE_DIR=0
+  # - ONE_DIR=1
+  # - SA_TAG=
+  # - SA_TAG=1.0
+  # - SA_TAG2=
+  # - SA_TAG2=2.0
+  # - SA_KILL=
+  # - SA_KILL=3.0
 
 
 

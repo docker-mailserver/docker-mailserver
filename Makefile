@@ -55,9 +55,9 @@ fixtures:
 
 tests:
 	# Start tests
-	if [ -z $ENABLE_POP3 ]; then
+	ifdef($(ENABLE_POP3))
 		./test/bats/bats test/ENABLE_POP3.bats
-	fi
+	endif
 
 clean:
 	# Remove running test container
