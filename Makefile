@@ -55,14 +55,15 @@ fixtures:
 
 tests:
 # Start tests
-ifdef ENABLE_POP3
-	@echo "ENABLE_POP3 => $(ENABLE_POP3)"
-	./test/bats/bats test/ENABLE_POP3_$(ENABLE_POP3).bats
-endif
-ifdef SASL_PASSWD
-	@echo "SASL_PASSWD => $(SASL_PASSWD)"
-	./test/bats/bats test/SASL_PASSWD_$(SASL_PASSWD_).bats
-endif
+# ifdef ENABLE_POP3
+# 	@echo "ENABLE_POP3 => $(ENABLE_POP3)"
+# 	./test/bats/bats test/ENABLE_POP3_$(ENABLE_POP3).bats
+# endif
+# ifdef SASL_PASSWD
+# 	@echo "SASL_PASSWD => $(SASL_PASSWD)"
+# 	./test/bats/bats test/SASL_PASSWD_$(SASL_PASSWD_).bats
+# endif
+	./test/bats/bats test/ENABLE_POP3.bats
 
 clean:
 	# Remove running test container

@@ -1,4 +1,4 @@
-@test "checking process: process is running" {
+@test "checking pop: process is running" {
   run docker exec mail /bin/bash -c "ps aux | grep 'dovecot/pop'"
   [ "$status" -eq 0 ]
 }
