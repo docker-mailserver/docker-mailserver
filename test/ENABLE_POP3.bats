@@ -15,10 +15,10 @@ if [ "$ENABLE_POP3" = 1 ]; then
     [ "$status" -eq 0 ]
   }
 
-else ####################################################################################################
+else skip ####################################################################################################
 
   @test "checking process: process is not running" {
-    run docker exec mail /bin/bash -c "ps aux | grep 'dovecot/pop'"
+    run docker exec mail /bin/bash -c "ps aux | grep -v grep | grep 'dovecot/pop'"
     [ "$status" -eq 1 ]
   }
 
