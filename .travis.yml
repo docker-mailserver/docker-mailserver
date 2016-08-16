@@ -17,8 +17,8 @@ env:
   # - ENABLE_MANAGESIEVE=1
   # - SMTP_ONLY=0
   # - SMTP_ONLY=1
-  # - SASL_PASSWD=
-  # - SASL_PASSWD="external-domain.com username:password"
+  - SASL_PASSWD=
+  - SASL_PASSWD="external-domain.com username:password"
   # - ONE_DIR=0
   # - ONE_DIR=1
   # - SA_TAG=
