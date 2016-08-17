@@ -4,7 +4,7 @@
 #
 ####################################################################################################
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
+@test "checking spamassassin: sa_tag_level_deflt is set correctly (default)" {
   if [ -n "$SA_TAG" ]; then
     skip
   fi
@@ -12,7 +12,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
+@test "checking spamassassin: sa_tag2_level_deflt is set correctly (default)" {
   if [ -n "$SA_TAG2" ]; then
     skip
   fi
@@ -20,7 +20,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
+@test "checking spamassassin: sa_kill_level_deflt is set correctly (default)" {
   if [ -n "$SA_KILL" ]; then
     skip
   fi
@@ -34,7 +34,7 @@
 #
 ####################################################################################################
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
+@test "checking spamassassin: sa_tag_level_deflt is set correctly (custom)" {
   if [ -z "$SA_TAG" ]; then
     skip
   fi
@@ -42,7 +42,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
+@test "checking spamassassin: sa_tag2_level_deflt is set correctly (custom)" {
   if [ -z "$SA_TAG" ]; then
     skip
   fi
@@ -50,7 +50,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking spamassassin: docker env variables are set correctly (default)" {
+@test "checking spamassassin: sa_kill_level_deflt is set correctly (custom)" {
   if [ -z "$SA_TAG" ]; then
     skip
   fi
