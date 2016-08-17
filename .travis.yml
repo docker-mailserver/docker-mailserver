@@ -2,5 +2,28 @@ language: bash
 sudo: required
 services:
   - docker
+before_script:
+  - make build-no-cache generate-accounts run fixtures
 script:
-  - make all
+  - make tests 
+after_script:
+  - make clean
+env:
+  - ENABLE_POP3=0 
+  - ENABLE_POP3=1
+  - SA_TAG=    SA_TAG2=    SA_KILL=
+  - SA_TAG=1.0 SA_TAG2=2.0 SA_KILL=3.0
+  - SASL_PASSWD=
+  - SASL_PASSWD="external-domain.com username:password"
+  - SMTP_ONLY=0
+  - SMTP_ONLY=1
+  # - ENABLE_FAIL2BAN=0
+  # - ENABLE_FAIL2BAN=1
+  # - ENABLE_MANAGESIEVE=0
+  # - ENABLE_MANAGESIEVE=1
+  # - ONE_DIR=0
+  # - ONE_DIR=1
+  # - SSL_TYPE
+  # - DISABLE_AMAVIS=0
+  # - DISABLE_SPAMASSASSIN=1
+  # - DISABLE_CLAMAV=1

@@ -20,51 +20,15 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
-		-e SA_TAG=1.0 \
-		-e SA_TAG2=2.0 \
-		-e SA_KILL=3.0 \
-		-e SASL_PASSWD="external-domain.com username:password" \
-		-e ENABLE_MANAGESIEVE=1 \
-		-e ONE_DIR=1 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_pop3 \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
-		-e ENABLE_POP3=1 \
-		-e SSL_TYPE=letsencrypt \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_smtponly \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e SMTP_ONLY=1 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_fail2ban \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e ENABLE_FAIL2BAN=1 \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_disabled_amavis \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e DISABLE_AMAVIS=1 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_disabled_spamassassin \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e DISABLE_SPAMASSASSIN=1 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_disabled_clamav \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e DISABLE_CLAMAV=1 \
+		-e ENABLE_POP3=$(ENABLE_POP3) \
+		-e ENABLE_FAIL2BAN=$(ENABLE_FAIL2BAN) \
+		-e ENABLE_MANAGESIEVE=$(ENABLE_MANAGESIEVE) \
+		-e SMTP_ONLY=$(SMTP_ONLY) \
+		-e SA_TAG=$(SA_TAG) \
+		-e SA_TAG2=$(SA_TAG2) \
+		-e SA_KILL=$(SA_KILL) \
+		-e SASL_PASSWD="$(SASL_PASSWD)" \
+		-e ONE_DIR=$(ONE_DIR) \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 20
@@ -91,8 +55,8 @@ fixtures:
 
 tests:
 	# Start tests
-	./test/bats/bats test/tests.bats
+	./test/bats/bats test/*.bats
 
 clean:
-	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav
+	# Remove running test container
+	docker rm -f mail 
