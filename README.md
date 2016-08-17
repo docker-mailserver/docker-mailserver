@@ -62,6 +62,7 @@ Adapt this file with your FQDN.
 Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
 
     mkdir -p config
+    touch config/postfix-accounts.cf
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
       -e MAIL_PASS=mypassword \
@@ -74,7 +75,7 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:latest generate-dkim-config
 
-Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
+Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 #### Start the container
 
@@ -140,5 +141,3 @@ Otherwise, `iptables` won't be able to ban IPs.
   - self-signed => Enables self-signed certificates
 
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
-
-
