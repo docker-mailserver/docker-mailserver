@@ -54,9 +54,8 @@ fixtures:
 	sleep 10
 
 tests:
-# Start tests
-	./test/bats/bats test/ENABLE_POP3.bats
-	./test/bats/bats test/SASL_PASSWD.bats
+	# Start tests
+	./test/bats/bats test/*.bats
 
 clean:
 	# Remove running test container
