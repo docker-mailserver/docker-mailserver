@@ -34,7 +34,7 @@
 #
 ####################################################################################################
 
-@test "checking process: process is not running" {
+@test "checking pop: process is not running" {
   if [ "$ENABLE_POP3" = 1 ]; then
     skip
   fi
