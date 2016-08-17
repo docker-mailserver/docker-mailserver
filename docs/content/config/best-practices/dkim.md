@@ -1,5 +1,5 @@
 To enable DKIM signature, you must have created your mail accounts.
-Once its done, just run:
+Once its done, just run from inside the directory of docker-compose.yml:
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
