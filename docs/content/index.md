@@ -48,7 +48,7 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:latest generate-dkim-config
 
-Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opedkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
+Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 #### Start the container
 
