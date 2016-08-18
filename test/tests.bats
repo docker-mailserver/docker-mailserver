@@ -37,6 +37,16 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking process: fetchmail (disabled in default configuration)" {
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking process: fetchmail (fetchmail server enabled)" {
+  run docker exec mail_fetchmail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
+  [ "$status" -eq 0 ]
+}
+
 @test "checking process: amavis (amavis disabled by DISABLE_AMAVIS)" {
   run docker exec mail_disabled_amavis /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
   [ "$status" -eq 1 ]
@@ -434,6 +444,20 @@
   # Checking that FAIL_AUTH_MAILER_IP is unbanned by iptables
   run docker exec mail_fail2ban /bin/sh -c "iptables -L f2b-postfix-sasl -n | grep REJECT | grep '$FAIL_AUTH_MAILER_IP'"
   [ "$status" -eq 1 ]
+}
+
+#
+# fetchmail
+#
+
+@test "checking fetchmail: gerneral options in fetchmailrc are loaded" {
+  run docker exec mail_fetchmail grep 'set syslog' /etc/fetchmailrc
+  [ "$status" -eq 0 ]
+}
+
+@test "checking fetchmail: fetchmail.cf is loaded" {
+  run docker exec mail_fetchmail grep 'pop3.example.com' /etc/fetchmailrc
+  [ "$status" -eq 0 ]
 }
 
 #
