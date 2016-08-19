@@ -202,6 +202,25 @@ echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
+# My Network Configuration
+case $PERMIT_DOCKER in
+  "host" )
+      echo "Adding host in my networks"
+      postconf -e "$(postconf -d | grep '^mynetworks =')"
+    ;;
+
+  "network" )
+      echo "Adding docker network in my networks"
+      postconf -e "$(postconf | grep '^mynetworks =') 172.0.0.0/8"
+    ;;
+
+  * )
+      echo "Adding container ip in my networks"
+      postconf -e "$(postconf | grep '^mynetworks =') $(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)/32"
+    ;;
+
+esac
+
 #
 # Override Postfix configuration
 #
