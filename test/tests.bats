@@ -515,11 +515,11 @@
 # PERMIT_DOCKER mynetworks
 #
 @test "checking PERMIT_DOCKER: mynetworks option exist" {
-  run docker exec mail postconf -d | grep '^mynetworks ='
+  run docker exec mail /bin/sh -c "postconf -d | grep '^mynetworks ='"
   [ "$status" -eq 0 ]
 }
 
 @test "checking PERMIT_DOCKER: can get container ip" {
-  run docker exec mail ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'
+  run docker exec mail /bin/sh -c "ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'"
   [ "$status" -eq 0 ]
 }
