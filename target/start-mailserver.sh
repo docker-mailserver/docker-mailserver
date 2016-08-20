@@ -207,7 +207,7 @@ container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -
 container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
 case $PERMIT_DOCKER in
   "host" )
-      echo "Adding host in my networks"
+      echo "Adding $container_network/16 to my networks"
       postconf -e "$(postconf | grep '^mynetworks =') $container_network/16"
       bash -c "echo $container_network/16 >> /etc/opendmarc/ignore.hosts"
       bash -c "echo $container_network/16 >> /etc/opendkim/TrustedHosts"
