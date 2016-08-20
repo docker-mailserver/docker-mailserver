@@ -514,12 +514,21 @@
 #
 # PERMIT_DOCKER mynetworks
 #
-@test "checking PERMIT_DOCKER: mynetworks option exist" {
-  run docker exec mail /bin/sh -c "postconf -d | grep '^mynetworks ='"
+@test "checking PERMIT_DOCKER: can get container ip" {
+  run docker exec mail /bin/sh -c "ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking PERMIT_DOCKER: can get container ip" {
-  run docker exec mail /bin/sh -c "ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'"
+@test "checking PERMIT_DOCKER: opendmarc/opendkim config" {
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
+  [ "$status" -eq 0 ]
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking PERMIT_DOCKER: my network value" {
+  run docker exec mail /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.0\.0/16'"
+  [ "$status" -eq 0 ]
+  run docker exec mail_pop3 /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}/32'"
   [ "$status" -eq 0 ]
 }
