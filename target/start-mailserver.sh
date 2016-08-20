@@ -202,21 +202,29 @@ echo "Postfix configurations"
 touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
-# My Network Configuration
+# PERMIT_DOCKER Option
+container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
 case $PERMIT_DOCKER in
   "host" )
       echo "Adding host in my networks"
-      postconf -e "$(postconf -d | grep '^mynetworks =')"
+      postconf -e "$(postconf | grep '^mynetworks =') $container_network/16"
+      bash -c "echo $container_network/16 >> /etc/opendmarc/ignore.hosts"
+      bash -c "echo $container_network/16 >> /etc/opendkim/TrustedHosts"
     ;;
 
   "network" )
       echo "Adding docker network in my networks"
-      postconf -e "$(postconf | grep '^mynetworks =') 172.0.0.0/8"
+      postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
+      bash -c "echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts"
+      bash -c "echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts"
     ;;
 
   * )
       echo "Adding container ip in my networks"
-      postconf -e "$(postconf | grep '^mynetworks =') $(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)/32"
+      postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
+      bash -c "echo $container_ip/32 >> /etc/opendmarc/ignore.hosts"
+      bash -c "echo $container_ip/32 >> /etc/opendkim/TrustedHosts"
     ;;
 
 esac
