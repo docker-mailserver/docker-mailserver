@@ -26,6 +26,7 @@ run:
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
 		-e ONE_DIR=1 \
+		-e PERMIT_DOCKER=host\
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
 	docker run -d --name mail_pop3 \
@@ -40,6 +41,7 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
+		-e PERMIT_DOCKER=network\
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
 	docker run -d --name mail_fail2ban \

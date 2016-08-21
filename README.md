@@ -141,3 +141,10 @@ Otherwise, `iptables` won't be able to ban IPs.
   - self-signed => Enables self-signed certificates
 
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
+
+##### PERMIT_DOCKER
+
+Set different options for mynetworks option (can be overwrite in postfix-main.cf)
+  - **empty** => localhost only
+  - host => Add docker host (ipv4 only)
+  - network => Add all docker containers (ipv4 only)
