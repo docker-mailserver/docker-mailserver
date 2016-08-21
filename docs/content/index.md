@@ -55,3 +55,69 @@ Now the keys are generated, you can configure your DNS server by just pasting th
     docker-compose up -d mail
 
 You're done!
+
+## Environment variables
+
+Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh) to understand what's expected.
+
+Value in **bold** is the default value.
+
+##### ENABLE_POP3
+
+  - **empty** => POP3 service disabled
+  - 1 => Enables POP3 service
+
+##### ENABLE_FAIL2BAN
+
+  - **empty** => fail2ban service disabled
+  - 1 => Enables fail2ban service
+
+If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
+
+    cap_add:
+      - NET_ADMIN
+
+Otherwise, `iptables` won't be able to ban IPs.
+
+##### ENABLE_MANAGESIEVE
+
+  - **empty** => Managesieve service disabled
+  - 1 => Enables Managesieve on port 4190
+
+##### SA_TAG
+
+  - **2.0** => add spam info headers if at, or above that level
+
+##### SA_TAG2
+
+  - **6.31** => add 'spam detected' headers at that level
+
+##### SA_KILL
+
+  - **6.31** => triggers spam evasive actions
+
+##### SASL_PASSWD
+
+  - **empty** => No sasl_passwd will be created
+  - string => `/etc/postfix/sasl_passwd` will be created with the string as password
+
+##### SMTP_ONLY
+
+  - **empty** => all daemons start
+  - 1 => only launch postfix smtp
+
+##### SSL_TYPE
+
+  - **empty** => SSL disabled
+  - letsencrypt => Enables Let's Encrypt certificates
+  - custom => Enables custom certificates
+  - self-signed => Enables self-signed certificates
+
+Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
+
+##### PERMIT_DOCKER
+
+Set different options for mynetworks option (can be overwrite in postfix-main.cf)
+  - **empty** => localhost only
+  - host => Add docker host (ipv4 only)
+  - network => Add all docker containers (ipv4 only)
