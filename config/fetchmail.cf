@@ -1,0 +1,13 @@
+## Example configuration: IMAP
+#poll imap.example.com with proto IMAP
+#	user 'username' there with
+#	password 'secret'
+#	is 'user1@domain.tld'
+#	here ssl
+
+## Example configuration: POP3
+#poll pop3.example.com with proto POP3
+#	user 'username' there with
+#	password 'secret'
+#	is 'user2@domain.tld'
+#	here options keep ssl

@@ -16,6 +16,7 @@ Includes:
 - opendkim
 - opendmarc
 - fail2ban
+- fetchmail
 - basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
@@ -110,6 +111,10 @@ Otherwise, `iptables` won't be able to ban IPs.
 
   - **empty** => Managesieve service disabled
   - 1 => Enables Managesieve on port 4190
+
+##### ENABLE_FETCHMAIL
+  - **empty** => `fetchmail` disabled
+  - 1 => `fetchmail` enabled
 
 ##### SA_TAG
 

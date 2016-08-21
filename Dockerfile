@@ -7,7 +7,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
 	apt-get -y install --no-install-recommends \
 	postfix dovecot-core dovecot-imapd dovecot-pop3d dovecot-sieve dovecot-managesieved gamin amavisd-new spamassassin razor pyzor libsasl2-modules \
 	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
-    opendkim opendkim-tools opendmarc curl fail2ban ed iptables && \
+    opendkim opendkim-tools opendmarc curl fail2ban ed iptables fetchmail && \
 	curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
 	apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
 	apt-get update -q --fix-missing && apt-get -y upgrade fail2ban && \
@@ -50,6 +50,10 @@ ADD target/opendkim/default-opendkim /etc/default/opendkim
 # Configure DMARC (opendmarc)
 ADD target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 ADD target/opendmarc/default-opendmarc /etc/default/opendmarc
+
+# Configure fetchmail
+ADD target/fetchmail/fetchmailrc /etc/fetchmailrc_general
+RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
 
 # Configures Postfix
 ADD target/postfix/main.cf target/postfix/master.cf /etc/postfix/

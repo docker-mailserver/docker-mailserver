@@ -352,6 +352,15 @@ if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
   /usr/sbin/dovecot reload
 fi
 
+# Enable fetchmail daemon
+if [ "$ENABLE_FETCHMAIL" = 1 ]; then
+  if [ -f /tmp/docker-mailserver/fetchmail.cf ]; then
+    cat /etc/fetchmailrc_general /tmp/docker-mailserver/fetchmail.cf > /etc/fetchmailrc
+  fi
+  echo "Fetchmail enabled"
+  /etc/init.d/fetchmail start
+fi
+
 # Start services related to SMTP
 if ! [ "$DISABLE_SPAMASSASSIN" = 1 ]; then
   /etc/init.d/spamassassin start

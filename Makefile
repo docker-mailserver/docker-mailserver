@@ -13,7 +13,7 @@ build:
 generate-accounts:
 	docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
 	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
-	
+
 run:
 	# Run containers
 	docker run -d --name mail \
@@ -48,6 +48,13 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FAIL2BAN=1 \
+		--cap-add=NET_ADMIN \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 20
+	docker run -d --name mail_fetchmail \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_FETCHMAIL=1 \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
@@ -97,4 +104,4 @@ tests:
 
 clean:
 	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav
+	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban mail_fetchmail fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav
