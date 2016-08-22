@@ -26,21 +26,19 @@ A detailed description of the configuration options can be found in the [online 
 ## Example IMAP configuration
 
 ```
-poll imap.example.com with proto IMAP
-	user 'username' there with
-	password 'secret'
+poll imap.example.com proto imap
+	user 'username'
+	pass 'secret'
 	is 'user1@domain.tld'
-	here ssl
 ```
 
 ## Example POP3 configuration
 
 ```
-poll pop3.example.com with proto POP3
-	user 'username' there with
+poll pop3.example.com proto pop3
+	user 'username'
 	password 'secret'
 	is 'user2@domain.tld'
-	here options keep ssl
 ```
 
 More details how to configure fetchmail can be found in the [fetchmail man page in the chapter “The run control file”](http://www.fetchmail.info/fetchmail-man.html#31). 
