@@ -41,6 +41,8 @@ poll pop3.example.com with proto POP3
 	here options keep ssl
 ```
 
+More details how to configure fetchmail can be found in the [fetchmail man page](http://www.fetchmail.info/fetchmail-man.html).
+
 # Debugging
 
 To debug your `fetchmail.cf` configuration run this command:
