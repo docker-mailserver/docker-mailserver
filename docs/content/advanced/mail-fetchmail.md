@@ -37,7 +37,7 @@ poll imap.example.com proto imap
 ```
 poll pop3.example.com proto pop3
 	user 'username'
-	password 'secret'
+	pass 'secret'
 	is 'user2@domain.tld'
 ```
 
