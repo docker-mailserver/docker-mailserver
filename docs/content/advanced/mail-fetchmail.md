@@ -26,7 +26,7 @@ A detailed description of the configuration options can be found in the [online 
 ## Example IMAP configuration
 
 ```
-poll imap.example.com proto imap
+poll 'imap.example.com' proto imap
 	user 'username'
 	pass 'secret'
 	is 'user1@domain.tld'
@@ -35,7 +35,7 @@ poll imap.example.com proto imap
 ## Example POP3 configuration
 
 ```
-poll pop3.example.com proto pop3
+poll 'pop3.example.com' proto pop3
 	user 'username'
 	pass 'secret'
 	is 'user2@domain.tld'
