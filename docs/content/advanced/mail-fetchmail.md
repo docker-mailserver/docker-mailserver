@@ -21,7 +21,7 @@ Generate a file called `fetchmail.cf` and place it in the `config` folder. Your 
 
 # Configuration
 
-A detailed description of the configuration options can be found in the [online version of the manual page](www.fetchmail.info/fetchmail-man.html).
+A detailed description of the configuration options can be found in the [online version of the manual page](http://www.fetchmail.info/fetchmail-man.html).
 
 ## Example IMAP configuration
 
