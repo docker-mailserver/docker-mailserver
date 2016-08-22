@@ -8,7 +8,17 @@ environment:
 ...
 ```
 
-Generate a file called `fetchmail.cf` and place it in the `config` folder.
+Generate a file called `fetchmail.cf` and place it in the `config` folder. Your dockermail folder should look like this example:
+
+```
+├── config
+│   ├── dovecot.cf
+│   ├── fetchmail.cf
+│   ├── postfix-accounts.cf
+│   └── postfix-virtual.cf
+├── docker-compose.yml
+└── README.md
+```
 
 ## Example IMAP configuration
 
