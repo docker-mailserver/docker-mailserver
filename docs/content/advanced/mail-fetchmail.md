@@ -1,5 +1,4 @@
-To enable the `fetchmail` service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`
-Your `docker-compose.yml` file should look like following snippet:
+To enable the [fetchmail](http://www.fetchmail.info) service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`. Your `docker-compose.yml` file should look like following snippet:
 
 ```
 ...
