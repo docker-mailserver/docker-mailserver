@@ -19,6 +19,8 @@ Generate a file called `fetchmail.cf` and place it in the `config` folder. Your 
 └── README.md
 ```
 
+# Configuration
+
 ## Example IMAP configuration
 
 ```
@@ -38,6 +40,8 @@ poll pop3.example.com with proto POP3
 	is 'user2@domain.tld'
 	here options keep ssl
 ```
+
+# Debugging
 
 To debug your `fetchmail.cf` configuration run this command:
 
