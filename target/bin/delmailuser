@@ -9,8 +9,10 @@ function usage {
 
 if [ ! -z "$1" ]; then
  USER=$1
- ENTRIES=$(grep "$USER" -vi $DATABASE)
- echo "$ENTRIES" > $DATABASE
+ if [ -f "$DATABASE" ]; then
+  ENTRIES=$(grep "$USER" -vi $DATABASE)
+  echo "$ENTRIES" > $DATABASE
+ fi
 else
  usage
 fi
