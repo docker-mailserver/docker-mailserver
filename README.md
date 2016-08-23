@@ -34,7 +34,7 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 #### Create a `docker-compose.yml`
 
-Adapt this file with your FQDN.
+Adapt this file with your FQDN. Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
     version: '2'
 
