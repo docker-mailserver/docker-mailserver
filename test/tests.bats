@@ -328,6 +328,62 @@
   [ "$output" -eq 4 ]
 }
 
+@test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
+  rm -rf "$(pwd)/test/config/without-accounts" && mkdir -p "$(pwd)/test/config/without-accounts"
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
+    -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 5 ]
+  # Check keys for localhost.localdomain
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-accounts/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  # Check keys for otherdomain.tld
+  # run docker run --rm \
+  #   -v "$(pwd)/test/config/without-accounts/opendkim":/etc/opendkim \
+  #   `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+  # [ "$status" -eq 0 ]
+  # [ "$output" -eq 0 ]
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-accounts/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 4 ]
+}
+
+@test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
+  rm -rf "$(pwd)/test/config/without-virtual" && mkdir -p "$(pwd)/test/config/without-virtual"
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-virtual/":/tmp/docker-mailserver/ \
+    -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 5 ]
+  # Check keys for localhost.localdomain
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-virtual/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  # Check keys for otherdomain.tld
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-virtual/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-virtual/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 4 ]
+}
+
 #
 # opendmarc
 #
@@ -535,9 +591,29 @@
   [ -z "$output" ]
 }
 
+@test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'delmailuser user3@domain.tld'
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist" {
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'addmailuser user3@domain.tld mypassword'
+  run docker run --rm \
+    -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
+}
+
 #
 # PERMIT_DOCKER mynetworks
 #
+
 @test "checking PERMIT_DOCKER: can get container ip" {
   run docker exec mail /bin/sh -c "ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'"
   [ "$status" -eq 0 ]
