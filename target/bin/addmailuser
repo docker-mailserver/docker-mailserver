@@ -9,7 +9,7 @@ function usage {
 
 if [ ! -z "$1" ]; then
  USER=$1
- if [ ! -z "$(grep $USER -i $DATABASE)" ]; then
+ if [ -e "$DATABASE" ] && [ ! -z "$(grep $USER -i $DATABASE)" ]; then
   echo "User already exists"
   exit 1
  fi
