@@ -3,27 +3,27 @@
 DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
 
 function usage {
- echo 'Usage: addmailuser <user@domain.tld> [password]'
- exit 1
+  echo 'Usage: addmailuser <user@domain.tld> [password]'
+  exit 1
 }
 
 if [ ! -z "$1" ]; then
- USER=$1
- if [ ! -z "$(grep $USER -i $DATABASE)" ]; then
-  echo "User already exists"
-  exit 1
- fi
- if [ ! -z "$2" ]; then
-  PASS="$2"
- else
-  read -s -p "Enter Password: " PASS
-  if [ -z "$PASS" ]; then 
-   echo "Password can't be empty"
-   exit 1
+  USER=$1
+  if [ ! -z "$(grep $USER -i $DATABASE)" ]; then
+    echo "User already exists"
+    exit 1
   fi
- fi
- ENTRY=$(echo "$USER|$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASS")")
- echo "$ENTRY" >> $DATABASE
+  if [ ! -z "$2" ]; then
+    PASS="$2"
+  else
+    read -s -p "Enter Password: " PASS
+    if [ -z "$PASS" ]; then
+      echo "Password can't be empty"
+      exit 1
+    fi
+  fi
+  ENTRY=$(echo "$USER|$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASS")")
+  echo "$ENTRY" >> $DATABASE
 else
- usage
+  usage
 fi
