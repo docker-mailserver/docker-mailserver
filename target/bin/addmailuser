@@ -9,7 +9,7 @@ function usage {
 
 if [ ! -z "$1" ]; then
   USER=$1
-  if [ ! -z "$(grep $USER -i $DATABASE)" ]; then
+  if [ -e "$DATABASE" ] && [ ! -z "$(grep $USER -i $DATABASE)" ]; then
     echo "User already exists"
     exit 1
   fi
@@ -17,13 +17,12 @@ if [ ! -z "$1" ]; then
     PASS="$2"
   else
     read -s -p "Enter Password: " PASS
-    if [ -z "$PASS" ]; then
+    if [ -z "$PASS" ]; then 
       echo "Password can't be empty"
       exit 1
     fi
-  fi
-  ENTRY=$(echo "$USER|$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASS")")
-  echo "$ENTRY" >> $DATABASE
+    ENTRY=$(echo "$USER|$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASS")")
+    echo "$ENTRY" >> $DATABASE
 else
   usage
 fi

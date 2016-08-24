@@ -3,25 +3,35 @@
 touch /tmp/vhost.tmp
 
 # Getting domains from mail accounts
-while IFS=$'|' read login pass
-do
-  domain=$(echo ${login} | cut -d @ -f2)
-  echo ${domain} >> /tmp/vhost.tmp
-done < /tmp/docker-mailserver/postfix-accounts.cf
+if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
+  while IFS=$'|' read login pass
+  do
+    domain=$(echo ${login} | cut -d @ -f2)
+    echo ${domain} >> /tmp/vhost.tmp
+  done < /tmp/docker-mailserver/postfix-accounts.cf
+fi
 
 # Getting domains from mail aliases
-while read from to
-do
-  # Setting variables for better readability
-  uname=$(echo ${from} | cut -d @ -f1)
-  domain=$(echo ${from} | cut -d @ -f2)
-  # if they are equal it means the line looks like: "user1     other@domain.tld"
-  test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
-done < /tmp/docker-mailserver/postfix-virtual.cf
+if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
+  while read from to
+  do
+    # Setting variables for better readability
+    uname=$(echo ${from} | cut -d @ -f1)
+    domain=$(echo ${from} | cut -d @ -f2)
+    # if they are equal it means the line looks like: "user1     other@domain.tld"
+    test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
+  done < /tmp/docker-mailserver/postfix-virtual.cf
+fi
 
 # Keeping unique entries
 if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /tmp/vhost && rm /tmp/vhost.tmp
+fi
+
+# Exit if no entries found
+if [ ! -f /tmp/vhost ]; then
+	echo "No entries found, no keys to make"
+	exit 0
 fi
 
 grep -vE '^(\s*$|#)' /tmp/vhost | while read domainname; do
@@ -56,7 +66,7 @@ grep -vE '^(\s*$|#)' /tmp/vhost | while read domainname; do
 done
 
 # Creates TrustedHosts if missing
-if [ ! -f "/tmp/docker-mailserver/opendkim/TrustedHosts" ]; then
+if [ -d "/tmp/docker-mailserver/opendkim" ] && [ ! -f "/tmp/docker-mailserver/opendkim/TrustedHosts" ]; then
   echo "Creating DKIM TrustedHosts";
   echo "127.0.0.1" > /tmp/docker-mailserver/opendkim/TrustedHosts
   echo "localhost" >> /tmp/docker-mailserver/opendkim/TrustedHosts
