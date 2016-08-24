@@ -249,8 +249,11 @@ fi
 
 # Support outgoing email relay via Amazon SES
 if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
-  echo "Setting up outgoing email via AWS SES host $AWS_SES_HOST"
-  echo "[$AWS_SES_HOST]:25 $AWS_SES_USERPASS" >>/etc/postfix/sasl_passwd
+  if [ -z "$AWS_SES_PORT" ];then
+    AWS_SES_PORT=25
+  fi
+  echo "Setting up outgoing email via AWS SES host $AWS_SES_HOST:$AWS_SES_PORT"
+  echo "[$AWS_SES_HOST]:$AWS_SES_PORT $AWS_SES_USERPASS" >>/etc/postfix/sasl_passwd
   postconf -e \
     "relayhost = [$AWS_SES_HOST]:25" \
     "smtp_sasl_auth_enable = yes" \
