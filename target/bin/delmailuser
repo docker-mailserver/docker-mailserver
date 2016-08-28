@@ -4,13 +4,10 @@ DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
 
 function usage {
   echo "Usage: delmailuser <user@domain.tld>"
-  exit 1
+   exit 1
 }
 
 if [ ! -z "$1" ]; then
-  USER=$1
-  ENTRIES=$(grep "$USER" -vi $DATABASE)
-  echo "$ENTRIES" > $DATABASE
   USER=$1
   if [ -f "$DATABASE" ]; then
     ENTRIES=$(grep "$USER" -vi $DATABASE)
