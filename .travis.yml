@@ -1,3 +1,6 @@
+branches:
+  except:
+    - donttestme 
 language: bash
 sudo: required
 services:
