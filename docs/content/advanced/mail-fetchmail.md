@@ -30,6 +30,7 @@ poll 'imap.example.com' proto imap
 	user 'username'
 	pass 'secret'
 	is 'user1@domain.tld'
+	ssl
 ```
 
 ## Example POP3 configuration
@@ -39,6 +40,7 @@ poll 'pop3.example.com' proto pop3
 	user 'username'
 	pass 'secret'
 	is 'user2@domain.tld'
+	ssl
 ```
 
 __IMPORTANT__: Don’t forget the last line: e. g. `is 'user1@domain.tld'`. After `is` you have to specify one email address from the configuration file `config/postfix-accounts.cf`. 
