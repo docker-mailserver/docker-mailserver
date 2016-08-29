@@ -50,10 +50,9 @@ More details how to configure fetchmail can be found in the [fetchmail man page 
 To debug your `fetchmail.cf` configuration run this command:
 
 ```
-docker run --rm \
-  -v "$(pwd)/config:/tmp/docker-mailserver" \
-  -ti tvial/docker-mailserver:latest \
-  sh -c "cat /etc/fetchmailrc_general /tmp/docker-mailserver/fetchmail.cf > /etc/fetchmailrc; /etc/init.d/fetchmail debug-run"
+./setup.sh debug fetchmail
 ```
+
+For more informations about the configuration script `setup.sh` [[read the corresponding wiki page|Setup-docker-mailserver-using-the-script-setup.sh]].
 
 By default the fetchmail service searches very 5 minutes for new mails on your external mail accounts.
