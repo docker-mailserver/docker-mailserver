@@ -17,7 +17,7 @@ SUBCOMMANDS:
 
     $0 email add <email> <password>
     $0 email del <email>
-    $0 email list (not yet implemented)
+    $0 email list
 
   config:
 
@@ -52,8 +52,9 @@ case $1 in
         _docker delmailuser $@
         ;;
 
-#      list)
-#        ;;
+      list)
+        _docker listmailuser	
+        ;;
 
       *)
         _usage
