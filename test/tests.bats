@@ -428,11 +428,6 @@
   [ "$output" -eq 2 ]
 }
 
-@test "checking ssl: letsencrypt combined.pem generated correctly" {
-  run docker exec mail_pop3 ls -1 /etc/letsencrypt/live/mail.my-domain.com/combined.pem
-  [ "$status" -eq 0 ]
-}
-
 @test "checking ssl: letsencrypt cert works correctly" {
   run docker exec mail_pop3 /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   [ "$status" -eq 0 ]

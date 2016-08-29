@@ -121,23 +121,27 @@ case $SSL_TYPE in
   "letsencrypt" )
     # letsencrypt folders and files mounted in /etc/letsencrypt
     if [ -e "/etc/letsencrypt/live/$(hostname)/cert.pem" ] \
-    && [ -e "/etc/letsencrypt/live/$(hostname)/chain.pem" ] \
-    && [ -e "/etc/letsencrypt/live/$(hostname)/fullchain.pem" ] \
-    && [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
-      echo "Adding $(hostname) SSL certificate"
-      # create combined.pem from (cert|chain|privkey).pem with eol after each .pem
-      sed -e '$a\' -s /etc/letsencrypt/live/$(hostname)/{cert,chain,privkey}.pem > /etc/letsencrypt/live/$(hostname)/combined.pem
+    && [ -e "/etc/letsencrypt/live/$(hostname)/fullchain.pem" ]; then
+      KEY=""
+      if [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
+        KEY="/etc/letsencrypt/live/$(hostname)/privkey.pem"
+      elif [ -e "/etc/letsencrypt/live/$(hostname)/key.pem" ]; then
+        KEY="/etc/letsencrypt/live/$(hostname)/key.pem"
+      fi
+      if [ -n "$KEY" ]; then
+        echo "Adding $(hostname) SSL certificate"
 
-      # Postfix configuration
-      sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
-      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
+        # Postfix configuration
+        sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain.pem/g' /etc/postfix/main.cf
+        sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey.pem/g' /etc/postfix/main.cf
 
-      # Dovecot configuration
-      sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
-      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
+        # Dovecot configuration
+        sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/letsencrypt\/live\/'$(hostname)'\/fullchain\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
+        sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/letsencrypt\/live\/'$(hostname)'\/privkey\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
-      echo "SSL configured with 'letsencrypt' certificates"
+        echo "SSL configured with 'letsencrypt' certificates"
 
+      fi
     fi
     ;;
 
