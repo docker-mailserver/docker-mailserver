@@ -43,7 +43,16 @@ poll 'pop3.example.com' proto pop3
 
 __IMPORTANT__: Don’t forget the last line: e. g. `is 'user1@domain.tld'`. After `is` you have to specify one email address from the configuration file `config/postfix-accounts.cf`. 
 
-More details how to configure fetchmail can be found in the [fetchmail man page in the chapter “The run control file”](http://www.fetchmail.info/fetchmail-man.html#31). 
+More details how to configure fetchmail can be found in the [fetchmail man page in the chapter “The run control file”](http://www.fetchmail.info/fetchmail-man.html#31).
+
+## Polling interval
+
+By default the fetchmail service searches very 5 minutes for new mails on your external mail accounts. You can override this default value by adding this line to your `fetchmail.cf`.
+
+```
+set daemon 60
+```
+You must specify a numeric argument which is a polling interval in seconds. The example above polls every minute for new mails.
 
 # Debugging
 
@@ -54,5 +63,3 @@ To debug your `fetchmail.cf` configuration run this command:
 ```
 
 For more informations about the configuration script `setup.sh` [[read the corresponding wiki page|Setup-docker-mailserver-using-the-script-setup.sh]].
-
-By default the fetchmail service searches very 5 minutes for new mails on your external mail accounts.
