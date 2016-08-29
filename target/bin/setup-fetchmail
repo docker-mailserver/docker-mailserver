@@ -1,0 +1,18 @@
+#! /bin/sh
+
+CONF=/tmp/docker-mailserver/fetchmail.cf
+RC=/etc/fetchmailrc
+
+if [ -f "$RC" ]; then
+	echo "The Fetchmail configuration is file '$RC' is already generated."
+	exit 0
+fi
+
+if [ -f "$CONF" ]; then
+	cat /etc/fetchmailrc_general $CONF > $RC
+else
+	cat /etc/fetchmailrc_general > $RC
+fi
+
+chmod 700 $RC
+chown fetchmail:root $RC

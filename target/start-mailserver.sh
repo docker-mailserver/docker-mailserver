@@ -361,9 +361,7 @@ fi
 
 # Enable fetchmail daemon
 if [ "$ENABLE_FETCHMAIL" = 1 ]; then
-  if [ -f /tmp/docker-mailserver/fetchmail.cf ]; then
-    cat /etc/fetchmailrc_general /tmp/docker-mailserver/fetchmail.cf > /etc/fetchmailrc
-  fi
+  /usr/local/bin/setup-fetchmail
   echo "Fetchmail enabled"
   /etc/init.d/fetchmail start
 fi
