@@ -26,7 +26,7 @@ SUBCOMMANDS:
 
   debug:
 
-    $0 debug fetchmail (not yet implemented)
+    $0 debug fetchmail
 "
   exit 1
 }
@@ -84,7 +84,7 @@ case $1 in
     shift
     case $1 in
       fetchmail)
-        _docker sh -c "cat /etc/fetchmailrc_general /tmp/docker-mailserver/fetchmail.cf > /etc/fetchmailrc; /etc/init.d/fetchmail debug-run"
+        _docker debug-fetchmail
         ;;
     esac
     ;;
