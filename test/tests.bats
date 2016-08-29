@@ -591,6 +591,12 @@
   [ -z "$output" ]
 }
 
+@test "checking accounts: listmailuser" {
+  run docker exec mail /bin/sh -c "listmailuser | head -n 1"
+  [ "$status" -eq 0 ]
+  [ "$output" = user1@localhost.localdomain ]
+}
+
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \

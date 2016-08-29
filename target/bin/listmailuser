@@ -1,0 +1,16 @@
+#! /bin/sh
+
+DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
+
+if [ ! -f "$DATABASE" ]; then
+  echo "The configuration file 'postfix-accounts.cf' doesn't exist. Until now no email addresses have been added."
+  exit 1
+fi
+
+if [ ! -s "$DATABASE" ]; then
+  echo "No email addresses have been added."
+  exit 1
+fi
+
+cat "$DATABASE" | awk -F '|' '{print $1}'
+
