@@ -5,6 +5,7 @@
 su -s /bin/sh -c "/usr/bin/fetchmail \
 	--verbose \
 	--daemon 0 \
+	--check \
 	--nosyslog \
 	--nodetach \
 	-f /etc/fetchmailrc" fetchmail <&- 2>&1
