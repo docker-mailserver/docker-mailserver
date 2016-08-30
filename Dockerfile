@@ -3,16 +3,45 @@ MAINTAINER Thomas VIAL
 
 # Packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
-	apt-get -y upgrade && \
-	apt-get -y install --no-install-recommends \
-	postfix dovecot-core dovecot-imapd dovecot-pop3d dovecot-sieve dovecot-managesieved gamin amavisd-new spamassassin razor pyzor libsasl2-modules \
-	clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
-    opendkim opendkim-tools opendmarc curl fail2ban ed iptables fetchmail && \
-	curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
-	apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
-	apt-get update -q --fix-missing && apt-get -y upgrade fail2ban && \
-    apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
-    rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
+  apt-get -y upgrade && \
+  apt-get -y install --no-install-recommends \
+    amavisd-new \
+    arj \
+    bzip2 \
+    clamav \
+    clamav-daemon \
+    curl \
+    dovecot-core \
+    dovecot-imapd \
+    dovecot-managesieved \
+    dovecot-pop3d \
+    dovecot-sieve \
+    ed \
+    fail2ban \
+    fetchmail \
+    file \
+    gamin \
+    gzip \
+    iptables \
+    libmail-spf-perl \
+    libnet-dns-perl \
+    libsasl2-modules \
+    opendkim \
+    opendkim-tools \
+    opendmarc \
+    p7zip \
+    postfix \
+    pyzor \
+    razor \
+    rsyslog \
+    spamassassin \
+    unzip \
+    && \
+  curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
+  apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
+  apt-get update -q --fix-missing && apt-get -y upgrade fail2ban && \
+  apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
+  rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
@@ -75,7 +104,16 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /et
   curl -s https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
 
 # Start-mailserver script
-ADD target/bin/generate-ssl-certificate target/bin/generate-dkim-config target/bin/addmailuser target/bin/delmailuser target/bin/listmailuser target/bin/setup-fetchmail target/bin/debug-fetchmail target/start-mailserver.sh /usr/local/bin/
+ADD \
+  target/bin/addmailuser \
+  target/bin/debug-fetchmail \
+  target/bin/delmailuser \
+  target/bin/generate-dkim-config\
+  target/bin/generate-ssl-certificate \
+  target/bin/listmailuser \
+  target/bin/setup-fetchmail \
+  target/start-mailserver.sh \
+  /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
