@@ -433,6 +433,33 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking ssl: manual configuration is correct" {
+  run docker exec mail_manual_ssl /bin/sh -c 'grep -ir "/etc/postfix/ssl/cert" /etc/postfix/main.cf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+  run docker exec mail_manual_ssl /bin/sh -c 'grep -ir "/etc/postfix/ssl/cert" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+  run docker exec mail_manual_ssl /bin/sh -c 'grep -ir "/etc/postfix/ssl/key" /etc/postfix/main.cf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+  run docker exec mail_manual_ssl /bin/sh -c 'grep -ir "/etc/postfix/ssl/key" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+}
+
+@test "checking ssl: manual configuration copied files correctly " {
+  run docker exec mail_manual_ssl /bin/sh -c 'cmp -s /etc/postfix/ssl/cert /tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem'
+  [ "$status" -eq 0 ]
+  run docker exec mail_manual_ssl /bin/sh -c 'cmp -s /etc/postfix/ssl/key /tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem'
+  [ "$status" -eq 0 ]
+}
+
+@test "checking ssl: manual cert works correctly" {
+  run docker exec mail_manual_ssl /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
+  [ "$status" -eq 0 ]
+}
+
 #
 # fail2ban
 #
