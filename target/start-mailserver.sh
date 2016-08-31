@@ -165,6 +165,30 @@ case $SSL_TYPE in
     fi
     ;;
 
+  "manual" )
+    # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole processes (like using kube-lego to generate certs)
+    if [ -n "$SSL_CERT_PATH" ] \
+    && [ -n "$SSL_KEY_PATH" ]; then
+      echo "Configuring certificates using cert $SSL_CERT_PATH and key $SSL_KEY_PATH"
+      mkdir -p /etc/postfix/ssl
+      cp "$SSL_CERT_PATH" /etc/postfix/ssl/cert
+      cp "$SSL_KEY_PATH" /etc/postfix/ssl/key
+      chmod 600 /etc/postfix/ssl/cert
+      chmod 600 /etc/postfix/ssl/key
+
+      # Postfix configuration
+      sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/cert/g' /etc/postfix/main.cf
+      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/key/g' /etc/postfix/main.cf
+
+      # Dovecot configuration
+      sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/postfix\/ssl\/cert/g' /etc/dovecot/conf.d/10-ssl.conf
+      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/key/g' /etc/dovecot/conf.d/10-ssl.conf
+
+      echo "SSL configured with 'Manual' certificates"
+
+    fi
+    ;;
+
   "self-signed" )
     # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
     if [ -e "/tmp/docker-mailserver/ssl/$(hostname)-cert.pem" ] \
