@@ -56,7 +56,7 @@ SUBCOMMANDS:
     $0 debug fetchmail
     $0 debug show-mail-logs
     $0 debug inspect
-    $0 debug login
+    $0 debug login <commands>
 "
   exit 1
 }
@@ -156,7 +156,12 @@ case $1 in
         _inspect
         ;;
       login)
-        _docker_container /bin/bash
+        shift
+	if [ -z "$1" ]; then
+          _docker_container /bin/bash
+        else
+          _docker_container /bin/bash -c "$@"
+        fi
         ;;
       *)
         _usage
