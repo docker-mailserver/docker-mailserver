@@ -29,7 +29,7 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 ## Usage
 
 #### Get latest image
- 
+
     docker pull tvial/docker-mailserver:latest
 
 #### Create a `docker-compose.yml`
@@ -70,7 +70,7 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
       -ti tvial/docker-mailserver:latest \
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
-#### Generate DKIM keys 
+#### Generate DKIM keys
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
@@ -143,6 +143,7 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => SSL disabled
   - letsencrypt => Enables Let's Encrypt certificates
   - custom => Enables custom certificates
+  - manual => Let's you manually specify locations of your SSL certificates for non-standard cases
   - self-signed => Enables self-signed certificates
 
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.

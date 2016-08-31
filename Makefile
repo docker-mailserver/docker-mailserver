@@ -75,6 +75,13 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e DISABLE_CLAMAV=1 \
 		-h mail.my-domain.com -t $(NAME)
+	docker run -d --name mail_manual_ssl \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e SSL_TYPE=manual \
+		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
+		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
+		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 20
 
@@ -104,4 +111,4 @@ tests:
 
 clean:
 	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban mail_fetchmail fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav
+	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban mail_fetchmail fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav mail_manual_ssl
