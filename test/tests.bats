@@ -660,3 +660,13 @@
   run docker exec mail_pop3 /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}/32'"
   [ "$status" -eq 0 ]
 }
+
+#
+# amavis
+#
+
+@test "checking amavis: config overrides" {
+  run docker exec mail /bin/sh -c "grep 'Test Verification' /etc/amavis/conf.d/50-user | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+}
