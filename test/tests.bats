@@ -660,3 +660,66 @@
   run docker exec mail_pop3 /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}/32'"
   [ "$status" -eq 0 ]
 }
+
+#
+# setup.sh
+#
+
+# CLI interface
+@test "checking setup.sh: Without arguments: status 1, show help text" {
+  run ./setup.sh 
+  [ "$status" -eq 1 ]
+  [ "${lines[0]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
+}
+@test "checking setup.sh: Wrong arguments" {
+  run ./setup.sh lol troll
+  [ "$status" -eq 1 ]
+  [ "${lines[0]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
+}
+
+# email
+@test "checking setup.sh: setup.sh email add " {
+  run ./setup.sh -c mail email add lorem@impsum.org dolorsit
+  [ "$status" -eq 0 ]
+  value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $1}')
+  [ "$value" = "lorem@impsum.org" ]
+}
+@test "checking setup.sh: setup.sh email list" {
+  run ./setup.sh -c mail email list
+  [ "$status" -eq 0 ]
+}
+@test "checking setup.sh: setup.sh email del" {
+  run ./setup.sh -c mail email del lorem@impsum.org
+  [ "$status" -eq 0 ]
+  run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
+  [ -z "$value" ]
+}
+
+# config
+@test "checking setup.sh: setup.sh config dkim" {
+  run ./setup.sh -c mail config dkim
+  [ "$status" -eq 0 ]
+}
+# TODO: To create a test generate-ssl-certificate must be non interactive
+#@test "checking setup.sh: setup.sh config ssl" {
+#  run ./setup.sh -c mail_ssl config ssl
+#  [ "$status" -eq 0 ]
+#}
+
+# debug
+@test "checking setup.sh: setup.sh debug fetchmail" {
+  run ./setup.sh -c mail debug fetchmail
+  [ "$status" -eq 5 ]
+# TODO: Fix output check
+# [ "$output" = "fetchmail: no mailservers have been specified." ]
+}
+@test "checking setup.sh: setup.sh debug inspect" {
+  run ./setup.sh -c mail debug inspect
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "Image: tvial/docker-mailserver:testing" ]
+  [ "${lines[1]}" = "Container: mail" ]
+}
+@test "checking setup.sh: setup.sh debug login ls" {
+  run ./setup.sh -c mail debug login ls
+  [ "$status" -eq 0 ]
+}
