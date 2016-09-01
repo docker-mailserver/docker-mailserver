@@ -8,7 +8,7 @@ die () {
 #
 # Users
 #
-if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
+if [ ! "$ENABLE_LDAP" = "true" ]; then
   echo "Checking file line endings"
   sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
   echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
@@ -16,18 +16,6 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
 
   # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
   sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
-  # Configuring Dovecot
-  echo -n > /etc/dovecot/userdb
-  chown dovecot:dovecot /etc/dovecot/userdb
-  chmod 640 /etc/dovecot/userdb
-  cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
-  # Disable pop3 (it will be eventually enabled later in the script, if requested)
-  mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
-  mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
-  sed -i -e 's/#ssl = yes/ssl = yes/g' /etc/dovecot/conf.d/10-master.conf
-  sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
-  sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
-  sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
 
   # Creating users
   # 'pass' is encrypted
@@ -61,6 +49,19 @@ else
   echo "==> Warning: 'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 fi
 
+# Configuring Dovecot
+echo -n > /etc/dovecot/userdb
+chown dovecot:dovecot /etc/dovecot/userdb
+chmod 640 /etc/dovecot/userdb
+cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
+# Disable pop3 (it will be eventually enabled later in the script, if requested)
+mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
+mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
+sed -i -e 's/#ssl = yes/ssl = yes/g' /etc/dovecot/conf.d/10-master.conf
+sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
+sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
+sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
+
 #
 # Aliases
 #
@@ -87,6 +88,8 @@ if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
     s/$/ regexp:\/etc\/postfix\/regexp/
     }' /etc/postfix/main.cf
 fi
+
+
 
 # DKIM
 # Check if keys are already available
@@ -151,14 +154,16 @@ case $SSL_TYPE in
       echo "Adding $(hostname) SSL certificate"
       mkdir -p /etc/postfix/ssl
       cp "/tmp/docker-mailserver/ssl/$(hostname)-full.pem" /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/$(hostname)-key.pem" /etc/postfix/ssl
+      cp "/tmp/docker-mailserver/ssl/cacert.pem" /etc/postfix/ssl
 
       # Postfix configuration
       sed -i -r 's/smtpd_tls_cert_file=\/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/smtpd_tls_cert_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
-      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-full.pem/g' /etc/postfix/main.cf
+      sed -i -r 's/smtpd_tls_key_file=\/etc\/ssl\/private\/ssl-cert-snakeoil.key/smtpd_tls_key_file=\/etc\/postfix\/ssl\/'$(hostname)'-key.pem/g' /etc/postfix/main.cf
 
       # Dovecot configuration
       sed -i -e 's/ssl_cert = <\/etc\/dovecot\/dovecot\.pem/ssl_cert = <\/etc\/postfix\/ssl\/'$(hostname)'-full\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
-      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/'$(hostname)'-full\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
+      sed -i -e 's/ssl_key = <\/etc\/dovecot\/private\/dovecot\.pem/ssl_key = <\/etc\/postfix\/ssl\/'$(hostname)'-key\.pem/g' /etc/dovecot/conf.d/10-ssl.conf
 
       echo "SSL configured with 'CA signed/custom' certificates"
 
@@ -226,9 +231,30 @@ if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
 
+
 echo "Postfix configurations"
-touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
-touch /etc/postfix/virtual && postmap /etc/postfix/virtual
+#
+# LDAP
+#
+if [ "$ENABLE_LDAP" = "true" ]; then
+  echo "Installing LDAP auth mechanism"
+  cp /tmp/docker-mailserver/ldap-accounts.cf /etc/postfix/ldap-accounts.cf
+  echo "Loaded /etc/postfix/ldap-accounts.cf"
+  cp /tmp/docker-mailserver/ldap-aliases.cf /etc/postfix/ldap-aliases.cf
+  echo "Loaded /etc/postfix/ldap-aliases.cf"
+  cp /tmp/docker-mailserver/ldap-domains.cf /etc/postfix/ldap-domains.cf
+  echo "Loaded /etc/postfix/ldap-domains.cf"
+  cp /tmp/docker-mailserver/conf.d/auth-ldap.conf.ext /etc/dovecot/conf.d/auth-ldap.conf.ext
+  echo "Uninstalling passwd-file authentication mechanism"
+  echo "" > /etc/dovecot/conf.d/auth-passwdfile.inc
+  if [ -e "/tmp/docker-mailserver/ldap/ldap.conf" ]; then
+    cp /tmp/docker-mailserver/ldap/ldap.conf /etc/ldap/ldap.conf
+  fi
+else
+  touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
+  touch /etc/postfix/virtual && postmap /etc/postfix/virtual
+fi
+
 
 # PERMIT_DOCKER Option
 container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
@@ -322,7 +348,6 @@ SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kil
 test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 
 if [ "$ENABLE_FAIL2BAN" = 1 ]; then
-  echo "Fail2ban enabled"
   test -e /tmp/docker-mailserver/fail2ban-jail.cf && cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local
 else
   # Disable logrotate config for fail2ban if not enabled
@@ -362,7 +387,6 @@ cron
 # Enable Managesieve service by setting the symlink
 # to the configuration file Dovecot will actually find
 if [ "$ENABLE_MANAGESIEVE" = 1 ]; then
-  echo "Sieve management enabled"
   mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 fi
 
@@ -391,15 +415,9 @@ if [ "$ENABLE_FETCHMAIL" = 1 ]; then
 fi
 
 # Start services related to SMTP
-if ! [ "$DISABLE_SPAMASSASSIN" = 1 ]; then
-  /etc/init.d/spamassassin start
-fi
-if ! [ "$DISABLE_CLAMAV" = 1 ]; then
-  /etc/init.d/clamav-daemon start
-fi
-if ! [ "$DISABLE_AMAVIS" = 1 ]; then
-  /etc/init.d/amavis start
-fi
+/etc/init.d/spamassassin start
+/etc/init.d/clamav-daemon start
+/etc/init.d/amavis start
 /etc/init.d/opendkim start
 /etc/init.d/opendmarc start
 /etc/init.d/postfix start
@@ -410,8 +428,10 @@ if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   /etc/init.d/fail2ban start
 fi
 
-echo "Listing users"
-/usr/sbin/dovecot user '*'
+if [ ! "$ENABLE_LDAP" = "true" ]; then
+  echo "Listing users"
+  /usr/sbin/dovecot user '*'
+fi
 
 echo "Starting..."
 tail -f /var/log/mail/mail.log

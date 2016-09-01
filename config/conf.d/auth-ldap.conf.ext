@@ -1,0 +1,13 @@
+# SSL/TLS
+uris            = ldap://virtual.domain.com
+auth_bind       = yes
+ldap_version    = 3
+dn              = cn=readonly,dc=domain,dc=com
+dnpass          = 123456789
+base            = dc=mail,dc=domain,dc=com
+user_filter     = (&(objectClass=CourierMailAccount)(mail=%u))
+pass_filter     = (&(objectClass=CourierMailAccount)(mail=%u))
+user_attrs      = uidNumber=5000,gidNumber=5000,homeDirectory=home,mailbox=mail=maildir:%$/Maildir:LAYOUT=fs
+default_pass_scheme = SSHA
+tls = yes
+tls_ca_cert_file = /etc/postfix/ssl/cacert.pem

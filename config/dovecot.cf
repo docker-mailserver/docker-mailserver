@@ -2,3 +2,43 @@
 # For more informations read http://wiki.dovecot.org/BasicConfiguration
 
 #mail_max_userip_connections = 50
+
+login_greeting = My Server : server ready
+mail_uid = 5000
+mail_gid = 5000
+auth_mechanisms = plain login
+disable_plaintext_auth = yes
+
+ssl_ca = </etc/postfix/ssl/cacert.pem
+
+auth_debug_passwords=  no
+
+userdb {
+	driver = ldap
+	args = /etc/dovecot/conf.d/auth-ldap.conf.ext
+}
+
+passdb {
+	driver = ldap
+	args = /etc/dovecot/conf.d/auth-ldap.conf.ext
+}
+
+service imap-login {
+  inet_listener imap {
+    port = 0
+  }
+  inet_listener imaps {
+    port = 993
+    ssl = yes
+  }
+}
+
+service pop3-login {
+  inet_listener pop3 {
+    port = 0
+  }
+  inet_listener pop3s {
+    port = 995
+    ssl = yes
+  }
+}

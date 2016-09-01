@@ -1,0 +1,12 @@
+server_host = ldap://virtual.domain.com
+server_port = 389
+search_base = dc=mail,dc=domain,dc=com
+query_filter = (&(description=virtualDomain)(dc=%s))
+result_attribute = dc
+bind = yes
+bind_dn = cn=readonly,dc=domain,dc=com
+bind_pw = 12345789
+version = 3
+tls_ca_cert_file = /etc/postfix/ssl/cacert.pem
+tls_cert = /etc/postfix/ssl/mail.domain.com-full.pem
+tls_key = /etc/postfix/ssl/mail.domain.com-key.pem
