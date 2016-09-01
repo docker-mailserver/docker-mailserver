@@ -45,7 +45,7 @@ Check the following page for more information regarding [postfix and SSL/TLS con
 To use the certificate:
 
 * add `SSL_TYPE=self-signed` to your container environment variables
-* if a matching certificate (files listed above) is found in `config/ssl`, it will be automatically setup in postfix and courier-imap-ssl. You just have to place them in `config/ssl` folder.
+* if a matching certificate (files listed above) is found in `config/ssl`, it will be automatically setup in postfix and dovecot. You just have to place them in `config/ssl` folder.
 
 ### Testing certificate
 
