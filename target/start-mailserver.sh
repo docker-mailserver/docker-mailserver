@@ -255,7 +255,7 @@ if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
   echo "Setting up outgoing email via AWS SES host $AWS_SES_HOST:$AWS_SES_PORT"
   echo "[$AWS_SES_HOST]:$AWS_SES_PORT $AWS_SES_USERPASS" >>/etc/postfix/sasl_passwd
   postconf -e \
-    "relayhost = [$AWS_SES_HOST]:25" \
+    "relayhost = [$AWS_SES_HOST]:$AWS_SES_PORT" \
     "smtp_sasl_auth_enable = yes" \
     "smtp_sasl_security_options = noanonymous" \
     "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
