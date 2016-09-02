@@ -103,17 +103,9 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem && \
   curl -s https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
 
+ADD ./target/bin /usr/local/bin
 # Start-mailserver script
-ADD \
-  target/bin/addmailuser \
-  target/bin/debug-fetchmail \
-  target/bin/delmailuser \
-  target/bin/generate-dkim-config\
-  target/bin/generate-ssl-certificate \
-  target/bin/listmailuser \
-  target/bin/setup-fetchmail \
-  target/start-mailserver.sh \
-  /usr/local/bin/
+ADD ./target/start-mailserver.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
