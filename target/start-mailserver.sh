@@ -397,6 +397,12 @@ fi
 if ! [ "$DISABLE_CLAMAV" = 1 ]; then
   /etc/init.d/clamav-daemon start
 fi
+
+# Copy user provided configuration files if provided
+if [ -f /tmp/docker-mailserver/amavis.cf ]; then
+  cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
+fi
+
 if ! [ "$DISABLE_AMAVIS" = 1 ]; then
   /etc/init.d/amavis start
 fi

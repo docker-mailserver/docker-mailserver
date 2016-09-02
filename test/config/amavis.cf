@@ -1,0 +1,14 @@
+use strict;
+
+#
+# Place your configuration directives here.  They will override those in
+# earlier files.
+#
+# See /usr/share/doc/amavisd-new/ for documentation and examples of
+# the directives you can use in this file
+#
+
+# Test Verification
+
+#------------ Do not modify anything below this line -------------
+1;  # ensure a defined return

@@ -662,12 +662,22 @@
 }
 
 #
+# amavis
+#
+
+@test "checking amavis: config overrides" {
+  run docker exec mail /bin/sh -c "grep 'Test Verification' /etc/amavis/conf.d/50-user | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+}
+
+#
 # setup.sh
 #
 
 # CLI interface
 @test "checking setup.sh: Without arguments: status 1, show help text" {
-  run ./setup.sh 
+  run ./setup.sh
   [ "$status" -eq 1 ]
   [ "${lines[0]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
 }
