@@ -46,8 +46,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
 RUN sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf
-ADD target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
-ADD target/dovecot/??-*.conf /etc/dovecot/conf.d/
+COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
+COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
 
 # Enables Spamassassin and CRON updates
 RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
@@ -58,8 +58,8 @@ RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
 
 # Configure Fail2ban
-ADD target/fail2ban/jail.conf /etc/fail2ban/jail.conf
-ADD target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
+COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
+COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
 
 # Enables Clamav
@@ -73,19 +73,19 @@ USER root
 
 # Configure DKIM (opendkim)
 # DKIM config files
-ADD target/opendkim/opendkim.conf /etc/opendkim.conf
-ADD target/opendkim/default-opendkim /etc/default/opendkim
+COPY target/opendkim/opendkim.conf /etc/opendkim.conf
+COPY target/opendkim/default-opendkim /etc/default/opendkim
 
 # Configure DMARC (opendmarc)
-ADD target/opendmarc/opendmarc.conf /etc/opendmarc.conf
-ADD target/opendmarc/default-opendmarc /etc/default/opendmarc
+COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
+COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 
 # Configure fetchmail
-ADD target/fetchmail/fetchmailrc /etc/fetchmailrc_general
+COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
 
 # Configures Postfix
-ADD target/postfix/main.cf target/postfix/master.cf /etc/postfix/
+COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
@@ -103,9 +103,9 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem && \
   curl -s https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
 
-ADD ./target/bin /usr/local/bin
+COPY ./target/bin /usr/local/bin
 # Start-mailserver script
-ADD ./target/start-mailserver.sh /usr/local/bin/
+COPY ./target/start-mailserver.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
