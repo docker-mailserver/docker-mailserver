@@ -7,7 +7,7 @@ environment:
 ...
 ```
 
-Generate a file called `fetchmail.cf` and place it in the `config` folder. Your dockermail folder should look like this example:
+Generate a file called `fetchmail.cf` and place it in the `config` folder. Your `docker-mailserver` folder should look like this example:
 
 ```
 ├── config
