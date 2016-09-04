@@ -379,6 +379,7 @@ if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
 fi
 
 if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
+  echo 'Adding file "dovecot.cf" to the Dovecot configuration'
   cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
   /usr/sbin/dovecot reload
 fi
