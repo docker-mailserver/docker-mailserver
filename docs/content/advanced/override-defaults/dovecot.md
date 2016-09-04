@@ -2,6 +2,17 @@ The Dovecot default configuration can easily be overridden providing a `config/d
 This file can also be used to specify additional configurations.
 [Dovecot documentation](http://wiki.dovecot.org/FrontPage) remains the best place to find configuration options.
 
+Your `docker-mailserver` folder should look like this example:
+
+```
+├── config
+│   ├── dovecot.cf
+│   ├── postfix-accounts.cf
+│   └── postfix-virtual.cf
+├── docker-compose.yml
+└── README.md
+```
+
 # Debugging
 
 To debug your dovecot configuration you can use this command:
