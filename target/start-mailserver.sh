@@ -231,7 +231,7 @@ touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
 touch /etc/postfix/virtual && postmap /etc/postfix/virtual
 
 # PERMIT_DOCKER Option
-container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+container_ip=$(ip addr show eth0 | grep 'inet 172\.' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
 container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
 case $PERMIT_DOCKER in
   "host" )
