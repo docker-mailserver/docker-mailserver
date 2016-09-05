@@ -69,6 +69,7 @@ if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
   cp /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
   while read from to
   do
+    ([[ "$from" =~ ^#.*$ ]] || [ -z "$from" ] ) && continue
     # Setting variables for better readability
     uname=$(echo ${from} | cut -d @ -f1)
     domain=$(echo ${from} | cut -d @ -f2)
@@ -262,6 +263,7 @@ esac
 #
 if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
   while read line; do
+    ([[ "$line" =~ ^#.*$ ]] || [ -z "$line" ] ) && continue
     postconf -e "$line"
   done < /tmp/docker-mailserver/postfix-main.cf
   echo "Loaded 'config/postfix-main.cf'"
