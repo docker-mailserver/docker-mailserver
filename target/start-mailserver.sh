@@ -392,9 +392,6 @@ if [ "$ENABLE_FETCHMAIL" = 1 ]; then
 fi
 
 # Start services related to SMTP
-if ! [ "$DISABLE_SPAMASSASSIN" = 1 ]; then
-  /etc/init.d/spamassassin start
-fi
 if ! [ "$DISABLE_CLAMAV" = 1 ]; then
   /etc/init.d/clamav-daemon start
 fi

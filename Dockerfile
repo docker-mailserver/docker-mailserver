@@ -49,8 +49,8 @@ RUN sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins si
 COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
 
-# Enables Spamassassin and CRON updates
-RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
+# Enables Spamassassin CRON updates
+RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 
 # Enables Amavis
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
