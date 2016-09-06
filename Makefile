@@ -64,12 +64,6 @@ run:
 		-e DISABLE_AMAVIS=1 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
-	docker run -d --name mail_disabled_spamassassin \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e DISABLE_SPAMASSASSIN=1 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
 	docker run -d --name mail_disabled_clamav \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -111,4 +105,4 @@ tests:
 
 clean:
 	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban mail_fetchmail fail-auth-mailer mail_disabled_amavis mail_disabled_spamassassin mail_disabled_clamav mail_manual_ssl
+	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban mail_fetchmail fail-auth-mailer mail_disabled_amavis mail_disabled_clamav mail_manual_ssl

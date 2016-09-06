@@ -52,11 +52,6 @@
   [ "$status" -eq 1 ]
 }
 
-@test "checking process: spamassassin (spamassassin disabled by DISABLE_SPAMASSASSIN)" {
-  run docker exec mail_disabled_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep ''/usr/sbin/spamd'"
-  [ "$status" -eq 1 ]
-}
-
 @test "checking process: clamav (clamav disabled by DISABLE_CLAMAV)" {
   run docker exec mail_disabled_clamav /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   [ "$status" -eq 1 ]
