@@ -1,5 +1,6 @@
-The Dovecot default configuration can easily be overridden providing a `config/dovecot.cf` file.
-This file can also be used to specify additional configurations.
+# Add configuration
+
+The Dovecot default configuration can easily be extended providing a `config/dovecot.cf` file.
 [Dovecot documentation](http://wiki.dovecot.org/FrontPage) remains the best place to find configuration options.
 
 Your `docker-mailserver` folder should look like this example:
@@ -11,6 +12,23 @@ Your `docker-mailserver` folder should look like this example:
 │   └── postfix-virtual.cf
 ├── docker-compose.yml
 └── README.md
+```
+
+# Override configuration
+
+For major configuration changes it’s best to override the `dovecot` configuration files. For each configuration file you want to override, add a list entry under the `volumes:` key.
+
+```yaml
+version: '2'
+
+services:
+  mail:
+  ...
+    volumes:
+      - maildata:/var/mail
+      ...
+      - ./config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf
+
 ```
 
 # Debugging
