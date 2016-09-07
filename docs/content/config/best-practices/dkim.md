@@ -33,9 +33,15 @@ SendReports             yes
 Mode                    v
 ```
 
-## Debug the DKIM TXT Record
+## Debugging
 
-You can debug your TXT record with the `dig` tool.
+### Tools
+
+* [DKIM-verifer](https://addons.mozilla.org/en-US/thunderbird/addon/dkim-verifier): A add-on for the mail client Thunderbird.
+
+### DKIM TXT Record
+
+You can debug your TXT records with the `dig` tool.
 
 ```
 dig TXT mail._domainkey.domain.tld
