@@ -1,9 +1,12 @@
 branches:
   except:
-    - donttestme 
+  - donttestme
 language: bash
 sudo: required
 services:
-  - docker
+- docker
 script:
-  - make all
+- make all
+notifications:
+  slack:
+    secure: TTo1z9nbZCWcIdfPwypubNa3y+pwvfgDGlzEVAGEuK7uuIpmEoAcAUNSSPTnbewDGHnDl8t/ml93MtvP+a+IVuAKytMqF39PHyoZO7aUl9J62V+G75OmnyGjXGJm40pQosCS6LzqoRRYXotl9+fwH568Kf4ifXCrMZX1d+ir7Ww=
