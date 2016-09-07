@@ -14,6 +14,14 @@ mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 
 ```
 
+## Configuration using a web interface:
+
+1. Generate a new record of the type `TXT`.
+2. In the `Name` field paste in `mail._domainkey`.
+3. In the `Target` or `Value` field fill in `v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN`
+4. In `TTL` (time to live): Time span in seconds. How long the DNS server should cache the `TXT` record.
+5. Save.
+
 ## Verify-only
 
 If you want DKIM to only verify incoming emails, the following version of /etc/opendkim.conf may be useful (right now there is no easy mechanism for installing it other than forking the repo):
