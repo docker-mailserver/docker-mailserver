@@ -32,3 +32,34 @@ SendReports             yes
 
 Mode                    v
 ```
+
+## Debug the DKIM TXT Record
+
+You can debug your TXT record with the `dig` tool.
+
+```
+dig TXT mail._domainkey.domain.tld
+```
+
+Output:
+
+```
+; <<>> DiG 9.10.3-P4-Debian <<>> TXT mail._domainkey.domain.tld
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 39669
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;mail._domainkey.domain.tld. IN	TXT
+
+;; ANSWER SECTION:
+mail._domainkey.domain.tld. 3600 IN TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxBSjG6RnWAdU3oOlqsdf2WC0FOUmU8uHVrzxPLW2R3yRBPGLrGO1++yy3tv6kMieWZwEBHVOdefM6uQOQsZ4brahu9lhG8sFLPX4MaKYN/NR6RK4gdjrZu+MYSdfk3THgSbNwIDAQAB"
+
+;; Query time: 50 msec
+;; SERVER: 127.0.1.1#53(127.0.1.1)
+;; WHEN: Wed Sep 07 18:22:57 CEST 2016
+;; MSG SIZE  rcvd: 310
+```
