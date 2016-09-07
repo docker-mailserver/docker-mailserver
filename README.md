@@ -36,27 +36,29 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 Adapt this file with your FQDN. Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
-    version: '2'
+```yaml	
+version: '2'
 
-    services:
-      mail:
-        image: tvial/docker-mailserver:latest
-        # build: .
-        hostname: mail
-        domainname: domain.com
-        container_name: mail
-        ports:
-        - "25:25"
-        - "143:143"
-        - "587:587"
-        - "993:993"
-        volumes:
-        - maildata:/var/mail
-        - ./config/:/tmp/docker-mailserver/
-
+services:
+  mail:
+    image: tvial/docker-mailserver:latest
+    # build: .
+    hostname: mail
+    domainname: domain.com
+    container_name: mail
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
     volumes:
-      maildata:
-        driver: local
+      - maildata:/var/mail
+      - ./config/:/tmp/docker-mailserver/
+
+volumes:
+  maildata:
+    driver: local
+```
 
 #### Create your mail accounts
 
