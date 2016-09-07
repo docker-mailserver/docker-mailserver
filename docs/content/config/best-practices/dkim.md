@@ -18,7 +18,7 @@ mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 
 1. Generate a new record of the type `TXT`.
 2. Paste `mail._domainkey` the `Name` txt field.
-3. In the `Target` or `Value` field fill in `v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN`
+3. In the `Target` or `Value` field fill in `v=DKIM1; k=rsa; p=AZERTYUGHJKLMWX...`
 4. In `TTL` (time to live): Time span in seconds. How long the DNS server should cache the `TXT` record.
 5. Save.
 
