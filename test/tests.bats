@@ -554,6 +554,10 @@
   [ "$status" -eq 1 ]
   run docker exec mail_pop3 grep ': error:' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
+  run docker exec mail_pop3 grep -i 'is not writable' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mail_pop3 grep -i 'permission denied' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
 }
 
 @test "checking system: sets the server fqdn" {
