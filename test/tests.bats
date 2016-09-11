@@ -550,6 +550,10 @@
   [ "$status" -eq 1 ]
   run docker exec mail grep ': error:' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
+  run docker exec mail grep -i 'is not writable' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mail grep -i 'permission denied' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
   run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
   run docker exec mail_pop3 grep ': error:' /var/log/mail/mail.log
