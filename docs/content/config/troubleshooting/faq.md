@@ -40,7 +40,16 @@ Login are full email address (`user@domain.com`).
 Please use `STARTTLS`.
 
 ### How can I manage my custom Spamassassin rules?
-Antispam rules are managed in `config/spamassassin-rules.cf`.  
+Antispam rules are managed in `config/spamassassin-rules.cf`.
+
+### How can I make Spamassassin learn spam?
+
+Put received spams in `.Junk/` imap folder and add a cron like the fllowing:
+
+```
+# Everyday 2:00AM, learn spam for this specific user
+0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk
+```
 
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
