@@ -80,6 +80,7 @@ run:
 	sleep 20
 
 fixtures:
+	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
@@ -105,4 +106,21 @@ tests:
 
 clean:
 	# Remove running test containers
-	docker rm -f mail mail_pop3 mail_smtponly mail_fail2ban mail_fetchmail fail-auth-mailer mail_disabled_amavis mail_disabled_clamav mail_manual_ssl
+	-docker rm -f \
+		mail \
+		mail_pop3 \
+		mail_smtponly \
+		mail_fail2ban \
+		mail_fetchmail \
+		fail-auth-mailer \
+		mail_disabled_amavis \
+		mail_disabled_clamav \
+		mail_manual_ssl
+	@if [ -f config/postfix-accounts.cf.bak ]; then\
+		rm -f config/postfix-accounts.cf ;\
+		mv config/postfix-accounts.cf.bak config/postfix-accounts.cf ;\
+	fi
+	-rm -rf test/onedir \
+		test/config/empty \
+		test/config/without-accounts \
+		test/config/without-virtual
