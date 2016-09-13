@@ -6,7 +6,7 @@ You'll probably want to `push` your config updates to your server and restart th
 ### What are the file format?
 
 Of course file are Unix format with LF line endings.
-Please do not use CLRF.
+Please do not use CRLF.
 
 ### Where are emails stored?
 Mails are stored in `/var/mail/${domain}/${username}`.  
