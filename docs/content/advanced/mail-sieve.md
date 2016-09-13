@@ -29,6 +29,11 @@ require ["copy"];
 redirect :copy "user2@otherdomain.tld";
 ```
 
+Just forward all incoming emails and do not save them locally:
+```
+redirect "user2@otherdomain.tld";
+```
+
 For more examples or a detailed description of the Sieve language have a look at [the official site](http://sieve.info/examplescripts). Other resources are available on the internet where you can find several [examples](https://support.tigertech.net/sieve#sieve-example-rules-jmp).
 
 ### Manage Sieve
