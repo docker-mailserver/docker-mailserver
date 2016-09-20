@@ -63,3 +63,6 @@ This could be related to a modification of your `MX` record, or the IP mapped to
 If everything is OK regarding DNS, please provide [formatted logs](https://guides.github.com/features/mastering-markdown/) and config files. This will allow us to help you.
 
 If we're blind, we won't be able to do anything.
+
+### Which system requirements needs my container to run `docker-mailserver` effectively?
+1 core and 1GB of RAM is recommended, even it could work with 512M of RAM.
