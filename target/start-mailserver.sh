@@ -354,6 +354,14 @@ if [ "$ONE_DIR" = 1 -a -d $statedir ]; then
     fi
   done
 fi
+if [ "$ENABLE_ELK" = 1 ]; then
+ELK_PORT=${ELK_PORT:="10514"}
+ELK_HOST=${ELK_HOST:="elk"}
+echo "forward logs to ELK ($ELK_HOST:$ELK_PORT)"
+echo " *.* @$ELK_HOST:$ELK_PORT " > /etc/rsyslog.d/60-elk.conf
+else 
+  rm -f /etc/rsyslog.d/60-elk.conf
+fi
 
 echo "Starting daemons"
 cron
