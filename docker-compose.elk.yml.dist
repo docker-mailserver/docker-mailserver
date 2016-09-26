@@ -18,7 +18,7 @@ services:
     - ./config/:/tmp/docker-mailserver/
     environment:
     - ENABLE_FAIL2BAN=1
-    - ENABLE_ELK=1
+    - ENABLE_ELK_FORWARDER=1
     cap_add:
     - NET_ADMIN
   elk:
