@@ -4,8 +4,8 @@ RUN mkdir /etc/logstash/patterns.d
 #postfix grok and filter
 RUN curl -L https://raw.githubusercontent.com/whyscream/postfix-grok-patterns/master/postfix.grok > /etc/logstash/patterns.d/postfix.grok
 RUN curl -L https://raw.githubusercontent.com/whyscream/postfix-grok-patterns/master/50-filter-postfix.conf > /etc/logstash/conf.d/15-filter-postfix.conf
-# amavis grok and filter
-RUN curl -L https://raw.githubusercontent.com/ninech/logstash-patterns/master/patterns.d/amavis.grok > /etc/logstash/patterns.d/amavis.grok
+# custom amavis grok and filter
+ADD amavis.grok  /etc/logstash/patterns.d
 RUN curl -L https://raw.githubusercontent.com/ninech/logstash-patterns/master/exmples/50-filter-amavis.conf > /etc/logstash/conf.d/16-filter-amavis.conf
 # dovecot grok and filter
 RUN curl -L https://raw.githubusercontent.com/ninech/logstash-patterns/master/patterns.d/dovecot.grok > /etc/logstash/patterns.d/dovecot.grok
