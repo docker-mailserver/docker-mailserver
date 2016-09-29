@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  mail:
+    image: tvial/docker-mailserver:v2
+    hostname: mail
+    domainname: domain.com
+    container_name: mail
+    links:
+    - elk
+    ports:
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
+    volumes:
+    - maildata:/var/mail
+    - ./config/:/tmp/docker-mailserver/
+    environment:
+    - ENABLE_FAIL2BAN=1
+    - ENABLE_ELK_FORWARDER=1
+    cap_add:
+    - NET_ADMIN
+  elk:
+     build: elk
+     ports:
+     - "5601:5601"
+     - "9200:9200"
+     - "5044:5044"
+     - "5000:5000"
+
+volumes:
+  maildata:
+    driver: local
