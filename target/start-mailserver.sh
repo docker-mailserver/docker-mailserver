@@ -355,17 +355,21 @@ if [ "$ONE_DIR" = 1 -a -d $statedir ]; then
   done
 fi
 if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
-ELK_PORT=${ELK_PORT:="10514"}
+ELK_PORT=${ELK_PORT:="5044"}
 ELK_HOST=${ELK_HOST:="elk"}
 echo "Enabling log forwarding to ELK ($ELK_HOST:$ELK_PORT)"
-echo " *.* @$ELK_HOST:$ELK_PORT " > /etc/rsyslog.d/60-elk.conf
-else 
-  rm -f /etc/rsyslog.d/60-elk.conf
+cat /etc/filebeat/filebeat.yml.tmpl \
+	| sed "s@\$ELK_HOST@$ELK_HOST@g" \
+	| sed "s@\$ELK_PORT@$ELK_PORT@g" \
+	 > /etc/filebeat/filebeat.yml
 fi
 
 echo "Starting daemons"
 cron
 /etc/init.d/rsyslog start
+if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
+/etc/init.d/filebeat start
+fi
 
 # Enable Managesieve service by setting the symlink
 # to the configuration file Dovecot will actually find

@@ -39,7 +39,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     && \
   curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
   apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
-  apt-get update -q --fix-missing && apt-get -y upgrade fail2ban && \
+  curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
+  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  apt-get update -q --fix-missing && apt-get -y upgrade fail2ban filebeat && \
   apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
   rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
 
@@ -112,3 +114,8 @@ RUN chmod +x /usr/local/bin/*
 EXPOSE 25 587 143 993 110 995 4190
 
 CMD /usr/local/bin/start-mailserver.sh
+
+
+ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+
+
