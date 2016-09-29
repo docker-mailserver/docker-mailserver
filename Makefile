@@ -76,6 +76,31 @@ run:
 		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-h mail.my-domain.com -t $(NAME)
+	docker run -d --name mail_enable_ldap \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e LDAP=1 \
+		-e SMTP_ONLY=1 \
+		-h mail.my-domain.com -t $(NAME)
+	docker run -d --name mail_enable_sasl_ldap \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e SASLAUTHD=1 \
+		-e "SASL_LDAP_SERVER=192.168.0.100" \
+		-e SASL_LDAP_PROTO= \
+		-e "SASL_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=my,dc=domain" \
+		-e SASL_LDAP_PASSWORD=test \
+		-e "SASL_LDAP_SEARCH_BASE=dc=my,dc=domain" \
+		-e "SASL_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))" \
+		-e SASL_MECHANISMS=ldap \
+		-e SMTP_ONLY=1 \
+		-h mail.my-domain.com -t $(NAME)
+	docker run -d --name mail_enable_kopano \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e KOPANO=1 \
+		-e SMTP_ONLY=1 \
+		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 20
 

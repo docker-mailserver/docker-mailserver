@@ -572,6 +572,11 @@
   [ "$output" = "my-domain.com" ]
 }
 
+@test "checking system: postfix should not log to syslog" {
+  run docker exec mail grep 'postfix' /var/log/syslog
+  [ "$status" -eq 1 ]
+}
+
 #
 # sieve
 #
