@@ -17,8 +17,10 @@ RUN mkdir  -p /usr/share/GeoIP && \
 WORKDIR ${LOGSTASH_HOME}
 RUN gosu logstash bin/logstash-plugin install --local --no-verify logstash-filter-geoip
 
-# add mailserver listen
-ADD 01-mailserver.conf /etc/logstash/conf.d/
+# override beats input 
+ADD 02-beats-input.conf /etc/logstash/conf.d/
 # override syslog
 ADD 10-syslog.conf /etc/logstash/conf.d/
+
+
 
