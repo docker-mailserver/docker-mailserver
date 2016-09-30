@@ -1,11 +1,1 @@
-MAVIS_MESSAGEID Message-ID: <%{DATA:amavis_message-id}>
-AMAVIS_SIZE size: %{POSINT:amavis_size}
-AMAVIS_TESTS Tests: \[%{DATA:amavis_tests}\]
-AMAVIS_FROM From: %{DATA:amavis_header_from}
-AMAVIS_HITS Hits: %{NUMBER:amavis_hits}
-AMAVIS_QUARANTINE quarantine: %{NOTSPACE:amavis_quarantine}
-AMAVIS_SUBJECT Subject: "%{DATA:amavis_subject}"
-AMAVIS_KV ((%{AMAVIS_MESSAGEID}|%{AMAVIS_SIZE}|%{AMAVIS_TESTS}|%{AMAVIS_FROM}|%{AMAVIS_HITS}|%{AMAVIS_QUARANTINE}|%{AMAVIS_SUBJECT}|%{DATA}), )*
-
 AMAVIS \(%{DATA:amavis_id}\) %{DATA:amavis_action} %{DATA:amavis_status} {%{DATA:amavis_relaytype}},( %{GREEDYDATA:amavis_policybank})? \[%{IP:remote_ip}\]:%{POSINT:remote_port} \[%{IP:amavis_ip}\] <%{DATA:from}> -> <%{DATA:to}>(, quarantine: %{DATA:quarantine_id})?, Queue-ID: %{DATA:queue_id}(, Message-ID: <%{DATA:message_id}>)?(, mail_id: %{DATA:mail_id})?, Hits: %{NUMBER:amavis_hits}, size: %{POSINT:amavis_size}(, queued_as: %{DATA:amavis_queue_id})?(, dkim_sd=%{DATA:amavis_dkim})?, %{NUMBER:amavis_duration} ms
-
