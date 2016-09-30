@@ -120,7 +120,7 @@ clean:
 		rm -f config/postfix-accounts.cf ;\
 		mv config/postfix-accounts.cf.bak config/postfix-accounts.cf ;\
 	fi
-	-rm -rf test/onedir \
+	-sudo rm -rf test/onedir \
 		test/config/empty \
 		test/config/without-accounts \
 		test/config/without-virtual
