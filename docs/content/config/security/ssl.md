@@ -2,6 +2,7 @@ There are multiple options to enable SSL:
 
 * using [letsencrypt](https://letsencrypt.org/) (recommended)
 * using self-signed certificates with the provided tool
+* using your own certificates
 
 After installation, you can test your setup with [checktls.com](https://www.checktls.com/TestReceiver).
 
@@ -46,6 +47,21 @@ To use the certificate:
 
 * add `SSL_TYPE=self-signed` to your container environment variables
 * if a matching certificate (files listed above) is found in `config/ssl`, it will be automatically setup in postfix and dovecot. You just have to place them in `config/ssl` folder.
+
+### Custom certificate files
+
+You can also provide your own certificate files. Add these entries to your `docker-compose.yml`:
+
+    volumes:
+      - /etc/ssl:/tmp/ssl:ro
+    environment:
+    - SSL_TYPE=manual
+    - SSL_CERT_PATH=/tmp/ssl/cert/public.crt
+    - SSL_KEY_PATH=/tmp/ssl/private/private.key
+
+This will mount the path where your ssl certificates reside as read-only under `/tmp/ssl`. Then all you have to do is to specify the location of your private key and the certificate.
+
+Please note that you may have to restart your mailserver once the certificates change.
 
 ### Testing certificate
 
