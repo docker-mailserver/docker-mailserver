@@ -9,7 +9,7 @@ die () {
 # Default variables
 #
 
-echo "export AMAVIS_WIPE_VIRUSMAILS=${AMAVIS_WIPE_VIRUSMAILS:="7"}" >> /root/.bashrc
+echo "export VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY:="7"}" >> /root/.bashrc
 
 #
 # Users
