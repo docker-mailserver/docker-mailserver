@@ -6,6 +6,12 @@ die () {
 }
 
 #
+# Default variables
+#
+
+echo "export AMAVIS_WIPE_VIRUSMAILS=${AMAVIS_WIPE_VIRUSMAILS:="7"}" >> /root/.bashrc
+
+#
 # Users
 #
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
