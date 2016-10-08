@@ -6,6 +6,12 @@ die () {
 }
 
 #
+# Default variables
+#
+
+echo "export VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY:="7"}" >> /root/.bashrc
+
+#
 # Users
 #
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then

@@ -23,9 +23,9 @@ run:
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
+		-e VIRUSMAILS_DELETE_DELAY=7 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
-		-e ONE_DIR=1 \
 		-e PERMIT_DOCKER=host\
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20

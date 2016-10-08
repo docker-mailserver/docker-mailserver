@@ -156,3 +156,8 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
   - **empty** => localhost only
   - host => Add docker host (ipv4 only)
   - network => Add all docker containers (ipv4 only)
+
+##### VIRUSMAILS_DELETE_DELAY
+
+Set how many days a virusmail will stay on the server before being deleted
+  - **empty** => 7 days

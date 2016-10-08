@@ -538,9 +538,34 @@
 #
 
 @test "checking system: freshclam cron is enabled" {
-  run docker exec mail crontab -l
+  run docker exec mail bash -c "crontab -l | grep '/usr/bin/freshclam'"
   [ "$status" -eq 0 ]
-  [ "$output" = "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ]
+}
+
+@test "checking amavis: virusmail wiper cron exists" {
+  run docker exec mail bash -c "crontab -l | grep '/var/lib/amavis/virusmails/'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking amavis: VIRUSMAILS_DELETE_DELAY override works as expected" {
+  run docker run -ti --rm -e VIRUSMAILS_DELETE_DELAY=2 `docker inspect --format '{{ .Config.Image }}' mail` /bin/bash -c 'echo $VIRUSMAILS_DELETE_DELAY | grep 2' 
+  [ "$status" -eq 0 ]
+}
+
+@test "checking amavis: old virusmail is wipped by cron" {
+  docker exec mail bash -c 'touch -d "`date --date=2000-01-01`" /var/lib/amavis/virusmails/should-be-deleted'
+  run docker exec -ti mail bash -c 'find /var/lib/amavis/virusmails/ -type f -mtime +$VIRUSMAILS_DELETE_DELAY -delete'
+  [ "$status" -eq 0 ]
+  run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-be-deleted'
+  [ "$status" -eq 1 ]
+}
+
+@test "checking amavis: recent virusmail is not wipped by cron" {
+  docker exec mail bash -c 'touch -d "`date`"  /var/lib/amavis/virusmails/should-not-be-deleted'
+  run docker exec -ti mail bash -c 'find /var/lib/amavis/virusmails/ -type f -mtime +$VIRUSMAILS_DELETE_DELAY -delete'
+  [ "$status" -eq 0 ]
+  run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-not-be-deleted'
+  [ "$status" -eq 0 ]
 }
 
 @test "checking system: /var/log/mail/mail.log is error free" {
