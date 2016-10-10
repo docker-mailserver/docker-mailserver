@@ -1,10 +1,9 @@
-server_host = 192.168.0.100
-search_base = ou=groups,dc=example,dc=local
+server_host = localhost
+search_base = ou=Groups,dc=exampple,dc=com
 version = 3
-bind = yes
-bind_dn = cn=kopano,ou=Users,dc=example,dc=local
-bind_pw = secret
-query_filter = (&(objectclass=group)(mail=%s))
+query_filter = (&(objectclass=kopano-group)(mail=%s))
 leaf_result_attribute = mail
 special_result_attribute = member
+bind_dn =
+bind_pw =
 bind = yes

@@ -1,10 +1,9 @@
-server_host = 192.168.0.100
-search_base = ou=Users,dc=example,dc=local
+server_host = localhost
+search_base = ou=Users,dc=example,dc=com
 version = 3
-bind = yes
-bind_dn = cn=kopano,ou=Users,dc=example,dc=local
-bind_pw = secret
 scope = sub
-query_filter = (&(objectClass=user)(mail=%s))
+query_filter = (&(objectClass=posixAccount)(mail=%s))
 result_attribute = mail
+bind_dn =
+bind_pw =
 bind = yes

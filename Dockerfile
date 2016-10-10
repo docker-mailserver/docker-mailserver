@@ -41,9 +41,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     && \
   curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
   apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
-  apt-get update -q --fix-missing && apt-get -y upgrade fail2ban && \
+  curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
+  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  apt-get update -q --fix-missing && apt-get -y upgrade fail2ban filebeat && \
   apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
   rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
+
+# Enables Clamav
+RUN (echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ; crontab -l) | crontab -
+RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
@@ -58,15 +64,12 @@ RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
+RUN (echo "0 4 * * * find /var/lib/amavis/virusmails/ -type f -mtime +\$VIRUSMAILS_DELETE_DELAY -delete" ; crontab -l) | crontab -
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
 COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
-
-# Enables Clamav
-RUN (crontab; echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
-RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
 
 # Enables Pyzor and Razor
 USER amavis
@@ -114,3 +117,8 @@ RUN chmod +x /usr/local/bin/*
 EXPOSE 25 587 143 993 110 995 4190
 
 CMD /usr/local/bin/start-mailserver.sh
+
+
+ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+
+

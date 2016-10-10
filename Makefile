@@ -23,9 +23,9 @@ run:
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
+		-e VIRUSMAILS_DELETE_DELAY=7 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
-		-e ONE_DIR=1 \
 		-e PERMIT_DOCKER=host\
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
@@ -145,7 +145,7 @@ clean:
 		rm -f config/postfix-accounts.cf ;\
 		mv config/postfix-accounts.cf.bak config/postfix-accounts.cf ;\
 	fi
-	-rm -rf test/onedir \
+	-sudo rm -rf test/onedir \
 		test/config/empty \
 		test/config/without-accounts \
 		test/config/without-virtual

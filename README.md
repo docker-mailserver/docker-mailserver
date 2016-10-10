@@ -222,3 +222,7 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
 ##### KOPANO_DAGENT
   - => Specify the dns-name/ip-address where the kopano-dagent can be reached
 
+##### VIRUSMAILS_DELETE_DELAY
+
+Set how many days a virusmail will stay on the server before being deleted
+  - **empty** => 7 days
