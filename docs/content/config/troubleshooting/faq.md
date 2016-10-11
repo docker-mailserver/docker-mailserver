@@ -3,10 +3,10 @@ None. No *sql database required.
 This image is based on config files that can be versioned.  
 You'll probably want to `push` your config updates to your server and restart the container to apply changes.  
 
-### What are the file format?
+### What is the file format?
 
-Of course file are Unix format with LF line endings.
-Please do not use CRLF.
+All files are using the Unix format with `LF` line endings.
+Please do not use `CRLF`.
 
 ### Where are emails stored?
 Mails are stored in `/var/mail/${domain}/${username}`.  
