@@ -12,20 +12,9 @@ die () {
 echo "export VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY:="7"}" >> /root/.bashrc
 
 #
-# Users
+# Configuring Dovecot
 #
-if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
-  echo "Checking file line endings"
-  sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
-  echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
-  echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
-
-  # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
-  sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
-  # Configuring Dovecot
-  echo -n > /etc/dovecot/userdb
-  chown dovecot:dovecot /etc/dovecot/userdb
-  chmod 640 /etc/dovecot/userdb
+if [ "$SMTP_ONLY" != 1 ]; then
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
   # Disable pop3 (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
@@ -34,6 +23,26 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
+fi
+
+#
+# Users
+#
+if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
+  echo "Checking file line endings"
+  sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
+  echo "Regenerating postfix 'vmailbox' and 'virtual' for given users"
+  echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
+
+  # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
+  sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
+
+  echo -n > /etc/dovecot/userdb
+  chown dovecot:dovecot /etc/dovecot/userdb
+  chmod 640 /etc/dovecot/userdb
+
+  sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
+  sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
 
   # Creating users
   # 'pass' is encrypted
@@ -68,6 +77,52 @@ else
 fi
 
 #
+# LDAP
+#
+if [ "$ENABLE_LDAP" = 1 ]; then
+  for i in 'users' 'groups' 'aliases'; do
+    fpath="/tmp/docker-mailserver/postfix-ldap-${i}.cf"
+    if [ -f $fpath ]; then
+      cp ${fpath} /etc/postfix/ldap-${i}.cf
+      sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
+             -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+             -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+             -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
+             /etc/postfix/ldap-${i}.cf
+    else
+      echo "${fpath} not found"
+      echo "==> Warning: 'config/postfix-ldap-$i.cf' is not provided."
+    fi
+  done
+
+  echo "Loading dovecot LDAP authentification configuration"
+  cp /tmp/docker-mailserver/dovecot-ldap.conf.ext /etc/dovecot/dovecot-ldap.conf.ext
+
+  sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
+          -e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+          -e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+          -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
+          /etc/dovecot/dovecot-ldap.conf.ext
+
+  echo "Enabling dovecot LDAP authentification"
+  sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
+  sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
+
+  echo "Configuring LDAP"
+  [ -f /etc/postfix/ldap-users.cf ] && \
+  postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf" || \
+    echo '==> Warning: /etc/postfix/ldap-user.cf not found'
+
+  [ -f /etc/postfix/ldap-aliases.cf -a -f /etc/postfix/ldap-groups.cf ] && \
+  postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf" || \
+    echo '==> Warning: /etc/postfix/ldap-aliases.cf or /etc/postfix/ldap-groups.cf not found'
+  
+   [ ! -f /etc/postfix/sasl/smtpd.conf ] && cat > /etc/postfix/sasl/smtpd.conf << EOF
+pwcheck_method: saslauthd
+mech_list: plain login
+EOF
+fi
+
 # Aliases
 #
 if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
@@ -419,8 +474,10 @@ if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   /etc/init.d/fail2ban start
 fi
 
-echo "Listing users"
-/usr/sbin/dovecot user '*'
+if [ "$SMTP_ONLY" != 1 ]; then
+  echo "Listing users"
+  /usr/sbin/dovecot user '*'
+fi
 
 echo "Starting..."
 tail -f /var/log/mail/mail.log
