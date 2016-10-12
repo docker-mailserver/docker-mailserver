@@ -8,8 +8,9 @@ Easy to deploy and upgrade.
 
 Includes:
 
-- postfix with smtp auth
-- dovecot for sasl, imap (and optional pop3) with ssl support
+- postfix with smtp or ldap auth
+- dovecot for sasl, imap (and optional pop3) with ssl support, with ldap auth
+- saslauthd with ldap auth
 - amavis
 - spamassasin supporting custom rules
 - clamav with automatic updates
@@ -118,6 +119,40 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => `fetchmail` disabled
   - 1 => `fetchmail` enabled
 
+##### ENABLE_LDAP
+
+  - **empty** => LDAP authentification is disabled
+  - 1 => LDAP authentification is enabled
+  - NOTE:
+    - A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
+    - For preparing the ldap server to use in combination with this continer [this](http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/) article may be helpful
+
+##### LDAP_SERVER_HOST
+
+  - **empty** => mail.domain.com
+  - => Specify the dns-name/ip-address where the ldap-server
+  - NOTE: If you going to use the mailserver in combination with docker-compose you can set the service name here
+
+##### LDAP_SEARCH_BASE
+
+  - **empty** => ou=people,dc=domain,dc=com
+  - => e.g. LDAP_SEARCH_BASE=dc=mydomain,dc=local
+
+##### LDAP_BIND_DN
+
+  - **empty** => cn=admin,dc=domain,dc=com
+  - => take a look at examples of SASL_LDAP_BIND_DN
+
+##### LDAP_BIND_PW
+
+  - **empty** => admin
+  - => Specify the password to bind against ldap
+
+##### POSTMASTER_ADDRESS
+
+  - **empty** => postmaster@domain.com
+  - => Specify the postmaster address
+
 ##### SA_TAG
 
   - **2.0** => add spam info headers if at, or above that level
@@ -129,6 +164,56 @@ Otherwise, `iptables` won't be able to ban IPs.
 ##### SA_KILL
 
   - **6.31** => triggers spam evasive actions
+
+##### ENABLE_SASLAUTHD
+
+  - **empty** => `saslauthd` is disabled
+  - 1 => `saslauthd` is enabled
+
+##### SASLAUTHD_MECHANISMS
+
+  - empty => pam
+  - ldap => authenticate against ldap server
+  - shadow => authenticate against local user db
+  - mysql => authenticate against mysql db
+  - rimap => authenticate against imap server
+  - NOTE: can be a list of mechanisms like pam ldap shadow
+
+##### SASLAUTHD_MECH_OPTIONS
+
+  - empty => None
+  - e.g. with SASLAUTHD_MECHANISMS rimap you need to specify the ip-address/servername of the imap server  ==> xxx.xxx.xxx.xxx
+
+##### SASLAUTHD_LDAP_SERVER
+
+  - empty => localhost
+
+##### SASLAUTHD_LDAP_SSL
+
+  - empty or 0 => ldap:// will be used
+  - 1 => ldaps:// will be used
+
+##### SASLAUTHD_LDAP_BIND_DN
+
+  - empty => anonymous bind
+  - specify an object with priviliges to search the directory tree
+  - e.g. active directory: SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net
+  - e.g. openldap: SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=mydomain,dc=net
+
+##### SASLAUTHD_LDAP_PASSWORD
+
+  - empty => anonymous bind
+
+##### SASLAUTHD_LDAP_SEARCH_BASE
+
+  - empty => Reverting to SASLAUTHD_MECHANISMS pam
+  - specify the search base
+
+##### SASLAUTHD_LDAP_FILTER
+
+  - empty => default filter (&(uniqueIdentifier=%u)(mailEnabled=TRUE))
+  - e.g. for active directory: (&(sAMAccountName=%U)(objectClass=person))
+  - e.g. for openldap: (&(uid=%U)(objectClass=person))
 
 ##### SASL_PASSWD
 
