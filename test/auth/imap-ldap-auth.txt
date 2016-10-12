@@ -1,0 +1,2 @@
+a1 LOGIN some.user@localhost.localdomain secret
+a2 LOGOUT

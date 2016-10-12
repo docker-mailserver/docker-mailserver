@@ -5,9 +5,11 @@ all-fast: build generate-accounts run fixtures tests clean
 no-build: generate-accounts run fixtures tests clean
 
 build-no-cache:
+	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
 	docker build --no-cache -t $(NAME) .
 
 build:
+	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap .
 	docker build -t $(NAME) .
 
 generate-accounts:
@@ -69,12 +71,34 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e DISABLE_CLAMAV=1 \
 		-h mail.my-domain.com -t $(NAME)
+	sleep 20
 	docker run -d --name mail_manual_ssl \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SSL_TYPE=manual \
 		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 20
+	docker run -d --name ldap_for_mail \
+		-e LDAP_DOMAIN="localhost.localdomain" \
+		-h mail.my-domain.com -t ldap
+	sleep 20
+	docker run -d --name mail_with_ldap \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_LDAP=1 \
+		-e LDAP_SERVER_HOST=ldap \
+		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
+		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
+		-e ENABLE_SASLAUTHD=1 \
+		-e SASLAUTHD_MECHANISMS=ldap \
+		-e SASLAUTHD_LDAP_SERVER=ldap \
+		-e SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
+		-e SASLAUTHD_LDAP_PASSWORD=admin \
+		-e SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
+		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
+		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 20
@@ -115,7 +139,10 @@ clean:
 		fail-auth-mailer \
 		mail_disabled_amavis \
 		mail_disabled_clamav \
-		mail_manual_ssl
+		mail_manual_ssl \
+		ldap_for_mail \
+		mail_with_ldap
+
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
 		mv config/postfix-accounts.cf.bak config/postfix-accounts.cf ;\
