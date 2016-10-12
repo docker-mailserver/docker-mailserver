@@ -123,6 +123,47 @@ mech_list: plain login
 EOF
 fi
 
+#
+# SASLAUTHD
+#
+if [ "$ENABLE_SASLAUTHD" = 1 ]; then
+  echo "Configuring Cyrus SASL"
+  # checking env vars and setting defaults
+  [ -z $SASLAUTHD_MECHANISMS ] && SASLAUTHD_MECHANISMS=pam
+  [ -z $SASLAUTHD_LDAP_SEARCH_BASE ] && SASLAUTHD_MECHANISMS=pam
+  [ -z $SASLAUTHD_LDAP_SERVER ] && SASLAUTHD_LDAP_SERVER=localhost
+  [ -z $SASLAUTHD_LDAP_FILTER ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
+  ([ $SASLAUTHD_LDAP_SSL == 0 ] || [ -z $SASLAUTHD_LDAP_SSL ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+
+  if [ ! -f /etc/saslauthd.conf ]; then
+    echo "Creating /etc/saslauthd.conf"
+    cat > /etc/saslauthd.conf << EOF
+ldap_servers: ${SASLAUTHD_LDAP_PROTO}${SASLAUTHD_LDAP_SERVER}
+
+ldap_auth_method: bind
+ldap_bind_dn: ${SASLAUTHD_LDAP_BIND_DN}
+ldap_bind_pw: ${SASLAUTHD_LDAP_PASSWORD}
+
+ldap_search_base: ${SASLAUTHD_LDAP_SEARCH_BASE}
+ldap_filter: ${SASLAUTHD_LDAP_FILTER}
+
+ldap_referrals: yes
+log_level: 10
+EOF
+  fi
+  
+  sed -i -e "s|^START=.*|START=yes|g" \
+         -e "s|^MECHANISMS=.*|MECHANISMS="\"$SASLAUTHD_MECHANISMS\""|g" \
+         -e "s|^MECH_OPTIONS=.*|MECH_OPTIONS="\"$SASLAUTHD_MECH_OPTIONS\""|g" \
+         /etc/default/saslauthd
+  sed -i -e "/smtpd_sasl_path =.*/d" \
+         -e "/smtpd_sasl_type =.*/d" \
+         -e "/dovecot_destination_recipient_limit =.*/d" \
+         /etc/postfix/main.cf
+  gpasswd -a postfix sasl
+fi
+
+#
 # Aliases
 #
 if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
@@ -472,6 +513,10 @@ if [ "$ENABLE_FAIL2BAN" = 1 ]; then
   echo "Starting fail2ban service"
   touch /var/log/auth.log
   /etc/init.d/fail2ban start
+fi
+
+if [ "$ENABLE_SASLAUTHD" = 1 ]; then
+  /etc/init.d/saslauthd start
 fi
 
 if [ "$SMTP_ONLY" != 1 ]; then
