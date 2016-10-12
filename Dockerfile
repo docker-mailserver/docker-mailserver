@@ -13,6 +13,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     curl \
     dovecot-core \
     dovecot-imapd \
+    dovecot-ldap \
     dovecot-lmtpd \
     dovecot-managesieved \
     dovecot-pop3d \
@@ -32,9 +33,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     opendmarc \
     p7zip \
     postfix \
+    postfix-ldap \
     pyzor \
     razor \
     rsyslog \
+    sasl2-bin \
     spamassassin \
     unzip \
     && \
@@ -53,6 +56,9 @@ RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
 RUN sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf
+RUN sed -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf
+RUN sed -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf
+RUN sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf
 COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
 
