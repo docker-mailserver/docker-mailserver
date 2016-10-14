@@ -330,6 +330,10 @@ EOF
 
     fi
 
+    sed -i -e "/^[^#].*smtpd_sasl_type.*/s/^/#/g" \
+           -e "/^[^#].*smtpd_sasl_path.*/s/^/#/g" \
+            /etc/postfix/master.cf
+
     sed -i -e "s|^START=.*|START=yes|g" \
            -e "s|^MECHANISMS=.*|MECHANISMS="\"$SASL_MECHANISMS\""|g" \
            -e "s|^MECH_OPTIONS=.*|MECH_OPTIONS="\"$SASL_MECH_OPTIONS\""|g" \
