@@ -13,6 +13,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     curl \
     dovecot-core \
     dovecot-imapd \
+    dovecot-lmtpd \
     dovecot-managesieved \
     dovecot-pop3d \
     dovecot-sieve \

@@ -45,7 +45,7 @@ retry     unix  -       -       -       -       -       error
 discard   unix  -       -       -       -       -       discard
 local     unix  -       n       n       -       -       local
 virtual   unix  -       n       n       -       -       virtual
-lmtp      unix  -       -       -       -       -       lmtp
+lmtp      unix  -       -       n       -       -       lmtp
 anvil     unix  -       -       -       -       1       anvil
 scache    unix  -       -       -       -       1       scache
 
@@ -63,12 +63,6 @@ mailman   unix  -       n       n       -       -       pipe
   flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
   ${nexthop} ${user}
 
-#
-# Dovecot LDA configuration
-#
-
-dovecot unix    -       n       n       -       -      pipe
-  flags=DRhu user=docker argv=/usr/lib/dovecot/deliver -f ${sender} -d ${user}@${nexthop} -m ${extension}
 
 #
 # Amavis configuration

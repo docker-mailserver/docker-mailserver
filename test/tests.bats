@@ -149,7 +149,7 @@
 }
 
 @test "checking smtp: delivers mail to existing account" {
-  run docker exec mail /bin/sh -c "grep 'status=sent (delivered via dovecot service)' /var/log/mail/mail.log | wc -l"
+  run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 6 ]
 }
