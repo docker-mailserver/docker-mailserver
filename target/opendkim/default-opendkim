@@ -9,4 +9,4 @@
 #SOCKET="inet:12345@localhost" # listen on loopback on port 12345
 #SOCKET="inet:12345@192.0.2.1" # listen on 192.0.2.1 on port 12345
 
-SOCKET="inet:12301@localhost"
+SOCKET="inet:8891@localhost"

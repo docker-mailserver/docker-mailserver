@@ -93,5 +93,5 @@ smtp-amavis     unix    -       -       -       -       2       smtp
   -o smtpd_hard_error_limit=1000
   -o smtpd_client_connection_count_limit=0
   -o smtpd_client_connection_rate_limit=0
-  -o receive_override_options=no_header_body_checks,no_unknown_recipient_checks
+  -o receive_override_options=no_header_body_checks,no_unknown_recipient_checks,no_milters
   -o smtp_tls_security_level=none

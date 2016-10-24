@@ -83,6 +83,7 @@ COPY target/opendkim/default-opendkim /etc/default/opendkim
 # Configure DMARC (opendmarc)
 COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
+COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 
 # Configure fetchmail
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
