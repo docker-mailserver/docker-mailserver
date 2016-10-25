@@ -109,19 +109,6 @@ else
   echo "No DKIM key provided. Check the documentation to find how to get your keys."
 fi
 
-# DMARC
-# if there is no AuthservID create it
-if [ `cat /etc/opendmarc.conf | grep -w AuthservID | wc -l` -eq 0 ]; then
-  echo "AuthservID $(hostname)" >> /etc/opendmarc.conf
-fi
-if [ `cat /etc/opendmarc.conf | grep -w TrustedAuthservIDs | wc -l` -eq 0 ]; then
-  echo "TrustedAuthservIDs $(hostname)" >> /etc/opendmarc.conf
-fi
-if [ ! -f "/etc/opendmarc/ignore.hosts" ]; then
-  mkdir -p /etc/opendmarc/
-  echo "localhost" >> /etc/opendmarc/ignore.hosts
-fi
-
 # SSL Configuration
 case $SSL_TYPE in
   "letsencrypt" )

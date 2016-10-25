@@ -380,22 +380,6 @@
 }
 
 #
-# opendmarc
-#
-
-@test "checking opendkim: server fqdn should be added to /etc/opendmarc.conf as AuthservID" {
-  run docker exec mail grep ^AuthservID /etc/opendmarc.conf
-  [ "$status" -eq 0 ]
-  [ "$output" = "AuthservID mail.my-domain.com" ]
-}
-
-@test "checking opendkim: server fqdn should be added to /etc/opendmarc.conf as TrustedAuthservIDs" {
-  run docker exec mail grep ^TrustedAuthservID /etc/opendmarc.conf
-  [ "$status" -eq 0 ]
-  [ "$output" = "TrustedAuthservIDs mail.my-domain.com" ]
-}
-
-#
 # ssl
 #
 
