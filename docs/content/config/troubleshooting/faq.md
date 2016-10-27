@@ -66,3 +66,7 @@ If we're blind, we won't be able to do anything.
 
 ### Which system requirements needs my container to run `docker-mailserver` effectively?
 1 core and 1GB of RAM is recommended, even it could work with 512M of RAM.
+
+### Is `docker-mailserver` running in a [rancher environment](http://rancher.com/rancher/)?
+
+Yes, but use the option `PERMIT_DOCKER: network`.
