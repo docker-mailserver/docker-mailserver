@@ -1,0 +1,10 @@
+base                = ou=people,dc=domain,dc=com
+default_pass_scheme = SSHA
+dn                  = cn=admin,dc=domain,dc=com
+dnpass              = admin
+hosts               = mail.domain.com
+ldap_version        = 3
+pass_attrs          = uniqueIdentifier=user,userPassword=password
+pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
+user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))

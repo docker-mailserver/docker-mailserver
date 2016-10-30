@@ -66,6 +66,11 @@
   [ "$status" -eq 1 ]
 }
 
+@test "checking process: saslauthd (saslauthd server enabled)" {
+  run docker exec mail_with_ldap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+  [ "$status" -eq 0 ]
+}
+
 #
 # imap
 #
@@ -753,5 +758,47 @@
 }
 @test "checking setup.sh: setup.sh debug login ls" {
   run ./setup.sh -c mail debug login ls
+  [ "$status" -eq 0 ]
+}
+
+#
+# LDAP
+#
+
+# postfix
+@test "checking postfix: ldap lookup works correctly" {
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user@localhost.localdomain ldap:/etc/postfix/ldap-users.cf"
+  [ "$status" -eq 0 ]
+  [ "$output" = "some.user@localhost.localdomain" ]
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q postmaster@localhost.localdomain ldap:/etc/postfix/ldap-aliases.cf"
+  [ "$status" -eq 0 ]
+  [ "$output" = "some.user@localhost.localdomain" ]
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@localhost.localdomain ldap:/etc/postfix/ldap-groups.cf"
+  [ "$status" -eq 0 ]
+  [ "$output" = "some.user@localhost.localdomain" ]
+}
+
+# dovecot
+@test "checking dovecot: ldap imap connection and authentication works" {
+  run docker exec mail_with_ldap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking dovecot: mail delivery works" {
+  run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
+  sleep 10
+  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.user/new | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+}
+
+# saslauthd
+@test "checking saslauthd: sasl ldap authentication works" {
+  run docker exec mail_with_ldap bash -c "testsaslauthd -u some.user -p secret"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking saslauthd: ldap smtp authentication" {
+  run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }

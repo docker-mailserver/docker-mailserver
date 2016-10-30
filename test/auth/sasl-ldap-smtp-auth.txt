@@ -1,0 +1,5 @@
+EHLO mail
+AUTH LOGIN
+c29tZS51c2VyQGxvY2FsaG9zdC5sb2NhbGRvbWFpbg==
+c2VjcmV0
+QUIT

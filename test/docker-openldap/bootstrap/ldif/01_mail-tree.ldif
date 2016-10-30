@@ -1,0 +1,5 @@
+dn: ou=people,dc=localhost,dc=localdomain
+changetype: add
+objectClass: organizationalUnit
+objectClass: top
+ou: people
