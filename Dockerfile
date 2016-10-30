@@ -32,9 +32,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     opendmarc \
     p7zip \
     postfix \
+    postfix-ldap \
     pyzor \
     razor \
     rsyslog \
+    sasl2-bin \
     spamassassin \
     unzip \
     && \

@@ -17,6 +17,10 @@ Includes:
 - opendmarc
 - fail2ban
 - fetchmail
+- saslauthd
+- saslauthd ldap support
+- postfix ldap support
+- kopano support
 - basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
@@ -147,7 +151,6 @@ Otherwise, `iptables` won't be able to ban IPs.
   - custom => Enables custom certificates
   - manual => Let's you manually specify locations of your SSL certificates for non-standard cases
   - self-signed => Enables self-signed certificates
-
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
 
 ##### PERMIT_DOCKER
@@ -156,6 +159,68 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
   - **empty** => localhost only
   - host => Add docker host (ipv4 only)
   - network => Add all docker containers (ipv4 only)
+
+##### SASL_MECHANISMS
+  - empty => pam
+  - ldap => authenticate against ldap server
+  - shadow => authenticate against local user db
+  - mysql => authenticate against mysql db
+  - rimap => authenticate against imap server
+  - NOTE: can be a list of mechanisms like pam ldap shadow
+
+##### SASL_MECH_OPTIONS
+  - empty => None
+  - e.g. with sasl_mechanism rimap you need to specify the ip-address/servername of the imap server  ==> xxx.xxx.xxx.xxx
+
+##### SASL_LDAP_SERVER
+  - empty => localhost
+
+##### SASL_LDAP_PROTO
+  - empty => ldap://
+  - 1 => ldaps://
+
+##### SASL_LDAP_BIND_DN
+  - empty => anonymous bind
+  - specify an object with priviliges to search the directory tree
+  - e.g. active directory: SASL_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net
+  - e.g. openldap: SASL_BIND_DN=cn=admin,dc=mydomain,dc=net
+
+##### SASL_LDAP_PASSWORD
+  - empty => anonymous bind
+
+##### SASL_LDAP_SEARCH_BASE
+  - empty => Reverting to SASL_MECHANISM pam
+  - specify the search base
+
+##### SASL_LDAP_FILTER
+  - empty => default filter (uid=%u)
+  - e.g. for active directory: (&(sAMAccountName=%U)(objectClass=person))
+  - e.g. for openldap: (&(uid=%U)(objectClass=person))
+
+##### LDAP
+  - **empty** => LDAP support disabled
+  - 1 => set virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf and virtual_alias_maps = ldap:/etc//postfix/ldap-aliases.cf
+  - $SMTP_ONLY must be set to 1
+
+##### LDAP_SERVER_HOST
+  - => Specify the dns-name/ip-address where the ldap-server
+  - NOTE: If you going to use the mailserver in combination with docker-compose you can set the service name here
+
+##### LDAP_SEARCH_BASE
+  - => e.g. LDAP_SEARCH_BASE=dc=mydomain,dc=loc
+
+##### LDAP_BIND_DN
+  - => take a look at examples of SASL_LDAP_BIND_DN
+
+##### LDAP_BIND_PW
+  - => Specify the password to bind against ldap
+
+##### KOPANO
+  - **empty** => LDAP support disabled disabled
+  - 1 => set virtual_transport = ltmp:${KOPANO_DAGENT}:2003
+
+##### KOPANO_DAGENT
+  - => Specify the dns-name/ip-address where the kopano-dagent can be reached
 
 ##### VIRUSMAILS_DELETE_DELAY
 

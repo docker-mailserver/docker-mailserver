@@ -1,0 +1,9 @@
+server_host = localhost
+search_base = ou=Users,dc=example,dc=com
+version = 3
+scope = sub
+query_filter = (&(objectClass=posixAccount)(kopanoAliases=%s))
+result_attribute = mail
+bind_dn =
+bind_pw =
+bind = yes

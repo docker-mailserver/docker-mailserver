@@ -69,11 +69,13 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
     fi
     # Copy user provided sieve file, if present
     test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
-    echo ${domain} >> /tmp/vhost.tmp
   done < /tmp/docker-mailserver/postfix-accounts.cf
 else
   echo "==> Warning: 'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 fi
+
+# Create default vhost file
+echo ${domain} >> /tmp/vhost.tmp
 
 #
 # Aliases
@@ -259,6 +261,96 @@ case $PERMIT_DOCKER in
 esac
 
 #
+# Ldap
+#
+for i in 'users' 'groups' 'aliases'; do
+    fpath="/tmp/docker-mailserver/postfix-ldap-${i}.cf"
+    if [ -f $fpath ]; then
+        cp ${fpath} /etc/postfix/ldap-${i}.cf
+        sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST}'|g' \
+               -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE}'|g' \
+               -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN}'|g' \
+               -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW}'|g' \
+               /etc/postfix/ldap-${i}.cf
+    else
+        echo "${fpath} not found"
+        echo "==> Warning: 'config/postfix-ldap-$i.cf' is not provided."
+    fi
+done
+
+if [[ $LDAP == 1 ]] && [[ $SMTP_ONLY == 1 ]];then
+
+    echo "Configuring LDAP"
+    [ -f /etc/postfix/ldap-users.cf ] && \
+        postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf" || \
+        echo '==> Warning: /etc/postfix/ldap-user.cf not found'
+
+    [ -f /etc/postfix/ldap-aliases.cf ] && \
+    postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf" || \
+        echo '==> Warning: /etc/postfix/ldap-aliases.cf not found'
+
+    [ ! -f /etc/postfix/sasl/smtpd.conf ] && cat > /etc/postfix/sasl/smtpd.conf << EOF
+pwcheck_method: saslauthd
+mech_list: plain login
+EOF
+fi
+
+#
+# Saslauthd
+#
+if [ ${SASLAUTHD} == 1 ];then 
+    echo "Configuring Cyrus SASL"
+    # checking env vars and setting defaults
+    [ -z $SASL_MECHANISMS ] && SASL_MECHANISMS=pam
+    [ -z $SASL_LDAP_SEARCH_BASE ] && SASL_MECHANISMS=pam
+    [ -z $SASL_LDAP_SERVER ] && SASL_LDAP_SERVER=localhost
+    [ -z $SASL_LDAP_FILTER ] && SASL_LDAP_FILTER='(uid=%u)'
+    ([ $SASL_LDAP_PROTO == 0 ] || [ -z $SASL_LDAP_PROTO ]) && SASL_LDAP_PROTO='ldap://' || SASL_LDAP_PROTO='ldaps://'
+
+    if [ ! -f /etc/saslauthd.conf ];then
+        echo "Creating /etc/saslauthd.conf"
+        cat > /etc/saslauthd.conf << EOF
+ldap_servers: ${SASL_LDAP_PROTO}${SASL_LDAP_SERVER}
+
+ldap_auth_method: bind
+ldap_bind_dn: ${SASL_LDAP_BIND_DN}
+ldap_password: ${SASL_LDAP_PASSWORD}
+
+ldap_search_base: ${SASL_LDAP_SEARCH_BASE}
+ldap_filter: ${SASL_LDAP_FILTER}
+
+ldap_referrals: yes
+log_level: 10
+EOF
+
+    fi
+
+    sed -i -e "/^[^#].*smtpd_sasl_type.*/s/^/#/g" \
+           -e "/^[^#].*smtpd_sasl_path.*/s/^/#/g" \
+            /etc/postfix/master.cf
+
+    sed -i -e "s|^START=.*|START=yes|g" \
+           -e "s|^MECHANISMS=.*|MECHANISMS="\"$SASL_MECHANISMS\""|g" \
+           -e "s|^MECH_OPTIONS=.*|MECH_OPTIONS="\"$SASL_MECH_OPTIONS\""|g" \
+        /etc/default/saslauthd
+    sed -i -e "/smtpd_sasl_path =.*/d" \
+           -e "/smtpd_sasl_type =.*/d" \
+           -e "/dovecot_destination_recipient_limit =.*/d" \
+           /etc/postfix/main.cf
+    gpasswd -a postfix sasl
+fi
+
+#
+# Kopano
+#
+if [ $KOPANO == 1 ];then
+    echo 'Configuring Kopano' 
+    [ ! -z ${KOPANO_DAGENT} ] && \
+    postconf -e "virtual_transport = lmtp:${KOPANO_DAGENT}:2003" || \
+    echo '$KOPANO_DAGENT not set. Skipping ...'
+fi
+    
+#
 # Override Postfix configuration
 #
 if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
@@ -378,57 +470,63 @@ if [ "$ENABLE_MANAGESIEVE" = 1 ]; then
   echo "Sieve management enabled"
   mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 fi
-
 if [ "$SMTP_ONLY" != 1 ]; then
-  # Here we are starting sasl and imap, not pop3 because it's disabled by default
-  echo " * Starting dovecot services"
-  /usr/sbin/dovecot -c /etc/dovecot/dovecot.conf
-fi
+    # Here we are starting sasl and imap, not pop3 because it's disabled by default
+    echo " * Starting dovecot services"
+    /usr/sbin/dovecot -c /etc/dovecot/dovecot.conf
 
-if [ "$ENABLE_POP3" = 1 -a "$SMTP_ONLY" != 1 ]; then
-  echo "Starting POP3 services"
-  mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-  /usr/sbin/dovecot reload
-fi
+    if [ "$ENABLE_POP3" = 1 ]; then
+        echo "Starting POP3 services"
+        mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
+        /usr/sbin/dovecot reload
+    fi
 
-if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
-  echo 'Adding file "dovecot.cf" to the Dovecot configuration'
-  cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
-  /usr/sbin/dovecot reload
+    if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
+        echo 'Adding file "dovecot.cf" to the Dovecot configuration'
+        cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
+        /usr/sbin/dovecot reload
+    fi
 fi
 
 # Enable fetchmail daemon
 if [ "$ENABLE_FETCHMAIL" = 1 ]; then
-  /usr/local/bin/setup-fetchmail
-  echo "Fetchmail enabled"
-  /etc/init.d/fetchmail start
+    /usr/local/bin/setup-fetchmail
+    echo "Fetchmail enabled"
+    /etc/init.d/fetchmail start
 fi
 
 # Start services related to SMTP
 if ! [ "$DISABLE_CLAMAV" = 1 ]; then
-  /etc/init.d/clamav-daemon start
+    /etc/init.d/clamav-daemon start
 fi
 
 # Copy user provided configuration files if provided
 if [ -f /tmp/docker-mailserver/amavis.cf ]; then
-  cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
+    cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
 fi
 
 if ! [ "$DISABLE_AMAVIS" = 1 ]; then
-  /etc/init.d/amavis start
+    /etc/init.d/amavis start
 fi
+
+if [[ $SMTP_ONLY == 1 ]] && [[ $LDAP == 1 ]]; then
+    /etc/init.d/saslauthd start
+fi
+
 /etc/init.d/opendkim start
 /etc/init.d/opendmarc start
 /etc/init.d/postfix start
 
 if [ "$ENABLE_FAIL2BAN" = 1 ]; then
-  echo "Starting fail2ban service"
-  touch /var/log/auth.log
-  /etc/init.d/fail2ban start
+    echo "Starting fail2ban service"
+    touch /var/log/auth.log
+    /etc/init.d/fail2ban start
 fi
 
-echo "Listing users"
-/usr/sbin/dovecot user '*'
+if [ ! "$SMTP_ONLY" == 1 ];then
+    echo "Listing users"
+    /usr/sbin/dovecot user '*'
+fi
 
 echo "Starting..."
 tail -f /var/log/mail/mail.log
