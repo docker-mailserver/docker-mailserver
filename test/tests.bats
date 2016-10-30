@@ -1,4 +1,13 @@
 #
+# configuration checks
+#
+
+@test "checking configuration: hostname/domainname" {
+  run docker run `docker inspect --format '{{ .Config.Image }}' mail`
+  [ "$status" -eq 1 ]
+}
+
+#
 # processes
 #
 

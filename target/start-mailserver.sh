@@ -1,9 +1,17 @@
 #!/bin/bash
 
 die () {
-  echo >&2 "$@"
+  echo "## Configuration error:"
+  echo >&2 "> $@"
   exit 1
 }
+
+#
+# Check that hostname/domainname is provided (no default docker hostname)
+#
+if ( ! echo $(hostname) | grep -E '^(\S+[.]\S+)$' ); then
+  die "Setting hostname/domainname is required."
+fi
 
 #
 # Default variables
