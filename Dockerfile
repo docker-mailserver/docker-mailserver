@@ -62,6 +62,10 @@ RUN sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDR
 COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
 
+# Configures LDAP
+COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
+COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/ldap-aliases.cf /etc/postfix/
+
 # Enables Spamassassin CRON updates
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 
