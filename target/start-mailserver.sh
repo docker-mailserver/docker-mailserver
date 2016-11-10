@@ -89,28 +89,23 @@ fi
 #
 if [ "$ENABLE_LDAP" = 1 ]; then
   for i in 'users' 'groups' 'aliases'; do
-    fpath="/tmp/docker-mailserver/postfix-ldap-${i}.cf"
-    if [ -f $fpath ]; then
-      cp ${fpath} /etc/postfix/ldap-${i}.cf
-      sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-             -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-             -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-             -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
-             /etc/postfix/ldap-${i}.cf
-    else
-      echo "${fpath} not found"
-      echo "==> Warning: 'config/postfix-ldap-$i.cf' is not provided."
-    fi
+    sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
+            -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+            -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+            -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
+            /etc/postfix/ldap-${i}.cf
   done
 
-  echo "Loading dovecot LDAP authentification configuration"
-  cp /tmp/docker-mailserver/dovecot-ldap.conf.ext /etc/dovecot/dovecot-ldap.conf.ext
-
+  echo "Configuring dovecot LDAP authentification"
   sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
           -e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
           -e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
           -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
           /etc/dovecot/dovecot-ldap.conf.ext
+
+  # Add base domain to vhost
+  # TODO get domain from LDAP_SEARCH_BASE like dc=foo,dc=bar  ==> foo.bar
+  #echo ${domain} >> /tmp/vhost.tmp
 
   echo "Enabling dovecot LDAP authentification"
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
