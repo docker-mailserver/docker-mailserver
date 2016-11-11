@@ -521,7 +521,7 @@ if [ "$ENABLE_SASLAUTHD" = 1 ]; then
   /etc/init.d/saslauthd start
 fi
 
-if [ "$SMTP_ONLY" != 1 ]; then
+if [ "$SMTP_ONLY" != 1 -a "$ENABLE_LDAP" != 1 ]; then
   echo "Listing users"
   /usr/sbin/dovecot user '*'
 fi
