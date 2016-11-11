@@ -103,9 +103,8 @@ if [ "$ENABLE_LDAP" = 1 ]; then
           -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
           /etc/dovecot/dovecot-ldap.conf.ext
 
-  # Add base domain to vhost
-  # TODO get domain from LDAP_SEARCH_BASE like dc=foo,dc=bar  ==> foo.bar
-  #echo ${domain} >> /tmp/vhost.tmp
+  # Add  domainname to vhost.
+  echo $(domainname) >> /tmp/vhost.tmp
 
   echo "Enabling dovecot LDAP authentification"
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
