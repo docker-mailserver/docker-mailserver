@@ -90,18 +90,18 @@ fi
 if [ "$ENABLE_LDAP" = 1 ]; then
   for i in 'users' 'groups' 'aliases'; do
     sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-            -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-            -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-            -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
-            /etc/postfix/ldap-${i}.cf
+           -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+           -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+           -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
+           /etc/postfix/ldap-${i}.cf
   done
 
   echo "Configuring dovecot LDAP authentification"
   sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-          -e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-          -e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-          -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
-          /etc/dovecot/dovecot-ldap.conf.ext
+         -e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+         -e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+         -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
+         /etc/dovecot/dovecot-ldap.conf.ext
 
   # Add  domainname to vhost.
   echo $(domainname) >> /tmp/vhost.tmp
