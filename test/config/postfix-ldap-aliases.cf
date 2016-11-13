@@ -1,8 +1,0 @@
-bind             = yes
-bind_dn          = cn=admin,dc=my-domain,dc=com
-bind_pw          = admin
-query_filter     = (&(mailAlias=%s)(mailEnabled=TRUE))
-result_attribute = mail
-search_base      = ou=people,dc=my-domain,dc=com
-server_host      = mail.my-domain.com
-version          = 3

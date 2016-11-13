@@ -89,28 +89,22 @@ fi
 #
 if [ "$ENABLE_LDAP" = 1 ]; then
   for i in 'users' 'groups' 'aliases'; do
-    fpath="/tmp/docker-mailserver/postfix-ldap-${i}.cf"
-    if [ -f $fpath ]; then
-      cp ${fpath} /etc/postfix/ldap-${i}.cf
-      sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-             -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-             -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-             -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
-             /etc/postfix/ldap-${i}.cf
-    else
-      echo "${fpath} not found"
-      echo "==> Warning: 'config/postfix-ldap-$i.cf' is not provided."
-    fi
+    sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
+           -e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+           -e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+           -e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
+           /etc/postfix/ldap-${i}.cf
   done
 
-  echo "Loading dovecot LDAP authentification configuration"
-  cp /tmp/docker-mailserver/dovecot-ldap.conf.ext /etc/dovecot/dovecot-ldap.conf.ext
-
+  echo "Configuring dovecot LDAP authentification"
   sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-          -e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-          -e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-          -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
-          /etc/dovecot/dovecot-ldap.conf.ext
+         -e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
+         -e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
+         -e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
+         /etc/dovecot/dovecot-ldap.conf.ext
+
+  # Add  domainname to vhost.
+  echo $(domainname) >> /tmp/vhost.tmp
 
   echo "Enabling dovecot LDAP authentification"
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
@@ -141,7 +135,7 @@ if [ "$ENABLE_SASLAUTHD" = 1 ]; then
   [ -z $SASLAUTHD_LDAP_SEARCH_BASE ] && SASLAUTHD_MECHANISMS=pam
   [ -z $SASLAUTHD_LDAP_SERVER ] && SASLAUTHD_LDAP_SERVER=localhost
   [ -z $SASLAUTHD_LDAP_FILTER ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
-  ([ $SASLAUTHD_LDAP_SSL == 0 ] || [ -z $SASLAUTHD_LDAP_SSL ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+  ([ -z $SASLAUTHD_LDAP_SSL ] || [ $SASLAUTHD_LDAP_SSL == 0 ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
 
   if [ ! -f /etc/saslauthd.conf ]; then
     echo "Creating /etc/saslauthd.conf"
@@ -527,7 +521,7 @@ if [ "$ENABLE_SASLAUTHD" = 1 ]; then
   /etc/init.d/saslauthd start
 fi
 
-if [ "$SMTP_ONLY" != 1 ]; then
+if [ "$SMTP_ONLY" != 1 -a "$ENABLE_LDAP" != 1 ]; then
   echo "Listing users"
   /usr/sbin/dovecot user '*'
 fi
