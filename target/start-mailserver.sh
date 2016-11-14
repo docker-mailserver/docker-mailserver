@@ -104,7 +104,7 @@ if [ "$ENABLE_LDAP" = 1 ]; then
          /etc/dovecot/dovecot-ldap.conf.ext
 
   # Add  domainname to vhost.
-  echo $(domainname) >> /tmp/vhost.tmp
+  echo $(hostname -d) >> /tmp/vhost.tmp
 
   echo "Enabling dovecot LDAP authentification"
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
