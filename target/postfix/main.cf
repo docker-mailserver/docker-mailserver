@@ -7,8 +7,8 @@ readme_directory = no
 
 # Basic configuration
 # myhostname = 
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+alias_maps = texthash:/etc/aliases
+alias_database = texthash:/etc/aliases
 mydestination = 
 relayhost = 
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64
@@ -59,8 +59,8 @@ broken_sasl_auth_clients = yes
 # Mail directory
 virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
 virtual_mailbox_domains = /etc/postfix/vhost
-virtual_mailbox_maps = hash:/etc/postfix/vmailbox
-virtual_alias_maps = hash:/etc/postfix/virtual
+virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
+virtual_alias_maps = texthash:/etc/postfix/virtual
 
 # Additional option for filtering
 content_filter = smtp-amavis:[127.0.0.1]:10024

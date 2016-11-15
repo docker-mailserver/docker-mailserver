@@ -123,8 +123,8 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking sasl: sasl_passwd.db exists" {
-  run docker exec mail [ -f /etc/postfix/sasl_passwd.db ]
+@test "checking sasl: sasl_passwd exists" {
+  run docker exec mail [ -f /etc/postfix/sasl_passwd ]
   [ "$status" -eq 0 ]
 }
 

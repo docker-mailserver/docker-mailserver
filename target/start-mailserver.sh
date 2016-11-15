@@ -16,7 +16,6 @@ fi
 #
 # Default variables
 #
-
 echo "export VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY:="7"}" >> /root/.bashrc
 
 #
@@ -36,6 +35,8 @@ fi
 #
 # Users
 #
+echo -n > /etc/postfix/vmailbox
+echo -n > /etc/dovecot/userdb
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
   echo "Checking file line endings"
   sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
@@ -45,7 +46,6 @@ if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; the
   # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
   sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
 
-  echo -n > /etc/dovecot/userdb
   chown dovecot:dovecot /etc/dovecot/userdb
   chmod 640 /etc/dovecot/userdb
 
@@ -168,9 +168,11 @@ fi
 #
 # Aliases
 #
+echo -n > /etc/postfix/virtual
+echo -n > /etc/postfix/regexp
 if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
   # Copying virtual file
-  cp /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
+  cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
   while read from to
   do
     # Setting variables for better readability
@@ -185,7 +187,7 @@ fi
 if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
   # Copying regexp alias file
   echo "Adding regexp alias file postfix-regexp.cf"
-  cp /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
+  cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
   sed -i -e '/^virtual_alias_maps/{
     s/ regexp:.*//
     s/$/ regexp:\/etc\/postfix\/regexp/
@@ -317,10 +319,6 @@ if [ -f /tmp/vhost.tmp ]; then
   cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 fi
 
-echo "Postfix configurations"
-touch /etc/postfix/vmailbox && postmap /etc/postfix/vmailbox
-touch /etc/postfix/virtual && postmap /etc/postfix/virtual
-
 # PERMIT_DOCKER Option
 container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
 container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
@@ -372,12 +370,12 @@ if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
     AWS_SES_PORT=25
   fi
   echo "Setting up outgoing email via AWS SES host $AWS_SES_HOST:$AWS_SES_PORT"
-  echo "[$AWS_SES_HOST]:$AWS_SES_PORT $AWS_SES_USERPASS" >>/etc/postfix/sasl_passwd
+  echo "[$AWS_SES_HOST]:$AWS_SES_PORT $AWS_SES_USERPASS" >> /etc/postfix/sasl_passwd
   postconf -e \
     "relayhost = [$AWS_SES_HOST]:$AWS_SES_PORT" \
     "smtp_sasl_auth_enable = yes" \
     "smtp_sasl_security_options = noanonymous" \
-    "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
+    "smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
     "smtp_use_tls = yes" \
     "smtp_tls_security_level = encrypt" \
     "smtp_tls_note_starttls_offer = yes" \
@@ -386,10 +384,8 @@ fi
 
 # Install SASL passwords
 if [ -f /etc/postfix/sasl_passwd ]; then
-  postmap hash:/etc/postfix/sasl_passwd
-  rm /etc/postfix/sasl_passwd
-  chown root:root /etc/postfix/sasl_passwd.db
-  chmod 0600 /etc/postfix/sasl_passwd.db
+  chown root:root /etc/postfix/sasl_passwd
+  chmod 0600 /etc/postfix/sasl_passwd
   echo "Loaded SASL_PASSWD"
 else
   echo "==> Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
