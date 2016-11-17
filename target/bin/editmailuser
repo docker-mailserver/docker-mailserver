@@ -1,0 +1,35 @@
+#!/bin/bash
+DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
+
+function usage {
+  echo 'Usage: editmailuser <user@domain.tld> [new password]'
+  exit 1
+}
+
+function sed_string() {
+  SEARCH=$(echo $1 | sed 's/[]\/$*.^|[]/\\&/g')
+  REPLACE=$(echo $2 | sed 's/[\/&]/\\&/g')
+  SED_STRING="^${SEARCH}|.*$/${REPLACE}/"
+}
+
+if [ ! -z "$1" ]; then
+  USER=$1
+  if [ -e "$DATABASE" ] && [ -z "$(grep $USER -i $DATABASE)" ]; then
+    echo "User doesn't exists"
+    exit 1
+  fi
+  if [ ! -z "$2" ]; then
+    PASS="$2"
+  else
+    read -s -p "Enter Password: " PASS
+    if [ -z "${PASS}" ]; then
+      echo "Password can't be empty"
+      exit 1
+    fi
+  fi
+  ENTRY=$(echo "${USER}|$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASS}")")
+  sed_string $USER $ENTRY
+  sed -i "s/${SED_STRING}" $DATABASE
+else
+  usage
+fi
