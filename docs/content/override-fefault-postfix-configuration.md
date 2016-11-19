@@ -5,4 +5,4 @@ This can be used to also add configuration that are not in out default configura
 Each line in the provided line will be loaded into postfix.
 
 Have a look to the code for more information: 
-https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh#L360-L367
+https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh#L351-L361
