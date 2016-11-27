@@ -22,11 +22,6 @@ else
   DOMAINNAME=$(echo $OVERRIDE_HOSTNAME | sed s/[^.]*.//)
 fi
 
-echo HOSTNAME $HOSTNAME
-echo DOMAINNAME $DOMAINNAME
-die "debugging"
-
-
 #
 # Default variables
 #
