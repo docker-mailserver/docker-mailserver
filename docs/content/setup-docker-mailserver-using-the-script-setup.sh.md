@@ -7,7 +7,13 @@ wget -q -O setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/ma
 Run `./setup.sh` without arguments and you get some usage informations.
 
 ```
-Usage: ./setup.sh <subcommand> <subcommand> [args]
+Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
+
+OPTIONS:
+
+  -i IMAGE_NAME     The name of the docker-mailserver image, by default
+                    'tvial/docker-mailserver:latest'.
+  -c CONTAINER_NAME The name of the running container.
 
 SUBCOMMANDS:
 
@@ -25,5 +31,8 @@ SUBCOMMANDS:
   debug:
 
     ./setup.sh debug fetchmail
+    ./setup.sh debug show-mail-logs
+    ./setup.sh debug inspect
+    ./setup.sh debug login <commands>
 ```
 
