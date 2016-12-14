@@ -19,7 +19,7 @@ Example:
 
 ### Configuring regexp aliases
 
-Additional regexp aliases can be configured by placing them into config/postfix-regexp.cf. The regexp aliases get evaluated after the virtual aliases (postfix-virtual.cf). For example, the following config/postfix-regexp.cf causes all email to "test" users to be delivered to qa@example.com:
+Additional regexp aliases can be configured by placing them into `config/postfix-regexp.cf`. The regexp aliases get evaluated after the virtual aliases (postfix-virtual.cf). For example, the following `config/postfix-regexp.cf` causes all email to "test" users to be delivered to qa@example.com:
 
 ```
 /^test[0-9][0-9]*@example.com/ qa@example.com
