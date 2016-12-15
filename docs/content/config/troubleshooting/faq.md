@@ -69,4 +69,4 @@ If we're blind, we won't be able to do anything.
 
 ### Is `docker-mailserver` running in a [rancher environment](http://rancher.com/rancher/)?
 
-Yes, but use the option `PERMIT_DOCKER: network`.
+Yes, by Adding the Environment Variable `PERMIT_DOCKER: network`.
