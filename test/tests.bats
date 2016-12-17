@@ -583,6 +583,11 @@
   [ "$status" -eq 1 ]
 }
 
+@test "checking system: /var/log/auth.log is error free" {
+  run docker exec mail grep 'Unable to open env file: /etc/default/locale' /var/log/auth.log
+  [ "$status" -eq 1 ]
+}
+
 @test "checking system: sets the server fqdn" {
   run docker exec mail hostname
   [ "$status" -eq 0 ]

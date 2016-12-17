@@ -47,7 +47,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
   apt-get update -q --fix-missing && apt-get -y upgrade fail2ban filebeat && \
   apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
-  rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
+  rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/* && \
+  touch /var/log/auth.log && update-locale
 
 # Enables Clamav
 RUN (echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ; crontab -l) | crontab -
