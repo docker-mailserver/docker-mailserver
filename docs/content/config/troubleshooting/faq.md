@@ -3,6 +3,15 @@ None. No *sql database required.
 This image is based on config files that can be versioned.  
 You'll probably want to `push` your config updates to your server and restart the container to apply changes.  
 
+### How can I sync container with host date/time?
+
+Share the host `/etc/localtime` using:  
+
+```
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+```
+
 ### What is the file format?
 
 All files are using the Unix format with `LF` line endings.
