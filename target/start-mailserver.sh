@@ -840,6 +840,10 @@ function _start_daemons_saslauthd() {
 function _start_daemons_fail2ban() {
 	notify 'task' 'Starting fail2ban'
 	touch /var/log/auth.log
+	# Delete fail2ban.sock that probably was left here after container restart
+  	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
+    	  rm /var/run/fail2ban/fail2ban.sock
+  	fi
 	/etc/init.d/fail2ban start
 }
 
