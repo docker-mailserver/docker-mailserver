@@ -442,6 +442,11 @@ log_level: 10
 EOF
 	fi
 
+		 sed -i \
+		 -e "/^[^#].*smtpd_sasl_type.*/s/^/#/g" \
+		 -e "/^[^#].*smtpd_sasl_path.*/s/^/#/g" \
+		 etc/postfix/master.cf
+
 	sed -i \
 		-e "s|^START=.*|START=yes|g" \
 		-e "s|^MECHANISMS=.*|MECHANISMS="\"$SASLAUTHD_MECHANISMS\""|g" \
