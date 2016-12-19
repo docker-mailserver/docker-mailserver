@@ -77,6 +77,10 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_relay_amazon_ses"
 
+	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
+		_register_setup_function "_setup_postfix_virtual_transport"
+	fi
+
 	################### << setup funcs
 
 	################### >> fix funcs
@@ -650,6 +654,15 @@ function _setup_docker_permit() {
 	# @TODO fix:  bash: /etc/opendkim/TrustedHosts: No such file or directory
 	# temporary workarround return success
 	return 0
+}
+
+function _setup_postfix_virtual_transport() {
+	notify 'task' 'Setting up Postfix virtual transport'
+
+	[ -z ${POSTFIX_DAGENT} ] && \
+		echo "${POSTFIX_DAGENT} not set." && \
+		return 1
+	postconf -e "virtual_transport = ${POSTFIX_DAGENT}" 
 }
 
 function _setup_postfix_override_configuration() {

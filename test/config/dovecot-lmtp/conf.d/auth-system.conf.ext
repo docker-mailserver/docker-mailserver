@@ -1,0 +1,74 @@
+# Authentication for system users. Included from 10-auth.conf.
+#
+# <doc/wiki/PasswordDatabase.txt>
+# <doc/wiki/UserDatabase.txt>
+
+# PAM authentication. Preferred nowadays by most systems.
+# PAM is typically used with either userdb passwd or userdb static.
+# REMEMBER: You'll need /etc/pam.d/dovecot file created for PAM
+# authentication to actually work. <doc/wiki/PasswordDatabase.PAM.txt>
+passdb {
+  driver = pam
+  # [session=yes] [setcred=yes] [failure_show_msg=yes] [max_requests=<n>]
+  # [cache_key=<key>] [<service name>]
+  #args = dovecot
+}
+
+# System users (NSS, /etc/passwd, or similiar).
+# In many systems nowadays this uses Name Service Switch, which is
+# configured in /etc/nsswitch.conf. <doc/wiki/AuthDatabase.Passwd.txt>
+#passdb {
+  #driver = passwd
+  # [blocking=no]
+  #args = 
+#}
+
+# Shadow passwords for system users (NSS, /etc/shadow or similiar).
+# Deprecated by PAM nowadays.
+# <doc/wiki/PasswordDatabase.Shadow.txt>
+#passdb {
+  #driver = shadow
+  # [blocking=no]
+  #args = 
+#}
+
+# PAM-like authentication for OpenBSD.
+# <doc/wiki/PasswordDatabase.BSDAuth.txt>
+#passdb {
+  #driver = bsdauth
+  # [blocking=no] [cache_key=<key>]
+  #args =
+#}
+
+##
+## User databases
+##
+
+# System users (NSS, /etc/passwd, or similiar). In many systems nowadays this
+# uses Name Service Switch, which is configured in /etc/nsswitch.conf.
+userdb {
+  # <doc/wiki/AuthDatabase.Passwd.txt>
+  driver = passwd
+  # [blocking=no]
+  #args = 
+
+  # Override fields from passwd
+  #override_fields = home=/home/virtual/%u
+}
+
+# Static settings generated from template <doc/wiki/UserDatabase.Static.txt>
+#userdb {
+  #driver = static
+  # Can return anything a userdb could normally return. For example:
+  #
+  #  args = uid=500 gid=500 home=/var/mail/%u
+  #
+  # LDA and LMTP needs to look up users only from the userdb. This of course
+  # doesn't work with static userdb because there is no list of users.
+  # Normally static userdb handles this by doing a passdb lookup. This works
+  # with most passdbs, with PAM being the most notable exception. If you do
+  # the user verification another way, you can add allow_all_users=yes to
+  # the args in which case the passdb lookup is skipped.
+  #
+  #args =
+#}

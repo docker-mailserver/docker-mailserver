@@ -102,6 +102,14 @@ run:
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 20
+	docker run -d --name mail_lmtp_ip \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test/config/dovecot-lmtp":/etc/dovecot \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
+		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 20
 
 fixtures:
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
@@ -121,6 +129,8 @@ fixtures:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
+	# postfix virtual transport lmtp
+	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	# Wait for mails to be analyzed
 	sleep 10
 
@@ -141,7 +151,8 @@ clean:
 		mail_disabled_clamav \
 		mail_manual_ssl \
 		ldap_for_mail \
-		mail_with_ldap
+		mail_with_ldap \
+		mail_lmtp_ip
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\

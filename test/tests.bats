@@ -807,3 +807,17 @@
   run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
+
+#
+# Postfix VIRTUAL_TRANSPORT
+#
+@test "checking postfix-lmtp: virtual_transport config is set" {
+    run docker exec mail_lmtp_ip /bin/sh -c "grep 'virtual_transport = lmtp:mail.my-domain.com:24' /etc/postfix/main.cf"
+    [ "$status" -eq 0 ]
+}
+
+@test "checking postfix-lmtp: delivers mail to existing account" {
+  run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 6 ]
+}
