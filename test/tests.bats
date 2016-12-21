@@ -645,6 +645,27 @@
   [ -z "$output" ]
 }
 
+@test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser user3@domain.tld mypassword"
+
+  initialpass=$(run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf")
+  sleep 2
+  docker exec mail /bin/sh -c "updatemailuser user3@domain.tld mynewpassword"
+  sleep 2
+  changepass=$(run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf")
+
+  if [ initialpass != changepass ]; then
+    status="0"
+  else
+    status="1"
+  fi
+
+  docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
+
+  [ "$status" -eq 0 ]
+}
+
+
 @test "checking accounts: listmailuser" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
   [ "$status" -eq 0 ]
@@ -729,6 +750,17 @@
 @test "checking setup.sh: setup.sh email list" {
   run ./setup.sh -c mail email list
   [ "$status" -eq 0 ]
+}
+@test "checking setup.sh: setup.sh email update" {
+	initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+	run ./setup.sh -c mail email update lorem@impsum.org consectetur
+	updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+	if [ initialpass != changepass ]; then
+      status="0"
+    else
+      status="1"
+    fi
+	[ "$status" -eq 0 ]
 }
 @test "checking setup.sh: setup.sh email del" {
   run ./setup.sh -c mail email del lorem@impsum.org

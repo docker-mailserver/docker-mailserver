@@ -43,6 +43,7 @@ SUBCOMMANDS:
   email:
 
     $0 email add <email> <password>
+    $0 email update <email> <password>
     $0 email del <email>
     $0 email list
 
@@ -114,6 +115,10 @@ case $1 in
       add)
         shift
         _docker_image addmailuser $@
+        ;;
+      update)
+        shift
+        _docker_image updatemailuser
         ;;
       del)
         shift
