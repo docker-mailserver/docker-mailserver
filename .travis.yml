@@ -5,10 +5,12 @@ language: bash
 sudo: required
 services:
 - docker
-script:
+install:
 - travis_wait make build-no-cache
-- make generate-accounts run fixtures tests clean
-
+script:
+- make generate-accounts run fixtures tests
+after_script:
+- make clean
 notifications:
   slack:
     secure: TTo1z9nbZCWcIdfPwypubNa3y+pwvfgDGlzEVAGEuK7uuIpmEoAcAUNSSPTnbewDGHnDl8t/ml93MtvP+a+IVuAKytMqF39PHyoZO7aUl9J62V+G75OmnyGjXGJm40pQosCS6LzqoRRYXotl9+fwH568Kf4ifXCrMZX1d+ir7Ww=
