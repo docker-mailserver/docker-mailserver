@@ -93,6 +93,11 @@ Please check [how the container starts](https://github.com/tomav/docker-mailserv
 
 Value in **bold** is the default value.
 
+##### DMS_DEBUG
+
+  - **empty** (0) => Debug disabled
+  - 1 => Enables debug on startup
+
 ##### ENABLE_POP3
 
   - **empty** => POP3 service disabled
