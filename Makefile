@@ -28,7 +28,8 @@ run:
 		-e VIRUSMAILS_DELETE_DELAY=7 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
-		-e PERMIT_DOCKER=host\
+		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
 	docker run -d --name mail_pop3 \
@@ -36,6 +37,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
 		-e ENABLE_POP3=1 \
+		-e DMS_DEBUG=1 \
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
