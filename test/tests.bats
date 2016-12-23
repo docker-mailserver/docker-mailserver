@@ -402,13 +402,8 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking ssl: lets-encrypt-x1-cross-signed.pem is installed" {
-  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem
-  [ "$status" -eq 0 ]
-}
-
-@test "checking ssl: lets-encrypt-x2-cross-signed.pem is installed" {
-  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
+@test "checking ssl: lets-encrypt-x3-cross-signed.pem is installed" {
+  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
   [ "$status" -eq 0 ]
 }
 

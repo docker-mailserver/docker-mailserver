@@ -98,7 +98,8 @@ function register_functions() {
 
 	################### >> daemon funcs
 
-	_register_start_daemon "_start_daemons_sys"
+	_register_start_daemon "_start_daemons_cron"
+	_register_start_daemon "_start_daemons_rsyslog"
 
 	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
 		_register_start_daemon "_start_daemons_filebeat"
@@ -203,42 +204,69 @@ function notify () {
 
 	notification_type=$1
 	notification_msg=$2
+	notification_format=$3
 	msg=""
 
 	case "${notification_type}" in
-		'inf')
-			if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
-				msg="${c_green}  * ${c_reset}${notification_msg}"
-			fi
-			;;
-		'err')
-			msg="${c_red}  * ${c_reset}${notification_msg}"
-			;;
-		'warn')
-			msg="${c_brown}  * Warning => ${notification_msg}"
-			;;
-		'task')
-			if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
-				msg="${notification_msg}"
-			fi
-			;;
 		'taskgrp')
 			msg="${c_bold}${notification_msg}${c_reset}"
 			;;
+		'task')
+			if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+				msg="  ${notification_msg}${c_reset}"
+			fi
+			;;
+		'inf')
+			if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+				msg="${c_green}  * ${notification_msg}${c_reset}"
+			fi
+			;;
+		'started')
+			msg="${c_green} ${notification_msg}${c_reset}"
+			;;
+		'warn')
+			msg="${c_brown}  * ${notification_msg}${c_reset}"
+			;;
+		'err')
+			msg="${c_red}  * ${notification_msg}${c_reset}"
+			;;
 		'fatal')
-			msg="${c_red}Error: ${notification_msg}${c_red}"
+			msg="${c_red}Error: ${notification_msg}${c_reset}"
 			;;
 		*)
 			msg=""
 			;;
 	esac
 
-	[[ ! -z "${msg}" ]] && echo -e "${msg}"
+	case "${notification_format}" in
+		'n')
+			options="-ne"
+	  	;;
+		*)
+  		options="-e"
+			;;
+	esac
+
+	[[ ! -z "${msg}" ]] && echo $options "${msg}"
 }
 
 function defunc() {
-	notify 'fatal' "Please fix the failures. Exiting..." 
+	notify 'fatal' "Please fix your configuration. Exiting..." 
 	exit 1
+}
+
+function display_startup_daemon() {
+  $1 &>/dev/null
+  res=$?
+  if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+	  if [ $res = 0 ]; then
+			notify 'started' " [ OK ]"
+		else
+	  	echo "false"
+			notify 'err' " [ FAILED ]"
+		fi
+  fi
+	return $res
 }
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -299,7 +327,7 @@ function _setup_default_vars() {
 
 	for var in ${!DEFAULT_VARS[@]}; do
 		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
-		# [ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && return 1
+		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
 	done
 }
@@ -758,7 +786,7 @@ function fix() {
 	notify 'taskgrg' "Post-configuration checks..."
 	for _func in "${FUNCS_FIX[@]}";do
 		$_func
-		# [ $? != 0 ] && defunc
+		[ $? != 0 ] && defunc
 	done
 }
 
@@ -830,57 +858,58 @@ function start_daemons() {
 	done
 }
 
-function _start_daemons_sys() {
-	notify 'task' 'Starting Cron'
-	cron
+function _start_daemons_cron() {
+	notify 'task' 'Starting cron' 'n'
+	display_startup_daemon "cron"	
+}
 
-	notify 'task' 'Starting rsyslog'
-	/etc/init.d/rsyslog start
+function _start_daemons_rsyslog() {
+	notify 'task' 'Starting rsyslog' 'n'
+	display_startup_daemon "/etc/init.d/rsyslog start"	
 }
 
 function _start_daemons_saslauthd() {
-	notify "task" "Starting saslauthd"
-	/etc/init.d/saslauthd start
+	notify 'task' 'Starting saslauthd' 'n'
+	display_startup_daemon "/etc/init.d/saslauthd start"
 }
 
 function _start_daemons_fail2ban() {
-	notify 'task' 'Starting fail2ban'
+	notify 'task' 'Starting fail2ban' 'n'
 	touch /var/log/auth.log
 	# Delete fail2ban.sock that probably was left here after container restart
   	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
     	  rm /var/run/fail2ban/fail2ban.sock
   	fi
-	/etc/init.d/fail2ban start
+	display_startup_daemon "/etc/init.d/fail2ban start"
 }
 
 function _start_daemons_opendkim() {
-	notify 'task' 'Starting opendkim'
-	/etc/init.d/opendkim start
+	notify 'task' 'Starting opendkim' 'n'
+	display_startup_daemon "/etc/init.d/opendkim start"
 }
 
 function _start_daemons_opendmarc() {
-	notify 'task' 'Starting opendmarc'
-	/etc/init.d/opendmarc start
+	notify 'task' 'Starting opendmarc' 'n'
+	display_startup_daemon "/etc/init.d/opendmarc start"
 }
 
 function _start_daemons_postfix() {
-	notify 'task' 'Starting postfix'
-	/etc/init.d/postfix start
+	notify 'task' 'Starting postfix' 'n'
+	display_startup_daemon "/etc/init.d/postfix start"
 }
 
 function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
-	notify 'task' "Starting dovecot services"
-	/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf
+	notify 'task' 'Starting dovecot services' 'n'
+	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf"
 
 	if [ "$ENABLE_POP3" = 1 ]; then
-		notify 'inf' "Starting POP3 services"
+		notify 'task' 'Starting pop3 services' 'n'
 		mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-		/usr/sbin/dovecot reload
+		display_startup_daemon "/usr/sbin/dovecot reload"
 	fi
 
 	if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
-		notify 'inf' "Adding file 'dovecot.cf' to the Dovecot configuration"
 		cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 		/usr/sbin/dovecot reload
 	fi
@@ -896,25 +925,24 @@ function _start_daemons_dovecot() {
 }
 
 function _start_daemons_filebeat() {
-	notify 'task' 'Starting FileBeat'
-	/etc/init.d/filebeat start
+	notify 'task' 'Starting filebeat' 'n'
+	display_startup_daemon "/etc/init.d/filebeat start"
 }
 
 function _start_daemons_fetchmail() {
-	notify 'task' 'Starting fetchmail'
+	notify 'task' 'Starting fetchmail' 'n'
 	/usr/local/bin/setup-fetchmail
-	echo "Fetchmail enabled"
-	/etc/init.d/fetchmail start
+	display_startup_daemon "/etc/init.d/fetchmail start"
 }
 
 function _start_daemons_clamav() {
-	notify 'task' "Starting clamav"
-	/etc/init.d/clamav-daemon start
+	notify 'task' 'Starting clamav' 'n'
+	display_startup_daemon "/etc/init.d/clamav-daemon start"
 }
 
 function _start_daemons_amavis() {
-	notify 'task' 'Starting Daemon Amavis'
-	/etc/init.d/amavis start
+	notify 'task' 'Starting amavis' 'n'
+	display_startup_daemon "/etc/init.d/amavis start"
 
 	# @TODO fix: on integration test of mail_with_ldap amavis fails because of:
 	# Starting amavisd:   The value of variable $myhostname is "ldap", but should have been
@@ -923,7 +951,7 @@ function _start_daemons_amavis() {
 	# in /etc/amavis/conf.d/05-node_id, or fix what uname(3) provides as a host's 
 	# network name!
 
-	# > temporary workaround to passe integration test
+	# > temporary workaround to pass integration test
 	return 0
 }
 ##########################################################################
@@ -938,6 +966,17 @@ function _start_daemons_amavis() {
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # >>
+
+if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+notify 'taskgrp' ""
+notify 'taskgrp' "#"
+notify 'taskgrp' "#"
+notify 'taskgrp' "# ENV"
+notify 'taskgrp' "#"
+notify 'taskgrp' "#"
+notify 'taskgrp' ""
+printenv
+fi
 
 notify 'taskgrp' ""
 notify 'taskgrp' "#"
