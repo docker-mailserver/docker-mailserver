@@ -237,7 +237,7 @@ function notify () {
 }
 
 function defunc() {
-	notify 'fatal' "Please fix the failures. Exiting ..." 
+	notify 'fatal' "Please fix the failures. Exiting..." 
 	exit 1
 }
 
@@ -257,7 +257,7 @@ function check() {
 	notify 'taskgrp' 'Checking configuration'
 	for _func in "${FUNCS_CHECK[@]}";do
 		$_func
-		# [ $? != 0 ] && defunc
+		[ $? != 0 ] && defunc
 	done
 }
 
@@ -326,7 +326,7 @@ function _setup_dovecot() {
 	# Enable Managesieve service by setting the symlink
 	# to the configuration file Dovecot will actually find
 	if [ "$ENABLE_MANAGESIEVE" = 1 ]; then
-		echo "Sieve management enabled"
+		notify 'inf' "Sieve management enabled"
 		mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 	fi
 }
@@ -358,7 +358,7 @@ function _setup_dovecot_local_user() {
 			user=$(echo ${login} | cut -d @ -f1)
 			domain=$(echo ${login} | cut -d @ -f2)
 			# Let's go!
-			echo "user '${user}' for domain '${domain}' with password '********'"
+			notify 'inf' "user '${user}' for domain '${domain}' with password '********'"
 			echo "${login} ${domain}/${user}/" >> /etc/postfix/vmailbox
 			# User database for dovecot has the following format:
 			# user:password:uid:gid:(gecos):home:(shell):extra_fields
@@ -379,7 +379,7 @@ function _setup_dovecot_local_user() {
 			echo ${domain} >> /tmp/vhost.tmp
 		done < /tmp/docker-mailserver/postfix-accounts.cf
 	else
-		echo "==> Warning: 'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
+		notify 'warn' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 	fi
 }
 
@@ -767,8 +767,8 @@ function _fix_var_mail_permissions() {
 
 	# Fix permissions, but skip this if 3 levels deep the user id is already set
 	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
+		notify 'inf' "Fixing /var/mail permissions"
 		chown -R 5000:5000 /var/mail
-		notify 'inf' "/var/mail permissions fixed"
 	else
 		notify 'inf' "Permissions in /var/mail look OK"
 	fi
@@ -788,7 +788,7 @@ function misc() {
 
 	for _func in "${FUNCS_MISC[@]}";do
 		$_func
-		# [ $? != 0 ] &&  defunc
+		[ $? != 0 ] && defunc
 	done
 }
 
@@ -826,7 +826,7 @@ function start_daemons() {
 
 	for _func in "${DAEMONS_START[@]}";do
 		$_func
-		# [ $? != 0 ] &&  defunc
+		[ $? != 0 ] && defunc
 	done
 }
 
@@ -855,10 +855,7 @@ function _start_daemons_fail2ban() {
 
 function _start_daemons_opendkim() {
 	notify 'task' 'Starting opendkim'
-	if [ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
-		/etc/init.d/opendkim start
-		[ $? != 0 ] &&  defunc
-	fi
+	/etc/init.d/opendkim start
 }
 
 function _start_daemons_opendmarc() {

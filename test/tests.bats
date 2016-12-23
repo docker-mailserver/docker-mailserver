@@ -483,7 +483,7 @@
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
-  # Create a container which will send wront authentications and should banned
+  # Create a container which will send wrong authentications and should banned
   docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
 
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
@@ -576,6 +576,8 @@
   run docker exec mail grep -i 'is not writable' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
   run docker exec mail grep -i 'permission denied' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mail grep -i '(!)connect' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
   run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
