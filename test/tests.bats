@@ -56,13 +56,8 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: amavis (amavis disabled by DISABLE_AMAVIS)" {
-  run docker exec mail_disabled_amavis /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
-  [ "$status" -eq 1 ]
-}
-
-@test "checking process: clamav (clamav disabled by DISABLE_CLAMAV)" {
-  run docker exec mail_disabled_clamav /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+@test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
+  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   [ "$status" -eq 1 ]
 }
 
@@ -274,6 +269,16 @@
 # spamassassin
 #
 
+@test "checking spamassassin: should be listed in amavis when enabled" {
+  run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking spamassassin: should not be listed in amavis when disabled" {
+  run docker exec mail_disabled_clamav_spamassassin /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  [ "$status" -eq 0 ]
+}
+
 @test "checking spamassassin: docker env variables are set correctly (default)" {
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   [ "$status" -eq 0 ]
@@ -302,12 +307,12 @@
 }
 
 @test "checking clamav: should not be listed in amavis when disabled" {
-  run docker exec mail_disabled_clamav grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  run docker exec mail_disabled_clamav_spamassassin grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
 }
 
 @test "checking clamav: should not be called when disabled" {
-  run docker exec mail_disabled_clamav grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
+  run docker exec mail_disabled_clamav_spamassassin grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
 }
 

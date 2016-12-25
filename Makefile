@@ -22,6 +22,8 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
+		-e ENABLE_CLAMAV=1 \
+		-e ENABLE_SPAMASSASSIN=1 \
 		-e SA_TAG=1.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
@@ -31,7 +33,7 @@ run:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
+	sleep 15
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -40,40 +42,35 @@ run:
 		-e DMS_DEBUG=1 \
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
+	sleep 15
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=network\
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
+	sleep 15
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FAIL2BAN=1 \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
+	sleep 15
 	docker run -d --name mail_fetchmail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FETCHMAIL=1 \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_disabled_amavis \
+	sleep 15
+	docker run -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e DISABLE_AMAVIS=1 \
+		-e ENABLE_CLAMAV=0 \
+		-e ENABLE_SPAMASSASSIN=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
-	docker run -d --name mail_disabled_clamav \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e DISABLE_CLAMAV=1 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
+	sleep 15
 	docker run -d --name mail_manual_ssl \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -81,11 +78,11 @@ run:
 		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 20
+	sleep 15
 	docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
 		-h mail.my-domain.com -t ldap
-	sleep 20
+	sleep 15
 	docker run -d --name mail_with_ldap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -103,7 +100,7 @@ run:
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
-	sleep 20
+	sleep 15
 
 fixtures:
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
@@ -123,7 +120,7 @@ fixtures:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
-	docker exec mail_disabled_clamav /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
+	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	# Wait for mails to be analyzed
 	sleep 10
 
@@ -140,8 +137,7 @@ clean:
 		mail_fail2ban \
 		mail_fetchmail \
 		fail-auth-mailer \
-		mail_disabled_amavis \
-		mail_disabled_clamav \
+		mail_disabled_clamav_spamassassin \
 		mail_manual_ssl \
 		ldap_for_mail \
 		mail_with_ldap
