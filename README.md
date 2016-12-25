@@ -43,7 +43,7 @@ version: '2'
 
 services:
   mail:
-    image: tvial/docker-mailserver:v2.1
+    image: tvial/docker-mailserver:2.1
     hostname: mail
     domainname: domain.com
     container_name: mail
