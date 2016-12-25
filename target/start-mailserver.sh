@@ -744,6 +744,19 @@ function _setup_security_stack() {
 	SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
 	test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 
+	if [ "$DISABLE_CLAMAV" = 1 ]; then
+		notify 'inf' "Disabling clamav"
+		cat > /etc/amavis/conf.d/50-user-security <<- EOM
+use strict;
+@bypass_virus_checks_maps = ();
+$undecipherable_subject_tag = undef;
+1;
+		EOM
+	else
+		notify 'inf' "Enabling clamav"
+		echo "" > /etc/amavis/conf.d/50-user-security
+	fi
+
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
 		notify 'inf' "Fail2ban enabled"
 		test -e /tmp/docker-mailserver/fail2ban-jail.cf && cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local
