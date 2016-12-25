@@ -7,6 +7,13 @@
 # Example: DEFAULT_VARS["KEY"]="VALUE"
 ##########################################################################
 declare -A DEFAULT_VARS
+DEFAULT_VARS["ENABLE_CLAMAV"]="${ENABLE_CLAMAV:="0"}"
+DEFAULT_VARS["ENABLE_SPAMASSASSIN"]="${ENABLE_SPAMASSASSIN:="0"}"
+DEFAULT_VARS["ENABLE_FAIL2BAN"]="${ENABLE_FAIL2BAN:="0"}"
+DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:="0"}"
+DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
+DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
+DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 ##########################################################################
@@ -127,13 +134,11 @@ function register_functions() {
 		_register_start_daemon "_start_daemons_fetchmail"
 	fi
 
-	if ! [ "$DISABLE_CLAMAV" = 1 ]; then
+	if [ "$ENABLE_CLAMAV" = 1 ]; then
 		_register_start_daemon "_start_daemons_clamav"
 	fi
 
-	if ! [ "$DISABLE_AMAVIS" = 1 ]; then
-		_register_start_daemon "_start_daemons_amavis"
-	fi
+  _register_start_daemon "_start_daemons_amavis"
 	################### << daemon funcs
 }
 ##########################################################################
@@ -738,25 +743,35 @@ function _setup_postfix_relay_amazon_ses() {
 function _setup_security_stack() {
 	notify 'task' "Setting up Security Stack"
 
-	notify 'inf' "Configuring Spamassassin"
-	SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
-	SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
-	SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
-	test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
+	# recreate auto-generated file
+	dms_amavis_file="/etc/amavis/conf.d/51-dms_auto_generated"
+  echo "# WARNING: this file is auto-generated." > $dms_amavis_file
+	echo "use strict;" >> $dms_amavis_file
 
-	if [ "$DISABLE_CLAMAV" = 1 ]; then
-		notify 'inf' "Disabling clamav"
-		cat > /etc/amavis/conf.d/50-user-security <<- EOM
-use strict;
-@bypass_virus_checks_maps = ();
-$undecipherable_subject_tag = undef;
-1;
-		EOM
-	else
-		notify 'inf' "Enabling clamav"
-		echo "" > /etc/amavis/conf.d/50-user-security
+	# Spamassassin
+	if [ "$ENABLE_SPAMASSASSIN" = 0 ]; then
+		notify 'warn' "Spamassassin is disabled. You can enable it with 'ENABLE_SPAMASSASSIN=1'"
+		echo "@bypass_spam_checks_maps = (1);" >> $dms_amavis_file
+	elif [ "$ENABLE_SPAMASSASSIN" = 1 ]; then
+		notify 'inf' "Enabling and configuring spamassassin"
+		SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
+		SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
+		SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
+		test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 	fi
 
+	# Clamav
+	if [ "$ENABLE_CLAMAV" = 0 ]; then
+		notify 'warn' "Clamav is disabled. You can enable it with 'ENABLE_CLAMAV=1'"
+		echo "@bypass_virus_checks_maps = (1);" >> $dms_amavis_file
+	elif [ "$ENABLE_CLAMAV" = 1 ]; then
+		notify 'inf' "Enabling clamav"
+	fi
+
+	echo "1;  # ensure a defined return" >> $dms_amavis_file
+
+
+	# Fail2ban
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
 		notify 'inf' "Fail2ban enabled"
 		test -e /tmp/docker-mailserver/fail2ban-jail.cf && cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local

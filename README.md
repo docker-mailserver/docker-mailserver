@@ -20,6 +20,7 @@ Includes:
 - fetchmail
 - basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
+- persistent data and state (but think about backups!)
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
@@ -42,22 +43,32 @@ version: '2'
 
 services:
   mail:
-    image: tvial/docker-mailserver:latest
-    # build: .
+    image: tvial/docker-mailserver:v2.1
     hostname: mail
     domainname: domain.com
     container_name: mail
     ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
     volumes:
-      - maildata:/var/mail
-      - ./config/:/tmp/docker-mailserver/
+    - maildata:/var/mail
+    - mailstate:/var/mail-state
+    - ./config/:/tmp/docker-mailserver/
+    environment:
+    - ENABLE_SPAMASSASSIN=1
+    - ENABLE_CLAMAV=1
+    - ENABLE_FAIL2BAN=1
+    - ONE_DIR=1
+    - DMS_DEBUG=0
+    cap_add:
+    - NET_ADMIN
 
 volumes:
   maildata:
+    driver: local
+  mailstate:
     driver: local
 ```
 
@@ -95,8 +106,36 @@ Value in **bold** is the default value.
 
 ##### DMS_DEBUG
 
-  - **empty** (0) => Debug disabled
+  - **0** => Debug disabled
   - 1 => Enables debug on startup
+
+#### ENABLE_CLAMAV
+
+  - **0** => Clamav is disabled
+  - 1 => Clamav is enabled
+
+#### ENABLE_SPAMASSASSIN
+
+  - **0** => Spamassassin is disabled
+  - 1 => Spamassassin is enabled
+
+##### SA_TAG
+
+  - **2.0** => add spam info headers if at, or above that level
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
+##### SA_TAG2
+
+  - **6.31** => add 'spam detected' headers at that level
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
+##### SA_KILL
+
+  - **6.31** => triggers spam evasive actions
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### ENABLE_POP3
 
@@ -105,7 +144,7 @@ Value in **bold** is the default value.
 
 ##### ENABLE_FAIL2BAN
 
-  - **empty** => fail2ban service disabled
+  - **0** => fail2ban service disabled
   - 1 => Enables fail2ban service
 
 If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
@@ -121,7 +160,7 @@ Otherwise, `iptables` won't be able to ban IPs.
   - 1 => Enables Managesieve on port 4190
 
 ##### ENABLE_FETCHMAIL
-  - **empty** => `fetchmail` disabled
+  - **0** => `fetchmail` disabled
   - 1 => `fetchmail` enabled
 
 ##### ENABLE_LDAP
@@ -158,21 +197,9 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => postmaster@domain.com
   - => Specify the postmaster address
 
-##### SA_TAG
-
-  - **2.0** => add spam info headers if at, or above that level
-
-##### SA_TAG2
-
-  - **6.31** => add 'spam detected' headers at that level
-
-##### SA_KILL
-
-  - **6.31** => triggers spam evasive actions
-
 ##### ENABLE_SASLAUTHD
 
-  - **empty** => `saslauthd` is disabled
+  - **0** => `saslauthd` is disabled
   - 1 => `saslauthd` is enabled
 
 ##### SASLAUTHD_MECHANISMS
