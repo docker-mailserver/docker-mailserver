@@ -293,6 +293,25 @@
 }
 
 #
+# clamav
+#
+
+@test "checking clamav: should be listed in amavis when enabled" {
+  run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  [ "$status" -eq 0 ]
+}
+
+@test "checking clamav: should not be listed in amavis when disabled" {
+  run docker exec mail_disabled_clamav grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+}
+
+@test "checking clamav: should not be called when disabled" {
+  run docker exec mail_disabled_clamav grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+}
+
+#
 # opendkim
 #
 
