@@ -19,9 +19,9 @@ generate-accounts:
 run:
 ifeq ($(ENABLE_LDAP),1)
 	# Run ldap
-	docker run -d --name ldap_for_mail \ 
- 		-e LDAP_DOMAIN="localhost.localdomain" \ 
-		-h mail.my-domain.com -t ldap ;
+	docker run -d --name ldap_for_mail \
+ 		-e LDAP_DOMAIN="localhost.localdomain" \
+		-h mail.my-domain.com -t ldap
 endif
 
 	# Run mail container
@@ -29,7 +29,7 @@ endif
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
-		-e ENABLE_CLAMAV=$(ENABLE_CLAMAV) \
+		-e ENABLE_CLAMAV="$(ENABLE_CLAMAV)" \
 		-e ENABLE_SPAMASSASSIN="$(ENABLE_SPAMASSASSIN)" \
 		-e ENABLE_POP3="$(ENABLE_POP3)" \
 		-e ENABLE_FAIL2BAN="$(ENABLE_FAIL2BAN)" \
@@ -37,15 +37,15 @@ endif
 		-e ENABLE_FETCHMAIL="$(ENABLE_FETCHMAIL)" \
 		-e ONE_DIR="$(ONE_DIR)" \
 		-e PERMIT_DOCKER="$(PERMIT_DOCKER)" \
-		-e ENABLE_LDAP="$(ENABLE_LDAP)" \ 
-		-e LDAP_SERVER_HOST="$(LDAP_SERVER_HOST)" \ 
-		-e LDAP_SEARCH_BASE="$(LDAP_SEARCH_BASE)" \ 
-		-e LDAP_BIND_DN="$(LDAP_BIND_DN)" \ 
-		-e ENABLE_SASLAUTHD="$(ENABLE_SASLAUTHD)" \ 
-		-e SASLAUTHD_MECHANISMS="$(SASLAUTHD_MECHANISMS)" \ 
-		-e SASLAUTHD_LDAP_SERVER="$(SASLAUTHD_LDAP_SERVER)" \ 
-		-e SASLAUTHD_LDAP_BIND_DN="$(SASLAUTHD_LDAP_BIND_DN)" \ 
-		-e SASLAUTHD_LDAP_PASSWORD="$(SASLAUTHD_LDAP_PASSWORD)" \ 
+		-e ENABLE_LDAP="$(ENABLE_LDAP)" \
+		-e LDAP_SERVER_HOST="$(LDAP_SERVER_HOST)" \
+		-e LDAP_SEARCH_BASE="$(LDAP_SEARCH_BASE)" \
+		-e LDAP_BIND_DN="$(LDAP_BIND_DN)" \
+		-e ENABLE_SASLAUTHD="$(ENABLE_SASLAUTHD)" \
+		-e SASLAUTHD_MECHANISMS="$(SASLAUTHD_MECHANISMS)" \
+		-e SASLAUTHD_LDAP_SERVER="$(SASLAUTHD_LDAP_SERVER)" \
+		-e SASLAUTHD_LDAP_BIND_DN="$(SASLAUTHD_LDAP_BIND_DN)" \
+		-e SASLAUTHD_LDAP_PASSWORD="$(SASLAUTHD_LDAP_PASSWORD)" \
 		-e SASLAUTHD_LDAP_SEARCH_BASE="$(SASLAUTHD_LDAP_SEARCH_BASE)" \
 		-e SMTP_ONLY="$(SMTP_ONLY)" \
 		-e SA_TAG="$(SA_TAG)" \
