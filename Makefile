@@ -17,11 +17,11 @@ generate-accounts:
 	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 
 run:
-	if [ -z $(ENABLE_LDAP) ]; then
+  @if [ -z $(ENABLE_LDAP) ]; then\
 		docker run -d --name ldap_for_mail \		
 	 		-e LDAP_DOMAIN="localhost.localdomain" \		
-			-h mail.my-domain.com -t ldap
-	fi
+			-h mail.my-domain.com -t ldap;
+  fi
 	# Run containers
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
