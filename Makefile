@@ -17,88 +17,24 @@ generate-accounts:
 	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 
 run:
-	# Run containers
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
-		-e ENABLE_CLAMAV=1 \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e SA_TAG=1.0 \
-		-e SA_TAG2=2.0 \
-		-e SA_KILL=3.0 \
-		-e VIRUSMAILS_DELETE_DELAY=7 \
-		-e SASL_PASSWD="external-domain.com username:password" \
-		-e ENABLE_MANAGESIEVE=1 \
-		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=0 \
+		-e ENABLE_POP3=$(ENABLE_POP3) \
+		-e ENABLE_FAIL2BAN=$(ENABLE_FAIL2BAN) \
+		-e ENABLE_MANAGESIEVE=$(ENABLE_MANAGESIEVE) \
+		-e ENABLE_CLAMAV=$(ENABLE_CLAMAV) \
+		-e ENABLE_SPAMASSASSIN=$(ENABLE_SPAMASSASSIN) \
+		-e SMTP_ONLY=$(SMTP_ONLY) \
+		-e SA_TAG=$(SA_TAG) \
+		-e SA_TAG2=$(SA_TAG2) \
+		-e SA_KILL=$(SA_KILL) \
+		-e SASL_PASSWD="$(SASL_PASSWD)" \
+		-e ONE_DIR=$(ONE_DIR) \
+		-e DMS_DEBUG=$(DMS_DEBUG) \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name mail_pop3 \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
-		-e ENABLE_POP3=1 \
-		-e DMS_DEBUG=1 \
-		-e SSL_TYPE=letsencrypt \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name mail_smtponly \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e SMTP_ONLY=1 \
-		-e PERMIT_DOCKER=network\
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name mail_fail2ban \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e ENABLE_FAIL2BAN=1 \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name mail_fetchmail \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e ENABLE_FETCHMAIL=1 \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name mail_disabled_clamav_spamassassin \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e ENABLE_CLAMAV=0 \
-		-e ENABLE_SPAMASSASSIN=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name mail_manual_ssl \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e SSL_TYPE=manual \
-		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
-		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run -d --name ldap_for_mail \
-		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h mail.my-domain.com -t ldap
-	sleep 15
-	docker run -d --name mail_with_ldap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		-e ENABLE_LDAP=1 \
-		-e LDAP_SERVER_HOST=ldap \
-		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=ldap \
-		-e SASLAUTHD_LDAP_SERVER=ldap \
-		-e SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e SASLAUTHD_LDAP_PASSWORD=admin \
-		-e SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		--link ldap_for_mail:ldap \
-		-h mail.my-domain.com -t $(NAME)
+
 	# Wait for containers to fully start
 	sleep 15
 
@@ -120,7 +56,6 @@ fixtures:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
-	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	# Wait for mails to be analyzed
 	sleep 10
 

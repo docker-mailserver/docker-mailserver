@@ -16,12 +16,25 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: clamd" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  [ "$status" -eq 0 ]
+@test "checking process: clamav (enabled by ENABLED_CLAMAV=1)" {
+  if [ $ENABLE_CLAMAV = 0 ]; then
+    skip
+  elif [ $ENABLE_CLAMAV = 1 ]; then
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+    [ "$status" -eq 0 ]
+  fi
 }
 
-@test "checking process: new" {
+@test "checking process: clamav (disabled by ENABLED_CLAMAV=0)" {
+  if [ $ENABLE_CLAMAV = 0 ]; then
+    run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+    [ "$status" -eq 1 ]
+  elif [ $ENABLE_CLAMAV = 1 ]; then
+    skip
+  fi
+}
+
+@test "checking process: amavisd-new" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
   [ "$status" -eq 0 ]
 }
@@ -36,34 +49,58 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: fail2ban (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
-  [ "$status" -eq 1 ]
+@test "checking process: fail2ban (disabled by ENABLE_FAIL2BAN=0)" {
+  if [ $ENABLE_FAIL2BAN = 0 ]; then
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+    [ "$status" -eq 1 ]
+  elif [ $ENABLE_FAIL2BAN = 1 ]; then
+    skip
+  fi
 }
 
-@test "checking process: fail2ban (fail2ban server enabled)" {
-  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
-  [ "$status" -eq 0 ]
+@test "checking process: fail2ban (enabled by ENABLE_FAIL2BAN=1)" {
+  if [ $ENABLE_FAIL2BAN = 0 ]; then
+    skip
+  elif [ $ENABLE_FAIL2BAN = 1 ]; then
+    run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+    [ "$status" -eq 0 ]
+  fi
 }
 
-@test "checking process: fetchmail (disabled in default configuration)" {
+@test "checking process: fetchmail (disabled by ENABLE_FETCHMAIL=0)" {
+  if [ $ENABLE_FETCHMAIL = 0 ]; then
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
+    [ "$status" -eq 1 ]
+  elif [ $ENABLE_FETCHMAIL = 1 ]; then
+    skip
+  fi
+}
+
+@test "checking process: fetchmail (enabled by ENABLE_FETCHMAIL=1)" {
+  if [ $ENABLE_FETCHMAIL = 0 ]; then
+    skip
+  elif [ $ENABLE_FETCHMAIL = 1 ]; then
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
-  [ "$status" -eq 1 ]
-}
-
-@test "checking process: fetchmail (fetchmail server enabled)" {
-  run docker exec mail_fetchmail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
   [ "$status" -eq 0 ]
+  fi
 }
 
-@test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
-  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  [ "$status" -eq 1 ]
+@test "checking process: saslauthd (enabled by ENABLE_SASLAUTHD=0)" {
+  if [ $ENABLE_FETCHMAIL = 0 ]; then
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+    [ "$status" -eq 1 ]
+  elif [ $ENABLE_FETCHMAIL = 1 ]; then
+    skip
+  fi
 }
 
-@test "checking process: saslauthd (saslauthd server enabled)" {
-  run docker exec mail_with_ldap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
-  [ "$status" -eq 0 ]
+@test "checking process: saslauthd (enabled by ENABLE_SASLAUTHD=1)" {
+  if [ $ENABLE_FETCHMAIL = 0 ]; then
+    skip
+  elif [ $ENABLE_FETCHMAIL = 1 ]; then
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+    [ "$status" -eq 0 ]
+  fi
 }
 
 #
@@ -71,21 +108,35 @@
 #
 
 @test "checking process: dovecot imaplogin (enabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
-  [ "$status" -eq 0 ]
+  if [ $SMTP_ONLY = 0 ]; then
+    run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
+    [ "$status" -eq 0 ]
+  elif [ $SMTP_ONLY = 1 ]; then
+    skip
+  fi
 }
 
 @test "checking process: dovecot imaplogin (disabled using SMTP_ONLY)" {
-  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
-  [ "$status" -eq 1 ]
+  if [ $SMTP_ONLY = 0 ]; then
+    skip  
+  elif [ $SMTP_ONLY = 1 ]; then
+    run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
+    [ "$status" -eq 1 ]
+  fi
 }
 
 @test "checking imap: server is ready with STARTTLS" {
+  if [ $SMTP_ONLY = 1 ]; then
+    skip
+  fi
   run docker exec mail /bin/bash -c "nc -w 2 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking imap: authentication works" {
+  if [ $SMTP_ONLY = 1 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
   [ "$status" -eq 0 ]
 }
@@ -95,11 +146,17 @@
 #
 
 @test "checking pop: server is ready" {
+  if [ $ENABLE_POP3 = 0 ]; then
+    skip
+  fi
   run docker exec mail_pop3 /bin/bash -c "nc -w 1 0.0.0.0 110 | grep '+OK'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking pop: authentication works" {
+  if [ $ENABLE_POP3 = 0 ]; then
+    skip
+  fi
   run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/pop3-auth.txt"
   [ "$status" -eq 0 ]
 }
@@ -109,16 +166,25 @@
 #
 
 @test "checking sasl: doveadm auth test works with good password" {
+  if [ -z $SASL_PASSWD ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld mypassword | grep 'auth succeeded'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking sasl: doveadm auth test fails with bad password" {
+  if [ -z $SASL_PASSWD ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld BADPASSWORD | grep 'auth failed'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking sasl: sasl_passwd exists" {
+  if [ -z $SASL_PASSWD ]; then
+    skip
+  fi
   run docker exec mail [ -f /etc/postfix/sasl_passwd ]
   [ "$status" -eq 0 ]
 }
@@ -200,12 +266,18 @@
 }
 
 @test "checking smtp: rejects spam" {
+  if [ $ENABLED_CLAMAV = 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep spam@external.tld | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
 
 @test "checking smtp: rejects virus" {
+  if [ $ENABLED_SPAMASSASSIN = 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep virus@external.tld | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
@@ -270,25 +342,37 @@
 #
 
 @test "checking spamassassin: should be listed in amavis when enabled" {
+  if [ $ENABLED_SPAMASSASSIN = 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
   [ "$status" -eq 1 ]
 }
 
 @test "checking spamassassin: should not be listed in amavis when disabled" {
-  run docker exec mail_disabled_clamav_spamassassin /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  if [ $ENABLED_SPAMASSASSIN = 1 ]; then
+    skip
+  fi
+  run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking spamassassin: docker env variables are set correctly (default)" {
-  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
+  if [ $ENABLED_SPAMASSASSIN = 0 || ! -z $SA_TAG ]; then
+    skip
+  fi
+  run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   [ "$status" -eq 0 ]
-  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
+  run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   [ "$status" -eq 0 ]
-  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
+  run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
+  if [ $ENABLED_SPAMASSASSIN = 1 || -z $SA_TAG ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 1.0'"
   [ "$status" -eq 0 ]
   run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
@@ -302,17 +386,26 @@
 #
 
 @test "checking clamav: should be listed in amavis when enabled" {
+  if [ $ENABLED_CLAMAV = 0 ]; then
+    skip
+  fi
   run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   [ "$status" -eq 0 ]
 }
 
 @test "checking clamav: should not be listed in amavis when disabled" {
-  run docker exec mail_disabled_clamav_spamassassin grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  if [ $ENABLED_CLAMAV = 1 ]; then
+    skip
+  fi
+  run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
 }
 
 @test "checking clamav: should not be called when disabled" {
-  run docker exec mail_disabled_clamav_spamassassin grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
+  if [ $ENABLED_CLAMAV = 1 ]; then
+    skip
+  fi
+  run docker exec mail grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
 }
 
@@ -422,6 +515,9 @@
 #
 
 @test "checking ssl: generated default cert works correctly" {
+  if [ ! -z $SSL_TYPE ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
   [ "$status" -eq 0 ]
 }
@@ -432,6 +528,9 @@
 }
 
 @test "checking ssl: letsencrypt configuration is correct" {
+  if [ $SSL_TYPE != "letsencrypt" ]; then
+    skip
+  fi
   run docker exec mail_pop3 /bin/sh -c 'grep -ir "/etc/letsencrypt/live/mail.my-domain.com/" /etc/postfix/main.cf | wc -l'
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
@@ -441,11 +540,17 @@
 }
 
 @test "checking ssl: letsencrypt cert works correctly" {
+  if [ $SSL_TYPE != "letsencrypt" ]; then
+    skip
+  fi
   run docker exec mail_pop3 /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   [ "$status" -eq 0 ]
 }
 
 @test "checking ssl: manual configuration is correct" {
+  if [ $SSL_TYPE != "manual" ]; then
+    skip
+  fi
   run docker exec mail_manual_ssl /bin/sh -c 'grep -ir "/etc/postfix/ssl/cert" /etc/postfix/main.cf | wc -l'
   [ "$status" -eq 0 ]
   [ "$output" -eq 1 ]
@@ -461,6 +566,9 @@
 }
 
 @test "checking ssl: manual configuration copied files correctly " {
+  if [ $SSL_TYPE != "manual" ]; then
+    skip
+  fi
   run docker exec mail_manual_ssl /bin/sh -c 'cmp -s /etc/postfix/ssl/cert /tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem'
   [ "$status" -eq 0 ]
   run docker exec mail_manual_ssl /bin/sh -c 'cmp -s /etc/postfix/ssl/key /tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem'
@@ -468,6 +576,9 @@
 }
 
 @test "checking ssl: manual cert works correctly" {
+  if [ $SSL_TYPE != "manual" ]; then
+    skip
+  fi
   run docker exec mail_manual_ssl /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   [ "$status" -eq 0 ]
 }
@@ -477,13 +588,19 @@
 #
 
 @test "checking fail2ban: localhost is not banned because ignored" {
-  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep 'IP list:.*127.0.0.1'"
+  if [ $ENABLE_FAIL2BAN = 0 ]; then
+    skip
+  fi
+  run docker exec mail /bin/sh -c "fail2ban-client status postfix-sasl | grep 'IP list:.*127.0.0.1'"
   [ "$status" -eq 1 ]
-  run docker exec mail_fail2ban /bin/sh -c "grep 'ignoreip = 127.0.0.1/8' /etc/fail2ban/jail.conf"
+  run docker exec mail /bin/sh -c "grep 'ignoreip = 127.0.0.1/8' /etc/fail2ban/jail.conf"
   [ "$status" -eq 0 ]
 }
 
 @test "checking fail2ban: fail2ban-jail.cf overrides" {
+  if [ $ENABLE_FAIL2BAN = 0 ]; then
+    skip
+  fi
   FILTERS=(sshd postfix dovecot postfix-sasl)
 
   for FILTER in "${FILTERS[@]}"; do
@@ -499,6 +616,9 @@
 }
 
 @test "checking fail2ban: ban ip on multiple failed login" {
+  if [ $ENABLE_FAIL2BAN = 0 ]; then
+    skip
+  fi
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
@@ -522,6 +642,9 @@
 }
 
 @test "checking fail2ban: unban ip works" {
+  if [ $ENABLE_FAIL2BAN = 0 ]; then
+    skip
+  fi
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
 
   docker exec mail_fail2ban fail2ban-client set postfix-sasl unbanip $FAIL_AUTH_MAILER_IP
@@ -541,11 +664,17 @@
 #
 
 @test "checking fetchmail: gerneral options in fetchmailrc are loaded" {
+  if [ $ENABLE_FETCHMAIL = 0 ]; then
+    skip
+  fi
   run docker exec mail_fetchmail grep 'set syslog' /etc/fetchmailrc
   [ "$status" -eq 0 ]
 }
 
 @test "checking fetchmail: fetchmail.cf is loaded" {
+  if [ $ENABLE_FETCHMAIL = 0 ]; then
+    skip
+  fi
   run docker exec mail_fetchmail grep 'pop3.example.com' /etc/fetchmailrc
   [ "$status" -eq 0 ]
 }
@@ -598,9 +727,7 @@
   [ "$status" -eq 1 ]
   run docker exec mail grep -i '(!)connect' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
-  run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
-  [ "$status" -eq 1 ]
-  run docker exec mail_pop3 grep ': error:' /var/log/mail/mail.log
+  run docker exec mail grep 'non-null host address bits in' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
 }
 
@@ -631,17 +758,26 @@
 #
 
 @test "checking sieve: user1 should have received 1 email in folder INBOX.spam" {
+  if [ $ENABLE_MANAGESIEVE = 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
 
 @test "checking manage sieve: server is ready when ENABLE_MANAGESIEVE has been set" {
+  if [ $ENABLE_MANAGESIEVE = 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/bash -c "nc -z 0.0.0.0 4190"
   [ "$status" -eq 0 ]
 }
 
 @test "checking manage sieve: disabled per default" {
+  if [ $ENABLE_MANAGESIEVE = 1 ]; then
+    skip
+  fi
   run docker exec mail_pop3 /bin/bash -c "nc -z 0.0.0.0 4190"
   [ "$status" -ne 0 ]
 }
