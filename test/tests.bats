@@ -358,7 +358,7 @@
 }
 
 @test "checking spamassassin: docker env variables are set correctly (default)" {
-  if [ "$ENABLE_SPAMASSASSIN" -eq 0 -a ! -z $SA_TAG ]; then
+  if [ ! -z $SA_TAG -a ! -z $SA_TAG2 -a ! -z $SA_KILL ]; then
     skip
   fi
   run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
@@ -370,7 +370,7 @@
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
-  if [ "$ENABLE_SPAMASSASSIN" -eq 1 -a -z $SA_TAG ]; then
+  if [ -z $SA_TAG -a -z $SA_TAG2 -a -z $SA_KILL ]; then
     skip
   fi
   run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 1.0'"

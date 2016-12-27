@@ -22,18 +22,22 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
+		-e ENABLE_CLAMAV=$(ENABLE_CLAMAV) \
+		-e ENABLE_SPAMASSASSIN=$(ENABLE_SPAMASSASSIN) \
 		-e ENABLE_POP3=$(ENABLE_POP3) \
 		-e ENABLE_FAIL2BAN=$(ENABLE_FAIL2BAN) \
 		-e ENABLE_MANAGESIEVE=$(ENABLE_MANAGESIEVE) \
-		-e ENABLE_CLAMAV=$(ENABLE_CLAMAV) \
-		-e ENABLE_SPAMASSASSIN=$(ENABLE_SPAMASSASSIN) \
+		-e ENABLE_FETCHMAIL=$(ENABLE_FETCHMAIL) \
+		-e ONE_DIR=$(ONE_DIR) \
+		-e PERMIT_DOCKER=$(PERMIT_DOCKER) \
 		-e SMTP_ONLY=$(SMTP_ONLY) \
 		-e SA_TAG=$(SA_TAG) \
 		-e SA_TAG2=$(SA_TAG2) \
 		-e SA_KILL=$(SA_KILL) \
+		-e VIRUSMAILS_DELETE_DELAY=$(VIRUSMAILS_DELETE_DELAY) \
 		-e SASL_PASSWD="$(SASL_PASSWD)" \
-		-e ONE_DIR=$(ONE_DIR) \
 		-e DMS_DEBUG=$(DMS_DEBUG) \
+		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 15
@@ -66,16 +70,7 @@ tests:
 clean:
 	# Remove running test containers
 	-docker rm -f \
-		mail \
-		mail_pop3 \
-		mail_smtponly \
-		mail_fail2ban \
-		mail_fetchmail \
-		fail-auth-mailer \
-		mail_disabled_clamav_spamassassin \
-		mail_manual_ssl \
-		ldap_for_mail \
-		mail_with_ldap
+		mail
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
