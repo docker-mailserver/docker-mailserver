@@ -86,18 +86,18 @@
 }
 
 @test "checking process: saslauthd (enabled by ENABLE_SASLAUTHD=0)" {
-  if [" $ENABLE_FETCHMAIL" -eq 0 ]; then
+  if [" $ENABLE_SASLAUTHD" -eq 0 ]; then
     run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
     [ "$status" -eq 1 ]
-  elif [ "$ENABLE_FETCHMAIL" -eq 1 ]; then
+  elif [ "$ENABLE_SASLAUTHD" -eq 1 ]; then
     skip
   fi
 }
 
 @test "checking process: saslauthd (enabled by ENABLE_SASLAUTHD=1)" {
-  if [ "$ENABLE_FETCHMAIL" -eq 0 ]; then
+  if [ "$ENABLE_SASLAUTHD" -eq 0 ]; then
     skip
-  elif [ "$ENABLE_FETCHMAIL" -eq 1 ]; then
+  elif [ "$ENABLE_SASLAUTHD" -eq 1 ]; then
     run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
     [ "$status" -eq 0 ]
   fi
@@ -961,6 +961,9 @@
 
 # postfix
 @test "checking postfix: ldap lookup works correctly" {
+  if [ $ENABLE_LDAP -q 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "postmap -q some.user@localhost.localdomain ldap:/etc/postfix/ldap-users.cf"
   [ "$status" -eq 0 ]
   [ "$output" = "some.user@localhost.localdomain" ]
@@ -974,11 +977,17 @@
 
 # dovecot
 @test "checking dovecot: ldap imap connection and authentication works" {
+  if [ $ENABLE_LDAP -q 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt"
   [ "$status" -eq 0 ]
 }
 
 @test "checking dovecot: mail delivery works" {
+  if [ $ENABLE_LDAP -q 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "sendmail -f user@external.tld some.user@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.user/new | wc -l"
@@ -988,11 +997,17 @@
 
 # saslauthd
 @test "checking saslauthd: sasl ldap authentication works" {
+  if [ $ENABLE_SASLAUTHD -q 0 ]; then
+    skip
+  fi
   run docker exec mail bash -c "testsaslauthd -u some.user -p secret"
   [ "$status" -eq 0 ]
 }
 
 @test "checking saslauthd: ldap smtp authentication" {
+  if [ $ENABLE_SASLAUTHD -q 0 ]; then
+    skip
+  fi
   run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }

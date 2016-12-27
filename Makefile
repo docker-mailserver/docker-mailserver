@@ -17,6 +17,11 @@ generate-accounts:
 	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 
 run:
+	if [ -z $(ENABLE_LDAP) ]; then
+		docker run -d --name ldap_for_mail \		
+	 		-e LDAP_DOMAIN="localhost.localdomain" \		
+			-h mail.my-domain.com -t ldap
+	fi
 	# Run containers
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -30,6 +35,16 @@ run:
 		-e ENABLE_FETCHMAIL=$(ENABLE_FETCHMAIL) \
 		-e ONE_DIR=$(ONE_DIR) \
 		-e PERMIT_DOCKER=$(PERMIT_DOCKER) \
+  	-e ENABLE_LDAP=$(ENABLE_LDAP) \		
+		-e LDAP_SERVER_HOST=$(LDAP_SERVER_HOST) \		
+		-e LDAP_SEARCH_BASE=$(LDAP_SEARCH_BASE) \		
+		-e LDAP_BIND_DN=$(LDAP_BIND_DN) \		
+		-e ENABLE_SASLAUTHD=$(ENABLE_SASLAUTHD) \		
+		-e SASLAUTHD_MECHANISMS=$(SASLAUTHD_MECHANISMS) \		
+		-e SASLAUTHD_LDAP_SERVER=$(SASLAUTHD_LDAP_SERVER) \		
+		-e SASLAUTHD_LDAP_BIND_DN=$(SASLAUTHD_LDAP_BIND_DN) \		
+		-e SASLAUTHD_LDAP_PASSWORD=$(SASLAUTHD_LDAP_PASSWORD) \		
+		-e SASLAUTHD_LDAP_SEARCH_BASE=$(SASLAUTHD_LDAP_SEARCH_BASE) \
 		-e SMTP_ONLY=$(SMTP_ONLY) \
 		-e SA_TAG=$(SA_TAG) \
 		-e SA_TAG2=$(SA_TAG2) \
@@ -39,6 +54,8 @@ run:
 		-e DMS_DEBUG=$(DMS_DEBUG) \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
+
+
 	# Wait for containers to fully start
 	sleep 15
 
@@ -70,7 +87,8 @@ tests:
 clean:
 	# Remove running test containers
 	-docker rm -f \
-		mail
+		mail \
+		ldap_for_mail
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
