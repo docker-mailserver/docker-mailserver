@@ -18,12 +18,13 @@ generate-accounts:
 
 run:
 ifeq ($(ENABLE_LDAP),1)
+	# Run ldap
 	docker run -d --name ldap_for_mail \		
  		-e LDAP_DOMAIN="localhost.localdomain" \		
 		-h mail.my-domain.com -t ldap ;
 endif
 
-	Run containers
+	# Run mail container
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
