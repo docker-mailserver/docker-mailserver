@@ -358,7 +358,7 @@
 }
 
 @test "checking spamassassin: docker env variables are set correctly (default)" {
-  if [ "$ENABLE_SPAMASSASSIN" -eq 0 || ! -z $SA_TAG ]; then
+  if [ "$ENABLE_SPAMASSASSIN" -eq 0 -a ! -z $SA_TAG ]; then
     skip
   fi
   run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
@@ -370,7 +370,7 @@
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
-  if [ "$ENABLE_SPAMASSASSIN" -eq 1 || -z $SA_TAG ]; then
+  if [ "$ENABLE_SPAMASSASSIN" -eq 1 -a -z $SA_TAG ]; then
     skip
   fi
   run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 1.0'"
@@ -663,7 +663,7 @@
 # fetchmail
 #
 
-@test "checking fetchmail: gerneral options in fetchmailrc are loaded" {
+@test "checking fetchmail: general options in fetchmailrc are loaded" {
   if [ "$ENABLE_FETCHMAIL" -eq 0 ]; then
     skip
   fi
