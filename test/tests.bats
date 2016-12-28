@@ -17,19 +17,19 @@
 }
 
 @test "checking process: clamav (enabled by ENABLE_CLAMAV=1)" {
-  if [ "$ENABLE_CLAMAV" -eq 0 ]; then
+  if [ $ENABLE_CLAMAV -eq 0 ]; then
     skip
-  elif [ "$ENABLE_CLAMAV" -eq 1 ]; then
+  elif [ $ENABLE_CLAMAV -eq 1 ]; then
     run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
     [ "$status" -eq 0 ]
   fi
 }
 
 @test "checking process: clamav (disabled by ENABLE_CLAMAV=0)" {
-  if [ "$ENABLE_CLAMAV" -eq 0 ]; then
+  if [ $ENABLE_CLAMAV -eq 0 ]; then
     run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
     [ "$status" -eq 1 ]
-  elif [" $ENABLE_CLAMAV" -eq 1 ]; then
+  elif [ $ENABLE_CLAMAV -eq 1 ]; then
     skip
   fi
 }
