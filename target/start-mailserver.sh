@@ -95,7 +95,7 @@ function register_functions() {
 
 	################### >> fix funcs
 
-	_register_fix_function "_fix_var_mail_permissions"
+#	_register_fix_function "_fix_var_mail_permissions"
 
 	################### << fix funcs
 
