@@ -1,18 +1,24 @@
-#!/bin/bash
+#! /bin/bash
 
-DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-function usage {
-  echo "Usage: delmailuser <user@domain.tld>"
-   exit 1
+USER="$1"
+
+usage() {
+	echo "Usage: delmailuser <user@domain>"
 }
 
-if [ ! -z "$1" ]; then
-  USER=$1
-  if [ -f "$DATABASE" ]; then
-    ENTRIES=$(grep "$USER" -vi $DATABASE)
-    echo "$ENTRIES" > $DATABASE
-  fi
-else
-  usage
-fi
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+
+[ -z "$USER" ] && { usage; errex "No user specifed"; }
+[ -s "$DATABASE" ] || exit 0
+
+# XXX $USER must not contain /s and other syntactic characters
+sed -i "/^$(escape "$USER")|/d" $DATABASE

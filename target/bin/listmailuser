@@ -1,16 +1,13 @@
-#! /bin/sh
+#! /bin/bash
 
-DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-if [ ! -f "$DATABASE" ]; then
-  echo "The configuration file 'postfix-accounts.cf' doesn't exist. Until now no email addresses have been added."
-  exit 1
-fi
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
 
-if [ ! -s "$DATABASE" ]; then
-  echo "No email addresses have been added."
-  exit 1
-fi
+[ -f $DATABASE ] || errex "No postfix-accounts.cf file"
+[ -s $DATABASE ] || errex "Empty postfix-accounts.cf - no users have been added"
 
-cat "$DATABASE" | awk -F '|' '{print $1}'
-
+awk -F '|' '{ print $1; }' $DATABASE
