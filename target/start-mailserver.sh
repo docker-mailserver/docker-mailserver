@@ -540,6 +540,14 @@ function _setup_postfix_mydestination(){
 	notify 'task' 'Setting up Postfix My Destination'
 
 	postconf -e "mydestination=$POSTFIX_MYDESTINATION"
+
+	notify 'task' "Setting up Postfix vhost"
+    
+	IFS=', ' eval 'vhosts=($POSTFIX_MYDESTINATION)'
+	for i in "${vhosts[@]}"
+	do
+		echo $i >> /etc/postfix/vhost
+	done
 }
 
 function _setup_dkim() {
