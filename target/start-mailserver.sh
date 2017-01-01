@@ -334,7 +334,7 @@ function _setup_default_vars() {
 	notify 'task' "Setting up default variables [$FUNCNAME]"
 
 	for var in ${!DEFAULT_VARS[@]}; do
-		echo "export $var=${DEFAULT_VARS[$var]}"
+		export $var=${DEFAULT_VARS[$var]}
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
 	done
