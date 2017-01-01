@@ -2,6 +2,7 @@ NAME = tvial/docker-mailserver:testing
 
 all: build-no-cache generate-accounts run fixtures tests clean
 all-fast: build generate-accounts run fixtures tests clean
+all-fast-local: build generate-accounts run-local fixtures tests clean
 no-build: generate-accounts run fixtures tests clean
 
 build-no-cache:
@@ -19,7 +20,7 @@ generate-accounts:
 run:
 ifeq ($(ENABLE_LDAP),1)
 	# Run ldap
-	docker run -d --name ldap_for_mail \
+	docker run -d --name ldap-for-mail \
  		-e LDAP_DOMAIN="localhost.localdomain" \
 		-h mail.my-domain.com -t ldap
 endif
@@ -60,6 +61,18 @@ endif
 	# Wait for containers to fully start
 	sleep 15
 
+run-local:
+	docker run -d --name mail \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-v "`pwd`/test/onedir":/var/mail-state \
+		--env-file=.env-testing \
+		--cap-add=NET_ADMIN \
+		--add-host=pop3.example.tld:127.0.0.1 \
+		-h mail.my-domain.com -t $(NAME)
+	# Wait for containers to fully start
+	sleep 15
+
 fixtures:
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
@@ -83,13 +96,14 @@ fixtures:
 
 tests:
 	# Start tests
-	./test/bats/bats test/tests.bats
+	./test/bats/bin/bats test/tests.bats
 
 clean:
 	# Remove running test containers
 	-docker rm -f \
 		mail \
-		ldap_for_mail
+		fail-auth-mailer \
+		ldap-for-mail
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
@@ -98,4 +112,5 @@ clean:
 	-sudo rm -rf test/onedir \
 		test/config/empty \
 		test/config/without-accounts \
-		test/config/without-virtual
+		test/config/without-virtual \
+		test/config/postfix-accounts.cf.bak
