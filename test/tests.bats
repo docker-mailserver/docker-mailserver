@@ -7,7 +7,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking configuration: hostname/domainname" {
   run docker run `docker inspect --format '{{ .Config.Image }}' mail`
-  assert_success
+  assert_failure
 }
 
 #
@@ -265,7 +265,7 @@ load 'test_helper/bats-assert/load'
   if [ $ENABLE_SPAMASSASSIN -eq 0 ]; then
     skip
   fi
-  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep spam@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | wc -l"
   assert_output 1
 }
 
@@ -273,7 +273,7 @@ load 'test_helper/bats-assert/load'
   if [ $ENABLE_CLAMAV -eq 0 ]; then
     skip
   fi
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep virus@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | wc -l"
   assert_output 1
 }
 
@@ -789,11 +789,9 @@ load 'test_helper/bats-assert/load'
 
   run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_failure
-  [ -z "$output" ]
 
   run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ ! -z "$output" ]
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
