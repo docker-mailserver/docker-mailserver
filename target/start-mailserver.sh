@@ -16,7 +16,7 @@ DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
-DEFAULT_VARS["POSTFIX_MYDESTINATION"]="${POSTFIX_MYDESTINATION:=""}"
+DEFAULT_VARS["POSTFIX_MAILBOXDOMAINS"]="${POSTFIX_MAILBOXDOMAINS:="localhost"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 ##########################################################################
@@ -537,13 +537,9 @@ function _setup_postfix_aliases() {
 }
 
 function _setup_postfix_mydestination(){
-	notify 'task' 'Setting up Postfix My Destination'
-
-	postconf -e "mydestination=$POSTFIX_MYDESTINATION"
-
 	notify 'task' "Setting up Postfix vhost"
     
-	IFS=', ' eval 'vhosts=($POSTFIX_MYDESTINATION)'
+	IFS=', ' eval 'vhosts=($POSTFIX_MAILBOXDOMAINS)'
 	for i in "${vhosts[@]}"
 	do
 		echo $i >> /etc/postfix/vhost
