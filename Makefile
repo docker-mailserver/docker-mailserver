@@ -58,6 +58,8 @@ endif
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 
+	docker exec mail printenv
+
 	# Wait for containers to fully start
 	sleep 15
 
