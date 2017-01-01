@@ -1,29 +1,27 @@
-#!/bin/bash
+#! /bin/bash
 
-DATABASE=/tmp/docker-mailserver/postfix-accounts.cf
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-function usage {
-  echo 'Usage: updatemailuser <user@domain.tld> [password]'
-  exit 1
+USER="$1"
+PASSWD="$2"
+
+usage() {
+	echo "Usage: updatemailuser <user@domain.tld> [password]"
 }
 
-if [ ! -z "$1" ]; then
-  USER=$1
-  if [ -e "$DATABASE" ] && [ -z "$(grep $USER -i $DATABASE)" ]; then
-    echo "User doesn't exist"
-    exit 1
-  fi
-  if [ ! -z "$2" ]; then
-    PASS="$2"
-  else
-    read -s -p "Enter Password: " PASS
-    if [ -z "$PASS" ]; then
-      echo "Password can't be empty"
-      exit 1
-    fi
-  fi
-  ENTRY=$(echo "$USER|$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASS")")
-  sed -i.bak "s%^$USER.*%$ENTRY%g" $DATABASE 
-else
-  usage
-fi
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+
+[ -z "$USER" ] && { usage; errex "no username specified"; }
+
+grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
+	errex "User \"$USER\" does not exist"
+
+delmailuser "$USER"
+addmailuser "$USER" "$PASSWD"

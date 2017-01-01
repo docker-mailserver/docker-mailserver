@@ -763,27 +763,47 @@ load 'test_helper/bats-assert/load'
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
   docker exec mail /bin/sh -c "addmailuser user3@domain.tld mypassword"
 
-  run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
+  run docker exec mail /bin/sh -c "grep '^user3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert
   [ ! -z "$output" ]
 }
 
-@test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf" {
+@test "checking accounts: auser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser auser3@domain.tld mypassword"
+
+  run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
+}
+
+@test "checking accounts: a.ser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser a.ser3@domain.tld mypassword"
+
+  run docker exec mail /bin/sh -c "grep '^a\.ser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
+}
+
+@test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
   docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
 
   run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
   refute
   [ -z "$output" ]
+
+  run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  assert
+  [ ! -z "$output" ]
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
-  docker exec mail /bin/sh -c "addmailuser user3@domain.tld mypassword"
+  docker exec mail /bin/sh -c "addmailuser user4@domain.tld mypassword"
 
-  initialpass=$(run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf")
+  initialpass=$(run docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
   sleep 2
-  docker exec mail /bin/sh -c "updatemailuser user3@domain.tld mynewpassword"
+  docker exec mail /bin/sh -c "updatemailuser user4@domain.tld mynewpassword"
   sleep 2
-  changepass=$(run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf")
+  changepass=$(run docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
 
   if [ initialpass != changepass ]; then
     status="0"
@@ -791,7 +811,7 @@ load 'test_helper/bats-assert/load'
     status="1"
   fi
 
-  docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
+  docker exec mail /bin/sh -c "delmailuser auser3@domain.tld"
 
   assert
 }
@@ -814,6 +834,7 @@ load 'test_helper/bats-assert/load'
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
     `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'addmailuser user3@domain.tld mypassword'
+  [ "$status" -eq 0 ]
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
     `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
