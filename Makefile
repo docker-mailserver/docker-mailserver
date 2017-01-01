@@ -58,8 +58,6 @@ endif
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 
-	docker exec mail printenv
-
 	# Wait for containers to fully start
 	sleep 15
 
@@ -76,6 +74,7 @@ run-local:
 	sleep 15
 
 fixtures:
+	docker exec mail printenv
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
