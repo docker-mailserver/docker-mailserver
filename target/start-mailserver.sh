@@ -87,7 +87,7 @@ function register_functions() {
 	_register_setup_function "_setup_security_stack"
 	_register_setup_function "_setup_postfix_aliases"
 	_register_setup_function "_setup_postfix_vhost"
-	_register_setup_function "_setup_postfix_mydestination"
+	_register_setup_function "_setup_postfix_mailbox_domains"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
@@ -536,7 +536,7 @@ function _setup_postfix_aliases() {
 	fi
 }
 
-function _setup_postfix_mydestination(){
+function _setup_postfix_mailbox_domains(){
 	notify 'task' "Setting up Postfix vhost"
     
 	IFS=', ' eval 'vhosts=($POSTFIX_MAILBOXDOMAINS)'
