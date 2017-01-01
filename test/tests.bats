@@ -226,9 +226,18 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking smtp: delivers mail to existing account" {
+@test "checking smtp: delivers mail to existing accounts" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
-  assert_output 6
+  emails_received = 6
+  # An additional email is received if spam are not filtered
+  if [ $ENABLE_CLAMAV -eq 0 ]; then
+    emails_received = $emails_received+1
+  fi
+  # An additional email is received if virus are not filtered
+  if [ $ENABLE_SPAMASSASSIN -eq 0 ]; then
+    emails_received = $emails_received+1
+  fi
+  assert_output $emails_received
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -246,9 +255,18 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
-@test "checking smtp: user1 should have received 5 mails" {
+@test "checking smtp: user1 should have received a defined number of mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
-  assert_output 5
+  emails_received = 5
+  # An additional email is received if spam are not filtered
+  if [ $ENABLE_CLAMAV -eq 0 ]; then
+    emails_received = $emails_received+1
+  fi
+  # An additional email is received if virus are not filtered
+  if [ $ENABLE_SPAMASSASSIN -eq 0 ]; then
+    emails_received = $emails_received+1
+  fi
+  assert_output $emails_received
 }
 
 @test "checking smtp: rejects mail to unknown user" {
