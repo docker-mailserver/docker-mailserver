@@ -905,6 +905,6 @@
 }
 
 @test "checking saslauthd: rimap smtp authentication" {
-  run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-imap-smtp-auth.txt | grep 'Authentication successful'"
+  run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
