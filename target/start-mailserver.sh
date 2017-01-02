@@ -829,6 +829,7 @@ function _fix_var_mail_permissions() {
 		chown -R 5000:5000 /var/mail
 	else
 		notify 'inf' "Permissions in /var/mail look OK"
+		return 0
 	fi
 }
 ##########################################################################
