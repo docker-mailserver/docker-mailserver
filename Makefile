@@ -53,7 +53,7 @@ endif
 		-e SA_TAG2=$(SA_TAG2) \
 		-e SA_KILL=$(SA_KILL) \
 		-e VIRUSMAILS_DELETE_DELAY=$(VIRUSMAILS_DELETE_DELAY) \
-		-e SASL_PASSWD=$(SASL_PASSWD) \
+		-e SASL_PASSWD="$(SASL_PASSWD)" \
 		-e DMS_DEBUG=$(DMS_DEBUG) \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
