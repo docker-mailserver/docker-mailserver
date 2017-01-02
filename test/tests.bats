@@ -228,14 +228,14 @@ load 'test_helper/bats-assert/load'
 
 @test "checking smtp: delivers mail to existing accounts" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
-  emails_received = 6
+  local emails_received=6
   # An additional email is received if spam are not filtered
   if [ $ENABLE_CLAMAV -eq 0 ]; then
-    emails_received = $emails_received+1
+    emails_received=$((emails_received+1))
   fi
   # An additional email is received if virus are not filtered
   if [ $ENABLE_SPAMASSASSIN -eq 0 ]; then
-    emails_received = $emails_received+1
+    emails_received=$((emails_received+1))
   fi
   assert_output $emails_received
 }
@@ -257,14 +257,14 @@ load 'test_helper/bats-assert/load'
 
 @test "checking smtp: user1 should have received a defined number of mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
-  emails_received = 5
+  local emails_received = 5
   # An additional email is received if spam are not filtered
   if [ $ENABLE_CLAMAV -eq 0 ]; then
-    emails_received = $emails_received+1
+    emails_received=$((emails_received+1))
   fi
   # An additional email is received if virus are not filtered
   if [ $ENABLE_SPAMASSASSIN -eq 0 ]; then
-    emails_received = $emails_received+1
+    emails_received=$((emails_received+1))
   fi
   assert_output $emails_received
 }
