@@ -66,6 +66,11 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking process: saslauthd (saslauthd server enabled)" {
+  run docker exec mail_with_imap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+  [ "$status" -eq 0 ]
+}
+
 #
 # imap
 #
@@ -879,5 +884,27 @@
 
 @test "checking saslauthd: ldap smtp authentication" {
   run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
+  [ "$status" -eq 0 ]
+}
+
+
+#
+# RIMAP
+#
+
+# dovecot
+@test "checking dovecot: ldap rimap connection and authentication works" {
+  run docker exec mail_with_imap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
+  [ "$status" -eq 0 ]
+}
+
+# saslauthd
+@test "checking saslauthd: sasl rimap authentication works" {
+  run docker exec mail_with_imap bash -c "testsaslauthd -u user1@localhost.localdomain -p mypassword"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking saslauthd: rimap smtp authentication" {
+  run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-imap-smtp-auth.txt | grep 'Authentication successful'"
   [ "$status" -eq 0 ]
 }
