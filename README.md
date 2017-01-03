@@ -92,6 +92,8 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
+Note: you can also manage email accounts, DKIM keys and more with the [setup.sh convenience script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh).
+
 #### Start the container
 
     docker-compose up -d mail
