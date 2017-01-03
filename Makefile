@@ -99,6 +99,15 @@ run:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
+	sleep 15
+	docker run -d --name mail_with_imap \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_SASLAUTHD=1 \
+		-e SASLAUTHD_MECHANISMS=rimap \
+		-e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
+		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
+		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 15
 
@@ -140,7 +149,8 @@ clean:
 		mail_disabled_clamav_spamassassin \
 		mail_manual_ssl \
 		ldap_for_mail \
-		mail_with_ldap
+		mail_with_ldap \
+		mail_with_imap
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\

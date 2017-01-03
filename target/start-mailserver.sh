@@ -73,6 +73,7 @@ function register_functions() {
 
 	if [ "$ENABLE_SASLAUTHD" = 1 ];then
 		_register_setup_function "_setup_saslauthd"
+		_register_setup_function "_setup_postfix_sasl"
 	fi
 
 	_register_setup_function "_setup_dkim"
@@ -451,11 +452,15 @@ function _setup_ldap() {
 		postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf" || \
 		notify 'inf' "==> Warning: /etc/postfix/ldap-aliases.cf or /etc/postfix/ldap-groups.cf not found"
 
+	return 0
+}
+
+function _setup_postfix_sasl() {
 	[ ! -f /etc/postfix/sasl/smtpd.conf ] && cat > /etc/postfix/sasl/smtpd.conf << EOF
 pwcheck_method: saslauthd
 mech_list: plain login
 EOF
-return 0
+	return 0
 }
 
 function _setup_saslauthd() {
@@ -464,7 +469,7 @@ function _setup_saslauthd() {
 	notify 'inf' "Configuring Cyrus SASL"
 	# checking env vars and setting defaults
 	[ -z $SASLAUTHD_MECHANISMS ] && SASLAUTHD_MECHANISMS=pam
-	[ -z $SASLAUTHD_LDAP_SEARCH_BASE ] && SASLAUTHD_MECHANISMS=pam
+	[ "$SASLAUTHD_MECHANISMS" = ldap -a -z $SASLAUTHD_LDAP_SEARCH_BASE ] && SASLAUTHD_MECHANISMS=pam
 	[ -z $SASLAUTHD_LDAP_SERVER ] && SASLAUTHD_LDAP_SERVER=localhost
 	[ -z $SASLAUTHD_LDAP_FILTER ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
 	([ -z $SASLAUTHD_LDAP_SSL ] || [ $SASLAUTHD_LDAP_SSL == 0 ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
@@ -496,6 +501,13 @@ EOF
 		-e "s|^MECHANISMS=.*|MECHANISMS="\"$SASLAUTHD_MECHANISMS\""|g" \
 		-e "s|^MECH_OPTIONS=.*|MECH_OPTIONS="\"$SASLAUTHD_MECH_OPTIONS\""|g" \
 		/etc/default/saslauthd
+
+	if [ "$SASLAUTHD_MECHANISMS" = rimap ]; then
+		sed -i \
+			-e 's|^OPTIONS="|OPTIONS="-r |g' \
+			/etc/default/saslauthd
+	fi
+
 	sed -i \
 		-e "/smtpd_sasl_path =.*/d" \
 		-e "/smtpd_sasl_type =.*/d" \
