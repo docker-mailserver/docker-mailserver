@@ -38,6 +38,8 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 Adapt this file with your FQDN. Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
+Your configs must be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look to [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
+
 ```yaml	
 version: '2'
 
