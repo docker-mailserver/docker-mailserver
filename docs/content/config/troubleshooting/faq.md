@@ -57,7 +57,7 @@ Put received spams in `.Junk/` imap folder and add a cron like the fllowing:
 
 ```
 # Everyday 2:00AM, learn spam for this specific user
-0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk
+0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
 ### What kind of SSL certificates can I use?
