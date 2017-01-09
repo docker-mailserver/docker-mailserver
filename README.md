@@ -141,6 +141,11 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
+##### ONE_DIR
+
+  - **0** => state in default directory
+  - 1 => consolidate all states that should be persisted across container restarts into `/var/mail-state` (use docker volume or shared folder with host)
+
 ##### ENABLE_POP3
 
   - **empty** => POP3 service disabled
