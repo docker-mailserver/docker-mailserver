@@ -81,7 +81,7 @@ run:
 	sleep 15
 	docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h mail.my-domain.com -t ldap
+		-h ldap.my-domain.com -t ldap
 	sleep 15
 	docker run -d --name mail_with_ldap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \

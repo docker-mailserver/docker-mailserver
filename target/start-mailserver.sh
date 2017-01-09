@@ -22,6 +22,19 @@ DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 # << DEFAULT VARS
 ##########################################################################
 
+##########################################################################
+# >> GLOBAL VARS
+#
+# add your global script variables here.
+#
+# Example: KEY="VALUE"
+##########################################################################
+HOSTNAME="$(hostname -f)"
+DOMAINNAME="$(hostname -d)"
+##########################################################################
+# << GLOBAL VARS
+##########################################################################
+
 
 ##########################################################################
 # >> REGISTER FUNCTIONS
@@ -300,11 +313,11 @@ function check() {
 function _check_hostname() {
 	notify "task" "Check that hostname/domainname is provided (no default docker hostname) [$FUNCNAME]"
 
-	if ( ! echo $(hostname) | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
+	if ( ! echo $HOSTNAME | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
 		notify 'err' "Setting hostname/domainname is required"
 		return 1
 	else 
-		notify 'inf' "Hostname has been set to $(hostname)"
+		notify 'inf' "Hostname has been set to $HOSTNAME"
 		return 0
 	fi
 }
@@ -344,7 +357,7 @@ function _setup_mailname() {
 	notify 'task' 'Setting up Mailname'
 
 	notify 'inf' "Creating /etc/mailname"
-	echo $(hostname -d) > /etc/mailname
+	echo $DOMAINNAME > /etc/mailname
 }
 
 function _setup_dovecot() {
@@ -429,7 +442,7 @@ function _setup_ldap() {
 			/etc/postfix/ldap-${i}.cf
 	done
 
-  notify 'inf' "Configuring dovecot LDAP authentification"
+	notify 'inf' "Configuring dovecot LDAP authentification"
 	sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
 		-e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
 		-e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
@@ -437,7 +450,7 @@ function _setup_ldap() {
 		/etc/dovecot/dovecot-ldap.conf.ext
 
 	# Add  domainname to vhost.
-	echo $(hostname -d) >> /tmp/vhost.tmp
+	echo $DOMAINNAME >> /tmp/vhost.tmp
 
 	notify 'inf' "Enabling dovecot LDAP authentification"
 	sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
@@ -571,24 +584,24 @@ function _setup_ssl() {
 	case $SSL_TYPE in
 		"letsencrypt" )
 			# letsencrypt folders and files mounted in /etc/letsencrypt
-			if [ -e "/etc/letsencrypt/live/$(hostname)/cert.pem" ] \
-			&& [ -e "/etc/letsencrypt/live/$(hostname)/fullchain.pem" ]; then
+			if [ -e "/etc/letsencrypt/live/$HOSTNAME/cert.pem" ] \
+			&& [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
 				KEY=""
-				if [ -e "/etc/letsencrypt/live/$(hostname)/privkey.pem" ]; then
+				if [ -e "/etc/letsencrypt/live/$HOSTNAME/privkey.pem" ]; then
 					KEY="privkey"
-				elif [ -e "/etc/letsencrypt/live/$(hostname)/key.pem" ]; then
+				elif [ -e "/etc/letsencrypt/live/$HOSTNAME/key.pem" ]; then
 					KEY="key"
 				fi
 				if [ -n "$KEY" ]; then
-					notify 'inf' "Adding $(hostname) SSL certificate"
+					notify 'inf' "Adding $HOSTNAME SSL certificate"
 
 					# Postfix configuration
-					sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'$(hostname)'/fullchain.pem~g' /etc/postfix/main.cf
-					sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'$(hostname)'/'"$KEY"'\.pem~g' /etc/postfix/main.cf
+					sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'$HOSTNAME'/fullchain.pem~g' /etc/postfix/main.cf
+					sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'$HOSTNAME'/'"$KEY"'\.pem~g' /etc/postfix/main.cf
 
 					# Dovecot configuration
-					sed -i -e 's~ssl_cert = </etc/dovecot/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'$(hostname)'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-					sed -i -e 's~ssl_key = </etc/dovecot/private/dovecot\.pem~ssl_key = </etc/letsencrypt/live/'$(hostname)'/'"$KEY"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+					sed -i -e 's~ssl_cert = </etc/dovecot/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'$HOSTNAME'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+					sed -i -e 's~ssl_key = </etc/dovecot/private/dovecot\.pem~ssl_key = </etc/letsencrypt/live/'$HOSTNAME'/'"$KEY"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
 					notify 'inf' "SSL configured with 'letsencrypt' certificates"
 				fi
@@ -596,18 +609,18 @@ function _setup_ssl() {
 		;;
 	"custom" )
 		# Adding CA signed SSL certificate if provided in 'postfix/ssl' folder
-		if [ -e "/tmp/docker-mailserver/ssl/$(hostname)-full.pem" ]; then
-			notify 'inf' "Adding $(hostname) SSL certificate"
+		if [ -e "/tmp/docker-mailserver/ssl/$HOSTNAME-full.pem" ]; then
+			notify 'inf' "Adding $HOSTNAME SSL certificate"
 			mkdir -p /etc/postfix/ssl
-			cp "/tmp/docker-mailserver/ssl/$(hostname)-full.pem" /etc/postfix/ssl
+			cp "/tmp/docker-mailserver/ssl/$HOSTNAME-full.pem" /etc/postfix/ssl
 
 			# Postfix configuration
-			sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'$(hostname)'-full.pem~g' /etc/postfix/main.cf
-			sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'$(hostname)'-full.pem~g' /etc/postfix/main.cf
+			sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'$HOSTNAME'-full.pem~g' /etc/postfix/main.cf
+			sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'$HOSTNAME'-full.pem~g' /etc/postfix/main.cf
 
 			# Dovecot configuration
-			sed -i -e 's~ssl_cert = </etc/dovecot/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'$(hostname)'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-			sed -i -e 's~ssl_key = </etc/dovecot/private/dovecot\.pem~ssl_key = </etc/postfix/ssl/'$(hostname)'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+			sed -i -e 's~ssl_cert = </etc/dovecot/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'$HOSTNAME'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+			sed -i -e 's~ssl_key = </etc/dovecot/private/dovecot\.pem~ssl_key = </etc/postfix/ssl/'$HOSTNAME'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
 			notify 'inf' "SSL configured with 'CA signed/custom' certificates"
 		fi
@@ -636,29 +649,29 @@ function _setup_ssl() {
 	;;
 "self-signed" )
 	# Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-	if [ -e "/tmp/docker-mailserver/ssl/$(hostname)-cert.pem" ] \
-	&& [ -e "/tmp/docker-mailserver/ssl/$(hostname)-key.pem"  ] \
-	&& [ -e "/tmp/docker-mailserver/ssl/$(hostname)-combined.pem" ] \
+	if [ -e "/tmp/docker-mailserver/ssl/$HOSTNAME-cert.pem" ] \
+	&& [ -e "/tmp/docker-mailserver/ssl/$HOSTNAME-key.pem"  ] \
+	&& [ -e "/tmp/docker-mailserver/ssl/$HOSTNAME-combined.pem" ] \
 	&& [ -e "/tmp/docker-mailserver/ssl/demoCA/cacert.pem" ]; then
-		notify 'inf' "Adding $(hostname) SSL certificate"
+		notify 'inf' "Adding $HOSTNAME SSL certificate"
 		mkdir -p /etc/postfix/ssl
-		cp "/tmp/docker-mailserver/ssl/$(hostname)-cert.pem" /etc/postfix/ssl
-		cp "/tmp/docker-mailserver/ssl/$(hostname)-key.pem" /etc/postfix/ssl
+		cp "/tmp/docker-mailserver/ssl/$HOSTNAME-cert.pem" /etc/postfix/ssl
+		cp "/tmp/docker-mailserver/ssl/$HOSTNAME-key.pem" /etc/postfix/ssl
 		# Force permission on key file
-		chmod 600 /etc/postfix/ssl/$(hostname)-key.pem
-		cp "/tmp/docker-mailserver/ssl/$(hostname)-combined.pem" /etc/postfix/ssl
+		chmod 600 /etc/postfix/ssl/$HOSTNAME-key.pem
+		cp "/tmp/docker-mailserver/ssl/$HOSTNAME-combined.pem" /etc/postfix/ssl
 		cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
 
 		# Postfix configuration
-		sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'$(hostname)'-cert.pem~g' /etc/postfix/main.cf
-		sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'$(hostname)'-key.pem~g' /etc/postfix/main.cf
+		sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'$HOSTNAME'-cert.pem~g' /etc/postfix/main.cf
+		sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'$HOSTNAME'-key.pem~g' /etc/postfix/main.cf
 		sed -i -r 's~#smtpd_tls_CAfile=~smtpd_tls_CAfile=/etc/postfix/ssl/cacert.pem~g' /etc/postfix/main.cf
 		sed -i -r 's~#smtp_tls_CAfile=~smtp_tls_CAfile=/etc/postfix/ssl/cacert.pem~g' /etc/postfix/main.cf
-		ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-$(hostname).pem"
+		ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-$HOSTNAME.pem"
 
 		# Dovecot configuration
-		sed -i -e 's~ssl_cert = </etc/dovecot/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'$(hostname)'-combined\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-		sed -i -e 's~ssl_key = </etc/dovecot/private/dovecot\.pem~ssl_key = </etc/postfix/ssl/'$(hostname)'-key\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+		sed -i -e 's~ssl_cert = </etc/dovecot/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'$HOSTNAME'-combined\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+		sed -i -e 's~ssl_key = </etc/dovecot/private/dovecot\.pem~ssl_key = </etc/postfix/ssl/'$HOSTNAME'-key\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
 		notify 'inf' "SSL configured with 'self-signed' certificates"
 	fi
@@ -919,9 +932,9 @@ function _start_daemons_fail2ban() {
 	notify 'task' 'Starting fail2ban' 'n'
 	touch /var/log/auth.log
 	# Delete fail2ban.sock that probably was left here after container restart
-  	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
-    	  rm /var/run/fail2ban/fail2ban.sock
-  	fi
+	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
+		rm /var/run/fail2ban/fail2ban.sock
+	fi
 	display_startup_daemon "/etc/init.d/fail2ban start"
 }
 
@@ -1038,7 +1051,7 @@ start_daemons
 
 notify 'taskgrp' ""
 notify 'taskgrp' "#"
-notify 'taskgrp' "# $(hostname) is up and running"
+notify 'taskgrp' "# $HOSTNAME is up and running"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
