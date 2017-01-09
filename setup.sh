@@ -118,7 +118,7 @@ case $1 in
         ;;
       update)
         shift
-        _docker_image updatemailuser
+        _docker_image updatemailuser $@
         ;;
       del)
         shift
