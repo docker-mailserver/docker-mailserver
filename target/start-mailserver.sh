@@ -864,8 +864,7 @@ function misc() {
 }
 
 function _misc_save_states() {
-	# Consolidate all state that should be persisted across container restarts into one mounted
-	# directory
+	# consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes
 	statedir=/var/mail-state
 	if [ "$ONE_DIR" = 1 -a -d $statedir ]; then
 		notify 'inf' "Consolidating all state onto $statedir"
