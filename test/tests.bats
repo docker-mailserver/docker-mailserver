@@ -920,4 +920,4 @@
   run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 6 ]
-
+}
