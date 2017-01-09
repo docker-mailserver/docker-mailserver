@@ -105,6 +105,10 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
 	fi
 
+	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
+		_register_setup_function "_setup_postfix_virtual_transport"
+	fi
+
 	################### << setup funcs
 
 	################### >> fix funcs
@@ -715,6 +719,15 @@ function _setup_docker_permit() {
 			echo $container_ip/32 >> /etc/opendkim/TrustedHosts
 			;;
 	esac
+}
+
+function _setup_postfix_virtual_transport() {
+	notify 'task' 'Setting up Postfix virtual transport'
+
+	[ -z ${POSTFIX_DAGENT} ] && \
+		echo "${POSTFIX_DAGENT} not set." && \
+		return 1
+	postconf -e "virtual_transport = ${POSTFIX_DAGENT}" 
 }
 
 function _setup_postfix_override_configuration() {

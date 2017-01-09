@@ -287,3 +287,20 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
 
 Set how many days a virusmail will stay on the server before being deleted
   - **empty** => 7 days
+
+
+##### ENABLE_POSTFIX_VIRTUAL_TRANSPORT
+
+This Option is activating the Usage of POSTFIX_DAGENT to specify a ltmp client different from default dovecot socket.
+    - **empty** => disabled
+    - 1 => enabled
+
+##### POSTFIX_DAGENT
+
+Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postfix
+    - **empty**: fail
+    - lmtp:unix:private/dovecot-lmtp (use socket)
+    - lmtps:inet:<host>:<port> (secure lmtp with starttls, take a look at https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/)
+    - lmtp:<kopano-host>:2003 (use kopano as mailstore)
+    - etc.
+
