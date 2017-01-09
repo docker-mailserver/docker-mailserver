@@ -442,7 +442,7 @@ function _setup_ldap() {
 			/etc/postfix/ldap-${i}.cf
 	done
 
-  notify 'inf' "Configuring dovecot LDAP authentification"
+	notify 'inf' "Configuring dovecot LDAP authentification"
 	sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
 		-e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
 		-e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
@@ -933,9 +933,9 @@ function _start_daemons_fail2ban() {
 	notify 'task' 'Starting fail2ban' 'n'
 	touch /var/log/auth.log
 	# Delete fail2ban.sock that probably was left here after container restart
-  	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
-    	  rm /var/run/fail2ban/fail2ban.sock
-  	fi
+	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
+		rm /var/run/fail2ban/fail2ban.sock
+	fi
 	display_startup_daemon "/etc/init.d/fail2ban start"
 }
 
