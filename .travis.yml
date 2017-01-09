@@ -5,8 +5,18 @@ language: bash
 sudo: required
 services:
 - docker
+install:
+- travis_wait make build-no-cache
 script:
-- make all
+- make generate-accounts run fixtures tests
+after_script:
+- make clean
 notifications:
   slack:
     secure: TTo1z9nbZCWcIdfPwypubNa3y+pwvfgDGlzEVAGEuK7uuIpmEoAcAUNSSPTnbewDGHnDl8t/ml93MtvP+a+IVuAKytMqF39PHyoZO7aUl9J62V+G75OmnyGjXGJm40pQosCS6LzqoRRYXotl9+fwH568Kf4ifXCrMZX1d+ir7Ww=
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/7c5e56a8257cdec003ab
+    on_success: always
+    on_failure: always
+    on_start: never

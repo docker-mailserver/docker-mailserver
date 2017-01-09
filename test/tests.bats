@@ -56,18 +56,18 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: amavis (amavis disabled by DISABLE_AMAVIS)" {
-  run docker exec mail_disabled_amavis /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
-  [ "$status" -eq 1 ]
-}
-
-@test "checking process: clamav (clamav disabled by DISABLE_CLAMAV)" {
-  run docker exec mail_disabled_clamav /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+@test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
+  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   [ "$status" -eq 1 ]
 }
 
 @test "checking process: saslauthd (saslauthd server enabled)" {
   run docker exec mail_with_ldap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking process: saslauthd (saslauthd server enabled)" {
+  run docker exec mail_with_imap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   [ "$status" -eq 0 ]
 }
 
@@ -274,6 +274,16 @@
 # spamassassin
 #
 
+@test "checking spamassassin: should be listed in amavis when enabled" {
+  run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking spamassassin: should not be listed in amavis when disabled" {
+  run docker exec mail_disabled_clamav_spamassassin /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  [ "$status" -eq 0 ]
+}
+
 @test "checking spamassassin: docker env variables are set correctly (default)" {
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   [ "$status" -eq 0 ]
@@ -290,6 +300,25 @@
   [ "$status" -eq 0 ]
   run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
   [ "$status" -eq 0 ]
+}
+
+#
+# clamav
+#
+
+@test "checking clamav: should be listed in amavis when enabled" {
+  run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  [ "$status" -eq 0 ]
+}
+
+@test "checking clamav: should not be listed in amavis when disabled" {
+  run docker exec mail_disabled_clamav_spamassassin grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+}
+
+@test "checking clamav: should not be called when disabled" {
+  run docker exec mail_disabled_clamav_spamassassin grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
 }
 
 #
@@ -402,13 +431,8 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking ssl: lets-encrypt-x1-cross-signed.pem is installed" {
-  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem
-  [ "$status" -eq 0 ]
-}
-
-@test "checking ssl: lets-encrypt-x2-cross-signed.pem is installed" {
-  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
+@test "checking ssl: lets-encrypt-x3-cross-signed.pem is installed" {
+  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
   [ "$status" -eq 0 ]
 }
 
@@ -483,7 +507,7 @@
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
-  # Create a container which will send wront authentications and should banned
+  # Create a container which will send wrong authentications and should banned
   docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
 
   docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
@@ -546,7 +570,7 @@
 }
 
 @test "checking amavis: VIRUSMAILS_DELETE_DELAY override works as expected" {
-  run docker run -ti --rm -e VIRUSMAILS_DELETE_DELAY=2 `docker inspect --format '{{ .Config.Image }}' mail` /bin/bash -c 'echo $VIRUSMAILS_DELETE_DELAY | grep 2' 
+  run docker run -ti --rm -e VIRUSMAILS_DELETE_DELAY=2 `docker inspect --format '{{ .Config.Image }}' mail` /bin/bash -c 'echo $VIRUSMAILS_DELETE_DELAY | grep 2'
   [ "$status" -eq 0 ]
 }
 
@@ -576,6 +600,8 @@
   run docker exec mail grep -i 'is not writable' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
   run docker exec mail grep -i 'permission denied' /var/log/mail/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mail grep -i '(!)connect' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
   run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
   [ "$status" -eq 1 ]
@@ -632,18 +658,59 @@
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
   docker exec mail /bin/sh -c "addmailuser user3@domain.tld mypassword"
 
-  run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
+  run docker exec mail /bin/sh -c "grep '^user3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   [ "$status" -eq 0 ]
   [ ! -z "$output" ]
 }
 
-@test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf" {
+@test "checking accounts: auser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser auser3@domain.tld mypassword"
+
+  run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
+}
+
+@test "checking accounts: a.ser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser a.ser3@domain.tld mypassword"
+
+  run docker exec mail /bin/sh -c "grep '^a\.ser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
+}
+
+@test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
   docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
 
-  run docker exec mail /bin/sh -c "grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf"
+  run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   [ "$status" -eq 1 ]
   [ -z "$output" ]
+
+  run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  [ "$status" -eq 0 ]
+  [ ! -z "$output" ]
 }
+
+@test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
+  docker exec mail /bin/sh -c "addmailuser user4@domain.tld mypassword"
+
+  initialpass=$(run docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
+  sleep 2
+  docker exec mail /bin/sh -c "updatemailuser user4@domain.tld mynewpassword"
+  sleep 2
+  changepass=$(run docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
+
+  if [ initialpass != changepass ]; then
+    status="0"
+  else
+    status="1"
+  fi
+
+  docker exec mail /bin/sh -c "delmailuser auser3@domain.tld"
+
+  [ "$status" -eq 0 ]
+}
+
 
 @test "checking accounts: listmailuser" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
@@ -663,6 +730,7 @@
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
     `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'addmailuser user3@domain.tld mypassword'
+  [ "$status" -eq 0 ]
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
     `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
@@ -729,6 +797,17 @@
 @test "checking setup.sh: setup.sh email list" {
   run ./setup.sh -c mail email list
   [ "$status" -eq 0 ]
+}
+@test "checking setup.sh: setup.sh email update" {
+	initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+	run ./setup.sh -c mail email update lorem@impsum.org consectetur
+	updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+	if [ initialpass != changepass ]; then
+      status="0"
+    else
+      status="1"
+    fi
+	[ "$status" -eq 0 ]
 }
 @test "checking setup.sh: setup.sh email del" {
   run ./setup.sh -c mail email del lorem@impsum.org
@@ -809,6 +888,27 @@
 }
 
 #
+# RIMAP
+#
+
+# dovecot
+@test "checking dovecot: ldap rimap connection and authentication works" {
+  run docker exec mail_with_imap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
+  [ "$status" -eq 0 ]
+}
+
+# saslauthd
+@test "checking saslauthd: sasl rimap authentication works" {
+  run docker exec mail_with_imap bash -c "testsaslauthd -u user1@localhost.localdomain -p mypassword"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking saslauthd: rimap smtp authentication" {
+  run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
+  [ "$status" -eq 0 ]
+}
+
+#
 # Postfix VIRTUAL_TRANSPORT
 #
 @test "checking postfix-lmtp: virtual_transport config is set" {
@@ -820,4 +920,4 @@
   run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 6 ]
-}
+
