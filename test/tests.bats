@@ -799,15 +799,15 @@
   [ "$status" -eq 0 ]
 }
 @test "checking setup.sh: setup.sh email update" {
-	initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-	run ./setup.sh -c mail email update lorem@impsum.org consectetur
-	updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-	if [ initialpass != changepass ]; then
+  initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  run ./setup.sh -c mail email update lorem@impsum.org consectetur
+  updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  if [ initialpass != changepass ]; then
       status="0"
     else
       status="1"
     fi
-	[ "$status" -eq 0 ]
+  [ "$status" -eq 0 ]
 }
 @test "checking setup.sh: setup.sh email del" {
   run ./setup.sh -c mail email del lorem@impsum.org
