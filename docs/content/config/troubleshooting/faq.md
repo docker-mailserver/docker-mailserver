@@ -79,3 +79,15 @@ If we're blind, we won't be able to do anything.
 ### Is `docker-mailserver` running in a [rancher environment](http://rancher.com/rancher/)?
 
 Yes, by Adding the Environment Variable `PERMIT_DOCKER: network`.
+
+### Common errors
+
+```
+warning: connect to Milter service inet:localhost:8893: Connection refused
+# DMARC not running
+# => /etc/init.d/opendmarc restart
+
+warning: connect to Milter service inet:localhost:8891: Connection refused
+# DKIM not running
+# => /etc/init.d/opendkim restart
+```
