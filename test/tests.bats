@@ -365,7 +365,7 @@ load 'test_helper/bats-assert/load'
     -v "$(pwd)/test/config/empty/opendkim":/etc/opendkim \
     `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
   assert_success
-  assert_output 2
+  assert_output 4
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
