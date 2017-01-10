@@ -145,7 +145,7 @@ fixtures:
 
 tests:
 	# Start tests
-	./test/bats/bats test/tests.bats
+	./test/bats/bin/bats test/tests.bats
 
 clean:
 	# Remove running test containers
