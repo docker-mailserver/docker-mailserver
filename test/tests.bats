@@ -567,7 +567,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking amavis: virusmail wiper cron exists" {
-  run docker exec mail bash -c "crontab -l | grep '/var/lib/amavis/virusmails/'"
+  run docker exec mail bash -c "crontab -l | grep '/usr/local/bin/virus-wiper'"
   assert_success
 }
 
@@ -578,7 +578,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking amavis: old virusmail is wipped by cron" {
   docker exec mail bash -c 'touch -d "`date --date=2000-01-01`" /var/lib/amavis/virusmails/should-be-deleted'
-  run docker exec -ti mail bash -c 'find /var/lib/amavis/virusmails/ -type f -mtime +$VIRUSMAILS_DELETE_DELAY -delete'
+  run docker exec -ti mail bash -c '/usr/local/bin/virus-wiper'
   assert_success
   run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-be-deleted'
   assert_failure
@@ -586,7 +586,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking amavis: recent virusmail is not wipped by cron" {
   docker exec mail bash -c 'touch -d "`date`"  /var/lib/amavis/virusmails/should-not-be-deleted'
-  run docker exec -ti mail bash -c 'find /var/lib/amavis/virusmails/ -type f -mtime +$VIRUSMAILS_DELETE_DELAY -delete'
+  run docker exec -ti mail bash -c '/usr/local/bin/virus-wiper'
   assert_success
   run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-not-be-deleted'
   assert_success
