@@ -74,7 +74,7 @@ RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
-RUN (echo "0 4 * * * /usr/local/bin/virus-wiper ; crontab -l) | crontab -
+RUN (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
