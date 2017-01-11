@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Wipping virus detected more than $VIRUSMAILS_DELETE_DELAY ago"
+find /var/lib/amavis/virusmails/ -type f -mtime +$VIRUSMAILS_DELETE_DELAY -delete

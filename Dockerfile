@@ -74,7 +74,7 @@ RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
-RUN (echo "0 4 * * * find /var/lib/amavis/virusmails/ -type f -mtime +\$VIRUSMAILS_DELETE_DELAY -delete" ; crontab -l) | crontab -
+RUN (echo "0 4 * * * /usr/local/bin/virus-wiper ; crontab -l) | crontab -
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
@@ -118,7 +118,7 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
 
 # Get LetsEncrypt signed certificate
-RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem 
+RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script
