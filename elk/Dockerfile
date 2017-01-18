@@ -21,3 +21,6 @@ RUN gosu logstash bin/logstash-plugin install --local --no-verify logstash-filte
 ADD 02-beats-input.conf /etc/logstash/conf.d/
 # override syslog
 ADD 10-syslog.conf /etc/logstash/conf.d/
+
+# avoid Bootstrap Checks failure on production
+RUN /bin/grep -q  -F 'transport.host' /etc/elasticsearch/elasticsearch.yml || echo "transport.host: 127.0.0.1" >> /etc/elasticsearch/elasticsearch.yml
