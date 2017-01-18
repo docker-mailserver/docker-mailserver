@@ -12,7 +12,7 @@ RUN curl -L https://raw.githubusercontent.com/ninech/logstash-patterns/master/pa
 RUN curl -L https://raw.githubusercontent.com/ninech/logstash-patterns/master/exmples/50-filter-dovecot.conf > /etc/logstash/conf.d/17-filter-dovecot.conf
 # FIXME: may be a cron job? 
 RUN mkdir  -p /usr/share/GeoIP && \
- curl -L http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz | gunzip -c - > /usr/share/GeoIP/GeoLiteCity.dat 
+ curl -L http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz | gunzip -c - > /usr/share/GeoIP/GeoLiteCity.dat 
 
 WORKDIR ${LOGSTASH_HOME}
 RUN gosu logstash bin/logstash-plugin install --local --no-verify logstash-filter-geoip
