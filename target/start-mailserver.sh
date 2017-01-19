@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 ##########################################################################
@@ -19,7 +18,7 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
-DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME:=false}"
+DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME:="false"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -96,6 +95,7 @@ function register_functions() {
 	_register_setup_function "_setup_docker_permit"
 
 	_register_setup_function "_setup_mailname"
+	_register_setup_function "_setup_amavis"
 
 	_register_setup_function "_setup_postfix_override_configuration"
 	_register_setup_function "_setup_postfix_sasl_password"
@@ -160,7 +160,7 @@ function register_functions() {
 		_register_start_daemon "_start_daemons_clamav"
 	fi
 
-  _register_start_daemon "_start_daemons_amavis"
+	_register_start_daemon "_start_daemons_amavis"
 	################### << daemon funcs
 }
 ##########################################################################
@@ -319,15 +319,16 @@ function check() {
 function _check_hostname() {
 	notify "task" "Check that hostname/domainname is provided or overidden (no default docker hostname/kubernetes) [$FUNCNAME]"
 
+	if [[ ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} != "false" ]]; then
+		export HOSTNAME=${DEFAULT_VARS["OVERRIDE_HOSTNAME"]}
+		export DOMAINNAME=$(echo $HOSTNAME | sed s/[^.]*.//)
+	fi
+
 	if ( ! echo $HOSTNAME | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
 		notify 'err' "Setting hostname/domainname is required"
 		return 1
 	else 
-		if [[ ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} != "false" ]]; then
-			HOSTNAME=${DEFAULT_VARS["OVERRIDE_HOSTNAME"]}
-			DOMAINNAME=$(echo $HOSTNAME | sed s/[^.]*.//)
-		fi
-
+		notify 'inf' "Domain has been set to $DOMAINNAME"
 		notify 'inf' "Hostname has been set to $HOSTNAME"
 		return 0
 	fi
@@ -369,6 +370,13 @@ function _setup_mailname() {
 
 	notify 'inf' "Creating /etc/mailname"
 	echo $DOMAINNAME > /etc/mailname
+}
+
+function _setup_amavis() {
+	notify 'task' 'Setting up Amavis'
+
+	notify 'inf' "Applying hostname to /etc/amavis/conf.d/05-node_id"
+	sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'$HOSTNAME'";/' /etc/amavis/conf.d/05-node_id
 }
 
 function _setup_dovecot() {
@@ -1018,17 +1026,8 @@ function _start_daemons_clamav() {
 function _start_daemons_amavis() {
 	notify 'task' 'Starting amavis' 'n'
 	display_startup_daemon "/etc/init.d/amavis start"
-
-	# @TODO fix: on integration test of mail_with_ldap amavis fails because of:
-	# Starting amavisd:   The value of variable $myhostname is "ldap", but should have been
-	# a fully qualified domain name; perhaps uname(3) did not provide such.
-	# You must explicitly assign a FQDN of this host to variable $myhostname
-	# in /etc/amavis/conf.d/05-node_id, or fix what uname(3) provides as a host's 
-	# network name!
-
-	# > temporary workaround to pass integration test
-	return 0
 }
+
 ##########################################################################
 # << Start Daemons
 ##########################################################################
