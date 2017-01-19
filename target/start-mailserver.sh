@@ -18,7 +18,7 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
-DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME:="false"}"
+DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -319,7 +319,7 @@ function check() {
 function _check_hostname() {
 	notify "task" "Check that hostname/domainname is provided or overidden (no default docker hostname/kubernetes) [$FUNCNAME]"
 
-	if [[ ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} != "false" ]]; then
+	if [[ ! -z ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} ]]; then
 		export HOSTNAME=${DEFAULT_VARS["OVERRIDE_HOSTNAME"]}
 		export DOMAINNAME=$(echo $HOSTNAME | sed s/[^.]*.//)
 	fi
