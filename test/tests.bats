@@ -9,6 +9,11 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking configuration: hostname/domainname override" {
+  run docker exec mail_hostoverride /bin/bash -c "cat /etc/mailname | grep my-domain.com"
+  assert_success
+}
+
 #
 # processes
 #

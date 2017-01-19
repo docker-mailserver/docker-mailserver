@@ -18,6 +18,22 @@ generate-accounts:
 
 run:
 	# Run containers
+	docker run -d --name mail_hostoverride \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-v "`pwd`/test/onedir":/var/mail-state \
+		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+		-e ENABLE_CLAMAV=1 \
+		-e ENABLE_SPAMASSASSIN=1 \
+		-e SA_TAG=1.0 \
+		-e SA_TAG2=2.0 \
+		-e SA_KILL=3.0 \
+		-e VIRUSMAILS_DELETE_DELAY=7 \
+		-e SASL_PASSWD="external-domain.com username:password" \
+		-e ENABLE_MANAGESIEVE=1 \
+		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
+		-t $(NAME)
 	docker run -d --name mail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
