@@ -15,7 +15,9 @@ Please start the mail server with env `DMS_DEBUG=1` and paste the ouput into the
     ├── target                    # Developer: default server configuration, used when building the image
     └── test                      # Developer: integration tests to check that everything keeps working
 
-#### Development Workflow
+#### Submit a Pull-Request
+
+You want to add a feature? Feel free to start creating an issue explaining what you want to do and how you're thinking doing it. Other users may have the same need and collaboration may lead to better results.
 
 The development workflow is the following:
 
@@ -24,9 +26,10 @@ The development workflow is the following:
 - Code :-)
 - Add integration tests in `test/tests.bats`
 - Use `make` to build image locally and run tests
-- Document your improvements
+- Document your improvements in `README.md` or Wiki depending on content
 - [Commit](https://help.github.com/articles/closing-issues-via-commit-messages/), push and make a pull-request
 - Pull-request is automatically tested on Travis
-- When tests are green, your branch is merged into `master`
+- When tests are green, a review may be done
+- When changed are validated, your branch is merged into `master`
 - `master` is automatically tested on Travis
 - Docker builds a new `latest` image
