@@ -1,0 +1,15 @@
+# Deny access for users. Included from 10-auth.conf.
+
+# Users can be (temporarily) disabled by adding a passdb with deny=yes.
+# If the user is found from that database, authentication will fail.
+# The deny passdb should always be specified before others, so it gets
+# checked first.
+
+# Example deny passdb using passwd-file. You can use any passdb though.
+passdb {
+  driver = passwd-file
+  deny = yes
+
+  # File contains a list of usernames, one per line
+  args = /etc/dovecot/deny-users
+}

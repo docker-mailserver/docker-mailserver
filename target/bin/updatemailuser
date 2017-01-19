@@ -1,0 +1,27 @@
+#! /bin/bash
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+
+USER="$1"
+PASSWD="$2"
+
+usage() {
+	echo "Usage: updatemailuser <user@domain.tld> [password]"
+}
+
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+
+[ -z "$USER" ] && { usage; errex "no username specified"; }
+
+grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
+	errex "User \"$USER\" does not exist"
+
+delmailuser "$USER"
+addmailuser "$USER" "$PASSWD"

@@ -2,7 +2,7 @@ version: '2'
 
 services:
   mail:
-    image: tvial/docker-mailserver:v2
+    image: tvial/docker-mailserver:2.1
     hostname: mail
     domainname: domain.com
     container_name: mail
@@ -13,12 +13,19 @@ services:
     - "993:993"
     volumes:
     - maildata:/var/mail
+    - mailstate:/var/mail-state
     - ./config/:/tmp/docker-mailserver/
     environment:
+    - ENABLE_SPAMASSASSIN=1
+    - ENABLE_CLAMAV=1
     - ENABLE_FAIL2BAN=1
+    - ONE_DIR=1
+    - DMS_DEBUG=0
     cap_add:
     - NET_ADMIN
 
 volumes:
   maildata:
+    driver: local
+  mailstate:
     driver: local

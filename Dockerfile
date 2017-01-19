@@ -47,7 +47,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
   apt-get update -q --fix-missing && apt-get -y upgrade fail2ban filebeat && \
   apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
-  rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
+  rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/* && \
+  touch /var/log/auth.log && update-locale
 
 # Enables Clamav
 RUN (echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ; crontab -l) | crontab -
@@ -73,7 +74,7 @@ RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
-RUN (echo "0 4 * * * find /var/lib/amavis/virusmails/ -type f -mtime +\$VIRUSMAILS_DELETE_DELAY -delete" ; crontab -l) | crontab -
+RUN (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
@@ -101,6 +102,7 @@ RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
+RUN echo "" > /etc/aliases
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
@@ -116,8 +118,7 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
 
 # Get LetsEncrypt signed certificate
-RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x1-cross-signed.pem && \
-  curl -s https://letsencrypt.org/certs/lets-encrypt-x2-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x2-cross-signed.pem
+RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script

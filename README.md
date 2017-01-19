@@ -20,6 +20,7 @@ Includes:
 - fetchmail
 - basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
+- persistent data and state (but think about backups!)
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
@@ -37,27 +38,39 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 Adapt this file with your FQDN. Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
+Your configs must be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look to [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
+
 ```yaml	
 version: '2'
 
 services:
   mail:
-    image: tvial/docker-mailserver:latest
-    # build: .
+    image: tvial/docker-mailserver:2.1
     hostname: mail
     domainname: domain.com
     container_name: mail
     ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
     volumes:
-      - maildata:/var/mail
-      - ./config/:/tmp/docker-mailserver/
+    - maildata:/var/mail
+    - mailstate:/var/mail-state
+    - ./config/:/tmp/docker-mailserver/
+    environment:
+    - ENABLE_SPAMASSASSIN=1
+    - ENABLE_CLAMAV=1
+    - ENABLE_FAIL2BAN=1
+    - ONE_DIR=1
+    - DMS_DEBUG=0
+    cap_add:
+    - NET_ADMIN
 
 volumes:
   maildata:
+    driver: local
+  mailstate:
     driver: local
 ```
 
@@ -81,6 +94,8 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
+Note: you can also manage email accounts, DKIM keys and more with the [setup.sh convenience script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh).
+
 #### Start the container
 
     docker-compose up -d mail
@@ -93,6 +108,44 @@ Please check [how the container starts](https://github.com/tomav/docker-mailserv
 
 Value in **bold** is the default value.
 
+##### DMS_DEBUG
+
+  - **0** => Debug disabled
+  - 1 => Enables debug on startup
+
+#### ENABLE_CLAMAV
+
+  - **0** => Clamav is disabled
+  - 1 => Clamav is enabled
+
+#### ENABLE_SPAMASSASSIN
+
+  - **0** => Spamassassin is disabled
+  - 1 => Spamassassin is enabled
+
+##### SA_TAG
+
+  - **2.0** => add spam info headers if at, or above that level
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
+##### SA_TAG2
+
+  - **6.31** => add 'spam detected' headers at that level
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
+##### SA_KILL
+
+  - **6.31** => triggers spam evasive actions
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
+##### ONE_DIR
+
+  - **0** => state in default directories
+  - 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes
+
 ##### ENABLE_POP3
 
   - **empty** => POP3 service disabled
@@ -100,7 +153,7 @@ Value in **bold** is the default value.
 
 ##### ENABLE_FAIL2BAN
 
-  - **empty** => fail2ban service disabled
+  - **0** => fail2ban service disabled
   - 1 => Enables fail2ban service
 
 If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
@@ -116,7 +169,7 @@ Otherwise, `iptables` won't be able to ban IPs.
   - 1 => Enables Managesieve on port 4190
 
 ##### ENABLE_FETCHMAIL
-  - **empty** => `fetchmail` disabled
+  - **0** => `fetchmail` disabled
   - 1 => `fetchmail` enabled
 
 ##### ENABLE_LDAP
@@ -158,21 +211,9 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => postmaster@domain.com
   - => Specify the postmaster address
 
-##### SA_TAG
-
-  - **2.0** => add spam info headers if at, or above that level
-
-##### SA_TAG2
-
-  - **6.31** => add 'spam detected' headers at that level
-
-##### SA_KILL
-
-  - **6.31** => triggers spam evasive actions
-
 ##### ENABLE_SASLAUTHD
 
-  - **empty** => `saslauthd` is disabled
+  - **0** => `saslauthd` is disabled
   - 1 => `saslauthd` is enabled
 
 ##### SASLAUTHD_MECHANISMS
@@ -251,3 +292,20 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
 
 Set how many days a virusmail will stay on the server before being deleted
   - **empty** => 7 days
+
+
+##### ENABLE_POSTFIX_VIRTUAL_TRANSPORT
+
+This Option is activating the Usage of POSTFIX_DAGENT to specify a ltmp client different from default dovecot socket.
+    - **empty** => disabled
+    - 1 => enabled
+
+##### POSTFIX_DAGENT
+
+Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postfix
+    - **empty**: fail
+    - lmtp:unix:private/dovecot-lmtp (use socket)
+    - lmtps:inet:<host>:<port> (secure lmtp with starttls, take a look at https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/)
+    - lmtp:<kopano-host>:2003 (use kopano as mailstore)
+    - etc.
+
