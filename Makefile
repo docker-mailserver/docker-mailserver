@@ -47,8 +47,9 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
-		-e PERMIT_DOCKER=network\
-		-h mail.my-domain.com -t $(NAME)
+		-e PERMIT_DOCKER=network \
+		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+		-t $(NAME)
 	sleep 15
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \

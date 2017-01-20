@@ -201,6 +201,11 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => admin
   - => Specify the password to bind against ldap
 
+##### OVERRIDE_HOSTNAE
+
+  - **empty** => uses the `hostname` command to get the mail server's canonical hostname
+  - => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.
+
 ##### POSTMASTER_ADDRESS
 
   - **empty** => postmaster@domain.com
