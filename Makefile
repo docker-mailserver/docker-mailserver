@@ -118,7 +118,7 @@ run:
 		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	sleep 30
 
 fixtures:
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
@@ -142,7 +142,7 @@ fixtures:
 	# postfix virtual transport lmtp
 	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	# Wait for mails to be analyzed
-	sleep 10
+	sleep 20
 
 tests:
 	# Start tests
