@@ -18,6 +18,7 @@ Includes:
 - opendmarc
 - fail2ban
 - fetchmail
+- postgrey
 - basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - persistent data and state (but think about backups!)
@@ -62,6 +63,7 @@ services:
     - ENABLE_SPAMASSASSIN=1
     - ENABLE_CLAMAV=1
     - ENABLE_FAIL2BAN=1
+    - ENABLE_POSTGREY=1
     - ONE_DIR=1
     - DMS_DEBUG=0
     cap_add:
@@ -215,6 +217,11 @@ Otherwise, `iptables` won't be able to ban IPs.
 
   - **0** => `saslauthd` is disabled
   - 1 => `saslauthd` is enabled
+
+#### ENABLE_POSTGREY
+
+  - **0** => `postgrey` is disabled
+  - 1 => `postgrey` is enabled
 
 ##### SASLAUTHD_MECHANISMS
 

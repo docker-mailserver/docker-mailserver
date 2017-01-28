@@ -79,6 +79,25 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# postgrey
+#
+
+@test "checking process: postgrey (disabled in default configuration)" {
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/postgrey'"
+  assert_failure
+}
+
+@test "checking postgrey: /etc/postfix/main.cf correctly edited" {
+  run docker exec mail_with_postgrey /bin/bash -c "grep 'bl.spamcop.net, check_policy_service' /etc/postfix/main.cf"
+  assert_success
+}
+
+@test "checking process: postgrey (postgrey server enabled)" {
+  run docker exec mail_with_postgrey /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/postgrey'"
+  assert_success
+}
+
+#
 # imap
 #
 

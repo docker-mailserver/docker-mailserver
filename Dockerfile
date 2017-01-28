@@ -39,6 +39,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     rsyslog \
     sasl2-bin \
     spamassassin \
+    postgrey \
     unzip \
     && \
   curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
@@ -69,6 +70,11 @@ COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/l
 
 # Enables Spamassassin CRON updates
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
+
+#Enables Postgrey
+COPY target/postgrey/postgrey /etc/default/postgrey
+COPY target/postgrey/postgrey.init /etc/init.d/postgrey
+RUN chmod 755 /etc/init.d/postgrey
 
 # Enables Amavis
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode

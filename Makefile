@@ -119,6 +119,13 @@ run:
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 30
+	docker run -d --name mail_with_postgrey \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_POSTGREY=1 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
+
 
 fixtures:
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
@@ -162,7 +169,8 @@ clean:
 		ldap_for_mail \
 		mail_with_ldap \
 		mail_with_imap \
-		mail_lmtp_ip
+		mail_lmtp_ip \
+		mail_with_postgrey
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
