@@ -51,6 +51,10 @@ Please use `STARTTLS`.
 ### How can I manage my custom Spamassassin rules?
 Antispam rules are managed in `config/spamassassin-rules.cf`.
 
+### Why are Spamassassin x-headers not inserted into my sample.domain.com subdomain emails?
+
+In the default setup, Amavis only applies Spamassassin x-headers into domains matching the template listed in the config  file 05-domain_id (in the amavis defaults). The default setup @local_domains_acl = ( ".$mydomain" ); does not match subdomains. To match subdomains, you can override the @local_domains_acl directive in the Amavis user config file 50-user with @local_domains_maps = ("."); to match any sort of domain template. 
+
 ### How can I make Spamassassin learn spam?
 
 Put received spams in `.Junk/` imap folder and add a cron like the fllowing:
