@@ -26,7 +26,7 @@ DAEMON_NAME=postgrey
 DESC="postfix greylisting daemon"
 DAEMON_USER=postgrey
 
-PIDFILE=/var/run/$DAEMON_NAME.pid
+PIDFILE=/var/run/$DAEMON_NAME/$DAEMON_NAME.pid
 SCRIPTNAME=/etc/init.d/$DAEMON_NAME
 
 # Gracefully exit if the package has been removed.

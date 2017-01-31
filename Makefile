@@ -123,8 +123,11 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_POSTGREY=1 \
+		-e POSTGREY_DELAY=15 \
+		-e POSTGREY_MAX_AGE=35 \
+		-e POSTGREY_TEXT="Delayed by postgrey" \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	sleep 20
 
 
 fixtures:

@@ -75,6 +75,8 @@ RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 COPY target/postgrey/postgrey /etc/default/postgrey
 COPY target/postgrey/postgrey.init /etc/init.d/postgrey
 RUN chmod 755 /etc/init.d/postgrey
+RUN mkdir /var/run/postgrey
+RUN chown postgrey:postgrey /var/run/postgrey
 
 # Enables Amavis
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
