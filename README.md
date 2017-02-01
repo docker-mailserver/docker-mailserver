@@ -213,15 +213,33 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => postmaster@domain.com
   - => Specify the postmaster address
 
-##### ENABLE_SASLAUTHD
-
-  - **0** => `saslauthd` is disabled
-  - 1 => `saslauthd` is enabled
-
 #### ENABLE_POSTGREY
 
   - **0** => `postgrey` is disabled
   - 1 => `postgrey` is enabled
+
+##### POSTGREY_DELAY
+
+  - **300** => greylist for N seconds
+
+Note: This postgrey setting needs `ENABLE_POSTGREY=1`
+
+##### POSTGREY_MAX_AGE
+  
+  - **35** => delete entries older than N days since the last time that they have been seen
+
+Note: This postgrey setting needs `ENABLE_POSTGREY=1`
+
+##### POSTGREY_TEXT
+  
+  - **Delayed by postgrey** => response when a mail is greylisted
+
+Note: This postgrey setting needs `ENABLE_POSTGREY=1`
+
+##### ENABLE_SASLAUTHD
+
+  - **0** => `saslauthd` is disabled
+  - 1 => `saslauthd` is enabled
 
 ##### SASLAUTHD_MECHANISMS
 
