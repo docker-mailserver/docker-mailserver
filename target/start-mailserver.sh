@@ -500,11 +500,11 @@ function _setup_saslauthd() {
 
 	notify 'inf' "Configuring Cyrus SASL"
 	# checking env vars and setting defaults
-	[ -z $SASLAUTHD_MECHANISMS ] && SASLAUTHD_MECHANISMS=pam
-	[ "$SASLAUTHD_MECHANISMS" = ldap -a -z $SASLAUTHD_LDAP_SEARCH_BASE ] && SASLAUTHD_MECHANISMS=pam
-	[ -z $SASLAUTHD_LDAP_SERVER ] && SASLAUTHD_LDAP_SERVER=localhost
-	[ -z $SASLAUTHD_LDAP_FILTER ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
-	([ -z $SASLAUTHD_LDAP_SSL ] || [ $SASLAUTHD_LDAP_SSL == 0 ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+	[ -z "$SASLAUTHD_MECHANISMS" ] && SASLAUTHD_MECHANISMS=pam
+	[ "$SASLAUTHD_MECHANISMS" = ldap -a -z "$SASLAUTHD_LDAP_SEARCH_BASE" ] && SASLAUTHD_MECHANISMS=pam
+	[ -z "$SASLAUTHD_LDAP_SERVER" ] && SASLAUTHD_LDAP_SERVER=localhost
+	[ -z "$SASLAUTHD_LDAP_FILTER" ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
+	([ -z "$SASLAUTHD_LDAP_SSL" ] || [ $SASLAUTHD_LDAP_SSL == 0 ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
 
 	if [ ! -f /etc/saslauthd.conf ]; then
 		notify 'inf' "Creating /etc/saslauthd.conf"
@@ -739,7 +739,7 @@ function _setup_docker_permit() {
 function _setup_postfix_virtual_transport() {
 	notify 'task' 'Setting up Postfix virtual transport'
 
-	[ -z ${POSTFIX_DAGENT} ] && \
+	[ -z "${POSTFIX_DAGENT}" ] && \
 		echo "${POSTFIX_DAGENT} not set." && \
 		return 1
 	postconf -e "virtual_transport = ${POSTFIX_DAGENT}" 
