@@ -14,6 +14,10 @@ DEFAULT_VARS["ENABLE_FAIL2BAN"]="${ENABLE_FAIL2BAN:="0"}"
 DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:="0"}"
 DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
+DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:="0"}"
+DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:="300"}"
+DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
+DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
@@ -90,6 +94,10 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_sasl"
 	fi
 
+	if [ "$ENABLE_POSTGREY" = 1 ];then
+		_register_setup_function "_setup_postgrey"
+	fi
+
 	_register_setup_function "_setup_dkim"
 	_register_setup_function "_setup_ssl"
 	_register_setup_function "_setup_docker_permit"
@@ -141,6 +149,12 @@ function register_functions() {
 	# needs to be started before saslauthd
 	_register_start_daemon "_start_daemons_opendkim"
 	_register_start_daemon "_start_daemons_opendmarc"
+
+	#postfix uses postgrey, needs to be started before postfix
+	if [ "$ENABLE_POSTGREY" = 1 ]; then
+		_register_start_daemon "_start_daemons_postgrey"
+	fi
+	
 	_register_start_daemon "_start_daemons_postfix"
 
 	if [ "$ENABLE_SASLAUTHD" = 1 ];then
@@ -159,6 +173,7 @@ function register_functions() {
 	if [ "$ENABLE_CLAMAV" = 1 ]; then
 		_register_start_daemon "_start_daemons_clamav"
 	fi
+
 
 	_register_start_daemon "_start_daemons_amavis"
 	################### << daemon funcs
@@ -486,6 +501,18 @@ function _setup_ldap() {
 
 	return 0
 }
+
+function _setup_postgrey() {
+	notify 'inf' "Configuring postgrey"
+	sed -i -e 's/bl.spamcop.net$/bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
+	sed -i -e "s/\"--inet=10023\"/\"--inet=10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE\"/" /etc/default/postgrey
+	TEXT_FOUND=`grep -i "POSTGREY_TEXT" /etc/default/postgrey | wc -l`
+	
+	if [ $TEXT_FOUND -eq 0 ]; then
+		printf "POSTGREY_TEXT=\"$POSTGREY_TEXT\"\n\n" >> /etc/default/postgrey
+	fi
+}
+
 
 function _setup_postfix_sasl() {
 	[ ! -f /etc/postfix/sasl/smtpd.conf ] && cat > /etc/postfix/sasl/smtpd.conf << EOF
@@ -1022,6 +1049,12 @@ function _start_daemons_clamav() {
 	notify 'task' 'Starting clamav' 'n'
 	display_startup_daemon "/etc/init.d/clamav-daemon start"
 }
+
+function _start_daemons_postgrey() {
+	notify 'task' 'Starting postgrey' 'n'
+	display_startup_daemon "/etc/init.d/postgrey start"
+}
+
 
 function _start_daemons_amavis() {
 	notify 'task' 'Starting amavis' 'n'
