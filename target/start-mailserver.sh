@@ -20,6 +20,7 @@ DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
 DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
+DEFAULT_VARS["POSTFIX_MAILBOXDOMAINS"]="${POSTFIX_MAILBOXDOMAINS:="localhost"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
@@ -110,6 +111,7 @@ function register_functions() {
 	_register_setup_function "_setup_security_stack"
 	_register_setup_function "_setup_postfix_aliases"
 	_register_setup_function "_setup_postfix_vhost"
+	_register_setup_function "_setup_postfix_mailbox_domains"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
@@ -123,7 +125,7 @@ function register_functions() {
 
 	################### >> fix funcs
 
-	_register_fix_function "_fix_var_mail_permissions"
+#	_register_fix_function "_fix_var_mail_permissions"
 
 	################### << fix funcs
 
@@ -603,6 +605,16 @@ function _setup_postfix_aliases() {
 		s/$/ regexp:\/etc\/postfix\/regexp/
 		}' /etc/postfix/main.cf
 	fi
+}
+
+function _setup_postfix_mailbox_domains(){
+	notify 'task' "Setting up Postfix vhost"
+    
+	IFS=', ' eval 'vhosts=($POSTFIX_MAILBOXDOMAINS)'
+	for i in "${vhosts[@]}"
+	do
+		echo $i >> /etc/postfix/vhost
+	done
 }
 
 function _setup_dkim() {
