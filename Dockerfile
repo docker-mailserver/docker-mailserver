@@ -129,7 +129,10 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
 # Get LetsEncrypt signed certificate
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
+RUN chown 5000:5000 /var/mail
+
 COPY ./target/bin /usr/local/bin
+
 # Start-mailserver script
 COPY ./target/start-mailserver.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
