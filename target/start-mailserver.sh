@@ -905,7 +905,7 @@ function _fix_var_mail_permissions() {
 	notify 'task' 'Fixing /var/mail permissions'
 
 	# Fix permissions, but skip this if 3 levels deep the user id is already set
-	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
+	if [ `find /var/mail/* -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
 		notify 'inf' "Fixing /var/mail permissions"
 		chown -R 5000:5000 /var/mail
 	else
@@ -917,7 +917,7 @@ function _fix_var_mail_permissions() {
 function _fix_var_amavis_permissions() {
 	notify 'task' 'Fixing /var/lib/amavis permissions'
 
-	if [ `find /var/lib/amavis -maxdepth 3 -a \( \! -user amavis -o \! -group amavis \) | grep -c .` != 0 ]; then
+	if [ `find /var/lib/amavis/* -maxdepth 3 -a \( \! -user amavis -o \! -group amavis \) | grep -c .` != 0 ]; then
 		notify 'inf' "Fixing /var/lib/amavis permissions"
 		chown -R amavis:amavis /var/lib/amavis
 	else
