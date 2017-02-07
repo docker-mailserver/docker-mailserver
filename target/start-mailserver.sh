@@ -3,7 +3,7 @@
 ##########################################################################
 # >> DEFAULT VARS
 #
-# add them here. 
+# add them here.
 # Example: DEFAULT_VARS["KEY"]="VALUE"
 ##########################################################################
 declare -A DEFAULT_VARS
@@ -44,17 +44,17 @@ DOMAINNAME="$(hostname -d)"
 ##########################################################################
 # >> REGISTER FUNCTIONS
 #
-# add your new functions/methods here. 
+# add your new functions/methods here.
 #
 # NOTE: position matters when registering a function in stacks. First in First out
-# 		Execution Logic: 
+# 		Execution Logic:
 # 			> check functions
 # 			> setup functions
 # 			> fix functions
 # 			> misc functions
 # 			> start-daemons
 #
-# Example: 
+# Example:
 # if [ CONDITION IS MET ]; then
 #   _register_{setup,fix,check,start}_{functions,daemons} "$FUNCNAME"
 # fi
@@ -124,13 +124,14 @@ function register_functions() {
 	################### >> fix funcs
 
 	_register_fix_function "_fix_var_mail_permissions"
+	_register_fix_function "_fix_var_amavis_permissions"
 
 	################### << fix funcs
 
 	################### >> misc funcs
 
 	_register_misc_function "_misc_save_states"
-	
+
 	################### << misc funcs
 
 	################### >> daemon funcs
@@ -154,7 +155,7 @@ function register_functions() {
 	if [ "$ENABLE_POSTGREY" = 1 ]; then
 		_register_start_daemon "_start_daemons_postgrey"
 	fi
-	
+
 	_register_start_daemon "_start_daemons_postfix"
 
 	if [ "$ENABLE_SASLAUTHD" = 1 ];then
@@ -293,7 +294,7 @@ function notify () {
 }
 
 function defunc() {
-	notify 'fatal' "Please fix your configuration. Exiting..." 
+	notify 'fatal' "Please fix your configuration. Exiting..."
 	exit 1
 }
 
@@ -342,7 +343,7 @@ function _check_hostname() {
 	if ( ! echo $HOSTNAME | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
 		notify 'err' "Setting hostname/domainname is required"
 		return 1
-	else 
+	else
 		notify 'inf' "Domain has been set to $DOMAINNAME"
 		notify 'inf' "Hostname has been set to $HOSTNAME"
 		return 0
@@ -507,7 +508,7 @@ function _setup_postgrey() {
 	sed -i -e 's/bl.spamcop.net$/bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
 	sed -i -e "s/\"--inet=10023\"/\"--inet=10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE\"/" /etc/default/postgrey
 	TEXT_FOUND=`grep -i "POSTGREY_TEXT" /etc/default/postgrey | wc -l`
-	
+
 	if [ $TEXT_FOUND -eq 0 ]; then
 		printf "POSTGREY_TEXT=\"$POSTGREY_TEXT\"\n\n" >> /etc/default/postgrey
 	fi
@@ -769,7 +770,7 @@ function _setup_postfix_virtual_transport() {
 	[ -z "${POSTFIX_DAGENT}" ] && \
 		echo "${POSTFIX_DAGENT} not set." && \
 		return 1
-	postconf -e "virtual_transport = ${POSTFIX_DAGENT}" 
+	postconf -e "virtual_transport = ${POSTFIX_DAGENT}"
 }
 
 function _setup_postfix_override_configuration() {
@@ -912,6 +913,19 @@ function _fix_var_mail_permissions() {
 		return 0
 	fi
 }
+
+function _fix_var_amavis_permissions() {
+	notify 'task' 'Fixing /var/lib/amavis permissions'
+
+	if [ `find /var/lib/amavis -maxdepth 3 -a \( \! -user amavis -o \! -group amavis \) | grep -c .` != 0 ]; then
+		notify 'inf' "Fixing /var/lib/amavis permissions"
+		chown -R amavis:amavis /var/lib/amavis
+	else
+		notify 'inf' "Permissions in /var/lib/amavis look OK"
+		return 0
+	fi
+}
+
 ##########################################################################
 # << Fix Stack
 ##########################################################################
@@ -970,12 +984,12 @@ function start_daemons() {
 
 function _start_daemons_cron() {
 	notify 'task' 'Starting cron' 'n'
-	display_startup_daemon "cron"	
+	display_startup_daemon "cron"
 }
 
 function _start_daemons_rsyslog() {
 	notify 'task' 'Starting rsyslog' 'n'
-	display_startup_daemon "/etc/init.d/rsyslog start"	
+	display_startup_daemon "/etc/init.d/rsyslog start"
 }
 
 function _start_daemons_saslauthd() {
@@ -1024,7 +1038,7 @@ function _start_daemons_dovecot() {
 		/usr/sbin/dovecot reload
 	fi
 
-	# @TODO fix: on integration test 
+	# @TODO fix: on integration test
 	# doveadm: Error: userdb lookup: connect(/var/run/dovecot/auth-userdb) failed: No such file or directory
 	# doveadm: Fatal: user listing failed
 
@@ -1095,7 +1109,7 @@ notify 'taskgrp' ""
 
 register_functions
 
-check 
+check
 setup
 fix
 misc
