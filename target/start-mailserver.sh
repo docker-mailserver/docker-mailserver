@@ -902,7 +902,7 @@ function fix() {
 }
 
 function _fix_var_mail_permissions() {
-	notify 'task' 'Fixing /var/mail permissions'
+	notify 'task' 'Checking /var/mail permissions'
 
 	# Fix permissions, but skip this if 3 levels deep the user id is already set
 	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
@@ -915,13 +915,20 @@ function _fix_var_mail_permissions() {
 }
 
 function _fix_var_amavis_permissions() {
-	notify 'task' 'Fixing /var/lib/amavis permissions'
-
-	if [ `find /var/lib/amavis/* -maxdepth 3 -a \( \! -user amavis -o \! -group amavis \) | grep -c .` != 0 ]; then
-		notify 'inf' "Fixing /var/lib/amavis permissions"
-		chown -R amavis:amavis /var/lib/amavis
+	if [ "$ONE_DIR" -eq 0 ]; then
+		amavis_state_dir=/var/lib/amavis
 	else
-		notify 'inf' "Permissions in /var/lib/amavis look OK"
+		amavis_state_dir=/var/mail-state/lib-amavis
+	fi
+	notify 'task' 'Checking $amavis_state_dir permissions'
+
+	amavis_permissions_status=$(find -H $amavis_state_dir -maxdepth 3 -a \( \! -user amavis -o \! -group amavis \))
+
+	if [ -n "$amavis_permissions_status" ]; then
+		notify 'inf' "Fixing $amavis_state_dir permissions"
+		chown -hR amavis:amavis $amavis_state_dir
+	else
+		notify 'inf' "Permissions in $amavis_state_dir look OK"
 		return 0
 	fi
 }
