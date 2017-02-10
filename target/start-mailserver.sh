@@ -417,8 +417,8 @@ function _setup_postfix_hostname() {
 function _setup_dovecot_hostname() {
 	notify 'task' 'Applying hostname to Dovecot'
 
-	notify 'inf' "Applying hostname to /etc/postfix/main.cf"
-	sed -e 's/^#hostname =.*$/hostname = '$HOSTNAME'/g' /etc/dovecot/conf.d/15-lda.conf
+	notify 'inf' "Applying hostname to /etc/dovecot/conf.d/15-lda.conf"
+	sed -i 's/^#hostname =.*$/hostname = '$HOSTNAME'/g' /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot() {
