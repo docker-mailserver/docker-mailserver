@@ -104,7 +104,7 @@ function register_functions() {
 
 	_register_setup_function "_setup_mailname"
 	_register_setup_function "_setup_amavis"
-	_register_setup_function "_setup_dmarc"
+	_register_setup_function "_setup_dmarc_hostname"
 	_register_setup_function "_setup_postfix_hostname"
 	_register_setup_function "_setup_dovecot_hostname"
 
@@ -398,7 +398,7 @@ function _setup_amavis() {
 	sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'$HOSTNAME'";/' /etc/amavis/conf.d/05-node_id
 }
 
-function _setup_dmarc() {
+function _setup_dmarc_hostname() {
 	notify 'task' 'Setting up dmarc'
 
 	notify 'inf' "Applying hostname to /etc/opendmarc.conf"
@@ -407,7 +407,7 @@ function _setup_dmarc() {
 }
 
 function _setup_postfix_hostname() {
-	notify 'task' 'Applying hostname and domainname to postfix/main.cf'
+	notify 'task' 'Applying hostname and domainname to Postfix'
 
 	notify 'inf' "Applying hostname to /etc/postfix/main.cf"
 	postconf -e "myhostname = $HOSTNAME"
