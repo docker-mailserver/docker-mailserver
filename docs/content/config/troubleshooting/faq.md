@@ -26,7 +26,7 @@ You should use a [data volume container](https://medium.com/@ramangupta/why-dock
 Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
 
     docker run --rm \
-    --volumes-from maildata_1 \
+    --volume dockermailserver_maildata:/var/mail \
     -v "$(pwd)":/backups \
     -ti tvial/docker-mailserver \
     tar cvzf /backups/docker-mailserver-`date +%y%m%d-%H%M%S`.tgz /var/mail
