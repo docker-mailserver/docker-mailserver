@@ -99,3 +99,20 @@ or
 And you should see the certificate chain, the server certificate and:
 
     Verify return code: 0 (ok)
+
+### Plain text access
+
+Not recommended for purposes other than testing.
+
+Just add this to config/dovecot.cf:
+
+```
+ssl = yes
+disable_plaintext_auth=no
+```
+
+These options in conjunction mean:
+
+```
+ssl=yes and disable_plaintext_auth=no: SSL/TLS is offered to the client, but the client isn't required to use it. The client is allowed to login with plaintext authentication even when SSL/TLS isn't enabled on the connection. This is insecure, because the plaintext password is exposed to the internet.
+```
