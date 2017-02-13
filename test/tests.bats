@@ -261,9 +261,9 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking smtp: delivers mail to existing account" {
-  run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
+  run docker exec mail /bin/sh -c "grep 'postfix/pipe' /var/log/mail/mail.log | grep 'status=sent (delivered via dovecot service)' | wc -l"
   assert_success
-  assert_output 6
+  assert_output 7
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -293,7 +293,7 @@ load 'test_helper/bats-assert/load'
 @test "checking smtp: user1 should have received 5 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
-  assert_output 5
+  assert_output 6
 }
 
 @test "checking smtp: rejects mail to unknown user" {
