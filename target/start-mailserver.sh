@@ -104,6 +104,9 @@ function register_functions() {
 
 	_register_setup_function "_setup_mailname"
 	_register_setup_function "_setup_amavis"
+	_register_setup_function "_setup_dmarc_hostname"
+	_register_setup_function "_setup_postfix_hostname"
+	_register_setup_function "_setup_dovecot_hostname"
 
 	_register_setup_function "_setup_postfix_override_configuration"
 	_register_setup_function "_setup_postfix_sasl_password"
@@ -393,6 +396,29 @@ function _setup_amavis() {
 
 	notify 'inf' "Applying hostname to /etc/amavis/conf.d/05-node_id"
 	sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'$HOSTNAME'";/' /etc/amavis/conf.d/05-node_id
+}
+
+function _setup_dmarc_hostname() {
+	notify 'task' 'Setting up dmarc'
+
+	notify 'inf' "Applying hostname to /etc/opendmarc.conf"
+	sed -i -e 's/^AuthservID.*$/AuthservID          '$HOSTNAME'/g' \
+	       -e 's/^TrustedAuthservIDs.*$/TrustedAuthservIDs  '$HOSTNAME'/g' /etc/opendmarc.conf
+}
+
+function _setup_postfix_hostname() {
+	notify 'task' 'Applying hostname and domainname to Postfix'
+
+	notify 'inf' "Applying hostname to /etc/postfix/main.cf"
+	postconf -e "myhostname = $HOSTNAME"
+	postconf -e "mydomain = $DOMAINNAME"
+}
+
+function _setup_dovecot_hostname() {
+	notify 'task' 'Applying hostname to Dovecot'
+
+	notify 'inf' "Applying hostname to /etc/dovecot/conf.d/15-lda.conf"
+	sed -i 's/^#hostname =.*$/hostname = '$HOSTNAME'/g' /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot() {

@@ -51,6 +51,14 @@ run:
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
 	sleep 15
+	docker run -d --name mail_override_hostname \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e PERMIT_DOCKER=network \
+		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+		-h unknown.domain.tld \
+		-t $(NAME)
+	sleep 15
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -151,6 +159,8 @@ fixtures:
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	# postfix virtual transport lmtp
 	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
+
+	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user.txt"
 	# Wait for mails to be analyzed
 	sleep 20
 
@@ -173,7 +183,8 @@ clean:
 		mail_with_ldap \
 		mail_with_imap \
 		mail_lmtp_ip \
-		mail_with_postgrey
+		mail_with_postgrey \
+		mail_override_hostname
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
