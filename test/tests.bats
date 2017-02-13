@@ -272,6 +272,12 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking smtp: delivers mail to existing alias with recipient delimiter" {
+  run docker exec mail /bin/sh -c "grep 'to=<user1+test@localhost.localdomain>, orig_to=<alias1+test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+  assert_success
+  assert_output 1
+}
+
 @test "checking smtp: delivers mail to existing catchall" {
   run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
   assert_success
