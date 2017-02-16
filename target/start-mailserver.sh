@@ -538,21 +538,18 @@ function _setup_dovecot_local_user() {
 
 function _setup_ldap() {
 	notify 'task' 'Setting up Ldap'
+	declare -A _check_arr
+
+	# cp config files if in place
 	for i in 'users' 'groups' 'aliases'; do
-		sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-			-e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-			-e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-			-e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
-			/etc/postfix/ldap-${i}.cf
+	    fpath="/tmp/docker-mailserver/postfix-ldap-${i}.cf"
+	    if [ -f $fpath ]; then
+		cp ${fpath} /etc/postfix/ldap-${i}.cf || _check_arr["cp_$fpath"]='1'
+	    fi
 	done
 
-	notify 'inf' "Configuring dovecot LDAP authentification"
-	sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-		-e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-		-e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-		-e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
-		/etc/dovecot/dovecot-ldap.conf.ext
-
+	overwrite_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/dovecot/dovecot-ldap.conf.ext"
+					  
 	# Add  domainname to vhost.
 	echo $DOMAINNAME >> /tmp/vhost.tmp
 
