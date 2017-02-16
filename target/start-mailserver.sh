@@ -315,6 +315,49 @@ function display_startup_daemon() {
 	return $res
 }
 
+function overwrite_config() {
+    echo -e "Starting do do overwrites"
+    declare -A config_overwrites
+
+    _env_variable_prefix=$1
+    [ -z ${_env_variable_prefix} ] && return 1
+
+    
+    IFS=" " read -r -a _config_files <<< $2
+
+    # dispatch env variables
+    for env_variable in $(printenv | grep $_env_variable_prefix);do
+	# get key
+	# IFS not working because values like ldap_query_filter or search base consists of several '='
+	# IFS="=" read -r -a __values <<< $env_variable
+	# key="${__values[0]}"
+	# value="${__values[1]}"
+	key=$(echo $env_variable | cut -d "=" -f1)
+	key=${key#"${_env_variable_prefix}"}
+	# make key lowercase
+	key=${key,,}
+	# get value
+	value=$(echo $env_variable | cut -d "=" -f2-)
+
+	config_overwrites[$key]=$value
+    done
+
+    for f in "${_config_files[@]}"
+    do
+	if [ ! -f "${f}" ];then
+	    echo "Can not find ${f}. Skipping overwrite" 
+	else
+	    for key in ${!config_overwrites[@]} 
+	    do
+		[ -z $key ] && echo -e "\t no key provided" && return 1
+		
+		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = "${config_overwrites[$key]}'|g' \
+		    ${f}
+	    done
+	fi
+    done
+}
+
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, except you know exactly what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
