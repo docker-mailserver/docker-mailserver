@@ -961,11 +961,11 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postfix: ldap custom config files copied" {
- run docker exec mail_with_ldap /bin/sh -c "grep "# Testconfig for ldap integration" /etc/postfix/ldap-users.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf" 
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep "# Testconfig for ldap integration" /etc/postfix/ldap-groups.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf" 
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep "# Testconfig for ldap integration" /etc/postfix/ldap-aliases.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf" 
  assert_success
 }
 
