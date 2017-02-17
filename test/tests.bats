@@ -960,6 +960,38 @@ load 'test_helper/bats-assert/load'
   assert_output "some.user@localhost.localdomain"
 }
 
+@test "checking postfix: ldap custom config files copied" {
+ run docker exec mail_with_ldap /bin/sh -c "grep "# Testconfig for ldap integration" /etc/postfix/ldap-users.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep "# Testconfig for ldap integration" /etc/postfix/ldap-groups.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep "# Testconfig for ldap integration" /etc/postfix/ldap-aliases.cf" 
+ assert_success
+}
+
+@test "checking postfix: ldap config overwrites success" {
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf" 
+ assert_success
+
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf" 
+ assert_success
+
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+}
+
 # dovecot
 @test "checking dovecot: ldap imap connection and authentication works" {
   run docker exec mail_with_ldap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt"
@@ -984,6 +1016,7 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   assert_success
 }
+
 
 #
 # RIMAP
