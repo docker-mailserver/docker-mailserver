@@ -981,7 +981,7 @@ function _fix_var_mail_permissions() {
 }
 
 function _fix_var_amavis_permissions() {
-	if [ "$ONE_DIR" -eq 0 ]; then
+	if [[ "$ONE_DIR" -eq 0 ]]; then
 		amavis_state_dir=/var/lib/amavis
 	else
 		amavis_state_dir=/var/mail-state/lib-amavis
