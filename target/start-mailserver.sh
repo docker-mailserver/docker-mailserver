@@ -315,10 +315,10 @@ function display_startup_daemon() {
 	return $res
 }
 
-function overwrite_config() {
-    notify "task" "Starting do do overwrites"
+function override_config() {
+    notify "task" "Starting do do overrides"
 
-    declare -A config_overwrites
+    declare -A config_overrides
 
     _env_variable_prefix=$1
     [ -z ${_env_variable_prefix} ] && return 1
@@ -340,19 +340,19 @@ function overwrite_config() {
 	# get value
 	value=$(echo $env_variable | cut -d "=" -f2-)
 
-	config_overwrites[$key]=$value
+	config_overrides[$key]=$value
     done
 
     for f in "${_config_files[@]}"
     do
 	if [ ! -f "${f}" ];then
-	    echo "Can not find ${f}. Skipping overwrite" 
+	    echo "Can not find ${f}. Skipping override" 
 	else
-	    for key in ${!config_overwrites[@]} 
+	    for key in ${!config_overrides[@]} 
 	    do
 		[ -z $key ] && echo -e "\t no key provided" && return 1
 		
-		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = "${config_overwrites[$key]}'|g' \
+		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = "${config_overrides[$key]}'|g' \
 		    ${f}
 	    done
 	fi
@@ -548,7 +548,7 @@ function _setup_ldap() {
 	    fi
 	done
 
-	overwrite_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/dovecot/dovecot-ldap.conf.ext"
+	override_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/dovecot/dovecot-ldap.conf.ext"
 					  
 	# Add  domainname to vhost.
 	echo $DOMAINNAME >> /tmp/vhost.tmp
