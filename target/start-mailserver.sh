@@ -538,13 +538,12 @@ function _setup_dovecot_local_user() {
 
 function _setup_ldap() {
 	notify 'task' 'Setting up Ldap'
-	declare -A _check_arr
 
 	# cp config files if in place
 	for i in 'users' 'groups' 'aliases'; do
-	    fpath="/tmp/docker-mailserver/postfix-ldap-${i}.cf"
+	    fpath="/tmp/docker-mailserver/ldap-${i}.cf"
 	    if [ -f $fpath ]; then
-		cp ${fpath} /etc/postfix/ldap-${i}.cf || _check_arr["cp_$fpath"]='1'
+		cp ${fpath} /etc/postfix/ldap-${i}.cf 
 	    fi
 	done
 
