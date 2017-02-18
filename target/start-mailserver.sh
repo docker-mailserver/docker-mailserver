@@ -316,7 +316,8 @@ function display_startup_daemon() {
 }
 
 function overwrite_config() {
-    echo -e "Starting do do overwrites"
+    notify "task" "Starting do do overwrites"
+
     declare -A config_overwrites
 
     _env_variable_prefix=$1
