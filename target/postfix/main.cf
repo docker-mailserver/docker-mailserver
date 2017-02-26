@@ -58,7 +58,7 @@ smtpd_sasl_local_domain = $myhostname
 broken_sasl_auth_clients = yes
 
 # Mail directory
-virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
+virtual_transport = dovecot
 virtual_mailbox_domains = /etc/postfix/vhost
 virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
 virtual_alias_maps = texthash:/etc/postfix/virtual
