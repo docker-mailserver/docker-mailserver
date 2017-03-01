@@ -1,1 +1,2 @@
 mail_max_userip_connections = 69
+recipient_delimiter = ~
