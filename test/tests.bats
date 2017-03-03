@@ -151,7 +151,7 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' /etc/postfix/main.cf"
   run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' /etc/postfix/main.cf"
   run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/smtpd_recipient_restrictions = /smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' /etc/postfix/main.cf"
-  
+
   run docker exec mail_with_postgrey /bin/sh -c "/etc/init.d/postfix reload"
   run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
   sleep 5 #ensure that the information has been written into the log
@@ -263,13 +263,22 @@ load 'test_helper/bats-assert/load'
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
-  assert_output 6
+  assert_output 7
 }
 
 @test "checking smtp: delivers mail to existing alias" {
   run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
   assert_success
   assert_output 1
+}
+
+@test "checking smtp: delivers mail to existing alias with recipient delimiter" {
+  run docker exec mail /bin/sh -c "grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+  assert_success
+  assert_output 1
+
+  run docker exec mail /bin/sh -c "grep 'to=<user1~test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=bounced'"
+  assert_failure
 }
 
 @test "checking smtp: delivers mail to existing catchall" {
@@ -284,10 +293,10 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
-@test "checking smtp: user1 should have received 5 mails" {
+@test "checking smtp: user1 should have received 6 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
-  assert_output 5
+  assert_output 6
 }
 
 @test "checking smtp: rejects mail to unknown user" {
