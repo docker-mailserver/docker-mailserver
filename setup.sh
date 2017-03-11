@@ -47,6 +47,11 @@ SUBCOMMANDS:
     $0 email del <email>
     $0 email list
 
+  alias:
+    $0 alias add <email> <recipient>
+    $0 alias del <email>
+    $0 alias list
+
   config:
 
     $0 config dkim
@@ -130,6 +135,27 @@ case $1 in
       *)
         _usage
         ;;
+    esac
+    ;;
+
+  alias)
+    shift
+    case $1 in
+        add)
+          shift
+          _docker_image addalias $@
+          ;;
+        del)
+          shift
+          _docker_image delalias $@
+          ;;
+        list)
+          shift
+          _docker_image listalias $@
+          ;;
+        *)
+          _usage
+          ;;
     esac
     ;;
 
