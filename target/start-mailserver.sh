@@ -20,7 +20,6 @@ DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
 DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
-DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
 ##########################################################################
@@ -121,6 +120,8 @@ function register_functions() {
 	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
+
+    _register_setup_function "_setup_environment"
 
 	################### << setup funcs
 
@@ -909,6 +910,20 @@ function _setup_elk_forwarder() {
 		| sed "s@\$ELK_PORT@$ELK_PORT@g" \
 		> /etc/filebeat/filebeat.yml
 }
+
+function _setup_environment() {
+    notify 'task' 'Setting up /etc/environment'
+
+    local banner="# docker environment"
+    local var
+    if ! grep -q "$banner" /etc/environment; then
+        echo $banner >> /etc/environment
+        for var in "VIRUSMAILS_DELETE_DELAY"; do
+            echo "$var=${!var}" >> /etc/environment
+        done
+    fi
+}
+
 ##########################################################################
 # << Setup Stack
 ##########################################################################
