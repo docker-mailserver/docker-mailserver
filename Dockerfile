@@ -1,8 +1,11 @@
 FROM ubuntu:14.04
 MAINTAINER Thomas VIAL
 
+# Ensure that package operations will not produce warnings
+ENV DEBIAN_FRONTEND noninteractive
+
 # Packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
+RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
@@ -34,6 +37,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     p7zip \
     postfix \
     postfix-ldap \
+    postfix-policyd-spf-python \
     pyzor \
     razor \
     rsyslog \
@@ -140,5 +144,3 @@ CMD /usr/local/bin/start-mailserver.sh
 
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
-
-
