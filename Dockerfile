@@ -1,12 +1,12 @@
 FROM ubuntu:14.04
 MAINTAINER Thomas VIAL
 
-# Default values
-ENV VIRUSMAILS_DELETE_DELAY=7 \
-    ONE_DIR=0
+ENV DEBIAN_FRONTEND noninteractive
+ENV VIRUSMAILS_DELETE_DELAY=7
+ENV ONE_DIR=0
 
 # Packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
+RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
@@ -38,6 +38,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
     p7zip \
     postfix \
     postfix-ldap \
+    postfix-policyd-spf-python \
     pyzor \
     razor \
     rsyslog \
@@ -144,5 +145,3 @@ CMD /usr/local/bin/start-mailserver.sh
 
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
-
-
