@@ -49,7 +49,7 @@ SUBCOMMANDS:
 
   alias:
     $0 alias add <email> <recipient>
-    $0 alias del <email>
+    $0 alias del <email> <recipient>
     $0 alias list
 
   config:
