@@ -1,8 +1,9 @@
 FROM ubuntu:14.04
 MAINTAINER Thomas VIAL
 
-# Ensure that package operations will not produce warnings
 ENV DEBIAN_FRONTEND noninteractive
+ENV VIRUSMAILS_DELETE_DELAY=7
+ENV ONE_DIR=0
 
 # Packages
 RUN apt-get update -q --fix-missing && \
