@@ -1,6 +1,10 @@
 FROM ubuntu:14.04
 MAINTAINER Thomas VIAL
 
+# Default values
+ENV VIRUSMAILS_DELETE_DELAY=7 \
+    ONE_DIR=0
+
 # Packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
