@@ -42,7 +42,7 @@ Adapt this file with your FQDN. Install [docker-compose](https://docs.docker.com
 
 Your configs must be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look to [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
 
-`restart: always` ensures that the mail server container (and ELK container when using docker-compose.elk.yml.dist) is automatically restarted by docker in cases like a docker service or host restart or unintentional container exit.
+`restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
 ```yaml	
 version: '2'
