@@ -21,6 +21,7 @@ services:
     - ENABLE_ELK_FORWARDER=1
     cap_add:
     - NET_ADMIN
+    restart: always
   elk:
      build: elk
      ports:
@@ -28,6 +29,7 @@ services:
      - "9200:9200"
      - "5044:5044"
      - "5000:5000"
+     restart: always
 
 volumes:
   maildata:
