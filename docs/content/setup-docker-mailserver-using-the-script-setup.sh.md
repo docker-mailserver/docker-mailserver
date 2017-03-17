@@ -3,6 +3,10 @@ The latest version of the script `setup.sh` is included in the `docker-mailserve
 ```
 wget -q -O setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 ```
+if you use curl:
+```
+curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
+```
 
 Run `./setup.sh` without arguments and you get some usage informations.
 
