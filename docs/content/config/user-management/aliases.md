@@ -24,3 +24,9 @@ Additional regexp aliases can be configured by placing them into `config/postfix
 ```
 /^test[0-9][0-9]*@example.com/ qa@example.com
 ```
+
+### Address tags as an alternative
+
+Postfix supports address tags - i.e. address+tag@example.com will end up at address@example.com. This is configured by default and the (configurable) separator is set to `+`.
+
+For more info, see [How to use Address Tagging (user+tag@example.com) with Postfix](https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/).
