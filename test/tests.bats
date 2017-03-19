@@ -132,7 +132,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postgrey: /etc/default/postgrey correctly edited and has the default values" {
-  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=10023 --delay=15 --max-age=35\"$' /etc/default/postgrey | wc -l"
+  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=127.0.0.1:10023 --delay=15 --max-age=35\"$' /etc/default/postgrey | wc -l"
   assert_success
   assert_output 1
   run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_TEXT=\"Delayed by postgrey\"$' /etc/default/postgrey | wc -l"
@@ -165,6 +165,14 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
   sleep 8
   run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=triplet found.*user@external\.tld' /var/log/mail/mail.log | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking postgrey: there should be a log entry about the whitelisted and passed e-mail user@whitelist.tld in /var/log/mail/mail.log" {
+  run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt"
+  sleep 8
+  run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
   assert_success
   assert_output 1
 }
@@ -323,6 +331,19 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking smtp_only: mail send should work" {
+  run docker exec mail_smtponly /bin/sh -c "postconf -e smtp_host_lookup=no"
+  assert_success
+  run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
+  assert_success
+  run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
+  assert_success
+  run docker exec mail_smtponly /bin/sh -c 'grep -E "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
+  assert_success
+}
+  
+
+
 #
 # accounts
 #
@@ -344,6 +365,11 @@ load 'test_helper/bats-assert/load'
   run docker exec mail /bin/bash -c "ls -A /var/mail/otherdomain.tld/user2 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
   assert_success
   assert_output 7
+}
+
+@test "checking accounts: comments are not parsed" {
+  run docker exec mail /bin/bash -c "ls /var/mail | grep 'comment'"
+  assert_failure
 }
 
 #
@@ -921,6 +947,28 @@ load 'test_helper/bats-assert/load'
   assert_success
   run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
   [ -z "$value" ]
+}
+
+# alias
+@test "checking setup.sh: setup.sh alias list" {
+  echo "test@example.org test@forward.com" > ./config/postfix-virtual.cf
+  run ./setup.sh -c mail alias list
+  assert_success
+}
+@test "checking setup.sh: setup.sh alias add" {
+  echo "" > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias add test1@example.org test1@forward.com
+  ./setup.sh -c mail alias add test1@example.org test2@forward.com
+
+  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com, test2@forward.com," | wc -l | grep 1'
+  assert_success
+}
+@test "checking setup.sh: setup.sh alias del" {
+  echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  ./setup.sh -c mail alias del test1@example.org test2@forward.com
+  run cat ./config/postfix-virtual.cf | wc -l | grep 0
+  assert_success
 }
 
 # config

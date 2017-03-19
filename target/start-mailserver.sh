@@ -90,7 +90,6 @@ function register_functions() {
 
 	if [ "$ENABLE_SASLAUTHD" = 1 ];then
 		_register_setup_function "_setup_saslauthd"
-		_register_setup_function "_setup_postfix_sasl"
 	fi
 
 	if [ "$ENABLE_POSTGREY" = 1 ];then
@@ -107,6 +106,7 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_hostname"
 	_register_setup_function "_setup_dovecot_hostname"
 
+	_register_setup_function "_setup_postfix_sasl"
 	_register_setup_function "_setup_postfix_override_configuration"
 	_register_setup_function "_setup_postfix_sasl_password"
 	_register_setup_function "_setup_security_stack"
@@ -543,11 +543,21 @@ function _setup_postgrey() {
 
 
 function _setup_postfix_sasl() {
+    if [[ ${ENABLE_SASLAUTHD} == 1 ]];then
 	[ ! -f /etc/postfix/sasl/smtpd.conf ] && cat > /etc/postfix/sasl/smtpd.conf << EOF
 pwcheck_method: saslauthd
 mech_list: plain login
 EOF
-	return 0
+    fi
+
+    # cyrus sasl or dovecot sasl
+    if [[ ${ENABLE_SASLAUTHD} == 1 ]] || [[ ${SMTP_ONLY} == 0 ]];then
+	sed -i -e 's|^smtpd_sasl_auth_enable[[:space:]]\+.*|smtpd_sasl_auth_enable = yes|g' /etc/postfix/main.cf
+    else 
+	sed -i -e 's|^smtpd_sasl_auth_enable[[:space:]]\+.*|smtpd_sasl_auth_enable = no|g' /etc/postfix/main.cf
+    fi
+
+    return 0
 }
 
 function _setup_saslauthd() {
