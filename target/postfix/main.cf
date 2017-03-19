@@ -13,6 +13,7 @@ mydestination =
 relayhost =
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64
 mailbox_size_limit = 0
+message_size_limit = 40960000
 recipient_delimiter = +
 inet_interfaces = all
 inet_protocols = all
