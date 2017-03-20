@@ -109,7 +109,7 @@ You're done!
 
 ## Environment variables
 
-Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh) to understand what's expected.
+Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh) to understand what's expected. Also if an option doesn't work as documented here, check if you are running the latest image!
 
 Value in **bold** is the default value.
 
