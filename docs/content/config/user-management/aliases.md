@@ -30,3 +30,8 @@ Additional regexp aliases can be configured by placing them into `config/postfix
 Postfix supports address tags - i.e. address+tag@example.com will end up at address@example.com. This is configured by default and the (configurable) separator is set to `+`.
 
 For more info, see [How to use Address Tagging (user+tag@example.com) with Postfix](https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/).
+
+Note that if you do decide to change the configurable separator, you must add the same line to *both* `config/postfix-main.cf` and `config/dovecot.cf`, because Dovecot is acting as the delivery agent. For example, to switch to `-`, add 
+```
+recipient_delimiter = -
+```
