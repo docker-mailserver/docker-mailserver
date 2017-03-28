@@ -463,7 +463,7 @@ function _setup_dovecot_local_user() {
 
 		# Creating users
 		# 'pass' is encrypted
-		while IFS=$'|' read login pass
+		grep "^[a-z]" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
 		do
 			# Setting variables for better readability
 			user=$(echo ${login} | cut -d @ -f1)
@@ -488,7 +488,7 @@ function _setup_dovecot_local_user() {
 			# Copy user provided sieve file, if present
 			test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
 			echo ${domain} >> /tmp/vhost.tmp
-		done < /tmp/docker-mailserver/postfix-accounts.cf
+		done
 	else
 		notify 'warn' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 	fi
@@ -805,7 +805,10 @@ function _setup_postfix_override_configuration() {
 
 	if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
 		while read line; do
+		# line should start with a letter (avoid comments and new lines)
+		if [[ "$line" =~ ^[a-z] ]]; then
 			postconf -e "$line"
+		fi
 		done < /tmp/docker-mailserver/postfix-main.cf
 		notify 'inf' "Loaded 'config/postfix-main.cf'"
 	else

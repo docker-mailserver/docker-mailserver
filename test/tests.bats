@@ -346,6 +346,11 @@ load 'test_helper/bats-assert/load'
   assert_output 7
 }
 
+@test "checking accounts: comments are not parsed" {
+  run docker exec mail /bin/bash -c "ls /var/mail | grep 'comment'"
+  assert_failure
+}
+
 #
 # postfix
 #
