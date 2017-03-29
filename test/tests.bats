@@ -263,7 +263,7 @@ load 'test_helper/bats-assert/load'
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
-  assert_output 7
+  assert_output 8
 }
 
 @test "checking smtp: delivers mail to existing alias" {

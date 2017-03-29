@@ -12,7 +12,7 @@ use strict;
 #   see /usr/share/doc/amavisd-new/examples/amavisd.conf-default for
 #       a list of all variables with their defaults;
 #   see /usr/share/doc/amavisd-new/examples/amavisd.conf-sample for
-#       a traditional-style commented file  
+#       a traditional-style commented file
 #   [note: the above files were not converted to Debian settings!]
 #
 #   for more details see documentation in /usr/share/doc/amavisd-new
@@ -33,9 +33,9 @@ $enable_global_cache = 1;    # enable use of libdb-based cache if $enable_db=1
 $inet_socket_port = 10024;   # default listening socket
 
 $sa_spam_subject_tag = '***SPAM*** ';
-$sa_tag_level_deflt = 1.0;  # add spam info headers if at, or above that level
-$sa_tag2_level_deflt = 2.0; # add 'spam detected' headers at that level
-$sa_kill_level_deflt = 3.0; # triggers spam evasive actions
+$sa_tag_level_deflt = 2.0;  # add spam info headers if at, or above that level
+$sa_tag2_level_deflt = 6.31; # add 'spam detected' headers at that level
+$sa_kill_level_deflt = 6.31; # triggers spam evasive actions
 $sa_dsn_cutoff_level = 10;   # spam level beyond which a DSN is not sent
 
 $sa_mail_body_size_limit = 200*1024; # don't waste time on SA if mail is larger
@@ -167,7 +167,7 @@ $banned_filename_re = new_RE(
 #  read_hash("/var/amavis/sender_scores_sitewide"),
 
 # This are some examples for whitelists, since envelope senders can be forged
-# they are not enabled by default. 
+# they are not enabled by default.
    { # a hash-type lookup table (associative array)
      #'nobody@cert.org'                        => -3.0,
      #'cert-advisory@us-cert.gov'              => -3.0,
