@@ -1,0 +1,23 @@
+#
+# =============================================================================
+# This is a template for the plain text part of an auto response (e.g.
+# vacation, out-of-office), see RFC 3834.
+#
+From: %f
+Date: %d
+To: [? %#T |undisclosed-recipients:;|[%T|, ]]
+[? %#C |#|Cc: [%C|, ]]
+Reply-To: postmaster@%h
+Message-ID: <ARE%i@%h>
+Auto-Submitted: auto-replied
+[:wrap|76||\t|Subject: Auto: autoresponse to: %s]
+[? %m  |#|In-Reply-To: %m]
+Precedence: junk
+
+This is an auto-response to a message \
+[? %a |\nreceived on %d,|received from\nIP address \[%a\] on %d,]
+envelope sender: %s
+(author)   From: [:rfc2822_from]
+[? %j |#|[:wrap|78||  |Subject: %j]]
+[?[:dkim|author]|#|
+A first-party DKIM or DomainKeys signature is valid, d=[:dkim|author].]

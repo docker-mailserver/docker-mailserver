@@ -77,7 +77,7 @@ COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/l
 # Enables Spamassassin CRON updates
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 
-#Enables Postgrey
+# Enables Postgrey
 COPY target/postgrey/postgrey /etc/default/postgrey
 COPY target/postgrey/postgrey.init /etc/init.d/postgrey
 RUN chmod 755 /etc/init.d/postgrey
@@ -85,7 +85,6 @@ RUN mkdir /var/run/postgrey
 RUN chown postgrey:postgrey /var/run/postgrey
 
 # Enables Amavis
-RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
 RUN (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -

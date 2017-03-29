@@ -1,0 +1,47 @@
+use strict;
+
+# ADMINISTRATORS:
+# Debian suggests that any changes you need to do that should never
+# be "updated" by the Debian package should be made in another file,
+# overriding the settings in this file.
+#
+# The package will *not* overwrite your settings, but by keeping
+# them separate, you will make the task of merging changes on these
+# configuration files much simpler...
+
+#   see /usr/share/doc/amavisd-new/examples/amavisd.conf-default for
+#       a list of all variables with their defaults;
+#   see /usr/share/doc/amavisd-new/examples/amavisd.conf-sample for
+#       a traditional-style commented file  
+#   [note: the above files were not converted to Debian settings!]
+#
+#   for more details see documentation in /usr/share/doc/amavisd-new
+#   and at http://www.ijs.si/software/amavisd/amavisd-new-docs.html
+
+
+# SETTINGS RARELY MODIFIED BY THE LOCAL ADMIN
+
+$ENV{PATH} = $path = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin';
+$file   = 'file';
+$gzip   = 'gzip';
+$bzip2  = 'bzip2';
+$lzop   = 'lzop';
+$rpm2cpio   = ['rpm2cpio.pl','rpm2cpio'];
+$cabextract = 'cabextract';
+$uncompress = ['uncompress', 'gzip -d', 'zcat'];
+#$unfreeze   = ['unfreeze', 'freeze -d', 'melt', 'fcat']; #disabled (non-free, no security support)
+$unfreeze = undef; 
+$arc        = ['nomarch', 'arc'];
+$unarj      = ['arj', 'unarj'];
+#$unrar      = ['rar', 'unrar']; #disabled (non-free, no security support)
+$unrar      = ['unrar-free']; 
+$zoo    = 'zoo';
+$lha    = 'lha';
+$lha	= undef;
+$pax    = 'pax';
+$cpio   = 'cpio';
+$ar     = 'ar';
+$ripole = 'ripole';
+$dspam  = 'dspam';
+
+1;  # ensure a defined return

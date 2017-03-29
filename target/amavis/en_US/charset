@@ -1,0 +1,4 @@
+# This is charset for en_US messages.
+# If you are creating new messages, use 'iconv -l' to get possible encodings.
+ascii   # or iso-8859-1
+ignored lines after first one

@@ -1,0 +1,37 @@
+#
+# =============================================================================
+# This is a template for the plain text part of a problem/feedback report,
+# with either the original message included in-line, or attached,
+# or the message is structured as a FEEDBACK REPORT NOTIFICATIONS format.
+# See RFC 5965 - "An Extensible Format for Email Feedback Reports".
+#
+From: %f
+Date: %d
+Subject: Fw: %j
+To: [? %#T |undisclosed-recipients:;|[%T|, ]]
+[? %#C |#|Cc: [%C|, ]]
+Message-ID: <ARF%i@%h>
+#Auto-Submitted: auto-generated
+
+This is an e-mail [:feedback_type] report for a message \
+[? %a |\nreceived on %d,|received from\nIP address [:client_addr_port] on %d,]
+
+[:wrap|78||  |Return-Path: %s]
+[:wrap|78||  |From: [:header_field|From][?[:dkim|author]|| (dkim:AUTHOR)]]
+[? [:header_field|Sender]|#|[:wrap|78||  |Sender: [:header_field|Sender]]]
+[? %m |#|[:wrap|78||  |Message-ID: %m]]
+[? %r |#|[:wrap|78||  |Resent-Message-ID: %r]]
+[? %j |#|[:wrap|78||  |Subject: [:header_field|Subject|100]]]
+[?[:dkim|author]|#|
+A first-party DKIM or DomainKeys signature is valid, d=[:dkim|author].]
+
+Reporting-MTA: %h
+Our internal reference code for the message is %n/%i
+
+[~[:report_format]|["^(arf|attach|dsn)$"]|["\
+A complete original message is attached.
+[~[:report_format]|["^arf$"]|\
+For more information on the ARF format please see RFC 5965.
+]"]|["\
+A complete original message in its pristine form follows:
+"]]#

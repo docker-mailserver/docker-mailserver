@@ -1,0 +1,19 @@
+use strict;
+
+#
+# These are Ubuntu specific defaults for amavisd-new configuration
+#
+# DOMAIN KEYS IDENTIFIED MAIL (DKIM)
+$enable_dkim_verification = 1;
+# Don't be verbose about sending mail:
+@whitelist_sender_acl = qw( .$mydomain );
+$final_virus_destiny      = D_DISCARD; # (defaults to D_BOUNCE)
+$final_banned_destiny     = D_DISCARD;  # (defaults to D_BOUNCE)
+$final_spam_destiny       = D_DISCARD;  # (defaults to D_REJECT)
+$final_bad_header_destiny = D_PASS;  # (defaults to D_PASS), D_BOUNCE suggested
+
+$virus_admin = undef;
+$spam_admin = undef;
+
+#------------ Do not modify anything below this line -------------
+1;  # insure a defined return

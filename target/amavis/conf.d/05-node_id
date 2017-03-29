@@ -1,0 +1,13 @@
+use strict;
+
+# $myhostname is used by amavisd-new for node identification, and it is
+# important to get it right (e.g. for ESMTP EHLO, loop detection, and so on).
+
+chomp($myhostname = `hostname --fqdn`);
+
+# To manually set $myhostname, edit the following line with the correct Fully
+# Qualified Domain Name (FQDN) and remove the # at the beginning of the line.
+#
+$myhostname = "mail.my-domain.com";
+
+1;  # ensure a defined return

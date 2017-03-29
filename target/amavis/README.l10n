@@ -1,0 +1,21 @@
+$Id: README.l10n 742 2005-12-26 17:15:22Z hmh $
+
+First of all, read /usr/share/doc/amavisd-new/README.customize.gz
+
+Amavisd-new is UTF8-aware, and it will do character-set conversion when dealing
+with DSN templates.  The full unicode codespace is available, if used with the
+proper encodings... and you have to use the proper encodings if you don't want
+your DSNs to be flagged as more charset-challenged SPAM by other systems.
+
+ALWAYS respect the charset when adding l10n files.
+
+Amavisd-new does charset conversion twice: one when reading the text files with
+localized templates (to internal perl UTF8), and another when writing the email
+notification (from internal perl UTF8 to $hdr_encoding and $bdy_encoding).
+
+Headers will be RFC2047-encoded if they have any codepoints not allowed by
+RFC2822 after the charset conversions.  The body text charset encoding is
+inserted in the proper MIME header.
+
+More details are available in /usr/share/doc/amavisd-new/RELEASE_NOTES.gz
+

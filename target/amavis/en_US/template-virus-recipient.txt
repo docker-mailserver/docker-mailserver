@@ -1,0 +1,46 @@
+#
+# =============================================================================
+# This is a template for VIRUS/BANNED/BAD-HEADER RECIPIENTS NOTIFICATIONS.
+# For syntax and customization instructions see README.customize.
+# Long header fields will be automatically wrapped by the program.
+#
+From: %f
+Date: %d
+Subject: [? [:ccat|major] |Clean mail|Clean mail|MTA-blocked mail|\
+OVERSIZED mail|INVALID HEADER in mail|Spammy|Spam|UNCHECKED contents in mail|\
+BANNED contents (%F) in mail|VIRUS (%V) in mail] TO YOU from %s
+[? [:header_field|To] |To: undisclosed-recipients:;|To: [:header_field|To]]
+[? [:header_field|Cc] |#|Cc: [:header_field|Cc]]
+Message-ID: <VR%i@%h>
+
+[? %#V |[? %#F ||BANNED CONTENTS ALERT]|VIRUS ALERT]
+
+Our content checker found
+[? %#V |#|[:wrap|78|    |  |[?%#V|viruses|virus|viruses]: %V]]
+[? %#F |#|[:wrap|78|    |  |banned [?%#F|names|name|names]: %F]]
+[? %#X |#|[[:wrap|78|    |  |%X]\n]]
+
+in an email to you [? %#V |from:|from probably faked sender:]
+  %o
+[? %#V |#|claiming to be: %s]
+
+Content type: [:ccat|name|main]#
+[? [:ccat|is_blocked_by_nonmain] ||, blocked for [:ccat|name]]
+Our internal reference code for your message is %n/%i
+
+[? %a |#|[:wrap|78||  |First upstream SMTP client IP address: \[%a\] %g]]
+[? %e |#|[:wrap|78||  |According to a 'Received:' trace,\
+ the message apparently originated at: \[%e\], %t]]
+
+[:wrap|78||  |Return-Path: %s[?[:dkim|envsender]|| (OK)]]
+[:wrap|78||  |From: [:header_field|From][?[:dkim|author]|| (dkim:AUTHOR)]]
+[? [:header_field|Sender]|#|\
+[:wrap|78||  |Sender: [:header_field|Sender]\
+[?[:dkim|sender]|| (dkim:SENDER)]]]
+[? %m |#|[:wrap|78||  |Message-ID: %m]]
+[? %r |#|[:wrap|78||  |Resent-Message-ID: %r]]
+[? [:useragent] |#|[:wrap|78||  |[:useragent]]]
+[? %j |#|[:wrap|78||  |Subject: %j]]
+[? %q |Not quarantined.|The message has been quarantined as: %q]
+
+Please contact your system administrator for details.

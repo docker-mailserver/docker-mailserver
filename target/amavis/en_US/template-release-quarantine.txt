@@ -1,0 +1,45 @@
+#
+# =============================================================================
+# This is a template for the plain text part of a RELEASE FROM A QUARANTINE,
+# applicable if a chosen release format is 'attach' (not 'resend').
+#
+From: %f
+Date: %d
+Subject: \[released message\] %j
+To: [? %#T |undisclosed-recipients:;|[%T|, ]]
+[? %#C |#|Cc: [%C|, ]]
+Message-ID: <QRA%i@%h>
+
+Please find attached a message which was held in a quarantine,
+and has now been released.
+
+[:wrap|78||  |Return-Path: %s[?[:dkim|envsender]|| (OK)]]
+[:wrap|78||  |From: [:header_field|From][?[:dkim|author]|| (dkim:AUTHOR)]]
+[? [:header_field|Sender]|#|\
+[:wrap|78||  |Sender: [:header_field|Sender]\
+[?[:dkim|sender]|| (dkim:SENDER)]]]
+# [? %m |#|[:wrap|78||  |Message-ID: %m]]
+# [? %r |#|[:wrap|78||  |Resent-Message-ID: %r]]
+# [? [:useragent] |#|[:wrap|78||  |[:useragent]]]
+[? %j |#|[:wrap|78||  |Subject: %j]]
+
+Our internal reference code for the message is %n/%i
+#
+[~[:report_format]|["^attach$"]|["[? [:attachment_password] |#|
+
+Contents of the attached mail message may pose a threat to your computer or
+could be a social engineering deception, so it should be handled cautiously.
+To prevent undesired automatic opening, the attached original mail message
+has been wrapped in a password-protected ZIP archive.
+
+Here is the password that allows opening of the attached archive:
+
+  [:attachment_password]
+
+Note that the attachment is not strongly encrypted and the password
+is not a strong secret (being displayed in this non-encrypted text),
+so this attachment is not suitable for guarding a secret contents.
+The sole purpose of this password protection it to prevent undesired
+accidental or automatic opening of a message, either by some filtering
+software, a virus scanner, or by a mail reader.
+]"]|]#

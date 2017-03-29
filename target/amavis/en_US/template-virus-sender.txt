@@ -1,0 +1,91 @@
+#
+# =============================================================================
+# This is a template for VIRUS/BANNED SENDER NOTIFICATIONS.
+# For syntax and customization instructions see README.customize.
+# The From, To and Date header fields will be provided automatically.
+# Long header fields will be automatically wrapped by the program.
+#
+Subject: [? [:ccat|major]
+|Clean message from you\
+|Clean message from you\
+|Clean message from you (MTA blocked)\
+|OVERSIZED message from you\
+|BAD-HEADER in message from you\
+|Spam claiming to be from you\
+|Spam claiming to be from you\
+|A message with UNCHECKED contents from you\
+|BANNED contents from you (%F)\
+|VIRUS in message apparently from you (%V)\
+]
+[? %m  |#|In-Reply-To: %m]
+Message-ID: <VS%i@%h>
+
+[? [:ccat|major] |Clean|Clean|MTA-BLOCKED|OVERSIZED|INVALID HEADER|\
+Spammy|Spam|UNCHECKED contents|BANNED CONTENTS ALERT|VIRUS ALERT]
+
+Our content checker found
+[? %#V |#|[:wrap|78|    |  |[? %#V |viruses|virus|viruses]: %V]]
+[? %#F |#|[:wrap|78|    |  |banned [? %#F |names|name|names]: %F]]
+[? %#X |#|[[:wrap|78|    |  |%X]\n]]
+
+in email presumably from you %s
+to the following [? %#R |recipients|recipient|recipients]:[
+-> %R]
+
+Our internal reference code for your message is %n/%i
+
+[? %a |#|[:wrap|78||  |First upstream SMTP client IP address: \[%a\] %g]]
+[? %e |#|[:wrap|78||  |According to a 'Received:' trace,\
+ the message apparently originated at: \[%e\], %t]]
+
+[:wrap|78||  |Return-Path: %s[?[:dkim|envsender]|| (OK)]]
+[:wrap|78||  |From: [:header_field|From|100][?[:dkim|author]|| (dkim:AUTHOR)]]
+[? [:header_field|Sender]|#|\
+[:wrap|78||  |Sender: [:header_field|Sender|100]\
+[?[:dkim|sender]|| (dkim:SENDER)]]]
+[? %m |#|[:wrap|78||  |Message-ID: %m]]
+[? %r |#|[:wrap|78||  |Resent-Message-ID: %r]]
+[? %j |#|[:wrap|78||  |Subject: [:header_field|Subject|100]]]
+
+[? %#D |Delivery of the email was stopped!
+
+]#
+[? %#V ||Please check your system for viruses,
+or ask your system administrator to do so.
+
+]#
+[? %#V |[? %#F ||#
+The message [?%#D|has been blocked|triggered this warning] because it contains a component
+(as a MIME part or nested within) with declared name
+or MIME type or contents type violating our access policy.
+
+To transfer contents that may be considered risky or unwanted
+by site policies, or simply too large for mailing, please consider
+publishing your content on the web, and only sending an URL of the
+document to the recipient.
+
+Depending on the recipient and sender site policies, with a little
+effort it might still be possible to send any contents (including
+viruses) using one of the following methods:
+
+- encrypted using pgp, gpg or other encryption methods;
+
+- wrapped in a password-protected or scrambled container or archive
+  (e.g.: zip -e, arj -g, arc g, rar -p, or other methods)
+
+Note that if the contents is not intended to be secret, the
+encryption key or password may be included in the same message
+for recipient's convenience.
+
+We are sorry for inconvenience if the contents was not malicious.
+
+The purpose of these restrictions is to cut the most common propagation
+methods used by viruses and other malware. These often exploit automatic
+mechanisms and security holes in more popular mail readers (Microsoft
+mail readers and browsers are a common target). By requiring an explicit
+and decisive action from the recipient to decode mail, the danger of
+automatic malware propagation is largely reduced.
+#
+# Details of our mail restrictions policy are available at ...
+
+]]#

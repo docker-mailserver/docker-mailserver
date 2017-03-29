@@ -1,0 +1,54 @@
+#
+# =============================================================================
+# This is a template for non-spam (e.g. VIRUS,...) ADMINISTRATOR NOTIFICATIONS.
+# For syntax and customization instructions see README.customize.
+# Long header fields will be automatically wrapped by the program.
+#
+From: %f
+Date: %d
+Subject: [? [:ccat|major] |Clean mail|Clean mail|MTA-blocked mail|\
+OVERSIZED mail|INVALID HEADER in mail|Spammy|Spam|UNCHECKED contents in mail|\
+BANNED contents (%F) in mail|VIRUS (%V) in mail]\
+ FROM [?%l||LOCAL ][?%a||[:client_addr_port] ]%s
+To: [? %#T |undisclosed-recipients:;|[%T|, ]]
+[? %#C |#|Cc: [%C|, ]]
+Message-ID: <VA%i@%h>
+
+[? %#V |No viruses were found.
+|A virus was found: %V
+|Two viruses were found:\n  %V
+|%#V viruses were found:\n  %V
+]
+[? %#F |#|[:wrap|78||  |Banned [?%#F|names|name|names]: %F]]
+[? %#X |#|Bad header:[\n[:wrap|78|  |  |%X]]]
+[? %#W |#\
+|Scanner detecting a virus: %W
+|Scanners detecting a virus: %W
+]
+Content type: [:ccat|name|main]#
+[? [:ccat|is_blocked_by_nonmain] ||, blocked for [:ccat|name]]
+Internal reference code for the message is %n/%i
+
+[? %a |#|[:wrap|78||  |First upstream SMTP client IP address: \[%a\] %g]]
+[? %e |#|[:wrap|78||  |According to a 'Received:' trace,\
+ the message apparently originated at: \[%e\], %t]]
+
+[:wrap|78||  |Return-Path: %s[?[:dkim|envsender]|| (OK)]]
+[:wrap|78||  |From: [:header_field|From][?[:dkim|author]|| (dkim:AUTHOR)]]
+[? [:header_field|Sender]|#|\
+[:wrap|78||  |Sender: [:header_field|Sender]\
+[?[:dkim|sender]|| (dkim:SENDER)]]]
+[? %m |#|[:wrap|78||  |Message-ID: %m]]
+[? %r |#|[:wrap|78||  |Resent-Message-ID: %r]]
+[? %j |#|[:wrap|78||  |Subject: %j]]
+[? %q |Not quarantined.|The message has been quarantined as: %q]
+
+[? %#S |Notification to sender will not be mailed.
+
+]#
+[? %#D |#|The message WILL BE relayed to:[\n%D]
+]
+[? %#N |#|The message WAS NOT relayed to:[\n%N]
+]
+[? %#V |#|[? %#v |#|Virus scanner output:[\n  %v]
+]]
