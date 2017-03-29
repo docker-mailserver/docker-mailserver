@@ -169,6 +169,14 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking postgrey: there should be a log entry about the whitelisted and passed e-mail user@whitelist.tld in /var/log/mail/mail.log" {
+  run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt"
+  sleep 8
+  run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
+  assert_success
+  assert_output 1
+}
+
 #
 # imap
 #
