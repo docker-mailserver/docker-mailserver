@@ -463,7 +463,8 @@ function _setup_dovecot_local_user() {
 
 		# Creating users
 		# 'pass' is encrypted
-		grep "^[a-z]" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
+		# comments and empty lines are ignored
+		grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
 		do
 			# Setting variables for better readability
 			user=$(echo ${login} | cut -d @ -f1)
@@ -805,7 +806,8 @@ function _setup_postfix_override_configuration() {
 
 	if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
 		while read line; do
-		# line should start with a letter (avoid comments and new lines)
+		# all valid postfix options start with a lower case letter
+		# http://www.postfix.org/postconf.5.html
 		if [[ "$line" =~ ^[a-z] ]]; then
 			postconf -e "$line"
 		fi
