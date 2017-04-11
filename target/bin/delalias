@@ -24,7 +24,7 @@ escape() {
 CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')
 
 if [[ $CNT -eq 2 ]]; then
-        sed -i '' "/^$EMAIL/d" $DATABASE
+        sed -i "/^$EMAIL/d" $DATABASE
     else
-        sed -i '' "/^$EMAIL/s/ $RECIPIENT,//g" $DATABASE
+        sed -i "/^$EMAIL/s/ $RECIPIENT,//g" $DATABASE
 fi
