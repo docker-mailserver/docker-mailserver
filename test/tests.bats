@@ -132,7 +132,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postgrey: /etc/default/postgrey correctly edited and has the default values" {
-  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=10023 --delay=15 --max-age=35\"$' /etc/default/postgrey | wc -l"
+  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=127.0.0.1:10023 --delay=15 --max-age=35\"$' /etc/default/postgrey | wc -l"
   assert_success
   assert_output 1
   run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_TEXT=\"Delayed by postgrey\"$' /etc/default/postgrey | wc -l"
