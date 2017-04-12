@@ -534,7 +534,7 @@ function _setup_ldap() {
 function _setup_postgrey() {
 	notify 'inf' "Configuring postgrey"
 	sed -i -e 's/bl.spamcop.net$/bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
-	sed -i -e "s/\"--inet=10023\"/\"--inet=10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE\"/" /etc/default/postgrey
+	sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE\"/" /etc/default/postgrey
 	TEXT_FOUND=`grep -i "POSTGREY_TEXT" /etc/default/postgrey | wc -l`
 
 	if [ $TEXT_FOUND -eq 0 ]; then
