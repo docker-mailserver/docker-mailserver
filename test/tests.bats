@@ -916,6 +916,8 @@ load 'test_helper/bats-assert/load'
     fi
   assert_success
 }
+
+# alias
 @test "checking setup.sh: setup.sh email del" {
   run ./setup.sh -c mail email del lorem@impsum.org
   assert_success
@@ -928,30 +930,30 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 @test "checking setup.sh: setup.sh alias add" {
-    run rm ./config/postfix-virtual.cf
+  run rm ./config/postfix-virtual.cf
   run ./setup.sh -c mail alias add test1@example.org test1@forward.com
   assert_success
   run ./setup.sh -c mail alias add test1@example.org test2@forward.com
   assert_success
-  run ./setup.sh -c mail alias list
-  assert_output --partial "test1@example.org test1@forward.com, test2@forward.com,"
+  value=$(cat ./config/postfix-virtual.cf)
+  [ "$value" == "test1@example.org test1@forward.com, test2@forward.com," ]
 }
 @test "checking setup.sh: setup.sh alias del" {
-    run rm ./config/postfix-virtual.cf
-  run ./setup.sh -c mail alias add test1@example.org test1@forward.com
-  run ./setup.sh -c mail alias add test1@example.org test2@forward.com
+  rm ./config/postfix-virtual.cf
+  echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
   run ./setup.sh -c mail alias del test1@example.org test1@forward.com
   assert_success
-  run ./setup.sh -c mail alias list
-  assert_output --partial "test1@example.org test2@forward.com,"
-
+  value=$(cat ./config/postfix-virtual.cf)
+  [ "$value" == "test1@example.org test2@forward.com," ]
+}
+@test "checking setup.sh: setup.sh alias del (last alias)" {
   run ./setup.sh -c mail alias del test1@example.org test2@forward.com
+  assert_success
   run ./setup.sh -c mail alias del test1@example.org test1@forward.com
   assert_success
   run ./setup.sh -c mail alias list
   assert_output --partial "Empty postfix-virtual.cf"
 }
-
 
 # config
 @test "checking setup.sh: setup.sh config dkim" {
