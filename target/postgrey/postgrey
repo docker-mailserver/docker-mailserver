@@ -2,5 +2,5 @@
 #   --delay=N   how long to greylist, seconds (default: 300)
 #   --max-age=N delete old entries after N days (default: 35)
 
-POSTGREY_OPTS="--inet=10023"
+POSTGREY_OPTS="--inet=127.0.0.1:10023"
 
