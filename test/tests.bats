@@ -771,6 +771,12 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking sieve: user1 should have pipe 1 email to /tmp/" {
+  run docker exec mail /bin/sh -c "ls -A /tmp/pipe-test.out | wc -l"
+  assert_success
+  assert_output 1
+}
+
 #
 # accounts
 #
