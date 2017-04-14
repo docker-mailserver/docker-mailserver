@@ -444,13 +444,13 @@ function _setup_dovecot() {
 	# Copy pipe and filter programs, if any
 	rm -f /usr/lib/dovecot/sieve-filter/*
 	rm -f /usr/lib/dovecot/sieve-pipe/*
-	if [ -d /tmp/docker-mailserver/sieve-filter ]
+	if [ -d /tmp/docker-mailserver/sieve-filter ]; then
 		cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
-		chmod 555 /usr/lib/dovecot/sieve-filter/*
+		chmod 511 /usr/lib/dovecot/sieve-filter/*
         fi
-	if [ -d /tmp/docker-mailserver/sieve-pipe ]
+	if [ -d /tmp/docker-mailserver/sieve-pipe ]; then
 		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
-		chmod 555 /usr/lib/dovecot/sieve-pipe/*
+		chmod 511 /usr/lib/dovecot/sieve-pipe/*
         fi
 }
 
