@@ -447,11 +447,11 @@ function _setup_dovecot() {
 	if [ -d /tmp/docker-mailserver/sieve-filter ]; then
 		cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
 		chmod 511 /usr/lib/dovecot/sieve-filter/*
-        fi
+  fi
 	if [ -d /tmp/docker-mailserver/sieve-pipe ]; then
 		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
 		chmod 511 /usr/lib/dovecot/sieve-pipe/*
-        fi
+  fi
 }
 
 function _setup_dovecot_local_user() {
