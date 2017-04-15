@@ -56,7 +56,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		-h unknown.domain.tld \
+		-h mail.my-domain.com \
 		-t $(NAME)
 	sleep 15
 	docker run -d --name mail_fail2ban \

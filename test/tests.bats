@@ -15,7 +15,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
-  run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
+  run docker exec mail_override_hostname /bin/bash -c "hostname | grep mail.my-domain.com"
   assert_success
 }
 
