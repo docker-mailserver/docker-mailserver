@@ -23,6 +23,7 @@ The development workflow is the following:
 
 - Fork project and clone your fork
 - Create a branch using `git checkout -b branch_name` (you can use `issue-xxx` if fixing an existing issue)
+- Run `git submodule init` and `git submodule update` to get the BATS submodules
 - Code :-)
 - Add integration tests in `test/tests.bats`
 - Use `make` to build image locally and run tests
