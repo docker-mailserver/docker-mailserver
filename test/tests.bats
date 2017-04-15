@@ -916,43 +916,33 @@ load 'test_helper/bats-assert/load'
     fi
   assert_success
 }
-
-# alias
 @test "checking setup.sh: setup.sh email del" {
   run ./setup.sh -c mail email del lorem@impsum.org
   assert_success
   run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
   [ -z "$value" ]
 }
+
+# alias
 @test "checking setup.sh: setup.sh alias list" {
-  run rm ./config/postfix-virtual.cf
+  echo "test@example.org test@forward.com" > ./config/postfix-virtual.cf
   run ./setup.sh -c mail alias list
-  assert_failure
+  assert_success
 }
 @test "checking setup.sh: setup.sh alias add" {
-  run rm ./config/postfix-virtual.cf
-  run ./setup.sh -c mail alias add test1@example.org test1@forward.com
+  echo "" > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias add test1@example.org test1@forward.com
+  ./setup.sh -c mail alias add test1@example.org test2@forward.com
+
+  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com, test2@forward.com," | wc -l | grep 1'
   assert_success
-  run ./setup.sh -c mail alias add test1@example.org test2@forward.com
-  assert_success
-  value=$(cat ./config/postfix-virtual.cf)
-  [ "$value" == "test1@example.org test1@forward.com, test2@forward.com," ]
 }
 @test "checking setup.sh: setup.sh alias del" {
-  rm ./config/postfix-virtual.cf
   echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
-  run ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  ./setup.sh -c mail alias del test1@example.org test2@forward.com
+  run cat ./config/postfix-virtual.cf | wc -l | grep 0
   assert_success
-  value=$(cat ./config/postfix-virtual.cf)
-  [ "$value" == "test1@example.org test2@forward.com," ]
-}
-@test "checking setup.sh: setup.sh alias del (last alias)" {
-  run ./setup.sh -c mail alias del test1@example.org test2@forward.com
-  assert_success
-  run ./setup.sh -c mail alias del test1@example.org test1@forward.com
-  assert_success
-  run ./setup.sh -c mail alias list
-  assert_output --partial "Empty postfix-virtual.cf"
 }
 
 # config
