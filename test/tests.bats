@@ -936,6 +936,28 @@ load 'test_helper/bats-assert/load'
   [ -z "$value" ]
 }
 
+# alias
+@test "checking setup.sh: setup.sh alias list" {
+  echo "test@example.org test@forward.com" > ./config/postfix-virtual.cf
+  run ./setup.sh -c mail alias list
+  assert_success
+}
+@test "checking setup.sh: setup.sh alias add" {
+  echo "" > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias add test1@example.org test1@forward.com
+  ./setup.sh -c mail alias add test1@example.org test2@forward.com
+
+  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com, test2@forward.com," | wc -l | grep 1'
+  assert_success
+}
+@test "checking setup.sh: setup.sh alias del" {
+  echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  ./setup.sh -c mail alias del test1@example.org test2@forward.com
+  run cat ./config/postfix-virtual.cf | wc -l | grep 0
+  assert_success
+}
+
 # config
 @test "checking setup.sh: setup.sh config dkim" {
   run ./setup.sh -c mail config dkim

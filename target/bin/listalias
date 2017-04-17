@@ -1,0 +1,13 @@
+#! /bin/bash
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
+
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+[ -f $DATABASE ] || errex "No postfix-virtual.cf file"
+[ -s $DATABASE ] || errex "Empty postfix-virtual.cf - no aliases have been added"
+
+cat $DATABASE
