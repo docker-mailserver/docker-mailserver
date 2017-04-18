@@ -860,7 +860,7 @@ function _setup_security_stack() {
 	notify 'task' "Setting up Security Stack"
 
 	# recreate auto-generated file
-	dms_amavis_file="/etc/amavis/conf.d/51-dms_auto_generated"
+	dms_amavis_file="/etc/amavis/conf.d/61-dms_auto_generated"
   echo "# WARNING: this file is auto-generated." > $dms_amavis_file
 	echo "use strict;" >> $dms_amavis_file
 
