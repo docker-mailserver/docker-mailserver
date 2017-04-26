@@ -316,6 +316,50 @@ function display_startup_daemon() {
 	return $res
 }
 
+function override_config() {
+    notify "task" "Starting do do overrides"
+
+    declare -A config_overrides
+
+    _env_variable_prefix=$1
+    [ -z ${_env_variable_prefix} ] && return 1
+
+    
+    IFS=" " read -r -a _config_files <<< $2
+
+    # dispatch env variables
+    for env_variable in $(printenv | grep $_env_variable_prefix);do
+	# get key
+	# IFS not working because values like ldap_query_filter or search base consists of several '='
+	# IFS="=" read -r -a __values <<< $env_variable
+	# key="${__values[0]}"
+	# value="${__values[1]}"
+	key=$(echo $env_variable | cut -d "=" -f1)
+	key=${key#"${_env_variable_prefix}"}
+	# make key lowercase
+	key=${key,,}
+	# get value
+	value=$(echo $env_variable | cut -d "=" -f2-)
+
+	config_overrides[$key]=$value
+    done
+
+    for f in "${_config_files[@]}"
+    do
+	if [ ! -f "${f}" ];then
+	    echo "Can not find ${f}. Skipping override" 
+	else
+	    for key in ${!config_overrides[@]} 
+	    do
+		[ -z $key ] && echo -e "\t no key provided" && return 1
+		
+		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = "${config_overrides[$key]}'|g' \
+		    ${f}
+	    done
+	fi
+    done
+}
+
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, except you know exactly what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -497,21 +541,27 @@ function _setup_dovecot_local_user() {
 
 function _setup_ldap() {
 	notify 'task' 'Setting up Ldap'
+
+	notify 'inf' 'Checking for custom configs'
+	# cp config files if in place
 	for i in 'users' 'groups' 'aliases'; do
-		sed -i -e 's|^server_host.*|server_host = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-			-e 's|^search_base.*|search_base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-			-e 's|^bind_dn.*|bind_dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-			-e 's|^bind_pw.*|bind_pw = '${LDAP_BIND_PW:="admin"}'|g' \
-			/etc/postfix/ldap-${i}.cf
+	    fpath="/tmp/docker-mailserver/ldap-${i}.cf"
+	    if [ -f $fpath ]; then
+		cp ${fpath} /etc/postfix/ldap-${i}.cf 
+	    fi
 	done
 
+	notify 'inf' 'Starting to override configs'
+	override_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf"
+
+	# @TODO: Environment Variables for DOVECOT ldap integration to configure for better control
 	notify 'inf' "Configuring dovecot LDAP authentification"
 	sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
 		-e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
 		-e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
 		-e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
 		/etc/dovecot/dovecot-ldap.conf.ext
-
+					  
 	# Add  domainname to vhost.
 	echo $DOMAINNAME >> /tmp/vhost.tmp
 
@@ -962,7 +1012,7 @@ function _fix_var_mail_permissions() {
 }
 
 function _fix_var_amavis_permissions() {
-	if [ "$ONE_DIR" -eq 0 ]; then
+	if [[ "$ONE_DIR" -eq 0 ]]; then
 		amavis_state_dir=/var/lib/amavis
 	else
 		amavis_state_dir=/var/mail-state/lib-amavis
