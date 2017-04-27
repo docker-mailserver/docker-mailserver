@@ -15,7 +15,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
-  run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
+  run docker exec mail_override_hostname /bin/bash -c "hostname | grep mail.my-domain.com"
   assert_success
 }
 
@@ -57,7 +57,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: postfix" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/postfix/master'"
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
   assert_success
 }
 
@@ -82,12 +82,12 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking process: fail2ban (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
   assert_failure
 }
 
 @test "checking process: fail2ban (fail2ban server enabled)" {
-  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
   assert_success
 }
 
@@ -121,7 +121,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: postgrey (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/postgrey'"
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
   assert_failure
 }
 
@@ -141,7 +141,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking process: postgrey (postgrey server enabled)" {
-  run docker exec mail_with_postgrey /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/postgrey'"
+  run docker exec mail_with_postgrey /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
   assert_success
 }
 

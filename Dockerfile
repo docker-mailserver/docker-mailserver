@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Thomas VIAL
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -8,10 +8,14 @@ ENV ONE_DIR=0
 # Packages
 RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
+  apt-get -y install postfix
+RUN apt-get update -q --fix-missing && \
+  apt-get -y upgrade && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
     bzip2 \
+    ca-certificates \
     clamav \
     clamav-daemon \
     curl \
@@ -29,14 +33,15 @@ RUN apt-get update -q --fix-missing && \
     gamin \
     gzip \
     iptables \
+    locales \
     libmail-spf-perl \
     libnet-dns-perl \
     libsasl2-modules \
+    netcat-openbsd \
     opendkim \
     opendkim-tools \
     opendmarc \
     p7zip \
-    postfix \
     postfix-ldap \
     postfix-policyd-spf-python \
     pyzor \
@@ -47,8 +52,6 @@ RUN apt-get update -q --fix-missing && \
     postgrey \
     unzip \
     && \
-  curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
-  apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
   apt-get update -q --fix-missing && apt-get -y upgrade fail2ban filebeat && \
@@ -69,6 +72,7 @@ RUN sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDR
 RUN sed -i 's/#imap_idle_notify_interval = 2 mins/imap_idle_notify_interval = 29 mins/' /etc/dovecot/conf.d/20-imap.conf
 COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
+RUN cd /usr/share/dovecot && ./mkcert.sh
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
