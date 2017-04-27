@@ -11,6 +11,9 @@ RUN apt-get update -q --fix-missing && \
   apt-get -y install postfix
 RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
+  apt-get -y install postfix
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -q --fix-missing && \
+  apt-get -y upgrade && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
