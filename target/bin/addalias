@@ -1,0 +1,30 @@
+#! /bin/bash
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
+
+EMAIL="$1"
+RECIPIENT="$2"
+
+usage() {
+	echo "Usage: addalias <user@domain> <recipient@other>"
+}
+
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+
+[ -z "$EMAIL" ] && { usage; errex "no email specified"; }
+
+grep -qi "^$(escape $EMAIL)[a-zA-Z@.\ ]*$(escape $RECIPIENT)" $DATABASE 2>/dev/null &&
+	errex "Alias \"$EMAIL $RECIPIENT\" already exists"
+
+if grep -qi "^$(escape $EMAIL)" $DATABASE 2>/dev/null; then
+        sed -i "/$EMAIL/s/$/ $RECIPIENT,/" $DATABASE
+    else
+        echo "$EMAIL $RECIPIENT," >> $DATABASE
+fi

@@ -15,7 +15,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
-  run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
+  run docker exec mail_override_hostname /bin/bash -c "hostname | grep mail.my-domain.com"
   assert_success
 }
 
@@ -57,7 +57,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: postfix" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/postfix/master'"
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
   assert_success
 }
 
@@ -82,12 +82,12 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking process: fail2ban (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
   assert_failure
 }
 
 @test "checking process: fail2ban (fail2ban server enabled)" {
-  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python /usr/bin/fail2ban-server'"
+  run docker exec mail_fail2ban /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
   assert_success
 }
 
@@ -121,7 +121,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: postgrey (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/postgrey'"
+  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
   assert_failure
 }
 
@@ -141,7 +141,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking process: postgrey (postgrey server enabled)" {
-  run docker exec mail_with_postgrey /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/postgrey'"
+  run docker exec mail_with_postgrey /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
   assert_success
 }
 
@@ -331,6 +331,19 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking smtp_only: mail send should work" {
+  run docker exec mail_smtponly /bin/sh -c "postconf -e smtp_host_lookup=no"
+  assert_success
+  run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
+  assert_success
+  run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
+  assert_success
+  run docker exec mail_smtponly /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
+  [ "$status" -ge 0 ]
+}
+  
+
+
 #
 # accounts
 #
@@ -414,13 +427,21 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
-  run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 1.0'"
+  run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
   assert_success
   run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   assert_success
   run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
   assert_success
 }
+
+@test "checking spamassassin: all registered domains should see spam headers" {
+  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new"
+  assert_success
+  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/otherdomain.tld/user2/new"
+  assert_success
+}
+
 
 #
 # clamav
@@ -942,6 +963,28 @@ load 'test_helper/bats-assert/load'
   [ -z "$value" ]
 }
 
+# alias
+@test "checking setup.sh: setup.sh alias list" {
+  echo "test@example.org test@forward.com" > ./config/postfix-virtual.cf
+  run ./setup.sh -c mail alias list
+  assert_success
+}
+@test "checking setup.sh: setup.sh alias add" {
+  echo "" > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias add test1@example.org test1@forward.com
+  ./setup.sh -c mail alias add test1@example.org test2@forward.com
+
+  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com, test2@forward.com," | wc -l | grep 1'
+  assert_success
+}
+@test "checking setup.sh: setup.sh alias del" {
+  echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
+  ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  ./setup.sh -c mail alias del test1@example.org test2@forward.com
+  run cat ./config/postfix-virtual.cf | wc -l | grep 0
+  assert_success
+}
+
 # config
 @test "checking setup.sh: setup.sh config dkim" {
   run ./setup.sh -c mail config dkim
@@ -988,6 +1031,38 @@ load 'test_helper/bats-assert/load'
   assert_output "some.user@localhost.localdomain"
 }
 
+@test "checking postfix: ldap custom config files copied" {
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+}
+
+@test "checking postfix: ldap config overwrites success" {
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf" 
+ assert_success
+
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf" 
+ assert_success
+
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf" 
+ assert_success
+}
+
 # dovecot
 @test "checking dovecot: ldap imap connection and authentication works" {
   run docker exec mail_with_ldap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt"
@@ -1012,6 +1087,7 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   assert_success
 }
+
 
 #
 # RIMAP

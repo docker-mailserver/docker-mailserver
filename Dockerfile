@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Thomas VIAL
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -8,10 +8,14 @@ ENV ONE_DIR=0
 # Packages
 RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
+  apt-get -y install postfix
+RUN apt-get update -q --fix-missing && \
+  apt-get -y upgrade && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
     bzip2 \
+    ca-certificates \
     clamav \
     clamav-daemon \
     curl \
@@ -29,14 +33,15 @@ RUN apt-get update -q --fix-missing && \
     gamin \
     gzip \
     iptables \
+    locales \
     libmail-spf-perl \
     libnet-dns-perl \
     libsasl2-modules \
+    netcat-openbsd \
     opendkim \
     opendkim-tools \
     opendmarc \
     p7zip \
-    postfix \
     postfix-ldap \
     postfix-policyd-spf-python \
     pyzor \
@@ -47,8 +52,6 @@ RUN apt-get update -q --fix-missing && \
     postgrey \
     unzip \
     && \
-  curl -sk http://neuro.debian.net/lists/trusty.de-m.libre > /etc/apt/sources.list.d/neurodebian.sources.list && \
-  apt-key adv --recv-keys --keyserver hkp://pgp.mit.edu:80 0xA5D32F012649A5A9 && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
   apt-get update -q --fix-missing && apt-get -y upgrade fail2ban filebeat && \
@@ -69,6 +72,7 @@ RUN sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDR
 RUN sed -i 's/#imap_idle_notify_interval = 2 mins/imap_idle_notify_interval = 29 mins/' /etc/dovecot/conf.d/20-imap.conf
 COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
+RUN cd /usr/share/dovecot && ./mkcert.sh
 # See https://dovecot.org/list/dovecot/2014-March/095194.html
 RUN mkdir /usr/lib/dovecot/modules/sieve/
 RUN ln -s /usr/lib/dovecot/modules/lib90_sieve_extprograms_plugin.so /usr/lib/dovecot/modules/sieve
@@ -82,7 +86,7 @@ COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/l
 # Enables Spamassassin CRON updates
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
 
-#Enables Postgrey
+# Enables Postgrey
 COPY target/postgrey/postgrey /etc/default/postgrey
 COPY target/postgrey/postgrey.init /etc/init.d/postgrey
 RUN chmod 755 /etc/init.d/postgrey
@@ -91,6 +95,7 @@ RUN chown postgrey:postgrey /var/run/postgrey
 
 # Enables Amavis
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
+COPY target/amavis/conf.d/60-dms_default_config /etc/amavis/conf.d/
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
 RUN (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
