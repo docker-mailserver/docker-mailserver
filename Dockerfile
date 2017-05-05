@@ -73,9 +73,6 @@ RUN sed -i 's/#imap_idle_notify_interval = 2 mins/imap_idle_notify_interval = 29
 COPY target/dovecot/auth-passwdfile.inc /etc/dovecot/conf.d/
 COPY target/dovecot/??-*.conf /etc/dovecot/conf.d/
 RUN cd /usr/share/dovecot && ./mkcert.sh
-# See https://dovecot.org/list/dovecot/2014-March/095194.html
-RUN mkdir /usr/lib/dovecot/modules/sieve/
-RUN ln -s /usr/lib/dovecot/modules/lib90_sieve_extprograms_plugin.so /usr/lib/dovecot/modules/sieve
 RUN mkdir /usr/lib/dovecot/sieve-pipe && chmod 755 /usr/lib/dovecot/sieve-pipe
 RUN mkdir /usr/lib/dovecot/sieve-filter && chmod 755 /usr/lib/dovecot/sieve-filter
 
