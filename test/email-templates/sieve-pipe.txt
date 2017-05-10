@@ -1,0 +1,12 @@
+HELO mail.external.tld
+MAIL FROM: user@external.tld
+RCPT TO: user2@otherdomain.tld
+DATA
+From: Sieve-pipe-test <sieve.pipe@external.tld>
+To: Existing Local User <user2@otherdomain.tld>
+Date: Sat, 22 May 2010 07:43:25 -0400
+Subject: Sieve pipe test message
+This is a test mail to sieve pipe.
+
+.
+QUIT

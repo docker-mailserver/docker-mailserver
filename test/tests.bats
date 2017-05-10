@@ -271,7 +271,7 @@ load 'test_helper/bats-assert/load'
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
-  assert_output 8
+  assert_output 9
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -790,6 +790,12 @@ load 'test_helper/bats-assert/load'
 @test "checking manage sieve: disabled per default" {
   run docker exec mail_pop3 /bin/bash -c "nc -z 0.0.0.0 4190"
   assert_failure
+}
+
+@test "checking sieve: user2 should have piped 1 email to /tmp/" {
+  run docker exec mail /bin/sh -c "ls -A /tmp/pipe-test.out | wc -l"
+  assert_success
+  assert_output 1
 }
 
 #

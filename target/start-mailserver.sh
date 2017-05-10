@@ -484,6 +484,20 @@ function _setup_dovecot() {
 		notify 'inf' "Sieve management enabled"
 		mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 	fi
+
+	# Copy pipe and filter programs, if any
+	rm -f /usr/lib/dovecot/sieve-filter/*
+	rm -f /usr/lib/dovecot/sieve-pipe/*
+	if [ -d /tmp/docker-mailserver/sieve-filter ]; then
+		cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
+		chown docker:docker /usr/lib/dovecot/sieve-filter/*
+		chmod 550 /usr/lib/dovecot/sieve-filter/*
+	fi
+	if [ -d /tmp/docker-mailserver/sieve-pipe ]; then
+		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
+		chown docker:docker /usr/lib/dovecot/sieve-pipe/*
+		chmod 550 /usr/lib/dovecot/sieve-pipe/*
+	fi
 }
 
 function _setup_dovecot_local_user() {
