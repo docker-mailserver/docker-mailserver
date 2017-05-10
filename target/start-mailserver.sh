@@ -590,7 +590,9 @@ function _setup_postgrey() {
 	if [ $TEXT_FOUND -eq 0 ]; then
 		printf "POSTGREY_TEXT=\"$POSTGREY_TEXT\"\n\n" >> /etc/default/postgrey
 	fi
-	cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
+	if [ -f /tmp/docker-mailserver/whitelist_clients.local ]; then
+		cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
+	fi
 }
 
 
