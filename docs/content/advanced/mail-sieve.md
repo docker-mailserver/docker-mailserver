@@ -34,6 +34,13 @@ Just forward all incoming emails and do not save them locally:
 redirect "user2@otherdomain.tld";
 ```
 
+You can also use external programs to filter or pipe (process) messages by adding executable scripts in `config/sieve-pipe` or `config/sieve-filter`. This can be used in lieu of a local alias file, for instance to forward an email to a webservice. These programs can then be referenced by filename, by all users. Note that the process running the scripts run as a privileged user. For further information see [Dovecot's wiki](https://wiki.dovecot.org/Pigeonhole/Sieve/Plugins/Pipe).
+```
+require ["vnd.dovecot.pipe"];
+pipe "external-program";
+```
+
+
 For more examples or a detailed description of the Sieve language have a look at [the official site](http://sieve.info/examplescripts). Other resources are available on the internet where you can find several [examples](https://support.tigertech.net/sieve#sieve-example-rules-jmp).
 
 ### Manage Sieve
