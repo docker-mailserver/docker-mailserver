@@ -1,8 +1,6 @@
-#Documentation on debugging 
-
-
+..todo..  - Please contribute more to help others debug this package
 ## Invalid username or Password
-..todo..
+
 
 1. Login Container
 docker exec -it <mycontainer> bash
