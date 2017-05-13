@@ -3,10 +3,14 @@
 
 
 1. Login Container
+
+```bash
 docker exec -it <mycontainer> bash
+```
 
 2. Check log files
-/var/log/mail  
+
+`/var/log/mail`
 could not find any mention of incorrect logins here
 neither in the dovecot logs
 
