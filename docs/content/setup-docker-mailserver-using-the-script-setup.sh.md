@@ -27,6 +27,11 @@ SUBCOMMANDS:
     ./setup.sh email del <email>
     ./setup.sh email list
 
+  alias:
+    ./setup.sh alias add <email> <recipient>
+    ./setup.sh alias del <email> <recipient>
+    ./setup.sh alias list
+
   config:
 
     ./setup.sh config dkim
