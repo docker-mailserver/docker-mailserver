@@ -549,10 +549,16 @@ function _setup_dovecot_local_user() {
 			echo ${domain} >> /tmp/vhost.tmp
 		done
 	else
-		notify 'fatal' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
-		notify 'fatal' "You need at least 1 email account to start the server."
-		defunc
+		notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 	fi
+
+	if [[ ! $(grep '@' /tmp/docker-mailserver/postfix-accounts.cf | grep '|') ]]; then
+		if [ $ENABLE_LDAP -eq 0 ]; then
+			notify 'fatal' "Unless using LDAP, you need at least 1 email account to start the server."
+			defunc
+		fi
+	fi
+
 }
 
 function _setup_ldap() {
