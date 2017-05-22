@@ -549,8 +549,16 @@ function _setup_dovecot_local_user() {
 			echo ${domain} >> /tmp/vhost.tmp
 		done
 	else
-		notify 'warn' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
+		notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
 	fi
+
+	if [[ ! $(grep '@' /tmp/docker-mailserver/postfix-accounts.cf | grep '|') ]]; then
+		if [ $ENABLE_LDAP -eq 0 ]; then
+			notify 'fatal' "Unless using LDAP, you need at least 1 email account to start the server."
+			defunc
+		fi
+	fi
+
 }
 
 function _setup_ldap() {
@@ -1096,9 +1104,16 @@ function _misc_save_states() {
 				ln -s $dest $d
 			fi
 		done
+
+		notify 'inf' 'Fixing /var/mail-state/* permissions'
+		chown -R clamav /var/mail-state/lib-clamav
+		chown -R postfix /var/mail-state/lib-postfix
+		chown -R postgrey /var/mail-state/lib-postgrey
+		chown -R debian-spamd /var/mail-state/lib-spamassasin
+		chown -R postfix /var/mail-state/spool-postfix
+
 	fi
 }
-
 
 ##########################################################################
 # >> Start Daemons

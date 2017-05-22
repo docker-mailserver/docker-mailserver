@@ -744,6 +744,10 @@ load 'test_helper/bats-assert/load'
   assert_failure
   run docker exec mail grep -i '(!)connect' /var/log/mail/mail.log
   assert_failure
+  run docker exec mail grep -i 'backwards-compatible default setting chroot=y' /var/log/mail/mail.log
+  assert_failure
+  run docker exec mail grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
+  assert_failure
   run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
   assert_failure
   run docker exec mail_pop3 grep ': error:' /var/log/mail/mail.log
