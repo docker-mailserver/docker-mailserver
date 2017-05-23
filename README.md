@@ -337,3 +337,9 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
     - lmtp:<kopano-host>:2003 (use kopano as mailstore)
     - etc.
 
+##### ENABLE_LMTP_ADDRESS_EXTENSION
+
+Enable dovecot to deliver mails to specific (new) inbox folders, if separated like account+folder@domain.com.
+  - **empty** => disabled
+  - 1 => enabled
+

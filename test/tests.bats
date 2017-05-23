@@ -1128,6 +1128,12 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking postfix-lmtp-address-extension: delivers mail to existing account and inbox subfolder" {
+  run docker exec mail_lmtp_address_extension /bin/sh -c "grep -c 'dovecot: lmtp.*: saved mail to subfolder' var/log/mail/mail.log"
+  assert_success
+  assert_output 1
+}
+
 #
 # PCI compliance
 #
