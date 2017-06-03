@@ -49,6 +49,7 @@ RUN apt-get update -q --fix-missing && \
     rsyslog \
     sasl2-bin \
     spamassassin \
+    supervisor \
     postgrey \
     unzip \
     && \
@@ -120,6 +121,9 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 # Configure fetchmail
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
+
+# Configure supervisor
+COPY target/supervisor/supervisor-app.conf /etc/supervisor/conf.d/
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/

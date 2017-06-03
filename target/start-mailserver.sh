@@ -1129,17 +1129,17 @@ function start_daemons() {
 
 function _start_daemons_cron() {
 	notify 'task' 'Starting cron' 'n'
-	display_startup_daemon "cron"
+    supervisorctl start cron
 }
 
 function _start_daemons_rsyslog() {
 	notify 'task' 'Starting rsyslog' 'n'
-	display_startup_daemon "/etc/init.d/rsyslog start"
+    supervisorctl start rsyslog
 }
 
 function _start_daemons_saslauthd() {
 	notify 'task' 'Starting saslauthd' 'n'
-	display_startup_daemon "/etc/init.d/saslauthd start"
+    supervisorctl start saslauthd
 }
 
 function _start_daemons_fail2ban() {
@@ -1149,28 +1149,28 @@ function _start_daemons_fail2ban() {
 	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
 		rm /var/run/fail2ban/fail2ban.sock
 	fi
-	display_startup_daemon "/etc/init.d/fail2ban start"
+    supervisorctl start fail2ban
 }
 
 function _start_daemons_opendkim() {
 	notify 'task' 'Starting opendkim' 'n'
-	display_startup_daemon "/etc/init.d/opendkim start"
+    supervisorctl start opendkim
 }
 
 function _start_daemons_opendmarc() {
 	notify 'task' 'Starting opendmarc' 'n'
-	display_startup_daemon "/etc/init.d/opendmarc start"
+    supervisorctl start opendmarc
 }
 
 function _start_daemons_postfix() {
 	notify 'task' 'Starting postfix' 'n'
-	display_startup_daemon "/etc/init.d/postfix start"
+    supervisorctl start postfix
 }
 
 function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
 	notify 'task' 'Starting dovecot services' 'n'
-	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf"
+    supervisorctl start dovecot
 
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
@@ -1195,29 +1195,29 @@ function _start_daemons_dovecot() {
 
 function _start_daemons_filebeat() {
 	notify 'task' 'Starting filebeat' 'n'
-	display_startup_daemon "/etc/init.d/filebeat start"
+    supervisorctl start filebeat
 }
 
 function _start_daemons_fetchmail() {
 	notify 'task' 'Starting fetchmail' 'n'
 	/usr/local/bin/setup-fetchmail
-	display_startup_daemon "/etc/init.d/fetchmail start"
+    supervisorctl start fetchmail
 }
 
 function _start_daemons_clamav() {
 	notify 'task' 'Starting clamav' 'n'
-	display_startup_daemon "/etc/init.d/clamav-daemon start"
+    supervisorctl start clamav
 }
 
 function _start_daemons_postgrey() {
 	notify 'task' 'Starting postgrey' 'n'
-	display_startup_daemon "/etc/init.d/postgrey start"
+    supervisorctl start postgrey
 }
 
 
 function _start_daemons_amavis() {
 	notify 'task' 'Starting amavis' 'n'
-	display_startup_daemon "/etc/init.d/amavis start"
+    supervisorctl start amavis
 }
 
 ##########################################################################
@@ -1251,6 +1251,8 @@ notify 'taskgrp' "# docker-mailserver"
 notify 'taskgrp' "#"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
+
+supervisord
 
 register_functions
 
