@@ -472,6 +472,12 @@ load 'test_helper/bats-assert/load'
   assert_output 2
 }
 
+@test "checking opendkim: /etc/opendkim/KeyTable dummy file generated without keys provided" {
+  run docker exec mail_smtponly_without_config /bin/bash -c "cat /etc/opendkim/KeyTable"
+  assert_success
+}
+
+
 @test "checking opendkim: /etc/opendkim/keys/ should contain 2 entries" {
   run docker exec mail /bin/sh -c "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
   assert_success

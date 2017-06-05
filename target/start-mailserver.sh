@@ -734,6 +734,9 @@ function _setup_dkim() {
 		chmod -R 0700 /etc/opendkim/keys/
 	else
 		notify 'warn' "No DKIM key provided. Check the documentation to find how to get your keys."
+
+                local _f_keytable="/etc/opendkim/KeyTable"
+                [ ! -f "$_f_keytable" ] && touch "$_f_keytable"
 	fi
 }
 
