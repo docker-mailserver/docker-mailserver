@@ -1123,22 +1123,23 @@ function start_daemons() {
 }
 
 function _start_daemons_cron() {
-	notify 'task' 'Starting cron' 'n'
-    supervisorctl start cron
+	notify 'task' 'Skipping starting cron\n' 'n'
+    # cron starts automatically. I don't think this is necessary.
+    #supervisorctl start cron
 }
 
 function _start_daemons_rsyslog() {
-	notify 'task' 'Starting rsyslog' 'n'
+	notify 'task' 'Starting rsyslog ' 'n'
     supervisorctl start rsyslog
 }
 
 function _start_daemons_saslauthd() {
 	notify 'task' 'Starting saslauthd' 'n'
-    supervisorctl start saslauthd
+    display_startup_daemon "/etc/init.d/saslauthd start"
 }
 
 function _start_daemons_fail2ban() {
-	notify 'task' 'Starting fail2ban' 'n'
+	notify 'task' 'Starting fail2ban ' 'n'
 	touch /var/log/auth.log
 	# Delete fail2ban.sock that probably was left here after container restart
 	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
@@ -1148,18 +1149,18 @@ function _start_daemons_fail2ban() {
 }
 
 function _start_daemons_opendkim() {
-	notify 'task' 'Starting opendkim' 'n'
+	notify 'task' 'Starting opendkim ' 'n'
     supervisorctl start opendkim
 }
 
 function _start_daemons_opendmarc() {
-	notify 'task' 'Starting opendmarc' 'n'
+	notify 'task' 'Starting opendmarc ' 'n'
     supervisorctl start opendmarc
 }
 
 function _start_daemons_postfix() {
 	notify 'task' 'Starting postfix' 'n'
-    supervisorctl start postfix
+    display_startup_daemon "/etc/init.d/postfix start"
 }
 
 function _start_daemons_dovecot() {
@@ -1170,7 +1171,7 @@ function _start_daemons_dovecot() {
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
 		mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-		display_startup_daemon "/usr/sbin/dovecot reload"
+		/usr/sbin/dovecot reload
 	fi
 
 	if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
@@ -1196,7 +1197,7 @@ function _start_daemons_filebeat() {
 function _start_daemons_fetchmail() {
 	notify 'task' 'Starting fetchmail' 'n'
 	/usr/local/bin/setup-fetchmail
-    supervisorctl start fetchmail
+	display_startup_daemon "/etc/init.d/fetchmail start"
 }
 
 function _start_daemons_clamav() {
@@ -1248,7 +1249,7 @@ notify 'taskgrp' "#"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
-supervisord
+supervisord -c /etc/supervisor/conf.d/supervisor-app.conf
 
 register_functions
 
