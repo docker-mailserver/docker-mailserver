@@ -51,6 +51,13 @@ run:
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
 	sleep 15
+	docker run -d --name mail_smtponly_without_config \
+		-e SMTP_ONLY=1 \
+		-e ENABLE_LDAP=1 \
+		-e PERMIT_DOCKER=network \
+		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
+		-t $(NAME)
+	sleep 15
 	docker run -d --name mail_override_hostname \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -177,6 +184,7 @@ clean:
 		mail \
 		mail_pop3 \
 		mail_smtponly \
+		mail_smtponly_without_config \
 		mail_fail2ban \
 		mail_fetchmail \
 		fail-auth-mailer \
