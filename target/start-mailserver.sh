@@ -1123,9 +1123,8 @@ function start_daemons() {
 }
 
 function _start_daemons_cron() {
-	notify 'task' 'Skipping starting cron\n' 'n'
-    # cron starts automatically. I don't think this is necessary.
-    #supervisorctl start cron
+	notify 'task' 'Starting cron' 'n'
+	display_startup_daemon "cron"
 }
 
 function _start_daemons_rsyslog() {
