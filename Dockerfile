@@ -71,6 +71,7 @@ RUN echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" > /etc/cron.d/freshclam 
   chmod 644 /etc/clamav/freshclam.conf && \
   freshclam && \
   sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
+  sed -i 's/AllowSupplementaryGroups false/AllowSupplementaryGroups true/g' /etc/clamav/clamd.conf && \
   mkdir /var/run/clamav && \
   chown -R clamav:root /var/run/clamav
 
