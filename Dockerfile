@@ -8,9 +8,7 @@ ENV ONE_DIR=0
 # Packages
 RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
-  apt-get -y install postfix
-RUN apt-get update -q --fix-missing && \
-  apt-get -y upgrade && \
+  apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
