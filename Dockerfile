@@ -63,6 +63,7 @@ RUN apt-get update -q --fix-missing && \
 # Enables Clamav
 RUN (echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ; crontab -l) | crontab -
 RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
+RUN sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && mkdir /var/run/clamav && chown -R clamav:root /var/run/clamav
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
@@ -101,7 +102,7 @@ RUN (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
 COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
-RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
+RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
 USER amavis
@@ -153,7 +154,7 @@ RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
 
-CMD /usr/local/bin/start-mailserver.sh
+CMD /usr/local/bin/start-mailserver.sh > /var/log/container-startup.log
 
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
