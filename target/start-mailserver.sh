@@ -1249,7 +1249,7 @@ notify 'taskgrp' "#"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
-supervisord -c /etc/supervisor/conf.d/supervisor-app.conf
+supervisord -c /etc/supervisor/supervisord.conf
 
 register_functions
 
@@ -1265,7 +1265,7 @@ notify 'taskgrp' "# $HOSTNAME is up and running"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
-
+touch /var/log/mail/mail.log
 tail -fn 0 /var/log/mail/mail.log
 
 
