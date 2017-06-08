@@ -134,6 +134,13 @@ run:
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 30
+	docker run -d --name mail_lmtp_address_extension \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test/config/dovecot-lmtp":/etc/dovecot \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_LMTP_ADDRESS_EXTENSION=1 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 30
 	docker run -d --name mail_with_postgrey \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -169,6 +176,8 @@ fixtures:
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# postfix virtual transport lmtp
 	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+	# ltmp address extension
+	docker exec mail_lmtp_address_extension /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1-address-extension.txt"
 
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
@@ -194,6 +203,7 @@ clean:
 		mail_with_ldap \
 		mail_with_imap \
 		mail_lmtp_ip \
+		mail_lmtp_address_extension \
 		mail_with_postgrey \
 		mail_override_hostname
 

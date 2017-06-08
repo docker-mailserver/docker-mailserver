@@ -22,6 +22,7 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
+DEFAULT_VARS["ENABLE_LMTP_ADDRESS_EXTENSION"]="${ENABLE_LMTP_ADDRESS_EXTENSION:="0"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -497,6 +498,11 @@ function _setup_dovecot() {
 		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
 		chown docker:docker /usr/lib/dovecot/sieve-pipe/*
 		chmod 550 /usr/lib/dovecot/sieve-pipe/*
+	fi
+
+	if [ "$ENABLE_LMTP_ADDRESS_EXTENSION" = 1 ]; then
+		notify 'inf' "Dovecot/lmtp address extension enabled"
+		sed -i -e 's/#lmtp_save_to_detail_mailbox = no/lmtp_save_to_detail_mailbox = yes/g' /etc/dovecot/conf.d/20-lmtp.conf
 	fi
 }
 
