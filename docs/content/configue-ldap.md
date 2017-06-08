@@ -46,6 +46,7 @@ services:
       - LDAP_SEARCH_BASE=dc=mydomain,dc=loc
       - LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
       - LDAP_BIND_PW=mypassword
+      - LDAP_QUERY_FILTER=(&(sAMAccountName=%U)(objectClass=person))
       # <<< Postfix Ldap Integration
       # >>> Kopano Integration
       - ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
