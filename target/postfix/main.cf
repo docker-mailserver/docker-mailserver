@@ -63,6 +63,9 @@ virtual_mailbox_domains = /etc/postfix/vhost
 virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
 virtual_alias_maps = texthash:/etc/postfix/virtual
 
+# Increase the default attachment size limit (10MB) to 25MB
+message_size_limit = 26214400
+
 # Additional option for filtering
 content_filter = smtp-amavis:[127.0.0.1]:10024
 
