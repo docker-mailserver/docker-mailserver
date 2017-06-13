@@ -391,6 +391,11 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking postfix: master.cf overrides" {
+  run docker exec mail grep -q 'submission/inet/smtpd_sasl_security_options=noanonymous' /tmp/docker-mailserver/postfix-master.cf
+  assert_success
+}
+
 #
 # dovecot
 #
