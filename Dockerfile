@@ -154,7 +154,7 @@ RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
 
-CMD /usr/local/bin/start-mailserver.sh > /var/log/container-startup.log
+CMD /usr/local/bin/start-mailserver.sh | tee /var/log/container-startup.log
 
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
