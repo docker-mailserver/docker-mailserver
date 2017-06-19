@@ -7,7 +7,7 @@ Example:
     user2@otherdomain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
 
 In the previous example, we added 2 mail accounts for 2 different domains.
-This is will automagically configure the mail-server as multi-domain.
+This is will automagically configure the mail-server as multi-domains.
 
 To generate a new mail account entry in your configuration, you could run for example the following:
 
