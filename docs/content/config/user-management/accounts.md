@@ -1,4 +1,4 @@
-Users are managed in `config/postfix-accounts.cf`.
+Users (email accounts) are managed in `config/postfix-accounts.cf`.
 Just add the full email address and its encrypted password separated by a pipe.
 
 Example:
@@ -6,7 +6,10 @@ Example:
     user1@domain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
     user2@otherdomain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
 
-To generate the password you could run for example the following:
+In the previous example, we added 2 mail accounts for 2 different domains.
+This is will automagically configure the mail-server as multi-domain.
+
+To generate a new mail account entry in your configuration, you could run for example the following:
 
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
