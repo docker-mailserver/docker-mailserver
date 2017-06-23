@@ -429,6 +429,8 @@ load 'test_helper/bats-assert/load'
   assert_success
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   assert_success
+  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .\*\*\*SPAM\*\*\* .'"
+  assert_success
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
@@ -437,6 +439,8 @@ load 'test_helper/bats-assert/load'
   run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   assert_success
   run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
+  assert_success
+  run docker exec mail /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
   assert_success
 }
 

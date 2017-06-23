@@ -146,6 +146,12 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
+##### SA_SPAM_SUBJECT
+
+  - **\*\*\*SPAM\*\*\*** => add tag to subject if spam detected
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
 ##### ONE_DIR
 
   - **0** => state in default directories
@@ -336,4 +342,3 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
     - lmtps:inet:<host>:<port> (secure lmtp with starttls, take a look at https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/)
     - lmtp:<kopano-host>:2003 (use kopano as mailstore)
     - etc.
-
