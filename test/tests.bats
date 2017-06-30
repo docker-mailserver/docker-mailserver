@@ -1097,7 +1097,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking dovecot: ldap config overwrites success" {
-  run docker exec mail_with_ldap /bin/sh -c "grep 'hosts = ldap-host' /etc/dovecot/dovecot-ldap.conf.ext"
+  run docker exec mail_with_ldap /bin/sh -c "grep 'hosts = ldap' /etc/dovecot/dovecot-ldap.conf.ext"
   assert_success
   run docker exec mail_with_ldap /bin/sh -c "grep 'base = ou=people,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext"
   assert_success
