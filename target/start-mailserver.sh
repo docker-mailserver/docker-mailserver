@@ -353,7 +353,7 @@ function override_config() {
 	    do
 		[ -z $key ] && echo -e "\t no key provided" && return 1
 
-		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = ${config_overrides[$key]//&/\\&}|g" \
+		sed -i -e "s|^${key}[[:space:]]\+.*|g${key} = ${config_overrides[$key]//&/\\&}|g" \
 		    ${f}
 	    done
 	fi
@@ -912,6 +912,16 @@ function _setup_postfix_override_configuration() {
 		notify 'inf' "Loaded 'config/postfix-main.cf'"
 	else
 		notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
+	fi
+	if [ -f /tmp/docker-mailserver/postfix-master.cf ]; then
+		while read line; do
+		if [[ "$line" =~ ^[a-z] ]]; then
+			postconf -P "$line"
+		fi
+		done < /tmp/docker-mailserver/postfix-master.cf
+		notify 'inf' "Loaded 'config/postfix-master.cf'"
+	else
+		notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided."
 	fi
 }
 
