@@ -317,47 +317,47 @@ function display_startup_daemon() {
 }
 
 function override_config() {
-    notify "task" "Starting do do overrides"
+	notify "task" "Starting do do overrides"
 
-    declare -A config_overrides
+	declare -A config_overrides
 
-    _env_variable_prefix=$1
-    [ -z ${_env_variable_prefix} ] && return 1
+	_env_variable_prefix=$1
+	[ -z ${_env_variable_prefix} ] && return 1
 
 
-    IFS=" " read -r -a _config_files <<< $2
+	IFS=" " read -r -a _config_files <<< $2
 
-    # dispatch env variables
-    for env_variable in $(printenv | grep $_env_variable_prefix);do
-	# get key
-	# IFS not working because values like ldap_query_filter or search base consists of several '='
-	# IFS="=" read -r -a __values <<< $env_variable
-	# key="${__values[0]}"
-	# value="${__values[1]}"
-	key=$(echo $env_variable | cut -d "=" -f1)
-	key=${key#"${_env_variable_prefix}"}
-	# make key lowercase
-	key=${key,,}
-	# get value
-	value=$(echo $env_variable | cut -d "=" -f2-)
+	# dispatch env variables
+	for env_variable in $(printenv | grep $_env_variable_prefix);do
+		# get key
+		# IFS not working because values like ldap_query_filter or search base consists of several '='
+		# IFS="=" read -r -a __values <<< $env_variable
+		# key="${__values[0]}"
+		# value="${__values[1]}"
+		key=$(echo $env_variable | cut -d "=" -f1)
+		key=${key#"${_env_variable_prefix}"}
+		# make key lowercase
+		key=${key,,}
+		# get value
+		value=$(echo $env_variable | cut -d "=" -f2-)
 
-	config_overrides[$key]=$value
-    done
+		config_overrides[$key]=$value
+	done
 
-    for f in "${_config_files[@]}"
-    do
-	if [ ! -f "${f}" ];then
-	    echo "Can not find ${f}. Skipping override"
-	else
-	    for key in ${!config_overrides[@]}
-	    do
-		[ -z $key ] && echo -e "\t no key provided" && return 1
+	for f in "${_config_files[@]}"
+	do
+		if [ ! -f "${f}" ];then
+			echo "Can not find ${f}. Skipping override"
+		else
+			for key in ${!config_overrides[@]}
+			do
+				[ -z $key ] && echo -e "\t no key provided" && return 1
 
-		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = ${config_overrides[$key]//&/\\&}|g' \
-		    ${f}
-	    done
-	fi
-    done
+				sed -i -e "s|^${key}[[:space:]]\+.*|${key} = ${config_overrides[$key]//&/\\&}|g" \
+				${f}
+			done
+		fi
+	done
 }
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
