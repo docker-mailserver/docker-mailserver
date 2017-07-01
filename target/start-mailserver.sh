@@ -22,15 +22,6 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
-
-# DOVECOT LDAP
-DEFAULT_VARS["DOVECOT_BASE"]="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
-DEFAULT_VARS["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
-DEFAULT_VARS["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
-DEFAULT_VARS["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
-DEFAULT_VARS["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER}"}"
-DEFAULT_VARS["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER}"}"
-
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -362,7 +353,7 @@ function override_config() {
 	    do
 		[ -z $key ] && echo -e "\t no key provided" && return 1
 
-		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = "${config_overrides[$key]}'|g' \
+		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = ${config_overrides[$key]//&/\\&}|g" \
 		    ${f}
 	    done
 	fi
@@ -586,6 +577,20 @@ function _setup_ldap() {
 	override_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf"
 
 	notify 'inf' "Configuring dovecot LDAP"
+
+	declare -A _dovecot_ldap_mapping
+
+	_dovecot_ldap_mapping["DOVECOT_BASE"]="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
+	_dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
+	_dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
+	_dovecot_ldap_mapping["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
+	_dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER}"}"
+	_dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER}"}"
+
+	for var in ${!_dovecot_ldap_mapping[@]}; do
+		export $var=${_dovecot_ldap_mapping[$var]}
+	done
+
 	override_config "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
 
 	# Add  domainname to vhost.
