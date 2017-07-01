@@ -913,6 +913,16 @@ function _setup_postfix_override_configuration() {
 	else
 		notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
 	fi
+	if [ -f /tmp/docker-mailserver/postfix-master.cf ]; then
+		while read line; do
+		if [[ "$line" =~ ^[a-z] ]]; then
+			postconf -P "$line"
+		fi
+		done < /tmp/docker-mailserver/postfix-master.cf
+		notify 'inf' "Loaded 'config/postfix-master.cf'"
+	else
+		notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided."
+	fi
 }
 
 function _setup_postfix_sasl_password() {
