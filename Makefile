@@ -1,7 +1,7 @@
 NAME = tvial/docker-mailserver:testing
 
 all: build-no-cache generate-accounts run fixtures tests clean
-all-fast: build generate-accounts run fixtures tests clean
+all-fast: build generate-accounts run fixtures tests #clean
 no-build: generate-accounts run fixtures tests clean
 
 build-no-cache:
@@ -34,7 +34,7 @@ run:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -43,7 +43,7 @@ run:
 		-e DMS_DEBUG=1 \
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -51,14 +51,14 @@ run:
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
 		-e ENABLE_LDAP=1 \
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
 		-t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_override_hostname \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -66,28 +66,28 @@ run:
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h mail.my-domain.com \
 		-t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FAIL2BAN=1 \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_fetchmail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FETCHMAIL=1 \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_CLAMAV=0 \
 		-e ENABLE_SPAMASSASSIN=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_manual_ssl \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -95,7 +95,7 @@ run:
 		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
 		-h ldap.my-domain.com -t ldap
@@ -107,6 +107,8 @@ run:
 		-e LDAP_SERVER_HOST=ldap \
 		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
+		-e LDAP_BIND_PW=admin \
+		-e LDAP_QUERY_FILTER="(&(mail=%s)(mailEnabled=TRUE))" \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=ldap \
 		-e SASLAUTHD_LDAP_SERVER=ldap \
@@ -116,7 +118,7 @@ run:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_with_imap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -126,7 +128,7 @@ run:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
-	sleep 15
+	# sleep 15
 	docker run -d --name mail_lmtp_ip \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/config/dovecot-lmtp":/etc/dovecot \
@@ -134,7 +136,7 @@ run:
 		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep 30
+	# sleep 30
 	docker run -d --name mail_with_postgrey \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
