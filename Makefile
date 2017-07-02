@@ -1,7 +1,7 @@
 NAME = tvial/docker-mailserver:testing
 
 all: build-no-cache generate-accounts run fixtures tests clean
-all-fast: build generate-accounts run fixtures tests #clean
+all-fast: build generate-accounts run fixtures tests clean
 no-build: generate-accounts run fixtures tests clean
 
 build-no-cache:
@@ -108,7 +108,9 @@ run:
 		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_PW=admin \
-		-e LDAP_QUERY_FILTER="(&(mail=%s)(mailEnabled=TRUE))" \
+		-e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
+		-e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
+		-e LDAP_QUERY_FILTER_ALIAS="(&(mailAlias=%s)(mailEnabled=TRUE))" \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=ldap \
 		-e SASLAUTHD_LDAP_SERVER=ldap \
