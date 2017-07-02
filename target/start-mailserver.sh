@@ -590,8 +590,9 @@ function _setup_ldap() {
 	_dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
 	_dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
 	_dovecot_ldap_mapping["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
-	_dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
-	_dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
+	# Not sure whether this can be the same or not
+	# _dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
+	# _dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
 
 	for var in ${!_dovecot_ldap_mapping[@]}; do
 		export $var=${_dovecot_ldap_mapping[$var]}
