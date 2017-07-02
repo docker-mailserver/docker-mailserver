@@ -574,7 +574,13 @@ function _setup_ldap() {
 	done
 
 	notify 'inf' 'Starting to override configs'
-	override_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf"
+	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf
+	do
+		[[ $f =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
+		[[ $f =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
+		[[ $f =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
+		override_config "LDAP_" "${f}"
+	done
 
 	notify 'inf' "Configuring dovecot LDAP"
 
@@ -584,8 +590,8 @@ function _setup_ldap() {
 	_dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
 	_dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
 	_dovecot_ldap_mapping["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
-	_dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER}"}"
-	_dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER}"}"
+	_dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
+	_dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
 
 	for var in ${!_dovecot_ldap_mapping[@]}; do
 		export $var=${_dovecot_ldap_mapping[$var]}
@@ -676,7 +682,7 @@ EOF
 		 sed -i \
 		 -e "/^[^#].*smtpd_sasl_type.*/s/^/#/g" \
 		 -e "/^[^#].*smtpd_sasl_path.*/s/^/#/g" \
-		 etc/postfix/master.cf
+		 /etc/postfix/master.cf
 
 	sed -i \
 		-e "s|^START=.*|START=yes|g" \
