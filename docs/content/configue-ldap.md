@@ -6,7 +6,7 @@ Getting started with ldap and this mailserver we need to take 3 parts in account
 * DOVECOT
 * SASLAUTHD (this can also be handled by dovecot above)
 
-This is a list with the variables to control the container provisioning:
+### List with the variables to control the container provisioning
 
 __POSTFIX__:
 * `LDAP_QUERY_FILTER_USER`
