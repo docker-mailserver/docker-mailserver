@@ -48,12 +48,14 @@ services:
       - ./config/:/tmp/docker-mailserver/
 
     environment:
+      # We are not using dovecot here
       - SMTP_ONLY=1
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
       - SASLAUTHD_PASSWD=      
+
       # >>> SASL Authentication
       - ENABLE_SASLAUTHD=1
       - SASLAUTHD_LDAP_SERVER=<yourLdapContainer/yourLdapServer>
@@ -61,21 +63,26 @@ services:
       - SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
       - SASLAUTHD_LDAP_PASSWORD=mypassword
       - SASLAUTHD_LDAP_SEARCH_BASE=dc=mydomain,dc=loc
-      - SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
+      - SASLAUTHD_LDAP_FILTER="(&(sAMAccountName=%U)(objectClass=person))"
       - SASLAUTHD_MECHANISMS=ldap
       # <<< SASL Authentication
+
       # >>> Postfix Ldap Integration
       - ENABLE_LDAP=1
       - LDAP_SERVER_HOST=<yourLdapContainer/yourLdapServer>
       - LDAP_SEARCH_BASE=dc=mydomain,dc=loc
       - LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
       - LDAP_BIND_PW=mypassword
-      - LDAP_QUERY_FILTER=(&(sAMAccountName=%U)(objectClass=person))
+      - LDAP_QUERY_FILTER_USER="(&(objectClass=user)(mail=%s))"
+      - LDAP_QUERY_FILTER_GROUP="(&(objectclass=group)(mail=%s))"
+      - LDAP_QUERY_FILTER_ALIAS="(&(objectClass=user)(otherMailbox=%s))"
       # <<< Postfix Ldap Integration
+
       # >>> Kopano Integration
       - ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
       - POSTFIX_DAGENT=lmtp:kopano:2003
       # <<< Kopano Integration
+
       - ONE_DIR=1
       - DMS_DEBUG=0
       - SSL_TYPE=letsencrypt
