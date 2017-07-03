@@ -107,22 +107,22 @@ services:
       - ONE_DIR=1
       - DMS_DEBUG=0
       - ENABLE_LDAP=1
-  		- LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
-  		- LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
-  		- LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
-  		- LDAP_BIND_PW=admin
-  		- LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))"
-  		- LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))"
-  		- LDAP_QUERY_FILTER_ALIAS="(&(mailAlias=%s)(mailEnabled=TRUE))"
-  		- DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
-  		- DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
-  		- ENABLE_SASLAUTHD=1
-  		- SASLAUTHD_MECHANISMS=ldap
-  		- SASLAUTHD_LDAP_SERVER=ldap
-  		- SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
-  		- SASLAUTHD_LDAP_PASSWORD=admin
-  		- SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
-  		- POSTMASTER_ADDRESS=postmaster@localhost.localdomain
+      - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
+      - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
+      - LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
+      - LDAP_BIND_PW=admin
+      - LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))"
+      - LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))"
+      - LDAP_QUERY_FILTER_ALIAS="(&(mailAlias=%s)(mailEnabled=TRUE))"
+      - DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
+      - DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
+      - ENABLE_SASLAUTHD=1
+      - SASLAUTHD_MECHANISMS=ldap
+      - SASLAUTHD_LDAP_SERVER=ldap
+      - SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
+      - SASLAUTHD_LDAP_PASSWORD=admin
+      - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
+      - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
     cap_add:
       - NET_ADMIN
 
