@@ -5,6 +5,6 @@ dnpass              = admin
 hosts               = mail.domain.com
 ldap_version        = 3
 pass_attrs          = uniqueIdentifier=user,userPassword=password
-pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+pass_filter         = (&(objectClass=PostfixBookMailAccount)(|(uniqueIdentifier=%n)(mail=%u)))
 user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
-user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+user_filter         = (&(objectClass=PostfixBookMailAccount)(|(uniqueIdentifier=%n)(mail=%u)))
