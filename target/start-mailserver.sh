@@ -1164,19 +1164,22 @@ function _start_daemons_postfix() {
 
 function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
-	notify 'task' 'Starting dovecot services' 'n'
-    supervisorctl start dovecot
+
+	notify 'task' 'Starting dovecot services' 'n'	
 
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
 		mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-		/usr/sbin/dovecot reload
+		# /usr/sbin/dovecot reload
 	fi
 
 	if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
 		cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
-		/usr/sbin/dovecot reload
+		# /usr/sbin/dovecot reload
 	fi
+	
+
+    supervisorctl start dovecot
 
 	# @TODO fix: on integration test
 	# doveadm: Error: userdb lookup: connect(/var/run/dovecot/auth-userdb) failed: No such file or directory
