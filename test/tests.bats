@@ -117,6 +117,52 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# supervisor
+#
+
+# <postfix isn't run with supervisor. No test for it.>
+
+@test "checking restart of process: clamd" {
+  run docker exec mail /bin/bash -c "pkill -f clamav && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+  assert_success
+}
+
+@test "checking process: new" {
+  run docker exec mail /bin/bash -c "pkill -f amavis && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
+  assert_success
+}
+
+@test "checking process: opendkim" {
+  run docker exec mail /bin/bash -c "pkill -f opendkim && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
+  assert_success
+}
+
+@test "checking process: opendmarc" {
+  run docker exec mail /bin/bash -c "pkill -f opendmarc && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'"
+  assert_success
+}
+
+@test "checking process: fail2ban (fail2ban server enabled)" {
+  run docker exec mail_fail2ban /bin/bash -c "pkill -f fail2ban && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
+  assert_success
+}
+
+# <fetchmail isn't run with supervisor. No test for it.>
+
+@test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
+  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "pkill -f clamd && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+  assert_failure
+}
+
+@test "checking process: saslauthd (saslauthd server enabled)" {
+  run docker exec mail_with_ldap /bin/bash -c "pkill -f saslauthd && sleep 5 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+  assert_success
+}
+
+# <saslauthd isn't run with supervisor. No test for it.>
+
+
+#
 # postgrey
 #
 

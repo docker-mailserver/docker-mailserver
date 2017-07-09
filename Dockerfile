@@ -8,9 +8,7 @@ ENV ONE_DIR=0
 # Packages
 RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
-  apt-get -y install postfix
-RUN apt-get update -q --fix-missing && \
-  apt-get -y upgrade && \
+  apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
@@ -49,6 +47,7 @@ RUN apt-get update -q --fix-missing && \
     rsyslog \
     sasl2-bin \
     spamassassin \
+    supervisor \
     postgrey \
     unzip \
     && \
@@ -62,6 +61,9 @@ RUN apt-get update -q --fix-missing && \
 # Enables Clamav
 RUN (echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ; crontab -l) | crontab -
 RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
+RUN sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
+sed -i 's/AllowSupplementaryGroups false/AllowSupplementaryGroups true/g' /etc/clamav/clamd.conf && \
+mkdir /var/run/clamav && chown -R clamav:root /var/run/clamav
 
 # Configures Dovecot
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
@@ -100,7 +102,7 @@ RUN (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
 COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
-RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
+RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
 USER amavis
@@ -120,6 +122,9 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 # Configure fetchmail
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
+
+# Configure supervisor
+COPY target/supervisor/supervisor-app.conf /etc/supervisor/conf.d/
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
@@ -149,7 +154,7 @@ RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
 
-CMD /usr/local/bin/start-mailserver.sh
+CMD /usr/local/bin/start-mailserver.sh | tee /var/log/container-startup.log
 
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl

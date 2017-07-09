@@ -1119,55 +1119,58 @@ function _start_daemons_cron() {
 }
 
 function _start_daemons_rsyslog() {
-	notify 'task' 'Starting rsyslog' 'n'
-	display_startup_daemon "/etc/init.d/rsyslog start"
+	notify 'task' 'Starting rsyslog ' 'n'
+    supervisorctl start rsyslog
 }
 
 function _start_daemons_saslauthd() {
 	notify 'task' 'Starting saslauthd' 'n'
-	display_startup_daemon "/etc/init.d/saslauthd start"
+    display_startup_daemon "/etc/init.d/saslauthd start"
 }
 
 function _start_daemons_fail2ban() {
-	notify 'task' 'Starting fail2ban' 'n'
+	notify 'task' 'Starting fail2ban ' 'n'
 	touch /var/log/auth.log
 	# Delete fail2ban.sock that probably was left here after container restart
 	if [ -e /var/run/fail2ban/fail2ban.sock ]; then
 		rm /var/run/fail2ban/fail2ban.sock
 	fi
-	display_startup_daemon "/etc/init.d/fail2ban start"
+    supervisorctl start fail2ban
 }
 
 function _start_daemons_opendkim() {
-	notify 'task' 'Starting opendkim' 'n'
-	display_startup_daemon "/etc/init.d/opendkim start"
+	notify 'task' 'Starting opendkim ' 'n'
+    supervisorctl start opendkim
 }
 
 function _start_daemons_opendmarc() {
-	notify 'task' 'Starting opendmarc' 'n'
-	display_startup_daemon "/etc/init.d/opendmarc start"
+	notify 'task' 'Starting opendmarc ' 'n'
+    supervisorctl start opendmarc
 }
 
 function _start_daemons_postfix() {
 	notify 'task' 'Starting postfix' 'n'
-	display_startup_daemon "/etc/init.d/postfix start"
+    display_startup_daemon "/etc/init.d/postfix start"
 }
 
 function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
-	notify 'task' 'Starting dovecot services' 'n'
-	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf"
+
+	notify 'task' 'Starting dovecot services' 'n'	
 
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
 		mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-		display_startup_daemon "/usr/sbin/dovecot reload"
+		# /usr/sbin/dovecot reload
 	fi
 
 	if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
 		cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
-		/usr/sbin/dovecot reload
+		# /usr/sbin/dovecot reload
 	fi
+	
+
+    supervisorctl start dovecot
 
 	# @TODO fix: on integration test
 	# doveadm: Error: userdb lookup: connect(/var/run/dovecot/auth-userdb) failed: No such file or directory
@@ -1181,7 +1184,7 @@ function _start_daemons_dovecot() {
 
 function _start_daemons_filebeat() {
 	notify 'task' 'Starting filebeat' 'n'
-	display_startup_daemon "/etc/init.d/filebeat start"
+    supervisorctl start filebeat
 }
 
 function _start_daemons_fetchmail() {
@@ -1192,18 +1195,18 @@ function _start_daemons_fetchmail() {
 
 function _start_daemons_clamav() {
 	notify 'task' 'Starting clamav' 'n'
-	display_startup_daemon "/etc/init.d/clamav-daemon start"
+    supervisorctl start clamav
 }
 
 function _start_daemons_postgrey() {
 	notify 'task' 'Starting postgrey' 'n'
-	display_startup_daemon "/etc/init.d/postgrey start"
+    supervisorctl start postgrey
 }
 
 
 function _start_daemons_amavis() {
 	notify 'task' 'Starting amavis' 'n'
-	display_startup_daemon "/etc/init.d/amavis start"
+    supervisorctl start amavis
 }
 
 ##########################################################################
@@ -1238,6 +1241,8 @@ notify 'taskgrp' "#"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
+supervisord -c /etc/supervisor/supervisord.conf
+
 register_functions
 
 check
@@ -1252,7 +1257,7 @@ notify 'taskgrp' "# $HOSTNAME is up and running"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
-
+touch /var/log/mail/mail.log
 tail -fn 0 /var/log/mail/mail.log
 
 
