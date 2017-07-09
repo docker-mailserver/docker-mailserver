@@ -1,0 +1,25 @@
+# --------------------------------------------------------------------
+# Create mail accounts
+# --------------------------------------------------------------------
+# Some User
+dn: uniqueIdentifier=some.other.user,ou=people,dc=localhost,dc=localdomain
+changetype: add
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: PostfixBookMailAccount
+objectClass: extensibleObject
+cn: Some Other User
+givenName: Other User
+mail: some.other.user@localhost.otherdomain
+mailAlias: postmaster@localhost.otherdomain
+mailGroupMember: employees@localhost.otherdomain
+mailEnabled: TRUE
+mailGidNumber: 5000
+mailHomeDirectory: /var/mail/localhost.localdomain/some.other.user/
+mailQuota: 10240
+mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.other.user/
+mailUidNumber: 5000
+sn: Some
+uniqueIdentifier: some.other.user
+userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx

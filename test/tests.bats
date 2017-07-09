@@ -1051,6 +1051,22 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@localhost.localdomain ldap:/etc/postfix/ldap-groups.cf"
   assert_success
   assert_output "some.user@localhost.localdomain"
+
+  # Test of the user part of the domain is not the same as the uniqueIdentifier part in the ldap
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user.email@localhost.localdomain ldap:/etc/postfix/ldap-users.cf"
+  assert_success
+  assert_output "some.user.email@localhost.localdomain"
+
+  # Test email receiving from a other domain then the primary domain of the mailserver
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.other.user@localhost.otherdomain ldap:/etc/postfix/ldap-users.cf"
+  assert_success
+  assert_output "some.other.user@localhost.otherdomain"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q postmaster@localhost.otherdomain ldap:/etc/postfix/ldap-aliases.cf"
+  assert_success
+  assert_output "some.other.user@localhost.otherdomain"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@localhost.otherdomain ldap:/etc/postfix/ldap-groups.cf"
+  assert_success
+  assert_output "some.other.user@localhost.otherdomain"
 }
 
 @test "checking postfix: ldap custom config files copied" {
@@ -1095,6 +1111,14 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
   run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.user/new | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking dovecot: ldap mail delivery works for a different domain then the mailserver" {
+  run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.other.user@localhost.otherdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
+  sleep 10
+  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.other.user/new | wc -l"
   assert_success
   assert_output 1
 }
