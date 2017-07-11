@@ -316,50 +316,6 @@ function display_startup_daemon() {
 	return $res
 }
 
-function override_config() {
-    notify "task" "Starting do do overrides"
-
-    declare -A config_overrides
-
-    _env_variable_prefix=$1
-    [ -z ${_env_variable_prefix} ] && return 1
-
-    
-    IFS=" " read -r -a _config_files <<< $2
-
-    # dispatch env variables
-    for env_variable in $(printenv | grep $_env_variable_prefix);do
-	# get key
-	# IFS not working because values like ldap_query_filter or search base consists of several '='
-	# IFS="=" read -r -a __values <<< $env_variable
-	# key="${__values[0]}"
-	# value="${__values[1]}"
-	key=$(echo $env_variable | cut -d "=" -f1)
-	key=${key#"${_env_variable_prefix}"}
-	# make key lowercase
-	key=${key,,}
-	# get value
-	value=$(echo $env_variable | cut -d "=" -f2-)
-
-	config_overrides[$key]=$value
-    done
-
-    for f in "${_config_files[@]}"
-    do
-	if [ ! -f "${f}" ];then
-	    echo "Can not find ${f}. Skipping override" 
-	else
-	    for key in ${!config_overrides[@]} 
-	    do
-		[ -z $key ] && echo -e "\t no key provided" && return 1
-		
-		sed -i -e "s|^${key}[[:space:]]\+.*|${key} = "${config_overrides[$key]}'|g' \
-		    ${f}
-	    done
-	fi
-    done
-}
-
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, except you know exactly what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -570,21 +526,37 @@ function _setup_ldap() {
 	for i in 'users' 'groups' 'aliases'; do
 	    fpath="/tmp/docker-mailserver/ldap-${i}.cf"
 	    if [ -f $fpath ]; then
-		cp ${fpath} /etc/postfix/ldap-${i}.cf 
+		cp ${fpath} /etc/postfix/ldap-${i}.cf
 	    fi
 	done
 
 	notify 'inf' 'Starting to override configs'
-	override_config "LDAP_" "/etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf"
+	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf
+	do
+		[[ $f =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
+		[[ $f =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
+		[[ $f =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
+		configomat.sh "LDAP_" "${f}"
+	done
 
-	# @TODO: Environment Variables for DOVECOT ldap integration to configure for better control
-	notify 'inf' "Configuring dovecot LDAP authentification"
-	sed -i -e 's|^hosts.*|hosts = '${LDAP_SERVER_HOST:="mail.domain.com"}'|g' \
-		-e 's|^base.*|base = '${LDAP_SEARCH_BASE:="ou=people,dc=domain,dc=com"}'|g' \
-		-e 's|^dn\s*=.*|dn = '${LDAP_BIND_DN:="cn=admin,dc=domain,dc=com"}'|g' \
-		-e 's|^dnpass\s*=.*|dnpass = '${LDAP_BIND_PW:="admin"}'|g' \
-		/etc/dovecot/dovecot-ldap.conf.ext
-					  
+	notify 'inf' "Configuring dovecot LDAP"
+
+	declare -A _dovecot_ldap_mapping
+
+	_dovecot_ldap_mapping["DOVECOT_BASE"]="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
+	_dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
+	_dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
+	_dovecot_ldap_mapping["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
+	# Not sure whether this can be the same or not
+	# _dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
+	# _dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
+
+	for var in ${!_dovecot_ldap_mapping[@]}; do
+		export $var=${_dovecot_ldap_mapping[$var]}
+	done
+
+	configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
+
 	# Add  domainname to vhost.
 	echo $DOMAINNAME >> /tmp/vhost.tmp
 
@@ -630,7 +602,7 @@ EOF
     # cyrus sasl or dovecot sasl
     if [[ ${ENABLE_SASLAUTHD} == 1 ]] || [[ ${SMTP_ONLY} == 0 ]];then
 	sed -i -e 's|^smtpd_sasl_auth_enable[[:space:]]\+.*|smtpd_sasl_auth_enable = yes|g' /etc/postfix/main.cf
-    else 
+    else
 	sed -i -e 's|^smtpd_sasl_auth_enable[[:space:]]\+.*|smtpd_sasl_auth_enable = no|g' /etc/postfix/main.cf
     fi
 
@@ -668,7 +640,7 @@ EOF
 		 sed -i \
 		 -e "/^[^#].*smtpd_sasl_type.*/s/^/#/g" \
 		 -e "/^[^#].*smtpd_sasl_path.*/s/^/#/g" \
-		 etc/postfix/master.cf
+		 /etc/postfix/master.cf
 
 	sed -i \
 		-e "s|^START=.*|START=yes|g" \
@@ -735,6 +707,9 @@ function _setup_dkim() {
 		chmod -R 0700 /etc/opendkim/keys/
 	else
 		notify 'warn' "No DKIM key provided. Check the documentation to find how to get your keys."
+
+                local _f_keytable="/etc/opendkim/KeyTable"
+                [ ! -f "$_f_keytable" ] && touch "$_f_keytable"
 	fi
 }
 
@@ -902,6 +877,16 @@ function _setup_postfix_override_configuration() {
 	else
 		notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
 	fi
+	if [ -f /tmp/docker-mailserver/postfix-master.cf ]; then
+		while read line; do
+		if [[ "$line" =~ ^[a-z] ]]; then
+			postconf -P "$line"
+		fi
+		done < /tmp/docker-mailserver/postfix-master.cf
+		notify 'inf' "Loaded 'config/postfix-master.cf'"
+	else
+		notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided."
+	fi
 }
 
 function _setup_postfix_sasl_password() {
@@ -958,6 +943,7 @@ function _setup_security_stack() {
 		SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
 		SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
 		SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
+		SA_SPAM_SUBJECT=${SA_SPAM_SUBJECT:="***SPAM*** "} && sed -i -r 's/^\$sa_spam_subject_tag (.*);/\$sa_spam_subject_tag = '"'$SA_SPAM_SUBJECT'"';/g' /etc/amavis/conf.d/20-debian_defaults
 		test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 	fi
 

@@ -44,7 +44,7 @@ Your configs must be mounted in `/tmp/docker-mailserver/`. To understand how thi
 
 `restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
-```yaml	
+```yaml
 version: '2'
 
 services:
@@ -71,6 +71,60 @@ services:
     - DMS_DEBUG=0
     cap_add:
     - NET_ADMIN
+
+volumes:
+  maildata:
+    driver: local
+  mailstate:
+    driver: local
+```
+
+__for ldap setup__:
+
+```yaml
+version: '2'
+
+services:
+  mail:
+    image: tvial/docker-mailserver:latest
+    hostname: mail
+    domainname: domain.com
+    container_name: mail
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - ./config/:/tmp/docker-mailserver/
+    environment:
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+      - ENABLE_POSTGREY=1
+      - ONE_DIR=1
+      - DMS_DEBUG=0
+      - ENABLE_LDAP=1
+      - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
+      - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
+      - LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
+      - LDAP_BIND_PW=admin
+      - LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))"
+      - LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))"
+      - LDAP_QUERY_FILTER_ALIAS="(&(mailAlias=%s)(mailEnabled=TRUE))"
+      - DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
+      - DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
+      - ENABLE_SASLAUTHD=1
+      - SASLAUTHD_MECHANISMS=ldap
+      - SASLAUTHD_LDAP_SERVER=ldap
+      - SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
+      - SASLAUTHD_LDAP_PASSWORD=admin
+      - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
+      - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
+    cap_add:
+      - NET_ADMIN
 
 volumes:
   maildata:
@@ -146,6 +200,12 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
+##### SA_SPAM_SUBJECT
+
+  - **\*\*\*SPAM\*\*\*** => add tag to subject if spam detected
+
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
 ##### ONE_DIR
 
   - **0** => state in default directories
@@ -206,6 +266,29 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => admin
   - => Specify the password to bind against ldap
 
+##### LDAP_QUERY_FILTER_USER
+
+  - e.g. `"(&(mail=%s)(mailEnabled=TRUE))"`
+  - => Specify how ldap should be asked for users
+
+##### LDAP_QUERY_FILTER_GROUP
+
+  - e.g. `"(&(mailGroupMember=%s)(mailEnabled=TRUE))"`
+  - => Specify how ldap should be asked for groups
+
+##### LDAP_QUERY_FILTER_ALIAS
+
+  - e.g. `"(&(mailAlias=%s)(mailEnabled=TRUE))"`
+  - => Specify how ldap should be asked for aliases
+
+##### DOVECOT_USER_FILTER
+
+  - e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
+
+##### DOVECOT_PASS_FILTER
+
+  - e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
+
 ##### OVERRIDE_HOSTNAME
 
   - **empty** => uses the `hostname` command to get the mail server's canonical hostname
@@ -228,13 +311,13 @@ Otherwise, `iptables` won't be able to ban IPs.
 Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### POSTGREY_MAX_AGE
-  
+
   - **35** => delete entries older than N days since the last time that they have been seen
 
 Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### POSTGREY_TEXT
-  
+
   - **Delayed by postgrey** => response when a mail is greylisted
 
 Note: This postgrey setting needs `ENABLE_POSTGREY=1`
@@ -247,10 +330,10 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 ##### SASLAUTHD_MECHANISMS
 
   - empty => pam
-  - ldap => authenticate against ldap server
-  - shadow => authenticate against local user db
-  - mysql => authenticate against mysql db
-  - rimap => authenticate against imap server
+  - `ldap` => authenticate against ldap server
+  - `shadow` => authenticate against local user db
+  - `mysql` => authenticate against mysql db
+  - `rimap` => authenticate against imap server
   - NOTE: can be a list of mechanisms like pam ldap shadow
 
 ##### SASLAUTHD_MECH_OPTIONS
@@ -264,8 +347,8 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### SASLAUTHD_LDAP_SSL
 
-  - empty or 0 => ldap:// will be used
-  - 1 => ldaps:// will be used
+  - empty or 0 => `ldap://` will be used
+  - 1 => `ldaps://` will be used
 
 ##### SASLAUTHD_LDAP_BIND_DN
 
@@ -285,9 +368,9 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### SASLAUTHD_LDAP_FILTER
 
-  - empty => default filter (&(uniqueIdentifier=%u)(mailEnabled=TRUE))
-  - e.g. for active directory: (&(sAMAccountName=%U)(objectClass=person))
-  - e.g. for openldap: (&(uid=%U)(objectClass=person))
+  - empty => default filter `(&(uniqueIdentifier=%u)(mailEnabled=TRUE))`
+  - e.g. for active directory: `(&(sAMAccountName=%U)(objectClass=person))`
+  - e.g. for openldap: `(&(uid=%U)(objectClass=person))`
 
 ##### SASL_PASSWD
 
@@ -325,15 +408,16 @@ Set how many days a virusmail will stay on the server before being deleted
 ##### ENABLE_POSTFIX_VIRTUAL_TRANSPORT
 
 This Option is activating the Usage of POSTFIX_DAGENT to specify a ltmp client different from default dovecot socket.
-    - **empty** => disabled
-    - 1 => enabled
+
+- **empty** => disabled
+- 1 => enabled
 
 ##### POSTFIX_DAGENT
 
 Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postfix
-    - **empty**: fail
-    - lmtp:unix:private/dovecot-lmtp (use socket)
-    - lmtps:inet:<host>:<port> (secure lmtp with starttls, take a look at https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/)
-    - lmtp:<kopano-host>:2003 (use kopano as mailstore)
-    - etc.
 
+- **empty**: fail
+- `lmtp:unix:private/dovecot-lmtp` (use socket)
+- `lmtps:inet:<host>:<port>` (secure lmtp with starttls, take a look at https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/)
+- `lmtp:<kopano-host>:2003` (use kopano as mailstore)
+- etc.

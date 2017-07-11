@@ -341,7 +341,7 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_smtponly /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
   [ "$status" -ge 0 ]
 }
-  
+
 
 
 #
@@ -391,6 +391,11 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking postfix: master.cf overrides" {
+  run docker exec mail grep -q 'submission/inet/smtpd_sasl_security_options=noanonymous' /tmp/docker-mailserver/postfix-master.cf
+  assert_success
+}
+
 #
 # dovecot
 #
@@ -424,6 +429,8 @@ load 'test_helper/bats-assert/load'
   assert_success
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   assert_success
+  run docker exec mail_pop3 /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .\*\*\*SPAM\*\*\* .'"
+  assert_success
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
@@ -432,6 +439,8 @@ load 'test_helper/bats-assert/load'
   run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   assert_success
   run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
+  assert_success
+  run docker exec mail /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
   assert_success
 }
 
@@ -471,6 +480,12 @@ load 'test_helper/bats-assert/load'
   assert_success
   assert_output 2
 }
+
+@test "checking opendkim: /etc/opendkim/KeyTable dummy file generated without keys provided" {
+  run docker exec mail_smtponly_without_config /bin/bash -c "cat /etc/opendkim/KeyTable"
+  assert_success
+}
+
 
 @test "checking opendkim: /etc/opendkim/keys/ should contain 2 entries" {
   run docker exec mail /bin/sh -c "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
@@ -1036,34 +1051,34 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postfix: ldap custom config files copied" {
- run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf"
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf"
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf"
  assert_success
 }
 
 @test "checking postfix: ldap config overwrites success" {
- run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf"
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf" 
- assert_success
-
- run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf" 
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf" 
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
  assert_success
 
- run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf"
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
  assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf" 
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
+ assert_success
+
+ run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf"
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf"
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf"
  assert_success
 }
 
@@ -1074,12 +1089,21 @@ load 'test_helper/bats-assert/load'
 }
 
 # This is ldap, so the mail directory gets set differently!
-@test "checking dovecot: mail delivery works" {
+@test "checking dovecot: ldap mail delivery works" {
   run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
   run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.user/new | wc -l"
   assert_success
   assert_output 1
+}
+
+@test "checking dovecot: ldap config overwrites success" {
+  run docker exec mail_with_ldap /bin/sh -c "grep 'hosts = ldap' /etc/dovecot/dovecot-ldap.conf.ext"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'base = ou=people,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'dn = cn=admin,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext"
+  assert_success
 }
 
 # saslauthd

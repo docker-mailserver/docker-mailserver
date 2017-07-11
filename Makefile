@@ -27,6 +27,7 @@ run:
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
+		-e SA_SPAM_SUBJECT="SPAM: " \
 		-e VIRUSMAILS_DELETE_DELAY=7 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
@@ -49,6 +50,13 @@ run:
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+		-t $(NAME)
+	sleep 15
+	docker run -d --name mail_smtponly_without_config \
+		-e SMTP_ONLY=1 \
+		-e ENABLE_LDAP=1 \
+		-e PERMIT_DOCKER=network \
+		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
 		-t $(NAME)
 	sleep 15
 	docker run -d --name mail_override_hostname \
@@ -99,6 +107,12 @@ run:
 		-e LDAP_SERVER_HOST=ldap \
 		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
+		-e LDAP_BIND_PW=admin \
+		-e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
+		-e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
+		-e LDAP_QUERY_FILTER_ALIAS="(&(mailAlias=%s)(mailEnabled=TRUE))" \
+		-e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+		-e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=ldap \
 		-e SASLAUTHD_LDAP_SERVER=ldap \
@@ -177,6 +191,7 @@ clean:
 		mail \
 		mail_pop3 \
 		mail_smtponly \
+		mail_smtponly_without_config \
 		mail_fail2ban \
 		mail_fetchmail \
 		fail-auth-mailer \
