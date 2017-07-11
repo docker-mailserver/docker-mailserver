@@ -42,13 +42,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking configuration: hostname/domainname override: check headers of received mail" {
-  run docker exec mail_override_hostname /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l | grep 1"
+  run docker exec mail_override_hostname /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/mails/new | wc -l | grep 1"
   assert_success
-  run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep mail.my-domain.com"
+  run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/mails/new/* | grep mail.my-domain.com"
   assert_success
 
   # test whether the container hostname is not found in received mail
-  run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep unknown.domain.tld"
+  run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/mails/new/* | grep unknown.domain.tld"
   assert_failure
 }
 
@@ -302,7 +302,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking smtp: user1 should have received 6 mails" {
-  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
+  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/mails/new | wc -l"
   assert_success
   assert_output 6
 }
@@ -356,13 +356,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking accounts: user mail folders for user1" {
-  run docker exec mail /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
+  run docker exec mail /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1/mails | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
   assert_success
   assert_output 7
 }
 
 @test "checking accounts: user mail folders for user2" {
-  run docker exec mail /bin/bash -c "ls -A /var/mail/otherdomain.tld/user2 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
+  run docker exec mail /bin/bash -c "ls -A /var/mail/otherdomain.tld/user2/mails | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
   assert_success
   assert_output 7
 }
@@ -436,9 +436,9 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking spamassassin: all registered domains should see spam headers" {
-  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new"
+  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/mails/new"
   assert_success
-  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/otherdomain.tld/user2/new"
+  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/otherdomain.tld/user2/mails/new"
   assert_success
 }
 
@@ -781,7 +781,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking sieve: user1 should have received 1 email in folder INBOX.spam" {
-  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new | wc -l"
+  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/mails/.INBOX.spam/new | wc -l"
   assert_success
   assert_output 1
 }
@@ -1073,6 +1073,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+# This is ldap, so the mail directory gets set differently!
 @test "checking dovecot: mail delivery works" {
   run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
