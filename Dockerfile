@@ -43,6 +43,7 @@ RUN apt-get update -q --fix-missing && \
     opendmarc \
     p7zip \
     postfix-ldap \
+    postfix-pcre \
     postfix-policyd-spf-python \
     pyzor \
     razor \
