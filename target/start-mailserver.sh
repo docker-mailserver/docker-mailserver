@@ -1197,6 +1197,7 @@ function _start_daemons_clamav() {
 
 function _start_daemons_postgrey() {
 	notify 'task' 'Starting postgrey' 'n'
+	rm -f /var/run/postgrey/postgrey.pid
 	display_startup_daemon "/etc/init.d/postgrey start"
 }
 
