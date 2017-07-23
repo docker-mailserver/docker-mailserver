@@ -6,7 +6,7 @@ sudo: required
 services:
 - docker
 install:
-- travis_wait make build-no-cache
+- travis_retry travis_wait make build-no-cache
 script:
 - make generate-accounts run fixtures tests
 after_script:
