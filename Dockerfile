@@ -150,7 +150,6 @@ RUN chmod +x /usr/local/bin/*
 
 EXPOSE 25 587 143 993 110 995 4190
 
-CMD /usr/local/bin/start-mailserver.sh
-
+CMD ["/bin/bash", "/usr/local/bin/start-mailserver.sh"]
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl

@@ -1,4 +1,5 @@
 #!/bin/bash
+trap 'stop_daemons' TERM INT QUIT
 
 ##########################################################################
 # >> DEFAULT VARS
@@ -144,46 +145,46 @@ function register_functions() {
 	################### >> daemon funcs
 
 	_register_start_daemon "_start_daemons_cron"
-	_register_start_daemon "_start_daemons_rsyslog"
+	_register_start_stop_daemon "_start_daemons_rsyslog" "_stop_daemons_rsyslog"
 
 	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
-		_register_start_daemon "_start_daemons_filebeat"
+		_register_start_stop_daemon "_start_daemons_filebeat" "_stop_daemons_filebeat"
 	fi
 
 	if [ "$SMTP_ONLY" != 1 ]; then
-		_register_start_daemon "_start_daemons_dovecot"
+		_register_start_stop_daemon "_start_daemons_dovecot" "_stop_daemons_dovecot"
 	fi
 
 	# needs to be started before saslauthd
-	_register_start_daemon "_start_daemons_opendkim"
-	_register_start_daemon "_start_daemons_opendmarc"
+	_register_start_stop_daemon "_start_daemons_opendkim" "_stop_daemons_opendkim"
+	_register_start_stop_daemon "_start_daemons_opendmarc" "_stop_daemons_opendmarc"
 
 	#postfix uses postgrey, needs to be started before postfix
 	if [ "$ENABLE_POSTGREY" = 1 ]; then
-		_register_start_daemon "_start_daemons_postgrey"
+		_register_start_stop_daemon "_start_daemons_postgrey" "_stop_daemons_postgrey"
 	fi
 
-	_register_start_daemon "_start_daemons_postfix"
+	_register_start_stop_daemon "_start_daemons_postfix" "_stop_daemons_postfix"
 
 	if [ "$ENABLE_SASLAUTHD" = 1 ];then
-		_register_start_daemon "_start_daemons_saslauthd"
+		_register_start_stop_daemon "_start_daemons_saslauthd" "_stop_daemons_saslauthd"
 	fi
 
 	# care needs to run after postfix
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
-		_register_start_daemon "_start_daemons_fail2ban"
+		_register_start_stop_daemon "_start_daemons_fail2ban" "_stop_daemons_fail2ban"
 	fi
 
 	if [ "$ENABLE_FETCHMAIL" = 1 ]; then
-		_register_start_daemon "_start_daemons_fetchmail"
+		_register_start_stop_daemon "_start_daemons_fetchmail" "_stop_daemons_fetchmail"
 	fi
 
 	if [ "$ENABLE_CLAMAV" = 1 ]; then
-		_register_start_daemon "_start_daemons_clamav"
+		_register_start_stop_daemon "_start_daemons_clamav" "_stop_daemons_clamav"
 	fi
 
 
-	_register_start_daemon "_start_daemons_amavis"
+	_register_start_stop_daemon "_start_daemons_amavis" "_stop_daemons_amavis"
 	################### << daemon funcs
 }
 ##########################################################################
@@ -206,6 +207,7 @@ declare -a FUNCS_FIX
 declare -a FUNCS_CHECK
 declare -a FUNCS_MISC
 declare -a DAEMONS_START
+declare -a DAEMONS_STOP
 declare -A HELPERS_EXEC_STATE
 ##########################################################################
 # << CONSTANTS
@@ -215,9 +217,16 @@ declare -A HELPERS_EXEC_STATE
 ##########################################################################
 # >> protected register_functions
 ##########################################################################
+
 function _register_start_daemon() {
 	DAEMONS_START+=($1)
 	notify 'inf' "$1() registered"
+}
+
+function _register_start_stop_daemon() {
+	DAEMONS_START+=($1)
+	DAEMONS_STOP=($2 "${DAEMONS_STOP[@]}")
+	notify 'inf' "$1() and $2() registered"
 }
 
 function _register_setup_function() {
@@ -1222,6 +1231,7 @@ function _start_daemons_postfix() {
 function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
 	notify 'task' 'Starting dovecot services' 'n'
+	rm -f /var/run/dovecot/master.pid
 	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf"
 
 	if [ "$ENABLE_POP3" = 1 ]; then
@@ -1263,6 +1273,7 @@ function _start_daemons_clamav() {
 
 function _start_daemons_postgrey() {
 	notify 'task' 'Starting postgrey' 'n'
+	rm -f /var/run/postgrey/postgrey.pid
 	display_startup_daemon "/etc/init.d/postgrey start"
 }
 
@@ -1276,6 +1287,87 @@ function _start_daemons_amavis() {
 # << Start Daemons
 ##########################################################################
 
+##########################################################################
+# >> Stop Daemons
+##########################################################################
+function stop_daemons() {
+	notify 'taskgrp' 'Stopping mail server'
+
+	for _func in "${DAEMONS_STOP[@]}";do
+		$_func
+	done
+	
+	kill -SIGTERM ${TAIL_PID}
+}
+
+function _stop_daemons_cron() {
+	notify 'task' 'Stopping cron' 'n'
+	display_startup_daemon "/etc/inid.d/cron stop"
+}
+
+function _stop_daemons_rsyslog() {
+	notify 'task' 'Stopping rsyslog' 'n'
+	display_startup_daemon "/etc/init.d/rsyslog stop"
+}
+
+function _stop_daemons_saslauthd() {
+	notify 'task' 'Stopping saslauthd' 'n'
+	display_startup_daemon "/etc/init.d/saslauthd stop"
+}
+
+function _stop_daemons_fail2ban() {
+	notify 'task' 'Stopping fail2ban' 'n'
+	display_startup_daemon "/etc/init.d/fail2ban stop"
+}
+
+function _stop_daemons_opendkim() {
+	notify 'task' 'Stopping opendkim' 'n'
+	display_startup_daemon "/etc/init.d/opendkim stop"
+}
+
+function _stop_daemons_opendmarc() {
+	notify 'task' 'Stopping opendmarc' 'n'
+	display_startup_daemon "/etc/init.d/opendmarc stop"
+}
+
+function _stop_daemons_postfix() {
+	notify 'task' 'Stopping postfix' 'n'
+	display_startup_daemon "/etc/init.d/postfix stop"
+}
+
+function _stop_daemons_dovecot() {
+	notify 'task' 'Stopping dovecot services' 'n'
+	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf stop"
+}
+
+function _stop_daemons_filebeat() {
+	notify 'task' 'Stopping filebeat' 'n'
+	display_startup_daemon "/etc/init.d/filebeat stop"
+}
+
+function _stop_daemons_fetchmail() {
+	notify 'task' 'Stopping fetchmail' 'n'
+	display_startup_daemon "/etc/init.d/fetchmail stop"
+}
+
+function _stop_daemons_clamav() {
+	notify 'task' 'Stopping clamav' 'n'
+	display_startup_daemon "/etc/init.d/clamav-daemon stop"
+}
+
+function _stop_daemons_postgrey() {
+	notify 'task' 'Stopping postgrey' 'n'
+	display_startup_daemon "/etc/init.d/postgrey stop"
+}
+
+function _stop_daemons_amavis() {
+	notify 'task' 'Stopping amavis' 'n'
+	display_startup_daemon "/etc/init.d/amavis stop"
+}
+
+##########################################################################
+# << Stop Daemons
+##########################################################################
 
 
 
@@ -1318,7 +1410,9 @@ notify 'taskgrp' "# $HOSTNAME is up and running"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
-tail -fn 0 /var/log/mail/mail.log
+tail -fn 0 /var/log/mail/mail.log &
+TAIL_PID="$!"
+wait ${TAIL_PID}
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
