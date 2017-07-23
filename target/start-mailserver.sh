@@ -129,6 +129,9 @@ function register_functions() {
 
 	_register_fix_function "_fix_var_mail_permissions"
 	_register_fix_function "_fix_var_amavis_permissions"
+	if [ "$ENABLE_CLAMAV" = 0 ]; then
+        _register_fix_function "_fix_cleanup_clamav"
+	fi
 
 	################### << fix funcs
 
@@ -1048,6 +1051,12 @@ function _fix_var_amavis_permissions() {
 		notify 'inf' "Permissions in $amavis_state_dir look OK"
 		return 0
 	fi
+}
+
+function _fix_cleanup_clamav() {
+    notify 'task' 'Cleaning up disabled Clamav'
+    rm -f /etc/logrotate.d/clamav-*
+    rm -f /etc/cron.d/freshclam
 }
 
 ##########################################################################
