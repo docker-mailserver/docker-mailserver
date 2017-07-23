@@ -716,7 +716,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking system: freshclam cron is enabled" {
-  run docker exec mail bash -c "crontab -l | grep '/usr/bin/freshclam'"
+  run docker exec mail bash -c "grep '/usr/bin/freshclam' -r /etc/cron.d"
   assert_success
 }
 
