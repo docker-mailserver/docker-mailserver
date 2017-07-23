@@ -63,7 +63,8 @@ RUN apt-get update -q --fix-missing && \
   rm -rf /usr/share/man/* && \
   rm -rf /usr/share/doc/* && \
   touch /var/log/auth.log && \
-  update-locale
+  update-locale && \
+  rm -f /etc/cron.weekly/fstrim
 
 # Enables Clamav
 RUN (echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" ; crontab -l) | crontab - && \
