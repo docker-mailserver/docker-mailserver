@@ -98,3 +98,8 @@ warning: connect to Milter service inet:localhost:8891: Connection refused
 # DKIM not running
 # => /etc/init.d/opendkim restart
 ```
+
+### What about updates
+
+You can of course use a own script or every now and then pull && stop && rm && start the images but there are tools available for this.
+There is a page in the [Update and cleanup](../Update-and-cleanup) wiki page that explains how to use it the docker way.
