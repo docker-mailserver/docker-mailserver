@@ -4,6 +4,13 @@ MAINTAINER Thomas VIAL
 ENV DEBIAN_FRONTEND noninteractive
 ENV VIRUSMAILS_DELETE_DELAY=7
 ENV ONE_DIR=0
+ENV ENABLE_POSTGREY=0
+ENV POSTGREY_DELAY=300
+ENV POSTGREY_MAX_AGE=35
+ENV POSTGREY_TEXT="Delayed by postgrey"
+
+ENV SASLAUTHD_MECHANISMS=pam
+ENV SASLAUTHD_MECH_OPTIONS=""
 
 # Packages
 RUN apt-get update -q --fix-missing && \
@@ -137,9 +144,7 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 # Configure fetchmail
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
-
-# Configure supervisor
-COPY target/supervisor/supervisor-app.conf /etc/supervisor/conf.d/
+RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
@@ -167,12 +172,14 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /et
 
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script
-COPY ./target/start-mailserver.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
+COPY ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
+
+# Configure supervisor
+COPY target/supervisor/* /etc/supervisor/conf.d/
 
 EXPOSE 25 587 143 993 110 995 4190
 
-CMD /usr/local/bin/start-mailserver.sh | tee /var/log/container-startup.log
-
+CMD supervisord -c /etc/supervisor/supervisord.conf
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl

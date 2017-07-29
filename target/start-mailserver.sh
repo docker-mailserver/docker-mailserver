@@ -349,7 +349,7 @@ function _check_hostname() {
 
 	if ( ! echo $HOSTNAME | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
 		notify 'err' "Setting hostname/domainname is required"
-		return 1
+		kill -6 `cat /var/run/supervisord.pid` && return 1
 	else
 		notify 'inf' "Domain has been set to $DOMAINNAME"
 		notify 'inf' "Hostname has been set to $HOSTNAME"
@@ -383,7 +383,7 @@ function _setup_default_vars() {
 
 	for var in ${!DEFAULT_VARS[@]}; do
 		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
-		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && return 1
+		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
 	done
 }
@@ -645,18 +645,6 @@ EOF
 		 /etc/postfix/master.cf
 
 	sed -i \
-		-e "s|^START=.*|START=yes|g" \
-		-e "s|^MECHANISMS=.*|MECHANISMS="\"$SASLAUTHD_MECHANISMS\""|g" \
-		-e "s|^MECH_OPTIONS=.*|MECH_OPTIONS="\"$SASLAUTHD_MECH_OPTIONS\""|g" \
-		/etc/default/saslauthd
-
-	if [ "$SASLAUTHD_MECHANISMS" = rimap ]; then
-		sed -i \
-			-e 's|^OPTIONS="|OPTIONS="-r |g' \
-			/etc/default/saslauthd
-	fi
-
-	sed -i \
 		-e "/smtpd_sasl_path =.*/d" \
 		-e "/smtpd_sasl_type =.*/d" \
 		-e "/dovecot_destination_recipient_limit =.*/d" \
@@ -860,7 +848,7 @@ function _setup_postfix_virtual_transport() {
 
 	[ -z "${POSTFIX_DAGENT}" ] && \
 		echo "${POSTFIX_DAGENT} not set." && \
-		return 1
+		kill -15 `cat /var/run/supervisord.pid` && return 1
 	postconf -e "virtual_transport = ${POSTFIX_DAGENT}"
 }
 
@@ -1124,7 +1112,7 @@ function start_daemons() {
 
 function _start_daemons_cron() {
 	notify 'task' 'Starting cron' 'n'
-	display_startup_daemon "cron"
+	supervisorctl start cron
 }
 
 function _start_daemons_rsyslog() {
@@ -1134,7 +1122,7 @@ function _start_daemons_rsyslog() {
 
 function _start_daemons_saslauthd() {
 	notify 'task' 'Starting saslauthd' 'n'
-    display_startup_daemon "/etc/init.d/saslauthd start"
+    supervisorctl start "saslauthd_${SASLAUTHD_MECHANISMS}"
 }
 
 function _start_daemons_fail2ban() {
@@ -1159,13 +1147,13 @@ function _start_daemons_opendmarc() {
 
 function _start_daemons_postfix() {
 	notify 'task' 'Starting postfix' 'n'
-    display_startup_daemon "/etc/init.d/postfix start"
+    supervisorctl start postfix
 }
 
 function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
 
-	notify 'task' 'Starting dovecot services' 'n'	
+	notify 'task' 'Starting dovecot services' 'n'
 
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
@@ -1177,7 +1165,6 @@ function _start_daemons_dovecot() {
 		cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 		# /usr/sbin/dovecot reload
 	fi
-	
 
     supervisorctl start dovecot
 
@@ -1199,7 +1186,7 @@ function _start_daemons_filebeat() {
 function _start_daemons_fetchmail() {
 	notify 'task' 'Starting fetchmail' 'n'
 	/usr/local/bin/setup-fetchmail
-	display_startup_daemon "/etc/init.d/fetchmail start"
+	supervisorctl start fetchmail
 }
 
 function _start_daemons_clamav() {
@@ -1250,8 +1237,6 @@ notify 'taskgrp' "# docker-mailserver"
 notify 'taskgrp' "#"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
-
-supervisord -c /etc/supervisor/supervisord.conf
 
 register_functions
 

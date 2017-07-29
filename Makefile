@@ -32,7 +32,7 @@ run:
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
 		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_pop3 \
@@ -40,7 +40,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
 		-e ENABLE_POP3=1 \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
@@ -49,7 +49,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
 	sleep 15
@@ -64,7 +64,7 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h mail.my-domain.com \
 		-t $(NAME)
@@ -81,7 +81,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FETCHMAIL=1 \
 		--cap-add=NET_ADMIN \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_disabled_clamav_spamassassin \
@@ -89,7 +89,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_CLAMAV=0 \
 		-e ENABLE_SPAMASSASSIN=0 \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_manual_ssl \
@@ -98,7 +98,7 @@ run:
 		-e SSL_TYPE=manual \
 		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name ldap_for_mail \
@@ -125,7 +125,7 @@ run:
 		-e SASLAUTHD_LDAP_PASSWORD=admin \
 		-e SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
@@ -136,7 +136,7 @@ run:
 		-e SASLAUTHD_MECHANISMS=rimap \
 		-e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	# Wait for containers to fully start
 	sleep 15
@@ -146,7 +146,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 30
 	docker run -d --name mail_with_postgrey \
@@ -156,7 +156,7 @@ run:
 		-e POSTGREY_DELAY=15 \
 		-e POSTGREY_MAX_AGE=35 \
 		-e POSTGREY_TEXT="Delayed by postgrey" \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
 
@@ -188,7 +188,7 @@ fixtures:
 
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
-	sleep 20
+	sleep 40
 
 tests:
 	# Start tests
