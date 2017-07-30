@@ -133,6 +133,9 @@ function register_functions() {
 
 	_register_fix_function "_fix_var_mail_permissions"
 	_register_fix_function "_fix_var_amavis_permissions"
+	if [ "$ENABLE_CLAMAV" = 0 ]; then
+		_register_fix_function "_fix_cleanup_clamav"
+	fi
 
 	################### << fix funcs
 
@@ -717,7 +720,7 @@ function _setup_postfix_rejections() {
 
 	if [ -f /tmp/docker-mailserver/postfix-reject_header_checks ]; then
 		cp -f /tmp/docker-mailserver/postfix-reject_header_checks /etc/postfix/reject_header_checks
-		postconf -e "header_checks = pcre:/etc/postfix/reject_body_checks"
+		postconf -e "header_checks = pcre:/etc/postfix/reject_header_checks"
 	fi
 	if [ -f /tmp/docker-mailserver/postfix-reject_body_checks ]; then
 		cp -f /tmp/docker-mailserver/postfix-reject_body_checks /etc/postfix/reject_body_checks
@@ -1116,6 +1119,12 @@ function _fix_var_amavis_permissions() {
 		notify 'inf' "Permissions in $amavis_state_dir look OK"
 		return 0
 	fi
+}
+
+function _fix_cleanup_clamav() {
+	notify 'task' 'Cleaning up disabled Clamav'
+	rm -f /etc/logrotate.d/clamav-*
+	rm -f /etc/cron.d/freshclam
 }
 
 ##########################################################################
