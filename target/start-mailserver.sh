@@ -1158,12 +1158,10 @@ function _start_daemons_dovecot() {
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
 		mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-		# /usr/sbin/dovecot reload
 	fi
 
 	if [ -f /tmp/docker-mailserver/dovecot.cf ]; then
 		cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
-		# /usr/sbin/dovecot reload
 	fi
 
     supervisorctl start dovecot

@@ -138,7 +138,6 @@ run:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	# Wait for containers to fully start
 	sleep 15
 	docker run -d --name mail_lmtp_ip \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -188,7 +187,7 @@ fixtures:
 
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
-	sleep 40
+	sleep 20
 
 tests:
 	# Start tests

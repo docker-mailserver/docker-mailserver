@@ -183,3 +183,4 @@ EXPOSE 25 587 143 993 110 995 4190
 CMD supervisord -c /etc/supervisor/supervisord.conf
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+

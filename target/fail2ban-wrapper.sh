@@ -31,3 +31,4 @@ sleep 5
 while kill -0 "`cat /var/run/fail2ban/fail2ban.pid`"; do
   sleep 5
 done
+
