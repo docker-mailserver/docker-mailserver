@@ -24,6 +24,7 @@ In my case
 ```
 mkdir -p /home/ubuntu/docker/letsencrypt/log 
 mkdir -p /home/ubuntu/docker/letsencrypt/etc/letsencrypt
+cd /home/ubuntu/docker/letsencrypt
 ```
 
 Now get the certificate (modify ```mail.myserver.tld```) and following the certbot instructions.
