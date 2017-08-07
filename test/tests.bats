@@ -791,6 +791,13 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking system: amavis decoders installed and available" {
+  run docker exec mail /bin/sh -c "grep -E '.*(Internal decoder|Found decoder) for\s+\.(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe).*' /var/log/mail/mail.log|wc -l"
+  assert_success
+  assert_output 28
+}
+
+
 #
 # sieve
 #

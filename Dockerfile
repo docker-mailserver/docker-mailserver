@@ -12,10 +12,13 @@ RUN apt-get update -q --fix-missing && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
+    binutils \
     bzip2 \
     ca-certificates \
+    cabextract \
     clamav \
     clamav-daemon \
+    cpio \
     curl \
     dovecot-core \
     dovecot-imapd \
@@ -32,23 +35,34 @@ RUN apt-get update -q --fix-missing && \
     gzip \
     iptables \
     locales \
+    liblz4-tool \
     libmail-spf-perl \
     libnet-dns-perl \
     libsasl2-modules \
+    lrzip \
+    lzop \
     netcat-openbsd \
+    nomarch \
     opendkim \
     opendkim-tools \
     opendmarc \
-    p7zip \
+    pax \
+    p7zip-full \
     postfix-ldap \
     postfix-policyd-spf-python \
     pyzor \
+    rar \
     razor \
+    ripole \
+    rpm2cpio \
     rsyslog \
     sasl2-bin \
     spamassassin \
     postgrey \
+    unrar-free \
     unzip \
+    xz-utils \
+    zoo \
     && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
