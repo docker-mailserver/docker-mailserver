@@ -111,10 +111,6 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking process: saslauthd (saslauthd server enabled)" {
-  run docker exec mail_with_imap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
-  assert_success
-}
 
 #
 # postgrey
@@ -791,6 +787,13 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking system: amavis decoders installed and available" {
+  run docker exec mail /bin/sh -c "grep -E '.*(Internal decoder|Found decoder) for\s+\.(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe).*' /var/log/mail/mail.log|wc -l"
+  assert_success
+  assert_output 28
+}
+
+
 #
 # sieve
 #
@@ -1187,3 +1190,54 @@ load 'test_helper/bats-assert/load'
   assert_success
   assert_output 0
 }
+
+
+#
+# supervisor
+#
+
+@test "checking restart of process: postfix" {
+  run docker exec mail /bin/bash -c "pkill master && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
+  assert_success
+}
+
+@test "checking restart of process: clamd" {
+  run docker exec mail /bin/bash -c "pkill clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+  assert_success
+}
+
+@test "checking restart of process: amavisd-new" {
+  run docker exec mail /bin/bash -c "pkill amavi && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new (master)'"
+  assert_success
+}
+
+@test "checking restart of process: opendkim" {
+  run docker exec mail /bin/bash -c "pkill opendkim && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
+  assert_success
+}
+
+@test "checking restart of process: opendmarc" {
+  run docker exec mail /bin/bash -c "pkill opendmarc && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'"
+  assert_success
+}
+
+@test "checking restart of process: fail2ban (fail2ban server enabled)" {
+  run docker exec mail_fail2ban /bin/bash -c "pkill fail2ban && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
+  assert_success
+}
+
+@test "checking restart of process: fetchmail" {
+  run docker exec mail_fetchmail /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
+  assert_success
+}
+
+@test "checking restart of process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
+  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "pkill -f clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+  assert_failure
+}
+
+@test "checking restart of process: saslauthd (saslauthd server enabled)" {
+  run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
+  assert_success
+}
+

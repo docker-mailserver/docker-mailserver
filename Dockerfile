@@ -4,6 +4,13 @@ MAINTAINER Thomas VIAL
 ENV DEBIAN_FRONTEND noninteractive
 ENV VIRUSMAILS_DELETE_DELAY=7
 ENV ONE_DIR=0
+ENV ENABLE_POSTGREY=0
+ENV POSTGREY_DELAY=300
+ENV POSTGREY_MAX_AGE=35
+ENV POSTGREY_TEXT="Delayed by postgrey"
+
+ENV SASLAUTHD_MECHANISMS=pam
+ENV SASLAUTHD_MECH_OPTIONS=""
 
 # Packages
 RUN apt-get update -q --fix-missing && \
@@ -12,10 +19,13 @@ RUN apt-get update -q --fix-missing && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
+    binutils \
     bzip2 \
     ca-certificates \
+    cabextract \
     clamav \
     clamav-daemon \
+    cpio \
     curl \
     dovecot-core \
     dovecot-imapd \
@@ -32,24 +42,36 @@ RUN apt-get update -q --fix-missing && \
     gzip \
     iptables \
     locales \
+    liblz4-tool \
     libmail-spf-perl \
     libnet-dns-perl \
     libsasl2-modules \
+    lrzip \
+    lzop \
     netcat-openbsd \
+    nomarch \
     opendkim \
     opendkim-tools \
     opendmarc \
-    p7zip \
+    pax \
+    p7zip-full \
     postfix-ldap \
     postfix-pcre \
     postfix-policyd-spf-python \
     pyzor \
+    rar \
     razor \
+    ripole \
+    rpm2cpio \
     rsyslog \
     sasl2-bin \
     spamassassin \
+    supervisor \
     postgrey \
+    unrar-free \
     unzip \
+    xz-utils \
+    zoo \
     && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
@@ -69,7 +91,11 @@ RUN apt-get update -q --fix-missing && \
 
 RUN echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet" > /etc/cron.d/freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
-  freshclam
+  freshclam && \
+  sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
+  sed -i 's/AllowSupplementaryGroups false/AllowSupplementaryGroups true/g' /etc/clamav/clamd.conf && \
+  mkdir /var/run/clamav && \
+  chown -R clamav:root /var/run/clamav
 
 # Configures Dovecot
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
@@ -111,7 +137,7 @@ RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_fil
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
 COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
-RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf
+RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
 USER amavis
@@ -133,6 +159,7 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 # Configure fetchmail
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
+RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
@@ -161,11 +188,15 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /et
 COPY ./target/bin /usr/local/bin
 
 # Start-mailserver script
-COPY ./target/start-mailserver.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
+COPY ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
+
+# Configure supervisor
+COPY target/supervisor/* /etc/supervisor/conf.d/
 
 EXPOSE 25 587 143 993 110 995 4190
 
-CMD ["/bin/bash", "/usr/local/bin/start-mailserver.sh"]
+CMD supervisord -c /etc/supervisor/supervisord.conf
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+
