@@ -1,0 +1,14 @@
+EHLO mail
+AUTH LOGIN dXNlcjFAbG9jYWxob3N0LmxvY2FsZG9tYWlu
+bXlwYXNzd29yZA==
+mail from: <user1@localhost.localdomain>
+rcpt to: <user1@localhost.localdomain>
+data
+From: Some User <user1@localhost.localdomain>
+To: Some User <user1@localhost.localdomain>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.2.1
+Subject: Test ESMTP Auth LOGIN and remove privacy
+testing
+.
+quit

@@ -1101,6 +1101,15 @@ load 'test_helper/bats-assert/load'
  assert_success
 }
 
+@test "checking postfix: remove privacy details of the sender" {
+  run docker exec mail /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt | grep 'queued'"
+  assert_success
+  sleep 10
+  run docker exec mail /bin/sh -c "grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l"
+  assert_success
+  assert_output 0
+}
+
 # dovecot
 @test "checking dovecot: ldap imap connection and authentication works" {
   run docker exec mail_with_ldap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt"

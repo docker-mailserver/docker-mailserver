@@ -1,0 +1,11 @@
+use strict;
+
+# disable the "Received" headers to be added to the mail header
+$allowed_added_header_fields{lc('Received')} = 0;
+
+# Hide with whay virus scanner we scan
+$X_HEADER_LINE = "Yes";
+
+#------------ Do not modify anything below this line -------------
+1;  # ensure a defined return
+
