@@ -151,6 +151,12 @@ Don't forget to adapt MAIL_USER and MAIL_PASS to your needs
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:latest generate-dkim-config
 
+This generates DKIM keys for domains in configuration files. You can also generate DKIM key for a domain by using command
+
+    docker run --rm \
+      -v "$(pwd)/config":/tmp/docker-mailserver \
+      -ti tvial/docker-mailserver:latest generate-dkim-domain name_of_domain
+
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 Note: you can also manage email accounts, DKIM keys and more with the [setup.sh convenience script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh).
