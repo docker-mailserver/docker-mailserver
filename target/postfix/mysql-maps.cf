@@ -1,0 +1,5 @@
+user = {{DB_USER}}
+password = {{DB_PASS}}
+hosts = {{DB_HOST}}
+dbname = {{DB_NAME}}
+query = SELECT 1 FROM mailbox WHERE username=’%s’

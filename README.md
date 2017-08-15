@@ -9,8 +9,8 @@ Easy to deploy and upgrade.
 
 Includes:
 
-- postfix with smtp or ldap auth
-- dovecot for sasl, imap (and optional pop3) with ssl support, with ldap auth
+- postfix with smtp, mysql or ldap auth
+- dovecot for sasl, imap (and optional pop3) with ssl support, with ldap or mysql auth
 - saslauthd with ldap auth
 - amavis
 - spamassasin supporting custom rules
@@ -260,6 +260,11 @@ Otherwise, `iptables` won't be able to ban IPs.
 ##### FETCHMAIL_POLL
   - **300** => `fetchmail` The number of seconds for the interval
 
+=======
+##### ENABLE_MYSQL
+  - **empty** => MYSQL authentification is disabled
+  - 1 => MYSQL authentification is enabled
+  
 ##### ENABLE_LDAP
 
   - **empty** => LDAP authentification is disabled
