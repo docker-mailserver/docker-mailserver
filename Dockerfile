@@ -31,6 +31,7 @@ RUN apt-get update -q --fix-missing && \
     dovecot-imapd \
     dovecot-ldap \
     dovecot-lmtpd \
+    dovecot-mysql \
     dovecot-managesieved \
     dovecot-pop3d \
     dovecot-sieve \
