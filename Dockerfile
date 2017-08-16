@@ -57,6 +57,7 @@ RUN apt-get update -q --fix-missing && \
     pax \
     p7zip-full \
     postfix-ldap \
+    postifx-mysql \
     postfix-policyd-spf-python \
     pyzor \
     rar \
