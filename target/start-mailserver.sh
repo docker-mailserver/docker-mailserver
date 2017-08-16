@@ -14,6 +14,7 @@ DEFAULT_VARS["ENABLE_FAIL2BAN"]="${ENABLE_FAIL2BAN:="0"}"
 DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:="0"}"
 DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
+DEFAULT_VARS["ENABLE_MYSQL"]="${ENABLE_MYSQL:="0"}"
 DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:="0"}"
 DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:="300"}"
 DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
@@ -463,7 +464,7 @@ function _setup_dovecot_local_user() {
 	notify 'task' 'Setting up Dovecot Local User'
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
-	if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
+	if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} != 1 ]] && [[ ${ENABLE_MYSQL} != 1 ]]; then
 		notify 'inf' "Checking file line endings"
 		sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
 		notify 'inf' "Regenerating postfix user list"
@@ -512,8 +513,8 @@ function _setup_dovecot_local_user() {
 	fi
 
 	if [[ ! $(grep '@' /tmp/docker-mailserver/postfix-accounts.cf | grep '|') ]]; then
-		if [ $ENABLE_LDAP -eq 0 ]; then
-			notify 'fatal' "Unless using LDAP, you need at least 1 email account to start the server."
+		if [ $ENABLE_LDAP -eq 0 -a $ENABLE_MYSQL -eq 0 ]; then
+			notify 'fatal' "Unless using LDAP or MySQL, you need at least 1 email account to start the server."
 			defunc
 		fi
 	fi
