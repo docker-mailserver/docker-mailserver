@@ -1,0 +1,5 @@
+hosts =
+user =
+password =
+dbname = 
+query = SELECT 1 FROM transport WHERE domain= '%s
