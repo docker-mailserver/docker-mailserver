@@ -31,6 +31,7 @@ RUN apt-get update -q --fix-missing && \
     dovecot-imapd \
     dovecot-ldap \
     dovecot-lmtpd \
+    dovecot-mysql \
     dovecot-managesieved \
     dovecot-pop3d \
     dovecot-sieve \
@@ -56,6 +57,7 @@ RUN apt-get update -q --fix-missing && \
     pax \
     p7zip-full \
     postfix-ldap \
+    postfix-mysql \
     postfix-policyd-spf-python \
     pyzor \
     rar \
@@ -113,7 +115,8 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
-COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/ldap-aliases.cf /etc/postfix/
+COPY target/dovecot/dovecot-mysql.conf.ext /etc/dovecot
+COPY target/postfix/mysql.cf target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/ldap-aliases.cf /etc/postfix/
 
 # Enables Spamassassin CRON updates
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin

@@ -1,0 +1,8 @@
+driver 				= mysql
+connect 			= "host=127.0.0.1 dbname=vmail user=vmail password=vmaildbpass"
+default_pass_scheme = SHA512-CRYPT
+
+password_query 		= SELECT username AS user, domain, password FROM accounts WHERE username = '%n' AND domain = '%d' and enabled = true;
+
+user_query 			= SELECT concat('*:storage=', quota, 'M') AS quota_rule FROM accounts WHERE username = '%n' AND domain = '%d' AND sendonly = false;
+iterate_query 		= SELECT username, domain FROM accounts where sendonly = false;
