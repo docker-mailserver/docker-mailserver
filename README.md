@@ -237,6 +237,10 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **0** => `fetchmail` disabled
   - 1 => `fetchmail` enabled
 
+##### ENABLE_MYSQL
+  - **empty** => MYSQL authentification is disabled
+  - 1 => MYSQL authentification is enabled
+  
 ##### ENABLE_LDAP
 
   - **empty** => LDAP authentification is disabled
