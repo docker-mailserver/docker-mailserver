@@ -1141,6 +1141,8 @@ load 'test_helper/bats-assert/load'
 @test "checking saslauthd: ldap smtp authentication" {
   run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   assert_success
+  run docker exec mail_with_ldap /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
+  assert_success
 }
 
 
