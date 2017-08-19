@@ -81,7 +81,8 @@ If everything is OK regarding DNS, please provide [formatted logs](https://guide
 If we're blind, we won't be able to do anything.
 
 ### Which system requirements needs my container to run `docker-mailserver` effectively?
-1 core and 1GB of RAM is recommended, even it could work with 512M of RAM.
+1 core and 1GB of RAM + Swap partition is recommended to run `docker-mailserver` with Clamav.
+Otherwise, it could work with 512M of RAM.
 
 ### Is `docker-mailserver` running in a [rancher environment](http://rancher.com/rancher/)?
 
@@ -97,6 +98,13 @@ warning: connect to Milter service inet:localhost:8893: Connection refused
 warning: connect to Milter service inet:localhost:8891: Connection refused
 # DKIM not running
 # => /etc/init.d/opendkim restart
+
+mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can't connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory
+mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)
+mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.
+mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
+# Clamav is not running (not started or because you don't have enough memory)
+# => check requirements and/or start Clamav
 ```
 
 ### What about updates
