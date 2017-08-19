@@ -525,7 +525,7 @@ function _setup_ldap() {
 
 	notify 'inf' 'Checking for custom configs'
 	# cp config files if in place
-	for i in 'users' 'groups' 'aliases'; do
+	for i in 'users' 'groups' 'aliases' 'domains'; do
 	    fpath="/tmp/docker-mailserver/ldap-${i}.cf"
 	    if [ -f $fpath ]; then
 		cp ${fpath} /etc/postfix/ldap-${i}.cf
@@ -533,11 +533,12 @@ function _setup_ldap() {
 	done
 
 	notify 'inf' 'Starting to override configs'
-	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf
+	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/postfix/ldap-domains.cf
 	do
 		[[ $f =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
 		[[ $f =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
 		[[ $f =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
+		[[ $f =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
 		configomat.sh "LDAP_" "${f}"
 	done
 
@@ -570,6 +571,10 @@ function _setup_ldap() {
 	[ -f /etc/postfix/ldap-users.cf ] && \
 		postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf" || \
 		notify 'inf' "==> Warning: /etc/postfix/ldap-user.cf not found"
+
+	[ -f /etc/postfix/ldap-domains.cf ] && \
+		postconf -e "virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf" || \
+		notify 'inf' "==> Warning: /etc/postfix/ldap-domains.cf not found"
 
 	[ -f /etc/postfix/ldap-aliases.cf -a -f /etc/postfix/ldap-groups.cf ] && \
 		postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf" || \
