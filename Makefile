@@ -188,7 +188,7 @@ fixtures:
 
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
-	sleep 40
+	sleep 60
 
 tests:
 	# Start tests

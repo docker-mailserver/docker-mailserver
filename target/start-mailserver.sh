@@ -1012,6 +1012,9 @@ function fix() {
 		$_func
 		[ $? != 0 ] && defunc
 	done
+
+        notify 'taskgrg' "Remove leftover pid files from a stop/start"
+        rm -rf /var/run/*.pid /var/run/*/*.pid
 }
 
 function _fix_var_mail_permissions() {
