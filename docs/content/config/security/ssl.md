@@ -32,7 +32,7 @@ This will need access to port 443 from the internet, adjust your firewall if nee
 ```
 docker run --rm -ti -v $PWD/log/:/var/log/letsencrypt/ -v $PWD/etc/:/etc/letsencrypt/ -p 443:443 deliverous/certbot certonly --standalone -d mail.myserver.tld
 ```
-You can now mount /home/ubuntu/docker/letsencrypt/etc/letsencrypt in /etc/letsencrypt of ```docker-mailserver```
+You can now mount /home/ubuntu/docker/letsencrypt/etc/ in /etc/letsencrypt of ```docker-mailserver```
 
 To renew your certificate just run (this will need access to port 443 from the internet, adjust your firewall if needed)
 ```
