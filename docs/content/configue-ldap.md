@@ -12,6 +12,7 @@ __POSTFIX__:
 * `LDAP_QUERY_FILTER_USER`
 * `LDAP_QUERY_FILTER_GROUP`
 * `LDAP_QUERY_FILTER_ALIAS`
+* `LDAP_QUERY_FILTER_DOMAIN`
 
 __SASLAUTHD__:
 
@@ -76,6 +77,7 @@ services:
       - LDAP_QUERY_FILTER_USER="(&(objectClass=user)(mail=%s))"
       - LDAP_QUERY_FILTER_GROUP="(&(objectclass=group)(mail=%s))"
       - LDAP_QUERY_FILTER_ALIAS="(&(objectClass=user)(otherMailbox=%s))"
+      - LDAP_QUERY_FILTER_DOMAIN="(&(|(mail=*@%s)(user=*@%s)(group=*@%s))(mailEnabled=TRUE))"
       # <<< Postfix Ldap Integration
 
       # >>> Kopano Integration
