@@ -112,6 +112,7 @@ function register_functions() {
 	_register_setup_function "_setup_security_stack"
 	_register_setup_function "_setup_postfix_aliases"
 	_register_setup_function "_setup_postfix_vhost"
+	_register_setup_function "_setup_postfix_dhparam"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
@@ -919,6 +920,25 @@ function _setup_postfix_relay_amazon_ses() {
 		"smtp_tls_security_level = encrypt" \
 		"smtp_tls_note_starttls_offer = yes" \
 		"smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
+}
+
+function _setup_postfix_dhparam() {
+	notify 'task' 'Setting up Postfix dhparam'
+	if [ "$ONE_DIR" = 1 ];then
+		DHPARAMS_FILE=/var/mail-state/lib-postfix/dhparams.pem
+		if [ ! -f $DHPARAMS_FILE ]; then
+			notify 'inf' "Generate new dhparams for postfix"
+			mkdir -p $(dirname "$DHPARAMS_FILE")
+			openssl dhparam -out $DHPARAMS_FILE 2048
+		else
+			notify 'inf' "Use dhparams that was generated previously"
+		fi
+
+		# Copy from the state directpry to the working location
+		rm /etc/postfix/dhparams.pem && cp $DHPARAMS_FILE /etc/postfix/dhparams.pem
+	else
+		notify 'inf' "No state dir, we use the dhparams generated on image creation"
+	fi
 }
 
 function _setup_security_stack() {
