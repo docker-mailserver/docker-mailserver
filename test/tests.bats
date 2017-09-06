@@ -1141,6 +1141,8 @@ load 'test_helper/bats-assert/load'
 @test "checking saslauthd: ldap smtp authentication" {
   run docker exec mail_with_ldap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   assert_success
+  run docker exec mail_with_ldap /bin/sh -c "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
+  assert_success
   run docker exec mail_with_ldap /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt | grep 'Authentication successful'"
   assert_success
 }
@@ -1201,18 +1203,34 @@ load 'test_helper/bats-assert/load'
   assert_output 0
 }
 
-# postfix
-@test "checking postfix: only A grade TLS ciphers are used" {
+# postfix submission TLS
+@test "checking postfix submission: only A grade TLS ciphers are used" {
   run docker run --rm -i --link mail:postfix \
     --entrypoint sh instrumentisto/nmap -c \
       'nmap --script ssl-enum-ciphers -p 587 postfix | grep "least strength: A"'
   assert_success
 }
 
-@test "checking postfix: nmap produces no warnings on TLS ciphers verifying" {
+@test "checking postfix submission: nmap produces no warnings on TLS ciphers verifying" {
   run docker run --rm -i --link mail:postfix \
     --entrypoint sh instrumentisto/nmap -c \
       'nmap --script ssl-enum-ciphers -p 587 postfix | grep "warnings" | wc -l'
+  assert_success
+  assert_output 0
+}
+
+# postfix smtps SSL
+@test "checking postfix smtps: only A grade TLS ciphers are used" {
+  run docker run --rm -i --link mail:postfix \
+    --entrypoint sh instrumentisto/nmap -c \
+      'nmap --script ssl-enum-ciphers -p 465 postfix | grep "least strength: A"'
+  assert_success
+}
+
+@test "checking postfix smtps: nmap produces no warnings on TLS ciphers verifying" {
+  run docker run --rm -i --link mail:postfix \
+    --entrypoint sh instrumentisto/nmap -c \
+      'nmap --script ssl-enum-ciphers -p 465 postfix | grep "warnings" | wc -l'
   assert_success
   assert_output 0
 }
