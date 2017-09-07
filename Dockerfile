@@ -193,7 +193,7 @@ RUN chmod +x /usr/local/bin/*
 # Configure supervisor
 COPY target/supervisor/* /etc/supervisor/conf.d/
 
-EXPOSE 25 587 143 993 110 995 4190
+EXPOSE 25 587 143 465 993 110 995 4190
 
 CMD supervisord -c /etc/supervisor/supervisord.conf
 
