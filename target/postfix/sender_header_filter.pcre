@@ -1,0 +1,11 @@
+/^\s*Received:.*with ESMTPSA/       IGNORE
+/^\s*Received:.*amavisd-new/        IGNORE
+/^\s*X-Originating-IP:/             IGNORE
+/^\s*X-Mailer:/                     IGNORE
+/^\s*Mime-Version: 1.0.*/           REPLACE Mime-Version: 1.0
+/^\s*User-Agent/                    IGNORE
+/^\s*X-Enigmail/                    IGNORE
+/^\s*X-Mailer/                      IGNORE
+/^\s*X-Originating-IP/              IGNORE
+/^\s*Received: from.*127.0.0.1/     IGNORE
+

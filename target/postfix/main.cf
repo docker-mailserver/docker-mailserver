@@ -76,3 +76,7 @@ non_smtpd_milters = $dkim_milter
 
 # SPF policy settings
 policyd-spf_time_limit = 3600
+
+# Remove unwanted headers that reveail our privacy
+smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
+

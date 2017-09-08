@@ -56,6 +56,7 @@ RUN apt-get update -q --fix-missing && \
     pax \
     p7zip-full \
     postfix-ldap \
+    postfix-pcre \
     postfix-policyd-spf-python \
     pyzor \
     rar \
@@ -127,7 +128,7 @@ RUN chmod 755 /etc/init.d/postgrey && \
   chown postgrey:postgrey /var/run/postgrey
 
 # Enables Amavis
-COPY target/amavis/conf.d/60-dms_default_config /etc/amavis/conf.d/
+COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
   adduser clamav amavis && \
   adduser amavis clamav && \
@@ -163,6 +164,7 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
+COPY target/postfix/sender_header_filter.pcre /etc/postfix/maps/sender_header_filter.pcre
 RUN echo "" > /etc/aliases && \
   openssl dhparam -out /etc/postfix/dhparams.pem 2048
 
