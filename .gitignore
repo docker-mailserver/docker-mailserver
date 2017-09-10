@@ -4,6 +4,7 @@ docker-compose.yml
 test/config/empty/
 test/config/without-accounts/
 test/config/without-virtual/
+test/config/with-domain/
 test/config/postfix-accounts.cf
 test/config/letsencrypt/mail.my-domain.com/combined.pem
 test/onedir

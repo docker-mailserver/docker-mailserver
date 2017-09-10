@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+if [ $# -ne 1 ]; then
+    echo $0: "usage: generate-dkim-domain domain"
+    exit 1
+fi
+
+domainname=$1
+
+mkdir -p /tmp/docker-mailserver/opendkim/keys/$domainname
+
+if [ ! -f "/tmp/docker-mailserver/opendkim/keys/$domainname/mail.private" ]; then
+    echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/$domainname/mail.private"
+    opendkim-genkey --subdomains --domain=$domainname --selector=mail -D /tmp/docker-mailserver/opendkim/keys/$domainname
+fi
+
+# Write to KeyTable if necessary
+keytableentry="mail._domainkey.$domainname $domainname:mail:/etc/opendkim/keys/$domainname/mail.private"
+if [ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]; then
+    echo "Creating DKIM KeyTable"
+    echo $keytableentry > /tmp/docker-mailserver/opendkim/KeyTable
+else
+    if ! grep -q "$keytableentry" "/tmp/docker-mailserver/opendkim/KeyTable" ; then
+        echo $keytableentry >> /tmp/docker-mailserver/opendkim/KeyTable
+    fi
+fi
+
+# Write to SigningTable if necessary
+signingtableentry="*@$domainname mail._domainkey.$domainname"
+if [ ! -f "/tmp/docker-mailserver/opendkim/SigningTable" ]; then
+    echo "Creating DKIM SigningTable"
+    echo "*@$domainname mail._domainkey.$domainname" > /tmp/docker-mailserver/opendkim/SigningTable
+else
+    if ! grep -q "$signingtableentry" "/tmp/docker-mailserver/opendkim/SigningTable" ; then
+        echo $signingtableentry >> /tmp/docker-mailserver/opendkim/SigningTable
+    fi
+fi

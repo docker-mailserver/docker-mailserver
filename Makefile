@@ -220,4 +220,5 @@ clean:
 	-sudo rm -rf test/onedir \
 		test/config/empty \
 		test/config/without-accounts \
-		test/config/without-virtual
+		test/config/without-virtual \
+		test/config/with-domain

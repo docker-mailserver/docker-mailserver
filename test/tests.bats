@@ -574,6 +574,61 @@ load 'test_helper/bats-assert/load'
   assert_output 4
 }
 
+@test "checking opendkim: generator creates keys, tables and TrustedHosts using domain name" {  
+  rm -rf "$(pwd)/test/config/with-domain" && mkdir -p "$(pwd)/test/config/with-domain"
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/":/tmp/docker-mailserver/ \
+    -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+    -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+  assert_success
+  assert_output 6
+  # Generate key using domain name
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/":/tmp/docker-mailserver/ \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-domain testdomain.tld | wc -l'
+  assert_success
+  assert_output 1
+  # Check keys for localhost.localdomain
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+  assert_success
+  assert_output 2
+  # Check keys for otherdomain.tld
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+  assert_success
+  assert_output 2
+  # Check keys for testdomain.tld
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/testdomain.tld | wc -l'
+  assert_success
+  assert_output 2
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
+  assert_success
+  assert_output 4
+  # Check valid entries actually present in KeyTable
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c \
+    "egrep 'localhost.localdomain|otherdomain.tld|localdomain2.com|testdomain.tld' /etc/opendkim/KeyTable | wc -l"
+  assert_success
+  assert_output 4
+  # Check valid entries actually present in SigningTable
+  run docker run --rm \
+    -v "$(pwd)/test/config/with-domain/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c \
+    "egrep 'localhost.localdomain|otherdomain.tld|localdomain2.com|testdomain.tld' /etc/opendkim/SigningTable | wc -l"
+  assert_success
+  assert_output 4
+}
+
 #
 # ssl
 #
