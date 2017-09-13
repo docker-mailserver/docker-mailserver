@@ -21,3 +21,5 @@ You will be asked for a password. Just copy all the output string in the file `c
 
 The `doveadm pw` command let you choose between several encryption schemes for the password.
 Use doveadm pw -l to get a list of the currently supported encryption schemes.
+
+> Note: changes made with this script require a restart of the container. See [#552](../issues/552)
