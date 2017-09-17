@@ -196,7 +196,8 @@ COPY ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-
 RUN chmod +x /usr/local/bin/*
 
 # Configure supervisor
-COPY target/supervisor/* /etc/supervisor/conf.d/
+COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
 
 EXPOSE 25 587 143 465 993 110 995 4190
 

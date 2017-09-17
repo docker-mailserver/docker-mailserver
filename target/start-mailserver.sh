@@ -1038,6 +1038,8 @@ function fix() {
 
         notify 'taskgrg' "Remove leftover pid files from a stop/start"
         rm -rf /var/run/*.pid /var/run/*/*.pid
+
+	touch /dev/shm/supervisor.sock
 }
 
 function _fix_var_mail_permissions() {
