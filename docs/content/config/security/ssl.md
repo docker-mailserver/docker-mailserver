@@ -39,6 +39,46 @@ To renew your certificate just run (this will need access to port 443 from the i
 docker run --rm -ti -v $PWD/log/:/var/log/letsencrypt/ -v $PWD/etc/:/etc/letsencrypt/ -p 443:443 deliverous/certbot renew
 ```
 
+#### Example using docker, nginx-proxy and letsencrypt-nginx-proxy-companion ####
+If you are running a web server already, it is non-trivial to generate a Let's Encrypt certificate for your mail server using ```certbot```, because port 80 is already occupied. In the following example, we show how ```docker-mailserver``` can be run alongside the docker containers ```nginx-proxy``` and ```letsencrypt-nginx-proxy-companion```.
+
+There are several ways to start ```nginx-proxy``` and ```letsencrypt-nginx-proxy-companion```. Any method should be suitable here. For example start ```nginx-proxy``` as in the ```letsencrypt-nginx-proxy-companion``` [documentation](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion):
+
+```
+docker run -d -p 80:80 -p 443:443 \
+    --name nginx-proxy \
+    -v /path/to/certs:/etc/nginx/certs:ro \
+    -v /etc/nginx/vhost.d \
+    -v /usr/share/nginx/html \
+    -v /var/run/docker.sock:/tmp/docker.sock:ro \
+    --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
+    jwilder/nginx-proxy
+```
+
+Then start ```letsencrypt-nginx-proxy-companion```:
+```
+docker run -d \
+    -v /path/to/certs:/etc/nginx/certs:rw \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    --volumes-from nginx-proxy \
+    jrcs/letsencrypt-nginx-proxy-companion
+```
+Start the rest of your web server containers as usual.
+
+Start another container for your ```mail.myserver.tld```. This will generate a Let's Encrypt certificate for your domain, which can be used by ```docker-mailserver```. It will also run a web server on port 80 at that address.:
+```
+docker run -d \
+    --name webmail \
+    -e "VIRTUAL_HOST=mail.myserver.tld" \
+    -e "LETSENCRYPT_HOST=mail.myserver.tld" \
+    -e "LETSENCRYPT_EMAIL=foo@bar.com" \
+    library/nginx
+```
+You may want to add ```-e LETSENCRYPT_TEST=true``` to the above while testing to avoid the Let's Encrypt certificate generation rate limits.
+
+Finally, start ```docker-mailserver``` with ```path/to/certs/mail.mydomain.tld``` mounted to ```/etc/letsencrypt/live/mail.mydomain.tld```
+
+
 
 ### Self-signed certificates (testing only)
 
