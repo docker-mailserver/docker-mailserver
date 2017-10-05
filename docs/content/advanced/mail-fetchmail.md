@@ -1,9 +1,10 @@
 To enable the [fetchmail](http://www.fetchmail.info) service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`. Your `docker-compose.yml` file should look like following snippet:
 
-```
+```yaml
 ...
 environment:
   - ENABLE_FETCHMAIL=1
+  - FETCHMAIL_POLL=300
 ...
 ```
 
@@ -49,10 +50,10 @@ More details how to configure fetchmail can be found in the [fetchmail man page 
 
 ## Polling interval
 
-By default the fetchmail service searches very 5 minutes for new mails on your external mail accounts. You can override this default value by adding this line to your `fetchmail.cf`.
+By default the fetchmail service searches very 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable `FETCHMAIL_POLL`.
 
-```
-set daemon 60
+```yaml
+  - FETCHMAIL_POLL=60
 ```
 You must specify a numeric argument which is a polling interval in seconds. The example above polls every minute for new mails.
 
