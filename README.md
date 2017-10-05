@@ -243,6 +243,9 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **0** => `fetchmail` disabled
   - 1 => `fetchmail` enabled
 
+##### FETCHMAIL_POLL
+  - **300** => `fetchmail` The number of seconds for the interval
+
 ##### ENABLE_LDAP
 
   - **empty** => LDAP authentification is disabled
