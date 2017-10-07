@@ -1,12 +1,27 @@
 #! /bin/bash
-
-
-while ! [ $ENABLE_LDAP = 1 ]; do
+while true; do
 
 cd /tmp/docker-mailserver
 chksum=$(sha512sum -c chksum)
 resu_acc=${chksum:21:2}
 resu_vir=${chksum:44:2}
+
+# Check postfix-virtual.cf exist else break
+if [ ! -f postfix-virtual.cf ]; then
+   echo 'postfix-virtual.cf is missing! exit!'
+   break;
+fi
+
+# Check postfix-accounts.cf exist else break
+if [ ! -f postfix-accounts.cf ]; then
+   echo 'postfix-accounts.cf is missing! exit!'
+   break;
+fi 
+
+# Check chksum exist else create
+if [ ! -f chksum ]; then
+   sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
+fi
 
 if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
    echo "CHANGE DETECT"
@@ -50,16 +65,21 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 			echo ${domain} >> /tmp/vhost.tmp
 		done
 	fi
+    
+    # Set vhost 
 	if [ -f /tmp/vhost.tmp ]; then
 		cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 	fi
+    
+    # Set right new if needed
 	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
 		chown -R 5000:5000 /var/mail
 	fi
 
-   postfix reload
-   dovecot reload
+   supervisorctl restart postfix
+   supervisorctl restart dovecot
    sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
 fi
+
 sleep 1
 done

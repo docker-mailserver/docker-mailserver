@@ -183,7 +183,10 @@ function register_functions() {
 	if [ "$ENABLE_CLAMAV" = 1 ]; then
 		_register_start_daemon "_start_daemons_clamav"
 	fi
-
+    # Change detector
+    if [ "$ENABLE_LDAP" = 0 ]; then
+	    _register_start_daemon "_start_changedetector"
+    fi
 
 	_register_start_daemon "_start_daemons_amavis"
 	################### << daemon funcs
@@ -1247,7 +1250,10 @@ function _start_daemons_amavis() {
 # Start check for update postfix-accounts and postfix-virtual
 ##########################################################################
 
-nohup /usr/local/bin/check_for_changes.sh >/dev/null 2>&1 &
+function _start_changedetector() {
+	notify 'task' 'Starting changedetector' 'n'
+    supervisorctl start changedetector
+}
 
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
