@@ -27,6 +27,7 @@ resu_vir=${chksum:44:2}
 
 if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
    echo "CHANGE DETECT"
+    #regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
 	if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
@@ -67,7 +68,29 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 			echo ${domain} >> /tmp/vhost.tmp
 		done
 	fi
-    
+    # regen postfix aliases
+    echo -n > /etc/postfix/virtual
+	echo -n > /etc/postfix/regexp
+	if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
+		# Copying virtual file
+		cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
+		while read from to
+		do
+			# Setting variables for better readability
+			uname=$(echo ${from} | cut -d @ -f1)
+			domain=$(echo ${from} | cut -d @ -f2)
+			# if they are equal it means the line looks like: "user1     other@domain.tld"
+			test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
+		done < /tmp/docker-mailserver/postfix-virtual.cf
+	fi
+	if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
+		# Copying regexp alias file
+		cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
+		sed -i -e '/^virtual_alias_maps/{
+		s/ regexp:.*//
+		s/$/ regexp:\/etc\/postfix\/regexp/
+		}' /etc/postfix/main.cf
+	fi
     # Set vhost 
 	if [ -f /tmp/vhost.tmp ]; then
 		cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
