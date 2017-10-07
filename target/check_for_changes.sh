@@ -2,9 +2,6 @@
 while true; do
 
 cd /tmp/docker-mailserver
-chksum=$(sha512sum -c chksum)
-resu_acc=${chksum:21:2}
-resu_vir=${chksum:44:2}
 
 # Check postfix-virtual.cf exist else break
 if [ ! -f postfix-virtual.cf ]; then
@@ -22,6 +19,11 @@ fi
 if [ ! -f chksum ]; then
    sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
 fi
+
+# Get chksum and check it.
+chksum=$(sha512sum -c chksum)
+resu_acc=${chksum:21:2}
+resu_vir=${chksum:44:2}
 
 if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
    echo "CHANGE DETECT"
