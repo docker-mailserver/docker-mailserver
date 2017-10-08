@@ -1105,7 +1105,7 @@ function _misc_save_states() {
 	statedir=/var/mail-state
 	if [ "$ONE_DIR" = 1 -a -d $statedir ]; then
 		notify 'inf' "Consolidating all state onto $statedir"
-		for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassasin /var/lib/fail2ban /var/lib/postgrey; do
+		for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassassin /var/lib/fail2ban /var/lib/postgrey; do
 			dest=$statedir/`echo $d | sed -e 's/.var.//; s/\//-/g'`
 			if [ -d $dest ]; then
 				notify 'inf' "  Destination $dest exists, linking $d to it"
@@ -1126,7 +1126,7 @@ function _misc_save_states() {
 		chown -R clamav /var/mail-state/lib-clamav
 		chown -R postfix /var/mail-state/lib-postfix
 		chown -R postgrey /var/mail-state/lib-postgrey
-		chown -R debian-spamd /var/mail-state/lib-spamassasin
+		chown -R debian-spamd /var/mail-state/lib-spamassassin
 		chown -R postfix /var/mail-state/spool-postfix
 
 	fi
