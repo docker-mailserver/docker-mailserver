@@ -1,7 +1,17 @@
 #! /bin/bash
-while true; do
 
+# Prevent a start too early
+sleep 5
+
+# change directory
 cd /tmp/docker-mailserver
+
+# Update / generate after start
+echo 'Makeing new chksum'
+sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
+
+# Run forever
+while true; do
 
 # Check postfix-virtual.cf exist else break
 if [ ! -f postfix-virtual.cf ]; then
@@ -15,10 +25,6 @@ if [ ! -f postfix-accounts.cf ]; then
    break;
 fi 
 
-# Check chksum exist else create
-if [ ! -f chksum ]; then
-   sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
-fi
 
 # Get chksum and check it.
 chksum=$(sha512sum -c chksum)
@@ -100,10 +106,18 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
 		chown -R 5000:5000 /var/mail
 	fi
+    
+    
+    #supervisorctl restart postfix # Buggy causes error while testing.
+    postfix reload
+    
+    # Prevent restart of dovecot when smtp_only=1
+    if [ ! -f $SMTP_ONLY = 1 ]; then
+        supervisorctl restart dovecot
+    fi 
 
-   supervisorctl restart postfix
-   supervisorctl restart dovecot
-   sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
+    echo 'Update chksum'
+    sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
 fi
 
 sleep 1
