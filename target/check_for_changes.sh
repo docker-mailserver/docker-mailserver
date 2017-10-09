@@ -107,9 +107,8 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 		chown -R 5000:5000 /var/mail
 	fi
     
-    
-    #supervisorctl restart postfix # Buggy causes error while testing.
-    postfix reload
+    # Restart of the postfix
+    supervisorctl restart postfix
     
     # Prevent restart of dovecot when smtp_only=1
     if [ ! -f $SMTP_ONLY = 1 ]; then
