@@ -23,6 +23,7 @@ services:
     - DMS_DEBUG=0
     cap_add:
     - NET_ADMIN
+    - SYS_PTRACE
     restart: always
 
 volumes:

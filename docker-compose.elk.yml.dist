@@ -21,6 +21,7 @@ services:
     - ENABLE_ELK_FORWARDER=1
     cap_add:
     - NET_ADMIN
+    - SYS_PTRACE
     restart: always
   elk:
      build: elk
