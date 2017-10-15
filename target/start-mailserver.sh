@@ -826,7 +826,13 @@ function _setup_postfix_vhost() {
 function _setup_docker_permit() {
 	notify 'task' 'Setting up PERMIT_DOCKER Option'
 
-	container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+	for interface in `ip addr show | awk '{print $1}' | grep ':' | cut -d':' -f1 | sort | uniq`; do
+			tmp_ip=$(ip addr show $interface | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+			if [ $? == 0 ] && [ "$tmp_ip" != "" ] && [ "$tmp_ip" != "127.0.0.1" ]; then
+				container_ip=$tmp_ip
+				break
+			fi
+	done
 	container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
 
 	case $PERMIT_DOCKER in
