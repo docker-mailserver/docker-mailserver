@@ -71,6 +71,7 @@ services:
     - DMS_DEBUG=0
     cap_add:
     - NET_ADMIN
+    - SYS_PTRACE
 
 volumes:
   maildata:
@@ -125,6 +126,7 @@ services:
       - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
     cap_add:
       - NET_ADMIN
+      - SYS_PTRACE
 
 volumes:
   maildata:

@@ -197,6 +197,11 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking imap: added user authentication works" {
+  run docker exec mail /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/added-imap-auth.txt"
+  assert_success
+}
+
 #
 # pop
 #
@@ -208,6 +213,11 @@ load 'test_helper/bats-assert/load'
 
 @test "checking pop: authentication works" {
   run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/pop3-auth.txt"
+  assert_success
+}
+
+@test "checking pop: added user authentication works" {
+  run docker exec mail_pop3 /bin/sh -c "nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/added-pop3-auth.txt"
   assert_success
 }
 
@@ -264,10 +274,30 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking smtp: added user authentication works with good password (plain)" {
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt | grep 'Authentication successful'"
+  assert_success
+}
+
+@test "checking smtp: added user authentication fails with wrong password (plain)" {
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+  assert_success
+}
+
+@test "checking smtp: added user authentication works with good password (login)" {
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt | grep 'Authentication successful'"
+  assert_success
+}
+
+@test "checking smtp: added user authentication fails with wrong password (login)" {
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt | grep 'authentication failed'"
+  assert_success
+}
+
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
-  assert_output 9
+  assert_output 10
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -349,6 +379,7 @@ load 'test_helper/bats-assert/load'
   assert_success
   [ "${lines[0]}" = "user1@localhost.localdomain" ]
   [ "${lines[1]}" = "user2@otherdomain.tld" ]
+  [ "${lines[2]}" = "added@localhost.localdomain" ]
 }
 
 @test "checking accounts: user mail folders for user1" {
@@ -359,6 +390,12 @@ load 'test_helper/bats-assert/load'
 
 @test "checking accounts: user mail folders for user2" {
   run docker exec mail /bin/bash -c "ls -A /var/mail/otherdomain.tld/user2 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
+  assert_success
+  assert_output 7
+}
+
+@test "checking accounts: user mail folders for added user" {
+  run docker exec mail /bin/bash -c "ls -A /var/mail/localhost.localdomain/added | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
   assert_success
   assert_output 7
 }
@@ -1315,7 +1352,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking restart of process: amavisd-new" {
-  run docker exec mail /bin/bash -c "pkill amavi && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new (master)'"
+  run docker exec mail /bin/bash -c "pkill amavi && sleep 12 && ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new (master)'"
   assert_success
 }
 
