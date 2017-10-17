@@ -1,19 +1,22 @@
 #! /bin/bash
 
+# create date for log output
+log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 # Prevent a start too early
 sleep 5
+echo "${log_date} Start check-for-changes script."
 
 # change directory
 cd /tmp/docker-mailserver
 
 # Check postfix-accounts.cf exist else break
 if [ ! -f postfix-accounts.cf ]; then
-   echo 'postfix-accounts.cf is missing! This should not run! Exit!'
+   echo "${log_date} postfix-accounts.cf is missing! This should not run! Exit!"
    exit
 fi 
 
 # Update / generate after start
-echo 'Makeing new chksum'
+echo "${log_date} Makeing new checksum file."
 if [ -f postfix-virtual.cf ]; then
 	sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
 else
@@ -21,6 +24,9 @@ else
 fi
 # Run forever
 while true; do
+
+# recreate logdate
+log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it.
 chksum=$(sha512sum -c chksum)
@@ -32,7 +38,7 @@ else
 fi
 
 if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
-   echo "CHANGE DETECT"
+   echo "${log_date} Change detected"
     #regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
@@ -117,7 +123,7 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
         supervisorctl restart dovecot
     fi 
 
-    echo 'Update chksum'
+    echo "${log_date} Update checksum"
 	if [ -f postfix-virtual.cf ]; then
     sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
 	else
