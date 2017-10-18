@@ -1,38 +1,44 @@
 #! /bin/bash
 
+# create date for log output
+log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 # Prevent a start too early
 sleep 5
+echo "${log_date} Start check-for-changes script."
 
 # change directory
 cd /tmp/docker-mailserver
 
-# Update / generate after start
-echo 'Makeing new chksum'
-sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
+# Check postfix-accounts.cf exist else break
+if [ ! -f postfix-accounts.cf ]; then
+   echo "${log_date} postfix-accounts.cf is missing! This should not run! Exit!"
+   exit
+fi 
 
+# Update / generate after start
+echo "${log_date} Makeing new checksum file."
+if [ -f postfix-virtual.cf ]; then
+	sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
+else
+	sha512sum --tag postfix-accounts.cf > chksum
+fi
 # Run forever
 while true; do
 
-# Check postfix-virtual.cf exist else break
-if [ ! -f postfix-virtual.cf ]; then
-   echo 'postfix-virtual.cf is missing! exit!'
-   break;
-fi
-
-# Check postfix-accounts.cf exist else break
-if [ ! -f postfix-accounts.cf ]; then
-   echo 'postfix-accounts.cf is missing! exit!'
-   break;
-fi 
-
+# recreate logdate
+log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it.
-chksum=$(sha512sum -c chksum)
+chksum=$(sha512sum -c --ignore-missing chksum)
 resu_acc=${chksum:21:2}
-resu_vir=${chksum:44:2}
+if [ -f postfix-virtual.cf ]; then
+	resu_vir=${chksum:44:2}
+else
+	resu_vir="OK"
+fi
 
 if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
-   echo "CHANGE DETECT"
+   echo "${log_date} Change detected"
     #regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
@@ -74,6 +80,7 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 			echo ${domain} >> /tmp/vhost.tmp
 		done
 	fi
+	if [ -f postfix-virtual.cf ]; then
     # regen postfix aliases
     echo -n > /etc/postfix/virtual
 	echo -n > /etc/postfix/regexp
@@ -97,6 +104,7 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 		s/$/ regexp:\/etc\/postfix\/regexp/
 		}' /etc/postfix/main.cf
 	fi
+	fi
     # Set vhost 
 	if [ -f /tmp/vhost.tmp ]; then
 		cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
@@ -115,8 +123,12 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
         supervisorctl restart dovecot
     fi 
 
-    echo 'Update chksum'
+    echo "${log_date} Update checksum"
+	if [ -f postfix-virtual.cf ]; then
     sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
+	else
+	sha512sum --tag postfix-accounts.cf > chksum
+	fi
 fi
 
 sleep 1
