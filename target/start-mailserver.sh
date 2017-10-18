@@ -1,4 +1,5 @@
 #!/bin/bash
+trap 'stop_daemons' TERM INT QUIT
 
 ##########################################################################
 # >> DEFAULT VARS
@@ -23,6 +24,8 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
+DEFAULT_VARS["ADD_PERMIT_NETWORK"]="${ADD_PERMIT_NETWORK}"
+DEFAULT_VARS["DISABLE_FILTERS_FOR_MYNETWORKS"]="${DISABLE_FILTERS_FOR_MYNETWORKS}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -112,6 +115,7 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_sasl_password"
 	_register_setup_function "_setup_security_stack"
 	_register_setup_function "_setup_postfix_aliases"
+	_register_setup_function "_setup_postfix_rejections"
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_dhparam"
 
@@ -123,7 +127,7 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
 
-    _register_setup_function "_setup_environment"
+	_register_setup_function "_setup_environment"
 
 	################### << setup funcs
 
@@ -132,7 +136,7 @@ function register_functions() {
 	_register_fix_function "_fix_var_mail_permissions"
 	_register_fix_function "_fix_var_amavis_permissions"
 	if [ "$ENABLE_CLAMAV" = 0 ]; then
-        _register_fix_function "_fix_cleanup_clamav"
+		_register_fix_function "_fix_cleanup_clamav"
 	fi
 
 	################### << fix funcs
@@ -146,49 +150,49 @@ function register_functions() {
 	################### >> daemon funcs
 
 	_register_start_daemon "_start_daemons_cron"
-	_register_start_daemon "_start_daemons_rsyslog"
+	_register_start_stop_daemon "_start_daemons_rsyslog" "_stop_daemons_rsyslog"
 
 	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
-		_register_start_daemon "_start_daemons_filebeat"
+		_register_start_stop_daemon "_start_daemons_filebeat" "_stop_daemons_filebeat"
 	fi
 
 	if [ "$SMTP_ONLY" != 1 ]; then
-		_register_start_daemon "_start_daemons_dovecot"
+		_register_start_stop_daemon "_start_daemons_dovecot" "_stop_daemons_dovecot"
 	fi
 
 	# needs to be started before saslauthd
-	_register_start_daemon "_start_daemons_opendkim"
-	_register_start_daemon "_start_daemons_opendmarc"
+	_register_start_stop_daemon "_start_daemons_opendkim" "_stop_daemons_opendkim"
+	_register_start_stop_daemon "_start_daemons_opendmarc" "_stop_daemons_opendmarc"
 
 	#postfix uses postgrey, needs to be started before postfix
 	if [ "$ENABLE_POSTGREY" = 1 ]; then
-		_register_start_daemon "_start_daemons_postgrey"
+		_register_start_stop_daemon "_start_daemons_postgrey" "_stop_daemons_postgrey"
 	fi
 
-	_register_start_daemon "_start_daemons_postfix"
+	_register_start_stop_daemon "_start_daemons_postfix" "_stop_daemons_postfix"
 
 	if [ "$ENABLE_SASLAUTHD" = 1 ];then
-		_register_start_daemon "_start_daemons_saslauthd"
+		_register_start_stop_daemon "_start_daemons_saslauthd" "_stop_daemons_saslauthd"
 	fi
 
 	# care needs to run after postfix
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
-		_register_start_daemon "_start_daemons_fail2ban"
+		_register_start_stop_daemon "_start_daemons_fail2ban" "_stop_daemons_fail2ban"
 	fi
 
 	if [ "$ENABLE_FETCHMAIL" = 1 ]; then
-		_register_start_daemon "_start_daemons_fetchmail"
+		_register_start_stop_daemon "_start_daemons_fetchmail" "_stop_daemons_fetchmail"
 	fi
 
 	if [ "$ENABLE_CLAMAV" = 1 ]; then
-		_register_start_daemon "_start_daemons_clamav"
+		_register_start_stop_daemon "_start_daemons_clamav" "_stop_daemons_clamav"
 	fi
     # Change detector
     if [ "$ENABLE_LDAP" = 0 ]; then
 	    _register_start_daemon "_start_changedetector"
     fi
 
-	_register_start_daemon "_start_daemons_amavis"
+	_register_start_stop_daemon "_start_daemons_amavis" "_stop_daemons_amavis"
 	################### << daemon funcs
 }
 ##########################################################################
@@ -211,6 +215,7 @@ declare -a FUNCS_FIX
 declare -a FUNCS_CHECK
 declare -a FUNCS_MISC
 declare -a DAEMONS_START
+declare -a DAEMONS_STOP
 declare -A HELPERS_EXEC_STATE
 ##########################################################################
 # << CONSTANTS
@@ -220,9 +225,16 @@ declare -A HELPERS_EXEC_STATE
 ##########################################################################
 # >> protected register_functions
 ##########################################################################
+
 function _register_start_daemon() {
 	DAEMONS_START+=($1)
 	notify 'inf' "$1() registered"
+}
+
+function _register_start_stop_daemon() {
+	DAEMONS_START+=($1)
+	DAEMONS_STOP=($2 "${DAEMONS_STOP[@]}")
+	notify 'inf' "$1() and $2() registered"
 }
 
 function _register_setup_function() {
@@ -600,6 +612,15 @@ function _setup_postgrey() {
 	if [ -f /tmp/docker-mailserver/whitelist_clients.local ]; then
 		cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
 	fi
+	if [ -f /tmp/docker-mailserver/whitelist_recipients.local ]; then
+		cp -f /tmp/docker-mailserver/whitelist_recipients.local /etc/postgrey/whitelist_recipients.local
+	fi
+	if [ -f /tmp/docker-mailserver/postgrey-whitelist_clients.local ]; then
+		cp -f /tmp/docker-mailserver/postgrey-whitelist_clients.local /etc/postgrey/whitelist_clients.local
+	fi
+	if [ -f /tmp/docker-mailserver/postgrey-whitelist_recipients.local ]; then
+		cp -f /tmp/docker-mailserver/postgrey-whitelist_recipients.local /etc/postgrey/whitelist_recipients.local
+	fi
 }
 
 
@@ -689,6 +710,19 @@ function _setup_postfix_aliases() {
 		s/ regexp:.*//
 		s/$/ regexp:\/etc\/postfix\/regexp/
 		}' /etc/postfix/main.cf
+	fi
+}
+
+function _setup_postfix_rejections() {
+	notify 'task' 'Setting up Postfix Rejections'
+
+	if [ -f /tmp/docker-mailserver/postfix-reject_header_checks ]; then
+		cp -f /tmp/docker-mailserver/postfix-reject_header_checks /etc/postfix/reject_header_checks
+		postconf -e "header_checks = pcre:/etc/postfix/reject_header_checks"
+	fi
+	if [ -f /tmp/docker-mailserver/postfix-reject_body_checks ]; then
+		cp -f /tmp/docker-mailserver/postfix-reject_body_checks /etc/postfix/reject_body_checks
+		postconf -e "body_checks = pcre:/etc/postfix/reject_body_checks"
 	fi
 }
 
@@ -824,33 +858,44 @@ function _setup_postfix_vhost() {
 }
 
 function _setup_docker_permit() {
-	notify 'task' 'Setting up PERMIT_DOCKER Option'
+	notify 'task' 'Setting up PERMIT_DOCKER and ADD_PERMIT_NETWORK Options'
 
 	container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
 	container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
 
+	if [[ ! -z ${DEFAULT_VARS["ADD_PERMIT_NETWORK"]} ]]; then
+		add_permit_network="$ADD_PERMIT_NETWORK"
+	else
+		add_permit_network=""
+	fi
+
 	case $PERMIT_DOCKER in
 		"host" )
 			notify 'inf' "Adding $container_network/16 to my networks"
-			postconf -e "$(postconf | grep '^mynetworks =') $container_network/16"
+			postconf -e "$(postconf | grep '^mynetworks =') $container_network/16 $add_permit_network"
 			echo $container_network/16 >> /etc/opendmarc/ignore.hosts
 			echo $container_network/16 >> /etc/opendkim/TrustedHosts
 			;;
 
 		"network" )
 			notify 'inf' "Adding docker network in my networks"
-			postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
+			postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12 $add_permit_network"
 			echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
 			echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
 			;;
 
 		* )
 			notify 'inf' "Adding container ip in my networks"
-			postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
+			postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32 $add_permit_network"
 			echo $container_ip/32 >> /etc/opendmarc/ignore.hosts
 			echo $container_ip/32 >> /etc/opendkim/TrustedHosts
 			;;
 	esac
+
+	if [[ ! -z ${DEFAULT_VARS["ADD_PERMIT_NETWORK"]} ]]; then
+		echo $add_permit_network >> /etc/opendmarc/ignore.hosts
+		echo $add_permit_network >> /etc/opendkim/TrustedHosts
+	fi
 }
 
 function _setup_postfix_virtual_transport() {
@@ -953,7 +998,7 @@ function _setup_security_stack() {
 
 	# recreate auto-generated file
 	dms_amavis_file="/etc/amavis/conf.d/61-dms_auto_generated"
-  echo "# WARNING: this file is auto-generated." > $dms_amavis_file
+	echo "# WARNING: this file is auto-generated." > $dms_amavis_file
 	echo "use strict;" >> $dms_amavis_file
 
 	# Spamassassin
@@ -975,6 +1020,29 @@ function _setup_security_stack() {
 		echo "@bypass_virus_checks_maps = (1);" >> $dms_amavis_file
 	elif [ "$ENABLE_CLAMAV" = 1 ]; then
 		notify 'inf' "Enabling clamav"
+	fi
+
+	# Disable filters for mynetworks
+	if [ "$DISABLE_FILTERS_FOR_MYNETWORKS" = 1 ]; then
+		notify 'inf' "Disabling filters for mynetworks"
+
+		echo "" >>$dms_amavis_file
+		echo "# list of local IPs:" >>$dms_amavis_file
+		echo "@mynetworks = qw( $(postconf | grep '^mynetworks =' | sed 's/mynetworks = //' | sed 's/ /\n/g' | grep "\." | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g') );" >>$dms_amavis_file
+		echo "" >>$dms_amavis_file
+		echo "# allow all mail from local IPs:" >>$dms_amavis_file
+		echo "\$policy_bank{'MYNETS'} = {" >>$dms_amavis_file
+		echo "	bypass_decode_parts => 1," >>$dms_amavis_file
+		echo "	bypass_header_checks_maps => [1]," >>$dms_amavis_file
+		echo "	bypass_virus_checks_maps  => [1]," >>$dms_amavis_file
+		echo "	bypass_spam_checks_maps   => [1]," >>$dms_amavis_file
+		echo "	bypass_banned_checks_maps => [1]," >>$dms_amavis_file
+		echo "	bypass_header_checks_maps => [1]," >>$dms_amavis_file
+		echo "	spam_lovers_maps          => [1]," >>$dms_amavis_file
+                echo "	banned_files_lovers_maps  => [1]," >>$dms_amavis_file
+		echo "	archive_quarantine_to_maps => []," >>$dms_amavis_file
+		echo "};" >>$dms_amavis_file
+		echo "" >>$dms_amavis_file
 	fi
 
 	echo "1;  # ensure a defined return" >> $dms_amavis_file
@@ -1079,9 +1147,9 @@ function _fix_var_amavis_permissions() {
 }
 
 function _fix_cleanup_clamav() {
-    notify 'task' 'Cleaning up disabled Clamav'
-    rm -f /etc/logrotate.d/clamav-*
-    rm -f /etc/cron.d/freshclam
+	notify 'task' 'Cleaning up disabled Clamav'
+	rm -f /etc/logrotate.d/clamav-*
+	rm -f /etc/cron.d/freshclam
 }
 
 ##########################################################################
@@ -1131,6 +1199,13 @@ function _misc_save_states() {
 		chown -R postgrey /var/mail-state/lib-postgrey
 		chown -R debian-spamd /var/mail-state/lib-spamassassin
 		chown -R postfix /var/mail-state/spool-postfix
+		chown -R postfix:postdrop /var/mail-state/spool-postfix/maildrop
+		chown -R postfix:postdrop /var/mail-state/spool-postfix/public
+		chown -R root:root /var/mail-state/spool-postfix/dev
+		chown -R root:root /var/mail-state/spool-postfix/etc
+		chown -R root:root /var/mail-state/spool-postfix/lib
+		chown -R root:root /var/mail-state/spool-postfix/pid
+		chown -R root:root /var/mail-state/spool-postfix/usr
 
 	fi
 }
@@ -1191,6 +1266,8 @@ function _start_daemons_dovecot() {
 	# Here we are starting sasl and imap, not pop3 because it's disabled by default
 
 	notify 'task' 'Starting dovecot services' 'n'
+	rm -f /var/run/dovecot/master.pid
+	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf"
 
 	if [ "$ENABLE_POP3" = 1 ]; then
 		notify 'task' 'Starting pop3 services' 'n'
@@ -1245,6 +1322,87 @@ function _start_daemons_amavis() {
 # << Start Daemons
 ##########################################################################
 
+##########################################################################
+# >> Stop Daemons
+##########################################################################
+function stop_daemons() {
+	notify 'taskgrp' 'Stopping mail server'
+
+	for _func in "${DAEMONS_STOP[@]}";do
+		$_func
+	done
+	
+	kill -SIGTERM ${TAIL_PID}
+}
+
+function _stop_daemons_cron() {
+	notify 'task' 'Stopping cron' 'n'
+	display_startup_daemon "/etc/inid.d/cron stop"
+}
+
+function _stop_daemons_rsyslog() {
+	notify 'task' 'Stopping rsyslog' 'n'
+	display_startup_daemon "/etc/init.d/rsyslog stop"
+}
+
+function _stop_daemons_saslauthd() {
+	notify 'task' 'Stopping saslauthd' 'n'
+	display_startup_daemon "/etc/init.d/saslauthd stop"
+}
+
+function _stop_daemons_fail2ban() {
+	notify 'task' 'Stopping fail2ban' 'n'
+	display_startup_daemon "/etc/init.d/fail2ban stop"
+}
+
+function _stop_daemons_opendkim() {
+	notify 'task' 'Stopping opendkim' 'n'
+	display_startup_daemon "/etc/init.d/opendkim stop"
+}
+
+function _stop_daemons_opendmarc() {
+	notify 'task' 'Stopping opendmarc' 'n'
+	display_startup_daemon "/etc/init.d/opendmarc stop"
+}
+
+function _stop_daemons_postfix() {
+	notify 'task' 'Stopping postfix' 'n'
+	display_startup_daemon "/etc/init.d/postfix stop"
+}
+
+function _stop_daemons_dovecot() {
+	notify 'task' 'Stopping dovecot services' 'n'
+	display_startup_daemon "/usr/sbin/dovecot -c /etc/dovecot/dovecot.conf stop"
+}
+
+function _stop_daemons_filebeat() {
+	notify 'task' 'Stopping filebeat' 'n'
+	display_startup_daemon "/etc/init.d/filebeat stop"
+}
+
+function _stop_daemons_fetchmail() {
+	notify 'task' 'Stopping fetchmail' 'n'
+	display_startup_daemon "/etc/init.d/fetchmail stop"
+}
+
+function _stop_daemons_clamav() {
+	notify 'task' 'Stopping clamav' 'n'
+	display_startup_daemon "/etc/init.d/clamav-daemon stop"
+}
+
+function _stop_daemons_postgrey() {
+	notify 'task' 'Stopping postgrey' 'n'
+	display_startup_daemon "/etc/init.d/postgrey stop"
+}
+
+function _stop_daemons_amavis() {
+	notify 'task' 'Stopping amavis' 'n'
+	display_startup_daemon "/etc/init.d/amavis stop"
+}
+
+##########################################################################
+# << Stop Daemons
+##########################################################################
 
 ##########################################################################
 # Start check for update postfix-accounts and postfix-virtual
@@ -1294,9 +1452,9 @@ notify 'taskgrp' "# $HOSTNAME is up and running"
 notify 'taskgrp' "#"
 notify 'taskgrp' ""
 
-touch /var/log/mail/mail.log
-tail -fn 0 /var/log/mail/mail.log
-
+tail -fn 0 /var/log/mail/mail.log &
+TAIL_PID="$!"
+wait ${TAIL_PID}
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing

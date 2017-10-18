@@ -192,6 +192,7 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
 COPY ./target/bin /usr/local/bin
+
 # Start-mailserver script
 COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
