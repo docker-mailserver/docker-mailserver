@@ -686,8 +686,8 @@ function _setup_postfix_aliases() {
 		notify 'inf' "Adding regexp alias file postfix-regexp.cf"
 		cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
 		sed -i -e '/^virtual_alias_maps/{
-		s/ regexp:.*//
-		s/$/ regexp:\/etc\/postfix\/regexp/
+		s/ pcre:.*//
+		s/$/ pcre:\/etc\/postfix\/regexp/
 		}' /etc/postfix/main.cf
 	fi
 }
