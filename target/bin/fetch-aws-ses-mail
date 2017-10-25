@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$AWS_SES_KEY_ID" ] || [ -z "$AWS_SES_SECRET" ]; then
+  exit 0; # AWS mail fetching is not configured
+fi
+
 find /var/mail -maxdepth 1 -name '*.*' |while read -r domainPath; do
   domain=${domainPath##*/};
 
