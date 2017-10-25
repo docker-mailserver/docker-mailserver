@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [ -z "$AWS_SES_KEY_ID" ] || [ -z "$AWS_SES_SECRET" ]; then
+  exit 0; # AWS mail fetching is not configured
+fi
+
+find /var/mail -maxdepth 1 -name '*.*' |while read -r domainPath; do
+  domain=${domainPath##*/};
+
+  mkdir -p /var/mail-aws-ses/${domain} || exit 1;
+  aws s3 mv s3://mail-aws-ses/${domain} \
+           /var/mail-aws-ses/${domain} --recursive || exit 1;
+
+  find /var/mail-aws-ses -type f |while read -r file; do
+    while read -r name; do
+      mail_dir="/var/mail/${domain}/${name}";
+      if [ ! -f ${mail_dir}/new/${file##*/} ]; then
+        mv -v $file ${mail_dir}/new;
+        sieve-filter -e -W -C -u ${name}@${domain} \
+          ${mail_dir}/sieve/rainloop.user.sieve INBOX
+      fi
+    done < <(grep -Po "[a-zA-Z0-9.-]+(?=@${domain})" $file |sort |uniq)
+  done
+done
