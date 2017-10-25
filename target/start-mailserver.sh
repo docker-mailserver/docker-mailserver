@@ -119,6 +119,10 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
 	fi
 
+	if [ ! -z "$AWS_SES_KEY_ID" -a ! -z "$AWS_SES_SECRET" ]; then
+		_register_setup_function "_setup_postfix_fetch_amazon_ses"
+	fi
+
 	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
@@ -927,6 +931,19 @@ function _setup_postfix_relay_amazon_ses() {
 		"smtp_tls_security_level = encrypt" \
 		"smtp_tls_note_starttls_offer = yes" \
 		"smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
+}
+
+function _setup_postfix_fetch_amazon_ses() {
+	notify 'task' 'Setting up Amazon CLI'
+
+	mkdir -p $HOME/.aws
+	echo -e "[default]\naws_access_key_id = ${AWS_SES_KEY_ID}\n" \
+		"aws_secret_access_key = ${AWS_SES_SECRET}" > $HOME/.aws/credentials
+
+	if [ -z "${AWS_SES_REGION}" ]; then
+		AWS_SES_REGION="eu-west-1";
+	fi
+	echo -e "[default]\nregion = ${AWS_SES_REGION}" > $HOME/.aws/config
 }
 
 function _setup_postfix_dhparam() {

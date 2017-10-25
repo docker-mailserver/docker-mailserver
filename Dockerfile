@@ -20,6 +20,7 @@ RUN apt-get update -q --fix-missing && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
+    awscli \
     binutils \
     bzip2 \
     ca-certificates \
@@ -195,6 +196,9 @@ COPY ./target/bin /usr/local/bin
 # Start-mailserver script
 COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
+
+# Setup AWS SES Fetch Mail
+RUN (echo "*/1 * * * * /usr/local/bin/fetch-aws-ses-mail"; crontab -l) | crontab -
 
 # Configure supervisor
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
