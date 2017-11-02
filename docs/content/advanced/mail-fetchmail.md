@@ -50,7 +50,7 @@ More details how to configure fetchmail can be found in the [fetchmail man page 
 
 ## Polling interval
 
-By default the fetchmail service searches very 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable `FETCHMAIL_POLL`.
+By default the fetchmail service searches every 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable `FETCHMAIL_POLL`.
 
 ```yaml
   - FETCHMAIL_POLL=60
