@@ -1,0 +1,37 @@
+#!/bin/bash
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+
+USER="$1"
+OLD_PASSWD="$2"
+NEW_PASSWD="$3"
+
+usage() {
+	echo "Usage: updatemailuser-secure <user@domain> [<oldPassword>] [<newPassword>]"
+}
+
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+
+[ -z "$USER" ] && { usage; errex "no username specified"; }
+
+if [ -z "$OLD_PASSWD" ]; then
+	read -s -p "Enter Old Password: " OLD_PASSWD
+	echo
+	[ -z "$OLD_PASSWD" ] && errex "Password must not be empty"
+fi
+
+if [ -z "$NEW_PASSWD" ]; then
+	read -s -p "Enter New Password: " NEW_PASSWD
+	echo
+	[ -z "$NEW_PASSWD" ] && errex "Password must not be empty"
+fi
+
+set -e
+checkpasswd "${USER}" "${OLD_PASSWD}" && updatemailuser "${USER}" "${NEW_PASSWD}"

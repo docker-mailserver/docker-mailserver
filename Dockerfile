@@ -73,6 +73,8 @@ RUN apt-get update -q --fix-missing && \
     unzip \
     xz-utils \
     zoo \
+    sudo \
+    python-flask \
     && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
@@ -195,6 +197,10 @@ COPY ./target/bin /usr/local/bin
 # Start-mailserver script
 COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
+
+# Settings needed by the "change-password" server
+RUN sudo adduser --system --no-create-home change-password
+COPY target/sudoers.d/* /etc/sudoers.d/
 
 # Configure supervisor
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
