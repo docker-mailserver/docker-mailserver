@@ -1,0 +1,42 @@
+#!/bin/bash
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+
+USER="$1"
+PASSWD="$2"
+
+usage() {
+	echo "Usage: checkpasswd <user@domain> [<password>]"
+}
+
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+# Setting user name has failed because of invalid user of password
+errforbidden() {
+	echo "$@" 1>&2
+	exit 2
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+
+[ -z "$USER" ] && { usage; errex "no username specified"; }
+
+PASSWD_LINE="$( grep -i "^$(escape "$USER")|" "$DATABASE" )"
+
+[ -z "$PASSWD_LINE" ] && errforbidden "User \"$USER\" does not exist"
+
+# User name and hash from passwd (with the correct case) for verifying the password
+IFS="|" read PASSWD_USER PASSWD_HASH <<< "$PASSWD_LINE"
+
+if [ -z "$PASSWD" ]; then
+	read -s -p "Enter Password: " PASSWD
+	echo
+	[ -z "$PASSWD" ] && errex "Password must not be empty"
+fi
+
+doveadm pw -u "$PASSWD_USER" -p "$PASSWD" -t "$PASSWD_HASH" >/dev/null || errforbidden "Wrong password"
