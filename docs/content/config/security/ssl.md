@@ -78,7 +78,21 @@ You may want to add ```-e LETSENCRYPT_TEST=true``` to the above while testing to
 
 Finally, start ```docker-mailserver``` with ```path/to/certs/mail.mydomain.tld``` mounted to ```/etc/letsencrypt/live/mail.mydomain.tld```
 
+#### Example using the letsencrypt certificates on a Synology NAS
 
+Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates. Amongst other things, you can use these to secure your mail server. DSM locates the generated certificates in a folder below ```/usr/syno/etc/certificate/_archive/```. Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your ```docker-compose.yml``` declaration file:
+
+```
+volumes:
+      - /usr/syno/etc/certificate/_archive/YOUR_FOLDER/:/tmp/ssl 
+...
+environment:
+      - SSL_TYPE=manual
+      - SSL_CERT_PATH=/tmp/ssl/fullchain.pem
+      - SSL_KEY_PATH=/tmp/ssl/privkey.pem
+
+```
+DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 ### Self-signed certificates (testing only)
 
