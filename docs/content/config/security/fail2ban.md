@@ -1,4 +1,5 @@
 Fail2ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default. If you want to change this, you can easily edit [config/fail2ban-jail.cf](https://github.com/tomav/docker-mailserver/blob/master/config/fail2ban-jail.cf).
+You can do the same with the values from fail2ban.conf, e.g dbpurgeage. In that case you need to edit [config/fail2ban-fail2ban.cf](https://github.com/tomav/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf)
 
 __Important__: The mail container must be launched with the NET_ADMIN capability in order to be able to install the iptable rules that actually ban IP addresses. Thus either include `--cap-add=NET_ADMIN` in the docker run commandline or the equivalent docker-compose.yml:
 ```
