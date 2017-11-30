@@ -983,6 +983,7 @@ function _setup_security_stack() {
 	# Fail2ban
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
 		notify 'inf' "Fail2ban enabled"
+    test -e /tmp/docker-mailserver/fail2ban-fail2ban.cf && cp /tmp/docker-mailserver/fail2ban-fail2ban.cf /etc/fail2ban/fail2ban.local
 		test -e /tmp/docker-mailserver/fail2ban-jail.cf && cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local
 	else
 		# Disable logrotate config for fail2ban if not enabled

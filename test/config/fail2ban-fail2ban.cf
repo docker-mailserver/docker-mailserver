@@ -1,0 +1,14 @@
+[Definition]
+
+# Option: loglevel
+# Notes.: Set the log level output.
+#         CRITICAL
+#         ERROR
+#         WARNING
+#         NOTICE
+#         INFO
+#         DEBUG
+# Values: [ LEVEL ]  Default: ERROR
+#
+
+loglevel = DEBUG
