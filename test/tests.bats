@@ -611,7 +611,7 @@ load 'test_helper/bats-assert/load'
   assert_output 4
 }
 
-@test "checking opendkim: generator creates keys, tables and TrustedHosts using domain name" {  
+@test "checking opendkim: generator creates keys, tables and TrustedHosts using domain name" {
   rm -rf "$(pwd)/test/config/with-domain" && mkdir -p "$(pwd)/test/config/with-domain"
   run docker run --rm \
     -v "$(pwd)/test/config/with-domain/":/tmp/docker-mailserver/ \
@@ -729,6 +729,11 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep 'IP list:.*127.0.0.1'"
   assert_failure
   run docker exec mail_fail2ban /bin/sh -c "grep 'ignoreip = 127.0.0.1/8' /etc/fail2ban/jail.conf"
+  assert_success
+}
+
+@test "checking fail2ban: fail2ban-fail2ban.cf overrides" {
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get loglevel | grep DEBUG"
   assert_success
 }
 
@@ -1385,4 +1390,3 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   assert_success
 }
-
