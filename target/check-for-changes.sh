@@ -29,7 +29,7 @@ while true; do
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it.
-chksum=$(sha512sum -c --ignore-missing chksum)
+chksum=$(sha512sum -c chksum)
 resu_acc=${chksum:21:2}
 if [ -f postfix-virtual.cf ]; then
 	resu_vir=${chksum:44:2}
