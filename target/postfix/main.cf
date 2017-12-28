@@ -1,6 +1,6 @@
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
-smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+smtpd_banner = $myhostname ESMTP $mail_name (Debian)
 biff = no
 append_dot_mydomain = no
 readme_directory = no
@@ -79,4 +79,3 @@ policyd-spf_time_limit = 3600
 
 # Remove unwanted headers that reveail our privacy
 smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
-
