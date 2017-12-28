@@ -1,8 +1,8 @@
 NAME = tvial/docker-mailserver:testing
 
-all: build-no-cache generate-accounts run fixtures tests clean
-all-fast: build generate-accounts run fixtures tests clean
-no-build: generate-accounts run fixtures tests clean
+all: build-no-cache generate-accounts run generate-accounts-after-run fixtures tests clean
+all-fast: build generate-accounts run generate-accounts-after-run fixtures tests clean
+no-build: generate-accounts run generate-accounts-after-run fixtures tests clean
 
 build-no-cache:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
@@ -227,4 +227,5 @@ clean:
 		test/config/empty \
 		test/config/without-accounts \
 		test/config/without-virtual \
-		test/config/with-domain
+		test/config/with-domain \
+		test/config/dovecot-lmtp/userdb
