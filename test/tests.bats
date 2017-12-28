@@ -245,9 +245,9 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking logs: mail related logs should be located in a subdirectory" {
-  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail'|wc -l"
+  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log'|wc -l"
   assert_success
-  assert_output 5
+  assert_output 3
 }
 
 #
