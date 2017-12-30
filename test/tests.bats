@@ -1199,10 +1199,10 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postfix: remove privacy details of the sender" {
-  run docker exec mail /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt | grep 'queued'"
+  run docker exec mail_privacy /bin/sh -c "ls /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
-  sleep 10
-  run docker exec mail /bin/sh -c "grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l"
+  assert_output 1
+  run docker exec mail_privacy /bin/sh -c "grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
   assert_output 0
 }
