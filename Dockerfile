@@ -62,7 +62,6 @@ RUN apt-get update -q --fix-missing && \
     postfix-pcre \
     postfix-policyd-spf-python \
     pyzor \
-    # rar \
     razor \
     ripole \
     rpm2cpio \
@@ -180,7 +179,6 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   chown -R clamav:root /var/log/mail/clamav.log && \
   touch /var/log/mail/freshclam.log && \
   chown -R clamav:root /var/log/mail/freshclam.log && \
-  # no separate 50-default.conf
   sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.conf && \
   sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.conf && \
   sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf && \
