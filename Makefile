@@ -1,8 +1,8 @@
 NAME = tvial/docker-mailserver:testing
 
-all: build-no-cache generate-accounts run fixtures tests clean
-all-fast: build generate-accounts run fixtures tests clean
-no-build: generate-accounts run fixtures tests clean
+all: build-no-cache generate-accounts run generate-accounts-after-run fixtures tests clean
+all-fast: build generate-accounts run generate-accounts-after-run fixtures tests clean
+no-build: generate-accounts run generate-accounts-after-run fixtures tests clean
 
 build-no-cache:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
@@ -22,6 +22,23 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
+		-e ENABLE_CLAMAV=1 \
+		-e ENABLE_SPAMASSASSIN=1 \
+		-e SA_TAG=-5.0 \
+		-e SA_TAG2=2.0 \
+		-e SA_KILL=3.0 \
+		-e SA_SPAM_SUBJECT="SPAM: " \
+		-e VIRUSMAILS_DELETE_DELAY=7 \
+		-e SASL_PASSWD="external-domain.com username:password" \
+		-e ENABLE_MANAGESIEVE=1 \
+		--cap-add=SYS_PTRACE \
+		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
+	docker run -d --name mail_privacy \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_CLAMAV=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SA_TAG=-5.0 \
@@ -164,7 +181,7 @@ run:
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 	sleep 10
-    
+
 fixtures:
 	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
@@ -191,7 +208,7 @@ fixtures:
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# postfix virtual transport lmtp
 	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-
+	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
 	sleep 80
@@ -204,6 +221,7 @@ clean:
 	# Remove running test containers
 	-docker rm -f \
 		mail \
+		mail_privacy \
 		mail_pop3 \
 		mail_smtponly \
 		mail_smtponly_without_config \
@@ -227,4 +245,5 @@ clean:
 		test/config/empty \
 		test/config/without-accounts \
 		test/config/without-virtual \
-		test/config/with-domain
+		test/config/with-domain \
+		test/config/dovecot-lmtp/userdb

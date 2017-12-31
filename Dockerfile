@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM debian:stretch-slim
 MAINTAINER Thomas VIAL
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -41,6 +41,8 @@ RUN apt-get update -q --fix-missing && \
     file \
     gamin \
     gzip \
+    gnupg \
+    iproute2 \
     iptables \
     locales \
     liblz4-tool \
@@ -60,7 +62,6 @@ RUN apt-get update -q --fix-missing && \
     postfix-pcre \
     postfix-policyd-spf-python \
     pyzor \
-    rar \
     razor \
     ripole \
     rpm2cpio \
@@ -133,6 +134,8 @@ COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
   adduser clamav amavis && \
   adduser amavis clamav && \
+  # no syslog user in debian compared to ubuntu
+  adduser --system syslog && \
   useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker && \
   (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
 
@@ -144,8 +147,7 @@ RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /v
 # Enables Pyzor and Razor
 USER amavis
 RUN razor-admin -create && \
-  razor-admin -register && \
-  pyzor discover
+  razor-admin -register
 USER root
 
 # Configure DKIM (opendkim)
@@ -177,8 +179,8 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   chown -R clamav:root /var/log/mail/clamav.log && \
   touch /var/log/mail/freshclam.log && \
   chown -R clamav:root /var/log/mail/freshclam.log && \
-  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.d/50-default.conf && \
-  sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.d/50-default.conf && \
+  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.conf && \
+  sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.conf && \
   sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf && \
   sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf && \
   sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon && \
@@ -205,4 +207,3 @@ EXPOSE 25 587 143 465 993 110 995 4190
 CMD supervisord -c /etc/supervisor/supervisord.conf
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
-

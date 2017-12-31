@@ -166,8 +166,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postgrey: there should be a log entry about the whitelisted and passed e-mail user@whitelist.tld in /var/log/mail/mail.log" {
-  run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt"
-  sleep 8
+  run docker exec mail_with_postgrey /bin/sh -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt"
   run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
   assert_success
   assert_output 1
@@ -245,7 +244,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking logs: mail related logs should be located in a subdirectory" {
-  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail'|wc -l"
+  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log'|wc -l"
   assert_success
   assert_output 3
 }
@@ -759,8 +758,8 @@ load 'test_helper/bats-assert/load'
   # Create a container which will send wrong authentications and should banned
   docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
 
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
-  docker exec fail-auth-mailer /bin/sh -c 'nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
+  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
 
   sleep 5
 
@@ -1199,10 +1198,10 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postfix: remove privacy details of the sender" {
-  run docker exec mail /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt | grep 'queued'"
+  run docker exec mail_privacy /bin/sh -c "ls /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
-  sleep 10
-  run docker exec mail /bin/sh -c "grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l"
+  assert_output 1
+  run docker exec mail_privacy /bin/sh -c "grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
   assert_output 0
 }
