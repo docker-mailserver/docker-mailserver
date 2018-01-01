@@ -14,3 +14,8 @@ docker exec -it <mycontainer> bash
 could not find any mention of incorrect logins here
 neither in the dovecot logs
 
+3. Make sure you set your hostname to 'mail' or whatever you specified in your docker-compose.yml file or else your FQDN will be wrong
+
+4. During setup, if you get errors trying to edit files inside of the container, you likely need to install vi:
+    sudo su
+    docker exec -it mail apt-get install -y vim
