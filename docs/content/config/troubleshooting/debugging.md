@@ -20,6 +20,7 @@ neither in the dovecot logs
 
 1. During setup, if you get errors trying to edit files inside of the container, you likely need to install vi:
 
-    `sudo su`
-
-    `docker exec -it <mycontainer> apt-get install -y vim`
+``` bash
+sudo su
+docker exec -it <mycontainer> apt-get install -y vim
+```
