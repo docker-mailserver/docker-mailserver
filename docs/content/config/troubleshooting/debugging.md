@@ -34,12 +34,12 @@ cd /var/log
 cat fail2ban.log | grep dovecot
 
 # Whitelist ip addresses:
-fail2ban-client set dovecot addignoreip 172.18.0.1
-fail2ban-client set dovecot addignoreip 75.171.128.95
-fail2ban-client set postfix addignoreip 75.171.128.95
-fail2ban-client set postfix addignoreip 172.18.0.1
+fail2ban-client set dovecot addignoreip <server ip>  # ec2 cloud server
+fail2ban-client set postfix addignoreip <server ip>
+fail2ban-client set dovecot addignoreip <client ip>  # my desktop
+fail2ban-client set postfix addignoreip <client ip>
 
-# this will delete the jails entirely
+# this will delete the jails entirely - nuclear option
 fail2ban-client stop dovecot
 fail2ban-client stop postfix
 ```
