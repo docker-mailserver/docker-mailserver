@@ -22,4 +22,4 @@ neither in the dovecot logs
 
     `sudo su`
 
-    `docker exec -it mail apt-get install -y vim`
+    `docker exec -it <mycontainer> apt-get install -y vim`
