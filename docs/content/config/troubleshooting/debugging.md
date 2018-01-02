@@ -43,3 +43,10 @@ fail2ban-client set postfix addignoreip <client ip>
 fail2ban-client stop dovecot
 fail2ban-client stop postfix
 ```
+## No Mail?
+I finally got my macOS client working, but was not receiving test messages. I edited docker-compose.yml and temporarily disabled the spam filter (and fail2ban). Now I am getting mail. I will troubleshoot those and re-enable them next week, but thought this might be of help for others trying to troubleshoot.
+```bash
+    environment:
+    - ENABLE_MANAGESIEVE=0
+    - ENABLE_FAIL2BAN=0
+```
