@@ -827,14 +827,14 @@ function _setup_docker_permit() {
 	notify 'task' 'Setting up PERMIT_DOCKER Option'
 
 	container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
-	container_network="$(echo $container_ip | cut -d '.' -f1-2).0.0"
+	container_network=$(ip r | grep eth0 | awk '{print $1}')
 
 	case $PERMIT_DOCKER in
 		"host" )
 			notify 'inf' "Adding $container_network/16 to my networks"
-			postconf -e "$(postconf | grep '^mynetworks =') $container_network/16"
-			echo $container_network/16 >> /etc/opendmarc/ignore.hosts
-			echo $container_network/16 >> /etc/opendkim/TrustedHosts
+			postconf -e "$(postconf | grep '^mynetworks =') $container_network"
+			echo $container_network >> /etc/opendmarc/ignore.hosts
+			echo $container_network >> /etc/opendkim/TrustedHosts
 			;;
 
 		"network" )
