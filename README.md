@@ -30,6 +30,18 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 
 Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation.
 
+## Requirements
+
+Recommended:
+- 1 CPU
+- 1GB RAM
+
+Minimum:
+- 1 CPU
+- 512MB RAM
+
+**Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM.
+
 ## Usage
 
 #### Get latest image
