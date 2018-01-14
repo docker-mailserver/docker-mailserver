@@ -160,6 +160,13 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
+	docker run -d --name mail_undef_spam_subject \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_SPAMASSASSIN=1 \
+		-e SA_SPAM_SUBJECT="undef" \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -217,7 +224,8 @@ clean:
 		mail_with_imap \
 		mail_lmtp_ip \
 		mail_with_postgrey \
-		mail_override_hostname
+		mail_override_hostname \
+		mail_undef_spam_subject
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
 		rm -f config/postfix-accounts.cf ;\
