@@ -15,6 +15,7 @@ DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:="0"}"
 DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
 DEFAULT_VARS["FETCHMAIL_POLL"]="${FETCHMAIL_POLL:="300"}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
+DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:="eth0"}"
 DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:="0"}"
 DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:="300"}"
 DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
@@ -826,12 +827,12 @@ function _setup_postfix_vhost() {
 function _setup_docker_permit() {
 	notify 'task' 'Setting up PERMIT_DOCKER Option'
 
-	container_ip=$(ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
-	container_network=$(ip r | grep eth0 | awk '{print $1}')
+	container_ip=$(ip addr show $NETWORK_INTERFACE | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+	container_network=$(ip r | grep $NETWORK_INTERFACE | awk '{print $1}')
 
 	case $PERMIT_DOCKER in
 		"host" )
-			notify 'inf' "Adding $container_network/16 to my networks"
+			notify 'inf' "Adding $container_network to my networks"
 			postconf -e "$(postconf | grep '^mynetworks =') $container_network"
 			echo $container_network >> /etc/opendmarc/ignore.hosts
 			echo $container_network >> /etc/opendkim/TrustedHosts

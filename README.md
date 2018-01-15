@@ -410,6 +410,14 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
   - host => Add docker host (ipv4 only)
   - network => Add all docker containers (ipv4 only)
 
+##### NETWORK_INTERFACE
+
+Set the container's network interface to be selected when adding the docker host to mynetworks.
+  - **empty** => `eth0` will be used
+  - => Specify the container's network interface
+
+Note: Container network interface setting needs `PERMIT_DOCKER=host`
+
 ##### VIRUSMAILS_DELETE_DELAY
 
 Set how many days a virusmail will stay on the server before being deleted
