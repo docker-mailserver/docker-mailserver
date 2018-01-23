@@ -268,6 +268,11 @@ Otherwise, `iptables` won't be able to ban IPs.
     - A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
     - For preparing the ldap server to use in combination with this continer [this](http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/) article may be helpful
 
+##### LDAP_START_TLS
+
+  - **empty** => no
+  - yes => LDAP over TLS must be enabled for Postfix
+
 ##### LDAP_SERVER_HOST
 
   - **empty** => mail.domain.com
@@ -303,6 +308,11 @@ Otherwise, `iptables` won't be able to ban IPs.
 
   - e.g. `"(&(mailAlias=%s)(mailEnabled=TRUE))"`
   - => Specify how ldap should be asked for aliases
+
+##### DOVECOT_TLS
+
+  - **empty** => no
+  - yes => LDAP over TLS enabled for Dovecot
 
 ##### DOVECOT_USER_FILTER
 
