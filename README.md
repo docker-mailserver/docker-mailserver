@@ -271,7 +271,7 @@ Otherwise, `iptables` won't be able to ban IPs.
 ##### LDAP_START_TLS
 
   - **empty** => no
-  - yes => LDAP over TLS must be enabled for Postfix
+  - yes => LDAP over TLS enabled for Postfix
 
 ##### LDAP_SERVER_HOST
 
