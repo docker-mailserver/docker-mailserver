@@ -71,22 +71,13 @@ smtpd_sasl_path = /var/spool/postfix/private/auth
 smtpd_sasl_type = dovecot
 smtpd_sasl_local_domain = $myhostname
 broken_sasl_auth_clients =
-virtual_transport = lmtp:u
-	nix:/var/run/dove
-	cot/lmtp
-virtual_mailbox_
-domains = /etc/postfix/v
-host
-virtual_ma
-ilbox_maps = tex
-thash:/etc/postfi
-x/vmailbox
-virtual_alias_maps = tex
-thash:/etc/postfix/virtual
+virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
+virtual_mailbox_domains = /etc/postfix/vhost
+virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
+virtual_alias_maps = texthash:/etc/postfix/virtual
 
 
-# Milt
-ers used by DKIM
+# Milters used by DKIM
 milter_protocol = 6
 milter_default_action = accept
 dkim_milter = inet:localhost:8891
