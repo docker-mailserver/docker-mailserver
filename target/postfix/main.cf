@@ -45,30 +45,48 @@ smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf,
-    reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain,
-    reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
+    reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
 smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
+
+# Postscreen settings to drop zombies/open relays/spam early
+postscreen_dnsbl_action = drop                     
+postscreen_dnsbl_sites = zen.spamhaus.org*3 
+	bl.mailspike.net 
+	b.barracudacentral.org*2 
+	bl.spameatingmonkey.net 
+	bl.spamcop.net 
+	dnsbl.sorbs.net 
+	psbl.surriel.com 
+	list.dnswl.org=127.0.[0..255].0*-2 
+	list.dnswl.org=127.0.[0..255].1*-3 
+	list.dnswl.org=127.0.[0..255].[2..3]*-4                                        
+postscreen_dnsbl_threshold = 3                     
+postscreen_dnsbl_whitelist_threshold = -1          
+postscreen_greet_action = drop                     
 
 # SASL
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_path = /var/spool/postfix/private/auth
 smtpd_sasl_type = dovecot
-
-smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $myhostname
-broken_sasl_auth_clients = yes
+broken_sasl_auth_clients =
+virtual_transport = lmtp:u
+	nix:/var/run/dove
+	cot/lmtp
+virtual_mailbox_
+domains = /etc/postfix/v
+host
+virtual_ma
+ilbox_maps = tex
+thash:/etc/postfi
+x/vmailbox
+virtual_alias_maps = tex
+thash:/etc/postfix/virtual
 
-# Mail directory
-virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
-virtual_mailbox_domains = /etc/postfix/vhost
-virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
-virtual_alias_maps = texthash:/etc/postfix/virtual
 
-# Additional option for filtering
-content_filter = smtp-amavis:[127.0.0.1]:10024
-
-# Milters used by DKIM
+# Milt
+ers used by DKIM
 milter_protocol = 6
 milter_default_action = accept
 dkim_milter = inet:localhost:8891
