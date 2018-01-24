@@ -49,6 +49,7 @@ smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, rej
     reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
 smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
+disable_vrfy_command = yes
 
 # SASL
 smtpd_sasl_auth_enable = yes
