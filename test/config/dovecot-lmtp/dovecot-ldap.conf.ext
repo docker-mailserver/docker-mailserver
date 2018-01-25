@@ -3,6 +3,7 @@ default_pass_scheme = SSHA
 dn                  = cn=admin,dc=domain,dc=com
 dnpass              = admin
 hosts               = mail.domain.com
+tls                 = no
 ldap_version        = 3
 pass_attrs          = uniqueIdentifier=user,userPassword=password
 pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))

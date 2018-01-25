@@ -6,4 +6,5 @@ query_filter     = (&(mail=%s)(mailEnabled=TRUE))
 result_attribute = mail
 search_base      = ou=people,dc=domain,dc=com
 server_host      = mail.domain.com
+start_tls        = no
 version          = 3
