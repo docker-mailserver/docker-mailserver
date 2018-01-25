@@ -1177,12 +1177,16 @@ load 'test_helper/bats-assert/load'
 @test "checking postfix: ldap config overwrites success" {
  run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf"
  assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-users.cf"
+ assert_success
  run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
  assert_success
  run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
  assert_success
 
  run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf"
+ assert_success
+ run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-groups.cf"
  assert_success
  run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
  assert_success
