@@ -8,6 +8,8 @@ As described in the AWS Developer Guide you will have to generate SMTP credentia
     - AWS_SES_USERPASS=AKIAXXXXXXXXXXXXXXXX:kqXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
+If necessary, you can also provide AWS_SES_PORT. If not provided, it defaults to 25.
+
 When you start the container you will see a log line as follows confirming the configuration:
 ```
 Setting up outgoing email via AWS SES host email-smtp.us-east-1.amazonaws.com
