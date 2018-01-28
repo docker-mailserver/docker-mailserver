@@ -48,6 +48,7 @@ smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, rej
     reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
 smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
+disable_vrfy_command = yes
 
 # Postscreen settings to drop zombies/open relays/spam early
 postscreen_dnsbl_action = drop                     
