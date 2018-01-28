@@ -42,7 +42,7 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
     #regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
-	if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
+	if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} != 1 ]] && [[ ${ENABLE_MYSQL} != 1 ]]]; then
 		sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
 		echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
 		# Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
