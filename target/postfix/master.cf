@@ -10,7 +10,7 @@
 #               (yes)   (yes)   (no)   (never) (100)
 # ==========================================================================
 
-smtp      inet  n       -       n       -       1       postscreen        
+smtp       inet n       -       n       -       1       postscreen        
 smtpd      pass -       -       n       -       -       smtpd                                                                                                                                                
 tlsproxy   unix -       -       n       -       0       tlsproxy                                                                                                                                             
 dnsblog    unix -       -       n       -       0       dnsblog                 
@@ -55,7 +55,7 @@ verify    unix  -       -       y       -       1       verify
 flush     unix  n       -       y       1000?   0       flush
 proxymap  unix  -       -       n       -       -       proxymap
 proxywrite unix -       -       n       -       1       proxymap
-#smtp      unix  -       -       y       -       -       smtp
+smtp      unix  -       -       y       -       -       smtp
 relay     unix  -       -       y       -       -       smtp
 showq     unix  n       -       y       -       -       showq
 error     unix  -       -       y       -       -       error

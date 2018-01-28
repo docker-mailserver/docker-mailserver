@@ -70,13 +70,19 @@ postscreen_greet_action = drop
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_path = /var/spool/postfix/private/auth
 smtpd_sasl_type = dovecot
+
+smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $myhostname
-broken_sasl_auth_clients =
+broken_sasl_auth_clients = yes
+
+# Mail directory
 virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
 virtual_mailbox_domains = /etc/postfix/vhost
 virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
 virtual_alias_maps = texthash:/etc/postfix/virtual
 
+# Additional option for filtering
+content_filter = smtp-amavis:[127.0.0.1]:10024
 
 # Milters used by DKIM
 milter_protocol = 6
