@@ -181,35 +181,41 @@ case $1 in
       fetchmail)
         _docker_image debug-fetchmail
         ;;
-      fail2ban)                                      
-        shift                                        
-        JAILS=$(_docker_container fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,//g')    
-        if [ -z "$1" ]; then                         
-          for JAIL in $JAILS; do                     
-            BANNED_IP=$(_docker_container iptables -L f2b-$JAIL -n | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')                                                                  
-                  if [ -n "$BANNED_IP" ]; then       
-              echo "Banned in $JAIL: $BANNED_IP"     
-            fi                                       
-          done                                       
-        else                                         
-          case $1 in                                 
-            unban)                                   
-              shift                                  
-              if [ -n "$1" ]; then                   
-                      for JAIL in $JAILS; do         
-                              echo "unbanning $@ from $JAIL:"                                             
-                  _docker_container fail2ban-client set $JAIL unbanip $@                                  
-                done                                 
-                    else                             
-                            echo "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."                                                                        
-                    fi                               
-              ;;                                     
-            *)                                       
-              _usage                                 
-              ;;                                     
-          esac                                       
-        fi                                           
-        ;;                           
+      fail2ban)
+        shift
+        JAILS=$(_docker_container fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,//g')
+        if [ -z "$1" ]; then
+          IP_COUNT=0
+	  for JAIL in $JAILS; do
+            BANNED_IP=$(_docker_container iptables -L f2b-$JAIL -n | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')
+            if [ -n "$BANNED_IP" ]; then
+	      BANNED_IP=$(echo $BANNED_IP | sed -e 's/\n/,/g')
+	      echo "Banned in $JAIL: $BANNED_IP"
+	      IP_COUNT=$((IP_COUNT+1))
+            fi
+          done
+          if [ "$IP_COUNT" -eq 0 ]; then
+            echo "No IPs have been banned"
+          fi
+        else
+          case $1 in
+            unban)
+              shift
+              if [ -n "$1" ]; then
+                for JAIL in $JAILS; do
+                  echo "unbanning $@ from $JAIL:"
+                  _docker_container fail2ban-client set $JAIL unbanip $@
+                done
+              else
+                echo "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
+              fi
+              ;;
+            *)
+              _usage
+              ;;
+          esac
+        fi
+        ;;
       show-mail-logs)
         _docker_container cat /var/log/mail/mail.log
         ;;

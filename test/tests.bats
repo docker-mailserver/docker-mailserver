@@ -1131,6 +1131,21 @@ load 'test_helper/bats-assert/load'
   run ./setup.sh -c mail debug login ls
   assert_success
 }
+@test "checking setup.sh: setup.sh debug fail2ban" {
+  
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
+  run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
+  sleep 10
+  run ./setup.sh -c mail_fail2ban debug fail2ban
+  assert_output "Banned in dovecot: 192.0.66.5 192.0.66.4"
+  run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.4
+  assert_output --partial "unbanned IP from dovecot: 192.0.66.4"
+  run ./setup.sh -c mail_fail2ban debug fail2ban
+  assert_output "Banned in dovecot: 192.0.66.5"
+  run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.5
+  run ./setup.sh -c mail_fail2ban debug fail2ban unban
+  assert_output --partial "You need to specify an IP address. Run"
+}
 
 #
 # LDAP
