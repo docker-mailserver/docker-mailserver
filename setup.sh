@@ -203,8 +203,13 @@ case $1 in
               shift
               if [ -n "$1" ]; then
                 for JAIL in $JAILS; do
-                  echo "unbanning $@ from $JAIL:"
-                  _docker_container fail2ban-client set $JAIL unbanip $@
+                  RESULT=`_docker_container fail2ban-client set $JAIL unbanip $@`
+		  case "$RESULT" in
+		    *"is not banned"*) ;;
+		    *"NOK"*) ;;
+		    *)  echo -n "unbanned IP from $JAIL: " 
+			echo "$RESULT";;
+		  esac
                 done
               else
                 echo "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
