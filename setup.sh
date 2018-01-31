@@ -60,6 +60,7 @@ SUBCOMMANDS:
   debug:
 
     $0 debug fetchmail
+    $0 debug fail2ban <unban> <ip-address>               
     $0 debug show-mail-logs
     $0 debug inspect
     $0 debug login <commands>
@@ -179,6 +180,46 @@ case $1 in
     case $1 in
       fetchmail)
         _docker_image debug-fetchmail
+        ;;
+      fail2ban)
+        shift
+        JAILS=$(_docker_container fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,//g')
+        if [ -z "$1" ]; then
+          IP_COUNT=0
+	  for JAIL in $JAILS; do
+            BANNED_IP=$(_docker_container iptables -L f2b-$JAIL -n | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')
+            if [ -n "$BANNED_IP" ]; then
+	      BANNED_IP=$(echo $BANNED_IP | sed -e 's/\n/,/g')
+	      echo "Banned in $JAIL: $BANNED_IP"
+	      IP_COUNT=$((IP_COUNT+1))
+            fi
+          done
+          if [ "$IP_COUNT" -eq 0 ]; then
+            echo "No IPs have been banned"
+          fi
+        else
+          case $1 in
+            unban)
+              shift
+              if [ -n "$1" ]; then
+                for JAIL in $JAILS; do
+                  RESULT=`_docker_container fail2ban-client set $JAIL unbanip $@`
+		  case "$RESULT" in
+		    *"is not banned"*) ;;
+		    *"NOK"*) ;;
+		    *)  echo -n "unbanned IP from $JAIL: " 
+			echo "$RESULT";;
+		  esac
+                done
+              else
+                echo "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
+              fi
+              ;;
+            *)
+              _usage
+              ;;
+          esac
+        fi
         ;;
       show-mail-logs)
         _docker_container cat /var/log/mail/mail.log
