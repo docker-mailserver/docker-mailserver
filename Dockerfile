@@ -28,13 +28,6 @@ RUN apt-get update -q --fix-missing && \
     clamav-daemon \
     cpio \
     curl \
-    dovecot-core \
-    dovecot-imapd \
-    dovecot-ldap \
-    dovecot-lmtpd \
-    dovecot-managesieved \
-    dovecot-pop3d \
-    dovecot-sieve \
     ed \
     fail2ban \
     fetchmail \
@@ -77,10 +70,19 @@ RUN apt-get update -q --fix-missing && \
     && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
   apt-get -y upgrade \
-    fail2ban \
     filebeat \
+    && \
+  apt-get -t stretch-backports -y install --no-install-recommends \
+    dovecot-core \
+    dovecot-imapd \
+    dovecot-ldap \
+    dovecot-lmtpd \
+    dovecot-managesieved \
+    dovecot-pop3d \
+    dovecot-sieve \
     && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
@@ -107,6 +109,9 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   sed -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
   sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf && \
   sed -i 's/#imap_idle_notify_interval = 2 mins/imap_idle_notify_interval = 29 mins/' /etc/dovecot/conf.d/20-imap.conf && \
+  # stretch-backport of dovecot needs this folder
+  mkdir /etc/dovecot/ssl && \
+  chmod 755 /etc/dovecot/ssl  && \
   cd /usr/share/dovecot && \
   ./mkcert.sh  && \
   mkdir /usr/lib/dovecot/sieve-pipe && \
