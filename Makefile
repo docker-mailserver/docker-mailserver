@@ -1,4 +1,4 @@
-NAME = tvial/docker-mailserver:testing
+NAME = tvial/docker-mailserver:backport-testing
 
 all: build-no-cache generate-accounts run generate-accounts-after-run fixtures tests clean
 all-fast: build generate-accounts run generate-accounts-after-run fixtures tests clean
