@@ -130,6 +130,9 @@ RUN chmod 755 /etc/init.d/postgrey && \
   mkdir /var/run/postgrey && \
   chown postgrey:postgrey /var/run/postgrey
 
+# Enables PostSRSd
+COPY target/postsrsd/postsrsd /etc/default/postsrsd
+
 # Enables Amavis
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \

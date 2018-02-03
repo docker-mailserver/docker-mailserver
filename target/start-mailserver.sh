@@ -105,6 +105,7 @@ function register_functions() {
 	_register_setup_function "_setup_amavis"
 	_register_setup_function "_setup_dmarc_hostname"
 	_register_setup_function "_setup_postfix_hostname"
+	_register_setup_function "_setup_postsrsd_hostname"
 	_register_setup_function "_setup_dovecot_hostname"
 
 	_register_setup_function "_setup_postfix_sasl"
@@ -421,6 +422,12 @@ function _setup_postfix_hostname() {
 	notify 'inf' "Applying hostname to /etc/postfix/main.cf"
 	postconf -e "myhostname = $HOSTNAME"
 	postconf -e "mydomain = $DOMAINNAME"
+}
+
+function _setup_postsrsd_hostname() {
+	notify 'task' 'Applying hostname to PostSRSd'
+	notify 'inf' 'Applying hostname to /etc/default/postsrsd'
+	sed -i -e "s/localdomain/$DOMAINNAME/g" /etc/default/postsrsd
 }
 
 function _setup_dovecot_hostname() {
