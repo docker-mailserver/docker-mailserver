@@ -82,3 +82,9 @@ policyd-spf_time_limit = 3600
 
 # Remove unwanted headers that reveail our privacy
 smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
+
+# postSRSd rules to process spf mail forwarding
+sender_canonical_maps = tcp:localhost:10001
+sender_canonical_classes = envelope_sender
+recipient_canonical_maps = tcp:localhost:10002
+recipient_canonical_classes = envelope_recipient,header_recipient

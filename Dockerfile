@@ -61,6 +61,7 @@ RUN apt-get update -q --fix-missing && \
     postfix-ldap \
     postfix-pcre \
     postfix-policyd-spf-python \
+    postsrsd \
     pyzor \
     razor \
     ripole \
