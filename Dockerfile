@@ -18,71 +18,71 @@ RUN apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
   apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
-    amavisd-new \
-    arj \
-    binutils \
-    bzip2 \
-    ca-certificates \
-    cabextract \
-    clamav \
-    clamav-daemon \
-    cpio \
-    curl \
-    dovecot-core \
-    dovecot-imapd \
-    dovecot-ldap \
-    dovecot-lmtpd \
-    dovecot-managesieved \
-    dovecot-pop3d \
-    dovecot-sieve \
-    ed \
-    fail2ban \
-    fetchmail \
-    file \
-    gamin \
-    gzip \
-    gnupg \
-    iproute2 \
-    iptables \
-    locales \
-    liblz4-tool \
-    libmail-spf-perl \
-    libnet-dns-perl \
-    libsasl2-modules \
-    lrzip \
-    lzop \
-    netcat-openbsd \
-    nomarch \
-    opendkim \
-    opendkim-tools \
-    opendmarc \
-    pax \
-    p7zip-full \
-    postfix-ldap \
-    postfix-pcre \
-    postfix-policyd-spf-python \
-    postsrsd \
-    pyzor \
-    razor \
-    ripole \
-    rpm2cpio \
-    rsyslog \
-    sasl2-bin \
-    spamassassin \
-    supervisor \
-    postgrey \
-    unrar-free \
-    unzip \
-    xz-utils \
-    zoo \
-    && \
+  amavisd-new \
+  arj \
+  binutils \
+  bzip2 \
+  ca-certificates \
+  cabextract \
+  clamav \
+  clamav-daemon \
+  cpio \
+  curl \
+  dovecot-core \
+  dovecot-imapd \
+  dovecot-ldap \
+  dovecot-lmtpd \
+  dovecot-managesieved \
+  dovecot-pop3d \
+  dovecot-sieve \
+  ed \
+  fail2ban \
+  fetchmail \
+  file \
+  gamin \
+  gzip \
+  gnupg \
+  iproute2 \
+  iptables \
+  locales \
+  liblz4-tool \
+  libmail-spf-perl \
+  libnet-dns-perl \
+  libsasl2-modules \
+  lrzip \
+  lzop \
+  netcat-openbsd \
+  nomarch \
+  opendkim \
+  opendkim-tools \
+  opendmarc \
+  pax \
+  p7zip-full \
+  postfix-ldap \
+  postfix-pcre \
+  postfix-policyd-spf-python \
+  postsrsd \
+  pyzor \
+  razor \
+  ripole \
+  rpm2cpio \
+  rsyslog \
+  sasl2-bin \
+  spamassassin \
+  supervisor \
+  postgrey \
+  unrar-free \
+  unzip \
+  xz-utils \
+  zoo \
+  && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
   apt-get update -q --fix-missing && \
   apt-get -y upgrade \
-    fail2ban \
-    filebeat \
-    && \
+  fail2ban \
+  filebeat \
+  && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /usr/share/locale/* && \
@@ -121,7 +121,7 @@ COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/l
 
 # Enables Spamassassin CRON updates and update hook for supervisor
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
-    sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
+  sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
 # Enables Postgrey
 COPY target/postgrey/postgrey /etc/default/postgrey
@@ -199,7 +199,7 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /et
 
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script
-COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
+COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/postsrsd-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 # Configure supervisor
