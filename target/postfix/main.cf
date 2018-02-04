@@ -45,11 +45,27 @@ smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf,
-    reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain,
-    reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
+    reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
 smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
 disable_vrfy_command = yes
+
+# Postscreen settings to drop zombies/open relays/spam early
+postscreen_dnsbl_action = enforce
+postscreen_dnsbl_sites = zen.spamhaus.org*3 
+	bl.mailspike.net 
+	b.barracudacentral.org*2 
+	bl.spameatingmonkey.net 
+	bl.spamcop.net 
+	dnsbl.sorbs.net 
+	psbl.surriel.com 
+	list.dnswl.org=127.0.[0..255].0*-2 
+	list.dnswl.org=127.0.[0..255].1*-3 
+	list.dnswl.org=127.0.[0..255].[2..3]*-4                                        
+postscreen_dnsbl_threshold = 3                     
+postscreen_dnsbl_whitelist_threshold = -1          
+postscreen_greet_action = enforce
+postscreen_bare_newline_action = enforce
 
 # SASL
 smtpd_sasl_auth_enable = yes

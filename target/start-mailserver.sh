@@ -23,6 +23,7 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
+DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -114,6 +115,7 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_aliases"
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_dhparam"
+	_register_setup_function "_setup_postfix_postscreen"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
@@ -602,6 +604,12 @@ function _setup_postgrey() {
 	fi
 }
 
+function _setup_postfix_postscreen() {
+	notify 'inf' "Configuring postscreen"
+	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
+	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
+	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf 
+}
 
 function _setup_postfix_sasl() {
     if [[ ${ENABLE_SASLAUTHD} == 1 ]];then

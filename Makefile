@@ -91,6 +91,7 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e ENABLE_FAIL2BAN=1 \
+		-e POSTSCREEN_ACTION=ignore \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
@@ -160,6 +161,13 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
+	docker run -d --name mail_postscreen \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e POSTSCREEN_ACTION=enforce \
+		--cap-add=NET_ADMIN \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 	docker run -d --name mail_lmtp_ip \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/config/dovecot-lmtp":/etc/dovecot \
@@ -179,6 +187,7 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
+
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -237,6 +246,7 @@ clean:
 		mail_with_imap \
 		mail_lmtp_ip \
 		mail_with_postgrey \
+		mail_postscreen \
 		mail_override_hostname
 
 	@if [ -f config/postfix-accounts.cf.bak ]; then\
