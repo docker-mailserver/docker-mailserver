@@ -54,6 +54,7 @@ RUN apt-get update -q --fix-missing && \
     postfix-ldap \
     postfix-pcre \
     postfix-policyd-spf-python \
+    postsrsd \
     pyzor \
     razor \
     ripole \
@@ -134,6 +135,9 @@ RUN chmod 755 /etc/init.d/postgrey && \
   mkdir /var/run/postgrey && \
   chown postgrey:postgrey /var/run/postgrey
 
+# Copy PostSRSd Config
+COPY target/postsrsd/postsrsd /etc/default/postsrsd
+
 # Enables Amavis
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
@@ -200,7 +204,7 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /et
 
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script
-COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
+COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/postsrsd-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 # Configure supervisor

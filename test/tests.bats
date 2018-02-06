@@ -345,13 +345,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking smtp: rejects spam" {
-  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep spam@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@my-domain.com | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking smtp: rejects virus" {
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep virus@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
   assert_success
   assert_output 1
 }
