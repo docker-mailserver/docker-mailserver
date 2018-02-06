@@ -7,6 +7,8 @@ Once its done, just run from inside the directory of docker-compose.yml:
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
+After generating DKIM keys you should restart the app.
+
 ```
 ; OpenDKIM
 mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
