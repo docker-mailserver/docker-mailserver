@@ -1121,6 +1121,23 @@ load 'test_helper/bats-assert/load'
   run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
   [ -z "$value" ]
 }
+@test "checking setup.sh: setup.sh email restrict" {
+  run ./setup.sh -c mail email restrict 
+  assert_failure
+  run ./setup.sh -c mail email restrict add
+  assert_failure
+  ./setup.sh -c mail email restrict add send lorem@impsum.org
+  ./setup.sh -c mail email restrict add receive rec_lorem@impsum.org
+  run ./setup.sh -c mail email restrict list send
+  assert_output --regexp "^lorem@impsum.org.*REJECT"
+  run ./setup.sh -c mail email restrict list receive
+  assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
+  ./setup.sh -c mail email restrict del send lorem@impsum.org
+  assert_success
+  ./setup.sh -c mail email restrict del receive rec_lorem@impsum.org
+  run ./setup.sh -c mail email restrict list send
+  assert_output --partial "Everyone is allowed"
+}
 
 # alias
 @test "checking setup.sh: setup.sh alias list" {
