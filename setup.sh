@@ -42,9 +42,10 @@ SUBCOMMANDS:
 
   email:
 
-    $0 email add <email> <password>
-    $0 email update <email> <password>
+    $0 email add <email> [<password>]
+    $0 email update <email> [<password>]
     $0 email del <email>
+    $0 email restrict <add|del|list> <send|receive> [<email>]
     $0 email list
 
   alias:
@@ -60,7 +61,7 @@ SUBCOMMANDS:
   debug:
 
     $0 debug fetchmail
-    $0 debug fail2ban <unban> <ip-address>               
+    $0 debug fail2ban [<unban> <ip-address>]               
     $0 debug show-mail-logs
     $0 debug inspect
     $0 debug login <commands>
@@ -117,7 +118,6 @@ case $1 in
   email)
     shift
     case $1 in
-
       add)
         shift
         _docker_image addmailuser $@
@@ -130,6 +130,10 @@ case $1 in
         shift
         _docker_image delmailuser $@
         ;;
+      restrict)
+        shift
+        _docker_image restrict-access $@
+        ;;  
       list)
         _docker_image listmailuser
         ;;
