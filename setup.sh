@@ -42,9 +42,10 @@ SUBCOMMANDS:
 
   email:
 
-    $0 email add <email> <password>
-    $0 email update <email> <password>
+    $0 email add <email> [<password>]
+    $0 email update <email> [<password>]
     $0 email del <email>
+    $0 email restrict <add|del|list> <send|receive> [<email>]
     $0 email list
 
   alias:
@@ -117,7 +118,6 @@ case $1 in
   email)
     shift
     case $1 in
-
       add)
         shift
         _docker_image addmailuser $@
@@ -129,6 +129,10 @@ case $1 in
       del)
         shift
         _docker_image delmailuser $@
+        ;;
+      restrict)
+        shift
+        _docker_image restrict-access $@
         ;;
       list)
         _docker_image listmailuser

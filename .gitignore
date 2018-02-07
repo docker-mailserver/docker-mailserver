@@ -1,6 +1,7 @@
 .DS_Store
 docker-compose.yml
 .idea
+.env
 test/config/empty/
 test/config/without-accounts/
 test/config/without-virtual/

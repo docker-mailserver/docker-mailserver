@@ -146,7 +146,7 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/permit_sasl_authenticated.*policyd-spf,$//g' /etc/postfix/main.cf"
   run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' /etc/postfix/main.cf"
   run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' /etc/postfix/main.cf"
-  run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/smtpd_recipient_restrictions = /smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' /etc/postfix/main.cf"
+  run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' /etc/postfix/main.cf"
 
   run docker exec mail_with_postgrey /bin/sh -c "/etc/init.d/postfix reload"
   run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
@@ -1120,6 +1120,27 @@ load 'test_helper/bats-assert/load'
   assert_success
   run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
   [ -z "$value" ]
+}
+
+@test "checking setup.sh: setup.sh email restrict" {
+  run ./setup.sh -c mail email restrict 
+  assert_failure
+  run ./setup.sh -c mail email restrict add
+  assert_failure
+  ./setup.sh -c mail email restrict add send lorem@impsum.org
+  run ./setup.sh -c mail email restrict list send
+  assert_output --regexp "^lorem@impsum.org.*REJECT"
+
+  run ./setup.sh -c mail email restrict del send lorem@impsum.org
+  assert_success
+  run ./setup.sh -c mail email restrict list send
+  assert_output --partial "Everyone is allowed"
+  
+  ./setup.sh -c mail email restrict add receive rec_lorem@impsum.org
+  run ./setup.sh -c mail email restrict list receive
+  assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
+  run ./setup.sh -c mail email restrict del receive rec_lorem@impsum.org
+  assert_success
 }
 
 # alias
