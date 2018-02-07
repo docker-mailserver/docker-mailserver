@@ -60,7 +60,7 @@ SUBCOMMANDS:
   debug:
 
     $0 debug fetchmail
-    $0 debug fail2ban <unban> <ip-address>               
+    $0 debug fail2ban <unban> <ip-address>
     $0 debug show-mail-logs
     $0 debug inspect
     $0 debug login <commands>
@@ -207,7 +207,7 @@ case $1 in
 		  case "$RESULT" in
 		    *"is not banned"*) ;;
 		    *"NOK"*) ;;
-		    *)  echo -n "unbanned IP from $JAIL: " 
+		    *)  echo -n "unbanned IP from $JAIL: "
 			echo "$RESULT";;
 		  esac
                 done
