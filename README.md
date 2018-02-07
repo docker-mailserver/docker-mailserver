@@ -55,7 +55,9 @@ Minimum:
 Download the docker-compose.yml, the .env and the setup.sh files:
     
     curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
+    
     curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
+    
     curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
 
 #### Create a docker-compose environment
@@ -86,6 +88,8 @@ And don't forget to have a look at the remaining functions of the `setup.sh` scr
 Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look at [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
 
 `restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
+
+##### Examples with just the relevant environmental variables:
 
 ```yaml
 version: '2'
