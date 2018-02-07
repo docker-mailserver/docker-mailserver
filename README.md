@@ -12,16 +12,18 @@ Includes:
 - postfix with smtp or ldap auth
 - dovecot for sasl, imap (and optional pop3) with ssl support, with ldap auth
 - saslauthd with ldap auth
-- amavis
-- spamassasin supporting custom rules
-- clamav with automatic updates
+- [amavis](https://www.amavis.org/)
+- [spamassasin](http://spamassassin.apache.org/) supporting custom rules
+- [clamav](https://www.clamav.net/) with automatic updates
 - opendkim
 - opendmarc
-- fail2ban
-- fetchmail
-- postgrey
+- [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page)
+- [fetchmail](http://www.fetchmail.info/fetchmail-man.html)
+- [postscreen](http://www.postfix.org/POSTSCREEN_README.html)
+- [postgrey](https://postgrey.schweikert.ch/)
 - basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
+- [setup script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) to easily configure and maintain your mailserver
 - persistent data and state (but think about backups!)
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
@@ -253,7 +255,7 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => Managesieve service disabled
   - 1 => Enables Managesieve on port 4190
 
-##### ENABLE_FETCHMAIL
+#### ENABLE_FETCHMAIL
   - **0** => `fetchmail` disabled
   - 1 => `fetchmail` enabled
 
@@ -331,6 +333,12 @@ Otherwise, `iptables` won't be able to ban IPs.
 
   - **empty** => postmaster@domain.com
   - => Specify the postmaster address
+
+##### POSTSCREEN_ACTION
+
+  - **enforce** => Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.
+  - drop => Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.
+  - ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.
 
 #### ENABLE_POSTGREY
 

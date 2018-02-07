@@ -1,0 +1,41 @@
+# Default settings for postsrsd
+
+# Local domain name.
+# Addresses are rewritten to originate from this domain. The default value
+# is taken from `postconf -h mydomain` and probably okay.
+#
+SRS_DOMAIN=localdomain
+
+# Exclude additional domains.
+# You may list domains which shall not be subjected to address rewriting.
+# If a domain name starts with a dot, it matches all subdomains, but not
+# the domain itself. Separate multiple domains by space or comma.
+#
+#SRS_EXCLUDE_DOMAINS=.example.com,example.org
+
+# First separator character after SRS0 or SRS1.
+# Can be one of: -+=
+SRS_SEPARATOR==
+
+# Secret key to sign rewritten addresses.
+# When postsrsd is installed for the first time, a random secret is generated
+# and stored in /etc/postsrsd.secret. For most installations, that's just fine.
+#
+SRS_SECRET=/etc/postsrsd.secret
+
+# Local ports for TCP list.
+# These ports are used to bind the TCP list for postfix. If you change
+# these, you have to modify the postfix settings accordingly. The ports
+# are bound to the loopback interface, and should never be exposed on
+# the internet.
+#
+SRS_FORWARD_PORT=10001
+SRS_REVERSE_PORT=10002
+
+# Drop root privileges and run as another user after initialization.
+# This is highly recommended as postsrsd handles untrusted input.
+#
+RUN_AS=postsrsd
+
+# Jail daemon in chroot environment
+CHROOT=/var/lib/postsrsd

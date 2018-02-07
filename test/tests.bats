@@ -345,13 +345,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking smtp: rejects spam" {
-  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep spam@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@my-domain.com | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking smtp: rejects virus" {
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep virus@external.tld | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
   assert_success
   assert_output 1
 }
@@ -755,11 +755,19 @@ load 'test_helper/bats-assert/load'
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
-  # Create a container which will send wrong authentications and should banned
+  # Create a container which will send wrong authentications and should get banned
   docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
-
-  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
-  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_FAIL2BAN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
+  
+  # can't pipe the file as usual due to postscreen. (respecting postscreen_greet_wait time and talking in turn):
+  for i in {1,2}; do  
+    docker exec fail-auth-mailer /bin/bash -c \
+    'exec 3<>/dev/tcp/$MAIL_FAIL2BAN_IP/25 && \
+    while IFS= read -r cmd; do \
+      head -1 <&3; \
+      [[ "$cmd" == "EHLO"* ]] && sleep 6; \
+      echo $cmd >&3; \
+    done < "/tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"'
+  done
 
   sleep 5
 
@@ -787,6 +795,39 @@ load 'test_helper/bats-assert/load'
   # Checking that FAIL_AUTH_MAILER_IP is unbanned by iptables
   run docker exec mail_fail2ban /bin/sh -c "iptables -L f2b-postfix-sasl -n | grep REJECT | grep '$FAIL_AUTH_MAILER_IP'"
   assert_failure
+}
+
+#
+# postscreen
+#
+
+@test "checking postscreen" {
+  # Getting mail container IP
+  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
+  
+  # talk too fast:
+
+  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_POSTSCREEN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
+  sleep 5
+  
+  run docker exec mail_postscreen grep 'COMMAND PIPELINING' /var/log/mail/mail.log
+  assert_success
+  
+  # positive test. (respecting postscreen_greet_wait time and talking in turn):
+  for i in {1,2}; do  
+    docker exec fail-auth-mailer /bin/bash -c \
+    'exec 3<>/dev/tcp/'$MAIL_POSTSCREEN_IP'/25 && \
+    while IFS= read -r cmd; do \
+      head -1 <&3; \
+      [[ "$cmd" == "EHLO"* ]] && sleep 6; \
+      echo $cmd >&3; \
+    done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
+  done
+  
+  sleep 5
+  
+  run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
+  assert_success
 }
 
 #
