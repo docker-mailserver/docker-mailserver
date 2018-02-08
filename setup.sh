@@ -117,8 +117,11 @@ while getopts ":c:i:p:" OPT; do
           CONFIG_PATH="$(pwd)/$OPTARG"
           ;;
       esac
-      echo "$CONFIG_PATH"
-      exit 1
+      if [ ! -d "$CONFIG_PATH" ]; then
+        echo "Directory doesn't exist"
+        _usage
+        exit 1
+      fi
       ;;
    \?)
      echo "Invalid option: -$OPTARG" >&2
