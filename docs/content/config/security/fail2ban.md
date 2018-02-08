@@ -14,3 +14,4 @@ t initialize iptables table `filter': Permission denied (you must be root)\nPerh
 2016-06-01 00:53:51,284 fail2ban.action         [678]: ERROR   iptables -w -D INPUT -p tcp -m multiport --dports smtp,465,submission -
 j f2b-postfix
 ```
+You can also manage and list the banned IPs with the [setup.sh](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) script.
