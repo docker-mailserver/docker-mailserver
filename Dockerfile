@@ -1,3 +1,10 @@
+FROM golang:latest
+RUN mkdir /app
+ADD ./target/update-user-password /app/
+WORKDIR /app
+RUN go get github.com/bitly/go-simplejson github.com/jaredfolkins/badactor github.com/julienschmidt/httprouter github.com/tredoe/osutil/user/crypt/sha512_crypt github.com/urfave/negroni
+RUN go build -o main .
+
 FROM debian:stretch-slim
 MAINTAINER Thomas VIAL
 
@@ -202,6 +209,9 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
 # Get LetsEncrypt signed certificate
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
+RUN mkdir /usr/local/bin/update-user-password
+COPY --from=0 /app /usr/local/bin/update-user-password
+
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script
 COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/postsrsd-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
@@ -211,7 +221,7 @@ RUN chmod +x /usr/local/bin/*
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
 
-EXPOSE 25 587 143 465 993 110 995 4190
+EXPOSE 25 587 143 465 993 110 995 4190 8000
 
 CMD supervisord -c /etc/supervisor/supervisord.conf
 

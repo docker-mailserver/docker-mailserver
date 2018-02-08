@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Change Password</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f1f3f5;
+      min-height: 90vh;
+      color: #495057;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      font-size: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 90vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 20em;
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+      padding: 1em;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5em;
+    }
+
+    .email,
+    .password {
+      display: block;
+      width: 100%;
+      padding: 0.5em 0;
+      outline: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: 1px solid #ced4da;
+      font-size: 18px;
+    }
+
+    .email:active,
+    .password:active,
+    .email:focus,
+    .password:focus {
+      border-bottom: 1px solid #343a40;
+    }
+
+    .button {
+      margin-top: 1em;
+      padding: 0.5em 0;
+      position: relative;
+      display: block;
+      width: 100%;
+      background-color: #3ecf8e;
+      border: none;
+      border-radius: 0.25em;
+      box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+      color: white;
+      text-shadow: 0 1px 3px rgba(36, 180, 126, 0.4);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .button:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .errorMessage {
+      color: #e03131;
+    }
+
+    .successMessage {
+      color: #2f9e44;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <p id="errorMessage" class="errorMessage"></p>
+      <p id="successMessage" class="successMessage"></p>
+      <form id="form">
+        <label for="Email">
+          Email
+          <input required type="email" id="email" class="email">
+        </label>
+        <label for="currentSecret">
+          Current Password
+          <input required type="password" id="currentSecret" class="password">
+        </label>
+        <label for="newSecret">
+          New Password
+          <input required type="password" id="newSecret" class="password">
+        </label>
+        <label for="newSecretRetype">
+          Retype New Password
+          <input required type="password" id="newSecretRetype" class="password">
+        </label>
+        <input required class="button" type="submit" value="Change Password" />
+      </form>
+    </div>
+  </div>
+  <script>
+    const form = document.getElementById('form');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const emailEl = document.getElementById('email');
+    const currentSecretEl = document.getElementById('currentSecret');
+    const newSecretEl = document.getElementById('newSecret');
+    const newSecretRetypeEl = document.getElementById('newSecretRetype');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = emailEl.value;
+      const currentSecret = currentSecretEl.value;
+      const newSecret = newSecretEl.value;
+      const newSecretRetype = newSecretRetypeEl.value;
+      let ok = true
+      if (newSecret !== newSecretRetype) {
+        ok = false;
+        errorMessage.innerHTML = "New Password didn't match";
+      }
+      if (ok) {
+        const data = {
+          Mail: email, CurrentSecret: currentSecret, NewSecret: newSecret
+        }
+        fetch(
+          '/change',
+          {
+            method: 'POST',
+            body: JSON.stringify(data)
+          }
+        ).then(res => res.json()).then(json => {
+          const { status } = json;
+          if (status === 'changed password') {
+            errorMessage.innerHTML = "";
+            successMessage.innerHTML = status;
+            form.reset();
+          } else {
+            successMessage.innerHTML = "";
+            errorMessage.innerHTML = status;
+          }
+        }).catch(err => {
+          console.log(err);
+          errorMessage.innerHTML = "You have failed to change too many times";
+        })
+      }
+
+    })
+  </script>
+</body>
+
+</html>
