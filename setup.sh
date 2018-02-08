@@ -11,6 +11,7 @@ INFO=$(docker ps \
 
 IMAGE_NAME=$(echo $INFO | awk '{print $1}')
 CONTAINER_NAME=$(echo $INFO | awk '{print $2}')
+CONFIG_PATH="$(pwd)/config"
 
 if [ -z "$IMAGE_NAME" ]; then
   IMAGE_NAME=tvial/docker-mailserver:latest
@@ -38,6 +39,8 @@ OPTIONS:
                     'tvial/docker-mailserver:latest'.
   -c CONTAINER_NAME The name of the running container.
 
+  -p PATH           config folder path (default: $(pwd)/config)
+
 SUBCOMMANDS:
 
   email:
@@ -61,7 +64,7 @@ SUBCOMMANDS:
   debug:
 
     $0 debug fetchmail
-    $0 debug fail2ban [<unban> <ip-address>]               
+    $0 debug fail2ban [<unban> <ip-address>]
     $0 debug show-mail-logs
     $0 debug inspect
     $0 debug login <commands>
@@ -84,7 +87,7 @@ _docker_image() {
   fi
     docker run \
       --rm \
-      -v "$(pwd)/config":/tmp/docker-mailserver \
+      -v "$CONFIG_PATH":/tmp/docker-mailserver \
       -ti "$IMAGE_NAME" $@
 }
 
@@ -97,13 +100,25 @@ _docker_container() {
   fi
 }
 
-while getopts ":c:i:" OPT; do
+while getopts ":c:i:p:" OPT; do
   case $OPT in
     c)
       CONTAINER_NAME="$OPTARG"
       ;;
     i)
       IMAGE_NAME="$OPTARG"
+      ;;
+    p)
+      case "$OPTARG" in
+      /*)
+          CONFIG_PATH="$OPTARG"
+          ;;
+      *)
+          CONFIG_PATH="$(pwd)/$OPTARG"
+          ;;
+      esac
+      echo "$CONFIG_PATH"
+      exit 1
       ;;
    \?)
      echo "Invalid option: -$OPTARG" >&2
@@ -133,7 +148,7 @@ case $1 in
       restrict)
         shift
         _docker_image restrict-access $@
-        ;;  
+        ;;
       list)
         _docker_image listmailuser
         ;;
@@ -211,7 +226,7 @@ case $1 in
 		  case "$RESULT" in
 		    *"is not banned"*) ;;
 		    *"NOK"*) ;;
-		    *)  echo -n "unbanned IP from $JAIL: " 
+		    *)  echo -n "unbanned IP from $JAIL: "
 			echo "$RESULT";;
 		  esac
                 done
