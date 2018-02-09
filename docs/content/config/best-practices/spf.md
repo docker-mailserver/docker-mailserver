@@ -11,3 +11,27 @@ To add a SPF record in your DNS, insert the following line in your DNS zone:
     domain.com. IN TXT "v=spf1 mx ~all" 
 
 Increment DNS serial and reload configuration.
+
+## Backup MX, Secondary MX
+
+For whitelisting a IP-Address from the SPF test, you can create a config file(See [policyd-spf.conf](http://www.linuxcertif.com/man/5/policyd-spf.conf/)) and mount that file into `/etc/postfix-policyd-spf-python/policyd-spf.conf`
+
+**Example:**
+
+Create and edit a policyd-spf.conf file here `/<your Docker-Mailserver dir>/config/postfix-policyd-spf.conf`:
+```shell
+debugLevel = 1 
+#0(only errors)-4(complete data received)
+
+skip_addresses = 127.0.0.0/8,::ffff:127.0.0.0/104,::1
+
+# Preferably use IP-Addresses for whitelist lookups:
+Whitelist = 192.168.0.0/31,192.168.1.0/30
+# Domain_Whitelist = mx1.mybackupmx.com,mx2.mybackupmx.com
+
+```
+Then add this line to `docker-compose.yml` below the `volumes:` section
+
+```yaml
+- ./config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf
+```
