@@ -752,6 +752,8 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking fail2ban: ban ip on multiple failed login" {
+  docker run -d --name fail-auth-mailer -v "`pwd`/test":/tmp/docker-mailserver-test tvial/docker-mailserver:testing tail -f /var/log/faillog
+
   # Getting mail_fail2ban container IP
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
@@ -1194,7 +1196,7 @@ load 'test_helper/bats-assert/load'
 
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
-  sleep 2
+  sleep 5
   run ./setup.sh -c mail_fail2ban debug fail2ban
   assert_output --regexp "^Banned in dovecot: 192.0.66.5 192.0.66.4.*"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.4

@@ -95,10 +95,6 @@ run:
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	 sleep 15
-	docker run -d --name fail-auth-mailer \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
-		$(NAME) \
-		tail -f /var/log/faillog
 	docker run -d --name mail_fetchmail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
