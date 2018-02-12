@@ -1,0 +1,46 @@
+#! /bin/bash
+
+usage() {
+  echo "Usage: $0 [<unban> <ip-address>]"
+}
+
+raise() {
+  echo "$@" 1>&2
+  exit 1
+}
+
+JAILS=$(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,//g')
+if [ -z "$1" ]; then
+  IP_COUNT=0
+  for JAIL in $JAILS; do
+    BANNED_IP=$(iptables -L f2b-$JAIL -n | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')
+    if [ -n "$BANNED_IP" ]; then
+      BANNED_IP=$(echo $BANNED_IP | sed -e 's/\n/,/g')
+      echo "Banned in $JAIL: $BANNED_IP"
+      IP_COUNT=$((IP_COUNT+1))
+    fi
+  done
+  if [ "$IP_COUNT" -eq 0 ]; then
+    echo "No IPs have been banned"
+  fi
+else
+  case $1 in
+    unban)
+      shift
+      if [ -n "$1" ]; then
+        for JAIL in $JAILS; do
+          RESULT=`fail2ban-client set $JAIL unbanip $@`
+          if [[ "$RESULT" != *"is not banned"* ]] && [[ "$RESULT" != *"NOK"* ]]; then
+            echo -n "unbanned IP from $JAIL: "
+            echo "$RESULT"
+          fi
+        done
+      else
+        raise "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
+      fi
+      ;;
+    *)
+      usage; raise "unknown command: $1"
+      ;;
+    esac
+fi
