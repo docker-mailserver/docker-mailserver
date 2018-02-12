@@ -464,6 +464,9 @@ function _setup_dovecot() {
 		chown docker:docker /usr/lib/dovecot/sieve-pipe/*
 		chmod 550 /usr/lib/dovecot/sieve-pipe/*
 	fi
+	[ ! -f /usr/lib/dovecot/sieve-pipe/.sa-learn-ham.sh ] && ln -s /usr/lib/dovecot/antispam/.sa-learn-ham.sh /usr/lib/dovecot/sieve-pipe/.sa-learn-ham.sh
+	[ ! -f /usr/lib/dovecot/sieve-pipe/.sa-learn-spam.sh ] && ln -s /usr/lib/dovecot/antispam/.sa-learn-spam.sh /usr/lib/dovecot/sieve-pipe/.sa-learn-spam.sh
+
 }
 
 function _setup_dovecot_local_user() {
@@ -512,6 +515,9 @@ function _setup_dovecot_local_user() {
 			fi
 			# Copy user provided sieve file, if present
 			test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
+			test -e /tmp/docker-mailserver/global-before.dovecot.sieve && cp /tmp/docker-mailserver/global-before.dovecot.sieve /usr/lib/dovecot/sieve-before/.dovecot.sieve
+			test -e /tmp/docker-mailserver/global-after.dovecot.sieve && cp /tmp/docker-mailserver/global-after.dovecot.sieve /usr/lib/dovecot/sieve-after/.dovecot.sieve
+
 			echo ${domain} >> /tmp/vhost.tmp
 		done
 	else
@@ -608,7 +614,7 @@ function _setup_postfix_postscreen() {
 	notify 'inf' "Configuring postscreen"
 	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
-	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf 
+	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf
 }
 
 function _setup_postfix_sasl() {

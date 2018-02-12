@@ -118,7 +118,14 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   mkdir /usr/lib/dovecot/sieve-pipe && \
   chmod 755 /usr/lib/dovecot/sieve-pipe  && \
   mkdir /usr/lib/dovecot/sieve-filter && \
-  chmod 755 /usr/lib/dovecot/sieve-filter
+  chmod 755 /usr/lib/dovecot/sieve-filter && \
+  mkdir /usr/lib/dovecot/sieve-before && \
+  chmod 755 /usr/lib/dovecot/sieve-before && \
+  mkdir /usr/lib/dovecot/sieve-after && \
+  chmod 755 /usr/lib/dovecot/sieve-after && \
+  mkdir /usr/lib/dovecot/antispam && \
+  chmod 755 /usr/lib/dovecot/antispam
+COPY target/dovecot/antispam/* /usr/lib/dovecot/antispam/
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
