@@ -1,0 +1,56 @@
+#! /bin/bash
+
+MODE="$1"
+USER="$3"
+
+usage() {
+	echo "Usage: $0 <add|del|list> <send|receive> [<email@domain.com>]"
+}
+
+raise() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+escape() {
+	echo "${1//./\\.}"
+}
+[ -z "$MODE" ] && raise "missing parameters: <add|del|list> <send|receive> [<email@domain.com>]"
+
+case $2 in
+	send)
+		DATABASE="/tmp/docker-mailserver/postfix-send-access.cf"
+		;;
+	receive)
+		DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
+		;;
+	*)
+		usage; raise "missing parameters. Specify \"send\" or \"receive\"";
+		;;
+esac
+
+if [ -z "$USER" ] && [ "$MODE" != list ]; then
+	read -p "User(user@domain.com): " USER
+	echo
+	[ -z "$USER" ] && raise "User must not be empty"
+fi
+ 
+
+case $MODE in 
+	add)
+		grep -qi "^$(escape "$USER")" $DATABASE 2>/dev/null &&
+			raise "User \"$USER\" already denied to $2 mails"
+		echo -e "$USER \t\t REJECT" >>$DATABASE
+	;;
+	del)
+		sed -ie "/^$(escape "$USER")/d" $DATABASE 2>/dev/null ||
+			raise "User \"$USER\" not found."
+	;;
+	list)
+		grep "REJECT" $DATABASE 2>/dev/null || 
+		    echo "Everyone is allowed to $2 mails."
+    ;;
+	*)
+		usage; raise "missing mode. Specify \"add\", \"del\" or \"list\"";
+	;;
+esac
