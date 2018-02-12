@@ -126,6 +126,7 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   mkdir /usr/lib/dovecot/antispam && \
   chmod 755 /usr/lib/dovecot/antispam
 COPY target/dovecot/antispam/* /usr/lib/dovecot/antispam/
+RUN chmod +x /usr/lib/dovecot/antispam/.*
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
