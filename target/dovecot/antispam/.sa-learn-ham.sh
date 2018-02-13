@@ -1,2 +1,5 @@
 #!/bin/sh
-exec /usr/bin/sa-learn -u ${1} --ham
+
+# use this line to learn user specific ham
+# exec /usr/bin/sa-learn --ham --dbpath /var/mail-state/lib-amavis/.spamassassin-${1}
+exec /usr/bin/sa-learn --ham --dbpath /var/mail-state/lib-amavis/.spamassassin
