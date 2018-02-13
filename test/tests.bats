@@ -757,9 +757,9 @@ load 'test_helper/bats-assert/load'
 
   # Create a container which will send wrong authentications and should get banned
   docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
-  
+
   # can't pipe the file as usual due to postscreen. (respecting postscreen_greet_wait time and talking in turn):
-  for i in {1,2}; do  
+  for i in {1,2}; do
     docker exec fail-auth-mailer /bin/bash -c \
     'exec 3<>/dev/tcp/$MAIL_FAIL2BAN_IP/25 && \
     while IFS= read -r cmd; do \
@@ -804,17 +804,17 @@ load 'test_helper/bats-assert/load'
 @test "checking postscreen" {
   # Getting mail container IP
   MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
-  
+
   # talk too fast:
 
   docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_POSTSCREEN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
   sleep 5
-  
+
   run docker exec mail_postscreen grep 'COMMAND PIPELINING' /var/log/mail/mail.log
   assert_success
-  
+
   # positive test. (respecting postscreen_greet_wait time and talking in turn):
-  for i in {1,2}; do  
+  for i in {1,2}; do
     docker exec fail-auth-mailer /bin/bash -c \
     'exec 3<>/dev/tcp/'$MAIL_POSTSCREEN_IP'/25 && \
     while IFS= read -r cmd; do \
@@ -823,9 +823,9 @@ load 'test_helper/bats-assert/load'
       echo $cmd >&3; \
     done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
   done
-  
+
   sleep 5
-  
+
   run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
   assert_success
 }
@@ -1123,7 +1123,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking setup.sh: setup.sh email restrict" {
-  run ./setup.sh -c mail email restrict 
+  run ./setup.sh -c mail email restrict
   assert_failure
   run ./setup.sh -c mail email restrict add
   assert_failure
@@ -1135,7 +1135,7 @@ load 'test_helper/bats-assert/load'
   assert_success
   run ./setup.sh -c mail email restrict list send
   assert_output --partial "Everyone is allowed"
-  
+
   ./setup.sh -c mail email restrict add receive rec_lorem@impsum.org
   run ./setup.sh -c mail email restrict list receive
   assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
@@ -1194,16 +1194,16 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 @test "checking setup.sh: setup.sh debug fail2ban" {
-  
+
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
   sleep 10
   run ./setup.sh -c mail_fail2ban debug fail2ban
-  assert_output "Banned in dovecot: 192.0.66.5 192.0.66.4"
+  assert_output --regexp "^Banned in dovecot: 192.0.66.5 192.0.66.4.*"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.4
   assert_output --partial "unbanned IP from dovecot: 192.0.66.4"
   run ./setup.sh -c mail_fail2ban debug fail2ban
-  assert_output "Banned in dovecot: 192.0.66.5"
+  assert_output --regexp "^Banned in dovecot: 192.0.66.5.*"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.5
   run ./setup.sh -c mail_fail2ban debug fail2ban unban
   assert_output --partial "You need to specify an IP address. Run"
