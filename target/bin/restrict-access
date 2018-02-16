@@ -25,6 +25,7 @@ case $2 in
 	receive)
 		DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
 		[ ! -f $DATABASE ] && sed -i -e "s|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|"  /etc/postfix/main.cf
+		;;
 	*)
 		usage; raise "missing parameters. Specify \"send\" or \"receive\"";
 		;;
