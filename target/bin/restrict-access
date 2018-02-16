@@ -20,10 +20,11 @@ escape() {
 case $2 in
 	send)
 		DATABASE="/tmp/docker-mailserver/postfix-send-access.cf"
+		[ ! -f $DATABASE ] &&	sed -i -e "s|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|" /etc/postfix/main.cf
 		;;
 	receive)
 		DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
-		;;
+		[ ! -f $DATABASE ] && sed -i -e "s|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|"  /etc/postfix/main.cf
 	*)
 		usage; raise "missing parameters. Specify \"send\" or \"receive\"";
 		;;
@@ -34,9 +35,10 @@ if [ -z "$USER" ] && [ "$MODE" != list ]; then
 	echo
 	[ -z "$USER" ] && raise "User must not be empty"
 fi
- 
 
-case $MODE in 
+
+
+case $MODE in
 	add)
 		grep -qi "^$(escape "$USER")" $DATABASE 2>/dev/null &&
 			raise "User \"$USER\" already denied to $2 mails"
@@ -47,10 +49,12 @@ case $MODE in
 			raise "User \"$USER\" not found."
 	;;
 	list)
-		grep "REJECT" $DATABASE 2>/dev/null || 
+		grep "REJECT" $DATABASE 2>/dev/null ||
 		    echo "Everyone is allowed to $2 mails."
+		exit 0
     ;;
 	*)
 		usage; raise "missing mode. Specify \"add\", \"del\" or \"list\"";
 	;;
 esac
+supervisorctl restart postfix
