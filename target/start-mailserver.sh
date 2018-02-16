@@ -116,6 +116,7 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_dhparam"
 	_register_setup_function "_setup_postfix_postscreen"
+  _register_setup_function "_setup_postfix_access_control"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
 		_register_setup_function "_setup_postfix_relay_amazon_ses"
@@ -609,6 +610,12 @@ function _setup_postfix_postscreen() {
 	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf
+}
+
+function _setup_postfix_access_control() {
+  notify 'inf' "Configuring user access"
+  [ -f /tmp/docker-mailserver/postfix-send-access.cf ] && sed -i -e "s|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|"
+  [ -f /tmp/docker-mailserver/postfix-receive-access.cf ] && sed -i -e "s|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|"
 }
 
 function _setup_postfix_sasl() {
