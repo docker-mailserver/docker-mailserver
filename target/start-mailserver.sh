@@ -592,7 +592,7 @@ function _setup_ldap() {
 
 function _setup_postgrey() {
 	notify 'inf' "Configuring postgrey"
-	sed -i -e 's/bl.spamcop.net$/bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
+	sed -i -e 's/, reject_rbl_client bl.spamcop.net$/, reject_rbl_client bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
 	sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE\"/" /etc/default/postgrey
 	TEXT_FOUND=`grep -i "POSTGREY_TEXT" /etc/default/postgrey | wc -l`
 
@@ -608,7 +608,7 @@ function _setup_postfix_postscreen() {
 	notify 'inf' "Configuring postscreen"
 	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
-	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf 
+	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf
 }
 
 function _setup_postfix_sasl() {
