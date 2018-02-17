@@ -44,6 +44,7 @@ case $MODE in
 		grep -qi "^$(escape "$USER")" $DATABASE 2>/dev/null &&
 			raise "User \"$USER\" already denied to $2 mails"
 		echo -e "$USER \t\t REJECT" >>$DATABASE
+		service postfix reload > /dev/null
 	;;
 	del)
 		sed -ie "/^$(escape "$USER")/d" $DATABASE 2>/dev/null ||
@@ -52,10 +53,9 @@ case $MODE in
 	list)
 		grep "REJECT" $DATABASE 2>/dev/null ||
 		    echo "Everyone is allowed to $2 mails."
-		exit 0
     ;;
 	*)
 		usage; raise "missing mode. Specify \"add\", \"del\" or \"list\"";
 	;;
 esac
-service postfix reload
+
