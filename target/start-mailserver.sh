@@ -614,8 +614,8 @@ function _setup_postfix_postscreen() {
 
 function _setup_postfix_access_control() {
   notify 'inf' "Configuring user access"
-  [ -f /tmp/docker-mailserver/postfix-send-access.cf ] && sed -i -e "s|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|"
-  [ -f /tmp/docker-mailserver/postfix-receive-access.cf ] && sed -i -e "s|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|"
+  [ -f /tmp/docker-mailserver/postfix-send-access.cf ] && sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
+  [ -f /tmp/docker-mailserver/postfix-receive-access.cf ] && sed -i 's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
 }
 
 function _setup_postfix_sasl() {

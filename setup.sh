@@ -150,7 +150,7 @@ case $1 in
         ;;
       restrict)
         shift
-        _docker_image restrict-access $@
+        _docker_container restrict-access $@
         ;;
       list)
         _docker_image listmailuser
