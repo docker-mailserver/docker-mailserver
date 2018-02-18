@@ -20,11 +20,9 @@ escape() {
 case $2 in
 	send)
 		DATABASE="/tmp/docker-mailserver/postfix-send-access.cf"
-		[ ! -f $DATABASE ] && sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
 		;;
 	receive)
 		DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
-		[ ! -f $DATABASE ] && sed -i 's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|'  /etc/postfix/main.cf
 		;;
 	*)
 		usage; raise "missing parameters. Specify \"send\" or \"receive\"";
@@ -43,8 +41,13 @@ case $MODE in
 	add)
 		grep -qi "^$(escape "$USER")" $DATABASE 2>/dev/null &&
 			raise "User \"$USER\" already denied to $2 mails"
+		if [ ! -f $DATABASE ]; then
+			[[ $DATABASE = *"send"* ]] && \
+					sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf \
+				|| sed -i 's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|'  /etc/postfix/main.cf
+			service postfix reload > /dev/null
+		fi
 		echo -e "$USER \t\t REJECT" >>$DATABASE
-		service postfix reload > /dev/null
 	;;
 	del)
 		sed -ie "/^$(escape "$USER")/d" $DATABASE 2>/dev/null ||

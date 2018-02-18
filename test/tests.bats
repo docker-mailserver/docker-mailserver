@@ -1141,6 +1141,7 @@ load 'test_helper/bats-assert/load'
   assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
   run ./setup.sh -c mail email restrict del receive rec_lorem@impsum.org
   assert_success
+  rm -rf ./test/config/postfix-*-access.cf*
 }
 
 # alias
