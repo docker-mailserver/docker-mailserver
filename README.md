@@ -486,3 +486,9 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
   - **empty** => No sasl_passwd will be created
   - string => `/etc/postfix/sasl_passwd` will be created with the string as password
 
+## SRS (Sender Rewriting Scheme)
+
+##### SRS_EXCLUDE_DOMAINS
+
+  - **empty** => Envelope sender will be rewritten for all domains
+  - provide comma seperated list of domains to exclude from rewriting
