@@ -89,6 +89,17 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 
 `restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
+#### Exposed ports
+* 25 receiving email from other mailservers
+* 465 SSL Client email submission
+* 587 TLS Client email submission
+* 143 StartTLS IMAP client
+* 993 TLS/SSL IMAP client
+* 110 POP3 client
+* 995 TLS/SSL POP3 client
+
+`Note: Port 25 is only for receiving email from other mailservers and not for submitting email. You need to use port 465 or 587 for this.`
+
 ##### Examples with just the relevant environmental variables:
 
 ```yaml
@@ -475,3 +486,9 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
   - **empty** => No sasl_passwd will be created
   - string => `/etc/postfix/sasl_passwd` will be created with the string as password
 
+## SRS (Sender Rewriting Scheme)
+
+##### SRS_EXCLUDE_DOMAINS
+
+  - **empty** => Envelope sender will be rewritten for all domains
+  - provide comma seperated list of domains to exclude from rewriting
