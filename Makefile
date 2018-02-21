@@ -258,4 +258,6 @@ clean:
 		test/config/without-accounts \
 		test/config/without-virtual \
 		test/config/with-domain \
-		test/config/dovecot-lmtp/userdb
+		test/config/dovecot-lmtp/userdb \
+		test/config/postfix-*-access.cf*
+
