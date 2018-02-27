@@ -247,6 +247,13 @@ Otherwise, `iptables` won't be able to ban IPs.
 
 Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
 
+##### TLS_LEVEL
+
+  - **empty** => modern
+  - modern => Enables TLSv1.2 and modern ciphers only. (default)
+  - intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
+  - old => NOT implemented. If you really need it, then customize the TLS ciphers overriding postfix and dovecot settings [ wiki](https://github.com/tomav/docker-mailserver/wiki/
+
 ##### PERMIT_DOCKER
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf)
