@@ -1323,6 +1323,9 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking dovecot: postmaster address" {
+  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+  
   run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
