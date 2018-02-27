@@ -1322,6 +1322,11 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking dovecot: postmaster address" {
+  run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+}
+
 # saslauthd
 @test "checking saslauthd: sasl ldap authentication works" {
   run docker exec mail_with_ldap bash -c "testsaslauthd -u some.user -p secret"
