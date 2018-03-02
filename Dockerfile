@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM debian:stretch-slim
 MAINTAINER Thomas VIAL
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -28,19 +28,14 @@ RUN apt-get update -q --fix-missing && \
     clamav-daemon \
     cpio \
     curl \
-    dovecot-core \
-    dovecot-imapd \
-    dovecot-ldap \
-    dovecot-lmtpd \
-    dovecot-managesieved \
-    dovecot-pop3d \
-    dovecot-sieve \
     ed \
     fail2ban \
     fetchmail \
     file \
     gamin \
     gzip \
+    gnupg \
+    iproute2 \
     iptables \
     locales \
     liblz4-tool \
@@ -59,8 +54,8 @@ RUN apt-get update -q --fix-missing && \
     postfix-ldap \
     postfix-pcre \
     postfix-policyd-spf-python \
+    postsrsd \
     pyzor \
-    rar \
     razor \
     ripole \
     rpm2cpio \
@@ -76,10 +71,19 @@ RUN apt-get update -q --fix-missing && \
     && \
   curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
   apt-get -y upgrade \
-    fail2ban \
     filebeat \
+    && \
+  apt-get -t stretch-backports -y install --no-install-recommends \
+    dovecot-core \
+    dovecot-imapd \
+    dovecot-ldap \
+    dovecot-lmtpd \
+    dovecot-managesieved \
+    dovecot-pop3d \
+    dovecot-sieve \
     && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
@@ -106,6 +110,9 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   sed -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
   sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf && \
   sed -i 's/#imap_idle_notify_interval = 2 mins/imap_idle_notify_interval = 29 mins/' /etc/dovecot/conf.d/20-imap.conf && \
+  # stretch-backport of dovecot needs this folder
+  mkdir /etc/dovecot/ssl && \
+  chmod 755 /etc/dovecot/ssl  && \
   cd /usr/share/dovecot && \
   ./mkcert.sh  && \
   mkdir /usr/lib/dovecot/sieve-pipe && \
@@ -128,11 +135,16 @@ RUN chmod 755 /etc/init.d/postgrey && \
   mkdir /var/run/postgrey && \
   chown postgrey:postgrey /var/run/postgrey
 
+# Copy PostSRSd Config
+COPY target/postsrsd/postsrsd /etc/default/postsrsd
+
 # Enables Amavis
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
   adduser clamav amavis && \
   adduser amavis clamav && \
+  # no syslog user in debian compared to ubuntu
+  adduser --system syslog && \
   useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker && \
   (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
 
@@ -144,8 +156,7 @@ RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /v
 # Enables Pyzor and Razor
 USER amavis
 RUN razor-admin -create && \
-  razor-admin -register && \
-  pyzor discover
+  razor-admin -register
 USER root
 
 # Configure DKIM (opendkim)
@@ -167,7 +178,9 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/postfix/sender_header_filter.pcre /etc/postfix/maps/sender_header_filter.pcre
 RUN echo "" > /etc/aliases && \
-  openssl dhparam -out /etc/postfix/dhparams.pem 2048
+  openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
+  echo "@weekly FILE=`mktemp` ; openssl dhparam -out $FILE 2048 > /dev/null 2>&1 && mv -f $FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
+
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
@@ -177,8 +190,8 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   chown -R clamav:root /var/log/mail/clamav.log && \
   touch /var/log/mail/freshclam.log && \
   chown -R clamav:root /var/log/mail/freshclam.log && \
-  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.d/50-default.conf && \
-  sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.d/50-default.conf && \
+  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.conf && \
+  sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.conf && \
   sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf && \
   sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf && \
   sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon && \
@@ -193,7 +206,7 @@ RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /et
 
 COPY ./target/bin /usr/local/bin
 # Start-mailserver script
-COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
+COPY ./target/check-for-changes.sh ./target/start-mailserver.sh ./target/fail2ban-wrapper.sh ./target/postfix-wrapper.sh ./target/postsrsd-wrapper.sh ./target/docker-configomat/configomat.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*
 
 # Configure supervisor
@@ -205,4 +218,3 @@ EXPOSE 25 587 143 465 993 110 995 4190
 CMD supervisord -c /etc/supervisor/supervisord.conf
 
 ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
-

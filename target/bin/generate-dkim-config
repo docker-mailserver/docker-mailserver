@@ -2,6 +2,9 @@
 
 touch /tmp/vhost.tmp
 
+# if no keysize is provided, 2048 is default.
+keysize=${1:-2048}
+
 # Getting domains from mail accounts
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
   while IFS=$'|' read login pass
@@ -39,7 +42,7 @@ grep -vE '^(\s*$|#)' /tmp/vhost | while read domainname; do
 
   if [ ! -f "/tmp/docker-mailserver/opendkim/keys/$domainname/mail.private" ]; then
     echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/$domainname/mail.private"
-    opendkim-genkey --subdomains --domain=$domainname --selector=mail -D /tmp/docker-mailserver/opendkim/keys/$domainname
+    opendkim-genkey --bits=$keysize --subdomains --domain=$domainname --selector=mail -D /tmp/docker-mailserver/opendkim/keys/$domainname
   fi
 
   # Write to KeyTable if necessary
