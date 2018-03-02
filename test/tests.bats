@@ -474,6 +474,8 @@ load 'test_helper/bats-assert/load'
   assert_success
   run docker exec mail /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
   assert_success
+  run docker exec mail_undef_spam_subject /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
+  assert_success
 }
 
 @test "checking spamassassin: all registered domains should see spam headers" {

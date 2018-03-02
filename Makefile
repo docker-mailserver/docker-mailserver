@@ -187,6 +187,13 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 20
+	docker run -d --name mail_undef_spam_subject \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e ENABLE_SPAMASSASSIN=1 \
+		-e SA_SPAM_SUBJECT="undef" \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 
 
 generate-accounts-after-run:
@@ -246,6 +253,7 @@ clean:
 		mail_with_imap \
 		mail_lmtp_ip \
 		mail_with_postgrey \
+		mail_undef_spam_subject \
 		mail_postscreen \
 		mail_override_hostname
 
