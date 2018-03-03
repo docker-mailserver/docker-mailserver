@@ -175,7 +175,7 @@ RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
 RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
-COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
+COPY target/postfix/main.cf target/postfix/sender_login_maps.pcre target/postfix/master.cf /etc/postfix/
 COPY target/postfix/sender_header_filter.pcre /etc/postfix/maps/sender_header_filter.pcre
 RUN echo "" > /etc/aliases && \
   openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \

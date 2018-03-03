@@ -367,6 +367,10 @@ load 'test_helper/bats-assert/load'
   [ "$status" -ge 0 ]
 }
 
+@test "checking spoofing: sending with a not owned address should fail" {
+  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt" | grep "Sender address rejected: not owned by user"
+  assert_success
+}
 
 
 #
@@ -1397,7 +1401,7 @@ load 'test_helper/bats-assert/load'
 @test "checking dovecot: postmaster address" {
   run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
-  
+
   run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
