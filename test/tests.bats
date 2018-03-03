@@ -474,6 +474,8 @@ load 'test_helper/bats-assert/load'
   assert_success
   run docker exec mail /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
   assert_success
+  run docker exec mail_undef_spam_subject /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
+  assert_success
 }
 
 @test "checking spamassassin: all registered domains should see spam headers" {
@@ -523,6 +525,76 @@ load 'test_helper/bats-assert/load'
   run docker exec mail /bin/sh -c "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
   assert_success
   assert_output 2
+}
+
+
+# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
+# Instead it tests the file-size (here 511) - which may differ with a different domain names
+# This test may be re-used as a global test to provide better test coverage.
+@test "checking opendkim: generator creates default keys size" {
+    # Prepare default key size 2048
+    rm -rf "$(pwd)/test/config/keyDefault" && mkdir -p "$(pwd)/test/config/keyDefault"
+    run docker run --rm \
+      -v "$(pwd)/test/config/keyDefault/":/tmp/docker-mailserver/ \
+      -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+      -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+      `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+    assert_success
+    assert_output 6
+
+  run docker run --rm \
+    -v "$(pwd)/test/config/keyDefault/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` \
+    /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
+
+  assert_success
+  assert_output 511
+}
+
+# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
+# Instead it tests the file-size (here 511) - which may differ with a different domain names
+# This test may be re-used as a global test to provide better test coverage.
+@test "checking opendkim: generator creates key size 2048" {
+    # Prepare set key size 2048
+    rm -rf "$(pwd)/test/config/key2048" && mkdir -p "$(pwd)/test/config/key2048"
+    run docker run --rm \
+      -v "$(pwd)/test/config/key2048/":/tmp/docker-mailserver/ \
+      -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+      -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+      `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config 2048 | wc -l'
+    assert_success
+    assert_output 6
+
+  run docker run --rm \
+    -v "$(pwd)/test/config/key2048/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` \
+    /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
+
+  assert_success
+  assert_output 511
+}
+
+# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
+# Instead it tests the file-size (here 329) - which may differ with a different domain names
+# This test may be re-used as a global test to provide better test coverage.
+@test "checking opendkim: generator creates key size 1024" {
+    # Prepare set key size 1024
+    rm -rf "$(pwd)/test/config/key1024" && mkdir -p "$(pwd)/test/config/key1024"
+    run docker run --rm \
+      -v "$(pwd)/test/config/key1024/":/tmp/docker-mailserver/ \
+      -v "$(pwd)/test/config/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+      -v "$(pwd)/test/config/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+      `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config 1024 | wc -l'
+    assert_success
+    assert_output 6
+
+  run docker run --rm \
+    -v "$(pwd)/test/config/key1024/opendkim":/etc/opendkim \
+    `docker inspect --format '{{ .Config.Image }}' mail` \
+    /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
+
+  assert_success
+  assert_output 329
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts" {
@@ -1319,6 +1391,14 @@ load 'test_helper/bats-assert/load'
   run docker exec mail_with_ldap /bin/sh -c "grep 'base = ou=people,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext"
   assert_success
   run docker exec mail_with_ldap /bin/sh -c "grep 'dn = cn=admin,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext"
+  assert_success
+}
+
+@test "checking dovecot: postmaster address" {
+  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+  
+  run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 
