@@ -58,7 +58,7 @@ SUBCOMMANDS:
 
   config:
 
-    $0 config dkim
+    $0 config dkim <keysize> (default: 2048)
     $0 config ssl
 
   debug:
@@ -186,7 +186,7 @@ case $1 in
     shift
     case $1 in
       dkim)
-        _docker_image generate-dkim-config
+        _docker_image generate-dkim-config $2
         ;;
       ssl)
         _docker_image generate-ssl-certificate
