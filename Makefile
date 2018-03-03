@@ -255,9 +255,11 @@ clean:
 	fi
 	-sudo rm -rf test/onedir \
 		test/config/empty \
+		test/config/keyDefault \
+		test/config/key2048 \
+		test/config/key1024 \
 		test/config/without-accounts \
 		test/config/without-virtual \
 		test/config/with-domain \
 		test/config/dovecot-lmtp/userdb \
 		test/config/postfix-*-access.cf*
-
