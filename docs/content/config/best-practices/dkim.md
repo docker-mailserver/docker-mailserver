@@ -5,6 +5,12 @@ Once its done, just run from inside the directory of docker-compose.yml:
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:latest generate-dkim-config
 
+The default keysize is 2048 for now. If you need to change it (e.g. your DNS-Provider limits the size) provide the size as the first parameter of the command
+
+    docker run --rm \
+      -v "$(pwd)/config":/tmp/docker-mailserver \
+      -ti tvial/docker-mailserver:latest generate-dkim-config 2048
+
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 After generating DKIM keys you should restart the app.
