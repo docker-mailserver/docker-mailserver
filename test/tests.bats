@@ -367,11 +367,10 @@ load 'test_helper/bats-assert/load'
   [ "$status" -ge 0 ]
 }
 
-@test "checking spoofing: sending with a not owned address should fail" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt" | grep "Sender address rejected: not owned by user"
+@test "checking spoofing: rejects sender spoofing" {
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
   assert_success
 }
-
 
 #
 # accounts
