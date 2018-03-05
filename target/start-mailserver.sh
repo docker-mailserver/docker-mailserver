@@ -556,7 +556,6 @@ function _setup_ldap() {
 		[[ $f =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
 		[[ $f =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
 		[[ $f =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
-		[[ $f =~ sender_login_maps ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
 		configomat.sh "LDAP_" "${f}"
 	done
 
@@ -626,7 +625,7 @@ function _setup_spoof_protection () {
 	notify 'inf' "Configuring Spoof Protection"
 	sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
 	[ "$ENABLE_LDAP" = 1 ] \
-		&& postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/maps/sender_login_maps.ldap pcre:/etc/postfix/maps/sender_login_maps.pcre" \
+		&& postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf" \
 		|| postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, texthash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
 }
 
