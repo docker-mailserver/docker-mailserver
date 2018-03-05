@@ -367,8 +367,15 @@ load 'test_helper/bats-assert/load'
   [ "$status" -ge 0 ]
 }
 
-@test "checking spoofing: rejects sender spoofing" {
+@test "checking spoofing: rejects sender forging" {
+  # checking rejection of spoofed sender
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
+  assert_success
+  # checking that aliases will still work
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  assert_success
+  # checking ldap
+  run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
   assert_success
 }
 

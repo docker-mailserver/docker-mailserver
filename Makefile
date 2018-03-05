@@ -23,6 +23,7 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
 		-e ENABLE_CLAMAV=1 \
+		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
@@ -130,6 +131,7 @@ run:
 		-e ENABLE_LDAP=1 \
 		-e LDAP_SERVER_HOST=ldap \
 		-e LDAP_START_TLS=no \
+		-e SPOOF_PROTECTION=1 \
 		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_PW=admin \

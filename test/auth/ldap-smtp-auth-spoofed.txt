@@ -1,10 +1,11 @@
 EHLO mail
-AUTH LOGIN YWRkZWRAbG9jYWxob3N0LmxvY2FsZG9tYWlu
-bXlwYXNzd29yZA==
-MAIL FROM: user2@localhost.localdomain
+AUTH LOGIN
+c29tZS51c2VyQGxvY2FsaG9zdC5sb2NhbGRvbWFpbg==
+c2VjcmV0
+MAIL FROM: ldap@localhost.localdomain
 RCPT TO: user1@localhost.localdomain
 DATA
-From: Not_My_Business <user2@localhost.localdomain>
+From: forged_address <ldap@localhost.localdomain>
 To: Existing Local User <user1@localhost.localdomain>
 Date: Sat, 22 May 2010 07:43:25 -0400
 Subject: Test Message
