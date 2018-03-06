@@ -36,7 +36,7 @@ SUBCOMMANDS:
 
   config:
 
-    ./setup.sh config dkim
+    ./setup.sh config dkim <keysize> (default: 2048)
     ./setup.sh config ssl
 
   debug:
@@ -57,7 +57,7 @@ SUBCOMMANDS:
 * `./setup.sh alias del <email> <recipient>`: delete an alias
 * `./setup.sh alias list`: list all aliases
 # config 
-* `./setup.sh config dkim`: autoconfig the dkim-config
+* `./setup.sh config dkim <keysize> (default: 2048)`: autoconfig the dkim-config with an (optional) keysize value
 * `./setup.sh config ssl`: generate ssl-certificates
 # debug 
 * `./setup.sh debug fetchmail`: see [wiki](https://github.com/tomav/docker-mailserver/wiki/Retrieve-emails-from-a-remote-mail-server-%28using-builtin-fetchmail%29#debugging)
