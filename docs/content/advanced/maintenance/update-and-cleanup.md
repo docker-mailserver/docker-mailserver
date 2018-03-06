@@ -35,4 +35,5 @@ services:
 ```
 
 For more details see the [manual](https://github.com/spotify/docker-gc/blob/master/README.md)
+
 Or you can just use the "--cleanup" option on v2tec/watchtower. :-)
