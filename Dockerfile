@@ -176,7 +176,7 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
-COPY target/postfix/sender_header_filter.pcre /etc/postfix/maps/sender_header_filter.pcre
+COPY target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
 RUN echo "" > /etc/aliases && \
   openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
   echo "@weekly FILE=`mktemp` ; openssl dhparam -out $FILE 2048 > /dev/null 2>&1 && mv -f $FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
