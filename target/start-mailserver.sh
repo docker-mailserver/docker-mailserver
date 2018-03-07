@@ -128,6 +128,7 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
 
+	_register_fix_function "_setup_daily_summery"
     _register_setup_function "_setup_environment"
 
 	################### << setup funcs
@@ -1062,6 +1063,20 @@ function _setup_elk_forwarder() {
 		| sed "s@\$ELK_HOST@$ELK_HOST@g" \
 		| sed "s@\$ELK_PORT@$ELK_PORT@g" \
 		> /etc/filebeat/filebeat.yml
+}
+
+function _setup_daily_summery() {
+	notify 'task' 'Setting up daily summery'
+
+	DAILY_SUMM_EMAIL=${DAILY_SUMM_EMAIL:="0"}
+	if [[ ! "$DAILY_SUMM_EMAIL" == 0 ]]; then
+		notify 'inf' "Enable daily mail summery with recipient $DAILY_SUMM_EMAIL"
+
+		sed -i -r 's/HOSTNAME/'$HOSTNAME'/g' /usr/local/bin/dailysummery
+		sed -i -r 's/DAILY_SUMM_EMAIL/'$DAILY_SUMM_EMAIL'/g' /usr/local/bin/dailysummery
+
+		echo "/usr/local/bin/dailysummery" > /etc/cron.daily/dailysummery
+	fi
 }
 
 function _setup_environment() {

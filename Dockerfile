@@ -21,6 +21,7 @@ RUN apt-get update -q --fix-missing && \
     amavisd-new \
     arj \
     binutils \
+    bsd-mailx \
     bzip2 \
     ca-certificates \
     cabextract \
@@ -50,6 +51,7 @@ RUN apt-get update -q --fix-missing && \
     opendkim-tools \
     opendmarc \
     pax \
+    pflogsumm \
     p7zip-full \
     postfix-ldap \
     postfix-pcre \
