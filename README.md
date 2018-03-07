@@ -305,6 +305,11 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
   - drop => Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.
   - ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.
 
+##### DAILY_SUMM_EMAIL
+  
+  - **0** => Daily summery emails disabled
+  - => Specify the receiver address
+
 ## Spamassassin
 
 ##### ENABLE_SPAMASSASSIN
