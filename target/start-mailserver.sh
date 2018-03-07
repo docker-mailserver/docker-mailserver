@@ -782,8 +782,7 @@ function _setup_ssl() {
 	case $SSL_TYPE in
 		"letsencrypt" )
 			# letsencrypt folders and files mounted in /etc/letsencrypt
-			if [ -e "/etc/letsencrypt/live/$HOSTNAME/cert.pem" ] \
-			&& [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
+			if [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
 				KEY=""
 				if [ -e "/etc/letsencrypt/live/$HOSTNAME/privkey.pem" ]; then
 					KEY="privkey"
