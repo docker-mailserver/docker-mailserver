@@ -176,7 +176,7 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
-COPY target/postfix/sender_header_filter.pcre /etc/postfix/maps/sender_header_filter.pcre
+COPY target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
 RUN echo "" > /etc/aliases && \
   openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
   echo "@weekly FILE=`mktemp` ; openssl dhparam -out $FILE 2048 > /dev/null 2>&1 && mv -f $FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
@@ -199,7 +199,9 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog && \
   # prevent syslog logrotate warnings \
   sed -i -e 's/\(printerror "could not determine current runlevel"\)/#\1/' /usr/sbin/invoke-rc.d && \
-  sed -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d
+  sed -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d && \
+  # prevent email when /sbin/init or init system is not existing \
+  sed -i -e 's/invoke-rc.d rsyslog rotate > \/dev\/null/invoke-rc.d rsyslog --quiet rotate > \/dev\/null/g' /etc/logrotate.d/rsyslog
 
 # Get LetsEncrypt signed certificate
 RUN curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem

@@ -25,6 +25,7 @@ DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
 DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com"}"
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
+DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 ##########################################################################
 # << DEFAULT VARS
@@ -118,6 +119,11 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_dhparam"
 	_register_setup_function "_setup_postfix_postscreen"
+
+  if [ "$SPOOF_PROTECTION" = 1  ]; then
+		_register_setup_function "_setup_spoof_protection"
+	fi
+
   _register_setup_function "_setup_postfix_access_control"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
@@ -128,7 +134,7 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
 
-    _register_setup_function "_setup_environment"
+  _register_setup_function "_setup_environment"
 
 	################### << setup funcs
 
@@ -544,7 +550,7 @@ function _setup_ldap() {
 	done
 
 	notify 'inf' 'Starting to override configs'
-	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/postfix/ldap-domains.cf
+	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/postfix/ldap-domains.cf /etc/postfix/maps/sender_login_maps.ldap
 	do
 		[[ $f =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
 		[[ $f =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
@@ -613,6 +619,14 @@ function _setup_postfix_postscreen() {
 	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf
+}
+
+function _setup_spoof_protection () {
+	notify 'inf' "Configuring Spoof Protection"
+	sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
+	[ "$ENABLE_LDAP" = 1 ] \
+		&& postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf" \
+		|| postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, texthash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
 }
 
 function _setup_postfix_access_control() {
@@ -768,8 +782,7 @@ function _setup_ssl() {
 	case $SSL_TYPE in
 		"letsencrypt" )
 			# letsencrypt folders and files mounted in /etc/letsencrypt
-			if [ -e "/etc/letsencrypt/live/$HOSTNAME/cert.pem" ] \
-			&& [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
+			if [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
 				KEY=""
 				if [ -e "/etc/letsencrypt/live/$HOSTNAME/privkey.pem" ]; then
 					KEY="privkey"
