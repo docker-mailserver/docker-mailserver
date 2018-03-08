@@ -505,3 +505,11 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
   - **empty** => Envelope sender will be rewritten for all domains
   - provide comma seperated list of domains to exclude from rewriting
+
+##### SRS_SECRET
+
+  - **empty** => generated when the image is built
+  - provide a secret to use in base64 **(recommended)**
+  - you may specify multiple keys, comma separated. the first one is used for signing and the remaining will be used for verification. this is how you rotate and expire keys
+  - if you have a cluster/swarm make sure the same keys are on all nodes
+  - example command to generate a key: `dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64`
