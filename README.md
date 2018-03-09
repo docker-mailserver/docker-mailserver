@@ -307,7 +307,7 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
 
 ##### DAILY_SUMM_EMAIL
   
-  - **0** => Daily summery emails disabled
+  - **0** => Daily summary emails disabled
   - => Specify the receiver address
 
 ## Spamassassin

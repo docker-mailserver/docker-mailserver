@@ -26,6 +26,7 @@ DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
 DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com"}"
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
+DEFAULT_VARS["DAILY_SUMM_EMAIL"]="${DAILY_SUMM_EMAIL:="0"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -1065,17 +1066,17 @@ function _setup_elk_forwarder() {
 		> /etc/filebeat/filebeat.yml
 }
 
-function _setup_daily_summery() {
-	notify 'task' 'Setting up daily summery'
+function _setup_daily_summary() {
+	notify 'task' 'Setting up daily summary'
 
-	DAILY_SUMM_EMAIL=${DAILY_SUMM_EMAIL:="0"}
-	if [[ ! "$DAILY_SUMM_EMAIL" == 0 ]]; then
-		notify 'inf' "Enable daily mail summery with recipient $DAILY_SUMM_EMAIL"
+	if [[ ! ${DEFAULT_VARS["DAILY_SUMM_EMAIL"]} == 0 ]]; then
+		notify 'inf' "Enable daily mail summary with recipient $DAILY_SUMM_EMAIL"
 
-		sed -i -r 's/HOSTNAME/'$HOSTNAME'/g' /usr/local/bin/dailysummery
-		sed -i -r 's/DAILY_SUMM_EMAIL/'$DAILY_SUMM_EMAIL'/g' /usr/local/bin/dailysummery
+		sed -i -r 's/HOSTNAME/'$HOSTNAME'/g' /usr/local/bin/dailysummary
+		sed -i -r 's/DAILY_SUMM_EMAIL/'$DAILY_SUMM_EMAIL'/g' /usr/local/bin/dailysummary
 
-		echo "/usr/local/bin/dailysummery" > /etc/cron.daily/dailysummery
+		echo "/usr/local/bin/dailysummery" > /etc/cron.daily/dailysummary
+		chmod +x /etc/cron.daily/dailysummary
 	fi
 }
 
