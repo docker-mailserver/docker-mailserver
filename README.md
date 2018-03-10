@@ -53,16 +53,16 @@ Minimum:
 #### Get the tools
 
 Download the docker-compose.yml, the .env and the setup.sh files:
-    
+
     curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
-    
+
     curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
-    
+
     curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
 
 #### Create a docker-compose environment
 
-- Edit the `.env` to your liking. Adapt this file with your FQDN. 
+- Edit the `.env` to your liking. Adapt this file with your FQDN.
 - Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
 #### Create your mail accounts
@@ -232,6 +232,7 @@ If you enable Fail2Ban, don't forget to add the following lines to your `docker-
       - NET_ADMIN
 
 Otherwise, `iptables` won't be able to ban IPs.
+
 ##### SMTP_ONLY
 
   - **empty** => all daemons start
@@ -253,6 +254,11 @@ Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserve
   - modern => Enables TLSv1.2 and modern ciphers only. (default)
   - intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
   - old => NOT implemented. If you really need it, then customize the TLS ciphers overriding postfix and dovecot settings [ wiki](https://github.com/tomav/docker-mailserver/wiki/
+
+##### SPOOF_PROTECTION
+Configures the handling of creating mails with forged sender addresses.
+  - **empty** => Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address. See also [Wikipedia](https://en.wikipedia.org/wiki/Email_spoofing)(not recommended, but default for backwards compatibility reasons)
+  - 1 => (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
 ##### PERMIT_DOCKER
 
@@ -504,3 +510,11 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
   - **empty** => Envelope sender will be rewritten for all domains
   - provide comma seperated list of domains to exclude from rewriting
+
+##### SRS_SECRET
+
+  - **empty** => generated when the container is started for the first time
+  - provide a secret to use in base64
+  - you may specify multiple keys, comma separated. the first one is used for signing and the remaining will be used for verification. this is how you rotate and expire keys
+  - if you have a cluster/swarm make sure the same keys are on all nodes
+  - example command to generate a key: `dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64`

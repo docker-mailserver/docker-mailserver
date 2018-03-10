@@ -367,8 +367,6 @@ load 'test_helper/bats-assert/load'
   [ "$status" -ge 0 ]
 }
 
-
-
 #
 # accounts
 #
@@ -1089,7 +1087,6 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-
 @test "checking accounts: listmailuser" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
   assert_success
@@ -1397,8 +1394,26 @@ load 'test_helper/bats-assert/load'
 @test "checking dovecot: postmaster address" {
   run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
-  
+
   run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+}
+
+@test "checking spoofing: rejects sender forging" {
+  # checking rejection of spoofed sender
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
+  assert_success
+  # checking ldap
+  run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
+  assert_success
+}
+
+@test "checking spoofing: accepts sending as alias" {
+
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  assert_success
+  # checking ldap alias
+  run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-alias.txt | grep 'End data with'"
   assert_success
 }
 
