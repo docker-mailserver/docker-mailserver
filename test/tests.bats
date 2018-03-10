@@ -1185,10 +1185,12 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 @test "checking setup.sh: setup.sh email del" {
-  run ./setup.sh -c mail email del lorem@impsum.org
+  run ./setup.sh -c mail email del -y lorem@impsum.org
+  assert_success
+  run docker exec mail ls /var/mail/impsum.org/lorem | grep "No such file or directory"
   assert_success
   run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
-  [ -z "$value" ]
+  assert_success
 }
 
 @test "checking setup.sh: setup.sh email restrict" {

@@ -1,15 +1,15 @@
 #! /bin/bash
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
-
-USER="$1"
+ALIAS_DATABASE=${ALIAS_DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
 usage() {
-	echo "Usage: delmailuser <user@domain>"
+	echo "Usage: delmailuser <-y> <user@domain> <user2@anotherdomain> ..."
+	echo "	-y: don't prompt for confirmations"
 }
 
 errex() {
-	echo "$@" 1>&2
+	echo -e "$@" 1>&2
 	exit 1
 }
 
@@ -17,8 +17,36 @@ escape() {
 	echo "${1//./\\.}"
 }
 
-[ -z "$USER" ] && { usage; errex "No user specifed"; }
-[ -s "$DATABASE" ] || exit 0
+while getopts ":y" OPT; do
+  case $OPT in
+    y)
+      MAILDEL="y"
+      ;;
+   \?)
+		 usage; errex "Invalid option: -$OPTARG"
+     ;;
+  esac
+done
 
-# XXX $USER must not contain /s and other syntactic characters
-sed -i "/^$(escape "$USER")|/d" $DATABASE
+shift $((OPTIND-1))
+
+[ -z "$@" ] && { usage; errex "No user specifed"; }
+[ -s "$DATABASE" ] || errex "Database not found: $DATABASE"
+
+for USER in "$@"; do
+	[[ "$USER" != *"@"*"."* ]] && errex "No valid address: $USER"
+	#USER="$1"
+	# XXX $USER must not contain /s and other syntactic characters
+	MAILARR=(${USER//@/ })
+	USER=$(escape "$USER")
+	sed -i "/^"$USER"|/d" $DATABASE
+	sed -i "/"$USER"|/d" $ALIAS_DATABASE
+	echo "$USER and potential aliases deleted."
+	if [ "$MAILDEL" != "y" ]; then
+	  read -p "Do you want to delete the maildir as well(all mails will be removed)?(y/n) " MAILDEL
+		echo
+	fi
+	[ "$MAILDEL" != "y" ] && errex "Leaving the maildir untouched. If you want to delete it at a later point use \"sudo docker exec mail rm -R /var/mail/${MAILARR[1]}/${MAILARR[0]}\""
+	rm -r -f /var/mail/${MAILARR[1]}/${MAILARR[0]}
+	echo "Maildir deleted."
+done
