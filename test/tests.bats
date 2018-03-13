@@ -1056,7 +1056,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
-  docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
+  docker exec mail /bin/sh -c "delmailuser -y user3@domain.tld"
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_failure
@@ -1082,7 +1082,7 @@ load 'test_helper/bats-assert/load'
     status="1"
   fi
 
-  docker exec mail /bin/sh -c "delmailuser auser3@domain.tld"
+  docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
 
   assert_success
 }
@@ -1096,7 +1096,7 @@ load 'test_helper/bats-assert/load'
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'delmailuser user3@domain.tld'
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'delmailuser -y user3@domain.tld'
   assert_success
   [ -z "$output" ]
 }
@@ -1177,20 +1177,15 @@ load 'test_helper/bats-assert/load'
   initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
   run ./setup.sh -c mail email update lorem@impsum.org consectetur
   updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-  if [ initialpass != changepass ]; then
-      status="0"
-    else
-      status="1"
-    fi
-  assert_success
+  [ "$initialpass" != "$changepass" ]
 }
 @test "checking setup.sh: setup.sh email del" {
   run ./setup.sh -c mail email del -y lorem@impsum.org
   assert_success
-  run docker exec mail ls /var/mail/impsum.org/lorem | grep "No such file or directory"
-  assert_success
-  run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
-  assert_success
+  run docker exec mail ls /var/mail/impsum.org/lorem
+  assert_failure
+  run grep lorem@impsum.org ./config/postfix-accounts.cf
+  assert_failure
 }
 
 @test "checking setup.sh: setup.sh email restrict" {
@@ -1225,7 +1220,7 @@ load 'test_helper/bats-assert/load'
   ./setup.sh -c mail alias add test1@example.org test1@forward.com
   ./setup.sh -c mail alias add test1@example.org test2@forward.com
 
-  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com, test2@forward.com," | wc -l | grep 1'
+  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com,test2@forward.com" | wc -l | grep 1'
   assert_success
 }
 @test "checking setup.sh: setup.sh alias del" {
