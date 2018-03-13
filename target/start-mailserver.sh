@@ -788,6 +788,8 @@ function _setup_ssl() {
 					KEY="privkey"
 				elif [ -e "/etc/letsencrypt/live/$HOSTNAME/key.pem" ]; then
 					KEY="key"
+				else
+					notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/privkey.pem' nor 'key.pem'"
 				fi
 				if [ -n "$KEY" ]; then
 					notify 'inf' "Adding $HOSTNAME SSL certificate"
@@ -801,7 +803,11 @@ function _setup_ssl() {
 					sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'$HOSTNAME'/'"$KEY"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
 					notify 'inf' "SSL configured with 'letsencrypt' certificates"
+				else
+					notify 'err' "Key filename not set!"
 				fi
+			else
+				notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/fullchain.pem'"
 			fi
 		;;
 	"custom" )
