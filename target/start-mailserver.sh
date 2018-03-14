@@ -700,6 +700,8 @@ function _setup_postfix_aliases() {
 	echo -n > /etc/postfix/virtual
 	echo -n > /etc/postfix/regexp
 	if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
+    # fixing old virtual user file
+	  [[ $(grep ",$" /tmp/docker-mailserver/postfix-virtual.cf) ]] && sed -i -e "s/, /,/g" -e "s/,$//g" /tmp/docker-mailserver/postfix-virtual.cf
 		# Copying virtual file
 		cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
 		while read from to
