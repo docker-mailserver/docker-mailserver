@@ -1,15 +1,15 @@
 #! /bin/bash
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
-
-USER="$1"
+ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
 
 usage() {
-	echo "Usage: delmailuser <user@domain>"
+	echo "Usage: delmailuser <-y> <user@domain> <user2@anotherdomain> ..."
+	echo "	-y: don't prompt for confirmations"
 }
 
 errex() {
-	echo "$@" 1>&2
+	echo -e "$@" 1>&2
 	exit 1
 }
 
@@ -17,8 +17,41 @@ escape() {
 	echo "${1//./\\.}"
 }
 
-[ -z "$USER" ] && { usage; errex "No user specifed"; }
+while getopts ":y" OPT; do
+  case $OPT in
+    y)
+      MAILDEL="y"
+      ;;
+   \?)
+		 usage; errex "Invalid option: -$OPTARG"
+     ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+[ -z "$@" ] && { usage; errex "No user specifed"; }
 [ -s "$DATABASE" ] || exit 0
 
-# XXX $USER must not contain /s and other syntactic characters
-sed -i "/^$(escape "$USER")|/d" $DATABASE
+for USER in "$@"; do
+	#very simple plausibility check
+	[[ "$USER" != *"@"*"."* ]] && errex "No valid address: $USER"
+	MAILARR=(${USER//@/ })
+	# XXX $USER must not contain /s and other syntactic characters
+	USER=$(escape "$USER")
+	sed -i "/^"$USER"|/d" $DATABASE
+	[ $? != 0 ] && errex "$USER couldn't be deleted in $DATABASE. $?"
+	# Delete all aliases where the user is the only recipient( " $USER$" )
+	# Delete user only for all aliases that deliver to multiple recipients ( ",$USER" "$USER," )
+	sed -i -e "/ "$USER"$/d" \
+				 -e "s/,"$USER"//g" \
+				 -e "s/"$USER",//g" $ALIAS_DATABASE
+	[ $? = 0 ] && echo "$USER and potential aliases deleted." || errex "Aliases for $USER couldn't be deleted in $ALIAS_DATABASE. $?"
+	if [ "$MAILDEL" != "y" ]; then
+	  read -p "Do you want to delete the maildir as well(all mails will be removed)?(y/n) " MAILDEL
+		echo
+	fi
+	[ "$MAILDEL" != "y" ] && errex "Leaving the maildir untouched. If you want to delete it at a later point use \"sudo docker exec mail rm -R /var/mail/${MAILARR[1]}/${MAILARR[0]}\""
+	rm -r -f /var/mail/${MAILARR[1]}/${MAILARR[0]}
+	[ $? = 0 ] && echo "Maildir deleted." || errex "Maildir couldn't be deleted: $?"
+done
