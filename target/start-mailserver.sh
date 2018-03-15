@@ -1084,42 +1084,42 @@ function _setup_elk_forwarder() {
 
 function _setup_postfix_summary() {
 	notify 'task' 'Setting up postfix summary'
+
+	printf "/var/log/mail/mail.log\n" > /etc/logrotate.d/maillog
+	printf "{\n" >> /etc/logrotate.d/maillog
+	printf "	compress\n" >> /etc/logrotate.d/maillog
+	printf "	delaycompress\n" >> /etc/logrotate.d/maillog
+
+	case ${DEFAULT_VARS["POSTFIX_SUMM_INTERVAL"]} in
+		"daily" )
+			notify 'inf' "Setting postfix summary interval to daily"
+			printf "	rotate 7\n" >> /etc/logrotate.d/maillog
+			printf "	daily\n" >> /etc/logrotate.d/maillog
+			;;
+		"weekly" )
+			notify 'inf' "Setting postfix summary interval to weekly"
+			postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
+			printf "	rotate 4\n" >> /etc/logrotate.d/maillog
+			printf "	weekly\n" >> /etc/logrotate.d/maillog
+			;;
+		"monthly" )
+			notify 'inf' "Setting postfix summary interval to monthly"
+			postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
+			printf "	rotate 12\n" >> /etc/logrotate.d/maillog
+			printf "	monthly\n" >> /etc/logrotate.d/maillog
+			;;
+	esac
+
 	if [[ ! ${DEFAULT_VARS["POSTFIX_SUMM_EMAIL"]} == 0 ]]; then
 		notify 'inf' "Enable postfix summary with recipient $POSTFIX_SUMM_EMAIL"
 		sed -i -r 's/HOSTNAME/'$HOSTNAME'/g' /usr/local/bin/postfix-summary
 		sed -i -r 's/POSTFIX_SUMM_EMAIL/'$POSTFIX_SUMM_EMAIL'/g' /usr/local/bin/postfix-summary
-		printf "/var/log/mail/mail.log\n" \
-			"{\n" \
-			"compress" \
-			"delaycompress" \
-			"lastaction" \
-			"/usr/local/bin/postfix-summary > /dev/null" \
-			"endscript" \
-			> /etc/logrotate.d/maillog
-
-		case ${DEFAULT_VARS["POSTFIX_SUMM_INTERVAL"]} in
-			"daily" )
-				notify 'inf' "Setting postfix summary interval to daily"
-				printf "rotate 7\n" \
-					"daily\n" >> /etc/logrotate.d/maillog
-				;;
-
-			"weekly" )
-				notify 'inf' "Setting postfix summary interval to weekly"
-				postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
-				printf "rotate 4\n" \
-					"weekly\n" >> /etc/logrotate.d/maillog
-				;;
-
-			"monthly" )
-				notify 'inf' "Setting postfix summary interval to monthly"
-				postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
-				printf "rotate 12\n" \
-					"monthly\n" >> /etc/logrotate.d/maillog
-				;;
-
-		printf "}" >> /etc/logrotate.d/maillog
+		printf "	sharedscripts\n" >> /etc/logrotate.d/maillog
+		printf "	postrotate\n" >> /etc/logrotate.d/maillog
+		printf "		/usr/local/bin/postfix-summary > /dev/null\n" >> /etc/logrotate.d/maillog
+		printf "	endscript\n" >> /etc/logrotate.d/maillog
 	fi
+	printf "}" >> /etc/logrotate.d/maillog
 }
 
 function _setup_environment() {
