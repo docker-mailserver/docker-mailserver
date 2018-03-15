@@ -28,7 +28,7 @@ DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["POSTFIX_SUMM_EMAIL"]="${POSTFIX_SUMM_EMAIL:="0"}"
-DEFAULT_VARS["POSTFIX_SUMM_INTERVAL"]="${POSTFIX_SUMM_INTERVAL:="daily"}"
+DEFAULT_VARS["POSTFIX_LOGROTATE_INTERVAL"]="${POSTFIX_LOGROTATE_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -1090,7 +1090,7 @@ function _setup_postfix_summary() {
 	printf "	compress\n" >> /etc/logrotate.d/maillog
 	printf "	delaycompress\n" >> /etc/logrotate.d/maillog
 
-	case ${DEFAULT_VARS["POSTFIX_SUMM_INTERVAL"]} in
+	case ${DEFAULT_VARS["POSTFIX_LOGROTATE_INTERVAL"]} in
 		"daily" )
 			notify 'inf' "Setting postfix summary interval to daily"
 			printf "	rotate 7\n" >> /etc/logrotate.d/maillog
