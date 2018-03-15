@@ -193,7 +193,7 @@ RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   chown -R clamav:root /var/log/mail/clamav.log && \
   touch /var/log/mail/freshclam.log && \
   chown -R clamav:root /var/log/mail/freshclam.log && \
-  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.conf && \
+  sed -i -r 's|/var/log/mail|d' /etc/rsyslog.conf && \
   sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.conf && \
   sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf && \
   sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf && \

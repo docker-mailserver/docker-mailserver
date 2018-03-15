@@ -1,6 +1,0 @@
-#!/bin/sh
-
-test -x /usr/sbin/pflogsumm || exit 0
-test -x /usr/bin/bsd-mailx || exit 0
-
-/usr/sbin/pflogsumm /var/log/mail/mail.log -d yesterday --problems-first | /usr/bin/bsd-mailx -s "Daily Summary for HOSTNAME"  DAILY_SUMM_EMAIL

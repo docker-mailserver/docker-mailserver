@@ -27,7 +27,8 @@ DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
-DEFAULT_VARS["DAILY_SUMM_EMAIL"]="${DAILY_SUMM_EMAIL:="0"}"
+DEFAULT_VARS["POSTFIX_SUMM_EMAIL"]="${POSTFIX_SUMM_EMAIL:="0"}"
+DEFAULT_VARS["POSTFIX_SUMM_INTERVAL"]="${POSTFIX_SUMM_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -135,9 +136,8 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
 
-	_register_fix_function "_setup_daily_summery"
+  _register_setup_function "_setup_postfix_summary"
   _register_setup_function "_setup_environment"
-
 
 	################### << setup funcs
 
@@ -1082,17 +1082,43 @@ function _setup_elk_forwarder() {
 		> /etc/filebeat/filebeat.yml
 }
 
-function _setup_daily_summary() {
-	notify 'task' 'Setting up daily summary'
+function _setup_postfix_summary() {
+	notify 'task' 'Setting up postfix summary'
+	if [[ ! ${DEFAULT_VARS["POSTFIX_SUMM_EMAIL"]} == 0 ]]; then
+		notify 'inf' "Enable postfix summary with recipient $POSTFIX_SUMM_EMAIL"
+		sed -i -r 's/HOSTNAME/'$HOSTNAME'/g' /usr/local/bin/postfix-summary
+		sed -i -r 's/POSTFIX_SUMM_EMAIL/'$POSTFIX_SUMM_EMAIL'/g' /usr/local/bin/postfix-summary
+		printf "/var/log/mail/mail.log\n" \
+			"{\n" \
+			"compress" \
+			"delaycompress" \
+			"lastaction" \
+			"/usr/local/bin/postfix-summary > /dev/null" \
+			"endscript" \
+			> /etc/logrotate.d/maillog
 
-	if [[ ! ${DEFAULT_VARS["DAILY_SUMM_EMAIL"]} == 0 ]]; then
-		notify 'inf' "Enable daily mail summary with recipient $DAILY_SUMM_EMAIL"
+		case ${DEFAULT_VARS["POSTFIX_SUMM_INTERVAL"]} in
+			"daily" )
+				notify 'inf' "Setting postfix summary interval to daily"
+				printf "rotate 7\n" \
+					"daily\n" >> /etc/logrotate.d/maillog
+				;;
 
-		sed -i -r 's/HOSTNAME/'$HOSTNAME'/g' /usr/local/bin/dailysummary
-		sed -i -r 's/DAILY_SUMM_EMAIL/'$DAILY_SUMM_EMAIL'/g' /usr/local/bin/dailysummary
+			"weekly" )
+				notify 'inf' "Setting postfix summary interval to weekly"
+				postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
+				printf "rotate 4\n" \
+					"weekly\n" >> /etc/logrotate.d/maillog
+				;;
 
-		echo "/usr/local/bin/dailysummery" > /etc/cron.daily/dailysummary
-		chmod +x /etc/cron.daily/dailysummary
+			"monthly" )
+				notify 'inf' "Setting postfix summary interval to monthly"
+				postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
+				printf "rotate 12\n" \
+					"monthly\n" >> /etc/logrotate.d/maillog
+				;;
+
+		printf "}" >> /etc/logrotate.d/maillog
 	fi
 }
 
