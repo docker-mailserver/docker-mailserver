@@ -1086,7 +1086,7 @@ function _setup_elk_forwarder() {
 function _setup_mail_summary() {
 
 	notify 'inf' "Enable postfix summary with recipient $REPORT_MAIL"
-	LOGROTATE="/var/log/mail/mail.log\n{\n  compress\n  delaycompress\n"
+	LOGROTATE="/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n"
 
 	case "$REPORT_INTERVAL" in
 		"daily" )
@@ -1105,7 +1105,7 @@ function _setup_mail_summary() {
 			;;
 	esac
 
-	LOGROTATE="$LOGROTATE    sharedscripts\n  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_MAIL > /dev/null\n  endscript\n}\n"
+	LOGROTATE="$LOGROTATE  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_MAIL\n  endscript\n}\n"
 	echo -e "$LOGROTATE" > /etc/logrotate.d/maillog
 }
 
