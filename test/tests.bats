@@ -1466,6 +1466,17 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# Pflogsumm delivery check
+#
+
+@test "checking pflogsum delivery" {
+  docker exec mail $(docker exec mail grep '/usr/local/bin/postfix-summary' /etc/logrotate.d/maillog)
+  sleep 10
+  run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
+}
+
+#
 # PCI compliance
 #
 

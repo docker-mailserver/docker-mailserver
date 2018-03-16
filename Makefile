@@ -25,6 +25,8 @@ run:
 		-e ENABLE_CLAMAV=1 \
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
+		-e REPORT_MAIL=user1@localhost.localdomain \
+		-e REPORT_INTERVAL=monthly \
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
@@ -34,7 +36,7 @@ run:
 		-e ENABLE_MANAGESIEVE=1 \
 		--cap-add=SYS_PTRACE \
 		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=0 \
+		-e DMS_DEBUG=1 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_privacy \
