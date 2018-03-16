@@ -36,7 +36,7 @@ run:
 		-e ENABLE_MANAGESIEVE=1 \
 		--cap-add=SYS_PTRACE \
 		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=1 \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 	docker run -d --name mail_privacy \
