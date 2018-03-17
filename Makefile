@@ -204,6 +204,7 @@ generate-accounts-after-run:
 
 fixtures:
 	cp -r config config.bak
+	cp -r test/config testconfig.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
@@ -261,15 +262,10 @@ clean:
 
 	@if [ -d config.bak ]; then\
 		sudo rm -rf config ;\
-		mv config.bak config ;\
+		sudo mv config.bak config ;\
 	fi
-	-sudo rm -rf test/onedir \
-		test/config/empty \
-		test/config/keyDefault \
-		test/config/key2048 \
-		test/config/key1024 \
-		test/config/without-accounts \
-		test/config/without-virtual \
-		test/config/with-domain \
-		test/config/dovecot-lmtp/userdb \
-		test/config/postfix-*-access.cf*
+	@if [ -d testconfig.bak ]; then\
+		sudo rm -rf test/config ;\
+		sudo mv testconfig.bak test/config ;\
+	fi
+	-sudo rm -rf test/onedir
