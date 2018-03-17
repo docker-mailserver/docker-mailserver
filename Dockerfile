@@ -21,7 +21,6 @@ RUN apt-get update -q --fix-missing && \
     amavisd-new \
     arj \
     binutils \
-    bsd-mailx \
     bzip2 \
     ca-certificates \
     cabextract \
