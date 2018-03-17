@@ -28,7 +28,7 @@ DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["REPORT_MAIL"]="${REPORT_MAIL:="0"}"
-DEFAULT_VARS["LOG_ROTATION_INTERVAL"]="${LOG_ROTATION_INTERVAL:="daily"}"
+DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -1090,18 +1090,18 @@ function _setup_logrotate() {
 	notify 'inf' "Setting up logrotate"
 
 	LOGROTATE="/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n"
-	case "$LOG_ROTATION_INTERVAL" in
+	case "$REPORT_INTERVAL" in
 		"daily" )
 			notify 'inf' "Setting postfix summary interval to daily"
-			LOGROTATE="$LOGROTATE  rotate 7\n  daily\n"
+			LOGROTATE="$LOGROTATE  rotate 1\n  daily\n"
 			;;
 		"weekly" )
 			notify 'inf' "Setting postfix summary interval to weekly"
-			LOGROTATE="$LOGROTATE  rotate 4\n  weekly\n"
+			LOGROTATE="$LOGROTATE  rotate 1\n  weekly\n"
 			;;
 		"monthly" )
 			notify 'inf' "Setting postfix summary interval to monthly"
-			LOGROTATE="$LOGROTATE  rotate 12\n  monthly\n"
+			LOGROTATE="$LOGROTATE  rotate 1\n  monthly\n"
 			;;
 	esac
 	LOGROTATE="$LOGROTATE}"
@@ -1110,7 +1110,7 @@ function _setup_logrotate() {
 
 function _setup_mail_summary() {
 	notify 'inf' "Enable postfix summary with recipient $REPORT_MAIL"
-
+	[ "$REPORT_MAIL" = 1 ] && REPORT_MAIL=$POSTMASTER_ADDRESS
 	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_MAIL\n  endscript\n}\n|" /etc/logrotate.d/maillog
 }
 

@@ -1,2 +1,0 @@
-user1@localhost.localdomain:{SHA512-CRYPT}$6$pnBf.UoYuOJ0EcxA$AY.2iRKsDftvCs5u2u72jgKcQHdN/tLguweV08YuBNaZGN4Xn9N8ES0NPxErqRR433vqBFUMmOiVNVF3JgMpB.:5000:5000::/var/mail/localhost.localdomain/user1::
-user2@otherdomain.tld:{SHA512-CRYPT}$6$xkJ0klS8NqpoGeVB$jKmC1YE03GeLtrcwgnQ14AG.nYm8Vj0l0BqUVM.VQ3MVBwYoooJL7JS7czR17gfwM9SRB/311OP8nF/GpNKr5.:5000:5000::/var/mail/otherdomain.tld/user2::
