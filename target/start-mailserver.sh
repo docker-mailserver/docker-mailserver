@@ -28,7 +28,7 @@ DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["REPORT_MAIL"]="${REPORT_MAIL:="0"}"
-DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
+DEFAULT_VARS["LOG_ROTATION_INTERVAL"]="${LOG_ROTATION_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -135,6 +135,9 @@ function register_functions() {
 	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
+
+  _register_setup_function "_setup_environment"
+  _register_setup_function "_setup_logrotate"
 
   if [ "$REPORT_MAIL" != 0 ]; then
   	_register_setup_function "_setup_mail_summary"
@@ -1083,30 +1086,32 @@ function _setup_elk_forwarder() {
 		> /etc/filebeat/filebeat.yml
 }
 
-function _setup_mail_summary() {
+function _setup_logrotate() {
+	notify 'inf' "Setting up logrotate"
 
-	notify 'inf' "Enable postfix summary with recipient $REPORT_MAIL"
 	LOGROTATE="/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n"
-
-	case "$REPORT_INTERVAL" in
+	case "$LOG_ROTATION_INTERVAL" in
 		"daily" )
 			notify 'inf' "Setting postfix summary interval to daily"
 			LOGROTATE="$LOGROTATE  rotate 7\n  daily\n"
 			;;
 		"weekly" )
 			notify 'inf' "Setting postfix summary interval to weekly"
-			postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
 			LOGROTATE="$LOGROTATE  rotate 4\n  weekly\n"
 			;;
 		"monthly" )
 			notify 'inf' "Setting postfix summary interval to monthly"
-			postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
 			LOGROTATE="$LOGROTATE  rotate 12\n  monthly\n"
 			;;
 	esac
-
-	LOGROTATE="$LOGROTATE  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_MAIL\n  endscript\n}\n"
+	LOGROTATE="$LOGROTATE}"
 	echo -e "$LOGROTATE" > /etc/logrotate.d/maillog
+}
+
+function _setup_mail_summary() {
+	notify 'inf' "Enable postfix summary with recipient $REPORT_MAIL"
+
+	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_MAIL\n  endscript\n}\n|" /etc/logrotate.d/maillog
 }
 
 function _setup_environment() {
