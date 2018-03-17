@@ -1098,13 +1098,11 @@ function _setup_postfix_summary() {
 			;;
 		"weekly" )
 			notify 'inf' "Setting postfix summary interval to weekly"
-			postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
 			printf "	rotate 4\n" >> /etc/logrotate.d/maillog
 			printf "	weekly\n" >> /etc/logrotate.d/maillog
 			;;
 		"monthly" )
 			notify 'inf' "Setting postfix summary interval to monthly"
-			postconf -e "$(postconf | grep '^mynetworks =') $container_ip/32"
 			printf "	rotate 12\n" >> /etc/logrotate.d/maillog
 			printf "	monthly\n" >> /etc/logrotate.d/maillog
 			;;
