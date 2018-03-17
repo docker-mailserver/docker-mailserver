@@ -203,7 +203,7 @@ generate-accounts-after-run:
 	sleep 10
 
 fixtures:
-	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
+	cp -r config config.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
@@ -259,9 +259,9 @@ clean:
 		mail_postscreen \
 		mail_override_hostname
 
-	@if [ -f config/postfix-accounts.cf.bak ]; then\
-		rm -f config/postfix-accounts.cf ;\
-		mv config/postfix-accounts.cf.bak config/postfix-accounts.cf ;\
+	@if [ -d config.bak ]; then\
+		sudo rm -rf config ;\
+		mv config.bak config ;\
 	fi
 	-sudo rm -rf test/onedir \
 		test/config/empty \
