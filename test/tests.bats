@@ -791,6 +791,26 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# postsrsd
+#
+
+@test "checking SRS: main.cf entries" {
+  run docker exec mail grep "sender_canonical_maps = tcp:localhost:10001" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "sender_canonical_classes = envelope_sender" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "recipient_canonical_maps = tcp:localhost:10002" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "recipient_canonical_classes = envelope_recipient,header_recipient" /etc/postfix/main.cf
+  assert_success
+}
+
+@test "checking SRS: postsrsd running" {
+  run docker exec mail /bin/sh -c "ps aux | grep ^postsrsd"
+  assert_success
+}
+
+#
 # fail2ban
 #
 
