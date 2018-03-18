@@ -312,12 +312,14 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
   - ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.
 
 ##### REPORT_RECIPIENT
+
   Enables a report being sent (created by pflogsumm) on a regular basis.
   - **0** => Report emails are disabled
   - 1 => Using POSTMASTER_ADDRESS as the recipient
   - => Specify the recipient address
 
 ##### REPORT_INTERVAL
+
   changes the interval in which a report is being sent.
   - **daily** => Send a daily report
   - weekly => Send a report every week
