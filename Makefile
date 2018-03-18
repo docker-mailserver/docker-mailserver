@@ -30,6 +30,7 @@ run:
 		-e SA_KILL=3.0 \
 		-e SA_SPAM_SUBJECT="SPAM: " \
 		-e VIRUSMAILS_DELETE_DELAY=7 \
+		-e ENABLE_SRS=1 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
 		--cap-add=SYS_PTRACE \
