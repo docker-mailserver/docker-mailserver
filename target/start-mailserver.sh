@@ -27,7 +27,7 @@ DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
-DEFAULT_VARS["REPORT_MAIL"]="${REPORT_MAIL:="0"}"
+DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
 DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
@@ -139,7 +139,7 @@ function register_functions() {
   _register_setup_function "_setup_environment"
   _register_setup_function "_setup_logrotate"
 
-  if [ "$REPORT_MAIL" != 0 ]; then
+  if [ "$REPORT_RECIPIENT" != 0 ]; then
   	_register_setup_function "_setup_mail_summary"
   fi
 
@@ -1109,9 +1109,9 @@ function _setup_logrotate() {
 }
 
 function _setup_mail_summary() {
-	notify 'inf' "Enable postfix summary with recipient $REPORT_MAIL"
-	[ "$REPORT_MAIL" = 1 ] && REPORT_MAIL=$POSTMASTER_ADDRESS
-	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_MAIL\n  endscript\n}\n|" /etc/logrotate.d/maillog
+	notify 'inf' "Enable postfix summary with recipient $REPORT_RECIPIENT"
+	[ "$REPORT_RECIPIENT" = 1 ] && REPORT_RECIPIENT=$POSTMASTER_ADDRESS
+	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_RECIPIENT\n  endscript\n}\n|" /etc/logrotate.d/maillog
 }
 
 function _setup_environment() {
