@@ -262,10 +262,10 @@ clean:
 
 	@if [ -d config.bak ]; then\
 		sudo rm -rf config ;\
-		sudo mv config.bak config ;\
+		mv config.bak config ;\
 	fi
 	@if [ -d testconfig.bak ]; then\
 		sudo rm -rf test/config ;\
-		sudo mv testconfig.bak test/config ;\
+		mv testconfig.bak test/config ;\
 	fi
 	-sudo rm -rf test/onedir
