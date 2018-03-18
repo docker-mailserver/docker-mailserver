@@ -28,7 +28,8 @@ DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:="0"}"
-
+DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
+DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -142,6 +143,11 @@ function register_functions() {
 	fi
 
   _register_setup_function "_setup_environment"
+  _register_setup_function "_setup_logrotate"
+
+  if [ "$REPORT_RECIPIENT" != 0 ]; then
+  	_register_setup_function "_setup_mail_summary"
+  fi
 
 	################### << setup funcs
 
@@ -1098,6 +1104,34 @@ function _setup_elk_forwarder() {
 		| sed "s@\$ELK_HOST@$ELK_HOST@g" \
 		| sed "s@\$ELK_PORT@$ELK_PORT@g" \
 		> /etc/filebeat/filebeat.yml
+}
+
+function _setup_logrotate() {
+	notify 'inf' "Setting up logrotate"
+
+	LOGROTATE="/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n"
+	case "$REPORT_INTERVAL" in
+		"daily" )
+			notify 'inf' "Setting postfix summary interval to daily"
+			LOGROTATE="$LOGROTATE  rotate 1\n  daily\n"
+			;;
+		"weekly" )
+			notify 'inf' "Setting postfix summary interval to weekly"
+			LOGROTATE="$LOGROTATE  rotate 1\n  weekly\n"
+			;;
+		"monthly" )
+			notify 'inf' "Setting postfix summary interval to monthly"
+			LOGROTATE="$LOGROTATE  rotate 1\n  monthly\n"
+			;;
+	esac
+	LOGROTATE="$LOGROTATE}"
+	echo -e "$LOGROTATE" > /etc/logrotate.d/maillog
+}
+
+function _setup_mail_summary() {
+	notify 'inf' "Enable postfix summary with recipient $REPORT_RECIPIENT"
+	[ "$REPORT_RECIPIENT" = 1 ] && REPORT_RECIPIENT=$POSTMASTER_ADDRESS
+	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_RECIPIENT\n  endscript\n}\n|" /etc/logrotate.d/maillog
 }
 
 function _setup_environment() {
