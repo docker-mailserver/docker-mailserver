@@ -25,11 +25,13 @@ run:
 		-e ENABLE_CLAMAV=1 \
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
+		-e REPORT_RECIPIENT=user1@localhost.localdomain \
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
 		-e SA_SPAM_SUBJECT="SPAM: " \
 		-e VIRUSMAILS_DELETE_DELAY=7 \
+		-e ENABLE_SRS=1 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
 		--cap-add=SYS_PTRACE \

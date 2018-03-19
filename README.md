@@ -83,6 +83,10 @@ You're done!
 
 And don't forget to have a look at the remaining functions of the `setup.sh` script
 
+#### SPF/Forwarding Problems
+
+If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.md) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
+
 #### For informational purposes:
 
 Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look at [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
@@ -260,6 +264,11 @@ Configures the handling of creating mails with forged sender addresses.
   - **empty** => Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address. See also [Wikipedia](https://en.wikipedia.org/wiki/Email_spoofing)(not recommended, but default for backwards compatibility reasons)
   - 1 => (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
+##### ENABLE_SRS
+Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+  - **0** => Disabled
+  - 1 => Enabled
+
 ##### PERMIT_DOCKER
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf)
@@ -310,6 +319,22 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
   - **enforce** => Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.
   - drop => Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.
   - ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.
+
+##### REPORT_RECIPIENT
+
+  Enables a report being sent (created by pflogsumm) on a regular basis.
+  - **0** => Report emails are disabled
+  - 1 => Using POSTMASTER_ADDRESS as the recipient
+  - => Specify the recipient address
+
+##### REPORT_INTERVAL
+
+  changes the interval in which a report is being sent.
+  - **daily** => Send a daily report
+  - weekly => Send a report every week
+  - monthly => Send a report every month
+
+Note: This Variable actually controls logrotate inside the container and rotates the log depending on this setting. The main log output is still available in its entirety via `docker logs mail` (Or your respective container name). If you want to control logrotation for the docker generated logfile see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/)
 
 ## Spamassassin
 
