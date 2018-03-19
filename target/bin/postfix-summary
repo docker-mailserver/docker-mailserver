@@ -1,0 +1,18 @@
+#!/bin/bash
+
+HOSTNAME=$1
+RECIPIENT=$2
+
+errex() {
+  echo -e "$@" 1>&2
+  exit 1
+}
+
+test -x /usr/sbin/pflogsumm || errex "Critical: /usr/sbin/pflogsumm not found"
+
+BODY="Subject: Postfix Summary for $HOSTNAME\n\n"
+# The case that the mail.log.1 file isn't readable shouldn't actually be possible with logrotate not rotating empty files.. But you never know!
+[ -r "/var/log/mail/mail.log.1" ] \
+  && BODY="$BODY"$(/usr/sbin/pflogsumm /var/log/mail/mail.log.1 --problems-first) \
+  || BODY="$BODY Error: Mail log not readable or not found: /var/log/mail/mail.log.1\n\nIn case of mail inactivity since the last report, this might be considered a nuisance warning.\n\nYours faithfully, The $HOSTNAME Mailserver"
+echo -e "$BODY" | sendmail -f "mailserver-report@$HOSTNAME" "$RECIPIENT"

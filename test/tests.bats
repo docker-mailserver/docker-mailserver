@@ -791,6 +791,26 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# postsrsd
+#
+
+@test "checking SRS: main.cf entries" {
+  run docker exec mail grep "sender_canonical_maps = tcp:localhost:10001" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "sender_canonical_classes = envelope_sender" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "recipient_canonical_maps = tcp:localhost:10002" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "recipient_canonical_classes = envelope_recipient,header_recipient" /etc/postfix/main.cf
+  assert_success
+}
+
+@test "checking SRS: postsrsd running" {
+  run docker exec mail /bin/sh -c "ps aux | grep ^postsrsd"
+  assert_success
+}
+
+#
 # fail2ban
 #
 
@@ -1464,6 +1484,22 @@ load 'test_helper/bats-assert/load'
   assert_success
   assert_output 1
 }
+
+#
+# Pflogsumm delivery check
+#
+
+@test "checking pflogsum delivery" {
+  # checking logrotation working and report being sent
+  docker exec mail logrotate --force /etc/logrotate.d/maillog
+  sleep 10
+  run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
+  # checking default logrotation setup
+  run docker exec mail_with_ldap grep "daily" /etc/logrotate.d/maillog
+  assert_success
+}
+
 
 #
 # PCI compliance
