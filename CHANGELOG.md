@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.8.0
+
+* Adding daily mail review from Issue 839 (#881)
+  You can enable REPORT_RECIPIENT for REPORT_INTERVAL
+  reports. Default is disabled.
+* introducing ENABLE_SRS env variable (#906, #852)
+  In v3.2.0 was SRS introduced and enabled by default
+  Now it is disabled by default and can be enabled with
+  the new env variable.
+* fixed delalias, added additional tests (#909)
+  Fixes to setup where made for deletion and addition.
+
 ## 5.7.0
 * Delmailuser (#878)
   You can now delete users and the mailbox
