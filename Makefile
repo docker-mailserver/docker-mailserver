@@ -203,8 +203,8 @@ generate-accounts-after-run:
 	sleep 10
 
 fixtures:
-	cp -r config config.bak
-	cp -r test/config testconfig.bak
+	cp -rp config config.bak
+	cp -rp test/config testconfig.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
@@ -261,11 +261,11 @@ clean:
 		mail_override_hostname
 
 	@if [ -d config.bak ]; then\
-		sudo rm -rf config ;\
+		rm -rf config ;\
 		mv config.bak config ;\
 	fi
 	@if [ -d testconfig.bak ]; then\
-		sudo rm -rf test/config ;\
+		rm -rf test/config ;\
 		mv testconfig.bak test/config ;\
 	fi
 	-sudo rm -rf test/onedir
