@@ -28,5 +28,5 @@ if [ -z "$PASSWD" ]; then
 	echo
 	[ -z "$PASSWD" ] && errex "Password must not be empty"
 fi
-
-echo "$USER|$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")" >>$DATABASE
+HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
+echo "$USER|$HASH" >> $DATABASE
