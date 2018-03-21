@@ -1261,11 +1261,25 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 @test "checking setup.sh: setup.sh alias del" {
-  echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
+  echo -e 'test1@example.org test1@forward.com,test2@forward.com\ntest2@example.org test1@forward.com' > ./config/postfix-virtual.cf
+
   ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  run grep "test1@forward.com" ./config/postfix-virtual.cf
+  assert_output  --regexp "^test2@example.org +test1@forward.com$"
+
+  run grep "test2@forward.com" ./config/postfix-virtual.cf
+  assert_output  --regexp "^test1@example.org +test2@forward.com$"
+
   ./setup.sh -c mail alias del test1@example.org test2@forward.com
-  run cat ./config/postfix-virtual.cf | wc -l | grep 0
+  run grep "test1@example.org" ./config/postfix-virtual.cf
+  assert_failure
+
+  run grep "test2@example.org" ./config/postfix-virtual.cf
   assert_success
+
+  ./setup.sh -c mail alias del test2@example.org test1@forward.com
+  run grep "test2@example.org" ./config/postfix-virtual.cf
+  assert_failure
 }
 
 # config
