@@ -1,8 +1,8 @@
 NAME = tvial/docker-mailserver:testing
 
-all: build-no-cache generate-accounts run generate-accounts-after-run fixtures tests clean
-all-fast: build generate-accounts run generate-accounts-after-run fixtures tests clean
-no-build: generate-accounts run generate-accounts-after-run fixtures tests clean
+all: build-no-cache backup generate-accounts run generate-accounts-after-run fixtures tests clean
+all-fast: build backup generate-accounts run generate-accounts-after-run fixtures tests clean
+no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
 
 build-no-cache:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
@@ -11,6 +11,15 @@ build-no-cache:
 build:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap .
 	docker build -t $(NAME) .
+
+backup:
+	# if backup directories exist, clean hasn't been called, therefore we shouldn't overwrite it. It still contains the original content.
+	@if [ ! -d config.bak ]; then\
+  	cp -rp config config.bak; \
+	fi
+	@if [ ! -d testconfig.bak ]; then\
+		cp -rp test/config testconfig.bak ;\
+	fi
 
 generate-accounts:
 	docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
@@ -205,7 +214,6 @@ generate-accounts-after-run:
 	sleep 10
 
 fixtures:
-	cp -r config config.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
@@ -262,16 +270,11 @@ clean:
 		mail_override_hostname
 
 	@if [ -d config.bak ]; then\
-		sudo rm -rf config ;\
+		rm -rf config ;\
 		mv config.bak config ;\
 	fi
-	-sudo rm -rf test/onedir \
-		test/config/empty \
-		test/config/keyDefault \
-		test/config/key2048 \
-		test/config/key1024 \
-		test/config/without-accounts \
-		test/config/without-virtual \
-		test/config/with-domain \
-		test/config/dovecot-lmtp/userdb \
-		test/config/postfix-*-access.cf*
+	@if [ -d testconfig.bak ]; then\
+		rm -rf test/config ;\
+		mv testconfig.bak test/config ;\
+	fi
+	-sudo rm -rf test/onedir
