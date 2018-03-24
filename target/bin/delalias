@@ -6,7 +6,7 @@ EMAIL="$1"
 RECIPIENT="$2"
 
 usage() {
-	echo "Usage: delalias <user@domain> <recipient@other>"
+	echo "Usage: delalias <alias@domain> <recipient@other>"
 }
 
 errex() {
@@ -21,10 +21,7 @@ escape() {
 [ -z "$EMAIL" ] || [ -z "$RECIPIENT" ]  && { usage; errex "No email specifed"; }
 [ -s "$DATABASE" ] || exit 0
 
-CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')
-
-if [[ $CNT -eq 2 ]]; then
-        sed -i "/^$EMAIL/d" $DATABASE
-    else
-        sed -i "/^$EMAIL/s/ $RECIPIENT,//g" $DATABASE
-fi
+#CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')
+sed -i -e "/^$EMAIL *$RECIPIENT$/d" \
+       -e "/^$EMAIL/s/,$RECIPIENT//g" \
+       -e "/^$EMAIL/s/$RECIPIENT,//g" $DATABASE

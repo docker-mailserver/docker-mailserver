@@ -367,8 +367,6 @@ load 'test_helper/bats-assert/load'
   [ "$status" -ge 0 ]
 }
 
-
-
 #
 # accounts
 #
@@ -793,6 +791,26 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# postsrsd
+#
+
+@test "checking SRS: main.cf entries" {
+  run docker exec mail grep "sender_canonical_maps = tcp:localhost:10001" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "sender_canonical_classes = envelope_sender" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "recipient_canonical_maps = tcp:localhost:10002" /etc/postfix/main.cf
+  assert_success
+  run docker exec mail grep "recipient_canonical_classes = envelope_recipient,header_recipient" /etc/postfix/main.cf
+  assert_success
+}
+
+@test "checking SRS: postsrsd running" {
+  run docker exec mail /bin/sh -c "ps aux | grep ^postsrsd"
+  assert_success
+}
+
+#
 # fail2ban
 #
 
@@ -1058,7 +1076,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
-  docker exec mail /bin/sh -c "delmailuser user3@domain.tld"
+  docker exec mail /bin/sh -c "delmailuser -y user3@domain.tld"
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_failure
@@ -1084,11 +1102,10 @@ load 'test_helper/bats-assert/load'
     status="1"
   fi
 
-  docker exec mail /bin/sh -c "delmailuser auser3@domain.tld"
+  docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
 
   assert_success
 }
-
 
 @test "checking accounts: listmailuser" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
@@ -1099,7 +1116,7 @@ load 'test_helper/bats-assert/load'
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
   run docker run --rm \
     -v "$(pwd)/test/config/without-accounts/":/tmp/docker-mailserver/ \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'delmailuser user3@domain.tld'
+    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'delmailuser -y user3@domain.tld'
   assert_success
   [ -z "$output" ]
 }
@@ -1180,18 +1197,15 @@ load 'test_helper/bats-assert/load'
   initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
   run ./setup.sh -c mail email update lorem@impsum.org consectetur
   updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-  if [ initialpass != changepass ]; then
-      status="0"
-    else
-      status="1"
-    fi
-  assert_success
+  [ "$initialpass" != "$changepass" ]
 }
 @test "checking setup.sh: setup.sh email del" {
-  run ./setup.sh -c mail email del lorem@impsum.org
+  run ./setup.sh -c mail email del -y lorem@impsum.org
   assert_success
-  run value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org)
-  [ -z "$value" ]
+  run docker exec mail ls /var/mail/impsum.org/lorem
+  assert_failure
+  run grep lorem@impsum.org ./config/postfix-accounts.cf
+  assert_failure
 }
 
 @test "checking setup.sh: setup.sh email restrict" {
@@ -1226,15 +1240,30 @@ load 'test_helper/bats-assert/load'
   ./setup.sh -c mail alias add test1@example.org test1@forward.com
   ./setup.sh -c mail alias add test1@example.org test2@forward.com
 
-  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com, test2@forward.com," | wc -l | grep 1'
+  run /bin/sh -c 'cat ./config/postfix-virtual.cf | grep "test1@example.org test1@forward.com,test2@forward.com" | wc -l | grep 1'
   assert_success
 }
+
 @test "checking setup.sh: setup.sh alias del" {
-  echo 'test1@example.org test1@forward.com, test2@forward.com,' > ./config/postfix-virtual.cf
+  echo -e 'test1@example.org test1@forward.com,test2@forward.com\ntest2@example.org test1@forward.com' > ./config/postfix-virtual.cf
+
   ./setup.sh -c mail alias del test1@example.org test1@forward.com
+  run grep "test1@forward.com" ./config/postfix-virtual.cf
+  assert_output  --regexp "^test2@example.org +test1@forward.com$"
+
+  run grep "test2@forward.com" ./config/postfix-virtual.cf
+  assert_output  --regexp "^test1@example.org +test2@forward.com$"
+
   ./setup.sh -c mail alias del test1@example.org test2@forward.com
-  run cat ./config/postfix-virtual.cf | wc -l | grep 0
+  run grep "test1@example.org" ./config/postfix-virtual.cf
+  assert_failure
+
+  run grep "test2@example.org" ./config/postfix-virtual.cf
   assert_success
+
+  ./setup.sh -c mail alias del test2@example.org test1@forward.com
+  run grep "test2@example.org" ./config/postfix-virtual.cf
+  assert_failure
 }
 
 # config
@@ -1397,8 +1426,26 @@ load 'test_helper/bats-assert/load'
 @test "checking dovecot: postmaster address" {
   run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
-  
+
   run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+}
+
+@test "checking spoofing: rejects sender forging" {
+  # checking rejection of spoofed sender
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
+  assert_success
+  # checking ldap
+  run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
+  assert_success
+}
+
+@test "checking spoofing: accepts sending as alias" {
+
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  assert_success
+  # checking ldap alias
+  run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-alias.txt | grep 'End data with'"
   assert_success
 }
 
@@ -1452,6 +1499,22 @@ load 'test_helper/bats-assert/load'
   assert_success
   assert_output 1
 }
+
+#
+# Pflogsumm delivery check
+#
+
+@test "checking pflogsum delivery" {
+  # checking logrotation working and report being sent
+  docker exec mail logrotate --force /etc/logrotate.d/maillog
+  sleep 10
+  run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
+  # checking default logrotation setup
+  run docker exec mail_with_ldap grep "daily" /etc/logrotate.d/maillog
+  assert_success
+}
+
 
 #
 # PCI compliance

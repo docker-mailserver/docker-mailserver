@@ -1,8 +1,8 @@
 NAME = tvial/docker-mailserver:testing
 
-all: build-no-cache generate-accounts run generate-accounts-after-run fixtures tests clean
-all-fast: build generate-accounts run generate-accounts-after-run fixtures tests clean
-no-build: generate-accounts run generate-accounts-after-run fixtures tests clean
+all: build-no-cache backup generate-accounts run generate-accounts-after-run fixtures tests clean
+all-fast: build backup generate-accounts run generate-accounts-after-run fixtures tests clean
+no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
 
 build-no-cache:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
@@ -11,6 +11,15 @@ build-no-cache:
 build:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap .
 	docker build -t $(NAME) .
+
+backup:
+	# if backup directories exist, clean hasn't been called, therefore we shouldn't overwrite it. It still contains the original content.
+	@if [ ! -d config.bak ]; then\
+  	cp -rp config config.bak; \
+	fi
+	@if [ ! -d testconfig.bak ]; then\
+		cp -rp test/config testconfig.bak ;\
+	fi
 
 generate-accounts:
 	docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
@@ -23,12 +32,15 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-v "`pwd`/test/onedir":/var/mail-state \
 		-e ENABLE_CLAMAV=1 \
+		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
+		-e REPORT_RECIPIENT=user1@localhost.localdomain \
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
 		-e SA_SPAM_SUBJECT="SPAM: " \
 		-e VIRUSMAILS_DELETE_DELAY=7 \
+		-e ENABLE_SRS=1 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
 		--cap-add=SYS_PTRACE \
@@ -130,6 +142,7 @@ run:
 		-e ENABLE_LDAP=1 \
 		-e LDAP_SERVER_HOST=ldap \
 		-e LDAP_START_TLS=no \
+		-e SPOOF_PROTECTION=1 \
 		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
 		-e LDAP_BIND_PW=admin \
@@ -201,7 +214,6 @@ generate-accounts-after-run:
 	sleep 10
 
 fixtures:
-	cp config/postfix-accounts.cf config/postfix-accounts.cf.bak
 	# Setup sieve & create filtering folder (INBOX/spam)
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
@@ -257,17 +269,12 @@ clean:
 		mail_postscreen \
 		mail_override_hostname
 
-	@if [ -f config/postfix-accounts.cf.bak ]; then\
-		rm -f config/postfix-accounts.cf ;\
-		mv config/postfix-accounts.cf.bak config/postfix-accounts.cf ;\
+	@if [ -d config.bak ]; then\
+		rm -rf config ;\
+		mv config.bak config ;\
 	fi
-	-sudo rm -rf test/onedir \
-		test/config/empty \
-		test/config/keyDefault \
-		test/config/key2048 \
-		test/config/key1024 \
-		test/config/without-accounts \
-		test/config/without-virtual \
-		test/config/with-domain \
-		test/config/dovecot-lmtp/userdb \
-		test/config/postfix-*-access.cf*
+	@if [ -d testconfig.bak ]; then\
+		rm -rf test/config ;\
+		mv testconfig.bak test/config ;\
+	fi
+	-sudo rm -rf test/onedir
