@@ -46,7 +46,7 @@ smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permi
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
-smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain, reject_sender_login_mismatch
+smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
 disable_vrfy_command = yes
 
 # Postscreen settings to drop zombies/open relays/spam early
@@ -97,9 +97,3 @@ policyd-spf_time_limit = 3600
 
 # Remove unwanted headers that reveail our privacy
 smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
-
-# postSRSd rules to process spf mail forwarding
-sender_canonical_maps = tcp:localhost:10001
-sender_canonical_classes = envelope_sender
-recipient_canonical_maps = tcp:localhost:10002
-recipient_canonical_classes = envelope_recipient,header_recipient

@@ -53,16 +53,16 @@ Minimum:
 #### Get the tools
 
 Download the docker-compose.yml, the .env and the setup.sh files:
-    
+
     curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
-    
+
     curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
-    
+
     curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
 
 #### Create a docker-compose environment
 
-- Edit the `.env` to your liking. Adapt this file with your FQDN. 
+- Edit the `.env` to your liking. Adapt this file with your FQDN.
 - Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
 #### Create your mail accounts
@@ -82,6 +82,10 @@ Now the keys are generated, you can configure your DNS server by just pasting th
 You're done!
 
 And don't forget to have a look at the remaining functions of the `setup.sh` script
+
+#### SPF/Forwarding Problems
+
+If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.md) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
 
 #### For informational purposes:
 
@@ -232,6 +236,7 @@ If you enable Fail2Ban, don't forget to add the following lines to your `docker-
       - NET_ADMIN
 
 Otherwise, `iptables` won't be able to ban IPs.
+
 ##### SMTP_ONLY
 
   - **empty** => all daemons start
@@ -253,6 +258,16 @@ Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserve
   - modern => Enables TLSv1.2 and modern ciphers only. (default)
   - intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
   - old => NOT implemented. If you really need it, then customize the TLS ciphers overriding postfix and dovecot settings [ wiki](https://github.com/tomav/docker-mailserver/wiki/
+
+##### SPOOF_PROTECTION
+Configures the handling of creating mails with forged sender addresses.
+  - **empty** => Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address. See also [Wikipedia](https://en.wikipedia.org/wiki/Email_spoofing)(not recommended, but default for backwards compatibility reasons)
+  - 1 => (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
+
+##### ENABLE_SRS
+Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+  - **0** => Disabled
+  - 1 => Enabled
 
 ##### PERMIT_DOCKER
 
@@ -304,6 +319,22 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
   - **enforce** => Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.
   - drop => Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.
   - ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.
+
+##### REPORT_RECIPIENT
+
+  Enables a report being sent (created by pflogsumm) on a regular basis.
+  - **0** => Report emails are disabled
+  - 1 => Using POSTMASTER_ADDRESS as the recipient
+  - => Specify the recipient address
+
+##### REPORT_INTERVAL
+
+  changes the interval in which a report is being sent.
+  - **daily** => Send a daily report
+  - weekly => Send a report every week
+  - monthly => Send a report every month
+
+Note: This Variable actually controls logrotate inside the container and rotates the log depending on this setting. The main log output is still available in its entirety via `docker logs mail` (Or your respective container name). If you want to control logrotation for the docker generated logfile see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/)
 
 ## Spamassassin
 
@@ -499,3 +530,11 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
   - **empty** => Envelope sender will be rewritten for all domains
   - provide comma seperated list of domains to exclude from rewriting
+
+##### SRS_SECRET
+
+  - **empty** => generated when the container is started for the first time
+  - provide a secret to use in base64
+  - you may specify multiple keys, comma separated. the first one is used for signing and the remaining will be used for verification. this is how you rotate and expire keys
+  - if you have a cluster/swarm make sure the same keys are on all nodes
+  - example command to generate a key: `dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64`

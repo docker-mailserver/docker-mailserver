@@ -3,7 +3,7 @@
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
 USER="$1"
-PASSWD="$2"
+PASSWD=$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$2")
 
 usage() {
 	echo "Usage: updatemailuser <user@domain.tld> [password]"
@@ -22,6 +22,5 @@ escape() {
 
 grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
 	errex "User \"$USER\" does not exist"
-
-delmailuser "$USER"
-addmailuser "$USER" "$PASSWD"
+sed -i "s ^"$USER"|.* "$USER"|"$PASSWD" " $DATABASE
+#sed -i "s/^"$(escape "$USER")"|*/"$USER"|"$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"/" $DATABASE

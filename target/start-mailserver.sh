@@ -25,7 +25,11 @@ DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
 DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com"}"
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
+DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
+DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:="0"}"
+DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
+DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -118,6 +122,16 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_dhparam"
 	_register_setup_function "_setup_postfix_postscreen"
+
+  if [ "$SPOOF_PROTECTION" = 1  ]; then
+		_register_setup_function "_setup_spoof_protection"
+	fi
+
+	if [ "$ENABLE_SRS" = 1 ];  then
+		_register_setup_function "_setup_SRS"
+		_register_start_daemon "_start_daemons_postsrsd"
+	fi
+
   _register_setup_function "_setup_postfix_access_control"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
@@ -128,7 +142,12 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
 
-    _register_setup_function "_setup_environment"
+  _register_setup_function "_setup_environment"
+  _register_setup_function "_setup_logrotate"
+
+  if [ "$REPORT_RECIPIENT" != 0 ]; then
+  	_register_setup_function "_setup_mail_summary"
+  fi
 
 	################### << setup funcs
 
@@ -544,7 +563,7 @@ function _setup_ldap() {
 	done
 
 	notify 'inf' 'Starting to override configs'
-	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/postfix/ldap-domains.cf
+	for f in /etc/postfix/ldap-users.cf /etc/postfix/ldap-groups.cf /etc/postfix/ldap-aliases.cf /etc/postfix/ldap-domains.cf /etc/postfix/maps/sender_login_maps.ldap
 	do
 		[[ $f =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
 		[[ $f =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
@@ -613,6 +632,14 @@ function _setup_postfix_postscreen() {
 	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf
+}
+
+function _setup_spoof_protection () {
+	notify 'inf' "Configuring Spoof Protection"
+	sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
+	[ "$ENABLE_LDAP" = 1 ] \
+		&& postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf" \
+		|| postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, texthash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
 }
 
 function _setup_postfix_access_control() {
@@ -686,6 +713,8 @@ function _setup_postfix_aliases() {
 	echo -n > /etc/postfix/virtual
 	echo -n > /etc/postfix/regexp
 	if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
+    # fixing old virtual user file
+	  [[ $(grep ",$" /tmp/docker-mailserver/postfix-virtual.cf) ]] && sed -i -e "s/, /,/g" -e "s/,$//g" /tmp/docker-mailserver/postfix-virtual.cf
 		# Copying virtual file
 		cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
 		while read from to
@@ -708,6 +737,14 @@ function _setup_postfix_aliases() {
 		s/$/ pcre:\/etc\/postfix\/regexp/
 		}' /etc/postfix/main.cf
 	fi
+}
+
+function _setup_SRS() {
+	notify 'task' 'Setting up SRS'
+	postconf -e "sender_canonical_maps = tcp:localhost:10001"
+	postconf -e "sender_canonical_classes = envelope_sender"
+	postconf -e "recipient_canonical_maps = tcp:localhost:10002"
+	postconf -e "recipient_canonical_classes = envelope_recipient,header_recipient"
 }
 
 function _setup_dkim() {
@@ -768,13 +805,14 @@ function _setup_ssl() {
 	case $SSL_TYPE in
 		"letsencrypt" )
 			# letsencrypt folders and files mounted in /etc/letsencrypt
-			if [ -e "/etc/letsencrypt/live/$HOSTNAME/cert.pem" ] \
-			&& [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
+			if [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
 				KEY=""
 				if [ -e "/etc/letsencrypt/live/$HOSTNAME/privkey.pem" ]; then
 					KEY="privkey"
 				elif [ -e "/etc/letsencrypt/live/$HOSTNAME/key.pem" ]; then
 					KEY="key"
+				else
+					notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/privkey.pem' nor 'key.pem'"
 				fi
 				if [ -n "$KEY" ]; then
 					notify 'inf' "Adding $HOSTNAME SSL certificate"
@@ -788,7 +826,11 @@ function _setup_ssl() {
 					sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'$HOSTNAME'/'"$KEY"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
 					notify 'inf' "SSL configured with 'letsencrypt' certificates"
+				else
+					notify 'err' "Key filename not set!"
 				fi
+			else
+				notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/fullchain.pem'"
 			fi
 		;;
 	"custom" )
@@ -1064,6 +1106,34 @@ function _setup_elk_forwarder() {
 		> /etc/filebeat/filebeat.yml
 }
 
+function _setup_logrotate() {
+	notify 'inf' "Setting up logrotate"
+
+	LOGROTATE="/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n"
+	case "$REPORT_INTERVAL" in
+		"daily" )
+			notify 'inf' "Setting postfix summary interval to daily"
+			LOGROTATE="$LOGROTATE  rotate 1\n  daily\n"
+			;;
+		"weekly" )
+			notify 'inf' "Setting postfix summary interval to weekly"
+			LOGROTATE="$LOGROTATE  rotate 1\n  weekly\n"
+			;;
+		"monthly" )
+			notify 'inf' "Setting postfix summary interval to monthly"
+			LOGROTATE="$LOGROTATE  rotate 1\n  monthly\n"
+			;;
+	esac
+	LOGROTATE="$LOGROTATE}"
+	echo -e "$LOGROTATE" > /etc/logrotate.d/maillog
+}
+
+function _setup_mail_summary() {
+	notify 'inf' "Enable postfix summary with recipient $REPORT_RECIPIENT"
+	[ "$REPORT_RECIPIENT" = 1 ] && REPORT_RECIPIENT=$POSTMASTER_ADDRESS
+	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_RECIPIENT\n  endscript\n}\n|" /etc/logrotate.d/maillog
+}
+
 function _setup_environment() {
     notify 'task' 'Setting up /etc/environment'
 
@@ -1162,7 +1232,7 @@ function _misc_save_states() {
 	statedir=/var/mail-state
 	if [ "$ONE_DIR" = 1 -a -d $statedir ]; then
 		notify 'inf' "Consolidating all state onto $statedir"
-		for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassassin /var/lib/fail2ban /var/lib/postgrey; do
+		for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassassin /var/lib/fail2ban /var/lib/postgrey /var/lib/dovecot; do
 			dest=$statedir/`echo $d | sed -e 's/.var.//; s/\//-/g'`
 			if [ -d $dest ]; then
 				notify 'inf' "  Destination $dest exists, linking $d to it"
@@ -1234,6 +1304,11 @@ function _start_daemons_opendkim() {
 function _start_daemons_opendmarc() {
 	notify 'task' 'Starting opendmarc ' 'n'
     supervisorctl start opendmarc
+}
+
+function _start_daemons_postsrsd(){
+	notify 'task' 'Starting postsrsd ' 'n'
+	supervisorctl start postsrsd
 }
 
 function _start_daemons_postfix() {
