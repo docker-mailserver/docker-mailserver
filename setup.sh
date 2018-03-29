@@ -93,7 +93,7 @@ _docker_image() {
 
 _docker_container() {
   if [ -n "$CONTAINER_NAME" ]; then
-    docker exec -ti "$CONTAINER_NAME" $@
+    docker exec -ti "$CONTAINER_NAME" "$@"
   else
     echo "The docker-mailserver is not running!"
     exit 1
