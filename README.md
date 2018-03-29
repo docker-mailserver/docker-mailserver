@@ -67,7 +67,7 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
 #### Create your mail accounts
 
-    ./setup.sh email add <email> [<password>]
+    ./setup.sh email add <user@domain> [<password>]
 
 #### Generate DKIM keys
 
