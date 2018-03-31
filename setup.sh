@@ -61,6 +61,11 @@ SUBCOMMANDS:
     $0 config dkim <keysize> (default: 2048)
     $0 config ssl
 
+  relay:
+
+    $0 relay addhost <domain> <host> [<port>]
+    $0 relay addauth <domain> <username> [<password>]
+
   debug:
 
     $0 debug fetchmail
@@ -190,6 +195,23 @@ case $1 in
         ;;
       ssl)
         _docker_image generate-ssl-certificate
+        ;;
+      *)
+        _usage
+        ;;
+    esac
+    ;;
+
+  relay)
+    shift
+    case $1 in
+      addhost)
+        shift
+        _docker_image addrelayhost $@
+        ;;
+      addauth)
+        shift
+        _docker_image addsaslpassword $@
         ;;
       *)
         _usage
