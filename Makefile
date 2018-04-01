@@ -207,7 +207,18 @@ run:
 		-e SA_SPAM_SUBJECT="undef" \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-
+	docker run -d --name mail_with_relays \
+		-v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e RELAY_HOST=default.relay.com \
+		-e RELAY_PORT=2525 \
+		-e RELAY_USER=smtp_user \
+		-e RELAY_PASSWORD=smtp_password \
+		--cap-add=SYS_PTRACE \
+		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -274,7 +285,7 @@ clean:
 		mv config.bak config ;\
 	fi
 	@if [ -d testconfig.bak ]; then\
-		rm -rf test/config ;\
+		sudo rm -rf test/config ;\
 		mv testconfig.bak test/config ;\
 	fi
 	-sudo rm -rf test/onedir
