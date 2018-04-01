@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.8.1
+
+* add headers to postfix summary mail (#919)
+* quotes needed to run multi-word command inside
+  container (#921)
+* Fix uncommented lines in .env file (#920)
+* Tls level fix (#916)
+* test/config backup & restore (#907)
+* Restore userdb for tests (#913)
+
 ## 5.8.0
 
 * Adding daily mail review from Issue 839 (#881)
