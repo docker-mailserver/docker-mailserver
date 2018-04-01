@@ -1310,6 +1310,46 @@ load 'test_helper/bats-assert/load'
   assert_output --partial "You need to specify an IP address. Run"
 }
 
+@test "checking setup.sh: setup.sh relay add-domain" {
+  echo -n > ./config/postfix-relaymap.cf
+  ./setup.sh -c mail relay add-domain example1.org smtp.relay1.com 2525
+  ./setup.sh -c mail relay add-domain example2.org smtp.relay2.com
+  ./setup.sh -c mail relay add-domain example3.org smtp.relay3.com 2525
+  ./setup.sh -c mail relay add-domain example3.org smtp.relay.com 587
+
+  # check adding
+  run /bin/sh -c 'cat ./config/postfix-relaymap.cf | grep -e "^@example1.org\s\+\[smtp.relay1.com\]:2525" | wc -l | grep 1'
+  assert_success
+  # test default port
+  run /bin/sh -c 'cat ./config/postfix-relaymap.cf | grep -e "^@example2.org\s\+\[smtp.relay2.com\]:25" | wc -l | grep 1'
+  assert_success
+  # test modifying
+  run /bin/sh -c 'cat ./config/postfix-relaymap.cf | grep -e "^@example3.org\s\+\[smtp.relay.com\]:587" | wc -l | grep 1'
+  assert_success
+}
+
+@test "checking setup.sh: setup.sh relay add-auth" {
+  echo -n > ./config/postfix-sasl-password.cf
+  ./setup.sh -c mail relay add-auth example.org smtp_user smtp_pass
+  ./setup.sh -c mail relay add-auth example2.org smtp_user2 smtp_pass2
+  ./setup.sh -c mail relay add-auth example2.org smtp_user2 smtp_pass_new
+
+  # test adding
+  run /bin/sh -c 'cat ./config/postfix-sasl-password.cf | grep -e "^@example.org\s\+smtp_user:smtp_pass" | wc -l | grep 1'
+  assert_success
+  # test updating
+  run /bin/sh -c 'cat ./config/postfix-sasl-password.cf | grep -e "^@example2.org\s\+smtp_user2:smtp_pass_new" | wc -l | grep 1'
+  assert_success
+}
+
+@test "checking setup.sh: setup.sh relay exclude-domain" {
+  echo -n > ./config/postfix-relaymap.cf
+  ./setup.sh -c mail relay exclude-domain example.org
+
+  run /bin/sh -c 'cat ./config/postfix-relaymap.cf | grep -e "^@example.org\s*$" | wc -l | grep 1'
+  assert_success
+}
+
 #
 # LDAP
 #
