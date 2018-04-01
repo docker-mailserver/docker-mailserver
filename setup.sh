@@ -63,8 +63,9 @@ SUBCOMMANDS:
 
   relay:
 
-    $0 relay addhost <domain> <host> [<port>]
-    $0 relay addauth <domain> <username> [<password>]
+    $0 relay add-domain <domain> <host> [<port>]
+    $0 relay add-auth <domain> <username> [<password>]
+    $0 relay exclude-domain <domain>
 
   debug:
 
@@ -205,13 +206,17 @@ case $1 in
   relay)
     shift
     case $1 in
-      addhost)
+      add-domain)
         shift
         _docker_image addrelayhost $@
         ;;
-      addauth)
+      add-auth)
         shift
         _docker_image addsaslpassword $@
+        ;;
+      exclude-domain)
+        shift
+        _docker_image excluderelaydomain $@
         ;;
       *)
         _usage

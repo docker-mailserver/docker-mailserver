@@ -1079,18 +1079,19 @@ function _setup_postfix_relay_hosts() {
 	grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
 	do
 		domain=$(echo ${login} | cut -d @ -f2)
-		if ! grep -q -e "^@${domain}\s" /etc/postfix/relayhost_map; then
+		if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map; then
 			notify 'inf' "Adding relay mapping for ${domain}"
 			echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
 		fi
 	done
+	# remove lines with no destination
+	sed -i '/^@\S*\s*$/d' /etc/postfix/relayhost_map
 
 	chown root:root /etc/postfix/relayhost_map
 	chmod 0600 /etc/postfix/relayhost_map
 	# end /etc/postfix/relayhost_map
 
 	postconf -e \
-		"relayhost = [$RELAY_HOST]:$RELAY_PORT" \
 		"smtp_sasl_auth_enable = yes" \
 		"smtp_sasl_security_options = noanonymous" \
 		"smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \

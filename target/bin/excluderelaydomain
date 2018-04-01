@@ -1,0 +1,22 @@
+#! /bin/bash
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-relaymap.cf}
+
+DOMAIN="$1"
+
+usage() {
+	echo "Usage: excluderelayhost <domain>"
+}
+
+errex() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+[ -z "$DOMAIN" ] && { usage; errex "no domain specified"; }
+
+if grep -qi "^@$DOMAIN" $DATABASE 2>/dev/null; then
+	sed -i "s/^@"$DOMAIN".*/@"$DOMAIN"/" $DATABASE
+else
+	echo -e "@$DOMAIN" >> $DATABASE
+fi
