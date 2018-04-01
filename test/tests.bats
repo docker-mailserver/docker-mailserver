@@ -1195,7 +1195,7 @@ load 'test_helper/bats-assert/load'
   assert_success
   run docker exec mail /bin/sh -c "addmailuser pass@localhorst.localdomain 'may be a password'"
   sleep 10
-  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhorst.localdomain 'may be a password'"
+  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhorst.localdomain 'may be a password' | grep 'auth succeeded'"
   assert_success
 }
 
@@ -1212,7 +1212,7 @@ load 'test_helper/bats-assert/load'
 
   run docker exec mail /bin/sh -c "updatemailuser pass@localhorst.localdomain 'my other password'"
   sleep 10
-  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhorst.localdomain 'my other password'"
+  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhorst.localdomain 'my other password' | grep 'auth succeeded'"
   assert_success
 }
 
