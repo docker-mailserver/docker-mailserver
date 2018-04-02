@@ -1193,9 +1193,9 @@ load 'test_helper/bats-assert/load'
   # when executed directly against the container this workaround is not neccessary.
   run docker exec mail delmailuser -y pass@localhorst.localdomain
   assert_success
-  run docker exec mail /bin/sh -c "addmailuser pass@localhorst.localdomain 'may be a password'"
-  sleep 10
-  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhorst.localdomain 'may be a password' | grep 'auth succeeded'"
+  docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
+  sleep 30
+  docker exec mail doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \a `p^a.*ssword' | grep 'auth succeeded'
   assert_success
 }
 
@@ -1210,9 +1210,9 @@ load 'test_helper/bats-assert/load'
   updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
   [ "$initialpass" != "$changepass" ]
 
-  run docker exec mail /bin/sh -c "updatemailuser pass@localhorst.localdomain 'my other password'"
-  sleep 10
-  run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhorst.localdomain 'my other password' | grep 'auth succeeded'"
+  docker exec mail /bin/sh -c "updatemailuser pass@localhost.localdomain 'my other password'"
+  sleep 30
+  docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhost.localdomain 'my other password' | grep 'auth succeeded'"
   assert_success
 }
 
