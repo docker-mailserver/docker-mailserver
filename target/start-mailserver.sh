@@ -135,7 +135,11 @@ function register_functions() {
   _register_setup_function "_setup_postfix_access_control"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
-		_register_setup_function "_setup_postfix_relay_amazon_ses"
+		_register_setup_function "_setup_postfix_relay_hosts"
+	fi
+
+	if [ ! -z "$RELAY_HOST" ]; then
+		_register_setup_function "_setup_postfix_relay_hosts"
 	fi
 
 	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
@@ -1001,22 +1005,102 @@ function _setup_postfix_sasl_password() {
 	fi
 }
 
-function _setup_postfix_relay_amazon_ses() {
-	notify 'task' 'Setting up Postfix Relay Amazon SES'
-	if [ -z "$AWS_SES_PORT" ];then
-		AWS_SES_PORT=25
+function _setup_postfix_relay_hosts() {
+	notify 'task' 'Setting up Postfix Relay Hosts'
+	# copy old AWS_SES variables to new variables
+	if [ -z "$RELAY_HOST" ]; then
+		if [ ! -z "$AWS_SES_HOST" ]; then
+			notify 'inf' "Using deprecated AWS_SES environment variables"
+			RELAY_HOST=$AWS_SES_HOST
+		fi
 	fi
-	notify 'inf' "Setting up outgoing email via AWS SES host $AWS_SES_HOST:$AWS_SES_PORT"
-	echo "[$AWS_SES_HOST]:$AWS_SES_PORT $AWS_SES_USERPASS" >> /etc/postfix/sasl_passwd
+	if [ -z "$RELAY_PORT" ]; then
+		if [ -z "$AWS_SES_PORT" ]; then
+			RELAY_PORT=25
+		else
+			RELAY_PORT=$AWS_SES_PORT
+		fi
+	fi
+	if [ -z "$RELAY_USER" ]; then
+		if [ ! -z "$AWS_SES_USERPASS" ]; then
+			# NB this will fail if the password contains a colon!
+			RELAY_USER=$(echo "$AWS_SES_USERPASS" | cut -f 1 -d ":")
+			RELAY_PASSWORD=$(echo "$AWS_SES_USERPASS" | cut -f 2 -d ":")
+		fi
+	fi
+	notify 'inf' "Setting up outgoing email relaying via $RELAY_HOST:$RELAY_PORT"
+
+	# setup /etc/postfix/sasl_passwd
+	# --
+	# @domain1.com        postmaster@domain1.com:your-password-1
+	# @domain2.com        postmaster@domain2.com:your-password-2
+	# @domain3.com        postmaster@domain3.com:your-password-3
+	#
+	# [smtp.mailgun.org]:587  postmaster@domain2.com:your-password-2
+
+	if [ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
+		notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
+		while read line; do
+			if ! echo "$line" | grep -q -e "\s*#"; then
+				echo "$line" >> /etc/postfix/sasl_passwd
+			fi
+		done < /tmp/docker-mailserver/postfix-sasl-password.cf
+	fi
+
+	# add default relay
+	if [ ! -z "$RELAY_USER" ] && [ ! -z "$RELAY_PASSWORD" ]; then
+		echo "[$RELAY_HOST]:$RELAY_PORT		$RELAY_USER:$RELAY_PASSWORD" >> /etc/postfix/sasl_passwd
+	else
+		if [ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
+			notify 'warn' "No relay auth file found and no default set"
+		fi
+	fi
+
+	chown root:root /etc/postfix/sasl_passwd
+	chmod 0600 /etc/postfix/sasl_passwd
+	# end /etc/postfix/sasl_passwd
+
+	# setup /etc/postfix/relayhost_map
+	# --
+	# @domain1.com        [smtp.mailgun.org]:587
+	# @domain2.com        [smtp.mailgun.org]:587
+	# @domain3.com        [smtp.mailgun.org]:587
+
+	echo -n > /etc/postfix/relayhost_map
+
+	if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
+		notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
+		while read line; do
+			if ! echo "$line" | grep -q -e "\s*#"; then
+				echo "$line" >> /etc/postfix/relayhost_map
+			fi
+		done < /tmp/docker-mailserver/postfix-relaymap.cf
+	fi
+	grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
+	do
+		domain=$(echo ${login} | cut -d @ -f2)
+		if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map; then
+			notify 'inf' "Adding relay mapping for ${domain}"
+			echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
+		fi
+	done
+	# remove lines with no destination
+	sed -i '/^@\S*\s*$/d' /etc/postfix/relayhost_map
+
+	chown root:root /etc/postfix/relayhost_map
+	chmod 0600 /etc/postfix/relayhost_map
+	# end /etc/postfix/relayhost_map
+
 	postconf -e \
-		"relayhost = [$AWS_SES_HOST]:$AWS_SES_PORT" \
 		"smtp_sasl_auth_enable = yes" \
 		"smtp_sasl_security_options = noanonymous" \
 		"smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
 		"smtp_use_tls = yes" \
 		"smtp_tls_security_level = encrypt" \
 		"smtp_tls_note_starttls_offer = yes" \
-		"smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
+		"smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
+		"sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map" \
+		"smtp_sender_dependent_authentication = yes"
 }
 
 function _setup_postfix_dhparam() {

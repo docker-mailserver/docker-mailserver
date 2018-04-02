@@ -538,3 +538,25 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
   - you may specify multiple keys, comma separated. the first one is used for signing and the remaining will be used for verification. this is how you rotate and expire keys
   - if you have a cluster/swarm make sure the same keys are on all nodes
   - example command to generate a key: `dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64`
+
+## Multi-domain Relay Hosts
+
+#### RELAY_HOST
+
+  - **empty** => don't configure relay host
+  - default host to relay mail through
+
+#### RELAY_PORT
+
+  - **empty** => 25
+  - default port to relay mail through
+
+#### RELAY_USER
+
+  - **empty** => no default
+  - default relay username (if no specific entry exists in postfix-sasl-password.cf)
+
+#### RELAY_PASSWORD
+
+  - **empty** => no default
+  - password for default relay user
