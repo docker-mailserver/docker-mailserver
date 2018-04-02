@@ -1,3 +1,5 @@
+Note: new configuration, see [Configure Relay Hosts](https://github.com/tomav/docker-mailserver/wiki/Configure-Relay-Hosts)
+
 Instead of letting postfix deliver mail directly it is possible to configure it to deliver outgoing email via Amazon SES (Simple Email Service). (Receiving inbound email via SES is not implemented.) The configuration follows the guidelines provided by AWS in http://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html, specifically, the STARTTLS method.
 
 As described in the AWS Developer Guide you will have to generate SMTP credentials and define the following two environment variables in the docker-compose.yml with the appropriate values for your AWS SES subscription (the values for AWS_SES_USERPASS are the "SMTP username" and "SMTP password" provided when you create SMTP credentials for SES):
