@@ -70,4 +70,9 @@ Extending the configuration file from above:
 
 This will cause email sent from domain3.com to be delivered directly.
 
+### References
+
+Thanks to the author of [this article][1] for the inspiration. This is also worth reading to understand a bit more about how to set up Mailgun to work with this.
+
+[1]: https://community.rackspace.com/products/f/email-products-forum/3897/how-to-setup-postfix-with-a-mailgun-smtp-relay-when-using-multiple-domains
 
