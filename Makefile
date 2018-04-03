@@ -278,7 +278,8 @@ clean:
 		mail_with_postgrey \
 		mail_undef_spam_subject \
 		mail_postscreen \
-		mail_override_hostname
+		mail_override_hostname \
+		mail_with_relays
 
 	@if [ -d config.bak ]; then\
 		rm -rf config ;\
