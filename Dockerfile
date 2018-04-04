@@ -117,10 +117,8 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   chmod 755 /etc/dovecot/ssl  && \
   cd /usr/share/dovecot && \
   ./mkcert.sh  && \
-  mkdir /usr/lib/dovecot/sieve-pipe && \
-  chmod 755 /usr/lib/dovecot/sieve-pipe  && \
-  mkdir /usr/lib/dovecot/sieve-filter && \
-  chmod 755 /usr/lib/dovecot/sieve-filter
+  mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
+  chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot

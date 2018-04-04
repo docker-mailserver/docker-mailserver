@@ -481,16 +481,18 @@ function _setup_dovecot() {
 	# Copy pipe and filter programs, if any
 	rm -f /usr/lib/dovecot/sieve-filter/*
 	rm -f /usr/lib/dovecot/sieve-pipe/*
-	if [ -d /tmp/docker-mailserver/sieve-filter ]; then
-		cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
-		chown docker:docker /usr/lib/dovecot/sieve-filter/*
-		chmod 550 /usr/lib/dovecot/sieve-filter/*
+	[ -d /tmp/docker-mailserver/sieve-filter ] && cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
+	[ -d /tmp/docker-mailserver/sieve-pipe ] && cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
+	if [ -f /tmp/docker-mailserver/before.dovecot.sieve ]; then
+		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/
+		sievec /usr/lib/dovecot/sieve-global/before.dovecot.sieve
 	fi
-	if [ -d /tmp/docker-mailserver/sieve-pipe ]; then
-		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
-		chown docker:docker /usr/lib/dovecot/sieve-pipe/*
-		chmod 550 /usr/lib/dovecot/sieve-pipe/*
+	if [ -f /tmp/docker-mailserver/after.dovecot.sieve ]; then
+		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
+		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
 	fi
+	chown docker:docker -R /usr/lib/dovecot/sieve*
+	chmod 550 -R /usr/lib/dovecot/sieve*
 }
 
 function _setup_dovecot_local_user() {
