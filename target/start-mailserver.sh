@@ -484,12 +484,19 @@ function _setup_dovecot() {
 	[ -d /tmp/docker-mailserver/sieve-filter ] && cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
 	[ -d /tmp/docker-mailserver/sieve-pipe ] && cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
 	if [ -f /tmp/docker-mailserver/before.dovecot.sieve ]; then
+		sed -i "s/#sieve_before =/sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
 		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/
 		sievec /usr/lib/dovecot/sieve-global/before.dovecot.sieve
+	else
+		sed -i "s/  sieve_before =/  #sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
 	fi
+
 	if [ -f /tmp/docker-mailserver/after.dovecot.sieve ]; then
+		sed -i "s/#sieve_after =/sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
 		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
 		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
+	else 
+		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf	
 	fi
 	chown docker:docker -R /usr/lib/dovecot/sieve*
 	chmod 550 -R /usr/lib/dovecot/sieve*
