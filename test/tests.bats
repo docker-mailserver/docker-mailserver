@@ -1,9 +1,11 @@
-load 'test_helper/bats-support/load'
+sublload 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 #
 # configuration checks
 #
-
+@test "checking running container:" {
+  echo $RUNNING_CONTAINERS
+}
 @test "checking configuration: hostname/domainname" {
   run docker run `docker inspect --format '{{ .Config.Image }}' mail`
   assert_failure
@@ -1193,8 +1195,6 @@ load 'test_helper/bats-assert/load'
   # when executed directly against the container this workaround is not neccessary.
   run docker exec mail delmailuser -y pass@localhorst.localdomain
   assert_success
-  docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
-  sleep 30
   docker exec mail doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \a `p^a.*ssword' | grep 'auth succeeded'
   assert_success
 }
