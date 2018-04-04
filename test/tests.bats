@@ -1050,6 +1050,11 @@ load 'test_helper/bats-assert/load'
 #
 # accounts
 #
+@test "checking accounts: user_without_domain creation should be rejected since user@domain format is required" {
+  run docker exec mail /bin/sh -c "addmailuser user_without_domain mypassword"
+  assert_failure
+  assert_output --partial "username must include the domain"
+}
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
   docker exec mail /bin/sh -c "addmailuser user3@domain.tld mypassword"
