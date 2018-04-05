@@ -15,7 +15,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
-  run docker exec mail_override_hostname /bin/bash -c "hostname | grep mail.my-domain.com"
+  run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
   assert_success
 }
 
@@ -1489,10 +1489,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking dovecot: postmaster address" {
-  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
+  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 
   run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+
+  run docker exec mail_override_hostname /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 
