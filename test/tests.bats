@@ -1194,12 +1194,6 @@ load 'test_helper/bats-assert/load'
   value=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $1}')
   [ "$value" = "lorem@impsum.org" ]
 
-  # don't know why, but the test suite needs to delete the (non existant) user prior succeeding in adding him again.
-  # when executed directly against the container this workaround is not neccessary.
-  run docker exec mail delmailuser -y pass@localhorst.localdomain
-  assert_success
-  docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
-  sleep 30
   docker exec mail doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \a `p^a.*ssword' | grep 'auth succeeded'
   assert_success
 }
@@ -1211,13 +1205,13 @@ load 'test_helper/bats-assert/load'
 
 @test "checking setup.sh: setup.sh email update" {
   initialpass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-  run ./setup.sh -c mail email update lorem@impsum.org consectetur
+  run ./setup.sh email update lorem@impsum.org my password
+  sleep 10
   updatepass=$(cat ./config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-  [ "$initialpass" != "$changepass" ]
+  [ "$initialpass" != "$updatepass" ]
+  assert_success
 
-  docker exec mail /bin/sh -c "updatemailuser pass@localhost.localdomain 'my other password'"
-  sleep 30
-  docker exec mail /bin/sh -c "doveadm auth test -x service=smtp pass@localhost.localdomain 'my other password' | grep 'auth succeeded'"
+  docker exec mail doveadm pw -t "$updatepass" -p 'my password' | grep 'verified'
   assert_success
 }
 

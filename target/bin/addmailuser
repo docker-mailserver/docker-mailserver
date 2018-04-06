@@ -3,7 +3,8 @@
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
 USER="$1"
-PASSWD="$2"
+shift
+PASSWD="$@"
 
 usage() {
 	echo "Usage: addmailuser <user@domain> [<password>]"
