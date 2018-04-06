@@ -96,7 +96,7 @@ run:
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		-h mail.my-domain.com \
+		-h unknown.domain.tld \
 		-t $(NAME)
 	sleep 15
 	docker run -d --name mail_fail2ban \

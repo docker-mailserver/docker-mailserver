@@ -15,7 +15,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
-  run docker exec mail_override_hostname /bin/bash -c "hostname | grep mail.my-domain.com"
+  run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
   assert_success
 }
 
@@ -329,7 +329,7 @@ load 'test_helper/bats-assert/load'
 @test "checking smtp: user1 should have received 6 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
-  assert_output 6
+  assert_output 7
 }
 
 @test "checking smtp: rejects mail to unknown user" {
@@ -1047,6 +1047,10 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking sieve global: user1 should have gotten a copy of his spam mail" {
+  run docker exec mail /bin/sh -c "grep 'Spambot <spam@spam.com>' -R /var/mail/localhost.localdomain/user1/new/"
+  assert_success
+}
 #
 # accounts
 #
@@ -1479,10 +1483,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking dovecot: postmaster address" {
-  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
+  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 
   run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
+
+  run docker exec mail_override_hostname /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 

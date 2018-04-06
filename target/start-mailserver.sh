@@ -23,7 +23,6 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
-DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com"}"
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
@@ -416,6 +415,9 @@ function setup() {
 function _setup_default_vars() {
 	notify 'task' "Setting up default variables [$FUNCNAME]"
 
+	# update POSTMASTER_ADDRESS - must be done done after _check_hostname()
+	DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+
 	for var in ${!DEFAULT_VARS[@]}; do
 		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
@@ -483,16 +485,25 @@ function _setup_dovecot() {
 	# Copy pipe and filter programs, if any
 	rm -f /usr/lib/dovecot/sieve-filter/*
 	rm -f /usr/lib/dovecot/sieve-pipe/*
-	if [ -d /tmp/docker-mailserver/sieve-filter ]; then
-		cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
-		chown docker:docker /usr/lib/dovecot/sieve-filter/*
-		chmod 550 /usr/lib/dovecot/sieve-filter/*
+	[ -d /tmp/docker-mailserver/sieve-filter ] && cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
+	[ -d /tmp/docker-mailserver/sieve-pipe ] && cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
+	if [ -f /tmp/docker-mailserver/before.dovecot.sieve ]; then
+		sed -i "s/#sieve_before =/sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
+		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/
+		sievec /usr/lib/dovecot/sieve-global/before.dovecot.sieve
+	else
+		sed -i "s/  sieve_before =/  #sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
 	fi
-	if [ -d /tmp/docker-mailserver/sieve-pipe ]; then
-		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
-		chown docker:docker /usr/lib/dovecot/sieve-pipe/*
-		chmod 550 /usr/lib/dovecot/sieve-pipe/*
+
+	if [ -f /tmp/docker-mailserver/after.dovecot.sieve ]; then
+		sed -i "s/#sieve_after =/sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
+		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
+		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
+	else 
+		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf	
 	fi
+	chown docker:docker -R /usr/lib/dovecot/sieve*
+	chmod 550 -R /usr/lib/dovecot/sieve*
 }
 
 function _setup_dovecot_local_user() {
