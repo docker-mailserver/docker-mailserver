@@ -7,7 +7,7 @@ shift
 PASSWD="$@"
 
 usage() {
-	echo "Usage: addmailuser <user@domain> [<password>]\n \
+	echo -e "Usage: addmailuser <user@domain> [<password>]\n \
 	\n \
 	Please provide an unescaped password(without qoutes).\n \
 	Everything after the E-Mail address will be treated as the password.\n \
