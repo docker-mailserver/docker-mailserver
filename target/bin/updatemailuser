@@ -7,7 +7,12 @@ shift
 PASSWD="$@"
 
 usage() {
-	echo "Usage: updatemailuser <user@domain.tld> [password]"
+	echo "Usage: updatemailuser <user@domain.tld> [password]\n \
+	\n \
+	Please provide an unescaped password(without qoutes).\n \
+	Everything after the E-Mail address will be treated as the password.\n \
+	\n \
+	If a password is not provided as an argument, it will be asked for."
 }
 
 errex() {
