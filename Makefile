@@ -1,6 +1,6 @@
 NAME = tvial/docker-mailserver:testing
 
-CONTAINER=mail,mail_privacy,mail_pop3,mail_smtponly,mail_smtponly_without_config,mail_override_hostname,mail_fail2ban,mail_fetchmail,mail_disabled_clamav_spamassassin,mail_manual_ssl,mail_with_ldap,mail_postscreen,mail_lmtp_ip,mail_with_postgrey,mail_undef_spam_subject,mail_with_relays
+CONTAINER=from_image mail mail_privacy mail_pop3 mail_smtponly mail_smtponly_without_config mail_override_hostname mail_fail2ban mail_fetchmail mail_disabled_clamav_spamassassin mail_manual_ssl mail_with_ldap mail_postscreen mail_lmtp_ip mail_with_postgrey mail_undef_spam_subject mail_with_relays mail_with_imap
 
 test-export: export CONTAINER = $(CONTAINER)
 all: build-no-cache backup generate-accounts run generate-accounts-after-run fixtures tests clean
@@ -313,8 +313,7 @@ fixtures:
 
 tests:
   # Start tests
-	./test/bats/bin/bats test/tests.bats
-
+	@$(foreach c,$(CONTAINER),echo "================================";echo "|   Testing $(c):";echo "================================";./test/bats/bin/bats test/tests-$(c).bats;)
 clean:
 	# Remove running test containers
 	-docker rm -f \
@@ -325,7 +324,6 @@ clean:
 		mail_smtponly_without_config \
 		mail_fail2ban \
 		mail_fetchmail \
-		fail-auth-mailer \
 		mail_disabled_clamav_spamassassin \
 		mail_manual_ssl \
 		ldap_for_mail \
