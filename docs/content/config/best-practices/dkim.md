@@ -85,3 +85,6 @@ mail._domainkey.domain.tld. 3600 IN TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBA
 ;; WHEN: Wed Sep 07 18:22:57 CEST 2016
 ;; MSG SIZE  rcvd: 310
 ```
+
+## Switch off DKIM
+Simply remove dkim key by recreating the mailserver-container.
