@@ -1,6 +1,13 @@
 ### User-defined sieve filters
 
 [Sieve](http://sieve.info/) allows to specify filtering rules for incoming emails that allow for example sorting mails into different folders depending on the title of an email.
+There are global and user specific filters which are filtering the incoming emails in the following order:
+
+- Global-before -> User specific -> Global-after
+
+Global filters are applied to EVERY incoming mail for EVERY email address. 
+To specify a global Sieve filter provide a `config/before.dovecot.sieve` or a `config/after.dovecot.sieve` file with your filter rules.
+If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters(e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)
 
 To specify a user-defined Sieve filter place a `.dovecot.sieve` file into a virtual user's mail folder e.g. `/var/mail/domain.com/user1/.dovecot.sieve`. If this file exists dovecot will apply the filtering rules.
 
