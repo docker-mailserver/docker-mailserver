@@ -307,30 +307,10 @@ endef
 $(foreach cont,$(CONTAINER),$(eval $(call TEST_template,$(cont))))
 
 tests:
-	#./test/bats/bin/bats test/tests.bats
 	$(MAKE) -i -f $(THIS_FILE) $(addprefix test_,$(CONTAINER))
 
 run:
 	$(MAKE) -f $(THIS_FILE) -j $(addprefix build_,$(CONTAINER))
-
-
-
-	# Running tests on $(CONTAINER):
-
-	#$(foreach cont,$(CONTAINER),./test/bats/bin/bats test/tests-$(cont).bats)
-
-#tests:
-  # Start tests
-
-#	STATUS=0; \
-	for c in $(CONTAINER); do \
-		./test/bats/bin/bats test/tests-$$c.bats; \
-		STATUS=$$(( $$? + $$STATUS )); \
-		docker rm -f $$c; \
-	done; \
-	exit $$STATUS
-
-	 #$(foreach c,$(CONTAINER),./test/bats/bin/bats test/tests-$c.bats;)
 
 clean:
 	# Remove running test containers
