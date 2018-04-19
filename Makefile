@@ -52,7 +52,7 @@ build_mail:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 
 build_mail_privacy:
 	docker run -d --name mail_privacy \
@@ -71,7 +71,7 @@ build_mail_privacy:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_pop3:
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -81,7 +81,7 @@ build_mail_pop3:
 		-e DMS_DEBUG=0 \
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_smtponly:
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -91,7 +91,7 @@ build_mail_smtponly:
 		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_smtponly_without_config:
 	docker run -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
@@ -99,7 +99,7 @@ build_mail_smtponly_without_config:
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
 		-t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_override_hostname:
 	docker run -d --name mail_override_hostname \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -109,7 +109,7 @@ build_mail_override_hostname:
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h unknown.domain.tld \
 		-t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_fail2ban:
 	docker run -d --name mail_fail2ban \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -118,7 +118,7 @@ build_mail_fail2ban:
 		-e POSTSCREEN_ACTION=ignore \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_fetchmail:
 	docker run -d --name mail_fetchmail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -127,7 +127,7 @@ build_mail_fetchmail:
 		--cap-add=NET_ADMIN \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_disabled_clamav_spamassassin:
 	docker run -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -136,7 +136,7 @@ build_mail_disabled_clamav_spamassassin:
 		-e ENABLE_SPAMASSASSIN=0 \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_manual_ssl:
 	docker run -d --name mail_manual_ssl \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -146,12 +146,12 @@ build_mail_manual_ssl:
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_with_ldap:
 	docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
 		-h ldap.my-domain.com -t ldap
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 	docker run -d --name mail_with_ldap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -179,7 +179,7 @@ build_mail_with_ldap:
 		-e DMS_DEBUG=0 \
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_with_imap:
 	docker run -d --name mail_with_imap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -190,7 +190,7 @@ build_mail_with_imap:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_postscreen:
 	docker run -d --name mail_postscreen \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -198,7 +198,7 @@ build_mail_postscreen:
 		-e POSTSCREEN_ACTION=enforce \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_lmtp_ip:
 	docker run -d --name mail_lmtp_ip \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -208,7 +208,7 @@ build_mail_lmtp_ip:
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 30 / $(PERF) ))
+	sleep $$(( 60 / $(PERF) ))
 build_mail_with_postgrey:
 	docker run -d --name mail_with_postgrey \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -219,7 +219,7 @@ build_mail_with_postgrey:
 		-e POSTGREY_TEXT="Delayed by postgrey" \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 20 / $(PERF) ))
+	sleep $$(( 40 / $(PERF) ))
 build_mail_undef_spam_subject:
 	docker run -d --name mail_undef_spam_subject \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -227,7 +227,7 @@ build_mail_undef_spam_subject:
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SA_SPAM_SUBJECT="undef" \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 build_mail_with_relays:
 	docker run -d --name mail_with_relays \
 		-v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
@@ -240,13 +240,13 @@ build_mail_with_relays:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	sleep $$(( 15 / $(PERF) ))
+	sleep $$(( 30 / $(PERF) ))
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
   ifneq (,$(filter mail,$(CONTAINER)))
 	  docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
-		sleep $$(( 10 / $(PERF) ))
+		sleep $$(( 20 / $(PERF) ))
   endif
 
 fixtures:
@@ -256,7 +256,7 @@ fixtures:
 		docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 		docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
 		docker exec mail /bin/sh -c "chown 5000:5000 -R /var/mail/localhost.localdomain/user1/.INBOX.spam"
-		sleep $$(( 30 / $(PERF) ))
+		sleep $$(( 60 / $(PERF) ))
 		# Sending test mails
 		docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
 		docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
@@ -296,7 +296,7 @@ fixtures:
   # Wait for mails to be analyzed
 	@if [ $(NEEDSSLEEP) = true ]; then \
 		echo "sleep $$(( 80 / $(PERF) ))"; \
-		sleep $$(( 80 / $(PERF) )); \
+		sleep $$(( 160 / $(PERF) )); \
 	fi
 
 define TEST_template
