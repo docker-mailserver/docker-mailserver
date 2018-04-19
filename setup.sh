@@ -152,7 +152,7 @@ case $1 in
         ;;
       del)
         shift
-        _docker_image delmailuser $@
+        _docker_container delmailuser $@
         ;;
       restrict)
         shift

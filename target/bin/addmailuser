@@ -3,7 +3,8 @@
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
 USER="$1"
-PASSWD="$2"
+shift
+PASSWD="$@"
 
 usage() {
 	echo "Usage: addmailuser <user@domain> [<password>]"
@@ -19,6 +20,7 @@ escape() {
 }
 
 [ -z "$USER" ] && { usage; errex "no username specified"; }
+expr index "$USER" "@" >/dev/null || { usage; errex "username must include the domain"; }
 
 grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null &&
 	errex "User \"$USER\" already exists"
