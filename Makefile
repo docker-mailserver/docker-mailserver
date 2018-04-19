@@ -1,5 +1,4 @@
 NAME = tvial/docker-mailserver:testing
-THIS_FILE = nuw.make
 CONTAINER=from_image mail mail_privacy mail_pop3 mail_smtponly mail_smtponly_without_config mail_override_hostname mail_fail2ban mail_fetchmail mail_disabled_clamav_spamassassin mail_manual_ssl mail_with_ldap mail_postscreen mail_lmtp_ip mail_with_postgrey mail_undef_spam_subject mail_with_relays mail_with_imap
 PERF=1
 
@@ -307,10 +306,10 @@ endef
 $(foreach cont,$(CONTAINER),$(eval $(call TEST_template,$(cont))))
 
 tests:
-	$(MAKE) -i -f $(THIS_FILE) $(addprefix test_,$(CONTAINER))
+	$(MAKE) -i $(addprefix test_,$(CONTAINER))
 
 run:
-	$(MAKE) -f $(THIS_FILE) -j $(addprefix build_,$(CONTAINER))
+	$(MAKE) -j $(addprefix build_,$(CONTAINER))
 
 clean:
 	# Remove running test containers
