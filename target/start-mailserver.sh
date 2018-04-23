@@ -1073,8 +1073,10 @@ function _setup_postfix_relay_hosts() {
 		fi
 	fi
 
-	chown root:root /etc/postfix/sasl_passwd
-	chmod 0600 /etc/postfix/sasl_passwd
+	if [ -f /etc/postfix/sasl_passwd ]; then
+		chown root:root /etc/postfix/sasl_passwd
+		chmod 0600 /etc/postfix/sasl_passwd
+	fi
 	# end /etc/postfix/sasl_passwd
 
 	# setup /etc/postfix/relayhost_map
