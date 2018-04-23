@@ -1,2 +1,4 @@
 /^test[0-9][0-9]*@localhost.localdomain/ user1@localhost.localdomain
 /^bounce.*@.*/ external1@otherdomain.tld
+/^postmaster@/ user1@localhost.localdomain
+
