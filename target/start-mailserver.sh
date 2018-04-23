@@ -23,13 +23,14 @@ DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
-DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:="postmaster@domain.com"}"
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:="0"}"
 DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
 DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
+DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
+
 ##########################################################################
 # << DEFAULT VARS
 ##########################################################################
@@ -135,7 +136,11 @@ function register_functions() {
   _register_setup_function "_setup_postfix_access_control"
 
 	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
-		_register_setup_function "_setup_postfix_relay_amazon_ses"
+		_register_setup_function "_setup_postfix_relay_hosts"
+	fi
+
+	if [ ! -z "$RELAY_HOST" ]; then
+		_register_setup_function "_setup_postfix_relay_hosts"
 	fi
 
 	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
@@ -410,6 +415,9 @@ function setup() {
 function _setup_default_vars() {
 	notify 'task' "Setting up default variables [$FUNCNAME]"
 
+	# update POSTMASTER_ADDRESS - must be done done after _check_hostname()
+	DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+
 	for var in ${!DEFAULT_VARS[@]}; do
 		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
@@ -477,16 +485,25 @@ function _setup_dovecot() {
 	# Copy pipe and filter programs, if any
 	rm -f /usr/lib/dovecot/sieve-filter/*
 	rm -f /usr/lib/dovecot/sieve-pipe/*
-	if [ -d /tmp/docker-mailserver/sieve-filter ]; then
-		cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
-		chown docker:docker /usr/lib/dovecot/sieve-filter/*
-		chmod 550 /usr/lib/dovecot/sieve-filter/*
+	[ -d /tmp/docker-mailserver/sieve-filter ] && cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
+	[ -d /tmp/docker-mailserver/sieve-pipe ] && cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
+	if [ -f /tmp/docker-mailserver/before.dovecot.sieve ]; then
+		sed -i "s/#sieve_before =/sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
+		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/
+		sievec /usr/lib/dovecot/sieve-global/before.dovecot.sieve
+	else
+		sed -i "s/  sieve_before =/  #sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
 	fi
-	if [ -d /tmp/docker-mailserver/sieve-pipe ]; then
-		cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
-		chown docker:docker /usr/lib/dovecot/sieve-pipe/*
-		chmod 550 /usr/lib/dovecot/sieve-pipe/*
+
+	if [ -f /tmp/docker-mailserver/after.dovecot.sieve ]; then
+		sed -i "s/#sieve_after =/sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
+		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
+		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
+	else 
+		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf	
 	fi
+	chown docker:docker -R /usr/lib/dovecot/sieve*
+	chmod 550 -R /usr/lib/dovecot/sieve*
 }
 
 function _setup_dovecot_local_user() {
@@ -1001,22 +1018,102 @@ function _setup_postfix_sasl_password() {
 	fi
 }
 
-function _setup_postfix_relay_amazon_ses() {
-	notify 'task' 'Setting up Postfix Relay Amazon SES'
-	if [ -z "$AWS_SES_PORT" ];then
-		AWS_SES_PORT=25
+function _setup_postfix_relay_hosts() {
+	notify 'task' 'Setting up Postfix Relay Hosts'
+	# copy old AWS_SES variables to new variables
+	if [ -z "$RELAY_HOST" ]; then
+		if [ ! -z "$AWS_SES_HOST" ]; then
+			notify 'inf' "Using deprecated AWS_SES environment variables"
+			RELAY_HOST=$AWS_SES_HOST
+		fi
 	fi
-	notify 'inf' "Setting up outgoing email via AWS SES host $AWS_SES_HOST:$AWS_SES_PORT"
-	echo "[$AWS_SES_HOST]:$AWS_SES_PORT $AWS_SES_USERPASS" >> /etc/postfix/sasl_passwd
+	if [ -z "$RELAY_PORT" ]; then
+		if [ -z "$AWS_SES_PORT" ]; then
+			RELAY_PORT=25
+		else
+			RELAY_PORT=$AWS_SES_PORT
+		fi
+	fi
+	if [ -z "$RELAY_USER" ]; then
+		if [ ! -z "$AWS_SES_USERPASS" ]; then
+			# NB this will fail if the password contains a colon!
+			RELAY_USER=$(echo "$AWS_SES_USERPASS" | cut -f 1 -d ":")
+			RELAY_PASSWORD=$(echo "$AWS_SES_USERPASS" | cut -f 2 -d ":")
+		fi
+	fi
+	notify 'inf' "Setting up outgoing email relaying via $RELAY_HOST:$RELAY_PORT"
+
+	# setup /etc/postfix/sasl_passwd
+	# --
+	# @domain1.com        postmaster@domain1.com:your-password-1
+	# @domain2.com        postmaster@domain2.com:your-password-2
+	# @domain3.com        postmaster@domain3.com:your-password-3
+	#
+	# [smtp.mailgun.org]:587  postmaster@domain2.com:your-password-2
+
+	if [ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
+		notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
+		while read line; do
+			if ! echo "$line" | grep -q -e "\s*#"; then
+				echo "$line" >> /etc/postfix/sasl_passwd
+			fi
+		done < /tmp/docker-mailserver/postfix-sasl-password.cf
+	fi
+
+	# add default relay
+	if [ ! -z "$RELAY_USER" ] && [ ! -z "$RELAY_PASSWORD" ]; then
+		echo "[$RELAY_HOST]:$RELAY_PORT		$RELAY_USER:$RELAY_PASSWORD" >> /etc/postfix/sasl_passwd
+	else
+		if [ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
+			notify 'warn' "No relay auth file found and no default set"
+		fi
+	fi
+
+	chown root:root /etc/postfix/sasl_passwd
+	chmod 0600 /etc/postfix/sasl_passwd
+	# end /etc/postfix/sasl_passwd
+
+	# setup /etc/postfix/relayhost_map
+	# --
+	# @domain1.com        [smtp.mailgun.org]:587
+	# @domain2.com        [smtp.mailgun.org]:587
+	# @domain3.com        [smtp.mailgun.org]:587
+
+	echo -n > /etc/postfix/relayhost_map
+
+	if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
+		notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
+		while read line; do
+			if ! echo "$line" | grep -q -e "\s*#"; then
+				echo "$line" >> /etc/postfix/relayhost_map
+			fi
+		done < /tmp/docker-mailserver/postfix-relaymap.cf
+	fi
+	grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
+	do
+		domain=$(echo ${login} | cut -d @ -f2)
+		if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map; then
+			notify 'inf' "Adding relay mapping for ${domain}"
+			echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
+		fi
+	done
+	# remove lines with no destination
+	sed -i '/^@\S*\s*$/d' /etc/postfix/relayhost_map
+
+	chown root:root /etc/postfix/relayhost_map
+	chmod 0600 /etc/postfix/relayhost_map
+	# end /etc/postfix/relayhost_map
+
 	postconf -e \
-		"relayhost = [$AWS_SES_HOST]:$AWS_SES_PORT" \
 		"smtp_sasl_auth_enable = yes" \
 		"smtp_sasl_security_options = noanonymous" \
 		"smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
 		"smtp_use_tls = yes" \
 		"smtp_tls_security_level = encrypt" \
 		"smtp_tls_note_starttls_offer = yes" \
-		"smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
+		"smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
+		"sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map" \
+		"smtp_sender_dependent_authentication = yes"
 }
 
 function _setup_postfix_dhparam() {

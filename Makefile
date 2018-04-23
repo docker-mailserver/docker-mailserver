@@ -96,7 +96,7 @@ run:
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		-h mail.my-domain.com \
+		-h unknown.domain.tld \
 		-t $(NAME)
 	sleep 15
 	docker run -d --name mail_fail2ban \
@@ -207,10 +207,23 @@ run:
 		-e SA_SPAM_SUBJECT="undef" \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-
+	docker run -d --name mail_with_relays \
+		-v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e RELAY_HOST=default.relay.com \
+		-e RELAY_PORT=2525 \
+		-e RELAY_USER=smtp_user \
+		-e RELAY_PASSWORD=smtp_password \
+		--cap-add=SYS_PTRACE \
+		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
+	docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
+
 	sleep 10
 
 fixtures:
@@ -267,14 +280,15 @@ clean:
 		mail_with_postgrey \
 		mail_undef_spam_subject \
 		mail_postscreen \
-		mail_override_hostname
+		mail_override_hostname \
+		mail_with_relays
 
 	@if [ -d config.bak ]; then\
 		rm -rf config ;\
 		mv config.bak config ;\
 	fi
 	@if [ -d testconfig.bak ]; then\
-		rm -rf test/config ;\
+		sudo rm -rf test/config ;\
 		mv testconfig.bak test/config ;\
 	fi
 	-sudo rm -rf test/onedir

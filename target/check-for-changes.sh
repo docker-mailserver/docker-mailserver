@@ -51,6 +51,37 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 		chmod 640 /etc/dovecot/userdb
 		sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
 		sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
+
+		# rebuild relay host
+		if [ ! -z "$RELAY_HOST" ]; then
+			# keep old config
+			echo -n > /etc/postfix/sasl_passwd
+			echo -n > /etc/postfix/relayhost_map
+			if [ ! -z "$SASL_PASSWD" ]; then
+				echo "$SASL_PASSWD" >> /etc/postfix/sasl_passwd
+			fi
+			# add domain-specific auth from config file
+			if [ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
+				while read line; do
+					if ! echo "$line" | grep -q -e "\s*#"; then
+						echo "$line" >> /etc/postfix/sasl_passwd
+					fi
+				done < /tmp/docker-mailserver/postfix-sasl-password.cf
+			fi
+			# add default relay
+			if [ ! -z "$RELAY_USER" ] && [ ! -z "$RELAY_PASSWORD" ]; then
+				echo "[$RELAY_HOST]:$RELAY_PORT		$RELAY_USER:$RELAY_PASSWORD" >> /etc/postfix/sasl_passwd
+			fi
+			# add relay maps from file
+			if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
+				while read line; do
+					if ! echo "$line" | grep -q -e "\s*#"; then
+						echo "$line" >> /etc/postfix/relayhost_map
+					fi
+				done < /tmp/docker-mailserver/postfix-relaymap.cf
+			fi
+		fi
+
 		# Creating users
 		# 'pass' is encrypted
 		# comments and empty lines are ignored
@@ -78,7 +109,21 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
 			# Copy user provided sieve file, if present
 			test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
 			echo ${domain} >> /tmp/vhost.tmp
+			# add domains to relayhost_map
+			if [ ! -z "$RELAY_HOST" ]; then
+				if ! grep -q -e "^@${domain}\s" /etc/postfix/relayhost_map; then
+					echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
+				fi
+			fi
 		done
+	fi
+	if [ -f /etc/postfix/sasl_passwd ]; then
+		chown root:root /etc/postfix/sasl_passwd
+		chmod 0600 /etc/postfix/sasl_passwd
+	fi
+	if [ -f /etc/postfix/relayhost_map ]; then
+		chown root:root /etc/postfix/relayhost_map
+		chmod 0600 /etc/postfix/relayhost_map
 	fi
 	if [ -f postfix-virtual.cf ]; then
     # regen postfix aliases
