@@ -7,9 +7,9 @@ readme_directory = no
 
 # Basic configuration
 # myhostname =
-alias_maps = texthash:/etc/aliases
-alias_database = texthash:/etc/aliases
-mydestination =
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+mydestination = $myhostname, localhost.$mydomain, localhost
 relayhost =
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64
 mailbox_size_limit = 0
