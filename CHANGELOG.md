@@ -1,5 +1,22 @@
 # Changelog
 
+## 6.0.0
+
+* Implementation of multi-domain relay hosts (#922, #926)
+  AWS_SES_HOST and AWS_SES_PORT are deprecated now.
+  RELAY_HOST and RELAY_PORT are introduced to replace them.
+* Password creation fix (#908, #914)
+* Fixes 'duplicate log entry for /var/log/mail/mail.log' (#925, #927)
+* fixed cleanup (mail_with_relays didn't get cleaned up) (#930)
+* fix line breaks in postfix-summary mail error case (#936)
+* Set default virus delete time (#932, #935)
+  This defaults to 7 days
+* Ensure that the account contains a @ (#923, #924)
+* Introducing global filters. (#934)
+* add missing env vars to docker-compose.yml (#937)
+* set postmaster address to a sensible default (#938, #939,  #940)
+* Testfixes & more (#942)
+
 ## 5.8.1
 
 * add headers to postfix summary mail (#919)
