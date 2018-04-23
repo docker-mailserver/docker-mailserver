@@ -125,7 +125,7 @@ load 'test_helper/bats-assert/load'
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
-  assert_output 10
+  assert_output 12
 }
 
 @test "checking smtp: delivers mail to existing alias" {
@@ -155,10 +155,10 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
-@test "checking smtp: user1 should have received 6 mails" {
+@test "checking smtp: user1 should have received 9 mails" {
   run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
-  assert_output 7
+  assert_output 9
 }
 
 @test "checking smtp: rejects mail to unknown user" {
@@ -648,3 +648,10 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+# root mail delivery
+#
+
+@test "checking that mail for root was delivered" {
+  run docker exec mail grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
+}
