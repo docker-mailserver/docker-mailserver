@@ -137,6 +137,7 @@ run_mail_smtponly:
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
 	#$(call sleep,60)
+
 run_mail_smtponly_without_config:
 	docker run -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
