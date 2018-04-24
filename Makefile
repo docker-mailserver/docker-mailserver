@@ -182,7 +182,7 @@ run_mail_disabled_clamav_spamassassin:
 		-e ENABLE_SPAMASSASSIN=0 \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,60)
+	$(call sleep,120)
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 run_mail_manual_ssl:
 	docker run -d --name mail_manual_ssl \
