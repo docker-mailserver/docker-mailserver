@@ -64,6 +64,7 @@ run_mail:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	$(call sleep,45)
+
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 	docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
 	$(call sleep,20)
@@ -72,6 +73,7 @@ run_mail:
 	docker exec mail /bin/sh -c "chown 5000:5000 -R /var/mail/localhost.localdomain/user1/.INBOX.spam"
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	$(call sleep,45)
+
 	# Sending test mails
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
@@ -108,6 +110,7 @@ run_mail_privacy:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	$(call sleep,45)
+
 	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
 run_mail_pop3:
 	docker run -d --name mail_pop3 \
@@ -119,6 +122,7 @@ run_mail_pop3:
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
 	$(call sleep,45)
+
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 run_mail_smtponly:
 	docker run -d --name mail_smtponly \
