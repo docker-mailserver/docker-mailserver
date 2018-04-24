@@ -92,6 +92,7 @@ run_mail:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
 	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 	$(call sleep,80)
+
 run_mail_privacy:
 	docker run -d --name mail_privacy \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -112,6 +113,7 @@ run_mail_privacy:
 	$(call sleep,120)
 
 	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
+
 run_mail_pop3:
 	docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -124,6 +126,7 @@ run_mail_pop3:
 	$(call sleep,60)
 
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
+
 run_mail_smtponly:
 	docker run -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
