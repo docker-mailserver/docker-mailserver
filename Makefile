@@ -63,7 +63,7 @@ run_mail:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 	docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
@@ -72,7 +72,7 @@ run_mail:
 	docker exec mail /bin/sh -c "maildirmake.dovecot /var/mail/localhost.localdomain/user1/.INBOX.spam"
 	docker exec mail /bin/sh -c "chown 5000:5000 -R /var/mail/localhost.localdomain/user1/.INBOX.spam"
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
-	$(call sleep,45)
+	$(call sleep,60)
 
 	# Sending test mails
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
@@ -109,7 +109,7 @@ run_mail_privacy:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 
 	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
 run_mail_pop3:
@@ -121,7 +121,7 @@ run_mail_pop3:
 		-e DMS_DEBUG=0 \
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 run_mail_smtponly:
@@ -133,7 +133,7 @@ run_mail_smtponly:
 		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_smtponly_without_config:
 	docker run -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
@@ -141,7 +141,7 @@ run_mail_smtponly_without_config:
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
 		-t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_override_hostname:
 	docker run -d --name mail_override_hostname \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -151,7 +151,7 @@ run_mail_override_hostname:
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h unknown.domain.tld \
 		-t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 run_mail_fail2ban:
 	docker run -d --name mail_fail2ban \
@@ -161,7 +161,7 @@ run_mail_fail2ban:
 		-e POSTSCREEN_ACTION=ignore \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_fetchmail:
 	docker run -d --name mail_fetchmail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -170,7 +170,7 @@ run_mail_fetchmail:
 		--cap-add=NET_ADMIN \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_disabled_clamav_spamassassin:
 	docker run -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -179,7 +179,7 @@ run_mail_disabled_clamav_spamassassin:
 		-e ENABLE_SPAMASSASSIN=0 \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 run_mail_manual_ssl:
 	docker run -d --name mail_manual_ssl \
@@ -190,12 +190,12 @@ run_mail_manual_ssl:
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_with_ldap:
 	docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
 		-h ldap.my-domain.com -t ldap
-	$(call sleep,45)
+	$(call sleep,60)
 	docker run -d --name mail_with_ldap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -223,7 +223,7 @@ run_mail_with_ldap:
 		-e DMS_DEBUG=0 \
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_with_imap:
 	docker run -d --name mail_with_imap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -234,7 +234,7 @@ run_mail_with_imap:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_postscreen:
 	docker run -d --name mail_postscreen \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -242,7 +242,7 @@ run_mail_postscreen:
 		-e POSTSCREEN_ACTION=enforce \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_lmtp_ip:
 	docker run -d --name mail_lmtp_ip \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -252,7 +252,7 @@ run_mail_lmtp_ip:
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 run_mail_with_postgrey:
 	docker run -d --name mail_with_postgrey \
@@ -264,7 +264,7 @@ run_mail_with_postgrey:
 		-e POSTGREY_TEXT="Delayed by postgrey" \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_undef_spam_subject:
 	docker run -d --name mail_undef_spam_subject \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -272,7 +272,7 @@ run_mail_undef_spam_subject:
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SA_SPAM_SUBJECT="undef" \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 run_mail_with_relays:
 	docker run -d --name mail_with_relays \
 		-v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
@@ -285,7 +285,7 @@ run_mail_with_relays:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	$(call sleep,45)
+	$(call sleep,60)
 
 tests:
 	#$(MAKE) -i -j -Oline $(addprefix test_,$(CONTAINER))
