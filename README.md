@@ -560,3 +560,8 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
   - **empty** => no default
   - password for default relay user
+
+#### RELAY_AUTHENTICATION_DISABLED
+
+  - **empty** => use regular authentication at relay host
+  - 1 => do not authenticate at relay host

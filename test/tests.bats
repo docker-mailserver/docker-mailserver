@@ -1709,6 +1709,16 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking relay hosts: default smtp_sasl_auth_enable is yes" {
+  run docker exec mail_with_relays /bin/sh -c 'postconf -n | grep -e "^smtp_sasl_auth_enable = yes" | wc -l | grep 1'
+  assert_success
+}
+
+@test "checking relay hosts: smtp_sasl_auth_enable is set to no if RELAY_AUTHENTICATION_DISABLED is set" {
+  run docker exec mail_with_non_auth_relay /bin/sh -c 'postconf -n | grep -e "^smtp_sasl_auth_enable = no" | wc -l | grep 1'
+  assert_success
+}
+
 #
 # root mail delivery
 #
