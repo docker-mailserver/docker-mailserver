@@ -1110,8 +1110,13 @@ function _setup_postfix_relay_hosts() {
 	chmod 0600 /etc/postfix/relayhost_map
 	# end /etc/postfix/relayhost_map
 
+	smtp_sasl_auth_enable="yes"
+	if [ "$RELAY_AUTHENTICATION_DISABLED" = 1 ]; then
+		smtp_sasl_auth_enable="no"
+	fi
+
 	postconf -e \
-		"smtp_sasl_auth_enable = yes" \
+		"smtp_sasl_auth_enable = $smtp_sasl_auth_enable" \
 		"smtp_sasl_security_options = noanonymous" \
 		"smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
 		"smtp_use_tls = yes" \

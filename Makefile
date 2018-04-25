@@ -219,6 +219,16 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
+	docker run -d --name mail_with_non_auth_relay \
+		-v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e RELAY_HOST=default.relay.com \
+		-e RELAY_AUTHENTICATION_DISABLED=1 \
+		--cap-add=SYS_PTRACE \
+		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -282,7 +292,8 @@ clean:
 		mail_undef_spam_subject \
 		mail_postscreen \
 		mail_override_hostname \
-		mail_with_relays
+		mail_with_relays \
+		mail_with_non_auth_relay
 
 	@if [ -d config.bak ]; then\
 		rm -rf config ;\
