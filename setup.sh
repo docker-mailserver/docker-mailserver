@@ -11,7 +11,17 @@ INFO=$(docker ps \
 
 IMAGE_NAME=$(echo $INFO | awk '{print $1}')
 CONTAINER_NAME=$(echo $INFO | awk '{print $2}')
-CONFIG_PATH="$(pwd)/config"
+DEFAULT_CONFIG_PATH="$(pwd)/config"
+
+_update_config_path() {
+  VOLUME=$(docker inspect $CONTAINER_NAME \
+    --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
+    grep "/tmp/docker-mailserver$" 2>/dev/null)
+
+  if [ ! -z "$VOLUME" ]; then
+    CONFIG_PATH=$(echo $VOLUME | awk '{print $1}')
+  fi
+}
 
 if [ -z "$IMAGE_NAME" ]; then
   IMAGE_NAME=tvial/docker-mailserver:latest
@@ -25,6 +35,7 @@ _inspect() {
   fi
   if [ -n "$CONTAINER_NAME" ]; then
     echo "Container: $CONTAINER_NAME"
+    echo "Config mount: $CONFIG_PATH"
   else
     echo "Container: Not running, please start docker-mailserver."
   fi
@@ -117,13 +128,13 @@ while getopts ":c:i:p:" OPT; do
     p)
       case "$OPTARG" in
       /*)
-          CONFIG_PATH="$OPTARG"
+          WISHED_CONFIG_PATH="$OPTARG"
           ;;
       *)
-          CONFIG_PATH="$(pwd)/$OPTARG"
+          WISHED_CONFIG_PATH="$(pwd)/$OPTARG"
           ;;
       esac
-      if [ ! -d "$CONFIG_PATH" ]; then
+      if [ ! -d "$WISHED_CONFIG_PATH" ]; then
         echo "Directory doesn't exist"
         _usage
         exit 1
@@ -134,6 +145,17 @@ while getopts ":c:i:p:" OPT; do
      ;;
   esac
 done
+
+if [ ! -n "$WISHED_CONFIG_PATH" ]; then
+  # no wished config path
+  _update_config_path
+
+  if [ ! -n "$CONFIG_PATH" ]; then
+    CONFIG_PATH=$DEFAULT_CONFIG_PATH
+  fi
+else
+  CONFIG_PATH=$WISHED_CONFIG_PATH
+fi
 
 shift $((OPTIND-1))
 
