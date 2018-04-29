@@ -330,3 +330,6 @@ clean clean-before clean-after:
 		mv testconfig.bak test/config ;\
 	fi
 	-sudo rm -rf test/onedir
+	-sudo rm -rf test/alias
+	-sudo rm -rf test/relay
+
