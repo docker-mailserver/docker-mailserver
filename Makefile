@@ -1,11 +1,11 @@
 NAME = tvial/docker-mailserver:testing
 CONTAINER=from_image mail mail_privacy mail_pop3 mail_smtponly mail_smtponly_without_config mail_override_hostname mail_fail2ban mail_fetchmail mail_disabled_clamav_spamassassin mail_manual_ssl mail_with_ldap mail_postscreen mail_lmtp_ip mail_with_postgrey mail_undef_spam_subject mail_with_relays mail_with_imap
 PERF=1
+ERROR_COUNT=0
+all: clean-before build-no-cache backup generate-accounts run tests clean-after
+all-fast: clean-before build backup generate-accounts run tests clean-after
 
-all: clean build-no-cache backup generate-accounts run tests clean
-all-fast: clean build backup generate-accounts run tests clean
-
-no-build: clean backup generate-accounts run tests clean
+no-build: clean-before backup generate-accounts run tests clean-after
 
 build-no-cache:
 	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
@@ -18,6 +18,7 @@ build:
 define TEST_template
 $(addprefix test_,$(1)):
 	./test/bats/bin/bats test/tests-$(1).bats
+
 endef
 $(foreach cont,$(CONTAINER),$(eval $(call TEST_template,$(cont))))
 
@@ -136,7 +137,7 @@ run_mail_smtponly:
 		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 
 run_mail_smtponly_without_config:
 	docker run -d --name mail_smtponly_without_config \
@@ -165,7 +166,7 @@ run_mail_fail2ban:
 		-e POSTSCREEN_ACTION=ignore \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_fetchmail:
 	docker run -d --name mail_fetchmail \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -174,7 +175,7 @@ run_mail_fetchmail:
 		--cap-add=NET_ADMIN \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_disabled_clamav_spamassassin:
 	docker run -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -194,7 +195,7 @@ run_mail_manual_ssl:
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_with_ldap:
 	docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
@@ -227,7 +228,7 @@ run_mail_with_ldap:
 		-e DMS_DEBUG=0 \
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_with_imap:
 	docker run -d --name mail_with_imap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -238,7 +239,7 @@ run_mail_with_imap:
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_postscreen:
 	docker run -d --name mail_postscreen \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -246,7 +247,7 @@ run_mail_postscreen:
 		-e POSTSCREEN_ACTION=enforce \
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_lmtp_ip:
 	docker run -d --name mail_lmtp_ip \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -268,7 +269,7 @@ run_mail_with_postgrey:
 		-e POSTGREY_TEXT="Delayed by postgrey" \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_undef_spam_subject:
 	docker run -d --name mail_undef_spam_subject \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -276,7 +277,7 @@ run_mail_undef_spam_subject:
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SA_SPAM_SUBJECT="undef" \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 run_mail_with_relays:
 	docker run -d --name mail_with_relays \
 		-v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
@@ -289,16 +290,15 @@ run_mail_with_relays:
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
-	#$(call sleep,60)
+	$(call sleep,60)
 
 tests:
-	#$(MAKE) -i -j -Oline $(addprefix test_,$(CONTAINER))
-	$(MAKE) -i $(addprefix test_,$(CONTAINER))
+	$(MAKE) --no-print-directory --jobs --load-average=5 -Oline $(addprefix test_,$(CONTAINER))
 
 run:
-	$(MAKE) -j $(addprefix run_,$(CONTAINER))
+	$(MAKE) --jobs --load-average=5 $(addprefix run_,$(CONTAINER))
 
-clean:
+clean clean-before clean-after:
 	# Remove running test containers
 	-docker rm -f \
 		mail \

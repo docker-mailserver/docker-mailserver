@@ -94,12 +94,12 @@ _docker_image() {
     docker run \
       --rm \
       -v "$CONFIG_PATH":/tmp/docker-mailserver \
-      -ti "$IMAGE_NAME" $@
+      -i "$IMAGE_NAME" $@
 }
 
 _docker_container() {
   if [ -n "$CONTAINER_NAME" ]; then
-    docker exec -ti "$CONTAINER_NAME" "$@"
+    docker exec -i "$CONTAINER_NAME" "$@"
   else
     echo "The docker-mailserver is not running!"
     exit 1

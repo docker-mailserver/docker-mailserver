@@ -322,7 +322,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking amavis: old virusmail is wipped by cron" {
   docker exec mail bash -c 'touch -d "`date --date=2000-01-01`" /var/lib/amavis/virusmails/should-be-deleted'
-  run docker exec -ti mail bash -c '/usr/local/bin/virus-wiper'
+  run docker exec mail bash -c '/usr/local/bin/virus-wiper'
   assert_success
   run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-be-deleted'
   assert_failure
@@ -330,7 +330,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking amavis: recent virusmail is not wipped by cron" {
   docker exec mail bash -c 'touch -d "`date`"  /var/lib/amavis/virusmails/should-not-be-deleted'
-  run docker exec -ti mail bash -c '/usr/local/bin/virus-wiper'
+  run docker exec mail bash -c '/usr/local/bin/virus-wiper'
   assert_success
   run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-not-be-deleted'
   assert_success
@@ -490,7 +490,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking setup.sh: setup.sh email add " {
-  run ./setup.sh -p "./test/config" email add lorem@impsum.org dolorsit
+  run bash -c './setup.sh -p "./test/config" email add lorem@impsum.org dolorsit'
   assert_success
   value=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $1}')
   [ "$value" = "lorem@impsum.org" ]
@@ -501,7 +501,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking setup.sh: setup.sh email update" {
   initialpass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
-  run ./setup.sh -p "./test/config" email update lorem@impsum.org my password
+  run bash -c './setup.sh -p "./test/config" email update lorem@impsum.org my password'
   sleep 10
   updatepass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
   [ "$initialpass" != "$updatepass" ]
@@ -512,7 +512,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking setup.sh: setup.sh email del" {
-  run ./setup.sh -c mail -p "./test/config" email del -y lorem@impsum.org
+  run bash -c './setup.sh -c mail -p "./test/config" email del -y lorem@impsum.org'
   assert_success
   run docker exec mail ls /var/mail/impsum.org/lorem
   assert_failure
@@ -521,35 +521,35 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking setup.sh: setup.sh email restrict" {
-  run ./setup.sh -c mail -p "./test/config" email restrict
+  run bash -c './setup.sh -c mail -p "./test/config" email restrict'
   assert_failure
-  run ./setup.sh -c mail -p "./test/config" email restrict add
+  run bash -c './setup.sh -c mail -p "./test/config" email restrict add'
   assert_failure
-  ./setup.sh -c mail -p "./test/config" email restrict add send lorem@impsum.org
-  run ./setup.sh -c mail -p "./test/config" email restrict list send
+  bash -c './setup.sh -c mail -p "./test/config" email restrict add send lorem@impsum.org'
+  run bash -c './setup.sh -c mail -p "./test/config" email restrict list send'
   assert_output --regexp "^lorem@impsum.org.*REJECT"
 
-  run ./setup.sh -c mail -p "./test/config"  email restrict del send lorem@impsum.org
+  run bash -c './setup.sh -c mail -p "./test/config"  email restrict del send lorem@impsum.org'
   assert_success
-  run ./setup.sh -c mail -p "./test/config"  email restrict list send
+  run bash -c './setup.sh -c mail -p "./test/config"  email restrict list send'
   assert_output --partial "Everyone is allowed"
 
-  ./setup.sh -c mail -p "./test/config"  email restrict add receive rec_lorem@impsum.org
-  run ./setup.sh -c mail -p "./test/config"  email restrict list receive
+  bash -c './setup.sh -c mail -p "./test/config"  email restrict add receive rec_lorem@impsum.org'
+  run bash -c './setup.sh -c mail -p "./test/config"  email restrict list receive'
   assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
-  run ./setup.sh -c mail -p "./test/config"  email restrict del receive rec_lorem@impsum.org
+  run bash -c './setup.sh -c mail -p "./test/config"  email restrict del receive rec_lorem@impsum.org'
   assert_success
 }
 
 @test "checking setup.sh: setup.sh debug inspect" {
-  run ./setup.sh -c mail -p "./test/config"  debug inspect
+  run bash -c './setup.sh -c mail -p "./test/config"  debug inspect'
   assert_success
   [ "${lines[0]}" = "Image: tvial/docker-mailserver:testing" ]
   [ "${lines[1]}" = "Container: mail" ]
 }
 
 @test "checking setup.sh: setup.sh debug login ls" {
-  run ./setup.sh -c mail -p "./test/config"  debug login ls
+  run bash -c './setup.sh -c mail -p "./test/config"  debug login ls'
   assert_success
 }
 
