@@ -35,6 +35,7 @@ run:
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e REPORT_RECIPIENT=user1@localhost.localdomain \
+		-e REPORT_SENDER=report1@mail.mydomain.com \
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \

@@ -1596,6 +1596,8 @@ load 'test_helper/bats-assert/load'
   sleep 10
   run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
+  run docker exec mail grep "From: report1@mail.mydomain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
   # checking default logrotation setup
   run docker exec mail_with_ldap grep "daily" /etc/logrotate.d/maillog
   assert_success
