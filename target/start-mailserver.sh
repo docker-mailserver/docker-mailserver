@@ -417,6 +417,8 @@ function _setup_default_vars() {
 
 	# update POSTMASTER_ADDRESS - must be done done after _check_hostname()
 	DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+    # update REPORT_SENDER - must be done done after _check_hostname()
+    DEFAULT_VARS["REPORT_SENDER"]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
 
 	for var in ${!DEFAULT_VARS[@]}; do
 		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
@@ -1234,7 +1236,8 @@ function _setup_logrotate() {
 function _setup_mail_summary() {
 	notify 'inf' "Enable postfix summary with recipient $REPORT_RECIPIENT"
 	[ "$REPORT_RECIPIENT" = 1 ] && REPORT_RECIPIENT=$POSTMASTER_ADDRESS
-	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_RECIPIENT\n  endscript\n}\n|" /etc/logrotate.d/maillog
+	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME \
+    $REPORT_RECIPIENT $REPORT_SENDER\n  endscript\n}\n|" /etc/logrotate.d/maillog
 }
 
 function _setup_environment() {
