@@ -2,7 +2,7 @@
 
 HOSTNAME=$1
 RECIPIENT=$2
-
+SENDER=$3
 errex() {
   echo -e "$@" 1>&2
   exit 1
@@ -23,7 +23,7 @@ The $HOSTNAME Mailserver"
 fi
 
 sendmail -t <<EOF
-From: mailserver-report@$HOSTNAME
+From: $SENDER
 To: $RECIPIENT
 Subject: Postfix Summary for $HOSTNAME
 Content-Transfer-Encoding: 8bit

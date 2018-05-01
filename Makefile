@@ -35,6 +35,7 @@ run:
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e REPORT_RECIPIENT=user1@localhost.localdomain \
+		-e REPORT_SENDER=report1@mail.my-domain.com \
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
@@ -153,6 +154,7 @@ run:
 		-e DOVECOT_TLS=no \
 		-e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
 		-e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+		-e REPORT_RECIPIENT=1 \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=ldap \
 		-e SASLAUTHD_LDAP_SERVER=ldap \
