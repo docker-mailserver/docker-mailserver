@@ -1596,7 +1596,15 @@ load 'test_helper/bats-assert/load'
   sleep 10
   run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
-  run docker exec mail grep "From: report1@mail.mydomain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  # check sender is the one specified in REPORT_SENDER
+  run docker exec mail grep "From: report1@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
+  # check sender is not the default one.
+  run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  assert_failure
+  
+  # checking default sender is correctly set when env variable not defined
+  run docker exec mail_with_ldap grep "mailserver-report@mail.my-domain.com" /etc/logrotate.d/maillog
   assert_success
   # checking default logrotation setup
   run docker exec mail_with_ldap grep "daily" /etc/logrotate.d/maillog
