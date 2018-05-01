@@ -9,7 +9,7 @@ This is a list of all configuration files and directories which are optional or 
 ## Files:
 - **{user_email_address}.dovecot.sieve:** User specific Sieve filter file. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters)
 - **before.dovecot.sieve:** Global Sieve filter file, applied prior to the ${login}.dovecot.sieve filter. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters)
-- **after.dovecot.sieve:Global Sieve filter file, applied after the ${login}.dovecot.sieve filter. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters)
+- **after.dovecot.sieve**: Global Sieve filter file, applied after the ${login}.dovecot.sieve filter. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters)
 - **postfix-main.cf:** Every line will be added to the postfix main configuration. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Override-Default-Postfix-Configuration)
 - **postfix-master.cf:** Every line will be added to the postfix master configuration. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Override-Default-Postfix-Configuration)
 - **postfix-accounts.cf:** User accounts file. Modify via the [setup.sh email](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh#email) script.
