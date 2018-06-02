@@ -695,6 +695,8 @@ function _setup_saslauthd() {
 	[ -z "$SASLAUTHD_LDAP_SERVER" ] && SASLAUTHD_LDAP_SERVER=localhost
 	[ -z "$SASLAUTHD_LDAP_FILTER" ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
 	([ -z "$SASLAUTHD_LDAP_SSL" ] || [ $SASLAUTHD_LDAP_SSL == 0 ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+	[ -z "$SASLAUTHD_LDAP_START_TLS" ] && SASLAUTHD_LDAP_START_TLS=no
+	[ -z "$SASLAUTHD_LDAP_TLS_CHECK_PEER" ] && SASLAUTHD_LDAP_TLS_CHECK_PEER=no
 
 	if [ ! -f /etc/saslauthd.conf ]; then
 		notify 'inf' "Creating /etc/saslauthd.conf"
@@ -707,6 +709,9 @@ ldap_bind_pw: ${SASLAUTHD_LDAP_PASSWORD}
 
 ldap_search_base: ${SASLAUTHD_LDAP_SEARCH_BASE}
 ldap_filter: ${SASLAUTHD_LDAP_FILTER}
+
+ldap_start_tls: $SASLAUTHD_LDAP_START_TLS
+ldap_tls_check_peer: $SASLAUTHD_LDAP_TLS_CHECK_PEER
 
 ldap_referrals: yes
 log_level: 10
