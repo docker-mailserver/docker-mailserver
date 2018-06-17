@@ -96,7 +96,29 @@ run:
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \
+		-e ENABLE_SRS=1 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+		-h unknown.domain.tld \
+		-t $(NAME)
+	sleep 15
+	docker run -d --name mail_domainname \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e PERMIT_DOCKER=network \
+		-e DMS_DEBUG=0 \
+		-e ENABLE_SRS=1 \
+		-e DOMAINNAME=my-domain.com \
+		-h unknown.domain.tld \
+		-t $(NAME)
+	sleep 15
+	docker run -d --name mail_srs_domainname \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-e PERMIT_DOCKER=network \
+		-e DMS_DEBUG=0 \
+		-e ENABLE_SRS=1 \
+		-e SRS_DOMAINNAME=srs.my-domain.com \
+		-e DOMAINNAME=my-domain.com \
 		-h unknown.domain.tld \
 		-t $(NAME)
 	sleep 15
@@ -284,6 +306,8 @@ clean:
 		mail_undef_spam_subject \
 		mail_postscreen \
 		mail_override_hostname \
+		mail_domainname \
+		mail_srs_domainname \
 		mail_with_relays
 
 	@if [ -d config.bak ]; then\
