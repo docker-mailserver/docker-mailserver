@@ -548,6 +548,11 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
   - if you have a cluster/swarm make sure the same keys are on all nodes
   - example command to generate a key: `dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64`
 
+##### SRS_DOMAINNAME
+
+  - **empty** => Derived from OVERRIDE_HOSTNAME, DOMAINNAME, or the container's hostname
+  - Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs
+
 ## Multi-domain Relay Hosts
 
 #### RELAY_HOST
