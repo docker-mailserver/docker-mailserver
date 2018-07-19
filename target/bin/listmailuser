@@ -1,14 +1,17 @@
 #! /bin/bash
 # vim: et ai si ts=2 sts=2 sw=2
 
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
-
 errex() {
   echo "$@" 1>&2
   exit 1
 }
 
-[ -f $DATABASE ] || errex "No postfix-accounts.cf file"
-[ -s $DATABASE ] || errex "Empty postfix-accounts.cf - no users have been added"
-
-awk -F '|' '{ print $1; }' $DATABASE
+if [ -s /var/db/sqlite-mail.db ]; then
+  DATABASE=/var/db/sqlite-mail.db
+  /usr/bin/sqlite3 $DATABASE "SELECT username FROM mailbox WHERE active=1 ORDER BY username;"
+else
+  DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+  [ -f $DATABASE ] || errex "No postfix-accounts.cf file"
+  [ -s $DATABASE ] || errex "Empty postfix-accounts.cf - no users have been added"
+  awk -F '|' '{ print $1; }' $DATABASE
+fi

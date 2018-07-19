@@ -1,8 +1,5 @@
 #!/bin/bash
 # vim: et ai si ts=2 sts=2 sw=2
-
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
-
 USER="$1"
 shift
 PASSWD="$@"
@@ -27,8 +24,16 @@ if [ -z "$PASSWD" ]; then
   echo
   [ -z "$PASSWD" ] && errex "Password must not be empty"
 fi
-HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
-grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
-  errex "User \"$USER\" does not exist"
 
-sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE
+if [ -s /var/db/sqlite-mail.db ]; then
+  DATABASE=/var/db/sqlite-mail.db
+  MAIL_PASS=$(openssl passwd -1 "$PASSWD")
+  MAIL_DATE=$(date +%Y-%m-%d)
+  /usr/bin/sqlite3 $DATABASE "UPDATE mailbox SET password='${MAIL_PASS}', modified='${MAIL_DATE}' WHERE username='${USER}';"
+else
+  DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+  HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
+  grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
+    errex "User \"$USER\" does not exist"
+  sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE
+fi

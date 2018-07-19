@@ -1,8 +1,5 @@
 #!/bin/bash
 # vim: et ai si ts=2 sts=2 sw=2
-
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
-
 USER="$1"
 shift
 PASSWD="$@"
@@ -23,13 +20,30 @@ escape() {
 [ -z "$USER" ] && { usage; errex "no username specified"; }
 expr index "$USER" "@" >/dev/null || { usage; errex "username must include the domain"; }
 
-grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null &&
-  errex "User \"$USER\" already exists"
-
-if [ -z "$PASSWD" ]; then
-  read -s -p "Enter Password: " PASSWD
-  echo
-  [ -z "$PASSWD" ] && errex "Password must not be empty"
+if [ -s /var/db/sqlite-mail.db ]; then
+  DATABASE=/var/db/sqlite-mail.db
+  MAIL_USER=$(echo "$USER"|cut -d@ -f1)
+  MAIL_HOST=$(echo "$USER"|cut -d@ -f2)
+  [ $(/usr/bin/sqlite3 $DATABASE "SELECT COUNT(*) FROM mailbox WHERE username='${USER}'") -eq 0 ] || errex "User \"$USER\" already exists"
+  if [ -z "$PASSWD" ]; then
+    read -s -p "Enter Password: " PASSWD
+    echo
+    [ -z "$PASSWD" ] && errex "Password must not be empty"
+  fi
+  MAIL_PASS=$(openssl passwd -1 "$PASSWD")
+  MAIL_DATE=$(date +%Y-%m-%d)
+  [ $(/usr/bin/sqlite3 $DATABASE "SELECT COUNT(*) FROM domain") -eq 0 ] && /usr/bin/sqlite3 /var/db/sqlite-mail.db "INSERT INTO domain VALUES('ALL', '', 0, 0, 0, 0, '', 0, '${MAIL_DATE}', '${MAIL_DATE}', 1);"
+  [ $(/usr/bin/sqlite3 $DATABASE "SELECT COUNT(*) FROM domain WHERE domain='${MAIL_HOST}'") -eq 0 ] && /usr/bin/sqlite3 /var/db/sqlite-mail.db "INSERT INTO domain VALUES('${MAIL_HOST}', '${MAIL_HOST}', 0, 0, 0, 0, 'virtual', 0, '${MAIL_DATE}', '${MAIL_DATE}', 1);"
+  /usr/bin/sqlite3 $DATABASE "INSERT INTO mailbox VALUES('${USER}', '${MAIL_PASS}', '${MAIL_USER}', '${MAIL_HOST}/${MAIL_USER}/', 0, '${MAIL_USER}', '${MAIL_HOST}', '${MAIL_DATE}', '${MAIL_DATE}', 1);"
+else
+  DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+  grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null &&
+    errex "User \"$USER\" already exists"
+  if [ -z "$PASSWD" ]; then
+    read -s -p "Enter Password: " PASSWD
+    echo
+    [ -z "$PASSWD" ] && errex "Password must not be empty"
+  fi
+  HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
+  echo "$USER|$HASH" >> $DATABASE
 fi
-HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
-echo "$USER|$HASH" >> $DATABASE

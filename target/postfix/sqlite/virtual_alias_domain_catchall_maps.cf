@@ -1,0 +1,2 @@
+dbpath = /var/db/sqlite-mail.db
+query = SELECT goto FROM alias, alias_domain WHERE alias_domain.alias_domain = '%d' AND alias.address = printf('@', alias_domain.target_domain) AND alias.active = '1' AND alias_domain.active = '1'

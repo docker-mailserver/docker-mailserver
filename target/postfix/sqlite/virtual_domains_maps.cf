@@ -1,0 +1,6 @@
+# CREATE TABLE domain (
+#   domain VARCHAR(128) NOT NULL,
+#   active BOOLEAN NOT NULL,
+# );
+dbpath = /var/db/sqlite-mail.db
+query = SELECT domain FROM domain WHERE domain = '%s' AND active = '1'

@@ -9,6 +9,7 @@ ENV FETCHMAIL_POLL=300
 ENV POSTGREY_DELAY=300
 ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by postgrey"
+ENV ENABLE_SQLITE=0
 
 ENV SASLAUTHD_MECHANISMS=pam
 ENV SASLAUTHD_MECH_OPTIONS=""
@@ -63,6 +64,7 @@ RUN apt-get update -q --fix-missing && \
     rsyslog \
     sasl2-bin \
     spamassassin \
+    sqlite3 \
     supervisor \
     postgrey \
     unrar-free \
@@ -85,6 +87,7 @@ RUN apt-get update -q --fix-missing && \
     dovecot-managesieved \
     dovecot-pop3d \
     dovecot-sieve \
+    dovecot-sqlite \
     && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
@@ -119,6 +122,10 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
+
+# Configures Sqlite
+COPY target/postfix/sqlite/* /etc/postfix/sqlite/
+COPY target/dovecot/dovecot-sql.conf.ext /etc/dovecot/
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot

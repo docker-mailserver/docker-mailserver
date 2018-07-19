@@ -1,0 +1,7 @@
+# CREATE TABLE mailbox (
+#   username VARCHAR(128) NOT NULL,
+#   maildir VARCHAR(128) NOT NULL,
+#   active BOOLEAN NOT NULL,
+# );
+dbpath = /var/db/sqlite-mail.db
+query = SELECT maildir FROM mailbox WHERE username = '%s' AND active = '1'

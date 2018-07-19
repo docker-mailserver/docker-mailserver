@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   mail:
     image: tvial/docker-mailserver:latest
@@ -11,9 +11,9 @@ services:
       - "587:587"
       - "993:993"
     volumes:
-      - "maildata:/var/mail"
-      - "mailstate:/var/mail-state"
-      - "./config/:/tmp/docker-mailserver/"
+      - "maildata:/var/mail:rw"
+      - "mailstate:/var/mail-state:rw"
+      - "./config/:/tmp/docker-mailserver/:rw"
     environment:
       - DMS_DEBUG=${DMS_DEBUG}
       - ENABLE_CLAMAV=${ENABLE_CLAMAV}
@@ -77,6 +77,7 @@ services:
       - RELAY_PORT=${RELAY_PORT}
       - RELAY_USER=${RELAY_USER}
       - RELAY_PASSWORD=${RELAY_PASSWORD}
+      - ENABLE_SQLITE=${ENABLE_SQLITE}
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE

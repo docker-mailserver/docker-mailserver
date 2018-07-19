@@ -1,0 +1,11 @@
+# Authentication for sql users. Included from 10-auth.conf.
+
+passdb {
+  driver = sql
+  args = /etc/dovecot/sqlite/user-password.sql.conf
+}
+
+userdb {
+  driver = sql
+  args = /etc/dovecot/sqlite/user-password.sql.conf
+}

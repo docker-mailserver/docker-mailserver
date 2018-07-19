@@ -1,8 +1,5 @@
 #!/bin/bash
 # vim: et ai si ts=2 sts=2 sw=2
-
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
-
 EMAIL="$1"
 RECIPIENT="$2"
 
@@ -20,9 +17,14 @@ escape() {
 }
 
 [ -z "$EMAIL" ] || [ -z "$RECIPIENT" ]  && { usage; errex "No email specifed"; }
-[ -s "$DATABASE" ] || exit 0
-
-#CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')
-sed -i -e "/^$EMAIL *$RECIPIENT$/d" \
-       -e "/^$EMAIL/s/,$RECIPIENT//g" \
-       -e "/^$EMAIL/s/$RECIPIENT,//g" $DATABASE
+if [ -s /var/db/sqlite-mail.db ]; then
+  DATABASE=/var/db/sqlite-mail.db
+  /usr/bin/sqlite3 $DATABASE "DELETE FROM alias WHERE address='${EMAIL}' AND goto='${RECIPIENT}';"
+else
+  DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
+  [ -s "$DATABASE" ] || exit 0
+  #CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')
+  sed -i -e "/^$EMAIL *$RECIPIENT$/d" \
+         -e "/^$EMAIL/s/,$RECIPIENT//g" \
+         -e "/^$EMAIL/s/$RECIPIENT,//g" $DATABASE
+fi

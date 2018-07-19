@@ -1,5 +1,12 @@
 # Changelog
 
+## Next
+
+* Sqlite as possible storage for using with postfixadmin.
+  Use `ENABLE_SQLITE=1` to activate.
+  The database will be saved to `/var/db/sqlite-mail.db`,
+  `/var/db` should be volume mount read/write.
+
 ## 6.0.0
 
 * Implementation of multi-domain relay hosts (#922, #926)

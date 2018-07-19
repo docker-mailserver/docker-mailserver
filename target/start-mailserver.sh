@@ -31,6 +31,7 @@ DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:="0"}"
 DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
 DEFAULT_VARS["REPORT_INTERVAL"]="${REPORT_INTERVAL:="daily"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
+DEFAULT_VARS["ENABLE_SQLITE"]="${ENABLE_SQLITE:="0"}"
 
 ##########################################################################
 # << DEFAULT VARS
@@ -89,6 +90,9 @@ function register_functions() {
     _register_setup_function "_setup_elk_forwarder"
   fi
 
+  if [ "$ENABLE_SQLITE" = 1 ];then
+    _register_setup_function "_setup_sqlite"
+  fi
 
   if [ "$SMTP_ONLY" != 1 ]; then
     _register_setup_function "_setup_dovecot"
@@ -645,6 +649,135 @@ function _setup_postgrey() {
   if [ -f /tmp/docker-mailserver/whitelist_clients.local ]; then
     cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
   fi
+}
+
+function _setup_sqlite() {
+  notify 'task' "Setting up Sqlite"
+  notify 'inf' "Configuring postfix to use sqlite"
+  [ -s /var/db/sqlite-mail.db ] || sqlite3 /var/db/sqlite-mail.db <<'EOSQL'
+CREATE TABLE admin (
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `superadmin` tinyint(1) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default '2000-01-01',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`username`));
+CREATE TABLE alias (
+  `address` varchar(255) NOT NULL,
+  `goto` text NOT NULL,
+  `domain` varchar(255) NOT NULL,
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default '2000-01-01',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`address`));
+CREATE TABLE alias_domain (
+  `alias_domain` varchar(255) NOT NULL,
+  `target_domain` varchar(255) NOT NULL,
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default '2000-01-01',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`alias_domain`));
+CREATE TABLE domain (
+  `domain` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `aliases` int(11) NOT NULL DEFAULT 0,
+  `mailboxes` int(11) NOT NULL DEFAULT 0,
+  `maxquota` bigint(20) NOT NULL DEFAULT 0,
+  `quota` bigint(20) NOT NULL DEFAULT 0,
+  `transport` varchar(255) NOT NULL,
+  `backupmx` tinyint(1) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default '2000-01-01',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`domain`));
+CREATE TABLE domain_admins (
+  `username` varchar(255) NOT NULL,
+  `domain` varchar(255) NOT NULL,
+  `created` datetime NOT NULL default '2000-01-01',
+  `active` tinyint(1) NOT NULL DEFAULT '1');
+CREATE TABLE fetchmail (
+  `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+  `domain` varchar(255) DEFAULT '',
+  `mailbox` varchar(255) NOT NULL,
+  `src_server` varchar(255) NOT NULL,
+  `src_auth` varchar(255) DEFAULT NULL,
+  `src_user` varchar(255) NOT NULL,
+  `src_password` varchar(255) NOT NULL,
+  `src_folder` varchar(255) NOT NULL,
+  `poll_time` int(11)  NOT NULL DEFAULT '10',
+  `fetchall` tinyint(1) NOT NULL DEFAULT '0',
+  `keep` tinyint(1) NOT NULL DEFAULT '0',
+  `protocol` text DEFAULT NULL,
+  `usessl` tinyint(1) NOT NULL DEFAULT '0',
+  `sslcertck` tinyint(1) NOT NULL DEFAULT '0',
+  `sslcertpath` varchar(255) DEFAULT '',
+  `sslfingerprint` varchar(255) DEFAULT '',
+  `extra_options` text,
+  `returned_text` text,
+  `mda` varchar(255) NOT NULL,
+  `date` datetime NOT NULL default '2000-01-01',
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default CURRENT_TIMESTAMP,
+  `active` tinyint(1) NOT NULL DEFAULT '0');
+CREATE TABLE log (
+  `timestamp` datetime NOT NULL default '2000-01-01',
+  `username` varchar(255) NOT NULL,
+  `domain` varchar(255) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  `data` text NOT NULL);
+CREATE TABLE mailbox (
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `maildir` varchar(255) NOT NULL,
+  `quota` bigint(20) NOT NULL DEFAULT 0,
+  `local_part` varchar(255) NOT NULL,
+  `domain` varchar(255) NOT NULL,
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default '2000-01-01',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`username`));
+CREATE TABLE quota (
+  `username` varchar(255) NOT NULL,
+  `path` varchar(100) NOT NULL,
+  `current` bigint(20) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`username`,`path`));
+CREATE TABLE quota2 (
+  `username` varchar(255) NOT NULL,
+  `bytes` bigint(20) NOT NULL DEFAULT 0,
+  `messages` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`username`));
+CREATE TABLE vacation (
+  `email` varchar(255) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `activefrom` datetime NOT NULL default '2000-01-01',
+  `activeuntil` datetime NOT NULL default '2000-01-01',
+  `cache` text NOT NULL DEFAULT '',
+  `domain` varchar(255) NOT NULL,
+  `interval_time` int(11) NOT NULL DEFAULT 0,
+  `created` datetime NOT NULL default '2000-01-01',
+  `modified` datetime NOT NULL default CURRENT_TIMESTAMP,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`email`));
+CREATE TABLE vacation_notification (
+  `on_vacation` varchar(255) NOT NULL,
+  `notified` varchar(255) NOT NULL,
+  `notified_at` datetime NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY (`on_vacation`,`notified`),
+  CONSTRAINT `vacation_notification_pkey` FOREIGN KEY (`on_vacation`) REFERENCES `vacation` (`email`) ON DELETE CASCADE);
+EOSQL
+  chmod a+rw /var/db/sqlite-mail.db
+  sed -ri -e "s|(virtual_mailbox_domains) = .*|\1 = sqlite:/etc/postfix/sqlite/virtual_domains_maps.cf |" \
+          -e "s|(virtual_mailbox_maps) = .*|\1 = sqlite:/etc/postfix/sqlite/virtual_mailbox_maps.cf, sqlite:/etc/postfix/sqlite/virtual_alias_domain_maps.cf, sqlite:/etc/postfix/sqlite/virtual_alias_domain_catchall_maps.cf |" \
+          -e "s|(virtual_alias_maps) = .*|\1 = sqlite:/etc/postfix/sqlite/virtual_alias_maps.cf, sqlite:/etc/postfix/sqlite/virtual_alias_domain_mailbox_maps.cf |" \
+          /etc/postfix/main.cf
+  notify 'inf' "Configuring dovecot to use sqlite"
+  sed -ri -e "s/^#?(mail_uid|mail_gid) =.*/\1 = docker/" /etc/dovecot/conf.d/10-mail.conf
+  sed -ri -e "s|^.*(\!include auth-passwdfile.inc)|#\1|" \
+          -e "s|^.*(\!include auth-sql.conf.ext)|\1|" \
+          /etc/dovecot/conf.d/10-auth.conf
 }
 
 function _setup_postfix_postscreen() {

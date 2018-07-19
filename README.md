@@ -4,19 +4,21 @@
 
 
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
-Only configuration files, no SQL database. Keep it simple and versioned.
-Easy to deploy and upgrade.
+
+- Only configuration files, no SQL database (or sqlite as an option).
+- Keep it simple and versioned.
+- Easy to deploy and upgrade.
 
 Includes:
 
-- postfix with smtp or ldap auth
-- dovecot for sasl, imap (and optional pop3) with ssl support, with ldap auth
-- saslauthd with ldap auth
+- [postfix](http://www.postfix.org/) with smtp or ldap auth
+- [dovecot](https://dovecot.org/) for sasl, imap (and optional pop3) with ssl support, with ldap auth
+- [saslauthd](https://www.cyrusimap.org/sasl/) with ldap auth
 - [amavis](https://www.amavis.org/)
 - [spamassasin](http://spamassassin.apache.org/) supporting custom rules
 - [clamav](https://www.clamav.net/) with automatic updates
-- opendkim
-- opendmarc
+- [opendkim](http://www.opendkim.org/)
+- [opendmarc](http://www.trusteddomain.org/opendmarc/)
 - [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page)
 - [fetchmail](http://www.fetchmail.info/fetchmail-man.html)
 - [postscreen](http://www.postfix.org/POSTSCREEN_README.html)
@@ -25,6 +27,7 @@ Includes:
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - [setup script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) to easily configure and maintain your mailserver
 - persistent data and state (but think about backups!)
+- [sqlite](https://sqlite.org/index.html) optional storage to use with [postfixadmin](https://github.com/postfixadmin/postfixadmin)
 - [integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
@@ -63,7 +66,7 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 #### Create a docker-compose environment
 
 - Edit the `.env` to your liking. Adapt this file with your FQDN.
-- Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
+- Install [docker-compose](https://docs.docker.com/compose/) in the version `1.10` or higher.
 
 #### Create your mail accounts
 
@@ -440,6 +443,17 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
   - **empty** => no
   - yes => LDAP over TLS enabled for Dovecot
+
+## Sqlite
+
+##### ENABLE_SQLITE
+
+  - **empty** => Sqlite storage is disabled
+  - 1 => Sqlite storage is enabled
+  - NOTE:
+    - The file `/var/db/sqlite-mail.db` will be created.
+    - You need write access to the directory containing a sqlite database, here `/var/db`.
+    - The file could be empty or non-existant at start
 
 ## Dovecot
 

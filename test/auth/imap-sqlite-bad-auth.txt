@@ -1,0 +1,2 @@
+a1 LOGIN user1@localhost.localdomain badpassword
+a3 LOGOUT

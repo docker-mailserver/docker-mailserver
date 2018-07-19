@@ -1,14 +1,17 @@
 #! /bin/bash
 # vim: et ai si ts=2 sts=2 sw=2
 
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
-
 errex() {
   echo "$@" 1>&2
   exit 1
 }
 
-[ -f $DATABASE ] || errex "No postfix-virtual.cf file"
-[ -s $DATABASE ] || errex "Empty postfix-virtual.cf - no aliases have been added"
-
-cat $DATABASE
+if [ -s /var/db/sqlite-mail.db ]; then
+  DATABASE=/var/db/sqlite-mail.db
+  /usr/bin/sqlite3 -separator ' ' $DATABASE "SELECT address, goto FROM alias WHERE active=1 ORDER BY address, goto;"
+else
+  DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
+  [ -f $DATABASE ] || errex "No postfix-virtual.cf file"
+  [ -s $DATABASE ] || errex "Empty postfix-virtual.cf - no aliases have been added"
+  cat $DATABASE
+fi

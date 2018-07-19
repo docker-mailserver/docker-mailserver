@@ -1,8 +1,5 @@
 #!/bin/bash
 # vim: et ai si ts=2 sts=2 sw=2
-
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
-
 EMAIL="$1"
 RECIPIENT="$2"
 
@@ -20,12 +17,23 @@ escape() {
 }
 
 [ -z "$EMAIL" ] && { usage; errex "no email specified"; }
+[ -z "$RECIPIENT" ] && { usage; errex "no recipient specified"; }
 
-grep -qi "^$(escape $EMAIL)[a-zA-Z@.\ ]*$(escape $RECIPIENT)" $DATABASE 2>/dev/null &&
-  errex "Alias \"$EMAIL $RECIPIENT\" already exists"
-
-if grep -qi "^$(escape $EMAIL)" $DATABASE 2>/dev/null; then
-  sed -i "/$EMAIL/s/$/,$RECIPIENT/" $DATABASE
+if [ -s /var/db/sqlite-mail.db ]; then
+  DATABASE=/var/db/sqlite-mail.db
+  EMAIL_DOMAIN=$(echo "$EMAIL"|cut -d@ -f2)
+  [ $(/usr/bin/sqlite3 $DATABASE "SELECT COUNT(*) FROM alias WHERE address='${EMAIL}' AND goto='${RECIPIENT}'") -eq 0 ] || errex "Alias \"$EMAIL $RECIPIENT\" already exists"
+  MAIL_DATE=$(date +%Y-%m-%d)
+  [ $(/usr/bin/sqlite3 $DATABASE "SELECT COUNT(*) FROM domain") -eq 0 ] && /usr/bin/sqlite3 /var/db/sqlite-mail.db "INSERT INTO domain VALUES('ALL', '', 0, 0, 0, 0, '', 0, '${MAIL_DATE}', '${MAIL_DATE}', 1);"
+  [ $(/usr/bin/sqlite3 $DATABASE "SELECT COUNT(*) FROM domain WHERE domain='${EMAIL_DOMAIN}'") -eq 0 ] && /usr/bin/sqlite3 /var/db/sqlite-mail.db "INSERT INTO domain VALUES('${EMAIL_DOMAIN}', '${EMAIL_DOMAIN}', 0, 0, 0, 0, 'virtual', 0, '${MAIL_DATE}', '${MAIL_DATE}', 1);"
+  /usr/bin/sqlite3 $DATABASE "INSERT INTO alias VALUES('${EMAIL}', '${RECIPIENT}', '${EMAIL_DOMAIN}', '${MAIL_DATE}', '${MAIL_DATE}', 1);"
 else
-  echo "$EMAIL $RECIPIENT" >> $DATABASE
+  DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
+  grep -qi "^$(escape $EMAIL)[a-zA-Z@.\ ]*$(escape $RECIPIENT)" $DATABASE 2>/dev/null &&
+    errex "Alias \"$EMAIL $RECIPIENT\" already exists"
+  if grep -qi "^$(escape $EMAIL)" $DATABASE 2>/dev/null; then
+    sed -i "/$EMAIL/s/$/,$RECIPIENT/" $DATABASE
+  else
+    echo "$EMAIL $RECIPIENT" >> $DATABASE
+  fi
 fi

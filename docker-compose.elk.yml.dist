@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   mail:
     image: tvial/docker-mailserver:latest
@@ -13,8 +13,8 @@ services:
       - "587:587"
       - "993:993"
     volumes:
-      - "maildata:/var/mail"
-      - "./config/:/tmp/docker-mailserver/"
+      - "maildata:/var/mail:rw"
+      - "./config/:/tmp/docker-mailserver/:rw"
     environment:
       - DMS_DEBUG=${DMS_DEBUG}
       - ENABLE_CLAMAV=${ENABLE_CLAMAV}
@@ -70,6 +70,7 @@ services:
       - SASLAUTHD_LDAP_START_TLS=${SASLAUTHD_LDAP_START_TLS}
       - SASLAUTHD_LDAP_TLS_CHECK_PEER=${SASLAUTHD_LDAP_TLS_CHECK_PEER}
       - SASL_PASSWD=${SASL_PASSWD}
+      - ENABLE_SQLITE=${ENABLE_SQLITE}
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE

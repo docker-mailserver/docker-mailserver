@@ -293,6 +293,27 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+# sqlite
+@test "checking smtp: authentication works with sqlite with good password (plain)" {
+  run docker exec mail_with_sqlite /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
+  assert_success
+}
+
+@test "checking smtp: authentication fails with sqlite with wrong password (plain)" {
+  run docker exec mail_with_sqlite /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+  assert_success
+}
+
+@test "checking smtp: authentication works with sqlite with good password (login)" {
+  run docker exec mail_with_sqlite /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
+  assert_success
+}
+
+@test "checking smtp: authentication fails with sqlite with wrong password (login)" {
+  run docker exec mail_with_sqlite /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
+  assert_success
+}
+
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
@@ -1351,7 +1372,6 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 @test "checking setup.sh: setup.sh debug fail2ban" {
-
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
   sleep 10
@@ -1446,41 +1466,41 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking postfix: ldap custom config files copied" {
- run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf"
- assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf"
+  assert_success
 }
 
 @test "checking postfix: ldap config overwrites success" {
- run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-users.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
- assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-users.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-users.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf"
+  assert_success
 
- run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-groups.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
- assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-groups.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-groups.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf"
+  assert_success
 
- run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-aliases.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf"
- assert_success
- run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf"
- assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'start_tls = no' /etc/postfix/ldap-aliases.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf"
+  assert_success
+  run docker exec mail_with_ldap /bin/sh -c "grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf"
+  assert_success
 }
 
 @test "checking postfix: remove privacy details of the sender" {
@@ -1536,6 +1556,29 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking dovecot: sqlite imap connection and authentication works" {
+  run docker exec mail_with_sqlite /bin/sh -c "nc -w 10 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-sqlite-auth.txt"
+  assert_success
+  assert_output --partial "a1 OK"
+  assert_output --partial "a3 OK Logout completed"
+}
+
+@test "checking dovecot: sqlite imap login rejected with wrong password" {
+  run docker exec mail_with_sqlite /bin/sh -c "nc -w 10 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-sqlite-bad-auth.txt"
+  assert_success
+  assert_output --partial "a1 NO [AUTHENTICATIONFAILED]"
+  assert_output --partial "a3 OK Logout completed"
+}
+
+@test "checking dovecot: sqlite mail delivery works" {
+  run docker exec mail_with_sqlite rm -rf /var/mail/localhost.localdomain/user1
+  run docker exec mail_with_sqlite /bin/sh -c "sendmail -f user1@localhost.localdomain user1@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
+  sleep 2
+  run docker exec mail_with_sqlite /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l"
+  assert_success
+  assert_output 1
+}
+
 @test "checking spoofing: rejects sender forging" {
   # checking rejection of spoofed sender
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
@@ -1546,7 +1589,6 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking spoofing: accepts sending as alias" {
-
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
   assert_success
   # checking ldap alias

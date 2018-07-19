@@ -188,6 +188,15 @@ run:
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
+	docker run -d --name mail_with_sqlite \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-v "`pwd`/test/db":/var/db \
+		-e ENABLE_SQLITE=1 \
+		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
+		-e DMS_DEBUG=0 \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 	docker run -d --name mail_with_imap \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
@@ -247,7 +256,7 @@ run:
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 	docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
-
+	docker exec mail_with_sqlite addmailuser user1@localhost.localdomain mypassword
 	sleep 10
 
 fixtures:
@@ -300,6 +309,7 @@ clean:
 		mail_manual_ssl \
 		ldap_for_mail \
 		mail_with_ldap \
+		mail_with_sqlite \
 		mail_with_imap \
 		mail_lmtp_ip \
 		mail_with_postgrey \
@@ -321,4 +331,5 @@ clean:
 	-sudo rm -rf test/onedir
 	-sudo rm -rf test/alias
 	-sudo rm -rf test/relay
+	-sudo rm -f test/db/sqlite-mail.db
 

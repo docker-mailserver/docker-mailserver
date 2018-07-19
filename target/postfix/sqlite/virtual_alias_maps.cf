@@ -1,0 +1,7 @@
+# CREATE TABLE alias (
+#   address VARCHAR(128) NOT NULL,
+#   goto VARCHAR(128) NOT NULL,
+#   active BOOLEAN NOT NULL,
+# );
+dbpath = /var/db/sqlite-mail.db
+query = SELECT goto FROM alias WHERE address = '%s' AND active = '1'

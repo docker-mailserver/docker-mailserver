@@ -1,0 +1,13 @@
+driver = sqlite
+connect = /var/db/sqlite-mail.db
+default_pass_scheme = MD5-CRYPT
+password_query = SELECT \
+  username AS user, password \
+  FROM mailbox \
+  WHERE username = '%u' AND active = '1'
+user_query = SELECT \
+  printf('dirsize:storage=', quota) AS quota, 'docker' AS uid, 'docker' AS gid, '/var/mail/%d/%u' AS home \
+  FROM mailbox \
+  WHERE local_part = '%n' AND domain = '%d' AND active = '1'
+# For using doveadm -A:
+iterate_query = SELECT local_part AS username, domain FROM mailbox

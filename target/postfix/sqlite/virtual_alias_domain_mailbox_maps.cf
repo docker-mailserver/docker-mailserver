@@ -1,0 +1,2 @@
+dbpath = /var/db/sqlite-mail.db
+query = SELECT maildir FROM mailbox, alias_domain WHERE alias_domain.alias_domain = '%d' AND mailbox.username = printf('%u', '@', alias_domain.target_domain) AND mailbox.active = '1' AND alias_domain.active = '1'
