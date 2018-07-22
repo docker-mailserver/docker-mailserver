@@ -1,4 +1,3 @@
-#
 # Postfix master process configuration file.  For details on the format
 # of the file, see the master(5) manual page (command: "man 5 master" or
 # on-line: http://www.postfix.org/master.5.html).
@@ -75,7 +74,7 @@ ifmail    unix  -       n       n       -       -       pipe
   flags=F user=ftn argv=/usr/lib/ifmail/ifmail -r $nexthop ($recipient)
 bsmtp     unix  -       n       n       -       -       pipe
   flags=Fq. user=bsmtp argv=/usr/lib/bsmtp/bsmtp -t$nexthop -f$sender $recipient
-scalemail-backend unix	-	n	n	-	2	pipe
+scalemail-backend unix  -  n    n       -       2       pipe
   flags=R user=scalemail argv=/usr/lib/scalemail/bin/scalemail-store ${nexthop} ${user} ${extension}
 mailman   unix  -       n       n       -       -       pipe
   flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py

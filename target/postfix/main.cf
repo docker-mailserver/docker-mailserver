@@ -1,4 +1,5 @@
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
+# vim: et ai si ts=2 sts=2 sw=2
 
 smtpd_banner = $myhostname ESMTP $mail_name (Debian)
 biff = no
@@ -52,15 +53,15 @@ disable_vrfy_command = yes
 # Postscreen settings to drop zombies/open relays/spam early
 postscreen_dnsbl_action = enforce
 postscreen_dnsbl_sites = zen.spamhaus.org*3
-	bl.mailspike.net
-	b.barracudacentral.org*2
-	bl.spameatingmonkey.net
-	bl.spamcop.net
-	dnsbl.sorbs.net
-	psbl.surriel.com
-	list.dnswl.org=127.0.[0..255].0*-2
-	list.dnswl.org=127.0.[0..255].1*-3
-	list.dnswl.org=127.0.[0..255].[2..3]*-4
+  bl.mailspike.net
+  b.barracudacentral.org*2
+  bl.spameatingmonkey.net
+  bl.spamcop.net
+  dnsbl.sorbs.net
+  psbl.surriel.com
+  list.dnswl.org=127.0.[0..255].0*-2
+  list.dnswl.org=127.0.[0..255].1*-3
+  list.dnswl.org=127.0.[0..255].[2..3]*-4
 postscreen_dnsbl_threshold = 3
 postscreen_dnsbl_whitelist_threshold = -1
 postscreen_greet_action = enforce

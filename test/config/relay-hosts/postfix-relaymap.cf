@@ -1,2 +1,3 @@
-@domaintwo.tld		[other.relay.com]:587
+# vim: et ai si ts=2 sts=2 sw=2
+@domaintwo.tld  [other.relay.com]:587
 @domainthree.tld

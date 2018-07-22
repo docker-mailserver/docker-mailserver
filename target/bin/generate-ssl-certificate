@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: noet ai si ts=2 sts=2 sw=2
 
 FQDN=$(hostname --fqdn)
 

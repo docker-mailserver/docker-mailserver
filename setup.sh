@@ -1,4 +1,5 @@
-#! /bin/sh
+#!/bin/sh
+# vim: et ai si ts=2 sts=2 sw=2
 
 ##
 # Wrapper for various setup scripts included in the docker-mailserver
@@ -127,10 +128,10 @@ while getopts ":c:i:p:" OPT; do
       ;;
     p)
       case "$OPTARG" in
-      /*)
+        /*)
           WISHED_CONFIG_PATH="$OPTARG"
           ;;
-      *)
+        *)
           WISHED_CONFIG_PATH="$(pwd)/$OPTARG"
           ;;
       esac
@@ -192,21 +193,21 @@ case $1 in
   alias)
     shift
     case $1 in
-        add)
-          shift
-          _docker_image addalias $@
-          ;;
-        del)
-          shift
-          _docker_image delalias $@
-          ;;
-        list)
-          shift
-          _docker_image listalias $@
-          ;;
-        *)
-          _usage
-          ;;
+      add)
+        shift
+        _docker_image addalias $@
+        ;;
+      del)
+        shift
+        _docker_image delalias $@
+        ;;
+      list)
+        shift
+        _docker_image listalias $@
+        ;;
+      *)
+        _usage
+        ;;
     esac
     ;;
 
@@ -264,7 +265,7 @@ case $1 in
         ;;
       login)
         shift
-	if [ -z "$1" ]; then
+        if [ -z "$1" ]; then
           _docker_container /bin/bash
         else
           _docker_container /bin/bash -c "$@"

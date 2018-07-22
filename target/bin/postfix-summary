@@ -1,4 +1,5 @@
 #!/bin/bash
+# vim: et ai si ts=2 sts=2 sw=2
 
 HOSTNAME=$1
 RECIPIENT=$2

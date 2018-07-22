@@ -1,5 +1,6 @@
+# vim: et ai si ts=2 sts=2 sw=2
 poll pop3.example.com with proto POP3
-	user 'username' there with
-	password 'secret'
-	is 'user2@domain.tld'
-	here options keep ssl
+  user 'username' there with
+  password 'secret'
+  is 'user2@domain.tld'
+  here options keep ssl

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# vim: et ai si ts=2 sts=2 sw=2
 # postfix-wrapper.sh, version 0.1.0
 #
 # You cannot start postfix in some foreground mode and

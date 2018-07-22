@@ -1,4 +1,5 @@
 # $Id$
+# vim: et ai si ts=8 sts=8 sw=8
 #
 # State of Mind
 # Private Enterprise Number: 29426
@@ -10,7 +11,7 @@
 
 
 attributetype ( 1.3.6.1.4.1.29426.1.10.1 NAME 'mailHomeDirectory'
-	DESC 'The absolute path to the mail user home directory'
+        DESC 'The absolute path to the mail user home directory'
         EQUALITY caseExactIA5Match
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
 
@@ -31,22 +32,22 @@ attributetype ( 1.3.6.1.4.1.29426.1.10.4 NAME 'mailGidNumber'
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
 attributetype ( 1.3.6.1.4.1.29426.1.10.5 NAME 'mailEnabled'
-	DESC 'TRUE to enable, FALSE to disable account'
+        DESC 'TRUE to enable, FALSE to disable account'
         EQUALITY booleanMatch
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
 
 attributetype ( 1.3.6.1.4.1.29426.1.10.6 NAME 'mailGroupMember'
-	DESC 'Name of a mail distribution list'
+        DESC 'Name of a mail distribution list'
         EQUALITY caseExactIA5Match
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.3.6.1.4.1.29426.1.10.7 NAME 'mailQuota'
-	DESC 'Mail quota limit in kilobytes'
+        DESC 'Mail quota limit in kilobytes'
         EQUALITY caseExactIA5Match
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.3.6.1.4.1.29426.1.10.8 NAME 'mailStorageDirectory'
-	DESC 'The absolute path to the mail users mailbox'
+        DESC 'The absolute path to the mail users mailbox'
         EQUALITY caseExactIA5Match
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
 
@@ -57,14 +58,14 @@ attributetype ( 1.3.6.1.4.1.29426.1.10.8 NAME 'mailStorageDirectory'
 
 objectclass ( 1.3.6.1.4.1.29426.1.2.2.1 NAME 'PostfixBookMailAccount'
         SUP top AUXILIARY
-	DESC 'Mail account used in Postfix Book'
-	MUST ( mail )
-        MAY ( mailHomeDirectory $ mailAlias $ mailGroupMember 
-		$ mailUidNumber $ mailGidNumber $ mailEnabled
-		$ mailQuota $mailStorageDirectory ) )
+        DESC 'Mail account used in Postfix Book'
+        MUST ( mail )
+        MAY ( mailHomeDirectory $ mailAlias $ mailGroupMember
+                $ mailUidNumber $ mailGidNumber $ mailEnabled
+                $ mailQuota $mailStorageDirectory ) )
 
 objectclass ( 1.3.6.1.4.1.29426.1.2.2.2 NAME 'PostfixBookMailForward'
         SUP top AUXILIARY
-	DESC 'Mail forward used in Postfix Book'
-	MUST ( mail $ mailAlias ))
+        DESC 'Mail forward used in Postfix Book'
+        MUST ( mail $ mailAlias ))
 

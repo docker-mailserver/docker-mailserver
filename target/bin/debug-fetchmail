@@ -1,11 +1,12 @@
-#! /bin/sh
+#!/bin/sh
+# vim: et ai si ts=2 sts=2 sw=2
 
 /usr/local/bin/setup-fetchmail
 
 su -s /bin/sh -c "/usr/bin/fetchmail \
-	--verbose \
-	--daemon 0 \
-	--check \
-	--nosyslog \
-	--nodetach \
-	-f /etc/fetchmailrc" fetchmail <&- 2>&1
+  --verbose \
+  --daemon 0 \
+  --check \
+  --nosyslog \
+  --nodetach \
+  -f /etc/fetchmailrc" fetchmail <&- 2>&1

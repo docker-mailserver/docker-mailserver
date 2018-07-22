@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: et ai si ts=2 sts=2 sw=2
 
 touch /tmp/vhost.tmp
 
@@ -33,8 +34,8 @@ fi
 
 # Exit if no entries found
 if [ ! -f /tmp/vhost ]; then
-	echo "No entries found, no keys to make"
-	exit 0
+  echo "No entries found, no keys to make"
+  exit 0
 fi
 
 grep -vE '^(\s*$|#)' /tmp/vhost | while read domainname; do

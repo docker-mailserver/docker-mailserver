@@ -1,2 +1,3 @@
-mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
-	  "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCurRsOh4NyTOqDnpPlPLGlQDuoQl32Gdkfzw7BBRKDcelIZBmQf0uhXKSZVKe5Q596w/3ESJ9WOlB03SISnHy8lq/ZJ1+vhSZQfHvp0cHQl4BgNzktRCARdPY+5nVerF8aUSsT3bG2O+2r09AY4okLCVfkiwg6Nz2Eo7j4Z7mqNwIDAQAB" )  ; ----- DKIM key mail for otherdomain.tld
+# vim: et ai si ts=2 sts=2 sw=2
+mail._domainkey  IN  TXT  ( "v=DKIM1; k=rsa; "
+  "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCurRsOh4NyTOqDnpPlPLGlQDuoQl32Gdkfzw7BBRKDcelIZBmQf0uhXKSZVKe5Q596w/3ESJ9WOlB03SISnHy8lq/ZJ1+vhSZQfHvp0cHQl4BgNzktRCARdPY+5nVerF8aUSsT3bG2O+2r09AY4okLCVfkiwg6Nz2Eo7j4Z7mqNwIDAQAB" )  ; ----- DKIM key mail for otherdomain.tld

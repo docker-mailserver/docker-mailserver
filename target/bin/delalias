@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+# vim: et ai si ts=2 sts=2 sw=2
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
@@ -6,16 +7,16 @@ EMAIL="$1"
 RECIPIENT="$2"
 
 usage() {
-	echo "Usage: delalias <alias@domain> <recipient@other>"
+  echo "Usage: delalias <alias@domain> <recipient@other>"
 }
 
 errex() {
-	echo "$@" 1>&2
-	exit 1
+  echo "$@" 1>&2
+  exit 1
 }
 
 escape() {
-	echo "${1//./\\.}"
+  echo "${1//./\\.}"
 }
 
 [ -z "$EMAIL" ] || [ -z "$RECIPIENT" ]  && { usage; errex "No email specifed"; }

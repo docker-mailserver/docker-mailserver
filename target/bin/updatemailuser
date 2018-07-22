@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+# vim: et ai si ts=2 sts=2 sw=2
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
@@ -7,27 +8,27 @@ shift
 PASSWD="$@"
 
 usage() {
-	echo "Usage: updatemailuser <user@domain.tld> [password]"
+  echo "Usage: updatemailuser <user@domain.tld> [password]"
 }
 
 errex() {
-	echo "$@" 1>&2
-	exit 1
+  echo "$@" 1>&2
+  exit 1
 }
 
 escape() {
-	echo "${1//./\\.}"
+  echo "${1//./\\.}"
 }
 
 [ -z "$USER" ] && { usage; errex "no username specified"; }
 
 if [ -z "$PASSWD" ]; then
-	read -s -p "Enter Password: " PASSWD
-	echo
-	[ -z "$PASSWD" ] && errex "Password must not be empty"
+  read -s -p "Enter Password: " PASSWD
+  echo
+  [ -z "$PASSWD" ] && errex "Password must not be empty"
 fi
 HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
 grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
-	errex "User \"$USER\" does not exist"
+  errex "User \"$USER\" does not exist"
 
 sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE

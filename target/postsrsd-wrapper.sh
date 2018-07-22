@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# vim: et ai si ts=2 sts=2 sw=2
 # postsrsd-wrapper.sh, version 0.2.2
 
 if [ -n "$SRS_DOMAINNAME" ]; then
@@ -18,13 +19,17 @@ postsrsd_state_dir='/var/mail-state/etc-postsrsd'
 postsrsd_state_secret_file="${postsrsd_state_dir}/postsrsd.secret"
 
 generate_secret() {
-  ( umask 0077
-    dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "$1" )
+  (
+    umask 0077
+    dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "$1"
+  )
 }
 
 if [ -n "$SRS_SECRET" ]; then
-  ( umask 0077
-    echo "$SRS_SECRET" | tr ',' '\n' > "$postsrsd_secret_file" )
+  (
+    umask 0077
+    echo "$SRS_SECRET" | tr ',' '\n' > "$postsrsd_secret_file"
+  )
 else
   if [ "$ONE_DIR" = 1 ]; then
     if [ ! -f "$postsrsd_state_secret_file" ]; then

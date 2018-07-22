@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+# vim: et ai si ts=2 sts=2 sw=2
 
 usage() {
   echo "Usage: $0 [<unban> <ip-address>]"
@@ -42,5 +43,5 @@ else
     *)
       usage; raise "unknown command: $1"
       ;;
-    esac
+  esac
 fi
