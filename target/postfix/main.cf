@@ -7,9 +7,9 @@ readme_directory = no
 
 # Basic configuration
 # myhostname =
-alias_maps = texthash:/etc/aliases
-alias_database = texthash:/etc/aliases
-mydestination =
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+mydestination = $myhostname, localhost.$mydomain, localhost
 relayhost =
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64
 mailbox_size_limit = 0
@@ -72,7 +72,7 @@ smtpd_sasl_path = /var/spool/postfix/private/auth
 smtpd_sasl_type = dovecot
 
 smtpd_sasl_security_options = noanonymous
-smtpd_sasl_local_domain = $myhostname
+smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
 # Mail directory

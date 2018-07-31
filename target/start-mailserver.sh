@@ -417,6 +417,8 @@ function _setup_default_vars() {
 
 	# update POSTMASTER_ADDRESS - must be done done after _check_hostname()
 	DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+    # update REPORT_SENDER - must be done done after _check_hostname()
+    DEFAULT_VARS["REPORT_SENDER"]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
 
 	for var in ${!DEFAULT_VARS[@]}; do
 		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
@@ -656,7 +658,7 @@ function _setup_spoof_protection () {
 	sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
 	[ "$ENABLE_LDAP" = 1 ] \
 		&& postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf" \
-		|| postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, texthash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+		|| postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
 }
 
 function _setup_postfix_access_control() {
@@ -693,6 +695,8 @@ function _setup_saslauthd() {
 	[ -z "$SASLAUTHD_LDAP_SERVER" ] && SASLAUTHD_LDAP_SERVER=localhost
 	[ -z "$SASLAUTHD_LDAP_FILTER" ] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
 	([ -z "$SASLAUTHD_LDAP_SSL" ] || [ $SASLAUTHD_LDAP_SSL == 0 ]) && SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+	[ -z "$SASLAUTHD_LDAP_START_TLS" ] && SASLAUTHD_LDAP_START_TLS=no
+	[ -z "$SASLAUTHD_LDAP_TLS_CHECK_PEER" ] && SASLAUTHD_LDAP_TLS_CHECK_PEER=no
 
 	if [ ! -f /etc/saslauthd.conf ]; then
 		notify 'inf' "Creating /etc/saslauthd.conf"
@@ -705,6 +709,9 @@ ldap_bind_pw: ${SASLAUTHD_LDAP_PASSWORD}
 
 ldap_search_base: ${SASLAUTHD_LDAP_SEARCH_BASE}
 ldap_filter: ${SASLAUTHD_LDAP_FILTER}
+
+ldap_start_tls: $SASLAUTHD_LDAP_START_TLS
+ldap_tls_check_peer: $SASLAUTHD_LDAP_TLS_CHECK_PEER
 
 ldap_referrals: yes
 log_level: 10
@@ -754,6 +761,10 @@ function _setup_postfix_aliases() {
 		s/$/ pcre:\/etc\/postfix\/regexp/
 		}' /etc/postfix/main.cf
 	fi
+
+	notify 'inf' "Configuring root alias"
+	echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+	postalias /etc/aliases
 }
 
 function _setup_SRS() {
@@ -1069,8 +1080,10 @@ function _setup_postfix_relay_hosts() {
 		fi
 	fi
 
-	chown root:root /etc/postfix/sasl_passwd
-	chmod 0600 /etc/postfix/sasl_passwd
+	if [ -f /etc/postfix/sasl_passwd ]; then
+		chown root:root /etc/postfix/sasl_passwd
+		chmod 0600 /etc/postfix/sasl_passwd
+	fi
 	# end /etc/postfix/sasl_passwd
 
 	# setup /etc/postfix/relayhost_map
@@ -1228,7 +1241,8 @@ function _setup_logrotate() {
 function _setup_mail_summary() {
 	notify 'inf' "Enable postfix summary with recipient $REPORT_RECIPIENT"
 	[ "$REPORT_RECIPIENT" = 1 ] && REPORT_RECIPIENT=$POSTMASTER_ADDRESS
-	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $REPORT_RECIPIENT\n  endscript\n}\n|" /etc/logrotate.d/maillog
+	sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME \
+    $REPORT_RECIPIENT $REPORT_SENDER\n  endscript\n}\n|" /etc/logrotate.d/maillog
 }
 
 function _setup_environment() {

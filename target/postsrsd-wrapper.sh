@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
-# postsrsd-wrapper.sh, version 0.2.1
+# postsrsd-wrapper.sh, version 0.2.2
 
-DOMAINNAME="$(hostname -d)"
-sed -i -e "s/localdomain/$DOMAINNAME/g" /etc/default/postsrsd
+if [ -n "$SRS_DOMAINNAME" ]; then
+  domain_name="$SRS_DOMAINNAME"
+elif [ -n "$OVERRIDE_HOSTNAME" ]; then
+  domain_name="${OVERRIDE_HOSTNAME#*.}"
+elif [ -n "$DOMAINNAME" ]; then
+  domain_name="$DOMAINNAME"
+else
+  domain_name=$(hostname -d)
+fi
+
+sed -i -e "s/localdomain/${domain_name}/g" /etc/default/postsrsd
 
 postsrsd_secret_file='/etc/postsrsd.secret'
 postsrsd_state_dir='/var/mail-state/etc-postsrsd'
