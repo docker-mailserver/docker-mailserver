@@ -1,5 +1,17 @@
 # Changelog
 
+## 6.1.0
+
+* Deliver root mail (#952)
+* don't update permissions on non-existent file (#956)
+* Update docker-configomat (#959)
+* Support for detecting running container mount (#884)
+* Report sender (#965)
+  added REPORT_SENDER env variable to the container.
+* Add saslauthd option for ldap_start_tls & ldap_tls_check_peer - (#979, #980)
+* fix SASL domain (#892, #970)
+* DOMAINNAME can fail to be set in postsrsd-wrapper.sh (#989)
+
 ## 6.0.0
 
 * Implementation of multi-domain relay hosts (#922, #926)
