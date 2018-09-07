@@ -43,7 +43,7 @@ DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 # Example: KEY="VALUE"
 ##########################################################################
 HOSTNAME="$(hostname -f)"
-DOMAINNAME="$(hostname -d)"
+DOMAINNAME="$(hostname -f)"
 ##########################################################################
 # << GLOBAL VARS
 ##########################################################################
