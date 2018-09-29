@@ -212,10 +212,16 @@ function register_functions() {
 	if [ "$ENABLE_CLAMAV" = 1 ]; then
 		_register_start_daemon "_start_daemons_clamav"
 	fi
-    # Change detector
-    if [ "$ENABLE_LDAP" = 0 ]; then
-	    _register_start_daemon "_start_changedetector"
-    fi
+
+  # Change detector
+  if [ "$ENABLE_LDAP" = 0 ]; then
+    _register_start_daemon "_start_changedetector"
+  fi
+
+	# Watch SSL files -- but only if SSL is enabled!
+	if [ ! -z "$SSL_TYPE" ]; then
+    _register_start_daemon "_start_watchsslfiles"
+  fi
 
 	_register_start_daemon "_start_daemons_amavis"
 	################### << daemon funcs
@@ -501,8 +507,8 @@ function _setup_dovecot() {
 		sed -i "s/#sieve_after =/sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
 		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
 		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
-	else 
-		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf	
+	else
+		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
 	fi
 	chown docker:docker -R /usr/lib/dovecot/sieve*
 	chmod 550 -R /usr/lib/dovecot/sieve*
@@ -1495,6 +1501,10 @@ function _start_changedetector() {
     supervisorctl start changedetector
 }
 
+function _start_watchsslfiles() {
+	notify 'task' 'Starting watchsslfiles' 'n'
+		supervisorctl start watchsslfiles
+}
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
