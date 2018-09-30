@@ -790,6 +790,11 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking ssl: watch-ssl-files.sh test" {
+  run docker exec mail_manual_ssl /bin/sh -c "/usr/local/bin/watch-ssl-files.sh test"
+  assert_success
+}
+
 #
 # postsrsd
 #
@@ -1621,7 +1626,7 @@ load 'test_helper/bats-assert/load'
   # check sender is not the default one.
   run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
-  
+
   # checking default sender is correctly set when env variable not defined
   run docker exec mail_with_ldap grep "mailserver-report@mail.my-domain.com" /etc/logrotate.d/maillog
   assert_success
