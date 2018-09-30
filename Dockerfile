@@ -1,5 +1,5 @@
 FROM debian:stretch-slim
-MAINTAINER Thomas VIAL
+LABEL maintainer="Thomas VIAL"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV VIRUSMAILS_DELETE_DELAY=7
