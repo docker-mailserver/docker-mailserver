@@ -790,8 +790,8 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking ssl: watch-ssl-files.sh test" {
-  run docker exec mail_manual_ssl /bin/sh -c "/usr/local/bin/watch-ssl-files.sh test"
+@test "checking ssl: check-for-changes.sh test" {
+  run docker exec mail_manual_ssl /bin/sh -c "/usr/local/bin/check-for-changes.sh test"
   assert_success
 }
 

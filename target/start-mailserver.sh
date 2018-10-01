@@ -214,13 +214,8 @@ function register_functions() {
 	fi
 
   # Change detector
-  if [ "$ENABLE_LDAP" = 0 ]; then
+  if [[ ! -z "$SSL_FILE" || "$ENABLE_LDAP" = 0 ]]; then
     _register_start_daemon "_start_changedetector"
-  fi
-
-	# Watch SSL files -- but only if SSL is enabled!
-	if [ ! -z "$SSL_TYPE" ]; then
-    _register_start_daemon "_start_watchsslfiles"
   fi
 
 	_register_start_daemon "_start_daemons_amavis"
