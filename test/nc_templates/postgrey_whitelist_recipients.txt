@@ -1,0 +1,9 @@
+request=smtpd_access_policy
+protocol_state=RCPT
+protocol_name=ESMTP
+client_address=127.0.0.1
+client_name=nonwhitelist.tld
+helo_name=nonwhitelist.tld
+sender=test@nonwhitelist.tld
+recipient=user2@otherdomain.tld
+

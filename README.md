@@ -470,6 +470,12 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
+##### POSTGREY_AUTO_WHITELIST_CLIENTS
+
+  - **5** => whitelist host after N successful deliveries (N=0 to disable whitelisting)
+
+Note: This postgrey setting needs `ENABLE_POSTGREY=1`
+
 ##### POSTGREY_TEXT
 
   - **Delayed by postgrey** => response when a mail is greylisted
