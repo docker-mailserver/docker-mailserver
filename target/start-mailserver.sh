@@ -643,10 +643,10 @@ function _setup_postgrey() {
 		printf "POSTGREY_TEXT=\"$POSTGREY_TEXT\"\n\n" >> /etc/default/postgrey
 	fi
 	if [ -f /tmp/docker-mailserver/whitelist_clients.local ]; then
-	        cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
+		cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
 	fi
 	if [ -f /tmp/docker-mailserver/whitelist_recipients ]; then
-	        cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
+		cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
 	fi
 }
 
