@@ -421,7 +421,7 @@ function _setup_default_vars() {
     DEFAULT_VARS["REPORT_SENDER"]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
 
 	for var in ${!DEFAULT_VARS[@]}; do
-		echo "export $var=${DEFAULT_VARS[$var]}" >> /root/.bashrc
+		echo "export $var=\"${DEFAULT_VARS[$var]}\"" >> /root/.bashrc
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
 	done
