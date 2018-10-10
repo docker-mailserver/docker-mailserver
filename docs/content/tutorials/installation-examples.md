@@ -52,7 +52,7 @@ We are going to use this docker based mailserver:
   - https://github.com/tomav/docker-mailserver#environment-variables
   - https://github.com/tomav/docker-mailserver/blob/master/.env.dist
   
-  Make sure to set the propper `domainname` that you will use for the
+  Make sure to set the proper `domainname` that you will use for the
   emails. We forward only SMTP ports (not POP3 and IMAP) because we
   are not interested in accessing the mailserver directly (from a
   client).  We also use these settings:
