@@ -65,6 +65,9 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 - Edit the `.env` to your liking. Adapt this file with your FQDN.
 - Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
 
+#### Start Container
+    docker-compose up -d mail
+
 #### Create your mail accounts
 
     ./setup.sh email add <user@domain> [<password>]
@@ -75,8 +78,9 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
-#### Start the container
+#### Restart the container
 
+    docker-compose down
     docker-compose up -d mail
 
 You're done!
