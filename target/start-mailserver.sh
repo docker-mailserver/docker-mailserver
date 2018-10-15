@@ -19,6 +19,8 @@ DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:="0"}"
 DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:="300"}"
 DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
 DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
+DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]="${POSTFIX_MESSAGE_SIZE_LIMIT:="1048576"}"  # 10 MB by default
+DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]="${POSTFIX_MAILBOX_SIZE_LIMIT:="0"}"        # no limit by default
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
@@ -123,6 +125,7 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_vhost"
 	_register_setup_function "_setup_postfix_dhparam"
 	_register_setup_function "_setup_postfix_postscreen"
+	_register_setup_function "_setup_postfix_sizelimits"
 
   if [ "$SPOOF_PROTECTION" = 1  ]; then
 		_register_setup_function "_setup_spoof_protection"
@@ -651,6 +654,13 @@ function _setup_postfix_postscreen() {
 	sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_greet_action = enforce/postscreen_greet_action = $POSTSCREEN_ACTION/" \
 	       -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = $POSTSCREEN_ACTION/" /etc/postfix/main.cf
+}
+
+function _setup_postfix_sizelimits() {
+	notify 'inf' "Configuring postfix message size limit"
+	postconf -e "message_size_limit = ${DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]}"
+	notify 'inf' "Configuring postfix mailbox size limit"
+	postconf -e "mailbox_size_limit = ${DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]}"
 }
 
 function _setup_spoof_protection () {
