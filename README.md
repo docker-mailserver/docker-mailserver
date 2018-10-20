@@ -314,7 +314,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 
 Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!)
 
-- **empty** => 1048576 (10 MB)
+- **empty** => 10240000 (~10 MB)
 
 ##### ENABLE_MANAGESIEVE
 
