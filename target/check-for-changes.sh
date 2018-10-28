@@ -37,6 +37,7 @@ else
 	resu_vir="OK"
 fi
 
+
 if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
    echo "${log_date} Change detected"
     #regen postfix accounts.
