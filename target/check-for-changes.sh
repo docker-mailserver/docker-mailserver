@@ -35,16 +35,16 @@ log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 chksum=$(sha512sum -c --ignore-missing chksum)
 
 if [[ $chksum == *"FAIL"* ]]; then
-    echo "${log_date} Change detected"
+	echo "${log_date} Change detected"
 
-    #regen postix aliases.
+	#regen postix aliases.
 	echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
 	if [ -f /tmp/docker-mailserver/postfix-aliases.cf ]; then
-        cat /tmp/docker-mailserver/postfix-aliases.cf>>/etc/aliases
-    fi
+		cat /tmp/docker-mailserver/postfix-aliases.cf>>/etc/aliases
+	fi
 	postalias /etc/aliases
 
-    #regen postfix accounts.
+	#regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
 	if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
@@ -131,8 +131,8 @@ if [[ $chksum == *"FAIL"* ]]; then
 		chmod 0600 /etc/postfix/relayhost_map
 	fi
 	if [ -f postfix-virtual.cf ]; then
-    # regen postfix aliases
-    echo -n > /etc/postfix/virtual
+	# regen postfix aliases
+	echo -n > /etc/postfix/virtual
 	echo -n > /etc/postfix/regexp
 	if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
 		# Copying virtual file
@@ -142,7 +142,7 @@ if [[ $chksum == *"FAIL"* ]]; then
 			# Setting variables for better readability
 			uname=$(echo ${from} | cut -d @ -f1)
 			domain=$(echo ${from} | cut -d @ -f2)
-			# if they are equal it means the line looks like: "user1     other@domain.tld"
+			# if they are equal it means the line looks like: "user1	 other@domain.tld"
 			test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
 		done < /tmp/docker-mailserver/postfix-virtual.cf
 	fi
@@ -155,26 +155,26 @@ if [[ $chksum == *"FAIL"* ]]; then
 		}' /etc/postfix/main.cf
 	fi
 	fi
-    # Set vhost 
+	# Set vhost 
 	if [ -f /tmp/vhost.tmp ]; then
 		cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 	fi
-    
-    # Set right new if needed
+	
+	# Set right new if needed
 	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
 		chown -R 5000:5000 /var/mail
 	fi
-    
-    # Restart of the postfix
-    supervisorctl restart postfix
-    
-    # Prevent restart of dovecot when smtp_only=1
-    if [ ! $SMTP_ONLY = 1 ]; then
-        supervisorctl restart dovecot
-    fi 
+	
+	# Restart of the postfix
+	supervisorctl restart postfix
+	
+	# Prevent restart of dovecot when smtp_only=1
+	if [ ! $SMTP_ONLY = 1 ]; then
+		supervisorctl restart dovecot
+	fi 
 
-    echo "${log_date} Update checksum"
-    sha512sum ${cf_files[@]/#/--tag } > chksum
+	echo "${log_date} Update checksum"
+	sha512sum ${cf_files[@]/#/--tag } > chksum
 fi
 
 sleep 1
