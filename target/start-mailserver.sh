@@ -774,6 +774,12 @@ function _setup_postfix_aliases() {
 
 	notify 'inf' "Configuring root alias"
 	echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+	if [ -f /tmp/docker-mailserver/postfix-aliases.cf ]; then
+        cat /tmp/docker-mailserver/postfix-aliases.cf>>/etc/aliases
+    else
+		notify 'inf' "'config/postfix-aliases.cf' is not provided and will be auto created."
+        echo -n >/tmp/docker-mailserver/postfix-aliases.cf
+    fi
 	postalias /etc/aliases
 }
 

@@ -15,13 +15,16 @@ if [ ! -f postfix-accounts.cf ]; then
    exit
 fi 
 
+# create an array of files to monitor (perhaps simple *.cf would be ok here)
+declare -a cf_files=()
+for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf; do
+  [ -f "$file" ] && cf_files+=("$file")
+done
+
 # Update / generate after start
 echo "${log_date} Makeing new checksum file."
-if [ -f postfix-virtual.cf ]; then
-	sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
-else
-	sha512sum --tag postfix-accounts.cf > chksum
-fi
+sha512sum ${cf_files[@]/#/--tag } > chksum
+
 # Run forever
 while true; do
 
@@ -30,16 +33,17 @@ log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it.
 chksum=$(sha512sum -c --ignore-missing chksum)
-resu_acc=${chksum:21:2}
-if [ -f postfix-virtual.cf ]; then
-	resu_vir=${chksum:44:2}
-else
-	resu_vir="OK"
-fi
 
+if [[ $chksum == *"FAIL"* ]]; then
+    echo "${log_date} Change detected"
 
-if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
-   echo "${log_date} Change detected"
+    #regen postix aliases.
+	echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+	if [ -f /tmp/docker-mailserver/postfix-aliases.cf ]; then
+        cat /tmp/docker-mailserver/postfix-aliases.cf>>/etc/aliases
+    fi
+	postalias /etc/aliases
+
     #regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
@@ -170,11 +174,7 @@ if ! [ $resu_acc = "OK" ] || ! [ $resu_vir = "OK" ]; then
     fi 
 
     echo "${log_date} Update checksum"
-	if [ -f postfix-virtual.cf ]; then
-    sha512sum --tag postfix-accounts.cf --tag postfix-virtual.cf > chksum
-	else
-	sha512sum --tag postfix-accounts.cf > chksum
-	fi
+    sha512sum ${cf_files[@]/#/--tag } > chksum
 fi
 
 sleep 1
