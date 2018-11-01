@@ -8,6 +8,7 @@ ENV ENABLE_POSTGREY=0
 ENV FETCHMAIL_POLL=300
 ENV POSTGREY_DELAY=300
 ENV POSTGREY_MAX_AGE=35
+ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_TEXT="Delayed by postgrey"
 
 ENV SASLAUTHD_MECHANISMS=pam
@@ -176,7 +177,7 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
-COPY target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
+COPY target/postfix/header_checks.pcre target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
 RUN echo "" > /etc/aliases && \
   openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
   echo "@weekly FILE=`mktemp` ; openssl dhparam -out $FILE 2048 > /dev/null 2>&1 && mv -f $FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048

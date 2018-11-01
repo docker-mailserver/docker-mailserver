@@ -1,0 +1,9 @@
+request=smtpd_access_policy
+protocol_state=RCPT
+protocol_name=ESMTP
+client_address=127.0.0.1
+client_name=whitelistlocal.tld
+helo_name=whitelistlocal.tld
+sender=test@whitelistlocal.tld
+recipient=user1@localhost.localdomain
+

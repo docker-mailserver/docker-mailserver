@@ -18,6 +18,7 @@ DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
 DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:="0"}"
 DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:="300"}"
 DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
+DEFAULT_VARS["POSTGREY_AUTO_WHITELIST_CLIENTS"]="${POSTGREY_AUTO_WHITELIST_CLIENTS:="5"}"
 DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
 DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]="${POSTFIX_MESSAGE_SIZE_LIMIT:="10240000"}"  # ~10 MB by default
 DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]="${POSTFIX_MAILBOX_SIZE_LIMIT:="0"}"        # no limit by default
@@ -638,7 +639,7 @@ function _setup_ldap() {
 function _setup_postgrey() {
 	notify 'inf' "Configuring postgrey"
 	sed -i -e 's/, reject_rbl_client bl.spamcop.net$/, reject_rbl_client bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
-	sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE\"/" /etc/default/postgrey
+	sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE --auto-whitelist-clients=$POSTGREY_AUTO_WHITELIST_CLIENTS\"/" /etc/default/postgrey
 	TEXT_FOUND=`grep -i "POSTGREY_TEXT" /etc/default/postgrey | wc -l`
 
 	if [ $TEXT_FOUND -eq 0 ]; then
@@ -646,6 +647,9 @@ function _setup_postgrey() {
 	fi
 	if [ -f /tmp/docker-mailserver/whitelist_clients.local ]; then
 		cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
+	fi
+	if [ -f /tmp/docker-mailserver/whitelist_recipients ]; then
+		cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
 	fi
 }
 

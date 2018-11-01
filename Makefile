@@ -220,6 +220,7 @@ run:
 		-e ENABLE_POSTGREY=1 \
 		-e POSTGREY_DELAY=15 \
 		-e POSTGREY_MAX_AGE=35 \
+		-e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
 		-e POSTGREY_TEXT="Delayed by postgrey" \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
