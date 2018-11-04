@@ -387,7 +387,7 @@ function _check_hostname() {
 
 	if ( ! echo $HOSTNAME | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
 		notify 'err' "Setting hostname/domainname is required"
-		kill -6 `cat /var/run/supervisord.pid` && return 1
+		kill `cat /var/run/supervisord.pid` && return 1
 	else
 		notify 'inf' "Domain has been set to $DOMAINNAME"
 		notify 'inf' "Hostname has been set to $HOSTNAME"

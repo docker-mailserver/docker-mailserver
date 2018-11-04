@@ -7,7 +7,7 @@
 INFO=$(docker ps \
   --no-trunc \
   --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
-  grep "/bin/sh -c 'supervisord -c /etc/supervisor/supervisord.conf'")
+  grep "supervisord -c /etc/supervisor/supervisord.conf")
 
 IMAGE_NAME=$(echo $INFO | awk '{print $1}')
 CONTAINER_NAME=$(echo $INFO | awk '{print $2}')

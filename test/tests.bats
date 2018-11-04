@@ -6,7 +6,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking configuration: hostname/domainname" {
   run docker run `docker inspect --format '{{ .Config.Image }}' mail`
-  assert_failure
+  assert_success
 }
 
 @test "checking configuration: hostname/domainname override" {
@@ -1783,5 +1783,14 @@ load 'test_helper/bats-assert/load'
 
 @test "checking that mail for root was delivered" {
   run docker exec mail grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
+  assert_success
+}
+
+#
+# clean exit
+#
+
+@test "checking that the container stops cleanly" {
+  run docker stop -t 60 mail
   assert_success
 }
