@@ -79,7 +79,7 @@ broken_sasl_auth_clients = yes
 virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
 virtual_mailbox_domains = /etc/postfix/vhost
 virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
-virtual_alias_maps = regexp:/etc/postfix/virtual_alias
+virtual_alias_maps = texthash:/etc/postfix/virtual, regexp:/etc/postfix/virtual_regex
 
 # Additional option for filtering
 content_filter = smtp-amavis:[127.0.0.1]:10024
