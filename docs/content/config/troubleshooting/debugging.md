@@ -14,7 +14,11 @@ docker exec -it <mycontainer> bash
 could not find any mention of incorrect logins here
 neither in the dovecot logs
 
-3. Make sure you set your hostname to 'mail' or whatever you specified in your docker-compose.yml file or else your FQDN will be wrong
+3. Check the supervisors logfiles
+`/var/log/supervisor`
+You can find the logs for startup of fetchmail, postfix and others here - they might indicate problems during startup
+
+4. Make sure you set your hostname to 'mail' or whatever you specified in your docker-compose.yml file or else your FQDN will be wrong
 
 ## Installation Errors
 
