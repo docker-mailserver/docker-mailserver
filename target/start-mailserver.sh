@@ -387,12 +387,13 @@ function _check_hostname() {
 		export DOMAINNAME=$(echo $HOSTNAME | sed s/[^.]*.//)
 	fi
 
+	notify 'inf' "Domain has been set to $DOMAINNAME"
+	notify 'inf' "Hostname has been set to $HOSTNAME"
+
 	if ( ! echo $HOSTNAME | grep -E '^(\S+[.]\S+)$' > /dev/null ); then
 		notify 'err' "Setting hostname/domainname is required"
 		kill `cat /var/run/supervisord.pid` && return 1
 	else
-		notify 'inf' "Domain has been set to $DOMAINNAME"
-		notify 'inf' "Hostname has been set to $HOSTNAME"
 		return 0
 	fi
 }
