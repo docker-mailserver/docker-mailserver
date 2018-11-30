@@ -256,7 +256,7 @@ Otherwise, `iptables` won't be able to ban IPs.
   - **empty** => SSL disabled
   - letsencrypt => Enables Let's Encrypt certificates
   - custom => Enables custom certificates
-  - manual => Let's you manually specify locations of your SSL certificates for non-standard cases
+  - manual => Let you manually specify locations of your SSL certificates for non-standard cases
   - self-signed => Enables self-signed certificates
   - _any other value_ => SSL required, settings by default
 
