@@ -953,6 +953,20 @@ function _setup_ssl() {
 		notify 'inf' "SSL configured with 'self-signed' certificates"
 	fi
 	;;
+    '' )
+        # $SSL_TYPE=empty, no SSL certificate, plain text access
+
+        # Dovecot configuration
+        sed -i -e 's~#disable_plaintext_auth = yes~disable_plaintext_auth = no~g' /etc/dovecot/conf.d/10-auth.conf
+        sed -i -e 's~ssl = required~ssl = yes~g' /etc/dovecot/conf.d/10-ssl.conf
+
+        notify 'inf' "SSL configured with plain text access"
+        ;;
+    * )
+        # Unknown option, default behavior, no action is required
+
+        notify 'warn' "SSL configured by default"
+        ;;
 	esac
 }
 
