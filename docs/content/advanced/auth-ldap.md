@@ -64,7 +64,7 @@ services:
       - SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
       - SASLAUTHD_LDAP_PASSWORD=mypassword
       - SASLAUTHD_LDAP_SEARCH_BASE=dc=mydomain,dc=loc
-      - SASLAUTHD_LDAP_FILTER="(&(sAMAccountName=%U)(objectClass=person))"
+      - SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
       - SASLAUTHD_MECHANISMS=ldap
       # <<< SASL Authentication
 
@@ -74,10 +74,10 @@ services:
       - LDAP_SEARCH_BASE=dc=mydomain,dc=loc
       - LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
       - LDAP_BIND_PW=mypassword
-      - LDAP_QUERY_FILTER_USER="(&(objectClass=user)(mail=%s))"
-      - LDAP_QUERY_FILTER_GROUP="(&(objectclass=group)(mail=%s))"
-      - LDAP_QUERY_FILTER_ALIAS="(&(objectClass=user)(otherMailbox=%s))"
-      - LDAP_QUERY_FILTER_DOMAIN="(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))"
+      - LDAP_QUERY_FILTER_USER=(&(objectClass=user)(mail=%s))
+      - LDAP_QUERY_FILTER_GROUP=(&(objectclass=group)(mail=%s))
+      - LDAP_QUERY_FILTER_ALIAS=(&(objectClass=user)(otherMailbox=%s))
+      - LDAP_QUERY_FILTER_DOMAIN=(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))
       # <<< Postfix Ldap Integration
 
       # >>> Kopano Integration
@@ -99,3 +99,20 @@ volumes:
   mailstate:
     driver: local
 ```
+
+If your Directory has not the postfix-book schema installed, then you may want to change some internal attribute handling for dovecot. as shown in the example below: 
+
+```
+    - DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
+    - DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
+```
+
+If your directory has the qmail-Schema installed and ```uid``` is used, then this translates into:
+
+```
+      - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
+      - DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
+      - DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+      - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+```
+
