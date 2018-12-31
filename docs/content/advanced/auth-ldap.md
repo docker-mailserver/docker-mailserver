@@ -100,14 +100,14 @@ volumes:
     driver: local
 ```
 
-If your Directory has not the postfix-book schema installed, then you may want to change some internal attribute handling for dovecot. as shown in the example below: 
+If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the ```pass_attr``` and the ```user_attr``` mapping, as shown in the example below: 
 
 ```
     - DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
     - DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
 ```
 
-If your directory has the qmail-Schema installed and ```uid``` is used, then this translates into:
+The following example illustrates this for a directory that has the qmail-schema installed and that uses ```uid```:
 
 ```
       - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
