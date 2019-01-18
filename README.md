@@ -586,13 +586,12 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
   - **empty** => Derived from OVERRIDE_HOSTNAME, DOMAINNAME, or the container's hostname
   - Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs
 
-## Defaul Relay Host
+## Default Relay Host
 
 #### DEFAULT_RELAY_HOST
 
   - **empty** => don't set default relayhost setting in main.cf
   - default host and port to relay all mail through
-  - might not be compatible with RELAY_HOST below
 
 ## Multi-domain Relay Hosts
 
