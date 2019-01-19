@@ -145,6 +145,10 @@ function register_functions() {
 		_register_setup_function "_setup_postfix_relay_hosts"
 	fi
 
+	if [ ! -z "$DEFAULT_RELAY_HOST" ]; then
+		_register_setup_function "_setup_postfix_default_relay_host"
+	fi
+
 	if [ ! -z "$RELAY_HOST" ]; then
 		_register_setup_function "_setup_postfix_relay_hosts"
 	fi
@@ -1064,6 +1068,13 @@ function _setup_postfix_sasl_password() {
 	else
 		notify 'inf' "Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
 	fi
+}
+
+function _setup_postfix_default_relay_host() {
+	notify 'task' 'Applying default relay host to Postfix'
+
+	notify 'inf' "Applying default relay host $DEFAULT_RELAY_HOST to /etc/postfix/main.cf"
+	postconf -e "relayhost = $DEFAULT_RELAY_HOST"
 }
 
 function _setup_postfix_relay_hosts() {
