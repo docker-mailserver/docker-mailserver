@@ -65,7 +65,7 @@ Put received spams in `.Junk/` imap folder and add a cron like the following:
 0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For future reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
+With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
