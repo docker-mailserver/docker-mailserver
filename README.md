@@ -445,22 +445,22 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### LDAP_QUERY_FILTER_USER
 
-  - e.g. `"(&(mail=%s)(mailEnabled=TRUE))"`
+  - e.g. `(&(mail=%s)(mailEnabled=TRUE))`
   - => Specify how ldap should be asked for users
 
 ##### LDAP_QUERY_FILTER_GROUP
 
-  - e.g. `"(&(mailGroupMember=%s)(mailEnabled=TRUE))"`
+  - e.g. `(&(mailGroupMember=%s)(mailEnabled=TRUE))`
   - => Specify how ldap should be asked for groups
 
 ##### LDAP_QUERY_FILTER_ALIAS
 
-  - e.g. `"(&(mailAlias=%s)(mailEnabled=TRUE))"`
+  - e.g. `(&(mailAlias=%s)(mailEnabled=TRUE))`
   - => Specify how ldap should be asked for aliases
 
 ##### LDAP_QUERY_FILTER_DOMAIN
 
-- e.g. `"(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))"`
+- e.g. `(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for domains
 
 ##### DOVECOT_TLS
@@ -474,7 +474,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
 ##### DOVECOT_USER_FILTER
 
-  - e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
+  - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
 
 ##### DOVECOT_USER_ATTR
 
@@ -486,7 +486,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
 ##### DOVECOT_PASS_FILTER
 
-  - e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
+  - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
 
 ##### DOVECOT_PASS_ATTR
 
