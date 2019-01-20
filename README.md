@@ -66,7 +66,7 @@ Download the docker-compose.yml, the .env and the setup.sh files:
   - This file supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
-- Install [docker-compose](https://docs.docker.com/compose/) in the version `1.6` or higher.
+- Install [docker-compose](https://docs.docker.com/compose/) in the version `1.7` or higher.
 
 #### Start Container
     docker-compose up -d mail
