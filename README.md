@@ -415,7 +415,7 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
   - 1 => LDAP authentification is enabled
   - NOTE:
     - A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
-    - For preparing the ldap server to use in combination with this continer [this](http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/) article may be helpful
+    - For preparing the ldap server to use in combination with this container [this](http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/) article may be helpful
 
 ##### LDAP_START_TLS
 
@@ -589,7 +589,7 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 ##### SRS_EXCLUDE_DOMAINS
 
   - **empty** => Envelope sender will be rewritten for all domains
-  - provide comma seperated list of domains to exclude from rewriting
+  - provide comma separated list of domains to exclude from rewriting
 
 ##### SRS_SECRET
 
