@@ -445,22 +445,22 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### LDAP_QUERY_FILTER_USER
 
-  - e.g. `"(&(mail=%s)(mailEnabled=TRUE))"`
+  - e.g. `(&(mail=%s)(mailEnabled=TRUE))`
   - => Specify how ldap should be asked for users
 
 ##### LDAP_QUERY_FILTER_GROUP
 
-  - e.g. `"(&(mailGroupMember=%s)(mailEnabled=TRUE))"`
+  - e.g. `(&(mailGroupMember=%s)(mailEnabled=TRUE))`
   - => Specify how ldap should be asked for groups
 
 ##### LDAP_QUERY_FILTER_ALIAS
 
-  - e.g. `"(&(mailAlias=%s)(mailEnabled=TRUE))"`
+  - e.g. `(&(mailAlias=%s)(mailEnabled=TRUE))`
   - => Specify how ldap should be asked for aliases
-  
+
 ##### LDAP_QUERY_FILTER_DOMAIN
 
-- e.g. `"(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))"`
+- e.g. `(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for domains
 
 ##### DOVECOT_TLS
@@ -470,13 +470,31 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ## Dovecot
 
+The following variables overwrite the default values for ```/etc/dovecot/dovecot-ldap.conf.ext```.
+
 ##### DOVECOT_USER_FILTER
 
-  - e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
+  - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
+
+##### DOVECOT_USER_ATTR
+
+ - e.g. `homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail`
+ - => Specify the directory to dovecot attribute mapping that fits your directory structure.
+ - Note: This is necessary for directories that do not use the [Postfix Book Schema](test/docker-openldap/bootstrap/schema/mmc/postfix-book.schema).
+ - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
+ - More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/Userdb)
 
 ##### DOVECOT_PASS_FILTER
 
-  - e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
+  - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
+
+##### DOVECOT_PASS_ATTR
+
+- e.g. `uid=user,userPassword=password`
+- => Specify the directory to dovecot variable mapping that fits your directory structure.
+- Note: This is necessary for directories that do not use the [Postfix Book Schema](test/docker-openldap/bootstrap/schema/mmc/postfix-book.schema).
+- Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
+- More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups)
 
 ## Postgrey
 
