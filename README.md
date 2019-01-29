@@ -398,6 +398,22 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
+##### SA_SHORTCIRCUIT_BAYES_SPAM
+
+  - **1** => will activate spamassassin short circuiting for bayes spam detection.
+
+This will uncommend the respective line in ```/etc/spamassasin/local.cf```
+
+Note: activate this only if you are confident in your bayes database for identifying spam.
+
+##### SA_SHORTCIRCUIT_BAYES_HAM
+
+  - **1** => will activate spamassassin short circuiting for bayes ham detection
+
+This will uncommend the respective line in ```/etc/spamassasin/local.cf```
+
+Note: activate this only if you are confident in your bayes database for identifying ham.
+
 ## Fetchmail
 
 ##### ENABLE_FETCHMAIL
@@ -457,7 +473,7 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
 
   - e.g. `"(&(mailAlias=%s)(mailEnabled=TRUE))"`
   - => Specify how ldap should be asked for aliases
-  
+
 ##### LDAP_QUERY_FILTER_DOMAIN
 
 - e.g. `"(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))"`
