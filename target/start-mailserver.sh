@@ -644,8 +644,8 @@ function _setup_dovecot() {
 		sed -i "s/#sieve_after =/sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
 		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
 		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
-	else 
-		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf	
+	else
+		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
 	fi
 	chown docker:docker -R /usr/lib/dovecot/sieve*
 	chmod 550 -R /usr/lib/dovecot/sieve*
@@ -1409,6 +1409,16 @@ function _setup_security_stack() {
 		else
 			sed -i -r 's/^\$sa_spam_subject_tag (.*);/\$sa_spam_subject_tag = '"'$SA_SPAM_SUBJECT'"';/g' /etc/amavis/conf.d/20-debian_defaults
 		fi
+
+        # activate short circuits when SA BAYES is certain it has spam.
+        if [ "$SA_SHORTCIRCUIT_BAYES_SPAM" = 1 ]; then
+            sed -i -r 's/^# shortcircuit BAYES_99/shortcircuit BAYES_99/g' /etc/spamassassin/local.cf
+        fi
+
+        if [ "$SA_SHORTCIRCUIT_BAYES_HAM" = 1 ]; then
+            sed -i -r 's/^# shortcircuit BAYES_00/shortcircuit BAYES_00/g' /etc/spamassassin/local.cf
+        fi
+
 		test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 	fi
 
