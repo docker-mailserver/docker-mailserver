@@ -65,7 +65,8 @@ Put received spams in `.Junk/` imap folder and add a cron like the following:
 0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-If you run the server with docker compose on swarm, you can leverage on docker configs and the mailserver's own cron.
+If you run the server with docker compose on swarm, you can leverage on docker configs and the mailserver's own cron. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which the mailserver is running and avoids errors if the server is not running. 
+
 The following config works nicely: 
 
 ```
@@ -88,7 +89,18 @@ configs:
     external: true
 ```
 
-The config should contain the lines shown above.
+The config should contain lines such as outlined in the following example. 
+
+```
+# Everyday 2:00AM, learn spam for this specific user
+# This assumes you're having `ONE_DIR=1` (consolidated in `/var/mail-state`)
+0 2 * * * sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+15 2 * * * sa-learn --ham /var/mail/domain.com/username/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+# Everyday 3:00AM, learn spam for all users of otherdomain.com
+# This assumes you're having `ONE_DIR=1` (consolidated in `/var/mail-state`)
+0 3 * * * sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+15 3 * * * sa-learn --ham /var/mail/otherdomain.com/*/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+```
 
 With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
