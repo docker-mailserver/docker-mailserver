@@ -103,10 +103,10 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 #### Exposed ports
 * 25 receiving email from other mailservers
 * 465 TLS/SSL Client email submission
-* 587 StartTLS Client email submission
-* 143 StartTLS IMAP client
+* 587 Plaintext / StartTLS Client email submission
+* 143 Plaintext / StartTLS IMAP client
 * 993 TLS/SSL IMAP client
-* 110 POP3 client
+* 110 Plaintext / StartTLS POP3 client
 * 995 TLS/SSL POP3 client
 
 `Note: Port 25 is only for receiving email from other mailservers and not for submitting email. You need to use port 465 or 587 for this.`
