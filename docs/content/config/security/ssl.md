@@ -88,7 +88,7 @@ Inside your /path/to/mailserver/docker-compose.yml ( for the mailserver from thi
     - maildata:/var/mail
     - mailstate:/var/mail-state
     - ./config/:/tmp/docker-mailserver/
-    _**- /server/letsencrypt/etc:/etc/letsencrypt/live**_
+    - /server/letsencrypt/etc:/etc/letsencrypt/live
 ```
 
 Then 
