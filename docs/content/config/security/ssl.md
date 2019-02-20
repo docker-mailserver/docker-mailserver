@@ -79,7 +79,23 @@ docker run -d \
 ```
 You may want to add ```-e LETSENCRYPT_TEST=true``` to the above while testing to avoid the Let's Encrypt certificate generation rate limits.
 
-Finally, start ```docker-mailserver``` with ```path/to/certs/mail.mydomain.tld``` mounted to ```/etc/letsencrypt/live/mail.mydomain.tld```
+Finally, start the mailserver with the docker-compose.yml
+Make sure your mount path to the letsencrypt certificates is correct. 
+Inside your /path/to/mailserver/docker-compose.yml ( for the mailserver from this repo ) make sure volumes look like below example;
+
+```
+    volumes:
+    - maildata:/var/mail
+    - mailstate:/var/mail-state
+    - ./config/:/tmp/docker-mailserver/
+    _**- /server/letsencrypt/etc:/etc/letsencrypt/live**_
+```
+
+Then 
+
+/path/to/mailserver/docker-compose up -d mail
+
+
 
 #### Example using the letsencrypt certificates on a Synology NAS
 
