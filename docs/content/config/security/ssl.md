@@ -22,8 +22,7 @@ Make a directory to store your letsencrypt logs and configs.
 
 In my case
 ```
-mkdir -p /home/ubuntu/docker/letsencrypt/log 
-mkdir -p /home/ubuntu/docker/letsencrypt/etc/letsencrypt
+mkdir -p /home/ubuntu/docker/letsencrypt 
 cd /home/ubuntu/docker/letsencrypt
 ```
 
@@ -45,23 +44,27 @@ If you are running a web server already, it is non-trivial to generate a Let's E
 There are several ways to start ```nginx-proxy``` and ```letsencrypt-nginx-proxy-companion```. Any method should be suitable here. For example start ```nginx-proxy``` as in the ```letsencrypt-nginx-proxy-companion``` [documentation](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion):
 
 ```
-docker run -d -p 80:80 -p 443:443 \
-    --name nginx-proxy \
-    -v /path/to/certs:/etc/nginx/certs:ro \
-    -v /etc/nginx/vhost.d \
-    -v /usr/share/nginx/html \
-    -v /var/run/docker.sock:/tmp/docker.sock:ro \
-    --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
-    jwilder/nginx-proxy
+    docker run --detach \
+        --name nginx-proxy \
+        --restart always \
+        --publish 80:80 \
+        --publish 443:443 \
+        --volume /server/letsencrypt/etc:/etc/nginx/certs:ro \
+        --volume /etc/nginx/vhost.d \
+        --volume /usr/share/nginx/html \
+        --volume /var/run/docker.sock:/tmp/docker.sock:ro \
+        jwilder/nginx-proxy
 ```
 
-Then start ```letsencrypt-nginx-proxy-companion```:
+Then start ```nginx-proxy-letsencrypt```:
 ```
-docker run -d \
-    -v /path/to/certs:/etc/nginx/certs:rw \
-    -v /var/run/docker.sock:/var/run/docker.sock:ro \
-    --volumes-from nginx-proxy \
-    jrcs/letsencrypt-nginx-proxy-companion
+    docker run --detach \
+      --name nginx-proxy-letsencrypt \
+      --restart always \
+      --volume /server/letsencrypt/etc:/etc/nginx/certs:rw \
+      --volumes-from nginx-proxy \
+      --volume /var/run/docker.sock:/var/run/docker.sock:ro \
+      jrcs/letsencrypt-nginx-proxy-companion    
 ```
 Start the rest of your web server containers as usual.
 
