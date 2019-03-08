@@ -72,7 +72,7 @@ If you run the server with docker-compose, you can leverage on docker configs an
 
 The following config works nicely:
 
-create a crontab file:
+create a system cron file:
 ```sh
 # in the docker-compose.yml root directory
 mkdir cron
@@ -81,7 +81,7 @@ chown root:root cron/sa-learn
 chmod 0644 cron/sa-learn
 ```
 
-edit the crontab file `nano cron/sa-learn`:
+edit the system cron file `nano cron/sa-learn`:
 ```
 # This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml,
 # with a consolidated config in `/var/mail-state`
