@@ -1,4 +1,9 @@
 ..todo..  - Please contribute more to help others debug this package
+
+## Enable verbose debugging output
+
+You may find it useful to enable the [https://github.com/tomav/docker-mailserver#dms_debug](DMS_DEBUG) environment variable.
+
 ## Invalid username or Password
 
 
