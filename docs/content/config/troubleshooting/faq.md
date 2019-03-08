@@ -92,7 +92,7 @@ edit the crontab file `nano cron/sa-learn`:
 
 with plain docker-compose:
 ```docker-compose
-version: "3.3"
+version: "2"
 
 services:
   mail:
