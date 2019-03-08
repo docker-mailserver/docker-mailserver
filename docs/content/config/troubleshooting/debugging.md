@@ -2,7 +2,7 @@
 
 ## Enable verbose debugging output
 
-You may find it useful to enable the [https://github.com/tomav/docker-mailserver#dms_debug](DMS_DEBUG) environment variable.
+You may find it useful to enable the [DMS_DEBUG](https://github.com/tomav/docker-mailserver#dms_debug) environment variable.
 
 ## Invalid username or Password
 
