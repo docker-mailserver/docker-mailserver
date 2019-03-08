@@ -55,13 +55,16 @@ Antispam rules are managed in `config/spamassassin-rules.cf`.
 
 In the default setup, amavis only applies Spamassassin x-headers into domains matching the template listed in the config  file 05-domain_id (in the amavis defaults). The default setup @local_domains_acl = ( ".$mydomain" ); does not match subdomains. To match subdomains, you can override the @local_domains_acl directive in the amavis user config file 50-user with @local_domains_maps = ("."); to match any sort of domain template. 
 
-### How can I make Spamassassin learn spam?
+### How can I make SpamAssassin learn spam?
 
-Put received spams in `.Junk/` imap folder and add a cron like the following:
+Put received spams in `.Junk/` imap folder and add a user cron like the following:
 
 ```
-# Everyday 2:00AM, learn spam for this specific user
-# This assumes you're having `ONE_DIR=1` (consolidated in `/var/mail-state`)
+# This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml,
+# with a consolidated config in `/var/mail-state`
+#
+# m h dom mon dow command
+# Everyday 2:00AM, learn spam from a specific user
 0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
@@ -80,8 +83,10 @@ chmod 0644 cron/sa-learn
 
 edit the crontab file `nano cron/sa-learn`:
 ```
-# This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml (config consolidated in `/var/mail-state`)
-# m h dom mon dow user  command
+# This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml,
+# with a consolidated config in `/var/mail-state`
+#
+# m h dom mon dow user command
 # Everyday 2:00AM, learn spam from a specific user
 0  2 * * * amavis  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 15 2 * * * amavis  sa-learn --ham /var/mail/domain.com/username/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
