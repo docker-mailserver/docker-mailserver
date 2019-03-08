@@ -67,39 +67,55 @@ Put received spams in `.Junk/` imap folder and add a cron like the following:
 
 If you run the server with docker compose on swarm, you can leverage on docker configs and the mailserver's own cron. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which the mailserver is running and avoids errors if the server is not running. 
 
-The following config works nicely: 
+The following config works nicely:
 
+create a crontab file:
+```sh
+# in the docker-compose.yml root directory
+mkdir cron
+touch cron/sa-learn
+chown root:root cron/sa-learn
+chmod 0644 cron/sa-learn
 ```
+
+edit the crontab file `nano cron/sa-learn`:
+```
+# This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml (config consolidated in `/var/mail-state`)
+# m h dom mon dow user  command
+# Everyday 2:00AM, learn spam from a specific user
+0  2 * * * amavis  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+15 2 * * * amavis  sa-learn --ham /var/mail/domain.com/username/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+# Everyday 3:00AM, learn spam from all users of a domain
+0  3 * * * amavis  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+15 3 * * * amavis  sa-learn --ham /var/mail/otherdomain.com/*/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+```
+
+with plain docker-compose:
+```docker-compose
+version: "3.3"
+
+services:
+  mail:
+    image: tvial/docker-mailserver:latest
+    # ...
+    volumes:
+      - ./cron/sa-learn:/etc/cron.d/sa-learn
+```
+
+with [docker swarm](https://docs.docker.com/engine/swarm/configs/):
+```docker-compose
 version: "3.3"
 services:
-  redis:
+  mail:
     image: tvial/docker-mailserver:latest
-    // ...
+    # ...
     configs:
       - source: my_sa_crontab
-        target: /etc/cron.d/user-salearn-1
-      - source: my_crontab_config
-        target: /etc/cron.d/user-salearn-2
-    // ...
+        target: /etc/cron.d/sa-learn
 
 configs:
   my_sa_crontab:
-    file: ./my_local_crontab.txt
-  my_crontab_config:
-    external: true
-```
-
-The config should contain lines such as outlined in the following example. 
-
-```
-# Everyday 2:00AM, learn spam for this specific user
-# This assumes you're having `ONE_DIR=1` (consolidated in `/var/mail-state`)
-0 2 * * * sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-15 2 * * * sa-learn --ham /var/mail/domain.com/username/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
-# Everyday 3:00AM, learn spam for all users of otherdomain.com
-# This assumes you're having `ONE_DIR=1` (consolidated in `/var/mail-state`)
-0 3 * * * sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-15 3 * * * sa-learn --ham /var/mail/otherdomain.com/*/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+    file: ./cron/sa-learn
 ```
 
 With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
