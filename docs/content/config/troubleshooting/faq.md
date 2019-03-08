@@ -110,6 +110,7 @@ services:
 with [docker swarm](https://docs.docker.com/engine/swarm/configs/):
 ```docker-compose
 version: "3.3"
+
 services:
   mail:
     image: tvial/docker-mailserver:latest
