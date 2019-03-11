@@ -88,11 +88,11 @@ edit the system cron file `nano cron/sa-learn`:
 #
 # m h dom mon dow user command
 # Everyday 2:00AM, learn spam from a specific user
-0  2 * * * amavis  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-15 2 * * * amavis  sa-learn --ham /var/mail/domain.com/username/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+0  2 * * * root  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
 # Everyday 3:00AM, learn spam from all users of a domain
-0  3 * * * amavis  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-15 3 * * * amavis  sa-learn --ham /var/mail/otherdomain.com/*/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
+0  3 * * * root  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+15 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/.Archive --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
 with plain docker-compose:
