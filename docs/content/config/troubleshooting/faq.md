@@ -57,7 +57,7 @@ In the default setup, amavis only applies Spamassassin x-headers into domains ma
 
 ### How can I make SpamAssassin learn spam?
 
-Put received spams in `.Junk/` imap folder and add a user cron like the following:
+Put received spams in `.Junk/` imap folder and add a _user_ cron like the following:
 
 ```
 # This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml,
@@ -72,7 +72,7 @@ If you run the server with docker-compose, you can leverage on docker configs an
 
 The following config works nicely:
 
-create a system cron file:
+create a _system_ cron file:
 ```sh
 # in the docker-compose.yml root directory
 mkdir cron
