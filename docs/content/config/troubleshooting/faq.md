@@ -89,12 +89,17 @@ edit the system cron file `nano cron/sa-learn`, and set an appropriate configura
 # m h dom mon dow user command
 #
 # Everyday 2:00AM, learn spam from a specific user
+# spam: junk directory
 0  2 * * * root  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+# ham: archive directories
 15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archives* --dbpath /var/mail-state/lib-amavis
+# ham: inbox subdirectories
 30 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.INBOX.* --dbpath /var/mail-state/lib-amavis/.spamassassin
 #
 # Everyday 3:00AM, learn spam from all users of a domain
+# spam: junk directory
 0  3 * * * root  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+# ham: archive directories
 15 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/.Archives* --dbpath /var/mail-state/lib-amavis/.spamassassin
 # ham: inbox subdirectories
 30 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/.INBOX.* --dbpath /var/mail-state/lib-amavis/.spamassassin
