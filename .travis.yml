@@ -1,22 +1,24 @@
-branches:
-  except:
-  - donttestme
-language: bash
-sudo: required
-services:
-- docker
+language: generic
+
+dist: trusty
+sudo: false
+
+env:
+  global:
+    - HELM_VERSION="v2.12.3"
+
 install:
-- travis_retry travis_wait make build-no-cache
+  - wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
+  - tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
+  - chmod +x /tmp/helm
+
+before_script:
+  - /tmp/helm init --client-only
+  - /tmp/helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  - |
+    for chart in $(find . -name 'requirements.yaml'); do
+      /tmp/helm dep build $(dirname ${chart})
+    done
+
 script:
-- make generate-accounts run generate-accounts-after-run fixtures tests
-after_script:
-- make clean
-notifications:
-  slack:
-    secure: TTo1z9nbZCWcIdfPwypubNa3y+pwvfgDGlzEVAGEuK7uuIpmEoAcAUNSSPTnbewDGHnDl8t/ml93MtvP+a+IVuAKytMqF39PHyoZO7aUl9J62V+G75OmnyGjXGJm40pQosCS6LzqoRRYXotl9+fwH568Kf4ifXCrMZX1d+ir7Ww=
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/7ec65291bfb4bf1f8518
-    on_success: always
-    on_failure: always
-    on_start: never
+  - /tmp/helm lint helm-chart/*/
