@@ -15,14 +15,14 @@ metadata:
     ## rather than the legacy one.
     {{ if eq .Values.service.type "LoadBalancer" }}service.beta.kubernetes.io/external-traffic: "OnlyLocal"{{ end }}
   labels:
-    app: {{ template "__CHART__.fullname" . }}
+    app: {{ template "dockermailserver.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
-  name: {{ template "__CHART__.fullname" . }}
+  name: {{ template "dockermailserver.fullname" . }}
 spec:
   selector:
-    app: {{ template "__CHART__.fullname" . }}
+    app: {{ template "dockermailserver.fullname" . }}
     release: "{{ .Release.Name }}"
   ports:
     - protocol: "__CONTAINER_PORT_PROTOCOL__"

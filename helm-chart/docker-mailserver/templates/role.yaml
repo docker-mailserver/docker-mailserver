@@ -9,7 +9,7 @@ metadata:
   ## Namespaces are omitted, as cluster roles are not namespaced.
   name: "__ROLE_NAME__"
   labels:
-    app: {{ template "__CHART__.fullname" . }}
+    app: {{ template "dockermailserver.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"

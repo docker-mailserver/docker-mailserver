@@ -3,11 +3,14 @@
 ## Default: use the chart name
 # nameOverride:
 
+# todo - testing secrets.yaml
+Bar: "banana"
+
 pod:
-  __CONTAINER_NAME__:
+  dockermailserver:
     ## The image to use with the resource
-    ## Ref: https://__CONTAINER_IMAGE__
-    image: __CONTAINER_IMAGE__
+    ## Ref: https://tvial/docker-mailserver
+    image: tvial/docker-mailserver
     ## Host networking requested for this pod. Use the host’s network namespace. If this option is set, the ports that
     ## will be used must be specified.
     ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec

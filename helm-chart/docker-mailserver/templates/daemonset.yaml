@@ -3,11 +3,11 @@ apiVersion: "extensions/v1beta1"
 kind: "DaemonSet"
 metadata:
   labels:
-    app: {{ template "__CHART__.fullname" . }}
+    app: {{ template "dockermailserver.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
-  name: {{ template "__CHART__.fullname" . }}
+  name: {{ template "dockermailserver.fullname" . }}
 spec:
   template:
     metadata:
@@ -32,7 +32,7 @@ spec:
         # checksum/config: {{ include (print $.Chart.Name "/templates/secret.yaml") . | sha256sum }}
         # checksum/config: {{ include (print $.Chart.Name "/templates/configmap.yaml") . | sha256sum }}
       labels:
-        app: {{ template "__CHART__.fullname" . }}
+        app: {{ template "dockermailserver.fullname" . }}
         release: "{{ .Release.Name }}"
     spec:
       ## Volumes are how Kubernetes expresses either networked storage or other metadata in the filesystem. There are
@@ -57,7 +57,7 @@ spec:
       ##
       #   - name: "__VOLUME_NAME__"
       #     persistentVolumeClaim:
-      #       claimName: {{ template "__CHART__.pvcName" . }}
+      #       claimName: {{ template "dockermailserver.pvcName" . }}
       ##
       ## CONFIGMAP
       ##
@@ -91,10 +91,10 @@ spec:
       #         - path: "annotations"
       #           fieldRef:
       #             fieldPath: metadata.annotations
-      hostNetwork: {{ default false .Values.pod.__CONTAINER_NAME__.hostNetwork }}
-      hostPID: {{ default false .Values.pod.__CONTAINER_NAME__.hostPID }}
+      hostNetwork: {{ default false .Values.pod.dockermailserver.hostNetwork }}
+      hostPID: {{ default false .Values.pod.dockermailserver.hostPID }}
       containers:
-        - name: __CONTAINER_NAME__
+        - name: dockermailserver
           ## Environment variables can be populated in a number of ways, including secrets, or just string values. Below
           ## are some examples for you to copy-paste. Remember to uncomment the `env` node!
           #
@@ -113,7 +113,7 @@ spec:
           #       name: __SECRET_NAME__
           #       key: __KEY_USED_IN_SECRET_NAME__
           #
-          image: {{ .Values.pod.__CONTAINER_NAME__.image | quote }}
+          image: {{ .Values.pod.dockermailserver.image | quote }}
           # args:
           #   - "command"
           #   - "line"
@@ -121,7 +121,7 @@ spec:
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           securityContext:
-            privileged: {{ default false .Values.pod.__CONTAINER_NAME__.securityContext.privileged }}
+            privileged: {{ default false .Values.pod.dockermailserver.securityContext.privileged }}
             # capabilities:
               # add:
                 # - "SETPCAP"
@@ -171,7 +171,7 @@ spec:
               # - "TCP"
               # - "UDP"
               protocol: "__CONTAINER_PORT_PROTOCOL__"
-              {{- if pod.__CONTAINER_NAME__.hostNetwork -}}
+              {{- if .Values.pod.dockermailserver.hostNetwork -}}
               hostPort: __CONTAINER_PORT__
               {{- end }}
               name: "__CONTAINER_PORT_NAME__"

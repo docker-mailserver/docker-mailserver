@@ -3,11 +3,11 @@ apiVersion: "batch/v1"
 kind: "Job"
 metadata:
   labels:
-    app: {{ template "__CHART__.fullname" . }}
+    app: {{ template "dockermailserver.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
-  name: {{ template "__CHART__.fullname" . }}
+  name: {{ template "dockermailserver.fullname" . }}
 spec:
   template:
     metadata:
@@ -30,7 +30,7 @@ spec:
         # checksum/config: {{ include (print $.Chart.Name "/templates/secret.yaml") . | sha256sum }}
         # checksum/config: {{ include (print $.Chart.Name "/templates/configmap.yaml") . | sha256sum }}
       labels:
-        app: {{ template "__CHART__.fullname" . }}
+        app: {{ template "dockermailserver.fullname" . }}
         release: "{{ .Release.Name }}"
     spec:
       # volumes:
@@ -41,7 +41,7 @@ spec:
       #   hostPath:
       #     path: /data/secret-management/
       containers:
-        - name: {{ template "__CHART__.name" }}
+        - name: {{ template "dockermailserver.name" }}
           # env:
           # - name: "FOO"
           #   value: "BAR"
@@ -53,7 +53,7 @@ spec:
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           securityContext:
-            privileged: {{ default "false" .Values.securityContext.privileged }}
+            privileged: {{ default "false" .Values.pod.dockermailserver.securityContext.privileged }}
             # capabilities:
               # add:
                 # - SETPCAP
