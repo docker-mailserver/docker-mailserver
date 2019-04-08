@@ -1,0 +1,23 @@
+{{- if not .Values.persistence.existingClaim }}
+---
+kind: "PersistentVolumeClaim"
+apiVersion: "v1"
+metadata:
+  name: {{ template "__CHART__.fullname" . }}
+  annotations:
+  {{- if .Values.persistence.storageClass }}
+    volume.beta.kubernetes.io/storage-class: {{ .Values.persistence.storageClass | quote }}
+  {{- else }}
+    volume.alpha.kubernetes.io/storage-class: "generic"
+  {{- end }}
+spec:
+  accessModes:
+    - {{ default "ReadWriteOnce" .Values.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
+  {{- if .Values.persistence.selector }}
+  selector:
+{{ toYaml .Values.persistence.selector | indent 4 }}
+  {{ end }}
+{{- end }}

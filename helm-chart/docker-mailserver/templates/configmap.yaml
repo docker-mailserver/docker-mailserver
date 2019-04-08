@@ -1,0 +1,15 @@
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  labels:
+    app: {{ template "__CHART__.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+  name: {{ template "__CHART__.fullname" . }}
+data:
+  # example.property.1: hello
+  # example.property.file: |-
+  #   property.1=value-1
+  #   property.2=value-2

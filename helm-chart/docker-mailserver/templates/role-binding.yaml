@@ -1,0 +1,19 @@
+---
+# Choose One
+# kind: "ClusterRoleBinding"
+# kind: "RoleBinding"
+metadata:
+  name: {{ template "__CHART__.fullname" . }}
+  labels:
+    app: {{ template "__CHART__.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "ClusterRole"
+  name: "__ROLE_NAME__"
+subjects:
+  - kind: "ServiceAccount"
+    name: "__SERVICE_ACCOUNT_NAME__"
+    namespace: "{{ .Release.Namespace }}"

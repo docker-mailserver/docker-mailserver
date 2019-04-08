@@ -1,0 +1,130 @@
+---
+## Change the name of the resource
+## Default: use the chart name
+# nameOverride:
+
+pod:
+  __CONTAINER_NAME__:
+    ## The image to use with the resource
+    ## Ref: https://__CONTAINER_IMAGE__
+    image: __CONTAINER_IMAGE__
+    ## Host networking requested for this pod. Use the host’s network namespace. If this option is set, the ports that
+    ## will be used must be specified.
+    ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec
+    hostNetwork: false
+    ## Use the host’s pid namespace
+    ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec
+    hostPID: false
+    securityContext:
+      ## Whether the container should be run in "privileged" mode (essentially, root on the host)
+      ## Ref: http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_securitycontext
+      ## Default: false
+      privileged:
+
+service:
+  ## What scope the service should be exposed in. One of:
+  ## - LoadBalancer (to the world)
+  ## - ClusterIP (to the cluster)
+  ## - NodePort (to the world, in a custom way)
+  type: "LoadBalancer"
+  ## If there is a port associated with a given service, expose it here.
+  # port:
+  ## If there is a particular IP that should be used for the service, specify it here.
+  ## Note: It's quite unlikely that an IP should be specific. Normally, the best thing to do is leave it to Kubernetes
+  ##       to allocate a free IP from the pool.
+  ## Default: Automatically assign a random IP
+  # privateIp:
+  ## Only relevant if the `type` above is "LoadBalancer"
+  loadBalancer:
+    ## If there is already a reserved public IP that this load balancer should use, indicate it here.
+    ## Default: Automatically assign a random, ephemeral IP
+    # publicIp:
+    ## If there should be firewall rules restricting the load balancer to a limited set of IPs, specify those IPs below
+    ## in CIDR format. If all IPs shoud be allowed access, set the CIDR as "0.0.0.0/0"
+    allowedIps:
+      - "0.0.0.0/0"
+    ## If there is a Hostname associated with this site, add it here and it will be rendered in the documentation.
+    # hostName:
+
+## How many versions of the deployment to run on kubernetes
+## Default: 2
+deployment:
+  replicas: 1
+
+## More generally, a "request" can be thought of as "how much is this container expected to need usually". it should be
+## possible to burst outside these constraints (during a high load operation). However, Kubernetes may kill the pod
+## if the node is under too higher load and the burst is outside its request
+##
+## Limits are hard limits. Violating them is either impossible, or results in container death. I'm not sure whether
+## making these optional is a good idea or not; at the moment, I think I'm happy to defer QOS to the cluster and try
+## and keep requests close to usage.
+##
+## Requests are what are used to determine whether more software "fits" onto the cluster.
+##
+## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+## Ref: https://github.com/kubernetes/kubernetes/blob/master/docs/design/resource-qos.md
+## Ref: https://docs.docker.com/engine/reference/run/#/runtime-constraints-on-resources
+resources:
+  requests:
+    ## How much CPU this container is expected to need
+    cpu: "100m"
+    ## How much memory this container is expected to need.
+    memory: "512Mi"
+  limits:
+    ## The max CPU this container should be allowed to use
+    # cpu: "100m"
+    ## The max memory this container should be allowed to use. Note: If a container exceeds its memory limit,
+    ## it may terminated.
+    # memory: "512Mi"
+
+persistence:
+  size: "10Gi"
+  # existingClaim:
+  # storageClass:
+  ## If the storage class has been defined specifically for this chart, modify the PVC to select that storage class
+  ## All of the requirements, from both matchLabels and matchExpressions are ANDed together – they must all be satisfied
+  ## in order to match.
+  # selector:
+    ## Key / Value pair to match
+    # matchLabels:
+      # foo: "bar"
+    # matchExpressions:
+      #- key: environment
+      #  operator: In
+      #  values:
+      #    - dev
+
+## Configuration to enable the easy provisioning of certificates with kube-cert-manager and a Boulder compatible CA
+certificate:
+  domain: "www.example.com"
+  email: "user@example.com"
+  ## Consult the Kube cert manager docs for information on how to build this
+  provider: "GoogleCloud"
+
+
+## Monitoring adds the prometheus.io annotations to pods and services, so that the Prometheus Kubernetes SD mechanism
+## as configured in the examples will automatically discover both the pods and the services to query.
+##
+## This defaults on, as the annotations should do no harm where Prometheus is not available but will automatically
+## expose the application where Prometheus is.
+##
+## See https://github.com/prometheus/docs/blob/master/content/docs/operating/configuration.md
+## See https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
+monitoring:
+  ## Whether to scrape this service with the montoring toolkit. Mostly useful for blackbox probing of a given service
+  ## to ensure it's "up"
+  service:
+    ## monitoring should be configured to only scrape services that have a value of "true"
+    scrape: "true"
+    ## Path on which metrics are exposed
+    path: "/metrics"
+    ## Port on which HTTP server is served
+    port: "9102"
+  ## Whether to scape the pods associated with this application. Useful for collecting metrics.
+  pod:
+    ## monitoring shoudl be configured to only scrape pods that have a value of `true`
+    scrape: "true"
+    ## Path on which metrics are exposed
+    path: "/metrics"
+    ## Port on which HTTP server is served
+    port: "9102"

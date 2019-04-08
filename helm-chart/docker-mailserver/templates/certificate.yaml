@@ -1,0 +1,16 @@
+---
+apiVersion: "stable.k8s.psg.io/v1"
+kind: "Certificate"
+metadata:
+  labels:
+    app: {{ template "__CHART__.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+  name: {{ template "__CHART__.fullname" . }}
+spec:
+  domain: {{ .Values.certificate.domain | quote }}
+  email: {{ .Values.certificate.email | quote }}
+  provider: {{ .Values.certificate.provider | quote }}
+  secretName: "tls-{{ template "__CHART__.fullname" . }}"
+

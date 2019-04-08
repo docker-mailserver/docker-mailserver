@@ -1,0 +1,12 @@
+---
+## Here, helm keep track of what dependencies that are required for the application. Dependencies should be listed here,
+## then the dependencies updated with:
+##
+##    helm dep update
+##
+## and the requirements.lock file commited.
+##
+# dependencies:
+#   - name: "apache"
+#     version: "1.2.3-1"
+#     repository: "https://kubernetes-charts.storage.googleapis.com"

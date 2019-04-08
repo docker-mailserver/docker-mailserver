@@ -1,0 +1,24 @@
+language: generic
+
+dist: trusty
+sudo: false
+
+env:
+  global:
+    - HELM_VERSION="v2.12.3"
+
+install:
+  - wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
+  - tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
+  - chmod +x /tmp/helm
+
+before_script:
+  - /tmp/helm init --client-only
+  - /tmp/helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  - |
+    for chart in $(find . -name 'requirements.yaml'); do
+      /tmp/helm dep build $(dirname ${chart})
+    done
+
+script:
+  - /tmp/helm lint */

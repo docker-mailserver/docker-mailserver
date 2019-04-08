@@ -1,0 +1,32 @@
+---
+apiVersion: "rbac.authorization.k8s.io/v1beta1"
+## In the RBAC API, a role contains rules that represent a set of permissions. Permissions are purely additive
+## (there are no "deny" rules). A role can be defined within a namespace (kind: Role) or cluster-wide
+## (kind: ClusterRole)
+# kind: "ClusterRole"
+# kind: "Role"
+metadata:
+  ## Namespaces are omitted, as cluster roles are not namespaced.
+  name: "__ROLE_NAME__"
+  labels:
+    app: {{ template "__CHART__.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+rules:
+  ## The API Groups are the slice of Kubernetes resources around a given topic. You can define multiple API group
+  ## resources.
+  - apiGroups:
+      ## "" indicates the core API group. There are several groups; you can tell the group of a resource by looking at
+      ## the part before the "/" in "apiVersion". For example, in "extensions/v1beta1", the group is "extensions"
+      - ""
+    resources:
+      - "__RESOURCE_NAME__"
+    verbs:
+      # - "get"
+      # - "list"
+      # - "watch"
+      # - "create"
+      # - "update"
+      # - "patch"
+      # - "delete"
