@@ -127,6 +127,9 @@ service:
     smtptls: 30587
     imaps: 30993
     pop3s: 30995
+  # If the following is set to true, then postfix / dovecot will be configured to expect haproxy to pass "PROXY protocol" headers
+  # If you DON'T plan to use haproxy in front of postfix / dovecot, then set the following to false
+  haproxy_enabled: "true"
 
 ## How many versions of the deployment to run on kubernetes
 ## Default: 2

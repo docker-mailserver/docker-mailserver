@@ -8,6 +8,7 @@ metadata:
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
   name: {{ template "dockermailserver.fullname" . }}
+  namespace: {{ template "dockermailserver.fullname" . }}
 data:
   postfix-accounts.cf: "fake@example.com|{SHA512-CRYPT}$6$a.aMSgPR4tFStQTT$TMmEWhFdfxN1A2/PnqwVBowaTkZGtZe2fUIyqvgwPXeu0mrkWijScCycTDczX.Ek.MNR.SI7Cdt5l3rxtnzHV0"
   postfix-virtual.cf: "hello"
@@ -15,13 +16,21 @@ data:
   KeyTable: "hello"
   TrustedHosts: "hello"
   postfix-main.cf: |
+    {{ if eq .Values.service.haproxy_enabled "true" -}}  
     smtpd_upstream_proxy_protocol = haproxy
+    postscreen_upstream_proxy_protocol = haproxy
+    {{ end }}
   dovecot.cf: |
+    {{ if eq .Values.service.haproxy_enabled "true" -}}    
     service imap-login {
       inet_listener imaps {
         haproxy = yes
       }
+      inet_listener imap {
+        haproxy = yes
+      }      
     }  
+    {{ end }}
   # example.property.file: |-
   #   property.1=value-1
   #   property.2=value-2

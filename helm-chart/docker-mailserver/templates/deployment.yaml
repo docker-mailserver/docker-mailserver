@@ -8,6 +8,7 @@ metadata:
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
   name: {{ template "dockermailserver.fullname" . }}
+  namespace: {{ template "dockermailserver.fullname" . }}
 spec:
   replicas: {{ default 2 .Values.deployment.replicas }}
   selector:
@@ -117,12 +118,8 @@ spec:
               readOnly: true
             - name: configmap
               subPath: postfix-main.cf
-              mountPath: /tmp/docker-mailserver/postfix-main.cf
-              readOnly: true
-            - name: configmap
-              subPath: dovecot.cf
-              mountPath: /etc/dovecot/conf.d/zz-custom.cf
-              readOnly: true              
+              mountPath: /tmp/configmaps/postfix-main.cf
+              readOnly: true         
             - name: config
               mountPath: /tmp/docker-mailserver/
               
@@ -350,6 +347,10 @@ spec:
             - name: data
               mountPath: /var/mail-state
               subPath: mail-state
+            - name: configmap
+              subPath: dovecot.cf
+              mountPath: /etc/dovecot/conf.d/zz-custom.cf
+              readOnly: true                   
           ## There are three types or readiness probes:
           ##
           ## More generally, a liveness probe is used to determine whether the application is "healthy" and should
