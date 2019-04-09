@@ -14,6 +14,14 @@ data:
   SigningTable: "hello"
   KeyTable: "hello"
   TrustedHosts: "hello"
+  postfix-main.cf: |
+    smtpd_upstream_proxy_protocol = haproxy
+  dovecot.cf: |
+    service imap-login {
+      inet_listener imaps {
+        haproxy = yes
+      }
+    }  
   # example.property.file: |-
   #   property.1=value-1
   #   property.2=value-2

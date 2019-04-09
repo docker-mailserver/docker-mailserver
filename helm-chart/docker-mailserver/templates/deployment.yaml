@@ -115,8 +115,17 @@ spec:
               subPath: TrustedHosts
               mountPath: /tmp/configmaps/opendkim/TrustedHosts
               readOnly: true
+            - name: configmap
+              subPath: postfix-main.cf
+              mountPath: /tmp/docker-mailserver/postfix-main.cf
+              readOnly: true
+            - name: configmap
+              subPath: dovecot.cf
+              mountPath: /etc/dovecot/conf.d/zz-custom.cf
+              readOnly: true              
             - name: config
               mountPath: /tmp/docker-mailserver/
+              
        
           
       containers:
