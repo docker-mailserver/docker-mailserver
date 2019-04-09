@@ -19,4 +19,4 @@ jobs:
   include:
     - stage: kubetest
       script:
-        - ./helm template nginx | ./kubetest --verbose
+        - ./helm template docker-mailserver | ./kubetest --verbose

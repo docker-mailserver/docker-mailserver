@@ -142,8 +142,8 @@ spec:
           #       key: __KEY_USED_IN_SECRET_NAME__
           #
           image: {{ .Values.pod.dockermailserver.image | quote }}
-          command: [ "/bin/sleep" ]
-          args: [ "1h" ]
+          #command: [ "/bin/sleep" ]
+          #args: [ "1h" ]
           # args:
           #   - "command"
           #   - "line"
