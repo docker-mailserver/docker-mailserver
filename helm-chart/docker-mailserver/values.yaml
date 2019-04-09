@@ -10,7 +10,7 @@ pod:
   dockermailserver:
     ## The image to use with the resource
     ## Ref: https://tvial/docker-mailserver
-    image: tvial/docker-mailserver
+    image: "tvial/docker-mailserver"
     ## Host networking requested for this pod. Use the host’s network namespace. If this option is set, the ports that
     ## will be used must be specified.
     ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec
@@ -23,13 +23,15 @@ pod:
       ## Ref: http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_securitycontext
       ## Default: false
       privileged:
+    override_hostname: "mail.batcave.org"
+  
 
 service:
   ## What scope the service should be exposed in. One of:
   ## - LoadBalancer (to the world)
   ## - ClusterIP (to the cluster)
   ## - NodePort (to the world, in a custom way)
-  type: "LoadBalancer"
+  type: "ClusterIP"
   ## If there is a port associated with a given service, expose it here.
   # port:
   ## If there is a particular IP that should be used for the service, specify it here.
@@ -70,15 +72,15 @@ deployment:
 resources:
   requests:
     ## How much CPU this container is expected to need
-    cpu: "100m"
+    cpu: "1"
     ## How much memory this container is expected to need.
-    memory: "512Mi"
+    memory: "1024Mi"
   limits:
     ## The max CPU this container should be allowed to use
-    # cpu: "100m"
+    cpu: "2"
     ## The max memory this container should be allowed to use. Note: If a container exceeds its memory limit,
     ## it may terminated.
-    # memory: "512Mi"
+    memory: "2048Mi"
 
 persistence:
   size: "10Gi"
@@ -97,13 +99,6 @@ persistence:
       #  values:
       #    - dev
 
-## Configuration to enable the easy provisioning of certificates with kube-cert-manager and a Boulder compatible CA
-certificate:
-  domain: "www.example.com"
-  email: "user@example.com"
-  ## Consult the Kube cert manager docs for information on how to build this
-  provider: "GoogleCloud"
-
 
 ## Monitoring adds the prometheus.io annotations to pods and services, so that the Prometheus Kubernetes SD mechanism
 ## as configured in the examples will automatically discover both the pods and the services to query.
@@ -118,7 +113,7 @@ monitoring:
   ## to ensure it's "up"
   service:
     ## monitoring should be configured to only scrape services that have a value of "true"
-    scrape: "true"
+    scrape: "false"
     ## Path on which metrics are exposed
     path: "/metrics"
     ## Port on which HTTP server is served
@@ -126,8 +121,9 @@ monitoring:
   ## Whether to scape the pods associated with this application. Useful for collecting metrics.
   pod:
     ## monitoring shoudl be configured to only scrape pods that have a value of `true`
-    scrape: "true"
+    scrape: "false"
     ## Path on which metrics are exposed
     path: "/metrics"
     ## Port on which HTTP server is served
     port: "9102"
+

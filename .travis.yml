@@ -1,24 +1,22 @@
-language: generic
-
-dist: trusty
+language: C
 sudo: false
-
-env:
-  global:
-    - HELM_VERSION="v2.12.3"
-
-install:
-  - wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
-  - tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
-  - chmod +x /tmp/helm
-
-before_script:
-  - /tmp/helm init --client-only
-  - /tmp/helm repo add stable https://kubernetes-charts.storage.googleapis.com
-  - |
-    for chart in $(find . -name 'requirements.yaml'); do
-      /tmp/helm dep build $(dirname ${chart})
-    done
-
+before_install:
+  - wget https://kubernetes-helm.storage.googleapis.com/helm-v2.7.2-linux-amd64.tar.gz
+  - tar xzvf helm-v2.7.2-linux-amd64.tar.gz
+  - mv linux-amd64/helm helm
+  - chmod u+x helm
+  - wget https://github.com/garethr/kubeval/releases/download/0.7.0/kubeval-linux-amd64.tar.gz 
+  - tar xzvf kubeval-linux-amd64.tar.gz
+  - chmod u+x kubeval
+  - wget https://github.com/garethr/kubetest/releases/download/0.1.0/kubetest-linux-amd64.tar.gz 
+  - tar xzvf kubetest-linux-amd64.tar.gz
+  - chmod u+x kubetest
 script:
-  - /tmp/helm lint helm-chart/*/
+  - ./helm template helm-chart/docker-mailserver | ./kubeval -v $KUBERNETES_VERSION
+env:
+  - KUBERNETES_VERSION="1.14.0"
+jobs:
+  include:
+    - stage: kubetest
+      script:
+        - ./helm template nginx | ./kubetest --verbose

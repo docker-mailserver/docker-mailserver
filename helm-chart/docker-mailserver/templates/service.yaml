@@ -25,9 +25,9 @@ spec:
     app: {{ template "dockermailserver.fullname" . }}
     release: "{{ .Release.Name }}"
   ports:
-    - protocol: "__CONTAINER_PORT_PROTOCOL__"
-      name: "__CONTAINER_PORT_NAME__"
-      port: __CONTAINER_PORT__
+    - protocol: "TCP"
+      name: "25-smtp"
+      port: 25
   type: {{ default "ClusterIP" .Values.service.type }}
   {{ if eq .Values.service.type "LoadBalancer" -}}
   {{ if .Values.service.loadBalancer.publicIp -}}

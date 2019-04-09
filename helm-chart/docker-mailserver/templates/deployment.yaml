@@ -106,7 +106,9 @@ spec:
           ## Environment variables can be populated in a number of ways, including secrets, or just string values. Below
           ## are some examples for you to copy-paste. Remember to uncomment the `env` node!
           #
-          # env:
+          env:
+            - name: OVERRIDE_HOSTNAME
+              value: {{ .Values.pod.dockermailserver.override_hostname | quote }}
           #
           ## An example of a simple key value pair
           #
@@ -174,11 +176,11 @@ spec:
             ## probably want to expose your application port, though.
             ##
             ## See http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport
-            - containerPort: __CONTAINER_PORT__
+            - containerPort: 25
               ## What protocol the port uses. Possible values are:
               # - "TCP"
               # - "UDP"
-              protocol: "__CONTAINER_PORT_PROTOCOL__"
+              protocol: "TCP"
               ## What designation to give the port. Useful later, so we can reference the port by name in the health
               ## check.
               ## 
@@ -193,7 +195,7 @@ spec:
               ## Istio
               ##
               ## See https://istio.io/docs/setup/kubernetes/spec-requirements/
-              name: "__CONTAINER_PORT_NAME__"
+              name: "25-smtp"
           # volumeMounts:
           #   - name: "webserver-etc-conf-d"
           #     readOnly: true
@@ -315,7 +317,7 @@ spec:
       ## - Never
       ##
       ## For more information, see http://kubernetes.io/docs/user-guide/pod-states/#restartpolicy
-      restartPolicy: "__RESTART_POLICY__"
+      restartPolicy: "Always"
       securityContext:
         ## Volumes which support ownership management are modified to be owned and writable by the GID specified in
         ## fsGroup. See the Ownership Management design document for more details.
