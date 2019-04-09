@@ -23,8 +23,76 @@ pod:
       ## Ref: http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_securitycontext
       ## Default: false
       privileged:
+    # The following variables affect the behaviour of docker-mailserver
+    # See https://github.com/tomav/docker-mailserver#environment-variables for details
     override_hostname: "mail.batcave.org"
-  
+    dms_debug: 0
+    enable_clamav: 1
+    one_dir: 1
+    enable_pop3: 0
+    enable_fail2ban: 1
+    smtp_only:
+    ssl_type:
+    tls_level:
+    spoof_protection:
+    enable_srs: 0
+    permit_docker: 
+    virusmails_delete_delay:
+    enable_postfix_virtual_transport:
+    postfix_dagent:
+    postfix_mailbox_size_limit:
+    postfix_message_size_limit:
+    enable_managesieve:
+    postmaster_address: "postmaster@domain.com"
+    postscreen_action: "enforce"
+    report_recipient: 0
+    report_sender: 
+    report_interval: "daily"
+    enable_spamassassin: 1
+    sa_tag: 2.0
+    sa_tag2: 6.31
+    sa_kill: 6.31
+    sa_spam_subject: "*** spam ***"
+    enable_fetchmail: 0
+    fetchmail_poll: 300
+    enable_ldap: 
+    ldap_start_tls:
+    ldap_server_host: 
+    ldap_search_base:
+    ldap_bind_dn:
+    ldap_bind_pw:
+    ldap_query_filter_user:
+    ldap_query_filter_group:
+    ldap_query_filter_alias:
+    ldap_query_filter_domain:
+    dovecot_tls:
+    dovecot_user_filter:
+    dovecot_user_attr:
+    dovecot_pass_filter:
+    dovecot_pass_attr:
+    enable_postgrey: 0
+    postgrey_delay: 300
+    postgrey_max_age: 35
+    postgrey_auto_whitelist_clients: 5
+    postgrey_text: "delayed by postgrey"
+    enable_saslauthd: 0
+    saslauthd_mechanisms: 
+    saslauthd_mech_options:
+    saslauthd_ldap_server:
+    saslauthd_ldap_ssl:
+    saslauthd_ldap_bind_dn:
+    saslauthd_ldap_password:
+    saslauthd_ldap_search_base:
+    saslauthd_ldap_filter:
+    sasl_passwd:
+    srs_exclude_domains:
+    srs_secret:
+    srs_domainname:
+    default_relay_host:
+    relay_host:
+    relay_port: 25
+    relay_user:
+    relay_password:
 
 service:
   ## What scope the service should be exposed in. One of:
