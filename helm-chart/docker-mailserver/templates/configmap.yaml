@@ -9,7 +9,11 @@ metadata:
     release: "{{ .Release.Name }}"
   name: {{ template "dockermailserver.fullname" . }}
 data:
-  # example.property.1: hello
+  postfix-accounts.cf: "hello"
+  postfix-virtual.cf: "hello"
+  SigningTable: "hello"
+  KeyTable: "hello"
+  TrustedHosts: "hello"
   # example.property.file: |-
   #   property.1=value-1
   #   property.2=value-2

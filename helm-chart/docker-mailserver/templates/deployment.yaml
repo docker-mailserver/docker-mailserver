@@ -49,31 +49,18 @@ spec:
       ## storage types, the most useful of which are illustrated below. Remember to uncomment the volumes: node if you
       ## decide to use them!
       ##
-      # volumes:
-      ##
-      ## EMPTY DIR - Useful for scratch space, such as for CI
-      ##
-      #   - name: "__VOLUME_NAME__"
-      #     emptyDir: {}
-      ##
-      ## HOST PATH - Useful when mounting some host proprty into hte container
-      ##
-      #   - name: "__VOLUME_NAME__"
-      #     hostPath:
-      #       path: "/path/to/your/folder"
-      ##
-      ## PERSISTENT VOLUME CLAIM - Useful to access network storage. Should be used in preference to GcePersistantDisk
-      ##                           et. al. You will need to define a persistent volume as well, for this to work.
-      ##
-      #   - name: "__VOLUME_NAME__"
-      #     persistentVolumeClaim:
-      #       claimName: {{ template "dockermailserver.pvcName" . }}
+      volumes:
+         - name: "data"
+           persistentVolumeClaim:
+             claimName: {{ template "dockermailserver.pvcName" . }}
+         - name: "config"
+           emptyDir: {}
       ##
       ## CONFIGMAP
       ##
-      #   - name: "__VOLUME_NAME__"
-      #     configMap:
-      #       name: "__CONFIGMAP_NAME__"
+         - name: "configmap"
+           configMap:
+             name: {{ template "dockermailserver.fullname" . }}
       ##
       ## Note: You can also use single files from a configmap, with a syntax called "subPath". An example is below:
       ##
@@ -86,9 +73,9 @@ spec:
       ##
       ## SECRET
       ##
-      #   - name: "__VOLUME_NAME__"
-      #     secret:
-      #       secretName: "__SECRET_NAME__"
+         - name: "opendkim-keys"
+           secret:
+             secretName: {{ template "dockermailserver.fullname" . }}
       ##
       ## DOWNWARD API
       ##
@@ -101,6 +88,37 @@ spec:
       #         - path: "annotations"
       #           fieldRef:
       #             fieldPath: metadata.annotations
+      # We use this init container to allow us to keep config in configmaps, but to let the files be read/write within the docker-mailserver container
+      # If we don't do this, startup of the container fails because read-only files can't be modded with sed
+      initContainers:
+        - name: prep-config
+          image: busybox:1.28
+          command: [ 'sh', '-c', 'cp /tmp/configmaps/* /tmp/docker-mailserver -rfp']
+          volumeMounts:
+            - name: configmap
+              subPath: postfix-accounts.cf
+              mountPath: /tmp/configmaps/postfix-accounts.cf
+              readOnly: true
+            - name: configmap
+              subPath: postfix-virtual.cf
+              mountPath: /tmp/configmaps/postfix-virtual.cf
+              readOnly: true
+            - name: configmap
+              subPath: SigningTable
+              mountPath: /tmp/configmaps/opendkim/SigningTable
+              readOnly: true
+            - name: configmap
+              subPath: KeyTable
+              mountPath: /tmp/configmaps/opendkim/KeyTable
+              readOnly: true
+            - name: configmap
+              subPath: TrustedHosts
+              mountPath: /tmp/configmaps/opendkim/TrustedHosts
+              readOnly: true
+            - name: config
+              mountPath: /tmp/docker-mailserver/
+       
+          
       containers:
         - name: dockermailserver
           ## Environment variables can be populated in a number of ways, including secrets, or just string values. Below
@@ -124,6 +142,8 @@ spec:
           #       key: __KEY_USED_IN_SECRET_NAME__
           #
           image: {{ .Values.pod.dockermailserver.image | quote }}
+          command: [ "/bin/sleep" ]
+          args: [ "1h" ]
           # args:
           #   - "command"
           #   - "line"
@@ -171,38 +191,18 @@ spec:
                 # - "SETFCAP"
                 # - "WAKE_ALARM"
                 # - "BLOCK_SUSPEND"
-          ports:
-            ## The container port to expose, and how to expose it. Possible values are any valid port number. You
-            ## probably want to expose your application port, though.
-            ##
-            ## See http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport
-            - containerPort: 25
-              ## What protocol the port uses. Possible values are:
-              # - "TCP"
-              # - "UDP"
-              protocol: "TCP"
-              ## What designation to give the port. Useful later, so we can reference the port by name in the health
-              ## check.
-              ## 
-              ## To be comptible with Istio, the definition must be "${PROTOCOL}-[${NAME}]"
-              ##
-              ## For example,
-              ## http
-              ## http2
-              ## redis-public
-              ##
-              ## If the protocol does not follow this pattern or is not recognized, it will be treated as TCP traffic by
-              ## Istio
-              ##
-              ## See https://istio.io/docs/setup/kubernetes/spec-requirements/
-              name: "25-smtp"
-          # volumeMounts:
-          #   - name: "webserver-etc-conf-d"
-          #     readOnly: true
-          #     mountPath: "/etc/webserver/conf.d"
-          #   - name: "webserver-data
-          #     readOnly: false
-          #     mountPath: "/data"
+          volumeMounts:
+            - name: config
+              mountPath: /tmp/docker-mailserver
+            - name: opendkim-keys
+              mountPath: /tmp/docker-mailserver/opendkim/keys
+              readOnly: true
+            - name: data
+              mountPath: /var/mail
+              subPath: mail
+            - name: data
+              mountPath: /var/mail-state
+              subPath: mail-state
           ## There are three types or readiness probes:
           ##
           ## More generally, a liveness probe is used to determine whether the application is "healthy" and should
