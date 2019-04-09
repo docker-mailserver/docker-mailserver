@@ -28,6 +28,45 @@ spec:
     - protocol: "TCP"
       name: "25-smtp"
       port: 25
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30025" .Values.service.nodePort.smtp }}
+  {{ end }}  
+    - protocol: "TCP"
+      name: "110-pop3"
+      port: 110
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30110" .Values.service.nodePort.pop3 }}
+  {{ end }}   
+    - protocol: "TCP"
+      name: "143-imap"
+      port: 143
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30143" .Values.service.nodePort.imap }}
+  {{ end }}       
+    - protocol: "TCP"
+      name: "465-smtps"
+      port: 465
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30465" .Values.service.nodePort.smtps }}
+  {{ end }}    
+    - protocol: "TCP"
+      name: "587-smtptls"
+      port: 587
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30587" .Values.service.nodePort.smtptls }}
+  {{ end }}   
+    - protocol: "TCP"
+      name: "993-imaps"
+      port: 993
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30993" .Values.service.nodePort.imaps }}
+  {{ end }}   
+    - protocol: "TCP"
+      name: "995-imaps"
+      port: 995
+  {{- if eq .Values.service.type "NodePort" }}    
+      nodePort: {{ default "30995" .Values.service.nodePort.pop3s }}
+  {{ end }}           
   type: {{ default "ClusterIP" .Values.service.type }}
   {{ if eq .Values.service.type "LoadBalancer" -}}
   {{ if .Values.service.loadBalancer.publicIp -}}

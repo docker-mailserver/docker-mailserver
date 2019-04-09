@@ -99,7 +99,7 @@ service:
   ## - LoadBalancer (to the world)
   ## - ClusterIP (to the cluster)
   ## - NodePort (to the world, in a custom way)
-  type: "ClusterIP"
+  type: "NodePort"
   ## If there is a port associated with a given service, expose it here.
   # port:
   ## If there is a particular IP that should be used for the service, specify it here.
@@ -118,6 +118,15 @@ service:
       - "0.0.0.0/0"
     ## If there is a Hostname associated with this site, add it here and it will be rendered in the documentation.
     # hostName:
+  # These are the ports exposed if we are using nodeport for our services (an an external, non-cluster LB)
+  nodePort:
+    smtp: 30025
+    pop3: 30110
+    imap: 30143
+    smtps: 30465
+    smtptls: 30587
+    imaps: 30993
+    pop3s: 30995
 
 ## How many versions of the deployment to run on kubernetes
 ## Default: 2
