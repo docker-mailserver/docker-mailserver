@@ -1,5 +1,19 @@
 # docker-mailserver
 
+## Architecture
+
+There are several ways you might deploy docker-mailserver. The most common would be:
+
+1. Within a cloud provider, utilizing a load balancer service from the cloud provider (i.e. GKE). This is an expensive option, since typically you'd pay for each individual port (25, 465, 993, etc) which gets load-balanced
+
+2. Either within a cloud provider, or in a private Kubernetes cluster, behind a non-integrated load-balancer such as haproxy. An example deployment might be something like the https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/, or even a manually configured haproxy instance/pair.
+
+## Requirements
+
+1. You need helm, obviously. This is a helm chart ;)
+
+2. You need to install cert-manager, and setup issuers (https://docs.cert-manager.io/en/latest/index.html). It's easy to install using helm (which you have anyway, right?). Cert-manager is what will request and renew SSL certificates required for docker-mailserver to work. The chart will assume that you've configured and tested certmanager.
+
 ## Installation
 
 ```
