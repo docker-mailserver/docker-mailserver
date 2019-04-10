@@ -48,6 +48,28 @@ helm install \
     $ helm upgrade --install path/to/dockermailserver dockermailserver
 ```
 
+## Operation
+
+### Create / Update / Delete users
+
+### Setup OpenDKIM
+
+```
+[funkypenguin:~/Documents/Personal/Projects/docker-mailserver/helm-chart] add-helm-chart 1 ± ../setup.sh config dkim
+"docker inspect" requires at least 1 argument.
+See 'docker inspect --help'.
+
+Usage:  docker inspect [OPTIONS] NAME|ID [NAME|ID...]
+
+Return low-level information on Docker objects
+Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/bob.com/mail.private
+Creating DKIM KeyTable
+Creating DKIM SigningTable
+Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
+Creating DKIM TrustedHosts
+[funkypenguin:~/Documents/Personal/Projects/docker-mailserver/helm-chart] add-helm-chart* ±
+```
+
 ## Configuration
 
 All configuration values are documented in values.yaml. Check that for references, default values etc. To modify a

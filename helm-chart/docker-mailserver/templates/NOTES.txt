@@ -26,3 +26,40 @@ dockermailserver
 {{- end }}
 
 For more information, check the readme!
+
+## Post-install configuration
+
+### OpenDKIM
+
+In order to sign outgoing emails with OpenDKIM, you'll need to generate a key for OpenDKIM, and then add that
+key to a Kubernetes Secret.
+
+To start off with, run ```../setup.sh config dkim```. Although this generates an error (below), the necessary keys and configs
+_are_ created:
+
+```
+[funkypenguin:~] ../setup.sh config dkim
+"docker inspect" requires at least 1 argument.
+See 'docker inspect --help'.
+
+Usage:  docker inspect [OPTIONS] NAME|ID [NAME|ID...]
+
+Return low-level information on Docker objects
+Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/bob.com/mail.private
+Creating DKIM KeyTable
+Creating DKIM SigningTable
+Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
+Creating DKIM TrustedHosts
+[funkypenguin:~ ]
+```
+
+Now we need the key ("/tmp/docker-mailserver/opendkim/keys/example.com/mail.private") in the example output above, inserted into a secret
+
+Run the following, customizing for your own domain name:
+
+```
+kubectl create secret generic {{ template "dockermailserver.fullname" . }}-opendkim-keys \
+ --from-file=config/opendkim/keys/example.com/mail.private \
+ --namespace {{ template "dockermailserver.fullname" . }}
+```
+

@@ -14,9 +14,11 @@ data:
   postfix-accounts.cf: |
     user@example.com|{SHA512-CRYPT}$6$l4023rZnQEy/l0Rg$JeNjAAICB43VAX7GTJ9jeE7DR0LeyR5nU.ftq3c42T5E1IZSuRBqwM8erRh6t0CyIT6aYpBIAopzcQHNUvMV00
   postfix-virtual.cf:
-  SigningTable: 
-  KeyTable: 
-  TrustedHosts: 
+  SigningTable: "*@example.com mail._domainkey.example.com"
+  KeyTable: "mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com/mail.private"
+  TrustedHosts: |
+    127.0.0.1
+    localhost
   postfix-main.cf: |
     {{ if eq .Values.service.haproxy_enabled "true" -}}  
     # smtpd_upstream_proxy_protocol = haproxy

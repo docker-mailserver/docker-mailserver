@@ -1,0 +1,3 @@
+mail._domainkey	IN	TXT	( "v=DKIM1; h=sha256; k=rsa; "
+	  "p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuRvRE9VWoI1EdUeqtwIgR/CH1D2OMPomyyXtzO9yZRnl/93b/gPYQvmxfJSUoLmKa6QMSdaw75bpeNRpvWsc5A0NgpExPr/ULXoawb4ES93dDz7YsaHMpRpOTWf0ROGK8MyKHQ6CPP1b2o2Pqr5+4n45YLwOlkd+AwnqYnv/ss50ksVfFlrGBnbBI4t457TrGn4Ncz4SPWIlb/"
+	  "j92eDD35OS8hftFZtAKnhw+wcUJ9J0fieY4QhpY/2mYhV1NKh/SfH0UmA3eL/G7g7R544sBGWJt5WB9a16LfvA+zElx8MyHhDMNX59Fph/frINmhsJMzp6aEr1aPG/coTZXNn7vwIDAQAB" )  ; ----- DKIM key mail for bob.com
