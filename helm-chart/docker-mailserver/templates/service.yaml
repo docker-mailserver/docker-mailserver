@@ -51,10 +51,10 @@ spec:
       nodePort: {{ default "30465" .Values.service.nodePort.smtps }}
   {{ end }}    
     - protocol: "TCP"
-      name: "587-smtptls"
+      name: "587-submission"
       port: 587
   {{- if eq .Values.service.type "NodePort" }}    
-      nodePort: {{ default "30587" .Values.service.nodePort.smtptls }}
+      nodePort: {{ default "30587" .Values.service.nodePort.submission }}
   {{ end }}   
     - protocol: "TCP"
       name: "993-imaps"

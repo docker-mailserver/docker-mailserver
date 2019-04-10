@@ -32,7 +32,9 @@ pod:
     enable_pop3: 0
     enable_fail2ban: 1
     smtp_only:
-    ssl_type:
+    # ssl_type: "manual"
+    # ssl_cert_path: "/tmp/ssl/tls.crt"
+    # ssl_key_path: "/tmp/ssl/tls.key"
     tls_level:
     spoof_protection:
     enable_srs: 0
@@ -124,7 +126,7 @@ service:
     pop3: 30110
     imap: 30143
     smtps: 30465
-    smtptls: 30587
+    submission: 30587
     imaps: 30993
     pop3s: 30995
   # If the following is set to true, then postfix / dovecot will be configured to expect haproxy to pass "PROXY protocol" headers

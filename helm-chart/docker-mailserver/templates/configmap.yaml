@@ -10,14 +10,16 @@ metadata:
   name: {{ template "dockermailserver.fullname" . }}
   namespace: {{ template "dockermailserver.fullname" . }}
 data:
-  postfix-accounts.cf: "fake@example.com|{SHA512-CRYPT}$6$a.aMSgPR4tFStQTT$TMmEWhFdfxN1A2/PnqwVBowaTkZGtZe2fUIyqvgwPXeu0mrkWijScCycTDczX.Ek.MNR.SI7Cdt5l3rxtnzHV0"
-  postfix-virtual.cf: "hello"
-  SigningTable: "hello"
-  KeyTable: "hello"
-  TrustedHosts: "hello"
+  # A sample user - the password is "password"
+  postfix-accounts.cf: |
+    user@example.com|{SHA512-CRYPT}$6$l4023rZnQEy/l0Rg$JeNjAAICB43VAX7GTJ9jeE7DR0LeyR5nU.ftq3c42T5E1IZSuRBqwM8erRh6t0CyIT6aYpBIAopzcQHNUvMV00
+  postfix-virtual.cf:
+  SigningTable: 
+  KeyTable: 
+  TrustedHosts: 
   postfix-main.cf: |
     {{ if eq .Values.service.haproxy_enabled "true" -}}  
-    smtpd_upstream_proxy_protocol = haproxy
+    # smtpd_upstream_proxy_protocol = haproxy
     postscreen_upstream_proxy_protocol = haproxy
     {{ end }}
   dovecot.cf: |

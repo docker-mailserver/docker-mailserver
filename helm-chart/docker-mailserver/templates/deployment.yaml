@@ -77,6 +77,9 @@ spec:
          - name: "opendkim-keys"
            secret:
              secretName: {{ template "dockermailserver.fullname" . }}
+         - name: "ssl-cert"
+           secret:
+             secretName: {{ template "dockermailserver.fullname" . }}-tls
       ##
       ## DOWNWARD API
       ##
@@ -146,7 +149,11 @@ spec:
             - name: SMTP_ONLY
               value: {{ .Values.pod.dockermailserver.smtp_only | quote }}
             - name: SSL_TYPE
-              value: {{ .Values.pod.dockermailserver.ssl_type | quote }}
+              value: {{ default "manual" .Values.pod.dockermailserver.ssl_type | quote }}
+            - name: SSL_CERT_PATH
+              value: {{ default "/tmp/ssl/tls.crt" .Values.pod.dockermailserver.ssl_cert_path | quote }}   
+            - name: SSL_KEY_PATH
+              value: {{ default "/tmp/ssl/tls.key" .Values.pod.dockermailserver.ssl_key_path | quote }}                            
             - name: TLS_LEVEL
               value: {{ .Values.pod.dockermailserver.tls_level | quote }}
             - name: SPOOF_PROTECTION
@@ -341,6 +348,9 @@ spec:
             - name: opendkim-keys
               mountPath: /tmp/docker-mailserver/opendkim/keys
               readOnly: true
+            - name: ssl-cert
+              mountPath: /tmp/ssl
+              readOnly: true              
             - name: data
               mountPath: /var/mail
               subPath: mail
