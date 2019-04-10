@@ -1,0 +1,21 @@
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ template "dockermailserver.fullname" . }}-tls
+  namespace: default
+spec:
+  secretName: {{ template "dockermailserver.fullname" . }}-tls
+  issuerRef:
+    name: {{ default "letsencrypt-staging" .Values.ssl.issuer.name }}
+    kind: {{ default "ClusterIssuer" .Values.ssl.issuer.kind }}
+  commonName: '*.{{ default "example.com" .Values.ssl.dnsname }}'
+  dnsNames:
+  - {{ default "example.com" .Values.ssl.dnsname }}
+  acme:
+    config:
+    - dns01:
+        provider: {{ default "cloudflare" .Values.ssl.dns01provider }}
+      domains:
+      - '*.{{ default "example.com" .Values.ssl.dnsname }}'
+      - {{ default "example.com" .Values.ssl.dnsname }}

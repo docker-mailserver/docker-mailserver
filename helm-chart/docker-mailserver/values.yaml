@@ -207,3 +207,9 @@ monitoring:
     ## Port on which HTTP server is served
     port: "9102"
 
+ssl:
+  issuer:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  dnsname: funkypenguin.co.nz
+  dns01provider: cloudflare
