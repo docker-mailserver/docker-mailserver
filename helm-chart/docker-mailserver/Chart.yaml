@@ -1,5 +1,16 @@
 apiVersion: v1
-appVersion: "1.0"
-description: A Helm chart for Kubernetes
+appVersion: "6.1.0"
+description: A fullstack but simple mailserver (smtp, imap, antispam, antivirus, ssl...) using Docker.
 name: docker-mailserver
 version: 0.1.0
+sources:
+- https://github.com/funkypenguin/docker-mailserver
+maintainers:
+- name: funkypenguin
+  email: davidy@funkypenguin.co.nz
+keywords:
+- mailserver
+- postfix
+- dovecot
+- amavis
+- imap

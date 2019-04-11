@@ -40,7 +40,7 @@
 
 You've successfully launched docker-mailserver helm chart!
 
-{{- if eq .Values.pod.dockermailserver.demomode "true" -}}  
+{{- if .Values.demo_mode.enabled -}}  
 
 But wait, dear reader. You're still running in DEMO MODE.
 
@@ -72,4 +72,21 @@ to add to your DNS zones, to finish setting up DKIM:
 {{ end }}
 
    
+{{ if eq .Values.haproxy.mode "external-auto" -}} 
 
+You're running with HAProxy in "external-auto" mode. Provided you've correctly setup your 
+haproxy.webhook.url and haproxy.webhook.token, you don't need to do anything further in
+order for your external access to work
+
+{{ else if eq .Values.haproxy.mode "external-manual" -}} 
+
+You're configured for HAProxy in "external-manual" mode. You'll need to manually configure
+your haproxy to send the incoming traffic to the node running your pod, on the configured nodeport ports.
+
+{{ else if eq .Values.haproxy.mode "ingress" -}} 
+
+You're configured for HAProxy in "ingress" mode. Theoretically you don't have to do anything, provided the 
+ingress resource started up correctly - you should be able to access your external IP on the standard email
+ports, and have it "Just Work (tm)"
+
+{{ end }}

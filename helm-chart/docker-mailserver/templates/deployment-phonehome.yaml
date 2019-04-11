@@ -1,5 +1,5 @@
 {{/* This whole template is only necessary if we're using the phone-home webhook implementation */}}
-{{ if eq .Values.service.phonehome_webhook "true" -}}  
+{{ if eq .Values.haproxy.mode "external-auto" -}}  
 ---
 apiVersion: "apps/v1"
 kind: "Deployment"
@@ -23,26 +23,6 @@ spec:
     type: "RollingUpdate"
   template:
     metadata:
-      annotations:
-        ## Only scrape pods that have a value of `true`
-        prometheus.io/scrape: {{ default "true" .Values.monitoring.pod.scrape | quote }}
-        ## If the metrics path is not `/metrics` override this.
-        prometheus.io/port: {{ default "9102" .Values.monitoring.pod.port | quote }}
-        ## scrape the pod on the indicated port instead of the default of `9102`.
-        prometheus.io/path: {{ default "metrics" .Values.monitoring.pod.path | quote }}
-        ## Scrape the pod over protocol
-        prometheus.io/scheme: {{ default "http" .Values.monitoring.pod.scheme | quote }}
-        ##
-        ## Oftentimes, applicatins need to be restarted once once their configuration has been updated. However,
-        ## Kubernetes makes the assumption that watching the file for configuration change is the applications
-        ## responsibiliy, and doesn't restart when files change. So, the lines below modify a propery that does trigger
-        ## a rotation of the applications so they are restarted when their dependencies change.
-        ##
-        ## See https://github.com/kubernetes/helm/blob/master/docs/charts_tips_and_tricks.md
-        ##   #automatically-roll-deployments-when-configmaps-or-secrets-change
-        ##
-        # checksum/config: {{ include (print $.Chart.Name "/templates/secret.yaml") . | sha256sum }}
-        # checksum/config: {{ include (print $.Chart.Name "/templates/configmap.yaml") . | sha256sum }}
       labels:
         app: {{ template "dockermailserver.fullname" . }}
         release: "{{ .Release.Name }}"
@@ -71,14 +51,14 @@ spec:
             value: "25"
           - name: BACKEND_PORT
             value: "30025"
-            {{- if eq .Values.service.haproxy_enabled "true" }}             
+            {{- if .Values.haproxy.enabled }}              
           - name: SEND_PROXY
             value: "send-proxy"            
             {{- end }}     
           - name: NAME
             value: "docker-mailserver-smtp"
           - name: WEBHOOK
-            value: "https://traefik.funkypenguin.co.nz:9000/hooks/update-haproxy"
+            value: {{ .Values.haproxy.webhook_url }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -94,14 +74,14 @@ spec:
             value: "587"
           - name: BACKEND_PORT
             value: "30587"
-            {{- if eq .Values.service.haproxy_enabled "true" }}             
+            {{- if .Values.haproxy.enabled }}              
           - name: SEND_PROXY
             value: "send-proxy"            
             {{- end }}             
           - name: NAME
             value: "docker-mailserver-submission"
           - name: WEBHOOK
-            value: "https://traefik.funkypenguin.co.nz:9000/hooks/update-haproxy"
+            value: {{ .Values.haproxy.webhook_url }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -120,7 +100,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-smtps"
           - name: WEBHOOK
-            value: "https://traefik.funkypenguin.co.nz:9000/hooks/update-haproxy"
+            value: {{ .Values.haproxy.webhook_url }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -139,7 +119,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-pop3"
           - name: WEBHOOK
-            value: "https://traefik.funkypenguin.co.nz:9000/hooks/update-haproxy"
+            value: {{ .Values.haproxy.webhook_url }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:

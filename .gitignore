@@ -12,3 +12,4 @@ test/onedir
 config/opendkim/
 *.secret
 helm-chart/docker-mailserver/config/
+myvalues.yml

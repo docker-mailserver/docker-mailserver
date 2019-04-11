@@ -3,17 +3,37 @@
 ## Default: use the chart name
 # nameOverride:
 
-# todo - testing secrets.yaml
-Bar: "banana"
+## The image and tag to use
+## Ref: https://hub.docker.com/r/tvial/docker-mailserver
+image: tvial/docker-mailserver
+imageTag: release-v6.1.0
+
+# If demo mode is enabled, the contents of helm-chart/docker-mailserver/config will _not_ be imported into
+# a configmap, and a minimal static configuration will be used instead. A single account (user "user@example.com", password "password")
+# will be configured for the purpose of validating core functions and connectivity, before applying user config
+demo_mode:
+  enabled: true
+
+# HAProxy can be used as an upstream proxy, with the PROXY protocol, to present real-world origin source IPs
+# to postscreen (and dovecot), so that spam / SPF filtering can be applied. This avoids the undesirable source IP
+# obfuscation which occurs within the normal Kubernetes network
+haproxy:
+
+  # Whether to configure postscreen/imaps for proxy-protocol support from an upstream haproxy instance
+  # If this is enabled, you _must_ access SMTP (TCP 25), submission (TCP 587), and IMAPS (TCP 993) via haproxy.
+  enabled: true
+
+  # Either an haproxy ingress ("ingress"), an automated external instance ("external-auto"), or a manually configured external instance ("external-manual")
+  mode: "external-auto"
+
+  # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
+  webhook_url: "https://your-webhook-url:9000/hooks/update-haproxy"
+  webhook_secret: "mysecret"
 
 pod:
-  phonehome:
-    webhook_secret: "webhook_token.secret"
 
   dockermailserver:
-    ## The image to use with the resource
-    ## Ref: https://tvial/docker-mailserver
-    image: "tvial/docker-mailserver"
+
     ## Host networking requested for this pod. Use the host’s network namespace. If this option is set, the ports that
     ## will be used must be specified.
     ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec

@@ -10,10 +10,10 @@ metadata:
   name: {{ template "dockermailserver.fullname" . }}-configs
 data:
   {{/* Use sample data if user is running in demo mode */}}
-  {{- if eq .Values.pod.dockermailserver.demomode "true" -}}  
+  {{- if .Values.demo_mode.enabled -}}  
   ### We are in demo mode, so add in some sample data for quick testing
   postfix-accounts.cf: |
-      # A sample user - the password is "password"
+    # A sample user - the password is "password"
     user@example.com|{SHA512-CRYPT}$6$l4023rZnQEy/l0Rg$JeNjAAICB43VAX7GTJ9jeE7DR0LeyR5nU.ftq3c42T5E1IZSuRBqwM8erRh6t0CyIT6aYpBIAopzcQHNUvMV00
   postfix-virtual.cf:
   SigningTable: "*@example.com mail._domainkey.example.com"
@@ -27,13 +27,13 @@ data:
   {{- (.Files.Glob "config/*").AsConfig | nindent 2 }}
   {{- end }}
   {{/* Enable proxy protocol for postscreen / dovecot */}}
-  {{ if eq .Values.service.haproxy_enabled "true" -}} 
+  {{ if .Values.haproxy.enabled -}} 
   postfix-main.cf: |
     # Necessary to permit proxy protocol from haproxy to postscreen
     postscreen_upstream_proxy_protocol = haproxy
   {{ end }}
   dovecot.cf: |
-    {{ if eq .Values.service.haproxy_enabled "true" -}}    
+    {{ if .Values.haproxy.enabled -}} 
     service imap-login {
       inet_listener imaps {
         haproxy = yes
