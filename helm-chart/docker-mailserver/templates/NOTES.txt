@@ -64,7 +64,7 @@ You're not in demo mode! Assuming all has gone well, execute the commands below 
 to add to your DNS zones, to finish setting up DKIM:
 {{/* Mount a dkim key for every domain configured */}}
 ---               
-{{ range .Values.pod.dockermailserver.domains }}
+{{ range .Values.domains }}
 {{- $path := printf "cat docker-mailserver/config/opendkim/keys/%s/mail.txt" . }}
     {{ $path }}
 {{ end }}

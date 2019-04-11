@@ -27,8 +27,14 @@ haproxy:
   mode: "external-auto"
 
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
+  # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
   webhook_url: "https://your-webhook-url:9000/hooks/update-haproxy"
   webhook_secret: "mysecret"
+
+# List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
+domains:
+  - your-first-domain.com
+  - your-second-domain.com
 
 pod:
 
@@ -46,19 +52,20 @@ pod:
       ## Ref: http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_securitycontext
       ## Default: false
       privileged:
+
     # The following variables affect the behaviour of docker-mailserver
     # See https://github.com/tomav/docker-mailserver#environment-variables for details
-    domains:
-      - mailtest1.funkypenguin.co.nz
-      - mailtest2.funkypenguin.co.nz
-    demomode: "false"
-    configfiles: "config/*"
+
     override_hostname: "mail.batcave.org"
     dms_debug: 0
     enable_clamav: 1
     one_dir: 1
     enable_pop3: 0
-    enable_fail2ban: 1
+
+    ## Whether to enable fail2ban. Only makes sense if you're running services in host mode without haproxy.
+    ## Default false
+    enable_fail2ban: 0
+
     smtp_only:
     # ssl_type: "manual"
     # ssl_cert_path: "/tmp/ssl/tls.crt"
@@ -157,12 +164,6 @@ service:
     submission: 30587
     imaps: 30993
     pop3s: 30995
-  # If the following is set to true, then postfix / dovecot will be configured to expect haproxy to pass "PROXY protocol" headers
-  # If you DON'T plan to use haproxy in front of postfix / dovecot, then set the following to false
-  haproxy_enabled: "true"
-  # If the following is set to true, a series of containers will be run in a "phonehome" pod, for an automated
-  # implementation of https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
-  phonehome_webhook: "true"
 
 ## How many versions of the deployment to run on kubernetes
 ## Default: 2

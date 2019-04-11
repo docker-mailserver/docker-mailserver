@@ -118,9 +118,11 @@ spec:
 {{ toYaml .Values.resources | indent 12 }}
           securityContext:
             privileged: {{ default false .Values.pod.dockermailserver.securityContext.privileged }}
+            {{- if eq .Values.pod.dockermailserver.enable_fail2ban 1.0 }}
             capabilities:
               add:
                 - "NET_ADMIN"
+            {{ end }}
           volumeMounts:
             - name: config
               mountPath: /tmp/docker-mailserver

@@ -14,7 +14,7 @@ We list them here (and include this template in deployment.yaml) to keep deploym
 - name: ENABLE_POP3
   value: {{ .Values.pod.dockermailserver.enable_pop3 | quote }}
 - name: ENABLE_FAIL2BAN
-  value: {{ .Values.pod.dockermailserver.enable_fail2ban | quote }}
+  value: {{ default false .Values.pod.dockermailserver.enable_fail2ban | quote }}
 - name: SMTP_ONLY
   value: {{ .Values.pod.dockermailserver.smtp_only | quote }}
 - name: SSL_TYPE
