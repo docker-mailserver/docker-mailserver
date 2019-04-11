@@ -10,7 +10,7 @@ metadata:
   name: {{ template "dockermailserver.fullname" . }}-configs
 data:
   {{/* Use sample data if user is running in demo mode */}}
-  {{ if eq .Values.pod.dockermailserver.demomode "true" -}}  
+  {{- if eq .Values.pod.dockermailserver.demomode "true" -}}  
   ### We are in demo mode, so add in some sample data for quick testing
   postfix-accounts.cf: |
       # A sample user - the password is "password"
@@ -24,18 +24,14 @@ data:
   ### End demo mode data
   {{/* Use real data from "config" subdirectory if user is _not_ running in demo mode */}}  
   {{ else -}}
-  {{ $root := . }}
-  {{ range $path, $bytes := .Files.Glob "config/*" }}
-  {{ base $path }}: |-
-    {{- $root.Files.Get $path | nindent 4 }}
-  {{- end -}}  
+  {{- (.Files.Glob "config/*").AsConfig | nindent 2 }}
   {{- end }}
-
+  {{/* Enable proxy protocol for postscreen / dovecot */}}
+  {{ if eq .Values.service.haproxy_enabled "true" -}} 
   postfix-main.cf: |
-    {{ if eq .Values.service.haproxy_enabled "true" -}}  
     # Necessary to permit proxy protocol from haproxy to postscreen
     postscreen_upstream_proxy_protocol = haproxy
-    {{ end }}
+  {{ end }}
   dovecot.cf: |
     {{ if eq .Values.service.haproxy_enabled "true" -}}    
     service imap-login {
@@ -46,7 +42,4 @@ data:
         haproxy = yes
       }      
     }  
-    {{ end }}
-  # example.property.file: |-
-  #   property.1=value-1
-  #   property.2=value-2
+  {{ end }}
