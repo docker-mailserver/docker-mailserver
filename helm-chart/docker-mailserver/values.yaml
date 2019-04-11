@@ -9,7 +9,7 @@ Bar: "banana"
 pod:
   phonehome:
     webhook_secret: "webhook_token.secret"
-    
+
   dockermailserver:
     ## The image to use with the resource
     ## Ref: https://tvial/docker-mailserver
@@ -28,6 +28,9 @@ pod:
       privileged:
     # The following variables affect the behaviour of docker-mailserver
     # See https://github.com/tomav/docker-mailserver#environment-variables for details
+    domains:
+      - mailtest1.funkypenguin.co.nz
+      - mailtest2.funkypenguin.co.nz
     demomode: "false"
     configfiles: "config/*"
     override_hostname: "mail.batcave.org"

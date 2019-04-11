@@ -73,9 +73,9 @@ spec:
       ##
       ## SECRET
       ##
-      ##   - name: "opendkim-keys"
-      ##     secret:
-      ##       secretName: {{ template "dockermailserver.fullname" . }}-opendkim-keys
+         - name: "opendkim-keys"
+           secret:
+             secretName: {{ template "dockermailserver.fullname" . }}-secrets
          - name: "ssl-cert"
            secret:
              secretName: {{ template "dockermailserver.fullname" . }}-tls
@@ -160,7 +160,17 @@ spec:
             - name: configmap
               subPath: dovecot.cf
               mountPath: /etc/dovecot/conf.d/zz-custom.cf
-              readOnly: true                   
+              readOnly: true    
+              {{/* Mount a dkim key for every domain configured */}}               
+              {{ range .Values.pod.dockermailserver.domains }}
+              {{- $path := printf "/tmp/docker-mailserver/opendkim/keys/%s/mail.private" . }}
+              {{- $name := printf "%s-mail.private" . }}              
+            - name: opendkim-keys
+              mountPath: {{ $path }}
+              subPath: {{ $name }}
+              readOnly: true              
+              {{ end }}
+
           ## There are three types or readiness probes:
           ##
           ## More generally, a liveness probe is used to determine whether the application is "healthy" and should
