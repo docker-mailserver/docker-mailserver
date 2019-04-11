@@ -1,65 +1,75 @@
-dockermailserver
+                                                                        
+                                        ^                                 
+                              (CCCC%((((((((((%(/                         
+                        (GG@#O(%77777(((t((((/  //                        
+                       G@#%%%77777ttttttttt(((////^                       
+                     %OOO77777ttttttttttttt(((((///                       
+               /CG##@#O776tt((t6#66##6tttttt(((((//^                      
+              CGC%%7777tt666ttt6###666tttttt(((////^                      
+           (CGOO#####66#67(7#@##66667(tttttt((((//(                       
+          CC//((O######O/   (O###O6777ttttt(((((//^                       
+         ((/(GGC/(C((GC/^/((^/C%(%OO77tttt((((///(                        
+         C((GGC//(GGG@C^/CC(^^CC((CO%(7((((((///(                         
+         C^ %%((CGGCCGG/^(C/^^(C((COO7tttt((((/(                          
+          /(/(OOO%(((%G%/ ^ ^((((C######6t((/(%                           
+            #O(77((7(((CCC(G@GG##O7777(76#####/                           
+            O7(7(((777((%CGGGC%%%777((((76O#@@G                           
+          ^#676ttttt6#6666666777tttt((/(77OO(/%                           
+          (//7766####6t666tttttt((((((tt7666(7                            
+          (/(66##O6677tt666tt(ttttttttttt6677%                            
+           ###6tttttttttt6#6ttttttttttt(767OO                             
+         (#7(t6tttttttttttt66ttttttttt(((6O%                              
+        C@O((tttttttttttttt6#6ttttttttttt6O(                              
+     (O#67(7ttt(((t6######66##6tt((((777667                               
+    #OO###66tt66##66677tt666667((((((t#6(6O                               
+      ^/(((%O###67777((t((ttt(((((((((#%                                  
+               /####6(tttttttttt6t(t676@@(                                
+                   ^O#7tttt6ttt666((66O##OO/                              
+                    /%#67tt#6ttt66(7#####77%                              
+                       #@#(##ttt####O%OO(  ((                             
+                       /@@#@@####O%%%OG/    %^                            
+                       G@@###OOO%(%%%G%    /#%                            
+                      /#@C((((/((((G#C     (%GO                           
+                      /GGC((((((CG#@#/    // /O(                          
+                     ^CG@#GGGGGGCCGC     ^/^   (G                         
+                     CCGC%((((((CGC     /(      /#(                       
+                     CCGC(((((((GG/     (^       %G                       
 
-## Accessing dockermailserver
-----------------------
-{{ if .Values.service.loadBalancer.hostName }}
-1. Visit http://{{ .Values.service.loadBalancer.hostName }}
+
+          GOOD NEWS, EVERYONE!
+
+You've successfully launched docker-mailserver helm chart!
+
+{{- if eq .Values.pod.dockermailserver.demomode "true" -}}  
+
+But wait, dear reader. You're still running in DEMO MODE.
+
+What does this mean? We set you up a demo user (user is "user@example.com", password is "password"), so that
+you can confirm your services are setup correctly. Once you're ready to configure docker-mailserver _for realz_
+here's what you need to do:
+
+1. Update values.yaml, and set pod.dockermailserver.demomode to "false". Also set your domains under "domains", removing "example.com"
+2. From the /helm-chart/ directory, execute ../setup.sh using a custom path, to create your users and setup your DKIM key(s), as follows:
+
+   ../setup.sh -p docker-mailserver/config add email [password] # FIXME, this doesn''t seem to work as expected
+   ../setup.sh -p docker-mailserver/config config dkim
+
+3. Upgrade the helm chart to apply your changes, by running:
+
+   helm upgrade {{ .Release.Namespace }} docker-mailserver
+
 {{- else }}
-1. Get the dockermailserver URL to visit by running these commands in the same shell:
-{{- if contains "NodePort" .Values.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "dockermailserver.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT/login
 
-{{- else if contains "LoadBalancer" .Values.service.type }}
-  NOTE: It may take a few minutes for the loadBalancer IP to be available.
-        You can watch the status of by running 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ template "dockermailserver.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc {{ template "dockermailserver.fullname" . }} --namespace {{ .Release.Namespace }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}/login
+You're not in demo mode! Assuming all has gone well, execute the commands below to retrieve the TXT records
+to add to your DNS zones, to finish setting up DKIM:
+{{/* Mount a dkim key for every domain configured */}}
+---               
+{{ range .Values.pod.dockermailserver.domains }}
+{{- $path := printf "cat docker-mailserver/config/opendkim/keys/%s/mail.txt" . }}
+    {{ $path }}
+{{ end }}
+---
+{{ end }}
 
-{{- else if contains "ClusterIP"  .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "component={{ template "dockermailserver.fullname" . }}-master" -o jsonpath="{.items[0].metadata.name}")
-  echo http://127.0.0.1:{{ .Values.service.port }}
-  kubectl port-forward $POD_NAME {{ .Values.service.port }}:{{ .Values.service.port }}
-
-{{- end }}
-{{- end }}
-
-For more information, check the readme!
-
-## Post-install configuration
-
-### OpenDKIM
-
-In order to sign outgoing emails with OpenDKIM, you'll need to generate a key for OpenDKIM, and then add that
-key to a Kubernetes Secret.
-
-To start off with, run ```../setup.sh config dkim```. Although this generates an error (below), the necessary keys and configs
-_are_ created:
-
-```
-[funkypenguin:~] ../setup.sh config dkim
-"docker inspect" requires at least 1 argument.
-See 'docker inspect --help'.
-
-Usage:  docker inspect [OPTIONS] NAME|ID [NAME|ID...]
-
-Return low-level information on Docker objects
-Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/bob.com/mail.private
-Creating DKIM KeyTable
-Creating DKIM SigningTable
-Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
-Creating DKIM TrustedHosts
-[funkypenguin:~ ]
-```
-
-Now we need the key ("/tmp/docker-mailserver/opendkim/keys/example.com/mail.private") in the example output above, inserted into a secret
-
-Run the following, customizing for your own domain name:
-
-```
-kubectl create secret generic {{ template "dockermailserver.fullname" . }}-opendkim-keys \
- --from-file=config/opendkim/keys/example.com/mail.private \
- --namespace {{ template "dockermailserver.fullname" . }}
-```
+   
 

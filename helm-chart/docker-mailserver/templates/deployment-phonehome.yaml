@@ -1,3 +1,5 @@
+{{/* This whole template is only necessary if we're using the phone-home webhook implementation */}}
+{{ if eq .Values.service.phonehome_webhook "true" -}}  
 ---
 apiVersion: "apps/v1"
 kind: "Deployment"
@@ -69,8 +71,10 @@ spec:
             value: "25"
           - name: BACKEND_PORT
             value: "30025"
+            {{- if eq .Values.service.haproxy_enabled "true" }}             
           - name: SEND_PROXY
             value: "send-proxy"            
+            {{- end }}     
           - name: NAME
             value: "docker-mailserver-smtp"
           - name: WEBHOOK
@@ -90,8 +94,10 @@ spec:
             value: "587"
           - name: BACKEND_PORT
             value: "30587"
+            {{- if eq .Values.service.haproxy_enabled "true" }}             
           - name: SEND_PROXY
-            value: "send-proxy"               
+            value: "send-proxy"            
+            {{- end }}             
           - name: NAME
             value: "docker-mailserver-submission"
           - name: WEBHOOK
@@ -141,3 +147,4 @@ spec:
                 key: webhook_token.secret      
  
       restartPolicy: "Always"
+{{ end }}
