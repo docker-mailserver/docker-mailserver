@@ -8,7 +8,6 @@ metadata:
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
   name: {{ template "dockermailserver.fullname" . }}-phonehome
-  namespace: {{ template "dockermailserver.fullname" . }}
 spec:
   replicas: {{ default 2 .Values.deployment.replicas }}
   selector:

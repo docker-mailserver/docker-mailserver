@@ -20,7 +20,6 @@ metadata:
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
   name: {{ template "dockermailserver.fullname" . }}
-  namespace: {{ template "dockermailserver.fullname" . }}
 spec:
   selector:
     app: {{ template "dockermailserver.fullname" . }}
