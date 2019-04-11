@@ -78,7 +78,7 @@ spec:
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{ template "dockermailserver.fullname" . }}-phonehome-webhook
+                name: {{ template "dockermailserver.fullname" . }}-secrets
                 key: webhook_token.secret    
         - name: phone-home-587
           image: funkypenguin/poor-mans-k8s-lb
@@ -99,7 +99,7 @@ spec:
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{ template "dockermailserver.fullname" . }}-phonehome-webhook
+                name: {{ template "dockermailserver.fullname" . }}-secrets
                 key: webhook_token.secret      
         - name: phone-home-465
           image: funkypenguin/poor-mans-k8s-lb
@@ -118,7 +118,7 @@ spec:
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{ template "dockermailserver.fullname" . }}-phonehome-webhook
+                name: {{ template "dockermailserver.fullname" . }}-secrets
                 key: webhook_token.secret                                
         - name: phone-home-993
           image: funkypenguin/poor-mans-k8s-lb
@@ -137,7 +137,7 @@ spec:
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{ template "dockermailserver.fullname" . }}-phonehome-webhook
+                name: {{ template "dockermailserver.fullname" . }}-secrets
                 key: webhook_token.secret      
  
       restartPolicy: "Always"

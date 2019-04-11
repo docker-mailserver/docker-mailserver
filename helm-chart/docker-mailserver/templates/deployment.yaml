@@ -7,7 +7,7 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
-  name: {{ template "dockermailserver.fullname" . }}
+  name: {{ template "dockermailserver.fullname" . }}-dms
 spec:
   replicas: {{ default 2 .Values.deployment.replicas }}
   selector:
@@ -60,7 +60,7 @@ spec:
       ##
          - name: "configmap"
            configMap:
-             name: {{ template "dockermailserver.fullname" . }}
+             name: {{ template "dockermailserver.fullname" . }}-configs
       ##
       ## Note: You can also use single files from a configmap, with a syntax called "subPath". An example is below:
       ##
@@ -73,9 +73,9 @@ spec:
       ##
       ## SECRET
       ##
-         - name: "opendkim-keys"
-           secret:
-             secretName: {{ template "dockermailserver.fullname" . }}-opendkim-keys
+      ##   - name: "opendkim-keys"
+      ##     secret:
+      ##       secretName: {{ template "dockermailserver.fullname" . }}-opendkim-keys
          - name: "ssl-cert"
            secret:
              secretName: {{ template "dockermailserver.fullname" . }}-tls
@@ -99,28 +99,7 @@ spec:
           command: [ 'sh', '-c', 'cp /tmp/configmaps/* /tmp/docker-mailserver -rfp']
           volumeMounts:
             - name: configmap
-              subPath: postfix-accounts.cf
-              mountPath: /tmp/configmaps/postfix-accounts.cf
-              readOnly: true
-            - name: configmap
-              subPath: postfix-virtual.cf
-              mountPath: /tmp/configmaps/postfix-virtual.cf
-              readOnly: true
-            - name: configmap
-              subPath: SigningTable
-              mountPath: /tmp/configmaps/opendkim/SigningTable
-              readOnly: true
-            - name: configmap
-              subPath: KeyTable
-              mountPath: /tmp/configmaps/opendkim/KeyTable
-              readOnly: true
-            - name: configmap
-              subPath: TrustedHosts
-              mountPath: /tmp/configmaps/opendkim/TrustedHosts
-              readOnly: true
-            - name: configmap
-              subPath: postfix-main.cf
-              mountPath: /tmp/configmaps/postfix-main.cf
+              mountPath: /tmp/configmaps
               readOnly: true         
             - name: config
               mountPath: /tmp/docker-mailserver/
@@ -165,10 +144,10 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /tmp/docker-mailserver
-            - name: opendkim-keys
-              mountPath: /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
-              subPath: mail.private
-              readOnly: true
+##            - name: opendkim-keys
+##              mountPath: /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
+##              subPath: mail.private
+##              readOnly: true
             - name: ssl-cert
               mountPath: /tmp/ssl
               readOnly: true              

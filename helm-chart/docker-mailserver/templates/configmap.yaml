@@ -7,10 +7,13 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
-  name: {{ template "dockermailserver.fullname" . }}
+  name: {{ template "dockermailserver.fullname" . }}-configs
 data:
-  # A sample user - the password is "password"
+  {{/* Use sample data if user is running in demo mode */}}
+  {{ if eq .Values.pod.dockermailserver.demomode "true" -}}  
+  ### We are in demo mode, so add in some sample data for quick testing
   postfix-accounts.cf: |
+      # A sample user - the password is "password"
     user@example.com|{SHA512-CRYPT}$6$l4023rZnQEy/l0Rg$JeNjAAICB43VAX7GTJ9jeE7DR0LeyR5nU.ftq3c42T5E1IZSuRBqwM8erRh6t0CyIT6aYpBIAopzcQHNUvMV00
   postfix-virtual.cf:
   SigningTable: "*@example.com mail._domainkey.example.com"
@@ -18,9 +21,19 @@ data:
   TrustedHosts: |
     127.0.0.1
     localhost
+  ### End demo mode data
+  {{/* Use real data from "config" subdirectory if user is _not_ running in demo mode */}}  
+  {{ else -}}
+  {{ $root := . }}
+  {{ range $path, $bytes := .Files.Glob "config/*" }}
+  {{ base $path }}: |-
+    {{- $root.Files.Get $path | nindent 4 }}
+  {{- end -}}  
+  {{- end }}
+
   postfix-main.cf: |
     {{ if eq .Values.service.haproxy_enabled "true" -}}  
-    # smtpd_upstream_proxy_protocol = haproxy
+    # Necessary to permit proxy protocol from haproxy to postscreen
     postscreen_upstream_proxy_protocol = haproxy
     {{ end }}
   dovecot.cf: |
