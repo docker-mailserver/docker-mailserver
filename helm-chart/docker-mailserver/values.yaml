@@ -6,7 +6,7 @@
 ## The image and tag to use
 ## Ref: https://hub.docker.com/r/tvial/docker-mailserver
 image: tvial/docker-mailserver
-imageTag: release-v6.1.0
+imageTag: latest
 
 # If demo mode is enabled, the contents of helm-chart/docker-mailserver/config will _not_ be imported into
 # a configmap, and a minimal static configuration will be used instead. A single account (user "user@example.com", password "password")
@@ -252,3 +252,20 @@ ssl:
     kind: ClusterIssuer
   dnsname: funkypenguin.co.nz
   dns01provider: cloudflare
+
+## These values are for the haproxy-ingress sub-chart
+haproxy-ingress:
+  deploychart: true
+  controller:
+    # kind: "DaemonSet"
+    enableStaticPorts: false
+    tcp:
+      25: "default/docker-mailserver:25::PROXY-V1"
+      110: "default/docker-mailserver:110::PROXY-V1"
+      143: "default/docker-mailserver:143::PROXY-V1"            
+      465: "default/docker-mailserver:465"
+      587: "default/docker-mailserver:587::PROXY-V1"
+      993: "default/docker-mailserver:993"  
+      995: "default/docker-mailserver:995"     
+    service:
+      externalTrafficPolicy: "Local"

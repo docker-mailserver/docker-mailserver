@@ -28,6 +28,7 @@ spec:
     - protocol: "TCP"
       name: "25-smtp"
       port: 25
+      clusterIP: "None"
   {{- if eq .Values.service.type "NodePort" }}    
       nodePort: {{ default "30025" .Values.service.nodePort.smtp }}
   {{ end }}  

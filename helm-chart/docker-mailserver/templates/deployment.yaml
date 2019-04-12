@@ -25,34 +25,15 @@ spec:
         app: {{ template "dockermailserver.fullname" . }}
         release: "{{ .Release.Name }}"
     spec:
-      ## Volumes are how Kubernetes expresses either networked storage or other metadata in the filesystem. There are
-      ## storage types, the most useful of which are illustrated below. Remember to uncomment the volumes: node if you
-      ## decide to use them!
-      ##
       volumes:
          - name: "data"
            persistentVolumeClaim:
              claimName: {{ template "dockermailserver.pvcName" . }}
          - name: "config"
            emptyDir: {}
-      ##
-      ## CONFIGMAP
-      ##
          - name: "configmap"
            configMap:
              name: {{ template "dockermailserver.fullname" . }}-configs
-      ##
-      ## Note: You can also use single files from a configmap, with a syntax called "subPath". An example is below:
-      ##
-      #   - name: "__VOLUME_NAME__"
-      #     configMap:
-      #       name: "__CONFIGMAP_NAME__"
-      #       items:
-      #         - key: "__ITEM_KEY__"
-      #           path: "path/to/item"
-      ##
-      ## SECRET
-      ##
          - name: "opendkim-keys"
            secret:
              secretName: {{ template "dockermailserver.fullname" . }}-secrets
@@ -76,15 +57,23 @@ spec:
       initContainers:
         - name: prep-config
           image: busybox:1.28
-          command: [ 'sh', '-c', 'cp /tmp/configmaps/* /tmp/docker-mailserver -rfp']
+          command: [ 'sh', '-c', 'cp /tmp/configmaps/* /tmp/docker-mailserver -rfpvL']
           volumeMounts:
             - name: configmap
               mountPath: /tmp/configmaps
               readOnly: true         
             - name: config
               mountPath: /tmp/docker-mailserver/
+              {{/* Mount a dkim key for every domain configured */}}               
+              {{ range .Values.pod.dockermailserver.domains }}
+              {{- $path := printf "/tmp/docker-mailserver/opendkim/keys/%s/mail.private" . }}
+              {{- $name := printf "%s-mail.private" . }}              
+            - name: opendkim-keys
+              mountPath: {{ $path }}
+              subPath: {{ $name }}
+              readOnly: true              
+              {{ end }}                   
         
-          
       containers: 
         - name: dockermailserver
           ## Environment variables can be populated in a number of ways, including secrets, or just string values. Below
@@ -92,28 +81,7 @@ spec:
           #
           env:
           {{- include "dockermailserver.upstream-env-variables" . | nindent 10 }}
-
-          #
-          ## An example of a simple key value pair
-          #
-          # - name: "FOO"
-          #   value: "BAR"
-          #
-          ## An example of environment variables from a secret
-          #
-          # - name: "SECRET"
-          #   valueFrom:
-          #     secretKeyRef:
-          #       name: __SECRET_NAME__
-          #       key: __KEY_USED_IN_SECRET_NAME__
-          #
           image: {{ .Values.image }}:{{ .Values.imageTag }}
-          #command: [ "/bin/sleep" ]
-          #args: [ "1h" ]
-          # args:
-          #   - "command"
-          #   - "line"
-          #   - "arguments"
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           securityContext:
@@ -126,10 +94,6 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /tmp/docker-mailserver
-##            - name: opendkim-keys
-##              mountPath: /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
-##              subPath: mail.private
-##              readOnly: true
             - name: ssl-cert
               mountPath: /tmp/ssl
               readOnly: true              
@@ -142,16 +106,8 @@ spec:
             - name: configmap
               subPath: dovecot.cf
               mountPath: /etc/dovecot/conf.d/zz-custom.cf
-              readOnly: true    
-              {{/* Mount a dkim key for every domain configured */}}               
-              {{ range .Values.pod.dockermailserver.domains }}
-              {{- $path := printf "/tmp/docker-mailserver/opendkim/keys/%s/mail.private" . }}
-              {{- $name := printf "%s-mail.private" . }}              
-            - name: opendkim-keys
-              mountPath: {{ $path }}
-              subPath: {{ $name }}
-              readOnly: true              
-              {{ end }}
+              readOnly: true          
+           
 
           ## There are three types or readiness probes:
           ##
@@ -165,29 +121,29 @@ spec:
           ##
           ## Below are examples of each healthcheck type with descriptions of when to use them
           ##
-          # livenessProbe:
+          ##livenessProbe:
             ##
-            # tcpSocket:
+            ##tcpSocket:
             ##
             ## The "tcpSocket" health check is useful for when an application exposes a port, but there are no utilities
             ## to determine whether that application is healthy over that port. So, the fact the application is
             ## listening on that port is taken as a "proxy" health measure.
             ##
             ##
-              # port: "__CONTAINER_PORT_NAME__"
+              ##port: 25
               ## Number of seconds after the container has started before liveness probes are initiated.
               ## See http://kubernetes.io/docs/user-guide/pod-states#container-probes
               ##
-              # initialDelaySeconds: 5
+              ##initialDelaySeconds: 60
               ##
               ## Number of seconds after which the probe times out. Minimum value is 1
               ##
-              # timeoutSeconds: 1
+              ##timeoutSeconds: 1
               ##
               ## Minimum consecutive failures for the probe to be considered failed after having succeeded.
               ## Minimum value is 1.
               ##
-              # failureThreshold: 3
+              ##failureThreshold: 3
               ##
             ##
             # exec:
