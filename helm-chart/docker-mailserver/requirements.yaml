@@ -6,7 +6,8 @@
 ##
 ## and the requirements.lock file commited.
 ##
-# dependencies:
-#   - name: "apache"
-#     version: "1.2.3-1"
-#     repository: "https://kubernetes-charts.storage.googleapis.com"
+ dependencies:
+   - name: "haproxy-ingress"
+     version: "0.0.11"
+     repository: "https://kubernetes-charts-incubator.storage.googleapis.com/"
+     # condition: zookeeper.deployChart

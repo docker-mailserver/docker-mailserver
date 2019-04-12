@@ -53,8 +53,11 @@ pod:
       ## Default: false
       privileged:
 
-    # The following variables affect the behaviour of docker-mailserver
-    # See https://github.com/tomav/docker-mailserver#environment-variables for details
+    ## The following variables affect the behaviour of docker-mailserver
+    ## See https://github.com/tomav/docker-mailserver#environment-variables for details
+    ## Note that docker-mailserver expects most true/false values to present as 0 or 1, so that's how you should adjust the values below
+    ## Although it's inconsistent with the way the rest of values.yaml is structured, this has
+    ## been intentionally to maintain consistency with dockrer-mailserver scripts and documentation
 
     override_hostname: "mail.batcave.org"
     dms_debug: 0
@@ -66,7 +69,7 @@ pod:
     ## Default false
     enable_fail2ban: 0
 
-    smtp_only:
+    smtp_only: 0
     # ssl_type: "manual"
     # ssl_cert_path: "/tmp/ssl/tls.crt"
     # ssl_key_path: "/tmp/ssl/tls.key"
@@ -241,6 +244,8 @@ monitoring:
     ## Port on which HTTP server is served
     port: "9102"
 
+## These values define how the certificate created by the chart is processed by cert-manager
+## Ensure you've setup your ClusterIssuers (letsencrypt-staging and letsencrypt-prod) and DNS provider
 ssl:
   issuer:
     name: letsencrypt-staging
