@@ -35,9 +35,6 @@ data:
   dovecot.cf: |
     {{ if .Values.haproxy.enabled -}} 
     service imap-login {
-      inet_listener imaps {
-        haproxy = yes
-      }
       inet_listener imap {
         haproxy = yes
       }      

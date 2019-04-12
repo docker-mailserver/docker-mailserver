@@ -257,14 +257,14 @@ ssl:
 haproxy-ingress:
   deploychart: true
   controller:
-    # kind: "DaemonSet"
+    kind: "Deployment"
     enableStaticPorts: false
     tcp:
       25: "default/docker-mailserver:25::PROXY-V1"
       110: "default/docker-mailserver:110::PROXY-V1"
       143: "default/docker-mailserver:143::PROXY-V1"            
       465: "default/docker-mailserver:465"
-      587: "default/docker-mailserver:587::PROXY-V1"
+      587: "default/docker-mailserver:587"
       993: "default/docker-mailserver:993"  
       995: "default/docker-mailserver:995"     
     service:
