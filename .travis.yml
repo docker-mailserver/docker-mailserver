@@ -11,10 +11,11 @@ before_install:
   - ./helm init -c
 env:
   - KUBERNETES_VERSION="1.14.0"
-  - PATH="/usr/bin:/usr/sbin:/bin:/sbin:/home/travis"
+#  - PATH="/usr/bin:/usr/sbin:/bin:/sbin:/home/travis"
 jobs:
   include:
     - script:
+        - echo $PATH
         - ./helm lint helm-chart/docker-mailserver
     - script:   
         - mkdir manifests
