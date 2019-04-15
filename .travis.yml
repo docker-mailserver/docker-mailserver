@@ -11,7 +11,7 @@ before_install:
   - ./helm init -c
 env:
   - KUBERNETES_VERSION="1.14.0"
-  - PATH=$PATH:/home/travis
+  - PATH="/usr/bin:/usr/sbin:/bin:/sbin:/home/travis"
 jobs:
   include:
     - script:
