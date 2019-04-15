@@ -2,6 +2,12 @@
 
 [![Build Status](https://travis-ci.org/funkypenguin/docker-mailserver.svg?branch=add-helm-chart)](https://travis-ci.org/funkypenguin/docker-mailserver)
 
+### Upstream container
+
+```
+[ ] If we set image tag to latest release rather than 'latest', does it still work?
+```
+
 ### Demo mode
 
 ```

@@ -1,0 +1,17 @@
+suite: deployment tests
+templates:
+  - deployment.yaml
+tests:
+  - it: image and tag should end up in deployment
+    set:
+      image.name: bananas
+      image.tag: in-pajamas
+    asserts:
+      - isKind:
+          of: Deployment
+      - matchRegex:
+          path: metadata.name
+          pattern: -docker-mailserver$
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: bananas:in-pajamas

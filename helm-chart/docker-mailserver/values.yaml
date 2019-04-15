@@ -5,8 +5,9 @@
 
 ## The image and tag to use
 ## Ref: https://hub.docker.com/r/tvial/docker-mailserver
-image: tvial/docker-mailserver
-imageTag: latest
+image:
+  name: "tvial/docker-mailserver"
+  tag: "latest"
 
 # If demo mode is enabled, the contents of helm-chart/docker-mailserver/config will _not_ be imported into
 # a configmap, and a minimal static configuration will be used instead. A single account (user "user@example.com", password "password")

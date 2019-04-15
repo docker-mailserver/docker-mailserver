@@ -81,7 +81,7 @@ spec:
           #
           env:
           {{- include "dockermailserver.upstream-env-variables" . | nindent 10 }}
-          image: {{ .Values.image }}:{{ .Values.imageTag }}
+          image: {{ .Values.image.name }}:{{ .Values.image.tag }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           securityContext:
