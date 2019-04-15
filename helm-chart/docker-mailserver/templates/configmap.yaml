@@ -32,8 +32,8 @@ data:
     # Necessary to permit proxy protocol from haproxy to postscreen
     postscreen_upstream_proxy_protocol = haproxy
   {{ end }}
-  dovecot.cf: |
-    {{ if .Values.haproxy.enabled -}} 
+  {{ if .Values.haproxy.enabled -}}  
+  dovecot.cf: |   
     service imap-login {
       inet_listener imap {
         haproxy = yes

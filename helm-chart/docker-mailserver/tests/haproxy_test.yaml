@@ -2,9 +2,9 @@ suite: test deployment
 templates:
   - configmap.yaml
 tests:
-  - it: haproxy-related settings are correctly deployed
+  - it: should correctly configure postfix/dovecot if haproxy support is enabled
     set:
-      haprox.enabled: true
+      haproxy.enabled: true
     asserts:
       - matchRegex:
           path: data.postfix-main\.cf
@@ -12,4 +12,14 @@ tests:
       - matchRegex:
           path: data.dovecot\.cf
           pattern: haproxy          
+  - it: should not add haproxy options to postfix/dovecot if haproxy support is not enabled
+    set:
+      haproxy.enabled: false
+    asserts:
+      - isNull:
+          path: data.postfix-main\.cf
+          pattern: haproxy
+      - isNull:
+          path: data.dovecot\.cf
+          pattern: haproxy      
 
