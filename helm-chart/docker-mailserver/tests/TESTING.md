@@ -3,7 +3,7 @@
 ### Demo mode
 
 [x] When setting demo mode, does chart get deployed with expected demo data? (I.e., it's ready for use)
-[ ] When disabling demo mode, does chart correctly input the expected config variables?
+[x] When disabling demo mode, does chart correctly input the expected config variables?
 
 ### HA Proxy mode
 
