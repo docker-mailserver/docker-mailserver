@@ -1,0 +1,15 @@
+suite: test deployment
+templates:
+  - configmap.yaml
+tests:
+  - it: haproxy-related settings are correctly deployed
+    set:
+      haprox.enabled: true
+    asserts:
+      - matchRegex:
+          path: data.postfix-main\.cf
+          pattern: haproxy
+      - matchRegex:
+          path: data.dovecot\.cf
+          pattern: haproxy          
+
