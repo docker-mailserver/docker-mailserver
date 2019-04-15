@@ -8,7 +8,8 @@ before_install:
   - wget https://github.com/garethr/kubeval/releases/download/0.7.3/kubeval-linux-amd64.tar.gz 
   - tar xzvf kubeval-linux-amd64.tar.gz
   - chmod u+x kubeval
-  - ./helm init -c
+  - cp helm bin/
+  - helm init -c
 env:
   - KUBERNETES_VERSION="1.14.0"
 #  - PATH="/usr/bin:/usr/sbin:/bin:/sbin:/home/travis"
