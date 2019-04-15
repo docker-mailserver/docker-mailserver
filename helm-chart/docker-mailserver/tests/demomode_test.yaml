@@ -2,6 +2,7 @@ suite: demo tests
 templates:
   - configmap.yaml
   - secret.yaml
+  - deployment.yaml
 tests:
   - it: should correctly configure configmaps if demo mode is enabled
     set:
@@ -27,7 +28,7 @@ tests:
       - matchRegex:
           path: data.postfix-main\.cf
           pattern: "# ignore - used for unit testing"        
-          
+
   - it: should correctly configure secrets if demo mode is enabled
     set:
       demo_mode.enabled: true
@@ -36,3 +37,4 @@ tests:
           path: data.example\.com-mail\.private
           pattern: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS
         template: secret.yaml
+

@@ -34,9 +34,25 @@ data:
   {{ end }}
   {{ if .Values.haproxy.enabled -}}  
   dovecot.cf: |   
+    haproxy_trusted_networks = {{ .Values.haproxy.trusted_networks }}
     service imap-login {
       inet_listener imap {
         haproxy = yes
-      }      
+      }  
+    }
+    service imap-login {
+      inet_listener imaps {
+        haproxy = yes
+      }
+    }    
+    service pop3-login {
+      inet_listener pop3 {
+        haproxy = yes
+      }
+    }    
+    service pop3-login {
+      inet_listener pop3s {
+        haproxy = yes
+      }                        
     }  
   {{ end }}

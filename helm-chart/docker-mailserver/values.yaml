@@ -32,6 +32,12 @@ haproxy:
   webhook_url: "https://your-webhook-url:9000/hooks/update-haproxy"
   webhook_secret: "mysecret"
 
+  # These values populate dovecot's list of networks it'll "trust" for incoming haproxy connections.
+  # A space-separated list, on a single line, is required
+  # By default, we allow all RFC1918 private ranges, but this can be tightened up for the known IP/range
+  # of your HAProxy instance
+  trusted_networks: "10.0.0.0/8 192.168.0.0/16 172.16.0.0/16"
+
 # List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
 domains:
   - your-first-domain.com
@@ -266,8 +272,8 @@ haproxy-ingress:
       143: "default/docker-mailserver:143::PROXY-V1"            
       465: "default/docker-mailserver:465"
       587: "default/docker-mailserver:587"
-      993: "default/docker-mailserver:993"  
-      995: "default/docker-mailserver:995"     
+      993: "default/docker-mailserver:993::PROXY-V1"  
+      995: "default/docker-mailserver:995::PROXY-V1"     
     service:
       externalTrafficPolicy: "Local"
     # Set to avoid CI error when running the generated manifest through kubeval (FIXME)

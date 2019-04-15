@@ -30,8 +30,27 @@
 [ ] User is able to disable SPF checks (if they don't want to use haproxy)
 ```
 
+### SSL
+
+```
+[ ] What happens if the user has _not_ configured cert-manager, but we try to deploy the CRD?
+```
+
 
 ## What must be tested manually, end-to-end?
+
+"latest" tag:
+
+```
+[X] Deploying in demo mode with external-auth haproxy
+[ ] Deploying in demo mode with external-manual haproxy
+[ ] Deploying in demo mode with ingress haproxy
+[ ] Deploying in non-demo mode with external-auth haproxy
+[ ] Deploying in non-demo mode with external-manual haproxy
+[ ] Deploying in non-demo mode with ingress haproxy
+```
+
+"release-v6.1.0" tag:
 
 ```
 [ ] Deploying in demo mode with external-auth haproxy

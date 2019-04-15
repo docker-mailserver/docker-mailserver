@@ -63,7 +63,7 @@ spec:
       nodePort: {{ default "30993" .Values.service.nodePort.imaps }}
   {{ end }}   
     - protocol: "TCP"
-      name: "995-imaps"
+      name: "995-pop3s"
       port: 995
   {{- if eq .Values.service.type "NodePort" }}    
       nodePort: {{ default "30995" .Values.service.nodePort.pop3s }}

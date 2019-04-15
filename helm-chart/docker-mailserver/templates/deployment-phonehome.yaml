@@ -65,6 +65,29 @@ spec:
               secretKeyRef:
                 name: {{ template "dockermailserver.fullname" . }}-secrets
                 key: webhook_token.secret    
+        - name: phone-home-110
+          image: funkypenguin/poor-mans-k8s-lb
+          imagePullPolicy: Always
+          env:
+          - name: REPEAT_INTERVAL
+            value: "300"
+          - name: FRONTEND_PORT
+            value: "110"
+          - name: BACKEND_PORT
+            value: "30110"
+            {{- if .Values.haproxy.enabled }}              
+          - name: SEND_PROXY
+            value: "send-proxy"            
+            {{- end }}     
+          - name: NAME
+            value: "docker-mailserver-pop3"
+          - name: WEBHOOK
+            value: {{ .Values.haproxy.webhook_url }}
+          - name: WEBHOOK_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "dockermailserver.fullname" . }}-secrets
+                key: webhook_token.secret                  
         - name: phone-home-587
           image: funkypenguin/poor-mans-k8s-lb
           imagePullPolicy: Always
@@ -74,11 +97,7 @@ spec:
           - name: FRONTEND_PORT
             value: "587"
           - name: BACKEND_PORT
-            value: "30587"
-            {{- if .Values.haproxy.enabled }}              
-          - name: SEND_PROXY
-            value: "send-proxy"            
-            {{- end }}             
+            value: "30587"          
           - name: NAME
             value: "docker-mailserver-submission"
           - name: WEBHOOK
@@ -118,14 +137,41 @@ spec:
           - name: BACKEND_PORT
             value: "30993"
           - name: NAME
-            value: "docker-mailserver-pop3"
+            value: "docker-mailserver-imaps"          
+            {{- if .Values.haproxy.enabled }}              
+          - name: SEND_PROXY
+            value: "send-proxy"            
+            {{- end }}             
           - name: WEBHOOK
             value: {{ .Values.haproxy.webhook_url }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
                 name: {{ template "dockermailserver.fullname" . }}-secrets
-                key: webhook_token.secret      
+                key: webhook_token.secret     
+        - name: phone-home-995
+          image: funkypenguin/poor-mans-k8s-lb
+          imagePullPolicy: Always
+          env:
+          - name: REPEAT_INTERVAL
+            value: "300"
+          - name: FRONTEND_PORT
+            value: "995"
+          - name: BACKEND_PORT
+            value: "30995"
+            {{- if .Values.haproxy.enabled }}              
+          - name: SEND_PROXY
+            value: "send-proxy"            
+            {{- end }}     
+          - name: NAME
+            value: "docker-mailserver-pop3s"
+          - name: WEBHOOK
+            value: {{ .Values.haproxy.webhook_url }}
+          - name: WEBHOOK_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "dockermailserver.fullname" . }}-secrets
+                key: webhook_token.secret                  
  
       restartPolicy: "Always"
 {{ end }}
