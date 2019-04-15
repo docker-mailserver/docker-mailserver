@@ -20,5 +20,5 @@ jobs:
         - find manifests/ -name '*.yaml' | grep -v crd | xargs ./kubeval -v $KUBERNETES_VERSION
     - script:  
         - mkdir -p ~/.helm/plugins
-        - ./helm plugin install https://github.com/lrills/helm-unittest
+        - PATH=$PATH:~ ./helm plugin install https://github.com/lrills/helm-unittest
         - ./helm unittest helm-chart/docker-mailserver 
