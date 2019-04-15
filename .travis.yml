@@ -23,5 +23,5 @@ jobs:
         - mkdir bin
         - cp helm bin/
         - export PATH=$PATH:/home/travis/bin/
-        - ./helm plugin install https://github.com/lrills/helm-unittest
+        - SKIP_BIN_INSTALL=1 ./helm plugin install https://github.com/lrills/helm-unittest
         - ./helm unittest helm-chart/docker-mailserver 
