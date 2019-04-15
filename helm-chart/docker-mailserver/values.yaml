@@ -21,10 +21,10 @@ haproxy:
 
   # Whether to configure postscreen/imaps for proxy-protocol support from an upstream haproxy instance
   # If this is enabled, you _must_ access SMTP (TCP 25), submission (TCP 587), and IMAPS (TCP 993) via haproxy.
-  enabled: true
+  enabled: false
 
   # Either an haproxy ingress ("ingress"), an automated external instance ("external-auto"), or a manually configured external instance ("external-manual")
-  mode: "external-auto"
+  mode: "external-manual"
 
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
   # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/

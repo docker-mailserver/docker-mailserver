@@ -1,6 +1,7 @@
 suite: haproxy tests
 templates:
   - configmap.yaml
+  - deployment-phonehome.yaml
 tests:
   - it: should correctly configure postfix/dovecot if haproxy support is enabled
     set:
@@ -22,4 +23,35 @@ tests:
       - isNull:
           path: data.dovecot\.cf
           pattern: haproxy      
-
+  - it: should correctly configure phonehome containers if haproxy is enabled and set to external-auto mode
+    set:
+      haproxy.enabled: true
+      haproxy.mode: external-auto
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: deployment-phonehome.yaml          
+  - it: should not configure phonehome containers if haproxy is disabled but set to external-auto mode
+    set:
+      haproxy.enabled: false
+      haproxy.mode: external-auto
+    asserts:
+      - hasDocuments:
+          count: 0    
+        template: deployment-phonehome.yaml               
+  - it: should not configure phonehome containers if haproxy is disabled but set to external-manual mode
+    set:
+      haproxy.enabled: true
+      haproxy.mode: external-manual
+    asserts:
+      - hasDocuments:
+          count: 0         
+        template: deployment-phonehome.yaml
+  - it: should not configure phonehome containers if haproxy is disabled but set to ingress mode
+    set:
+      haproxy.enabled: true
+      haproxy.mode: ingress
+    asserts:
+      - hasDocuments:
+          count: 0                      
+        template: deployment-phonehome.yaml
