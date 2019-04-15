@@ -255,7 +255,6 @@ ssl:
 
 ## These values are for the haproxy-ingress sub-chart
 haproxy-ingress:
-  nameOverride: "nothing"
   deploychart: true
   controller:
     kind: "Deployment"
@@ -270,3 +269,9 @@ haproxy-ingress:
       995: "default/docker-mailserver:995"     
     service:
       externalTrafficPolicy: "Local"
+    # Set to avoid CI error when running the generated manifest through kubeval (FIXME)
+    podAnnotations: 
+      set-to-avoid-lint-errors-in: "docker-mailserver"
+  # 10 is the default, but explicitly setting this value avoids a CI error when running the generated manifest through kubeval
+  # Will be fixed with an upstream PR
+  revisionHistoryLimit: 10

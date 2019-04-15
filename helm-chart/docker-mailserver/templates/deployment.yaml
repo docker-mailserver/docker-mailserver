@@ -224,12 +224,4 @@ spec:
       ##
       ## For more information, see http://kubernetes.io/docs/user-guide/pod-states/#restartpolicy
       restartPolicy: "Always"
-      securityContext:
-        ## Volumes which support ownership management are modified to be owned and writable by the GID specified in
-        ## fsGroup. See the Ownership Management design document for more details.
-        ## See: https://github.com/kubernetes/community/blob/master/contributors/design-proposals/
-        ##      volume-ownership-management.md
-        # fsGroup: 1000
-        ## A list of groups applied to the first process run in each container, in addition to the container’s primary
-        ## GID. If unspecified, no groups will be added to any container.
-        # supplementalGroups: [1000]
+
