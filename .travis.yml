@@ -8,7 +8,6 @@ before_install:
   - wget https://github.com/garethr/kubeval/releases/download/0.7.3/kubeval-linux-amd64.tar.gz 
   - tar xzvf kubeval-linux-amd64.tar.gz
   - chmod u+x kubeval
-  - mkdir /home/travis/bin
   - mv helm kubeval /home/travis/bin/
   - echo $PATH
   - pwd
