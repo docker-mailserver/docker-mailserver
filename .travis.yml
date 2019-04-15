@@ -1,17 +1,15 @@
 language: C
 sudo: false
 before_install:
-  - wget https://kubernetes-helm.storage.googleapis.com/helm-v$HELM_VERSION-linux-amd64.tar.gz
-  - tar xzvf helm-v$HELM_VERSION-linux-amd64.tar.gz
+  - wget https://kubernetes-helm.storage.googleapis.com/helm-v2.13.1-linux-amd64.tar.gz
+  - tar xzvf helm-v2.13.1-linux-amd64.tar.gz
   - mv linux-amd64/helm helm
   - chmod u+x helm
-  - wget https://github.com/garethr/kubeval/releases/download/$KUBEVAL_VERSION/kubeval-linux-amd64.tar.gz 
+  - wget https://github.com/garethr/kubeval/releases/download/0.7.3/kubeval-linux-amd64.tar.gz 
   - tar xzvf kubeval-linux-amd64.tar.gz
   - chmod u+x kubeval
 env:
   - KUBERNETES_VERSION="1.14.0"
-  - HELM_VERSION="2.13.1"  
-  - KUBEVAL_VERSION="0.7.3"
 jobs:
   include:
     - stage: helm-syntax
