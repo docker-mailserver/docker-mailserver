@@ -8,11 +8,21 @@
 ### HA Proxy mode
 
 [x] When setting haproxy mode to "enabled", do the appropriate settings make their way into configmaps? Is the reverse true?
-[ ] If in external-auto mode, do the correct SEND_PROXY environment variables get set? Is the reverse true?
-[ ] If in ingress mode, do the correct SEND_PROXY settings get set?
+[ ] If in external-auto mode, do the correct SEND_PROXY environment variables get set? Is the reverse true? (hard to test results of subchart?)
+[ ] If in ingress mode, do the correct SEND_PROXY settings get set? (hard to test results of subchart?)
+[X] If both haproxy.enabled and haproxy.mode=external auto are not set, then don't create phonehome deployment
 
 ### Disable SPF
 
 [ ] User is able to disable SPF checks (if they don't want to use haproxy)
 
 If haproxy is disabled altogether, do..
+
+## What must be tested manually, end-to-end?
+
+[ ] Deploying in demo mode with external-auth haproxy
+[ ] Deploying in demo mode with external-manual haproxy
+[ ] Deploying in demo mode with ingress haproxy
+[ ] Deploying in non-demo mode with external-auth haproxy
+[ ] Deploying in non-demo mode with external-manual haproxy
+[ ] Deploying in non-demo mode with ingress haproxy

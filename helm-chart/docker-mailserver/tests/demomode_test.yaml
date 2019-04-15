@@ -19,6 +19,15 @@ tests:
       - matchRegex:
           path: data.TrustedHosts
           pattern: 127.0.0.1
+          
+  - it: should correctly import configmaps from config/ if demo mode is disabled
+    set:
+      demo_mode.enabled: false
+    asserts:
+      - matchRegex:
+          path: data.postfix-main\.cf
+          pattern: "# ignore - used for unit testing"        
+          
   - it: should correctly configure secrets if demo mode is enabled
     set:
       demo_mode.enabled: true
