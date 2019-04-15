@@ -19,7 +19,7 @@ jobs:
   include:
     - stage: kubetest
       script:
-        - ./helm template docker-mailserver | ./kubetest --verbose
+        - ./helm template helm-chart/docker-mailserver | ./kubetest --verbose
     - stage: unittest
       script:
-        - ./helm unittest docker-mailserver 
+        - ./helm unittest helm-chart/docker-mailserver 
