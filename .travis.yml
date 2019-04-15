@@ -25,5 +25,6 @@ jobs:
         - find manifests/ -name '*.yaml' | grep -v crd | xargs kubeval -v $KUBERNETES_VERSION
     - stage: execute unit tests
       script:  
+        - echo "# ignore - used for unit testing" > helm-chart/docker-mailserver/config/postfix-main.cf
         - helm plugin install https://github.com/lrills/helm-unittest
         - helm unittest helm-chart/docker-mailserver 
