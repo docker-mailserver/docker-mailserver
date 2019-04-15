@@ -8,22 +8,16 @@ before_install:
   - wget https://github.com/garethr/kubeval/releases/download/0.7.0/kubeval-linux-amd64.tar.gz 
   - tar xzvf kubeval-linux-amd64.tar.gz
   - chmod u+x kubeval
-  - wget https://github.com/garethr/kubetest/releases/download/0.1.0/kubetest-linux-amd64.tar.gz 
-  - tar xzvf kubetest-linux-amd64.tar.gz
-  - chmod u+x kubetest
-script:
-  - ./helm template helm-chart/docker-mailserver | ./kubeval -v $KUBERNETES_VERSION
 env:
   - KUBERNETES_VERSION="1.14.0"
 jobs:
   include:
     - stage: helm-syntax
       script:
-        - ./helm template helm-chart/docker-mailserver
         - ./helm lint helm-chart/docker-mailserver
     - stage: kubectl-syntax
       script:   
-        - ./helm template helm-chart/docker-mailserver | ../kubeval -v $KUBERNETES_VERSION
+        - ./helm template helm-chart/docker-mailserver | ./kubeval -v $KUBERNETES_VERSION
     - stage: unit-tests
       script:  
         - ./helm plugin install https://github.com/lrills/helm-unittest
