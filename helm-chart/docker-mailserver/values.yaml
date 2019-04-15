@@ -196,12 +196,13 @@ deployment:
 resources:
   requests:
     ## How much CPU this container is expected to need
-    cpu: "0.1"
+    cpu: "0.5"
     ## How much memory this container is expected to need.
-    memory: "512Mi"
+    ## Reduce these at your peril - too few resources can cause daemons (i.e., clamd) to fail, or timeouts to occur
+    memory: "1024Mi"
   limits:
     ## The max CPU this container should be allowed to use
-    cpu: "0.2"
+    cpu: "1"
     ## The max memory this container should be allowed to use. Note: If a container exceeds its memory limit,
     ## it may terminated.
     memory: "2048Mi"
