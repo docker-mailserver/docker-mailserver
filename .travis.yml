@@ -8,6 +8,7 @@ before_install:
   - wget https://github.com/garethr/kubeval/releases/download/0.7.3/kubeval-linux-amd64.tar.gz 
   - tar xzvf kubeval-linux-amd64.tar.gz
   - chmod u+x kubeval
+  - ./helm init -c
 env:
   - KUBERNETES_VERSION="1.14.0"
 jobs:
@@ -19,9 +20,5 @@ jobs:
         - ./helm template helm-chart/docker-mailserver --output-dir manifests
         - find manifests/ -name '*.yaml' | grep -v crd | xargs ./kubeval -v $KUBERNETES_VERSION
     - script:  
-        - mkdir -p ~/.helm/plugins
-        - mkdir bin
-        - cp helm bin/
-        - export PATH=$PATH:/home/travis/bin/
-        - SKIP_BIN_INSTALL=1 ./helm plugin install https://github.com/lrills/helm-unittest
+        - PATH=$PATH:~ ./helm plugin install https://github.com/lrills/helm-unittest
         - ./helm unittest helm-chart/docker-mailserver 
