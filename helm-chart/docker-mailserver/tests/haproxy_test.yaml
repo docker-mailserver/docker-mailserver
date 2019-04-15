@@ -1,4 +1,4 @@
-suite: test deployment
+suite: haproxy tests
 templates:
   - configmap.yaml
 tests:
@@ -11,7 +11,7 @@ tests:
           pattern: haproxy
       - matchRegex:
           path: data.dovecot\.cf
-          pattern: haproxy          
+          pattern: haproxy                
   - it: should not add haproxy options to postfix/dovecot if haproxy support is not enabled
     set:
       haproxy.enabled: false
