@@ -42,12 +42,13 @@
 "latest" tag:
 
 ```
-[X] Deploying in demo mode with external-auth haproxy
-[ ] Deploying in demo mode with external-manual haproxy
-[X] Deploying in demo mode with ingress haproxy
-[ ] Deploying in non-demo mode with external-auth haproxy
-[ ] Deploying in non-demo mode with external-manual haproxy
-[ ] Deploying in non-demo mode with ingress haproxy
+[ ] Deploying in demo mode with haproxy and poor-mans-k8s-lb
+[ ] Deploying in demo mode with haproxy and ingress
+[ ] Deploying in demo mode with haproxy only
+[ ] Deploying in demo mode with haproxy and poor-mans-k8s-lb
+[ ] Deploying in demo mode with haproxy and ingress
+[ ] Deploying in demo mode with haproxy only
+
 ```
 
 "release-v6.1.0" tag:

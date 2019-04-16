@@ -1,7 +1,7 @@
 suite: haproxy tests
 templates:
   - configmap.yaml
-  - deployment-phonehome.yaml
+  - deployment-poor-mans-k8s-lb.yaml
 tests:
   - it: should correctly configure postfix/dovecot if haproxy support is enabled
     set:
@@ -25,33 +25,8 @@ tests:
           pattern: haproxy      
   - it: should create phonehome deployment if haproxy is enabled and set to external-auto mode
     set:
-      haproxy.enabled: true
-      haproxy.mode: external-auto
+      poor_mans_k8s_lb.enabled: true
     asserts:
       - hasDocuments:
           count: 1
-        template: deployment-phonehome.yaml          
-  - it: should not create phonehome deployment if haproxy is disabled but set to external-auto mode
-    set:
-      haproxy.enabled: false
-      haproxy.mode: external-auto
-    asserts:
-      - hasDocuments:
-          count: 0    
-        template: deployment-phonehome.yaml               
-  - it: should not  create phonehome deployment if haproxy is disabled but set to external-manual mode
-    set:
-      haproxy.enabled: true
-      haproxy.mode: external-manual
-    asserts:
-      - hasDocuments:
-          count: 0         
-        template: deployment-phonehome.yaml
-  - it: should not  create phonehome deployment if haproxy is disabled but set to ingress mode
-    set:
-      haproxy.enabled: true
-      haproxy.mode: ingress
-    asserts:
-      - hasDocuments:
-          count: 0                      
-        template: deployment-phonehome.yaml
+        template: deployment-poor-mans-k8s-lb.yaml          

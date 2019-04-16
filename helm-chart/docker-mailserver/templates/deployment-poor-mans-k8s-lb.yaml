@@ -1,6 +1,5 @@
 {{/* This whole template is only necessary if we're using the phone-home webhook implementation */}}
-{{ if eq .Values.haproxy.mode "external-auto" -}}  
-{{ if .Values.haproxy.enabled -}}  
+{{ if .Values.poor_mans_k8s_lb.enabled -}}  
 ---
 apiVersion: "apps/v1"
 kind: "Deployment"
@@ -174,5 +173,4 @@ spec:
                 key: webhook_token.secret                  
  
       restartPolicy: "Always"
-{{ end }}
 {{ end }}

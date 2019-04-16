@@ -24,13 +24,8 @@ haproxy:
   # If this is enabled, you _must_ access SMTP (TCP 25), submission (TCP 587), and IMAPS (TCP 993) via haproxy.
   enabled: false
 
-  # Either an haproxy ingress ("ingress"), an automated external instance ("external-auto"), or a manually configured external instance ("external-manual")
-  mode: "external-manual"
-
-  # If using ingress mode, you'll very likely want to deploy the haproxy-ingress helm chart, customized for 
-  # mail ports (and not listening on port 80/443)
-  ingress:
-    deploy_chart: true
+  # If you set mode "ingress", then set "deploy_ingress_chart" below to true. (Unless you've got your existing TCP ingress)
+  deploy_ingress_chart: false
 
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
   # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
@@ -43,6 +38,12 @@ haproxy:
   # By default, we allow all RFC1918 private ranges, but this can be tightened up for the known IP/range
   # of your HAProxy instance
   trusted_networks: "10.0.0.0/8 192.168.0.0/16 172.16.0.0/16"
+
+# If you're using David's hacked-up automatic external haproxy design, then enable
+# the following to launch the appropriate containers to call back to the haproxy webhook
+# Details at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/ 
+poor_mans_k8s_lb:
+  enabled: true
 
 # List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
 domains:

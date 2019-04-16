@@ -72,18 +72,12 @@ to add to your DNS zones, to finish setting up DKIM:
 {{ end }}
 
 {{ if .Values.haproxy.enabled -}}  
-{{ if eq .Values.haproxy.mode "external-auto" -}} 
+{{ if .Values.poor_mans_k8s_lb.enabled -}} 
 
 -------
 You're running with HAProxy in "external-auto" mode. Provided you've correctly setup your 
 haproxy.webhook.url and haproxy.webhook.token, you don't need to do anything further in
 order for your external access to work
--------
-{{ else if eq .Values.haproxy.mode "external-manual" -}} 
-
--------
-You're configured for HAProxy in "external-manual" mode. You'll need to manually configure
-your haproxy to send the incoming traffic to the node running your pod, on the configured nodeport ports.
 -------
 
 {{ else if eq .Values.haproxy.mode "ingress" -}} 
@@ -94,6 +88,13 @@ ingress resource started up correctly - you should be able to access your extern
 ports, and have it "Just Work (tm)"
 -------
 
+{{ else -}} 
+
+-------
+You've enabled haproxy support, but you've not activated ingress or poor_mans_k8s_lb. You'll need to manually configure
+your haproxy to send the incoming traffic to the node running your pod, on the configured nodeport ports. Use the
+"send-proxy" value for ports 25,110,143,993 and 995 (but not 465 and 587)
+-------
 {{ end }}
 {{ else }}
 
