@@ -271,8 +271,31 @@ ssl:
   issuer:
     name: letsencrypt-staging
     kind: ClusterIssuer
-  dnsname: funkypenguin.co.nz
+  dnsname: example.com
   dns01provider: cloudflare
+
+# Values imported from https://github.com/t13a/helm-chart-rainloop/blob/master/values.yaml
+rainloop:
+  enabled: true
+  image:
+    name: "hardware/rainloop"
+    tag: "latest"
+    pullPolicy: "Always"
+  persistence:
+    size: "1Gi"
+  service:
+    port: 80
+  container:
+    port: 8888
+  ingress:
+    enabled: true
+    hosts:
+      - rainloop.example.com
+    annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+    path: /
+    tls: []
 
 ## These values are for the haproxy-ingress sub-chart
 haproxy-ingress:

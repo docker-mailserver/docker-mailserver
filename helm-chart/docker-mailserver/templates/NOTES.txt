@@ -80,7 +80,7 @@ haproxy.webhook.url and haproxy.webhook.token, you don't need to do anything fur
 order for your external access to work
 -------
 
-{{ else if eq .Values.haproxy.mode "ingress" -}} 
+{{ else if .Values.haproxy.deploy_ingress_chart -}} 
 
 -------
 You're configured for HAProxy in "ingress" mode. Theoretically you don't have to do anything, provided the 

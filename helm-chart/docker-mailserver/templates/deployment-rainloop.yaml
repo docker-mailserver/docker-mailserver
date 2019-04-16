@@ -1,0 +1,57 @@
+{{/* This whole template is only necessary if we're using rainloop */}}
+{{ if .Values.rainloop.enabled -}}  
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    app: {{ template "dockermailserver.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+  name: {{ template "dockermailserver.fullname" . }}-rainloop
+spec:
+  replicas: {{ default 2 .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "dockermailserver.fullname" . }}
+      release: "{{ .Release.Name }}"
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: "RollingUpdate"
+  template:
+    metadata:
+      labels:
+        app: {{ template "dockermailserver.fullname" . }}
+        release: "{{ .Release.Name }}"
+        optional-component: "{{ .Release.Name }}-rainloop"
+    spec:
+      containers:
+        - name: rainloop
+          image: "{{ .Values.rainloop.image.name }}:{{ .Values.rainloop.image.tag }}"
+          imagePullPolicy: {{ .Values.rainloop.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: data
+              mountPath: "/rainloop/data"
+              subPath: "rainloop"
+
+      volumes:
+      - name: "data"
+        persistentVolumeClaim:
+          claimName: {{ template "dockermailserver.pvcName" . }}-rainloop
+
+{{ end }}

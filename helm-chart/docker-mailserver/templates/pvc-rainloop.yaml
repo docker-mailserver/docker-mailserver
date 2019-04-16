@@ -1,0 +1,23 @@
+{{- if not .Values.rainloop.persistence.existingClaim }}
+---
+kind: "PersistentVolumeClaim"
+apiVersion: "v1"
+metadata:
+  name: {{ template "dockermailserver.fullname" . }}-rainloop
+  annotations:
+  {{- if .Values.rainloop.persistence.storageClass }}
+    volume.beta.kubernetes.io/storage-class: {{ .Values.rainloop.persistence.storageClass | quote }}
+  {{- else }}
+    volume.alpha.kubernetes.io/storage-class: "generic"
+  {{- end }}
+spec:
+  accessModes:
+    - {{ default "ReadWriteOnce" .Values.rainloop.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.rainloop.persistence.size | quote }}
+  {{- if .Values.rainloop.persistence.selector }}
+  selector:
+{{ toYaml .Values.rainloop.persistence.selector | indent 4 }}
+  {{ end }}
+{{- end }}
