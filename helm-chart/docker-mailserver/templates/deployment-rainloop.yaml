@@ -14,7 +14,7 @@ spec:
   replicas: {{ default 2 .Values.deployment.replicas }}
   selector:
     matchLabels:
-      app: {{ template "dockermailserver.fullname" . }}
+      app: {{ template "dockermailserver.fullname" . }}-rainloop
       release: "{{ .Release.Name }}"
   strategy:
     rollingUpdate:
@@ -24,9 +24,8 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "dockermailserver.fullname" . }}
+        app: {{ template "dockermailserver.fullname" . }}-rainloop
         release: "{{ .Release.Name }}"
-        optional-component: "{{ .Release.Name }}-rainloop"
     spec:
       containers:
         - name: rainloop

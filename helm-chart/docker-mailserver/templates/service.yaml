@@ -67,7 +67,12 @@ spec:
       port: 995
   {{- if eq .Values.service.type "NodePort" }}    
       nodePort: {{ default "30995" .Values.service.nodePort.pop3s }}
-  {{ end }}           
+  {{ end }}    
+  {{- if .Values.rainloop.enabled }}
+    - protocol: "TCP"
+      name: "10993-imaps-rainloop"
+      port: 10993        
+  {{ end }}
   type: {{ default "ClusterIP" .Values.service.type }}
   {{ if eq .Values.service.type "LoadBalancer" -}}
   {{ if .Values.service.loadBalancer.publicIp -}}

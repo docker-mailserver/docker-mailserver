@@ -33,6 +33,7 @@ data:
     # Necessary to permit proxy protocol from haproxy to postscreen
     postscreen_upstream_proxy_protocol = haproxy
   {{ end }}
+
   {{ if .Values.haproxy.enabled -}}  
   dovecot.cf: |   
     haproxy_trusted_networks = {{ .Values.haproxy.trusted_networks }}
@@ -40,22 +41,25 @@ data:
       inet_listener imap {
         haproxy = yes
       }  
-    }
-    service imap-login {
       inet_listener imaps {
         haproxy = yes
       }
+    {{ if .Values.rainloop.enabled -}}  
+      inet_listener imaps-rainloop {
+        port = 10993
+        ssl = yes
+      }
+    {{ end }}      
     }    
     service pop3-login {
       inet_listener pop3 {
         haproxy = yes
       }
-    }    
-    service pop3-login {
       inet_listener pop3s {
         haproxy = yes
       }                        
-    }  
+    }
+    
   {{ end }}
   am-i-healthy.sh: |
     #!/bin/bash

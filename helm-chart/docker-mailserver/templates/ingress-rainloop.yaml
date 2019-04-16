@@ -1,3 +1,4 @@
+{{- if .Values.rainloop.enabled -}}
 {{- if .Values.rainloop.ingress.enabled -}}
 {{- $fullName := include "dockermailserver.fullname" . -}}
 {{- $servicePort := .Values.rainloop.service.port -}}
@@ -36,4 +37,5 @@ spec:
               serviceName: {{ $fullName }}-rainloop
               servicePort: {{ $servicePort }}
   {{- end }}
+{{- end }}
 {{- end }}

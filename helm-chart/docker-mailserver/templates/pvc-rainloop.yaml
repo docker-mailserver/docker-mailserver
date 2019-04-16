@@ -1,3 +1,5 @@
+{{/* This whole template is only necessary if we're using rainloop */}}
+{{ if .Values.rainloop.enabled -}}  
 {{- if not .Values.rainloop.persistence.existingClaim }}
 ---
 kind: "PersistentVolumeClaim"
@@ -20,4 +22,5 @@ spec:
   selector:
 {{ toYaml .Values.rainloop.persistence.selector | indent 4 }}
   {{ end }}
+{{- end }}
 {{- end }}

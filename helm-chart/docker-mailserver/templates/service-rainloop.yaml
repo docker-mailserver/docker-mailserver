@@ -1,3 +1,5 @@
+{{/* This whole template is only necessary if we're using rainloop */}}
+{{ if .Values.rainloop.enabled -}}  
 ---
 kind: "Service"
 apiVersion: "v1"
@@ -22,11 +24,11 @@ metadata:
   name: {{ template "dockermailserver.fullname" . }}-rainloop
 spec:
   selector:
-    app: {{ template "dockermailserver.fullname" . }}
+    app: {{ template "dockermailserver.fullname" . }}-rainloop
     release: "{{ .Release.Name }}"
-    optional-component: "{{ .Release.Name }}-rainloop"
   ports:
     - port: {{ .Values.rainloop.service.port }}
       targetPort: {{ .Values.rainloop.container.port }}
       protocol: TCP
       name: http
+{{ end }}

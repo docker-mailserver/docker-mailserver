@@ -16,6 +16,7 @@ tests:
   - it: should not add haproxy options to postfix/dovecot if haproxy support is not enabled
     set:
       haproxy.enabled: false
+      rainloop.enabled: false
     asserts:
       - isNull:
           path: data.postfix-main\.cf

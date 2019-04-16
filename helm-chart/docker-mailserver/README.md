@@ -70,6 +70,12 @@ Creating DKIM TrustedHosts
 [funkypenguin:~/Documents/Personal/Projects/docker-mailserver/helm-chart] add-helm-chart* ±
 ```
 
+### Setup RainLoop
+
+If employing HAProxy with RainLoop, use port 10993 for your IMAPS server, as illustrated below:
+
+![Rainloop with HAProxy screenshot](rainloop_with_haproxy.png)
+
 ## Configuration
 
 All configuration values are documented in values.yaml. Check that for references, default values etc. To modify a

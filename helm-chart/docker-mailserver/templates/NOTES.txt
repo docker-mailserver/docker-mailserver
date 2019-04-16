@@ -103,3 +103,21 @@ You've disabled haproxy support. This means that you'll need to MANUALLY configu
 to the internet. You may be running in host mode, or nodeport mode, or some other complex configuration.
 -------
 {{ end }}
+
+{{- if .Values.rainloop.enabled -}}
+{{- if .Values.rainloop.ingress.enabled -}}
+{{ if .Values.haproxy.enabled -}}  
+---
+You've enabled RainLoop integration. Because you're using HAProxy, you'll need to configure RainLoop
+to use an IMAPS server of {{ template "dockermailserver.fullname" . }} on port 10993 (with SSL), since port 993
+expects to receive a PROXY header from haproxy, for external IMAPS connections. Use port 465 (with SSL) for SMTP
+---
+{{ else }}
+---
+You've enabled RainLoop integration. You'll need to configure RainLoop
+to use an IMAPS server of {{ template "dockermailserver.fullname" . }} on port 993 (with SSL), and an
+SMTP server of {{ template "dockermailserver.fullname" . }} on port 465 (with SSL)
+---
+{{ end }}
+{{ end }}
+{{ end }}

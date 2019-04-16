@@ -36,6 +36,12 @@
 [ ] What happens if the user has _not_ configured cert-manager, but we try to deploy the CRD?
 ```
 
+### Rainloop
+
+```
+[X] When enabling rainloop (default config), the necessary pod, ingress, and service are deployed, plus the rainloop-specific IMAPS port
+[X] When disabling rainloop , the necessary pod, ingress, and service are _not_ deployed, and neither is the rainloop-specific IMAPS port
+```
 
 ## What must be tested manually, end-to-end?
 
