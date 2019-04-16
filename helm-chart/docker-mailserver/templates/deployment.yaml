@@ -118,7 +118,7 @@ spec:
               readOnly: true
               {{ else }}
               {{/* Mount a dkim key for every domain configured */}}               
-              {{ range .Values.pod.dockermailserver.domains }}
+              {{ range .Values.domains }}
               {{- $path := printf "/tmp/docker-mailserver/opendkim/keys/%s/mail.private" . }}
               {{- $name := printf "%s-mail.private" . }}              
             - name: opendkim-keys

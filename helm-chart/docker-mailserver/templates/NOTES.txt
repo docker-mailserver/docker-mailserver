@@ -51,7 +51,7 @@ here's what you need to do:
 1. Update values.yaml, and set pod.dockermailserver.demomode to "false". Also set your domains under "domains", removing "example.com"
 2. From the /helm-chart/ directory, execute ../setup.sh using a custom path, to create your users and setup your DKIM key(s), as follows:
 
-   ../setup.sh -p docker-mailserver/config add email [password] # FIXME, this doesn''t seem to work as expected
+   ../setup.sh -p docker-mailserver/config email add <email address> [password]
    ../setup.sh -p docker-mailserver/config config dkim
 
 3. Upgrade the helm chart to apply your changes, by running:
@@ -75,7 +75,7 @@ to add to your DNS zones, to finish setting up DKIM:
 {{ if .Values.poor_mans_k8s_lb.enabled -}} 
 
 -------
-You're running with HAProxy in "external-auto" mode. Provided you've correctly setup your 
+You're running with HAProxy enabled, and poor-mans-k8s-lb turned on. Provided you've correctly setup your 
 haproxy.webhook.url and haproxy.webhook.token, you don't need to do anything further in
 order for your external access to work
 -------

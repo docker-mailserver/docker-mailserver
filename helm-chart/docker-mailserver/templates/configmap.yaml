@@ -25,6 +25,7 @@ data:
   {{/* Use real data from "config" subdirectory if user is _not_ running in demo mode */}}  
   {{ else -}}
   {{- (.Files.Glob "config/*").AsConfig | nindent 2 }}
+  {{- (.Files.Glob "config/opendkim/*").AsConfig | nindent 2 }} 
   {{- end }}
   {{/* Enable proxy protocol for postscreen / dovecot */}}
   {{ if .Values.haproxy.enabled -}} 

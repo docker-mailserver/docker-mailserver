@@ -43,7 +43,7 @@ haproxy:
 # the following to launch the appropriate containers to call back to the haproxy webhook
 # Details at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/ 
 poor_mans_k8s_lb:
-  enabled: true
+  enabled: false
 
 # List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
 domains:
