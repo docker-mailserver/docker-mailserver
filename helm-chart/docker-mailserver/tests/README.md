@@ -44,7 +44,7 @@
 ```
 [X] Deploying in demo mode with external-auth haproxy
 [ ] Deploying in demo mode with external-manual haproxy
-[ ] Deploying in demo mode with ingress haproxy
+[X] Deploying in demo mode with ingress haproxy
 [ ] Deploying in non-demo mode with external-auth haproxy
 [ ] Deploying in non-demo mode with external-manual haproxy
 [ ] Deploying in non-demo mode with ingress haproxy
