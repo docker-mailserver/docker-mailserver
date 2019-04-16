@@ -43,6 +43,11 @@ domains:
   - your-first-domain.com
   - your-second-domain.com
 
+liveness_tests:
+  enabled: true
+  commands:
+    - "clamscan /tmp/docker-mailserver/TrustedHosts"
+
 pod:
 
   dockermailserver:
@@ -196,13 +201,14 @@ deployment:
 resources:
   requests:
     ## How much CPU this container is expected to need
-    cpu: "0.5"
+    cpu: "1"
     ## How much memory this container is expected to need.
-    ## Reduce these at your peril - too few resources can cause daemons (i.e., clamd) to fail, or timeouts to occur
-    memory: "1024Mi"
+    ## Reduce these at requests your peril - too few resources can cause daemons (i.e., clamd) to fail, or timeouts to occur.
+    ## A test installation with clamd running was killed when it consumed 1437Mi (which is why this value was increased to 1536)
+    memory: "1536Mi"
   limits:
     ## The max CPU this container should be allowed to use
-    cpu: "1"
+    cpu: "2"
     ## The max memory this container should be allowed to use. Note: If a container exceeds its memory limit,
     ## it may terminated.
     memory: "2048Mi"

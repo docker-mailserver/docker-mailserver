@@ -140,7 +140,7 @@ spec:
           ##
           ## Below are examples of each healthcheck type with descriptions of when to use them
           ##
-          ##livenessProbe:
+          livenessProbe:
             ##
             ##tcpSocket:
             ##
@@ -165,28 +165,13 @@ spec:
               ##failureThreshold: 3
               ##
             ##
-            # exec:
-            ##
-            ## The "exec" healthcheck is useful when there is a bundled program to determine whether the application is
-            ## healthy (such as "mysqladmin ping"). It is also useful if the application does not open a network port
-            ## for communicating with other applications, but still represents its state on disk somehow.
-            ##
-              ## The command executed by exec is expected to return "0" to indicate healthy, and any nonzero status code
-              ## to indicate unhealthy.
-              # command:
-                # - cat
-                # - /tmp/healthy
-              ##
-              # initialDelaySeconds: 5
-              ##
-              ## Number of seconds after which the probe times out. Minimum value is 1
-              ##
-              # timeoutSeconds: 1
-              ##
-              ## Minimum consecutive failures for the probe to be considered failed after having succeeded.
-              ## Minimum value is 1.
-              ##
-              # failureThreshold: 3
+            exec:
+               command:
+                 - /bin/bash
+                 - /tmp/docker-mailserver/am-i-healthy.sh
+               initialDelaySeconds: 600
+               timeoutSeconds: 60
+               failureThreshold: 3
             ##
             # httpGet:
             #

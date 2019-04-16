@@ -56,3 +56,11 @@ data:
       }                        
     }  
   {{ end }}
+  am-i-healthy.sh: |
+    #!/bin/bash
+    # this script is intended to be used by periodic kubernetes liveness probes to ensure that the container
+    # (and all its dependent services) is healthy
+    {{ range .Values.liveness_tests.commands }}
+    {{ . }} && \
+    {{ end }}
+    echo "All healthy"
