@@ -1,0 +1,13 @@
+suite: configmap
+templates:
+  - configmap.yaml
+
+tests:
+  - it: should configure imaps port 10993 for rainloop if enabled (and haproxy enabled)
+    set:
+      rainloop.enabled: true
+      haproxy.enabled: true      
+    asserts:
+      - matchRegex:
+          path: data.dovecot\.cf
+          pattern: rainloop

@@ -1,0 +1,20 @@
+suite: ingress_rainloop
+templates:
+  - ingress_rainloop.yaml
+tests:
+
+  - it: should create rainloop ingress if enabled
+    set:
+      rainloop.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: ingress_rainloop.yaml       
+
+  - it: should not create rainloop ingress if disabled
+    set:
+      rainloop.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: ingress_rainloop.yaml  

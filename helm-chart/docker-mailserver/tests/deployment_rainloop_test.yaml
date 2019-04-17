@@ -1,0 +1,20 @@
+suite: deployment_rainloop
+templates:
+  - deployment_rainloop.yaml
+tests:
+
+  - it: should create rainloop deployment if enabled
+    set:
+      rainloop.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: deployment_rainloop.yaml       
+
+  - it: should not create rainloop deployment if disabled
+    set:
+      rainloop.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: deployment_rainloop.yaml            

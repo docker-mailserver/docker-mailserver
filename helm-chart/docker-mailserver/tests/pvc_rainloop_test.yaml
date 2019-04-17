@@ -1,5 +1,5 @@
 
-suite: pvc_rainloop creation
+suite: pvc_rainloop
 templates:
   - pvc_rainloop.yaml
 tests:
@@ -12,3 +12,18 @@ tests:
           path: metadata.annotations.backup\.banana\.io/deltas
           value: pancakes
 
+  - it: should create rainloop pvc if enabled
+    set:
+      rainloop.enabled: true
+      rainloop.persistence.size: 1Pb
+    asserts:
+      - equal:
+          path: spec.resources.requests.storage
+          value: 1Pb
+
+  - it: should not create rainloop pvc if disabled
+    set:
+      rainloop.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0          

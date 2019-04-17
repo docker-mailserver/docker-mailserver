@@ -14,7 +14,7 @@ metadata:
   {{- end }}
   {{- if .Values.rainloop.persistence.annotations }}
   {{ toYaml .Values.rainloop.persistence.annotations | indent 2 }}  
-  {{ end -}}  
+  {{ end }}  
 spec:
   accessModes:
     - {{ default "ReadWriteOnce" .Values.rainloop.persistence.accessMode | quote }}

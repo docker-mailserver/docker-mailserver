@@ -1,0 +1,20 @@
+suite: service_rainloop
+templates:
+  - service_rainloop.yaml
+tests:
+
+  - it: should create rainloop service if enabled
+    set:
+      rainloop.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: service_rainloop.yaml       
+
+  - it: should not create rainloop service if disabled
+    set:
+      rainloop.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: service_rainloop.yaml  

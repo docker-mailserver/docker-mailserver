@@ -12,7 +12,7 @@ metadata:
   {{- end }}
   {{- if .Values.persistence.annotations }}
   {{ toYaml .Values.persistence.annotations | indent 2 }}  
-  {{ end -}}
+  {{ end }}
 spec:
   accessModes:
     - {{ default "ReadWriteOnce" .Values.persistence.accessMode | quote }}
