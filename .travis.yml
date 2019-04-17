@@ -28,5 +28,5 @@ jobs:
         - cp helm-chart/docker-mailserver/demo-mode-dkim-key-for-example.com.key helm-chart/docker-mailserver/config/opendkim/keys/example.com/mail.private
         - echo "sample data for unit test" > helm-chart/docker-mailserver/config/opendkim/ignore.txt
         - mv helm-chart/docker-mailserver/ci/helm-unittest ~/.helm/plugins/
-        - ~/.helm/plugins/docker-mailserver/ci/helm-unittest/install-binary.sh
+        - ~/.helm/plugins/helm-unittest/install-binary.sh
         - helm unittest helm-chart/docker-mailserver 
