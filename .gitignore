@@ -11,5 +11,5 @@ test/config/letsencrypt/mail.my-domain.com/combined.pem
 test/onedir
 config/opendkim/
 *.secret
-helm-chart/docker-mailserver/config/
+helm-chart/docker-mailserver/config/opendkim
 myvalues.yml

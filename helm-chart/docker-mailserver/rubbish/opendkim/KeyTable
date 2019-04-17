@@ -1,5 +1,0 @@
-mail._domainkey.mailtest1.funkypenguin.co.nz mailtest1.funkypenguin.co.nz:mail:/etc/opendkim/keys/mailtest1.funkypenguin.co.nz/mail.private
-mail._domainkey.mailtest2.funkypenguin.co.nz mailtest2.funkypenguin.co.nz:mail:/etc/opendkim/keys/mailtest2.funkypenguin.co.nz/mail.private
-mail._domainkey.bob.com bob.com:mail:/etc/opendkim/keys/bob.com/mail.private
-mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com/mail.private
-mail._domainkey.test.funkypenguin.co.nz test.funkypenguin.co.nz:mail:/etc/opendkim/keys/test.funkypenguin.co.nz/mail.private

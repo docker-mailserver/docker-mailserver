@@ -1,5 +1,0 @@
-*@mailtest1.funkypenguin.co.nz mail._domainkey.mailtest1.funkypenguin.co.nz
-*@mailtest2.funkypenguin.co.nz mail._domainkey.mailtest2.funkypenguin.co.nz
-*@bob.com mail._domainkey.bob.com
-*@example.com mail._domainkey.example.com
-*@test.funkypenguin.co.nz mail._domainkey.test.funkypenguin.co.nz

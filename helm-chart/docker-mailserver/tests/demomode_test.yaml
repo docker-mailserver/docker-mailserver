@@ -26,8 +26,8 @@ tests:
       demo_mode.enabled: false
     asserts:
       - matchRegex:
-          path: data.postfix-main\.cf
-          pattern: "ignore - used for unit testing"        
+          path: data.fail2ban-fail2ban\.cf
+          pattern: "dbpurgeage"        
 
   - it: should correctly configure secrets if demo mode is enabled
     set:
