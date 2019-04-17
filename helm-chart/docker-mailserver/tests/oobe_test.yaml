@@ -1,9 +1,11 @@
-suite: tests out-of-box-experience (OOBE), or behaviour of default values.yaml
+suite: oobe
 templates:
   - configmap.yaml
   - secret.yaml
   - deployment.yaml
 tests:
+
+  # Demo mode is on OOB, so test it functions as expected
   - it: should correctly configure configmaps if demo mode is enabled
     asserts:
       - matchRegex:
@@ -20,17 +22,33 @@ tests:
           pattern: 127.0.0.1   
 
   - it: should correctly configure secrets if demo mode is enabled
-    set:
-      demo_mode.enabled: true
     asserts:
       - matchRegex:
           path: data.example\.com-mail\.private
           pattern: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS
         template: secret.yaml
 
-tests:
+  # SPF tests shoudl be performed under normal circumstances
   - it: should perform SPF tests under normal conditions
     asserts:
       - notMatchRegex:
           path: data.postfix-main\.cf
           pattern: smtpd_recipient_restrictions
+
+  # HAProxy is enabled by default
+  - it: should correctly configure postfix/dovecot if haproxy support is enabled
+    set:
+    asserts:
+      - matchRegex:
+          path: data.postfix-main\.cf
+          pattern: haproxy
+      - matchRegex:
+          path: data.dovecot\.cf
+          pattern: haproxy             
+
+  - it: should configure imaps port 10993 for rainloop if enabled (and haproxy enabled)
+    set:   
+    asserts:
+      - matchRegex:
+          path: data.dovecot\.cf
+          pattern: rainloop

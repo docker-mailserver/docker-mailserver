@@ -1,22 +1,12 @@
-suite: haproxy tests
+suite: haproxy
 templates:
   - configmap.yaml
   - deployment-poor-mans-k8s-lb.yaml
 tests:
-  - it: should correctly configure postfix/dovecot if haproxy support is enabled
-    set:
-      haproxy.enabled: true
-    asserts:
-      - matchRegex:
-          path: data.postfix-main\.cf
-          pattern: haproxy
-      - matchRegex:
-          path: data.dovecot\.cf
-          pattern: haproxy                
+
   - it: should not add haproxy options to postfix/dovecot if haproxy support is not enabled
     set:
       haproxy.enabled: false
-      rainloop.enabled: false
     asserts:
       - notMatchRegex:
           path: data.postfix-main\.cf

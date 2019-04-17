@@ -1,8 +1,17 @@
 suite: configmap
 templates:
   - configmap.yaml
-
 tests:
+
+  - it: should correctly import configmaps from config/ if demo mode is disabled
+    set:
+      demo_mode.enabled: false
+    asserts:
+      - matchRegex:
+          path: data.fail2ban-fail2ban\.cf
+          pattern: "dbpurgeage"        
+
+
   - it: should configure imaps port 10993 for rainloop if enabled (and haproxy enabled)
     set:
       rainloop.enabled: true

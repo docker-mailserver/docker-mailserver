@@ -1,4 +1,4 @@
-suite: tests SPF checks toggle
+suite: disable_spf_tests
 templates:
   - configmap.yaml
 tests:

@@ -12,3 +12,10 @@ tests:
           path: metadata.annotations.backup\.banana\.io/deltas
           value: pancakes
 
+  - it: should create pvc of specified size
+    set:
+      persistence.size: 1Pb
+    asserts:
+      - equal:
+          path: spec.resources.requests.storage
+          value: 1Pb

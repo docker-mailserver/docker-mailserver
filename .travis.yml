@@ -24,7 +24,8 @@ jobs:
         - find manifests/ -name '*.yaml' | grep -v crd | xargs kubeval -v $KUBERNETES_VERSION
     - stage: execute unit tests
       script:  
-        - mkdir helm-chart/docker-mailserver/config/opendkim
+        - mkdir -p helm-chart/docker-mailserver/config/opendkim/keys/example.com
+        - cp helm-chart/docker-mailserver/demo-mode-dkim-key-for-example.com.key helm-chart/docker-mailserver/config/opendkim/keys/example.com/mail.private
         - echo "sample data for unit test" > helm-chart/docker-mailserver/config/opendkim/ignore.txt
         - helm plugin install https://github.com/lrills/helm-unittest
         - helm unittest helm-chart/docker-mailserver 
