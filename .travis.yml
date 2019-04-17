@@ -27,5 +27,5 @@ jobs:
         - mkdir -p helm-chart/docker-mailserver/config/opendkim/keys/example.com
         - cp helm-chart/docker-mailserver/demo-mode-dkim-key-for-example.com.key helm-chart/docker-mailserver/config/opendkim/keys/example.com/mail.private
         - echo "sample data for unit test" > helm-chart/docker-mailserver/config/opendkim/ignore.txt
-        - mv docker-mailserver/ci/helm-unittest ~/.helm/plugins/
+        - mv helm-chart/docker-mailserver/ci/helm-unittest ~/.helm/plugins/
         - helm unittest helm-chart/docker-mailserver 
