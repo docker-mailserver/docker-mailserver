@@ -1,0 +1,19 @@
+[Definition]
+
+# Option: loglevel
+# Notes.: Set the log level output.
+#         CRITICAL
+#         ERROR
+#         WARNING
+#         NOTICE
+#         INFO
+#         DEBUG
+# Values: [ LEVEL ]  Default: ERROR
+#
+
+# loglevel = INFO
+
+# Options: dbpurgeage
+# Notes.: Sets age at which bans should be purged from the database
+# Values: [ SECONDS ] Default: 86400 (24hours), 604800 (1week)
+# dbpurgeage = 604800

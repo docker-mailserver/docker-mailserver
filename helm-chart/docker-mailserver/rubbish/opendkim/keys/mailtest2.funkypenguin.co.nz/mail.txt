@@ -1,0 +1,3 @@
+mail._domainkey	IN	TXT	( "v=DKIM1; h=sha256; k=rsa; "
+	  "p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwgpZUlo8zTWwymjYF0Y6RzW4vdw5u8xWKBCQcRaZVMPDP0IfqJHXl4ree5stm1BRNa3KhUAx20yzVV15+Z8Ddo8dfKv9xij8J/h1y3rNTWjIif4V/QPrZg66CZp2OL3jHJTM07bw7EnNtAPqg/Vc4kA6WUe54kHcoF/TxTzEtlj1y4O4mtRQMRkpspXsFkJb8wYjZs4Wj0vzo3"
+	  "yjr0mh05nouccMJ7lBAu9UXOLyU94lClURMcATbsNee+CmL/6diu7/ih/WWnwWHG6KKXE5qJ3xHFJ/tX/7FSNvUzayOypOezzBaKzJSSlPE+Xf30ntVgYDp/rolwUoBQTqQdP/GQIDAQAB" )  ; ----- DKIM key mail for mailtest2.funkypenguin.co.nz

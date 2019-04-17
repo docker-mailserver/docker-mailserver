@@ -1,0 +1,4 @@
+# File for additional dovecot configurations.
+# For more informations read http://wiki.dovecot.org/BasicConfiguration
+
+#mail_max_userip_connections = 50
