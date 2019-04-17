@@ -27,7 +27,7 @@ tests:
     asserts:
       - matchRegex:
           path: data.postfix-main\.cf
-          pattern: "# ignore - used for unit testing"        
+          pattern: "ignore - used for unit testing"        
 
   - it: should correctly configure secrets if demo mode is enabled
     set:
