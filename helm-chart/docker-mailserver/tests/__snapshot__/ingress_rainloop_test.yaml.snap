@@ -1,0 +1,20 @@
+manifest should match snapshot:
+  1: |
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      labels:
+        app: RELEASE-NAME-docker-mailserver
+        chart: docker-mailserver-0.1.0
+        heritage: Tiller
+        release: RELEASE-NAME
+      name: RELEASE-NAME-docker-mailserver
+    spec:
+      rules:
+      - host: rainloop.example.com
+        http:
+          paths:
+          - backend:
+              serviceName: RELEASE-NAME-docker-mailserver-rainloop
+              servicePort: 80
+            path: /

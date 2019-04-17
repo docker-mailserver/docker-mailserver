@@ -15,3 +15,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: bananas:in-pajamas
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}              

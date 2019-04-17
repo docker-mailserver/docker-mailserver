@@ -52,3 +52,7 @@ tests:
       - matchRegex:
           path: data.dovecot\.cf
           pattern: rainloop
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}              

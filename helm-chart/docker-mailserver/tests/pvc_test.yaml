@@ -19,3 +19,7 @@ tests:
       - equal:
           path: spec.resources.requests.storage
           value: 1Pb
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}              

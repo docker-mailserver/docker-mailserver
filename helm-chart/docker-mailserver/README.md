@@ -76,7 +76,7 @@ If employing HAProxy with RainLoop, use port 10993 for your IMAPS server, as ill
 
 ![Rainloop with HAProxy screenshot](rainloop_with_haproxy.png)
 
-## Configuration
+### Configuration
 
 All configuration values are documented in values.yaml. Check that for references, default values etc. To modify a
 configuration value for a chart, you can either supply your own values.yaml overriding the default one in the repo:
@@ -89,7 +89,22 @@ Or, you can override an individual configuration setting with `helm upgrade --se
 
 ```bash
 $ helm upgrade --install path/to/dockermailserver dockermailserver --set pod.dockermailserver.image="your/image:1.0.0"
+```
 
-## Usage
+## Development
 
-// Todo: Write up usage.
+### Testing
+
+[Unit tests](https://github.com/lrills/helm-unittest) are created for every chart template. Tests are applied to confirm expected behaviour and interaction between various configurations
+(ie haproxy mode and demo mode)
+
+In addition to tests above, a "snapshot" test is created for each manifest file. This permits a final test per-manifest, which confirms that the generated manifest
+matches exactly the previous snapshot. If a template change is made, or legit value in values.yaml changes (i.e., the app version) this snapshot test will fail.
+
+If you're comfortable with the changes to the saved snapshot, then regenerate the snapshots, by running the following from the root of the repo
+
+```
+helm plugin install https://github.com/lrills/helm-unittest
+helm unittest helm-chart/docker-mailserver 
+```
+

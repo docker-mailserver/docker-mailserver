@@ -9,3 +9,7 @@ tests:
       - notMatchRegex:
           path: data.postfix-main\.cf
           pattern: private/policyd-spf
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}    

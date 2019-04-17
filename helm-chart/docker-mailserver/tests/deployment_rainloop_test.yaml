@@ -18,3 +18,7 @@ tests:
       - hasDocuments:
           count: 0
         template: deployment_rainloop.yaml            
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}            

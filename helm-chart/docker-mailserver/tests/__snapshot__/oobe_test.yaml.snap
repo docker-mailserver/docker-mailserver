@@ -1,0 +1,37 @@
+manifest should match snapshot:
+  1: |
+    apiVersion: v1
+    data:
+      KeyTable: mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com/mail.private
+      SigningTable: '*@example.com mail._domainkey.example.com'
+      TrustedHosts: |
+        127.0.0.1
+        localhost
+      am-i-healthy.sh: |
+        #!/bin/bash
+        # this script is intended to be used by periodic kubernetes liveness probes to ensure that the container
+        # (and all its dependent services) is healthy
+
+        clamscan /tmp/docker-mailserver/TrustedHosts && \
+
+        echo "All healthy"
+      dovecot.cf: "haproxy_trusted_networks = 10.0.0.0/8 192.168.0.0/16 172.16.0.0/16\nservice
+        imap-login {\n  inet_listener imap {\n    haproxy = yes\n  }  \n  inet_listener
+        imaps {\n    haproxy = yes\n  }\ninet_listener imaps-rainloop {\n    port = 10993\n
+        \   ssl = yes\n  }\n      \n}    \nservice pop3-login {\n  inet_listener pop3
+        {\n    haproxy = yes\n  }\n  inet_listener pop3s {\n    haproxy = yes\n  }                        \n}\n"
+      postfix-accounts.cf: |
+        # A sample user - the password is "password"
+        user@example.com|{SHA512-CRYPT}$6$l4023rZnQEy/l0Rg$JeNjAAICB43VAX7GTJ9jeE7DR0LeyR5nU.ftq3c42T5E1IZSuRBqwM8erRh6t0CyIT6aYpBIAopzcQHNUvMV00
+      postfix-main.cf: |
+        # Necessary to permit proxy protocol from haproxy to postscreen
+        postscreen_upstream_proxy_protocol = haproxy
+      postfix-virtual.cf: null
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: RELEASE-NAME-docker-mailserver
+        chart: docker-mailserver-0.1.0
+        heritage: Tiller
+        release: RELEASE-NAME
+      name: RELEASE-NAME-docker-mailserver-configs

@@ -21,3 +21,7 @@ tests:
       - hasDocuments:
           count: 1
         template: deployment-poor-mans-k8s-lb.yaml          
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}    

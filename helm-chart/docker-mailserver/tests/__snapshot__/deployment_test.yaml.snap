@@ -1,0 +1,250 @@
+manifest should match snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: RELEASE-NAME-docker-mailserver
+        chart: docker-mailserver-0.1.0
+        heritage: Tiller
+        release: RELEASE-NAME
+      name: RELEASE-NAME-docker-mailserver
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: RELEASE-NAME-docker-mailserver
+          release: RELEASE-NAME
+      strategy:
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 1
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: RELEASE-NAME-docker-mailserver
+            release: RELEASE-NAME
+        spec:
+          containers:
+          - env:
+            - name: OVERRIDE_HOSTNAME
+              value: mail.batcave.org
+            - name: DMS_DEBUG
+              value: "0"
+            - name: ENABLE_CLAMAV
+              value: "1"
+            - name: ONE_DIR
+              value: "1"
+            - name: ENABLE_POP3
+              value: "0"
+            - name: ENABLE_FAIL2BAN
+              value: "false"
+            - name: SMTP_ONLY
+              value: "0"
+            - name: SSL_TYPE
+              value: manual
+            - name: SSL_CERT_PATH
+              value: /tmp/ssl/tls.crt
+            - name: SSL_KEY_PATH
+              value: /tmp/ssl/tls.key
+            - name: TLS_LEVEL
+              value: null
+            - name: SPOOF_PROTECTION
+              value: null
+            - name: ENABLE_SRS
+              value: "0"
+            - name: PERMIT_DOCKER
+              value: null
+            - name: VIRUSMAILS_DELETE_DELAY
+              value: null
+            - name: ENABLE_POSTFIX_VIRTUAL_TRANSPORT
+              value: null
+            - name: POSTFIX_DAGENT
+              value: null
+            - name: POSTFIX_MAILBOX_SIZE_LIMIT
+              value: null
+            - name: POSTFIX_MESSAGE_SIZE_LIMIT
+              value: null
+            - name: ENABLE_MANAGESIEVE
+              value: null
+            - name: POSTMASTER_ADDRESS
+              value: postmaster@domain.com
+            - name: POSTSCREEN_ACTION
+              value: enforce
+            - name: REPORT_RECIPIENT
+              value: "0"
+            - name: REPORT_SENDER
+              value: null
+            - name: REPORT_INTERVAL
+              value: daily
+            - name: ENABLE_SPAMASSASSIN
+              value: "1"
+            - name: SA_TAG
+              value: "2"
+            - name: SA_TAG2
+              value: "6.31"
+            - name: SA_KILL
+              value: "6.31"
+            - name: SA_SPAM_SUBJECT
+              value: '*** spam ***'
+            - name: ENABLE_FETCHMAIL
+              value: "0"
+            - name: FETCHMAIL_POLL
+              value: "300"
+            - name: ENABLE_LDAP
+              value: null
+            - name: LDAP_START_TLS
+              value: null
+            - name: LDAP_SERVER_HOST
+              value: null
+            - name: LDAP_SEARCH_BASE
+              value: null
+            - name: LDAP_BIND_DN
+              value: null
+            - name: LDAP_BIND_PW
+              value: null
+            - name: LDAP_QUERY_FILTER_USER
+              value: null
+            - name: LDAP_QUERY_FILTER_GROUP
+              value: null
+            - name: LDAP_QUERY_FILTER_ALIAS
+              value: null
+            - name: LDAP_QUERY_FILTER_DOMAIN
+              value: null
+            - name: DOVECOT_TLS
+              value: null
+            - name: DOVECOT_USER_FILTER
+              value: null
+            - name: DOVECOT_USER_ATTR
+              value: null
+            - name: DOVECOT_PASS_FILTER
+              value: null
+            - name: DOVECOT_PASS_ATTR
+              value: null
+            - name: ENABLE_POSTGREY
+              value: "0"
+            - name: POSTGREY_DELAY
+              value: "300"
+            - name: POSTGREY_MAX_AGE
+              value: "35"
+            - name: POSTGREY_AUTO_WHITELIST_CLIENTS
+              value: "5"
+            - name: POSTGREY_TEXT
+              value: delayed by postgrey
+            - name: ENABLE_SASLAUTHD
+              value: "0"
+            - name: SASLAUTHD_MECHANISMS
+              value: null
+            - name: SASLAUTHD_MECH_OPTIONS
+              value: null
+            - name: SASLAUTHD_LDAP_SERVER
+              value: null
+            - name: SASLAUTHD_LDAP_SSL
+              value: null
+            - name: SASLAUTHD_LDAP_BIND_DN
+              value: null
+            - name: SASLAUTHD_LDAP_PASSWORD
+              value: null
+            - name: SASLAUTHD_LDAP_SEARCH_BASE
+              value: null
+            - name: SASLAUTHD_LDAP_FILTER
+              value: null
+            - name: SASL_PASSWD
+              value: null
+            - name: SRS_EXCLUDE_DOMAINS
+              value: null
+            - name: SRS_SECRET
+              value: null
+            - name: SRS_DOMAINNAME
+              value: null
+            - name: DEFAULT_RELAY_HOST
+              value: null
+            - name: RELAY_HOST
+              value: null
+            - name: RELAY_PORT
+              value: "25"
+            - name: RELAY_USER
+              value: null
+            - name: RELAY_PASSWORD
+              value: null
+            image: tvial/docker-mailserver:latest
+            livenessProbe:
+              exec:
+                command:
+                - /bin/bash
+                - /tmp/docker-mailserver/am-i-healthy.sh
+                failureThreshold: 3
+                initialDelaySeconds: 600
+                timeoutSeconds: 60
+            name: dockermailserver
+            resources:
+              limits:
+                cpu: "2"
+                memory: 2048Mi
+              requests:
+                cpu: "1"
+                memory: 1536Mi
+            securityContext:
+              privileged: false
+            volumeMounts:
+            - mountPath: /tmp/docker-mailserver
+              name: config
+            - mountPath: /tmp/ssl
+              name: ssl-cert
+              readOnly: true
+            - mountPath: /var/mail
+              name: data
+              subPath: mail
+            - mountPath: /var/mail-state
+              name: data
+              subPath: mail-state
+            - mountPath: /etc/dovecot/conf.d/zz-custom.cf
+              name: configmap
+              readOnly: true
+              subPath: dovecot.cf
+            - mountPath: /tmp/docker-mailserver/opendkim/TrustedHosts
+              name: configmap
+              readOnly: true
+              subPath: TrustedHosts
+            - mountPath: /tmp/docker-mailserver/opendkim/SigningTable
+              name: configmap
+              readOnly: true
+              subPath: SigningTable
+            - mountPath: /tmp/docker-mailserver/opendkim/KeyTable
+              name: configmap
+              readOnly: true
+              subPath: KeyTable
+            - mountPath: /tmp/docker-mailserver/opendkim/keys/example.com/mail.private
+              name: opendkim-keys
+              readOnly: true
+              subPath: example.com-mail.private
+          initContainers:
+          - command:
+            - sh
+            - -c
+            - cp /tmp/configmaps/* /tmp/docker-mailserver -rfpvL
+            image: busybox:1.28
+            name: prep-config
+            volumeMounts:
+            - mountPath: /tmp/configmaps
+              name: configmap
+              readOnly: true
+            - mountPath: /tmp/docker-mailserver/
+              name: config
+          restartPolicy: Always
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: RELEASE-NAME-docker-mailserver
+          - emptyDir: {}
+            name: config
+          - configMap:
+              name: RELEASE-NAME-docker-mailserver-configs
+            name: configmap
+          - name: opendkim-keys
+            secret:
+              secretName: RELEASE-NAME-docker-mailserver-secrets
+          - name: ssl-cert
+            secret:
+              secretName: RELEASE-NAME-docker-mailserver-tls

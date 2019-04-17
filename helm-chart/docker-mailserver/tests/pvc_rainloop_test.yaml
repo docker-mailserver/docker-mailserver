@@ -27,3 +27,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 0          
+
+  - it: manifest should match snapshot
+    asserts:
+      - matchSnapshot: {}    
