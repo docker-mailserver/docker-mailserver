@@ -18,10 +18,10 @@ tests:
       haproxy.enabled: false
       rainloop.enabled: false
     asserts:
-      - isNull:
+      - notMatchRegex:
           path: data.postfix-main\.cf
           pattern: haproxy
-      - isNull:
+      - notMatchRegex:
           path: data.dovecot\.cf
           pattern: haproxy      
   - it: should create phonehome deployment if haproxy is enabled and set to external-auto mode
