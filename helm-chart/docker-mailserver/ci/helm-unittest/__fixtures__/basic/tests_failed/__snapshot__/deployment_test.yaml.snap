@@ -1,0 +1,24 @@
+should fail all kinds of assertion:
+  1: |
+    replicas: 999
+    template:
+      metadata:
+        labels:
+          app: basic
+          release: RELEASE-NAME
+      spec:
+        containers:
+        - image: apache:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          name: basic
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          resources: {}

@@ -1,0 +1,255 @@
+
+### Chart [ basic ] ../__fixtures__/basic
+
+
+ FAIL  test deployment that would be fail	../__fixtures__/basic/tests_failed/deployment_test.yaml
+	- should fail all kinds of assertion
+
+		- asserts[0] `equal` fail
+
+			Path:	spec.template.spec.containers[0].image
+			Expected:
+				nginx:stable
+			Actual:
+				apache:latest
+			Diff:
+				--- Expected
+				+++ Actual
+				@@ -1,2 +1,2 @@
+				-nginx:stable
+				+apache:latest
+
+		- asserts[1] `notEqual` fail
+
+			Path:	spec.template.spec.containers[0].image
+			Expected NOT to equal:
+				apache:latest
+
+		- asserts[2] `matchRegex` fail
+
+			Path:	metadata.name
+			Expected to match:	^.*-foobar$
+			Actual:	RELEASE-NAME-basic
+
+		- asserts[3] `notMatchRegex` fail
+
+			Path:	metadata.name
+			Expected NOT to match:	^.*-basic$
+			Actual:	RELEASE-NAME-basic
+
+		- asserts[4] `contains` fail
+
+			Path:	spec.template.spec.containers[0].ports
+			Expected to contain:
+				- containerPort: 80
+			Actual:
+				- containerPort: 8080
+
+		- asserts[5] `notContains` fail
+
+			Path:	spec.template.spec.containers[0].ports
+			Expected NOT to contain:
+				- containerPort: 8080
+			Actual:
+				- containerPort: 8080
+
+		- asserts[6] `isNull` fail
+
+			Path:	spec.template
+			Expected to be null, got:
+				metadata:
+				  labels:
+				    app: basic
+				    release: RELEASE-NAME
+				spec:
+				  containers:
+				  - image: apache:latest
+				    imagePullPolicy: Always
+				    livenessProbe:
+				      httpGet:
+				        path: /
+				        port: 8080
+				    name: basic
+				    ports:
+				    - containerPort: 8080
+				    readinessProbe:
+				      httpGet:
+				        path: /
+				        port: 8080
+				    resources: {}
+
+		- asserts[7] `isNotNull` fail
+
+			Path:	spec.template.nodeSelector
+			Expected NOT to be null, got:
+				null
+
+		- asserts[8] `isEmpty` fail
+
+			Path:	spec.template.spec.containers[0]
+			Expected to be empty, got:
+				image: apache:latest
+				imagePullPolicy: Always
+				livenessProbe:
+				  httpGet:
+				    path: /
+				    port: 8080
+				name: basic
+				ports:
+				- containerPort: 8080
+				readinessProbe:
+				  httpGet:
+				    path: /
+				    port: 8080
+				resources: {}
+
+		- asserts[9] `isNotEmpty` fail
+
+			Path:	spec.template.spec.containers[0].resources
+			Expected NOT to be empty, got:
+				{}
+
+		- asserts[10] `isKind` fail
+
+			Expected kind:	Pod
+			Actual:	Deployment
+
+		- asserts[11] `isAPIVersion` fail
+
+			Expected apiVersion:	v2
+			Actual:	extensions/v1beta1
+
+		- asserts[12] `hasDocuments` fail
+
+			Expected documents count:	1
+			Actual:	2
+
+		- asserts[13] `matchSnapshot` fail
+
+			Path:	spec
+			Expected to match snapshot 1:
+				--- Expected
+				+++ Actual
+				@@ -1,2 +1,2 @@
+				-replicas: 999
+				+replicas: 1
+				 template:
+ FAIL  test ingress that should fail	../__fixtures__/basic/tests_failed/ingress_test.yaml
+	- should fail render nothing if not enabled
+
+		- asserts[0] `hasDocuments` fail
+
+			Expected documents count:	1
+			Actual:	0
+
+	- should fail render ingress right if enabled
+
+		- asserts[0] `contains` fail
+
+			Path:	spec.rules[0].http.paths
+			Expected to contain:
+				- backend:
+				    serviceName: my-release-basic
+				    servicePort: 54321
+				  path: /
+			Actual:
+				- backend:
+				    serviceName: my-release-basic
+				    servicePort: 12345
+				  path: /
+
+		- asserts[1] `isNotNull` fail
+
+			Path:	spec.tls
+			Expected NOT to be null, got:
+				null
+
+	- should fail set annotations if given
+
+		- asserts[0] `isEmpty` fail
+
+			Path:	metadata.annotations
+			Expected to be empty, got:
+				ingress.kubernetes.io/rewrite-target: /
+				kubernetes.io/ingress.class: nginx
+				kubernetes.io/tls-acme: "true"
+
+	- should fail set tls if given
+
+		- asserts[0] `equal` fail
+
+			Path:	spec.tls
+			Expected:
+				- secretName: my-tls-secret
+			Actual:
+				null
+			Diff:
+				--- Expected
+				+++ Actual
+				@@ -1,2 +1,2 @@
+				-- secretName: my-tls-secret
+				+null
+ FAIL  test service	../__fixtures__/basic/tests_failed/service_test.yaml
+	- should failed
+
+		- asserts[0] `notContains` fail
+
+			Path:	spec.ports
+			Expected NOT to contain:
+				- name: nginx
+				  port: 80
+				  protocol: TCP
+				  targetPort: 80
+			Actual:
+				- name: nginx
+				  port: 80
+				  protocol: TCP
+				  targetPort: 80
+
+		- asserts[1] `notEqual` fail
+
+			Path:	spec.type
+			Expected NOT to equal:
+				ClusterIP
+
+		- asserts[2] `notEqual` fail
+
+			Path:	spec.selector
+			Expected NOT to equal:
+				app: basic
+				release: my-release
+
+	- should fail renders right if values given
+
+		- asserts[0] `notContains` fail
+
+			Path:	spec.ports
+			Expected NOT to contain:
+				- name: cool-service
+				  port: 4321
+				  protocol: TCP
+				  targetPort: 1234
+			Actual:
+				- name: cool-service
+				  port: 4321
+				  protocol: TCP
+				  targetPort: 1234
+
+		- asserts[1] `notEqual` fail
+
+			Path:	spec.type
+			Expected NOT to equal:
+				NodePort
+
+
+
+Snapshot Summary: 1 snapshot failed in 1 test suite. Check changes and use `-u` to update snapshot.
+
+
+Charts:      1 failed, 0 passed, 1 total
+Test Suites: 3 failed, 0 passed, 3 total
+Tests:       7 failed, 0 passed, 7 total
+Snapshot:    1 failed, 0 passed, 1 total
+Time:        XX.XXXms
+
+

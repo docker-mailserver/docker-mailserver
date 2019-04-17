@@ -1,0 +1,26 @@
+(*unittest.TestJobResult)({
+  DisplayName: (string) (len=11) "should work",
+  Index: (int) 0,
+  Passed: (bool) true,
+  ExecError: (error) <nil>,
+  AssertsResult: ([]*unittest.AssertionResult) (len=2) {
+    (*unittest.AssertionResult)({
+      Index: (int) 0,
+      FailInfo: ([]string) {
+      },
+      Passed: (bool) true,
+      AssertType: (string) (len=5) "equal",
+      Not: (bool) false,
+      CustomInfo: (string) ""
+    }),
+    (*unittest.AssertionResult)({
+      Index: (int) 1,
+      FailInfo: ([]string) {
+      },
+      Passed: (bool) true,
+      AssertType: (string) (len=10) "matchRegex",
+      Not: (bool) false,
+      CustomInfo: (string) ""
+    })
+  }
+})

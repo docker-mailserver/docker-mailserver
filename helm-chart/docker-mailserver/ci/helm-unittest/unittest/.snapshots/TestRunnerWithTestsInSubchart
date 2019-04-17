@@ -1,0 +1,19 @@
+
+### Chart [ parent-chart ] ../__fixtures__/with-subchart
+
+
+ PASS  test deployment	../__fixtures__/with-subchart/charts/child-chart/tests/deployment_test.yaml
+ PASS  test deployment	../__fixtures__/with-subchart/tests/deployment_test.yaml
+ PASS  test ingress	../__fixtures__/with-subchart/charts/child-chart/tests/ingress_test.yaml
+ PASS  test ingress	../__fixtures__/with-subchart/tests/ingress_test.yaml
+ PASS  test service	../__fixtures__/with-subchart/charts/child-chart/tests/service_test.yaml
+ PASS  test service	../__fixtures__/with-subchart/tests/service_test.yaml
+
+
+Charts:      1 passed, 1 total
+Test Suites: 6 passed, 6 total
+Tests:       14 passed, 14 total
+Snapshot:    2 passed, 2 total
+Time:        XX.XXXms
+
+

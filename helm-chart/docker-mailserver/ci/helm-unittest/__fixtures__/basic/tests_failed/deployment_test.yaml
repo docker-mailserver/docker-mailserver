@@ -1,0 +1,46 @@
+suite: test deployment that would be fail
+templates:
+  - deployment.yaml
+tests:
+  - it: should fail all kinds of assertion
+    values:
+      - ./values/image.yaml
+    set:
+      service.internalPort: 8080
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: nginx:stable
+      - notEqual:
+          path: spec.template.spec.containers[0].image
+          value: apache:latest
+      - matchRegex:
+          path: metadata.name
+          pattern: ^.*-foobar$
+      - notMatchRegex:
+          path: metadata.name
+          pattern: ^.*-basic$
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            containerPort: 80
+      - notContains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            containerPort: 8080
+      - isNull:
+          path: spec.template
+      - isNotNull:
+          path: spec.template.nodeSelector
+      - isEmpty:
+          path: spec.template.spec.containers[0]
+      - isNotEmpty:
+          path: spec.template.spec.containers[0].resources
+      - isKind:
+          of: Pod
+      - isAPIVersion:
+          of: v2
+      - hasDocuments:
+          count: 1
+      - matchSnapshot:
+          path: spec

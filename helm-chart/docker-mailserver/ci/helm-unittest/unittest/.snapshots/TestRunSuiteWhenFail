@@ -1,0 +1,42 @@
+(unittest.TestSuiteResult) {
+  DisplayName: (string) (len=15) "test suite name",
+  FilePath: (string) "",
+  Passed: (bool) false,
+  ExecError: (error) <nil>,
+  TestsResult: ([]*unittest.TestJobResult) (len=1) {
+    (*unittest.TestJobResult)({
+      DisplayName: (string) (len=11) "should fail",
+      Index: (int) 0,
+      Passed: (bool) false,
+      ExecError: (error) <nil>,
+      AssertsResult: ([]*unittest.AssertionResult) (len=1) {
+        (*unittest.AssertionResult)({
+          Index: (int) 0,
+          FailInfo: ([]string) (len=11) {
+            (string) (len=10) "Path:\tkind",
+            (string) (len=9) "Expected:",
+            (string) (len=4) "\tPod",
+            (string) (len=7) "Actual:",
+            (string) (len=11) "\tDeployment",
+            (string) (len=5) "Diff:",
+            (string) (len=13) "\t--- Expected",
+            (string) (len=11) "\t+++ Actual",
+            (string) (len=16) "\t@@ -1,2 +1,2 @@",
+            (string) (len=5) "\t-Pod",
+            (string) (len=12) "\t+Deployment"
+          },
+          Passed: (bool) false,
+          AssertType: (string) (len=5) "equal",
+          Not: (bool) false,
+          CustomInfo: (string) ""
+        })
+      }
+    })
+  },
+  SnapshotCounting: (struct { Total uint; Failed uint; Created uint; Vanished uint }) {
+    Total: (uint) 0,
+    Failed: (uint) 0,
+    Created: (uint) 0,
+    Vanished: (uint) 0
+  }
+}
