@@ -229,20 +229,9 @@ resources:
 
 persistence:
   size: "10Gi"
-  # existingClaim:
-  # storageClass:
-  ## If the storage class has been defined specifically for this chart, modify the PVC to select that storage class
-  ## All of the requirements, from both matchLabels and matchExpressions are ANDed together – they must all be satisfied
-  ## in order to match.
-  # selector:
-    ## Key / Value pair to match
-    # matchLabels:
-      # foo: "bar"
-    # matchExpressions:
-      #- key: environment
-      #  operator: In
-      #  values:
-      #    - dev
+  # Uncomment the backup.kubernetes.io/deltas annotation below if you use https://github.com/miracle2k/k8s-snapshots
+  annotations: {}
+    # backup.kubernetes.io/deltas: PT1H P2D P30D P180D
 
 
 ## Monitoring adds the prometheus.io annotations to pods and services, so that the Prometheus Kubernetes SD mechanism
@@ -290,6 +279,9 @@ rainloop:
     pullPolicy: "Always"
   persistence:
     size: "1Gi"
+    # Uncomment the backup.kubernetes.io/deltas annotation below if you use https://github.com/miracle2k/k8s-snapshots
+    annotations: {}
+      # backup.kubernetes.io/deltas: PT1H P2D P30D P180D    
   service:
     port: 80
   container:

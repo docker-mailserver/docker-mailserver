@@ -2,10 +2,10 @@ suite: rainloop tests
 templates:
   - configmap.yaml
   - service.yaml
-  - service-rainloop.yaml
-  - ingress-rainloop.yaml
-  - pvc-rainloop.yaml
-  - deployment-rainloop.yaml
+  - service_rainloop.yaml
+  - ingress_rainloop.yaml
+  - pvc_rainloop.yaml
+  - deployment_rainloop.yaml
 tests:
   - it: should configure imaps port 10993 for rainloop if enabled (and haproxy enabled)
     set:
@@ -33,7 +33,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-        template: service-rainloop.yaml       
+        template: service_rainloop.yaml       
 
   - it: should not create rainloop service if disabled
     set:
@@ -41,7 +41,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-        template: service-rainloop.yaml  
+        template: service_rainloop.yaml  
 
   - it: should create rainloop ingress if enabled
     set:
@@ -49,7 +49,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-        template: ingress-rainloop.yaml       
+        template: ingress_rainloop.yaml       
 
   - it: should not create rainloop ingress if disabled
     set:
@@ -57,7 +57,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-        template: ingress-rainloop.yaml  
+        template: ingress_rainloop.yaml  
 
   - it: should create rainloop pvc if enabled
     set:
@@ -65,7 +65,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-        template: pvc-rainloop.yaml       
+        template: pvc_rainloop.yaml       
 
   - it: should not create rainloop pvc if disabled
     set:
@@ -73,7 +73,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-        template: pvc-rainloop.yaml         
+        template: pvc_rainloop.yaml         
 
   - it: should create rainloop deployment if enabled
     set:
@@ -81,7 +81,7 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
-        template: deployment-rainloop.yaml       
+        template: deployment_rainloop.yaml       
 
   - it: should not create rainloop deployment if disabled
     set:
@@ -89,4 +89,4 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-        template: deployment-rainloop.yaml            
+        template: deployment_rainloop.yaml            

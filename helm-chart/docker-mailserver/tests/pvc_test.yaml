@@ -1,0 +1,14 @@
+
+suite: pvc creation
+templates:
+  - pvc.yaml
+tests:
+  
+  - it: should apply annotations from persistence.annotations
+    set:
+      persistence.annotations.backup\.banana\.io/deltas: pancakes
+    asserts:
+      - equal:
+          path: metadata.annotations.backup\.banana\.io/deltas
+          value: pancakes
+

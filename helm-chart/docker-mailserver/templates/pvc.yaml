@@ -10,6 +10,9 @@ metadata:
   {{- else }}
     volume.alpha.kubernetes.io/storage-class: "generic"
   {{- end }}
+  {{- if .Values.persistence.annotations }}
+  {{ toYaml .Values.persistence.annotations | indent 2 }}  
+  {{ end -}}
 spec:
   accessModes:
     - {{ default "ReadWriteOnce" .Values.persistence.accessMode | quote }}
