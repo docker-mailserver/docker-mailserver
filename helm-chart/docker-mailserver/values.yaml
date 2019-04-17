@@ -22,10 +22,10 @@ haproxy:
 
   # Whether to configure postscreen/imaps for proxy-protocol support from an upstream haproxy instance
   # If this is enabled, you _must_ access SMTP (TCP 25), submission (TCP 587), and IMAPS (TCP 993) via haproxy.
-  enabled: false
+  enabled: true
 
   # If you set mode "ingress", then set "deploy_ingress_chart" below to true. (Unless you've got your existing TCP ingress)
-  deploy_ingress_chart: false
+  deploy_ingress_chart: true
 
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
   # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
@@ -38,6 +38,13 @@ haproxy:
   # By default, we allow all RFC1918 private ranges, but this can be tightened up for the known IP/range
   # of your HAProxy instance
   trusted_networks: "10.0.0.0/8 192.168.0.0/16 172.16.0.0/16"
+
+# If you choose _not_ to use haproxy, and you're not exposing your services with a load-balanced service
+# with an external traffic policy in "Local" mode, you risk having the source IP of incoming mail overwritten
+# with a local Kubernetes cluster IP, as part of the ingress routing of the connection. This, in turn, 
+# will cause all incoming to appear to be coming from an internal IP, causing SPF tests to fail.
+# Disable the following to bypass SPF tests altogether, to accommodate this scenario.
+spf_tests_disabled: false
 
 # If you're using David's hacked-up automatic external haproxy design, then enable
 # the following to launch the appropriate containers to call back to the haproxy webhook

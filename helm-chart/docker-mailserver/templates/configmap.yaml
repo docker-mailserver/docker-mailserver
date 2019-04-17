@@ -27,11 +27,13 @@ data:
   {{- (.Files.Glob "config/*").AsConfig | nindent 2 }}
   {{- (.Files.Glob "config/opendkim/*").AsConfig | nindent 2 }} 
   {{- end }}
-  {{/* Enable proxy protocol for postscreen / dovecot */}}
-  {{ if .Values.haproxy.enabled -}} 
   postfix-main.cf: |
-    # Necessary to permit proxy protocol from haproxy to postscreen
+  {{/* Enable proxy protocol for postscreen / dovecot */}}
+  {{- if .Values.haproxy.enabled }}  # Necessary to permit proxy protocol from haproxy to postscreen
     postscreen_upstream_proxy_protocol = haproxy
+  {{ end }}
+  {{ if .Values.spf_tests_disabled }}
+    smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
   {{ end }}
 
   {{ if .Values.haproxy.enabled -}}  
