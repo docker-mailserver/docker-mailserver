@@ -48,11 +48,13 @@ What does this mean? We set you up a demo user (user is "user@example.com", pass
 you can confirm your services are setup correctly. Once you're ready to configure docker-mailserver _for realz_
 here's what you need to do:
 
-1. Update values.yaml, and set pod.dockermailserver.demomode to "false". Also set your domains under "domains", removing "example.com"
+1. Update values.yaml, and set pod.demo_mode.enabled to "false". Also set your domains under "domains", removing "example.com"
 2. From the /helm-chart/ directory, execute ../setup.sh using a custom path, to create your users and setup your DKIM key(s), as follows:
 
    ../setup.sh -p docker-mailserver/config email add <email address> [password]
    ../setup.sh -p docker-mailserver/config config dkim
+
+NOTE: The above step is mandatory if you disable demo mode. Without valid DKIM keys, the chart WON'T DEPLOY
 
 3. Upgrade the helm chart to apply your changes, by running:
 

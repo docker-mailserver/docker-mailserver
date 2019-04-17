@@ -16,8 +16,7 @@ jobs:
   include:
     - stage: lint chart syntax
       script:
-        - cd helm-chart
-        - helm lint docker-mailserver
+        - helm lint helm-chart/docker-mailserver
     - stage: kubeval generated manifests
       script:   
         - mkdir manifests
@@ -25,6 +24,7 @@ jobs:
         - find manifests/ -name '*.yaml' | grep -v crd | xargs kubeval -v $KUBERNETES_VERSION
     - stage: execute unit tests
       script:  
+        - mkdir helm-chart/docker-mailserver/config/opendkim
+        - echo "sample data for unit test" > helm-chart/docker-mailserver/config/opendkim/ignore.txt
         - helm plugin install https://github.com/lrills/helm-unittest
-        - cd helm-chart
-        - helm unittest docker-mailserver 
+        - helm unittest helm-chart/docker-mailserver 
