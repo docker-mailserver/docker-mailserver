@@ -16,8 +16,8 @@ jobs:
   include:
     - stage: lint chart syntax
       script:
-        - echo $PATH
-        - helm lint helm-chart/docker-mailserver
+        - cd helm-chart
+        - helm lint docker-mailserver
     - stage: kubeval generated manifests
       script:   
         - mkdir manifests
@@ -26,4 +26,5 @@ jobs:
     - stage: execute unit tests
       script:  
         - helm plugin install https://github.com/lrills/helm-unittest
-        - helm unittest helm-chart/docker-mailserver 
+        - cd helm-chart
+        - helm unittest docker-mailserver 
