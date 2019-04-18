@@ -229,6 +229,33 @@ persistence:
   annotations: {}
     # backup.kubernetes.io/deltas: PT1H P2D P30D P180D
 
+## Monitoring adds the prometheus.io annotations to pods and services, so that the Prometheus Kubernetes SD mechanism
+## as configured in the examples will automatically discover both the pods and the services to query.
+##
+## This defaults on, as the annotations should do no harm where Prometheus is not available but will automatically
+## expose the application where Prometheus is.
+##
+## See https://github.com/prometheus/docs/blob/master/content/docs/operating/configuration.md
+## See https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
+monitoring:
+  ## Whether to scrape this service with the montoring toolkit. Mostly useful for blackbox probing of a given service
+  ## to ensure it's "up"
+  service:
+    ## monitoring should be configured to only scrape services that have a value of "true"
+    scrape: "false"
+    ## Path on which metrics are exposed
+    path: "/metrics"
+    ## Port on which HTTP server is served
+    port: "9102"
+  ## Whether to scape the pods associated with this application. Useful for collecting metrics.
+  pod:
+    ## monitoring shoudl be configured to only scrape pods that have a value of `true`
+    scrape: "false"
+    ## Path on which metrics are exposed
+    path: "/metrics"
+    ## Port on which HTTP server is served
+    port: "9102"
+    
 ## These values define how the certificate created by the chart is processed by cert-manager
 ## Ensure you've setup your ClusterIssuers (letsencrypt-staging and letsencrypt-prod) and DNS provider
 ssl:

@@ -3,6 +3,14 @@ kind: "Service"
 apiVersion: "v1"
 metadata:
   annotations:
+    ## These annontations mark the service as monitorable by Prometheus, both directly as a service level metric and
+    ## via the blackbox exporter. For more information, see
+    ## values.yaml
+    prometheus.io/scrape: {{ .Values.monitoring.service.scrape | quote }}
+    prometheus.io/probe: {{ .Values.monitoring.service.probe | quote }}
+    prometheus.io/path: {{ .Values.monitoring.service.path | quote }}
+    prometheus.io/port: {{ .Values.monitoring.service.port | quote }}
+    ##  
     ## If a load balancer is being used, ensure that the newer type of LB that passes along IP information is used
     ## rather than the legacy one.
     {{ if eq .Values.service.type "LoadBalancer" }}service.beta.kubernetes.io/external-traffic: "OnlyLocal"{{ end }}
