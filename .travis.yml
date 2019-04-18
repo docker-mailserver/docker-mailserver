@@ -11,7 +11,7 @@ before_install:
   - mv helm kubeval /home/travis/bin/
   - helm init -c
 env:
-  - KUBERNETES_VERSION="1.14.0"
+  - KUBERNETES_VERSION="1.12.0"
 jobs:
   include:
     - stage: lint chart syntax

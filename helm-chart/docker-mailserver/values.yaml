@@ -7,7 +7,7 @@
 ## Ref: https://hub.docker.com/r/tvial/docker-mailserver
 image:
   name: "tvial/docker-mailserver"
-  tag: "latest"
+  tag: "release-v6.1.0"
 
 # If demo mode is enabled, the contents of helm-chart/docker-mailserver/config will _not_ be imported into
 # a configmap, and a minimal static configuration will be used instead. A single account (user "user@example.com", password "password")
@@ -24,13 +24,10 @@ haproxy:
   # If this is enabled, you _must_ access SMTP (TCP 25), submission (TCP 587), and IMAPS (TCP 993) via haproxy.
   enabled: true
 
-  # If you set mode "ingress", then set "deploy_ingress_chart" below to true. (Unless you've got your existing TCP ingress)
-  deploy_ingress_chart: true
-
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
   # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
-  webhook_url: "https://your-webhook-url:9000/hooks/update-haproxy"
-  webhook_secret: "mysecret"
+  webhook_url: 
+  webhook_secret: 
 
     
   # These values populate dovecot's list of networks it'll "trust" for incoming haproxy connections.
@@ -53,9 +50,9 @@ poor_mans_k8s_lb:
   enabled: false
 
 # List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
-domains:
-  - your-first-domain.com
-  - your-second-domain.com
+domains: []
+#  - your-first-domain.com
+#  - your-second-domain.com
 
 liveness_tests:
   enabled: true
@@ -63,7 +60,6 @@ liveness_tests:
     - "clamscan /tmp/docker-mailserver/TrustedHosts"
 
 pod:
-
   dockermailserver:
 
     ## Host networking requested for this pod. Use the host’s network namespace. If this option is set, the ports that
@@ -232,34 +228,6 @@ persistence:
   # Uncomment the backup.kubernetes.io/deltas annotation below if you use https://github.com/miracle2k/k8s-snapshots
   annotations: {}
     # backup.kubernetes.io/deltas: PT1H P2D P30D P180D
-
-
-## Monitoring adds the prometheus.io annotations to pods and services, so that the Prometheus Kubernetes SD mechanism
-## as configured in the examples will automatically discover both the pods and the services to query.
-##
-## This defaults on, as the annotations should do no harm where Prometheus is not available but will automatically
-## expose the application where Prometheus is.
-##
-## See https://github.com/prometheus/docs/blob/master/content/docs/operating/configuration.md
-## See https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
-monitoring:
-  ## Whether to scrape this service with the montoring toolkit. Mostly useful for blackbox probing of a given service
-  ## to ensure it's "up"
-  service:
-    ## monitoring should be configured to only scrape services that have a value of "true"
-    scrape: "false"
-    ## Path on which metrics are exposed
-    path: "/metrics"
-    ## Port on which HTTP server is served
-    port: "9102"
-  ## Whether to scape the pods associated with this application. Useful for collecting metrics.
-  pod:
-    ## monitoring shoudl be configured to only scrape pods that have a value of `true`
-    scrape: "false"
-    ## Path on which metrics are exposed
-    path: "/metrics"
-    ## Port on which HTTP server is served
-    port: "9102"
 
 ## These values define how the certificate created by the chart is processed by cert-manager
 ## Ensure you've setup your ClusterIssuers (letsencrypt-staging and letsencrypt-prod) and DNS provider
