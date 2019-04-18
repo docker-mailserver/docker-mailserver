@@ -8,6 +8,32 @@ While the stack is intended to be run with Docker or Docker Compose, it's been a
 
 This helm chart deploys docker-mailserver into a Kubernetes cluster, in a manner which retains compatibility with the upstream, docker-specific version. 
 
+## Contents
+
+- [Docker-mailserver](#docker-mailserver)
+  - [Introduction](#introduction)
+  - [Contents](#contents)
+  - [Features](#features)
+  - [Prerequisites](#prerequisites)
+  - [Architecture](#architecture)
+  - [Installation](#installation)
+    - [Install helm and cert-manager](#install-helm-and-cert-manager)
+  - [Installation](#installation-1)
+  - [Operation](#operation)
+    - [Create / Update / Delete users](#create--update--delete-users)
+    - [Setup OpenDKIM](#setup-opendkim)
+    - [Setup RainLoop](#setup-rainloop)
+    - [Configuration](#configuration)
+      - [Minimal configuration](#minimal-configuration)
+      - [Chart Configuration](#chart-configuration)
+      - [docker-mailserver Configuration](#docker-mailserver-configuration)
+      - [Rainloop Configuration](#rainloop-configuration)
+      - [HA Proxy-Ingress Configuration](#ha-proxy-ingress-configuration)
+  - [Development](#development)
+    - [Testing](#testing)
+
+(Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go))
+
 ## Features 
 
 The chart includes the following features:

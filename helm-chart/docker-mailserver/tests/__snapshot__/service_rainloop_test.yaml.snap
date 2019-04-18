@@ -3,11 +3,7 @@ manifest should match snapshot:
     apiVersion: v1
     kind: Service
     metadata:
-      annotations:
-        prometheus.io/path: /metrics
-        prometheus.io/port: "9102"
-        prometheus.io/probe: null
-        prometheus.io/scrape: "false"
+      annotations: null
       labels:
         app: RELEASE-NAME-docker-mailserver
         chart: docker-mailserver-0.1.0

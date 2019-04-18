@@ -168,7 +168,7 @@ manifest should match snapshot:
               value: null
             - name: RELAY_PASSWORD
               value: null
-            image: tvial/docker-mailserver:latest
+            image: tvial/docker-mailserver:release-v6.1.0
             livenessProbe:
               exec:
                 command:
