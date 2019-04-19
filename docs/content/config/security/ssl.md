@@ -35,7 +35,7 @@ You can now mount /home/ubuntu/docker/letsencrypt/etc/ in /etc/letsencrypt of ``
 
 To renew your certificate just run (this will need access to port 443 from the internet, adjust your firewall if needed)
 ```
-docker run --rm -ti -v $PWD/log/:/var/log/letsencrypt/ -v $PWD/etc/:/etc/letsencrypt/ -p 443:443 deliverous/certbot renew
+docker run --rm -ti -v $PWD/log/:/var/log/letsencrypt/ -v $PWD/etc/:/etc/letsencrypt/ -p 80:80 -p 443:443 deliverous/certbot renew
 ```
 
 #### Example using docker, nginx-proxy and letsencrypt-nginx-proxy-companion ####
