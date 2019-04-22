@@ -1,8 +1,0 @@
-dependencies:
-  - name: postgresql
-    repository: https://kubernetes-charts.storage.googleapis.com
-    version: 0.8.3
-  - name: postgresql
-    repository: https://kubernetes-charts.storage.googleapis.com
-    version: 0.8.3
-    alias: another-postgresql
