@@ -1,5 +1,10 @@
-language: C
-sudo: false
+language: bash
+branches:
+  except:
+  - donttestme
+sudo: required
+services:
+- docker
 before_install:
   - wget https://kubernetes-helm.storage.googleapis.com/helm-v2.13.1-linux-amd64.tar.gz
   - tar xzvf helm-v2.13.1-linux-amd64.tar.gz
@@ -14,18 +19,21 @@ env:
   - KUBERNETES_VERSION="1.12.0"
 jobs:
   include:
-    - stage: lint chart syntax
+    - stage: helm-chart - lint chart syntax
       script:
         - helm lint helm-chart/docker-mailserver
-    - stage: kubeval generated manifests
+    - stage: helm-chart - kubeval generated manifests
       script:   
         - mkdir manifests
         - helm template helm-chart/docker-mailserver --output-dir manifests
         - find manifests/ -name '*.yaml' | grep -v crd | xargs kubeval -v $KUBERNETES_VERSION
-    - stage: execute unit tests
+    - stage: helm-chart - execute unit tests
       script:  
         - mkdir -p helm-chart/docker-mailserver/config/opendkim/keys/example.com
         - cp helm-chart/docker-mailserver/demo-mode-dkim-key-for-example.com.key helm-chart/docker-mailserver/config/opendkim/keys/example.com/mail.private
         - echo "sample data for unit test" > helm-chart/docker-mailserver/config/opendkim/ignore.txt
         - travis_retry helm plugin install https://github.com/lrills/helm-unittest
         - helm unittest helm-chart/docker-mailserver 
+    - stage: docker-mailserver tests
+        - travis_retry travis_wait make build-no-cache
+        - make generate-accounts run generate-accounts-after-run fixtures test
