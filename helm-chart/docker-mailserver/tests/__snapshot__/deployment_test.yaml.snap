@@ -182,11 +182,11 @@ manifest should match snapshot:
               limits:
                 cpu: "2"
                 memory: 2048Mi
+              privileged: false
               requests:
                 cpu: "1"
                 memory: 1536Mi
-            securityContext:
-              privileged: false
+              securityContext: null
             volumeMounts:
             - mountPath: /tmp/docker-mailserver
               name: config

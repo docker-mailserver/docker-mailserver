@@ -11,9 +11,7 @@ manifest should match snapshot:
         #!/bin/bash
         # this script is intended to be used by periodic kubernetes liveness probes to ensure that the container
         # (and all its dependent services) is healthy
-
         clamscan /tmp/docker-mailserver/TrustedHosts && \
-
         echo "All healthy"
       dovecot.cf: "haproxy_trusted_networks = 10.0.0.0/8 192.168.0.0/16 172.16.0.0/16\nservice
         imap-login {\n  inet_listener imap {\n    haproxy = yes\n  }  \n  inet_listener
