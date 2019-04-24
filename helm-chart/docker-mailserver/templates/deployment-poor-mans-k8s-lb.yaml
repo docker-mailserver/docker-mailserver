@@ -1,5 +1,5 @@
 {{/* This whole template is only necessary if we're using the phone-home webhook implementation */}}
-{{ if .Values.poor_mans_k8s_lb.enabled -}}  
+{{ if .Values.poorMansK8sLb.enabled -}}  
 ---
 apiVersion: "apps/v1"
 kind: "Deployment"
@@ -58,7 +58,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-smtp"
           - name: WEBHOOK
-            value: {{ .Values.haproxy.webhook_url }}
+            value: {{ .Values.haproxy.webhookUrl }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -81,7 +81,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-pop3"
           - name: WEBHOOK
-            value: {{ .Values.haproxy.webhook_url }}
+            value: {{ .Values.haproxy.webhookUrl }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -100,7 +100,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-submission"
           - name: WEBHOOK
-            value: {{ .Values.haproxy.webhook_url }}
+            value: {{ .Values.haproxy.webhookUrl }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -119,7 +119,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-smtps"
           - name: WEBHOOK
-            value: {{ .Values.haproxy.webhook_url }}
+            value: {{ .Values.haproxy.webhookUrl }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -142,7 +142,7 @@ spec:
             value: "send-proxy"            
             {{- end }}             
           - name: WEBHOOK
-            value: {{ .Values.haproxy.webhook_url }}
+            value: {{ .Values.haproxy.webhookUrl }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:
@@ -165,7 +165,7 @@ spec:
           - name: NAME
             value: "docker-mailserver-pop3s"
           - name: WEBHOOK
-            value: {{ .Values.haproxy.webhook_url }}
+            value: {{ .Values.haproxy.webhookUrl }}
           - name: WEBHOOK_TOKEN
             valueFrom:
               secretKeyRef:

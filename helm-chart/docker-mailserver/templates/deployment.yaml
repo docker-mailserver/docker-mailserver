@@ -111,7 +111,7 @@ spec:
               subPath: KeyTable
               mountPath: /tmp/docker-mailserver/opendkim/KeyTable
               readOnly: true       
-              {{- if .Values.demo_mode.enabled }} 
+              {{- if .Values.demoMode.enabled }} 
             - name: opendkim-keys
               mountPath: "/tmp/docker-mailserver/opendkim/keys/example.com/mail.private"
               subPath: "example.com-mail.private"

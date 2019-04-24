@@ -40,7 +40,7 @@
 
 You've successfully launched docker-mailserver helm chart!
 
-{{- if .Values.demo_mode.enabled -}}  
+{{- if .Values.demoMode.enabled -}}  
 
 But wait, dear reader. You're still running in DEMO MODE.
 
@@ -48,7 +48,7 @@ What does this mean? We set you up a demo user (user is "user@example.com", pass
 you can confirm your services are setup correctly. Once you're ready to configure docker-mailserver _for realz_
 here's what you need to do:
 
-1. Update values.yaml, and set pod.demo_mode.enabled to "false". Also set your domains under "domains", removing "example.com"
+1. Update values.yaml, and set pod.demoMode.enabled to "false". Also set your domains under "domains", removing "example.com"
 2. From the /helm-chart/ directory, execute ../setup.sh using a custom path, to create your users and setup your DKIM key(s), as follows:
 
    ../setup.sh -p docker-mailserver/config email add <email address> [password]
@@ -74,7 +74,7 @@ to add to your DNS zones, to finish setting up DKIM:
 {{ end }}
 
 {{ if .Values.haproxy.enabled -}}  
-{{ if .Values.poor_mans_k8s_lb.enabled -}} 
+{{ if .Values.poorMansK8sLb.enabled -}} 
 
 -------
 You're running with HAProxy enabled, and poor-mans-k8s-lb turned on. Provided you've correctly setup your 
@@ -93,7 +93,7 @@ ports, and have it "Just Work (tm)"
 {{ else -}} 
 
 -------
-You've enabled haproxy support, but you've not activated ingress or poor_mans_k8s_lb. You'll need to manually configure
+You've enabled haproxy support, but you've not activated ingress or poorMansK8sLb. You'll need to manually configure
 your haproxy to send the incoming traffic to the node running your pod, on the configured nodeport ports. Use the
 "send-proxy" value for ports 25,110,143,993 and 995 (but not 465 and 587)
 -------

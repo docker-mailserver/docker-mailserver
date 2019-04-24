@@ -16,7 +16,7 @@ tests:
           
   - it: should create phonehome deployment if haproxy is enabled and set to external-auto mode
     set:
-      poor_mans_k8s_lb.enabled: true
+      poorMansK8sLb.enabled: true
     asserts:
       - hasDocuments:
           count: 1

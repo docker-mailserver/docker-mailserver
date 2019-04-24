@@ -5,7 +5,7 @@ tests:
 
   - it: should correctly import configmaps from config/ if demo mode is disabled
     set:
-      demo_mode.enabled: false
+      demoMode.enabled: false
     asserts:
       - matchRegex:
           path: data.fail2ban-fail2ban\.cf

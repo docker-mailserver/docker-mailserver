@@ -12,7 +12,7 @@ image:
 # If demo mode is enabled, the contents of helm-chart/docker-mailserver/config will _not_ be imported into
 # a configmap, and a minimal static configuration will be used instead. A single account (user "user@example.com", password "password")
 # will be configured for the purpose of validating core functions and connectivity, before applying user config
-demo_mode:
+demoMode:
   enabled: true
 
 # HAProxy can be used as an upstream proxy, with the PROXY protocol, to present real-world origin source IPs
@@ -26,27 +26,27 @@ haproxy:
 
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
   # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
-  webhook_url: 
-  webhook_secret: 
+  webhookUrl: 
+  webhookSecret: 
 
     
   # These values populate dovecot's list of networks it'll "trust" for incoming haproxy connections.
   # A space-separated list, on a single line, is required
   # By default, we allow all RFC1918 private ranges, but this can be tightened up for the known IP/range
   # of your HAProxy instance
-  trusted_networks: "10.0.0.0/8 192.168.0.0/16 172.16.0.0/16"
+  trustedNetworks: "10.0.0.0/8 192.168.0.0/16 172.16.0.0/16"
 
 # If you choose _not_ to use haproxy, and you're not exposing your services with a load-balanced service
 # with an external traffic policy in "Local" mode, you risk having the source IP of incoming mail overwritten
 # with a local Kubernetes cluster IP, as part of the ingress routing of the connection. This, in turn, 
 # will cause all incoming to appear to be coming from an internal IP, causing SPF tests to fail.
 # Disable the following to bypass SPF tests altogether, to accommodate this scenario.
-spf_tests_disabled: false
+spfTestsDisabled: false
 
 # If you're using David's hacked-up automatic external haproxy design, then enable
 # the following to launch the appropriate containers to call back to the haproxy webhook
 # Details at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/ 
-poor_mans_k8s_lb:
+poorMansK8sLb:
   enabled: false
 
 # List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
@@ -54,7 +54,7 @@ domains: []
 #  - your-first-domain.com
 #  - your-second-domain.com
 
-liveness_tests:
+livenessTests:
   enabled: true
   commands:
     - "clamscan /tmp/docker-mailserver/TrustedHosts"
@@ -292,7 +292,7 @@ rainloop:
     tls: []
 
 ## These values are for the haproxy-ingress sub-chart
-haproxy-ingress:
+haproxyIngress:
   deploychart: true
   controller:
     kind: "Deployment"
