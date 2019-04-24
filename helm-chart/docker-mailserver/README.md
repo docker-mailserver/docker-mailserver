@@ -54,6 +54,7 @@ external load balancer (e.g. AWS, DO or GKE). (There is an [update planned](http
 - __Suggested:__ PV provisioner support in the underlying infrastructure
 - [Cert-manager](https://github.com/jetstack/cert-manager/tree/master/deploy/charts/cert-manager) requires manual deployment into your cluster (details below)
 - [Helm](https://helm.sh) >= 2.13.0 (*errors were encountered when testing with 2.11.0, so the chart has a minimum requirement of 2.13.0*)
+- Access to a platform with Docker installed, in order to run [docker-mailserver's setup.sh binary](https://github.com/tomav/docker-mailserver/blob/master/setup.sh), which uses a docker container to setup dovecot password hashes and OpenDKIM keys
 
 ## Architecture
 
