@@ -35,5 +35,6 @@ jobs:
         - travis_retry helm plugin install https://github.com/lrills/helm-unittest
         - helm unittest helm-chart/docker-mailserver 
     - stage: docker-mailserver tests
+      script:
         - travis_retry travis_wait make build-no-cache
         - make generate-accounts run generate-accounts-after-run fixtures test
