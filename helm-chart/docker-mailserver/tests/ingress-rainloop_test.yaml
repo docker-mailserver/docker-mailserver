@@ -1,6 +1,6 @@
-suite: ingress_rainloop
+suite: ingress-rainloop
 templates:
-  - ingress_rainloop.yaml
+  - ingress-rainloop.yaml
 tests:
 
   - it: should create rainloop ingress if enabled
@@ -8,8 +8,7 @@ tests:
       rainloop.enabled: true
     asserts:
       - hasDocuments:
-          count: 1
-        template: ingress_rainloop.yaml       
+          count: 1    
 
   - it: should not create rainloop ingress if disabled
     set:
@@ -17,7 +16,6 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
-        template: ingress_rainloop.yaml  
 
   - it: manifest should match snapshot
     asserts:

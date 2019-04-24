@@ -1,0 +1,25 @@
+manifest should match snapshot:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9102"
+        prometheus.io/probe: null
+        prometheus.io/scrape: "false"
+      labels:
+        app: RELEASE-NAME-docker-mailserver
+        chart: docker-mailserver-0.1.0
+        heritage: Tiller
+        release: RELEASE-NAME
+      name: RELEASE-NAME-docker-mailserver-rainloop
+    spec:
+      ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: 8888
+      selector:
+        app: RELEASE-NAME-docker-mailserver-rainloop
+        release: RELEASE-NAME

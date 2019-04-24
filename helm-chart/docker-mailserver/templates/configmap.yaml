@@ -34,8 +34,7 @@ data:
   {{ end }}
   {{ if .Values.spfTestsDisabled }}
     smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
-  {{ end }}
-
+  {{ end -}}
   {{ if .Values.haproxy.enabled -}}  
   dovecot.cf: |   
     haproxy_trusted_networks = {{ .Values.haproxy.trustedNetworks }}
@@ -62,12 +61,12 @@ data:
       }                        
     }
     
-  {{ end }}
+  {{ end -}}
   am-i-healthy.sh: |
     #!/bin/bash
     # this script is intended to be used by periodic kubernetes liveness probes to ensure that the container
     # (and all its dependent services) is healthy
-    {{ range .Values.livenessTests.commands }}
+    {{ range .Values.livenessTests.commands -}}
     {{ . }} && \
-    {{ end }}
+    {{- end }}
     echo "All healthy"

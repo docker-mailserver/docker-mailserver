@@ -1,0 +1,52 @@
+manifest should match snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: RELEASE-NAME-docker-mailserver
+        chart: docker-mailserver-0.1.0
+        heritage: Tiller
+        release: RELEASE-NAME
+      name: RELEASE-NAME-docker-mailserver-rainloop
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: RELEASE-NAME-docker-mailserver-rainloop
+          release: RELEASE-NAME
+      strategy:
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 1
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: RELEASE-NAME-docker-mailserver-rainloop
+            release: RELEASE-NAME
+        spec:
+          containers:
+          - image: hardware/rainloop:latest
+            imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /
+                port: http
+            name: rainloop
+            ports:
+            - containerPort: 8888
+              name: http
+              protocol: TCP
+            readinessProbe:
+              httpGet:
+                path: /
+                port: http
+            volumeMounts:
+            - mountPath: /rainloop/data
+              name: data
+              subPath: rainloop
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: RELEASE-NAME-docker-mailserver-rainloop

@@ -1,7 +1,7 @@
 
-suite: pvc_rainloop
+suite: pvc-rainloop
 templates:
-  - pvc_rainloop.yaml
+  - pvc-rainloop.yaml
 tests:
   
   - it: should apply annotations from persistence.annotations

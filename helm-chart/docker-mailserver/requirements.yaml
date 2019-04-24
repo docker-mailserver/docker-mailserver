@@ -7,7 +7,7 @@
 ## and the requirements.lock file commited.
 ##
  dependencies:
-   - name: "haproxyIngress"
+   - name: "haproxy-ingress"
      version: "0.0.11"
      repository: "https://kubernetes-charts-incubator.storage.googleapis.com/"
      condition: haproxyIngress.deploychart

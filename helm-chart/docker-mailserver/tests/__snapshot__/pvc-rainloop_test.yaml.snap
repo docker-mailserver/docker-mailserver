@@ -1,0 +1,14 @@
+manifest should match snapshot:
+  1: |
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      annotations:
+        volume.alpha.kubernetes.io/storage-class: generic
+      name: RELEASE-NAME-docker-mailserver-rainloop
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi

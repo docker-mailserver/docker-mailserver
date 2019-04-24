@@ -1,5 +1,5 @@
 {{/* This whole template is only necessary if we're using rainloop */}}
-{{ if .Values.rainloop.enabled -}}  
+{{- if .Values.rainloop.enabled -}}  
 ---
 kind: "Service"
 apiVersion: "v1"
@@ -13,7 +13,7 @@ metadata:
     prometheus.io/path: {{ .Values.monitoring.service.path | quote }}
     prometheus.io/port: {{ .Values.monitoring.service.port | quote }}
     ##  
-    {{ if eq .Values.service.type "LoadBalancer" }}service.beta.kubernetes.io/external-traffic: "OnlyLocal"{{ end }}
+    {{- if eq .Values.service.type "LoadBalancer" }}service.beta.kubernetes.io/external-traffic: "OnlyLocal"{{ end }}
   labels:
     app: {{ template "dockermailserver.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"

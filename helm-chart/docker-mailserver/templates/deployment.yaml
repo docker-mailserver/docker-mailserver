@@ -40,20 +40,7 @@ spec:
          - name: "ssl-cert"
            secret:
              secretName: {{ template "dockermailserver.fullname" . }}-tls
-      ##
-      ## DOWNWARD API
-      ##
-      #   - name: "__VOLUME_NAME__"
-      #     downwardAPI:
-      #       items:
-      #         - path: "labels"
-      #           fieldRef:
-      #             fieldPath: metadata.labels
-      #         - path: "annotations"
-      #           fieldRef:
-      #             fieldPath: metadata.annotations
-      # We use this init container to allow us to keep config in configmaps, but to let the files be read/write within the docker-mailserver container
-      # If we don't do this, startup of the container fails because read-only files can't be modded with sed
+
       initContainers:
         - name: prep-config
           image: busybox:1.28
@@ -63,19 +50,16 @@ spec:
               mountPath: /tmp/configmaps
               readOnly: true         
             - name: config
-              mountPath: /tmp/docker-mailserver/
-                                      
+              mountPath: /tmp/docker-mailserver/                   
         
       containers: 
         - name: dockermailserver
-          ## Environment variables can be populated in a number of ways, including secrets, or just string values. Below
-          ## are some examples for you to copy-paste. Remember to uncomment the `env` node!
-          #
           env:
           {{- include "dockermailserver.upstream-env-variables" . | nindent 10 }}
+
           image: {{ .Values.image.name }}:{{ .Values.image.tag }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toYaml .Values.resources | indent 12 -}}
           securityContext:
             privileged: {{ default false .Values.pod.dockermailserver.securityContext.privileged }}
             {{- if eq .Values.pod.dockermailserver.enable_fail2ban 1.0 }}
@@ -116,55 +100,18 @@ spec:
               mountPath: "/tmp/docker-mailserver/opendkim/keys/example.com/mail.private"
               subPath: "example.com-mail.private"
               readOnly: true
-              {{ else }}
+              {{- else -}}
               {{/* Mount a dkim key for every domain configured */}}               
-              {{ range .Values.domains }}
+              {{- range .Values.domains }}
               {{- $path := printf "/tmp/docker-mailserver/opendkim/keys/%s/mail.private" . }}
               {{- $name := printf "%s-mail.private" . }}              
             - name: opendkim-keys
               mountPath: {{ $path }}
               subPath: {{ $name }}
               readOnly: true              
-              {{ end }}     
-              {{ end }}                                   
-
-          ## There are three types or readiness probes:
-          ##
-          ## More generally, a liveness probe is used to determine whether the application is "healthy" and should
-          ## recieve traffic. Whereas, a readiness probe is used to determine whether the application has finished
-          ## its boot and is now online
-          ##
-          ## - HTTP Liveness
-          ## - TCP Liveness
-          ## - Exec liveness
-          ##
-          ## Below are examples of each healthcheck type with descriptions of when to use them
-          ##
+              {{- end }}     
+              {{- end }}                                   
           livenessProbe:
-            ##
-            ##tcpSocket:
-            ##
-            ## The "tcpSocket" health check is useful for when an application exposes a port, but there are no utilities
-            ## to determine whether that application is healthy over that port. So, the fact the application is
-            ## listening on that port is taken as a "proxy" health measure.
-            ##
-            ##
-              ##port: 25
-              ## Number of seconds after the container has started before liveness probes are initiated.
-              ## See http://kubernetes.io/docs/user-guide/pod-states#container-probes
-              ##
-              ##initialDelaySeconds: 60
-              ##
-              ## Number of seconds after which the probe times out. Minimum value is 1
-              ##
-              ##timeoutSeconds: 1
-              ##
-              ## Minimum consecutive failures for the probe to be considered failed after having succeeded.
-              ## Minimum value is 1.
-              ##
-              ##failureThreshold: 3
-              ##
-            ##
             exec:
                command:
                  - /bin/bash
@@ -172,60 +119,5 @@ spec:
                initialDelaySeconds: 600
                timeoutSeconds: 60
                failureThreshold: 3
-            ##
-            # httpGet:
-            #
-            ## As the name implies, the "httpGet" health check places a HTTP GET request to an endpoint defined by the
-            ## the application. It seems to be the superior method of health checking where the application supports
-            ## HTTP, as the semantics are known and usually reliable.
-            ##
-              ## The path that the HTTP GET request will be made to. Any code > 200 and < 400 is OK. Any other code is
-              ## not OK
-              ##
-              # path: /healthz
-              ##
-              ## If the application exposes the health checking port on a non standard port, indicate here. Otherwise,
-              ## use a named application port defined above.
-              ##
-              # port: "__CONTAINER_PORT_NAME__"
-              ##
-              ## Whether to connect using the "HTTP" or "HTTPS" protocol (i.e. whether to enscapsulate the connection in
-              ## TLS.
-              ##
-              # scheme: "HTTP"
-              ##
-              ## Additional HTTP headers can be supplied to the HTTP health check to modify the behaviour, such as to
-              ## supply a HOST header.
-              ##
-              # httpHeaders:
-                # - name: "X-Custom-Header"
-                #   value: "Awesome"
-              ##
-              ## How long to wait between probes
-              ##
-              # periodSeconds: 10
-              ##
-              # initialDelaySeconds: 5
-              ##
-              ## Number of seconds after which the probe times out. Minimum value is 1
-              ##
-              # timeoutSeconds: 1
-              ##
-              ## Minimum consecutive failures for the probe to be considered failed after having succeeded.
-              ## Minimum value is 1.
-              ##
-              # failureThreshold: 3
-          ## The Readiness probe follows exactly the same syntax as the liveness probe, and the examples above can
-          ## be reused.
-          ##
-          # readinessProbe:
-          ##
-          ## __LIVENESS_PROBE__
-      ## Whether to restart this pod. Possible values are:
-      ## - Always (Sensible Default)
-      ## - OnFailure
-      ## - Never
-      ##
-      ## For more information, see http://kubernetes.io/docs/user-guide/pod-states/#restartpolicy
       restartPolicy: "Always"
 

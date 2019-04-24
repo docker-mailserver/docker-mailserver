@@ -1,6 +1,6 @@
-suite: deployment_rainloop
+suite: deployment-rainloop
 templates:
-  - deployment_rainloop.yaml
+  - deployment-rainloop.yaml
 tests:
 
   - it: should create rainloop deployment if enabled
@@ -8,16 +8,14 @@ tests:
       rainloop.enabled: true
     asserts:
       - hasDocuments:
-          count: 1
-        template: deployment_rainloop.yaml       
+          count: 1    
 
   - it: should not create rainloop deployment if disabled
     set:
       rainloop.enabled: false
     asserts:
       - hasDocuments:
-          count: 0
-        template: deployment_rainloop.yaml            
+          count: 0           
 
   - it: manifest should match snapshot
     asserts:

@@ -13,7 +13,7 @@ metadata:
     ##  
     ## If a load balancer is being used, ensure that the newer type of LB that passes along IP information is used
     ## rather than the legacy one.
-    {{ if eq .Values.service.type "LoadBalancer" }}service.beta.kubernetes.io/external-traffic: "OnlyLocal"{{ end }}
+    {{- if eq .Values.service.type "LoadBalancer" }}service.beta.kubernetes.io/external-traffic: "OnlyLocal"{{ end }}
   labels:
     app: {{ template "dockermailserver.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -82,4 +82,4 @@ spec:
 {{ .Values.service.loadBalancer.allowedIps | toYaml | indent 4 }}
   {{ end -}}
   {{ end -}}
-  {{ end -}}
+  {{ end }}
