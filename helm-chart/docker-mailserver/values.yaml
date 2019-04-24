@@ -300,8 +300,8 @@ rainloop:
     tls: []
 
 ## These values are for the haproxy-ingress sub-chart
-haproxyIngress:
-  # haproxyIngress.deploychart will deploy an haproxy-ingress sub-chart, configured for the TCP ports used by docker-mailserver
+haproxy-ingress:
+  # haproxy-ingress.deploychart will deploy an haproxy-ingress sub-chart, configured for the TCP ports used by docker-mailserver
   deploychart: true
   controller:
     kind: "Deployment"

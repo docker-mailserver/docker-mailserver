@@ -1,5 +1,5 @@
 dependencies:
-- name: haproxyIngress
+- name: haproxy-ingress
   repository: https://kubernetes-charts-incubator.storage.googleapis.com/
   version: 0.0.11
 digest: sha256:939eb33f5d7087a31b791d2102489190d2d2a75a93d4393f2ac3fe70b86a7f64
