@@ -52,7 +52,8 @@ The chart includes the following features:
 external load balancer (e.g. AWS, DO or GKE). (There is an [update planned](https://github.com/funkypenguin/docker-mailserver/issues/5) to support HA ingress on bare-metal deployments)
 - You control DNS for the domain(s) you intend to route through Traefik
 - __Suggested:__ PV provisioner support in the underlying infrastructure
-- Cert-manager requires manual deployment into your cluster (details below)
+- [Cert-manager](https://github.com/helm/charts/tree/master/stable/cert-manager) requires manual deployment into your cluster (details below)
+- [Helm](https://helm.sh) >= 2.13.0 (*errors were encountered when testing with 2.11.0, so the chart has a minimum requirement of 2.13.0*)
 
 ## Architecture
 

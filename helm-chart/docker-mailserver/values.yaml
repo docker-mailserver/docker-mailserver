@@ -1,18 +1,12 @@
 ---
-## Change the name of the resource
-## Default: use the chart name
-# nameOverride:
-
-## The image and tag to use
-## Ref: https://hub.docker.com/r/tvial/docker-mailserver
 image:
+  # image.name is the name of the container image to use. Refer to https://hub.docker.com/r/tvial/docker-mailserver
   name: "tvial/docker-mailserver"
+  # image.tag is the tag of the container image to use. Refer to https://hub.docker.com/r/tvial/docker-mailserver
   tag: "release-v6.1.0"
 
-# If demo mode is enabled, the contents of helm-chart/docker-mailserver/config will _not_ be imported into
-# a configmap, and a minimal static configuration will be used instead. A single account (user "user@example.com", password "password")
-# will be configured for the purpose of validating core functions and connectivity, before applying user config
 demoMode:
+  # demoMode.enabled ignores the contents of helm-chart/docker-mailserver/config and creates minimal static configuration to be used instead. A single account (user "user@example.com", password "password") will be configured for the purpose of validating core functions and connectivity, before applying user config
   enabled: true
 
 # HAProxy can be used as an upstream proxy, with the PROXY protocol, to present real-world origin source IPs
@@ -20,20 +14,22 @@ demoMode:
 # obfuscation which occurs within the normal Kubernetes network
 haproxy:
 
-  # Whether to configure postscreen/imaps for proxy-protocol support from an upstream haproxy instance
+  # haproxy.enabled configures postscreen/imaps for proxy-protocol support from an upstream haproxy instance
   # If this is enabled, you _must_ access SMTP (TCP 25), submission (TCP 587), and IMAPS (TCP 993) via haproxy.
   enabled: true
 
   # If haproxy is in external-auto mode, specify the webhook URL and secret used to update haproxy config
   # Example implementation at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/
+  # haproxy.webhookUrl is the URL to call to update a webhook on a remote HAProxy instance
   webhookUrl: 
+  # haproxy.webhookSecret is the secret to be included in the webhook call (above)
   webhookSecret: 
 
-    
   # These values populate dovecot's list of networks it'll "trust" for incoming haproxy connections.
   # A space-separated list, on a single line, is required
   # By default, we allow all RFC1918 private ranges, but this can be tightened up for the known IP/range
   # of your HAProxy instance
+  # haproxy.trustedNetworks is the list of sources (in CIDR format, space-separated) to permit haproxy PROXY protocol from
   trustedNetworks: "10.0.0.0/8 192.168.0.0/16 172.16.0.0/16"
 
 # If you choose _not_ to use haproxy, and you're not exposing your services with a load-balanced service
@@ -41,36 +37,44 @@ haproxy:
 # with a local Kubernetes cluster IP, as part of the ingress routing of the connection. This, in turn, 
 # will cause all incoming to appear to be coming from an internal IP, causing SPF tests to fail.
 # Disable the following to bypass SPF tests altogether, to accommodate this scenario.
+# spfTestsDisabled will ignore all SPF-based spam tests, in the event that you cannot obtain valid source IP details on ingress emails
 spfTestsDisabled: false
 
 # If you're using David's hacked-up automatic external haproxy design, then enable
 # the following to launch the appropriate containers to call back to the haproxy webhook
 # Details at https://www.funkypenguin.co.nz/project/a-simple-free-load-balancer-for-your-kubernetes-cluster/ 
 poorMansK8sLb:
+  # poorMansK8sLb.enabled will include containers to call a webhook on an external HAProxy instance
   enabled: false
 
 # List all the domains to be used below - this is necessary to correctly configure DKIM keys for email signing
+# domains is the list of domains to be served by your docker-mailserver instance
 domains: []
 #  - your-first-domain.com
 #  - your-second-domain.com
 
 livenessTests:
+  # livenessTests.enabled will add a liveness test, which will classify a pod as 'unhealthy' if any livenessTests.commands (below) return non-zero
   enabled: true
+  # livenessTests.commands is an array of commands to be executed within the docker-mailserver container, intended to prove that the container is healthy. Each command must exit 0 under normal (healthy) circumstances
   commands:
     - "clamscan /tmp/docker-mailserver/TrustedHosts"
 
 pod:
+  # pod.dockermailserver section refers to the configuration of the docker-mailserver pod itself. Note that teh many environment variables which define the behaviour of docker-mailserver are configured here
   dockermailserver:
 
     ## Host networking requested for this pod. Use the host’s network namespace. If this option is set, the ports that
     ## will be used must be specified.
     ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec
+    # pod.dockermailserver.hostNetwork will configure the pod to use the host's network namespace
     hostNetwork: false
     ## Use the host’s pid namespace
     ## Ref: https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_podspec
+    # pod.dockermailserver.hostPID defines whether the pod should use the host's PID namespace (default false)
     hostPID: false
     securityContext:
-      ## Whether the container should be run in "privileged" mode (essentially, root on the host)
+      ## pod.dockermailserver.securityContext defines whether the container should be run in "privileged" mode (essentially, root on the host)
       ## Ref: http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_securitycontext
       ## Default: false
       privileged:
@@ -81,6 +85,7 @@ pod:
     ## Although it's inconsistent with the way the rest of values.yaml is structured, this has
     ## been intentionally to maintain consistency with dockrer-mailserver scripts and documentation
 
+    # pod.dockermailserver.override_hostname sets the hostname (and therefore the SMTP banner) of the docker-mailserver pod
     override_hostname: "mail.batcave.org"
     dms_debug: 0
     enable_clamav: 1
@@ -180,7 +185,7 @@ service:
       - "0.0.0.0/0"
     ## If there is a Hostname associated with this site, add it here and it will be rendered in the documentation.
     # hostName:
-  # These are the ports exposed if we are using nodeport for our services (an an external, non-cluster LB)
+  # service.nodePort is an array of ports exposed if we are using nodeport for our services (an an external, non-cluster LB)
   nodePort:
     smtp: 30025
     pop3: 30110
@@ -267,9 +272,12 @@ ssl:
 
 # Values imported from https://github.com/t13a/helm-chart-rainloop/blob/master/values.yaml
 rainloop:
+  # rainloop.enabled will include a rainloop (webmail) pod in the release
   enabled: true
   image:
+    # rainloop.image.name is the docker container to use for the rainloop pod
     name: "hardware/rainloop"
+    # rainloop.image.tag is the tag of the docker container to use for the rainloop pod
     tag: "latest"
     pullPolicy: "Always"
   persistence:
@@ -293,6 +301,7 @@ rainloop:
 
 ## These values are for the haproxy-ingress sub-chart
 haproxyIngress:
+  # haproxyIngress.deploychart will deploy an haproxy-ingress sub-chart, configured for the TCP ports used by docker-mailserver
   deploychart: true
   controller:
     kind: "Deployment"
