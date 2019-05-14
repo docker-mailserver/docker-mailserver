@@ -560,7 +560,7 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 ##### SASLAUTHD_LDAP_BIND_DN
 
   - empty => anonymous bind
-  - specify an object with priviliges to search the directory tree
+  - specify an object with privileges to search the directory tree
   - e.g. active directory: SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net
   - e.g. openldap: SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=mydomain,dc=net
 
