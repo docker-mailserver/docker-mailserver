@@ -116,7 +116,7 @@ We are going to use this docker based mailserver:
   docker-compose up mail
   ```
 
-- Create email accounts and aliases:
+- Create email accounts and aliases with `SPOOF_PROTECTION=0`:
   ```
   ./setup.sh email add admin@example.org passwd123
   ./setup.sh email add info@example.org passwd123
@@ -125,15 +125,27 @@ We are going to use this docker based mailserver:
   ./setup.sh email list
   ./setup.sh alias list
   ```
-  
   Aliases make sure that any email that comes to these accounts is
   forwarded to my real email address, so that I don't need to use
   POP3/IMAP in order to get these messages. Also no anti-spam and
   anti-virus software is needed, making the mailserver lighter.
 
-- Send some test emails to these addreses and make other tests. Then
+- Or create email accounts and aliases with `SPOOF_PROTECTION=1`:
+  ```
+  ./setup.sh email add admin.gmail@example.org passwd123
+  ./setup.sh email add info.gmail@example.org passwd123
+  ./setup.sh alias add admin@example.org admin.gmail@example.org
+  ./setup.sh alias add info@example.org info.gmail@example.org
+  ./setup.sh alias add admin.gmail@example.org myemail@gmail.com
+  ./setup.sh alias add info.gmail@example.org myemail@gmail.com
+  ./setup.sh email list
+  ./setup.sh alias list
+  ```
+  This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up gmail is `admin.gmail@example.org` and `info.gmail@example.org` )
+  
+- Send some test emails to these addresses and make other tests. Then
   stop the container with `Ctrl+c` and start it again as a daemon:
-  `docker-compose up mail -d`.
+  `docker-compose up -d mail`.
 
 - Now save on Moodle configuration the SMTP settings and test by
   trying to send some messages to other users:
