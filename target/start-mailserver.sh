@@ -1038,7 +1038,7 @@ function _setup_postfix_override_configuration() {
 	fi
 	if [ -f /tmp/docker-mailserver/postfix-master.cf ]; then
 		while read line; do
-		if [[ "$line" =~ ^[a-z] ]]; then
+		if [[ "$line" =~ ^[a-z0-9] ]]; then
 			postconf -P "$line"
 		fi
 		done < /tmp/docker-mailserver/postfix-master.cf
