@@ -15,6 +15,16 @@ if [ ! -f postfix-accounts.cf ]; then
    exit
 fi 
 
+# Determine postmaster address, duplicated from start-mailserver.sh
+# This script previously didn't work when POSTMASTER_ADDRESS was empty
+if [[ -n "${OVERRIDE_HOSTNAME}" ]]; then
+  DOMAINNAME=$(echo "${OVERRIDE_HOSTNAME}" | sed s/[^.]*.//)
+else
+  DOMAINNAME="$(hostname -d)"
+fi
+PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+echo "${log_date} Using postmaster address ${PM_ADDRESS}"
+
 # create an array of files to monitor (perhaps simple *.cf would be ok here)
 declare -a cf_files=()
 for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf; do
@@ -37,8 +47,11 @@ chksum=$(sha512sum -c --ignore-missing chksum)
 if [[ $chksum == *"FAIL"* ]]; then
 	echo "${log_date} Change detected"
 
+	# Bug alert! This overwrites the alias set by start-mailserver.sh
+	# Take care that changes in one script are propagated to the other
+
 	#regen postix aliases.
-	echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+	echo "root: ${PM_ADDRESS}" > /etc/aliases
 	if [ -f /tmp/docker-mailserver/postfix-aliases.cf ]; then
 		cat /tmp/docker-mailserver/postfix-aliases.cf>>/etc/aliases
 	fi
