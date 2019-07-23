@@ -27,6 +27,7 @@ The development workflow is the following:
 - Code :-)
 - Add integration tests in `test/tests.bats`
 - Use `make` to build image locally and run tests
+  Note that tests work on Linux only; they hang on Mac and Windows.
 - Document your improvements in `README.md` or Wiki depending on content
 - [Commit](https://help.github.com/articles/closing-issues-via-commit-messages/), push and make a pull-request
 - Pull-request is automatically tested on Travis
