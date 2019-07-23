@@ -16,8 +16,6 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 
 # Packages
 RUN apt-get update -q --fix-missing && \
-  apt-get -y upgrade && \
-  apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
@@ -53,6 +51,7 @@ RUN apt-get update -q --fix-missing && \
     pax \
     pflogsumm \
     p7zip-full \
+    postfix \
     postfix-ldap \
     postfix-pcre \
     postfix-policyd-spf-python \
@@ -76,7 +75,7 @@ RUN apt-get update -q --fix-missing && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
   echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
-  apt-get -y upgrade \
+  apt-get -y install --no-install-recommends \
     filebeat \
     && \
   apt-get -t stretch-backports -y install --no-install-recommends \
