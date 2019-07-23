@@ -632,3 +632,15 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
   - **empty** => no default
   - password for default relay user
+
+## Contribute
+
+```
+# install the project
+git clone --recurse-submodules git@github.com:tomav/docker-mailserver.git
+# make your changes
+# and then, build and test via:
+make all
+```
+
+Please add integration tests and then, submit your PR.

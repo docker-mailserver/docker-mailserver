@@ -1,4 +1,4 @@
-FROM debian:stretch-slim
+FROM debian:buster-slim
 LABEL maintainer="Thomas VIAL"
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -59,7 +59,6 @@ RUN apt-get update -q --fix-missing && \
     postsrsd \
     pyzor \
     razor \
-    ripole \
     rpm2cpio \
     rsyslog \
     sasl2-bin \
@@ -69,16 +68,6 @@ RUN apt-get update -q --fix-missing && \
     unrar-free \
     unzip \
     xz-utils \
-    zoo \
-    && \
-  curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
-  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
-  echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
-  apt-get update -q --fix-missing && \
-  apt-get -y upgrade \
-    filebeat \
-    && \
-  apt-get -t stretch-backports -y install --no-install-recommends \
     dovecot-core \
     dovecot-imapd \
     dovecot-ldap \
@@ -86,6 +75,13 @@ RUN apt-get update -q --fix-missing && \
     dovecot-managesieved \
     dovecot-pop3d \
     dovecot-sieve \
+    && \
+  curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
+  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  echo "deb http://ftp.debian.org/debian buster-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
+  apt-get update -q --fix-missing && \
+  apt-get -y upgrade \
+    filebeat \
     && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
