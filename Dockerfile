@@ -17,7 +17,8 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Packages
-RUN apt-get update -q --fix-missing && \
+RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
+  apt-get update -q --fix-missing && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
@@ -73,13 +74,6 @@ RUN apt-get update -q --fix-missing && \
     xz-utils \
     zoo \
     && \
-  curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
-  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
-  echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
-  apt-get update -q --fix-missing && \
-  apt-get -y install --no-install-recommends \
-    filebeat \
-    && \
   apt-get -t stretch-backports -y install --no-install-recommends \
     dovecot-core \
     dovecot-imapd \
@@ -99,8 +93,20 @@ RUN apt-get update -q --fix-missing && \
   rm -f /etc/cron.weekly/fstrim && \
   rm -f /etc/postsrsd.secret
 
-RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
+# install filebeat for logging
+RUN curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
+  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  apt-get update -q --fix-missing && \
+  apt-get -y install --no-install-recommends \
+    filebeat \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+
+RUN echo "0 0,6,12,18 * * * root /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
+  # TODO does freshclam really need to be run during build?
   freshclam && \
   sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
   sed -i 's/AllowSupplementaryGroups false/AllowSupplementaryGroups true/g' /etc/clamav/clamd.conf && \
@@ -119,9 +125,11 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl  && \
   cd /usr/share/dovecot && \
+  # TODO this creates a private key for dovecot
   ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
+  # TODO do not generate dhparam during build
   openssl dhparam -out /etc/dovecot/dh.pem 2048
 
 # Configures LDAP
@@ -150,7 +158,7 @@ RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_fil
   # no syslog user in debian compared to ubuntu
   adduser --system syslog && \
   useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker && \
-  (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
+  echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab -
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
@@ -182,6 +190,9 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/postfix/header_checks.pcre target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
 RUN echo "" > /etc/aliases && \
+  # TODO dhparam should not be generated during docker build.
+  # TODO why regenerate it each week via cron?
+  # TODO the setup could also use a single dhparam for all services
   openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
   echo "@weekly FILE=\$(mktemp) ; openssl dhparam -out \$FILE 2048 > /dev/null 2>&1 && mv -f \$FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
 
@@ -222,5 +233,3 @@ COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
 EXPOSE 25 587 143 465 993 110 995 4190
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
-
-COPY target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
