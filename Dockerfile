@@ -14,6 +14,8 @@ ENV POSTGREY_TEXT="Delayed by postgrey"
 ENV SASLAUTHD_MECHANISMS=pam
 ENV SASLAUTHD_MECH_OPTIONS=""
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Packages
 RUN apt-get update -q --fix-missing && \
   apt-get -y install --no-install-recommends \
@@ -181,8 +183,7 @@ COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/postfix/header_checks.pcre target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
 RUN echo "" > /etc/aliases && \
   openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
-  echo "@weekly FILE=\`mktemp\` ; openssl dhparam -out \$FILE 2048 > /dev/null 2>&1 && mv -f \$FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
-
+  echo "@weekly FILE=\$(mktemp) ; openssl dhparam -out \$FILE 2048 > /dev/null 2>&1 && mv -f \$FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
@@ -222,4 +223,4 @@ EXPOSE 25 587 143 465 993 110 995 4190
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
-ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+COPY target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
