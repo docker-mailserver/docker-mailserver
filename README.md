@@ -81,9 +81,10 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
 Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
-#### Restart the container
+#### Restart and update the container
 
     docker-compose down
+    docker pull tvial/docker-mailserver:latest
     docker-compose up -d mail
 
 You're done!
