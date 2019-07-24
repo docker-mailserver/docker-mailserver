@@ -329,7 +329,4 @@ clean:
 		sudo rm -rf test/config ;\
 		mv testconfig.bak test/config ;\
 	fi
-	-sudo rm -rf test/onedir
-	-sudo rm -rf test/alias
-	-sudo rm -rf test/relay
-
+	-sudo rm -rf test/onedir test/alias test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf
