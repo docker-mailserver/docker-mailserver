@@ -1384,7 +1384,7 @@ function _fix_var_amavis_permissions() {
 function _fix_cleanup_clamav() {
     notify 'task' 'Cleaning up disabled Clamav'
     rm -f /etc/logrotate.d/clamav-*
-    rm -f /etc/cron.d/freshclam
+    rm -f /etc/cron.d/clamav-freshclam
 }
 
 ##########################################################################
