@@ -1250,9 +1250,20 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking setup.sh: setup.sh email update" {
-  ./setup.sh -c mail email add lorem@impsum.org test_test && initialpass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  run ./setup.sh -c mail email add lorem@impsum.org test_test
+  assert_success
+
+  initialpass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  [ "$initialpass" != "" ]
+  assert_success
+
   run ./setup.sh -c mail email update lorem@impsum.org my password
+  assert_success
+
   updatepass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  [ "$updatepass" != "" ]
+  assert_success
+
   [ "$initialpass" != "$updatepass" ]
   assert_success
 
