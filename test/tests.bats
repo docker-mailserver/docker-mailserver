@@ -1434,6 +1434,12 @@ load 'test_helper/bats-assert/load'
 
 @test "checking setup.sh: email add login validation" {
   # validates that the user created previously with setup.sh can login
+
+  if ! (docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' >/dev/null); then
+    # Possibly the cron job has not had time to run yet, waiting a while is better than a false alarm
+    sleep 30
+  fi
+
   result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
   [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
 }
