@@ -70,7 +70,7 @@ SUBCOMMANDS:
   config:
 
     $0 config dkim <keysize> (default: 2048)
-    $0 config ssl
+    $0 config ssl <fqdn>
 
   relay:
 
@@ -217,7 +217,7 @@ case $1 in
         _docker_image generate-dkim-config $2
         ;;
       ssl)
-        _docker_image generate-ssl-certificate
+        _docker_image generate-ssl-certificate "$2"
         ;;
       *)
         _usage
