@@ -31,3 +31,4 @@ grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
 	errex "User \"$USER\" does not exist"
 
 sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE
+sync $DATABASE

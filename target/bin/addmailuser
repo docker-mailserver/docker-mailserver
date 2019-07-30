@@ -32,3 +32,4 @@ if [ -z "$PASSWD" ]; then
 fi
 HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
 echo "$USER|$HASH" >> $DATABASE
+sync $DATABASE
