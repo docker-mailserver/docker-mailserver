@@ -1,10 +1,14 @@
-#! /bin/bash
+#!/bin/bash
 
 # create date for log output
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 # Prevent a start too early
 sleep 5
 echo "${log_date} Start check-for-changes script."
+
+# create work area outside mounted directory
+mkdir -p /tmp/docker-mailserver-work
+CHKSUM_FILE=/tmp/docker-mailserver-work/chksum
 
 # change directory
 cd /tmp/docker-mailserver
@@ -33,7 +37,7 @@ done
 
 # Update / generate after start
 echo "${log_date} Makeing new checksum file."
-sha512sum ${cf_files[@]/#/--tag } > chksum
+sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
 
 # Run forever
 while true; do
@@ -42,7 +46,7 @@ while true; do
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it.
-chksum=$(sha512sum -c --ignore-missing chksum)
+chksum=$(sha512sum -c --ignore-missing $CHKSUM_FILE)
 
 if [[ $chksum == *"FAIL"* ]]; then
 	echo "${log_date} Change detected"
@@ -187,7 +191,7 @@ if [[ $chksum == *"FAIL"* ]]; then
 	fi 
 
 	echo "${log_date} Update checksum"
-	sha512sum ${cf_files[@]/#/--tag } > chksum
+	sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
 fi
 
 sleep 1
