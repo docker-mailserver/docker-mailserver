@@ -880,7 +880,10 @@ load 'test_helper/bats-assert/load'
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
   # Create a container which will send wrong authentications and should get banned
-  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
+  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test \
+    -d $(docker inspect --format '{{ .Config.Image }}' mail) \
+    tail -f /var/log/faillog
 
   # can't pipe the file as usual due to postscreen. (respecting postscreen_greet_wait time and talking in turn):
   for i in {1,2}; do
