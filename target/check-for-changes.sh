@@ -6,11 +6,10 @@ log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 sleep 5
 echo "${log_date} Start check-for-changes script."
 
-# create work area outside mounted directory
+# create checksum file outside mounted directory
 # the checksum file should be reused on subsequent runs,
-# but only by this container, not by others using same mount
-mkdir -p /tmp/docker-mailserver-work
-CHKSUM_FILE=/tmp/docker-mailserver-work/chksum
+# but only by this container, not by others
+CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # change directory
 cd /tmp/docker-mailserver
