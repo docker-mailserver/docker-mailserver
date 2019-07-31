@@ -1216,11 +1216,6 @@ load 'test_helper/bats-assert/load'
 
 
 @test "checking user login: predefined user can login" {
-  # This should really not be necessary, but this test sometimes fails, probably due to timing
-  if ! (docker exec mail doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \a `p^a.*ssword' >/dev/null); then
-    sleep 60
-  fi
-
   result=$(docker exec mail doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \a `p^a.*ssword' | grep 'auth succeeded')
   [ "$result" = "passdb: pass@localhost.localdomain auth succeeded" ]
 }
@@ -1446,6 +1441,7 @@ load 'test_helper/bats-assert/load'
 
   if ! (docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' >/dev/null); then
     # Possibly the cron job has not had time to run yet, waiting a while is better than a false alarm
+    # TODO find a better way to detect when the container is ready
     sleep 30
   fi
 
