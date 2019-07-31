@@ -880,7 +880,8 @@ load 'test_helper/bats-assert/load'
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
   # Create a container which will send wrong authentications and should get banned
-  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP \
+  docker run --name fail-auth-mailer \
+    -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test \
     -d $(docker inspect --format '{{ .Config.Image }}' mail) \
     tail -f /var/log/faillog
