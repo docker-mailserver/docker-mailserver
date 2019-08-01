@@ -89,7 +89,6 @@ function register_functions() {
 	################### >> setup funcs
 
 	_register_setup_function "_setup_default_vars"
-	_register_setup_function "_setup_chksum_file"
 
 	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
 		_register_setup_function "_setup_elk_forwarder"
@@ -166,6 +165,9 @@ function register_functions() {
   if [ "$REPORT_RECIPIENT" != 0 ]; then
   	_register_setup_function "_setup_mail_summary"
   fi
+
+        # Compute last as the config files are modified in-place
+        _register_setup_function "_setup_chksum_file"
 
 	################### << setup funcs
 
