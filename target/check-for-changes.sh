@@ -2,14 +2,7 @@
 
 # create date for log output
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
-# Prevent a start too early
-sleep 5
 echo "${log_date} Start check-for-changes script."
-
-# create checksum file outside mounted directory
-# the checksum file should be reused on subsequent runs,
-# but only by this container, not by others
-CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # change directory
 cd /tmp/docker-mailserver
@@ -18,7 +11,14 @@ cd /tmp/docker-mailserver
 if [ ! -f postfix-accounts.cf ]; then
    echo "${log_date} postfix-accounts.cf is missing! This should not run! Exit!"
    exit
-fi 
+fi
+
+# Verify checksum file exists; must be prepared by start-mailserver.sh
+CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
+if [ ! -f $CHKSUM_FILE ]; then
+   echo "${log_date} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
+   exit
+fi
 
 # Determine postmaster address, duplicated from start-mailserver.sh
 # This script previously didn't work when POSTMASTER_ADDRESS was empty
@@ -30,15 +30,15 @@ fi
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 echo "${log_date} Using postmaster address ${PM_ADDRESS}"
 
-# create an array of files to monitor (perhaps simple *.cf would be ok here)
+# Create an array of files to monitor, must be the same as in start-mailserver.sh
 declare -a cf_files=()
 for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf; do
   [ -f "$file" ] && cf_files+=("$file")
 done
 
-# Update / generate after start
-echo "${log_date} Makeing new checksum file."
-sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
+# Wait to make sure server is up before we start
+# Plus the files have just been generated, no hurry to process changes
+sleep 20
 
 # Run forever
 while true; do
@@ -54,6 +54,8 @@ if [[ $chksum == *"FAIL"* ]]; then
 
 	# Bug alert! This overwrites the alias set by start-mailserver.sh
 	# Take care that changes in one script are propagated to the other
+        # Also note that changes are performed in place and are not atomic
+        # We should fix that and write to temporary files, stop, swap and start
 
 	#regen postix aliases.
 	echo "root: ${PM_ADDRESS}" > /etc/aliases

@@ -49,6 +49,7 @@ DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 ##########################################################################
 HOSTNAME="$(hostname -f)"
 DOMAINNAME="$(hostname -d)"
+CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 ##########################################################################
 # << GLOBAL VARS
 ##########################################################################
@@ -88,6 +89,7 @@ function register_functions() {
 	################### >> setup funcs
 
 	_register_setup_function "_setup_default_vars"
+	_register_setup_function "_setup_chksum_file"
 
 	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
 		_register_setup_function "_setup_elk_forwarder"
@@ -437,6 +439,30 @@ function _setup_default_vars() {
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
 	done
+}
+
+function _setup_chksum_file() {
+        notify 'task' "Setting up configuration checksum file"
+
+
+        if [ -d /tmp/docker-mailserver ]; then
+          pushd /tmp/docker-mailserver
+
+          declare -a cf_files=()
+          for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf; do
+            [ -f "$file" ] && cf_files+=("$file")
+          done
+
+          notify 'inf' "Creating $CHKSUM_FILE"
+          sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
+
+          popd
+        else
+          # We could just skip the file, but perhaps config can be added later?
+          # If so it must be processed by the check for changes script
+          notify 'inf' "Creating empty $CHKSUM_FILE (no config)"
+          touch $CHKSUM_FILE
+        fi
 }
 
 function _setup_mailname() {
