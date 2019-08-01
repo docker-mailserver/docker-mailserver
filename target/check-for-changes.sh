@@ -37,8 +37,7 @@ for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf; do
 done
 
 # Wait to make sure server is up before we start
-# Plus the files have just been generated, no hurry to process changes
-sleep 20
+sleep 10
 
 # Run forever
 while true; do
@@ -46,7 +45,7 @@ while true; do
 # recreate logdate
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
-# Get chksum and check it.
+# Get chksum and check it, no need to lock config yet
 chksum=$(sha512sum -c --ignore-missing $CHKSUM_FILE)
 
 if [[ $chksum == *"FAIL"* ]]; then
@@ -56,6 +55,11 @@ if [[ $chksum == *"FAIL"* ]]; then
 	# Take care that changes in one script are propagated to the other
         # Also note that changes are performed in place and are not atomic
         # We should fix that and write to temporary files, stop, swap and start
+
+        # Lock configuration while working
+        # Not fixing indentation yet to reduce diff (fix later in separate commit)
+        (
+          flock -e 200
 
 	#regen postix aliases.
 	echo "root: ${PM_ADDRESS}" > /etc/aliases
@@ -195,6 +199,8 @@ if [[ $chksum == *"FAIL"* ]]; then
 
 	echo "${log_date} Update checksum"
 	sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
+
+        ) 200<postfix-accounts.cf # end lock
 fi
 
 sleep 1
