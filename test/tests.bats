@@ -1,5 +1,28 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
+
+
+#
+# shared functions
+#
+
+function wait_for_service() {
+  containerName=$1
+  serviceName=$2
+  count=0
+  while ! (docker exec $containerName /usr/bin/supervisorctl status $serviceName | grep RUNNING >/dev/null)
+  do
+    ((count++)) && ((count==30)) && break
+    sleep 5
+  done
+  return $(docker exec $containerName /usr/bin/supervisorctl status $serviceName | grep RUNNING >/dev/null)
+}
+
+function count_processed_changes() {
+  containerName=$1
+  docker exec $containerName cat /var/log/supervisor/changedetector.log | grep "Update checksum" | wc -l
+}
+
 #
 # configuration checks
 #
@@ -1238,14 +1261,32 @@ load 'test_helper/bats-assert/load'
 }
 
 # email
-@test "checking setup.sh: setup.sh email add" {
+@test "checking setup.sh: setup.sh email add and login" {
+  wait_for_service mail changedetector
+  assert_success
+
+  originalChangesProcessed=$(count_processed_changes mail)
+
   run ./setup.sh -c mail email add setup_email_add@example.com test_password
   assert_success
 
   value=$(cat ./test/config/postfix-accounts.cf | grep setup_email_add@example.com | awk -F '|' '{print $1}')
   [ "$value" = "setup_email_add@example.com" ]
+  assert_success
 
-  # we test the login of this user later to let the container digest the addition
+  # wait until change detector has processed the change
+  count=0
+  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
+  do
+    ((count++)) && ((count==60)) && break
+    sleep 1
+  done
+
+  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
+  assert_success
+
+  result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
+  [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
 }
 
 @test "checking setup.sh: setup.sh email list" {
@@ -1434,19 +1475,6 @@ load 'test_helper/bats-assert/load'
 
   run /bin/sh -c 'cat ./test/relay/config/postfix-relaymap.cf | grep -e "^@example.org\s*$" | wc -l | grep 1'
   assert_success
-}
-
-@test "checking setup.sh: email add login validation" {
-  # validates that the user created previously with setup.sh can login
-
-  if ! (docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' >/dev/null); then
-    # Possibly the cron job has not had time to run yet, waiting a while is better than a false alarm
-    # TODO find a better way to detect when the container is ready
-    sleep 30
-  fi
-
-  result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
-  [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
 }
 
 #
