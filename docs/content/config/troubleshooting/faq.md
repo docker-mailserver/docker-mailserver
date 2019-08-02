@@ -107,7 +107,7 @@ edit the system cron file `nano cron/sa-learn`, and set an appropriate configura
 # spam: junk directory
 0  2 * * * root  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 # ham: archive directories
-15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archives* --dbpath /var/mail-state/lib-amavis
+15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archives* --dbpath /var/mail-state/lib-amavis/.spamassassin
 # ham: inbox subdirectories
 30 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.INBOX.* --dbpath /var/mail-state/lib-amavis/.spamassassin
 #
