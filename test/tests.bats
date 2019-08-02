@@ -1227,6 +1227,13 @@ function count_processed_changes() {
   assert_success
 }
 
+@test "checking PERMIT_DOCKER: connected-networks" {
+  run docker exec mail /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.0\.0/16'"
+  assert_success
+  run docker exec mail_pop3 /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}/32'"
+  assert_success
+}
+
 #
 # amavis
 #

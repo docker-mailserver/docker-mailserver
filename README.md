@@ -285,7 +285,8 @@ Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as f
 Set different options for mynetworks option (can be overwrite in postfix-main.cf)
   - **empty** => localhost only
   - host => Add docker host (ipv4 only)
-  - network => Add all docker containers (ipv4 only)
+  - network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case
+  - connected-networks => Add all connected docker networks (ipv4 only)
 
 ##### VIRUSMAILS_DELETE_DELAY
 
