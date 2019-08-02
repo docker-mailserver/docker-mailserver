@@ -1,5 +1,28 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
+
+
+#
+# shared functions
+#
+
+function wait_for_service() {
+  containerName=$1
+  serviceName=$2
+  count=0
+  while ! (docker exec $containerName /usr/bin/supervisorctl status $serviceName | grep RUNNING >/dev/null)
+  do
+    ((count++)) && ((count==30)) && break
+    sleep 5
+  done
+  return $(docker exec $containerName /usr/bin/supervisorctl status $serviceName | grep RUNNING >/dev/null)
+}
+
+function count_processed_changes() {
+  containerName=$1
+  docker exec $containerName cat /var/log/supervisor/changedetector.log | grep "Update checksum" | wc -l
+}
+
 #
 # configuration checks
 #
@@ -880,7 +903,11 @@ load 'test_helper/bats-assert/load'
   MAIL_FAIL2BAN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)
 
   # Create a container which will send wrong authentications and should get banned
-  docker run --name fail-auth-mailer -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP -v "$(pwd)/test":/tmp/docker-mailserver-test -d $(docker inspect --format '{{ .Config.Image }}' mail) tail -f /var/log/faillog
+  docker run --name fail-auth-mailer \
+    -e MAIL_FAIL2BAN_IP=$MAIL_FAIL2BAN_IP \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test \
+    -d $(docker inspect --format '{{ .Config.Image }}' mail) \
+    tail -f /var/log/faillog
 
   # can't pipe the file as usual due to postscreen. (respecting postscreen_greet_wait time and talking in turn):
   for i in {1,2}; do
@@ -1234,14 +1261,32 @@ load 'test_helper/bats-assert/load'
 }
 
 # email
-@test "checking setup.sh: setup.sh email add" {
+@test "checking setup.sh: setup.sh email add and login" {
+  wait_for_service mail changedetector
+  assert_success
+
+  originalChangesProcessed=$(count_processed_changes mail)
+
   run ./setup.sh -c mail email add setup_email_add@example.com test_password
   assert_success
 
   value=$(cat ./test/config/postfix-accounts.cf | grep setup_email_add@example.com | awk -F '|' '{print $1}')
   [ "$value" = "setup_email_add@example.com" ]
+  assert_success
 
-  # we test the login of this user later to let the container digest the addition
+  # wait until change detector has processed the change
+  count=0
+  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
+  do
+    ((count++)) && ((count==60)) && break
+    sleep 1
+  done
+
+  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
+  assert_success
+
+  result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
+  [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
 }
 
 @test "checking setup.sh: setup.sh email list" {
@@ -1250,9 +1295,20 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking setup.sh: setup.sh email update" {
-  ./setup.sh -c mail email add lorem@impsum.org test_test && initialpass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  run ./setup.sh -c mail email add lorem@impsum.org test_test
+  assert_success
+
+  initialpass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  [ "$initialpass" != "" ]
+  assert_success
+
   run ./setup.sh -c mail email update lorem@impsum.org my password
+  assert_success
+
   updatepass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  [ "$updatepass" != "" ]
+  assert_success
+
   [ "$initialpass" != "$updatepass" ]
   assert_success
 
@@ -1419,12 +1475,6 @@ load 'test_helper/bats-assert/load'
 
   run /bin/sh -c 'cat ./test/relay/config/postfix-relaymap.cf | grep -e "^@example.org\s*$" | wc -l | grep 1'
   assert_success
-}
-
-@test "checking setup.sh: email add login validation" {
-  # validates that the user created previously with setup.sh can login
-  result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
-  [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
 }
 
 #

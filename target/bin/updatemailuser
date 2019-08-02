@@ -27,7 +27,13 @@ if [ -z "$PASSWD" ]; then
 	[ -z "$PASSWD" ] && errex "Password must not be empty"
 fi
 HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
-grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
-	errex "User \"$USER\" does not exist"
 
-sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE
+# Protect config file with lock to avoid race conditions
+(
+  flock -e 200
+
+  grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
+    errex "User \"$USER\" does not exist"
+
+  sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE
+) 200<$DATABASE

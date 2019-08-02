@@ -10,4 +10,9 @@ errex() {
 [ -f $DATABASE ] || errex "No postfix-accounts.cf file"
 [ -s $DATABASE ] || errex "Empty postfix-accounts.cf - no users have been added"
 
-awk -F '|' '{ print $1; }' $DATABASE
+# Lock database even though we are only reading
+(
+  flock -e 200
+  awk -F '|' '{ print $1; }' $DATABASE
+) 200<$DATABASE
+
