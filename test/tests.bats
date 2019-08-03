@@ -1228,10 +1228,9 @@ function count_processed_changes() {
 }
 
 @test "checking PERMIT_DOCKER: connected-networks" {
-  run docker exec mail /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.0\.0/16'"
-  assert_success
-  run docker exec mail_pop3 /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}/32'"
-  assert_success
+  run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
+  assert_output --regexp "192\.168\.13\.[0-9]{1,3}\/24"
+  assert_output --regexp '192.168.37.[0-9]{1,3}/24'
 }
 
 #

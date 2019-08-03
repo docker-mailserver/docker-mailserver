@@ -27,18 +27,22 @@ generate-accounts:
 	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 
 run:
-	docker network create --driver bridge --subnet 192.168.133.0/24 $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME)
+	docker network create --driver bridge --subnet 192.168.13.0/24 $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME)
+	docker network create --driver bridge --subnet 192.168.37.0/24 $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME)2
 	# use two networks (default ("bridge") and our custom network) to recreate problematic test case where PERMIT_DOCKER=host would not help
-	docker run -d --name mail_smtponly_second_network \
+	# currently we cannot use --network in `docker run` multiple times, it will just use the last one
+	# instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
+	docker create --name mail_smtponly_second_network \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test":/tmp/docker-mailserver-test \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=connected-networks \
 		-e DMS_DEBUG=0 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		--network bridge  \
 		--network $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME) \
 		-t $(NAME)
+	docker network connect $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME)2 mail_smtponly_second_network
+	docker start mail_smtponly_second_network
 	sleep 15
 	# Run containers
 	docker run -d --name mail \
@@ -336,7 +340,7 @@ clean:
 		mail_with_default_relay \
 		mail_smtponly_second_network
 
-	docker network rm ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}
+	docker network rm ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME} ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
 	@if [ -d config.bak ]; then\
 		rm -rf config ;\
 		mv config.bak config ;\
