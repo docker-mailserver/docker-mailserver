@@ -1227,6 +1227,12 @@ function count_processed_changes() {
   assert_success
 }
 
+@test "checking PERMIT_DOCKER: connected-networks" {
+  run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
+  assert_output --regexp "192\.168\.13\.[0-9]{1,3}\/24"
+  assert_output --regexp '192.168.37.[0-9]{1,3}/24'
+}
+
 #
 # amavis
 #
