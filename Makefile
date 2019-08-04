@@ -27,6 +27,7 @@ generate-accounts:
 	docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
 
 run:
+	# TODO maybe this could be simplified by simply moving the following into a docker-compose.yml
 	docker network create --driver bridge $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME)
 	docker network create --driver bridge $(NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME)2
 	# use two networks (default ("bridge") and our custom network) to recreate problematic test case where PERMIT_DOCKER=host would not help
