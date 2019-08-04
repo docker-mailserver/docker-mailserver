@@ -34,7 +34,7 @@ run:
 	# instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
 	docker create --name mail_smtponly_second_network \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test":/tmp/docker-mailserver-test \
+		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=connected-networks \
 		-e DMS_DEBUG=0 \
@@ -340,7 +340,7 @@ clean:
 		mail_with_default_relay \
 		mail_smtponly_second_network
 
-	docker network rm ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME} ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
+	-docker network rm ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME} ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
 	@if [ -d config.bak ]; then\
 		rm -rf config ;\
 		mv config.bak config ;\
