@@ -850,6 +850,12 @@ function _setup_dkim() {
 		local _f_keytable="/etc/opendkim/KeyTable"
 		[ ! -f "$_f_keytable" ] && touch "$_f_keytable"
 	fi
+
+	# Setup nameservers paramater from /etc/resolv.conf if not defined
+	if ! grep '^Nameservers' /etc/opendkim.conf; then
+		echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}')" >> /etc/opendkim.conf
+		notify 'inf' "Nameservers added to /etc/opendkim.conf"
+	fi
 }
 
 function _setup_ssl() {

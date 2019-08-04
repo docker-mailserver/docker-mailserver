@@ -563,6 +563,11 @@ function count_processed_changes() {
   assert_output 2
 }
 
+@test "checking opendkim: /etc/opendkim.conf contains nameservers copied from /etc/resolv.conf" {
+  run docker exec mail /bin/bash -c "grep -E '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' /etc/opendkim.conf"
+  assert_success
+}
+
 
 # this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
 # Instead it tests the file-size (here 511) - which may differ with a different domain names
