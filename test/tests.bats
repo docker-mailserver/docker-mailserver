@@ -783,8 +783,7 @@ function count_processed_changes() {
 #
 
 @test "checking ssl: generated default cert works correctly" {
-  run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ 
-#| grep 'Verify return code: 0 (ok)'"
+  run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
   assert_success
 }
 
@@ -1234,11 +1233,11 @@ function count_processed_changes() {
 }
 
 @test "checking PERMIT_DOCKER: connected-networks" {
-  ipnet1=$(docker network inspect --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' non-default-docker-mail-network)
-  ipnet2=$(docker network inspect --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' non-default-docker-mail-network2)
+  ipnet1=$(docker network inspect --format '{{range .Containers}}{{.IPv4Address}}{{end}}' non-default-docker-mail-network)
+  ipnet2=$(docker network inspect --format '{{range .Containers}}{{.IPv4Address}}{{end}}' non-default-docker-mail-network2)
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
-  assert_output $ipnet1
-  assert_output $ipnet2
+  assert_output --partial $ipnet1
+  assert_output --partial $ipnet2
 }
 
 #
