@@ -1,6 +1,6 @@
 [submodule "test/bats"]
 	path = test/bats
-	url = https://github.com/sstephenson/bats
+	url = https://github.com/bats-core/bats-core.git
 [submodule "test/test_helper/bats-support"]
 	path = test/test_helper/bats-support
 	url = https://github.com/ztombol/bats-support
