@@ -19,6 +19,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Packages
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
+  apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
