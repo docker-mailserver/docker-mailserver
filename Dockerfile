@@ -17,9 +17,11 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Packages
+# hadolint ignore=DL3015
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
-  #apt-get -y install postfix && \
+  # TODO installing postfix with --no-install-recommends makes "checking ssl: generated default cert works correctly" fail
+  apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
@@ -67,7 +69,6 @@ RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc
     rsyslog \
     sasl2-bin \
     spamassassin \
-    ssl-cert \
     supervisor \
     postgrey \
     unrar-free \
@@ -117,6 +118,8 @@ RUN echo "0 0,6,12,18 * * * root /usr/bin/freshclam --quiet" > /etc/cron.d/clama
 
 # Configures Dovecot
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
+WORKDIR /usr/share/dovecot
+# hadolint ignore=SC2016,SC2086
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf && \
   sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf && \
   sed -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
@@ -126,7 +129,6 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   # stretch-backport of dovecot needs this folder
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl  && \
-  cd /usr/share/dovecot && \
   # TODO this creates a private key for dovecot
   ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
@@ -139,6 +141,7 @@ COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
 COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/ldap-aliases.cf target/postfix/ldap-domains.cf /etc/postfix/
 
 # Enables Spamassassin CRON updates and update hook for supervisor
+# hadolint ignore=SC2016
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
     sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
@@ -159,7 +162,7 @@ RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_fil
   adduser amavis clamav && \
   # no syslog user in debian compared to ubuntu
   adduser --system syslog && \
-  useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker && \
+  useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker && \
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab -
 
 # Configure Fail2ban
@@ -168,10 +171,8 @@ COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
-USER amavis
-RUN razor-admin -create && \
-  razor-admin -register
-USER root
+RUN su - amavis -c "razor-admin -create && \
+  razor-admin -register"
 
 # Configure DKIM (opendkim)
 # DKIM config files
