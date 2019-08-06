@@ -1,0 +1,5 @@
+ignored:
+  # disable explicit version for apt install
+  - DL3008
+trustedRegistries:
+  - docker.io
