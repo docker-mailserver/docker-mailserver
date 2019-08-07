@@ -64,6 +64,12 @@ function repeat_until_success_or_timeout {
 }
 
 @test "checking PERMIT_DOCKER: connected-networks" {
+  ipnet1=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network)
+  ipnet2=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network2)
+  run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
+  assert_output --partial $ipnet1
+  assert_output --partial $ipnet2
+
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf -e smtp_host_lookup=no"
   assert_success
   run docker exec mail_smtponly_second_network /bin/sh -c "/etc/init.d/postfix reload"
