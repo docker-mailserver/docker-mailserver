@@ -31,15 +31,7 @@ setup() {
 		-t ${NAME}
 
     # wait until postfix is up
-    STARTTIME=$SECONDS
-    until docker exec mail_smtponly_second_network /bin/sh -c "nc -z 0.0.0.0 25"
-    do
-        sleep 5
-        if [[ $(($SECONDS - $STARTTIME )) -gt 60 ]]; then
-            echo "Waiting for server timed out after $(($SECONDS - $STARTTIME )) seconds"
-            exit 1
-        fi
-    done
+    repeat_until_success_or_timeout 60 docker exec mail_smtponly_second_network /bin/sh -c "nc -z 0.0.0.0 25"
 }
 
 teardown() {
