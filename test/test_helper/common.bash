@@ -4,7 +4,7 @@ load 'test_helper/bats-assert/load'
 NAME=tvial/docker-mailserver:testing
 
 # default timeout is 60 seconds
-TEST_TIMEOUT_IN_SECONDS=${TIMEOUT-60}
+TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-60}
 
 function repeat_until_success_or_timeout {
     if ![[ "$1" ~= '^[0-9]+$' ]]; then
@@ -32,4 +32,18 @@ function wait_for_smtp_port_in_container() {
 # @param $1 name of the postfix container
 function wait_for_finished_setup_in_container() {
     repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS sh -c "docker logs $1 | grep 'Starting mail server'"
+}
+
+# use in setup() in conjunction with a `@test "first" {}` to trigger setup_file reliably
+function run_setup_file_if_necessary() {
+    if [ "$BATS_TEST_NAME" == 'test_first' ]; then
+        setup_file
+    fi
+}
+
+# use in teardown() in conjunction with a `@test "last" {}` to trigger teardown_file reliably
+function run_teardown_file_if_necessary() {
+    if [ "$BATS_TEST_NAME" == 'test_last' ]; then
+        teardown_file
+    fi
 }

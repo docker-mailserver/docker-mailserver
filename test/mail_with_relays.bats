@@ -1,15 +1,11 @@
 load 'test_helper/common'
 
 function setup() {
-    if [ "$BATS_TEST_NUMBER" -eq 1 ]; then
-        setup_file
-    fi
+    run_setup_file_if_necessary
 }
 
 function teardown() {
-    if [ "$BATS_TEST_NUMBER" -eq ${#BATS_TEST_NAMES[@]} ]; then
-        teardown_file
-    fi
+    run_teardown_file_if_necessary
 }
 
 function setup_file() {
@@ -29,6 +25,10 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_with_relays
+}
+
+@test "first" {
+  # this test must come first to reliably identify when to run setup_file
 }
 
 @test "checking relay hosts: default mapping is added from env vars" {
@@ -54,4 +54,8 @@ function teardown_file() {
 @test "checking relay hosts: default auth entry is added" {
   run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^\[default.relay.com\]:2525\s\+smtp_user:smtp_password" | wc -l | grep 1'
   assert_success
+}
+
+@test "last" {
+  # this test is only there to reliably mark the end for the teardown_file
 }

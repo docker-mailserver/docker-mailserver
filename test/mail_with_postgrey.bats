@@ -1,15 +1,11 @@
 load 'test_helper/common'
 
 function setup() {
-    if [ "$BATS_TEST_NUMBER" -eq 1 ]; then
-        setup_file
-    fi
+    run_setup_file_if_necessary
 }
 
 function teardown() {
-    if [ "$BATS_TEST_NUMBER" -eq ${#BATS_TEST_NAMES[@]} ]; then
-        teardown_file
-    fi
+    run_teardown_file_if_necessary
 }
 
 function setup_file() {
@@ -29,6 +25,10 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_with_postgrey
+}
+
+@test "first" {
+  # this test must come first to reliably identify when to run setup_file
 }
 
 @test "checking postgrey: /etc/postfix/main.cf correctly edited" {
@@ -94,4 +94,8 @@ function teardown_file() {
   run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=recipient whitelist' /var/log/mail/mail.log | wc -l"
   assert_success
   assert_output 1
+}
+
+@test "last" {
+  # this test is only there to reliably mark the end for the teardown_file
 }
