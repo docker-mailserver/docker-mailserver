@@ -1,5 +1,4 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
+
 
 
 #
@@ -1816,14 +1815,7 @@ function count_processed_changes() {
   assert_success
 }
 
-#
-# default relay host
-#
 
-@test "checking default relay host: default relay host is added to main.cf" {
-  run docker exec mail_with_default_relay /bin/sh -c 'grep -e "^relayhost = default.relay.host.invalid:25" /etc/postfix/main.cf | wc -l | grep 1'
-  assert_success
-}
 
 #
 # relay hosts
