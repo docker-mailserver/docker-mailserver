@@ -1040,6 +1040,7 @@ function _setup_docker_permit() {
 			;;
 		"connected-networks" )
 			for network in $container_networks; do
+				network=$(_sanitize_ipv4_to_subnet_cidr $network)
 				notify 'inf' "Adding docker network $network in my networks"
 				postconf -e "$(postconf | grep '^mynetworks =') $network"
 				echo $network >> /etc/opendmarc/ignore.hosts
@@ -1610,6 +1611,8 @@ function _start_changedetector() {
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # >>
+
+. /usr/local/bin/helper_functions.sh
 
 if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
 notify 'taskgrp' ""
