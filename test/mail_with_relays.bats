@@ -2,7 +2,18 @@ load 'test_helper/common'
 
 function setup() {
     if [ "$BATS_TEST_NUMBER" -eq 1 ]; then
-        docker run -d --name mail_with_relays \
+        setup_file
+    fi
+}
+
+function teardown() {
+    if [ "$BATS_TEST_NUMBER" -eq ${#BATS_TEST_NAMES[@]} ]; then
+        teardown_file
+    fi
+}
+
+function setup_file() {
+    docker run -d --name mail_with_relays \
             -v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
             -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
             -e RELAY_HOST=default.relay.com \
@@ -14,13 +25,10 @@ function setup() {
             -e DMS_DEBUG=0 \
             -h mail.my-domain.com -t ${NAME}
         wait_for_finished_setup_in_container mail_with_relays
-    fi
 }
 
-function teardown() {
-    if [ "$BATS_TEST_NUMBER" -eq ${#BATS_TEST_NAMES[@]} ]; then
-        docker rm -f mail_with_relays
-    fi
+function teardown_file() {
+    docker rm -f mail_with_relays
 }
 
 @test "checking relay hosts: default mapping is added from env vars" {

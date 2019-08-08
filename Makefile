@@ -214,17 +214,6 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 30
-	docker run -d --name mail_with_postgrey \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_POSTGREY=1 \
-		-e POSTGREY_DELAY=15 \
-		-e POSTGREY_MAX_AGE=35 \
-		-e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
-		-e POSTGREY_TEXT="Delayed by postgrey" \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 20
 	docker run -d --name mail_undef_spam_subject \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -301,7 +290,6 @@ clean:
 		mail_with_ldap \
 		mail_with_imap \
 		mail_lmtp_ip \
-		mail_with_postgrey \
 		mail_undef_spam_subject \
 		mail_postscreen \
 		mail_override_hostname \
