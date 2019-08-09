@@ -853,7 +853,7 @@ function _setup_dkim() {
 
 	# Setup nameservers paramater from /etc/resolv.conf if not defined
 	if ! grep '^Nameservers' /etc/opendkim.conf; then
-		echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}')" >> /etc/opendkim.conf
+		echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >> /etc/opendkim.conf
 		notify 'inf' "Nameservers added to /etc/opendkim.conf"
 	fi
 }
