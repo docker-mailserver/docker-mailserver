@@ -96,7 +96,9 @@ RUN apt-get update -q --fix-missing && \
   touch /var/log/auth.log && \
   update-locale && \
   rm -f /etc/cron.weekly/fstrim && \
-  rm -f /etc/postsrsd.secret
+  rm -f /etc/postsrsd.secret && \
+  rm -f /etc/postfix/dhparams.pem && \
+  rm -f /etc/dovecot/dh.pem
 
 RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
@@ -120,8 +122,7 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   cd /usr/share/dovecot && \
   ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
-  chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
-  openssl dhparam -out /etc/dovecot/dh.pem 2048
+  chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
 # Configures LDAP
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
@@ -180,10 +181,7 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/postfix/header_checks.pcre target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
-RUN echo "" > /etc/aliases && \
-  openssl dhparam -out /etc/postfix/dhparams.pem 2048 && \
-  echo "@weekly FILE=\`mktemp\` ; openssl dhparam -out \$FILE 2048 > /dev/null 2>&1 && mv -f \$FILE /etc/postfix/dhparams.pem" > /etc/cron.d/dh2048
-
+RUN echo "" > /etc/aliases
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
