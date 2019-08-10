@@ -119,8 +119,6 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   # stretch-backport of dovecot needs this folder
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl  && \
-  cd /usr/share/dovecot && \
-  ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 

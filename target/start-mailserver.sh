@@ -507,6 +507,25 @@ function _setup_dovecot_hostname() {
 function _setup_dovecot() {
 	notify 'task' 'Setting up Dovecot'
 
+        # Moved from docker file, copy or generate default self-signed cert
+        if [ -f /var/mail-state/lib-dovecot/dovecot.pem -a "$ONE_DIR" = 1 ]; then
+                notify 'inf' "Copying default dovecot cert"
+                cp /var/mail-state/lib-dovecot/dovecot.key /etc/dovecot/ssl/
+                cp /var/mail-state/lib-dovecot/dovecot.pem /etc/dovecot/ssl/
+        fi
+        if [ ! -f /etc/dovecot/ssl/dovecot.pem ]; then
+                notify 'inf' "Generating default dovecot cert"
+                pushd /usr/share/dovecot
+                ./mkcert.sh
+                popd
+
+                if [ "$ONE_DIR" = 1 ];then
+                        mkdir -p /var/mail-state/lib-dovecot
+                        cp /etc/dovecot/ssl/dovecot.key /var/mail-state/lib-dovecot/
+                        cp /etc/dovecot/ssl/dovecot.pem /var/mail-state/lib-dovecot/
+                fi
+        fi
+
 	cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
 	# Disable pop3 (it will be eventually enabled later in the script, if requested)
 	mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
@@ -1003,7 +1022,6 @@ function _setup_ssl() {
         ;;
     * )
         # Unknown option, default behavior, no action is required
-
         notify 'warn' "SSL configured by default"
         ;;
 	esac
