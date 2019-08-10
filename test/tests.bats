@@ -1290,6 +1290,11 @@ function count_processed_changes() {
   [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
   assert_success
 
+  # Dovecot has been restarted, but this test often fails so presumably it may not be ready
+  # Add a short sleep to see if that helps to make the test more stable
+  # Alternatively we could login with a known good user to make sure that the service is up
+  sleep 2
+
   result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
   [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
 }
