@@ -122,6 +122,7 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_hostname"
 	_register_setup_function "_setup_dovecot_hostname"
 
+	_register_setup_function "_setup_postfix_smtputf8"
 	_register_setup_function "_setup_postfix_sasl"
 	_register_setup_function "_setup_postfix_override_configuration"
 	_register_setup_function "_setup_postfix_sasl_password"
@@ -704,6 +705,11 @@ function _setup_postfix_sizelimits() {
 	postconf -e "message_size_limit = ${DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]}"
 	notify 'inf' "Configuring postfix mailbox size limit"
 	postconf -e "mailbox_size_limit = ${DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]}"
+}
+
+function _setup_postfix_smtputf8() {
+        notify 'inf' "Configuring postfix smtputf8 support (disable)"
+        postconf -e "smtputf8_enable = no"
 }
 
 function _setup_spoof_protection () {
