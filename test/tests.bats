@@ -405,6 +405,14 @@ function count_processed_changes() {
   [ "$status" -ge 0 ]
 }
 
+@test "checking smtp: not advertising smtputf8" {
+  # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
+  # Better disable SMTPUTF8 support entirely if we can't handle it correctly
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt | grep SMTPUTF8 | wc -l"
+  assert_success
+  assert_output 0
+}
+
 #
 # accounts
 #
