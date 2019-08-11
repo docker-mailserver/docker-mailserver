@@ -176,7 +176,10 @@ function register_functions() {
 	_register_fix_function "_fix_var_mail_permissions"
 	_register_fix_function "_fix_var_amavis_permissions"
 	if [ "$ENABLE_CLAMAV" = 0 ]; then
-        _register_fix_function "_fix_cleanup_clamav"
+        	_register_fix_function "_fix_cleanup_clamav"
+	fi
+	if [ "$ENABLE_SPAMASSASSIN" = 0 ]; then
+		_register_fix_function "_fix_cleanup_spamassassin"
 	fi
 
 	################### << fix funcs
@@ -1428,6 +1431,11 @@ function _fix_cleanup_clamav() {
     notify 'task' 'Cleaning up disabled Clamav'
     rm -f /etc/logrotate.d/clamav-*
     rm -f /etc/cron.d/clamav-freshclam
+}
+
+function _fix_cleanup_spamassassin() {
+    notify 'task' 'Cleaning up disabled spamassassin'
+    rm -f /etc/cron.daily/spamassassin
 }
 
 ##########################################################################
