@@ -96,9 +96,7 @@ RUN apt-get update -q --fix-missing && \
   touch /var/log/auth.log && \
   update-locale && \
   rm -f /etc/cron.weekly/fstrim && \
-  rm -f /etc/postsrsd.secret && \
-  rm -f /etc/postfix/dhparams.pem && \
-  rm -f /etc/dovecot/dh.pem
+  rm -f /etc/postsrsd.secret
 
 RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
