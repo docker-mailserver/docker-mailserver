@@ -511,6 +511,25 @@ function _setup_dovecot_hostname() {
 function _setup_dovecot() {
 	notify 'task' 'Setting up Dovecot'
 
+        # Moved from docker file, copy or generate default self-signed cert
+        if [ -f /var/mail-state/lib-dovecot/dovecot.pem -a "$ONE_DIR" = 1 ]; then
+                notify 'inf' "Copying default dovecot cert"
+                cp /var/mail-state/lib-dovecot/dovecot.key /etc/dovecot/ssl/
+                cp /var/mail-state/lib-dovecot/dovecot.pem /etc/dovecot/ssl/
+        fi
+        if [ ! -f /etc/dovecot/ssl/dovecot.pem ]; then
+                notify 'inf' "Generating default dovecot cert"
+                pushd /usr/share/dovecot
+                ./mkcert.sh
+                popd
+
+                if [ "$ONE_DIR" = 1 ];then
+                        mkdir -p /var/mail-state/lib-dovecot
+                        cp /etc/dovecot/ssl/dovecot.key /var/mail-state/lib-dovecot/
+                        cp /etc/dovecot/ssl/dovecot.pem /var/mail-state/lib-dovecot/
+                fi
+        fi
+
 	cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
 	# Disable pop3 (it will be eventually enabled later in the script, if requested)
 	mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
@@ -1012,7 +1031,6 @@ function _setup_ssl() {
         ;;
     * )
         # Unknown option, default behavior, no action is required
-
         notify 'warn' "SSL configured by default"
         ;;
 	esac
@@ -1233,28 +1251,41 @@ function _setup_postfix_relay_hosts() {
 function _setup_postfix_dhparam() {
 	notify 'task' 'Setting up Postfix dhparam'
 	if [ "$ONE_DIR" = 1 ];then
-		DHPARAMS_FILE=/var/mail-state/lib-postfix/dhparams.pem
+		DHPARAMS_FILE=/var/mail-state/lib-shared/dhparams.pem
 		if [ ! -f $DHPARAMS_FILE ]; then
-			notify 'inf' "Generate new dhparams for postfix"
+			notify 'inf' "Generate new shared dhparams (postfix)"
 			mkdir -p $(dirname "$DHPARAMS_FILE")
 			openssl dhparam -out $DHPARAMS_FILE 2048
 		else
-			notify 'inf' "Use dhparams that was generated previously"
+			notify 'inf' "Use postfix dhparams that was generated previously"
 		fi
 
 		# Copy from the state directory to the working location
 		rm /etc/postfix/dhparams.pem && cp $DHPARAMS_FILE /etc/postfix/dhparams.pem
 	else
-		notify 'inf' "No state dir, we use the dhparams generated on image creation"
+                if [ ! -f /etc/postfix/dhparams.pem ]; then
+                        if [ -f /etc/dovecot/dh.pem ]; then
+                                notify 'inf' "Copy dovecot dhparams to postfix"
+                                cp /etc/dovecot/dh.pem /etc/postfix/dhparams.pem
+                        elif [ -f /tmp/docker-mailserver/dhparams.pem ]; then
+                                notify 'inf' "Copy pre-generated dhparams to postfix"
+                                cp /tmp/docker-mailserver/dhparams.pem /etc/postfix/dhparams.pem
+                        else
+                                notify 'inf' "Generate new dhparams for postfix"
+                                openssl dhparam -out /etc/postfix/dhparams.pem 2048
+                        fi
+                else
+                        notify 'inf' "Use existing postfix dhparams"
+                fi
 	fi
 }
 
 function _setup_dovecot_dhparam() {
         notify 'task' 'Setting up Dovecot dhparam'
         if [ "$ONE_DIR" = 1 ];then
-                DHPARAMS_FILE=/var/mail-state/lib-dovecot/dh.pem
+                DHPARAMS_FILE=/var/mail-state/lib-shared/dhparams.pem
                 if [ ! -f $DHPARAMS_FILE ]; then
-                        notify 'inf' "Generate new dhparams for dovecot"
+                        notify 'inf' "Generate new shared dhparams (dovecot)"
                         mkdir -p $(dirname "$DHPARAMS_FILE")
                         openssl dhparam -out $DHPARAMS_FILE 2048
                 else
@@ -1264,7 +1295,20 @@ function _setup_dovecot_dhparam() {
                 # Copy from the state directory to the working location
                 rm /etc/dovecot/dh.pem && cp $DHPARAMS_FILE /etc/dovecot/dh.pem
         else
-                notify 'inf' "No state dir, we use the dovecot dhparams generated on image creation"
+                if [ ! -f /etc/dovecot/dh.pem ]; then
+                        if [ -f /etc/postfix/dhparams.pem ]; then
+                                notify 'inf' "Copy postfix dhparams to dovecot"
+                                cp /etc/postfix/dhparams.pem /etc/dovecot/dh.pem
+                        elif [ -f /tmp/docker-mailserver/dhparams.pem ]; then
+                                notify 'inf' "Copy pre-generated dhparams to dovecot"
+                                cp /tmp/docker-mailserver/dhparams.pem /etc/dovecot/dh.pem
+                        else
+                                notify 'inf' "Generate new dhparams for dovecot"
+                                openssl dhparam -out /etc/dovecot/dh.pem 2048
+                        fi
+                else
+                        notify 'inf' "Use existing dovecot dhparams"
+                fi
         fi
 }
 
