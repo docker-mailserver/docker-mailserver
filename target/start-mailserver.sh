@@ -1261,7 +1261,7 @@ function _setup_postfix_dhparam() {
 		fi
 
 		# Copy from the state directory to the working location
-		rm /etc/postfix/dhparams.pem && cp $DHPARAMS_FILE /etc/postfix/dhparams.pem
+		rm -f /etc/postfix/dhparams.pem && cp $DHPARAMS_FILE /etc/postfix/dhparams.pem
 	else
                 if [ ! -f /etc/postfix/dhparams.pem ]; then
                         if [ -f /etc/dovecot/dh.pem ]; then
@@ -1293,7 +1293,7 @@ function _setup_dovecot_dhparam() {
                 fi
 
                 # Copy from the state directory to the working location
-                rm /etc/dovecot/dh.pem && cp $DHPARAMS_FILE /etc/dovecot/dh.pem
+                rm -f /etc/dovecot/dh.pem && cp $DHPARAMS_FILE /etc/dovecot/dh.pem
         else
                 if [ ! -f /etc/dovecot/dh.pem ]; then
                         if [ -f /etc/postfix/dhparams.pem ]; then
