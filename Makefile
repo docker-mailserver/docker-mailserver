@@ -300,6 +300,11 @@ tests:
 test/%.bats: ALWAYS_RUN
 		./test/bats/bin/bats $@
 
+lint:
+	# List files which name starts with 'Dockerfile'
+	# eg. Dockerfile, Dockerfile.build, etc.
+	git ls-files --exclude='Dockerfile*' --ignored | xargs --max-lines=1 hadolint
+
 clean:
 	# Remove running test containers
 	-docker rm -f \

@@ -14,10 +14,14 @@ ENV POSTGREY_TEXT="Delayed by postgrey"
 ENV SASLAUTHD_MECHANISMS=pam
 ENV SASLAUTHD_MECH_OPTIONS=""
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Packages
-RUN apt-get update -q --fix-missing && \
-  apt-get -y upgrade && \
+# hadolint ignore=DL3015
+RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
+  apt-get update -q --fix-missing && \
   apt-get -y install postfix && \
+  # TODO installing postfix with --no-install-recommends makes "checking ssl: generated default cert works correctly" fail
   apt-get -y install --no-install-recommends \
     amavisd-new \
     arj \
@@ -72,13 +76,6 @@ RUN apt-get update -q --fix-missing && \
     xz-utils \
     zoo \
     && \
-  curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
-  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
-  echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
-  apt-get update -q --fix-missing && \
-  apt-get -y upgrade \
-    filebeat \
-    && \
   apt-get -t stretch-backports -y install --no-install-recommends \
     dovecot-core \
     dovecot-imapd \
@@ -98,6 +95,17 @@ RUN apt-get update -q --fix-missing && \
   rm -f /etc/cron.weekly/fstrim && \
   rm -f /etc/postsrsd.secret
 
+# install filebeat for logging
+RUN curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
+  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
+  apt-get update -q --fix-missing && \
+  apt-get -y install --no-install-recommends \
+    filebeat \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
+
 RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
   freshclam && \
@@ -108,6 +116,8 @@ RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-fr
 
 # Configures Dovecot
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
+WORKDIR /usr/share/dovecot
+# hadolint ignore=SC2016,SC2086
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf && \
   sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf && \
   sed -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
@@ -117,6 +127,7 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   # stretch-backport of dovecot needs this folder
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl  && \
+  ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
@@ -125,6 +136,7 @@ COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
 COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/ldap-aliases.cf target/postfix/ldap-domains.cf /etc/postfix/
 
 # Enables Spamassassin CRON updates and update hook for supervisor
+# hadolint ignore=SC2016
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
     sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
@@ -145,8 +157,8 @@ RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_fil
   adduser amavis clamav && \
   # no syslog user in debian compared to ubuntu
   adduser --system syslog && \
-  useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker && \
-  (echo "0 4 * * * /usr/local/bin/virus-wiper" ; crontab -l) | crontab -
+  useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker && \
+  echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab -
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
@@ -154,10 +166,8 @@ COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
 RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
-USER amavis
-RUN razor-admin -create && \
-  razor-admin -register
-USER root
+RUN su - amavis -c "razor-admin -create && \
+  razor-admin -register"
 
 # Configure DKIM (opendkim)
 # DKIM config files
@@ -213,8 +223,8 @@ RUN chmod +x /usr/local/bin/*
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
 
+WORKDIR /
+
 EXPOSE 25 587 143 465 993 110 995 4190
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
-
-ADD target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl

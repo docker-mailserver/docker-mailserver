@@ -3,9 +3,16 @@ branches:
   - donttestme
 language: bash
 sudo: required
+env:
+  global:
+    - HADOLINT_VERSION=1.17.1
 services:
 - docker
+before_install:
+- sudo curl -L https://github.com/hadolint/hadolint/releases/download/v$HADOLINT_VERSION/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
+- sudo chmod +rx /usr/local/bin/hadolint
 install:
+- make lint
 - travis_retry travis_wait make build-no-cache
 script:
 - make generate-accounts run generate-accounts-after-run fixtures tests
