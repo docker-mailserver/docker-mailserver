@@ -16,6 +16,9 @@ install:
 - travis_retry travis_wait make build-no-cache
 script:
 - make generate-accounts run generate-accounts-after-run fixtures tests
+- shellcheck *.sh
+- shellcheck target/*.sh
+- shellcheck target/bin/*
 after_script:
 - make clean
 notifications:
