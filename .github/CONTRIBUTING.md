@@ -34,4 +34,3 @@ Syntax:
 * Alphabetize the class methods to keep them organized
 
 And in case we didn't emphasize it enough: we love tests!
-

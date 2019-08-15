@@ -78,13 +78,13 @@ services:
     - SYS_PTRACE
     restart: always
   elk:
-     build: elk
-     ports:
-     - "5601:5601"
-     - "9200:9200"
-     - "5044:5044"
-     - "5000:5000"
-     restart: always
+    build: elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+      - "5000:5000"
+    restart: always
 
 volumes:
   maildata:

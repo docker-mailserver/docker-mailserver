@@ -31,4 +31,3 @@ sleep 5
 while kill -0 "`cat /var/spool/postfix/pid/master.pid`"; do
   sleep 5
 done
-

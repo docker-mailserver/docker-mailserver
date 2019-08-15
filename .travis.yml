@@ -1,7 +1,10 @@
 branches:
   except:
   - donttestme
-language: bash
+dist: bionic
+language: node_js
+node_js:
+  - stable
 sudo: required
 env:
   global:
@@ -11,6 +14,7 @@ services:
 before_install:
 - sudo curl -L https://github.com/hadolint/hadolint/releases/download/v$HADOLINT_VERSION/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
 - sudo chmod +rx /usr/local/bin/hadolint
+- npm install -g eclint
 install:
 - make lint
 - travis_retry travis_wait make build-no-cache

@@ -8,4 +8,3 @@
 /^\s*X-Mailer/                      IGNORE
 /^\s*X-Originating-IP/              IGNORE
 /^\s*Received: from.*127.0.0.1/     IGNORE
-

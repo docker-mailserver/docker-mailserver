@@ -149,9 +149,9 @@ while getopts ":c:i:p:" OPT; do
         exit 1
       fi
       ;;
-   \?)
-     echo "Invalid option: -$OPTARG" >&2
-     ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
   esac
 done
 
@@ -273,7 +273,7 @@ case $1 in
         ;;
       login)
         shift
-	if [ -z "$1" ]; then
+        if [ -z "$1" ]; then
           _docker_container /bin/bash
         else
           _docker_container /bin/bash -c "$@"

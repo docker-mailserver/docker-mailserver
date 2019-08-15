@@ -15,7 +15,7 @@ build:
 backup:
 	# if backup directories exist, clean hasn't been called, therefore we shouldn't overwrite it. It still contains the original content.
 	@if [ ! -d config.bak ]; then\
-  	cp -rp config config.bak; \
+	cp -rp config config.bak; \
 	fi
 	@if [ ! -d testconfig.bak ]; then\
 		cp -rp test/config testconfig.bak ;\
@@ -238,10 +238,34 @@ lint:
 	# List files which name starts with 'Dockerfile'
 	# eg. Dockerfile, Dockerfile.build, etc.
 	git ls-files --exclude='Dockerfile*' --ignored | xargs --max-lines=1 hadolint
+	# pass all checked in files to eclint
+	git ls-files | xargs eclint check
 
 clean:
+<<<<<<< HEAD
 	# Remove running and stopped test containers
 	-docker ps -a | grep -E "docker-mailserver:testing|ldap_for_mail" | cut -f 1-1 -d ' ' | xargs --no-run-if-empty docker rm -f
+=======
+	# Remove running test containers
+	-docker rm -f \
+		mail \
+		mail_privacy \
+		mail_pop3 \
+		mail_smtponly \
+		mail_smtponly_without_config \
+		mail_fail2ban \
+		mail_fetchmail \
+		fail-auth-mailer \
+		mail_disabled_clamav_spamassassin \
+		mail_manual_ssl \
+		ldap_for_mail \
+		mail_with_ldap \
+		mail_override_hostname \
+		mail_domainname \
+		mail_srs_domainname \
+		mail_with_relays \
+		mail_with_default_relay
+>>>>>>> check formatting according to .editorconfig
 
 	@if [ -d config.bak ]; then\
 		rm -rf config ;\

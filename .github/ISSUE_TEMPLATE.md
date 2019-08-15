@@ -30,7 +30,7 @@
 * Any relevant stack traces ("Full trace" preferred):
 
 <!--- Please remember to format code using triple backticks (`)
-	  so that it is neatly formatted when the issue is posted. -->
+  so that it is neatly formatted when the issue is posted. -->
 
 
 <!---

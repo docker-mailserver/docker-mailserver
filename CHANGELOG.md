@@ -98,7 +98,7 @@
 
 ## 4.2.0
 *  Add environment variable to allow for customizing postsrsd's
-   SRS_EXCLUDE_DOMAINS setting (#849, #842)
+  SRS_EXCLUDE_DOMAINS setting (#849, #842)
 
 ## 4.1.0
 * fixed greedy postgrey sed command (#845)
@@ -141,4 +141,3 @@
 ## 2.0.0 (2016-05-09)
 * New version
 * Major redesign of configuration
-

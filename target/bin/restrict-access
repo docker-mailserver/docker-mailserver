@@ -61,4 +61,3 @@ case $MODE in
 		usage; raise "missing mode. Specify \"add\", \"del\" or \"list\"";
 	;;
 esac
-

@@ -15,4 +15,3 @@ errex() {
   flock -e 200
   awk -F '|' '{ print $1; }' $DATABASE
 ) 200<$DATABASE
-
