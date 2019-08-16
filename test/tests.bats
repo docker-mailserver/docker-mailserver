@@ -873,39 +873,6 @@ function count_processed_changes() {
 }
 
 #
-# postscreen
-#
-
-@test "checking postscreen" {
-  # Getting mail container IP
-  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
-
-  # talk too fast:
-
-  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_POSTSCREEN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
-  sleep 5
-
-  run docker exec mail_postscreen grep 'COMMAND PIPELINING' /var/log/mail/mail.log
-  assert_success
-
-  # positive test. (respecting postscreen_greet_wait time and talking in turn):
-  for i in {1,2}; do
-    docker exec fail-auth-mailer /bin/bash -c \
-    'exec 3<>/dev/tcp/'$MAIL_POSTSCREEN_IP'/25 && \
-    while IFS= read -r cmd; do \
-      head -1 <&3; \
-      [[ "$cmd" == "EHLO"* ]] && sleep 6; \
-      echo $cmd >&3; \
-    done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
-  done
-
-  sleep 5
-
-  run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
-  assert_success
-}
-
-#
 # fetchmail
 #
 
