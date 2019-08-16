@@ -1252,8 +1252,8 @@ function count_processed_changes() {
 
 
 @test "checking user login: predefined user can login" {
-  result=$(docker exec mail doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \a `p^a.*ssword' | grep 'auth succeeded')
-  [ "$result" = "passdb: pass@localhost.localdomain auth succeeded" ]
+  run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \\a \`p^a.*ssword' | grep 'passdb'"
+  assert_output "passdb: pass@localhost.localdomain auth succeeded"
 }
 
 #
@@ -1303,8 +1303,8 @@ function count_processed_changes() {
   # Alternatively we could login with a known good user to make sure that the service is up
   sleep 2
 
-  result=$(docker exec mail doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'auth succeeded')
-  [ "$result" = "passdb: setup_email_add@example.com auth succeeded" ]
+  run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
+  assert_output "passdb: setup_email_add@example.com auth succeeded"
 }
 
 @test "checking setup.sh: setup.sh email list" {
