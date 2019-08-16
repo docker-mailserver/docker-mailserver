@@ -7,7 +7,7 @@ NAME=tvial/docker-mailserver:testing
 TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-60}
 
 function repeat_until_success_or_timeout {
-    if ![[ "$1" ~= '^[0-9]+$' ]]; then
+    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
         echo "First parameter for timeout must be an integer, recieved \"$1\""
         exit 1
     fi
