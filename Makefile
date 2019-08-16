@@ -188,16 +188,6 @@ run:
 		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-	docker run -d --name mail_with_imap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=rimap \
-		-e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -264,7 +254,6 @@ clean:
 		mail_manual_ssl \
 		ldap_for_mail \
 		mail_with_ldap \
-		mail_with_imap \
 		mail_override_hostname \
 		mail_domainname \
 		mail_srs_domainname

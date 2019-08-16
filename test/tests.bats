@@ -1530,28 +1530,6 @@ function count_processed_changes() {
   assert_success
 }
 
-
-#
-# RIMAP
-#
-
-# dovecot
-@test "checking dovecot: ldap rimap connection and authentication works" {
-  run docker exec mail_with_imap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
-  assert_success
-}
-
-# saslauthd
-@test "checking saslauthd: sasl rimap authentication works" {
-  run docker exec mail_with_imap bash -c "testsaslauthd -u user1@localhost.localdomain -p mypassword"
-  assert_success
-}
-
-@test "checking saslauthd: rimap smtp authentication" {
-  run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
-  assert_success
-}
-
 #
 # Pflogsumm delivery check
 #
