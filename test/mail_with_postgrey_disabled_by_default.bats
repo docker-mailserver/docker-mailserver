@@ -15,6 +15,6 @@ function teardown() {
 }
 
 @test "checking process: postgrey (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
+  run docker exec $CONTAINER /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
   assert_failure
 }
