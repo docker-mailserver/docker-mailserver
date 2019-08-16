@@ -205,15 +205,6 @@ run:
 		--cap-add=NET_ADMIN \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-	docker run -d --name mail_lmtp_ip \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/config/dovecot-lmtp":/etc/dovecot \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
-		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 30
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -246,7 +237,6 @@ fixtures:
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 	# postfix virtual transport lmtp
-	docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
@@ -282,7 +272,6 @@ clean:
 		ldap_for_mail \
 		mail_with_ldap \
 		mail_with_imap \
-		mail_lmtp_ip \
 		mail_postscreen \
 		mail_override_hostname \
 		mail_domainname \
