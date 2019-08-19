@@ -1,8 +1,6 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
+load 'test_helper/common'
 
 NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME=non-default-docker-mail-network
-NAME=tvial/docker-mailserver:testing
 setup() {
     docker network create --driver bridge ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}
 	docker network create --driver bridge ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
@@ -31,7 +29,7 @@ setup() {
 		-t ${NAME}
 
     # wait until postfix is up
-    repeat_until_success_or_timeout 60 docker exec mail_smtponly_second_network /bin/sh -c "nc -z 0.0.0.0 25"
+    wait_for_smtp_port_in_container mail_smtponly_second_network
 }
 
 teardown() {
@@ -39,20 +37,6 @@ teardown() {
     docker rm -f mail_smtponly_second_network \
 		        mail_smtponly_second_network_sender
     docker network rm ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME} ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
-}
-
-function repeat_until_success_or_timeout {
-    TIMEOUT=$1
-    STARTTIME=$SECONDS
-    shift 1
-    until "$@"
-    do
-        sleep 5
-        if [[ $(($SECONDS - $STARTTIME )) -gt $TIMEOUT ]]; then
-            echo "Timed out on command: $@"
-            exit 1
-        fi
-    done
 }
 
 @test "checking PERMIT_DOCKER: connected-networks" {

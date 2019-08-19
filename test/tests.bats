@@ -134,82 +134,6 @@ function count_processed_changes() {
   assert_success
 }
 
-
-#
-# postgrey
-#
-
-@test "checking process: postgrey (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
-  assert_failure
-}
-
-@test "checking postgrey: /etc/postfix/main.cf correctly edited" {
-  run docker exec mail_with_postgrey /bin/bash -c "grep 'bl.spamcop.net, check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking postgrey: /etc/default/postgrey correctly edited and has the default values" {
-  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=127.0.0.1:10023 --delay=15 --max-age=35 --auto-whitelist-clients=5\"$' /etc/default/postgrey | wc -l"
-  assert_success
-  assert_output 1
-  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_TEXT=\"Delayed by postgrey\"$' /etc/default/postgrey | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking process: postgrey (postgrey server enabled)" {
-  run docker exec mail_with_postgrey /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
-  assert_success
-}
-
-@test "checking postgrey: there should be a log entry about a new greylisted e-mail user@external.tld in /var/log/mail/mail.log" {
-  #editing the postfix config in order to ensure that postgrey handles the test e-mail. The other spam checks at smtpd_recipient_restrictions would interfere with it.
-  run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/permit_sasl_authenticated.*policyd-spf,$//g' /etc/postfix/main.cf"
-  run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' /etc/postfix/main.cf"
-  run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' /etc/postfix/main.cf"
-  run docker exec mail_with_postgrey /bin/sh -c "sed -ie 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' /etc/postfix/main.cf"
-
-  run docker exec mail_with_postgrey /bin/sh -c "/etc/init.d/postfix reload"
-  run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
-  sleep 5 #ensure that the information has been written into the log
-  run docker exec mail_with_postgrey /bin/bash -c "grep -i 'action=greylist.*user@external\.tld' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking postgrey: there should be a log entry about the retried and passed e-mail user@external.tld in /var/log/mail/mail.log" {
-  sleep 20 #wait 20 seconds so that postgrey would accept the message
-  run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
-  sleep 8
-  run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=triplet found.*user@external\.tld' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking postgrey: there should be a log entry about the whitelisted and passed e-mail user@whitelist.tld in /var/log/mail/mail.log" {
-  run docker exec mail_with_postgrey /bin/sh -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt"
-  run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking postgrey: there should be a log entry about the whitelisted local and passed e-mail user@whitelistlocal.tld in /var/log/mail/mail.log" {
-  run docker exec mail_with_postgrey /bin/sh -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_local.txt"
-  run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking postgrey: there should be a log entry about the whitelisted recipient user2@otherdomain.tld in /var/log/mail/mail.log" {
-  run docker exec mail_with_postgrey /bin/sh -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_recipients.txt"
-  run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=recipient whitelist' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
-}
-
-
 #
 # imap
 #
@@ -506,19 +430,6 @@ function count_processed_changes() {
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   assert_success
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .\*\*\*SPAM\*\*\* .'"
-  assert_success
-}
-
-@test "checking spamassassin: docker env variables are set correctly (custom)" {
-  run docker exec mail /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
-  assert_success
-  run docker exec mail /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
-  assert_success
-  run docker exec mail /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
-  assert_success
-  run docker exec mail /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
-  assert_success
-  run docker exec mail_undef_spam_subject /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
   assert_success
 }
 
@@ -959,39 +870,6 @@ function count_processed_changes() {
   # Checking that FAIL_AUTH_MAILER_IP is unbanned by iptables
   run docker exec mail_fail2ban /bin/sh -c "iptables -L f2b-postfix-sasl -n | grep REJECT | grep '$FAIL_AUTH_MAILER_IP'"
   assert_failure
-}
-
-#
-# postscreen
-#
-
-@test "checking postscreen" {
-  # Getting mail container IP
-  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
-
-  # talk too fast:
-
-  docker exec fail-auth-mailer /bin/sh -c "nc $MAIL_POSTSCREEN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
-  sleep 5
-
-  run docker exec mail_postscreen grep 'COMMAND PIPELINING' /var/log/mail/mail.log
-  assert_success
-
-  # positive test. (respecting postscreen_greet_wait time and talking in turn):
-  for i in {1,2}; do
-    docker exec fail-auth-mailer /bin/bash -c \
-    'exec 3<>/dev/tcp/'$MAIL_POSTSCREEN_IP'/25 && \
-    while IFS= read -r cmd; do \
-      head -1 <&3; \
-      [[ "$cmd" == "EHLO"* ]] && sleep 6; \
-      echo $cmd >&3; \
-    done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
-  done
-
-  sleep 5
-
-  run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
-  assert_success
 }
 
 #
@@ -1652,42 +1530,6 @@ function count_processed_changes() {
   assert_success
 }
 
-
-#
-# RIMAP
-#
-
-# dovecot
-@test "checking dovecot: ldap rimap connection and authentication works" {
-  run docker exec mail_with_imap /bin/sh -c "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
-  assert_success
-}
-
-# saslauthd
-@test "checking saslauthd: sasl rimap authentication works" {
-  run docker exec mail_with_imap bash -c "testsaslauthd -u user1@localhost.localdomain -p mypassword"
-  assert_success
-}
-
-@test "checking saslauthd: rimap smtp authentication" {
-  run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
-  assert_success
-}
-
-#
-# Postfix VIRTUAL_TRANSPORT
-#
-@test "checking postfix-lmtp: virtual_transport config is set" {
-  run docker exec mail_lmtp_ip /bin/sh -c "grep 'virtual_transport = lmtp:127.0.0.1:24' /etc/postfix/main.cf"
-  assert_success
-}
-
-@test "checking postfix-lmtp: delivers mail to existing account" {
-  run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
-  assert_success
-  assert_output 1
-}
-
 #
 # Pflogsumm delivery check
 #
@@ -1813,44 +1655,6 @@ function count_processed_changes() {
 
 @test "checking restart of process: saslauthd (saslauthd server enabled)" {
   run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
-  assert_success
-}
-
-#
-# default relay host
-#
-
-@test "checking default relay host: default relay host is added to main.cf" {
-  run docker exec mail_with_default_relay /bin/sh -c 'grep -e "^relayhost = default.relay.host.invalid:25" /etc/postfix/main.cf | wc -l | grep 1'
-  assert_success
-}
-
-#
-# relay hosts
-#
-
-@test "checking relay hosts: default mapping is added from env vars" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/relayhost_map | grep -e "^@domainone.tld\s\+\[default.relay.com\]:2525" | wc -l | grep 1'
-  assert_success
-}
-
-@test "checking relay hosts: custom mapping is added from file" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/relayhost_map | grep -e "^@domaintwo.tld\s\+\[other.relay.com\]:587" | wc -l | grep 1'
-  assert_success
-}
-
-@test "checking relay hosts: ignored domain is not added" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/relayhost_map | grep -e "^@domainthree.tld\s\+\[any.relay.com\]:25" | wc -l | grep 0'
-  assert_success
-}
-
-@test "checking relay hosts: auth entry is added" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^@domaintwo.tld\s\+smtp_user_2:smtp_password_2" | wc -l | grep 1'
-  assert_success
-}
-
-@test "checking relay hosts: default auth entry is added" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^\[default.relay.com\]:2525\s\+smtp_user:smtp_password" | wc -l | grep 1'
   assert_success
 }
 
