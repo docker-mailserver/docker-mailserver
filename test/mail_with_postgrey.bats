@@ -1,30 +1,30 @@
 load 'test_helper/common'
 
 function setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 function teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    docker run -d --name mail_with_postgrey \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_POSTGREY=1 \
-		-e POSTGREY_DELAY=15 \
-		-e POSTGREY_MAX_AGE=35 \
-		-e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
-		-e POSTGREY_TEXT="Delayed by postgrey" \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
-    # using postfix availability as start indicator, this might be insufficient for postgrey
-    wait_for_smtp_port_in_container mail_with_postgrey
+  docker run -d --name mail_with_postgrey \
+    -v "`pwd`/test/config":/tmp/docker-mailserver \
+    -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e ENABLE_POSTGREY=1 \
+    -e POSTGREY_DELAY=15 \
+    -e POSTGREY_MAX_AGE=35 \
+    -e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
+    -e POSTGREY_TEXT="Delayed by postgrey" \
+    -e DMS_DEBUG=0 \
+    -h mail.my-domain.com -t ${NAME}
+  # using postfix availability as start indicator, this might be insufficient for postgrey
+  wait_for_smtp_port_in_container mail_with_postgrey
 }
 
 function teardown_file() {
-    docker rm -f mail_with_postgrey
+  docker rm -f mail_with_postgrey
 }
 
 @test "first" {

@@ -2,32 +2,32 @@
 load 'test_helper/common'
 
 setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 setup_file() {
-    docker run -d --name mail_with_imap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=rimap \
-		-e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
-    wait_for_smtp_port_in_container mail_with_imap
+  docker run -d --name mail_with_imap \
+    -v "`pwd`/test/config":/tmp/docker-mailserver \
+    -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e ENABLE_SASLAUTHD=1 \
+    -e SASLAUTHD_MECHANISMS=rimap \
+    -e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
+    -e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
+    -e DMS_DEBUG=0 \
+    -h mail.my-domain.com -t ${NAME}
+  wait_for_smtp_port_in_container mail_with_imap
 }
 
 teardown_file() {
-    docker rm -f mail_with_imap
+  docker rm -f mail_with_imap
 }
 
 @test "first" {
-    skip 'only used to call setup_file from setup'
+  skip 'only used to call setup_file from setup'
 }
 
 #

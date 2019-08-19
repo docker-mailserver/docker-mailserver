@@ -1,38 +1,38 @@
 load 'test_helper/common'
 
 setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 
-    # Getting mail container IP
-    MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
+  # Getting mail container IP
+  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
 }
 
 teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 setup_file() {
-    docker run -d --name mail_postscreen \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e POSTSCREEN_ACTION=enforce \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t ${NAME}
+  docker run -d --name mail_postscreen \
+    -v "`pwd`/test/config":/tmp/docker-mailserver \
+    -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e POSTSCREEN_ACTION=enforce \
+    --cap-add=NET_ADMIN \
+    -h mail.my-domain.com -t ${NAME}
 
-    docker run --name mail_postscreen_sender \
-        -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-        -d ${NAME} \
-        tail -f /var/log/faillog
+  docker run --name mail_postscreen_sender \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -d ${NAME} \
+    tail -f /var/log/faillog
 
-    wait_for_smtp_port_in_container mail_postscreen
+  wait_for_smtp_port_in_container mail_postscreen
 }
 
 teardown_file() {
-    docker rm -f mail_postscreen mail_postscreen_sender
+  docker rm -f mail_postscreen mail_postscreen_sender
 }
 
 @test "first" {
-    skip 'only used to call setup_file from setup'
+  skip 'only used to call setup_file from setup'
 }
 
 @test "checking postscreen: talk too fast" {
