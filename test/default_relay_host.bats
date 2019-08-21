@@ -21,6 +21,6 @@ function teardown() {
 #
 
 @test "checking default relay host: default relay host is added to main.cf" {
-  run docker exec mail_with_default_relay /bin/sh -c 'grep -e "^relayhost = default.relay.host.invalid:25" /etc/postfix/main.cf | wc -l | grep 1'
-  assert_success
+  run docker exec mail_with_default_relay /bin/sh -c 'grep -e "^relayhost =" /etc/postfix/main.cf'
+  assert_output 'relayhost = default.relay.host.invalid:25'
 }
