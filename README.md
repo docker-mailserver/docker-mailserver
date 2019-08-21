@@ -478,7 +478,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
   - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
 
-##### DOVECOT_USER_ATTR
+##### DOVECOT_USER_ATTRS
 
  - e.g. `homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail`
  - => Specify the directory to dovecot attribute mapping that fits your directory structure.
@@ -490,7 +490,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
   - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
 
-##### DOVECOT_PASS_ATTR
+##### DOVECOT_PASS_ATTRS
 
 - e.g. `uid=user,userPassword=password`
 - => Specify the directory to dovecot variable mapping that fits your directory structure.
