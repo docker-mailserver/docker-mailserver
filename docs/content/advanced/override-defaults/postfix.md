@@ -7,6 +7,8 @@ For example, one common use of this file is for increasing the default maximum m
    message_size_limit = 52428800
 ```
 
+That specific example is now supported and can be handled by setting POSTFIX_MESSAGE_SIZE_LIMIT.
+
 [Postfix documentation](http://www.postfix.org/documentation.html) remains the best place to find configuration options.
 
 Each line in the provided file will be loaded into postfix.
