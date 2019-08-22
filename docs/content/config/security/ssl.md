@@ -97,6 +97,104 @@ Then
 
 
 
+#### Example using docker, nginx-proxy and letsencrypt-nginx-proxy-companion with docker-compose####
+The following docker-compose.yml is the basic setup you need for using letsencrypt-nginx-proxy-companion. It is mainly derived from its own wiki/documenation.
+
+```
+version: "2"
+
+services:
+  nginx: 
+    image: nginx
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /mnt/data/nginx/htpasswd:/etc/nginx/htpasswd
+      - /mnt/data/nginx/conf.d:/etc/nginx/conf.d
+      - /mnt/data/nginx/vhost.d:/etc/nginx/vhost.d
+      - /mnt/data/nginx/html:/usr/share/nginx/html
+      - /mnt/data/nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - proxy-tier
+    restart: always
+
+  nginx-gen:
+    image: jwilder/docker-gen
+    container_name: nginx-gen
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /mnt/data/nginx/templates/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+    volumes_from:
+      - nginx
+    entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    restart: always
+
+  letsencrypt-nginx-proxy-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt-companion
+    volumes_from:
+      - nginx
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/data/nginx/certs:/etc/nginx/certs:rw
+    environment:
+      - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
+      - DEBUG=false
+    restart: always
+
+networks:
+  proxy-tier:
+    external:
+      name: nginx-proxy
+```
+
+The second part of the setup is the actual mail container. So, in another folder, create another docker-compose.yml with the following content (Removed all ENV variables for this example):
+```
+version: '2'
+services:
+  mail:
+    image: tvial/docker-mailserver:latest
+    hostname: ${HOSTNAME}
+    domainname: ${DOMAINNAME}
+    container_name: ${CONTAINER_NAME}
+    ports:
+    - "25:25"
+    - "143:143"
+    - "465:465"
+    - "587:587"
+    - "993:993"
+    volumes:
+    - ./mail:/var/mail
+    - ./mail-state:/var/mail-state
+    - ./config/:/tmp/docker-mailserver/
+    - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
+    cap_add:
+    - NET_ADMIN
+    - SYS_PTRACE
+    restart: always
+
+  cert-companion:
+    image: nginx
+    environment:
+      - "VIRTUAL_HOST="
+      - "VIRTUAL_NETWORK=nginx-proxy"
+      - "LETSENCRYPT_HOST="
+      - "LETSENCRYPT_EMAIL="
+    networks:
+      - proxy-tier
+    restart: always
+    
+networks:
+  proxy-tier:
+    external:
+      name: nginx-proxy
+
+```
+The mail container needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (VIRTUAL_HOST and LETSENCRYPT_HOST are mandandory, see documentation)
+
+
 #### Example using the letsencrypt certificates on a Synology NAS
 
 Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates. Amongst other things, you can use these to secure your mail server. DSM locates the generated certificates in a folder below ```/usr/syno/etc/certificate/_archive/```. Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your ```docker-compose.yml``` declaration file:
