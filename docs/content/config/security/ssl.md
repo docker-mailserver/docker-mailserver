@@ -97,7 +97,7 @@ Then
 
 
 
-#### Example using docker, nginx-proxy and letsencrypt-nginx-proxy-companion with docker-compose####
+#### Example using docker, nginx-proxy and letsencrypt-nginx-proxy-companion with docker-compose
 The following docker-compose.yml is the basic setup you need for using letsencrypt-nginx-proxy-companion. It is mainly derived from its own wiki/documenation.
 
 ```
