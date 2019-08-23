@@ -10,6 +10,9 @@ To add a SPF record in your DNS, insert the following line in your DNS zone:
     ; Add SPF record
     domain.com. IN TXT "v=spf1 mx ~all" 
 
+This enables the Softfail mode for SPF. It is a good setting for getting started and testing everything. After verification, you might want to change your SPF record to: `v=spf1 mx -all`, to enforce the policy!
+
+
 Increment DNS serial and reload configuration.
 
 ## Backup MX, Secondary MX
