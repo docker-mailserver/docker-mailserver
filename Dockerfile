@@ -17,7 +17,7 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Packages
-# hadolint ignore=DL3015
+# hadolint ignore=DL3015,SC2016
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
   apt-get -y install postfix && \
