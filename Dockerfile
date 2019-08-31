@@ -17,13 +17,14 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Packages
-# hadolint ignore=DL3015
+# hadolint ignore=DL3015,SC2016
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-bp.list && \
   apt-get update -q --fix-missing && \
   apt-get -y install postfix && \
   # TODO installing postfix with --no-install-recommends makes "checking ssl: generated default cert works correctly" fail
   apt-get -y install --no-install-recommends \
     amavisd-new \
+    apt-transport-https \
     arj \
     binutils \
     bzip2 \
@@ -76,7 +77,11 @@ RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc
     xz-utils \
     zoo \
     && \
-  apt-get -t stretch-backports -y install --no-install-recommends \
+  curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
+  gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
+  echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/stretch stretch main" > /etc/apt/sources.list.d/dovecot.list && \
+  apt-get update -q --fix-missing && \
+  apt-get -y install --no-install-recommends \
     dovecot-core \
     dovecot-imapd \
     dovecot-ldap \
@@ -85,6 +90,9 @@ RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee -a /etc
     dovecot-pop3d \
     dovecot-sieve \
     && \
+  sed -i 's/CERTDIR=.*/CERTDIR=\/etc\/dovecot\/ssl/g' /usr/share/dovecot/mkcert.sh && \
+  sed -i 's/KEYDIR=.*/KEYDIR=\/etc\/dovecot\/ssl/g' /usr/share/dovecot/mkcert.sh && \
+  sed -i 's/KEYFILE=.*/KEYFILE=\$KEYDIR\/dovecot.key/g' /usr/share/dovecot/mkcert.sh && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /usr/share/locale/* && \
