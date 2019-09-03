@@ -172,6 +172,10 @@ Otherwise, it could work with 512M of RAM.
 
 Yes, by Adding the Environment Variable `PERMIT_DOCKER: network`.
 
+### How can I authenticate users with SMTP_ONLY?
+
+See https://github.com/tomav/docker-mailserver/issues/1247 for an example.
+
 ### Common errors
 
 ```
