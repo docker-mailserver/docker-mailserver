@@ -9,24 +9,25 @@ Easy to deploy and upgrade.
 
 Includes:
 
-- postfix with smtp or ldap auth
-- dovecot for sasl, imap (and optional pop3) with ssl support, with ldap auth
+- [Postfix](http://www.postfix.org) with smtp or ldap auth
+- [Dovecot](https://www.dovecot.org) for sasl, imap (and optional pop3) with ssl support, with ldap auth
+  - Dovecot is installed from the [Dovecot Community Repo](https://wiki2.dovecot.org/PrebuiltBinaries)
 - saslauthd with ldap auth
-- [amavis](https://www.amavis.org/)
-- [spamassasin](http://spamassassin.apache.org/) supporting custom rules
-- [clamav](https://www.clamav.net/) with automatic updates
-- opendkim
-- opendmarc
-- [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page)
-- [fetchmail](http://www.fetchmail.info/fetchmail-man.html)
-- [postscreen](http://www.postfix.org/POSTSCREEN_README.html)
-- [postgrey](https://postgrey.schweikert.ch/)
-- basic [sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
+- [Amavis](https://www.amavis.org/)
+- [Spamassasin](http://spamassassin.apache.org/) supporting custom rules
+- [ClamAV](https://www.clamav.net/) with automatic updates
+- [OpenDKIM](http://www.opendkim.org)
+- [OpenDMARC](https://github.com/trusteddomainproject/OpenDMARC)
+- [Fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page)
+- [Fetchmail](http://www.fetchmail.info/fetchmail-man.html)
+- [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
+- [Postgrey](https://postgrey.schweikert.ch/)
+- basic [Sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- [setup script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) to easily configure and maintain your mailserver
+- [Setup script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) to easily configure and maintain your mailserver
 - persistent data and state (but think about backups!)
-- [integration tests](https://travis-ci.org/tomav/docker-mailserver)
-- [automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
+- [Integration tests](https://travis-ci.org/tomav/docker-mailserver)
+- [Automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
