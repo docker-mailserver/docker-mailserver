@@ -4,7 +4,7 @@
 # Wrapper for various setup scripts included in the docker-mailserver
 #
 
-INFO=$(docker ps \
+INFO=$(docker ps -a\
   --no-trunc \
   --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
   grep "supervisord -c /etc/supervisor/supervisord.conf")
