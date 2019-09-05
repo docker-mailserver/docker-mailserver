@@ -5,11 +5,10 @@ all-fast: build backup generate-accounts run generate-accounts-after-run fixture
 no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
 
 build-no-cache:
-	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
+	export DOCKER_MAIL_DOCKER_BUILD_NO_CACHE=--no-cache
 	docker build --no-cache -t $(NAME) .
 
 build:
-	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap .
 	docker build -t $(NAME) .
 
 backup:
@@ -153,39 +152,6 @@ run:
 		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
 		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run --rm -d --name ldap_for_mail \
-		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h ldap.my-domain.com -t ldap
-	sleep 15
-	docker run --rm -d --name mail_with_ldap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_LDAP=1 \
-		-e LDAP_SERVER_HOST=ldap \
-		-e LDAP_START_TLS=no \
-		-e SPOOF_PROTECTION=1 \
-		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_PW=admin \
-		-e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
-		-e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
-		-e DOVECOT_TLS=no \
-		-e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e REPORT_RECIPIENT=1 \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=ldap \
-		-e SASLAUTHD_LDAP_SERVER=ldap \
-		-e SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e SASLAUTHD_LDAP_PASSWORD=admin \
-		-e SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=0 \
-		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 
