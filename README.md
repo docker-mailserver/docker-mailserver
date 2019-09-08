@@ -119,4 +119,4 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 `Note: Port 25 is only for receiving email from other mailservers and not for submitting email. You need to use port 465 or 587 for this.`
 
 ##### More Examples
-You can find more examples with different use cases under folder [Examples](Examples.md).
+You can find more examples with different use cases under folder [Examples](Examples).
