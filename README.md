@@ -124,6 +124,5 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 
 `restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
-
-##### More Examples
+## More Examples
 You can find more examples with different use cases under folder [Examples](Examples).
