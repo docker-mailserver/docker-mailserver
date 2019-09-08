@@ -34,6 +34,23 @@ Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-
 Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation.
 
 ## Requirements
+#### Exposed ports
+Open the ports you need:
+* 25 receiving email from other mailservers
+* 465 SSL Client email submission
+* 587 TLS Client email submission
+* 143 StartTLS IMAP client
+* 993 TLS/SSL IMAP client
+* 110 POP3 client
+* 995 TLS/SSL POP3 client
+
+Note: Many ISP providers and cloud computation providers block port 25 (usually outgoing traffic), making it impossible to send emails to other mailservers. Before you start, make sure that port 25 is usable. You can test this by
+```
+$ telnet smtp.gmail.com 25
+Trying 64.233.167.108...
+Connected to gmail-smtp-msa.l.google.com.
+Escape character is '^]'
+```
 
 Recommended:
 - 1 CPU
@@ -74,7 +91,7 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
     ./setup.sh config dkim
 
-Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone if you are running your own DNS server. Or, go to your DNS provider website, using the content to create a record (or something similar):
+Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone if you are running your own DNS server. Or, go to your DNS provider website and use the content to create a record (or something similar):
 - Record type: `TXT`
 - Main record: `mail._domainkey`
 - Record value: 
@@ -87,7 +104,7 @@ Now the keys are generated, you can configure your DNS server by just pasting th
 #### Start Container
     docker-compose up -d mail
 
-#### Restart and update the container
+#### Restart and update the container if necessary
 
     docker-compose down
     docker pull tvial/docker-mailserver:latest
@@ -107,16 +124,6 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 
 `restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
-#### Exposed ports
-* 25 receiving email from other mailservers
-* 465 SSL Client email submission
-* 587 TLS Client email submission
-* 143 StartTLS IMAP client
-* 993 TLS/SSL IMAP client
-* 110 POP3 client
-* 995 TLS/SSL POP3 client
-
-`Note: Port 25 is only for receiving email from other mailservers and not for submitting email. You need to use port 465 or 587 for this.`
 
 ##### More Examples
 You can find more examples with different use cases under folder [Examples](Examples).
