@@ -45,7 +45,7 @@ Minimum:
 
 **Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM.
 
-## Usage
+## Basic Usage
 
 #### Get latest image
 
@@ -63,7 +63,7 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
 #### Create a docker-compose environment
 
-- The `.env` file contains the default environmental variables and their explanations. These variables will be passed to `docker-compose.yml` during running. You can change these variables in `docker-compose.yml`.
+- The `.env` file contains the default environmental variables and their explanations. You can also find them in the more readable file [ENV.MD](ENV.MD). These variables will be passed to `docker-compose.yml` during running. You can change these variables in `docker-compose.yml`.
 - Install [docker-compose](https://docs.docker.com/compose/) in the version `1.7` or higher.
 
 #### Create your mail accounts (at least one account)
@@ -118,97 +118,5 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 
 `Note: Port 25 is only for receiving email from other mailservers and not for submitting email. You need to use port 465 or 587 for this.`
 
-##### Examples with just the relevant environmental variables:
-
-```yaml
-version: '2'
-
-services:
-  mail:
-    image: tvial/docker-mailserver:latest
-    hostname: mail
-    domainname: domain.com
-    container_name: mail
-    ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
-    volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - ./config/:/tmp/docker-mailserver/
-    environment:
-      - ENABLE_SPAMASSASSIN=1
-      - ENABLE_CLAMAV=1
-      - ENABLE_FAIL2BAN=1
-      - ENABLE_POSTGREY=1
-      - ONE_DIR=1
-      - DMS_DEBUG=0
-    cap_add:
-      - NET_ADMIN
-      - SYS_PTRACE
-
-volumes:
-  maildata:
-    driver: local
-  mailstate:
-    driver: local
-```
-
-__for ldap setup__:
-
-```yaml
-version: '2'
-
-services:
-  mail:
-    image: tvial/docker-mailserver:latest
-    hostname: mail
-    domainname: domain.com
-    container_name: mail
-    ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
-    volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - ./config/:/tmp/docker-mailserver/
-    environment:
-      - ENABLE_SPAMASSASSIN=1
-      - ENABLE_CLAMAV=1
-      - ENABLE_FAIL2BAN=1
-      - ENABLE_POSTGREY=1
-      - ONE_DIR=1
-      - DMS_DEBUG=0
-      - ENABLE_LDAP=1
-      - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
-      - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
-      - LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
-      - LDAP_BIND_PW=admin
-      - LDAP_QUERY_FILTER_USER=(&(mail=%s)(mailEnabled=TRUE))
-      - LDAP_QUERY_FILTER_GROUP=(&(mailGroupMember=%s)(mailEnabled=TRUE))
-      - LDAP_QUERY_FILTER_ALIAS=(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))
-      - LDAP_QUERY_FILTER_DOMAIN=(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))
-      - DOVECOT_PASS_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
-      - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
-      - ENABLE_SASLAUTHD=1
-      - SASLAUTHD_MECHANISMS=ldap
-      - SASLAUTHD_LDAP_SERVER=ldap
-      - SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
-      - SASLAUTHD_LDAP_PASSWORD=admin
-      - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
-      - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
-      - POSTFIX_MESSAGE_SIZE_LIMIT=100000000
-    cap_add:
-      - NET_ADMIN
-      - SYS_PTRACE
-
-volumes:
-  maildata:
-    driver: local
-  mailstate:
-    driver: local
-```
+##### More Examples
+You can find more examples with different use cases under folder [Examples](Examples.md).
