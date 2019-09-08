@@ -3,6 +3,9 @@ This folder contains several examples to show different configurations of the ma
 # Basic functionality
 [basic.md](basic.md) allows sending notifications/alerts, with TLS setups and spoof protection. This should also be a beginner's guide.
 
+# With LDAP functionality
+[ldap.md](ldap.md) show the setup with LDAP. However, it maybe unclear to a new user what LDAP is and why should one use it. What is the context for it to be useful? Contributions are needed here.
+
 # A company mailserver with customer service by emails
 Being able to receive/manage emails. Image you are a company and needs to answer customer questions and has several workers to do that. This section waits for contribution.
     
