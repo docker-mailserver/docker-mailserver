@@ -39,3 +39,21 @@ volumes:
     driver: local
 
 ```
+Then you can use the following Python code or other methods to send email with your own domains!
+```
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+s = smtplib.SMTP(host='localhost', port=587)
+s.starttls()
+s.login('notify@mydomain.org', 'pswd1112')
+
+msg = MIMEMultipart()       # create a message
+msg['From']='notify@mydomain.org'
+msg['To']='MyOtherEmailName@qq.com'
+msg['Subject']="This is TEST"
+msg.attach(MIMEText('Test message from Python. ', 'plain')) # or 'html'
+s.send_message(msg)
+```
+Note that some mail servers may have blocked your IP address for spam protection, especially your dynamically allocated home IP address. 
