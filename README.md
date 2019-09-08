@@ -100,6 +100,7 @@ Now the keys are generated, you can configure your DNS server by just pasting th
 	  "p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxG6b8/BgftnqyTnC30RvoEiN1BhCxP...+A0fA0SN/c9"
 	  "bP7yYSOOfeRWWDmi4rpbdsorzrUcnfDLTm8oTlRETYc3pGaDXk3kuVnJ4P5O9bxiCXR/Zs7t8/ywuBwcc..." )  ; ----- DKIM key mail for mydomain.org
 ```
+Also create an `A` record to point `mail.youdomain.tld` to your machine public IP address.
 
 #### Start Container
     docker-compose up -d mail
