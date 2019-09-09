@@ -1,9 +1,16 @@
 #! /bin/sh
 
+# make script fail on errors
+# TODO add exit trap to report the failing line? at least say there was an error
+set -euo pipefail
+IFS=$'\n\t'
 ##
 # Wrapper for various setup scripts included in the docker-mailserver
 #
 
+WISHED_CONFIG_PATH=""
+
+# TODO grepping for supervisord is not a good way to find the right container
 INFO=$(docker ps \
   --no-trunc \
   --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
@@ -24,6 +31,7 @@ _update_config_path() {
   fi
 }
 
+# TODO this lines defines a fallback when the above INFO command fails. should not go to :latest, though
 if [ -z "$IMAGE_NAME" ]; then
   IMAGE_NAME=tvial/docker-mailserver:latest
 fi
@@ -149,7 +157,7 @@ while getopts ":c:i:p:" OPT; do
         exit 1
       fi
       ;;
-   \?)
+    \?)
      echo "Invalid option: -$OPTARG" >&2
      ;;
   esac
@@ -168,7 +176,7 @@ fi
 
 shift $((OPTIND-1))
 
-case $1 in
+case ${1:-} in
 
   email)
     shift
