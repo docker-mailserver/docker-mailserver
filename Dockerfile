@@ -1,5 +1,16 @@
 FROM debian:stretch-slim
-LABEL maintainer="Thomas VIAL"
+
+ARG VCS_REF
+ARG VCS_VERSION
+
+LABEL maintainer="Thomas VIAL"  \
+    org.label-schema.name="docker-mailserver" \
+    org.label-schema.description="A fullstack but simple mailserver (smtp, imap, antispam, antivirus, ssl...)" \
+    org.label-schema.url="https://github.com/tomav/docker-mailserver" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.vcs-url="https://github.com/tomav/docker-mailserver" \
+    org.label-schema.version=$VCS_VERSION \
+    org.label-schema.schema-version="1.0"
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV VIRUSMAILS_DELETE_DELAY=7
