@@ -13,7 +13,7 @@ before_install:
 - sudo chmod +rx /usr/local/bin/hadolint
 install:
 - make lint
-- travis_retry travis_wait make build-no-cache
+- travis_retry travis_wait make build
 script:
 - make generate-accounts run generate-accounts-after-run fixtures tests
 after_script:
