@@ -134,7 +134,7 @@ _docker_container() {
 }
 
 while getopts ":c:i:p:" OPT; do
-  case $OPT in
+  case ${OPT:-} in
     c)
       CONTAINER_NAME="$OPTARG"
       USE_CONTAINER=true # Container specified, connect to running instance
@@ -208,7 +208,7 @@ case ${1:-} in
 
   alias)
     shift
-    case $1 in
+    case ${1:-} in
         add)
           shift
           _docker_image addalias $@
@@ -229,7 +229,7 @@ case ${1:-} in
 
   config)
     shift
-    case $1 in
+    case ${1:-} in
       dkim)
         _docker_image generate-dkim-config $2
         ;;
@@ -244,7 +244,7 @@ case ${1:-} in
 
   relay)
     shift
-    case $1 in
+    case ${1:-} in
       add-domain)
         shift
         _docker_image addrelayhost $@
@@ -265,7 +265,7 @@ case ${1:-} in
 
   debug)
     shift
-    case $1 in
+    case ${1:-} in
       fetchmail)
         _docker_image debug-fetchmail
         ;;
