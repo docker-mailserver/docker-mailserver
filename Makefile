@@ -2,16 +2,8 @@ NAME = tvial/docker-mailserver:testing
 VCS_REF := $(shell git rev-parse --short HEAD)
 VCS_VERSION := $(shell git describe)
 
-all: build-no-cache backup generate-accounts run generate-accounts-after-run fixtures tests clean
-all-fast: build backup generate-accounts run generate-accounts-after-run fixtures tests clean
+all: build backup generate-accounts run generate-accounts-after-run fixtures tests clean
 no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
-
-build-no-cache:
-	export DOCKER_MAIL_DOCKER_BUILD_NO_CACHE=--no-cache
-	docker build --no-cache \
-		--build-arg VCS_REF=$(VCS_REF) \
-		--build-arg VCS_VERSION=$(VCS_VERSION) \
-		-t $(NAME) .
 
 build:
 	docker build \
