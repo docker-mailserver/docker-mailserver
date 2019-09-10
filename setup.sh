@@ -2,24 +2,20 @@
 
 # make script fail on errors
 # TODO add exit trap to report the failing line? at least say there was an error
-set -euo
+set -eu
 IFS=$'\n\t'
 ##
 # Wrapper for various setup scripts included in the docker-mailserver
 #
 
-WISHED_CONFIG_PATH=""
-
-# TODO grepping for supervisord is not a good way to find the right container
-INFO=$(docker ps \
-  --no-trunc \
-  --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
-  grep "supervisord -c /etc/supervisor/supervisord.conf")
-
-IMAGE_NAME=$(echo $INFO | awk '{print $1}')
-CONTAINER_NAME=$(echo $INFO | awk '{print $2}')
+IMAGE_NAME=tvial/docker-mailserver:latest
+CONTAINER_NAME=mail
 DEFAULT_CONFIG_PATH="$(pwd)/config"
 USE_CONTAINER=false
+
+# Predefine variables used later on
+WISHED_CONFIG_PATH=""
+CONFIG_PATH=""
 
 _update_config_path() {
   VOLUME=$(docker inspect $CONTAINER_NAME \
@@ -30,11 +26,6 @@ _update_config_path() {
     CONFIG_PATH=$(echo $VOLUME | awk '{print $1}')
   fi
 }
-
-# TODO this lines defines a fallback when the above INFO command fails. should not go to :latest, though
-if [ -z "$IMAGE_NAME" ]; then
-  IMAGE_NAME=tvial/docker-mailserver:latest
-fi
 
 _inspect() {
   if _docker_image_exists "$IMAGE_NAME"; then
@@ -165,6 +156,7 @@ done
 
 if [ ! -n "$WISHED_CONFIG_PATH" ]; then
   # no wished config path
+  #_inspect
   _update_config_path
 
   if [ ! -n "$CONFIG_PATH" ]; then
