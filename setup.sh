@@ -2,7 +2,7 @@
 
 # make script fail on errors
 # TODO add exit trap to report the failing line? at least say there was an error
-set -euo pipefail
+set -euo
 IFS=$'\n\t'
 ##
 # Wrapper for various setup scripts included in the docker-mailserver
