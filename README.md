@@ -47,10 +47,6 @@ Minimum:
 
 ## Usage
 
-#### Get latest image
-
-    docker pull tvial/docker-mailserver:latest
-
 #### Get the tools
 
 Download the docker-compose.yml, the .env and the setup.sh files:
@@ -84,13 +80,16 @@ Now the keys are generated, you can configure your DNS server by just pasting th
 
 #### Restart and update the container
 
-    docker-compose down
-    docker pull tvial/docker-mailserver:latest
-    docker-compose up -d mail
+```
+docker-compose pull
+docker-compose down
+docker-compose up -d mail
+```
 
 You're done!
 
 And don't forget to have a look at the remaining functions of the `setup.sh` script
+
 
 #### SPF/Forwarding Problems
 
