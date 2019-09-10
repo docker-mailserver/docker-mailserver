@@ -9,7 +9,7 @@ TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-60}
 function repeat_until_success_or_timeout {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
         echo "First parameter for timeout must be an integer, recieved \"$1\""
-        exit 1
+        return 1
     fi
     TIMEOUT=$1
     STARTTIME=$SECONDS
@@ -19,7 +19,7 @@ function repeat_until_success_or_timeout {
         sleep 5
         if [[ $(($SECONDS - $STARTTIME )) -gt $TIMEOUT ]]; then
             echo "Timed out on command: $@"
-            exit 1
+            return 1
         fi
     done
 }
