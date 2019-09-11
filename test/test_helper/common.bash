@@ -34,13 +34,16 @@ function wait_for_finished_setup_in_container() {
     repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS sh -c "docker logs $1 | grep 'is up and running'"
 }
 
-SETUP_FILE_MARKER="$BATS_TMPDIR/`basename \"$BATS_TEST_FILENAME\".setup_file`"
+SETUP_FILE_MARKER="$BATS_TMPDIR/`basename \"$BATS_TEST_FILENAME\"`.setup_file"
 
 # use in setup() in conjunction with a `@test "first" {}` to trigger setup_file reliably
 function run_setup_file_if_necessary() {
     if [ "$BATS_TEST_NAME" == 'test_first' ]; then
-        rm -f "$SETUP_FILE_MARKE"
+        # prevent old markers from marking success or get an error if we cannot remove due to permissions
+        rm -f "$SETUP_FILE_MARKER"
+
         setup_file
+
         touch "$SETUP_FILE_MARKER"
     else
         if [ ! -f "$SETUP_FILE_MARKER" ]; then
@@ -53,7 +56,8 @@ function run_setup_file_if_necessary() {
 # use in teardown() in conjunction with a `@test "last" {}` to trigger teardown_file reliably
 function run_teardown_file_if_necessary() {
     if [ "$BATS_TEST_NAME" == 'test_last' ]; then
-        rm -f "$SETUP_FILE_MARKE"
+        # cleanup setup file marker
+        rm -f "$SETUP_FILE_MARKER"
         teardown_file
     fi
 }
