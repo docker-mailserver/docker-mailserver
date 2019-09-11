@@ -5,6 +5,7 @@ NAME=tvial/docker-mailserver:testing
 
 # default timeout is 120 seconds
 TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-120}
+NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES-10}
 
 function repeat_until_success_or_timeout {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
@@ -31,7 +32,13 @@ function wait_for_smtp_port_in_container() {
 
 # @param $1 name of the postfix container
 function wait_for_finished_setup_in_container() {
-    repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS sh -c "docker logs $1 | grep 'is up and running'"
+    local status=0
+    repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS sh -c "docker logs $1 | grep 'is up and running'" || status=1
+    if [[ $status -eq 1 ]]; then
+        echo "Last $NUMBER_OF_LOG_LINES lines of container \`$1\`'s log"
+        docker logs $1 | tail -n $NUMBER_OF_LOG_LINES
+    fi
+    return $status
 }
 
 SETUP_FILE_MARKER="$BATS_TMPDIR/`basename \"$BATS_TEST_FILENAME\"`.setup_file"
