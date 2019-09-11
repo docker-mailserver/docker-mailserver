@@ -23,7 +23,7 @@ You should use a [data volume container](https://medium.com/@ramangupta/why-dock
 
 ### What about backups?
 
-Assuming that you use `docker-compose` and a data volume container named `maildata`, you can backup your user mails like this:
+Assuming that you use `docker-compose` and a data volumes, you can backup your user mails like this:
 
 ```
 docker run --rm -ti \
@@ -31,7 +31,7 @@ docker run --rm -ti \
   -v mailstate:/var/mail-state \
   -v /backup/mail:/backup \
   alpine:3.2 \
-  tar cvzf /backup/mail-`date +%y%m%d-%H%M%S`.tgz /var/mail /var/mail-state
+  tar czf /backup/mail-`date +%y%m%d-%H%M%S`.tgz /var/mail /var/mail-state
 
 find /backup/mail -type f -mtime +30 -exec rm -f {} \;
 ```
