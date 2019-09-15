@@ -124,7 +124,6 @@ function register_functions() {
 
 	_register_setup_function "_setup_postfix_smtputf8"
 	_register_setup_function "_setup_postfix_sasl"
-	_register_setup_function "_setup_postfix_override_configuration"
 	_register_setup_function "_setup_postfix_sasl_password"
 	_register_setup_function "_setup_security_stack"
 	_register_setup_function "_setup_postfix_aliases"
@@ -159,6 +158,8 @@ function register_functions() {
 	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
+
+	_register_setup_function "_setup_postfix_override_configuration"
 
   _register_setup_function "_setup_environment"
   _register_setup_function "_setup_logrotate"
