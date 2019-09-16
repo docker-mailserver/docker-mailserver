@@ -357,23 +357,23 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 
 ##### PFLOGSUMM_TRIGGER
 
-  Enables a report being sent (created by pflogsumm) on a regular basis.
-  - **none** => No report
-  - daily_cron => Daily report for Yesterday will be sent
-  - logrotate => Full report for period will be sent when logs are rotated
+  Enables regular pflogsumm mail reports.
+  - **not set** => No report
+  - daily_cron => Daily report for the previous day
+  - logrotate => Full report based on the mail log when it is rotated
 
 This is a new option. The old REPORT options are still supported for backwards compatibility.
 If this is not set and reports are enabled with the old options, logrotate will be used.
 
 ##### PFLOGSUMM_RECIPIENT
 
-  Recipient address for pflogsumm reports if they are enabled.
+  Recipient address for pflogsumm reports.
   - **not set** => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
   - => Specify the recipient address(es)
 
 ##### PFLOGSUMM_SENDER
 
-  From address for pflogsumm reports if they are enabled.
+  From address for pflogsumm reports.
   - **not set** => Use REPORT_SENDER or POSTMASTER_ADDRESS
   - => Specify the sender address
 
