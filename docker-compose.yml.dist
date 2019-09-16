@@ -13,6 +13,7 @@ services:
     volumes:
     - maildata:/var/mail
     - mailstate:/var/mail-state
+    - maillogs:/var/log/mail
     - ./config/:/tmp/docker-mailserver/
     environment:
     - DMS_DEBUG=${DMS_DEBUG}
@@ -55,6 +56,7 @@ services:
     - LDAP_QUERY_FILTER_GROUP=${LDAP_QUERY_FILTER_GROUP}
     - LDAP_QUERY_FILTER_ALIAS=${LDAP_QUERY_FILTER_ALIAS}
     - LDAP_QUERY_FILTER_DOMAIN=${LDAP_QUERY_FILTER_DOMAIN}
+    - LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL}
     - DOVECOT_TLS=${DOVECOT_TLS}
     - DOVECOT_USER_FILTER=${DOVECOT_USER_FILTER}
     - DOVECOT_PASS_FILTER=${DOVECOT_PASS_FILTER}
@@ -91,4 +93,5 @@ volumes:
     driver: local
   mailstate:
     driver: local
-
+  maillogs:
+    driver: local

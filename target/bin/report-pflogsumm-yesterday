@@ -1,0 +1,25 @@
+#!/bin/bash
+set -eo
+
+HOSTNAME=$1
+RECIPIENT=$2
+SENDER=$3
+errex() {
+  echo -e "$@" 1>&2
+  exit 1
+}
+
+test -x /usr/sbin/pflogsumm || errex "Critical: /usr/sbin/pflogsumm not found"
+
+BODY=$(gzip -cdfq $(ls -tr /var/log/mail/mail.log*) | /usr/sbin/pflogsumm --problems_first -d yesterday)
+
+sendmail -t <<EOF
+From: $SENDER
+To: $RECIPIENT
+Subject: Postfix summary for $HOSTNAME sent $(date '+%Y-%m-%d_%H%M%S')
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+
+$BODY
+EOF
+
