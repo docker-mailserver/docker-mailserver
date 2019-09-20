@@ -63,7 +63,9 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
 #### Create a docker-compose environment
 
-- Edit the files `.env` and `.env-mailserver` to your liking.
+- Edit the files `.env` and `.env-mailserver` to your liking:
+  - `.env` contains the configuration for docker-compose
+  - `env-mailserver` contains the configuration for the mailserver container
   - These files supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
