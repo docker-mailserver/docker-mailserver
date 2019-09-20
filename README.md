@@ -63,8 +63,8 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 
 #### Create a docker-compose environment
 
-- Edit the `.env` to your liking. Adapt this file with your FQDN.
-  - This file supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
+- Edit the files `.env` and `.env-mailserver` to your liking.
+  - These files supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
 - Install [docker-compose](https://docs.docker.com/compose/) in the version `1.7` or higher.
