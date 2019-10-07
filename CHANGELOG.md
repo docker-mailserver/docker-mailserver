@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.2.0+
+
+see https://github.com/tomav/docker-mailserver/releases
+
 ## 6.1.0
 
 * Deliver root mail (#952)
