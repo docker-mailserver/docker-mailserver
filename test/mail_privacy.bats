@@ -27,6 +27,7 @@ function setup_file() {
 		-h mail.my-domain.com -t ${NAME}
 
     wait_for_amavis_port_in_container mail_privacy
+    wait_for_smtp_port_in_container mail_privacy
 }
 
 function teardown_file() {
