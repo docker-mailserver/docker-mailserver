@@ -145,15 +145,6 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-	docker run --rm -d --name mail_manual_ssl \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SSL_TYPE=manual \
-		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
-		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
 
 generate-accounts-after-run:
 	docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
