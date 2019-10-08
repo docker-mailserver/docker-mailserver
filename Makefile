@@ -121,14 +121,6 @@ run:
 		-h unknown.domain.tld \
 		-t $(NAME)
 	sleep 15
-	docker run --rm -d --name mail_fail2ban \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_FAIL2BAN=1 \
-		-e POSTSCREEN_ACTION=ignore \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
 	docker run --rm -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
