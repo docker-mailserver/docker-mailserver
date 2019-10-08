@@ -32,11 +32,6 @@ function count_processed_changes() {
   assert_success
 }
 
-@test "checking configuration: hostname/domainname override" {
-  run docker exec mail_smtponly /bin/bash -c "cat /etc/mailname | grep my-domain.com"
-  assert_success
-}
-
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
   run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
   assert_success
@@ -126,11 +121,6 @@ function count_processed_changes() {
 @test "checking process: dovecot imaplogin (enabled in default configuration)" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
   assert_success
-}
-
-@test "checking process: dovecot imaplogin (disabled using SMTP_ONLY)" {
-  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
-  assert_failure
 }
 
 @test "checking imap: server is ready with STARTTLS" {
@@ -301,17 +291,6 @@ function count_processed_changes() {
   run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
   assert_success
   assert_output 1
-}
-
-@test "checking smtp_only: mail send should work" {
-  run docker exec mail_smtponly /bin/sh -c "postconf -e smtp_host_lookup=no"
-  assert_success
-  run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
-  assert_success
-  run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
-  assert_success
-  run docker exec mail_smtponly /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
-  [ "$status" -ge 0 ]
 }
 
 @test "checking smtp: not advertising smtputf8" {
@@ -964,13 +943,6 @@ function count_processed_changes() {
 
 @test "checking PERMIT_DOCKER: can get container ip" {
   run docker exec mail /bin/sh -c "ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'"
-  assert_success
-}
-
-@test "checking PERMIT_DOCKER: opendmarc/opendkim config" {
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
-  assert_success
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
   assert_success
 }
 

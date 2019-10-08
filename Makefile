@@ -74,15 +74,6 @@ run:
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-	docker run --rm -d --name mail_smtponly \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SMTP_ONLY=1 \
-		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
-		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		-t $(NAME)
-	sleep 15
 	docker run --rm -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
 		-e ENABLE_LDAP=1 \
