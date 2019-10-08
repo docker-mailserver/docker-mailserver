@@ -195,6 +195,7 @@ function register_functions() {
 	################### >> misc funcs
 
 	_register_misc_function "_misc_save_states"
+	_register_misc_function "_misc_user_patches"
 
 	################### << misc funcs
 
@@ -1592,6 +1593,18 @@ function _misc_save_states() {
 		chown -R debian-spamd /var/mail-state/lib-spamassassin
 		chown -R postfix /var/mail-state/spool-postfix
 
+	fi
+}
+
+function _misc_user_patches() {
+	notify 'task' '_misc_user_patches start'
+
+	if [ -f /tmp/docker-mailserver/user-patches.sh ]; then
+		chmod +x /tmp/docker-mailserver/user-patches.sh
+		/tmp/docker-mailserver/user-patches.sh
+		notify 'inf' "Executed 'config/user-patches.sh'"
+	else
+		notify 'inf' "No user patches executed because optional '/tmp/docker-mailserver/user-patches.sh' is not provided."
 	fi
 }
 
