@@ -1,6 +1,2 @@
 #!/bin/bash
-
-##
-# This user script will be executed between configuration and starting daemons
-##
-
+echo "Default user-patches.sh successfully executed!"

@@ -1601,11 +1601,10 @@ function _misc_user_patches() {
 
 	if [ -f /tmp/docker-mailserver/user-patches.sh ]; then
 		chmod +x /tmp/docker-mailserver/user-patches.sh
-		chown -R docker:docker /tmp/docker-mailserver/user-patches.sh
 		/tmp/docker-mailserver/user-patches.sh
-		notify 'inf' "user-patches.sh executed"
+		notify 'inf' "Executed 'config/user-patches.sh'"
 	else
-		notify 'inf' "user-patches.sh not executed because optional '/tmp/docker-mailserver/user-patches.sh' is not provided."
+		notify 'inf' "No user patches executed because optional '/tmp/docker-mailserver/user-patches.sh' is not provided."
 	fi
 }
 
