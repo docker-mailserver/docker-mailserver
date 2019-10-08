@@ -48,23 +48,6 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-	docker run --rm -d --name mail_privacy \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_CLAMAV=1 \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e SA_TAG=-5.0 \
-		-e SA_TAG2=2.0 \
-		-e SA_KILL=3.0 \
-		-e SA_SPAM_SUBJECT="SPAM: " \
-		-e VIRUSMAILS_DELETE_DELAY=7 \
-		-e SASL_PASSWD="external-domain.com username:password" \
-		-e ENABLE_MANAGESIEVE=1 \
-		--cap-add=SYS_PTRACE \
-		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
 	docker run --rm -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
 		-e ENABLE_LDAP=1 \
@@ -143,7 +126,6 @@ fixtures:
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 	# postfix virtual transport lmtp
-	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
 	sleep 80
