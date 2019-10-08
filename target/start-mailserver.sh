@@ -1601,6 +1601,7 @@ function _misc_user_patches() {
 
 	if [ -f /tmp/docker-mailserver/user-patches.sh ]; then
 		chmod +x /tmp/docker-mailserver/user-patches.sh
+		chown -R docker:docker /tmp/docker-mailserver/user-patches.sh
 		/tmp/docker-mailserver/user-patches.sh
 		notify 'inf' "user-patches.sh executed"
 	else
