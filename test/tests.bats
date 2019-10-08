@@ -119,11 +119,6 @@ function count_processed_changes() {
   assert_failure
 }
 
-@test "checking process: fetchmail (fetchmail server enabled)" {
-  run docker exec mail_fetchmail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
-  assert_success
-}
-
 @test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
   run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_failure
@@ -841,20 +836,6 @@ function count_processed_changes() {
 }
 
 #
-# fetchmail
-#
-
-@test "checking fetchmail: gerneral options in fetchmailrc are loaded" {
-  run docker exec mail_fetchmail grep 'set syslog' /etc/fetchmailrc
-  assert_success
-}
-
-@test "checking fetchmail: fetchmail.cf is loaded" {
-  run docker exec mail_fetchmail grep 'pop3.example.com' /etc/fetchmailrc
-  assert_success
-}
-
-#
 # system
 #
 
@@ -1479,11 +1460,6 @@ function count_processed_changes() {
 
 @test "checking restart of process: fail2ban (fail2ban server enabled)" {
   run docker exec mail_fail2ban /bin/bash -c "pkill fail2ban && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
-  assert_success
-}
-
-@test "checking restart of process: fetchmail" {
-  run docker exec mail_fetchmail /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
   assert_success
 }
 
