@@ -25,9 +25,20 @@ function repeat_until_success_or_timeout {
     done
 }
 
+# @param $1 port
+# @param $2 container name
+function wait_for_tcp_port_in_container() {
+    repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS docker exec $2 /bin/sh -c "nc -z 0.0.0.0 $1"
+}
+
 # @param $1 name of the postfix container
 function wait_for_smtp_port_in_container() {
-    repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS docker exec $1 /bin/sh -c "nc -z 0.0.0.0 25"
+    wait_for_tcp_port_in_container 25 $1
+}
+
+# @param $1 name of the postfix container
+function wait_for_amavis_port_in_container() {
+    wait_for_tcp_port_in_container 10024 $1
 }
 
 # @param $1 name of the postfix container

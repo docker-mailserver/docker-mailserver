@@ -9,7 +9,7 @@ From: alias_address <postmaster@localhost.localdomain>
 To: Existing Local User <some.user@localhost.localdomain>
 Date: Sat, 22 May 2010 07:43:25 -0400
 Subject: Test Message
-This is a test mail.
+This is a test mail from ldap-smtp-auth-spoofed-alias.txt
 
 .
 QUIT

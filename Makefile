@@ -5,11 +5,10 @@ all-fast: build backup generate-accounts run generate-accounts-after-run fixture
 no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
 
 build-no-cache:
-	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap --no-cache .
+	export DOCKER_MAIL_DOCKER_BUILD_NO_CACHE=--no-cache
 	docker build --no-cache -t $(NAME) .
 
 build:
-	cd test/docker-openldap/ && docker build -f Dockerfile -t ldap .
 	docker build -t $(NAME) .
 
 backup:
@@ -49,41 +48,6 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
-	docker run --rm -d --name mail_privacy \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_CLAMAV=1 \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e SA_TAG=-5.0 \
-		-e SA_TAG2=2.0 \
-		-e SA_KILL=3.0 \
-		-e SA_SPAM_SUBJECT="SPAM: " \
-		-e VIRUSMAILS_DELETE_DELAY=7 \
-		-e SASL_PASSWD="external-domain.com username:password" \
-		-e ENABLE_MANAGESIEVE=1 \
-		--cap-add=SYS_PTRACE \
-		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run --rm -d --name mail_pop3 \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
-		-e ENABLE_POP3=1 \
-		-e DMS_DEBUG=0 \
-		-e SSL_TYPE=letsencrypt \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run --rm -d --name mail_smtponly \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SMTP_ONLY=1 \
-		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
-		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		-t $(NAME)
-	sleep 15
 	docker run --rm -d --name mail_smtponly_without_config \
 		-e SMTP_ONLY=1 \
 		-e ENABLE_LDAP=1 \
@@ -122,70 +86,12 @@ run:
 		-h unknown.domain.tld \
 		-t $(NAME)
 	sleep 15
-	docker run --rm -d --name mail_fail2ban \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_FAIL2BAN=1 \
-		-e POSTSCREEN_ACTION=ignore \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run --rm -d --name mail_fetchmail \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_FETCHMAIL=1 \
-		--cap-add=NET_ADMIN \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
 	docker run --rm -d --name mail_disabled_clamav_spamassassin \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_CLAMAV=0 \
 		-e ENABLE_SPAMASSASSIN=0 \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run --rm -d --name mail_manual_ssl \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SSL_TYPE=manual \
-		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
-		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	sleep 15
-	docker run --rm -d --name ldap_for_mail \
-		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h ldap.my-domain.com -t ldap
-	sleep 15
-	docker run --rm -d --name mail_with_ldap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_LDAP=1 \
-		-e LDAP_SERVER_HOST=ldap \
-		-e LDAP_START_TLS=no \
-		-e SPOOF_PROTECTION=1 \
-		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_PW=admin \
-		-e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
-		-e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
-		-e DOVECOT_TLS=no \
-		-e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e REPORT_RECIPIENT=1 \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=ldap \
-		-e SASLAUTHD_LDAP_SERVER=ldap \
-		-e SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e SASLAUTHD_LDAP_PASSWORD=admin \
-		-e SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=0 \
-		--link ldap_for_mail:ldap \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
 
@@ -220,7 +126,6 @@ fixtures:
 	docker exec mail_disabled_clamav_spamassassin /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 	# postfix virtual transport lmtp
-	docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 	# Wait for mails to be analyzed
 	sleep 80
