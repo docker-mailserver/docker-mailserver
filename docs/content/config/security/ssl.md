@@ -215,7 +215,7 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 You can easily generate a self-signed SSL certificate by using the following command:
 
-    docker run -ti --rm -v "$(pwd)"/config/ssl:/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
+    docker run -ti --rm -v "$(pwd)"/config/ssl:/tmp/docker-mailserver/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
 
     # Press enter
     # Enter a password when needed
