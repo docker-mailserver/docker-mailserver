@@ -9,7 +9,7 @@ To: Some User <user1@localhost.localdomain>
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
  Gecko/20100101 Thunderbird/52.2.1
 Subject: Test ESMTP Auth LOGIN and remove privacy
-testing
+This is a test mail.
 
 .
 QUIT
