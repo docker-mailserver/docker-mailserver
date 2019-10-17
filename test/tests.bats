@@ -294,22 +294,19 @@ function count_processed_changes() {
   [ "${lines[2]}" = "added@localhost.localdomain" ]
 }
 
-@test "checking accounts: user mail folders for user1" {
-  run docker exec mail /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
+@test "checking accounts: user mail folder for user1" {
+  run docker exec mail /bin/bash -c "ls -d /var/mail/localhost.localdomain/user1"
   assert_success
-  assert_output 7
 }
 
-@test "checking accounts: user mail folders for user2" {
-  run docker exec mail /bin/bash -c "ls -A /var/mail/otherdomain.tld/user2 | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
+@test "checking accounts: user mail folder for user2" {
+  run docker exec mail /bin/bash -c "ls -d /var/mail/otherdomain.tld/user2"
   assert_success
-  assert_output 7
 }
 
-@test "checking accounts: user mail folders for added user" {
-  run docker exec mail /bin/bash -c "ls -A /var/mail/localhost.localdomain/added | grep -E '.Drafts|.Sent|.Trash|cur|new|subscriptions|tmp' | wc -l"
+@test "checking accounts: user mail folder for added user" {
+  run docker exec mail /bin/bash -c "ls -d /var/mail/localhost.localdomain/added"
   assert_success
-  assert_output 7
 }
 
 @test "checking accounts: comments are not parsed" {
