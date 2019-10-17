@@ -52,12 +52,12 @@ shift $((OPTIND-1))
         -e "s/"$USER",//g" $ALIAS_DATABASE
     [ $? = 0 ] && echo "$USER and potential aliases deleted." || errex "Aliases for $USER couldn't be deleted in $ALIAS_DATABASE. $?"
     if [ "$MAILDEL" != "y" ]; then
-      read -p "Do you want to delete the maildir as well(all mails will be removed)?(y/n) " MAILDEL
+      read -p "Do you want to delete the mailbox as well(all mails will be removed)?(y/n) " MAILDEL
       echo
     fi
-    [ "$MAILDEL" != "y" ] && errex "Leaving the maildir untouched. If you want to delete it at a later point use \"sudo docker exec mail rm -R /var/mail/${MAILARR[1]}/${MAILARR[0]}\""
+    [ "$MAILDEL" != "y" ] && errex "Leaving the mailbox untouched. If you want to delete it at a later point use \"sudo docker exec mail rm -R /var/mail/${MAILARR[1]}/${MAILARR[0]}\""
     rm -r -f /var/mail/${MAILARR[1]}/${MAILARR[0]}
-    [ $? = 0 ] && echo "Maildir deleted." || errex "Maildir couldn't be deleted: $?"
+    [ $? = 0 ] && echo "Mailbox deleted." || errex "Mailbox couldn't be deleted: $?"
   done
 
 ) 200<$DATABASE
