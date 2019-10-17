@@ -60,6 +60,8 @@ Download the docker-compose.yml, the .env and the setup.sh files:
     curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
 
     curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
+    
+    curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver.dist
 
 #### Create a docker-compose environment
 
