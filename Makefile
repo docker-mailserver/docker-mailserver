@@ -75,6 +75,15 @@ run:
 		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t $(NAME)
 	sleep 15
+	docker run --rm -d --name letsencrypt_domainonly \
+		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "`pwd`/test/config/letsencrypt_domain":/etc/letsencrypt/live \
+		-e ENABLE_POP3=1 \
+		-e DMS_DEBUG=0 \
+		-e SSL_TYPE=letsencrypt \
+		-h mail.my-domain.com -t $(NAME)
+	sleep 15
 	docker run --rm -d --name mail_smtponly \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \

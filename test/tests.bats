@@ -725,6 +725,20 @@ function count_processed_changes() {
   assert_success
 }
 
+@test "checking ssl: letsencrypt on base domain configuration is correct" {
+  run docker exec letsencrypt_domainonly /bin/sh -c 'grep -ir "/etc/letsencrypt/live/my-domain.com/" /etc/postfix/main.cf | wc -l'
+  assert_success
+  assert_output 2
+  run docker exec letsencrypt_domainonly /bin/sh -c 'grep -ir "/etc/letsencrypt/live/my-domain.com/" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  assert_success
+  assert_output 2
+}
+
+@test "checking ssl: letsencrypt on base domain cert works correctly" {
+  run docker exec letsencrypt_domainonly /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
+  assert_success
+}
+
 @test "checking ssl: manual configuration is correct" {
   run docker exec mail_manual_ssl /bin/sh -c 'grep -ir "/etc/postfix/ssl/cert" /etc/postfix/main.cf | wc -l'
   assert_success

@@ -947,33 +947,41 @@ function _setup_ssl() {
 	# SSL certificate Configuration
 	case $SSL_TYPE in
 		"letsencrypt" )
-			# letsencrypt folders and files mounted in /etc/letsencrypt
+			local LETSENCRYPT_PATH=""
+			# First test if the full hostname has certificates
 			if [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
+				LETSENCRYPT_PATH=$HOSTNAME
+			# Then test just the domain of the hostname to handle any SAN hosts
+			elif [ -e "/etc/letsencrypt/live/$DOMAINNAME/fullchain.pem" ]; then
+				LETSENCRYPT_PATH=$DOMAINNAME
+			fi
+			# If we found a letsencrypt path in the test above, then utilize it
+			if [ -n $LETSENCRYPT_PATH ]; then
 				KEY=""
-				if [ -e "/etc/letsencrypt/live/$HOSTNAME/privkey.pem" ]; then
+				if [ -e "/etc/letsencrypt/live/$LETSENCRYPT_PATH/privkey.pem" ]; then
 					KEY="privkey"
-				elif [ -e "/etc/letsencrypt/live/$HOSTNAME/key.pem" ]; then
+				elif [ -e "/etc/letsencrypt/live/$LETSENCRYPT_PATH/key.pem" ]; then
 					KEY="key"
 				else
-					notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/privkey.pem' nor 'key.pem'"
+					notify 'err' "Cannot access '/etc/letsencrypt/live/"LETSENCRYPT_PATH"/privkey.pem' nor 'key.pem'"
 				fi
 				if [ -n "$KEY" ]; then
-					notify 'inf' "Adding $HOSTNAME SSL certificate"
+					notify 'inf' "Adding $LETSENCRYPT_PATH SSL certificate"
 
 					# Postfix configuration
-					sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'$HOSTNAME'/fullchain.pem~g' /etc/postfix/main.cf
-					sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'$HOSTNAME'/'"$KEY"'\.pem~g' /etc/postfix/main.cf
+					sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'$LETSENCRYPT_PATH'/fullchain.pem~g' /etc/postfix/main.cf
+					sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'$LETSENCRYPT_PATH'/'"$KEY"'\.pem~g' /etc/postfix/main.cf
 
 					# Dovecot configuration
-					sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'$HOSTNAME'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-					sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'$HOSTNAME'/'"$KEY"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+					sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'$LETSENCRYPT_PATH'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+					sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'$LETSENCRYPT_PATH'/'"$KEY"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
 					notify 'inf' "SSL configured with 'letsencrypt' certificates"
 				else
 					notify 'err' "Key filename not set!"
 				fi
 			else
-				notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/fullchain.pem'"
+				notify 'err' "Cannot access '/etc/letsencrypt/live/"$HOSTNAME"/fullchain.pem' or '/etc/letsencrypt/live/"$DOMAINNAME"/fullchain.pem'"
 			fi
 		;;
 	"custom" )
