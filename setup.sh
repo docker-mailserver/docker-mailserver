@@ -98,10 +98,14 @@ _docker_image_exists() {
   fi
 }
 
+if [ -t 1 ] ; then
+  USE_TTY="-ti"
+fi
+
 _docker_image() {
   if [ "$USE_CONTAINER" = true ]; then
     # Reuse existing container specified on command line
-    docker exec -ti "$CONTAINER_NAME" "$@"
+    docker exec ${USE_TTY} "$CONTAINER_NAME" "$@"
   else
     # Start temporary container with specified image
     if ! _docker_image_exists "$IMAGE_NAME"; then
@@ -112,13 +116,13 @@ _docker_image() {
     docker run \
       --rm \
       -v "$CONFIG_PATH":/tmp/docker-mailserver \
-      -ti "$IMAGE_NAME" $@
+      ${USE_TTY} "$IMAGE_NAME" $@
   fi
 }
 
 _docker_container() {
   if [ -n "$CONTAINER_NAME" ]; then
-    docker exec -ti "$CONTAINER_NAME" "$@"
+    docker exec ${USE_TTY} "$CONTAINER_NAME" "$@"
   else
     echo "The docker-mailserver is not running!"
     exit 1
@@ -273,7 +277,7 @@ case $1 in
         ;;
       login)
         shift
-	if [ -z "$1" ]; then
+        if [ -z "$1" ]; then
           _docker_container /bin/bash
         else
           _docker_container /bin/bash -c "$@"

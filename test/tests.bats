@@ -701,13 +701,13 @@ function count_processed_changes() {
 }
 
 @test "checking amavis: VIRUSMAILS_DELETE_DELAY override works as expected" {
-  run docker run -ti --rm -e VIRUSMAILS_DELETE_DELAY=2 `docker inspect --format '{{ .Config.Image }}' mail` /bin/bash -c 'echo $VIRUSMAILS_DELETE_DELAY | grep 2'
+  run docker run --rm -e VIRUSMAILS_DELETE_DELAY=2 `docker inspect --format '{{ .Config.Image }}' mail` /bin/bash -c 'echo $VIRUSMAILS_DELETE_DELAY | grep 2'
   assert_success
 }
 
 @test "checking amavis: old virusmail is wipped by cron" {
   docker exec mail bash -c 'touch -d "`date --date=2000-01-01`" /var/lib/amavis/virusmails/should-be-deleted'
-  run docker exec -ti mail bash -c '/usr/local/bin/virus-wiper'
+  run docker exec mail bash -c '/usr/local/bin/virus-wiper'
   assert_success
   run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-be-deleted'
   assert_failure
@@ -715,7 +715,7 @@ function count_processed_changes() {
 
 @test "checking amavis: recent virusmail is not wipped by cron" {
   docker exec mail bash -c 'touch -d "`date`"  /var/lib/amavis/virusmails/should-not-be-deleted'
-  run docker exec -ti mail bash -c '/usr/local/bin/virus-wiper'
+  run docker exec mail bash -c '/usr/local/bin/virus-wiper'
   assert_success
   run docker exec mail bash -c 'ls -la /var/lib/amavis/virusmails/ | grep should-not-be-deleted'
   assert_success
