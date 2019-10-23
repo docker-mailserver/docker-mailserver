@@ -10,7 +10,7 @@ function teardown() {
 
 function setup_file() {
     pushd test/docker-openldap/
-    docker build -f Dockerfile -t ldap $DOCKER_MAIL_DOCKER_BUILD_NO_CACHE .
+    docker build -f Dockerfile -t ldap --no-cache .
     popd
 
     docker run -d --name ldap_for_mail \
