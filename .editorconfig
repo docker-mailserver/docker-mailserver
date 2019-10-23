@@ -8,7 +8,6 @@ insert_final_newline = true
 
 [*.md]
 indent_style = space
-indent_size = 4
 trim_trailing_whitespace = false
 
 [*.{yaml,yml,yml.dist,yml.tmpl}]
@@ -27,6 +26,10 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
-[target/start-mailserver.sh]
-indent_style = tab
-indent_size = 4
+# directories created by git submodules
+[{test/bats/**,test/test_helper/bats-assert/**,test/test_helper/bats-support/**,target/docker-configomat/**}]
+insert_final_newline = none
+indent_style = none
+indent_size = none
+trim_trailing_whitespace = none
+end_of_line = none
