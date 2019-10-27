@@ -90,6 +90,7 @@ function register_functions() {
 	################### >> setup funcs
 
 	_register_setup_function "_setup_default_vars"
+	_register_setup_function "_setup_file_permissions"
 
 	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
 		_register_setup_function "_setup_elk_forwarder"
@@ -470,6 +471,26 @@ function _setup_default_vars() {
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
 	done
+}
+
+# File/folder permissions are fine when using docker volumes, but may be wrong
+# when file system folders are mounted into the container.
+# Set the expected values and create missing folders/files just in case.
+function _setup_file_permissions() {
+	notify 'task' "Setting file/folder permissions"
+
+	mkdir -p /var/log/supervisor
+
+	mkdir -p /var/log/mail
+	chown syslog:root /var/log/mail
+
+	touch /var/log/mail/clamav.log
+	chown clamav:adm /var/log/mail/clamav.log
+	chmod 640 /var/log/mail/clamav.log
+
+	touch /var/log/mail/freshclam.log
+	chown clamav:adm /var/log/mail/freshclam.log
+	chmod 640 /var/log/mail/freshclam.log
 }
 
 function _setup_chksum_file() {
