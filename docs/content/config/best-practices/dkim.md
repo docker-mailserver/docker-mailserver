@@ -30,6 +30,16 @@ mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 4. In `TTL` (time to live): Time span in seconds. How long the DNS server should cache the `TXT` record.
 5. Save.
 
+Note: Sometimes the key in `config/opendkim/keys/domain.tld/mail.txt` can be on multiple lines, if so then you need to concatenate the values
+```
+; OpenDKIM
+mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
+	  "p=AZERTYUIOPQSDF..."
+	  "asdfQWERTYUIOPQSDF..." )  ; ----- DKIM key mail for domain.tld
+```
+the target (or value) field must then have all the parts together `v=DKIM1; k=rsa; p=AZERTYUIOPQSDF...asdfQWERTYUIOPQSDF...`
+
+
 ## Verify-only
 
 If you want DKIM to only verify incoming emails, the following version of /etc/opendkim.conf may be useful (right now there is no easy mechanism for installing it other than forking the repo):
