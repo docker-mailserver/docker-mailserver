@@ -170,8 +170,10 @@ If everything is OK regarding DNS, please provide [formatted logs](https://guide
 If we're blind, we won't be able to do anything.
 
 ### Which system requirements needs my container to run `docker-mailserver` effectively?
-1 core and 1GB of RAM + Swap partition is recommended to run `docker-mailserver` with Clamav.
+1 core and 1GB of RAM + swap partition is recommended to run `docker-mailserver` with clamav.
 Otherwise, it could work with 512M of RAM.
+
+Please note that clamav can consume a lot of memory, as it reads the entire signature database into RAM. Current figure is about 850M and growing. If you get errors about clamav or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
 
 ### Is `docker-mailserver` running in a [rancher environment](http://rancher.com/rancher/)?
 
