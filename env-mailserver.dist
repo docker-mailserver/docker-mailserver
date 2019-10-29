@@ -34,7 +34,7 @@ TLS_LEVEL=
 
 # Configures the handling of creating mails with forged sender addresses.
 #
-# empty => (not recommended, but default for backwards compatability reasons)
+# empty => (not recommended, but default for backwards compatibility reasons)
 #           Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address.
 #           See also https://en.wikipedia.org/wiki/Email_spoofing
 # 1 => (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses.
