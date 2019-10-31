@@ -29,7 +29,7 @@ function count_processed_changes() {
 
 @test "checking configuration: user-patches.sh executed" {
   run docker logs mail | grep "Default user-patches.sh successfully executed!"
-  assert_output "Default user-patches.sh successfully executed!"
+  assert_success
 }
 
 @test "checking configuration: hostname/domainname" {
