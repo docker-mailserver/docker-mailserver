@@ -102,7 +102,7 @@ generate-accounts-after-run:
 	sleep 10
 
 fixtures:
-	# Setup sieve & create filtering folder (INBOX/spam)
+	# Setup sieve
 	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 	sleep 30
 	# Sending test mails
