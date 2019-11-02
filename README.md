@@ -44,7 +44,7 @@ Minimum:
 - 1 CPU
 - 512MB RAM
 
-**Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see FAQ.
+**Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips).
 
 ## Usage
 
