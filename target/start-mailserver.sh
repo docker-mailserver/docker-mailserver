@@ -652,15 +652,7 @@ function _setup_dovecot_local_user() {
 			# Example :
 			# ${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::userdb_mail=maildir:/var/mail/${domain}/${user}
 			echo "${login}:${pass}:5000:5000::/var/mail/${domain}/${user}::" >> /etc/dovecot/userdb
-			mkdir -p /var/mail/${domain}
-			if [ ! -d "/var/mail/${domain}/${user}" ]; then
-				maildirmake.dovecot "/var/mail/${domain}/${user}"
-				maildirmake.dovecot "/var/mail/${domain}/${user}/.Sent"
-				maildirmake.dovecot "/var/mail/${domain}/${user}/.Trash"
-				maildirmake.dovecot "/var/mail/${domain}/${user}/.Drafts"
-				echo -e "INBOX\nSent\nTrash\nDrafts" >> "/var/mail/${domain}/${user}/subscriptions"
-				touch "/var/mail/${domain}/${user}/.Sent/maildirfolder"
-			fi
+			mkdir -p /var/mail/${domain}/${user}
 			# Copy user provided sieve file, if present
 			test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
 			echo ${domain} >> /tmp/vhost.tmp
