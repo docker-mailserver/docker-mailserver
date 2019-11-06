@@ -357,6 +357,13 @@ Set the message size limit for all users. If set to zero, the size will be unlim
   - drop => Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.
   - ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.
 
+##### DOVECOT_MAILBOX_FORMAT
+
+  - **maildir** => uses very common Maildir format, one file contains one message
+  - sdbox => (experimental) uses Dovecot high-performance mailbox format, one file contains one message
+  - mdbox ==> (experimental) uses Dovecot high-performance mailbox format, multiple messages per file and multiple files per box
+
+This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://wiki2.dovecot.org/MailboxFormat).
 
 ## Reports
 

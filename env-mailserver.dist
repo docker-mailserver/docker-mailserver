@@ -216,6 +216,10 @@ DOVECOT_USER_FILTER=
 # e.g. `"(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"`
 DOVECOT_PASS_FILTER=
 
+# Define the mailbox format to be used
+# default is maildir, supported values are: sdbox, mdbox, maildir
+DOVECOT_MAILBOX_FORMAT=maildir
+
 # -----------------------------------------------------------------------------------------------------------------------------
 # ---------------- Postgrey section -------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
