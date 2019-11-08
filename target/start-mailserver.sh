@@ -1161,7 +1161,7 @@ function _setup_postfix_override_configuration() {
 	if [ -f /tmp/docker-mailserver/postfix-master.cf ]; then
 		while read line; do
 		if [[ "$line" =~ ^[0-9a-z] ]]; then
-			postconf -P "$line"
+			postconf -e "$line"
 		fi
 		done < /tmp/docker-mailserver/postfix-master.cf
 		notify 'inf' "Loaded 'config/postfix-master.cf'"
