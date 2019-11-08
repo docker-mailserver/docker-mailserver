@@ -31,7 +31,7 @@ run:
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-v "`pwd`/test/onedir":/var/mail-state \
-		-v "`pwd`/test/config/user-patches/user-patches.sh":/tmp/docker-mailserver/user-patches.sh:ro \
+		-v "`pwd`/test/config/user-patches/user-patches.sh":/tmp/docker-mailserver/user-patches.sh \
 		-e ENABLE_CLAMAV=1 \
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
