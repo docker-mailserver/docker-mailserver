@@ -174,7 +174,8 @@ function register_functions() {
 	if [ "$LOGWATCH_TRIGGER" != "none" ]; then
 		_register_setup_function "_setup_logwatch"
 	fi
-
+	
+	_register_setup_function "_setup_user_patches"
 
         # Compute last as the config files are modified in-place
         _register_setup_function "_setup_chksum_file"
@@ -1489,6 +1490,18 @@ function _setup_logwatch() {
 			chmod 744 /etc/cron.weekly/logwatch
 			;;
 	esac
+}
+
+function _setup_user_patches() {
+	notify 'inf' 'Executing user-patches.sh'
+
+	if [ -f /tmp/docker-mailserver/user-patches.sh ]; then
+		chmod +x /tmp/docker-mailserver/user-patches.sh
+		/tmp/docker-mailserver/user-patches.sh
+		notify 'inf' "Executed 'config/user-patches.sh'"
+	else
+		notify 'inf' "No user patches executed because optional '/tmp/docker-mailserver/user-patches.sh' is not provided."
+	fi
 }
 
 function _setup_environment() {

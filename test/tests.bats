@@ -27,6 +27,11 @@ function count_processed_changes() {
 # configuration checks
 #
 
+@test "checking configuration: user-patches.sh executed" {
+  run echo -n "`docker logs mail | grep 'user\-patches\.sh'`"
+  assert_output --partial "Default user-patches.sh successfully executed"
+}
+
 @test "checking configuration: hostname/domainname" {
   run docker run `docker inspect --format '{{ .Config.Image }}' mail`
   assert_success
