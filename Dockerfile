@@ -103,6 +103,7 @@ RUN echo "deb http://http.debian.net/debian stretch-backports main" | tee -a /et
     dovecot-managesieved \
     dovecot-pop3d \
     dovecot-sieve \
+    dovecot-solr \
     && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
