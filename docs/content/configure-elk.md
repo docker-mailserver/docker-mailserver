@@ -22,7 +22,7 @@ You can override that template or set a custom config file as ro volume.
 mail:
    ~ 
    volumes: 
-    - config/filebeat.yml:/etc/filebeat.yml:ro
+    - config/filebeat.yml:/etc/filebeat/filebeat.yml:ro
 ```
 
 ## Run ELK embedded on mailserver stack.
