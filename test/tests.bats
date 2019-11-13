@@ -1086,8 +1086,7 @@ function count_processed_changes() {
 @test "checking setup.sh: setup.sh debug fetchmail" {
   run ./setup.sh -c mail debug fetchmail
   [ "$status" -eq 11 ]
-# TODO: Fix output check
-# [ "$output" = "fetchmail: no mailservers have been specified." ]
+  [[ "$output" == *"fetchmail: normal termination, status 11"* ]]
 }
 @test "checking setup.sh: setup.sh debug inspect" {
   run ./setup.sh -c mail debug inspect
