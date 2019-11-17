@@ -29,7 +29,7 @@ cd /home/ubuntu/docker/letsencrypt
 Now get the certificate (modify ```mail.myserver.tld```) and following the certbot instructions.
 This will need access to port 80 from the internet, adjust your firewall if needed
 ```
-docker run --rm -ti -v $PWD/log/:/var/log/letsencrypt/ -v $PWD/etc/:/etc/letsencrypt/ -p 80:80 cerbot/certbot certonly --standalone -d mail.myserver.tld
+docker run --rm -ti -v $PWD/log/:/var/log/letsencrypt/ -v $PWD/etc/:/etc/letsencrypt/ -p 80:80 certbot/certbot certonly --standalone -d mail.myserver.tld
 ```
 You can now mount /home/ubuntu/docker/letsencrypt/etc/ in /etc/letsencrypt of ```docker-mailserver```
 
