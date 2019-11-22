@@ -12,14 +12,15 @@ _check_root() {
     exit 1
   fi  
 }
+
 if [ -z "${CRI}" ]; then
   if [ ! -z "$(command -v docker)" ]; then
     CRI=docker
   else if [ ! -z "$(command -v podman)" ]; then
     CRI=podman
     _check_root
-  else do
-    echo "No Supported Container Runtime Interface Detected."
+  else
+    echo "No Support Container Runtime Interface Detected."
     exit 1
   fi
 fi
