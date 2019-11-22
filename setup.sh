@@ -10,13 +10,13 @@ _check_root() {
   if [[ $EUID -ne 0 ]]; then
     echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user." 
     exit 1
-  fi  
+  fi
 }
 
-if [ -z "${CRI}" ]; then
+if [ -z "$CRI" ]; then
   if [ ! -z "$(command -v docker)" ]; then
     CRI=docker
-  else if [ ! -z "$(command -v podman)" ]; then
+  elif [ ! -z "$(command -v podman)" ]; then
     CRI=podman
     _check_root
   else
@@ -25,7 +25,7 @@ if [ -z "${CRI}" ]; then
   fi
 fi
 
-INFO=$(${CRI} ps \
+INFO=$($CRI ps \
   --no-trunc \
   --format="{{.Image}} {{.Names}} {{.Command}}" | \
   grep "supervisord -c /etc/supervisor/supervisord.conf")
@@ -36,7 +36,7 @@ DEFAULT_CONFIG_PATH="$(pwd)/config"
 USE_CONTAINER=false
 
 _update_config_path() {
-  VOLUME=$(${CRI} inspect $CONTAINER_NAME \
+  VOLUME=$($CRI inspect $CONTAINER_NAME \
     --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
     grep "/tmp/docker-mailserver$" 2>/dev/null)
 
@@ -46,11 +46,11 @@ _update_config_path() {
 }
 
 if [ -z "$IMAGE_NAME" ]; then
-    if [ "$CRI" = "docker" ]; then
-      IMAGE_NAME=tvial/docker-mailserver:latest
-    else if [ "$CRI" = "podman" ]; then
-      IMAGE_NAME=docker.io/tvial/docker-mailserver:latest
-    fi
+  if [ "$CRI" = "docker" ]; then
+    IMAGE_NAME=tvial/docker-mailserver:latest
+  elif [ "$CRI" = "podman" ]; then
+    IMAGE_NAME=docker.io/tvial/docker-mailserver:latest
+  fi
 fi
 
 _inspect() {
