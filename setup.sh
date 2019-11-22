@@ -1,12 +1,32 @@
-#! /bin/sh
+#!/usr/bin/env bash
 
 ##
 # Wrapper for various setup scripts included in the docker-mailserver
 #
 
-INFO=$(docker ps \
+CRI=
+
+_check_root() {
+  if [[ $EUID -ne 0 ]]; then
+    echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user." 
+    exit 1
+  fi  
+}
+if [ -z "${CRI}" ]; then
+  if [ ! -z "$(command -v docker)" ]; then
+    CRI=docker
+  else if [ ! -z "$(command -v podman)" ]; then
+    CRI=podman
+    _check_root
+  else do
+    echo "No Supported Container Runtime Interface Detected."
+    exit 1
+  fi
+fi
+
+INFO=$(${CRI} ps \
   --no-trunc \
-  --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
+  --format="{{.Image}} {{.Names}} {{.Command}}" | \
   grep "supervisord -c /etc/supervisor/supervisord.conf")
 
 IMAGE_NAME=$(echo $INFO | awk '{print $1}')
@@ -15,7 +35,7 @@ DEFAULT_CONFIG_PATH="$(pwd)/config"
 USE_CONTAINER=false
 
 _update_config_path() {
-  VOLUME=$(docker inspect $CONTAINER_NAME \
+  VOLUME=$(${CRI} inspect $CONTAINER_NAME \
     --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
     grep "/tmp/docker-mailserver$" 2>/dev/null)
 
@@ -25,7 +45,11 @@ _update_config_path() {
 }
 
 if [ -z "$IMAGE_NAME" ]; then
-  IMAGE_NAME=tvial/docker-mailserver:latest
+    if [ "$CRI" = "docker" ]; then
+      IMAGE_NAME=tvial/docker-mailserver:latest
+    else if [ "$CRI" = "podman" ]; then
+      IMAGE_NAME=docker.io/tvial/docker-mailserver:latest
+    fi
 fi
 
 _inspect() {
@@ -48,7 +72,9 @@ _usage() {
 OPTIONS:
 
   -i IMAGE_NAME     The name of the docker-mailserver image, by default
-                    'tvial/docker-mailserver:latest'.
+                    'tvial/docker-mailserver:latest' for docker, and 
+                    'docker.io/tvial/docker-mailserver:latest' for podman.
+
   -c CONTAINER_NAME The name of the running container.
 
   -p PATH           config folder path (default: $(pwd)/config)
@@ -91,7 +117,7 @@ SUBCOMMANDS:
 }
 
 _docker_image_exists() {
-  if docker history -q "$1" >/dev/null 2>&1; then
+  if ${CRI} history -q "$1" >/dev/null 2>&1; then
     return 0
   else
     return 1
@@ -105,15 +131,15 @@ fi
 _docker_image() {
   if [ "$USE_CONTAINER" = true ]; then
     # Reuse existing container specified on command line
-    docker exec ${USE_TTY} "$CONTAINER_NAME" "$@"
+    ${CRI} exec ${USE_TTY} "$CONTAINER_NAME" "$@"
   else
     # Start temporary container with specified image
     if ! _docker_image_exists "$IMAGE_NAME"; then
       echo "Image '$IMAGE_NAME' not found. Pulling ..."
-      docker pull "$IMAGE_NAME"
+      ${CRI} pull "$IMAGE_NAME"
     fi
 
-    docker run \
+    ${CRI} run \
       --rm \
       -v "$CONFIG_PATH":/tmp/docker-mailserver \
       ${USE_TTY} "$IMAGE_NAME" $@
@@ -122,7 +148,7 @@ _docker_image() {
 
 _docker_container() {
   if [ -n "$CONTAINER_NAME" ]; then
-    docker exec ${USE_TTY} "$CONTAINER_NAME" "$@"
+    ${CRI} exec ${USE_TTY} "$CONTAINER_NAME" "$@"
   else
     echo "The docker-mailserver is not running!"
     exit 1
