@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ##
 # Wrapper for various setup scripts included in the docker-mailserver
