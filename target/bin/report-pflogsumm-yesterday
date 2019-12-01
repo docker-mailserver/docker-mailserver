@@ -1,5 +1,7 @@
 #!/bin/bash
-set -eo
+set -o errexit
+set -o pipefail
+set -o nounset
 
 HOSTNAME=$1
 RECIPIENT=$2
