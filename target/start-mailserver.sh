@@ -1093,6 +1093,8 @@ function _setup_postfix_vhost() {
 
 	if [ -f /tmp/vhost.tmp ]; then
 		cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
+  elif [ ! -f /etc/postfix/vhost ]; then
+    touch /etc/postfix/vhost
 	fi
 }
 
