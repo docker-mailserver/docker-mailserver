@@ -294,6 +294,14 @@ SASL_PASSWD=
 # ---------------- SRS section --------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
+# envelope_sender => Rewrite only envelope sender address (default)
+# header_sender => Rewrite only header sender (not recommended)
+# envelope_sender,header_sender => Rewrite both senders
+# An email has an "envelope" sender (indicating the sending server) and a
+# "header" sender (indicating who sent it). More strict SPF policies may require
+# you to replace both instead of just the envelope sender.
+SRS_SENDER_CLASSES=envelope_sender
+
 # empty => Envelope sender will be rewritten for all domains
 # provide comma separated list of domains to exclude from rewriting
 SRS_EXCLUDE_DOMAINS=
