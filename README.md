@@ -28,6 +28,8 @@ Includes:
 - persistent data and state (but think about backups!)
 - [Integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [Automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
+- Plus addressing (a.k.a. [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter))
+  works out of the box: email for `you+extension@example.com` go to `you@example.com`
 
 Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
@@ -683,7 +685,9 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 #### DEFAULT_RELAY_HOST
 
   - **empty** => don't set default relayhost setting in main.cf
-  - default host and port to relay all mail through
+  - default host and port to relay all mail through.
+    Format: `[example.com]:587` (don't forget the brackets if you need this to
+    be compatible with `$RELAY_USER` and `$RELAY_PASSWORD`, explained below).
 
 ## Multi-domain Relay Hosts
 
