@@ -33,6 +33,7 @@ DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
 DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:="0"}"
+DEFAULT_VARS["SRS_SENDER_CLASSES"]="${SRS_SENDER_CLASSES:="envelope_sender"}"
 DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
 DEFAULT_VARS["LOGROTATE_INTERVAL"]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-"daily"}}"
 DEFAULT_VARS["LOGWATCH_INTERVAL"]="${LOGWATCH_INTERVAL:="none"}"
@@ -906,7 +907,7 @@ function _setup_postfix_aliases() {
 function _setup_SRS() {
 	notify 'task' 'Setting up SRS'
 	postconf -e "sender_canonical_maps = tcp:localhost:10001"
-	postconf -e "sender_canonical_classes = envelope_sender"
+	postconf -e "sender_canonical_classes = $SRS_SENDER_CLASSES"
 	postconf -e "recipient_canonical_maps = tcp:localhost:10002"
 	postconf -e "recipient_canonical_classes = envelope_recipient,header_recipient"
 }

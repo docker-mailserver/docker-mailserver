@@ -662,6 +662,18 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ## SRS (Sender Rewriting Scheme)
 
+##### SRS_SENDER_CLASSES
+
+An email has an "envelope" sender (indicating the sending server) and a
+"header" sender (indicating who sent it). More strict SPF policies may require
+you to replace both instead of just the envelope sender.
+
+[More info](https://www.mybluelinux.com/what-is-email-envelope-and-email-header/).
+
+  - **envelope_sender** => Rewrite only envelope sender address
+  - header_sender => Rewrite only header sender (not recommended)
+  - envelope_sender,header_sender => Rewrite both senders
+
 ##### SRS_EXCLUDE_DOMAINS
 
   - **empty** => Envelope sender will be rewritten for all domains
