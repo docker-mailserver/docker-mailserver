@@ -79,6 +79,10 @@ Download the docker-compose.yml, the .env and the setup.sh files:
 #### Create your mail accounts
 
     ./setup.sh email add <user@domain> [<password>]
+    
+#### GMail aliases for mail accounts (in case you encounter error 550 5.1.1)
+
+    ./setup.sh alias add <user@domain> <user>
 
 #### Generate DKIM keys
 
