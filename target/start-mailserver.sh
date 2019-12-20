@@ -1152,11 +1152,7 @@ function _setup_postfix_override_configuration() {
 
 	if [ -f /tmp/docker-mailserver/postfix-main.cf ]; then
 		while read line; do
-		# all valid postfix options start with a lower case letter
-		# http://www.postfix.org/postconf.5.html
-		if [[ "$line" =~ ^[a-z] ]]; then
-			postconf -e "$line"
-		fi
+		postconf -e "$line"
 		done < /tmp/docker-mailserver/postfix-main.cf
 		notify 'inf' "Loaded 'config/postfix-main.cf'"
 	else
