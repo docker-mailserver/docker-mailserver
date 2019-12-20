@@ -156,6 +156,22 @@ configs:
 
 With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
+### How can I configure a catch-all?
+Considering you want to redirect all incoming e-mails for the domain `domain.tld` to `user1@domain.tld`, add the following line to `config/postfix-virtual.cf`:
+```
+@domain.tld user1@domain.tld
+```
+
+### How can I delete all the e-mails for a specific user?
+First of all, create a special alias named `devnull` by editing `config/postfix-aliases.cf`:
+```
+devnull:	/dev/null
+```
+Considering you want to delete all the e-mails received for `baduser@domain.tld`, add the following line to `config/postfix-virtual.cf`:
+```
+baduser@domain.tld	devnull
+```
+
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
 The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
