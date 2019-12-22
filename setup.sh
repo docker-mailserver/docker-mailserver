@@ -36,9 +36,11 @@ DEFAULT_CONFIG_PATH="$(pwd)/config"
 USE_CONTAINER=false
 
 _update_config_path() {
-  VOLUME=$($CRI inspect $CONTAINER_NAME \
-    --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
-    grep "/tmp/docker-mailserver$" 2>/dev/null)
+  if [ ! -z "$CONTAINER_NAME" ]; then
+    VOLUME=$(docker inspect $CONTAINER_NAME \
+      --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
+      grep "/tmp/docker-mailserver$" 2>/dev/null)
+  fi
 
   if [ ! -z "$VOLUME" ]; then
     CONFIG_PATH=$(echo $VOLUME | awk '{print $1}')
