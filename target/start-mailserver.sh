@@ -38,6 +38,7 @@ DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
 DEFAULT_VARS["LOGROTATE_INTERVAL"]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-"daily"}}"
 DEFAULT_VARS["LOGWATCH_INTERVAL"]="${LOGWATCH_INTERVAL:="none"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
+DEFAULT_VARS["ENABLE_OPENARC"]="${ENABLE_OPENARC:="0"}"
 
 ##########################################################################
 # << DEFAULT VARS
@@ -213,6 +214,11 @@ function register_functions() {
 
 	if [ "$SMTP_ONLY" != 1 ]; then
 		_register_start_daemon "_start_daemons_dovecot"
+	fi
+
+  _register_setup_function "_setup_openarc"
+	if [ "$ENABLE_OPENARC" = 1 ]; then
+		_register_start_daemon "_start_daemons_openarc"
 	fi
 
 	# needs to be started before saslauthd
@@ -532,6 +538,19 @@ function _setup_amavis() {
 
 	notify 'inf' "Applying hostname to /etc/amavis/conf.d/05-node_id"
 	sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'$HOSTNAME'";/' /etc/amavis/conf.d/05-node_id
+}
+
+function _setup_openarc() {
+	notify 'task' 'Setting up arc'
+	mkdir -p /etc/openarc
+	notify 'inf' "Copying key to /etc/openarc/"
+	cp -a /tmp/docker-mailserver/opendkim/keys/$DOMAINNAME/mail.private /etc/openarc/
+	notify 'inf' "Applying hostname to /etc/openarc.conf"
+	sed -i -e 's/^AuthservID.*$/AuthservID          '$HOSTNAME'/g' \
+	       -e 's/^Domain.*$/Domain  '$DOMAINNAME'/g' /etc/openarc.conf
+	[ "$ENABLE_OPENARC" = 1 ] \
+		&& sed -i -e 's/smtpd_milters = $dkim_milter,$dmarc_milter/smtpd_milters = $dkim_milter,$arc_milter,$dmarc_milter/g' /etc/postfix/main.cf \
+		|| sed -i -e 's/smtpd_milters = $dkim_milter,$arc_milter,$dmarc_milter/smtpd_milters = $dkim_milter,$dmarc_milter/g' /etc/postfix/main.cf
 }
 
 function _setup_dmarc_hostname() {
@@ -1682,6 +1701,11 @@ function _start_daemons_opendkim() {
 function _start_daemons_opendmarc() {
 	notify 'task' 'Starting opendmarc ' 'n'
     supervisorctl start opendmarc
+}
+
+function _start_daemons_openarc() {
+	notify 'task' 'Starting openarc ' 'n'
+    supervisorctl start openarc
 }
 
 function _start_daemons_postsrsd(){

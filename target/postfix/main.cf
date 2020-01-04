@@ -89,7 +89,8 @@ milter_protocol = 6
 milter_default_action = accept
 dkim_milter = inet:localhost:8891
 dmarc_milter = inet:localhost:8893
-smtpd_milters = $dkim_milter,$dmarc_milter
+arc_milter = inet:localhost:8894
+smtpd_milters = $dkim_milter,$arc_milter,$dmarc_milter
 non_smtpd_milters = $dkim_milter
 
 # SPF policy settings

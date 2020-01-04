@@ -1,3 +1,27 @@
+FROM debian:stretch-slim AS openarcbuilder
+
+WORKDIR /tmp/OpenARC/
+
+# Install OpenARC
+# hadolint ignore=DL3015,DL3003
+RUN apt-get update -q --fix-missing \
+    && apt-get -y install --no-install-recommends \
+    ca-certificates \
+    git \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config \
+    libbsd-dev \
+    libssl-dev \
+    libmilter-dev \
+    make \
+    && git clone https://github.com/trusteddomainproject/OpenARC.git /tmp/OpenARC/ \
+    && autoreconf -fvi \
+    && ./configure --prefix=/usr \
+    && make \
+    && make install
+
 FROM debian:stretch-slim
 
 ARG VCS_REF
@@ -116,6 +140,8 @@ RUN echo "deb http://http.debian.net/debian stretch-backports main" | tee -a /et
   rm -f /etc/postsrsd.secret && \
   rm -f /etc/cron.daily/00logwatch
 
+
+
 # install filebeat for logging
 RUN curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
   echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
@@ -213,6 +239,15 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/postfix/header_checks.pcre target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
 RUN echo "" > /etc/aliases
+
+
+# Install OpenARC
+COPY --from=openarcbuilder /usr/sbin/openarc /usr/sbin/
+COPY --from=openarcbuilder /usr/lib/libopenarc.so.0 /usr/lib/
+
+# Configure OpenARC
+RUN groupadd -r openarc && useradd -d /var/run/openarc -g openarc -m -r openarc
+COPY target/openarc/openarc.conf /etc/openarc.conf
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \

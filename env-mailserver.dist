@@ -57,6 +57,10 @@ ENABLE_CLAMAV=0
 # Otherwise, `iptables` won't be able to ban IPs.
 ENABLE_FAIL2BAN=0
 
+# 1 => Enables OpenARC service
+# empty => disables OpenARC
+ENABLE_OPENARC=
+
 # 1 => Enables Managesieve on port 4190
 # empty => disables Managesieve
 ENABLE_MANAGESIEVE=
