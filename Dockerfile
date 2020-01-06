@@ -33,6 +33,7 @@ RUN \
   apt-get update -q --fix-missing && \
   apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
+    altermime \
     amavisd-new \
     apt-transport-https \
     arj \
@@ -55,6 +56,7 @@ RUN \
     iptables \
     locales \
     logwatch \
+    lhasa \
     libdate-manip-perl \
     liblz4-tool \
     libmail-spf-perl \
@@ -190,7 +192,8 @@ RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_fil
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
 COPY target/fail2ban/filter.d/dovecot.conf /etc/fail2ban/filter.d/dovecot.conf
-RUN echo "ignoreregex =" >> /etc/fail2ban/filter.d/postfix-sasl.conf && mkdir /var/run/fail2ban
+COPY target/fail2ban/filter.d/postfix-sasl.conf /etc/fail2ban/filter.d/postfix-sasl.conf
+RUN mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
 RUN su - amavis -c "razor-admin -create && \
@@ -251,6 +254,11 @@ COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
 
 WORKDIR /
+
+# Switch iptables and ip6tables to legacy for fail2ban
+RUN update-alternatives --set iptables /usr/sbin/iptables-legacy \
+ && update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+
 
 EXPOSE 25 587 143 465 993 110 995 4190
 
