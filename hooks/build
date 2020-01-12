@@ -1,6 +1,6 @@
 #!/bin/sh
 VCS_REF=$(git rev-parse --short HEAD)
-VCS_VERSION=$(git describe)
+VCS_VERSION=$(git describe --tags --contains --always)
 
 docker build \
 	--build-arg VCS_REF="$VCS_REF" \

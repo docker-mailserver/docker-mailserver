@@ -1,6 +1,6 @@
 NAME = tvial/docker-mailserver:testing
 VCS_REF := $(shell git rev-parse --short HEAD)
-VCS_VERSION := $(shell git describe)
+VCS_VERSION := $(shell git describe --tags --contains --always)
 
 all: build backup generate-accounts run generate-accounts-after-run fixtures tests clean
 no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
