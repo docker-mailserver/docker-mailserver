@@ -1496,6 +1496,7 @@ function _setup_mail_summary() {
 
 function _setup_logwatch() {
 	notify 'inf' "Enable logwatch reports with recipient $LOGWATCH_RECIPIENT"
+  echo "LogFile = /var/log/mail/freshclam.log" >> /etc/logwatch/conf/logfiles/clam-update.conf
 	case "$LOGWATCH_INTERVAL" in
 		"daily" )
 			notify 'inf' "Creating daily cron job for logwatch reports"
