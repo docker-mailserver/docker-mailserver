@@ -63,7 +63,7 @@ Download the docker-compose.yml, the .env and the setup.sh files:
     curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
 
     curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
-    
+
     curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver.dist
 
 #### Create a docker-compose environment
@@ -426,9 +426,9 @@ If this is not set and reports are enabled with the old options, logrotate will 
 
 Note: This variable used to control logrotate inside the container and sent the pflogsumm report when the logs were rotated.
 It is still supported for backwards compatibility, but the new option LOGROTATE_INTERVAL has been added that only rotates
-the logs. 
+the logs.
 
-##### LOGROTATE_INTERVAL 
+##### LOGROTATE_INTERVAL
 
   Defines the interval in which the mail log is being rotated.
   - **daily** => Rotate daily.
@@ -473,6 +473,22 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`. By default, the m
   - **\*\*\*SPAM\*\*\*** => add tag to subject if spam detected
 
 Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+
+##### SA_SHORTCIRCUIT_BAYES_SPAM
+
+  - **1** => will activate spamassassin short circuiting for bayes spam detection.
+
+This will uncomment the respective line in ```/etc/spamassasin/local.cf```
+
+Note: activate this only if you are confident in your bayes database for identifying spam.
+
+##### SA_SHORTCIRCUIT_BAYES_HAM
+
+  - **1** => will activate spamassassin short circuiting for bayes ham detection
+
+This will uncomment the respective line in ```/etc/spamassasin/local.cf```
+
+Note: activate this only if you are confident in your bayes database for identifying ham.
 
 ## Fetchmail
 
