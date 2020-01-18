@@ -216,10 +216,11 @@ function count_processed_changes() {
   assert_success
 }
 
+# This fails on debian buster, improve test
 @test "checking smtp: delivers mail to existing account" {
-  run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
+  run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \" | tr '\n' ';'"
   assert_success
-  assert_output 12
+  assert_output " 1 <added@localhost.localdomain>; 6 <user1@localhost.localdomain>; 1 <user1@localhost.localdomain>, orig_to=<postmaster@my-domain.com>; 1 <user1@localhost.localdomain>, orig_to=<root>; 1 <user1~test@localhost.localdomain>; 2 <user2@otherdomain.tld>;"
 }
 
 @test "checking smtp: delivers mail to existing alias" {
