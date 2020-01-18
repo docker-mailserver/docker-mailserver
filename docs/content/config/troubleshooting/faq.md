@@ -71,6 +71,18 @@ For a trailing white-space subject one can define the whole variable with quotes
       - "SA_SPAM_SUBJECT=[SPAM] "
 ```
 
+### Can I use naked/bare domains (no host name)?
+
+Yes, but not without some configuration changes. Normally it is assumed that docker-mailserver runs on a host with a name, so the fully qualified host name might be mail.example.com with the domain is example.com. The MX records point to mail.example.com. To use a bare domain where the host name is example.com and the domain is also example.com, change mydestination from:
+
+`mydestination = $myhostname, localhost.$mydomain, localhost`
+
+To:
+
+`mydestination = localhost.$mydomain, localhost`
+
+Add the latter line to config/postfix-main.cf. That should work.
+
 ### Why are Spamassassin x-headers not inserted into my sample.domain.com subdomain emails?
 
 In the default setup, amavis only applies Spamassassin x-headers into domains matching the template listed in the config  file 05-domain_id (in the amavis defaults). The default setup @local_domains_acl = ( ".$mydomain" ); does not match subdomains. To match subdomains, you can override the @local_domains_acl directive in the amavis user config file 50-user with @local_domains_maps = ("."); to match any sort of domain template. 
