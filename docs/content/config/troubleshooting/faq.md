@@ -73,7 +73,7 @@ For a trailing white-space subject one can define the whole variable with quotes
 
 ### Can I use naked/bare domains (no host name)?
 
-Yes, but not without some configuration changes. Normally it is assumed that docker-mailserver runs on a host with a name, so the fully qualified host name might be mail.example.com with the domain is example.com. The MX records point to mail.example.com. To use a bare domain where the host name is example.com and the domain is also example.com, change mydestination from:
+Yes, but not without some configuration changes. Normally it is assumed that docker-mailserver runs on a host with a name, so the fully qualified host name might be `mail.example.com` with the domain `example.com`. The MX records point to `mail.example.com`. To use a bare domain where the host name is `example.com` and the domain is also `example.com`, change mydestination from:
 
 `mydestination = $myhostname, localhost.$mydomain, localhost`
 
@@ -81,7 +81,11 @@ To:
 
 `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to config/postfix-main.cf. That should work.
+Add the latter line to config/postfix-main.cf. That should work. Without that change there will be warnings in the logs like:
+
+`warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains`
+
+Plus of course mail delivery fails.
 
 ### Why are Spamassassin x-headers not inserted into my sample.domain.com subdomain emails?
 
