@@ -76,6 +76,8 @@ Download the docker-compose.yml, the .env and the setup.sh files:
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
 - Install [docker-compose](https://docs.docker.com/compose/) in the version `1.7` or higher.
 
+**Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
+
 #### Start Container
     docker-compose up -d mail
 
