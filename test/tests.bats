@@ -216,7 +216,6 @@ function count_processed_changes() {
   assert_success
 }
 
-# This fails on debian buster, improve test
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \" | tr '\n' ';'"
   assert_success
@@ -764,9 +763,9 @@ function count_processed_changes() {
 }
 
 @test "checking system: amavis decoders installed and available" {
-  run docker exec mail /bin/sh -c "grep -E '.*(Internal decoder|Found decoder) for\s+\.(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe).*' /var/log/mail/mail.log|wc -l"
+  run docker exec mail /bin/sh -c "grep -E '.*(Internal decoder|Found decoder) for\s+\..*' /var/log/mail/mail.log|grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' | sort | uniq | tr '\n' ';'"
   assert_success
-  assert_output 28
+  assert_output "7z;Z;arc;arj;bz2;cab;cpio;deb;doc;exe;gz;iso;jar;kmz;lha;lrz;lz4;lzma;lzo;mail;rar;rpm;swf;tar;tnef;xz;zip;zoo;"
 }
 
 
