@@ -5,7 +5,7 @@ DATA
 From: Spambot <spam@spam.com>
 To: Existing Local User <alias2@localhost.localdomain>
 Date: Sat, 22 May 2010 07:43:25 -0400
-Subject: Test Message
+Subject: Test Message sieve-spam-folder.txt
 This is a test mail.
 
 .
