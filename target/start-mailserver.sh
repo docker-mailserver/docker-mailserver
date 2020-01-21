@@ -630,7 +630,7 @@ function _setup_dovecot() {
 	fi
 	chown docker:docker -R /usr/lib/dovecot/sieve*
 	chmod 550 -R /usr/lib/dovecot/sieve*
-	chmod +x /usr/lib/dovecot/sieve-pipe/*
+	chmod -f +x /usr/lib/dovecot/sieve-pipe/*
 }
 
 function _setup_dovecot_local_user() {
