@@ -217,10 +217,8 @@ function count_processed_changes() {
 }
 
 @test "checking smtp: delivers mail to existing account" {
-  #run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \" | tr '\n' ';'"
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
   assert_success
-  #assert_output " 1 <added@localhost.localdomain>; 6 <user1@localhost.localdomain>; 1 <user1@localhost.localdomain>, orig_to=<postmaster@my-domain.com>; 1 <user1@localhost.localdomain>, orig_to=<root>; 1 <user1~test@localhost.localdomain>; 2 <user2@otherdomain.tld>;"
   cat <<'EOF' | assert_output
  1 <added@localhost.localdomain>
  6 <user1@localhost.localdomain>
@@ -785,9 +783,37 @@ EOF
 }
 
 @test "checking system: amavis decoders installed and available" {
-  run docker exec mail /bin/sh -c "grep -E '.*(Internal decoder|Found decoder) for\s+\..*' /var/log/mail/mail.log|grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' | sort | uniq | tr '\n' ';'"
+  run docker exec mail /bin/sh -c "grep -E '.*(Internal decoder|Found decoder) for\s+\..*' /var/log/mail/mail.log*|grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' | sort | uniq"
   assert_success
-  assert_output "7z;Z;arc;arj;bz2;cab;cpio;deb;doc;exe;gz;iso;jar;kmz;lha;lrz;lz4;lzma;lzo;mail;rar;rpm;swf;tar;tnef;xz;zip;zoo;"
+  # Support for doc and zoo removed in buster
+  cat <<'EOF' | assert_output
+7z
+Z
+arc
+arj
+bz2
+cab
+cpio
+deb
+exe
+gz
+iso
+jar
+kmz
+lha
+lrz
+lz4
+lzma
+lzo
+mail
+rar
+rpm
+swf
+tar
+tnef
+xz
+zip
+EOF
 }
 
 
