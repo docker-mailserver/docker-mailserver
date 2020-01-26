@@ -282,7 +282,7 @@ EOF
 }
 
 @test "checking smtp: redirects mail to external aliases" {
-  run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log | wc -l"
+  run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log* | grep RelayedInbound | wc -l"
   assert_success
   assert_output 2
 }
