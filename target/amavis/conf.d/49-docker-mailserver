@@ -1,0 +1,9 @@
+use strict;
+
+# Override options set in earlier files, use 50-user to override these
+
+# Bounce spam, the default option for buster is D_PASS to deliver
+$final_spam_destiny = D_BOUNCE;
+
+#------------ Do not modify anything below this line -------------
+1;  # ensure a defined return
