@@ -1307,6 +1307,6 @@ EOF
 #
 
 @test "checking that the container stops cleanly" {
-  run docker stop -t 60 mail
+  run docker stop -t 60 mail_override_hostname
   assert_success
 }
