@@ -3,32 +3,35 @@
 There is nothing much in deploying mailserver to Kubernetes itself. The things are pretty same as in [`docker-compose.yml`][1], but with Kubernetes syntax.
 
 ```yaml
-kind: Service
 apiVersion: v1
+kind: Namespace
 metadata:
   name: mailserver
+---  
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mailserver.env.config
+  namespace: mailserver
   labels:
     app: mailserver
-spec:
-  selector:
-    app: mailserver
-  ports:
-    - name: smtp
-      port: 25
-      targetPort: smtp
-    - name: smtp-auth
-      port: 587
-      targetPort: smtp-auth
-    - name: imap-secure
-      port: 993
-      targetPort: imap-secure
+data:
+  OVERRIDE_HOSTNAME: example.com
+  ENABLE_FETCHMAIL: "0"
+  FETCHMAIL_POLL: "120"
+  ENABLE_SPAMASSASSIN: "0"
+  ENABLE_CLAMAV: "0"
+  ENABLE_FAIL2BAN: "0"
+  ENABLE_POSTGREY: "0"
+  ONE_DIR: "1"
+  DMS_DEBUG: "0"
 
 ---
-
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: mailserver.config
+  namespace: mailserver
   labels:
     app: mailserver
 data:
@@ -37,6 +40,18 @@ data:
 
   postfix-virtual.cf: |
     alias1@example.com user1@dexample.com
+
+  #dovecot.cf: |
+  #  service stats {
+  #    unix_listener stats-reader {
+  #      group = docker
+  #      mode = 0666
+  #    }
+  #    unix_listener stats-writer {
+  #      group = docker
+  #      mode = 0666
+  #    }
+  #  }
 
   SigningTable: |
     *@example.com mail._domainkey.example.com
@@ -47,13 +62,18 @@ data:
   TrustedHosts: |
     127.0.0.1
     localhost
-      
----
+ 
+  #user-patches.sh: |
+  #  #!/bin/bash
 
+  #fetchmail.cf: |
+
+---
 kind: Secret
 apiVersion: v1
 metadata:
   name: mailserver.opendkim.keys
+  namespace: mailserver
   labels:
     app: mailserver
 type: Opaque
@@ -61,65 +81,137 @@ data:
   example.com-mail.key: 'base64-encoded-DKIM-key'
 
 ---
-
-kind: Deployment
-apiVersion: extensions/v1beta1
+kind: Service
+apiVersion: v1
 metadata:
   name: mailserver
+  namespace: mailserver
   labels:
     app: mailserver
 spec:
-  strategy:
-    type: Recreate
+  selector:
+    app: mailserver
+  ports:
+    - name: smtp
+      port: 25
+      targetPort: smtp
+    - name: smtp-secure
+      port: 465
+      targetPort: smtp-secure
+    - name: smtp-auth
+      port: 587
+      targetPort: smtp-auth
+    - name: imap
+      port: 143
+      targetPort: imap
+    - name: imap-secure
+      port: 993
+      targetPort: imap-secure
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailserver
+  namespace: mailserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailserver
   template:
     metadata:
       labels:
         app: mailserver
+        role: mail
+        tier: backend
     spec:
-      nodeSelector:
-        has/mail-server: 'true'
-      subdomain: mailserver
+      #nodeSelector:
+      #  kubernetes.io/hostname: local.k8s
+      #initContainers:
+      #- name: init-myservice
+      #  image: busybox
+      #  command: ["/bin/sh", "-c", "cp /tmp/user-patches.sh /tmp/files"]
+      #  volumeMounts:
+      #    - name: config
+      #      subPath: user-patches.sh
+      #      mountPath: /tmp/user-patches.sh
+      #      readOnly: true
+      #    - name: tmp-files
+      #      mountPath: /tmp/files
       containers:
-        - name: mailserver
-          image: tvial/docker-mailserver:2.1
-          ports:
-            - name: smtp
-              containerPort: 25
-            - name: smtp-auth
-              containerPort: 587
-            - name: imap-secure
-              containerPort: 993
-          env:
-            - name: ONE_DIR
-              value: '1'
-          volumeMounts:
-            - name: config
-              subPath: postfix-accounts.cf
-              mountPath: /tmp/docker-mailserver/postfix-accounts.cf
-              readOnly: true
-            - name: config
-              subPath: postfix-virtual.cf
-              mountPath: /tmp/docker-mailserver/postfix-virtual.cf
-              readOnly: true
-            - name: config
-              subPath: SigningTable
-              mountPath: /tmp/docker-mailserver/opendkim/SigningTable
-              readOnly: true
-            - name: config
-              subPath: KeyTable
-              mountPath: /tmp/docker-mailserver/opendkim/KeyTable
-              readOnly: true
-            - name: config
-              subPath: TrustedHosts
-              mountPath: /tmp/docker-mailserver/opendkim/TrustedHosts
-              readOnly: true
-            - name: opendkim-keys
-              mountPath: /tmp/docker-mailserver/opendkim/keys
-              readOnly: true
-            - name: data
-              mountPath: /var/mail
-            - name: state
-              mountPath: /var/mail-state
+      - name: smtp
+        image: tvial/docker-mailserver:release-v6.2.1
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: config
+            subPath: postfix-accounts.cf
+            mountPath: /tmp/docker-mailserver/postfix-accounts.cf
+            readOnly: true
+          #- name: config
+          #  subPath: postfix-main.cf
+          #  mountPath: /tmp/docker-mailserver/postfix-main.cf
+          #  readOnly: true
+          - name: config
+            subPath: postfix-virtual.cf
+            mountPath: /tmp/docker-mailserver/postfix-virtual.cf
+            readOnly: true
+          - name: config
+            subPath: fetchmail.cf
+            mountPath: /tmp/docker-mailserver/fetchmail.cf
+            readOnly: true
+          - name: config
+            subPath: dovecot.cf
+            mountPath: /tmp/docker-mailserver/dovecot.cf
+            readOnly: true
+          #- name: config
+          #  subPath: user1.example.com.dovecot.sieve
+          #  mountPath: /tmp/docker-mailserver/user1@example.com.dovecot.sieve
+          #  readOnly: true
+          #- name: tmp-files
+          #  subPath: user-patches.sh
+          #  mountPath: /tmp/docker-mailserver/user-patches.sh
+          - name: config
+            subPath: SigningTable
+            mountPath: /tmp/docker-mailserver/opendkim/SigningTable
+            readOnly: true
+          - name: config
+            subPath: KeyTable
+            mountPath: /tmp/docker-mailserver/opendkim/KeyTable
+            readOnly: true
+          - name: config
+            subPath: TrustedHosts
+            mountPath: /tmp/docker-mailserver/opendkim/TrustedHosts
+            readOnly: true
+          - name: opendkim-keys
+            mountPath: /tmp/docker-mailserver/opendkim/keys
+            readOnly: true
+          - name: data
+            mountPath: /var/mail
+            subPath: data
+          - name: data
+            mountPath: /var/mail-state
+            subPath: state
+          - name: data
+            mountPath: /var/log/mail
+            subPath: log
+        ports:
+          - name: smtp
+            containerPort: 25
+            protocol: TCP
+          - name: smtp-secure
+            containerPort: 465
+            protocol: TCP
+          - name: smtp-auth
+            containerPort: 587
+          - name: imap
+            containerPort: 143
+            protocol: TCP
+          - name: imap-secure
+            containerPort: 993
+            protocol: TCP
+        envFrom:
+          - configMapRef:
+              name: mailserver.env.config
       volumes:
         - name: config
           configMap:
@@ -128,11 +220,11 @@ spec:
           secret:
             secretName: mailserver.opendkim.keys
         - name: data
-          hostPath:
-            path: /path/to/mailserver/data
-        - name: state
-          hostPath:
-            path: /path/to/mailserver/state
+          persistentVolumeClaim:
+            claimName: mail-storage
+        - name: tmp-files
+          emptyDir: {}
+
 ```
 
 __Note:__
