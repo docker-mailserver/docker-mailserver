@@ -343,6 +343,7 @@ metadata:
 ##### Downsides
 
 - Not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.
+- Every Port within the Container is exposed on the Host side, regardless of what the `ports` section in the Configuration defines. 
 
 
 ### Proxy port to Service via PROXY protocol
