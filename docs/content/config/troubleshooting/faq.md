@@ -233,6 +233,13 @@ mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
 # Clamav is not running (not started or because you don't have enough memory)
 # => check requirements and/or start Clamav
 ```
+### Using behind proxy
+Add to `/etc/postfix/main.cf` :
+```
+ 
+proxy_interfaces = X.X.X.X (your public IP) 
+
+```
 
 ### What about updates
 
