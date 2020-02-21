@@ -127,7 +127,7 @@ _docker_image_exists() {
   fi
 }
 
-if [ -t 1 ] ; then
+if tty -s ; then
   USE_TTY="-ti"
 fi
 
