@@ -107,19 +107,51 @@ POSTFIX_MAILBOX_SIZE_LIMIT=
 # empty => 10240000 (~10 MB)
 POSTFIX_MESSAGE_SIZE_LIMIT=
 
-# Enables a report being sent (created by pflogsumm) on a regular basis.
+# Enables regular pflogsumm mail reports.
+# This is a new option. The old REPORT options are still supported for backwards compatibility. If this is not set and reports are enabled with the old options, logrotate will be used.
+#
+# not set => No report
+# daily_cron => Daily report for the previous day
+# logrotate => Full report based on the mail log when it is rotated
+PFLOGSUMM_TRIGGER=
+
+# Recipient address for pflogsumm reports.
+#
+# not set => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
+# => Specify the recipient address(es)
+PFLOGSUMM_RECIPIENT=
+
+# From address for pflogsumm reports.
+#
+# not set => Use REPORT_SENDER or POSTMASTER_ADDRESS
+# => Specify the sender address
+PFLOGSUMM_SENDER=
+
+# Interval for logwatch report.
+#
+# none => No report is generated
+# daily => Send a daily report
+# weekly => Send a report every week
+LOGWATCH_INTERVAL=
+
+# Recipient address for logwatch reports if they are enabled.
+#
+# not set => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
+# => Specify the recipient address(es)
+LOGWATCH_RECIPIENT=
+
+# Enables a report being sent (created by pflogsumm) on a regular basis. (deprecated)
 # **0** => Report emails are disabled
 # 1 => Using POSTMASTER_ADDRESS as the recipient
 # => Specify the recipient address
 REPORT_RECIPIENT=0
 
-
-# Change the sending address for mail report
+# Change the sending address for mail report (deprecated)
 # **empty** => mailserver-report@hostname
 # => Specify the report sender (From) address
 REPORT_SENDER=
 
-# Changes the interval in which a report is being sent.
+# Changes the interval in which a report is being sent. (deprecated)
 # **daily** => Send a daily report
 # weekly => Send a report every week
 # monthly => Send a report every month
