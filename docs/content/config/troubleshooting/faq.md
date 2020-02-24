@@ -257,14 +257,20 @@ The config file I am talking about is this volume in the yml file:
 
 To place such a script you can just make it in the config dir, for instance like this:
 `cd ./config`
+
 `touch user-patches.sh`
+
 `chmod +x  user-patches.sh`
+
 and then fill it with suitable code. 
 
 If you want to test it you can move into the running container, run it and see if it does what you want. For instance:
 `./setup.sh debug login    # start shell in container`
+
 `cat /tmp/docker-mailserver/user-patches.sh  #check the file`
+
 `/tmp/docker-mailserver/user-patches.sh  ## run the script`
+
 `exit`
 
 You can do a lot of things with such a script. You can find an example user-patches.sh script here: [example user-patches.sh script](https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh)
