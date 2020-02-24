@@ -245,3 +245,36 @@ proxy_interfaces = X.X.X.X (your public IP)
 
 You can of course use a own script or every now and then pull && stop && rm && start the images but there are tools available for this.
 There is a page in the [Update and cleanup](Update-and-cleanup) wiki page that explains how to use it the docker way.
+
+
+### Howto adjust settings with the user-patches.sh script
+Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
+
+This docker-container has a built-in way to do post-install processes. If you place a script called **user-patches.sh** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
+
+The config file I am talking about is this volume in the yml file:  
+`- ./config/:/tmp/docker-mailserver/`
+
+To place such a script you can just make it in the config dir, for instance like this:
+`cd ./config`
+`touch user-patches.sh`
+`chmod +x  user-patches.sh`
+and then fill it with suitable code. 
+
+If you want to test it you can move into the running container, run it and see if it does what you want. For instance:
+`./setup.sh debug login    # start shell in container`
+`cat /tmp/docker-mailserver/user-patches.sh  #check the file`
+`/tmp/docker-mailserver/user-patches.sh  ## run the script`
+`exit`
+
+You can do a lot of things with such a script. You can find an example user-patches.sh script here: [example user-patches.sh script](https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh)
+
+
+
+
+
+
+
+
+
+
