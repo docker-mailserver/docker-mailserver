@@ -252,10 +252,12 @@ Suppose you want to change a number of settings that are not listed as variables
 
 This docker-container has a built-in way to do post-install processes. If you place a script called **user-patches.sh** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
 
-The config file I am talking about is this volume in the yml file:  
+The config file I am talking about is this volume in the yml file: 
+ 
 `- ./config/:/tmp/docker-mailserver/`
 
 To place such a script you can just make it in the config dir, for instance like this:
+
 `cd ./config`
 
 `touch user-patches.sh`
@@ -265,6 +267,7 @@ To place such a script you can just make it in the config dir, for instance like
 and then fill it with suitable code. 
 
 If you want to test it you can move into the running container, run it and see if it does what you want. For instance:
+
 `./setup.sh debug login    # start shell in container`
 
 `cat /tmp/docker-mailserver/user-patches.sh  #check the file`
