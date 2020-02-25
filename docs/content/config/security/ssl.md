@@ -288,3 +288,106 @@ These options in conjunction mean:
 ```
 ssl=yes and disable_plaintext_auth=no: SSL/TLS is offered to the client, but the client isn't required to use it. The client is allowed to login with plaintext authentication even when SSL/TLS isn't enabled on the connection. This is insecure, because the plaintext password is exposed to the internet.
 ```
+
+### Importing certificates obtained via another source
+If you have another source for SSL/TLS certificates you can import them into the server via an external script. The external script can be found here: [external certificate import script](https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-renew-certs)
+
+The steps to follow are these:
+1. Transport the new certificates to ./config/sll (/tmp/ssl in the container)
+2. You should provide fullchain.key and privkey.pem
+3. Place the script in ./config/  (or /tmp/docker-mailserver/ inside the container)
+4. Make the script executable (chmod +x tomav-renew-certs.sh )
+5. Run the script: docker exec mail /tmp/docker-mailserver/tomav-renew-certs.sh
+
+If an error occurs the script will inform you. If not you will see both postfix and dovecot restart.
+
+After the certificates have been loaded you can check the certificate: 
+
+```
+
+openssl s_client -servername mail.mydomain.net -connect 192.168.0.72:465 2>/dev/null | openssl x509
+
+# or 
+
+openssl s_client -servername mail.mydomain.net -connect mail.mydomain.net:465 2>/dev/null | openssl x509
+
+```
+
+Or you can check how long the new certificate is valid with commands like:
+```
+export SITE_URL="mail.mydomain.net"
+export SITE_IP_URL="192.168.0.72"  ## can also be  mail.mydomain.net
+export SITE_SSL_PORT="465"  ##imap port dovecot
+
+##works: check if certificate will expire in two weeks 
+#2 weeks is 1209600 seconds
+#3 weeks is 1814400
+#12 weeks is 7257600
+#15 weeks is 9072000
+
+certcheck_2weeks=`openssl s_client -connect ${SITE_IP_URL}:${SITE_SSL_PORT} \
+  -servername ${SITE_URL} 2> /dev/null |  openssl x509 -noout  -checkend 1209600`
+
+####################################
+#notes:  output can be 
+#Certificate will not expire
+#Certificate will expire
+####################
+
+```
+
+What does the script that imports the certificates do:
+1. Check if there are new certs in the /tmp/ssl folder
+2. check with the ssl cert fingerprint if they differ from the current certificates
+3. if so it will copy the certs to the right places
+4. and restart postfix and dovecot 
+
+You can ofcourse put the script and run it by cron once a week or something. In that way you could automate cert renewal. If you do so it is probably wise to run an automated check on certificate expiry as well. Such a check could look something like this:
+```
+
+## code below will alert if certificate expires in less than two weeks
+## please adjust varables! 
+
+export SITE_URL="mail.mydomain.net"
+export SITE_IP_URL="192.168.2.72"  ## can also be  mail.mydomain.net
+export SITE_SSL_PORT="465"  ##imap port dovecot
+export ALERT_EMAIL_ADDR="bill@gates321boom.com"
+
+certcheck_2weeks=`openssl s_client -connect ${SITE_IP_URL}:${SITE_SSL_PORT} \
+  -servername ${SITE_URL} 2> /dev/null |  openssl x509 -noout  -checkend 1209600`
+
+####################################
+#notes:  output can be 
+#Certificate will not expire
+#Certificate will expire
+####################
+
+#echo "certcheck 2 weeks gives $certcheck_2weeks"
+
+##automated check you might run by cron or something
+## does tls/ssl certificate expire within two weeks?
+
+if [  "$certcheck_2weeks" = "Certificate will not expire" ]; then 
+  echo "all is wel, certwatch 2 weeks says $certcheck_2weeks"
+  else 
+   echo "Cert seems to be expiring pretty soon, within two weeks: $certcheck_2weeks"
+   echo "we will send an alert email and log as well"
+   logger Certwatch: cert $SITE_URL will expire in two weeks
+   echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR 
+fi
+
+```
+
+
+
+
+ 
+
+
+
+
+
+
+  
+
+
