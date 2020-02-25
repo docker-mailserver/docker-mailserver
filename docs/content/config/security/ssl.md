@@ -342,11 +342,12 @@ What does the script that imports the certificates do:
 3. if so it will copy the certs to the right places
 4. and restart postfix and dovecot 
 
-You can ofcourse put the script and run it by cron once a week or something. In that way you could automate cert renewal. If you do so it is probably wise to run an automated check on certificate expiry as well. Such a check could look something like this:
+You can ofcourse run the script by cron once a week or something. In that way you could automate cert renewal. If you do so it is probably wise to run an automated check on certificate expiry as well. Such a check could look something like this:
 ```
 
 ## code below will alert if certificate expires in less than two weeks
 ## please adjust varables! 
+## make sure the mail -s command works! Test!
 
 export SITE_URL="mail.mydomain.net"
 export SITE_IP_URL="192.168.2.72"  ## can also be  mail.mydomain.net
