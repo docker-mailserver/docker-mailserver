@@ -20,6 +20,9 @@ ONE_DIR=0
 POSTMASTER_ADDRESS=
 
 # Set different options for mynetworks option (can be overwrite in postfix-main.cf)
+# **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or
+# `connected-networks` option, can create an open relay
+# https://github.com/tomav/docker-mailserver/issues/1405#issuecomment-590106498
 # empty => localhost only
 # host => Add docker host (ipv4 only)
 # network => Add all docker containers (ipv4 only)
