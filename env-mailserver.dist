@@ -64,6 +64,10 @@ ENABLE_FAIL2BAN=0
 # empty => disables Managesieve
 ENABLE_MANAGESIEVE=
 
+# 1 => Enables Dovecot replication (dsync) on port 4177
+# empty => disables Dovecot replication (dsync)
+ENABLE_DSYNC=
+
 # **enforce** => Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.
 # drop => Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.
 # ignore => Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.

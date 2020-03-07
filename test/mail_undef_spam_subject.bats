@@ -24,6 +24,7 @@ function setup() {
 		-e ENABLE_SRS=1 \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
+    -e ENABLE_DSYNC=1 \
 		--cap-add=SYS_PTRACE \
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \

@@ -12,6 +12,7 @@ DEFAULT_VARS["ENABLE_SPAMASSASSIN"]="${ENABLE_SPAMASSASSIN:="0"}"
 DEFAULT_VARS["ENABLE_POP3"]="${ENABLE_POP3:="0"}"
 DEFAULT_VARS["ENABLE_FAIL2BAN"]="${ENABLE_FAIL2BAN:="0"}"
 DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:="0"}"
+DEFAULT_VARS["ENABLE_DSYNC"]="${ENABLE_DSYNC:="0"}"
 DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
 DEFAULT_VARS["FETCHMAIL_POLL"]="${FETCHMAIL_POLL:="300"}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
@@ -607,6 +608,13 @@ function _setup_dovecot() {
 		notify 'inf' "Sieve management enabled"
 		mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
 	fi
+
+	# Enable dsync service by setting the symlink
+	# to the configuration file Dovecot will actually find
+	if [ "$ENABLE_DSYNC" = 1 ]; then
+		notify 'inf' "Dovecot replication (dsync) enabled"
+		mv /etc/dovecot/protocols.d/dsync.protocol.disab /etc/dovecot/protocols.d/dsync.protocol
+	fi	
 
 	# Copy pipe and filter programs, if any
 	rm -f /usr/lib/dovecot/sieve-filter/*

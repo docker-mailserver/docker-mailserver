@@ -818,6 +818,15 @@ EOF
 }
 
 #
+# dsync
+#
+
+@test "checking dsync: server is ready when ENABLE_DSYNC has been set" {
+  run docker exec mail /bin/bash -c "nc -z 0.0.0.0 4177"
+  assert_success
+}
+
+#
 # accounts
 #
 @test "checking accounts: user_without_domain creation should be rejected since user@domain format is required" {

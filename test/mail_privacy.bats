@@ -14,6 +14,7 @@ function setup_file() {
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e SASL_PASSWD="external-domain.com username:password" \
 		-e ENABLE_MANAGESIEVE=1 \
+    -e ENABLE_DSYNC=1 \
 		--cap-add=SYS_PTRACE \
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \

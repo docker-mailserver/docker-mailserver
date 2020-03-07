@@ -344,6 +344,11 @@ Set the message size limit for all users. If set to zero, the size will be unlim
   - **empty** => Managesieve service disabled
   - 1 => Enables Managesieve on port 4190
 
+##### ENABLE_DSYNC
+
+  - **empty** => Dovecot replication (dsync) service disabled
+  - 1 => Enables Dovecot replication (dsync) on port 4177
+
 ##### OVERRIDE_HOSTNAME
 
   - **empty** => uses the `hostname` command to get the mail server's canonical hostname
