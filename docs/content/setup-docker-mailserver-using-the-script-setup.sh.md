@@ -64,5 +64,5 @@ SUBCOMMANDS:
 * `./setup.sh debug fail2ban <unban> <ip-address>`: omitt all options to get a list of banned IPs, otherwise unban the specified IP.
 * `./setup.sh debug show-mail-logs`: show the logfile contents of the mail container
 * `./setup.sh debug inspect`: show infos about the running container
-* `./setup.sh debug login <commands>`: run a <command> inside the mail container (omit the command to get shell access)
+* `./setup.sh debug login <commands>`: run a command inside the mail container (omit the command to get shell access)
 
