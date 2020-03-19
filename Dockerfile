@@ -119,17 +119,6 @@ RUN \
   rm -f /etc/postsrsd.secret && \
   rm -f /etc/cron.daily/00logwatch
 
-# install filebeat for logging
-# SKIP and run in an external container instead
-#RUN curl https://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add - && \
-#  echo "deb http://packages.elastic.co/beats/apt stable main" | tee -a /etc/apt/sources.list.d/beats.list && \
-#  apt-get update -q --fix-missing && \
-#  apt-get -y install --no-install-recommends \
-#    filebeat \
-#  && apt-get clean \
-#  && rm -rf /var/lib/apt/lists/*
-#COPY target/filebeat.yml.tmpl /etc/filebeat/filebeat.yml.tmpl
-
 RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
   freshclam && \
