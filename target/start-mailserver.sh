@@ -25,6 +25,7 @@ DEFAULT_VARS["POSTGREY_AUTO_WHITELIST_CLIENTS"]="${POSTGREY_AUTO_WHITELIST_CLIEN
 DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
 DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]="${POSTFIX_MESSAGE_SIZE_LIMIT:="10240000"}"  # ~10 MB by default
 DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]="${POSTFIX_MAILBOX_SIZE_LIMIT:="0"}"        # no limit by default
+DEFAULT_VARS["POSTFIX_INET_PROTOCOLS"]="${POSTFIX_INET_PROTOCOLS:="all"}"
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
@@ -118,6 +119,9 @@ function register_functions() {
 
 	_register_setup_function "_setup_dkim"
 	_register_setup_function "_setup_ssl"
+	if [ "$POSTFIX_INET_PROTOCOLS" != "all" ]; then
+    _register_setup_function "_setup_inet_protocols"
+  fi
 	_register_setup_function "_setup_docker_permit"
 
 	_register_setup_function "_setup_mailname"
@@ -175,7 +179,7 @@ function register_functions() {
 	if [ "$LOGWATCH_TRIGGER" != "none" ]; then
 		_register_setup_function "_setup_logwatch"
 	fi
-	
+
 	_register_setup_function "_setup_user_patches"
 
         # Compute last as the config files are modified in-place
@@ -1098,6 +1102,11 @@ function _setup_postfix_vhost() {
   elif [ ! -f /etc/postfix/vhost ]; then
     touch /etc/postfix/vhost
 	fi
+}
+
+function _setup_inet_protocols() {
+  notify 'task' 'Setting up POSTFIX_INET_PROTOCOLS option'
+  postconf -e "inet_protocols = $POSTFIX_INET_PROTOCOLS"
 }
 
 function _setup_docker_permit() {
