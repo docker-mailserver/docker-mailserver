@@ -1,4 +1,4 @@
-FROM sebp/elk:720
+FROM sebp/elk:761
 
 RUN mkdir /etc/logstash/patterns.d
 #postfix grok and filter
