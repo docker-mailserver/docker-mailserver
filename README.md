@@ -317,6 +317,8 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
   - network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case
   - connected-networks => Add all connected docker networks (ipv4 only)
 
+Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
+
 ##### VIRUSMAILS_DELETE_DELAY
 
 Set how many days a virusmail will stay on the server before being deleted
@@ -381,6 +383,14 @@ Set the message size limit for all users. If set to zero, the size will be unlim
   - mdbox ==> (experimental) uses Dovecot high-performance mailbox format, multiple messages per file and multiple files per box
 
 This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://wiki2.dovecot.org/MailboxFormat).
+
+##### POSTFIX_INET_PROTOCOLS
+
+- **all** => All possible protocols.
+- ipv4 => Use only IPv4 traffic. Most likely you want this behind Docker.
+- ipv6 => Use only IPv6 traffic.
+
+Note: More details in http://www.postfix.org/postconf.5.html#inet_protocols
 
 ## Reports
 
