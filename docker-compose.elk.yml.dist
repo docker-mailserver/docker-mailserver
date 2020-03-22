@@ -38,12 +38,17 @@ services:
     command: ["filebeat", "-e", "--strict.perms=false"]
     restart: always
   elk:
-     build: elk
+     build:
+       context: elk
+       args:
+       - MAXMIND_LICENSE
      ports:
      - "5601:5601"
      - "9200:9200"
      - "5044:5044"
      - "5000:5000"
+     env_file:
+     - elk/.env
      restart: always
 
 volumes:

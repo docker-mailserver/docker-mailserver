@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  elk:
+     build:
+       context: .
+       args:
+       - MAXMIND_LICENSE
+     ports:
+     - "5601:5601"
+     - "9200:9200"
+     - "5044:5044"
+     - "5000:5000"
+     env_file:
+     - .env
+     restart: always
