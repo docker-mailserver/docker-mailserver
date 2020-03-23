@@ -348,9 +348,23 @@ metadata:
 
 ### Proxy port to Service via PROXY protocol
 
-This way is ideologically the same as [using Proxy Pod](#proxy-port-to-service) but instead Proxy Pod you should use [HAProxy image][11] or [Nginx Ingress Controller][12] and proxy TCP traffic to mailserver Pod with PROXY protocol usage which does real client IP preservation.
+This way is ideologically the same as [using Proxy Pod](#proxy-port-to-service), but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the mailserver pod using the PROXY protocol, which preserves the real client IP.
 
-This requires some additional mailserver configuration: you should enable PROXY protocol on ports that [Postfix][2] and [Dovecot][3] listen on for incoming connections.
+#### Configure your ingress
+With an [NGINX ingress controller][12], set `externalTrafficPolicy: Local` for its service, and add the following to the TCP services config map (as described [here][13]):
+```yaml
+# ...
+  25:  "mailserver/mailserver:25::PROXY"
+  465: "mailserver/mailserver:465::PROXY"
+  587: "mailserver/mailserver:587::PROXY"
+  993: "mailserver/mailserver:993::PROXY"
+# ...
+```
+
+With [HAProxy][11], the configuration should look similar to the above. If you know what it actually looks like, add an example here. :)
+
+#### Configure the mailserver
+Then, configure both [Postfix][2] and [Dovecot][3] to expect the PROXY protocol:
 ```yaml
 kind: ConfigMap
 apiVersion: v1
@@ -360,30 +374,40 @@ metadata:
     app: mailserver
 data:
   postfix-main.cf: |
-    smtpd_upstream_proxy_protocol = haproxy
+    postscreen_upstream_proxy_protocol = haproxy
+  postfix-master.cf: |
+    submission/inet/smtpd_upstream_proxy_protocol=haproxy
+    smtps/inet/smtpd_upstream_proxy_protocol=haproxy
   dovecot.cf: |
+    haproxy_trusted_networks = 10.0.0.0/8, 127.0.0.0/8   # Assuming your ingress controller is bound to 10.0.0.0/8
     service imap-login {
       inet_listener imaps {
         haproxy = yes
       }
     }
 # ...
-
 ---
 
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   name: mailserver
-#...
+spec:
+  template:
+
+# ...
           volumeMounts:
             - name: config
               subPath: postfix-main.cf
               mountPath: /tmp/docker-mailserver/postfix-main.cf
               readOnly: true
             - name: config
+              subPath: postfix-master.cf
+              mountPath: /tmp/docker-mailserver/postfix-master.cf
+              readOnly: true
+            - name: config
               subPath: dovecot.cf
-              mountPath: /etc/dovecot/conf.d/zz-custom.cf
+              mountPath: /tmp/docker-mailserver/dovecot.cf
               readOnly: true
 # ...
 ```
@@ -391,7 +415,6 @@ metadata:
 ##### Downsides
 
 - Not possible to access mailserver via inner cluster Kubernetes DNS, as PROXY protocol is required for incoming connections.
-
 
 
 
@@ -457,7 +480,8 @@ in your [Pod][52] spec.
 [3]: https://github.com/tomav/docker-mailserver/wiki/Override-Default-Dovecot-Configuration
 [10]: https://github.com/jetstack/kube-lego
 [11]: https://hub.docker.com/_/haproxy
-[12]: https://github.com/kubernetes/ingress/tree/master/controllers/nginx#exposing-tcp-services
+[12]: https://kubernetes.github.io/ingress-nginx/
+[13]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/
 [50]: https://kubernetes.io/docs/concepts/configuration/secret
 [51]: https://kubernetes.io/docs/tasks/configure-pod-container/configmap
 [52]: https://kubernetes.io/docs/concepts/workloads/pods/pod
