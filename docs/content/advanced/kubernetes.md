@@ -139,7 +139,7 @@ spec:
       #    - name: tmp-files
       #      mountPath: /tmp/files
       containers:
-      - name: smtp
+      - name: docker-mailserver
         image: tvial/docker-mailserver:release-v6.2.1
         imagePullPolicy: Always
         volumeMounts:
@@ -394,8 +394,9 @@ metadata:
   name: mailserver
 spec:
   template:
-
-# ...
+    spec:
+      containers:
+        - name: docker-mailserver
           volumeMounts:
             - name: config
               subPath: postfix-main.cf
