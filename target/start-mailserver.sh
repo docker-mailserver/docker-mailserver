@@ -1440,7 +1440,7 @@ function _setup_security_stack() {
 	fi
 
 	echo "1;  # ensure a defined return" >> $dms_amavis_file
-
+	chmod 444 $dms_amavis_file
 
 	# Fail2ban
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
