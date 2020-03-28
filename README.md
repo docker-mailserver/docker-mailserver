@@ -600,6 +600,11 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
 - More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups)
 
+##### DOVECOT_MAX_USERIP_CONNECTIONS
+
+- e.g. `50`
+- => Specify to override the default of 10
+
 ## Postgrey
 
 ##### ENABLE_POSTGREY

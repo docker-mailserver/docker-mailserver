@@ -18,6 +18,7 @@ DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
 DEFAULT_VARS["LDAP_START_TLS"]="${LDAP_START_TLS:="no"}"
 DEFAULT_VARS["DOVECOT_TLS"]="${DOVECOT_TLS:="no"}"
 DEFAULT_VARS["DOVECOT_MAILBOX_FORMAT"]="${DOVECOT_MAILBOX_FORMAT:="maildir"}"
+DEFAULT_VARS["DOVECOT_MAX_USERIP_CONNECTIONS"]="${DOVECOT_MAX_USERIP_CONNECTIONS:="10"}"
 DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:="0"}"
 DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:="300"}"
 DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:="35"}"
@@ -585,6 +586,12 @@ function _setup_dovecot() {
 	sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
 	sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
 	sed -i 's/^postmaster_address = .*$/postmaster_address = '$POSTMASTER_ADDRESS'/g' /etc/dovecot/conf.d/15-lda.conf
+
+	# Set mail_max_userip_connections
+	if [[ ! -z ${DEFAULT_VARS["DOVECOT_MAX_USERIP_CONNECTIONS"]} ]]; then
+		sed -i -e 's/#mail_max_userip_connections = .*$/mail_max_userip_connections = '$DOVECOT_MAX_USERIP_CONNECTIONS'/g' /etc/dovecot/conf.d/20-pop3.conf
+		sed -i -e 's/#mail_max_userip_connections = .*$/mail_max_userip_connections = '$DOVECOT_MAX_USERIP_CONNECTIONS'/g' /etc/dovecot/conf.d/20-imap.conf
+	fi
 
     # Set mail_location according to mailbox format
     case "$DOVECOT_MAILBOX_FORMAT" in
