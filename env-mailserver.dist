@@ -26,6 +26,7 @@ POSTMASTER_ADDRESS=
 # empty => localhost only
 # host => Add docker host (ipv4 only)
 # network => Add all docker containers (ipv4 only)
+# connected-networks => Add all connected docker networks (ipv4 only)
 PERMIT_DOCKER=
 
 # empty => modern
