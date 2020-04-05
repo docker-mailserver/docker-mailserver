@@ -1,0 +1,16 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      hints.default_config.enabled: false
+
+processors:
+- add_cloud_metadata: ~
+
+output.logstash:
+    hosts: ["127.0.0.1:5044"]
