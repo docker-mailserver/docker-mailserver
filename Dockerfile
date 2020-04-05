@@ -78,8 +78,6 @@ RUN \
     postsrsd \
     pyzor \
     razor \
-    # TODO not present in buster?
-    #ripole \
     rpm2cpio \
     rsyslog \
     sasl2-bin \
@@ -90,9 +88,6 @@ RUN \
     unzip \
     whois \
     xz-utils \
-    # TODO not present in buster?
-    #zoo \
-    #&& \
   # use Dovecot community repo to react faster on security updates
   #curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
   #gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
