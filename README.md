@@ -9,8 +9,8 @@ Easy to deploy and upgrade.
 
 ## ANNOUNCEMENT
 
-Some time VERY SOON we will merge the next branch based on Debian Buster to master.
-That means the docker image latest will change. The change may break things!
+At this point we have merged the next branch based on Debian Buster into master.
+That means the docker image latest uses Buster. The change may break things!
 
 The following possibly breaking changes are known:
 - Filebeat is removed and should be handled by another container, see [Wiki](https://github.com/tomav/docker-mailserver/wiki/).
@@ -122,7 +122,7 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look at [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
 
-`restart: always` ensures that the mail server container (and ELK container when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
+`restart: always` ensures that the mail server container (and Filebeat/ELK containers when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
 #### Exposed ports
 * 25 receiving email from other mailservers

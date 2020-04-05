@@ -96,10 +96,6 @@ function register_functions() {
 	_register_setup_function "_setup_default_vars"
 	_register_setup_function "_setup_file_permissions"
 
-	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
-		_register_setup_function "_setup_elk_forwarder"
-	fi
-
 	if [ "$SMTP_ONLY" != 1 ]; then
 		_register_setup_function "_setup_dovecot"
                 _register_setup_function "_setup_dovecot_dhparam"
@@ -211,10 +207,6 @@ function register_functions() {
 
 	_register_start_daemon "_start_daemons_cron"
 	_register_start_daemon "_start_daemons_rsyslog"
-
-	if [ "$ENABLE_ELK_FORWARDER" = 1 ]; then
-		_register_start_daemon "_start_daemons_filebeat"
-	fi
 
 	if [ "$SMTP_ONLY" != 1 ]; then
 		_register_start_daemon "_start_daemons_dovecot"
@@ -1465,18 +1457,6 @@ function _setup_security_stack() {
 	fi
 }
 
-function _setup_elk_forwarder() {
-	notify 'task' 'Setting up Elk forwarder'
-
-	ELK_PORT=${ELK_PORT:="5044"}
-	ELK_HOST=${ELK_HOST:="elk"}
-	notify 'inf' "Enabling log forwarding to ELK ($ELK_HOST:$ELK_PORT)"
-	cat /etc/filebeat/filebeat.yml.tmpl \
-		| sed "s@\$ELK_HOST@$ELK_HOST@g" \
-		| sed "s@\$ELK_PORT@$ELK_PORT@g" \
-		> /etc/filebeat/filebeat.yml
-}
-
 function _setup_logrotate() {
 	notify 'inf' "Setting up logrotate"
 
@@ -1761,11 +1741,6 @@ function _start_daemons_dovecot() {
 		#echo "Listing users"
 		#/usr/sbin/dovecot user '*'
 	#fi
-}
-
-function _start_daemons_filebeat() {
-	notify 'task' 'Starting filebeat' 'n'
-    supervisorctl start filebeat
 }
 
 function _start_daemons_fetchmail() {

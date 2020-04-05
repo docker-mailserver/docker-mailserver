@@ -1,24 +1,22 @@
 version: '2'
-
 services:
   mail:
     image: tvial/docker-mailserver:latest
     hostname: ${HOSTNAME}
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
-    links:
-    - elk
-    labels:
-    - "co.elastic.logs/enabled=true"
-    - "co.elastic.logs/module=system"
-    - "co.elastic.logs/fileset.stdout=syslog"
     ports:
     - "25:25"
     - "143:143"
     - "587:587"
     - "993:993"
+    labels:
+    - "co.elastic.logs/enabled=true"
+    - "co.elastic.logs/module=system"
+    - "co.elastic.logs/fileset.stdout=syslog"
     volumes:
     - maildata:/var/mail
+    - mailstate:/var/mail-state
     - maillogs:/var/log/mail
     - ./config/:/tmp/docker-mailserver/
     env_file:
@@ -37,20 +35,6 @@ services:
     - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
     command: ["filebeat", "-e", "--strict.perms=false"]
     restart: always
-  elk:
-     build:
-       context: elk
-       args:
-       - MAXMIND_LICENSE
-     ports:
-     - "5601:5601"
-     - "9200:9200"
-     - "5044:5044"
-     - "5000:5000"
-     env_file:
-     - elk/.env
-     restart: always
-
 volumes:
   maildata:
     driver: local
