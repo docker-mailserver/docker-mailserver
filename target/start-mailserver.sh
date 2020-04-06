@@ -1401,12 +1401,16 @@ function _setup_security_stack() {
 			sed -i -r 's/^\$sa_spam_subject_tag (.*);/\$sa_spam_subject_tag = '"'$SA_SPAM_SUBJECT'"';/g' /etc/amavis/conf.d/20-debian_defaults
 		fi
 
-        # activate short circuits when SA BAYES is certain it has spam.
+        # activate short circuits when SA BAYES is certain it has spam or ham.
         if [ "$SA_SHORTCIRCUIT_BAYES_SPAM" = 1 ]; then
+			# automatically activate the Shortcircuit Plugin
+			sed -i -r 's/^# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/g' /etc/spamassassin/v320.pre
             sed -i -r 's/^# shortcircuit BAYES_99/shortcircuit BAYES_99/g' /etc/spamassassin/local.cf
         fi
 
         if [ "$SA_SHORTCIRCUIT_BAYES_HAM" = 1 ]; then
+			# automatically activate the Shortcircuit Plugin
+			sed -i -r 's/^# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/g' /etc/spamassassin/v320.pre
             sed -i -r 's/^# shortcircuit BAYES_00/shortcircuit BAYES_00/g' /etc/spamassassin/local.cf
         fi
 
@@ -1439,7 +1443,7 @@ function _setup_security_stack() {
 	fi
 
 	echo "1;  # ensure a defined return" >> $dms_amavis_file
-
+	chmod 444 $dms_amavis_file
 
 	# Fail2ban
 	if [ "$ENABLE_FAIL2BAN" = 1 ]; then

@@ -7,6 +7,19 @@ A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
+## ANNOUNCEMENT
+
+At this point we have merged the next branch based on Debian Buster into master.
+That means the docker image latest uses Buster. The change may break things!
+
+The following possibly breaking changes are known:
+- Filebeat is removed and should be handled by another container, see [Wiki](https://github.com/tomav/docker-mailserver/wiki/).
+- Dovecot will be downgraded a little bit (same major version) so that we can use the official Debian version.
+
+If you want to stick to the old version a while longer, either switch to stable or to a specific version.
+If you run into problems, please raise issues and ask for help. Don't forget to provide details.
+
+
 Includes:
 
 - [Postfix](http://www.postfix.org) with smtp or ldap auth
