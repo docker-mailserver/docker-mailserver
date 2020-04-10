@@ -31,6 +31,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3015
 RUN \
   apt-get update -q --fix-missing && \
+  apt-get -y upgrade && \
   apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
     altermime \
