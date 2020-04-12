@@ -28,7 +28,7 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Packages
-# hadolint ignore=DL3015
+# hadolint ignore=DL3015,DL3005
 RUN \
   apt-get update -q --fix-missing && \
   apt-get -y upgrade && \
