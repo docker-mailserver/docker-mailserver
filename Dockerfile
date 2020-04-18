@@ -111,7 +111,6 @@ RUN \
   rm -rf /usr/share/doc/* && \
   touch /var/log/auth.log && \
   update-locale && \
-  rm -f /etc/cron.weekly/fstrim && \
   rm -f /etc/postsrsd.secret && \
   rm -f /etc/cron.daily/00logwatch
 
