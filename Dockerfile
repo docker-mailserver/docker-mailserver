@@ -111,8 +111,8 @@ RUN \
   rm -rf /usr/share/doc/* && \
   touch /var/log/auth.log && \
   update-locale && \
-  rm -f /etc/postsrsd.secret && \
-  rm -f /etc/cron.daily/00logwatch
+  rm /etc/postsrsd.secret && \
+  rm /etc/cron.daily/00logwatch
 
 RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
