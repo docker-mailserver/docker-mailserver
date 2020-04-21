@@ -667,6 +667,16 @@ EOF
   assert_success
 }
 
+@test "checking ssl: checking dhe params are sufficient" {
+  # reference used: (22/04/2020) https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls
+  skip 'todo : check checksum same as mozilla'
+  # todo :
+  # - test case mail uses ffdhe by default
+  # - test case mail uses custom dhe ==> SET WARNING IN LOGS
+
+  # todo : remove dhe generation
+}
+
 #
 # postsrsd
 #
