@@ -163,6 +163,9 @@ RUN chmod 755 /etc/init.d/postgrey && \
 # Copy PostSRSd Config
 COPY target/postsrsd/postsrsd /etc/default/postsrsd
 
+# Copy shared ffdhe params
+COPY target/shared/ffdhe4096.pem /etc/postfix/shared/ffdhe4096.pem
+
 # Enables Amavis
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
