@@ -1158,6 +1158,8 @@ EOF
   # check for quota warn message existence
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'"
   assert_success
+  run repeat_until_success_or_timeout 20 sh -c "docker logs mail | grep 'Quota exceeded (mailbox for user is full)'"
+  assert_success
 
   # ensure only the first big message and the warn message are present (other messages are rejected: mailbox is full)
   run docker exec mail sh -c 'ls /var/mail/otherdomain.tld/quotauser/new/ | wc -l'
@@ -1243,7 +1245,7 @@ EOF
   # Dovecot has been restarted, but this test often fails so presumably it may not be ready
   # Add a short sleep to see if that helps to make the test more stable
   # Alternatively we could login with a known good user to make sure that the service is up
-  sleep 2
+  sleep 5
 
   run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
   assert_output "passdb: setup_email_add@example.com auth succeeded"
