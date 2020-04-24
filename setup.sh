@@ -8,7 +8,7 @@ CRI=
 
 _check_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user." 
+    echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user."
     exit 1
   fi
 }
@@ -75,7 +75,7 @@ _usage() {
 OPTIONS:
 
   -i IMAGE_NAME     The name of the docker-mailserver image, by default
-                    'tvial/docker-mailserver:latest' for docker, and 
+                    'tvial/docker-mailserver:latest' for docker, and
                     'docker.io/tvial/docker-mailserver:latest' for podman.
 
   -c CONTAINER_NAME The name of the running container.
@@ -96,6 +96,10 @@ SUBCOMMANDS:
     $0 alias add <email> <recipient>
     $0 alias del <email> <recipient>
     $0 alias list
+
+  quota:
+    $0 quota set <email> [<quota>]
+    $0 quota del <email>
 
   config:
 
@@ -245,6 +249,23 @@ case $1 in
         list)
           shift
           _docker_image listalias $@
+          ;;
+        *)
+          _usage
+          ;;
+    esac
+    ;;
+
+  quota)
+    shift
+    case $1 in
+        set)
+          shift
+          _docker_image setquota $@
+          ;;
+        del)
+          shift
+          _docker_image delquota $@
           ;;
         *)
           _usage

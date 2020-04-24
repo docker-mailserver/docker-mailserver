@@ -2,6 +2,7 @@
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
+QUOTA_DATABASE="/tmp/docker-mailserver/dovecot-quotas.cf"
 
 usage() {
 	echo "Usage: delmailuser <-y> <user@domain> <user2@anotherdomain> ..."
@@ -51,6 +52,11 @@ shift $((OPTIND-1))
         -e "s/,"$USER"//g" \
         -e "s/"$USER",//g" $ALIAS_DATABASE
     [ $? = 0 ] && echo "$USER and potential aliases deleted." || errex "Aliases for $USER couldn't be deleted in $ALIAS_DATABASE. $?"
+    # remove quota directives
+    if [ -f "$QUOTA_DATABASE" ]; then
+      sed -i -e "/^$USER:.*$/d" $QUOTA_DATABASE || errex "Quota for $USER couldn't be deleted in $QUOTA_DATABASE. $?"
+    fi
+
     if [ "$MAILDEL" != "y" ]; then
       read -p "Do you want to delete the mailbox as well(all mails will be removed)?(y/n) " MAILDEL
       echo
