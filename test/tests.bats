@@ -1094,11 +1094,8 @@ EOF
   [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
   assert_success
 
-  # let dovecot breathe
-  sleep 5
-
-  run docker exec mail /bin/sh -c 'doveadm quota get -u user1@localhost.localdomain | grep "User quota STORAGE"'
-  assert_output --partial '51200'
+  # wait until quota has been updated
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)51200(.*)\"'"
   assert_success
 
   # remove the quota
@@ -1116,11 +1113,8 @@ EOF
   [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
   assert_success
 
-  # let dovecot breathe
-  sleep 5
-
-  run docker exec mail /bin/sh -c 'doveadm quota get -u user1@localhost.localdomain | grep "User quota STORAGE"'
-  assert_output --partial '-                         0'
+  # wait until quota has been updated
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)-(.*)\"'"
   assert_success
 }
 
@@ -1142,11 +1136,8 @@ EOF
   [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
   assert_success
 
-  # let dovecot breathe
-  sleep 5
-
-  run docker exec mail /bin/sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep "User quota STORAGE"'
-  assert_output --partial '10'
+  # wait until quota has been updated
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'"
   assert_success
 
   # send some big emails
