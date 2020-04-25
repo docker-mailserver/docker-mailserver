@@ -29,4 +29,4 @@ This is a list of all configuration files and directories which are optional or 
 - **fail2ban-jail.cf:** Additional config options for fail2ban's jail behaviour. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Fail2ban)
 - **amavis.cf:** replaces the /etc/amavis/conf.d/50-user file
 - **dovecot.cf:** replaces /etc/dovecot/local.conf. See [wiki](https://github.com/tomav/docker-mailserver/wiki/Override-Default-Dovecot-Configuration)
-- **dovecot-quotas.cf:** list of custom quotas per mailbox.  See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts/_edit#mailbox-quota)
+- **dovecot-quotas.cf:** list of custom quotas per mailbox.  See [wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
