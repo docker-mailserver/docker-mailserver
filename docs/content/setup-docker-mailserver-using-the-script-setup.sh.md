@@ -34,6 +34,10 @@ SUBCOMMANDS:
     ./setup.sh alias del <email> <recipient>
     ./setup.sh alias list
 
+  quota:
+    ./setup.sh quota set <email> [<quota>]
+    ./setup.sh quota del <email>
+
   config:
 
     ./setup.sh config dkim <keysize> (default: 2048)
@@ -56,6 +60,9 @@ SUBCOMMANDS:
 * `./setup.sh alias add <email> <recipient>`: add an alias(email) for an email-account(recipient)
 * `./setup.sh alias del <email> <recipient>`: delete an alias
 * `./setup.sh alias list`: list all aliases
+# quota
+* `./setup.sh quota set <email> [<quota>]`: define the quota of a mailbox (quota format e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte)))
+*  `./setup.sh quota del <email>`: delete the quota of a mailbox
 # config 
 * `./setup.sh config dkim <keysize> (default: 2048)`: autoconfig the dkim-config with an (optional) keysize value
 * `./setup.sh config ssl`: generate ssl-certificates
