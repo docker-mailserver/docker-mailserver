@@ -667,23 +667,6 @@ EOF
   assert_success
 }
 
-@test "checking ssl: checking dhe params are sufficient" {
-  # reference used: (22/04/2020) https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls
-
-  # check ffdhe params are inchanged
-  repo_checksum=$(sha512sum "$(pwd)/target/shared/ffdhe4096.pem" | awk '{print $1}')
-  mozilla_checksum=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
-  assert_equal "$repo_checksum" "$mozilla_checksum"
-  run echo "$repo_checksum"
-  refute_output '' # checksum must not be empty
-
-  # by default, ffdhe4096 should be used
-  docker_dovecot_checksum=$(docker exec mail sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
-  docker_postfix_checksum=$(docker exec mail sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
-  assert_equal "$docker_dovecot_checksum" "$repo_checksum"
-  assert_equal "$docker_postfix_checksum" "$repo_checksum"
-}
-
 #
 # postsrsd
 #
