@@ -26,7 +26,6 @@ Use doveadm pw -l to get a list of the currently supported encryption schemes.
 
 ***
 ## Mailbox quota
-**coming soon: https://github.com/tomav/docker-mailserver/pull/1469**
 
 On top of the default quota (`POSTFIX_MAILBOX_SIZE_LIMIT`), you can define specific quotas per mailbox.
 Quota implementation relies on [dovecot quota](https://wiki.dovecot.org/Quota/Configuration) which requires dovecot to be enabled. Consequently, quota directives are disabled when `SMTP_ONLY` is enabled.
