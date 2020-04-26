@@ -168,6 +168,17 @@ function teardown_file() {
   assert_success
 }
 
+@test "checking dovecot: quota plugin is disabled" {
+ run docker exec mail_with_ldap /bin/sh -c "grep '\$mail_plugins quota' /etc/dovecot/conf.d/10-mail.conf"
+ assert_failure
+ run docker exec mail_with_ldap /bin/sh -c "grep '\$mail_plugins imap_quota' /etc/dovecot/conf.d/20-imap.conf"
+ assert_failure
+ run docker exec mail_with_ldap ls /etc/dovecot/conf.d/90-quota.conf
+ assert_failure
+ run docker exec mail_with_ldap ls /etc/dovecot/conf.d/90-quota.conf.disab
+ assert_success
+}
+
 @test "checking spoofing: rejects sender forging" {
   run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
   assert_success

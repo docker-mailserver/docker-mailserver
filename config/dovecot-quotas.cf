@@ -1,0 +1,3 @@
+# define user's quota in this file
+# E.g;
+# user@domain:50M

@@ -1,6 +1,6 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
-
+load 'test_helper/common'
 
 #
 # shared functions
@@ -934,6 +934,240 @@ EOF
   [ ! -z "$output" ]
 }
 
+
+@test "checking quota: setquota user must be existing" {
+    run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
+    assert_success
+
+    run docker exec mail /bin/sh -c "setquota quota_user 50M"
+    assert_failure
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 50M"
+    assert_success
+
+    run docker exec mail /bin/sh -c "setquota username@fulldomain 50M"
+    assert_failure
+
+    run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
+    assert_success
+}
+@test "checking quota: setquota <quota> must be well formatted" {
+    run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
+    assert_success
+
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 26GIGOTS"
+    assert_failure
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 123"
+    assert_failure
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld M"
+    assert_failure
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld -60M"
+    assert_failure
+
+
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 10B"
+    assert_success
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 10k"
+    assert_success
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 10M"
+    assert_success
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 10G"
+    assert_success
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 10T"
+    assert_success
+
+
+    run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
+    assert_success
+}
+
+
+@test "checking quota: delquota user must be existing" {
+    run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
+    assert_success
+
+    run docker exec mail /bin/sh -c "delquota uota_user@domain.tld"
+    assert_failure
+    run docker exec mail /bin/sh -c "delquota quota_user"
+    assert_failure
+    run docker exec mail /bin/sh -c "delquota dontknowyou@domain.tld"
+    assert_failure
+
+    run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 10T"
+    assert_success
+    run docker exec mail /bin/sh -c "delquota quota_user@domain.tld"
+    assert_success
+    run docker exec mail /bin/sh -c "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
+    assert_failure
+
+    run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
+    assert_success
+}
+@test "checking quota: delquota allow when no quota for existing user" {
+    run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
+    assert_success
+
+    run docker exec mail /bin/sh -c "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
+    assert_failure
+
+    run docker exec mail /bin/sh -c "delquota quota_user@domain.tld"
+    assert_success
+    run docker exec mail /bin/sh -c "delquota quota_user@domain.tld"
+    assert_success
+
+    run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
+    assert_success
+}
+
+@test "checking quota: dovecot quota present in postconf" {
+  run docker exec mail /bin/bash -c "postconf | grep 'check_policy_service inet:localhost:65265'"
+  assert_success
+}
+
+
+@test "checking quota: dovecot mailbox max size must be equal to postfix mailbox max size" {
+  postfix_mailbox_size=$(docker exec mail sh -c "postconf | grep -Po '(?<=mailbox_size_limit = )[0-9]+'")
+  run echo "$postfix_mailbox_size"
+  refute_output ""
+
+  # dovecot relies on virtual_mailbox_size by default
+  postfix_virtual_mailbox_size=$(docker exec mail sh -c "postconf | grep -Po '(?<=virtual_mailbox_limit = )[0-9]+'")
+  assert_equal "$postfix_virtual_mailbox_size" "$postfix_mailbox_size"
+
+  postfix_mailbox_size_mb=$(($postfix_mailbox_size / 1000000))
+
+  dovecot_mailbox_size_mb=$(docker exec mail sh -c "doveconf | grep  -oP '(?<=quota_rule \= \*\:storage=)[0-9]+'")
+  run echo "$dovecot_mailbox_size_mb"
+  refute_output ""
+
+  assert_equal "$postfix_mailbox_size_mb" "$dovecot_mailbox_size_mb"
+}
+
+
+@test "checking quota: dovecot message max size must be equal to postfix messsage max size" {
+  postfix_message_size=$(docker exec mail sh -c "postconf | grep -Po '(?<=message_size_limit = )[0-9]+'")
+  run echo "$postfix_message_size"
+  refute_output ""
+
+  postfix_message_size_mb=$(($postfix_message_size / 1000000))
+
+  dovecot_message_size_mb=$(docker exec mail sh -c "doveconf | grep  -oP '(?<=quota_max_mail_size = )[0-9]+'")
+  run echo "$dovecot_message_size_mb"
+  refute_output ""
+
+  assert_equal "$postfix_message_size_mb" "$dovecot_message_size_mb"
+}
+
+@test "checking quota: quota directive is removed when mailbox is removed" {
+  run docker exec mail /bin/sh -c "addmailuser quserremoved@domain.tld mypassword"
+  assert_success
+
+  run docker exec mail /bin/sh -c "setquota quserremoved@domain.tld 12M"
+  assert_success
+
+  run docker exec mail /bin/sh -c 'cat /tmp/docker-mailserver/dovecot-quotas.cf | grep -E "^quserremoved@domain.tld\:12M\$" | wc -l | grep 1'
+  assert_success
+
+  run docker exec mail /bin/sh -c "delmailuser -y quserremoved@domain.tld"
+  assert_success
+
+  run docker exec mail /bin/sh -c 'cat /tmp/docker-mailserver/dovecot-quotas.cf | grep -E "^quserremoved@domain.tld\:12M\$"'
+  assert_failure
+}
+
+@test "checking quota: dovecot applies user quota" {
+  sleep 15 # wait until any other change has finished
+  run docker exec mail /bin/sh -c "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
+  assert_output --partial "-                         0"
+
+  # set a quota
+  originalChangesProcessed=$(count_processed_changes mail)
+  run docker exec mail /bin/sh -c "setquota user1@localhost.localdomain 50M"
+  assert_success
+
+  # wait until change detector has processed the change
+  count=0
+  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
+  do
+    ((count++)) && ((count==60)) && break
+    sleep 1
+  done
+  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
+  assert_success
+
+  # wait until quota has been updated
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)51200(.*)\"'"
+  assert_success
+
+  # remove the quota
+  originalChangesProcessed=$(count_processed_changes mail)
+  run docker exec mail /bin/sh -c "delquota user1@localhost.localdomain"
+  assert_success
+
+  # wait until change detector has processed the change
+  count=0
+  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
+  do
+    ((count++)) && ((count==60)) && break
+    sleep 1
+  done
+  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
+  assert_success
+
+  # wait until quota has been updated
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)-(.*)\"'"
+  assert_success
+}
+
+@test "checking quota: warn message received when quota exceeded" {
+  sleep 15 # wait until any other change has finished
+
+  originalChangesProcessed=$(count_processed_changes mail)
+
+  # create user
+  run docker exec mail /bin/sh -c "addmailuser quotauser@otherdomain.tld mypassword && setquota quotauser@otherdomain.tld 10k"
+  assert_success
+
+  count=0
+  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
+  do
+    ((count++)) && ((count==60)) && break
+    sleep 1
+  done
+  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
+  assert_success
+
+  # wait until quota has been updated
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'"
+  assert_success
+
+  # dovecot and postfix has been restarted
+  wait_for_service mail postfix
+  wait_for_service mail dovecot
+  sleep 5
+
+  # send some big emails
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
+  assert_success
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
+  assert_success
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
+  assert_success
+
+  # check for quota warn message existence
+  run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'"
+  assert_success
+  run repeat_until_success_or_timeout 20 sh -c "docker logs mail | grep 'Quota exceeded (mailbox for user is full)'"
+  assert_success
+
+  # ensure only the first big message and the warn message are present (other messages are rejected: mailbox is full)
+  run docker exec mail sh -c 'ls /var/mail/otherdomain.tld/quotauser/new/ | wc -l'
+  assert_success
+  assert_output "2"
+
+  run docker exec mail /bin/sh -c "delmailuser -y quotauser@otherdomain.tld"
+  assert_success
+}
+
 #
 # PERMIT_DOCKER mynetworks
 #
@@ -1009,7 +1243,7 @@ EOF
   # Dovecot has been restarted, but this test often fails so presumably it may not be ready
   # Add a short sleep to see if that helps to make the test more stable
   # Alternatively we could login with a known good user to make sure that the service is up
-  sleep 2
+  sleep 5
 
   run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
   assert_output "passdb: setup_email_add@example.com auth succeeded"
@@ -1118,6 +1352,60 @@ EOF
   run grep "alias2@example.org" ./test/alias/config/postfix-virtual.cf
   assert_failure
 }
+
+# quota
+@test "checking setup.sh: setup.sh setquota" {
+  mkdir -p ./test/quota/config && echo "" > ./test/quota/config/dovecot-quotas.cf
+
+  run ./setup.sh -p ./test/quota/config email add quota_user@example.com test_password
+  run ./setup.sh -p ./test/quota/config email add quota_user2@example.com test_password
+
+  run ./setup.sh -p ./test/quota/config quota set quota_user@example.com 12M
+  assert_success
+  run ./setup.sh -p ./test/quota/config quota set 51M quota_user@example.com
+  assert_failure
+  run ./setup.sh -p ./test/quota/config quota set unknown@domain.com 150M
+  assert_failure
+
+  run ./setup.sh -p ./test/quota/config quota set quota_user2 51M
+  assert_failure
+
+  run /bin/sh -c 'cat ./test/quota/config/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
+  assert_success
+
+  run ./setup.sh -p ./test/quota/config quota set quota_user@example.com 26M
+  assert_success
+  run /bin/sh -c 'cat ./test/quota/config/dovecot-quotas.cf | grep -E "^quota_user@example.com\:26M\$" | wc -l | grep 1'
+  assert_success
+
+  run grep "quota_user2@example.com" ./test/alias/config/dovecot-quotas.cf
+  assert_failure
+}
+
+@test "checking setup.sh: setup.sh delquota" {
+  mkdir -p ./test/quota/config && echo "" > ./test/quota/config/dovecot-quotas.cf
+
+  run ./setup.sh -p ./test/quota/config email add quota_user@example.com test_password
+  run ./setup.sh -p ./test/quota/config email add quota_user2@example.com test_password
+
+  run ./setup.sh -p ./test/quota/config quota set quota_user@example.com 12M
+  assert_success
+  run /bin/sh -c 'cat ./test/quota/config/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
+  assert_success
+
+
+  run ./setup.sh -p ./test/quota/config quota del unknown@domain.com
+  assert_failure
+  run /bin/sh -c 'cat ./test/quota/config/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
+  assert_success
+
+  run ./setup.sh -p ./test/quota/config quota del quota_user@example.com
+  assert_success
+  run grep "quota_user@example.com" ./test/alias/config/dovecot-quotas.cf
+  assert_failure
+}
+
+
 
 # config
 @test "checking setup.sh: setup.sh config dkim" {
