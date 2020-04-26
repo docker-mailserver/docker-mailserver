@@ -1243,6 +1243,8 @@ EOF
   # Dovecot has been restarted, but this test often fails so presumably it may not be ready
   # Add a short sleep to see if that helps to make the test more stable
   # Alternatively we could login with a known good user to make sure that the service is up
+  wait_for_service mail postfix
+  wait_for_service mail dovecot
   sleep 5
 
   run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
