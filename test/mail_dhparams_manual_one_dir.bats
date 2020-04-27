@@ -3,14 +3,13 @@ load 'test_helper/common'
 # Test case
 # ---------
 # By default, this image is using audited FFDHE groups (https://github.com/tomav/docker-mailserver/pull/1463)
-# However, an advanced user could want to supply custom DHE parameters.
 #
-# This test suite cover the described situation when ONE_DIR=1 is set.
+# This test case covers the described case when `ONE_DIR=1`.
 #
 # Description:
-# - when using a CUSTOM DHE parameters:
-#   ~ custom dhe params file is copied in postfix and dovecot configuration.
-#   ~ a warning is raised about usage of insecure parameters.
+# - When custom DHE parameters are supplied by the user:
+#   ~ User supplied DHE parameters are copied to the configuration directories for postfix and dovecot.
+#   ~ A warning is raised about usage of insecure parameters.
 
 function setup() {
     run_setup_file_if_necessary
