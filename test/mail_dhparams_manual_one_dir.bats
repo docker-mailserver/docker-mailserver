@@ -1,5 +1,17 @@
 load 'test_helper/common'
 
+# Test case
+# ---------
+# By default, this image is using audited FFDHE groups (https://github.com/tomav/docker-mailserver/pull/1463)
+# However, an advanced user could want to supply custom DHE parameters.
+#
+# This test suite cover the described situation when ONE_DIR=1 is set.
+#
+# Description:
+# - when using a CUSTOM DHE parameters:
+#   ~ custom dhe params file is copied in postfix and dovecot configuration.
+#   ~ a warning is raised about usage of insecure parameters.
+
 function setup() {
     run_setup_file_if_necessary
 }
@@ -12,7 +24,7 @@ function setup_file() {
     docker run -d --name mail_manual_dhparams_one_dir \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-v "`pwd`/test/test-files/ssl/ffdhe2048.pem":/var/mail-state/lib-shared/dhparams.pem:ro \
+		-v "`pwd`/test/test-files/ssl/custom-dhe-params.pem":/var/mail-state/lib-shared/dhparams.pem:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=1 \
 		-h mail.my-domain.com -t ${NAME}
@@ -29,7 +41,7 @@ function teardown_file() {
 }
 
 @test "checking dhparams: ONE_DIR=1 check manual dhparams is used" {
-  test_checksum=$(sha512sum "$(pwd)/test/test-files/ssl/ffdhe2048.pem" | awk '{print $1}')
+  test_checksum=$(sha512sum "$(pwd)/test/test-files/ssl/custom-dhe-params.pem" | awk '{print $1}')
   run echo "$test_checksum"
   refute_output '' # checksum must not be empty
 

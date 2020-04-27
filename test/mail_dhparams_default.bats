@@ -1,5 +1,17 @@
 load 'test_helper/common'
 
+# Test case
+# ---------
+# By default, this image is using audited FFDHE groups (https://github.com/tomav/docker-mailserver/pull/1463)
+#
+# This test suite cover the described situation for ONE_DIR=1 and for ONE_DIR=0.
+#
+# Description:
+# - when using a default DHE parameters:
+#   ~ repo FFDHE4096 file is unchanged.
+#   ~ ffdhe4096 params file is copied in postfix and dovecot configuration.
+
+
 function setup() {
     run_setup_file_if_necessary
 }
