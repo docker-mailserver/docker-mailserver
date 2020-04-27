@@ -27,6 +27,7 @@ function setup_file() {
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=1 \
 		-h mail.my-domain.com -t ${NAME}
+    wait_for_finished_setup_in_container mail_default_dhparams_one_dir
 
     docker run -d --name mail_default_dhparams_not_one_dir \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
@@ -34,8 +35,6 @@ function setup_file() {
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=0 \
 		-h mail.my-domain.com -t ${NAME}
-
-    wait_for_finished_setup_in_container mail_default_dhparams_one_dir
     wait_for_finished_setup_in_container mail_default_dhparams_not_one_dir
 }
 

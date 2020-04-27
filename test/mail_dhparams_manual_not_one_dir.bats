@@ -31,7 +31,6 @@ function setup_file() {
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=0 \
 		-h mail.my-domain.com -t ${NAME}
-
     wait_for_finished_setup_in_container mail_manual_dhparams_not_one_dir
 }
 
