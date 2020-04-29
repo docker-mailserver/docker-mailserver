@@ -125,15 +125,19 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 `restart: always` ensures that the mail server container (and Filebeat/ELK containers when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
 #### Exposed ports
-* 25 receiving email from other mailservers
-* 465 SSL Client email submission
-* 587 TLS Client email submission
-* 143 StartTLS IMAP client
-* 993 TLS/SSL IMAP client
-* 110 POP3 client
-* 995 TLS/SSL POP3 client
 
-`Note: Port 25 is only for receiving email from other mailservers and not for submitting email. You need to use port 465 or 587 for this.`
+| Protocol | Opt-in Encryption<sup>1</sup> | Enforced Encryption | Purpose              |
+|----------|-------------------------------|---------------------|----------------------|
+| SMTP     | 25                            | N/A                 | Transfer<sup>2</sup> |
+| ESMTP    | 587                           | 465<sup>3</sup>     | Submission           |
+| POP3     | 110                           | 995                 | Retrieval            |
+| IMAP4    | 143                           | 993                 | Retrieval            |
+
+1. A connection *may* be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured. Port 25 is [required](https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages) to support insecure connections.
+2. Receives email and filters for spam and viruses. For submitting outgoing mail you should prefer the submission ports(465, 587), which require authentication. Unless a relay host is configured, outgoing email will leave the server via port 25(thus outbound traffic must not be blocked by your provider or firewall).
+3. A submission port since 2018, [RFC 8314](https://tools.ietf.org/html/rfc8314). Originally a secure variant of port 25.
+
+See the [wiki](https://github.com/tomav/docker-mailserver/wiki) for further details and best practice advice, especially regarding security concerns.
 
 ##### Examples with just the relevant environmental variables:
 
