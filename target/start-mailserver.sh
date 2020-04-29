@@ -1364,15 +1364,16 @@ function _setup_postfix_dhparam() {
 	if [ "$ONE_DIR" = 1 ];then
 		DHPARAMS_FILE=/var/mail-state/lib-shared/dhparams.pem
 		if [ ! -f $DHPARAMS_FILE ]; then
-			notify 'inf' "Generate new shared dhparams (postfix)"
-			mkdir -p $(dirname "$DHPARAMS_FILE")
-			openssl dhparam -out $DHPARAMS_FILE 2048
+			notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
+      rm -f /etc/postfix/dhparams.pem && cp /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
 		else
 			notify 'inf' "Use postfix dhparams that was generated previously"
-		fi
+      notify 'warn' "Using self-generated dhparams is considered as insecure."
+      notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
 
-		# Copy from the state directory to the working location
-		rm -f /etc/postfix/dhparams.pem && cp $DHPARAMS_FILE /etc/postfix/dhparams.pem
+      # Copy from the state directory to the working location
+      rm -f /etc/postfix/dhparams.pem && cp $DHPARAMS_FILE /etc/postfix/dhparams.pem
+		fi
 	else
                 if [ ! -f /etc/postfix/dhparams.pem ]; then
                         if [ -f /etc/dovecot/dh.pem ]; then
@@ -1380,13 +1381,17 @@ function _setup_postfix_dhparam() {
                                 cp /etc/dovecot/dh.pem /etc/postfix/dhparams.pem
                         elif [ -f /tmp/docker-mailserver/dhparams.pem ]; then
                                 notify 'inf' "Copy pre-generated dhparams to postfix"
+                                notify 'warn' "Using self-generated dhparams is considered as insecure."
+                                notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
                                 cp /tmp/docker-mailserver/dhparams.pem /etc/postfix/dhparams.pem
                         else
-                                notify 'inf' "Generate new dhparams for postfix"
-                                openssl dhparam -out /etc/postfix/dhparams.pem 2048
+			                          notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
+                                cp /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
                         fi
                 else
                         notify 'inf' "Use existing postfix dhparams"
+                        notify 'warn' "Using self-generated dhparams is considered as insecure."
+                        notify 'warn' "Unless you known what you are doing, please remove /etc/postfix/dhparams.pem."
                 fi
 	fi
 }
@@ -1396,15 +1401,16 @@ function _setup_dovecot_dhparam() {
         if [ "$ONE_DIR" = 1 ];then
                 DHPARAMS_FILE=/var/mail-state/lib-shared/dhparams.pem
                 if [ ! -f $DHPARAMS_FILE ]; then
-                        notify 'inf' "Generate new shared dhparams (dovecot)"
-                        mkdir -p $(dirname "$DHPARAMS_FILE")
-                        openssl dhparam -out $DHPARAMS_FILE 2048
+                        notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
+                        rm -f /etc/dovecot/dh.pem && cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
                 else
                         notify 'inf' "Use dovecot dhparams that was generated previously"
-                fi
+                        notify 'warn' "Using self-generated dhparams is considered as insecure."
+                        notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
 
-                # Copy from the state directory to the working location
-                rm -f /etc/dovecot/dh.pem && cp $DHPARAMS_FILE /etc/dovecot/dh.pem
+                        # Copy from the state directory to the working location
+                        rm -f /etc/dovecot/dh.pem && cp $DHPARAMS_FILE /etc/dovecot/dh.pem
+                fi
         else
                 if [ ! -f /etc/dovecot/dh.pem ]; then
                         if [ -f /etc/postfix/dhparams.pem ]; then
@@ -1412,13 +1418,17 @@ function _setup_dovecot_dhparam() {
                                 cp /etc/postfix/dhparams.pem /etc/dovecot/dh.pem
                         elif [ -f /tmp/docker-mailserver/dhparams.pem ]; then
                                 notify 'inf' "Copy pre-generated dhparams to dovecot"
+                                notify 'warn' "Using self-generated dhparams is considered as insecure."
+                                notify 'warn' "Unless you known what you are doing, please remove /tmp/docker-mailserver/dhparams.pem."
                                 cp /tmp/docker-mailserver/dhparams.pem /etc/dovecot/dh.pem
                         else
-                                notify 'inf' "Generate new dhparams for dovecot"
-                                openssl dhparam -out /etc/dovecot/dh.pem 2048
+			                          notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
+                                cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
                         fi
                 else
                         notify 'inf' "Use existing dovecot dhparams"
+                        notify 'warn' "Using self-generated dhparams is considered as insecure."
+                        notify 'warn' "Unless you known what you are doing, please remove /etc/dovecot/dh.pem."
                 fi
         fi
 }
@@ -1461,8 +1471,8 @@ function _setup_security_stack() {
         fi
 
 		test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
-		
-		
+
+
 		if [ "$SPAMASSASSIN_SPAM_TO_INBOX" = "1" ]; then
 				notify 'inf' "Configure Spamassassin/Amavis to put SPAM inbox"
 				bannedbouncecheck=`egrep "final_banned_destiny.*D_BOUNCE" /etc/amavis/conf.d/20-debian_defaults`
@@ -1470,7 +1480,7 @@ function _setup_security_stack() {
 						  then
 									   sed -i "/final_banned_destiny/ s|D_BOUNCE|D_REJECT|" /etc/amavis/conf.d/20-debian_defaults
 							fi
-							
+
 				finalbouncecheck=`egrep "final_spam_destiny.*D_BOUNCE" /etc/amavis/conf.d/20-debian_defaults`
 				  if [ -n "$finalbouncecheck" ] ;
 						  then
