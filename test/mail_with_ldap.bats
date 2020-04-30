@@ -179,6 +179,11 @@ function teardown_file() {
  assert_success
 }
 
+@test "checking postfix: dovecot quota absent in postconf" {
+  run docker exec mail_with_ldap /bin/bash -c "postconf | grep 'check_policy_service inet:localhost:65265'"
+  assert_failure
+}
+
 @test "checking spoofing: rejects sender forging" {
   run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
   assert_success

@@ -637,6 +637,9 @@ function _setup_dovecot_quota() {
     if [ "$ENABLE_LDAP" = 1 ]; then
       notify 'inf' "Dovecot quota is not implemented with LDAP."
 
+      # LDAP => postfix service for dovecot quota not enabled
+      sed -i "s/check_policy_service inet:localhost:65265//g" /etc/postfix/main.cf
+
       if [ -f /etc/dovecot/conf.d/90-quota.conf ]; then
         mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
         sed -i "s/mail_plugins = \$mail_plugins quota/mail_plugins = \$mail_plugins/g" /etc/dovecot/conf.d/10-mail.conf
@@ -659,12 +662,12 @@ function _setup_dovecot_quota() {
         notify 'inf' "'config/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
 		    echo -n >/tmp/docker-mailserver/dovecot-quotas.cf
       fi
-    fi
 
-    if [ "$SMTP_ONLY" = 1 ]; then
-      sed -i "s/check_policy_service inet:localhost:65265//g" /etc/postfix/main.cf
-    else
-      sed -i "s/reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org/reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org/g" /etc/postfix/main.cf
+      if [ "$SMTP_ONLY" = 1 ]; then
+        sed -i "s/check_policy_service inet:localhost:65265//g" /etc/postfix/main.cf
+      else
+        sed -i "s/reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org/reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org/g" /etc/postfix/main.cf
+      fi
     fi
 }
 
