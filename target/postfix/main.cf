@@ -28,7 +28,8 @@ smtp_tls_security_level = may
 smtp_tls_loglevel = 1
 
 # Reduces CPU overhead with `NO_COMPRESSION`, SMTP not at risk of CRIME attack (see git blame for details)
-tls_ssl_options = NO_COMPRESSION
+# Reduce opportunities for a potential CPU exhaustion attack with `NO_RENEGOTIATION`
+tls_ssl_options = NO_COMPRESSION, NO_RENEGOTIATION
 
 tls_high_cipherlist = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
 tls_preempt_cipherlist = yes
