@@ -28,7 +28,7 @@ Use doveadm pw -l to get a list of the currently supported encryption schemes.
 ## Mailbox quota
 
 On top of the default quota (`POSTFIX_MAILBOX_SIZE_LIMIT`), you can define specific quotas per mailbox.
-Quota implementation relies on [dovecot quota](https://wiki.dovecot.org/Quota/Configuration) which requires dovecot to be enabled. Consequently, quota directives are disabled when `SMTP_ONLY=1` or when `ENABLE_LDAP=1` or when explicitly disabled with `ENABLE_QUOTAS=0.
+Quota implementation relies on [dovecot quota](https://wiki.dovecot.org/Quota/Configuration) which requires dovecot to be enabled. Consequently, quota directives are disabled when `SMTP_ONLY=1` or when `ENABLE_LDAP=1` or when explicitly disabled with `ENABLE_QUOTAS=0`.
 <br>
 
 
