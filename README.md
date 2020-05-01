@@ -352,6 +352,14 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 
 - **empty** => 0 (no limit)
 
+
+##### ENABLE_QUOTAS
+
+- **1** => Dovecot quota is enabled
+- 0 => Dovecot quota is disabled
+  
+See [mailbox quota](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota).
+
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
 
 Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!)
