@@ -208,7 +208,7 @@ Make sure everything (including SPAM) is delivered to the inbox and not quaranti
 SPAMASSASSIN_SPAM_TO_INBOX=1
 ```
 
-Create a sieve script which puts spam to the Junk folder.
+Use `MOVE_SPAM_TO_JUNK=1` or create a sieve script which puts spam to the Junk folder.
 
 ```
 require ["comparator-i;ascii-numeric","relational","fileinto"];
