@@ -15,6 +15,7 @@ DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:="0"}"
 DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:="0"}"
 DEFAULT_VARS["FETCHMAIL_POLL"]="${FETCHMAIL_POLL:="300"}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:="0"}"
+DEFAULT_VARS["ENABLE_QUOTAS"]="${ENABLE_QUOTAS:="1"}"
 DEFAULT_VARS["LDAP_START_TLS"]="${LDAP_START_TLS:="no"}"
 DEFAULT_VARS["DOVECOT_TLS"]="${DOVECOT_TLS:="no"}"
 DEFAULT_VARS["DOVECOT_MAILBOX_FORMAT"]="${DOVECOT_MAILBOX_FORMAT:="maildir"}"
@@ -634,8 +635,8 @@ function _setup_dovecot() {
 function _setup_dovecot_quota() {
     notify 'task' 'Setting up Dovecot quota'
 
-    if [ "$ENABLE_LDAP" = 1 ] || [ "$SMTP_ONLY" = 1 ]; then
-      # Dovecot quota is disabled when using LDAP or SMTP_ONLY
+    if [ "$ENABLE_LDAP" = 1 ] || [ "$SMTP_ONLY" = 1 ] || [ "$ENABLE_QUOTAS" = 0 ]; then
+      # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled
 
       # disable dovecot quota in docevot confs
       if [ -f /etc/dovecot/conf.d/90-quota.conf ]; then
