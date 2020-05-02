@@ -40,6 +40,7 @@ DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:="0"}"
 DEFAULT_VARS["LOGROTATE_INTERVAL"]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-"daily"}}"
 DEFAULT_VARS["LOGWATCH_INTERVAL"]="${LOGWATCH_INTERVAL:="none"}"
 DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:="0"}"
+DEFAULT_VARS["MOVE_SPAM_TO_JUNK"]="${MOVE_SPAM_TO_JUNK:="1"}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 
 ##########################################################################
@@ -627,6 +628,16 @@ function _setup_dovecot() {
 	else
 		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
 	fi
+
+  # sieve will move spams to .Junk folder when SPAMASSASSIN_SPAM_TO_INBOX=1 and MOVE_SPAM_TO_JUNK=1
+	if [ "$SPAMASSASSIN_SPAM_TO_INBOX" = 1 ] && [ "$MOVE_SPAM_TO_JUNK" = 1 ]; then
+	  notify 'inf' "Spam messages will be moved to the Junk folder."
+	  sed -i "s/#sieve_before2 =/sieve_before2 =/" /etc/dovecot/conf.d/90-sieve.conf
+	  sievec /usr/lib/dovecot/sieve-global/before.spam.sieve
+	else
+	  sed -i "s/  sieve_before2 =/  #sieve_before2 =/" /etc/dovecot/conf.d/90-sieve.conf
+	fi
+
 	chown docker:docker -R /usr/lib/dovecot/sieve*
 	chmod 550 -R /usr/lib/dovecot/sieve*
 	chmod -f +x /usr/lib/dovecot/sieve-pipe/*
@@ -1475,19 +1486,15 @@ function _setup_security_stack() {
 		test -e /tmp/docker-mailserver/spamassassin-rules.cf && cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
 
 
-		if [ "$SPAMASSASSIN_SPAM_TO_INBOX" = "1" ]; then
+		if [ "$SPAMASSASSIN_SPAM_TO_INBOX" = 1 ]; then
 				notify 'inf' "Configure Spamassassin/Amavis to put SPAM inbox"
-				bannedbouncecheck=`egrep "final_banned_destiny.*D_BOUNCE" /etc/amavis/conf.d/20-debian_defaults`
-				  if [ -n "$bannedbouncecheck" ] ;
-						  then
-									   sed -i "/final_banned_destiny/ s|D_BOUNCE|D_REJECT|" /etc/amavis/conf.d/20-debian_defaults
-							fi
 
-				finalbouncecheck=`egrep "final_spam_destiny.*D_BOUNCE" /etc/amavis/conf.d/20-debian_defaults`
-				  if [ -n "$finalbouncecheck" ] ;
-						  then
-									   sed -i "/final_spam_destiny/ s|D_BOUNCE|D_PASS|" /etc/amavis/conf.d/20-debian_defaults
-							fi
+				sed -i "s/\$final_spam_destiny.*=.*$/\$final_spam_destiny = D_PASS;/g" /etc/amavis/conf.d/49-docker-mailserver
+				sed -i "s/\$final_bad_header_destiny.*=.*$/\$final_bad_header_destiny = D_PASS;/g" /etc/amavis/conf.d/49-docker-mailserver
+		else
+		    notify 'warn' "Spam messages WILL NOT BE DELIVERED, you will NOT be notified of ANY message bounced.  See SPAMASSASSIN_SPAM_TO_INBOX options."
+		  	sed -i "s/\$final_spam_destiny.*=.*$/\$final_spam_destiny = D_BOUNCE;/g" /etc/amavis/conf.d/49-docker-mailserver
+				sed -i "s/\$final_bad_header_destiny.*=.*$/\$final_bad_header_destiny = D_BOUNCE;/g" /etc/amavis/conf.d/49-docker-mailserver
 		fi
 
 	fi
