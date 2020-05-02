@@ -1488,6 +1488,18 @@ function _setup_security_stack() {
 						  then
 									   sed -i "/final_spam_destiny/ s|D_BOUNCE|D_PASS|" /etc/amavis/conf.d/20-debian_defaults
 							fi
+              
+        finalbouncecheckOverride=`egrep "final_spam_destiny.*D_BOUNCE" /etc/amavis/conf.d/49-docker-mailserver`
+				  if [ -n "$finalbouncecheckOverride" ] ;
+						  then
+									   sed -i "/final_spam_destiny/ s|D_BOUNCE|D_PASS|" /etc/amavis/conf.d/49-docker-mailserver
+							fi
+              
+         finalbouncecheckUserOverride=`egrep "final_spam_destiny.*D_BOUNCE" /etc/amavis/conf.d/50-user`
+				  if [ -n "$finalbouncecheckUserOverride" ] ;
+						  then
+                     notify 'err' "If you want to override final_spam_destiny=D_BOUNCE in /etc/amavis/conf.d/50-user, you must set SPAMASSASSIN_SPAM_TO_INBOX=0, the SPAM will then be quarantined."
+							fi
 		fi
 
 	fi
