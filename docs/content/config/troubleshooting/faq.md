@@ -188,6 +188,50 @@ Considering you want to delete all the e-mails received for `baduser@domain.tld`
 baduser@domain.tld	devnull
 ```
 
+### How do I have more control about what SPAMASSASIN is filtering?
+
+By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:
+
+First, make sure you have the proper thresholds set:
+```
+SA_TAG=-100000.0
+SA_TAG2=3.75
+SA_KILL=100000.0
+``` 
+
+The very negative vaue in `SA_TAG` makes sure, that all emails have the Spamassasin headers included.
+`SA_TAG2` is the actual threshold to set the YES/NO flag for spam detection. 
+`SA_KILL` needs to be very high, to make sure nothing is bounced at all (`SA_KILL` superseeds `SPAMASSASSIN_SPAM_TO_INBOX`)
+
+Make sure everything (including SPAM) is delivered to the inbox and not quarantined.
+```
+SPAMASSASSIN_SPAM_TO_INBOX=1
+```
+
+Create a sieve script which puts spam to the Junk folder.
+
+```
+require ["comparator-i;ascii-numeric","relational","fileinto"];
+
+if header :contains "X-Spam-Flag" "YES" {
+  fileinto "Junk";
+} elsif allof (
+   not header :matches "x-spam-score" "-*",
+   header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75" ) {
+  fileinto "Junk";
+}
+```
+
+Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into `config/amavis.cf`
+```
+$clean_quarantine_to      = "amavis\@domain.com";
+$virus_quarantine_to      = "amavis\@domain.com";
+$banned_quarantine_to     = "amavis\@domain.com";
+$bad_header_quarantine_to = "amavis\@domain.com";
+$spam_quarantine_to       = "amavis\@domain.com";
+
+```
+
 ### What kind of SSL certificates can I use?
 You can use the same certificates you use with another mail server.  
 The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
