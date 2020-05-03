@@ -614,29 +614,32 @@ function _setup_dovecot() {
 	rm -f /usr/lib/dovecot/sieve-pipe/*
 	[ -d /tmp/docker-mailserver/sieve-filter ] && cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
 	[ -d /tmp/docker-mailserver/sieve-pipe ] && cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
+
+  # create global sieve directories
+	mkdir -p /usr/lib/dovecot/sieve-global/before
+	mkdir -p /usr/lib/dovecot/sieve-global/after
+
 	if [ -f /tmp/docker-mailserver/before.dovecot.sieve ]; then
-		sed -i "s/#sieve_before =/sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
-		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/
-		sievec /usr/lib/dovecot/sieve-global/before.dovecot.sieve
+		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/
+		sievec /usr/lib/dovecot/sieve-global/before/before.dovecot.sieve
 	else
-		sed -i "s/  sieve_before =/  #sieve_before =/" /etc/dovecot/conf.d/90-sieve.conf
+	  rm -f /usr/lib/dovecot/sieve-global/before/before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/before.dovecot.svbin
 	fi
 
 	if [ -f /tmp/docker-mailserver/after.dovecot.sieve ]; then
-		sed -i "s/#sieve_after =/sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
-		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/
-		sievec /usr/lib/dovecot/sieve-global/after.dovecot.sieve
+		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/
+		sievec /usr/lib/dovecot/sieve-global/after/after.dovecot.sieve
 	else
-		sed -i "s/  sieve_after =/  #sieve_after =/" /etc/dovecot/conf.d/90-sieve.conf
+	  rm -f /usr/lib/dovecot/sieve-global/after/after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/after.dovecot.svbin
 	fi
 
   # sieve will move spams to .Junk folder when SPAMASSASSIN_SPAM_TO_INBOX=1 and MOVE_SPAM_TO_JUNK=1
 	if [ "$SPAMASSASSIN_SPAM_TO_INBOX" = 1 ] && [ "$MOVE_SPAM_TO_JUNK" = 1 ]; then
 	  notify 'inf' "Spam messages will be moved to the Junk folder."
-	  sed -i "s/#sieve_before2 =/sieve_before2 =/" /etc/dovecot/conf.d/90-sieve.conf
-	  sievec /usr/lib/dovecot/sieve-global/before.spam.sieve
+	  cp /etc/dovecot/sieve/before/spam.sieve /usr/lib/dovecot/sieve-global/before/
+	  sievec /usr/lib/dovecot/sieve-global/before/spam.sieve
 	else
-	  sed -i "s/  sieve_before2 =/  #sieve_before2 =/" /etc/dovecot/conf.d/90-sieve.conf
+	  rm -f /usr/lib/dovecot/sieve-global/before/spam.sieve /usr/lib/dovecot/sieve-global/before/spam.svbin
 	fi
 
 	chown docker:docker -R /usr/lib/dovecot/sieve*
