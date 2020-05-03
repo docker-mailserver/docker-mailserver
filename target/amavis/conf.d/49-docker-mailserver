@@ -3,7 +3,8 @@ use strict;
 # Override options set in earlier files, use 50-user to override these
 
 # Bounce spam, the default option for buster is D_PASS to deliver
-$final_spam_destiny = D_BOUNCE;
+$final_spam_destiny       = D_BOUNCE;
+$final_bad_header_destiny = D_BOUNCE;
 
 # Higher log level to get expected messages at startup
 $log_level = 2;

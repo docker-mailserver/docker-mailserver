@@ -161,6 +161,7 @@ services:
       - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
+      - SPAMASSASSIN_SPAM_TO_INBOX=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
@@ -202,6 +203,7 @@ services:
       - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
+      - SPAMASSASSIN_SPAM_TO_INBOX=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
@@ -483,8 +485,25 @@ Finally the logrotate interval **may** affect the period for generated reports. 
 
 ##### ENABLE_SPAMASSASSIN
 
+
   - **0** => Spamassassin is disabled
   - 1 => Spamassassin is enabled
+
+**/!\\ Spam delivery:** when Spamassassin is enabled, messages marked as spam WILL NOT BE DELIVERED. 
+Use `SPAMASSASSIN_SPAM_TO_INBOX=1` for receiving spam messages.
+
+##### SPAMASSASSIN_SPAM_TO_INBOX
+
+
+  - **0** => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
+  - 1 => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
+
+##### MOVE_SPAM_TO_JUNK
+
+  - **1** => Spam messages will be delivered in the `Junk` folder.
+  - 0 => Spam messages will be delivered in the mailbox.
+
+Note: this setting needs `SPAMASSASSIN_SPAM_TO_INBOX=1`
 
 ##### SA_TAG
 
