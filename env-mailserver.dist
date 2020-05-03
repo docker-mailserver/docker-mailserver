@@ -178,7 +178,7 @@ POSTFIX_INET_PROTOCOLS=all
 ENABLE_SPAMASSASSIN=0
 
 #If Enabled, SPAM goes to your inbox with added SPAM header, you can then move it to a specific SPAM folder with SIEVE rules
-SPAMASSASSIN_SPAM_TO_INBOX=0
+SPAMASSASSIN_SPAM_TO_INBOX=1
 
 # add spam info headers if at, or above that level:
 SA_TAG=2.0
