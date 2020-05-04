@@ -20,6 +20,26 @@ To enable Let's Encrypt on your mail server, you have to:
 
 You don't have anything else to do. Enjoy.
 
+#### Pitfall with Caddy
+
+If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [issue 1440](https://github.com/tomav/docker-mailserver/issues/1440) for details. In short the caddy file should look something like:
+
+```
+https://mail.domain.com {
+    tls yourcurrentemail@gmail.com {
+        key_type  rsa2048
+    }
+}
+```
+EC certificates fail in the TLS handshake:
+
+```
+CONNECTED(00000003)
+140342221178112:error:14094410:SSL routines:ssl3_read_bytes:sslv3 alert handshake failure:ssl/record/rec_layer_s3.c:1543:SSL alert number 40
+no peer certificate available
+No client certificate CA names sent
+```
+
 #### Example using docker for letsencrypt
 Make a directory to store your letsencrypt logs and configs.
 
