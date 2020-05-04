@@ -620,26 +620,26 @@ function _setup_dovecot() {
 	mkdir -p /usr/lib/dovecot/sieve-global/after
 
 	if [ -f /tmp/docker-mailserver/before.dovecot.sieve ]; then
-		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/
-		sievec /usr/lib/dovecot/sieve-global/before/before.dovecot.sieve
+		cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
+		sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
 	else
-	  rm -f /usr/lib/dovecot/sieve-global/before/before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/before.dovecot.svbin
+	  rm -f /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/50-before.dovecot.svbin
 	fi
 
 	if [ -f /tmp/docker-mailserver/after.dovecot.sieve ]; then
-		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/
-		sievec /usr/lib/dovecot/sieve-global/after/after.dovecot.sieve
+		cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
+		sievec /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
 	else
-	  rm -f /usr/lib/dovecot/sieve-global/after/after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/after.dovecot.svbin
+	  rm -f /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/50-after.dovecot.svbin
 	fi
 
   # sieve will move spams to .Junk folder when SPAMASSASSIN_SPAM_TO_INBOX=1 and MOVE_SPAM_TO_JUNK=1
 	if [ "$SPAMASSASSIN_SPAM_TO_INBOX" = 1 ] && [ "$MOVE_SPAM_TO_JUNK" = 1 ]; then
 	  notify 'inf' "Spam messages will be moved to the Junk folder."
-	  cp /etc/dovecot/sieve/before/spam.sieve /usr/lib/dovecot/sieve-global/before/
-	  sievec /usr/lib/dovecot/sieve-global/before/spam.sieve
+	  cp /etc/dovecot/sieve/before/60-spam.sieve /usr/lib/dovecot/sieve-global/before/
+	  sievec /usr/lib/dovecot/sieve-global/before/60-spam.sieve
 	else
-	  rm -f /usr/lib/dovecot/sieve-global/before/spam.sieve /usr/lib/dovecot/sieve-global/before/spam.svbin
+	  rm -f /usr/lib/dovecot/sieve-global/before/60-spam.sieve /usr/lib/dovecot/sieve-global/before/60-spam.svbin
 	fi
 
 	chown docker:docker -R /usr/lib/dovecot/sieve*
