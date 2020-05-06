@@ -13,6 +13,6 @@ errex() {
 # Lock database even though we are only reading
 (
   flock -e 200
-  awk -F '|' '{ print $1; }' $DATABASE
+  (grep -v "^\s*$\|^\s*\#" "$DATABASE" || true) | awk -F '|' '{ print $1; }'
 ) 200<$DATABASE
 

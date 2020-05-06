@@ -7,23 +7,23 @@ keysize=${1:-2048}
 
 # Getting domains from mail accounts
 if [ -f /tmp/docker-mailserver/postfix-accounts.cf ]; then
-  while IFS=$'|' read login pass
+  (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf || true) | while IFS=$'|' read login pass
   do
     domain=$(echo ${login} | cut -d @ -f2)
     echo ${domain} >> /tmp/vhost.tmp
-  done < /tmp/docker-mailserver/postfix-accounts.cf
+  done
 fi
 
 # Getting domains from mail aliases
 if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
-  while read from to
+  (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read from to
   do
     # Setting variables for better readability
     uname=$(echo ${from} | cut -d @ -f1)
     domain=$(echo ${from} | cut -d @ -f2)
     # if they are equal it means the line looks like: "user1     other@domain.tld"
     test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
-  done < /tmp/docker-mailserver/postfix-virtual.cf
+  done
 fi
 
 # Keeping unique entries

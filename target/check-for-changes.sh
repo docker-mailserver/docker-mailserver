@@ -91,11 +91,11 @@ if [[ $chksum == *"FAIL"* ]]; then
 			fi
 			# add domain-specific auth from config file
 			if [ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
-				while read line; do
+				(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true) | while read line; do
 					if ! echo "$line" | grep -q -e "\s*#"; then
 						echo "$line" >> /etc/postfix/sasl_passwd
 					fi
-				done < /tmp/docker-mailserver/postfix-sasl-password.cf
+				done
 			fi
 			# add default relay
 			if [ ! -z "$RELAY_USER" ] && [ ! -z "$RELAY_PASSWORD" ]; then
@@ -103,11 +103,11 @@ if [[ $chksum == *"FAIL"* ]]; then
 			fi
 			# add relay maps from file
 			if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
-				while read line; do
+				(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-relaymap.cf || true) | while read line; do
 					if ! echo "$line" | grep -q -e "\s*#"; then
 						echo "$line" >> /etc/postfix/relayhost_map
 					fi
-				done < /tmp/docker-mailserver/postfix-relaymap.cf
+				done
 			fi
 		fi
 
@@ -165,14 +165,14 @@ if [[ $chksum == *"FAIL"* ]]; then
 	if [ -f /tmp/docker-mailserver/postfix-virtual.cf ]; then
 		# Copying virtual file
 		cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-		while read from to
+		(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read from to
 		do
 			# Setting variables for better readability
 			uname=$(echo ${from} | cut -d @ -f1)
 			domain=$(echo ${from} | cut -d @ -f2)
 			# if they are equal it means the line looks like: "user1	 other@domain.tld"
 			test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
-		done < /tmp/docker-mailserver/postfix-virtual.cf
+		done
 	fi
 	if [ -f /tmp/docker-mailserver/postfix-regexp.cf ]; then
 		# Copying regexp alias file
@@ -183,23 +183,23 @@ if [[ $chksum == *"FAIL"* ]]; then
 		}' /etc/postfix/main.cf
 	fi
 	fi
-	# Set vhost 
+	# Set vhost
 	if [ -f /tmp/vhost.tmp ]; then
 		cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
 	fi
-	
+
 	# Set right new if needed
 	if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
 		chown -R 5000:5000 /var/mail
 	fi
-	
+
 	# Restart of the postfix
 	supervisorctl restart postfix
-	
+
 	# Prevent restart of dovecot when smtp_only=1
 	if [ ! $SMTP_ONLY = 1 ]; then
 		supervisorctl restart dovecot
-	fi 
+	fi
 
 	echo "${log_date} Update checksum"
 	sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
