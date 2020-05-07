@@ -21,7 +21,7 @@ to the master branch, you will only need to submit one pull request.
   Don't do pull requests against `-stable` branches. Always target the master branch. Any bugfixes we'll backport to those branches.
 
 At this point, you're waiting on us. We like to at least comment on, if not
-accept, pull requests within several days days.
+accept, pull requests within several days.
 We may suggest some changes or improvements or alternatives.
 
 Some things that will increase the chance that your pull request is accepted.
