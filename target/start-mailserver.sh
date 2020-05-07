@@ -940,14 +940,14 @@ function _setup_postfix_aliases() {
 	  [[ $(grep ",$" /tmp/docker-mailserver/postfix-virtual.cf) ]] && sed -i -e "s/, /,/g" -e "s/,$//g" /tmp/docker-mailserver/postfix-virtual.cf
 		# Copying virtual file
 		cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-		while read from to
+		(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read from to
 		do
 			# Setting variables for better readability
 			uname=$(echo ${from} | cut -d @ -f1)
 			domain=$(echo ${from} | cut -d @ -f2)
 			# if they are equal it means the line looks like: "user1     other@domain.tld"
 			test "$uname" != "$domain" && echo ${domain} >> /tmp/vhost.tmp
-		done < /tmp/docker-mailserver/postfix-virtual.cf
+		done
 	else
 		notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
 	fi
