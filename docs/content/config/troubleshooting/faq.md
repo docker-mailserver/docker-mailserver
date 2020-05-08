@@ -119,7 +119,7 @@ chmod 0644 cron/sa-learn
 
 edit the system cron file `nano cron/sa-learn`, and set an appropriate configuration:
 ```
-# This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml,
+# This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
 # with a consolidated config in `/var/mail-state`
 #
 # m h dom mon dow user command
