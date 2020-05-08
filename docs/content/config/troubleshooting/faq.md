@@ -96,7 +96,7 @@ In the default setup, amavis only applies Spamassassin x-headers into domains ma
 Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` and `MOVE_SPAM_TO_JUNK=1` and add a _user_ cron like the following:
 
 ```
-# This assumes you're having `environment: ONE_DIR=1` in the docker-compose.yml,
+# This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
 # with a consolidated config in `/var/mail-state`
 #
 # m h dom mon dow command
