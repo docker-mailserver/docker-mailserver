@@ -125,16 +125,17 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 
 #### Exposed ports
 
-| Protocol | Opt-in Encryption<sup>1</sup> | Enforced Encryption | Purpose              |
-|----------|-------------------------------|---------------------|----------------------|
-| SMTP     | 25                            | N/A                 | Transfer<sup>2</sup> |
-| ESMTP    | 587                           | 465<sup>3</sup>     | Submission           |
-| POP3     | 110                           | 995                 | Retrieval            |
-| IMAP4    | 143                           | 993                 | Retrieval            |
+| Protocol | Opt-in Encryption<sup>1</sup>   | Enforced Encryption | Purpose              |
+|----------|---------------------------------|---------------------|----------------------|
+| SMTP     | 25                              | N/A                 | Transfer<sup>2</sup> |
+| ESMTP    | 587 _(deprecated<sup>4</sup>)_  | 465<sup>3</sup>     | Submission           |
+| POP3     | 110 _(deprecated<sup>4</sup>)_  | 995                 | Retrieval            |
+| IMAP4    | 143 _(deprecated<sup>4</sup>)_  | 993                 | Retrieval            |
 
-1. A connection *may* be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured. Port 25 is [required](https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages) to support insecure connections.
+1. A connection *may* be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured _(preventing [MITM attacks](https://stackoverflow.com/questions/15796530/what-is-the-difference-between-ports-465-and-587/32460763#32460763) trough a downgrading)_. Port 25 is [required](https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages) to support insecure connections.
 2. Receives email and filters for spam and viruses. For submitting outgoing mail you should prefer the submission ports(465, 587), which require authentication. Unless a relay host is configured, outgoing email will leave the server via port 25(thus outbound traffic must not be blocked by your provider or firewall).
 3. A submission port since 2018, [RFC 8314](https://tools.ietf.org/html/rfc8314). Originally a secure variant of port 25.
+4. [RFC 8314](https://tools.ietf.org/html/rfc8314) is recommending that clear text exchanges to be abandoned and that all three common IETF mail protocols to be used only in implicit mode.
 
 See the [wiki](https://github.com/tomav/docker-mailserver/wiki) for further details and best practice advice, especially regarding security concerns.
 
