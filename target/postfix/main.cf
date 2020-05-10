@@ -1,6 +1,6 @@
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
-smtpd_banner = $myhostname ESMTP $mail_name (Debian)
+smtpd_banner = $myhostname ESMTP
 biff = no
 append_dot_mydomain = no
 readme_directory = no
