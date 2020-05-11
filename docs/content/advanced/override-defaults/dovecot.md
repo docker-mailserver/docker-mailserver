@@ -14,6 +14,13 @@ Your `docker-mailserver` folder should look like this example:
 └── README.md
 ```
 
+One common option to change is the maximum number of connections per user:
+
+```
+mail_max_userip_connections = 100
+```
+
+
 # Override configuration
 
 For major configuration changes it’s best to override the `dovecot` configuration files. For each configuration file you want to override, add a list entry under the `volumes:` key.
