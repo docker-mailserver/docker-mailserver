@@ -22,7 +22,7 @@ You don't have anything else to do. Enjoy.
 
 #### Pitfall with Caddy
 
-If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [issue 1440](https://github.com/tomav/docker-mailserver/issues/1440) for details. In short the caddy file should look something like:
+If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [issue 1440](https://github.com/tomav/docker-mailserver/issues/1440) for details. In short for Caddy v1 the Caddyfile should look something like:
 
 ```
 https://mail.domain.com {
@@ -31,6 +31,80 @@ https://mail.domain.com {
     }
 }
 ```
+
+For Caddy v2 it is necessary to use the json structured Caddyfile. A minimal config would look something like this:
+
+```
+{
+  "apps": {
+    "http": {
+      "servers": {
+        "srv0": {
+          "listen": [
+            ":443"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "host": [
+                    "mail.domain.com",
+                  ]
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "subroute",
+                  "routes": [
+                    {
+                      "handle": [
+                        {
+                          "body": "",
+                          "handler": "static_response"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "terminal": true
+            },
+          ]
+        }
+      }
+    },
+    "tls": {
+      "automation": {
+        "policies": [
+          {
+            "subjects": [
+              "mail.domain.com",
+            ],
+            "key_type": "rsa2048",
+            "issuer": {
+              "email": "email@email.com",
+              "module": "acme"
+            }
+          },
+          {
+            "issuer": {
+              "email": "email@email.com",
+              "module": "acme"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+The generated certificates can be mounted:
+```
+volumes:
+  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.crt:/etc/letsencrypt/live/mail.domain.com/fullchain.pem
+  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.key:/etc/letsencrypt/live/mail.domain.com/privkey.pem
+```
+
 EC certificates fail in the TLS handshake:
 
 ```
