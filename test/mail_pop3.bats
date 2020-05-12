@@ -12,14 +12,11 @@ function setup_file() {
     docker run -d --name mail_pop3 \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-v "`pwd`/test/config/letsencrypt":/etc/letsencrypt/live \
 		-e ENABLE_POP3=1 \
 		-e DMS_DEBUG=0 \
-		-e SSL_TYPE=letsencrypt \
 		-h mail.my-domain.com -t ${NAME}
 
     wait_for_finished_setup_in_container mail_pop3
-    
 }
 
 function teardown_file() {
@@ -61,24 +58,6 @@ function teardown_file() {
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   assert_success
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .\*\*\*SPAM\*\*\* .'"
-  assert_success
-}
-
-#
-# ssl
-#
-
-@test "checking ssl: letsencrypt configuration is correct" {
-  run docker exec mail_pop3 /bin/sh -c 'grep -ir "/etc/letsencrypt/live/mail.my-domain.com/" /etc/postfix/main.cf | wc -l'
-  assert_success
-  assert_output 2
-  run docker exec mail_pop3 /bin/sh -c 'grep -ir "/etc/letsencrypt/live/mail.my-domain.com/" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
-  assert_success
-  assert_output 2
-}
-
-@test "checking ssl: letsencrypt cert works correctly" {
-  run docker exec mail_pop3 /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   assert_success
 }
 
