@@ -8,4 +8,4 @@ Or a bit more strict policies (mind `p=quarantine` and `sp=quarantine`)
 
 DMARC status is not being displayed in Gmail, so if you want to check it, you can use some services around the Internet such as mentioned https://dmarcguide.globalcyberalliance.org/ or https://ondmarc.redsift.com/
 
-Reference: #1511
+Reference: [#1511](https://github.com/tomav/docker-mailserver/issues/1511)
