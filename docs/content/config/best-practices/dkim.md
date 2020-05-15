@@ -98,3 +98,8 @@ mail._domainkey.domain.tld. 3600 IN TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBA
 
 ## Switch off DKIM
 Simply remove dkim key by recreating the mailserver-container.
+
+## DMARC
+
+DMARC Guide: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md
+
