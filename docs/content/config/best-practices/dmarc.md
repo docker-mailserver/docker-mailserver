@@ -10,6 +10,6 @@ Or a bit more strict policies (mind `p=quarantine` and `sp=quarantine`)
 _dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc.report@domain.com; ruf=dmarc.report@domain.com; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; sp=quarantine"
 ```
 
-DMARC status is not being displayed in Gmail, so if you want to check it, you can use some services around the Internet such as mentioned https://dmarcguide.globalcyberalliance.org/ or https://ondmarc.redsift.com/
+DMARC status is not being displayed instantly in Gmail. If you want to check it directly after DNS entries, you can use some services around the Internet such as mentioned https://dmarcguide.globalcyberalliance.org/ or https://ondmarc.redsift.com/. In other case Gmail will show "DMARC: PASS" in ~1 day or so.
 
 Reference: [#1511](https://github.com/tomav/docker-mailserver/issues/1511)
