@@ -6,10 +6,9 @@ Example:
     user1@domain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
     user2@otherdomain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
 
-In the previous example, we added 2 mail accounts for 2 different domains.
-This is will automagically configure the mail-server as multi-domains.
+In the example above, we've added 2 mail accounts for 2 different domains. Consequently, the mail-server will automagically be configured as multi-domains.
 
-To generate a new mail account entry in your configuration, you could run for example the following:
+To generate a new mail account entry in your configuration, you could for example run the following:
 
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
@@ -19,8 +18,7 @@ To generate a new mail account entry in your configuration, you could run for ex
 
 You will be asked for a password. Just copy all the output string in the file `config/postfix-accounts.cf`.
 
-The `doveadm pw` command let you choose between several encryption schemes for the password.
-Use doveadm pw -l to get a list of the currently supported encryption schemes.
+The `doveadm pw` command lets you choose between several encryption schemes for the password. Use doveadm pw -l to get a list of the currently supported encryption schemes.
 
 > Note: changes made with this script require a restart of the container. See [#552](../issues/552)
 
