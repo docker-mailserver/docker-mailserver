@@ -1,4 +1,4 @@
-# Automatic update
+## Automatic update
 
 Docker images are handy but it can get a a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.
 
@@ -14,15 +14,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-For more details see the [manual](https://containrrr.github.io/watchtower/)
+For more details, see the [manual](https://containrrr.github.io/watchtower/)
 
+## Automatic cleanup
 
-***
-
-
-# Automatic cleanup
-
-When you are pulling new images in automaticly it is nice to have them cleaned as well. There is also a docker images for this (from Spotify). The image is: [spotify/docker-gc](https://hub.docker.com/r/spotify/docker-gc/).
+When you are pulling new images in automatically, it would be nice to have them cleaned up as well. There is also a docker image for this: [spotify/docker-gc](https://hub.docker.com/r/spotify/docker-gc/).
 
 A docker-compose example:
 ```yaml
@@ -34,6 +30,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-For more details see the [manual](https://github.com/spotify/docker-gc/blob/master/README.md)
+For more details, see the [manual](https://github.com/spotify/docker-gc/blob/master/README.md)
 
-Or you can just use the "--cleanup" option on v2tec/watchtower. :-)
+Or you can just use the [`--cleanup`](https://containrrr.github.io/watchtower/arguments/#cleanup) option provided by containrrr/watchtower.
