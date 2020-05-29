@@ -312,11 +312,11 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 [Traefik](https://github.com/containous/traefik) is an open-source Edge Router which handles ACME protocol using [lego](https://github.com/go-acme/lego).
 
-Traefik can request certificates for domains trougth the ACME protocol (see [Traefik's documentation about its ACME negotiation & storage mechanism](https://docs.traefik.io/https/acme/)). Traefik's router will take care of renewals, challenge negotiations, etc.
+Traefik can request certificates for domains through the ACME protocol (see [Traefik's documentation about its ACME negotiation & storage mechanism](https://docs.traefik.io/https/acme/)). Traefik's router will take care of renewals, challenge negotiations, etc.
 
-If you are using Traefik, you might want to push your Traefik-managed certificates to the *mailserver* container, in order to reuse them. Not an easy task, but fortunately, [youtous/mailserver-traefik](https://github.com/youtous/docker-mailserver-traefik) is a certificate renewal service for docker-mailserver.
+If you are using Traefik, you might want to _push_ your Traefik-managed certificates to the mailserver container, in order to reuse them. Not an easy task, but fortunately, [youtous/mailserver-traefik](https://github.com/youtous/docker-mailserver-traefik) is a certificate renewal service for docker-mailserver.
 
-Depending of your Traefik configuration, certificates may be stored using a *file* or a *KV Store (consul, etcd...) Either way, certificates will be renewed by Traefik, then automatically pushed to the mailserver thanks to the cert-renewer service. Finally, dovecot and postfix will be restarted.
+Depending of your Traefik configuration, certificates may be stored using a file or a KV Store (consul, etcd...) Either way, certificates will be renewed by Traefik, then automatically pushed to the mailserver thanks to the cert-renewer service. Finally, dovecot and postfix will be restarted.
 
 Documentation: https://github.com/youtous/docker-mailserver-traefik
 
