@@ -311,54 +311,14 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 ### Traefik
 
 [Traefik](https://github.com/containous/traefik) is an open-source Edge Router which handles ACME protocol using [lego](https://github.com/go-acme/lego).
-Traefik can request certificates for domains trougth the ACME protocol, the router will take care of renewals, challenge negotiations etc.
 
-If you are using traefik you might want to push your certificates in the *mailserver* container. 
-[youtous/mailserver-traefik](https://github.com/youtous/docker-mailserver-traefik) is a certificate renewal service for [tomav/dockermailserver](https://github.com/tomav/docker-mailserver/) relying on the [traefik acme storage](https://docs.traefik.io/https/acme/).
+Traefik can request certificates for domains trougth the ACME protocol (see [Traefik's documentation about its ACME negotiation & storage mechanism](https://docs.traefik.io/https/acme/)). Traefik's router will take care of renewals, challenge negotiations, etc.
 
-#### Getting started
+If you are using Traefik, you might want to push your Traefik-managed certificates to the *mailserver* container, in order to reuse them. Not an easy task, but fortunately, [youtous/mailserver-traefik](https://github.com/youtous/docker-mailserver-traefik) is a certificate renewal service for docker-mailserver.
 
-Depending of your traefik configuration, certificates could be stored using a *file* or a *KV Store (consul, etcd...)*
+Depending of your Traefik configuration, certificates may be stored using a *file* or a *KV Store (consul, etcd...) Either way, certificates will be renewed by Traefik, then automatically pushed to the mailserver thanks to the cert-renewer service. Finally, dovecot and postfix will be restarted.
 
-_docker-compose example:_
-```
-services:
-  cert-renewer-traefik:
-    image: youtous/mailserver-traefik:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./acme.json:/tmp/traefik/acme.json:ro # link traefik acme.json file (read-only)
-    environment:
-      - TRAEFIK_VERSION=2
-      - CERTS_SOURCE=file
-      - DOMAINS=mail.localhost.com
-
-  mailserver:
-    image: tvial/docker-mailserver:latest
-    hostname: mail
-    domainname: localhost.com
-    labels:
-      - "mailserver-traefik.renew.domain=mail.localhost.com" # tag the service 
-
-      # traefik service declaration (you can use static configuration too)
-      - "traefik.enable=true"
-      - "traefik.port=443" # dummy port, required generating certs with traefik
-
-      - "traefik.http.routers.mail.rule=Host(`mail.localhost.com`)" 
-      - "traefik.http.routers.mail.entrypoints=websecure"
-      - "traefik.http.routers.mail.middlewares=redirect-webmail@docker" # /!\ the router must redirect every requests.
-      - "traefik.http.middlewares.redirect-webmail.redirectregex.regex=.*"
-      - "traefik.http.middlewares.redirect-webmail.redirectregex.replacement=https://webmail.localhost.com/"
-    
-   environment:
-      - SSL_TYPE=manual # enable SSL on the *mailserver* and store certificates in pre-defined paths
-      - SSL_CERT_PATH=/var/mail-state/manual-ssl/cert # don't change theses paths!
-      - SSL_KEY_PATH=/var/mail-state/manual-ssl/key
-```
-
-Certificates will be renewed by *traefik* then pushed in the *mailserver* by the *cert-renewer* service, finally, dovecot and postfix will be restarted.
-<br>
-Documentation: https://github.com/youtous/docker-mailserver-traefik.
+Documentation: https://github.com/youtous/docker-mailserver-traefik
 
 
 ### Self-signed certificates (testing only)
