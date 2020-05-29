@@ -5,7 +5,7 @@ You'll probably want to `push` your config updates to your server and restart th
 
 ### How can I sync container with host date/time?
 
-Share the host `/etc/localtime` using:  
+Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) descriptor with the mail-server container, using a volume:  
 
 ```
     volumes:
