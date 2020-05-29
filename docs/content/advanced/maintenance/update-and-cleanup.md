@@ -4,6 +4,8 @@ Docker images are handy but it can get a a hassle to keep them updated. Also whe
 
 There is a nice docker image that solves this issue and can be very helpful. The image is: [v2tec/watchtower](https://hub.docker.com/r/v2tec/watchtower/).
 
+> Actually the upstream project is now https://hub.docker.com/r/containrrr/watchtower
+
 A docker-compose example:
 ```yaml
 services:
