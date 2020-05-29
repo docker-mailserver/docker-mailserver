@@ -53,7 +53,7 @@ SUBCOMMANDS:
 # email 
 * `./setup.sh email add <email> [<password>]`: Add an email-account (\<password\> is optional)
 * `./setup.sh email update <email> [<password>]`: Change the password of an email-account (\<password\> is optional)
-* `./setup.sh email del <email>': delete an email-account
+* `./setup.sh email del <email>`: delete an email-account
 * `./setup.sh email restrict <add|del|list> <send|receive> [<email>]`: deny users to send or receive mail. You can also list the respective denied mail-accounts.
 * `./setup.sh email list`: list all existing email-accounts
 # alias
