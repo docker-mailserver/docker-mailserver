@@ -1,13 +1,20 @@
 ### What kind of database are you using?
 
-None. No *sql database required.  
-This image is based on config files that can be versioned.  
-You'll probably want to `push` your config updates to your server and restart the container to apply changes.  
+None! No database is required. Filesystem is the database.  
+This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.  
 
 ### Where are emails stored?
 
 Mails are stored in `/var/mail/${domain}/${username}`.  
 You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
+
+### How to alter the running mailserver instance _without_ relaunching the container?
+
+docker-mailserver aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssasin, etc.  In many cases, on may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
+
+In order to do so, you'll probably want to push your config updates to your server through a Docker volume, then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
+
+See [supervisorctl's documentation](http://supervisord.org/running.html#running-supervisorctl).
 
 ### How can I sync container with host date/time?
 
