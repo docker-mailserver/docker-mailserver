@@ -1,9 +1,9 @@
 From [Wikipedia](https://en.wikipedia.org/wiki/Elasticsearch):
 >Elasticsearch can be used to search all kinds of documents. It provides scalable search, has near real-time search, and supports multitenancy. "Elasticsearch is distributed, which means that indices can be divided into shards and each shard can have zero or more replicas. Each node hosts one or more shards, and acts as a coordinator to delegate operations to the correct shard(s). Rebalancing and routing are done automatically [...]"
 
-This implements sending mail logs to a ELK stack via filebeat client.
+In this page, you will implement sending mail logs to a ELK stack via a [Filebeat client](https://www.elastic.co/beats/filebeat).
 
-:construction: In the next release (v7.0.0), Filebeat client will not be included inside mailserver container anymore. The recommended practice is to run Filebeat in its own container (documented [below](#filebeat-container)).
+:construction: Starting with release v7.0.0 of docker-mailserver, a Filebeat client will _not_ be included inside the mailserver container anymore. The recommended practice is to run Filebeat in its own container (as documented [below](#filebeat-container)).
 
 # Environment variables:
 **ENABLE_ELK_FORWARDER**
