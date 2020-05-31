@@ -1,5 +1,5 @@
-Users (email accounts) are managed in `config/postfix-accounts.cf`.
-Just add the full email address and its encrypted password separated by a pipe.
+Users (email accounts) are managed in `/tmp/docker-mailserver/postfix-accounts.cf`.  
+Just add the _full_ email address and its encrypted password, separated by a pipe.
 
 Example:
 
