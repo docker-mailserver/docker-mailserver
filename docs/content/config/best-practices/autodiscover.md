@@ -1,10 +1,5 @@
-Configuring clients just with autodiscover:
+Email auto-discovery means a client email is able to automagically find out about what ports and security options to use, based on the mail server URL. It can help simplify the tedious / confusing task of adding own's email account for non-tech savvy users.
 
-* using [jsmitsnl/docker-email-autodiscover](https://hub.docker.com/r/jsmitsnl/docker-email-autodiscover/)
-* using [jwilder/nginx-proxy](https://hub.docker.com/r/jwilder/nginx-proxy/) for ssl (recommended)
+Basically, email clients will search for auto-discoverable settings and prefill almost everything when a user enters its email address :heart:
 
-### Docker Email Autodiscover
-
-With docker email auto discover you can accounts find the correct email settings by just filling their email address. Client will search for auto discover settings and prefill almost everything.
-
-There is a full [README](https://hub.docker.com/r/jsmitsnl/docker-email-autodiscover/) available on the docker repo to set it up.
+There exists [docker-email-autodiscover](https://hub.docker.com/r/jsmitsnl/docker-email-autodiscover/) on hub.docker.com but the upstream project is actually gone from GitHub. There are some forks available though.
