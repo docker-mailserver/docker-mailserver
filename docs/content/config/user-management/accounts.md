@@ -11,7 +11,7 @@ Example:
 
 In the example above, we've added 2 mail accounts for 2 different domains. Consequently, the mail-server will automagically be configured as multi-domains.
 
-To generate a new mail account entry in your configuration, you could for example run the following:
+Therefore, to _generate_ a new mail account data, directly from your docker host, you could for example run the following:
 
     docker run --rm \
       -e MAIL_USER=user1@domain.tld \
@@ -19,11 +19,13 @@ To generate a new mail account entry in your configuration, you could for exampl
       -ti tvial/docker-mailserver:latest \
       /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
 
-You will be asked for a password. Just copy all the output string in the file `config/postfix-accounts.cf`.
+You will then be asked for a password, and be given back the data for a new account entry, as text.
 
-The `doveadm pw` command lets you choose between several encryption schemes for the password. Use doveadm pw -l to get a list of the currently supported encryption schemes.
+To actually _add_ this new account, just copy all the output text in `config/postfix-accounts.cf` file of your running container.
 
-> Note: changes made with this script require a restart of the container. See [#552](../issues/552)
+Please note the `doveadm pw` command lets you choose between several encryption schemes for the password. Use doveadm pw -l to get a list of the currently supported encryption schemes.
+
+> Note: changes to the accounts list require a restart of the container, using `supervisord`. See [#552](../issues/552)
 
 ***
 ## Mailbox quota
