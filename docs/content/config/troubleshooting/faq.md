@@ -16,13 +16,13 @@ In order to do so, you'll probably want to push your config updates to your serv
 
 See [supervisorctl's documentation](http://supervisord.org/running.html#running-supervisorctl).
 
-### How can I sync container with host date/time?
+### How can I sync container with host date/time? Timezone?
 
-Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) descriptor with the mail-server container, using a volume:  
+Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) with the docker-mailserver container, using a Docker volume:  
 
 ```
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
+volumes:
+  - /etc/localtime:/etc/localtime:ro
 ```
 
 ### What is the file format?
