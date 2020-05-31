@@ -20,12 +20,6 @@ One common option to change is the maximum number of connections per user:
 mail_max_userip_connections = 100
 ```
 
-Another option to change is the maximum number of connections per user:
-
-```
-mail_max_userip_connections = 100
-```
-
 Another important option is the `default_process_limit` (defaults to 100). If high-security mode is enabled you'll need to make sure this count is higher than the maximum number of users that can be logged in simultaneously.
 
 # Override configuration
