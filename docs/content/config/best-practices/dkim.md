@@ -1,19 +1,26 @@
-To enable DKIM signature, you must have created your mail accounts.
-Once its done, just run from inside the directory of docker-compose.yml:
+DKIM is a security measure targeting email spoofing. It is greatly recommended one activates it.
+
+See https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail for more details on DKIM.
+
+## Enabling DKIM signature
+
+To enable DKIM signature, you must have created at least one email accounts.
+
+Once its done, just run the following command to generate the signature (here show from inside the directory of docker-compose.yml in order to use a volume on ./config):
 
     docker run --rm \
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:latest generate-dkim-config
 
-The default keysize is 2048 for now. If you need to change it (e.g. your DNS-Provider limits the size) provide the size as the first parameter of the command
+> The default keysize when generating the signature is 2048 bits for now. If you need to change it (e.g. your DNS-Provider limits the size), then provide the size as the first parameter of the command:
+>
+>     docker run --rm \
+>       -v "$(pwd)/config":/tmp/docker-mailserver \
+>       -ti tvial/docker-mailserver:latest generate-dkim-config 2048
 
-    docker run --rm \
-      -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti tvial/docker-mailserver:latest generate-dkim-config 2048
+Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record.
 
-Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
-
-After generating DKIM keys you should restart the app.
+If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 ```
 ; OpenDKIM
@@ -22,7 +29,8 @@ mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 
 ```
 
-## Configuration using a web interface:
+<details>
+<summary>Configuration using a web interface</summary>
 
 1. Generate a new record of the type `TXT`.
 2. Paste `mail._domainkey` the `Name` txt field.
@@ -30,19 +38,24 @@ mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 4. In `TTL` (time to live): Time span in seconds. How long the DNS server should cache the `TXT` record.
 5. Save.
 
-Note: Sometimes the key in `config/opendkim/keys/domain.tld/mail.txt` can be on multiple lines, if so then you need to concatenate the values
+</details>
+
+After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate.
+
+Note: Sometimes the key in `config/opendkim/keys/domain.tld/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
+
 ```
 ; OpenDKIM
 mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 	  "p=AZERTYUIOPQSDF..."
 	  "asdfQWERTYUIOPQSDF..." )  ; ----- DKIM key mail for domain.tld
 ```
-the target (or value) field must then have all the parts together `v=DKIM1; k=rsa; p=AZERTYUIOPQSDF...asdfQWERTYUIOPQSDF...`
 
+the target (or value) field must then have all the parts together: `v=DKIM1; k=rsa; p=AZERTYUIOPQSDF...asdfQWERTYUIOPQSDF...`
 
 ## Verify-only
 
-If you want DKIM to only verify incoming emails, the following version of /etc/opendkim.conf may be useful (right now there is no easy mechanism for installing it other than forking the repo):
+If you want DKIM to only _verify_ incoming emails, the following version of /etc/opendkim.conf may be useful (right now there is no easy mechanism for installing it other than forking the repo):
 ```
 # This is a simple config file verifying messages only
 
@@ -97,9 +110,9 @@ mail._domainkey.domain.tld. 3600 IN TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBA
 ```
 
 ## Switch off DKIM
-Simply remove dkim key by recreating the mailserver-container.
+
+Simply remove the DKIM key by recreating (not just relaunching) the mailserver container.
 
 ## DMARC
 
 DMARC Guide: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md
-
