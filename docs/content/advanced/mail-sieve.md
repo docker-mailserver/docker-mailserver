@@ -69,4 +69,4 @@ All user defined sieve scripts that are managed by ManageSieve are stored in the
 ***Note:*** ManageSieve makes sure to not overwrite an existing `.dovecot.sieve` file. If a user activates a new sieve script the old one is backuped and moved to the `sieve` folder.
 
 The extension is known to work with the following ManageSieve clients:
- * Thunderbird with latest **Sieve** extension. If the extension doesn't work with the add-on available directly from within Thunderbird, try the developer build at https://github.com/thsmi/sieve.
+* **Sieve Editor**  a portable standalone application based on the former Thunderbird plugin (https://github.com/thsmi/sieve).
