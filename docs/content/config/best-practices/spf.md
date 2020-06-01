@@ -4,6 +4,8 @@ From [Wikipedia](https://en.wikipedia.org/wiki/Sender_Policy_Framework):
 
 For a more technical review: https://github.com/internetstandards/toolbox-wiki/blob/master/SPF-how-to.md
 
+## Add a SPF record
+
 To add a SPF record in your DNS, insert the following line in your DNS zone:
 
     ; MX record must be declared for SPF to work
