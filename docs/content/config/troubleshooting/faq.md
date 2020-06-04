@@ -248,7 +248,7 @@ The only thing is that we provide a `self-signed` certificate tool and a `letsen
 ### I just moved from my old mail server but "it doesn't work".
 If this migration implies a DNS modification, be sure to wait for DNS propagation before opening an issue.
 Few examples of symptoms can be found [here](https://github.com/tomav/docker-mailserver/issues/95) or [here](https://github.com/tomav/docker-mailserver/issues/97).  
-This could be related to a modification of your `MX` record, or the IP mapped to `mail.my-domain.tld`.
+This could be related to a modification of your `MX` record, or the IP mapped to `mail.my-domain.tld`. Additionally, [validate your DNS configuration](https://intodns.com/). 
 
 If everything is OK regarding DNS, please provide [formatted logs](https://guides.github.com/features/mastering-markdown/) and config files. This will allow us to help you.
 
