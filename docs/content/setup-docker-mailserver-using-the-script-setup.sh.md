@@ -1,16 +1,18 @@
 The latest version of the script `setup.sh` is included in the `docker-mailserver` repository. Get the last version to the script by copying this command in your console:
 
-```
+```sh
 wget -q -O setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 ```
-if you use curl:
-```
+
+Or if you use curl:
+
+```sh
 curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 ```
 
-Run `./setup.sh` without arguments and you get some usage informations.
+Run `./setup.sh` without arguments and you'll get some usage informations:
 
-```
+```sh
 Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
 OPTIONS:
@@ -50,23 +52,32 @@ SUBCOMMANDS:
     ./setup.sh debug inspect
     ./setup.sh debug login <commands>
 ```
-# email 
+
+## email
+
 * `./setup.sh email add <email> [<password>]`: Add an email-account (\<password\> is optional)
 * `./setup.sh email update <email> [<password>]`: Change the password of an email-account (\<password\> is optional)
 * `./setup.sh email del <email>`: delete an email-account
 * `./setup.sh email restrict <add|del|list> <send|receive> [<email>]`: deny users to send or receive mail. You can also list the respective denied mail-accounts.
 * `./setup.sh email list`: list all existing email-accounts
-# alias
+
+## alias
 * `./setup.sh alias add <email> <recipient>`: add an alias(email) for an email-account(recipient)
 * `./setup.sh alias del <email> <recipient>`: delete an alias
 * `./setup.sh alias list`: list all aliases
-# quota
+
+## quota
+
 * `./setup.sh quota set <email> [<quota>]`: define the quota of a mailbox (quota format e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte)))
 *  `./setup.sh quota del <email>`: delete the quota of a mailbox
-# config 
+
+## config 
+
 * `./setup.sh config dkim <keysize> (default: 2048)`: autoconfig the dkim-config with an (optional) keysize value
 * `./setup.sh config ssl`: generate ssl-certificates
-# debug 
+
+## debug 
+
 * `./setup.sh debug fetchmail`: see [wiki](https://github.com/tomav/docker-mailserver/wiki/Retrieve-emails-from-a-remote-mail-server-%28using-builtin-fetchmail%29#debugging)
 * `./setup.sh debug fail2ban <unban> <ip-address>`: omitt all options to get a list of banned IPs, otherwise unban the specified IP.
 * `./setup.sh debug show-mail-logs`: show the logfile contents of the mail container
