@@ -1,6 +1,6 @@
 [`setup.sh`](https://github.com/tomav/docker-mailserver/blob/master/setup.sh) is an administration script that helps with the most common tasks, including initial configuration. It is intented to be used from the host machine, _not_ from within your running container.
 
-The latest version of the script is included in the `docker-mailserver` repository. Get the last version to the script by copying this command in your console:
+The latest version of the script is included in the `docker-mailserver` repository. You may retrieve it at any time by running this command in your console:
 
 ```sh
 wget -q -O setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
@@ -12,7 +12,9 @@ Or if you use curl:
 curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 ```
 
-Run `./setup.sh` without arguments and you'll get some usage informations:
+## Usage
+
+Run `./setup.sh` without arguments and you'll get some usage information:
 
 ```sh
 Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
