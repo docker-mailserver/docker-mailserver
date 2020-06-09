@@ -78,6 +78,6 @@ When talking about emails, the following applies:
 
 As a _batteries included_ Docker image, docker-mailserver provides you with all the required components and a default configuration to run a mail server. On top of that, the [env-mailserver](https://github.com/tomav/docker-mailserver/blob/master/env-mailserver.dist) configuration file (and some other optional, advanced files!) allow you to tweak your setup extensively. You may even derive your own image from docker-mailserver for a complete control.
 
-The default configuration may _not_ be considered 100% secure, because it aims at supporting all kinds of clients, including older ones not able to use TLS-encrypted connections. It is up to you deciding which kind of transportation encryption to use / enforce.
+The default configuration may _not_ be considered 100% secure as it enforces opportunistic connections using STARTTLS. The reason is because the project aims at supporting, by default, all kinds of clients including older ones not able to use enforced TLS-encrypted connections. It is up to you deciding which kind of transportation encryption to use / enforce, and set up your instance accordingly.
 
-The [README](https://github.com/tomav/docker-mailserver) is the best starting point in configuring and running your mail server. You may the explore this wiki to cover additional topics, including but not limited to, security.
+The [README](https://github.com/tomav/docker-mailserver) is the best starting point in configuring and running your mail server. You may then explore this wiki to cover additional topics, including but not limited to, security.
