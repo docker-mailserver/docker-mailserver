@@ -16,8 +16,8 @@ The docker-mailserver project has made some informed choices about those compone
 The following components are required to create a [complete delivery chain](https://en.wikipedia.org/wiki/Email_agent_(infrastructure)):
 
 - MUA: a [Mail User Agent](https://en.wikipedia.org/wiki/Email_client) is basically any client/program capable of sending emails to arbitrary mail servers; and most of the times, capable of fetching emails from such mail servers.
-- MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) are the so-called "mail servers", as seen from the MUA's perspective. It's a piece of software dedicated to accepting emails from clients. But it also is responsible for transferring emails to other, specialized programs, which may be either MTA (for further transferring) or "final destination" aka. mailboxes.
-- MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails and dropping it into its recipient's mailbox, whichever the form.
+- MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) is the so-called "mail server" as seen from the MUA's perspective. It's a piece of software dedicated to accepting emails: either from MUAs or from other MTA (the latter task being symmetrical, meaning a MTA is also is capable of sending/transferring emails to other MTA, hence the name).
+- MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails from an MTA, but instead of forwarding it, it is capable of dropping those emails into their recipients' mailboxes, whichever the form.
 
 There may be other moving parts or sub-divisions, but that's the big picture.
 
