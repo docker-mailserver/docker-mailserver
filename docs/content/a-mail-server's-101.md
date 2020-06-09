@@ -58,3 +58,10 @@ Similarly to IMAP, POP3 may be secured with either: _Implicit_ (enforced) TLS (a
 
 **The best practice as of 2020 would be [POP3S](https://en.wikipedia.org/wiki/POP3S) over port 995**, rather than [POP3](https://en.wikipedia.org/wiki/POP3)+STARTTLS over port 110 (see [RFC 8314](https://tools.ietf.org/html/rfc8314)).
 
+## How does docker-mailserver help with setting everything up?
+
+As an _all batteries included_ Docker image, docker-mailserver provides all the required components and a default configuration to run a mail server. On top of that, the [env-mailserver](https://github.com/tomav/docker-mailserver/blob/master/env-mailserver.dist) configuration file allow you to tweak your setup extensively.
+
+The default configuration may _not_ be considered 100% secure, because it aims at supporting all kinds of clients, including older ones not able to use TLS-encrypted connections. It is up to you deciding which kind of transportation encryption to use / enforce.
+
+The [README](https://github.com/tomav/docker-mailserver) is the best starting point in configuring and running your mail server. You may the explore this wiki to cover additional topics.
