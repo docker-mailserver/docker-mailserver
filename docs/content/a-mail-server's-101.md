@@ -58,6 +58,20 @@ Similarly to IMAP, POP3 may be secured with either: _Implicit_ (enforced) TLS (a
 
 **The best practice as of 2020 would be [POP3S](https://en.wikipedia.org/wiki/POP3S) over port 995**, rather than [POP3](https://en.wikipedia.org/wiki/POP3)+STARTTLS over port 110 (see [RFC 8314](https://tools.ietf.org/html/rfc8314)).
 
+### Summary of ports/security setups
+
+| Protocol | Opt-in Encryption<sup>1</sup>   | Enforced Encryption | Purpose              |
+|----------|---------------------------------|---------------------|----------------------|
+| SMTP     | 25                              | N/A                 | Transfer<sup>2</sup> |
+| ESMTP    | 587 _(deprecated<sup>4</sup>)_  | 465<sup>3</sup>     | Submission           |
+| POP3     | 110 _(deprecated<sup>4</sup>)_  | 995                 | Retrieval            |
+| IMAP4    | 143 _(deprecated<sup>4</sup>)_  | 993                 | Retrieval            |
+
+1. A connection *may* be secured over TLS when _both_ ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured _(preventing [MITM attacks](https://stackoverflow.com/questions/15796530/what-is-the-difference-between-ports-465-and-587/32460763#32460763) trough a downgrading)_. Port 25 is [required](https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages) to support insecure connections.
+2. Port 25 receives email and filters for spam and viruses. For submitting outgoing mail you should prefer the submission ports (465, 587), which require authentication in docker-mailserver. Unless a relay host is configured, outgoing email will _leave_ the server via port 25 (thus outbound traffic must not be blocked by your provider or firewall).
+3. Port 465 is a submission port since 2018, see [RFC 8314](https://tools.ietf.org/html/rfc8314). Originally a secure variant of port 25, it is now dedicated to SMTPS.
+4. [RFC 8314](https://tools.ietf.org/html/rfc8314) is recommending that clear text exchanges to be abandoned and that all three common IETF mail protocols to be used only in implicit mode (no STARTTLS).
+
 ## How does docker-mailserver help with setting everything up?
 
 As a _batteries included_ Docker image, docker-mailserver provides you with all the required components and a default configuration to run a mail server. On top of that, the [env-mailserver](https://github.com/tomav/docker-mailserver/blob/master/env-mailserver.dist) configuration file (and some other optional, advanced files!) allow you to tweak your setup extensively. You may even derive your own image from docker-mailserver for a complete control.
