@@ -19,18 +19,20 @@ The following components are required to create a [complete delivery chain](http
 - MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) is the so-called "mail server" as seen from the MUA's perspective. It's a piece of software dedicated to accepting emails: either from MUAs or from other MTA (the latter task being symmetrical, meaning a MTA is also is capable of sending/transferring emails to other MTA, hence the name).
 - MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails from an MTA, but instead of forwarding it, it is capable of dropping those emails into their recipients' mailboxes, whichever the form.
 
-There may be other moving parts or sub-divisions, but that's the big picture.
+There may be other moving parts or sub-divisions. For instance, at several point specialized programs may be filtering, bouncing, editing… exchanged emails.
 
-docker-mailserver provides you with the following agents:
+In a nutshell, docker-mailserver provides you with the following agents:
 
 - MTA: Postfix
 - MDA: Dovecot
 
-One important thing to note is that both programs actually handle multiple tasks. For instance, Postfix is both an SMTP server (accepting email) and an MTA (transfering email); Dovecot is both an MDA (delivering emails in mailboxes) and an IMAP server (allowing MUAs to fetch emails from the so-called mail server).
+and with some specialized, companion programs to form a complete delivery chain (minus the MUA of course).
 
-For both Postfix and Dovecot need to be accessible from the outside to act as servers, they expose themselves through TCP ports, which may be secured using different schemes.
+> One important thing to know is that both the MTA and MDA programs actually handle _multiple_ tasks. For instance, Postfix is both an SMTP server (accepting email) and an MTA (transfering email); Dovecot is both an MDA (delivering emails in mailboxes) and an IMAP server (allowing MUAs to fetch emails from the so-called mail server). On top of that, Postfix may rely on Dovecot's authentication capabilities. The exact relationship between all the components and their respective or, sometimes, shared responsibilities is beyond the scope of this document. Explore the wiki to get more insights about the toolchain.
 
 ## About security, ports…
+
+For both Postfix and Dovecot need to be accessible from the outside to act as servers, they expose themselves through TCP ports, which may be secured using different schemes.
 
 ### SMTP
 
