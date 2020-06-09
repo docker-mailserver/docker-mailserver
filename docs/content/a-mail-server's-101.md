@@ -9,7 +9,7 @@ This project provides with the server portion, whereas "the" client can be anyth
 
 Unlike the client side where usually a single program is used, there are many components making up the server. Specialized piece of software handle atomic tasks, such as receiving emails, dropping emails into mailboxes, sending emails to other mail servers, filtering emails, exposing emails to authorized clients, etc.
 
-The docker-mailserver project made some informed choices and offers a comprehensive platform to run a feature-full mail exchange server.
+The docker-mailserver project has made some informed choices about those components and offers a comprehensive platform to run a feature-full mail server.
 
 ## Components
 
