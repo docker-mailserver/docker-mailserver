@@ -1,5 +1,4 @@
-`setup.sh` is an administration script that helps with the most common tasks, including initial configuration.  
-It is intented to be used from the host machine, _not_ from within your running container.
+[`setup.sh`](https://github.com/tomav/docker-mailserver/blob/master/setup.sh) is an administration script that helps with the most common tasks, including initial configuration. It is intented to be used from the host machine, _not_ from within your running container.
 
 The latest version of the script is included in the `docker-mailserver` repository. Get the last version to the script by copying this command in your console:
 
