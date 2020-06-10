@@ -81,7 +81,7 @@ As a _batteries included_ Docker image, docker-mailserver provides you with all 
 When it comes to security, one may consider docker-mailserver's **default** configuration to _not_ be 100% secure:
 
 - it supports port 25 (unencrypted trafic by design)
-- it enforces [strict opportunistic](http://www.postfix.org/postconf.5.html#smtpd_tls_security_level) TLS-encrypted connections on ports 110 (POP3), 143 (IMAP) and 587 (SMTP) using STARTTLS
+- it enforces [strict (`encrypt`) opportunistic](http://www.postfix.org/postconf.5.html#smtpd_tls_security_level) TLS-encrypted connections on ports 110 (POP3), 143 (IMAP) and 587 (SMTP) using STARTTLS
 - it does _not_ support enforced TLS-encrypted connections (POP3S, IMAPS, SMTPS)
 
 That default setup has been consciously chosen, for the project aims at supporting _by default and without custom configuration required_ all kinds of clients, including ones not supporting TLS, or ones not able (== not configured) to use enforced/implicit TLS-encrypted connections but still capable of handling opportunistic TLS.
