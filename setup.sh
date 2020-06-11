@@ -25,13 +25,10 @@ if [ -z "$CRI" ]; then
   fi
 fi
 
-INFO=$($CRI ps \
-  --no-trunc \
-  --format="{{.Image}} {{.Names}} {{.Command}}" | \
-  grep "supervisord -c /etc/supervisor/supervisord.conf")
+INFO=$($CRI ps --no-trunc --format "{{.Image}};{{.Names}}" --filter label=org.label-schema.name="docker-mailserver")
 
-IMAGE_NAME=$(echo $INFO | awk '{print $1}')
-CONTAINER_NAME=$(echo $INFO | awk '{print $2}')
+IMAGE_NAME=${INFO%;*}
+CONTAINER_NAME=${INFO#*;}
 DEFAULT_CONFIG_PATH="$(pwd)/config"
 USE_CONTAINER=false
 
