@@ -158,8 +158,8 @@ One may then customize all aspects of its internal components.
 
 On the subject of security, one might consider docker-mailserver's **default** configuration to _not_ be 100% secure:
 
-- it enables unencrypted trafic on port 25 for Transfer/Relay (between MTAs for MX service)
-- it enables Explicit TLS (STARTTLS) on port 587 for SMTP, instead of Implicit TLS on port 465
+- it enables unencrypted trafic on port 25
+- it enables Explicit TLS (STARTTLS) on port 587, instead of Implicit TLS on port 465
 
 We believe docker-mailserver's default configuration to be a good middle ground: it goes slightly beyond "old" (1999) [RFC 2487](https://tools.ietf.org/html/rfc2487); and with developper-friendly configuration settings, it makes it pretty easy to abide by the "newest" (2018) [RFC 8314](https://tools.ietf.org/html/rfc8314).
 
