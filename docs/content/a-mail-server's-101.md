@@ -30,8 +30,8 @@ There may be other moving parts or sub-divisions (for instance, at several point
 
 In a nutshell, docker-mailserver provides you with the following components:
 
-- MTA: [Postfix](http://www.postfix.org/)
-- MDA: [Dovecot](https://dovecot.org/)
+- a MTA: [Postfix](http://www.postfix.org/)
+- a MDA: [Dovecot](https://dovecot.org/)
 - a bunch of additional programs to improve security and emails processing
 
 Here's where docker-mailserver's toochain fits within the delivery chain:
