@@ -98,7 +98,7 @@ MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
 ```
 
 If you're new to the field, both that table and schema may be confusing.  
-Read on to gain insights about all those concepts, docker-mailserver's configuration and how you could customize it.
+Read on to gain insights about all those concepts, docker-mailserver's default configuration and how you could customize it.
 
 ### Submission - SMTP
 
