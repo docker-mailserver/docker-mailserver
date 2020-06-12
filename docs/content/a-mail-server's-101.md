@@ -7,7 +7,7 @@ A mail server is only a part of a [client-server relationship](https://en.wikipe
 
 docker-mailserver provides you with the server portion, whereas "the" client can be anything from a console, text-only software (eg. [Mutt](https://en.wikipedia.org/wiki/Mutt_(email_client))) to a fully-fledged desktop application (eg. [Mozilla Thunderbird](https://en.wikipedia.org/wiki/Mozilla_Thunderbird), [Microsoft Outlook](https://en.wikipedia.org/wiki/Microsoft_Outlook)…), to a webmail, etc.
 
-Unlike the client side where usually a single program is used to perform retrieval and reading of emails, the server side is composed of many specialized components. "The" mail server is capable of accepting, forwarding, delivering, storing and overall exchanging messages, but each one of those tasks is actually handled by a specific piece of software, which must be integrated with one another.
+Unlike the client side where usually a single program is used to perform retrieval and reading of emails, the server side is composed of many specialized components. "The" mail server is capable of accepting, forwarding, delivering, storing and overall exchanging messages, but each one of those tasks is actually handled by a specific piece of software. All those "agents" must be integrated with one another for the exchange to take place.
 
 docker-mailserver has made some informed choices about those components and their (default) configuration. It offers a comprehensive platform to run a feature-full mail server in no time!
 
