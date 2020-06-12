@@ -44,17 +44,7 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
                                                          ┗━━━━━━━┛
 ```
 
-In its simplest use-case, docker-mailserver will handle direct email trafic bound to a specific hostname: a MUA establishes a direct connection to docker-mailserver's MTA, authenticates and submits an email. Thus our schema could be further simplified to look like this:
-
-```txt
-         docker-mailserver is here:
-                              ┏━━━━━━━┓
-Sending an email:    MUA ---> ┫ MTA ╮ ┃
-Fetching an email:   MUA <--- ┫ MDA ╯ ┃
-                              ┗━━━━━━━┛
-```
-
-> Of course the MUA and docker-mailserver's MTA may be located in distant (network-wise) places, so don't expect a _direct_ connection between MUAs and your mail server. It is very likely email trafic will hop through several relaying TCP servers-but those will not be MTA servers, so are irrelevant here.
+> Of course the MUA and docker-mailserver's MTA are likely to be located in distant places (network-wise), so don't expect a _direct_ connection between MUAs and your mail server. It is very likely email trafic will hop through several relays: some will be TCP servers, some will be MTAs. MUA only has control over the first "hop", and that will prove important when it comes to securing email trafic.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with docker-mailserver's Postfix and Dovecot).
 
