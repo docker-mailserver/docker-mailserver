@@ -44,7 +44,7 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
                                                          ┗━━━━━━━┛
 ```
 
-By default, docker-mailserver does not act as a relay nor does it accept emails from relays. It only handles direct email trafic, bound to a specific hostname. Thus our schema can be further simplified to look like this:
+In its simplest use-case, docker-mailserver will handle direct email trafic bound to a specific hostname: a MUA established a direct connection to docker-mailserver's MTA. Thus our schema could be further simplified to look like this:
 
 ```txt
          docker-mailserver is here:
