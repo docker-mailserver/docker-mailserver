@@ -54,7 +54,7 @@ Fetching an email:   MUA <--- ┫ MDA ╯ ┃
                               ┗━━━━━━━┛
 ```
 
-> Of course the MUA and docker-mailserver's MTA may be located in distant (network-wise) places, so don't expect a _direct_ connection between MUAs and your mail server. It is very likely email trafic will hop through many relaying HTTP servers (simply not MTA servers).
+> Of course the MUA and docker-mailserver's MTA may be located in distant (network-wise) places, so don't expect a _direct_ connection between MUAs and your mail server. It is very likely email trafic will hop through several relaying HTTP(S) server-but those will not be MTA servers, so are irrelevant here.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with docker-mailserver's Postfix and Dovecot).
 
