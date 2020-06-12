@@ -86,15 +86,15 @@ When it comes to the specifics of email exchange, we have to look at protocols a
 | Retrieval      | POP3     | _Not activated_                |
 
 ```txt
-                      ┏━━━━━━━━━━ Submission ━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
-                                             ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-Sending an email:    MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- plain text --> ┊ Third-party MTA ┊
-                         ---- plain text --> ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                                             |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
-Fetching an email:   MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
-                         <-- enforced TLS -- ┤(993)                |
-                                             └─────────────────────┘
-                      ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
+                     ┏━━━━━━━━━━ Submission ━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
+                                            ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+Sending an email:   MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- plain text --> ┊ Third-party MTA ┊
+                        ---- plain text --> ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                                            |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
+Fetching an email:  MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
+                        <-- enforced TLS -- ┤(993)                |
+                                            └─────────────────────┘
+                     ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
 ```
 
 If you're new to the field, both that table and schema may be confusing.  
