@@ -44,7 +44,11 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
                                                          ┗━━━━━━━┛
 ```
 
-> Of course the MUA and docker-mailserver's MTA are likely to be located in distant places (network-wise), so don't expect a _direct_ connection between MUAs and your mail server. It is very likely email trafic will hop through several relays: some will be TCP servers, some will be MTAs. MUA only has control over the first "hop", and that will prove important when it comes to securing email trafic.
+> Make sure not to conflate these two very different scenarios:
+> Let's say Alice owns a Gmail account, alice@gmail.com; whereas Bob owns an account on a docker-mailserver's instance, bob@dms.io.
+> 1. Alice sends an email to bob@dms.io => the email is submitted to MTA smtp.gmail.com, then relayed to MTA smtp.dms.io
+> 2. Bob sends an email to alice@gmail.com => the email is submitted to MTA smtp.dms.io, then relayed to MTA smtp.gmail.com
+> In the first scenario, the email's "initial" submission is _not_ handled by the docker-mailserver instance; its MTA merely receives the email after it has been relayed by Gmail. In the other scenario, a direct connection is established between Bob's MUA and the docker-mailserver's instance's MTA. That will prove very important when it comes to security management.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with docker-mailserver's Postfix and Dovecot).
 
