@@ -110,7 +110,7 @@ The best practice as of 2020 would be to handle emails Submission using an _Impl
 
 - Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security). With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go. The mail server would deny any client attempting at submitting emails in plain text (== not secure) or requesting a plain text connection to be upgraded to a TLS-encrypted one (== eventually secure). It is also known as Enforced TLS.
 - [ESMTP](https://en.wikipedia.org/wiki/ESMTP) is [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) + extensions. It's the version of the SMTP protocol that most mail servers speak nowadays. For the purpose of this documentation, ESMTP and SMTP are synonymous.
-- Port 465 is _de facto_ the TCP port that's reserved for Implicit TLS SMTP connections. There is a boisterus history to it, but let's keep it simple.
+- Port 465 is (starting 2018) the reserved TCP port for Implicit TLS Submission. There is acually a boisterous history to that port's usage, but let's keep it simple.
 
 > Note: this Submission setup is sometimes refered to as [SMTPS](https://en.wikipedia.org/wiki/SMTPS). Long story short: this is incorrect and should be avoided.
 
