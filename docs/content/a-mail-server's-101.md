@@ -1,40 +1,40 @@
 What is a mail server and how does it perform its duty?  
-Here's an introduction to the field that covers everything you need to know to get started with docker-mailserver.
+Here's an introduction to the field that covers everything you need to know to get started with `docker-mailserver`.
 
 ## Anatomy of a mail server
 
 A mail server is only a part of a [client-server relationship](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) aimed at exchanging information in the form of [emails](https://en.wikipedia.org/wiki/Email). Exchanging emails requires using specific means (programs and protocols).
 
-docker-mailserver provides you with the server portion, whereas "the" client can be anything from a console, text-only software (eg. [Mutt](https://en.wikipedia.org/wiki/Mutt_(email_client))) to a fully-fledged desktop application (eg. [Mozilla Thunderbird](https://en.wikipedia.org/wiki/Mozilla_Thunderbird), [Microsoft Outlook](https://en.wikipedia.org/wiki/Microsoft_Outlook)…), to a webmail, etc.
+`docker-mailserver` provides you with the server portion, whereas the client can be anything from a terminal via text-based software (eg. [Mutt](https://en.wikipedia.org/wiki/Mutt_(email_client))) to a fully-fledged desktop application (eg. [Mozilla Thunderbird](https://en.wikipedia.org/wiki/Mozilla_Thunderbird), [Microsoft Outlook](https://en.wikipedia.org/wiki/Microsoft_Outlook)…), to a web interface, etc.
 
-Unlike the client side where usually a single program is used to perform retrieval and reading of emails, the server side is composed of many specialized components. "The" mail server is capable of accepting, forwarding, delivering, storing and overall exchanging messages, but each one of those tasks is actually handled by a specific piece of software. All those "agents" must be integrated with one another for the exchange to take place.
+Unlike the client-side where usually a single program is used to perform retrieval and viewing of emails, the server-side is composed of many specialized components. The mail server is capable of accepting, forwarding, delivering, storing and overall exchanging messages, but each one of those tasks is actually handled by a specific piece of software. All of these "agents" must be integrated with one another for the exchange to take place.
 
-docker-mailserver has made some informed choices about those components and their (default) configuration. It offers a comprehensive platform to run a feature-full mail server in no time!
+`docker-mailserver` has made informed choices about those components and their (default) configuration. It offers a comprehensive platform to run a fully featured mail server in no time!
 
 ## Components
 
 The following components are required to create a [complete delivery chain](https://en.wikipedia.org/wiki/Email_agent_(infrastructure)):
 
-- MUA: a [Mail User Agent](https://en.wikipedia.org/wiki/Email_client) is basically any client/program capable of sending emails to arbitrary mail servers; and most of the times, capable of fetching emails from such mail servers and presenting them to the end users.
-- MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) is the so-called "mail server" as seen from the MUA's perspective. More specifically, it's a piece of software dedicated to accepting, and in some cases, transfering/relaying emails. A MTA may accept incoming emails either from MUAs or from other MTAs. It may then relay emails to either other MTAs or, eventually, an MDA.
-- MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails from a MTA, but instead of forwarding it to another MTA, it is responsible for dropping emails into their recipients' mailboxes, whichever the form.
+- MUA: a [Mail User Agent](https://en.wikipedia.org/wiki/Email_client) is basically any client/program capable of sending emails to arbitrary mail servers; while also capable of fetching emails from mail servers for presenting them to the end users.
+- MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) is the so-called "mail server" as seen from the MUA's perspective. More specifically, it's a piece of software dedicated to accepting, and in some cases, transferring/relaying emails. An MTA may accept incoming emails either from MUAs or from other MTAs. It may then relay emails through other MTAs or final delivery to an MDA.
+- MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails from an MTA, but instead of forwarding it to another MTA, it is responsible for dropping emails into their recipients' mailboxes, whichever the form.
 
 Here's a schematic view of mail delivery:
 
 ```txt
-Sending an email:    MUA ---> MTA ---> MTA ---> ... ---> MTA ---> MDA
-Fetching an email:   MUA <--------------------------------------- MDA
+Sending an email:    MUA ----> MTA ----> (MTA relays) ----> MDA
+Fetching an email:   MUA <--------------------------------- MDA
 ```
 
 There may be other moving parts or sub-divisions (for instance, at several points along the chain, specialized programs may be analyzing, filtering, bouncing, editing… the exchanged emails).
 
-In a nutshell, docker-mailserver provides you with the following components:
+In a nutshell, `docker-mailserver` provides you with the following components:
 
-- a MTA: [Postfix](http://www.postfix.org/)
-- a MDA: [Dovecot](https://dovecot.org/)
-- a bunch of additional programs to improve security and emails processing
+- A MTA: [Postfix](http://www.postfix.org/)
+- A MDA: [Dovecot](https://dovecot.org/)
+- A bunch of additional programs to improve security and emails processing
 
-Here's where docker-mailserver's toochain fits within the delivery chain:
+Here's where `docker-mailserver`'s toochain fits within the delivery chain:
 
 ```txt
                                     docker-mailserver is here:
@@ -45,16 +45,16 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
 ```
 
 > Make sure not to conflate these two very different scenarios:
-> Let's say Alice owns a Gmail account, alice@gmail.com; whereas Bob owns an account on a docker-mailserver's instance, bob@dms.io.
-> 1. Alice sends an email to bob@dms.io => the email is submitted to MTA smtp.gmail.com, then relayed to MTA smtp.dms.io
-> 2. Bob sends an email to alice@gmail.com => the email is submitted to MTA smtp.dms.io, then relayed to MTA smtp.gmail.com
-> In the first scenario, the email's "initial" submission is _not_ handled by the docker-mailserver instance; its MTA merely receives the email after it has been relayed by Gmail. In the other scenario, a direct connection is established between Bob's MUA and the docker-mailserver's instance's MTA. That will prove very important when it comes to security management.
+> Let's say Alice owns a Gmail account, `alice@gmail.com`; whereas Bob owns an account on a `docker-mailserver`'s instance, `bob@dms.io`.
+> 1. Alice sends an email to `bob@dms.io` => the email is submitted to MTA `smtp.gmail.com`, then relayed to MTA `smtp.dms.io`.
+> 2. Bob sends an email to `alice@gmail.com` => the email is submitted to MTA `smtp.dms.io`, then relayed to MTA `smtp.gmail.com`.
+> In the first scenario, the email's *initial* submission is _not_ handled by the `docker-mailserver` instance; its MTA merely receives the email after it has been relayed by Gmail. In the other scenario, a direct connection is established between Bob's MUA and the `docker-mailserver`'s instance's MTA. That will prove very important when it comes to security management.
 
-One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with docker-mailserver's Postfix and Dovecot).
+One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with `docker-mailserver`'s Postfix and Dovecot).
 
-For instance, Postfix is both a SMTP server (accepting emails) and a relaying MTA (transfering ie. sending emails to other MTA/MDA); Dovecot is both a MDA (delivering emails in mailboxes) and an IMAP server (allowing MUAs to fetch emails from the so-called "mail server"). On top of that, Postfix may rely on Dovecot's authentication capabilities!
+For instance, Postfix is both an SMTP server (accepting emails) and a relaying MTA (transferring, ie. sending emails to other MTA/MDA); Dovecot is both an MDA (delivering emails in mailboxes) and an IMAP server (allowing MUAs to fetch emails from the *mail server*). On top of that, Postfix may rely on Dovecot's authentication capabilities.
 
-The exact relationship between all the components and their respective (and sometimes, shared) responsibilities is beyond the scope of this document. Please explore this wiki & the web to get more insights about docker-mailserver's toolchain.
+The exact relationship between all the components and their respective (sometimes shared) responsibilities is beyond the scope of this document. Please explore this wiki & the web to get more insights about `docker-mailserver`'s toolchain.
 
 ## About security & ports
 
@@ -62,15 +62,15 @@ In the previous section, different components were outlined. Each one of those i
 
 Three main purposes exist when it comes to exchanging emails:
 
-- _Submission_: for a MUA (client), the act of sending actual email data over the network, toward a MTA (server).
-- _Transfer_ (aka. _Relay_): for a MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where a MTA will forward data to a MDA).
-- _Retrieval_: for a MUA (client), the act of fetching actual email data over the network, from a MDA.
+- _Submission_: for a MUA (client), the act of sending actual email data over the network, toward an MTA (server).
+- _Transfer_ (aka. _Relay_): for an MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where an MTA will forward data to an MDA).
+- _Retrieval_: for a MUA (client), the act of fetching actual email data over the network, from an MDA.
 
 Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports. Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
 
 When it comes to the specifics of email exchange, we have to look at protocols and ports enabled to support all the identified purposes. There are several valid options and they've been evolving overtime.
 
-**Here's docker-mailserver's _default_ configuration:**
+**Here's `docker-mailserver`'s _default_ configuration:**
 
 | Purpose        | Protocol | TCP port / encryption          |
 |----------------|----------|--------------------------------|
@@ -82,8 +82,8 @@ When it comes to the specifics of email exchange, we have to look at protocols a
 ```txt
  ┏━━━━━━━━━━ Submission ━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
                         ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- plain text --> ┊ Third-party MTA ┊
-    ---- plain text --> ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- cleartext ---> ┊ Third-party MTA ┊
+    ---- cleartext ---> ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
                         |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
 MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
     <-- enforced TLS -- ┤(993)                |
@@ -91,34 +91,34 @@ MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
  ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
 ```
 
-If you're new to the field, both that table and schema may be confusing.  
-Read on to gain insights about all those concepts, docker-mailserver's default configuration and how you could customize it.
+If you're new to email infrastructure, both that table and the schema may be confusing.  
+Read on to expand your understanding and learn about `docker-mailserver`'s configuration, including how you can customize it.
 
 ### Submission - SMTP
 
-A MUA willing to send an email to a MTA needs to establish a connection with that server, then push data packets over a network that both the MUA (client) and the MTA (server) are connected to. The server implements the [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) protocol, which makes it capable of handling _Submission_.
+For a MUA to send an email to an MTA, it needs to establish a connection with that server, then push data packets over a network that both the MUA (client) and the MTA (server) are connected to. The server implements the [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) protocol, which makes it capable of handling _Submission_.
 
-In the case of docker-mailserver, the MTA (SMTP server) is Postfix. The MUA (client) may vary, yet its Submission request is performed as [TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) packets sent over the _public_ internet. This exchange of information may be secured in order to counter eavesdropping.
+In the case of `docker-mailserver`, the MTA (SMTP server) is Postfix. The MUA (client) may vary, yet its Submission request is performed as [TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) packets sent over the _public_ internet. This exchange of information may be secured in order to counter eavesdropping.
 
-The best practice as of 2020 would be to handle emails Submission using an _Implicit TLS connection with an ESMTP server on port 465_ (see [RFC 8314](https://tools.ietf.org/html/rfc8314)). Let's break it down.
+The best practice as of 2020 is to handle SMTP Submission using an _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314](https://tools.ietf.org/html/rfc8314)). Let's break it down.
 
-- Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security). With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go. The mail server would deny any client attempting at submitting emails in plain text (== not secure) or requesting a plain text connection to be upgraded to a TLS-encrypted one (== eventually secure). It is also known as Enforced TLS.
+- Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security). With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go. The mail server would deny any client attempting to submit email in cleartext (unencrypted, not secure) or requesting a cleartext connection to be upgraded to a TLS-encrypted one (secure if `STARTTLS` is successful). It is also known as Enforced TLS.
 - [ESMTP](https://en.wikipedia.org/wiki/ESMTP) is [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) + extensions. It's the version of the SMTP protocol that most mail servers speak nowadays. For the purpose of this documentation, ESMTP and SMTP are synonymous.
-- Port 465 is (starting 2018) the reserved TCP port for Implicit TLS Submission. There is acually a boisterous history to that port's usage, but let's keep it simple.
+- Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.
 
-> Note: this Submission setup is sometimes refered to as [SMTPS](https://en.wikipedia.org/wiki/SMTPS). Long story short: this is incorrect and should be avoided.
+> Note: This Submission setup is sometimes refered to as [SMTPS](https://en.wikipedia.org/wiki/SMTPS). Long story short: this is incorrect and should be avoided.
 
-Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cutting edge". There exists another well established mail Submission setup that must be supported as well, SMTP+STARTTLS on port 587. It uses Explicit TLS: the client starts with a plain text connection, then the server informs a TLS-encrypted "upgraded" connection may be established, and the client _may_ eventually decide to establish it prior to the Submission. Basically it's an opportunistic, opt-in TLS upgrade of the connection between the client and the server, at the client's discretion, using a mechanism known as [STARTTLS](https://en.wikipedia.org/wiki/Opportunistic_TLS) that both ends need to implement.
+Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cutting edge". There exists another well established mail Submission setup that must be supported as well, SMTP+STARTTLS on port 587. It uses Explicit TLS: the client starts with a cleartext connection, then the server informs a TLS-encrypted "upgraded" connection may be established, and the client _may_ eventually decide to establish it prior to the Submission. Basically it's an opportunistic, opt-in TLS upgrade of the connection between the client and the server, at the client's discretion, using a mechanism known as [STARTTLS](https://en.wikipedia.org/wiki/Opportunistic_TLS) that both ends need to implement.
 
-In many implementations, the mail server doesn't enforce TLS encryption, for backwards compatibility. Clients are thus free to deny the TLS-upgrade proposal (or [misled by a hacker](https://security.stackexchange.com/questions/168998/what-happens-if-starttls-dropped-in-smtp) about STARTTLS not being available), and the server eventually accepts unencrypted (plain text) mail exchange, which poses a confidentiality threat and, to some extent, spam issues. [RFC 8314 (section 3.3)](https://tools.ietf.org/html/rfc8314) recommends for mail servers to support both Implicit and Explicit TLS for Submission, _and_ to enforce TLS-encryption on ports 587 (Explicit TLS) and 465 (Implicit TLS). That's exactly docker-mailserver's default configuration: abiding by RFC 8314, it [enforces a strict (`encrypt`) STARTTLS policy](http://www.postfix.org/postconf.5.html#smtpd_tls_security_level), where a denied TLS upgrade terminates the connection thus (hopefully but at the client's discretion) preventing unencrypted (plain text) Submission.
+In many implementations, the mail server doesn't enforce TLS encryption, for backwards compatibility. Clients are thus free to deny the TLS-upgrade proposal (or [misled by a hacker](https://security.stackexchange.com/questions/168998/what-happens-if-starttls-dropped-in-smtp) about STARTTLS not being available), and the server accepts unencrypted (cleartext) mail exchange, which poses a confidentiality threat and, to some extent, spam issues. [RFC 8314 (section 3.3)](https://tools.ietf.org/html/rfc8314) recommends for mail servers to support both Implicit and Explicit TLS for Submission, _and_ to enforce TLS-encryption on ports 587 (Explicit TLS) and 465 (Implicit TLS). That's exactly `docker-mailserver`'s default configuration: abiding by RFC 8314, it [enforces a strict (`encrypt`) STARTTLS policy](http://www.postfix.org/postconf.5.html#smtpd_tls_security_level), where a denied TLS upgrade terminates the connection thus (hopefully but at the client's discretion) preventing unencrypted (cleartext) Submission.
 
-- **docker-mailserver's default configuration enables and _requires_ Explicit TLS (STARTTLS) for Submission on port 587.**
+- **`docker-mailserver`'s default configuration enables and _requires_ Explicit TLS (STARTTLS) for Submission on port 587.**
 - It does not enable Implicit TLS Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.
 - It does not support old MUAs (clients) not supporting TLS encryption on ports 587/465 (those should perform Submission on port 25, more details below). One may relax that constraint through advanced custom configuration, for backwards compatibility.
 
-A final Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (plain text) mail exchange though, making STARTTLS a bit of a misusage. As is expected by [RFC 5321](https://tools.ietf.org/html/rfc5321), docker-mailserver uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.
+A final Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (cleartext) mail exchange though, making STARTTLS a bit wrong to use. As is expected by [RFC 5321](https://tools.ietf.org/html/rfc5321), `docker-mailserver` uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.
 
-- **docker-mailserver's default configuration enables unencrypted (plain text) for Submission & Transfer/Relay on port 25.**
+- **`docker-mailserver`'s default configuration enables unencrypted (cleartext) for Submission & Transfer/Relay on port 25.**
 - It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Submission & Transfer/Relay.
 - One may also secure Transfer/Relay on port 25 using advanced encryption scheme, such as DANE and/or MTA-STS.
 
@@ -126,13 +126,13 @@ A final Submission setup exists and is akin SMTP+STARTTLS on port 587, but on po
 
 A MUA willing to fetch an email from a mail server will most likely communicate with its [IMAP](https://en.wikipedia.org/wiki/IMAP) server. As with SMTP described earlier, communication will take place in the form of data packets exchanged over a network that both the client and the server are connected to. The IMAP protocol makes the server capable of handling _Retrieval_.
 
-In the case of docker-mailserver, the IMAP server is Dovecot. The MUA (client) may vary, yet its Retrieval request is performed as [TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) packets sent over the _public_ internet. This exchange of information may be secured in order to counter eavesdropping.
+In the case of `docker-mailserver`, the IMAP server is Dovecot. The MUA (client) may vary, yet its Retrieval request is performed as [TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) packets sent over the _public_ internet. This exchange of information may be secured in order to counter eavesdropping.
 
 Again, as with SMTP described earlier, the IMAP protocol may be secured with either Implicit TLS (aka. [IMAPS](https://en.wikipedia.org/wiki/IMAPS)/IMAP4S) or Explicit TLS (using STARTTLS).
 
 The best practice as of 2020 is to enforce IMAPS on port 993, rather than IMAP+STARTTLS on port 143 (see [RFC 8314](https://tools.ietf.org/html/rfc8314)); yet the latter is usually provided for backwards compatibility.
 
-**docker-mailserver's default configuration enables both Implicit and Explicit TLS for Retrievial, on ports 993 and 143 respectively.**
+**`docker-mailserver`'s default configuration enables both Implicit and Explicit TLS for Retrievial, on ports 993 and 143 respectively.**
 
 ### Retrieval - POP3
 
@@ -140,23 +140,23 @@ Similarly to IMAP, the older POP3 protocol may be secured with either Implicit o
 
 The best practice as of 2020 would be [POP3S](https://en.wikipedia.org/wiki/POP3S) on port 995, rather than [POP3](https://en.wikipedia.org/wiki/POP3)+STARTTLS on port 110 (see [RFC 8314](https://tools.ietf.org/html/rfc8314)).
 
-**docker-mailserver's default configuration disables POP3 altogether.** One should expect MUAs to use TLS-encrypted IMAP for Retrieval.
+**`docker-mailserver`'s default configuration disables POP3 altogether.** One should expect MUAs to use TLS-encrypted IMAP for Retrieval.
 
-## How does docker-mailserver help with setting everything up?
+## How does `docker-mailserver` help with setting everything up?
 
-As a _batteries included_ Docker image, docker-mailserver provides you with all the required components and a default configuration, to run a decent and secure mail server.
+As a _batteries included_ Docker image, `docker-mailserver` provides you with all the required components and a default configuration, to run a decent and secure mail server.
 
 One may then customize all aspects of its internal components.
 - Simple customization is supported through [docker-compose configuration](https://github.com/tomav/docker-mailserver/blob/master/docker-compose.yml.dist) and the [env-mailserver](https://github.com/tomav/docker-mailserver/blob/master/env-mailserver.dist) configuration file.
-- Advanced customization is supported through providing "monkey-patching" configuration files and/or [deriving your own image](https://github.com/tomav/docker-mailserver/blob/master/Dockerfile) from docker-mailserver's upstream, for a complete control over how things run!
+- Advanced customization is supported through providing "monkey-patching" configuration files and/or [deriving your own image](https://github.com/tomav/docker-mailserver/blob/master/Dockerfile) from `docker-mailserver`'s upstream, for a complete control over how things run.
 
-On the subject of security, one might consider docker-mailserver's **default** configuration to _not_ be 100% secure:
+On the subject of security, one might consider `docker-mailserver`'s **default** configuration to _not_ be 100% secure:
 
-- it enables unencrypted trafic on port 25
+- it enables unencrypted traffic on port 25
 - it enables Explicit TLS (STARTTLS) on port 587, instead of Implicit TLS on port 465
 
-We believe docker-mailserver's default configuration to be a good middle ground: it goes slightly beyond "old" (1999) [RFC 2487](https://tools.ietf.org/html/rfc2487); and with developper-friendly configuration settings, it makes it pretty easy to abide by the "newest" (2018) [RFC 8314](https://tools.ietf.org/html/rfc8314).
+We believe `docker-mailserver`'s default configuration to be a good middle ground: it goes slightly beyond "old" (1999) [RFC 2487](https://tools.ietf.org/html/rfc2487); and with developer friendly configuration settings, it makes it pretty easy to abide by the "newest" (2018) [RFC 8314](https://tools.ietf.org/html/rfc8314).
 
-Eventually, it is up to _you_ deciding exactly what kind of transportation/encryption to use and/or enforce, and to customize your instance accordingly (with looser or stricter security). Be also aware that protocols and ports on your server can only go so far with security; third-party MTAs might relay your emails on insecure connections, man-in-the-middle attacks might still prove effective, etc. Advanced counter-measure such as DANE, MTA-STS and/or full body encryption (eg. PGP) should be considered as well for increased confidentiality, but ideally without compromising about backwards compatibility so as to not block emails.
+Eventually, it is up to _you_ deciding exactly what kind of transportation/encryption to use and/or enforce, and to customize your instance accordingly (with looser or stricter security). Be also aware that protocols and ports on your server can only go so far with security; third-party MTAs might relay your emails on insecure connections, man-in-the-middle attacks might still prove effective, etc. Advanced counter-measure such as DANE, MTA-STS and/or full body encryption (eg. PGP) should be considered as well for increased confidentiality, but ideally without compromising backwards compatibility so as to not block emails.
 
 The [README](https://github.com/tomav/docker-mailserver) is the best starting point in configuring and running your mail server. You may then explore this wiki to cover additional topics, including but not limited to, security.
