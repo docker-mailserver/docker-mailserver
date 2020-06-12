@@ -26,7 +26,7 @@ Sending an email:    MUA ---> MTA ---> MTA ---> ... ---> MTA ---> MDA
 Fetching an email:   MUA <--------------------------------------- MDA
 ```
 
-There may be other moving parts or sub-divisions (for instance, at several point along the chain, specialized programs may be analyzing, filtering, bouncing, editing… the exchanged emails).
+There may be other moving parts or sub-divisions (for instance, at several points along the chain, specialized programs may be analyzing, filtering, bouncing, editing… the exchanged emails).
 
 In a nutshell, docker-mailserver provides you with the following components:
 
