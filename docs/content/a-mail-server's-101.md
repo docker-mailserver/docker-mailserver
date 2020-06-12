@@ -152,7 +152,7 @@ The best practice as of 2020 would be [POP3S](https://en.wikipedia.org/wiki/POP3
 
 As a _batteries included_ Docker image, docker-mailserver provides you with all the required components and a default configuration, to run a decent and secure mail server.
 
-One may customize all aspects of internal components.
+One may then customize all aspects of its internal components.
 - Simple customization is supported through [docker-compose configuration](https://github.com/tomav/docker-mailserver/blob/master/docker-compose.yml.dist) and the [env-mailserver](https://github.com/tomav/docker-mailserver/blob/master/env-mailserver.dist) configuration file.
 - Advanced customization is supported through providing "monkey-patching" configuration files and/or [deriving your own image](https://github.com/tomav/docker-mailserver/blob/master/Dockerfile) from docker-mailserver's upstream, for a complete control over how things run!
 
