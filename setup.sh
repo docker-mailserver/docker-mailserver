@@ -25,7 +25,7 @@ if [ -z "$CRI" ]; then
   fi
 fi
 
-INFO=$($CRI ps --no-trunc --format "{{.Image}};{{.Names}}" --filter label=org.label-schema.name="docker-mailserver")
+INFO=$($CRI ps --no-trunc --format "{{.Image}};{{.Names}}" --filter label=org.label-schema.name="docker-mailserver" | tail -1)
 
 IMAGE_NAME=${INFO%;*}
 CONTAINER_NAME=${INFO#*;}
