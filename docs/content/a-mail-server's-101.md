@@ -120,7 +120,7 @@ In many implementations, the mail server doesn't enforce TLS encryption, for bac
 
 - **docker-mailserver's default configuration enables and _requires_ Explicit TLS (STARTTLS) for Submission on port 587.**
 - It does not enable Implicit TLS Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.
-- It does not support old MUAs (clients) not supporting TLS encryption. One may relax that constraint through advanced custom configuration, for backwards compatibility.
+- It does not support old MUAs (clients) not supporting TLS encryption on ports 587/465 (those should perform Submission on port 25, more details below). One may relax that constraint through advanced custom configuration, for backwards compatibility.
 
 A final Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (plain text) mail exchange though, making STARTTLS a bit of a misusage. As is expected by [RFC 5321](https://tools.ietf.org/html/rfc5321), docker-mailserver uses port 25 for unencrypted Submission in order to support older clients (Submission), but most importantly for unencrypted Transfer/Relay between MTAs.
 
