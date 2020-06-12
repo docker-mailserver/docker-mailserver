@@ -85,21 +85,20 @@ When it comes to the specifics of email exchange, we have to look at protocols a
 | Retrieval      | IMAP4    | 143 (encrypted using STARTTLS) + 993 (TLS) |
 | Retrieval      | POP3     | _Not activated_                |
 
-If you're new to the field, that table may be confusing.  
-Read on to gain insights about docker-mailserver's configuration and how you may customize it.
-
-On a final note, here's what docker-mailserver's default configuration provides you with (feel free to skip this schema for now):
-
 ```txt
-                      ┏━━━━━━━━ Submission ━━━━━━━━┓┏━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━━┓
-                                          ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-Sending an email:    MUA --- STARTTLS --> ┤(587)   MTA ╮   (25)├ <-- plain text --> ┊ Third-party MTA ┊
-                                          |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-Fetching an email:   MUA <-- STARTTLS --- ┤(143)   MDA ╯       |
-                         <---- TLS ------ ┤(993)               |
-                                          └────────────────────┘
-                      ┗━━━━━━━━━ Retrieval ━━━━━━━━━┛
+                      ┏━━━━━━━━━━ Submission ━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
+                                             ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+Sending an email:    MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- plain text --> ┊ Third-party MTA ┊
+                         ---- plain text --> ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                                             |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
+Fetching an email:   MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
+                         <-- enforced TLS -- ┤(993)                |
+                                             └─────────────────────┘
+                      ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
 ```
+
+If you're new to the field, both that table and schema may be confusing.  
+Read on to gain insights about all those concepts, docker-mailserver's configuration and how you could customize it.
 
 ### Submission - SMTP
 
