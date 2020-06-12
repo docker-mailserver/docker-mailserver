@@ -39,8 +39,8 @@ Here's where `docker-mailserver`'s toochain fits within the delivery chain:
 ```txt
                                     docker-mailserver is here:
                                                          ┏━━━━━━━┓
-Sending an email:    MUA ---> MTA ---> MTA ---> ... ---> ┫ MTA ╮ ┃
-Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
+Sending an email:    MUA ---> MTA ---> MTA ---> ... ---> ┫ MTA ╮     ┃
+Fetching an email:   MUA <------------------------------ ┫ MDA ╯     ┃
                                                          ┗━━━━━━━┛
 ```
 
@@ -82,10 +82,10 @@ When it comes to the specifics of email exchange, we have to look at protocols a
 ```txt
  ┏━━━━━━━━━━ Submission ━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
                         ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- cleartext ---> ┊ Third-party MTA ┊
-    ---- cleartext ---> ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-                        |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
-MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
+MUA ----- STARTTLS ---> ┤(587)   MTA ╮    (25)├ <-- cleartext --> ┊ Third-party MTA            ┊
+    ---- cleartext ---> ┤(25)         │       |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                        |---------------------|
+MUA <---- STARTTLS ---- ┤(143)   MDA ╯       |
     <-- enforced TLS -- ┤(993)                |
                         └─────────────────────┘
  ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
