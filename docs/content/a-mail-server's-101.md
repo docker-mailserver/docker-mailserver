@@ -70,7 +70,7 @@ Three main purposes exist when it comes to exchanging emails:
 - _Transfer_ (aka. _Relay_): for an MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where an MTA will forward data to an MDA).
 - _Retrieval_: for a MUA (client), the act of fetching actual email data over the network, from an MDA.
 
-Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports. Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
+Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports (see. [_Understanding the ports_](https://github.com/tomav/docker-mailserver/wiki/Understanding-the-ports) for more details). Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
 
 When it comes to the specifics of email exchange, we have to look at protocols and ports enabled to support all the identified purposes. There are several valid options and they've been evolving overtime.
 
