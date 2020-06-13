@@ -50,9 +50,9 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
 > 1. Alice sends an email to `bob@dms.io` => the email is first submitted to MTA `smtp.gmail.com`, then relayed to MTA `smtp.dms.io` and eventually delivered into Bob's mailbox.
 > 2. Bob sends an email to `alice@gmail.com` => the email is first submitted to MTA `smtp.dms.io`, then relayed to MTA `smtp.gmail.com` and eventually delivered into Alice's mailbox.
 >
-> In the first scenario where the email leaves Gmail's premises, the email's *initial* submission is _not_ handled by the `docker-mailserver` instance/MTA; it merely receives the email after it has been relayed by Gmail's MTA. In the second scenario, the docker-mailserver instance's MTA does handle the submission, prior to relaying.
+> In the first scenario where the email leaves Gmail's premises, the email's *initial* submission is _not_ handled by the `docker-mailserver` instance/MTA; it merely receives the email after it has been relayed by Gmail's MTA. In the second scenario, the `docker-mailserver` instance/MTA does handle the submission, prior to relaying.
 >
-> The main takeaway from that is that sending an email to a docker-mailserver's MTA (any MTA for that matter) does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, and relaying between at least two MTAs is required to deliver an email. That will prove very important when it comes to security management.
+> The main takeaway from that is that sending an email to a `docker-mailserver` instance/MTA (or any MTA for that matter) does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, and relaying between at least two MTAs is required to deliver an email. That will prove very important when it comes to security management.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with `docker-mailserver`'s Postfix and Dovecot).
 
@@ -106,12 +106,12 @@ In the case of `docker-mailserver`, the MTA (SMTP server) is Postfix. The MUA (c
 
 #### Two kinds of Submission
 
-Let's say I own an account on a docker-mailserver instance, `me@dms.io`. There are two very different use-cases for Submission:
+Let's say I own an account on a `docker-mailserver` instance, `me@dms.io`. There are two very different use-cases for Submission:
 
 1. I want to send an email to someone
 2. Someone wants to send you an email
 
-In the first scenario, I will be submitting my email directly to my `docker-mailserver` instance's MTA (Postfix), which will then relay the email to its recipient's MTA for final delivery. In this case, Submission is first handled by establishing a direct connection to my own MTA-so at least for this portion of the delivery chain, I'll be able to ensure security/confidentiality. Not so much for what comes next, ie. relaying between MTAs and final delivery.
+In the first scenario, I will be submitting my email directly to my `docker-mailserver` instance/MTA (Postfix), which will then relay the email to its recipient's MTA for final delivery. In this case, Submission is first handled by establishing a direct connection to my own MTA-so at least for this portion of the delivery chain, I'll be able to ensure security/confidentiality. Not so much for what comes next, ie. relaying between MTAs and final delivery.
 
 In the second scenario, a third-party email account owner will be first submitting an email to some third-party MTA. I have no control over this initial portion of the delivery chain, nor do I have control over the relaying that comes next. My MTA will merely accept a relayed email coming "out of the blue".
 
