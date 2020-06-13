@@ -52,7 +52,7 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
 >
 > In the first scenario where the email leaves Gmail's premises, the email's *initial* submission is _not_ handled by the `docker-mailserver` instance/MTA; it merely receives the email after it has been relayed by Gmail's MTA. In the second scenario, the `docker-mailserver` instance/MTA does handle the submission, prior to relaying.
 >
-> The main takeaway from that is that sending an email to a `docker-mailserver` instance/MTA (or any MTA for that matter) does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, and relaying between at least two MTAs is required to deliver an email. That will prove very important when it comes to security management.
+> The main takeaway from that is that when a third-party sends an email to a `docker-mailserver` instance/MTA (or any MTA for that matter), it does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, then some relaying between at least two MTAs is required to deliver the email. That will prove very important when it comes to security management.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with `docker-mailserver`'s Postfix and Dovecot).
 
