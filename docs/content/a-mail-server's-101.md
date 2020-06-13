@@ -125,7 +125,7 @@ My MTA will thus have to support two kinds of Submission:
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me ---------------> ┤                    ├ -----------------> ┊                 ┊
                     │       My MTA       │                    ┊ Third-party MTA ┊
-Me <--------------- ┤                    ├ <----------------- ┊                 ┊
+                    │                    ├ <----------------- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
                                ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
 ```
@@ -161,6 +161,18 @@ Granted it's still very difficult enforcing encryption between MTAs (Transfer/Re
 - **`docker-mailserver`'s default configuration enables unencrypted (cleartext) on port 25 for Inward Submission.**
 - It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Inward Submission.
 - One may also secure Inward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
+
+Overall, `docker-mailserver`'s default configuration for SMTP looks like this:
+
+```txt
+ ┏━━━━ Outward Submission ━━━━┓
+                    ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+Me -- cleartext --> ┤(25)            (25)├ --- cleartext ---> ┊                 ┊
+Me -- STARTTLS ---> ┤(587)  My MTA       │                    ┊ Third-party MTA ┊
+                    │                (25)├ <---cleartext ---- ┊                 ┊
+                    └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                               ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
+```
 
 ### Retrieval - IMAP
 
