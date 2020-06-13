@@ -16,8 +16,8 @@ Unlike the client-side where usually a single program is used to perform retriev
 The following components are required to create a [complete delivery chain](https://en.wikipedia.org/wiki/Email_agent_(infrastructure)):
 
 - MUA: a [Mail User Agent](https://en.wikipedia.org/wiki/Email_client) is basically any client/program capable of sending emails to arbitrary mail servers; while also capable of fetching emails from mail servers for presenting them to the end users.
-- MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) is the so-called "mail server" as seen from the MUA's perspective. More specifically, it's a piece of software dedicated to accepting, and in some cases, transferring/relaying emails. An MTA may accept incoming emails either from MUAs or from other MTAs. It may then relay emails through other MTAs or final delivery to an MDA.
-- MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails from an MTA, but instead of forwarding it to another MTA, it is responsible for dropping emails into their recipients' mailboxes, whichever the form.
+- MTA: a [Mail Transfer Agent](https://en.wikipedia.org/wiki/Message_transfer_agent) is the so-called "mail server" as seen from the MUA's perspective. It's a piece of software dedicated to accepting submitted emails, then forwarding them-where exactly will depend on an email's final destination. If the receiving MTA is responsible for the hostname the email is sent to, then an MTA is to forward that email to an MDA (see below). Otherwise, it is to transfer (ie. forward, relay) to another MTA, "closer" to the email's final destination.
+- MDA: a [Mail Delivery Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent) is responsible for accepting emails from an MTA and dropping them into their recipients' mailboxes, whichever the form.
 
 Here's a schematic view of mail delivery:
 
@@ -39,16 +39,20 @@ Here's where `docker-mailserver`'s toochain fits within the delivery chain:
 ```txt
                                     docker-mailserver is here:
                                                          ┏━━━━━━━┓
-Sending an email:    MUA ---> MTA ---> MTA ---> ... ---> ┫ MTA ╮ ┃
+Sending an email:    MUA ---> MTA ---> (MTA relays) ---> ┫ MTA ╮ ┃
 Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
                                                          ┗━━━━━━━┛
 ```
 
+> Let's say Alice owns a Gmail account, `alice@gmail.com`; and Bob owns an account on a `docker-mailserver`'s instance, `bob@dms.io`.
+>
 > Make sure not to conflate these two very different scenarios:
-> Let's say Alice owns a Gmail account, `alice@gmail.com`; whereas Bob owns an account on a `docker-mailserver`'s instance, `bob@dms.io`.
-> 1. Alice sends an email to `bob@dms.io` => the email is submitted to MTA `smtp.gmail.com`, then relayed to MTA `smtp.dms.io`.
-> 2. Bob sends an email to `alice@gmail.com` => the email is submitted to MTA `smtp.dms.io`, then relayed to MTA `smtp.gmail.com`.
-> In the first scenario, the email's *initial* submission is _not_ handled by the `docker-mailserver` instance; its MTA merely receives the email after it has been relayed by Gmail. In the other scenario, a direct connection is established between Bob's MUA and the `docker-mailserver`'s instance's MTA. That will prove very important when it comes to security management.
+> 1. Alice sends an email to `bob@dms.io` => the email is first submitted to MTA `smtp.gmail.com`, then relayed to MTA `smtp.dms.io` and eventually delivered into Bob's mailbox.
+> 2. Bob sends an email to `alice@gmail.com` => the email is first submitted to MTA `smtp.dms.io`, then relayed to MTA `smtp.gmail.com` and eventually delivered into Alice's mailbox.
+>
+> In the first scenario where the email leaves Gmail's premises, the email's *initial* submission is _not_ handled by the `docker-mailserver` instance/MTA; it merely receives the email after it has been relayed by Gmail's MTA. In the second scenario, the docker-mailserver instance's MTA does handle the submission, prior to relaying.
+>
+> The main takeaway from that is that sending an email to a docker-mailserver's MTA (any MTA for that matter) does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, and relaying between at least two MTAs is required to deliver an email. That will prove very important when it comes to security management.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with `docker-mailserver`'s Postfix and Dovecot).
 
@@ -100,7 +104,35 @@ For a MUA to send an email to an MTA, it needs to establish a connection with th
 
 In the case of `docker-mailserver`, the MTA (SMTP server) is Postfix. The MUA (client) may vary, yet its Submission request is performed as [TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) packets sent over the _public_ internet. This exchange of information may be secured in order to counter eavesdropping.
 
-The best practice as of 2020 is to handle SMTP Submission using an _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314](https://tools.ietf.org/html/rfc8314)). Let's break it down.
+#### Two kinds of Submission
+
+Let's say I own an account on a docker-mailserver instance, `me@dms.io`. There are two very different use-cases for Submission:
+
+1. I want to send an email to someone
+2. Someone wants to send you an email
+
+In the first scenario, I will be submitting my email directly to my `docker-mailserver` instance's MTA (Postfix), which will then relay the email to its recipient's MTA for final delivery. In this case, Submission is first handled by establishing a direct connection to my own MTA-so at least for this portion of the delivery chain, I'll be able to ensure security/confidentiality. Not so much for what comes next, ie. relaying between MTAs and final delivery.
+
+In the second scenario, a third-party email account owner will be first submitting an email to some third-party MTA. I have no control over this initial portion of the delivery chain, nor do I have control over the relaying that comes next. My MTA will merely accept a relayed email coming "out of the blue".
+
+My MTA will thus have to support two kinds of Submission:
+
+- Outward Submission (self-owned email is submitted directly to the MTA, then is relayed "outside")
+- Inward Submission (third-party email has been submitted & relayed, then is accepted "inside" by the MTA)
+
+```txt
+ ┏━━━━ Outward Submission ━━━━┓
+                    ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+Me ---------------> ┤                    ├ -----------------> ┊                 ┊
+                    │       My MTA       │                    ┊ Third-party MTA ┊
+Me <--------------- ┤                    ├ <----------------- ┊                 ┊
+                    └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                               ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
+```
+
+##### Outward Submission
+
+The best practice as of 2020 when it comes to securing Outward Submission is to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314](https://tools.ietf.org/html/rfc8314)). Let's break it down.
 
 - Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security). With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go. The mail server would deny any client attempting to submit email in cleartext (unencrypted, not secure) or requesting a cleartext connection to be upgraded to a TLS-encrypted one (secure if `STARTTLS` is successful). It is also known as Enforced TLS.
 - [ESMTP](https://en.wikipedia.org/wiki/ESMTP) is [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) + extensions. It's the version of the SMTP protocol that most mail servers speak nowadays. For the purpose of this documentation, ESMTP and SMTP are synonymous.
@@ -112,15 +144,23 @@ Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cuttin
 
 In many implementations, the mail server doesn't enforce TLS encryption, for backwards compatibility. Clients are thus free to deny the TLS-upgrade proposal (or [misled by a hacker](https://security.stackexchange.com/questions/168998/what-happens-if-starttls-dropped-in-smtp) about STARTTLS not being available), and the server accepts unencrypted (cleartext) mail exchange, which poses a confidentiality threat and, to some extent, spam issues. [RFC 8314 (section 3.3)](https://tools.ietf.org/html/rfc8314) recommends for mail servers to support both Implicit and Explicit TLS for Submission, _and_ to enforce TLS-encryption on ports 587 (Explicit TLS) and 465 (Implicit TLS). That's exactly `docker-mailserver`'s default configuration: abiding by RFC 8314, it [enforces a strict (`encrypt`) STARTTLS policy](http://www.postfix.org/postconf.5.html#smtpd_tls_security_level), where a denied TLS upgrade terminates the connection thus (hopefully but at the client's discretion) preventing unencrypted (cleartext) Submission.
 
-- **`docker-mailserver`'s default configuration enables and _requires_ Explicit TLS (STARTTLS) for Submission on port 587.**
-- It does not enable Implicit TLS Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.
+- **`docker-mailserver`'s default configuration enables and _requires_ Explicit TLS (STARTTLS) on port 587 for Outward Submission.**
+- It does not enable Implicit TLS Outward Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.
 - It does not support old MUAs (clients) not supporting TLS encryption on ports 587/465 (those should perform Submission on port 25, more details below). One may relax that constraint through advanced custom configuration, for backwards compatibility.
 
-A final Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (cleartext) mail exchange though, making STARTTLS a bit wrong to use. As is expected by [RFC 5321](https://tools.ietf.org/html/rfc5321), `docker-mailserver` uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.
+A final Outward Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (cleartext) mail exchange though, making STARTTLS a bit wrong to use. As is expected by [RFC 5321](https://tools.ietf.org/html/rfc5321), `docker-mailserver` uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.
 
-- **`docker-mailserver`'s default configuration enables unencrypted (cleartext) for Submission & Transfer/Relay on port 25.**
-- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Submission & Transfer/Relay.
-- One may also secure Transfer/Relay on port 25 using advanced encryption scheme, such as DANE and/or MTA-STS.
+- **`docker-mailserver`'s default configuration also enables unencrypted (cleartext) on port 25 for Outward Submission.**
+- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Outward Submission.
+- One may also secure Outward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
+
+##### Inward Submission
+
+Granted it's still very difficult enforcing encryption between MTAs (Transfer/Relay) without risking dropping emails (when relayed by MTAs not supporting TLS-encryption), Inward Submission is to be handled in cleartext on port 25 by default.
+
+- **`docker-mailserver`'s default configuration enables unencrypted (cleartext) on port 25 for Inward Submission.**
+- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Inward Submission.
+- One may also secure Inward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
 
 ### Retrieval - IMAP
 
