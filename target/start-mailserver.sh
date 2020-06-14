@@ -405,7 +405,7 @@ function check() {
 }
 
 function _check_hostname() {
-	notify "task" "Check that hostname/domainname is provided or overidden (no default docker hostname/kubernetes) [$FUNCNAME]"
+	notify "task" "Check that hostname/domainname is provided or overridden (no default docker hostname/kubernetes) [$FUNCNAME]"
 
 	if [[ ! -z ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} ]]; then
 		export HOSTNAME=${DEFAULT_VARS["OVERRIDE_HOSTNAME"]}
