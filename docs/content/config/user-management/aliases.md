@@ -2,7 +2,9 @@ Please first read [Postfix documentation on virtual aliases](http://www.postfix.
 
 ### Configuring aliases
 
-Aliases are managed in `/tmp/docker-mailserver/postfix-aliases.cf`.
+You can use [setup.sh](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh#alias) instead of creating and editing files manually.
+
+Aliases are managed in `/tmp/docker-mailserver/postfix-virtual.cf`.
 
 An alias is a _full_ email address that will either be:
 
@@ -21,7 +23,7 @@ Example (on a server with domain.tld as its domain):
 
 ### Configuring regexp aliases
 
-Additional regexp aliases can be configured by placing them into `config/postfix-regexp.cf`. The regexp aliases get evaluated after the virtual aliases (/tmp/docker-mailserver/postfix-aliases.cf).
+Additional regexp aliases can be configured by placing them into `config/postfix-regexp.cf`. The regexp aliases get evaluated after the virtual aliases (`/tmp/docker-mailserver/postfix-virtual.cf`).
 
 For example, the following `config/postfix-regexp.cf` causes all email to "test" users to be delivered to qa@example.com:
 
