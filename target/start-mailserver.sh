@@ -786,7 +786,7 @@ function _setup_ldap() {
 	# _dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
 
 	for var in ${!_dovecot_ldap_mapping[@]}; do
-		export $var=${_dovecot_ldap_mapping[$var]}
+		export $var="${_dovecot_ldap_mapping[$var]}"
 	done
 
 	configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
