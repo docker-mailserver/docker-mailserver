@@ -1043,7 +1043,7 @@ function _setup_ssl() {
 	# SSL certificate Configuration
 	case $SSL_TYPE in
 		"letsencrypt" )
-      notify 'inf' "Configuring SSL using 'letsecnrypt'"
+      notify 'inf' "Configuring SSL using 'letsencrypt'"
       # letsencrypt folders and files mounted in /etc/letsencrypt
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
