@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/local/bin/helper_functions.sh
+
 # create date for log output
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 echo "${log_date} Start check-for-changes script."
@@ -32,7 +34,7 @@ echo "${log_date} Using postmaster address ${PM_ADDRESS}"
 
 # Create an array of files to monitor, must be the same as in start-mailserver.sh
 declare -a cf_files=()
-for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf dovecot-quotas.cf; do
+for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf dovecot-quotas.cf /etc/letsencrypt/acme.json; do
   [ -f "$file" ] && cf_files+=("$file")
 done
 
@@ -60,6 +62,10 @@ if [[ $chksum == *"FAIL"* ]]; then
         # Not fixing indentation yet to reduce diff (fix later in separate commit)
         (
           flock -e 200
+
+  if [[ $chksum == *"/etc/letsencrypt/acme.json: FAILED"* ]]; then
+    (extractCertsFromAcmeJson "$HOSTNAME" || extractCertsFromAcmeJson "$DOMAINNAME")
+  fi
 
 	#regen postix aliases.
 	echo "root: ${PM_ADDRESS}" > /etc/aliases
