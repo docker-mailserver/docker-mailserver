@@ -114,19 +114,18 @@ if [[ $chksum == *"FAIL"* ]]; then
 		# Creating users
 		# 'pass' is encrypted
 		# comments and empty lines are ignored
-		grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
+		grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass user_attributes
 		do
 			# Setting variables for better readability
 			user=$(echo ${login} | cut -d @ -f1)
 			domain=$(echo ${login} | cut -d @ -f2)
 
-			user_attributes=""
 			# test if user has a defined quota
 			if [ -f /tmp/docker-mailserver/dovecot-quotas.cf ]; then
 			  user_quota=($(grep "${user}@${domain}:" -i /tmp/docker-mailserver/dovecot-quotas.cf | tr ':' '\n'))
 
 			  if [ ${#user_quota[@]} -eq 2 ]; then
-			    user_attributes="${user_attributes}userdb_quota_rule=*:bytes=${user_quota[1]}"
+			    user_attributes="${user_attributes} userdb_quota_rule=* bytes=${user_quota[1]}"
 			  fi
 			fi
 
