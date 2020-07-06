@@ -13,7 +13,7 @@ _dmarc.domain.com. IN TXT "v=DMARC1; p=none; rua=mailto:dmarc.report@domain.com;
 
 Or a bit more strict policies (mind `p=quarantine` and `sp=quarantine`):
 ```
-_dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc.report@domain.com; ruf=dmarc.report@domain.com; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; sp=quarantine"
+_dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc.report@domain.com; ruf=mailto:dmarc.report@domain.com; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; sp=quarantine"
 ```
 
 DMARC status is not being displayed instantly in Gmail for instance. If you want to check it directly after DNS entries, you can use some services around the Internet such as https://dmarcguide.globalcyberalliance.org/ or https://ondmarc.redsift.com/. In other case, email clients will show "DMARC: PASS" in ~1 day or so.
