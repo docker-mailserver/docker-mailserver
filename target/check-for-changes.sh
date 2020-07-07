@@ -64,7 +64,11 @@ if [[ $chksum == *"FAIL"* ]]; then
           flock -e 200
 
   if [[ $chksum == *"/etc/letsencrypt/acme.json: FAILED"* ]]; then
-    (extractCertsFromAcmeJson "$HOSTNAME" || extractCertsFromAcmeJson "$DOMAINNAME")
+    for certdomain in $SSL_DOMAIN $HOSTNAME $DOMAINNAME; do
+      if extractCertsFromAcmeJson "$certdomain"; then
+        break
+      fi
+    done
   fi
 
 	#regen postix aliases.

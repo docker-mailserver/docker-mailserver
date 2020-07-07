@@ -34,6 +34,7 @@ function setup_file() {
     -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
     -e DMS_DEBUG=0 \
     -e SSL_TYPE=letsencrypt \
+    -e "SSL_DOMAIN=*.example.com" \
     -h mail.my-domain.com -t ${NAME}
 
   wait_for_finished_setup_in_container mail_lets_acme_json
@@ -114,7 +115,7 @@ function teardown_file() {
   cp "`pwd`/test/config/letsencrypt/acme-changed.json" "`pwd`/test/config/acme.json"
   sleep 11
   run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "Cert found in /etc/letsencrypt/acme.json for mail.my-domain.com"
+  assert_output --partial "Cert found in /etc/letsencrypt/acme.json for *.example.com"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
   assert_output --partial "Update checksum"
