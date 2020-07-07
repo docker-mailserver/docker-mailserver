@@ -505,7 +505,7 @@ function _setup_chksum_file() {
           pushd /tmp/docker-mailserver
 
           declare -a cf_files=()
-          for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf dovecot-quotas.cf /etc/letsencrypt/acme.json; do
+          for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf dovecot-quotas.cf /etc/letsencrypt/acme.json "/etc/letsencrypt/live/$HOSTNAME/key.pem" "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem"; do
             [ -f "$file" ] && cf_files+=("$file")
           done
 
