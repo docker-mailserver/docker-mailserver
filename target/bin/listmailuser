@@ -3,8 +3,8 @@
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
 errex() {
-	echo "$@" 1>&2
-	exit 1
+  echo "$@" 1>&2
+  exit 1
 }
 
 [ -f $DATABASE ] || errex "No postfix-accounts.cf file"
@@ -15,4 +15,3 @@ errex() {
   flock -e 200
   (grep -v "^\s*$\|^\s*\#" "$DATABASE" || true) | awk -F '|' '{ print $1; }'
 ) 200<$DATABASE
-

@@ -7,27 +7,33 @@ HOST="$2"
 PORT="$3"
 
 usage() {
-	echo "Usage: addrelayhost <domain> <host> [<port>]"
+  echo "Usage: addrelayhost <domain> <host> [<port>]"
 }
 
 errex() {
-	echo "$@" 1>&2
-	exit 1
+  echo "$@" 1>&2
+  exit 1
 }
 
 escape() {
-	echo "${1//./\\.}"
+  echo "${1//./\\.}"
 }
 
-[ -z "$DOMAIN" ] && { usage; errex "no domain specified"; }
-[ -z "$HOST" ] && { usage; errex "no relay host specified"; }
+[ -z "$DOMAIN" ] && {
+  usage
+  errex "no domain specified"
+}
+[ -z "$HOST" ] && {
+  usage
+  errex "no relay host specified"
+}
 
 if [ -z "$PORT" ]; then
-	PORT=25
+  PORT=25
 fi
 
 if grep -qi "^@$DOMAIN" $DATABASE 2>/dev/null; then
-	sed -i "s ^@"$DOMAIN".* "@$DOMAIN"\t\t["$HOST"]:"$PORT" " $DATABASE
+  sed -i "s ^@"$DOMAIN".* "@$DOMAIN"\t\t["$HOST"]:"$PORT" " $DATABASE
 else
-	echo -e "@$DOMAIN\t\t[$HOST]:$PORT" >> $DATABASE
+  echo -e "@$DOMAIN\t\t[$HOST]:$PORT" >>$DATABASE
 fi

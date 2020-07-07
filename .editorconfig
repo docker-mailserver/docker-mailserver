@@ -10,7 +10,7 @@ insert_final_newline = true
 indent_style = space
 trim_trailing_whitespace = false
 
-[*.{yaml,yml,yml.dist,yml.tmpl}]
+[*.{yaml, yml, yml.dist, yml.tmpl}]
 indent_style = space
 indent_size = 2
 
@@ -22,12 +22,12 @@ indent_size = 4
 indent_style = space
 indent_size = 2
 
-[*.{sh,bats}]
+[*.{sh, bats}]
 indent_style = space
 indent_size = 2
 
 # directories created by git submodules
-[{test/bats/**,test/test_helper/bats-assert/**,test/test_helper/bats-support/**,target/docker-configomat/**}]
+[{test/bats/**, test/test_helper/bats-assert/**, test/test_helper/bats-support/**, target/docker-configomat/**}]
 insert_final_newline = none
 indent_style = none
 indent_size = none

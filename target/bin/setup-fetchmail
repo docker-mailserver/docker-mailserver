@@ -4,9 +4,9 @@ CONF=/tmp/docker-mailserver/fetchmail.cf
 RC=/etc/fetchmailrc
 
 if [ -f "$CONF" ]; then
-	cat /etc/fetchmailrc_general $CONF > $RC
+  cat /etc/fetchmailrc_general $CONF >$RC
 else
-	cat /etc/fetchmailrc_general > $RC
+  cat /etc/fetchmailrc_general >$RC
 fi
 
 chmod 700 $RC

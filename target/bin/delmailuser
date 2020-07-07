@@ -5,33 +5,37 @@ ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
 QUOTA_DATABASE="/tmp/docker-mailserver/dovecot-quotas.cf"
 
 usage() {
-	echo "Usage: delmailuser <-y> <user@domain> <user2@anotherdomain> ..."
-	echo "	-y: don't prompt for confirmations"
+  echo "Usage: delmailuser <-y> <user@domain> <user2@anotherdomain> ..."
+  echo "	-y: don't prompt for confirmations"
 }
 
 errex() {
-	echo -e "$@" 1>&2
-	exit 1
+  echo -e "$@" 1>&2
+  exit 1
 }
 
 escape() {
-	echo "${1//./\\.}"
+  echo "${1//./\\.}"
 }
 
 while getopts ":y" OPT; do
   case $OPT in
-    y)
-      MAILDEL="y"
-      ;;
-   \?)
-		 usage; errex "Invalid option: -$OPTARG"
-     ;;
+  y)
+    MAILDEL="y"
+    ;;
+  \?)
+    usage
+    errex "Invalid option: -$OPTARG"
+    ;;
   esac
 done
 
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
-[ -z "$@" ] && { usage; errex "No user specifed"; }
+[ -z "$@" ] && {
+  usage
+  errex "No user specifed"
+}
 [ -s "$DATABASE" ] || exit 0
 
 # Protect config file with lock to avoid race conditions
@@ -49,8 +53,8 @@ shift $((OPTIND-1))
     # Delete all aliases where the user is the only recipient( " $USER$" )
     # Delete user only for all aliases that deliver to multiple recipients ( ",$USER" "$USER," )
     sed -i -e "/ "$USER"$/d" \
-        -e "s/,"$USER"//g" \
-        -e "s/"$USER",//g" $ALIAS_DATABASE
+      -e "s/,"$USER"//g" \
+      -e "s/"$USER",//g" $ALIAS_DATABASE
     [ $? = 0 ] && echo "$USER and potential aliases deleted." || errex "Aliases for $USER couldn't be deleted in $ALIAS_DATABASE. $?"
     # remove quota directives
     if [ -f "$QUOTA_DATABASE" ]; then

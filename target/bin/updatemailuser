@@ -7,24 +7,27 @@ shift
 PASSWD="$@"
 
 usage() {
-	echo "Usage: updatemailuser <user@domain.tld> [password]"
+  echo "Usage: updatemailuser <user@domain.tld> [password]"
 }
 
 errex() {
-	echo "$@" 1>&2
-	exit 1
+  echo "$@" 1>&2
+  exit 1
 }
 
 escape() {
-	echo "${1//./\\.}"
+  echo "${1//./\\.}"
 }
 
-[ -z "$USER" ] && { usage; errex "no username specified"; }
+[ -z "$USER" ] && {
+  usage
+  errex "no username specified"
+}
 
 if [ -z "$PASSWD" ]; then
-	read -s -p "Enter Password: " PASSWD
-	echo
-	[ -z "$PASSWD" ] && errex "Password must not be empty"
+  read -s -p "Enter Password: " PASSWD
+  echo
+  [ -z "$PASSWD" ] && errex "Password must not be empty"
 fi
 HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
 

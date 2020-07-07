@@ -3,8 +3,8 @@
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
 errex() {
-	echo "$@" 1>&2
-	exit 1
+  echo "$@" 1>&2
+  exit 1
 }
 
 [ -f $DATABASE ] || errex "No postfix-virtual.cf file"

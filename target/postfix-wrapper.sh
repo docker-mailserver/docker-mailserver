@@ -28,7 +28,6 @@ service postfix start
 sleep 5
 
 # wait until postfix is dead (triggered by trap)
-while kill -0 "`cat /var/spool/postfix/pid/master.pid`"; do
+while kill -0 "$(cat /var/spool/postfix/pid/master.pid)"; do
   sleep 5
 done
-

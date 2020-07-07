@@ -28,7 +28,7 @@ fi
 INFO=$($CRI ps \
   --no-trunc \
   --format "{{.Image}};{{.Names}}" \
-  --filter label=org.label-schema.name="docker-mailserver" | \
+  --filter label=org.label-schema.name="docker-mailserver" |
   tail -1)
 
 IMAGE_NAME=${INFO%;*}
@@ -39,7 +39,7 @@ USE_CONTAINER=false
 _update_config_path() {
   if [ ! -z "$CONTAINER_NAME" ]; then
     VOLUME=$(docker inspect $CONTAINER_NAME \
-      --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
+      --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" |
       grep "/tmp/docker-mailserver$" 2>/dev/null)
   fi
 
@@ -132,7 +132,7 @@ _docker_image_exists() {
   fi
 }
 
-if tty -s ; then
+if tty -s; then
   USE_TTY="-ti"
 fi
 
@@ -165,31 +165,31 @@ _docker_container() {
 
 while getopts ":c:i:p:" OPT; do
   case $OPT in
-    c)
-      CONTAINER_NAME="$OPTARG"
-      USE_CONTAINER=true # Container specified, connect to running instance
+  c)
+    CONTAINER_NAME="$OPTARG"
+    USE_CONTAINER=true # Container specified, connect to running instance
+    ;;
+  i)
+    IMAGE_NAME="$OPTARG"
+    ;;
+  p)
+    case "$OPTARG" in
+    /*)
+      WISHED_CONFIG_PATH="$OPTARG"
       ;;
-    i)
-      IMAGE_NAME="$OPTARG"
+    *)
+      WISHED_CONFIG_PATH="$(pwd)/$OPTARG"
       ;;
-    p)
-      case "$OPTARG" in
-      /*)
-          WISHED_CONFIG_PATH="$OPTARG"
-          ;;
-      *)
-          WISHED_CONFIG_PATH="$(pwd)/$OPTARG"
-          ;;
-      esac
-      if [ ! -d "$WISHED_CONFIG_PATH" ]; then
-        echo "Directory doesn't exist"
-        _usage
-        exit 1
-      fi
-      ;;
-   \?)
-     echo "Invalid option: -$OPTARG" >&2
-     ;;
+    esac
+    if [ ! -d "$WISHED_CONFIG_PATH" ]; then
+      echo "Directory doesn't exist"
+      _usage
+      exit 1
+    fi
+    ;;
+  \?)
+    echo "Invalid option: -$OPTARG" >&2
+    ;;
   esac
 done
 
@@ -204,143 +204,143 @@ else
   CONFIG_PATH=$WISHED_CONFIG_PATH
 fi
 
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
 case $1 in
 
-  email)
+email)
+  shift
+  case $1 in
+  add)
     shift
-    case $1 in
-      add)
-        shift
-        _docker_image addmailuser $@
-        ;;
-      update)
-        shift
-        _docker_image updatemailuser $@
-        ;;
-      del)
-        shift
-        _docker_image delmailuser $@
-        ;;
-      restrict)
-        shift
-        _docker_container restrict-access $@
-        ;;
-      list)
-        _docker_image listmailuser
-        ;;
-      *)
-        _usage
-        ;;
-    esac
+    _docker_image addmailuser $@
     ;;
-
-  alias)
+  update)
     shift
-    case $1 in
-        add)
-          shift
-          _docker_image addalias $@
-          ;;
-        del)
-          shift
-          _docker_image delalias $@
-          ;;
-        list)
-          shift
-          _docker_image listalias $@
-          ;;
-        *)
-          _usage
-          ;;
-    esac
+    _docker_image updatemailuser $@
     ;;
-
-  quota)
+  del)
     shift
-    case $1 in
-        set)
-          shift
-          _docker_image setquota $@
-          ;;
-        del)
-          shift
-          _docker_image delquota $@
-          ;;
-        *)
-          _usage
-          ;;
-    esac
+    _docker_image delmailuser $@
     ;;
-
-  config)
+  restrict)
     shift
-    case $1 in
-      dkim)
-        _docker_image generate-dkim-config $2
-        ;;
-      ssl)
-        _docker_image generate-ssl-certificate "$2"
-        ;;
-      *)
-        _usage
-        ;;
-    esac
+    _docker_container restrict-access $@
     ;;
-
-  relay)
-    shift
-    case $1 in
-      add-domain)
-        shift
-        _docker_image addrelayhost $@
-        ;;
-      add-auth)
-        shift
-        _docker_image addsaslpassword $@
-        ;;
-      exclude-domain)
-        shift
-        _docker_image excluderelaydomain $@
-        ;;
-      *)
-        _usage
-        ;;
-    esac
+  list)
+    _docker_image listmailuser
     ;;
-
-  debug)
-    shift
-    case $1 in
-      fetchmail)
-        _docker_image debug-fetchmail
-        ;;
-      fail2ban)
-        shift
-        _docker_container fail2ban $@
-        ;;
-      show-mail-logs)
-        _docker_container cat /var/log/mail/mail.log
-        ;;
-      inspect)
-        _inspect
-        ;;
-      login)
-        shift
-        if [ -z "$1" ]; then
-          _docker_container /bin/bash
-        else
-          _docker_container /bin/bash -c "$@"
-        fi
-        ;;
-      *)
-        _usage
-        ;;
-    esac
-    ;;
-
   *)
     _usage
     ;;
+  esac
+  ;;
+
+alias)
+  shift
+  case $1 in
+  add)
+    shift
+    _docker_image addalias $@
+    ;;
+  del)
+    shift
+    _docker_image delalias $@
+    ;;
+  list)
+    shift
+    _docker_image listalias $@
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+  ;;
+
+quota)
+  shift
+  case $1 in
+  set)
+    shift
+    _docker_image setquota $@
+    ;;
+  del)
+    shift
+    _docker_image delquota $@
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+  ;;
+
+config)
+  shift
+  case $1 in
+  dkim)
+    _docker_image generate-dkim-config $2
+    ;;
+  ssl)
+    _docker_image generate-ssl-certificate "$2"
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+  ;;
+
+relay)
+  shift
+  case $1 in
+  add-domain)
+    shift
+    _docker_image addrelayhost $@
+    ;;
+  add-auth)
+    shift
+    _docker_image addsaslpassword $@
+    ;;
+  exclude-domain)
+    shift
+    _docker_image excluderelaydomain $@
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+  ;;
+
+debug)
+  shift
+  case $1 in
+  fetchmail)
+    _docker_image debug-fetchmail
+    ;;
+  fail2ban)
+    shift
+    _docker_container fail2ban $@
+    ;;
+  show-mail-logs)
+    _docker_container cat /var/log/mail/mail.log
+    ;;
+  inspect)
+    _inspect
+    ;;
+  login)
+    shift
+    if [ -z "$1" ]; then
+      _docker_container /bin/bash
+    else
+      _docker_container /bin/bash -c "$@"
+    fi
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+  ;;
+
+*)
+  _usage
+  ;;
 esac

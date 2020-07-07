@@ -28,7 +28,6 @@ trap "/usr/bin/fail2ban-client reload" SIGHUP
 sleep 5
 
 # wait until fail2ban is dead (triggered by trap)
-while kill -0 "`cat /var/run/fail2ban/fail2ban.pid`"; do
+while kill -0 "$(cat /var/run/fail2ban/fail2ban.pid)"; do
   sleep 5
 done
-

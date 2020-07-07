@@ -5,12 +5,12 @@ filebeat.config:
 
 filebeat.autodiscover:
   providers:
-    - type: docker
-      hints.enabled: true
-      hints.default_config.enabled: false
+  - type: docker
+    hints.enabled: true
+    hints.default_config.enabled: false
 
 processors:
 - add_cloud_metadata: ~
 
 output.logstash:
-    hosts: ["127.0.0.1:5044"]
+  hosts: ["127.0.0.1:5044"]
