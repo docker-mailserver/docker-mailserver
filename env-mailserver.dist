@@ -270,6 +270,11 @@ DOVECOT_PASS_FILTER=
 # default is maildir, supported values are: sdbox, mdbox, maildir
 DOVECOT_MAILBOX_FORMAT=maildir
 
+# empty => no
+# yes => Allow bind authentication for LDAP
+# https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds
+DOVECOT_AUTH_BIND=
+
 # -----------------------------------------------------------------------------------------------------------------------------
 # ---------------- Postgrey section -------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
