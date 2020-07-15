@@ -1326,7 +1326,7 @@ function _setup_postfix_relay_hosts() {
 	if [ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]; then
 		notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
 		while read line; do
-			if ! echo "$line" | grep -q -e "^\s*#"; then
+			if ! echo "$line" | grep -q -e "^\s*#";  then
 				echo "$line" >> /etc/postfix/sasl_passwd
 			fi
 		done < /tmp/docker-mailserver/postfix-sasl-password.cf
