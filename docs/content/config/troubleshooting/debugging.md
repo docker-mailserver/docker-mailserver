@@ -52,3 +52,11 @@ fail2ban-client set postfix addignoreip <client ip>
 fail2ban-client stop dovecot
 fail2ban-client stop postfix
 ```
+
+## Send email is never received
+
+Some hosting provides have a stealth block on port 25. Make sure to check with your hosting provider that traffic on port 25 is allowed
+
+Common hosting providers known to have this issue:
+- [Azure](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
+- [AWS EC2](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/)
