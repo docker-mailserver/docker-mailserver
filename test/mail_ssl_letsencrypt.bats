@@ -26,11 +26,25 @@ function setup_file() {
   -e SSL_TYPE=letsencrypt \
   -h mail.my-domain.com -t ${NAME}
   wait_for_finished_setup_in_container mail_lets_hostname
+
+  cp "`pwd`/test/config/letsencrypt/acme.json" "`pwd`/test/config/acme.json"
+  docker run -d --name mail_lets_acme_json \
+    -v "`pwd`/test/config":/tmp/docker-mailserver \
+    -v "`pwd`/test/config/acme.json":/etc/letsencrypt/acme.json:ro \
+    -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e DMS_DEBUG=0 \
+    -e SSL_TYPE=letsencrypt \
+    -e "SSL_DOMAIN=*.example.com" \
+    -h mail.my-domain.com -t ${NAME}
+
+  wait_for_finished_setup_in_container mail_lets_acme_json
 }
 
 function teardown_file() {
   docker rm -f mail_lets_domain
   docker rm -f mail_lets_hostname
+  docker rm -f mail_lets_acme_json
+  rm "`pwd`/test/config/acme.json"
 }
 
 # this test must come first to reliably identify when to run setup_file
@@ -77,6 +91,44 @@ function teardown_file() {
   run docker exec mail_lets_hostname /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   assert_success
 }
+
+#
+# acme.json updates
+#
+
+@test "checking changedetector: server is ready" {
+  run docker exec mail_lets_acme_json /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
+  assert_success
+}
+
+@test "can extract certs from acme.json" {
+  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
+  assert_output "$(cat "`pwd`/test/config/letsencrypt/mail.my-domain.com/privkey.pem")"
+  assert_success
+
+  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
+  assert_output "$(cat "`pwd`/test/config/letsencrypt/mail.my-domain.com/fullchain.pem")"
+  assert_success
+}
+
+@test "can detect changes" {
+  cp "`pwd`/test/config/letsencrypt/acme-changed.json" "`pwd`/test/config/acme.json"
+  sleep 11
+  run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
+  assert_output --partial "Cert found in /etc/letsencrypt/acme.json for *.example.com"
+  assert_output --partial "postfix: stopped"
+  assert_output --partial "postfix: started"
+  assert_output --partial "Update checksum"
+
+  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
+  assert_output "$(cat "`pwd`/test/config/letsencrypt/changed/key.pem")"
+  assert_success
+
+  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
+  assert_output "$(cat "`pwd`/test/config/letsencrypt/changed/fullchain.pem")"
+  assert_success
+}
+
 
  # this test is only there to reliably mark the end for the teardown_file
 @test "last" {
