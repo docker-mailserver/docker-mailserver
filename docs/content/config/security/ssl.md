@@ -1,7 +1,7 @@
 There are multiple options to enable SSL:
 
 * using [letsencrypt](#lets-encrypt-recommended) (recommended)
-* using [traefik](#traefik)
+* using [Traefik](#traefik)
 * using [self-signed certificates](#self-signed-certificates-testing-only) with the provided tool
 * using [your own certificates](#custom-certificate-files)
 
@@ -314,7 +314,61 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 Traefik can request certificates for domains through the ACME protocol (see [Traefik's documentation about its ACME negotiation & storage mechanism](https://docs.traefik.io/https/acme/)). Traefik's router will take care of renewals, challenge negotiations, etc.
 
-If you are using Traefik, you might want to _push_ your Traefik-managed certificates to the mailserver container, in order to reuse them. Not an easy task, but fortunately, [youtous/mailserver-traefik](https://github.com/youtous/docker-mailserver-traefik) is a certificate renewal service for docker-mailserver.
+##### Traefik v2
+
+(For Traefik v1 see [next section](#traefik-v1))
+Traefik's V2 storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Lookup of the certificate domain happens in the following order:
+
+ 1. $SSL_DOMAIN
+ 2. $HOSTNAME
+ 3. $DOMAINNAME
+
+This allows for support of wild card certificates: `"SSL_DOMAIN=*.example.com"`. Here is an example setup for [docker-compose](https://docs.docker.com/compose/):
+
+```yaml
+version: '3.8'
+services:
+  mail:
+    image: tvial/docker-mailserver:stable
+    hostname: mail
+    domainname: example.com
+    volumes:
+    - /etc/ssl/acme-v2.json:/etc/letsencrypt/acme.json:ro
+    environment:
+      SSL_TYPE: letsencrypt
+      # SSL_DOMAIN: "*.example.com" 
+  traefik:
+    image: traefik:v2.2
+    restart: always
+    ports:
+    - "80:80"
+    - "443:443"
+    command:
+    - --providers.docker
+    - --entrypoints.web.address=:80
+    - --entrypoints.web.http.redirections.entryPoint.to=websecure
+    - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    - --entrypoints.websecure.address=:443
+    - --entrypoints.websecure.http.middlewares=hsts@docker
+    - --entrypoints.websecure.http.tls.certResolver=le
+    - --certificatesresolvers.le.acme.email=admin@example.net
+    - --certificatesresolvers.le.acme.storage=/acme.json
+    - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /etc/ssl/acme-v2.json:/acme.json
+
+  whoami:
+    image: containous/whoami
+    labels:
+    - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
+```
+
+This setup only comes with one caveat: The domain has to be configured on another service for traefik to actually request it from lets-encrypt (`whoami` in this case).
+
+##### Traefik V1
+
+If you are using Traefik v1, you might want to _push_ your Traefik-managed certificates to the mailserver container, in order to reuse them. Not an easy task, but fortunately, [youtous/mailserver-traefik](https://github.com/youtous/docker-mailserver-traefik) is a certificate renewal service for docker-mailserver.
 
 Depending of your Traefik configuration, certificates may be stored using a file or a KV Store (consul, etcd...) Either way, certificates will be renewed by Traefik, then automatically pushed to the mailserver thanks to the cert-renewer service. Finally, dovecot and postfix will be restarted.
 
