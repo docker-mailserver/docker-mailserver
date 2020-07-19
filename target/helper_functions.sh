@@ -40,8 +40,8 @@ function _sanitize_ipv4_to_subnet_cidr() {
 function extractCertsFromAcmeJson() {
   WHAT=$1
   # sorry for the code-golf :(
-  KEY=$(cat /etc/letsencrypt/acme.json | python -c "import sys,json,itertools;  print map(lambda c: c[\"key\"]         if (c[\"domain\"][\"main\"]==\"$WHAT\" or \"$WHAT\" in c[\"domain\"][\"sans\"]) else \"\", list(itertools.chain.from_iterable(map(lambda x: x[\"Certificates\"], json.load(sys.stdin).values()))))[0]")
-  CERT=$(cat /etc/letsencrypt/acme.json | python -c "import sys,json,itertools; print map(lambda c: c[\"certificate\"] if (c[\"domain\"][\"main\"]==\"$WHAT\" or \"$WHAT\" in c[\"domain\"][\"sans\"]) else \"\", list(itertools.chain.from_iterable(map(lambda x: x[\"Certificates\"], json.load(sys.stdin).values()))))[0]")
+  KEY=$(cat /etc/letsencrypt/acme.json | python -c "import sys,json,itertools;  print filter(None, map(lambda c: c[\"key\"]         if (c[\"domain\"][\"main\"]==\"$WHAT\" or \"$WHAT\" in c[\"domain\"][\"sans\"]) else \"\", list(itertools.chain.from_iterable(map(lambda x: x[\"Certificates\"], json.load(sys.stdin).values())))))[0]")
+  CERT=$(cat /etc/letsencrypt/acme.json | python -c "import sys,json,itertools; print filter(None, map(lambda c: c[\"certificate\"] if (c[\"domain\"][\"main\"]==\"$WHAT\" or \"$WHAT\" in c[\"domain\"][\"sans\"]) else \"\", list(itertools.chain.from_iterable(map(lambda x: x[\"Certificates\"], json.load(sys.stdin).values())))))[0]")
 
   if [[ -n "${KEY}${CERT}" ]]; then
     mkdir -p /etc/letsencrypt/live/"$HOSTNAME"/
