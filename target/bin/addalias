@@ -18,7 +18,8 @@ escape() {
 	echo "${1//./\\.}"
 }
 
-[ -z "$EMAIL" ] && { usage; errex "no email specified"; }
+[ -z "$EMAIL" ] && { usage; errex "Error: No alias specified"; }
+[ -z "$RECIPIENT" ] && { usage; errex "Error: No recipient specified"; }
 
 grep -qi "^$(escape $EMAIL)[a-zA-Z@.\ ]*$(escape $RECIPIENT)" $DATABASE 2>/dev/null &&
 	errex "Alias \"$EMAIL $RECIPIENT\" already exists"
