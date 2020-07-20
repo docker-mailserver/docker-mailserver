@@ -49,7 +49,7 @@ for key, value in acme.items():
         if 'domain' in cert and 'key' in cert:
             if 'main' in cert['domain'] and cert['domain']['main'] == '$WHAT' or 'sans' in cert['domain'] and '$WHAT' in cert['domain']['sans']:
                 print cert['key']
-print ''
+                break
 ")
   CERT=$(cat /etc/letsencrypt/acme.json | python -c "
 import sys,json
@@ -60,7 +60,7 @@ for key, value in acme.items():
         if 'domain' in cert and 'certificate' in cert:
             if 'main' in cert['domain'] and cert['domain']['main'] == '$WHAT' or 'sans' in cert['domain'] and '$WHAT' in cert['domain']['sans']:
                 print cert['certificate']
-print ''
+                break
 ")
 
   if [[ -n "${KEY}${CERT}" ]]; then
