@@ -39,9 +39,29 @@ function _sanitize_ipv4_to_subnet_cidr() {
 # extracts certificates from acme.json and returns 0 if found
 function extractCertsFromAcmeJson() {
   WHAT=$1
-  # sorry for the code-golf :(
-  KEY=$(cat /etc/letsencrypt/acme.json | python -c "import sys,json,itertools;  print map(lambda c: c[\"key\"]         if (c[\"domain\"][\"main\"]==\"$WHAT\" or \"$WHAT\" in c[\"domain\"][\"sans\"]) else \"\", list(itertools.chain.from_iterable(map(lambda x: x[\"Certificates\"], json.load(sys.stdin).values()))))[0]")
-  CERT=$(cat /etc/letsencrypt/acme.json | python -c "import sys,json,itertools; print map(lambda c: c[\"certificate\"] if (c[\"domain\"][\"main\"]==\"$WHAT\" or \"$WHAT\" in c[\"domain\"][\"sans\"]) else \"\", list(itertools.chain.from_iterable(map(lambda x: x[\"Certificates\"], json.load(sys.stdin).values()))))[0]")
+
+  KEY=$(cat /etc/letsencrypt/acme.json | python -c "
+import sys,json
+acme = json.load(sys.stdin)
+for key, value in acme.items():
+    certs = value['Certificates']
+    for cert in certs:
+        if 'domain' in cert and 'key' in cert:
+            if 'main' in cert['domain'] and cert['domain']['main'] == '$WHAT' or 'sans' in cert['domain'] and '$WHAT' in cert['domain']['sans']:
+                print cert['key']
+                break
+")
+  CERT=$(cat /etc/letsencrypt/acme.json | python -c "
+import sys,json
+acme = json.load(sys.stdin)
+for key, value in acme.items():
+    certs = value['Certificates']
+    for cert in certs:
+        if 'domain' in cert and 'certificate' in cert:
+            if 'main' in cert['domain'] and cert['domain']['main'] == '$WHAT' or 'sans' in cert['domain'] and '$WHAT' in cert['domain']['sans']:
+                print cert['certificate']
+                break
+")
 
   if [[ -n "${KEY}${CERT}" ]]; then
     mkdir -p /etc/letsencrypt/live/"$HOSTNAME"/
