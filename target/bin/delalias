@@ -18,7 +18,9 @@ escape() {
 	echo "${1//./\\.}"
 }
 
-[ -z "$EMAIL" ] || [ -z "$RECIPIENT" ]  && { usage; errex "No email specifed"; }
+[ -z "$EMAIL" ] && { usage; errex "Error: No alias specified"; }
+[ -z "$RECIPIENT" ] && { usage; errex "Error: No recipient specified"; }
+
 [ -s "$DATABASE" ] || exit 0
 
 #CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')

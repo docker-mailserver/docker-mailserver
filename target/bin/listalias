@@ -7,7 +7,7 @@ errex() {
 	exit 1
 }
 
-[ -f $DATABASE ] || errex "No postfix-virtual.cf file"
-[ -s $DATABASE ] || errex "Empty postfix-virtual.cf - no aliases have been added"
+[ -f $DATABASE ] || errex "Error: No postfix-virtual.cf file"
+[ -s $DATABASE ] || errex "Error: Empty postfix-virtual.cf - no aliases have been added"
 
 (grep -v "^\s*$\|^\s*\#" $DATABASE || true)
