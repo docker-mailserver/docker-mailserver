@@ -226,6 +226,7 @@ services:
       - SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
       - SASLAUTHD_LDAP_PASSWORD=admin
       - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
+      - SASLAUTHD_LDAP_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%U))
       - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
       - POSTFIX_MESSAGE_SIZE_LIMIT=100000000
     cap_add:
