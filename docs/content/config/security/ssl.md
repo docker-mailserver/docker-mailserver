@@ -329,7 +329,7 @@ This allows for support of wild card certificates: `"SSL_DOMAIN=*.example.com"`.
 version: '3.8'
 services:
   mail:
-    image: tvial/docker-mailserver:stable
+    image: tvial/docker-mailserver:latest
     hostname: mail
     domainname: example.com
     volumes:
