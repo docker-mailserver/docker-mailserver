@@ -9,8 +9,13 @@ function teardown() {
 }
 
 function setup_file() {
+    # We use a temporary config directory since we'll be dynamically editing
+    # it with setup.sh.
+    tmp_confdir=$(mktemp -d /tmp/docker-mailserver-config-relay-hosts-XXXXX)
+    cp -aT test/config/relay-hosts "$tmp_confdir"
+
     docker run -d --name mail_with_relays \
-            -v "`pwd`/test/config/relay-hosts":/tmp/docker-mailserver \
+            -v "$tmp_confdir":/tmp/docker-mailserver \
             -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
             -e RELAY_HOST=default.relay.com \
             -e RELAY_PORT=2525 \
@@ -25,6 +30,7 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_with_relays
+    rm -rf "$tmp_confdir"
 }
 
 @test "first" {
@@ -32,28 +38,43 @@ function teardown_file() {
 }
 
 @test "checking relay hosts: default mapping is added from env vars" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/relayhost_map | grep -e "^@domainone.tld\s\+\[default.relay.com\]:2525" | wc -l | grep 1'
-  assert_success
+  run docker exec mail_with_relays grep -e domainone.tld /etc/postfix/relayhost_map
+  assert_output -e '^@domainone.tld\s+\[default.relay.com\]:2525$'
+}
+
+@test "checking relay hosts: default mapping is added from env vars for new user entry" {
+  run docker exec mail_with_relays grep -e domainzero.tld /etc/postfix/relayhost_map
+  assert_output ''
+  run ./setup.sh -c mail_with_relays email add user0@domainzero.tld password123
+  for i in {1..10}; do
+    sleep 1
+    run docker exec mail_with_relays grep -e domainzero.tld /etc/postfix/relayhost_map
+    [[ $status == 0 ]] && break
+  done
+  assert_output -e '^@domainzero.tld\s+\[default.relay.com\]:2525$'
 }
 
 @test "checking relay hosts: custom mapping is added from file" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/relayhost_map | grep -e "^@domaintwo.tld\s\+\[other.relay.com\]:587" | wc -l | grep 1'
-  assert_success
+  run docker exec mail_with_relays grep -e domaintwo.tld /etc/postfix/relayhost_map
+  assert_output -e '^@domaintwo.tld\s+\[other.relay.com\]:587$'
 }
 
 @test "checking relay hosts: ignored domain is not added" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/relayhost_map | grep -e "^@domainthree.tld\s\+\[any.relay.com\]:25" | wc -l | grep 0'
-  assert_success
+  run docker exec mail_with_relays grep -e domainthree.tld /etc/postfix/relayhost_map
+  assert_failure 1
+  assert_output ''
 }
 
 @test "checking relay hosts: auth entry is added" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^@domaintwo.tld\s\+smtp_user_2:smtp_password_2" | wc -l | grep 1'
+  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^@domaintwo.tld\s\+smtp_user_2:smtp_password_2" | wc -l'
   assert_success
+  assert_output 1
 }
 
 @test "checking relay hosts: default auth entry is added" {
-  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^\[default.relay.com\]:2525\s\+smtp_user:smtp_password" | wc -l | grep 1'
+  run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^\[default.relay.com\]:2525\s\+smtp_user:smtp_password" | wc -l'
   assert_success
+  assert_output 1
 }
 
 @test "last" {

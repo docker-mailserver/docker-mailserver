@@ -74,6 +74,93 @@ for key, value in acme.items():
   fi
 }
 
+declare -A DEFAULT_VARS
+DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
+
+function notify () {
+  c_red="\e[0;31m"
+  c_green="\e[0;32m"
+  c_brown="\e[0;33m"
+  c_blue="\e[0;34m"
+  c_bold="\033[1m"
+  c_reset="\e[0m"
+
+  notification_type=$1
+  notification_msg=$2
+  notification_format=$3
+  msg=""
+
+  case "${notification_type}" in
+    'taskgrp')
+      msg="${c_bold}${notification_msg}${c_reset}"
+      ;;
+    'task')
+      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+        msg="  ${notification_msg}${c_reset}"
+      fi
+      ;;
+    'inf')
+      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+        msg="${c_green}  * ${notification_msg}${c_reset}"
+      fi
+      ;;
+    'started')
+      msg="${c_green} ${notification_msg}${c_reset}"
+      ;;
+    'warn')
+      msg="${c_brown}  * ${notification_msg}${c_reset}"
+      ;;
+    'err')
+      msg="${c_red}  * ${notification_msg}${c_reset}"
+      ;;
+    'fatal')
+      msg="${c_red}Error: ${notification_msg}${c_reset}"
+      ;;
+    *)
+      msg=""
+      ;;
+  esac
+
+  case "${notification_format}" in
+    'n')
+      options="-ne"
+      ;;
+    *)
+      options="-e"
+      ;;
+  esac
+
+  [[ ! -z "${msg}" ]] && echo $options "${msg}"
+}
+
+# setup /etc/postfix/relayhost_map
+# --
+# @domain1.com        [smtp.mailgun.org]:587
+# @domain2.com        [smtp.mailgun.org]:587
+# @domain3.com        [smtp.mailgun.org]:587
+function populate_relayhost_map() {
+  echo -n > /etc/postfix/relayhost_map
+  chown root:root /etc/postfix/relayhost_map
+  chmod 0600 /etc/postfix/relayhost_map
+
+  if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
+    notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
+    # Keep lines which are not a comment *and* have a destination.
+    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf \
+        >> /etc/postfix/relayhost_map
+  fi
+  # Note: Won't detect domains when lhs has spaces (but who does that?!).
+  sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf |
+  while read domain; do
+    if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map &&
+       ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf; then
+      # Domain not already present *and* not ignored.
+      notify 'inf' "Adding relay mapping for ${domain}"
+      echo "@${domain}    [$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
+    fi
+  done
+}
+
 # File storing the checksums of the monitored files.
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 

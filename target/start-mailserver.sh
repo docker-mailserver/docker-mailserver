@@ -29,7 +29,7 @@ DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]="${POSTFIX_MAILBOX_SIZE_LIMIT:="0"}" 
 DEFAULT_VARS["POSTFIX_INET_PROTOCOLS"]="${POSTFIX_INET_PROTOCOLS:="all"}"
 DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:="0"}"
 DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:="0"}"
-DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
+# DEFAULT_VARS["DMS_DEBUG"] defined in helper_functions.sh
 DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
 DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
 DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:="0"}"
@@ -308,62 +308,6 @@ function _register_misc_function() {
 # << protected register_functions
 ##########################################################################
 
-
-function notify () {
-	c_red="\e[0;31m"
-	c_green="\e[0;32m"
-	c_brown="\e[0;33m"
-	c_blue="\e[0;34m"
-	c_bold="\033[1m"
-	c_reset="\e[0m"
-
-	notification_type=$1
-	notification_msg=$2
-	notification_format=$3
-	msg=""
-
-	case "${notification_type}" in
-		'taskgrp')
-			msg="${c_bold}${notification_msg}${c_reset}"
-			;;
-		'task')
-			if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
-				msg="  ${notification_msg}${c_reset}"
-			fi
-			;;
-		'inf')
-			if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
-				msg="${c_green}  * ${notification_msg}${c_reset}"
-			fi
-			;;
-		'started')
-			msg="${c_green} ${notification_msg}${c_reset}"
-			;;
-		'warn')
-			msg="${c_brown}  * ${notification_msg}${c_reset}"
-			;;
-		'err')
-			msg="${c_red}  * ${notification_msg}${c_reset}"
-			;;
-		'fatal')
-			msg="${c_red}Error: ${notification_msg}${c_reset}"
-			;;
-		*)
-			msg=""
-			;;
-	esac
-
-	case "${notification_format}" in
-		'n')
-			options="-ne"
-	  	;;
-		*)
-  		options="-e"
-			;;
-	esac
-
-	[[ ! -z "${msg}" ]] && echo $options "${msg}"
-}
 
 function defunc() {
 	notify 'fatal' "Please fix your configuration. Exiting..."
@@ -1339,36 +1283,7 @@ function _setup_postfix_relay_hosts() {
 	fi
 	# end /etc/postfix/sasl_passwd
 
-	# setup /etc/postfix/relayhost_map
-	# --
-	# @domain1.com        [smtp.mailgun.org]:587
-	# @domain2.com        [smtp.mailgun.org]:587
-	# @domain3.com        [smtp.mailgun.org]:587
-
-	echo -n > /etc/postfix/relayhost_map
-
-	if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
-		notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
-		while read line; do
-			if ! echo "$line" | grep -q -e "\s*#"; then
-				echo "$line" >> /etc/postfix/relayhost_map
-			fi
-		done < /tmp/docker-mailserver/postfix-relaymap.cf
-	fi
-	grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read login pass
-	do
-		domain=$(echo ${login} | cut -d @ -f2)
-		if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map; then
-			notify 'inf' "Adding relay mapping for ${domain}"
-			echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
-		fi
-	done
-	# remove lines with no destination
-	sed -i '/^@\S*\s*$/d' /etc/postfix/relayhost_map
-
-	chown root:root /etc/postfix/relayhost_map
-	chmod 0600 /etc/postfix/relayhost_map
-	# end /etc/postfix/relayhost_map
+	populate_relayhost_map
 
 	postconf -e \
 		"smtp_sasl_auth_enable = yes" \

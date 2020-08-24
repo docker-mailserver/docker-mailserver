@@ -95,7 +95,6 @@ if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
 		if [ ! -z "$RELAY_HOST" ]; then
 			# keep old config
 			echo -n > /etc/postfix/sasl_passwd
-			echo -n > /etc/postfix/relayhost_map
 			if [ ! -z "$SASL_PASSWD" ]; then
 				echo "$SASL_PASSWD" >> /etc/postfix/sasl_passwd
 			fi
@@ -110,14 +109,6 @@ if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
 			# add default relay
 			if [ ! -z "$RELAY_USER" ] && [ ! -z "$RELAY_PASSWORD" ]; then
 				echo "[$RELAY_HOST]:$RELAY_PORT		$RELAY_USER:$RELAY_PASSWORD" >> /etc/postfix/sasl_passwd
-			fi
-			# add relay maps from file
-			if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
-				(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-relaymap.cf || true) | while read line; do
-					if ! echo "$line" | grep -q -e "\s*#"; then
-						echo "$line" >> /etc/postfix/relayhost_map
-					fi
-				done
 			fi
 		fi
 
@@ -152,21 +143,14 @@ if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
 			# Copy user provided sieve file, if present
 			test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
 			echo ${domain} >> /tmp/vhost.tmp
-			# add domains to relayhost_map
-			if [ ! -z "$RELAY_HOST" ]; then
-				if ! grep -q -e "^@${domain}\s" /etc/postfix/relayhost_map; then
-					echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
-				fi
-			fi
 		done
+	fi
+	if [ ! -z "$RELAY_HOST" ]; then
+		populate_relayhost_map
 	fi
 	if [ -f /etc/postfix/sasl_passwd ]; then
 		chown root:root /etc/postfix/sasl_passwd
 		chmod 0600 /etc/postfix/sasl_passwd
-	fi
-	if [ -f /etc/postfix/relayhost_map ]; then
-		chown root:root /etc/postfix/relayhost_map
-		chmod 0600 /etc/postfix/relayhost_map
 	fi
 	if [ -f postfix-virtual.cf ]; then
 	# regen postfix aliases
