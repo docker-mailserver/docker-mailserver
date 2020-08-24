@@ -42,6 +42,11 @@ function teardown_file() {
   assert_output -e '^@domainone.tld\s+\[default.relay.com\]:2525$'
 }
 
+@test "checking relay hosts: default mapping is added from env vars for virtual user entry" {
+  run docker exec mail_with_relays grep -e domain1.tld /etc/postfix/relayhost_map
+  assert_output -e '^@domain1.tld\s+\[default.relay.com\]:2525$'
+}
+
 @test "checking relay hosts: default mapping is added from env vars for new user entry" {
   run docker exec mail_with_relays grep -e domainzero.tld /etc/postfix/relayhost_map
   assert_output ''
@@ -52,6 +57,18 @@ function teardown_file() {
     [[ $status == 0 ]] && break
   done
   assert_output -e '^@domainzero.tld\s+\[default.relay.com\]:2525$'
+}
+
+@test "checking relay hosts: default mapping is added from env vars for new virtual user entry" {
+  run docker exec mail_with_relays grep -e domain2.tld /etc/postfix/relayhost_map
+  assert_output ''
+  run ./setup.sh -c mail_with_relays alias add user2@domain2.tld user2@domaintwo.tld
+  for i in {1..10}; do
+    sleep 1
+    run docker exec mail_with_relays grep -e domain2.tld /etc/postfix/relayhost_map
+    [[ $status == 0 ]] && break
+  done
+  assert_output -e '^@domain2.tld\s+\[default.relay.com\]:2525$'
 }
 
 @test "checking relay hosts: custom mapping is added from file" {

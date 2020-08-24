@@ -81,6 +81,7 @@ if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
 	#regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
+
 	if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
 		sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
 		echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
