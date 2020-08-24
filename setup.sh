@@ -276,7 +276,7 @@ main()
 
     config)
       shift ; case ${1:-} in
-        dkim     ) _docker_image generate-dkim-config "$2" ;;
+        dkim     ) _docker_image generate-dkim-config "${2:-2048}" ;;
         ssl      ) _docker_image generate-ssl-certificate "$2" ;;
         *        ) _usage ;;
       esac
