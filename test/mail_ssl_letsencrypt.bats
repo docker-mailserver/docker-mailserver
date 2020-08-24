@@ -118,7 +118,7 @@ function teardown_file() {
   assert_output --partial "Cert found in /etc/letsencrypt/acme.json for *.example.com"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
-  assert_output --partial "Update checksum"
+  assert_output --partial "Change detected"
 
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
   assert_output "$(cat "`pwd`/test/config/letsencrypt/changed/key.pem")"

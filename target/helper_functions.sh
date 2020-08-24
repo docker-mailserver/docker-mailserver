@@ -73,3 +73,23 @@ for key, value in acme.items():
     return 1
   fi
 }
+
+# File storing the checksums of the monitored files.
+CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
+
+# Compute checksums of monitored files.
+function monitored_files_checksums() {
+  (
+    cd /tmp/docker-mailserver
+    # (2>/dev/null to ignore warnings about files that don't exist)
+    exec sha512sum 2>/dev/null -- \
+           postfix-accounts.cf \
+           postfix-virtual.cf \
+           postfix-aliases.cf \
+           dovecot-quotas.cf \
+           /etc/letsencrypt/acme.json \
+           "/etc/letsencrypt/live/$HOSTNAME/key.pem" \
+           "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem"
+  )
+  return 0
+}

@@ -500,19 +500,9 @@ function _setup_file_permissions() {
 function _setup_chksum_file() {
         notify 'task' "Setting up configuration checksum file"
 
-
         if [ -d /tmp/docker-mailserver ]; then
-          pushd /tmp/docker-mailserver
-
-          declare -a cf_files=()
-          for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf dovecot-quotas.cf /etc/letsencrypt/acme.json "/etc/letsencrypt/live/$HOSTNAME/key.pem" "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem"; do
-            [ -f "$file" ] && cf_files+=("$file")
-          done
-
           notify 'inf' "Creating $CHKSUM_FILE"
-          sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
-
-          popd
+          monitored_files_checksums >"$CHKSUM_FILE"
         else
           # We could just skip the file, but perhaps config can be added later?
           # If so it must be processed by the check for changes script
