@@ -19,6 +19,7 @@ DEFAULT_CONFIG_PATH="$(pwd)/config"
 USE_CONTAINER=false
 WISHED_CONFIG_PATH=''
 CONFIG_PATH=''
+VOLUME=''
 USE_TTY=''
 
 function _check_root()
