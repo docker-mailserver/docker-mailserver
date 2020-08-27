@@ -1,9 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 # Wrapper for various setup scripts
 # included in the docker-mailserver
 
-set -eu
+set -euE
+trap '_report_err() $LINENO $?' ERR
+
+function _report_err()
+{
+  echo "ERROR occured :: line $1 ; exit code $2"
+}
 
 CRI=''
 INFO=''
@@ -15,32 +21,31 @@ WISHED_CONFIG_PATH=''
 CONFIG_PATH=''
 USE_TTY=''
 
-_check_root()
+function _check_root()
 {
-  # shellcheck disable=SC2039
-  if [ ${EUID-0} -ne 0 ]
+  if [[ $EUID -ne 0 ]]
   then
     echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user."
     exit 1
   fi
 }
 
-_update_config_path()
+function _update_config_path()
 {
-  if [ -n "$CONTAINER_NAME" ]
+  if [[ -n $CONTAINER_NAME ]]
   then
     VOLUME=$(docker inspect "$CONTAINER_NAME" \
       --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
       grep "/tmp/docker-mailserver$" 2>/dev/null)
   fi
 
-  if [ -n "$VOLUME" ]
+  if [[ -n $VOLUME ]]
   then
     CONFIG_PATH=$(echo "$VOLUME" | awk '{print $1}')
   fi
 }
 
-_inspect()
+function _inspect()
 {
   if _docker_image_exists "$IMAGE_NAME"
   then
@@ -49,7 +54,7 @@ _inspect()
     echo "Image: '$IMAGE_NAME' can’t be found."
   fi
 
-  if [ -n "$CONTAINER_NAME" ]
+  if [[ -n $CONTAINER_NAME ]]
   then
     echo "Container: $CONTAINER_NAME"
     echo "Config mount: $CONFIG_PATH"
@@ -58,7 +63,7 @@ _inspect()
   fi
 }
 
-_usage()
+function _usage()
 {
   echo "Usage: $0 [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
@@ -114,7 +119,7 @@ SUBCOMMANDS:
   exit 1
 }
 
-_docker_image_exists()
+function _docker_image_exists()
 {
   if ${CRI} history -q "$1" >/dev/null 2>&1
   then
@@ -124,9 +129,9 @@ _docker_image_exists()
   fi
 }
 
-_docker_image()
+function _docker_image()
 {
-  if [ "$USE_CONTAINER" = true ]
+  if [[ $USE_CONTAINER = true ]]
   then
     # reuse existing container specified on command line
     ${CRI} exec "${USE_TTY}" "$CONTAINER_NAME" "$@"
@@ -145,9 +150,9 @@ _docker_image()
   fi
 }
 
-_docker_container()
+function _docker_container()
 {
-  if [ -n "$CONTAINER_NAME" ]
+  if [[ -n $CONTAINER_NAME ]]
   then
     ${CRI} exec "${USE_TTY}" "$CONTAINER_NAME" "$@"
   else
@@ -156,12 +161,12 @@ _docker_container()
   fi
 }
 
-main()
+function main()
 {
-  if [ -n "$(command -v docker)" ]
+  if [[ -n $(command -v docker) ]]
   then
     CRI=docker
-  elif [ -n "$(command -v podman)" ]
+  elif [[ -n $(command -v podman) ]]
   then
     CRI=podman
     _check_root
@@ -179,12 +184,12 @@ main()
   IMAGE_NAME=${INFO%\;*}
   CONTAINER_NAME=${INFO#*\;}
 
-  if [ -z "$IMAGE_NAME" ]
+  if [[ -z $IMAGE_NAME ]]
   then
-    if [ "$CRI" = "docker" ]
+    if [[ $CRI = "docker" ]]
     then
       IMAGE_NAME=tvial/docker-mailserver:latest
-    elif [ "$CRI" = "podman" ]
+    elif [[ $CRI = "podman" ]]
     then
       IMAGE_NAME=docker.io/tvial/docker-mailserver:latest
     fi
@@ -216,7 +221,7 @@ main()
             ;;
         esac
 
-        if [ ! -d "$WISHED_CONFIG_PATH" ]
+        if [[ ! -d $WISHED_CONFIG_PATH ]]
         then
           echo "Directory doesn't exist"
           _usage
@@ -229,12 +234,12 @@ main()
     esac
   done
 
-  if [ -z "$WISHED_CONFIG_PATH" ]
+  if [[ -z $WISHED_CONFIG_PATH ]]
   then
     # no wished config path
     _update_config_path
 
-    if [ -z "$CONFIG_PATH" ]
+    if [[ -z $CONFIG_PATH ]]
     then
       CONFIG_PATH=$DEFAULT_CONFIG_PATH
     fi
@@ -299,7 +304,7 @@ main()
         inspect        ) _inspect ;;
         login          )
           shift
-          if [ -z "$1" ]
+          if [[ -z $1 ]]
           then
             _docker_container /bin/bash
           else
