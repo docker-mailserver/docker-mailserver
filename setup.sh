@@ -3,31 +3,39 @@
 # Wrapper for various setup scripts
 # included in the docker-mailserver
 
-set -euE
-trap '_report_err() $LINENO $?' ERR
+set -euEo pipefail
+trap '_report_err $_ $LINENO $?' ERR
 
 function _report_err()
 {
-  echo "ERROR occured :: line $1 ; exit code $2"
+  echo "ERROR occured :: source (hint) $1 ; line $2 ; exit code $3 ;;" >&2
+  _unset_vars
 }
 
-CRI=''
-INFO=''
-IMAGE_NAME=''
+function _unset_vars()
+{
+  unset CDIR CRI INFO IMAGE_NAME CONTAINER_NAME DEFAULT_CONFIG_PATH
+  unset USE_CONTAINER WISHED_CONFIG_PATH CONFIG_PATH VOLUME USE_TTY
+}
+
+CDIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+CRI=
+INFO=
+IMAGE_NAME=
 CONTAINER_NAME='mail'
-DEFAULT_CONFIG_PATH="$(pwd)/config"
+DEFAULT_CONFIG_PATH="$CDIR/config"
 USE_CONTAINER=false
-WISHED_CONFIG_PATH=''
-CONFIG_PATH=''
-VOLUME=''
-USE_TTY=''
+WISHED_CONFIG_PATH=
+CONFIG_PATH=
+VOLUME=
+USE_TTY=
 
 function _check_root()
 {
   if [[ $EUID -ne 0 ]]
   then
     echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user."
-    exit 1
+    return 1
   fi
 }
 
@@ -117,12 +125,12 @@ SUBCOMMANDS:
     $0 debug login <commands>
 "
 
-  exit 1
+  return 1
 }
 
 function _docker_image_exists()
 {
-  if ${CRI} history -q "$1" >/dev/null 2>&1
+  if $CRI history -q "$1" >/dev/null 2>&1
   then
     return 0
   else
@@ -132,22 +140,21 @@ function _docker_image_exists()
 
 function _docker_image()
 {
-  if [[ $USE_CONTAINER = true ]]
+  if $USE_CONTAINER
   then
     # reuse existing container specified on command line
-    ${CRI} exec "${USE_TTY}" "$CONTAINER_NAME" "$@"
+    $CRI exec "$USE_TTY" "$CONTAINER_NAME" "$@"
   else
     # start temporary container with specified image
     if ! _docker_image_exists "$IMAGE_NAME"
     then
       echo "Image '$IMAGE_NAME' not found. Pulling ..."
-      ${CRI} pull "$IMAGE_NAME"
+      $CRI pull "$IMAGE_NAME"
     fi
 
-    ${CRI} run \
-      --rm \
+    ${CRI} run --rm \
       -v "$CONFIG_PATH":/tmp/docker-mailserver \
-      "${USE_TTY}" "$IMAGE_NAME" "$@"
+      "$USE_TTY" "$IMAGE_NAME" "$@"
   fi
 }
 
@@ -155,7 +162,7 @@ function _docker_container()
 {
   if [[ -n $CONTAINER_NAME ]]
   then
-    ${CRI} exec "${USE_TTY}" "$CONTAINER_NAME" "$@"
+    $CRI exec "$USE_TTY" "$CONTAINER_NAME" "$@"
   else
     echo "The docker-mailserver is not running!"
     exit 1
@@ -182,15 +189,15 @@ function main()
     --filter label=org.label-schema.name="docker-mailserver" | \
     tail -1)
 
-  IMAGE_NAME=${INFO%\;*}
-  CONTAINER_NAME=${INFO#*\;}
+  IMAGE_NAME=${INFO%;*}
+  CONTAINER_NAME=${INFO#*;}
 
   if [[ -z $IMAGE_NAME ]]
   then
-    if [[ $CRI = "docker" ]]
+    if [[ $CRI == "docker" ]]
     then
       IMAGE_NAME=tvial/docker-mailserver:latest
-    elif [[ $CRI = "podman" ]]
+    elif [[ $CRI == "podman" ]]
     then
       IMAGE_NAME=docker.io/tvial/docker-mailserver:latest
     fi
@@ -201,25 +208,16 @@ function main()
     USE_TTY="-ti"
   fi
 
+  local OPTIND
   while getopts ":c:i:p:" OPT
   do
-    case ${OPT:-} in
-      c)
-        # container specified, connect to running instance
-        CONTAINER_NAME="$OPTARG"
-        USE_CONTAINER=true
-        ;;
-      i)
-        IMAGE_NAME="$OPTARG"
-        ;;
+    case $OPT in
+      c) CONTAINER_NAME="$OPTARG" ; USE_CONTAINER=true ;; # container specified, connect to running instance
+      i) IMAGE_NAME="$OPTARG" ;;
       p)
         case "$OPTARG" in
-        /*)
-            WISHED_CONFIG_PATH="$OPTARG"
-            ;;
-        *)
-            WISHED_CONFIG_PATH="$(pwd)/$OPTARG"
-            ;;
+          /*) WISHED_CONFIG_PATH="$OPTARG" ;;
+          * ) WISHED_CONFIG_PATH="$CDIR/$OPTARG" ;;
         esac
 
         if [[ ! -d $WISHED_CONFIG_PATH ]]
@@ -229,11 +227,10 @@ function main()
           exit 1
         fi
         ;;
-     \?)
-       echo "Invalid option: -$OPTARG" >&2
-       ;;
+     *) echo "Invalid option: -$OPTARG" >&2 ;;
     esac
   done
+  shift $((OPTIND-1))
 
   if [[ -z $WISHED_CONFIG_PATH ]]
   then
@@ -248,7 +245,6 @@ function main()
     CONFIG_PATH=$WISHED_CONFIG_PATH
   fi
 
-  shift $((OPTIND-1))
 
   case ${1:-} in
 
@@ -305,7 +301,7 @@ function main()
         inspect        ) _inspect ;;
         login          )
           shift
-          if [[ -z $1 ]]
+          if [[ -z ${1:-''} ]]
           then
             _docker_container /bin/bash
           else
@@ -320,4 +316,5 @@ function main()
   esac
 }
 
-main "$@" || exit 1
+main "$@"
+_unset_vars
