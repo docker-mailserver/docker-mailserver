@@ -20,7 +20,7 @@ function wait_for_service() {
 
 function count_processed_changes() {
   containerName=$1
-  docker exec $containerName cat /var/log/supervisor/changedetector.log | grep "Update checksum" | wc -l
+  docker exec $containerName cat /var/log/supervisor/changedetector.log | grep "Change detected" | wc -l
 }
 
 #
