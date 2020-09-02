@@ -446,7 +446,7 @@ function _setup_chksum_file() {
 
         if [ -d /tmp/docker-mailserver ]; then
           notify 'inf' "Creating $CHKSUM_FILE"
-          monitored_files_checksums >"$CHKSUM_FILE"
+          _monitored_files_checksums >"$CHKSUM_FILE"
         else
           # We could just skip the file, but perhaps config can be added later?
           # If so it must be processed by the check for changes script
@@ -982,7 +982,7 @@ function _setup_ssl() {
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
 
-      [[ -f /etc/letsencrypt/acme.json ]] && (extractCertsFromAcmeJson "$HOSTNAME" || extractCertsFromAcmeJson "$DOMAINNAME")
+      [[ -f /etc/letsencrypt/acme.json ]] && (_extract_certs_from_acme "$HOSTNAME" || _extract_certs_from_acme "$DOMAINNAME")
 
       # first determine the letsencrypt domain by checking both the full hostname or just the domainname if a SAN is used in the cert
       if [ -e "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" ]; then
@@ -1283,7 +1283,7 @@ function _setup_postfix_relay_hosts() {
 	fi
 	# end /etc/postfix/sasl_passwd
 
-	populate_relayhost_map
+	_populate_relayhost_map
 
 	postconf -e \
 		"smtp_sasl_auth_enable = yes" \

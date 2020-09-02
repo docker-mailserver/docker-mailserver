@@ -1,35 +1,49 @@
 #!/bin/bash
 
+# version  0.1.0
+#
+# <INSERT TASK HERE>
+
+# shellcheck source=/dev/null
 . /usr/local/bin/helper_functions.sh
 
-# create date for log output
-log_date=$(date +"%Y-%m-%d %H:%M:%S ")
-echo "${log_date} Start check-for-changes script."
+LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
+echo "$LOG_DATE Start check-for-changes script."
 
-# change directory
-cd /tmp/docker-mailserver
+
+# ? Checks ------------------------------------------------
+
+
+cd /tmp/docker-mailserver || exit 1
 
 # Check postfix-accounts.cf exist else break
-if [ ! -f postfix-accounts.cf ]; then
-   echo "${log_date} postfix-accounts.cf is missing! This should not run! Exit!"
+if [[ ! -f postfix-accounts.cf ]]
+then
+   echo "$LOG_DATE postfix-accounts.cf is missing! This should not run! Exit!"
    exit
 fi
 
 # Verify checksum file exists; must be prepared by start-mailserver.sh
-if [ ! -f $CHKSUM_FILE ]; then
-   echo "${log_date} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
+if [[ ! -f $CHKSUM_FILE ]]
+then
+   echo "$LOG_DATE $CHKSUM_FILE is missing! Start script failed? Exit!"
    exit
 fi
 
+
+# ? Actual script begins ----------------------------------
+
+
 # Determine postmaster address, duplicated from start-mailserver.sh
 # This script previously didn't work when POSTMASTER_ADDRESS was empty
-if [[ -n "${OVERRIDE_HOSTNAME}" ]]; then
+if [[ -n $OVERRIDE_HOSTNAME ]]
+then
   DOMAINNAME=$(echo "${OVERRIDE_HOSTNAME}" | sed s/[^.]*.//)
 else
   DOMAINNAME="$(hostname -d)"
 fi
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-echo "${log_date} Using postmaster address ${PM_ADDRESS}"
+echo "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 
 # Wait to make sure server is up before we start
 sleep 10
@@ -38,13 +52,13 @@ sleep 10
 while true; do
 
 # recreate logdate
-log_date=$(date +"%Y-%m-%d %H:%M:%S ")
+LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it, no need to lock config yet
-monitored_files_checksums >"$CHKSUM_FILE.new"
+_monitored_files_checksums >"$CHKSUM_FILE.new"
 
 if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
-	echo "${log_date} Change detected"
+	echo "${LOG_DATE} Change detected"
   changed=$(grep -Fxvf "$CHKSUM_FILE" "$CHKSUM_FILE.new" | sed 's/^[^ ]\+  //')
   mv "$CHKSUM_FILE.new" "$CHKSUM_FILE"
 
@@ -62,7 +76,7 @@ if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
     case $file in
     /etc/letsencrypt/acme.json)
       for certdomain in $SSL_DOMAIN $HOSTNAME $DOMAINNAME; do
-        if extractCertsFromAcmeJson "$certdomain"; then
+        if _extract_certs_from_acme "$certdomain"; then
           break
         fi
       done
@@ -147,7 +161,7 @@ if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
 		done
 	fi
 	if [ ! -z "$RELAY_HOST" ]; then
-		populate_relayhost_map
+		_populate_relayhost_map
 	fi
 	if [ -f /etc/postfix/sasl_passwd ]; then
 		chown root:root /etc/postfix/sasl_passwd

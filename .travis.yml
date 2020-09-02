@@ -16,7 +16,7 @@ install:
   - travis_retry travis_wait make build
 script:
   - make generate-accounts run generate-accounts-after-run fixtures tests
-  - find . -type d \( -path ./test \) -prune -false -o -name '*.sh' -exec shellcheck {} \;
+  - make shellcheck
 after_script:
   - make clean
 notifications:

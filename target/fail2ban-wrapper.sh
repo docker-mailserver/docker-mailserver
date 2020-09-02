@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# fail2ban-wrapper.sh, version 0.0.1
+
+# version  0.1.0
 #
 # You cannot start fail2ban in some foreground mode and
 # it's more or less important that docker doesn't kill
@@ -21,10 +22,7 @@ trap "/usr/bin/fail2ban-client stop" SIGINT
 trap "/usr/bin/fail2ban-client stop" SIGTERM
 trap "/usr/bin/fail2ban-client reload" SIGHUP
 
-# start fail2ban
 /usr/bin/fail2ban-client start
-
-# lets give fail2ban some time to start
 sleep 5
 
 # wait until fail2ban is dead (triggered by trap)
