@@ -86,6 +86,21 @@ if [[ <CONDITION1> ]] && [[ <CONDITION2> ]]
 then
   <CODE TO RUN>
 fi
+
+# remember you do not need "" when using [[ ]]
+if [[ -f $FILE ]] # is fine
+then
+  <CODE TO RUN>
+fi
+
+# equality checks with numbers - use -eq/-ne/-lt/-ge, not != or ==
+if [[ $SOME_VAR -ne <NUMBER> ]] && [[ $SOME_VAR -eq <NUMBER> ]] || [[ $SOME_VAR -lt <NUMBER> ]]
+then
+  <CODE TO RUN>
+elif [[ $SOME_VAR -ge <NUMBER> ]]
+then
+  <CODE TO RUN>
+fi
 ```
 
 ##### variables

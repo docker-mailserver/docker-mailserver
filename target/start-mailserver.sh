@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# version  0.2.0
+#
+# Starts the mailserver.
+
 ##########################################################################
 # >> DEFAULT VARS
 #
 # add them here.
 # Example: DEFAULT_VARS["KEY"]="VALUE"
 ##########################################################################
+
 declare -A DEFAULT_VARS
 DEFAULT_VARS["ENABLE_CLAMAV"]="${ENABLE_CLAMAV:="0"}"
 DEFAULT_VARS["ENABLE_SPAMASSASSIN"]="${ENABLE_SPAMASSASSIN:="0"}"
@@ -48,6 +53,7 @@ DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 # << DEFAULT VARS
 ##########################################################################
 
+
 ##########################################################################
 # >> GLOBAL VARS
 #
@@ -55,9 +61,11 @@ DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:="7"}"
 #
 # Example: KEY="VALUE"
 ##########################################################################
+
 HOSTNAME="$(hostname -f)"
 DOMAINNAME="$(hostname -d)"
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
+
 ##########################################################################
 # << GLOBAL VARS
 ##########################################################################
@@ -77,13 +85,16 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 # 			> start-daemons
 #
 # Example:
-# if [ CONDITION IS MET ]; then
+# if [[ CONDITION IS MET ]]
+# then
 #   _register_{setup,fix,check,start}_{functions,daemons} "$FUNCNAME"
 # fi
 #
 # Implement them in the section-group: {check,setup,fix,start}
 ##########################################################################
-function register_functions() {
+
+function register_functions()
+{
 	notify 'taskgrp' 'Initializing setup'
 	notify 'task' 'Registering check,setup,fix,misc and start-daemons functions'
 
@@ -99,30 +110,37 @@ function register_functions() {
 	_register_setup_function "_setup_default_vars"
 	_register_setup_function "_setup_file_permissions"
 
-	if [ "$SMTP_ONLY" != 1 ]; then
+	if [[ $SMTP_ONLY -ne 1 ]]
+  then
 		_register_setup_function "_setup_dovecot"
     _register_setup_function "_setup_dovecot_dhparam"
 		_register_setup_function "_setup_dovecot_quota"
 		_register_setup_function "_setup_dovecot_local_user"
 	fi
 
-	if [ "$ENABLE_LDAP" = 1 ];then
+	if [[ $ENABLE_LDAP -eq 1 ]]
+  then
 		_register_setup_function "_setup_ldap"
 	fi
 
-	if [ "$ENABLE_SASLAUTHD" = 1 ];then
+	if [[ $ENABLE_SASLAUTHD -eq 1 ]]
+  then
 		_register_setup_function "_setup_saslauthd"
 	fi
 
-	if [ "$ENABLE_POSTGREY" = 1 ];then
+	if [[ $ENABLE_POSTGREY -eq 1 ]]
+  then
 		_register_setup_function "_setup_postgrey"
 	fi
 
 	_register_setup_function "_setup_dkim"
 	_register_setup_function "_setup_ssl"
-	if [ "$POSTFIX_INET_PROTOCOLS" != "all" ]; then
+
+	if [[ $POSTFIX_INET_PROTOCOLS != "all" ]]
+  then
     _register_setup_function "_setup_inet_protocols"
   fi
+
 	_register_setup_function "_setup_docker_permit"
 
 	_register_setup_function "_setup_mailname"
@@ -141,30 +159,36 @@ function register_functions() {
 	_register_setup_function "_setup_postfix_postscreen"
 	_register_setup_function "_setup_postfix_sizelimits"
 
-  if [ "$SPOOF_PROTECTION" = 1  ]; then
+  if [[ $SPOOF_PROTECTION -eq 1  ]]
+  then
 		_register_setup_function "_setup_spoof_protection"
 	fi
 
-	if [ "$ENABLE_SRS" = 1 ];  then
+	if [[ $ENABLE_SRS -eq 1  ]]
+  then
 		_register_setup_function "_setup_SRS"
 		_register_start_daemon "_start_daemons_postsrsd"
 	fi
 
   _register_setup_function "_setup_postfix_access_control"
 
-	if [ ! -z "$AWS_SES_HOST" -a ! -z "$AWS_SES_USERPASS" ]; then
+	if [[ -n $AWS_SES_HOST ]] && [[ -n $AWS_SES_USERPASS ]]
+  then
 		_register_setup_function "_setup_postfix_relay_hosts"
 	fi
 
-	if [ ! -z "$DEFAULT_RELAY_HOST" ]; then
+	if [[ -n $DEFAULT_RELAY_HOST ]]
+  then
 		_register_setup_function "_setup_postfix_default_relay_host"
 	fi
 
-	if [ ! -z "$RELAY_HOST" ]; then
+	if [[ -n $RELAY_HOST ]]
+  then
 		_register_setup_function "_setup_postfix_relay_hosts"
 	fi
 
-	if [ "$ENABLE_POSTFIX_VIRTUAL_TRANSPORT" = 1  ]; then
+	if [[ $ENABLE_POSTFIX_VIRTUAL_TRANSPORT -eq 1 ]]
+  then
 		_register_setup_function "_setup_postfix_virtual_transport"
 	fi
 
@@ -173,18 +197,20 @@ function register_functions() {
   _register_setup_function "_setup_environment"
   _register_setup_function "_setup_logrotate"
 
-	if [ "$PFLOGSUMM_TRIGGER" != "none" ]; then
+	if [[ $PFLOGSUMM_TRIGGER != "none" ]]
+  then
 		_register_setup_function "_setup_mail_summary"
 	fi
 
-	if [ "$LOGWATCH_TRIGGER" != "none" ]; then
+	if [[ $LOGWATCH_TRIGGER != "none" ]]
+  then
 		_register_setup_function "_setup_logwatch"
 	fi
 
 	_register_setup_function "_setup_user_patches"
 
-        # Compute last as the config files are modified in-place
-        _register_setup_function "_setup_chksum_file"
+  # Compute last as the config files are modified in-place
+  _register_setup_function "_setup_chksum_file"
 
 	################### << setup funcs
 
@@ -192,10 +218,14 @@ function register_functions() {
 
 	_register_fix_function "_fix_var_mail_permissions"
 	_register_fix_function "_fix_var_amavis_permissions"
-	if [ "$ENABLE_CLAMAV" = 0 ]; then
-        	_register_fix_function "_fix_cleanup_clamav"
+
+	if [[ $ENABLE_CLAMAV -eq 0 ]]
+  then
+    _register_fix_function "_fix_cleanup_clamav"
 	fi
-	if [ "$ENABLE_SPAMASSASSIN" = 0 ]; then
+
+	if [[ $ENABLE_SPAMASSASSIN -eq 0 ]]
+  then
 		_register_fix_function "_fix_cleanup_spamassassin"
 	fi
 
@@ -212,7 +242,8 @@ function register_functions() {
 	_register_start_daemon "_start_daemons_cron"
 	_register_start_daemon "_start_daemons_rsyslog"
 
-	if [ "$SMTP_ONLY" != 1 ]; then
+	if [[ $SMTP_ONLY -ne 1 ]]
+  then
 		_register_start_daemon "_start_daemons_dovecot"
 	fi
 
@@ -221,57 +252,66 @@ function register_functions() {
 	_register_start_daemon "_start_daemons_opendmarc"
 
 	#postfix uses postgrey, needs to be started before postfix
-	if [ "$ENABLE_POSTGREY" = 1 ]; then
+	if [[ $ENABLE_POSTGREY -eq 1 ]]
+  then
 		_register_start_daemon "_start_daemons_postgrey"
 	fi
 
 	_register_start_daemon "_start_daemons_postfix"
 
-	if [ "$ENABLE_SASLAUTHD" = 1 ];then
+	if [[ $ENABLE_SASLAUTHD -eq 1 ]]
+  then
 		_register_start_daemon "_start_daemons_saslauthd"
 	fi
 
-	# care needs to run after postfix
-	if [ "$ENABLE_FAIL2BAN" = 1 ]; then
+	# care :: needs to run after postfix
+	if [[ $ENABLE_FAIL2BAN -eq 1 ]]
+  then
 		_register_start_daemon "_start_daemons_fail2ban"
 	fi
 
-	if [ "$ENABLE_FETCHMAIL" = 1 ]; then
+	if [[ $ENABLE_FETCHMAIL -eq 1 ]]
+  then
 		_register_start_daemon "_start_daemons_fetchmail"
 	fi
 
-	if [ "$ENABLE_CLAMAV" = 1 ]; then
+	if [[ $ENABLE_CLAMAV -eq 1 ]]
+  then
 		_register_start_daemon "_start_daemons_clamav"
 	fi
-    # Change detector
-    if [ "$ENABLE_LDAP" = 0 ]; then
-	    _register_start_daemon "_start_changedetector"
-    fi
+
+  # change detector
+  if [[ $ENABLE_LDAP -eq 0 ]]
+  then
+	  _register_start_daemon "_start_changedetector"
+  fi
 
 	_register_start_daemon "_start_daemons_amavis"
+
 	################### << daemon funcs
 }
+
 ##########################################################################
 # << REGISTER FUNCTIONS
 ##########################################################################
 
 
-
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# >>
 
 
 ##########################################################################
 # >> CONSTANTS
 ##########################################################################
+
 declare -a FUNCS_SETUP
 declare -a FUNCS_FIX
 declare -a FUNCS_CHECK
 declare -a FUNCS_MISC
 declare -a DAEMONS_START
-declare -A HELPERS_EXEC_STATE
+# declare -A HELPERS_EXEC_STATE
+
 ##########################################################################
 # << CONSTANTS
 ##########################################################################
@@ -280,44 +320,55 @@ declare -A HELPERS_EXEC_STATE
 ##########################################################################
 # >> protected register_functions
 ##########################################################################
-function _register_start_daemon() {
+
+function _register_start_daemon()
+{
 	DAEMONS_START+=($1)
 	notify 'inf' "$1() registered"
 }
 
-function _register_setup_function() {
+function _register_setup_function()
+{
 	FUNCS_SETUP+=($1)
 	notify 'inf' "$1() registered"
 }
 
-function _register_fix_function() {
+function _register_fix_function()
+{
 	FUNCS_FIX+=($1)
 	notify 'inf' "$1() registered"
 }
 
-function _register_check_function() {
+function _register_check_function()
+{
 	FUNCS_CHECK+=($1)
 	notify 'inf' "$1() registered"
 }
 
-function _register_misc_function() {
+function _register_misc_function()
+{
 	FUNCS_MISC+=($1)
 	notify 'inf' "$1() registered"
 }
+
 ##########################################################################
 # << protected register_functions
 ##########################################################################
 
 
-function defunc() {
+function _defunc()
+{
 	notify 'fatal' "Please fix your configuration. Exiting..."
 	exit 1
 }
 
-function display_startup_daemon() {
+function display_startup_daemon()
+{
   $1 &>/dev/null
   res=$?
-  if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]; then
+
+  if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
+  then
 	  if [ $res = 0 ]; then
 			notify 'started' " [ OK ]"
 		else
@@ -331,8 +382,6 @@ function display_startup_daemon() {
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !  CARE --> DON'T CHANGE, except you know exactly what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# <<
-
 
 
 ##########################################################################
@@ -340,11 +389,13 @@ function display_startup_daemon() {
 #
 # Description: Place functions for initial check of container sanity
 ##########################################################################
-function check() {
+
+function check()
+{
 	notify 'taskgrp' 'Checking configuration'
 	for _func in "${FUNCS_CHECK[@]}";do
 		$_func
-		[ $? != 0 ] && defunc
+		[ $? != 0 ] && _defunc
 	done
 }
 
@@ -414,7 +465,7 @@ function _setup_default_vars() {
 	DEFAULT_VARS["PFLOGSUMM_RECIPIENT"]="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
 	DEFAULT_VARS["LOGWATCH_RECIPIENT"]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
 
-	for var in ${!DEFAULT_VARS[@]}; do
+	for var in "${!DEFAULT_VARS[@]}"; do
 		echo "export $var=\"${DEFAULT_VARS[$var]}\"" >> /root/.bashrc
 		[ $? != 0 ] && notify 'err' "Unable to set $var=${DEFAULT_VARS[$var]}" && kill -15 `cat /var/run/supervisord.pid` && return 1
 		notify 'inf' "Set $var=${DEFAULT_VARS[$var]}"
@@ -679,7 +730,7 @@ function _setup_dovecot_local_user() {
 	if [[ ! $(grep '@' /tmp/docker-mailserver/postfix-accounts.cf | grep '|') ]]; then
 		if [ $ENABLE_LDAP -eq 0 ]; then
 			notify 'fatal' "Unless using LDAP, you need at least 1 email account to start Dovecot."
-			defunc
+			_defunc
 		fi
 	fi
 
@@ -719,7 +770,7 @@ function _setup_ldap() {
 	# _dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
 	# _dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
 
-	for var in ${!_dovecot_ldap_mapping[@]}; do
+	for var in "${!_dovecot_ldap_mapping[@]}"; do
 		export $var="${_dovecot_ldap_mapping[$var]}"
 	done
 
@@ -1557,7 +1608,7 @@ function fix() {
 	notify 'taskgrg' "Post-configuration checks..."
 	for _func in "${FUNCS_FIX[@]}";do
 		$_func
-		[ $? != 0 ] && defunc
+		[ $? != 0 ] && _defunc
 	done
 
         notify 'taskgrg' "Remove leftover pid files from a stop/start"
@@ -1624,7 +1675,7 @@ function misc() {
 
 	for _func in "${FUNCS_MISC[@]}";do
 		$_func
-		[ $? != 0 ] && defunc
+		[ $? != 0 ] && _defunc
 	done
 }
 
@@ -1668,7 +1719,7 @@ function start_daemons() {
 
 	for _func in "${DAEMONS_START[@]}";do
 		$_func
-		[ $? != 0 ] && defunc
+		[ $? != 0 ] && _defunc
 	done
 }
 
