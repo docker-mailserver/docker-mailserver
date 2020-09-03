@@ -253,38 +253,37 @@ declare -a DAEMONS_START
 
 function _register_start_daemon()
 {
-	DAEMONS_START+=($1)
+	DAEMONS_START+=("$1")
 	notify 'inf' "$1() registered"
 }
 
 function _register_setup_function()
 {
-	FUNCS_SETUP+=($1)
+	FUNCS_SETUP+=("$1")
 	notify 'inf' "$1() registered"
 }
 
 function _register_fix_function()
 {
-	FUNCS_FIX+=($1)
+	FUNCS_FIX+=("$1")
 	notify 'inf' "$1() registered"
 }
 
 function _register_check_function()
 {
-	FUNCS_CHECK+=($1)
+	FUNCS_CHECK+=("$1")
 	notify 'inf' "$1() registered"
 }
 
 function _register_misc_function()
 {
-	FUNCS_MISC+=($1)
+	FUNCS_MISC+=("$1")
 	notify 'inf' "$1() registered"
 }
 
 ##########################################################################
 # << protected register_functions
 ##########################################################################
-
 
 function _defunc()
 {
@@ -981,16 +980,18 @@ function _setup_postfix_aliases()
       sed -i -e "s/, /,/g" -e "s/,$//g" /tmp/docker-mailserver/postfix-virtual.cf
     fi
 
-		# Copying virtual file
 		cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-		(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r from
+
+    # the `to` seems to be important; don't delete it
+    # shellcheck disable=SC2034
+		(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r from to
 		do
 			# Setting variables for better readability
 			uname=$(echo "$from" | cut -d @ -f1)
 			domain=$(echo "$from" | cut -d @ -f2)
 
 			# if they are equal it means the line looks like: "user1     other@domain.tld"
-			[ "$uname" != "$domain" ] && echo $domain >> /tmp/vhost.tmp
+			[ "$uname" != "$domain" ] && echo "$domain" >> /tmp/vhost.tmp
 		done
 	else
 		notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."

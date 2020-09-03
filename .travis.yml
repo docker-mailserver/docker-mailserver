@@ -29,7 +29,7 @@ install:
   - travis_retry travis_wait make build
 
 script:
-  - make shellcheck_test
+  - make shellcheck
   - make generate-accounts run generate-accounts-after-run fixtures tests
 
 after_script:

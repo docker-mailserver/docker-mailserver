@@ -67,7 +67,7 @@ Minimum:
 
 Download the docker-compose.yml, the .env and the setup.sh files:
 
-``` SH
+``` BASH
 curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 
 curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
@@ -89,7 +89,7 @@ curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
-### Starting the Container
+### Start the Container
 
 ``` BASH
 docker-compose up -d mail

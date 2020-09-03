@@ -191,13 +191,15 @@ do
         then
           cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
 
-          (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r from
+          # the `to` seems to be important; don't delete it
+          # shellcheck disable=SC2034
+          (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r from to
           do
             uname=$(echo "$from" | cut -d @ -f1)
             domain=$(echo "$from" | cut -d @ -f2)
 
             # if they are equal it means the line looks like: "user1	 other@domain.tld"
-            [ "$uname" != "$domain" ] && echo $domain >>/tmp/vhost.tmp
+            [ "$uname" != "$domain" ] && echo "$domain" >>/tmp/vhost.tmp
           done
         fi
 

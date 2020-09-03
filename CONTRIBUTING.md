@@ -13,9 +13,11 @@ Please start the mail server with env `DMS_DEBUG=1` and paste the output into th
 
 #### Project architecture
 
-    ├── config                    # User: personal configurations
-    ├── target                    # Developer: default server configuration, used when building the image
-    └── test                      # Developer: integration tests to check that everything keeps working
+``` TXT
+├── config                    # User: personal configurations
+├── target                    # Developer: default server configuration, used when building the image
+└── test                      # Developer: integration tests to check that everything keeps working
+```
 
 #### Submit a Pull-Request
 
