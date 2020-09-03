@@ -157,7 +157,11 @@ clean:
 		sudo rm -rf test/config ;\
 		mv testconfig.bak test/config ;\
 	fi
-	-sudo rm -rf test/onedir test/alias test/quota test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/dovecot-quotas.cf test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf test/config/dhparams.pem
+	-sudo rm -rf test/onedir test/alias test/quota test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/dovecot-quotas.cf test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf test/config/dhparams.pem test/config/dovecot-lmtp/dh.pem test/config/relay-hosts/dovecot-quotas.cf test/config/user-patches.sh
 
 shellcheck:
-	@find . -type d \( -path ./test -o -path ./target/docker-configomat \) -prune -false -o -name '*.sh' -exec shellcheck {} \;
+	@find . -type d \( -path ./test -o -path ./target/docker-configomat \) -prune -false -o -name '*.sh' -exec shellcheck -s bash -S style -Cauto -o all -e SC2250,SC2154,SC2248 -W 50 {} \;
+
+shellcheck_test:
+	@[ -n "$(find . -type d \( -path ./test -o -path ./target/docker-configomat \) -prune -false -o -name '*.sh' -exec shellcheck -s bash -S style -Cauto -o all -e SC2250,SC2154,SC2248, -W 50 {} \;)" ] && \
+	  { echo 'Shellcheck found errors.\nError where:' ; $(MAKE) --no-print-directory shellcheck ; echo "\n" ; exit 1 ; }

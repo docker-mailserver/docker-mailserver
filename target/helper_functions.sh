@@ -131,9 +131,9 @@ function notify()
       fi
       ;;
     'started' ) msg="${c_green} ${notification_msg}${c_reset}" ;;
-    'warn'    ) msg="${c_brown}  * ${notification_msg}${c_reset}" ;;
-    'err'     ) msg="${c_blue}  * ${notification_msg}${c_reset}" ;;
-    'fatal'   ) msg="${c_red}Error: ${notification_msg}${c_reset}" ;;
+    'warn'    ) msg="${c_brown} Warning ${notification_msg}${c_reset}" ;;
+    'err'     ) msg="${c_blue} Error ${notification_msg}${c_reset}" ;;
+    'fatal'   ) msg="${c_red} Fatal Error: ${notification_msg}${c_reset}" ;;
     *         ) msg="" ;;
   esac
 
@@ -173,9 +173,11 @@ function _populate_relayhost_map()
     sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
     [ -f /tmp/docker-mailserver/postfix-virtual.cf ] &&
       sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r domain; do
+  } | while read -r domain
+  do
     if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map &&
-       ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf; then
+       ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
+    then
       # Domain not already present *and* not ignored.
       notify 'inf' "Adding relay mapping for ${domain}"
       echo "@${domain}    [$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
