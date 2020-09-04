@@ -164,8 +164,10 @@ clean:
 	-@ sudo rm -rf test/onedir test/alias test/quota test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/dovecot-quotas.cf test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf test/config/dhparams.pem test/config/dovecot-lmtp/dh.pem test/config/relay-hosts/dovecot-quotas.cf test/config/user-patches.sh
 
 shellcheck:
-	@ echo "Testing shell / bash scripts with shellcheck"
-	@ if find . -type d \( -path ./test -o -path ./target/docker-configomat \) -prune -false -o -name '*.sh' -exec shellcheck -s bash -S style -Cauto -o all -e SC2250,SC2154,SC2248 -W 50 {} \; | grep .; then\
+	@ echo -e "Testing shell / bash scripts with shellcheck\n"
+	@ shellcheck --version
+	@ echo ''
+	@ if find -iname "*.sh" -not -path "./test/*" -not -path "./target/docker-configomat/*" -exec shellcheck -S style -Cauto -e SC2250,SC2154,SC2248 -W 50 {} \; | grep .; then\
 		echo -e "\nError" ;\
 		exit 1 ;\
 	else\

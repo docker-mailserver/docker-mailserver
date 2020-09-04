@@ -21,7 +21,12 @@ function _mask_ip_digit()
     MASK=${VALUES[$1]}
   fi
 
-  echo $(( $2 & MASK ))
+  # * a limitation of the TravisCI build,
+  # * where Bash cannot interpret this
+  # * expression correctly. Therefore, this
+  # * is (sad and) necessarry.
+  # shellcheck disable=SC2004
+  echo $(( $2 & $MASK ))
 }
 
 # Transforms a specific IP with CIDR suffix
@@ -34,7 +39,7 @@ function _sanitize_ipv4_to_subnet_cidr()
   mapfile -t -d '.' DIGITS < <(echo "${1%%/*}")
 
   local DIGIT_PREFIX_LENGTH="${1#*/}"
-  local MASKED_DIGITS=()
+  declare -a MASKED_DIGITS
 
   for ((i = 0 ; i < 4 ; i++))
   do
