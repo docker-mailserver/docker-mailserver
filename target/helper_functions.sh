@@ -26,7 +26,7 @@ function _mask_ip_digit()
   # * expression correctly. Therefore, this
   # * is (sad and) necessarry.
   # shellcheck disable=SC2004
-  echo $(( $2 & $MASK ))
+  echo $(($2 & $MASK))
 }
 
 # Transforms a specific IP with CIDR suffix
