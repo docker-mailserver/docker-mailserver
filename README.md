@@ -82,6 +82,7 @@ Minimum:
 
 Download the docker-compose.yml, the .env and the setup.sh files:
 
+
 ``` BASH
 curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 
