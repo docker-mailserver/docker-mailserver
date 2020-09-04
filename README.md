@@ -1,10 +1,25 @@
 # docker-mailserver
 
-[![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=master)](https://travis-ci.org/tomav/docker-mailserver) [![Docker Pulls](https://img.shields.io/docker/pulls/tvial/docker-mailserver.svg)](https://hub.docker.com/r/tvial/docker-mailserver/) [![Docker layers](https://images.microbadger.com/badges/image/tvial/docker-mailserver.svg)](https://microbadger.com/images/tvial/docker-mailserver) [![Github Stars](https://img.shields.io/github/stars/tomav/docker-mailserver.svg?label=github%20%E2%98%85)](https://github.com/tomav/docker-mailserver/) [![Github Stars](https://img.shields.io/github/contributors/tomav/docker-mailserver.svg)](https://github.com/tomav/docker-mailserver/) [![Github Forks](https://img.shields.io/github/forks/tomav/docker-mailserver.svg?label=github%20forks)](https://github.com/tomav/docker-mailserver/) [![Gitter](https://img.shields.io/gitter/room/tomav/docker-mailserver.svg)](https://gitter.im/tomav/docker-mailserver)
+[![Build Status][build_status]][build_status::travis] [![Docker Pulls][docker_pulls]][docker_hub_pulls::hub] [![Docker layers][layers]][layers_outer::badger] [![Github Stars][gh_stars]][repo] [![Contributors][contributors]][repo] [![Github Forks][forks]][repo] [![Gitter][shields::gitter]][gitter]
+
+[build_status]: https://travis-ci.org/tomav/docker-mailserver.svg?branch=master
+[build_status::travis]: https://travis-ci.org/tomav/docker-mailserver
+[docker_pulls]: https://img.shields.io/docker/pulls/tvial/docker-mailserver.svg
+[docker_hub_pulls::hub]: https://hub.docker.com/r/tvial/docker-mailserver/
+[layers]: https://images.microbadger.com/badges/image/tvial/docker-mailserver.svg
+[layers_outer::badger]: https://microbadger.com/images/tvial/docker-mailserver
+[gh_stars]: https://img.shields.io/github/stars/tomav/docker-mailserver.svg?label=github%20%E2%98%85
+[repo]: https://github.com/tomav/docker-mailserver/
+[contributors]: https://img.shields.io/github/contributors/tomav/docker-mailserver.svg
+[forks]: https://img.shields.io/github/forks/tomav/docker-mailserver.svg?label=github%20forks
+[shields::gitter]: https://img.shields.io/gitter/room/tomav/docker-mailserver.svg
+[gitter]: https://gitter.im/tomav/docker-mailserver
 
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
+
+Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
 ## ANNOUNCEMENT
 
@@ -19,7 +34,7 @@ The following possibly breaking changes are known:
 If you want to stick to the old version a while longer, either switch to stable or to a specific version.
 If you run into problems, please raise issues and ask for help. Don't forget to provide details.
 
-Includes:
+## Includes
 
 - [Postfix](http://www.postfix.org) with smtp or ldap auth
 - [Dovecot](https://www.dovecot.org) for sasl, imap (and optional pop3) with ssl support, with ldap auth, sieve and [quotas](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
@@ -42,9 +57,9 @@ Includes:
 - Plus addressing (a.k.a. [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter))
   works out of the box: email for `you+extension@example.com` go to `you@example.com`
 
-Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+## Issues & Contributing
 
-Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation.
+Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation. If you'd like to contribute, read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly.
 
 ## Requirements
 

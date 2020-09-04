@@ -40,7 +40,7 @@ The development workflow is the following:
 - `master` is automatically tested on Travis
 - Docker builds a new `latest` image
 
-## Code Style
+## Coding Style
 
 ### Bash and Shell
 
@@ -57,7 +57,7 @@ When refactoring, writing or altering Script, that is Shell and Bash scripts, in
 
 ##### initial description
 
-When writing a script, provide author, version and the script's task like so:
+When writing a script, provide the version and the script's task like so:
 
 ``` BASH
 #!/usr/bin/env bash
@@ -96,10 +96,10 @@ then
 fi
 
 # equality checks with numbers - use -eq/-ne/-lt/-ge, not != or ==
-if [[ $SOME_VAR -ne <NUMBER> ]] && [[ $SOME_VAR -eq <NUMBER> ]] || [[ $SOME_VAR -lt <NUMBER> ]]
+if [[ $VAR -ne <NUMBER> ]] && [[ $SOME_VAR -eq 6 ]] || [[ $SOME_VAR -lt 42 ]]
 then
   <CODE TO RUN>
-elif [[ $SOME_VAR -ge <NUMBER> ]]
+elif [[ $SOME_VAR -ge 242 ]]
 then
   <CODE TO RUN>
 fi
@@ -107,7 +107,7 @@ fi
 
 ##### variables
 
-Variables should, like functions, start with an underscore. They are always uppercase.
+Variables are always uppercase.
 
 ``` BASH
 # good
@@ -119,14 +119,19 @@ var="bad"
 
 ##### braces
 
-We use brace in the following way:
+We use braces in the following way:
 
 ``` BASH
-# when it's clear and unambiguous :: no braces
-$_VAR
+# when it's clear and unambiguous,
+# you do not have to use braces,
+# but you might, see shellcheck SC2248
+$VAR
+# or
+${VAR}
 
-# when the variable is used in a greater context
-echo "/some/dir/${_VAR}/to/destination/"
+# when the variable is used
+# in a bigger context
+echo "/some/dir/${VAR}/to/destination/"
 ```
 
 ##### loops
@@ -142,7 +147,7 @@ done
 
 ##### functions
 
-It's always nice to see the use of functions. Not only as it's more C-style, but it also provides a clear structure. If scripts are small, this is unnecessary, but if they become larger, please consider using functions. When doing so, provide `function _main()`. When using function, they are **always** at the top of the script!
+It's always nice to see the use of functions. Not only as it's more C-style, but it also provides a clear structure. If scripts are small, this is unnecessary, but if they become larger, please consider using functions. When doing so, provide `function _main()`. When using functions, they are **always** at the top of the script!
 
 ``` BASH
 function _<name_underscored_and_lowercase>()
@@ -164,7 +169,7 @@ trap '_report_err $_ $LINENO $?' ERR
 
 function _report_err()
 {
-  echo "ERROR occured :: source (hint) $1 ; line $2 ; exit code $3 ;;" >&2
+  echo "ERROR occurred :: source (hint) $1 ; line $2 ; exit code $3 ;;" >&2
   
   <CODE TO RUN AFTERWARDS>
 }
@@ -174,7 +179,7 @@ Please use it like this (copy-paste) to make errors streamlined. Remember: Remov
 
 ##### comments and descriptiveness
 
-Comments should be kept minimal and only describe non-obvious matters, i.e. not what the code does. Comments should start lowercase as most of the are not sentences. Make the code **self-descriptive** by using meaningful names!
+Comments should be kept minimal and only describe non-obvious matters, i.e. not what the code does. Comments should start lowercase as most of them are not sentences. Make the code **self-descriptive** by using meaningful names! Make comments not longer than approximately 60 columns, then wrap the line.
 
 A negative example:
 
@@ -197,6 +202,7 @@ function _add_one()
 A positive example:
 
 ``` BASH
+# writes result to stdout
 function _add_one()
 {
   echo $(( $1 + 1 ))

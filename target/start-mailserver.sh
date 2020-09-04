@@ -965,6 +965,9 @@ EOF
 	gpasswd -a postfix sasl
 }
 
+# ! THERE MAY BE AN ERROR HERE ------------------------------------------------------------------------------
+# TODO FIND ERROR (2) FROM errors.txt -----------------------------------------------------------------------
+
 function _setup_postfix_aliases()
 {
 	notify 'task' 'Setting up Postfix Aliases'
@@ -1009,11 +1012,12 @@ s/$/ pcre:\/etc\/postfix\/regexp/
 	fi
 
 	notify 'inf' "Configuring root alias"
+
 	echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
 
 	if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
   then
-		cat /tmp/docker-mailserver/postfix-aliases.cf>>/etc/aliases
+		cat /tmp/docker-mailserver/postfix-aliases.cf >> /etc/aliases
 	else
 		notify 'inf' "'config/postfix-aliases.cf' is not provided and will be auto created."
 		echo -n >/tmp/docker-mailserver/postfix-aliases.cf

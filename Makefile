@@ -165,7 +165,7 @@ clean:
 
 shellcheck:
 	@ echo "Testing shell / bash scripts with shellcheck"
-	@ if find . -type d \( -path ./test -o -path ./target/docker-configomat \) -prune -false -o -name '*.sh' -exec shellcheck -s bash -S style -Cauto -o all -e SC2250,SC2154,SC2248, -W 50 {} \; | grep .; then\
+	@ if find . -type d \( -path ./test -o -path ./target/docker-configomat \) -prune -false -o -name '*.sh' -exec shellcheck -s bash -S style -Cauto -o all -e SC2250,SC2154,SC2248 -W 50 {} \; | grep .; then\
 		echo -e "\nError" ;\
 		exit 1 ;\
 	else\

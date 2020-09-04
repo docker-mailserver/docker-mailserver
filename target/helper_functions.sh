@@ -163,22 +163,20 @@ function _populate_relayhost_map()
   if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]
   then
     notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
-    # Keep lines which are not a comment *and* have a destination.
-    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf \
-        >> /etc/postfix/relayhost_map
+    # keep lines which are not a comment *and* have a destination.
+    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
   fi
 
   {
-    # Note: Won't detect domains when lhs has spaces (but who does that?!).
+    # note: won't detect domains when lhs has spaces (but who does that?!)
     sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
-    [ -f /tmp/docker-mailserver/postfix-virtual.cf ] &&
-      sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
+
+    [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
   } | while read -r domain
   do
-    if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map &&
-       ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
+    # domain not already present *and* not ignored
+    if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
-      # Domain not already present *and* not ignored.
       notify 'inf' "Adding relay mapping for ${domain}"
       echo "@${domain}    [$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
     fi
