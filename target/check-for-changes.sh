@@ -16,7 +16,6 @@ if [ ! -f postfix-accounts.cf ]; then
 fi
 
 # Verify checksum file exists; must be prepared by start-mailserver.sh
-CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 if [ ! -f $CHKSUM_FILE ]; then
    echo "${log_date} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
    exit
@@ -32,12 +31,6 @@ fi
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 echo "${log_date} Using postmaster address ${PM_ADDRESS}"
 
-# Create an array of files to monitor, must be the same as in start-mailserver.sh
-declare -a cf_files=()
-for file in postfix-accounts.cf postfix-virtual.cf postfix-aliases.cf dovecot-quotas.cf /etc/letsencrypt/acme.json "/etc/letsencrypt/live/$HOSTNAME/key.pem" "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem"; do
-  [ -f "$file" ] && cf_files+=("$file")
-done
-
 # Wait to make sure server is up before we start
 sleep 10
 
@@ -48,10 +41,12 @@ while true; do
 log_date=$(date +"%Y-%m-%d %H:%M:%S ")
 
 # Get chksum and check it, no need to lock config yet
-chksum=$(sha512sum -c --ignore-missing $CHKSUM_FILE)
+monitored_files_checksums >"$CHKSUM_FILE.new"
 
-if [[ $chksum == *"FAIL"* ]]; then
+if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"; then
 	echo "${log_date} Change detected"
+  changed=$(grep -Fxvf "$CHKSUM_FILE" "$CHKSUM_FILE.new" | sed 's/^[^ ]\+  //')
+  mv "$CHKSUM_FILE.new" "$CHKSUM_FILE"
 
 	# Bug alert! This overwrites the alias set by start-mailserver.sh
 	# Take care that changes in one script are propagated to the other
@@ -63,13 +58,18 @@ if [[ $chksum == *"FAIL"* ]]; then
         (
           flock -e 200
 
-  if [[ $chksum == *"/etc/letsencrypt/acme.json: FAILED"* ]]; then
-    for certdomain in $SSL_DOMAIN $HOSTNAME $DOMAINNAME; do
-      if extractCertsFromAcmeJson "$certdomain"; then
-        break
-      fi
-    done
-  fi
+  for file in $changed; do
+    case $file in
+    /etc/letsencrypt/acme.json)
+      for certdomain in $SSL_DOMAIN $HOSTNAME $DOMAINNAME; do
+        if extractCertsFromAcmeJson "$certdomain"; then
+          break
+        fi
+      done
+      ;;
+    #TODO: Perform updates below conditionally as well.
+    esac
+  done
 
 	#regen postix aliases.
 	echo "root: ${PM_ADDRESS}" > /etc/aliases
@@ -81,6 +81,7 @@ if [[ $chksum == *"FAIL"* ]]; then
 	#regen postfix accounts.
 	echo -n > /etc/postfix/vmailbox
 	echo -n > /etc/dovecot/userdb
+
 	if [ -f /tmp/docker-mailserver/postfix-accounts.cf -a "$ENABLE_LDAP" != 1 ]; then
 		sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
 		echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
@@ -95,7 +96,6 @@ if [[ $chksum == *"FAIL"* ]]; then
 		if [ ! -z "$RELAY_HOST" ]; then
 			# keep old config
 			echo -n > /etc/postfix/sasl_passwd
-			echo -n > /etc/postfix/relayhost_map
 			if [ ! -z "$SASL_PASSWD" ]; then
 				echo "$SASL_PASSWD" >> /etc/postfix/sasl_passwd
 			fi
@@ -110,14 +110,6 @@ if [[ $chksum == *"FAIL"* ]]; then
 			# add default relay
 			if [ ! -z "$RELAY_USER" ] && [ ! -z "$RELAY_PASSWORD" ]; then
 				echo "[$RELAY_HOST]:$RELAY_PORT		$RELAY_USER:$RELAY_PASSWORD" >> /etc/postfix/sasl_passwd
-			fi
-			# add relay maps from file
-			if [ -f /tmp/docker-mailserver/postfix-relaymap.cf ]; then
-				(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-relaymap.cf || true) | while read line; do
-					if ! echo "$line" | grep -q -e "\s*#"; then
-						echo "$line" >> /etc/postfix/relayhost_map
-					fi
-				done
 			fi
 		fi
 
@@ -152,21 +144,14 @@ if [[ $chksum == *"FAIL"* ]]; then
 			# Copy user provided sieve file, if present
 			test -e /tmp/docker-mailserver/${login}.dovecot.sieve && cp /tmp/docker-mailserver/${login}.dovecot.sieve /var/mail/${domain}/${user}/.dovecot.sieve
 			echo ${domain} >> /tmp/vhost.tmp
-			# add domains to relayhost_map
-			if [ ! -z "$RELAY_HOST" ]; then
-				if ! grep -q -e "^@${domain}\s" /etc/postfix/relayhost_map; then
-					echo "@${domain}		[$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
-				fi
-			fi
 		done
+	fi
+	if [ ! -z "$RELAY_HOST" ]; then
+		populate_relayhost_map
 	fi
 	if [ -f /etc/postfix/sasl_passwd ]; then
 		chown root:root /etc/postfix/sasl_passwd
 		chmod 0600 /etc/postfix/sasl_passwd
-	fi
-	if [ -f /etc/postfix/relayhost_map ]; then
-		chown root:root /etc/postfix/relayhost_map
-		chmod 0600 /etc/postfix/relayhost_map
 	fi
 	if [ -f postfix-virtual.cf ]; then
 	# regen postfix aliases
@@ -210,9 +195,6 @@ if [[ $chksum == *"FAIL"* ]]; then
 	if [ ! $SMTP_ONLY = 1 ]; then
 		supervisorctl restart dovecot
 	fi
-
-	echo "${log_date} Update checksum"
-	sha512sum ${cf_files[@]/#/--tag } >$CHKSUM_FILE
 
         ) 200<postfix-accounts.cf # end lock
 fi
