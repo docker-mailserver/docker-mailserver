@@ -80,7 +80,7 @@ do
               fi
             done
             ;;
-          * ) notify 'err' 'file not found for certificate in check_for_changes.sh' ;;
+          * ) _notify 'warn' 'file not found for certificate in check_for_changes.sh' ;;
         esac
       done
 

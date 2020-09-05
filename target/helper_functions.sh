@@ -107,7 +107,7 @@ export -f _extract_certs_from_acme
 declare -A DEFAULT_VARS
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
 
-function notify()
+function _notify()
 {
   c_red="\e[0;31m"
   c_green="\e[0;32m"
@@ -149,7 +149,7 @@ function notify()
 
   [[ -n "${msg}" ]] && echo $options "${msg}"
 }
-export -f notify
+export -f _notify
 
 
 # ? Relay Host Map ----------------------------------------
@@ -168,7 +168,7 @@ function _populate_relayhost_map()
 
   if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]
   then
-    notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
+    _notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
     # keep lines which are not a comment *and* have a destination.
     sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
   fi
@@ -183,7 +183,7 @@ function _populate_relayhost_map()
     # domain not already present *and* not ignored
     if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
-      notify 'inf' "Adding relay mapping for ${domain}"
+      _notify 'inf' "Adding relay mapping for ${domain}"
       echo "@${domain}    [$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
     fi
   done
