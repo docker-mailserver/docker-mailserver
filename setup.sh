@@ -169,7 +169,7 @@ function _docker_container()
   fi
 }
 
-function main()
+function _main()
 {
   if [[ -n $(command -v docker) ]]
   then
@@ -180,7 +180,7 @@ function main()
     _check_root
   else
     echo "No supported Container Runtime Interface detected."
-    exit 1
+    exit 10
   fi
 
   INFO=$($CRI ps \
@@ -316,5 +316,5 @@ function main()
   esac
 }
 
-main "$@"
+_main "$@"
 _unset_vars

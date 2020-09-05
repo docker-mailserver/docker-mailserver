@@ -1,43 +1,52 @@
 #!/usr/bin/env bash
-# postsrsd-wrapper.sh, version 0.2.2
 
-if [ -n "$SRS_DOMAINNAME" ]; then
-  domain_name="$SRS_DOMAINNAME"
-elif [ -n "$OVERRIDE_HOSTNAME" ]; then
-  domain_name="${OVERRIDE_HOSTNAME#*.}"
-elif [ -n "$DOMAINNAME" ]; then
-  domain_name="$DOMAINNAME"
-else
-  domain_name=$(hostname -d)
-fi
+# version  0.1.0
 
-sed -i -e "s/localdomain/${domain_name}/g" /etc/default/postsrsd
-
-postsrsd_secret_file='/etc/postsrsd.secret'
-postsrsd_state_dir='/var/mail-state/etc-postsrsd'
-postsrsd_state_secret_file="${postsrsd_state_dir}/postsrsd.secret"
-
-generate_secret() {
-  ( umask 0077
-    dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "$1" )
+function generate_secret()
+{
+  ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "$1" )
 }
 
-if [ -n "$SRS_SECRET" ]; then
-  ( umask 0077
-    echo "$SRS_SECRET" | tr ',' '\n' > "$postsrsd_secret_file" )
+if [[ -n $SRS_DOMAINNAME ]]
+then
+  NEW_DOMAIN_NAME="$SRS_DOMAINNAME"
+elif [[ -n $OVERRIDE_HOSTNAME ]]
+then
+  NEW_DOMAIN_NAME="${OVERRIDE_HOSTNAME#*.}"
+elif [[ -n $DOMAINNAME ]]
+then
+  NEW_DOMAIN_NAME="$DOMAINNAME"
 else
-  if [ "$ONE_DIR" = 1 ]; then
-    if [ ! -f "$postsrsd_state_secret_file" ]; then
-      install -d -m 0775 "$postsrsd_state_dir"
-      generate_secret "$postsrsd_state_secret_file"
+  NEW_DOMAIN_NAME=$(hostname -d)
+fi
+
+sed -i -e "s/localdomain/${NEW_DOMAIN_NAME}/g" /etc/default/postsrsd
+
+POSTSRSD_SECRET_FILE='/etc/postsrsd.secret'
+POSTSRSD_STATE_DIR='/var/mail-state/etc-postsrsd'
+POSTSRSD_STATE_SECRET_FILE="${POSTSRSD_STATE_DIR}/postsrsd.secret"
+
+if [[ -n $SRS_SECRET ]]
+then
+  ( umask 0077 ; echo "$SRS_SECRET" | tr ',' '\n' > "$POSTSRSD_SECRET_FILE" )
+else
+  if [[ $ONE_DIR -eq 1 ]]
+  then
+    if [[ ! -f $POSTSRSD_STATE_SECRET_FILE ]]
+    then
+      install -d -m 0775 "$POSTSRSD_STATE_DIR"
+      generate_secret "$POSTSRSD_STATE_SECRET_FILE"
     fi
-    install -m 0400 "$postsrsd_state_secret_file" "$postsrsd_secret_file"
-  elif [ ! -f "$postsrsd_secret_file" ]; then
-    generate_secret "$postsrsd_secret_file"
+
+    install -m 0400 "$POSTSRSD_STATE_SECRET_FILE" "$POSTSRSD_SECRET_FILE"
+  elif [[ ! -f $POSTSRSD_SECRET_FILE ]]
+  then
+    generate_secret "$POSTSRSD_SECRET_FILE"
   fi
 fi
 
-if [ -n "$SRS_EXCLUDE_DOMAINS" ]; then
+if [[ -n $SRS_EXCLUDE_DOMAINS ]]
+then
   sed -i -e "s/^#\?SRS_EXCLUDE_DOMAINS=.*$/SRS_EXCLUDE_DOMAINS=$SRS_EXCLUDE_DOMAINS/g" /etc/default/postsrsd
 fi
 
