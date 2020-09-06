@@ -18,13 +18,13 @@ function _mask_ip_digit()
     MASK=0
   else
     VALUES=(0 128 192 224 240 248 252 254 255)
-    MASK=${VALUES[$1]}
+    MASK=${VALUES[${1}]}
   fi
 
   local DVAL=${2}
   ((DVAL&=MASK))
 
-  echo "$DVAL"
+  echo "${DVAL}"
 }
 
 # Transforms a specific IP with CIDR suffix
@@ -35,15 +35,13 @@ function _sanitize_ipv4_to_subnet_cidr()
 {
   local DIGIT_PREFIX_LENGTH="${1#*/}"
 
-  declare -a DIGITS
-  IFS='.' ; read -r -a DIGITS < <(echo "${1%%/*}")
-  unset IFS
-
   declare -a MASKED_DIGITS
+  declare -a DIGITS
+  IFS='.' ; read -r -a DIGITS < <(echo "${1%%/*}") ; unset IFS
 
   for ((i = 0 ; i < 4 ; i++))
   do
-    MASKED_DIGITS[i]=$(_mask_ip_digit "$DIGIT_PREFIX_LENGTH" "${DIGITS[i]}")
+    MASKED_DIGITS[i]=$(_mask_ip_digit "${DIGIT_PREFIX_LENGTH}" "${DIGITS[i]}")
     DIGIT_PREFIX_LENGTH=$((DIGIT_PREFIX_LENGTH - 8))
   done
 
@@ -66,7 +64,7 @@ for key, value in acme.items():
     certs = value['Certificates']
     for cert in certs:
         if 'domain' in cert and 'key' in cert:
-            if 'main' in cert['domain'] and cert['domain']['main'] == '$1' or 'sans' in cert['domain'] and '$1' in cert['domain']['sans']:
+            if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
                 print cert['key']
                 break
 ")
@@ -80,7 +78,7 @@ for key, value in acme.items():
     certs = value['Certificates']
     for cert in certs:
         if 'domain' in cert and 'certificate' in cert:
-            if 'main' in cert['domain'] and cert['domain']['main'] == '$1' or 'sans' in cert['domain'] and '$1' in cert['domain']['sans']:
+            if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
                 print cert['certificate']
                 break
 ")
@@ -89,9 +87,9 @@ for key, value in acme.items():
   then
     mkdir -p "/etc/letsencrypt/live/${HOSTNAME}/"
 
-    echo "$KEY" | base64 -d >/etc/letsencrypt/live/"$HOSTNAME"/key.pem || exit 1
-    echo "$CERT" | base64 -d >/etc/letsencrypt/live/"$HOSTNAME"/fullchain.pem || exit 1
-    echo "Cert found in /etc/letsencrypt/acme.json for $1"
+    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/key.pem || exit 1
+    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/fullchain.pem || exit 1
+    echo "Cert found in /etc/letsencrypt/acme.json for ${1}"
 
     return 0
   else
@@ -116,9 +114,9 @@ function _notify()
   c_bold="\033[1m"
   c_reset="\e[0m"
 
-  notification_type=$1
-  notification_msg=$2
-  notification_format=$3
+  notification_type=${1}
+  notification_msg=${2}
+  notification_format=${3}
   msg=""
 
   case "${notification_type}" in
@@ -147,7 +145,7 @@ function _notify()
     *   ) options="-e" ;;
   esac
 
-  [[ -n "${msg}" ]] && echo $options "${msg}"
+  [[ -n "${msg}" ]] && echo ${options} "${msg}"
 }
 export -f _notify
 
@@ -184,7 +182,7 @@ function _populate_relayhost_map()
     if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
       _notify 'inf' "Adding relay mapping for ${domain}"
-      echo "@${domain}    [$RELAY_HOST]:$RELAY_PORT" >> /etc/postfix/relayhost_map
+      echo "@${domain}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done
 }
@@ -209,8 +207,8 @@ function _monitored_files_checksums()
       postfix-aliases.cf \
       dovecot-quotas.cf \
       /etc/letsencrypt/acme.json \
-      "/etc/letsencrypt/live/$HOSTNAME/key.pem" \
-      "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem"
+      "/etc/letsencrypt/live/${HOSTNAME}/key.pem" \
+      "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
   )
 }
 export -f _monitored_files_checksums

@@ -8,7 +8,7 @@
 . /usr/local/bin/helper_functions.sh
 
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-echo "$LOG_DATE Start check-for-changes script."
+echo "${LOG_DATE} Start check-for-changes script."
 
 # ? Checks ------------------------------------------------
 
@@ -17,14 +17,14 @@ cd /tmp/docker-mailserver || exit 1
 # Check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  echo "$LOG_DATE postfix-accounts.cf is missing! This should not run! Exit!"
+  echo "${LOG_DATE} postfix-accounts.cf is missing! This should not run! Exit!"
   exit
 fi
 
 # Verify checksum file exists; must be prepared by start-mailserver.sh
-if [[ ! -f $CHKSUM_FILE ]]
+if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  echo "$LOG_DATE $CHKSUM_FILE is missing! Start script failed? Exit!"
+  echo "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
   exit
 fi
 
@@ -32,14 +32,14 @@ fi
 
 # Determine postmaster address, duplicated from start-mailserver.sh
 # This script previously didn't work when POSTMASTER_ADDRESS was empty
-if [[ -n $OVERRIDE_HOSTNAME ]]
+if [[ -n ${OVERRIDE_HOSTNAME} ]]
 then
   DOMAINNAME="${OVERRIDE_HOSTNAME#*.}"
 else
   DOMAINNAME="$(hostname -d)"
 fi
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-echo "$LOG_DATE Using postmaster address $PM_ADDRESS"
+echo "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 sleep 10
 
 while true
@@ -49,32 +49,32 @@ do
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
 
-  if ! cmp --silent -- "$CHKSUM_FILE" "$CHKSUM_FILE.new"
+  if ! cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
   then
     echo "${LOG_DATE} Change detected"
-    changed=$(grep -Fxvf "$CHKSUM_FILE" "$CHKSUM_FILE.new" | sed 's/^[^ ]\+  //')
-    mv "$CHKSUM_FILE.new" "$CHKSUM_FILE"
+    changed=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
+    mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
     # Bug alert! This overwrites the alias set by start-mailserver.sh
     # Take care that changes in one script are propagated to the other
 
     # ! NEEDS FIX -----------------------------------------
     # TODO FIX --------------------------------------------
-    # ! NEEDS EXTENSIONS ----------------------------
-    # TODO Perform updates below conditionally too --
+    # ! NEEDS EXTENSIONS ----------------------------------
+    # TODO Perform updates below conditionally too --------
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
     # Lock configuration while working
     (
       flock -e 200
 
-      for file in $changed
+      for file in ${changed}
       do
-        case $file in
+        case ${file} in
           /etc/letsencrypt/acme.json)
-            for certdomain in $SSL_DOMAIN $HOSTNAME $DOMAINNAME
+            for certdomain in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
             do
-              if _extract_certs_from_acme "$certdomain"
+              if _extract_certs_from_acme "${certdomain}"
               then
                 break
               fi
@@ -96,7 +96,7 @@ do
       echo -n >/etc/postfix/vmailbox
       echo -n >/etc/dovecot/userdb
 
-      if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ $ENABLE_LDAP -ne 1 ]]
+      if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
       then
         sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
         echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." >/etc/postfix/vmailbox
@@ -110,13 +110,13 @@ do
         sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
 
         # rebuild relay host
-        if [[ -n $RELAY_HOST ]]
+        if [[ -n ${RELAY_HOST} ]]
         then
           # keep old config
           echo -n >/etc/postfix/sasl_passwd
-          if [[ -n $SASL_PASSWD ]]
+          if [[ -n ${SASL_PASSWD} ]]
           then
-            echo "$SASL_PASSWD" >>/etc/postfix/sasl_passwd
+            echo "${SASL_PASSWD}" >>/etc/postfix/sasl_passwd
           fi
 
           # add domain-specific auth from config file
@@ -124,17 +124,17 @@ do
           then
             (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true) | while read -r line
             do
-              if ! echo "$line" | grep -q -e "\s*#"
+              if ! echo "${line}" | grep -q -e "\s*#"
               then
-                echo "$line" >>/etc/postfix/sasl_passwd
+                echo "${line}" >>/etc/postfix/sasl_passwd
               fi
             done
           fi
 
           # add default relay
-          if [[ -n "$RELAY_USER" ]] && [[ -n "$RELAY_PASSWORD" ]]
+          if [[ -n "${RELAY_USER}" ]] && [[ -n "${RELAY_PASSWORD}" ]]
           then
-            echo "[$RELAY_HOST]:$RELAY_PORT		$RELAY_USER:$RELAY_PASSWORD" >>/etc/postfix/sasl_passwd
+            echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >>/etc/postfix/sasl_passwd
           fi
         fi
 
@@ -142,8 +142,8 @@ do
         # comments and empty lines are ignored
         grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read -r login pass
         do
-          user=$(echo "$login" | cut -d @ -f1)
-          domain=$(echo "$login" | cut -d @ -f2)
+          user=$(echo "${login}" | cut -d @ -f1)
+          domain=$(echo "${login}" | cut -d @ -f2)
 
           user_attributes=""
           # test if user has a defined quota
@@ -156,7 +156,7 @@ do
             [[ ${#user_quota[@]} -eq 2 ]] && user_attributes="${user_attributes}userdb_quota_rule=*:bytes=${user_quota[1]}"
           fi
 
-          echo "$login ${domain}/${user}/" >>/etc/postfix/vmailbox
+          echo "${login} ${domain}/${user}/" >>/etc/postfix/vmailbox
 
           # user database for dovecot has the following format:
           # user:password:uid:gid:(gecos):home:(shell):extra_fields
@@ -170,11 +170,11 @@ do
             cp "/tmp/docker-mailserver/${login}.dovecot.sieve" "/var/mail/${domain}/${user}/.dovecot.sieve"
           fi
 
-          echo "$domain" >>/tmp/vhost.tmp
+          echo "${domain}" >>/tmp/vhost.tmp
         done
       fi
 
-      [[ -n $RELAY_HOST ]] && _populate_relayhost_map
+      [[ -n ${RELAY_HOST} ]] && _populate_relayhost_map
 
 
       if [[ -f /etc/postfix/sasl_passwd ]]
@@ -197,11 +197,11 @@ do
           # shellcheck disable=SC2034
           (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r from to
           do
-            uname=$(echo "$from" | cut -d @ -f1)
-            domain=$(echo "$from" | cut -d @ -f2)
+            uname=$(echo "${from}" | cut -d @ -f1)
+            domain=$(echo "${from}" | cut -d @ -f2)
 
             # if they are equal it means the line looks like: "user1	 other@domain.tld"
-            [ "$uname" != "$domain" ] && echo "$domain" >>/tmp/vhost.tmp
+            [ "${uname}" != "${domain}" ] && echo "${domain}" >>/tmp/vhost.tmp
           done
         fi
 
@@ -229,7 +229,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       supervisorctl restart postfix
 
       # prevent restart of dovecot when smtp_only=1
-      [[ $SMTP_ONLY -ne 1 ]] && supervisorctl restart dovecot
+      [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
     ) 200<postfix-accounts.cf # end lock
   fi
 

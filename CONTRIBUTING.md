@@ -119,20 +119,13 @@ var="bad"
 
 ##### braces
 
-We use braces in the following way:
+We always use braces.
 
 ``` BASH
-# when it's clear and unambiguous,
-# you do not have to use braces,
-# but you might, see shellcheck SC2248
-$VAR
-# or
 ${VAR}
-
-# when the variable is used
-# in a bigger context
-echo "/some/dir/${VAR}/to/destination/"
 ```
+
+If you forgot this and want to change it later, you can use [this link](https://regex101.com/r/ikzJpF/4), which points to <https://regex101.com>. The used regex is `\$([^{("\\'\/])([a-zA-Z0-9_]*)([^}\/ \t'"\n.\]:]*)`, where you should in practice be able to replace all variable occurrences without braces with occurrences with braces.
 
 ##### loops
 
