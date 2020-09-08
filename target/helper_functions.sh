@@ -145,7 +145,7 @@ function _notify()
     *   ) options="-e" ;;
   esac
 
-  [[ -n "${msg}" ]] && echo ${options} "${msg}"
+  [[ -n "${msg}" ]] && echo "${options}" "${msg}"
 }
 export -f _notify
 

@@ -149,11 +149,11 @@ do
           # test if user has a defined quota
           if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
           then
-            IFS=':'
-            read -r -a user_quota < <(grep "${user}@${domain}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
+            declare -a USER_QUOTA
+            IFS=':' ; read -r -a USER_QUOTA < <(grep "${user}@${domain}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
             unset IFS
 
-            [[ ${#user_quota[@]} -eq 2 ]] && user_attributes="${user_attributes}userdb_quota_rule=*:bytes=${user_quota[1]}"
+            [[ ${#USER_QUOTA[@]} -eq 2 ]] && user_attributes="${user_attributes}userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
           fi
 
           echo "${login} ${domain}/${user}/" >>/etc/postfix/vmailbox

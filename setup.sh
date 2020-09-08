@@ -30,7 +30,9 @@ function _get_current_directory()
   fi
 }
 
-CDIR="$(pwd)" ; _get_current_directory
+CDIR="$(pwd)"
+_get_current_directory
+
 CRI=
 INFO=
 IMAGE_NAME=
