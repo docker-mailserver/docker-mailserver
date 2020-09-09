@@ -57,7 +57,7 @@ function _update_config_path()
 {
   if [[ -n ${CONTAINER_NAME} ]]
   then
-    VOLUME=$(docker inspect "${CONTAINER_NAME}" \
+    VOLUME=$(${CRI} inspect "${CONTAINER_NAME}" \
       --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
       grep "/tmp/docker-mailserver$" 2>/dev/null)
   fi
