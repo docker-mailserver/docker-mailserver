@@ -4,7 +4,7 @@
 # included in the docker-mailserver
 
 set -euEo pipefail
-trap '_report_err ${_} ${LINENO} ${?}' ERR
+trap '_report_err ${_:-"SOURCE UNKNOWN"} ${LINENO} ${?}' ERR
 
 function _report_err()
 {
@@ -274,9 +274,9 @@ function _main()
 
     alias)
       shift ; case ${1:-} in
-        add      ) shift ; _docker_image addalias "${@}" ;;
-        del      ) shift ; _docker_image delalias "${@}" ;;
-        list     ) shift ; _docker_image listalias "${@}" ;;
+        add      ) shift ; _docker_image addalias "${1}" "${2}" ;;
+        del      ) shift ; _docker_image delalias "${1}" "${2}" ;;
+        list     ) shift ; _docker_image listalias ;;
         *        ) _usage ;;
       esac
       ;;
