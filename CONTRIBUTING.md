@@ -2,6 +2,13 @@
 
 `docker-mailserver` is OpenSource. That means that you can contribute on enhancements, bug fixing or improving the documentation in the Wiki.
 
+1. [Issues & PRs](#issues--prs)
+   1. [Open an Issue](#open-an-issue)
+   2. [Pull Request](#pull-requests)
+2. [Coding Style](#coding-style)
+   1. [Bash and Shell](#bash-and-shell)
+   2. [YAML](#yaml)
+
 ## Issues & PRs
 
 ### Open an issue
@@ -14,9 +21,9 @@ Please start the mail server with env `DMS_DEBUG=1` and paste the output into th
 #### Project architecture
 
 ``` TXT
-├── config                    # User: personal configurations
-├── target                    # Developer: default server configuration, used when building the image
-└── test                      # Developer: integration tests to check that everything keeps working
+├── config  # User: personal configurations
+├── target  # Developer: default server configuration, used when building the image
+└── test    # Developer: integration tests to check that everything keeps working
 ```
 
 #### Submit a Pull-Request
@@ -33,7 +40,7 @@ The development workflow is the following:
 - Use `make clean all` to build image locally and run tests
   Note that tests work on Linux only; they hang on Mac and Windows.
 - Document your improvements in `README.md` or Wiki depending on content
-- [Commit](https://help.github.com/articles/closing-issues-via-commit-messages/), push and make a pull-request
+- [Commit][commit], if possible with [signing your commit with a GPG key][gpg], push and make a pull-request
 - Pull-request is automatically tested on Travis
 - When tests are green, a review may be done
 - When changed are validated, your branch is merged into `master`
@@ -55,9 +62,9 @@ When refactoring, writing or altering Script, that is Shell and Bash scripts, in
 
 #### Styling rules
 
-##### initial description
+##### Initial Description
 
-When writing a script, provide the version and the script's task like so:
+When writing a script, provide the version and the script's task. We use [semantic versioning][semver] - so do you.
 
 ``` BASH
 #!/usr/bin/env bash
@@ -66,68 +73,46 @@ When writing a script, provide the version and the script's task like so:
 #
 # <TASK DESCRIPTION> -> cut this off
 # to make it not longer than approx.
-# 60 cols.
+# 80 cols.
 ```
 
-We use [semantic versioning](https://semver.org/) - so do you.
-
-##### if-else-statements
+##### If-Else-Statements
 
 ``` BASH
-if <CONDITION1>
+# when using braces, use double braces
+# remember you do not need "" when using [[ ]]
+if [[ <CONDITION1> ]] && [[ -f ${FILE} ]]
 then
   <CODE TO RUN>
-elif <CONDITION2>
+# when running code, you don't need them
+elif <COMMAND TO RUN>
   <CODE TO TUN>
 else
-  <CODE TO RUN>
+  <CODE TO TUN>
 fi
 
-# when using braces, use double braces!
-if [[ <CONDITION1> ]] && [[ <CONDITION2> ]]
-then
-  <CODE TO RUN>
-fi
-
-# remember you do not need "" when using [[ ]]
-if [[ -f $FILE ]] # is fine
-then
-  <CODE TO RUN>
-fi
-
-# equality checks with numbers - use -eq/-ne/-lt/-ge, not != or ==
-if [[ $VAR -ne <NUMBER> ]] && [[ $SOME_VAR -eq 6 ]] || [[ $SOME_VAR -lt 42 ]]
-then
-  <CODE TO RUN>
-elif [[ $SOME_VAR -ge 242 ]]
+# equality checks with numbers, use
+# -eq/-ne/-lt/-ge, not != or ==
+if [[ $VAR -ne 42 ]] || [[ $SOME_VAR -eq 6 ]]
 then
   <CODE TO RUN>
 fi
 ```
 
-##### variables
+##### Variables & Braces
 
-Variables are always uppercase.
+Variables are always uppercase. We always use braces. If you forgot this and want to change it later, you can use [this link][regex], which points to <https://regex101.com>. The used regex is `\$([^{("\\'\/])([a-zA-Z0-9_]*)([^}\/ \t'"\n.\]:]*)`, where you should in practice be able to replace all variable occurrences without braces with occurrences with braces.
 
 ``` BASH
 # good
 local VAR="good"
+local NEW="${VAR}"
 
 # bad
 var="bad"
 ```
 
-##### braces
-
-We always use braces.
-
-``` BASH
-${VAR}
-```
-
-If you forgot this and want to change it later, you can use [this link](https://regex101.com/r/ikzJpF/4), which points to <https://regex101.com>. The used regex is `\$([^{("\\'\/])([a-zA-Z0-9_]*)([^}\/ \t'"\n.\]:]*)`, where you should in practice be able to replace all variable occurrences without braces with occurrences with braces.
-
-##### loops
+##### Loops
 
 Like `if-else`, loops look like this
 
@@ -138,7 +123,7 @@ do
 done
 ```
 
-##### functions
+##### Functions
 
 It's always nice to see the use of functions. Not only as it's more C-style, but it also provides a clear structure. If scripts are small, this is unnecessary, but if they become larger, please consider using functions. When doing so, provide `function _main()`. When using functions, they are **always** at the top of the script!
 
@@ -152,9 +137,9 @@ function _<name_underscored_and_lowercase>()
 }
 ```
 
-##### error tracing
+##### Error Tracing
 
-A construct to trace error in your scripts looks like this:
+A construct to trace error in your scripts looks like this. Please use it like this (copy-paste) to make errors streamlined. Remember: Remove `set -x` in the end. This of debugging purposes only.
 
 ``` BASH
 set -euxEo pipefail
@@ -168,17 +153,14 @@ function _report_err()
 }
 ```
 
-Please use it like this (copy-paste) to make errors streamlined. Remember: Remove `set -x` in the end. This of debugging purposes only.
+##### Comments and Descriptiveness
 
-##### comments and descriptiveness
-
-Comments should be kept minimal and only describe non-obvious matters, i.e. not what the code does. Comments should start lowercase as most of them are not sentences. Make the code **self-descriptive** by using meaningful names! Make comments not longer than approximately 60 columns, then wrap the line.
+Comments should only describe non-obvious matters. Comments should start lowercase when they aren't sentences. Make the code **self-descriptive** by using meaningful names! Make comments not longer than approximately 80 columns, then wrap the line.
 
 A negative example:
 
 ``` BASH
-# adds one to the first argument
-# and print it to stdout
+# adds one to the first argument and print it to stdout
 function _add_one()
 {
   # save the first variable
@@ -200,3 +182,16 @@ function _add_one()
 {
   echo $(( $1 + 1 ))
 }
+```
+
+### YAML
+
+When formatting YAML files, you can opt for [Prettier][prettier]. There are any plugins for IDEs around.
+
+[//]: # (Links)
+
+[commit]: https://help.github.com/articles/closing-issues-via-commit-messages/
+[gpg]: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key
+[semver]: https://semver.org/
+[regex]: https://regex101.com/r/ikzJpF/4
+[prettier]: https://prettier.io
