@@ -1,23 +1,41 @@
 branches:
   except:
-  - donttestme
+    - donttestme
+
 language: bash
+
 sudo: required
+
 env:
   global:
     - HADOLINT_VERSION=1.17.1
+    - SHELLCHECK_VERSION=0.7.1
+
+addons:
+  apt:
+    packages:
+    - xz-utils
+
 services:
-- docker
+  - docker
+
 before_install:
-- sudo curl -L https://github.com/hadolint/hadolint/releases/download/v$HADOLINT_VERSION/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
-- sudo chmod +rx /usr/local/bin/hadolint
+  - sudo curl -L https://github.com/hadolint/hadolint/releases/download/v$HADOLINT_VERSION/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
+  - sudo chmod +rx /usr/local/bin/hadolint
+  - sudo wget -qO- "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJv
+  - sudo cp "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+
 install:
-- make lint
-- travis_retry travis_wait make build
+  - make lint
+  - travis_retry travis_wait make build
+
 script:
-- make generate-accounts run generate-accounts-after-run fixtures tests
+  - make shellcheck
+  - make generate-accounts run generate-accounts-after-run fixtures tests
+
 after_script:
-- make clean
+  - make clean
+
 notifications:
   slack:
     secure: TTo1z9nbZCWcIdfPwypubNa3y+pwvfgDGlzEVAGEuK7uuIpmEoAcAUNSSPTnbewDGHnDl8t/ml93MtvP+a+IVuAKytMqF39PHyoZO7aUl9J62V+G75OmnyGjXGJm40pQosCS6LzqoRRYXotl9+fwH568Kf4ifXCrMZX1d+ir7Ww=

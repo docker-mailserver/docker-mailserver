@@ -1,12 +1,35 @@
 # docker-mailserver
 
-[![Build Status](https://travis-ci.org/tomav/docker-mailserver.svg?branch=master)](https://travis-ci.org/tomav/docker-mailserver) [![Docker Pulls](https://img.shields.io/docker/pulls/tvial/docker-mailserver.svg)](https://hub.docker.com/r/tvial/docker-mailserver/) [![Docker layers](https://images.microbadger.com/badges/image/tvial/docker-mailserver.svg)](https://microbadger.com/images/tvial/docker-mailserver) [![Github Stars](https://img.shields.io/github/stars/tomav/docker-mailserver.svg?label=github%20%E2%98%85)](https://github.com/tomav/docker-mailserver/) [![Github Stars](https://img.shields.io/github/contributors/tomav/docker-mailserver.svg)](https://github.com/tomav/docker-mailserver/) [![Github Forks](https://img.shields.io/github/forks/tomav/docker-mailserver.svg?label=github%20forks)](https://github.com/tomav/docker-mailserver/) [![Gitter](https://img.shields.io/gitter/room/tomav/docker-mailserver.svg)](https://gitter.im/tomav/docker-mailserver)
+[![Build Status][build_status]][build_status::travis] [![Docker Pulls][docker_pulls]][docker_hub_pulls::hub] [![Docker layers][layers]][layers_outer::badger] [![Github Stars][gh_stars]][repo] [![Contributors][contributors]][repo] [![Github Forks][forks]][repo] [![Gitter][shields::gitter]][gitter]
+
+[build_status]: https://travis-ci.org/tomav/docker-mailserver.svg?branch=master
+[build_status::travis]: https://travis-ci.org/tomav/docker-mailserver
+[docker_pulls]: https://img.shields.io/docker/pulls/tvial/docker-mailserver.svg
+[docker_hub_pulls::hub]: https://hub.docker.com/r/tvial/docker-mailserver/
+[layers]: https://images.microbadger.com/badges/image/tvial/docker-mailserver.svg
+[layers_outer::badger]: https://microbadger.com/images/tvial/docker-mailserver
+[gh_stars]: https://img.shields.io/github/stars/tomav/docker-mailserver.svg?label=github%20%E2%98%85
+[repo]: https://github.com/tomav/docker-mailserver/
+[contributors]: https://img.shields.io/github/contributors/tomav/docker-mailserver.svg
+[forks]: https://img.shields.io/github/forks/tomav/docker-mailserver.svg?label=github%20forks
+[shields::gitter]: https://img.shields.io/gitter/room/tomav/docker-mailserver.svg
+[gitter]: https://gitter.im/tomav/docker-mailserver
 
 A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
-## ANNOUNCEMENT
+Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+
+1. [Announcement](#announcement)
+2. [Includes](#includes)
+3. [Issues & Contributing](#issues--contributing)
+4. [Requirements](#requirements)
+5. [Usage](#usage)
+6. [Examples](#examples)
+7. [Environment Variables](#environment-variables)
+
+## Announcement
 
 At this point we have merged the next branch based on Debian Buster into master.
 That means the docker image latest uses Buster. The change may break things!
@@ -19,7 +42,7 @@ The following possibly breaking changes are known:
 If you want to stick to the old version a while longer, either switch to stable or to a specific version.
 If you run into problems, please raise issues and ask for help. Don't forget to provide details.
 
-Includes:
+## Includes
 
 - [Postfix](http://www.postfix.org) with smtp or ldap auth
 - [Dovecot](https://www.dovecot.org) for sasl, imap (and optional pop3) with ssl support, with ldap auth, sieve and [quotas](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
@@ -42,9 +65,9 @@ Includes:
 - Plus addressing (a.k.a. [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter))
   works out of the box: email for `you+extension@example.com` go to `you@example.com`
 
-Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+## Issues & Contributing
 
-Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation.
+Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation. If you'd like to contribute, read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly.
 
 ## Requirements
 
@@ -67,7 +90,7 @@ Minimum:
 
 Download the docker-compose.yml, the .env and the setup.sh files:
 
-``` SH
+``` BASH
 curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
 
 curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
@@ -89,7 +112,7 @@ curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
-### Starting the Container
+### Start the Container
 
 ``` BASH
 docker-compose up -d mail
@@ -129,8 +152,6 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 #### For informational purposes
 
-Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand how things work on boot, please have a look at [start-mailserver.sh](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh)
-
 `restart: always` ensures that the mail server container (and Filebeat/ELK containers when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
 #### Exposed ports
@@ -148,12 +169,12 @@ Your config folder will be mounted in `/tmp/docker-mailserver/`. To understand h
 
 See the [wiki](https://github.com/tomav/docker-mailserver/wiki) for further details and best practice advice, especially regarding security concerns.
 
-### Examples
+## Examples
 
-#### Just the relevant environmental variables
+### With Relevant Environmental Variables
 
-```yaml
-version: '2'
+``` YAML
+version: '3.8'
 
 services:
   mail:
@@ -195,7 +216,7 @@ volumes:
 #### LDAP setup
 
 ``` YAML
-version: '2'
+version: '3.8'
 
 services:
   mail:
@@ -256,9 +277,7 @@ volumes:
 
 ## Environment variables
 
-Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh) to understand what's expected. Also if an option doesn't work as documented here, check if you are running the latest image!
-
-Value in **bold** is the default value.
+If an option doesn't work as documented here, check if you are running the latest image! Value in **bold** is the default value.
 
 ### Assignments
 
@@ -794,7 +813,7 @@ you to replace both instead of just the envelope sender.
 
 #### Default Relay Host
 
-#### DEFAULT_RELAY_HOST
+##### DEFAULT_RELAY_HOST
 
 - **empty** => don't set default relayhost setting in main.cf
 - default host and port to relay all mail through.
@@ -803,22 +822,22 @@ you to replace both instead of just the envelope sender.
 
 #### Multi-domain Relay Hosts
 
-#### RELAY_HOST
+##### RELAY_HOST
 
 - **empty** => don't configure relay host
 - default host to relay mail through
 
-#### RELAY_PORT
+##### RELAY_PORT
 
 - **empty** => 25
 - default port to relay mail through
 
-#### RELAY_USER
+##### RELAY_USER
 
 - **empty** => no default
 - default relay username (if no specific entry exists in postfix-sasl-password.cf)
 
-#### RELAY_PASSWORD
+##### RELAY_PASSWORD
 
 - **empty** => no default
 - password for default relay user
