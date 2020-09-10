@@ -182,8 +182,7 @@ COPY target/fail2ban/filter.d/postfix-sasl.conf /etc/fail2ban/filter.d/postfix-s
 RUN mkdir /var/run/fail2ban
 
 # Enables Pyzor and Razor
-RUN su - amavis -c "razor-admin -create && \
-  razor-admin -register"
+RUN su - amavis -c "razor-admin -create && razor-admin -register"
 
 # Configure DKIM (opendkim)
 # DKIM config files

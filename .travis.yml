@@ -23,7 +23,7 @@ before_install:
   - sudo curl -L https://github.com/hadolint/hadolint/releases/download/v$HADOLINT_VERSION/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
   - sudo chmod +rx /usr/local/bin/hadolint
   - sudo wget -qO- "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJv
-  - sudo cp "shellcheck-${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+  - sudo cp "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
 
 install:
   - make lint

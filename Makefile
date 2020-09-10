@@ -165,13 +165,11 @@ clean:
 
 shellcheck:
 	@ echo -e "Testing shell / bash scripts with shellcheck\n"
-	@ shellcheck --version
+	@ /usr/bin/shellcheck --version
 	@ echo ''
-# currently without `start-mailserver` as this is to be merged separately
 	@ if find -iname "*.sh" -not -path "./test/*" -not -path "./target/docker-configomat/*" -exec shellcheck -S style -Cauto -o all -e SC2154 -W 50 {} \; | grep .; then\
 		echo -e "\nError" ;\
 		exit 1 ;\
 	else\
 		echo -e '\nSuccess' ;\
 	fi
-

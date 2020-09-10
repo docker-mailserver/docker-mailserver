@@ -103,7 +103,7 @@ export -f _extract_certs_from_acme
 
 
 declare -A DEFAULT_VARS
-DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:="0"}"
+DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:=0}"
 
 function _notify()
 {
@@ -122,13 +122,13 @@ function _notify()
   case "${notification_type}" in
     'taskgrp' ) msg="${c_bold}${notification_msg}${c_reset}" ;;
     'task'    )
-      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]
+      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
       then
         msg="  ${notification_msg}${c_reset}"
       fi
       ;;
     'inf'     )
-      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} == 1 ]]
+      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
       then
         msg="${c_green}  * ${notification_msg}${c_reset}"
       fi

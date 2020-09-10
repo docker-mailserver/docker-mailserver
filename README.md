@@ -19,7 +19,15 @@ A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
-Why I created this image: [Simple mail server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+
+1. [Announcement](#announcement)
+2. [Includes](#includes)
+3. [Issues & Contributing](#issues--contributing)
+4. [Requirements](#requirements)
+5. [Usage](#usage)
+6. [Examples](#examples)
+7. [Environment Variables](#environment-variables)
 
 ## Announcement
 
@@ -161,12 +169,12 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 See the [wiki](https://github.com/tomav/docker-mailserver/wiki) for further details and best practice advice, especially regarding security concerns.
 
-### Examples
+## Examples
 
-#### Just the relevant environmental variables
+### With Relevant Environmental Variables
 
-```yaml
-version: '2'
+``` YAML
+version: '3.8'
 
 services:
   mail:
@@ -208,7 +216,7 @@ volumes:
 #### LDAP setup
 
 ``` YAML
-version: '2'
+version: '3.8'
 
 services:
   mail:
@@ -269,9 +277,7 @@ volumes:
 
 ## Environment variables
 
-Please check [how the container starts](https://github.com/tomav/docker-mailserver/blob/master/target/start-mailserver.sh) to understand what's expected. Also if an option doesn't work as documented here, check if you are running the latest image!
-
-Value in **bold** is the default value.
+If an option doesn't work as documented here, check if you are running the latest image! Value in **bold** is the default value.
 
 ### Assignments
 
