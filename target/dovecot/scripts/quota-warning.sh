@@ -2,10 +2,11 @@
 
 # Report a quota usage warning to an user
 
-PERCENT=$1
-USER=$2
-DOMAIN=$3
+PERCENT="${1}"
+USER="${2}"
+DOMAIN="${3}"
 
+# shellcheck disable=SC2250
 cat << EOF | /usr/lib/dovecot/dovecot-lda -d "$USER" -o "plugin/quota=maildir:User quota:noenforcing"
 From: postmaster@$DOMAIN
 Subject: quota warning
