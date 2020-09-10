@@ -25,6 +25,12 @@ volumes:
   - /etc/localtime:/etc/localtime:ro
 ```
 
+(optional) Add one line to `.env` or `env-mailserver` to set timetzone for container, for example:
+```
+TZ=Europe/Berlin
+```
+check here for [`tz name list`](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+
 ### What is the file format?
 
 All files are using the Unix format with `LF` line endings.
