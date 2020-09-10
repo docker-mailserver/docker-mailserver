@@ -51,10 +51,10 @@ The development workflow is the following:
 
 ### Bash and Shell
 
-When refactoring, writing or altering Script, that is Shell and Bash scripts, in any way, adhere to these rules:
+When refactoring, writing or altering scripts, that is Shell and Bash scripts, in any way, adhere to these rules:
 
 1. **Adjust your style of coding to the style that is already present**! Even if you do not like it, this is due to consistency. Look up the GNU coding style guide. There was a lot of work involved in making these scripts consistent.
-2. **Use `shellcheck` to check your scripts**! Your contributions are checked by TravisCI with shellcheck.
+2. **Use `shellcheck` to check your scripts**! Your contributions are checked by TravisCI with shellcheck. You can check your scripts like Travis with `make shellcheck`.
 3. There is a **`.editorconfig`** file. Make your IDE use it or adhere to it manually!
 4. It's okay to use `/bin/bash` instead of `/bin/sh`. You can alternatively use `/usr/bin/env bash`.
 5. `setup.sh` provides a good starting point to look for.
@@ -84,15 +84,15 @@ When writing a script, provide the version and the script's task. We use [semant
 if [[ <CONDITION1> ]] && [[ -f ${FILE} ]]
 then
   <CODE TO RUN>
-# when running code, you don't need them
+# when running commands, you don't need braces
 elif <COMMAND TO RUN>
   <CODE TO TUN>
 else
   <CODE TO TUN>
 fi
 
-# equality checks with numbers, use
-# -eq/-ne/-lt/-ge, not != or ==
+# equality checks with numbers are done
+# with -eq/-ne/-lt/-ge, not != or ==
 if [[ $VAR -ne 42 ]] || [[ $SOME_VAR -eq 6 ]]
 then
   <CODE TO RUN>
@@ -133,7 +133,7 @@ function _<name_underscored_and_lowercase>()
   <CODE TO RUN>
 
   # variables that can be local should be local
-  local _<LOCAL_VARIABLE_NAME>
+  local <LOCAL_VARIABLE_NAME>
 }
 ```
 
@@ -157,23 +157,6 @@ function _report_err()
 
 Comments should only describe non-obvious matters. Comments should start lowercase when they aren't sentences. Make the code **self-descriptive** by using meaningful names! Make comments not longer than approximately 80 columns, then wrap the line.
 
-A negative example:
-
-``` BASH
-# adds one to the first argument and print it to stdout
-function _add_one()
-{
-  # save the first variable
-  local FIRST=$1
-
-  # add one here
-  local RESULT=$(( _FIRST + 1 ))
-
-  # print it to stdout
-  echo "$_RESULT"
-}
-```
-
 A positive example:
 
 ``` BASH
@@ -184,14 +167,31 @@ function _add_one()
 }
 ```
 
+A negative example:
+
+``` BASH
+# adds one to the first argument and print it to stdout
+function _add_one()
+{
+  # save the first variable
+  local FIRST=$1
+
+  # add one here
+  local RESULT=$(( FIRST + 1 ))
+
+  # print it to stdout
+  echo "$_RESULT"
+}
+```
+
 ### YAML
 
-When formatting YAML files, you can opt for [Prettier][prettier]. There are any plugins for IDEs around.
+When formatting YAML files, you can opt for [Prettier][prettier]. There are many plugins for IDEs around.
 
 [//]: # (Links)
 
 [commit]: https://help.github.com/articles/closing-issues-via-commit-messages/
 [gpg]: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key
 [semver]: https://semver.org/
-[regex]: https://regex101.com/r/ikzJpF/4
+[regex]: https://regex101.com/r/ikzJpF/5
 [prettier]: https://prettier.io

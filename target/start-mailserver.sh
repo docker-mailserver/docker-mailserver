@@ -337,8 +337,7 @@ function check()
 
 function _check_hostname()
 {
-  # shellcheck disable=SC2128
-  _notify "task" "Check that hostname/domainname is provided or overridden (no default docker hostname/kubernetes) [${FUNCNAME}]"
+  _notify "task" "Check that hostname/domainname is provided or overridden (no default docker hostname/kubernetes) [in ${FUNCNAME[0]}]"
 
   if [[ -n ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} ]]
   then
@@ -360,8 +359,7 @@ function _check_hostname()
 
 function _check_environment_variables()
 {
-  # shellcheck disable=SC2128
-  _notify "task" "Check that there are no conflicts with env variables [${FUNCNAME}]"
+  _notify "task" "Check that there are no conflicts with env variables [in ${FUNCNAME[0]}]"
   return 0
 }
 
@@ -387,8 +385,7 @@ function setup()
 
 function _setup_default_vars()
 {
-  # shellcheck disable=SC2128
-  _notify 'task' "Setting up default variables [${FUNCNAME}]"
+  _notify 'task' "Setting up default variables [in ${FUNCNAME[0]}]"
 
   # update POSTMASTER_ADDRESS - must be done done after _check_hostname
   DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
@@ -479,8 +476,8 @@ function _setup_amavis()
   _notify 'task' 'Setting up Amavis'
 
   _notify 'inf' "Applying hostname to /etc/amavis/conf.d/05-node_id"
-  # shellcheck disable=SC2016,SC2248,SC2250
-  sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'$HOSTNAME'";/' /etc/amavis/conf.d/05-node_id
+  # shellcheck disable=SC2016
+  sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'"${HOSTNAME}"'";/' /etc/amavis/conf.d/05-node_id
 }
 
 function _setup_dmarc_hostname()
@@ -488,9 +485,8 @@ function _setup_dmarc_hostname()
   _notify 'task' 'Setting up dmarc'
 
   _notify 'inf' "Applying hostname to /etc/opendmarc.conf"
-  # shellcheck disable=SC2248,SC2250
-  sed -i -e 's/^AuthservID.*$/AuthservID          '$HOSTNAME'/g' \
-    -e 's/^TrustedAuthservIDs.*$/TrustedAuthservIDs  '$HOSTNAME'/g' /etc/opendmarc.conf
+  sed -i -e 's/^AuthservID.*$/AuthservID          '"${HOSTNAME}"'/g' \
+    -e 's/^TrustedAuthservIDs.*$/TrustedAuthservIDs  '"${HOSTNAME}"'/g' /etc/opendmarc.conf
 }
 
 function _setup_postfix_hostname()
@@ -507,8 +503,7 @@ function _setup_dovecot_hostname()
   _notify 'task' 'Applying hostname to Dovecot'
 
   _notify 'inf' "Applying hostname to /etc/dovecot/conf.d/15-lda.conf"
-  # shellcheck disable=SC2248,SC2250
-  sed -i 's/^#hostname =.*$/hostname = '$HOSTNAME'/g' /etc/dovecot/conf.d/15-lda.conf
+  sed -i 's/^#hostname =.*$/hostname = '"${HOSTNAME}"'/g' /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot()
@@ -547,15 +542,13 @@ function _setup_dovecot()
   sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
-  # shellcheck disable=SC2248,SC2250
-  sed -i 's/^postmaster_address = .*$/postmaster_address = '$POSTMASTER_ADDRESS'/g' /etc/dovecot/conf.d/15-lda.conf
+  sed -i 's/^postmaster_address = .*$/postmaster_address = '"${POSTMASTER_ADDRESS}"'/g' /etc/dovecot/conf.d/15-lda.conf
 
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
     sdbox|mdbox|maildir )
       _notify 'inf' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
-      # shellcheck disable=SC2248,SC2250
-      sed -i -e 's/^mail_location = .*$/mail_location = '$DOVECOT_MAILBOX_FORMAT':\/var\/mail\/%d\/%n/g' /etc/dovecot/conf.d/10-mail.conf
+      sed -i -e 's/^mail_location = .*$/mail_location = '"${DOVECOT_MAILBOX_FORMAT}"':\/var\/mail\/%d\/%n/g' /etc/dovecot/conf.d/10-mail.conf
       ;;
     * )
       _notify 'inf' "Dovecot maildir format configured (default)"
@@ -818,8 +811,7 @@ function _setup_postgrey()
   _notify 'inf' "Configuring postgrey"
 
   sed -i -e 's/, reject_rbl_client bl.spamcop.net$/, reject_rbl_client bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
-  # shellcheck disable=SC2250
-  sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=$POSTGREY_DELAY --max-age=$POSTGREY_MAX_AGE --auto-whitelist-clients=$POSTGREY_AUTO_WHITELIST_CLIENTS\"/" /etc/default/postgrey
+  sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=${POSTGREY_DELAY} --max-age=${POSTGREY_MAX_AGE} --auto-whitelist-clients=${POSTGREY_AUTO_WHITELIST_CLIENTS}\"/" /etc/default/postgrey
 
   TEXT_FOUND=$(grep -c -i "POSTGREY_TEXT" /etc/default/postgrey)
 
@@ -932,20 +924,18 @@ function _setup_saslauthd()
   if [[ ! -f /etc/saslauthd.conf ]]
   then
     _notify 'inf' "Creating /etc/saslauthd.conf"
-
-    # shellcheck disable=SC2250
     cat > /etc/saslauthd.conf << EOF
-ldap_servers: $SASLAUTHD_LDAP_PROTO$SASLAUTHD_LDAP_SERVER
+ldap_servers: ${SASLAUTHD_LDAP_PROTO}${SASLAUTHD_LDAP_SERVER}
 
 ldap_auth_method: bind
-ldap_bind_dn: $SASLAUTHD_LDAP_BIND_DN
-ldap_bind_pw: $SASLAUTHD_LDAP_PASSWORD
+ldap_bind_dn: ${SASLAUTHD_LDAP_BIND_DN}
+ldap_bind_pw: ${SASLAUTHD_LDAP_PASSWORD}
 
-ldap_search_base: $SASLAUTHD_LDAP_SEARCH_BASE
-ldap_filter: $SASLAUTHD_LDAP_FILTER
+ldap_search_base: ${SASLAUTHD_LDAP_SEARCH_BASE}
+ldap_filter: ${SASLAUTHD_LDAP_FILTER}
 
-ldap_start_tls: $SASLAUTHD_LDAP_START_TLS
-ldap_tls_check_peer: $SASLAUTHD_LDAP_TLS_CHECK_PEER
+ldap_start_tls: ${SASLAUTHD_LDAP_START_TLS}
+ldap_tls_check_peer: ${SASLAUTHD_LDAP_TLS_CHECK_PEER}
 
 ldap_referrals: yes
 log_level: 10
@@ -983,7 +973,7 @@ function _setup_postfix_aliases()
 
     cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
 
-    # the `to` seems to be important; don't delete it
+    # the `to` is important, don't delete it
     # shellcheck disable=SC2034
     (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r from to
     do
@@ -1144,16 +1134,12 @@ function _setup_ssl()
         _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
 
         # Postfix configuration
-        # shellcheck disable=SC2248,SC2250
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'$LETSENCRYPT_DOMAIN'/fullchain.pem~g' /etc/postfix/main.cf
-        # shellcheck disable=SC2248,SC2250
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'$LETSENCRYPT_DOMAIN'/'$LETSENCRYPT_KEY'\.pem~g' /etc/postfix/main.cf
+        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/fullchain.pem~g' /etc/postfix/main.cf
+        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/'"${LETSENCRYPT_KEY}"'\.pem~g' /etc/postfix/main.cf
 
         # Dovecot configuration
-        # shellcheck disable=SC2248,SC2250
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'$LETSENCRYPT_DOMAIN'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-        # shellcheck disable=SC2248,SC2250
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'$LETSENCRYPT_DOMAIN'/'$LETSENCRYPT_KEY'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/'"${LETSENCRYPT_KEY}"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
         _notify 'inf' "SSL configured with 'letsencrypt' certificates"
       fi
@@ -1169,16 +1155,12 @@ function _setup_ssl()
         cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem" /etc/postfix/ssl
 
         # Postfix configuration
-        # shellcheck disable=SC2248,SC2250
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'$HOSTNAME'-full.pem~g' /etc/postfix/main.cf
-        # shellcheck disable=SC2248,SC2250
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'$HOSTNAME'-full.pem~g' /etc/postfix/main.cf
+        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem~g' /etc/postfix/main.cf
+        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem~g' /etc/postfix/main.cf
 
         # Dovecot configuration
-        # shellcheck disable=SC2248,SC2250
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'$HOSTNAME'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-        # shellcheck disable=SC2248,SC2250
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'$HOSTNAME'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'"${HOSTNAME}"'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'"${HOSTNAME}"'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
       fi
@@ -1225,20 +1207,16 @@ function _setup_ssl()
         cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
 
         # Postfix configuration
-        # shellcheck disable=SC2248,SC2250
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'$HOSTNAME'-cert.pem~g' /etc/postfix/main.cf
-        # shellcheck disable=SC2248,SC2250
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'$HOSTNAME'-key.pem~g' /etc/postfix/main.cf
+        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'"${HOSTNAME}"'-cert.pem~g' /etc/postfix/main.cf
+        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'"${HOSTNAME}"'-key.pem~g' /etc/postfix/main.cf
         sed -i -r 's~#smtpd_tls_CAfile=~smtpd_tls_CAfile=/etc/postfix/ssl/cacert.pem~g' /etc/postfix/main.cf
         sed -i -r 's~#smtp_tls_CAfile=~smtp_tls_CAfile=/etc/postfix/ssl/cacert.pem~g' /etc/postfix/main.cf
-        # shellcheck disable=SC2250
-        ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-$HOSTNAME.pem"
+
+        ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-${HOSTNAME}.pem"
 
         # Dovecot configuration
-        # shellcheck disable=SC2248,SC2250
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'$HOSTNAME'-combined\.pem~g' /etc/  dovecot/conf.d/10-ssl.conf
-        # shellcheck disable=SC2248,SC2250
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'$HOSTNAME'-key\.pem~g' /etc/dovecot/ conf.d/10-ssl.conf
+        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'"${HOSTNAME}"'-combined\.pem~g' /etc/  dovecot/conf.d/10-ssl.conf
+        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'"${HOSTNAME}"'-key\.pem~g' /etc/dovecot/ conf.d/10-ssl.conf
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
       fi
@@ -1265,8 +1243,7 @@ function _setup_postfix_vhost()
 
   if [[ -f /tmp/vhost.tmp ]]
   then
-    # shellcheck disable=SC2002
-    cat /tmp/vhost.tmp | sort | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
+    sort < /tmp/vhost.tmp | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
   elif [[ ! -f /etc/postfix/vhost ]]
   then
     touch /etc/postfix/vhost
@@ -1597,14 +1574,14 @@ function _setup_security_stack()
   then
     _notify 'inf' "Enabling and configuring spamassassin"
 
-    # shellcheck disable=SC2016,SC2248,SC2250
-    SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g' /etc/amavis/conf.d/20-debian_defaults
+    # shellcheck disable=SC2016
+    SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '"${SA_TAG}"';/g' /etc/amavis/conf.d/20-debian_defaults
 
-    # shellcheck disable=SC2016,SC2248,SC2250
-    SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' /etc/amavis/conf.d/20-debian_defaults
+    # shellcheck disable=SC2016
+    SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '"${SA_TAG2}"';/g' /etc/amavis/conf.d/20-debian_defaults
 
-    # shellcheck disable=SC2016,SC2248,SC2250
-    SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' /etc/amavis/conf.d/20-debian_defaults
+    # shellcheck disable=SC2016
+    SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '"${SA_KILL}"';/g' /etc/amavis/conf.d/20-debian_defaults
 
     SA_SPAM_SUBJECT=${SA_SPAM_SUBJECT:="***SPAM*** "}
 
@@ -1613,8 +1590,8 @@ function _setup_security_stack()
       # shellcheck disable=SC2016
       sed -i -r 's/^\$sa_spam_subject_tag (.*);/\$sa_spam_subject_tag = undef;/g' /etc/amavis/conf.d/20-debian_defaults
     else
-      # shellcheck disable=SC2016,SC2248,SC2250
-      sed -i -r 's/^\$sa_spam_subject_tag (.*);/\$sa_spam_subject_tag = '"'$SA_SPAM_SUBJECT'"';/g' /etc/amavis/conf.d/20-debian_defaults
+      # shellcheck disable=SC2016
+      sed -i -r 's/^\$sa_spam_subject_tag (.*);/\$sa_spam_subject_tag = '"'${SA_SPAM_SUBJECT}'"';/g' /etc/amavis/conf.d/20-debian_defaults
     fi
 
     # activate short circuits when SA BAYES is certain it has spam or ham.
@@ -1738,8 +1715,7 @@ function _setup_mail_summary()
       ;;
     "logrotate" )
       _notify 'inf' "Add postrotate action for pflogsumm report"
-      # shellcheck disable=SC2248,SC2250
-      sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary $HOSTNAME $PFLOGSUMM_RECIPIENT $PFLOGSUMM_SENDER\n  endscript\n}\n|" /etc/logrotate.d/maillog
+      sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" /etc/logrotate.d/maillog
       ;;
     * ) _notify 'err' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery' ;;
   esac

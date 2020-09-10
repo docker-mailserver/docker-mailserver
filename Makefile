@@ -167,7 +167,7 @@ shellcheck:
 	@ echo -e "Testing shell / bash scripts with shellcheck\n"
 	@ /usr/bin/shellcheck --version
 	@ echo ''
-	@ if find -iname "*.sh" -not -path "./test/*" -not -path "./target/docker-configomat/*" -exec shellcheck -S style -Cauto -o all -e SC2154 -W 50 {} \; | grep .; then\
+	@ if find -iname "*.sh" -not -path "./test/*" -not -path "./target/docker-configomat/*" -exec /usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50 {} \; | grep .; then\
 		echo -e "\nError" ;\
 		exit 1 ;\
 	else\
