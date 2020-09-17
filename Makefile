@@ -28,62 +28,10 @@ generate-accounts:
 	@ echo "# this is a test comment, please don't delete me :'(" >> test/config/postfix-accounts.cf
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
-run:
-# run containers
-	-@ echo "Sleeping $(SLEEP) after each container"
-	docker run --rm -d --name mail \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-v "`pwd`/test/onedir":/var/mail-state \
-		-v "`pwd`/test/config/user-patches/user-patches.sh":/tmp/docker-mailserver/user-patches.sh \
-		-e ENABLE_CLAMAV=1 \
-		-e SPOOF_PROTECTION=1 \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e REPORT_RECIPIENT=user1@localhost.localdomain \
-		-e REPORT_SENDER=report1@mail.my-domain.com \
-		-e SA_TAG=-5.0 \
-		-e SA_TAG2=2.0 \
-		-e SA_KILL=3.0 \
-		-e SA_SPAM_SUBJECT="SPAM: " \
-		-e VIRUSMAILS_DELETE_DELAY=7 \
-		-e ENABLE_SRS=1 \
-		-e SASL_PASSWD="external-domain.com username:password" \
-		-e ENABLE_MANAGESIEVE=1 \
-		--cap-add=SYS_PTRACE \
-		-e PERMIT_DOCKER=host \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t $(NAME)
-	-@ sleep $(SLEEP)
-
+# TODO: ensure this is run per container after each container started!
 generate-accounts-after-run:
 	@ docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
-	@ docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
 	@ sleep $(SLEEP)
-
-fixtures:
-# setup sieve
-	docker cp "`pwd`/test/config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
-	sleep $(SLEEP)
-	sleep $(SLEEP)
-# sending test mails
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt"
-	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
-	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
-# wait for mails to be analyzed
-	sleep 80
 
 tests:
 	./test/bats/bin/bats test/*.bats
