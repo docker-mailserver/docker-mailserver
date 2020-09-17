@@ -114,11 +114,6 @@ function count_processed_changes() {
   assert_failure
 }
 
-@test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
-  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  assert_failure
-}
-
 #
 # imap
 #
@@ -384,11 +379,6 @@ EOF
   assert_failure
 }
 
-@test "checking spamassassin: should not be listed in amavis when disabled" {
-  run docker exec mail_disabled_clamav_spamassassin /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
-  assert_success
-}
-
 @test "checking spamassassin: all registered domains should see spam headers" {
   run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new"
   assert_success
@@ -404,16 +394,6 @@ EOF
 @test "checking clamav: should be listed in amavis when enabled" {
   run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   assert_success
-}
-
-@test "checking clamav: should not be listed in amavis when disabled" {
-  run docker exec mail_disabled_clamav_spamassassin grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_failure
-}
-
-@test "checking clamav: should not be called when disabled" {
-  run docker exec mail_disabled_clamav_spamassassin grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
-  assert_failure
 }
 
 #
@@ -1602,11 +1582,6 @@ EOF
 @test "checking restart of process: opendmarc" {
   run docker exec mail /bin/bash -c "pkill opendmarc && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'"
   assert_success
-}
-
-@test "checking restart of process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
-  run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "pkill -f clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  assert_failure
 }
 
 #
