@@ -6,7 +6,7 @@ function setup() {
 
 function setup_file() {
 	docker run --rm -d --name mail_override_hostname \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \

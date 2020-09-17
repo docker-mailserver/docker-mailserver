@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 @test "checking SRS: SRS_DOMAINNAME is used correctly" {
     docker run --rm -d --name mail_srs_domainname \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_srs_domainname)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \
@@ -19,7 +19,7 @@ load 'test_helper/common'
 
 @test "checking SRS: DOMAINNAME is handled correctly" {
     docker run --rm -d --name mail_domainname \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_domainname)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \

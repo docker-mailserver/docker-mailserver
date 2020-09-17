@@ -21,11 +21,12 @@ function teardown() {
 }
 
 function setup_file() {
+    private_config=$(duplicate_config_for_container .)
     # copy the custom DHE params in local config
-    cp "`pwd`/test/test-files/ssl/custom-dhe-params.pem" "`pwd`/test/config/dhparams.pem"
+    cp "`pwd`/test/test-files/ssl/custom-dhe-params.pem" "$private_config/dhparams.pem"
 
     docker run -d --name mail_manual_dhparams_not_one_dir \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$private_config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=0 \
@@ -34,8 +35,6 @@ function setup_file() {
 }
 
 function teardown_file() {
-    # remove custom dhe file
-    rm "`pwd`/test/config/dhparams.pem"
     docker rm -f mail_manual_dhparams_not_one_dir
 }
 

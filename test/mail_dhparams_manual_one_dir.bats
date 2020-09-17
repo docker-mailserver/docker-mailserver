@@ -21,7 +21,7 @@ function teardown() {
 
 function setup_file() {
     docker run -d --name mail_manual_dhparams_one_dir \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-v "`pwd`/test/test-files/ssl/custom-dhe-params.pem":/var/mail-state/lib-shared/dhparams.pem:ro \
 		-e DMS_DEBUG=0 \

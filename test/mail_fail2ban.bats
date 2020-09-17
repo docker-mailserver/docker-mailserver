@@ -10,7 +10,7 @@ function teardown() {
 
 function setup_file() {
     docker run --rm -d --name mail_fail2ban \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_FAIL2BAN=1 \
 		-e POSTSCREEN_ACTION=ignore \

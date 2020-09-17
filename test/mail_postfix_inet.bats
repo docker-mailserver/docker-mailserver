@@ -15,14 +15,14 @@ function teardown() {
 
 function setup_file() {
     docker run -d --name mail_postfix_inet_default \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_postfix_inet_default)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-h mail.my-domain.com -t "${NAME}"
 
     wait_for_finished_setup_in_container mail_postfix_inet_default
 
     docker run -d --name mail_postfix_inet_all \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_postfix_inet_all)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e POSTFIX_INET_PROTOCOLS=all \
 		-h mail.my-domain.com -t "${NAME}"
@@ -30,7 +30,7 @@ function setup_file() {
     wait_for_finished_setup_in_container mail_postfix_inet_all
 
     docker run -d --name mail_postfix_inet_ipv4 \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_postfix_inet_ipv4)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e POSTFIX_INET_PROTOCOLS=ipv4 \
 		-h mail.my-domain.com -t "${NAME}"
@@ -38,7 +38,7 @@ function setup_file() {
     wait_for_finished_setup_in_container mail_postfix_inet_ipv4
 
     docker run -d --name mail_postfix_inet_ipv6 \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_postfix_inet_ipv6)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e POSTFIX_INET_PROTOCOLS=ipv6 \
 		-h mail.my-domain.com -t "${NAME}"

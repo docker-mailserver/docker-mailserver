@@ -10,7 +10,7 @@ teardown() {
 
 setup_file() {
     docker run --rm -d --name mail_disabled_clamav_spamassassin \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_CLAMAV=0 \
 		-e ENABLE_SPAMASSASSIN=0 \

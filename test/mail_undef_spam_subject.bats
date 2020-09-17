@@ -2,13 +2,13 @@ load 'test_helper/common'
 
 function setup() {
     docker run -d --name mail_undef_spam_subject \
-            -v "`pwd`/test/config":/tmp/docker-mailserver \
+            -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
             -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
             -e ENABLE_SPAMASSASSIN=1 \
             -e SA_SPAM_SUBJECT="undef" \
             -h mail.my-domain.com -t ${NAME}
     CONTAINER=$(docker run -d \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_undef_spam_subject_2)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-v "`pwd`/test/onedir":/var/mail-state \
 		-e ENABLE_CLAMAV=1 \
