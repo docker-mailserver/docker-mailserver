@@ -54,16 +54,6 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	-@ sleep $(SLEEP)
-	docker run --rm -d --name mail_override_hostname \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
-		-e ENABLE_SRS=1 \
-		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		-h unknown.domain.tld \
-		-t $(NAME)
-	-@ sleep $(SLEEP)
 
 generate-accounts-after-run:
 	@ docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
@@ -92,8 +82,6 @@ fixtures:
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
 	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
-# postfix virtual transport lmtp
-	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 # wait for mails to be analyzed
 	sleep 80
 
