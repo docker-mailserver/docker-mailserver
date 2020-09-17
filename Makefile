@@ -6,9 +6,9 @@ VCS_VERSION := $(shell git describe --tags --contains --always)
 
 SLEEP = 15s
 
-all: build backup generate-accounts run generate-accounts-after-run fixtures tests clean
-no-build: backup generate-accounts run generate-accounts-after-run fixtures tests clean
-complete_test: lint build generate-accounts run generate-accounts-after-run fixtures tests
+all: build backup generate-accounts generate-accounts-after-run tests clean
+no-build: backup generate-accounts generate-accounts-after-run tests clean
+complete_test: lint build generate-accounts generate-accounts-after-run tests
 
 build:
 	docker build \
