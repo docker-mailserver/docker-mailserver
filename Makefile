@@ -54,13 +54,6 @@ run:
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t $(NAME)
 	-@ sleep $(SLEEP)
-	docker run --rm -d --name mail_smtponly_without_config \
-		-e SMTP_ONLY=1 \
-		-e ENABLE_LDAP=1 \
-		-e PERMIT_DOCKER=network \
-		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
-		-t $(NAME)
-	-@ sleep $(SLEEP)
 	docker run --rm -d --name mail_override_hostname \
 		-v "`pwd`/test/config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \

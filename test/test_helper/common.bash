@@ -37,6 +37,16 @@ function repeat_until_success_or_timeout {
     done
 }
 
+# @param $1 timeout
+# @param $2 container name
+# @param ... test command for container
+function repeat_in_container_until_success_or_timeout() {
+    timeout="$1"
+    container_name="$2"
+    shift 2
+    repeat_until_success_or_timeout "$timeout" --fatal-test "container_is_running $container_name" docker exec "$container_name" "$@"
+}
+
 function container_is_running() {
     [[ "$(docker inspect -f '{{.State.Running}}' "$1")" == "true" ]]
 }

@@ -407,7 +407,16 @@ EOF
 }
 
 @test "checking opendkim: /etc/opendkim/KeyTable dummy file generated without keys provided" {
-  run docker exec mail_smtponly_without_config /bin/bash -c "cat /etc/opendkim/KeyTable"
+  docker run --rm -d --name mail_smtponly_without_config \
+		-e SMTP_ONLY=1 \
+		-e ENABLE_LDAP=1 \
+		-e PERMIT_DOCKER=network \
+		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
+		-t ${NAME}
+
+  teardown() { docker rm -f mail_smtponly_without_config; }
+
+  run repeat_in_container_until_success_or_timeout 15 mail_smtponly_without_config /bin/bash -c "cat /etc/opendkim/KeyTable"
   assert_success
 }
 
