@@ -71,27 +71,6 @@ run:
 		-h unknown.domain.tld \
 		-t $(NAME)
 	-@ sleep $(SLEEP)
-	docker run --rm -d --name mail_domainname \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
-		-e ENABLE_SRS=1 \
-		-e DOMAINNAME=my-domain.com \
-		-h unknown.domain.tld \
-		-t $(NAME)
-	-@ sleep $(SLEEP)
-	docker run --rm -d --name mail_srs_domainname \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
-		-e ENABLE_SRS=1 \
-		-e SRS_DOMAINNAME=srs.my-domain.com \
-		-e DOMAINNAME=my-domain.com \
-		-h unknown.domain.tld \
-		-t $(NAME)
-	-@ sleep $(SLEEP)
 
 generate-accounts-after-run:
 	@ docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
