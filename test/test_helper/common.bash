@@ -108,7 +108,7 @@ function run_teardown_file_if_necessary() {
 
 # get the private config path for the given container or test file, if no container name was given
 function private_config_path() {
-    echo "$PWD/test/duplicate_configs/${1:$BATS_TEST_FILENAME}"
+    echo "$PWD/test/duplicate_configs/${1:-$(basename "$BATS_TEST_FILENAME")}"
 }
 
 # @param $1 relative source in test/config folder
@@ -118,6 +118,6 @@ function duplicate_config_for_container() {
     output="$(private_config_path "$2")"
     rm -rf "$output" # cleanup 
     mkdir -p "$output"
-    cp -r "$PWD/test/config/$1" "$output"
+    cp -r "$PWD/test/config/${1:?}/." "$output"
     echo "$output"
 }
