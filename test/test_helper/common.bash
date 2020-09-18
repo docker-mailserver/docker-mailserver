@@ -11,6 +11,11 @@ NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES-10}
 # @param --fatal-test <command eval string> additional test whose failure aborts immediately
 # @param ... test to run
 function repeat_until_success_or_timeout {
+    local fatal_failure_test_command
+    if [[ "$1" == "--fatal-test" ]]; then
+        fatal_failure_test_command="$2"
+        shift 2
+    fi
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
         echo "First parameter for timeout must be an integer, recieved \"$1\""
         return 1
@@ -18,11 +23,6 @@ function repeat_until_success_or_timeout {
     TIMEOUT=$1
     STARTTIME=$SECONDS
     shift 1
-    local fatal_failure_test_command
-    if [[ "$1" == "--fatal-test" ]]; then
-        fatal_failure_test_command="$2"
-        shift 2
-    fi
     until "$@"
     do
         if [[ -n "$fatal_failure_test_command" ]] && ! eval "$fatal_failure_test_command"; then
@@ -44,7 +44,7 @@ function repeat_in_container_until_success_or_timeout() {
     timeout="$1"
     container_name="$2"
     shift 2
-    repeat_until_success_or_timeout "$timeout" --fatal-test "container_is_running $container_name" docker exec "$container_name" "$@"
+    repeat_until_success_or_timeout --fatal-test "container_is_running $container_name" "$timeout" docker exec "$container_name" "$@"
 }
 
 function container_is_running() {
@@ -54,23 +54,23 @@ function container_is_running() {
 # @param $1 port
 # @param $2 container name
 function wait_for_tcp_port_in_container() {
-    repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS --fatal-test "container_is_running $2" docker exec $2 /bin/sh -c "nc -z 0.0.0.0 $1"
+    repeat_until_success_or_timeout --fatal-test "container_is_running $2" "$TEST_TIMEOUT_IN_SECONDS" docker exec $2 /bin/sh -c "nc -z 0.0.0.0 $1"
 }
 
 # @param $1 name of the postfix container
 function wait_for_smtp_port_in_container() {
-    wait_for_tcp_port_in_container 25 $1
+    wait_for_tcp_port_in_container 25 "$1"
 }
 
 # @param $1 name of the postfix container
 function wait_for_amavis_port_in_container() {
-    wait_for_tcp_port_in_container 10024 $1
+    wait_for_tcp_port_in_container 10024 "$1"
 }
 
 # @param $1 name of the postfix container
 function wait_for_finished_setup_in_container() {
     local status=0
-    repeat_until_success_or_timeout $TEST_TIMEOUT_IN_SECONDS sh -c "docker logs $1 | grep 'is up and running'" || status=1
+    repeat_until_success_or_timeout --fatal-test "container_is_running $1" "$TEST_TIMEOUT_IN_SECONDS" sh -c "docker logs $1 | grep 'is up and running'" || status=1
     if [[ $status -eq 1 ]]; then
         echo "Last $NUMBER_OF_LOG_LINES lines of container \`$1\`'s log"
         docker logs $1 | tail -n $NUMBER_OF_LOG_LINES
