@@ -38,3 +38,7 @@ test/config/without-accounts/
 test/config/without-virtual/
 test/config/with-domain/
 test/onedir
+test/duplicate_configs
+
+config.bak
+testconfig.bak
