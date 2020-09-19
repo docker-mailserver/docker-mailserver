@@ -80,8 +80,24 @@ function wait_for_finished_setup_in_container() {
 
 SETUP_FILE_MARKER="$BATS_TMPDIR/`basename \"$BATS_TEST_FILENAME\"`.setup_file"
 
+function native_setup_teardown_file_support() {
+    VERSION_REGEX='([0-9]+)\.([0-9]+)\.([0-9]+)'
+    # bats versions that support setup_file out of the box don't need this
+    if [[ "$BATS_VERSION" =~ $VERSION_REGEX ]]; then
+        numeric_version=$(( (BASH_REMATCH[1] * 100 + BASH_REMATCH[2]) * 100 + BASH_REMATCH[3] ))
+        if [[ $numeric_version -ge 10201 ]]; then
+            if [ "$BATS_TEST_NAME" == 'test_first' ]; then
+                skip 'This version natively supports setup/teardown_file'
+            fi
+            return 0
+        fi
+    fi
+    return 1
+}
+
 # use in setup() in conjunction with a `@test "first" {}` to trigger setup_file reliably
 function run_setup_file_if_necessary() {
+    native_setup_teardown_file_support && return 0
     if [ "$BATS_TEST_NAME" == 'test_first' ]; then
         # prevent old markers from marking success or get an error if we cannot remove due to permissions
         rm -f "$SETUP_FILE_MARKER"
@@ -99,6 +115,7 @@ function run_setup_file_if_necessary() {
 
 # use in teardown() in conjunction with a `@test "last" {}` to trigger teardown_file reliably
 function run_teardown_file_if_necessary() {
+    native_setup_teardown_file_support && return 0
     if [ "$BATS_TEST_NAME" == 'test_last' ]; then
         # cleanup setup file marker
         rm -f "$SETUP_FILE_MARKER"
