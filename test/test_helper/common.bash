@@ -37,6 +37,27 @@ function repeat_until_success_or_timeout {
     done
 }
 
+# like repeat_until_success_or_timeout but with wrapping the command to run into `run` for later bats consumption
+# @param $1 timeout
+# @param ... test command to run
+function run_until_success_or_timeout {
+    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo "First parameter for timeout must be an integer, recieved \"$1\""
+        return 1
+    fi
+    TIMEOUT=$1
+    STARTTIME=$SECONDS
+    shift 1
+    until run "$@" && [[ $status -eq 0 ]]
+    do
+        sleep 1
+        if [[ $(($SECONDS - $STARTTIME )) -gt $TIMEOUT ]]; then
+            echo "Timed out on command: $@" >&2
+            return 1
+        fi
+    done
+}
+
 # @param $1 timeout
 # @param $2 container name
 # @param ... test command for container
