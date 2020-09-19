@@ -85,6 +85,11 @@ function count_processed_changes() {
   docker exec $containerName cat /var/log/supervisor/changedetector.log | grep "Change detected" | wc -l
 }
 
+# this test must come first to reliably identify when to run setup_file
+@test "first" {
+  skip 'Starting testing of letsencrypt SSL'
+}
+
 #
 # configuration checks
 #
@@ -238,7 +243,7 @@ function count_processed_changes() {
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
   assert_success
-  cat <<'EOF' | assert_output
+  assert_output <<'EOF'
  1 <added@localhost.localdomain>
  6 <user1@localhost.localdomain>
  1 <user1@localhost.localdomain>, orig_to=<postmaster@my-domain.com>
@@ -1623,4 +1628,8 @@ EOF
 @test "checking that mail for root was delivered" {
   run docker exec mail grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
+}
+
+@test "last" {
+  # this test is only there to reliably mark the end for the teardown_file
 }
