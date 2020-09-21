@@ -1245,7 +1245,7 @@ EOF
   run ./setup.sh -c mail email add setup_email_add@example.com test_password
   assert_success
 
-  value=$(cat ./test/config/postfix-accounts.cf | grep setup_email_add@example.com | awk -F '|' '{print $1}')
+  value=$(cat $(private_config_path mail)/postfix-accounts.cf | grep setup_email_add@example.com | awk -F '|' '{print $1}')
   [ "$value" = "setup_email_add@example.com" ]
   assert_success
 
@@ -1280,14 +1280,14 @@ EOF
   run ./setup.sh -c mail email add lorem@impsum.org test_test
   assert_success
 
-  initialpass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  initialpass=$(cat $(private_config_path mail)/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
   [ "$initialpass" != "" ]
   assert_success
 
   run ./setup.sh -c mail email update lorem@impsum.org my password
   assert_success
 
-  updatepass=$(cat ./test/config/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  updatepass=$(cat $(private_config_path mail)/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
   [ "$updatepass" != "" ]
   assert_success
 
@@ -1310,7 +1310,7 @@ EOF
 #
 #  run docker exec mail ls /var/mail/impsum.org/lorem
 #  assert_failure
-  run grep lorem@impsum.org ./test/config/postfix-accounts.cf
+  run grep lorem@impsum.org $(private_config_path mail)/postfix-accounts.cf
   assert_failure
 }
 
