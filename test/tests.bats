@@ -31,6 +31,7 @@ setup_file() {
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t ${NAME}
   # generate account after run
+  docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t ${NAME} /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)"' >> "$private_config/postfix-accounts.cf"
   docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
   # setup sieve
 	repeat_until_success_or_timeout 15 docker cp "$private_config/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
