@@ -179,9 +179,9 @@ version: '3.8'
 services:
   mail:
     image: tvial/docker-mailserver:latest
-    hostname: mail
-    domainname: domain.com
-    container_name: mail
+    hostname: mail                         # ${HOSTNAME}
+    domainname: domain.com                 # ${DOMAINNAME}
+    container_name: mail                   # ${CONTAINER_NAME}
     ports:
       - "25:25"
       - "143:143"
@@ -203,14 +203,12 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
+    restart: always
 
 volumes:
   maildata:
-    driver: local
   mailstate:
-    driver: local
   maillogs:
-    driver: local
 ```
 
 #### LDAP setup
@@ -221,9 +219,9 @@ version: '3.8'
 services:
   mail:
     image: tvial/docker-mailserver:latest
-    hostname: mail
-    domainname: domain.com
-    container_name: mail
+    hostname: mail                         # ${HOSTNAME}
+    domainname: domain.com                 # ${DOMAINNAME}
+    container_name: mail                   # ${CONTAINER_NAME}
     ports:
       - "25:25"
       - "143:143"
@@ -265,14 +263,12 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
+    restart: always
 
 volumes:
   maildata:
-    driver: local
   mailstate:
-    driver: local
   maillogs:
-    driver: local
 ```
 
 ## Environment variables
