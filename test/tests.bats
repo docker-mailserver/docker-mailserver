@@ -206,7 +206,8 @@ function count_processed_changes() {
 }
 
 @test "checking smtp: authentication fails with wrong password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt"
+  assert_output --partial 'authentication failed'
   assert_success
 }
 
@@ -216,7 +217,8 @@ function count_processed_changes() {
 }
 
 @test "checking smtp: authentication fails with wrong password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt | grep 'authentication failed'"
+  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
+  assert_output --partial 'authentication failed'
   assert_success
 }
 
@@ -338,9 +340,9 @@ EOF
 @test "checking accounts: user accounts" {
   run docker exec mail doveadm user '*'
   assert_success
-  [ "${lines[0]}" = "user1@localhost.localdomain" ]
-  [ "${lines[1]}" = "user2@otherdomain.tld" ]
-  [ "${lines[2]}" = "added@localhost.localdomain" ]
+  assert_line --index 0 "user1@localhost.localdomain"
+  assert_line --index 1 "user2@otherdomain.tld"
+  assert_line --index 2 "added@localhost.localdomain"
 }
 
 @test "checking accounts: user mail folder for user1" {
@@ -1510,8 +1512,8 @@ EOF
 
 @test "checking spoofing: rejects sender forging" {
   # checking rejection of spoofed sender
-  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
-  assert_success
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt"
+  assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "checking spoofing: accepts sending as alias" {
