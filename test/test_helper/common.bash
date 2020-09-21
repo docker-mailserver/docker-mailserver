@@ -154,7 +154,7 @@ function private_config_path() {
 # @return path to the folder where the config is duplicated
 function duplicate_config_for_container() {
     output="$(private_config_path "$2")"
-    rm -rf "$output" # cleanup 
+    rm -r "${output:?}/" # cleanup
     mkdir -p "$output"
     cp -r "$PWD/test/config/${1:?}/." "$output"
     echo "$output"
