@@ -273,7 +273,11 @@ volumes:
 
 ## Environment variables
 
-If an option doesn't work as documented here, check if you are running the latest image! Value in **bold** is the default value.
+If an option doesn't work as documented here, check if you are running the latest image! Values in **bold** are the default values.
+
+### Reminder
+
+Please note: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `env-mailserver` serves this case where environment variables are used in the container.
 
 ### Assignments
 
