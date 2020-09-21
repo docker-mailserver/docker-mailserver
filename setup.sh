@@ -4,7 +4,7 @@
 # included in the docker-mailserver
 
 set -euEo pipefail
-trap '_report_err ${_:-"SOURCE UNKNOWN"} ${LINENO} ${?}' ERR
+trap '_report_err ${_} ${LINENO} ${?}' ERR
 
 function _report_err()
 {
@@ -321,13 +321,14 @@ function _main()
             _docker_container /bin/bash -c "${@}"
           fi
           ;;
-        *        ) _usage ; exit 1 ;;
+        *        ) _usage ; _unset_vars ; exit 1 ;;
       esac
       ;;
 
-    *            ) _usage ; exit 1 ;;
+    *            ) _usage ; _unset_vars ; exit 1 ;;
   esac
+
+  _unset_vars
 }
 
 _main "${@}"
-_unset_vars
