@@ -222,7 +222,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
         if [[ -n ${SENDONLY_DOMAINS} ]]
         then
           declare -a SEND_DOMAIN
-          IFS=',' read -r -a SEND_DOMAIN <<< "${SENDONLY_DOMAINS}"
+          IFS=',' ; read -r -a SEND_DOMAIN <<< "${SENDONLY_DOMAINS}"
           unset IFS
 
           for domain in "${SEND_DOMAIN[@]}"
