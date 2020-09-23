@@ -219,6 +219,17 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       then
         # shellcheck disable=SC2002
         cat /tmp/vhost.tmp | sort | uniq >/etc/postfix/vhost && rm /tmp/vhost.tmp
+        if [[ -n ${SENDONLY_DOMAINS} ]]
+        then
+          declare -a SEND_DOMAIN
+          IFS=',' read -r -a SEND_DOMAIN <<< "${SENDONLY_DOMAINS}"
+          unset IFS
+
+          for domain in "${SEND_DOMAIN[@]}"
+          do
+            sed -i "/^$domain/d" /etc/postfix/vhost
+          done
+        fi
       fi
 
       if [[ $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .) -ne 0 ]]

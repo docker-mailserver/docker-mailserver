@@ -1244,6 +1244,20 @@ function _setup_postfix_vhost()
   if [[ -f /tmp/vhost.tmp ]]
   then
     sort < /tmp/vhost.tmp | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
+
+    if [[ -n "${SENDONLY_DOMAINS}" ]]
+    then
+      declare -a SEND_DOMAIN
+      IFS=',' ; read -r -a SEND_DOMAIN <<< "${SENDONLY_DOMAINS}"
+      unset IFS
+
+      for domain in "${SEND_DOMAIN[@]}"
+      do
+        echo $domain
+        sed -i "/^$domain/d" /etc/postfix/vhost
+      done
+    fi
+
   elif [[ ! -f /etc/postfix/vhost ]]
   then
     touch /etc/postfix/vhost
