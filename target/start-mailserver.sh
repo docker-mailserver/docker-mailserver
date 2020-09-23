@@ -351,7 +351,7 @@ function _check_hostname()
   if ( ! echo "${HOSTNAME}" | grep -E '^(\S+[.]\S+)$' > /dev/null )
   then
     _notify 'err' "Setting hostname/domainname is required"
-    kill "$(cat /var/run/supervisord.pid)" && return 1
+    kill "$(< /var/run/supervisord.pid)" && return 1
   else
     return 0
   fi
@@ -418,7 +418,7 @@ function _setup_default_vars()
     if ! echo "export ${var}=\"${DEFAULT_VARS[${var}]}\"" >>/root/.bashrc
     then
       _notify 'err' "Unable to set ${var}=${DEFAULT_VARS[${var}]}"
-      kill -15 "$(cat /var/run/supervisord.pid)"
+      kill -15 "$(< /var/run/supervisord.pid)"
       return 1
     fi
 
@@ -1302,7 +1302,7 @@ function _setup_postfix_virtual_transport()
   _notify 'task' 'Setting up Postfix virtual transport'
 
   [[ -z ${POSTFIX_DAGENT} ]] && echo "${POSTFIX_DAGENT} not set." && \
-    kill -15 "$(cat /var/run/supervisord.pid)" && return 1
+    kill -15 "$(< /var/run/supervisord.pid)" && return 1
 
   postconf -e "virtual_transport = ${POSTFIX_DAGENT}"
 }
