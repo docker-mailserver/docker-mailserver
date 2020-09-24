@@ -20,7 +20,7 @@ passdb {
 #passdb {
   #driver = passwd
   # [blocking=no]
-  #args = 
+  #args =
 #}
 
 # Shadow passwords for system users (NSS, /etc/shadow or similiar).
@@ -29,7 +29,7 @@ passdb {
 #passdb {
   #driver = shadow
   # [blocking=no]
-  #args = 
+  #args =
 #}
 
 # PAM-like authentication for OpenBSD.
@@ -50,7 +50,7 @@ userdb {
   # <doc/wiki/AuthDatabase.Passwd.txt>
   driver = passwd
   # [blocking=no]
-  #args = 
+  #args =
 
   # Override fields from passwd
   #override_fields = home=/home/virtual/%u

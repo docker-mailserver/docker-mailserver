@@ -10,20 +10,27 @@ env:
   global:
     - HADOLINT_VERSION=1.17.1
     - SHELLCHECK_VERSION=0.7.1
+    - ECLINT_VERSION=2.1.0
 
 addons:
   apt:
     packages:
-    - xz-utils
+      - xz-utils
 
 services:
   - docker
 
 before_install:
-  - sudo curl -L https://github.com/hadolint/hadolint/releases/download/v$HADOLINT_VERSION/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
+  # HADOLINT
+  - sudo curl -L https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
   - sudo chmod +rx /usr/local/bin/hadolint
-  - sudo wget -qO- "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJv
-  - sudo cp "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+  # SHELLCHECK
+  - sudo wget -qO- "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJ
+  - sudo mv "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+  # ECLINT
+  - sudo wget -qO- "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${ECLINT_VERSION}/ec-linux-amd64.tar.gz" | tar -xaz
+  - sudo mv bin/ec-linux-amd64 /usr/bin/eclint
+  - sudo chmod +x /usr/bin/eclint
 
 install:
   - make lint
