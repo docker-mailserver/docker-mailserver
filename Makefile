@@ -19,12 +19,8 @@ build:
 backup:
 # if backup directories exist, clean hasn't been called, therefore
 # we shouldn't overwrite it. It still contains the original content.
-	@ if [ ! -d config.bak ]; then\
-  	cp -rp config config.bak;\
-	fi
-	@ if [ ! -d testconfig.bak ]; then\
-		cp -rp test/config testconfig.bak;\
-	fi
+	@ if [ ! -d config.bak ]; then cp -rp config config.bak; fi
+	@ if [ ! -d testconfig.bak ]; then cp -rp test/config testconfig.bak; fi
 
 generate-accounts:
 	@ docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
@@ -168,6 +164,16 @@ shellcheck:
 	@ /usr/bin/shellcheck --version
 	@ echo ''
 	@ if find -iname "*.sh" -not -path "./test/*" -not -path "./target/docker-configomat/*" -exec /usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50 {} \; | grep .; then\
+		echo -e "\nError" ;\
+		exit 1 ;\
+	else\
+		echo -e '\nSuccess' ;\
+	fi
+
+eclint:
+	@ echo -e "Testing file formatting according to .editorconfig\n"
+	@ printf "Version %s\n\n" "$$(/usr/bin/eclint --version)"
+	@ if /usr/bin/eclint -exclude "\.bats$$" | grep .; then\
 		echo -e "\nError" ;\
 		exit 1 ;\
 	else\

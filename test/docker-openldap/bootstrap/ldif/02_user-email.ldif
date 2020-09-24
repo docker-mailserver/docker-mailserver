@@ -1,6 +1,6 @@
-# -------------------------------------------------------------------- 
+# --------------------------------------------------------------------
 # Create mail accounts
-# -------------------------------------------------------------------- 
+# --------------------------------------------------------------------
 # Some User
 dn: uniqueIdentifier=some.user,ou=people,dc=localhost,dc=localdomain
 changetype: add
@@ -13,7 +13,7 @@ cn: Some User
 givenName: User
 mail: some.user@localhost.localdomain
 mailAlias: postmaster@localhost.localdomain
-mailGroupMember: employees@localhost.localdomain 
+mailGroupMember: employees@localhost.localdomain
 mailEnabled: TRUE
 mailGidNumber: 5000
 mailHomeDirectory: /var/mail/localhost.localdomain/some.user/

@@ -15,13 +15,13 @@
 [shields::gitter]: https://img.shields.io/gitter/room/tomav/docker-mailserver.svg
 [gitter]: https://gitter.im/tomav/docker-mailserver
 
-A fullstack but simple mail server (smtp, imap, antispam, antivirus...).
+A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
 Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-mail-server-with-docker/)
 
-1. [Announcement](#announcement)
+1. [Announcements](#announcements)
 2. [Includes](#includes)
 3. [Issues & Contributing](#issues--contributing)
 4. [Requirements](#requirements)
@@ -29,24 +29,19 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
 6. [Examples](#examples)
 7. [Environment Variables](#environment-variables)
 
-## Announcement
+## Announcements
 
-At this point we have merged the next branch based on Debian Buster into master.
-That means the docker image latest uses Buster. The change may break things!
-
-The following possibly breaking changes are known:
-
-- Filebeat is removed and should be handled by another container, see [Wiki](https://github.com/tomav/docker-mailserver/wiki/).
-- Dovecot will be downgraded a little bit (same major version) so that we can use the official Debian version.
-
-If you want to stick to the old version a while longer, either switch to stable or to a specific version.
-If you run into problems, please raise issues and ask for help. Don't forget to provide details.
+1. Debian Buster is now Docker base image
+   - Filebeat was removed
+   - Dovecot was downgraded
+2. ELK was removed
+3. New contributing guidelines were added
 
 ## Includes
 
-- [Postfix](http://www.postfix.org) with smtp or ldap auth
-- [Dovecot](https://www.dovecot.org) for sasl, imap (and optional pop3) with ssl support, with ldap auth, sieve and [quotas](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
-- saslauthd with ldap auth
+- [Postfix](http://www.postfix.org) with SMTP or LDAP auth
+- [Dovecot](https://www.dovecot.org) for SASL, IMAP (and optional POP3) with ssl support, with ldap auth, sieve and [quotas](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
+- SASLauthd with LDAP auth
 - [Amavis](https://www.amavis.org/)
 - [Spamassasin](http://spamassassin.apache.org/) supporting custom rules
 - [ClamAV](https://www.clamav.net/) with automatic updates
@@ -112,21 +107,11 @@ curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
-### Start the Container
+### Get up and running
 
 ``` BASH
 docker-compose up -d mail
-```
-
-### Create your mail accounts
-
-``` BASH
 ./setup.sh email add <user@domain> [<password>]
-```
-
-### Generate DKIM keys
-
-``` BASH
 ./setup.sh config dkim
 ```
 
@@ -149,10 +134,6 @@ And don't forget to have a look at the remaining functions of the `setup.sh` scr
 #### SPF/Forwarding Problems
 
 If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.md) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
-
-#### For informational purposes
-
-`restart: always` ensures that the mail server container (and Filebeat/ELK containers when using the mail server together with ELK stack) is automatically restarted by Docker in cases like a Docker service or host restart or container exit.
 
 #### Exposed ports
 

@@ -4,13 +4,13 @@ ARG VCS_REF
 ARG VCS_VERSION
 
 LABEL maintainer="Thomas VIAL"  \
-    org.label-schema.name="docker-mailserver" \
-    org.label-schema.description="A fullstack but simple mailserver (smtp, imap, antispam, antivirus, ssl...)" \
-    org.label-schema.url="https://github.com/tomav/docker-mailserver" \
-    org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.vcs-url="https://github.com/tomav/docker-mailserver" \
-    org.label-schema.version=$VCS_VERSION \
-    org.label-schema.schema-version="1.0"
+  org.label-schema.name="docker-mailserver" \
+  org.label-schema.description="A fullstack but simple mailserver (smtp, imap, antispam, antivirus, ssl...)" \
+  org.label-schema.url="https://github.com/tomav/docker-mailserver" \
+  org.label-schema.vcs-ref=$VCS_REF \
+  org.label-schema.vcs-url="https://github.com/tomav/docker-mailserver" \
+  org.label-schema.version=$VCS_VERSION \
+  org.label-schema.schema-version="1.0"
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV VIRUSMAILS_DELETE_DELAY=7
@@ -33,76 +33,76 @@ RUN \
   apt-get -y upgrade && \
   apt-get -y install postfix && \
   apt-get -y install --no-install-recommends \
-    altermime \
-    amavisd-new \
-    apt-transport-https \
-    arj \
-    binutils \
-    bzip2 \
-    ca-certificates \
-    cabextract \
-    clamav \
-    clamav-daemon \
-    cpio \
-    curl \
-    ed \
-    fail2ban \
-    fetchmail \
-    file \
-    gamin \
-    gzip \
-    gnupg \
-    iproute2 \
-    iptables \
-    locales \
-    logwatch \
-    lhasa \
-    libdate-manip-perl \
-    liblz4-tool \
-    libmail-spf-perl \
-    libnet-dns-perl \
-    libsasl2-modules \
-    lrzip \
-    lzop \
-    netcat-openbsd \
-    nomarch \
-    opendkim \
-    opendkim-tools \
-    opendmarc \
-    pax \
-    pflogsumm \
-    p7zip-full \
-    postfix-ldap \
-    postfix-pcre \
-    postfix-policyd-spf-python \
-    postsrsd \
-    pyzor \
-    razor \
-    rpm2cpio \
-    rsyslog \
-    sasl2-bin \
-    spamassassin \
-    supervisor \
-    postgrey \
-    unrar-free \
-    unzip \
-    whois \
-    xz-utils \
+  altermime \
+  amavisd-new \
+  apt-transport-https \
+  arj \
+  binutils \
+  bzip2 \
+  ca-certificates \
+  cabextract \
+  clamav \
+  clamav-daemon \
+  cpio \
+  curl \
+  ed \
+  fail2ban \
+  fetchmail \
+  file \
+  gamin \
+  gzip \
+  gnupg \
+  iproute2 \
+  iptables \
+  locales \
+  logwatch \
+  lhasa \
+  libdate-manip-perl \
+  liblz4-tool \
+  libmail-spf-perl \
+  libnet-dns-perl \
+  libsasl2-modules \
+  lrzip \
+  lzop \
+  netcat-openbsd \
+  nomarch \
+  opendkim \
+  opendkim-tools \
+  opendmarc \
+  pax \
+  pflogsumm \
+  p7zip-full \
+  postfix-ldap \
+  postfix-pcre \
+  postfix-policyd-spf-python \
+  postsrsd \
+  pyzor \
+  razor \
+  rpm2cpio \
+  rsyslog \
+  sasl2-bin \
+  spamassassin \
+  supervisor \
+  postgrey \
+  unrar-free \
+  unzip \
+  whois \
+  xz-utils \
   # use Dovecot community repo to react faster on security updates
   #curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
   #gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
   #echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/stretch stretch main" > /etc/apt/sources.list.d/dovecot-community.list && \
   #apt-get update -q --fix-missing && \
   #apt-get -y install --no-install-recommends \
-    dovecot-core \
-    dovecot-imapd \
-    dovecot-ldap \
-    dovecot-lmtpd \
-    dovecot-managesieved \
-    dovecot-pop3d \
-    dovecot-sieve \
-    dovecot-solr \
-    && \
+  dovecot-core \
+  dovecot-imapd \
+  dovecot-ldap \
+  dovecot-lmtpd \
+  dovecot-managesieved \
+  dovecot-pop3d \
+  dovecot-sieve \
+  dovecot-solr \
+  && \
   apt-get autoclean && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /usr/share/locale/* && \
@@ -151,7 +151,7 @@ COPY target/postfix/ldap-users.cf target/postfix/ldap-groups.cf target/postfix/l
 # Enables Spamassassin CRON updates and update hook for supervisor
 # hadolint ignore=SC2016
 RUN sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
-    sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
+  sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
 # Enables Postgrey
 COPY target/postgrey/postgrey /etc/default/postgrey
@@ -244,7 +244,7 @@ WORKDIR /
 
 # Switch iptables and ip6tables to legacy for fail2ban
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy \
- && update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+  && update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
 
 EXPOSE 25 587 143 465 993 110 995 4190
