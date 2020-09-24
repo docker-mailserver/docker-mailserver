@@ -38,6 +38,7 @@ install:
 
 script:
   - make shellcheck
+  - make eclint
   - make generate-accounts run generate-accounts-after-run fixtures tests
 
 after_script:
