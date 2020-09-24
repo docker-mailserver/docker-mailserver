@@ -35,8 +35,7 @@ function _sanitize_ipv4_to_subnet_cidr()
 {
   local DIGIT_PREFIX_LENGTH="${1#*/}"
 
-  declare -a MASKED_DIGITS
-  declare -a DIGITS
+  declare -a MASKED_DIGITS DIGITS
   IFS='.' ; read -r -a DIGITS < <(echo "${1%%/*}") ; unset IFS
 
   for ((i = 0 ; i < 4 ; i++))

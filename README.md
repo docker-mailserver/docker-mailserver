@@ -36,7 +36,7 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
    - Dovecot was downgraded
 2. ELK was removed
 3. New contributing guidelines were added
-5. Added option to use non-default network interface
+4. Added option to use non-default network interface
 
 ## Includes
 
@@ -69,13 +69,13 @@ Before you open an issue, please have a look this `README`, the [Wiki](https://g
 
 Recommended:
 
-- 1 CPU
+- 1 Core
 - 1-2GB RAM
 - Swap enabled for the container
 
 Minimum:
 
-- 1 CPU
+- 1 vCore
 - 512MB RAM
 
 **Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips).
@@ -104,7 +104,10 @@ curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver
   - These files supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
-- Install [docker-compose](https://docs.docker.com/compose/) in the version `1.7` or higher.
+- [Install the latest docker-compose](https://docs.docker.com/compose/install/)
+
+**Note:**: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `env-mailserver` serves this case where environment variables are used in the container.
+
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
@@ -161,9 +164,9 @@ version: '3.8'
 services:
   mail:
     image: tvial/docker-mailserver:latest
-    hostname: mail                         # ${HOSTNAME}
-    domainname: domain.com                 # ${DOMAINNAME}
-    container_name: mail                   # ${CONTAINER_NAME}
+    hostname: mail          # ${HOSTNAME}
+    domainname: domain.com  # ${DOMAINNAME}
+    container_name: mail    # ${CONTAINER_NAME}
     ports:
       - "25:25"
       - "143:143"
@@ -201,9 +204,9 @@ version: '3.8'
 services:
   mail:
     image: tvial/docker-mailserver:latest
-    hostname: mail                         # ${HOSTNAME}
-    domainname: domain.com                 # ${DOMAINNAME}
-    container_name: mail                   # ${CONTAINER_NAME}
+    hostname: mail          # ${HOSTNAME}
+    domainname: domain.com  # ${DOMAINNAME}
+    container_name: mail    # ${CONTAINER_NAME}
     ports:
       - "25:25"
       - "143:143"
@@ -256,10 +259,6 @@ volumes:
 ## Environment variables
 
 If an option doesn't work as documented here, check if you are running the latest image! Values in **bold** are the default values.
-
-### Reminder
-
-Please note: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `env-mailserver` serves this case where environment variables are used in the container.
 
 ### Assignments
 
@@ -349,7 +348,7 @@ Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_pro
 
 ##### NETWORK_INTERFACE
 
-In case you network interface differs from 'eth0', e.g. when you are using HostNetworking in Kubernetes, you can set NETWORK_INTERFACE to whatever interface you want. This interface will then be used.
+In case your network interface differs from `eth0`, e.g. when you are using HostNetworking in Kubernetes, you can set this to whatever interface you want. This interface will then be used.
 
 - **empty** => `eth0`
 
