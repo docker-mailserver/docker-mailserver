@@ -36,6 +36,7 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
    - Dovecot was downgraded
 2. ELK was removed
 3. New contributing guidelines were added
+5. Added option to use non-default network interface
 
 ## Includes
 
@@ -345,6 +346,12 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
 - connected-networks => Add all connected docker networks (ipv4 only)
 
 Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
+
+##### NETWORK_INTERFACE
+
+In case you network interface differs from 'eth0', e.g. when you are using HostNetworking in Kubernetes, you can set NETWORK_INTERFACE to whatever interface you want. This interface will then be used.
+
+- **empty** => eth0
 
 ##### VIRUSMAILS_DELETE_DELAY
 
