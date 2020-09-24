@@ -31,6 +31,7 @@ PERMIT_DOCKER=
 
 # In case you network interface differs from 'eth0', e.g. when you are using HostNetworking in Kubernetes,
 # you can set NETWORK_INTERFACE to whatever interface you want. This interface will then be used.
+#  - **empty** => eth0
 NETWORK_INTERFACE=
 
 # empty => modern

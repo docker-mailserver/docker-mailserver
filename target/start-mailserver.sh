@@ -48,7 +48,7 @@ DEFAULT_VARS["EXPLICITLY_DEFINED_SPAMASSASSIN_SPAM_TO_INBOX"]="$( [ -z "${SPAMAS
 DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 DEFAULT_VARS["MOVE_SPAM_TO_JUNK"]="${MOVE_SPAM_TO_JUNK:=1}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:=7}"
-DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:='eth0'}"
+DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:="eth0"}"
 # DEFAULT_VARS["DMS_DEBUG"] defined in helper_functions.sh
 
 ##########################################################################
@@ -1261,11 +1261,17 @@ function _setup_docker_permit()
 {
   _notify 'task' 'Setting up PERMIT_DOCKER Option'
 
-  local INTERFACE CONTAINER_IP CONTAINER_NETWORK CONTAINER_NETWORKS
-  INTERFACE="${DEFAULT_VARS["NETWORK_INTERFACE"]}"
-  CONTAINER_IP=$(ip addr show "${INTERFACE}" | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+  local CONTAINER_IP CONTAINER_NETWORK
+  unset CONTAINER_NETWORKS
+  declare -a CONTAINER_NETWORKS
+
+  CONTAINER_IP=$(ip addr show "${DEFAULT_VARS['NETWORK_INTERFACE']}" | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
   CONTAINER_NETWORK="$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0"
-  CONTAINER_NETWORKS=$(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
+
+  while read -r IP
+  do
+    CONTAINER_NETWORKS+=("${IP}")
+  done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
   case ${PERMIT_DOCKER} in
     "host" )
@@ -1282,13 +1288,13 @@ function _setup_docker_permit()
       echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
       ;;
     "connected-networks" )
-      for network in ${CONTAINER_NETWORKS}
+      for NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
-        network=$(_sanitize_ipv4_to_subnet_cidr "${network}")
-        _notify 'inf' "Adding docker network ${network} in my networks"
-        postconf -e "$(postconf | grep '^mynetworks =') ${network}"
-        echo "${network}" >> /etc/opendmarc/ignore.hosts
-        echo "${network}" >> /etc/opendkim/TrustedHosts
+        NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
+        _notify 'inf' "Adding docker network ${NETWORK} in my networks"
+        postconf -e "$(postconf | grep '^mynetworks =') ${NETWORK}"
+        echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
+        echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
       done
       ;;
     * )
