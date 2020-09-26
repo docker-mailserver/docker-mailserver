@@ -248,7 +248,8 @@ networks:
 ```
 
 The second part of the setup is the actual mail container. So, in another folder, create another docker-compose.yml with the following content (Removed all ENV variables for this example):
-```
+
+``` YAML
 version: '2'
 services:
   mail:
@@ -289,6 +290,7 @@ networks:
       name: nginx-proxy
 
 ```
+
 The mail container needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (VIRTUAL_HOST and LETSENCRYPT_HOST are mandandory, see documentation)
 
 
@@ -317,6 +319,7 @@ Traefik can request certificates for domains through the ACME protocol (see [Tra
 ##### Traefik v2
 
 (For Traefik v1 see [next section](#traefik-v1))
+
 Traefik's V2 storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Lookup of the certificate domain happens in the following order:
 
  1. $SSL_DOMAIN
@@ -325,11 +328,11 @@ Traefik's V2 storage format is natively supported if the `acme.json` store is mo
 
 This allows for support of wild card certificates: `"SSL_DOMAIN=*.example.com"`. Here is an example setup for [docker-compose](https://docs.docker.com/compose/):
 
-```yaml
+``` YAML
 version: '3.8'
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: tvial/docker-mailserver:stable
     hostname: mail
     domainname: example.com
     volumes:
