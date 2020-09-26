@@ -29,6 +29,11 @@ POSTMASTER_ADDRESS=
 # connected-networks => Add all connected docker networks (ipv4 only)
 PERMIT_DOCKER=
 
+# In case you network interface differs from 'eth0', e.g. when you are using HostNetworking in Kubernetes,
+# you can set NETWORK_INTERFACE to whatever interface you want. This interface will then be used.
+#  - **empty** => eth0
+NETWORK_INTERFACE=
+
 # empty => modern
 # modern => Enables TLSv1.2 and modern ciphers only. (default)
 # intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
