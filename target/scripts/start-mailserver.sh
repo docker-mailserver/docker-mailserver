@@ -1147,7 +1147,8 @@ function _setup_ssl
 {
   _notify 'task' 'Setting up SSL'
 
-  function apply_tls_level() {
+  function apply_tls_level()
+  {
     local tls_ciphers_allow=$1
     local tls_protocol_ignore=$2
     local tls_protocol_minimum=$3
@@ -1170,7 +1171,7 @@ function _setup_ssl
       TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
       TLS_MODERN_MIN='TLSv1.2'
 
-      apply_tls_level $TLS_MODERN_SUITE $TLS_MODERN_IGNORE $TLS_MODERN_MIN
+      apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
 
       _notify 'inf' "TLS configured with 'modern' ciphers"
       ;;
@@ -1180,7 +1181,7 @@ function _setup_ssl
       TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3'
       TLS_INTERMEDIATE_MIN='TLSv1'
 
-      apply_tls_level $TLS_INTERMEDIATE_SUITE $TLS_INTERMEDIATE_IGNORE $TLS_INTERMEDIATE_MIN
+      apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
 
       _notify 'inf' "TLS configured with 'intermediate' ciphers"
       ;;
