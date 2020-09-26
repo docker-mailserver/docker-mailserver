@@ -26,6 +26,14 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# uncomment below to use Dovecot community repo to react faster on security updates
+# RUN apt-get update && \
+#   apt-get -y install --no-install-recommends ca-certificates curl gnupg && \
+#   curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
+#   gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
+#   echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/buster buster main" > /etc/apt/sources.list.d/dovecot.list && \
+#   rm -rf /var/lib/apt/lists/*
+
 # Packages
 # hadolint ignore=DL3015,DL3005
 RUN \
@@ -88,12 +96,6 @@ RUN \
   unzip \
   whois \
   xz-utils \
-  # use Dovecot community repo to react faster on security updates
-  #curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
-  #gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
-  #echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/stretch stretch main" > /etc/apt/sources.list.d/dovecot-community.list && \
-  #apt-get update -q --fix-missing && \
-  #apt-get -y install --no-install-recommends \
   dovecot-core \
   dovecot-imapd \
   dovecot-ldap \
