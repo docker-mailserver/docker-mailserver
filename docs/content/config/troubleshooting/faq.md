@@ -270,6 +270,8 @@ Please note that clamav can consume a lot of memory, as it reads the entire sign
 
 Yes, by Adding the Environment Variable `PERMIT_DOCKER: network`.
 
+**WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), [for instance](https://github.com/tomav/docker-mailserver/issues/1405#issuecomment-590106498) if IPv6 is enabled on the host machine but not in Docker. ([#1405](https://github.com/tomav/docker-mailserver/issues/1405))
+
 ### How can I authenticate users with SMTP_ONLY?
 
 See https://github.com/tomav/docker-mailserver/issues/1247 for an example.
