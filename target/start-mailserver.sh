@@ -1757,13 +1757,18 @@ function _setup_logwatch()
 
 function _setup_user_patches()
 {
-  _notify 'inf' 'Executing user-patches.sh'
-
   if [[ -f /tmp/docker-mailserver/user-patches.sh ]]
   then
-    chmod +x /tmp/docker-mailserver/user-patches.sh
-    /tmp/docker-mailserver/user-patches.sh
-    _notify 'inf' "Executed 'config/user-patches.sh'"
+    _notify 'inf' 'Executing user-patches.sh'
+    chmod +x /tmp/docker-mailserver/user-patches.sh &>/dev/null || true
+
+    if [[ -x /tmp/docker-mailserver/user-patches.sh ]]
+    then
+      /tmp/docker-mailserver/user-patches.sh
+      _notify 'inf' "Executed 'config/user-patches.sh'"
+    else
+      _notify 'err' "Could not execute user-patches.sh. Not executable!"
+    fi
   else
     _notify 'inf' "No user patches executed because optional '/tmp/docker-mailserver/user-patches.sh' is not provided."
   fi
