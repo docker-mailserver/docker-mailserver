@@ -1147,41 +1147,41 @@ function _setup_ssl
 {
   _notify 'task' 'Setting up SSL'
 
-  function apply_tls_level()
+  function _apply_tls_level()
   {
-    local tls_ciphers_allow=$1
-    local tls_protocol_ignore=$2
-    local tls_protocol_minimum=$3
+    local TLS_CIPHERS_ALLOW=$1
+    local TLS_PROTOCOL_IGNORE=$2
+    local TLS_PROTOCOL_MINIMUM=$3
 
     # Postfix configuration
-    sed -i -r 's/^smtpd_tls_mandatory_protocols =.*$/smtpd_tls_mandatory_protocols = '"${tls_protocol_ignore}/" /etc/postfix/main.cf
-    sed -i -r 's/^smtpd_tls_protocols =.*$/smtpd_tls_protocols = '"${tls_protocol_ignore}/" /etc/postfix/main.cf
-    sed -i -r 's/^smtp_tls_protocols =.*$/smtp_tls_protocols = '"${tls_protocol_ignore}/" /etc/postfix/main.cf
-    sed -i -r 's/^tls_high_cipherlist =.*$/tls_high_cipherlist = '"${tls_ciphers_allow}/" /etc/postfix/main.cf
+    sed -i 's/^smtpd_tls_mandatory_protocols =.*/smtpd_tls_mandatory_protocols = '"${TLS_PROTOCOL_IGNORE}/" /etc/postfix/main.cf
+    sed -i 's/^smtpd_tls_protocols =.*/smtpd_tls_protocols = '"${TLS_PROTOCOL_IGNORE}/" /etc/postfix/main.cf
+    sed -i 's/^smtp_tls_protocols =.*/smtp_tls_protocols = '"${TLS_PROTOCOL_IGNORE}/" /etc/postfix/main.cf
+    sed -i 's/^tls_high_cipherlist =.*/tls_high_cipherlist = '"${TLS_CIPHERS_ALLOW}/" /etc/postfix/main.cf
 
     # Dovecot configuration (secure by default though)
-    sed -i -r 's/^ssl_min_protocol =.*$/ssl_min_protocol = '"${tls_protocol_minimum}/" /etc/dovecot/conf.d/10-ssl.conf
-    sed -i -r 's/^ssl_cipher_list =.*$/ssl_cipher_list = '"${tls_ciphers_allow}/" /etc/dovecot/conf.d/10-ssl.conf
+    sed -i 's/^ssl_min_protocol =.*/ssl_min_protocol = '"${TLS_PROTOCOL_MINIMUM}/" /etc/dovecot/conf.d/10-ssl.conf
+    sed -i 's/^ssl_cipher_list =.*/ssl_cipher_list = '"${TLS_CIPHERS_ALLOW}/" /etc/dovecot/conf.d/10-ssl.conf
   }
 
   # TLS strength/level configuration
   case "${TLS_LEVEL}" in
     "modern" )
-      TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256'
-      TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
-      TLS_MODERN_MIN='TLSv1.2'
+      local TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256'
+      local TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
+      local TLS_MODERN_MIN='TLSv1.2'
 
-      apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
+      _apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
 
       _notify 'inf' "TLS configured with 'modern' ciphers"
       ;;
 
     "intermediate" )
-      TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA'
-      TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3'
-      TLS_INTERMEDIATE_MIN='TLSv1'
+      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA'
+      local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3'
+      local TLS_INTERMEDIATE_MIN='TLSv1'
 
-      apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
+      _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
 
       _notify 'inf' "TLS configured with 'intermediate' ciphers"
       ;;
