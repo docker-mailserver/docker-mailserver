@@ -1079,6 +1079,33 @@ function _setup_ssl()
     sed -i 's~^ssl_key = <.*~ssl_key = <'"${dovecot_key}~" /etc/dovecot/conf.d/10-ssl.conf
   }
 
+  # Enables supporting two certificate types such as ECDSA with an RSA fallback
+  function _set_alt_certificate()
+  {
+    local copy_cert_from_path=$1
+    local copy_key_from_path=$2
+    local cert_chain_alt='/etc/postfix/ssl/cert_alt'
+    local private_key_alt='/etc/postfix/ssl/key_alt'
+
+    cp "${copy_cert_from_path}" "${cert_chain_alt}"
+    cp "${copy_key_from_path}" "${private_key_alt}"
+    chmod 600 "${cert_chain_alt}"
+    chmod 600 "${private_key_alt}"
+
+    # Postfix configuration
+    # NOTE: This operation doesn't replace the line, it appends to the end of the line.
+    # Thus this method should only be used when this line has explicitly been
+    # replaced on run, otherwise without `docker-compose down`, container state
+    # may persist and cause a failure in postfix configuration.
+    sed -i 's~^smtpd_tls_chain_files =.*~& '"${private_key_alt} ${cert_chain_alt}~" /etc/postfix/main.cf
+
+    # Dovecot configuration
+    # Conditionally checks for `#`, in the event that internal container
+    # state is persisted (`docker-compose up`, twice, without `docker-compose down`)
+    sed -i 's~^#\?ssl_alt_cert = <.*~ssl_alt_cert = <'"${cert_chain_alt}"'~' /etc/dovecot/conf.d/10-ssl.conf
+    sed -i 's~^#\?ssl_alt_key = <.*~ssl_alt_key = <'"${private_key_alt}"'~' /etc/dovecot/conf.d/10-ssl.conf
+  }
+
   # TLS strength/level configuration
   case "${TLS_LEVEL}" in
     "modern" )
@@ -1194,6 +1221,14 @@ function _setup_ssl()
         local private_key='/etc/postfix/ssl/key'
 
         _set_certificate "${private_key} ${cert_chain}" "${cert_chain}" "${private_key}"
+
+        # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
+        if [[ -n ${SSL_ALT_CERT_PATH} ]] && [[ -n ${SSL_ALT_KEY_PATH} ]]
+        then
+          _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
+
+          _set_alt_certificate "${SSL_ALT_CERT_PATH}" "${SSL_ALT_KEY_PATH}"
+        fi
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
       fi
