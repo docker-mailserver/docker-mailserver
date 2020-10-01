@@ -65,27 +65,6 @@ teardown_file() {
   docker rm -f mail
 }
 
-#
-# shared functions
-#
-
-function wait_for_service() {
-  containerName=$1
-  serviceName=$2
-  count=0
-  while ! (docker exec $containerName /usr/bin/supervisorctl status $serviceName | grep RUNNING >/dev/null)
-  do
-    ((count++)) && ((count==30)) && break
-    sleep 5
-  done
-  return $(docker exec $containerName /usr/bin/supervisorctl status $serviceName | grep RUNNING >/dev/null)
-}
-
-function count_processed_changes() {
-  containerName=$1
-  docker exec $containerName cat /var/log/supervisor/changedetector.log | grep "Change detected" | wc -l
-}
-
 # this test must come first to reliably identify when to run setup_file
 @test "first" {
   skip 'Starting testing of letsencrypt SSL'

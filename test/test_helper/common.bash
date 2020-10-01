@@ -159,3 +159,21 @@ function duplicate_config_for_container() {
     cp -r "$PWD/test/config/${1:?}/." "$output"
     echo "$output"
 }
+
+function container_has_service_running() {
+    containerName="$1"
+    serviceName="$2"
+    docker exec "$containerName" /usr/bin/supervisorctl status "$serviceName" | grep RUNNING >/dev/null
+}
+
+function wait_for_service() {
+    containerName="$1"
+    serviceName="$2"
+    repeat_in_container_until_success_or_timeout 600 "$containerName" \
+        container_has_service_running "$containerName" "$serviceName"
+}
+
+function count_processed_changes() {
+    containerName=$1
+    docker exec "$containerName" cat /var/log/supervisor/changedetector.log | grep "Change detected" -c
+}
