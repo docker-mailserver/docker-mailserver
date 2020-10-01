@@ -30,8 +30,8 @@ function repeat_until_success_or_timeout {
             exit 1
         fi
         sleep 5
-        if [[ $(($SECONDS - $STARTTIME )) -gt $TIMEOUT ]]; then
-            echo "Timed out on command: $@" >&2
+        if [[ $(( SECONDS - STARTTIME )) -gt $TIMEOUT ]]; then
+            echo "Timed out on command: $*" >&2
             return 1
         fi
     done
@@ -51,8 +51,8 @@ function run_until_success_or_timeout {
     until run "$@" && [[ $status -eq 0 ]]
     do
         sleep 1
-        if [[ $(($SECONDS - $STARTTIME )) -gt $TIMEOUT ]]; then
-            echo "Timed out on command: $@" >&2
+        if [[ $(( SECONDS - STARTTIME )) -gt $TIMEOUT ]]; then
+            echo "Timed out on command: $*" >&2
             return 1
         fi
     done
@@ -94,12 +94,12 @@ function wait_for_finished_setup_in_container() {
     repeat_until_success_or_timeout --fatal-test "container_is_running $1" "$TEST_TIMEOUT_IN_SECONDS" sh -c "docker logs $1 | grep 'is up and running'" || status=1
     if [[ $status -eq 1 ]]; then
         echo "Last $NUMBER_OF_LOG_LINES lines of container \`$1\`'s log"
-        docker logs $1 | tail -n $NUMBER_OF_LOG_LINES
+        docker logs "$1" | tail -n "$NUMBER_OF_LOG_LINES"
     fi
     return $status
 }
 
-SETUP_FILE_MARKER="$BATS_TMPDIR/`basename \"$BATS_TEST_FILENAME\"`.setup_file"
+SETUP_FILE_MARKER="$BATS_TMPDIR/$(basename "$BATS_TEST_FILENAME").setup_file"
 
 function native_setup_teardown_file_support() {
     VERSION_REGEX='([0-9]+)\.([0-9]+)\.([0-9]+)'
