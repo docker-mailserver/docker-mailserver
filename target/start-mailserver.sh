@@ -1216,8 +1216,8 @@ function _setup_ssl()
         ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-${HOSTNAME}.pem"
 
         # Dovecot configuration
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'"${HOSTNAME}"'-combined\.pem~g' /etc/  dovecot/conf.d/10-ssl.conf
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'"${HOSTNAME}"'-key\.pem~g' /etc/dovecot/ conf.d/10-ssl.conf
+        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'"${HOSTNAME}"'-combined\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'"${HOSTNAME}"'-key\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
       fi
