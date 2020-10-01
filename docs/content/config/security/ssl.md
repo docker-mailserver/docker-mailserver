@@ -31,8 +31,20 @@ https://mail.domain.com {
     }
 }
 ```
+For Caddy v2 you can specify the key_type in your server's global settings, which would end up looking something like this if you're using a Caddyfile:
+```
+{
+debug
+admin localhost:2019
+http_port 80
+https_port 443
+default_sni mywebserver.com
+key_type rsa4096
 
-For Caddy v2 it is necessary to use the json structured Caddyfile. A minimal config would look something like this:
+}
+````
+
+If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
 
 ```
 {
