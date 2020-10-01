@@ -154,7 +154,7 @@ function private_config_path() {
 # @return path to the folder where the config is duplicated
 function duplicate_config_for_container() {
     output="$(private_config_path "$2")"
-    rm -r "${output:?}/" # cleanup
+    rm -rf "${output:?}/" # cleanup
     mkdir -p "$output"
     cp -r "$PWD/test/config/${1:?}/." "$output"
     echo "$output"
@@ -175,5 +175,14 @@ function wait_for_service() {
 
 function count_processed_changes() {
     containerName=$1
-    docker exec "$containerName" cat /var/log/supervisor/changedetector.log | grep "Change detected" -c
+    docker exec "$containerName" cat /var/log/supervisor/changedetector.log | grep "Change detected" -c \
+        || [[ $? == 1 ]] # don't error when no matches were found
+}
+
+
+function wait_for_changes_to_be_detected_in_container() {
+    containerName="$1"
+    timeout=${TEST_TIMEOUT_IN_SECONDS}
+    repeat_in_container_until_success_or_timeout "$timeout" "$containerName" \
+        bash -c 'source /usr/local/bin/helper_functions.sh; cmp --silent -- <(_monitored_files_checksums) "$CHKSUM_FILE"  >/dev/null'
 }
