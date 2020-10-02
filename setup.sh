@@ -3,6 +3,8 @@
 # Wrapper for various setup scripts
 # included in the docker-mailserver
 
+SCRIPT='SETUP'
+
 set -euEo pipefail
 trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
 
@@ -14,7 +16,7 @@ function __log_err
   EXIT_CODE="${4}"
 
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT}" \
+    "  – script    = ${SCRIPT,,}.sh" \
     "  – function  = ${FUNC_NAME}" \
     "  – line      = ${LINE}" \
     "  – exit code = ${EXIT_CODE}"
