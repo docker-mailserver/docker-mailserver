@@ -2,10 +2,7 @@
 
 # version  0.1.0
 
-function _generate_secret()
-{
-  ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "${1}" )
-}
+function _generate_secret { ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "${1}" ) }
 
 if [[ -n ${SRS_DOMAINNAME} ]]
 then

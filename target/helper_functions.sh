@@ -8,7 +8,7 @@
 # ? IP and CIDR -------------------------------------------
 
 
-function _mask_ip_digit()
+function _mask_ip_digit
 {
   if [[ ${1} -ge 8 ]]
   then
@@ -31,7 +31,7 @@ function _mask_ip_digit()
 # like 1.2.3.4/16 to subnet with cidr suffix
 # like 1.2.0.0/16.
 # Assumes correct IP and subnet are provided.
-function _sanitize_ipv4_to_subnet_cidr()
+function _sanitize_ipv4_to_subnet_cidr
 {
   local DIGIT_PREFIX_LENGTH="${1#*/}"
 
@@ -52,7 +52,7 @@ export -f _sanitize_ipv4_to_subnet_cidr
 # ? ACME certs --------------------------------------------
 
 
-function _extract_certs_from_acme()
+function _extract_certs_from_acme
 {
   local KEY
   # shellcheck disable=SC2002
@@ -104,7 +104,7 @@ export -f _extract_certs_from_acme
 declare -A DEFAULT_VARS
 DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:=0}"
 
-function _notify()
+function _notify
 {
   c_red="\e[0;31m"
   c_green="\e[0;32m"
@@ -157,7 +157,7 @@ export -f _notify
 # @domain1.com        [smtp.mailgun.org]:587
 # @domain2.com        [smtp.mailgun.org]:587
 # @domain3.com        [smtp.mailgun.org]:587
-function _populate_relayhost_map()
+function _populate_relayhost_map
 {
   echo -n > /etc/postfix/relayhost_map
   chown root:root /etc/postfix/relayhost_map
@@ -196,7 +196,7 @@ export -f _populate_relayhost_map
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # Compute checksums of monitored files.
-function _monitored_files_checksums()
+function _monitored_files_checksums
 {
   (
     cd /tmp/docker-mailserver || exit 1

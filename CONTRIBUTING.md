@@ -128,7 +128,7 @@ done
 It's always nice to see the use of functions. Not only as it's more C-style, but it also provides a clear structure. If scripts are small, this is unnecessary, but if they become larger, please consider using functions. When doing so, provide `function _main()`. When using functions, they are **always** at the top of the script!
 
 ``` BASH
-function _<name_underscored_and_lowercase>()
+function _<name_underscored_and_lowercase>
 {
   <CODE TO RUN>
 
