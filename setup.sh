@@ -100,7 +100,9 @@ function _inspect
 
 function _usage
 {
-  echo "Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
+  echo "${SCRIPT,,}.sh
+
+Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
 OPTIONS:
 
