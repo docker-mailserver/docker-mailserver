@@ -1206,13 +1206,13 @@ EOF
 @test "checking setup.sh: Without arguments: status 1, show help text" {
   run ./setup.sh
   assert_failure
-  [ "${lines[2]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
+  [ "${lines[1]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
 }
 
 @test "checking setup.sh: Wrong arguments" {
   run ./setup.sh lol troll
   assert_failure
-  [ "${lines[2]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
+  [ "${lines[1]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
 }
 
 # email
