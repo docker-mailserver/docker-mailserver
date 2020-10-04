@@ -8,7 +8,7 @@ sudo: required
 
 env:
   global:
-    - HADOLINT_VERSION=1.17.1
+    - HADOLINT_VERSION=1.18.0
     - SHELLCHECK_VERSION=0.7.1
     - ECLINT_VERSION=2.1.0
 
@@ -33,12 +33,12 @@ before_install:
   - sudo chmod +x /usr/bin/eclint
 
 install:
-  - make lint
   - travis_retry travis_wait make build
 
 script:
-  - make shellcheck
   - make eclint
+  - make hadolint
+  - make shellcheck
   - make generate-accounts run generate-accounts-after-run fixtures tests
 
 after_script:
