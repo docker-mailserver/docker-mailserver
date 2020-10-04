@@ -339,7 +339,7 @@ If you want to test it you can move into the running container, run it and see i
 
 You can do a lot of things with such a script. You can find an example user-patches.sh script here: [example user-patches.sh script](https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh)
 
-#### Special case pathcing supervisord config
+#### Special case patching supervisord config
 It seems worth noting, that the `user-patches.sh` gets executed trough supervisord. If you need to patch some supervisord config (e.g. `/etc/supervisor/conf.d/saslauth.conf`), the patching happens too late.
 An easy workaround is to make the `user-patches.sh` reload the supervisord config after patching it:
 ```bash
