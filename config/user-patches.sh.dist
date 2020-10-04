@@ -1,6 +1,7 @@
 #!/bin/bash
 ##
-# This user script will be executed between configuration and starting daemons
-# To enable it you must save it in your config directory as "user-patches.sh"
+# This user patches script runs right before starting the daemons. That means, all the other configuration is in place, so the script can make final adjustments.
+# If you modify any supervisord configuration, make sure to run "supervisorctl update" afterwards.
+# To enable the script, you must save it in your config directory as "user-patches.sh".
 ##
 echo "Default user-patches.sh successfully executed"
