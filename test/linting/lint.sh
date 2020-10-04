@@ -90,9 +90,10 @@ function _eclint
   fi
 
   __log_info \
-    'starting editorconfig linting' \
+    'type: editorconfig' \
     '(linter version:' "$(${LINT[0]} --version))"
 
+  local SCRIPT='EDITORCONFIG LINTER'
   if "${LINT[@]}"
   then
     __log_success 'no errors detected'
@@ -113,9 +114,10 @@ function _hadolint
   fi
 
   __log_info \
-    'starting editorconfig linting' \
-    '(linter version:' "$(${LINT[0]} --version))"
+    'type: Dockerfile' \
+    '(linter version:' "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*"))"
 
+  local SCRIPT='HADOLINT'
   if git ls-files --exclude='Dockerfile*' --ignored | \
     xargs --max-lines=1 "${LINT[@]}"
   then
@@ -137,7 +139,7 @@ function _shellcheck
   fi
 
   __log_info \
-    'starting shellcheck' '(linter version:' \
+    'type: shellcheck' '(linter version:' \
     "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
 
   local FIND=(
@@ -146,6 +148,7 @@ function _shellcheck
     -not -path "./target/docker-configomat/*"
     -exec "${LINT[@]}" {} \;)
 
+  local SCRIPT='SHELLCHECK'
   if "${FIND[@]}" | grep -q .
   then
     "${FIND[@]}"
