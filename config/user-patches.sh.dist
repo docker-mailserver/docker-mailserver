@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-# This user patches script runs right before starting the daemons. That means all the other configuration is in place, so the script can make final adjustments.
+# This user patches script runs right before starting the daemons. That means, all the other configuration is in place, so the script can make final adjustments.
 # If you modify any supervisord configuration, make sure to run "supervisorctl update" afterwards.
 # To enable the script, you must save it in your config directory as "user-patches.sh".
 ##
