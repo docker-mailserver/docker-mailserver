@@ -141,11 +141,6 @@ tests:
 test/%.bats: ALWAYS_RUN
 		./test/bats/bin/bats $@
 
-lint:
-# List files which name starts with 'Dockerfile'
-# eg. Dockerfile, Dockerfile.build, etc.
-	-@ git ls-files --exclude='Dockerfile*' --ignored | xargs --max-lines=1 hadolint
-
 clean:
 # remove running and stopped test containers
 	-@ docker ps -a | grep -E "docker-mailserver:testing|ldap_for_mail" | cut -f 1-1 -d ' ' | xargs --no-run-if-empty docker rm -f
@@ -159,8 +154,13 @@ clean:
 	fi
 	-@ sudo rm -rf test/onedir test/alias test/quota test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/dovecot-quotas.cf test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf test/config/dhparams.pem test/config/dovecot-lmtp/dh.pem test/config/relay-hosts/dovecot-quotas.cf test/config/user-patches.sh test/alias/config/postfix-virtual.cf test/quota/config/dovecot-quotas.cf test/quota/config/postfix-accounts.cf test/relay/config/postfix-relaymap.cf test/relay/config/postfix-sasl-password.cf
 
+lint: eclint hadolint shellcheck
+
+hadolint:
+	@ ./test/linting/lint.sh hadolint
+
 shellcheck:
-	@ ./test/lint_tests.sh shellcheck
+	@ ./test/linting/lint.sh shellcheck
 
 eclint:
-	@ ./test/lint_tests.sh eclint
+	@ ./test/linting/lint.sh eclint

@@ -6,6 +6,21 @@
 
 SCRIPT="LINT TESTS"
 
+function _get_current_directory
+{
+  if dirname "$(readlink -f "${0}")" &>/dev/null
+  then
+    CDIR="$(cd "$(dirname "$(readlink -f "${0}")")" && pwd)"
+  elif realpath -e -L "${0}" &>/dev/null
+  then
+    CDIR="$(realpath -e -L "${0}")"
+    CDIR="${CDIR%/setup.sh}"
+  fi
+}
+
+CDIR="$(pwd)"
+_get_current_directory
+
 # ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
 
 set -eEuo pipefail
@@ -64,30 +79,6 @@ function __log_success
 function __in_path { __which "${@}" && return 0 ; return 1 ; }
 function __which { command -v "${@}" &>/dev/null ; }
 
-function _shellcheck
-{
-  local LINT=(/usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50)
-
-  if ! __in_path "${LINT[0]}"
-  then
-    __log_abort 'linter not in PATH'
-    return 102
-  fi
-
-  __log_info \
-    'starting shellcheck' '(linter version:' \
-    "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
-
-  if find . -iname "*.sh" -not -path "./test/*" -not -path "./target/docker-configomat/*" -exec /usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50 {} \; | grep .
-  then
-    find . \( -iname "*.bash" -o -iname "*.sh" \) -exec "${LINT[@]}" {} \;
-    __log_abort
-    return 101
-  else
-    __log_success 'no errors detected'
-  fi
-}
-
 function _eclint
 {
   local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$)")
@@ -102,9 +93,62 @@ function _eclint
     'starting editorconfig linting' \
     '(linter version:' "$(${LINT[0]} --version))"
 
-  if "${LINT[@]}" | grep . &>/dev/null
+  if "${LINT[@]}"
   then
-    printf ' \n' && "${LINT[@]}"
+    __log_success 'no errors detected'
+  else
+    __log_abort
+    return 101
+  fi
+}
+
+function _hadolint
+{
+  local LINT=(hadolint -c "${CDIR}/.hadolint.yaml")
+
+  if ! __in_path "${LINT[0]}"
+  then
+    __log_abort 'linter not in PATH'
+    return 102
+  fi
+
+  __log_info \
+    'starting editorconfig linting' \
+    '(linter version:' "$(${LINT[0]} --version))"
+
+  if git ls-files --exclude='Dockerfile*' --ignored | \
+    xargs --max-lines=1 "${LINT[@]}"
+  then
+    __log_success 'no errors detected'
+  else
+    __log_abort
+    return 101
+  fi
+}
+
+function _shellcheck
+{
+  local LINT=(/usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50)
+
+  if ! __in_path "${LINT[0]}"
+  then
+    __log_abort 'linter not in PATH'
+    return 102
+  fi
+
+  __log_info \
+    'starting shellcheck' '(linter version:' \
+    "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
+
+  local FIND=(
+    find . -iname "*.sh"
+    -not -path "./test/*"
+    -not -path "./target/docker-configomat/*"
+    -exec "${LINT[@]}" {} \;)
+
+  if "${FIND[@]}" | grep -q .
+  then
+    "${FIND[@]}"
     __log_abort
     return 101
   else
@@ -115,8 +159,9 @@ function _eclint
 function _main
 {
   case ${1:- } in
-    'shellcheck'  ) _shellcheck ;;
     'eclint'      ) _eclint     ;;
+    'hadolint'    ) _hadolint   ;;
+    'shellcheck'  ) _shellcheck ;;
     *)
       __log_abort \
         "init.sh: '${1}' is not a command nor an option. See 'make help'."
