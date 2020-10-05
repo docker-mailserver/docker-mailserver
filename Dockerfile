@@ -169,7 +169,7 @@ RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_fil
   adduser --system syslog && \
   useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker && \
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab - && \
-  chmod go-w /etc/amavis/conf.d/*
+  chmod 644 /etc/amavis/conf.d/*
 
 # Configure Fail2ban
 COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
