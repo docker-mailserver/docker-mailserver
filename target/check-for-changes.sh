@@ -93,8 +93,8 @@ do
       postalias /etc/aliases
 
       # regenerate postfix accounts
-      echo -n >/etc/postfix/vmailbox
-      echo -n >/etc/dovecot/userdb
+      : >/etc/postfix/vmailbox
+      : >/etc/dovecot/userdb
 
       if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
       then
@@ -113,7 +113,7 @@ do
         if [[ -n ${RELAY_HOST} ]]
         then
           # keep old config
-          echo -n >/etc/postfix/sasl_passwd
+          : >/etc/postfix/sasl_passwd
           if [[ -n ${SASL_PASSWD} ]]
           then
             echo "${SASL_PASSWD}" >>/etc/postfix/sasl_passwd
@@ -186,8 +186,8 @@ do
       if [[ -f postfix-virtual.cf ]]
       then
         # regenerate postfix aliases
-        echo -n >/etc/postfix/virtual
-        echo -n >/etc/postfix/regexp
+        : >/etc/postfix/virtual
+        : >/etc/postfix/regexp
 
         if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
         then
