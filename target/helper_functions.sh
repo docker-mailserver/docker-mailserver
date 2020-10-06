@@ -159,7 +159,7 @@ export -f _notify
 # @domain3.com        [smtp.mailgun.org]:587
 function _populate_relayhost_map
 {
-  echo -n > /etc/postfix/relayhost_map
+  : >/etc/postfix/relayhost_map
   chown root:root /etc/postfix/relayhost_map
   chmod 0600 /etc/postfix/relayhost_map
 

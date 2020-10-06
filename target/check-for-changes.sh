@@ -93,8 +93,8 @@ do
       postalias /etc/aliases
 
       # regenerate postfix accounts
-      echo -n >/etc/postfix/vmailbox
-      echo -n >/etc/dovecot/userdb
+      : >/etc/postfix/vmailbox
+      : >/etc/dovecot/userdb
 
       if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
       then
@@ -113,7 +113,7 @@ do
         if [[ -n ${RELAY_HOST} ]]
         then
           # keep old config
-          echo -n >/etc/postfix/sasl_passwd
+          : >/etc/postfix/sasl_passwd
           if [[ -n ${SASL_PASSWD} ]]
           then
             echo "${SASL_PASSWD}" >>/etc/postfix/sasl_passwd
@@ -122,13 +122,13 @@ do
           # add domain-specific auth from config file
           if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
           then
-            (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true) | while read -r LINE
+            while read -r LINE
             do
               if ! echo "${LINE}" | grep -q -e "\s*#"
               then
                 echo "${LINE}" >>/etc/postfix/sasl_passwd
               fi
-            done
+            done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true)
           fi
 
           # add default relay
@@ -140,7 +140,7 @@ do
 
         # creating users ; 'pass' is encrypted
         # comments and empty lines are ignored
-        grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read -r LOGIN PASS
+        while IFS=$'|' read -r LOGIN PASS
         do
           USER=$(echo "${LOGIN}" | cut -d @ -f1)
           DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
@@ -171,7 +171,7 @@ do
           fi
 
           echo "${DOMAIN}" >>/tmp/vhost.tmp
-        done
+        done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
       fi
 
       [[ -n ${RELAY_HOST} ]] && _populate_relayhost_map
@@ -186,8 +186,8 @@ do
       if [[ -f postfix-virtual.cf ]]
       then
         # regenerate postfix aliases
-        echo -n >/etc/postfix/virtual
-        echo -n >/etc/postfix/regexp
+        : >/etc/postfix/virtual
+        : >/etc/postfix/regexp
 
         if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
         then
@@ -195,14 +195,14 @@ do
 
           # the `to` seems to be important; don't delete it
           # shellcheck disable=SC2034
-          (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r FROM TO
+          while read -r FROM TO
           do
             UNAME=$(echo "${FROM}" | cut -d @ -f1)
             DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
             # if they are equal it means the line looks like: "user1	 other@domain.tld"
             [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-          done
+          done  < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
         fi
 
         if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]

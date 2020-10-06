@@ -640,7 +640,7 @@ function _setup_dovecot_quota
       if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
         _notify 'inf' "'config/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
-        echo -n >/tmp/docker-mailserver/dovecot-quotas.cf
+        : >/tmp/docker-mailserver/dovecot-quotas.cf
       fi
 
       # enable quota policy check in postfix
@@ -651,8 +651,8 @@ function _setup_dovecot_quota
 function _setup_dovecot_local_user
 {
   _notify 'task' 'Setting up Dovecot Local User'
-  echo -n > /etc/postfix/vmailbox
-  echo -n > /etc/dovecot/userdb
+  : >/etc/postfix/vmailbox
+  : >/etc/dovecot/userdb
 
   if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
   then
@@ -674,7 +674,7 @@ function _setup_dovecot_local_user
 
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored
-    grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read -r LOGIN PASS
+    while IFS=$'|' read -r LOGIN PASS
     do
       # Setting variables for better readability
       USER=$(echo "${LOGIN}" | cut -d @ -f1)
@@ -709,7 +709,7 @@ function _setup_dovecot_local_user
       fi
 
       echo "${DOMAIN}" >> /tmp/vhost.tmp
-    done
+    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
   else
     _notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
@@ -776,7 +776,7 @@ function _setup_ldap
 
   configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
 
-  # add  domainname to vhost
+  # add domainname to vhost
   echo "${DOMAINNAME}" >>/tmp/vhost.tmp
 
   _notify 'inf' "Enabling dovecot LDAP authentification"
@@ -961,8 +961,8 @@ function _setup_postfix_aliases
 {
   _notify 'task' 'Setting up Postfix Aliases'
 
-  echo -n > /etc/postfix/virtual
-  echo -n > /etc/postfix/regexp
+  : >/etc/postfix/virtual
+  : >/etc/postfix/regexp
 
   if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
   then
@@ -976,15 +976,14 @@ function _setup_postfix_aliases
 
     # the `to` is important, don't delete it
     # shellcheck disable=SC2034
-    (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r FROM TO
+    while read -r FROM TO
     do
-      # Setting variables for better readability
       UNAME=$(echo "${FROM}" | cut -d @ -f1)
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
       # if they are equal it means the line looks like: "user1     other@domain.tld"
       [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >> /tmp/vhost.tmp
-    done
+    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
     _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
   fi
@@ -1009,7 +1008,7 @@ s/$/ pcre:\/etc\/postfix\/regexp/
     cat /tmp/docker-mailserver/postfix-aliases.cf >> /etc/aliases
   else
     _notify 'inf' "'config/postfix-aliases.cf' is not provided and will be auto created."
-    echo -n >/tmp/docker-mailserver/postfix-aliases.cf
+    : >/tmp/docker-mailserver/postfix-aliases.cf
   fi
 
   postalias /etc/aliases
