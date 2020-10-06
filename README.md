@@ -36,7 +36,7 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
    - Dovecot was downgraded
 2. ELK was removed
 3. New contributing guidelines were added
-4. Added coherent styling and linting
+4. Added coherent coding style and linting
 5. Added option to use non-default network interface
 
 ## Includes
