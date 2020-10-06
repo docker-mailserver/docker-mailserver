@@ -122,13 +122,13 @@ do
           # add domain-specific auth from config file
           if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
           then
-            (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true) | while read -r LINE
+            while read -r LINE
             do
               if ! echo "${LINE}" | grep -q -e "\s*#"
               then
                 echo "${LINE}" >>/etc/postfix/sasl_passwd
               fi
-            done
+            done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true)
           fi
 
           # add default relay
@@ -140,7 +140,7 @@ do
 
         # creating users ; 'pass' is encrypted
         # comments and empty lines are ignored
-        grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf | while IFS=$'|' read -r LOGIN PASS
+        while IFS=$'|' read -r LOGIN PASS
         do
           USER=$(echo "${LOGIN}" | cut -d @ -f1)
           DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
@@ -171,7 +171,7 @@ do
           fi
 
           echo "${DOMAIN}" >>/tmp/vhost.tmp
-        done
+        done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
       fi
 
       [[ -n ${RELAY_HOST} ]] && _populate_relayhost_map
