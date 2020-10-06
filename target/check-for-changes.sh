@@ -195,14 +195,14 @@ do
 
           # the `to` seems to be important; don't delete it
           # shellcheck disable=SC2034
-          (grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true) | while read -r FROM TO
+          while read -r FROM TO
           do
             UNAME=$(echo "${FROM}" | cut -d @ -f1)
             DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
             # if they are equal it means the line looks like: "user1	 other@domain.tld"
             [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-          done
+          done  < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
         fi
 
         if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]

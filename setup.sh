@@ -100,7 +100,7 @@ function _inspect
 
 function _usage
 {
-  echo "${SCRIPT,,}.sh
+  echo "${SCRIPT,,}.sh Bootstrapping Script
 
 Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
@@ -112,7 +112,9 @@ OPTIONS:
 
   -c CONTAINER_NAME The name of the running container.
 
-  -p PATH           config folder path (default: ${CDIR}/config)
+  -p PATH           Config folder path (default: ${CDIR}/config)
+
+  -h                Show this help dialogue
 
 SUBCOMMANDS:
 
@@ -151,6 +153,8 @@ SUBCOMMANDS:
     ${0} debug show-mail-logs
     ${0} debug inspect
     ${0} debug login <commands>
+
+  help: Show this help dialogue
 
 "
 }
@@ -236,7 +240,7 @@ function _main
   fi
 
   local OPTIND
-  while getopts ":c:i:p:" OPT
+  while getopts ":c:i:p:h" OPT
   do
     case ${OPT} in
       c) CONTAINER_NAME="${OPTARG}" ; USE_CONTAINER=true ;; # container specified, connect to running instance
@@ -254,6 +258,7 @@ function _main
           exit 40
         fi
         ;;
+      h) _usage ; return ;;
      *) echo "Invalid option: -${OPTARG}" >&2 ;;
     esac
   done
@@ -338,6 +343,8 @@ function _main
         *        ) _usage ; _unset_vars ; exit 1 ;;
       esac
       ;;
+
+    help) _usage ;;
 
     *            ) _usage ; _unset_vars ; exit 1 ;;
   esac

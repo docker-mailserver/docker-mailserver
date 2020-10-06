@@ -36,13 +36,13 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
    - Dovecot was downgraded
 2. ELK was removed
 3. New contributing guidelines were added
-4. Added option to use non-default network interface
+4. Added coherent styling and linting
+5. Added option to use non-default network interface
 
 ## Includes
 
 - [Postfix](http://www.postfix.org) with SMTP or LDAP auth
-- [Dovecot](https://www.dovecot.org) for SASL, IMAP (and optional POP3) with ssl support, with ldap auth, sieve and [quotas](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
-- SASLauthd with LDAP auth
+- [Dovecot](https://www.dovecot.org) for SASL, IMAP (and optional POP3) with SSL support, with LDAP auth, Sieve and [quotas](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
 - [Amavis](https://www.amavis.org/)
 - [Spamassasin](http://spamassassin.apache.org/) supporting custom rules
 - [ClamAV](https://www.clamav.net/) with automatic updates
@@ -52,9 +52,10 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
 - [Fetchmail](http://www.fetchmail.info/fetchmail-man.html)
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
-- basic [Sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
 - [Setup script](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) to easily configure and maintain your mailserver
+- basic [Sieve support](https://github.com/tomav/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
+- SASLauthd with LDAP auth
 - persistent data and state (but think about backups!)
 - [Integration tests](https://travis-ci.org/tomav/docker-mailserver)
 - [Automated builds on docker hub](https://hub.docker.com/r/tvial/docker-mailserver/)
@@ -63,7 +64,9 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
 
 ## Issues & Contributing
 
-Before you open an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and Postfix/Dovecot documentation. If you'd like to contribute, read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly.
+Before opening an issue, please have a look this `README`, the [Wiki](https://github.com/tomav/docker-mailserver/wiki/) and the Postfix/Dovecot documentation.
+
+If you'd like to contribute, read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly.
 
 ## Requirements
 
@@ -84,30 +87,26 @@ Minimum:
 
 ### Get the tools
 
-Download the docker-compose.yml, the .env and the setup.sh files:
+Download the `docker-compose.yml`, `.env`, `env-mailserver` and the `setup.sh` files:
 
 ``` BASH
-curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
-
+curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x ./setup.sh
 curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
-
 curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
-
 curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver.dist
 ```
 
 ### Create a docker-compose environment
 
+- [Install the latest docker-compose](https://docs.docker.com/compose/install/)
 - Edit the files `.env` and `env-mailserver` to your liking:
   - `.env` contains the configuration for docker-compose
   - `env-mailserver` contains the configuration for the mailserver container
   - These files supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
-- [Install the latest docker-compose](https://docs.docker.com/compose/install/)
 
 **Note:**: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `env-mailserver` serves this case where environment variables are used in the container.
-
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
@@ -119,7 +118,7 @@ docker-compose up -d mail
 ./setup.sh config dkim
 ```
 
-Now the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
+Now that the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 ### Miscellaneous
 
@@ -131,9 +130,7 @@ docker pull tvial/docker-mailserver:latest
 docker-compose up -d mail
 ```
 
-You're done!
-
-And don't forget to have a look at the remaining functions of the `setup.sh` script
+You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh -h`.
 
 #### SPF/Forwarding Problems
 
