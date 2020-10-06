@@ -16,6 +16,9 @@ In order to do so, you'll probably want to push your config updates to your serv
 
 See [supervisorctl's documentation](http://supervisord.org/running.html#running-supervisorctl).
 
+Tips: to add/update/delete an email account, there is no need to restart postfix/dovecot service inside the container after using setup.sh script.
+For more information, see [issues/1639](https://github.com/tomav/docker-mailserver/issues/1639)
+
 ### How can I sync container with host date/time? Timezone?
 
 Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) with the docker-mailserver container, using a Docker volume:  
