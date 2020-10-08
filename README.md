@@ -680,6 +680,23 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
 - More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups)
 
+##### DOVECOT_NAMESPACE_SEPARATOR
+
+- **empty** => separator of namespaces is backend-dependent
+- typical namespace separator is slash `/`
+
+##### DOVECOT_ENABLE_INBOX_SHARING
+
+- **0** => inbox sharing is disabled
+- 1 => inbox sharing is enabled
+
+In order to enable inbox sharing, you also need to specify a namespace separator using the `DOVECOT_NAMESPACE_SEPARATOR` variable.
+Then, you may want to tweak [sharing settings](https://wiki.dovecot.org/SharedMailboxes/Shared) in the config file - `/etc/dovecot/11-shared.conf` in the container.
+Finally, you will want to define how will Dovecot keep track of which mailboxes are shared to a particular user by [defining a dictionary](https://wiki.dovecot.org/Dictionary).
+
+You can share a mailbox by calling a script `/usr/local/bin/share_inbox.sh` in the container e.g. using `docker-compose exec`.
+That script will sync [mailbox's ACLs](https://doc.dovecot.org/settings/plugin/acl/) together with the dictionary.
+
 #### Postgrey
 
 ##### ENABLE_POSTGREY
