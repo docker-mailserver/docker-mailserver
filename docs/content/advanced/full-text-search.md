@@ -1,6 +1,6 @@
-Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content.
-
 ## Overview
+
+Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content.
 
 The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in conjunction with [Apache Solr](https://lucene.apache.org/solr/) running in a separate container. This is quite straightforward to setup using the following instructions.
 
@@ -49,4 +49,4 @@ plugin {
 docker-compose exec mailserver doveadm fts rescan -A
 ```
 
-Further discussion on #905
+Further discussion on [#905](https://github.com/tomav/docker-mailserver/issues/905)
