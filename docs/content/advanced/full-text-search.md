@@ -49,4 +49,6 @@ plugin {
 docker-compose exec mailserver doveadm fts rescan -A
 ```
 
-Further discussion on [#905](https://github.com/tomav/docker-mailserver/issues/905)
+
+## Further discussion
+See [issue #905](https://github.com/tomav/docker-mailserver/issues/905)
