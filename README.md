@@ -257,6 +257,8 @@ volumes:
 
 If an option doesn't work as documented here, check if you are running the latest image! Values in **bold** are the default values.
 
+**Note**: Since `docker-mailserver v7.1.0`, comparisons for environment variables are executed differently. If you previously used `VARIABLE=''` as the `empty` value, please **update** to now use `VARIABLE=`.
+
 ### Assignments
 
 #### General
