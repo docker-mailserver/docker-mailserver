@@ -1086,43 +1086,24 @@ EOF
 }
 
 @test "checking quota: dovecot applies user quota" {
-  sleep 15 # wait until any other change has finished
+  wait_for_changes_to_be_detected_in_container mail
+
   run docker exec mail /bin/sh -c "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
   assert_output --partial "-                         0"
 
-  # set a quota
-  originalChangesProcessed=$(count_processed_changes mail)
   run docker exec mail /bin/sh -c "setquota user1@localhost.localdomain 50M"
   assert_success
 
-  # wait until change detector has processed the change
-  count=0
-  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
-  do
-    ((count++)) && ((count==60)) && break
-    sleep 1
-  done
-  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
-  assert_success
+  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)51200(.*)\"'"
   assert_success
 
-  # remove the quota
-  originalChangesProcessed=$(count_processed_changes mail)
   run docker exec mail /bin/sh -c "delquota user1@localhost.localdomain"
   assert_success
 
-  # wait until change detector has processed the change
-  count=0
-  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
-  do
-    ((count++)) && ((count==60)) && break
-    sleep 1
-  done
-  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
-  assert_success
+  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)-(.*)\"'"
@@ -1130,22 +1111,13 @@ EOF
 }
 
 @test "checking quota: warn message received when quota exceeded" {
-  sleep 15 # wait until any other change has finished
-
-  originalChangesProcessed=$(count_processed_changes mail)
+  wait_for_changes_to_be_detected_in_container mail
 
   # create user
   run docker exec mail /bin/sh -c "addmailuser quotauser@otherdomain.tld mypassword && setquota quotauser@otherdomain.tld 10k"
   assert_success
 
-  count=0
-  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
-  do
-    ((count++)) && ((count==60)) && break
-    sleep 1
-  done
-  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
-  assert_success
+  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'"
@@ -1231,8 +1203,6 @@ EOF
   wait_for_service mail changedetector
   assert_success
 
-  originalChangesProcessed=$(count_processed_changes mail)
-
   run ./setup.sh -c mail email add setup_email_add@example.com test_password
   assert_success
 
@@ -1240,16 +1210,7 @@ EOF
   [ "$value" = "setup_email_add@example.com" ]
   assert_success
 
-  # wait until change detector has processed the change
-  count=0
-  while [ "${originalChangesProcessed}" = "$(count_processed_changes mail)" ]
-  do
-    ((count++)) && ((count==60)) && break
-    sleep 1
-  done
-
-  [ "${originalChangesProcessed}" != "$(count_processed_changes mail)" ]
-  assert_success
+  wait_for_changes_to_be_detected_in_container mail
 
   # Dovecot has been restarted, but this test often fails so presumably it may not be ready
   # Add a short sleep to see if that helps to make the test more stable
