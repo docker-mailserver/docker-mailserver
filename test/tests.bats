@@ -8,11 +8,11 @@ setup() {
 
 setup_file() {
   private_config="$(duplicate_config_for_container . mail)"
+  mv "$private_config/user-patches/user-patches.sh" "$private_config/user-patches.sh"
   docker run --rm -d --name mail \
 		-v "$private_config":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-v "`pwd`/test/onedir":/var/mail-state \
-		-v "$private_config/user-patches/user-patches.sh":/tmp/docker-mailserver/user-patches.sh \
 		-e ENABLE_CLAMAV=1 \
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
