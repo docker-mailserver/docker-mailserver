@@ -1,27 +1,26 @@
 #!/bin/bash
+
 set -o errexit
 set -o pipefail
 set -o nounset
 
-HOSTNAME=$1
-RECIPIENT=$2
-SENDER=$3
-errex() {
-  echo -e "$@" 1>&2
-  exit 1
-}
+HOSTNAME=${1}
+RECIPIENT=${2}
+SENDER=${3}
 
-test -x /usr/sbin/pflogsumm || errex "Critical: /usr/sbin/pflogsumm not found"
+function errex  { echo "${@}" 1>&2 ; exit 1 ; }
 
+[[ -x /usr/sbin/pflogsumm ]] || errex "Critical: /usr/sbin/pflogsumm not found"
+
+# shellcheck disable=SC2046
 BODY=$(gzip -cdfq $(ls -tr /var/log/mail/mail.log*) | /usr/sbin/pflogsumm --problems_first -d yesterday)
 
 sendmail -t <<EOF
-From: $SENDER
-To: $RECIPIENT
-Subject: Postfix summary for $HOSTNAME sent $(date '+%Y-%m-%d_%H%M%S')
+From: ${SENDER}
+To: ${RECIPIENT}
+Subject: Postfix summary for ${HOSTNAME} sent $(date '+%Y-%m-%d_%H%M%S')
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset=UTF-8
 
-$BODY
+${BODY}
 EOF
-

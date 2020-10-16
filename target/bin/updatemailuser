@@ -1,39 +1,30 @@
 #! /bin/bash
+# shellcheck disable=SC2094
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-USER="$1"
+USER="${1}"
 shift
-PASSWD="$@"
+PASSWD="${*}"
 
-usage() {
-	echo "Usage: updatemailuser <user@domain.tld> [password]"
-}
+function usage  {	echo "Usage: updatemailuser <user@domain.tld> [password]" ; }
+function errex  { echo "${@}" 1>&2 ; exit 1 ; }
+function escape { echo "${1//./\\.}" ; }
 
-errex() {
-	echo "$@" 1>&2
-	exit 1
-}
+[[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
 
-escape() {
-	echo "${1//./\\.}"
-}
-
-[ -z "$USER" ] && { usage; errex "no username specified"; }
-
-if [ -z "$PASSWD" ]; then
-	read -s -p "Enter Password: " PASSWD
-	echo
-	[ -z "$PASSWD" ] && errex "Password must not be empty"
+if [[ -z ${PASSWD} ]]
+then
+  read -r -s -p "Enter Password: " PASSWD
+  echo
+  [[ -z ${PASSWD} ]] && errex "Password must not be empty"
 fi
-HASH="$(doveadm pw -s SHA512-CRYPT -u "$USER" -p "$PASSWD")"
+
+HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 # Protect config file with lock to avoid race conditions
 (
   flock -e 200
-
-  grep -qi "^$(escape "$USER")|" $DATABASE 2>/dev/null ||
-    errex "User \"$USER\" does not exist"
-
-  sed -i "s ^"$USER"|.* "$USER"|"$HASH" " $DATABASE
-) 200<$DATABASE
+  grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
+  sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"
+) 200< "${DATABASE}"

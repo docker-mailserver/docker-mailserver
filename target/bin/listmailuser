@@ -1,18 +1,15 @@
 #! /bin/bash
+# shellcheck disable=SC2094
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-errex() {
-	echo "$@" 1>&2
-	exit 1
-}
+function errex  { echo "${@}" 1>&2 ; exit 1 ; }
 
-[ -f $DATABASE ] || errex "No postfix-accounts.cf file"
-[ -s $DATABASE ] || errex "Empty postfix-accounts.cf - no users have been added"
+[[ -f ${DATABASE} ]] || errex "Error: No postfix-virtual.cf file"
+[[ -s ${DATABASE} ]] || errex "Error: Empty postfix-virtual.cf - no aliases have been added"
 
 # Lock database even though we are only reading
 (
   flock -e 200
-  (grep -v "^\s*$\|^\s*\#" "$DATABASE" || true) | awk -F '|' '{ print $1; }'
-) 200<$DATABASE
-
+  ( grep -v "^\s*$\|^\s*\#" "${DATABASE}" || true ) | awk -F '|' '{ print $1; }'
+) 200< "${DATABASE}"

@@ -1,49 +1,50 @@
 #! /bin/bash
+# shellcheck disable=SC2094
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-USER="$1"
+USER="${1}"
 shift
-QUOTA="$@"
+QUOTA="${*}"
 
-usage() {
-	echo "Usage: setquota <user@domain> [<quota>]"
-}
+function usage  { echo "Usage: setquota <user@domain> [<quota>]" ; }
+function errex  { echo "${@}" 1>&2 ; exit 1 ; }
 
-errex() {
-	echo "$@" 1>&2
-	exit 1
-}
+[[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
+[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain" ; }
 
-[ -z "$USER" ] && { usage; errex "no username specified"; }
-expr index "$USER" "@" >/dev/null || { usage; errex "username must include the domain"; }
-if ! grep -qE "^$USER\|" "$USER_DATABASE"; then
-  usage; errex "user $USER does not exist"
+if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
+then
+  usage; errex "user ${USER} does not exist"
 fi
 
 # check quota
-if [ -n "$QUOTA" ] && ! echo "$QUOTA" | grep -qE "^([0-9]+(B|k|M|G|T)|0)\$"; then
-  usage; errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
+if [[ -n ${QUOTA} ]] && ! echo "${QUOTA}" | grep -qE "^([0-9]+(B|k|M|G|T)|0)\$"
+then
+  usage
+  errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
 fi
 
 # Protect config file with lock to avoid race conditions
-touch $DATABASE
+touch "${DATABASE}"
 (
   flock -e 200
 
-  if [ -z "$QUOTA" ]; then
-    read -s "Enter quota (e.g. 10M): " QUOTA
+  if [ -z "${QUOTA}" ]; then
+    read -r -s "Enter quota (e.g. 10M): " QUOTA
     echo
-    [ -z "$QUOTA" ] && errex "Quota must not be empty. Use 0 for unlimited quota"
+    [[ -z "${QUOTA}" ]] && errex "Quota must not be empty. Use 0 for unlimited quota"
   fi
 
   # check quota
-  if [ -n "$QUOTA" ] && ! echo "$QUOTA" | grep -qE "^([0-9]+(B|k|M|G|T)|0)\$"; then
-    usage; errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
+  if [[ -n ${QUOTA} ]] && ! echo "${QUOTA}" | grep -qE "^([0-9]+(B|k|M|G|T)|0)\$"
+  then
+    usage
+    errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
   fi
 
-  delquota "$USER"
-  echo "$USER:$QUOTA" >> $DATABASE
-) 200<$DATABASE
+  delquota "${USER}"
+  echo "${USER}:${QUOTA}" >>"${DATABASE}"
+) 200< "${DATABASE}"
 

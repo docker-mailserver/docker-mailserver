@@ -2,30 +2,23 @@
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
-EMAIL="$1"
-RECIPIENT="$2"
+EMAIL="${1}"
+RECIPIENT="${2}"
 
-usage() {
-	echo "Usage: addalias <alias@domain> <recipient@other>"
-}
+function usage  { echo "Usage: addalias <alias@domain> <recipient@other>" ; }
+function errex  { echo "${@}" 1>&2 ; exit 1 ; }
+function escape { echo "${1//./\\.}" ; }
 
-errex() {
-	echo "$@" 1>&2
-	exit 1
-}
+[[ -z ${EMAIL} ]] && { usage ; errex "Error: No alias specified" ; }
+[[ -z ${RECIPIENT} ]] && { usage ; errex "Error: No recipient specified" ; }
 
-escape() {
-	echo "${1//./\\.}"
-}
+grep \
+  -qi "^$(escape "${EMAIL}")[a-zA-Z@.\ ]*$(escape "${RECIPIENT}")" \
+  "${DATABASE}" 2>/dev/null && errex "Alias \"${EMAIL} ${RECIPIENT}\" already exists"
 
-[ -z "$EMAIL" ] && { usage; errex "Error: No alias specified"; }
-[ -z "$RECIPIENT" ] && { usage; errex "Error: No recipient specified"; }
-
-grep -qi "^$(escape $EMAIL)[a-zA-Z@.\ ]*$(escape $RECIPIENT)" $DATABASE 2>/dev/null &&
-	errex "Alias \"$EMAIL $RECIPIENT\" already exists"
-
-if grep -qi "^$(escape $EMAIL)" $DATABASE 2>/dev/null; then
-        sed -i "/$EMAIL/s/$/,$RECIPIENT/" $DATABASE
-    else
-        echo "$EMAIL $RECIPIENT" >> $DATABASE
+if grep -qi "^$(escape "${EMAIL}")" "${DATABASE}" 2>/dev/null
+then
+  sed -i "/${EMAIL}/s/$/,${RECIPIENT}/" "${DATABASE}"
+else
+  echo "${EMAIL} ${RECIPIENT}" >> "${DATABASE}"
 fi
