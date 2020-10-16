@@ -7,6 +7,7 @@ SCRIPT='SETUP'
 
 set -euEo pipefail
 trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '_unset_vars || :' EXIT
 
 function __log_err
 {
@@ -20,14 +21,13 @@ function __log_err
     "  – function  = ${FUNC_NAME}" \
     "  – line      = ${LINE}" \
     "  – exit code = ${EXIT_CODE}"
-
-  _unset_vars
 }
 
 function _unset_vars
 {
   unset CDIR CRI INFO IMAGE_NAME CONTAINER_NAME DEFAULT_CONFIG_PATH
   unset USE_CONTAINER WISHED_CONFIG_PATH CONFIG_PATH VOLUME USE_TTY
+  unset SCRIPT
 }
 
 function _get_current_directory
@@ -340,16 +340,13 @@ function _main
             _docker_container /bin/bash -c "${@}"
           fi
           ;;
-        *        ) _usage ; _unset_vars ; exit 1 ;;
+        *        ) _usage ; exit 1 ;;
       esac
       ;;
 
-    help) _usage ;;
-
-    *            ) _usage ; _unset_vars ; exit 1 ;;
+    help ) _usage ;;
+    *    ) _usage ; exit 1 ;;
   esac
-
-  _unset_vars
 }
 
 _main "${@}"

@@ -81,7 +81,7 @@ function __which { command -v "${@}" &>/dev/null ; }
 
 function _eclint
 {
-  local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$)")
+  local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$|\.cf$|\.conf$|\.init$)")
 
   if ! __in_path "${LINT[0]}"
   then
@@ -130,6 +130,7 @@ function _hadolint
 
 function _shellcheck
 {
+  local ERR=0
   local LINT=(/usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50)
 
   if ! __in_path "${LINT[0]}"
@@ -142,17 +143,36 @@ function _shellcheck
     'type: shellcheck' '(linter version:' \
     "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
 
-  local FIND=(
-    find . -iname "*.sh"
-    -not -path "./test/*"
-    -not -path "./target/docker-configomat/*"
-    -exec "${LINT[@]}" {} \;)
-
   local SCRIPT='SHELLCHECK'
-  if "${FIND[@]}" | grep -q .
+
+  if [[ -n "$(find . -iname "*.sh" \
+    -not -path "./test/bats/*" \
+    -not -path "./test/config/*" \
+    -not -path "./target/docker-configomat/*" \
+    -exec "${LINT[@]}" {} \;)" ]]
   then
-    "${FIND[@]}"
-    __log_abort
+    find . -iname "*.sh" \
+    -not -path "./test/bats/*" \
+    -not -path "./target/docker-configomat/*" \
+    -exec "${LINT[@]}" {} \;
+
+    ERR=1
+  fi
+
+  if [[ -n "$(find target/bin \
+    -executable -type f \
+    -exec "${LINT[@]}" {} \;)" ]]
+  then
+    find target/bin \
+    -executable -type f \
+    -exec "${LINT[@]}" {} \;
+
+    ERR=1
+  fi
+
+  if [[ ERR -eq 1 ]]
+  then
+    __log_abort 'errors encountered'
     return 101
   else
     __log_success 'no errors detected'

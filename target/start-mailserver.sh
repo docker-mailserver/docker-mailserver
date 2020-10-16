@@ -982,7 +982,7 @@ function _setup_postfix_aliases
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
       # if they are equal it means the line looks like: "user1     other@domain.tld"
-      [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >> /tmp/vhost.tmp
+      [[ "${UNAME}" != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
     _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
