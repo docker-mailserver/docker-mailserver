@@ -115,6 +115,9 @@ RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-fr
   chown -R clamav:root /var/run/clamav && \
   rm -rf /var/log/clamav/
 
+RUN sed -Ei 's|(^.*sa-sync.*$)|\1 > /dev/null/ 2>\&1|g' /etc/cron.d/amavisd-new && \
+  sed -Ei 's|(^.*sa-clean.*$)|\1 > /dev/null/ 2>\&1|g' /etc/cron.d/amavisd-new
+
 # Configures Dovecot
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/scripts/quota-warning.sh /usr/local/bin/quota-warning.sh
