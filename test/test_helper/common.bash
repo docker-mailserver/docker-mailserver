@@ -169,7 +169,7 @@ function container_has_service_running() {
 function wait_for_service() {
     containerName="$1"
     serviceName="$2"
-    repeat_in_container_until_success_or_timeout 600 "$containerName" \
+    repeat_until_success_or_timeout --fatal-test "container_is_running $containerName" 60 \
         container_has_service_running "$containerName" "$serviceName"
 }
 
