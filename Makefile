@@ -6,9 +6,9 @@ VCS_VERSION := $(shell git describe --tags --contains --always)
 
 SLEEP = 15s
 
-all: build backup generate-accounts generate-accounts-after-run tests clean
-no-build: backup generate-accounts generate-accounts-after-run tests clean
-complete_test: lint build generate-accounts generate-accounts-after-run tests
+all: build backup generate-accounts tests clean
+no-build: backup generate-accounts tests clean
+complete_test: lint build generate-accounts tests
 
 build:
 	docker build \
@@ -28,11 +28,6 @@ generate-accounts:
 	@ echo "# this is a test comment, please don't delete me :'(" >> test/config/postfix-accounts.cf
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
-# TODO: ensure this is run per container after each container started!
-generate-accounts-after-run:
-	# todo: noone seems to care about this?
-	#@ docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
-	@ sleep $(SLEEP)
 
 tests:
 	./test/bats/bin/bats test/*.bats
