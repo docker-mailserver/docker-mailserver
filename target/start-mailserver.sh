@@ -170,8 +170,8 @@ function register_functions
   _register_setup_function "_setup_environment"
   _register_setup_function "_setup_logrotate"
 
-  [[ ${PFLOGSUMM_TRIGGER} != "none" ]] && _register_setup_function "_setup_mail_summary"
-  [[ ${LOGWATCH_TRIGGER} != "none" ]] && _register_setup_function "_setup_logwatch"
+  [[ ${PFLOGSUMM_TRIGGER:="none"} != "none" ]] && _register_setup_function "_setup_mail_summary"
+  [[ ${LOGWATCH_INTERVAL:="none"} != "none" ]] && _register_setup_function "_setup_logwatch"
 
   _register_setup_function "_setup_user_patches"
 
