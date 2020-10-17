@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 function setup() {
     docker run -d --name mail_with_default_relay \
-		-v "$(duplicate_config_for_container relay-hosts/)":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container relay-hosts)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
 		--cap-add=SYS_PTRACE \
