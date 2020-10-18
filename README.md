@@ -90,10 +90,12 @@ Minimum:
 Download the `docker-compose.yml`, `.env`, `env-mailserver` and the `setup.sh` files:
 
 ``` BASH
-curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x ./setup.sh
-curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
-curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
-curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver.dist
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver
+
+chmod a+x ./setup.sh
 ```
 
 ### Create a docker-compose environment
