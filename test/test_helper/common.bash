@@ -27,9 +27,9 @@ function repeat_until_success_or_timeout {
     do
         if [[ -n "${fatal_failure_test_command}" ]] && ! eval "${fatal_failure_test_command}"; then
             echo "\`${fatal_failure_test_command}\` failed, early aborting repeat_until_success of \`${*}\`" >&2
-            exit 1
+            return 1
         fi
-        sleep 5
+        sleep 1
         if [[ $(( SECONDS - STARTTIME )) -gt ${TIMEOUT} ]]; then
             echo "Timed out on command: ${*}" >&2
             return 1
@@ -51,7 +51,7 @@ function run_until_success_or_timeout {
     until run "${@}" && [[ ${status} -eq 0 ]]
     do
         sleep 1
-        if [[ $(( SECONDS - STARTTIME )) -gt ${TIMEOUT} ]]; then
+        if (( SECONDS - STARTTIME > TIMEOUT )); then
             echo "Timed out on command: ${*}" >&2
             return 1
         fi
@@ -153,7 +153,8 @@ function private_config_path() {
 # @param ${2} (optional) container name, defaults to ${BATS_TEST_FILENAME}
 # @return path to the folder where the config is duplicated
 function duplicate_config_for_container() {
-    local OUTPUT_FOLDER="$(private_config_path "${2}")"
+    local OUTPUT_FOLDER
+    OUTPUT_FOLDER="$(private_config_path "${2}")"
     rm -rf "${OUTPUT_FOLDER:?}/" # cleanup
     mkdir -p "${OUTPUT_FOLDER}"
     cp -r "${PWD}/test/config/${1:?}/." "${OUTPUT_FOLDER}"
@@ -172,13 +173,6 @@ function wait_for_service() {
     repeat_until_success_or_timeout --fatal-test "container_is_running ${CONTAINER_NAME}" 60 \
         container_has_service_running "${CONTAINER_NAME}" "${SERVICE_NAME}"
 }
-
-function count_processed_changes() {
-    local CONTAINER_NAME=${1}
-    docker exec "${CONTAINER_NAME}" cat /var/log/supervisor/changedetector.log | grep "Change detected" -c \
-        || [[ ${?} == 1 ]] # don't error when no matches were found
-}
-
 
 function wait_for_changes_to_be_detected_in_container() {
     local CONTAINER_NAME="${1}"
