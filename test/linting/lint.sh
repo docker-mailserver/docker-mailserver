@@ -81,6 +81,7 @@ function __which { command -v "${@}" &>/dev/null ; }
 
 function _eclint
 {
+  local SCRIPT='EDITORCONFIG LINTER'
   local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$|\.cf$|\.conf$|\.init$)")
 
   if ! __in_path "${LINT[0]}"
@@ -93,7 +94,6 @@ function _eclint
     'type: editorconfig' \
     '(linter version:' "$(${LINT[0]} --version))"
 
-  local SCRIPT='EDITORCONFIG LINTER'
   if "${LINT[@]}"
   then
     __log_success 'no errors detected'
@@ -105,6 +105,7 @@ function _eclint
 
 function _hadolint
 {
+  local SCRIPT='HADOLINT'
   local LINT=(hadolint -c "${CDIR}/.hadolint.yaml")
 
   if ! __in_path "${LINT[0]}"
@@ -117,7 +118,6 @@ function _hadolint
     'type: Dockerfile' \
     '(linter version:' "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*"))"
 
-  local SCRIPT='HADOLINT'
   if git ls-files --exclude='Dockerfile*' --ignored | \
     xargs --max-lines=1 "${LINT[@]}"
   then
@@ -130,6 +130,7 @@ function _hadolint
 
 function _shellcheck
 {
+  local SCRIPT='SHELLCHECK'
   local ERR=0
   local LINT=(/usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50)
 
@@ -143,7 +144,6 @@ function _shellcheck
     'type: shellcheck' '(linter version:' \
     "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
 
-  local SCRIPT='SHELLCHECK'
 
   if [[ -n "$(find . -iname "*.sh" \
     -not -path "./test/bats/*" \
