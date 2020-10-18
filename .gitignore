@@ -34,7 +34,6 @@ test/config/postfix-send-access.cf
 test/config/postfix-send-access.cfe
 test/config/relay-hosts/chksum
 test/config/relay-hosts/postfix-aliases.cf
-test/config/without-accounts/
 test/config/without-virtual/
 test/config/with-domain/
 test/onedir
