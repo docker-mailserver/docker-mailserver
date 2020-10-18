@@ -8,7 +8,7 @@ setup() {
 	# currently we cannot use --network in `docker run` multiple times, it will just use the last one
 	# instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
 	docker create --name mail_smtponly_second_network \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_smtponly_second_network)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=connected-networks \
@@ -19,7 +19,7 @@ setup() {
 	docker network connect ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2 mail_smtponly_second_network
 	docker start mail_smtponly_second_network
 	docker run -d --name mail_smtponly_second_network_sender \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container . mail_smtponly_second_network_sender)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=connected-networks \

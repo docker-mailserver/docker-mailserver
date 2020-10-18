@@ -10,7 +10,7 @@ function teardown() {
 
 function setup_file() {
     docker run -d --name mail_pop3 \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_POP3=1 \
 		-e DMS_DEBUG=0 \

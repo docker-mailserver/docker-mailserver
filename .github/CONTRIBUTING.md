@@ -13,7 +13,7 @@ Here's a quick guide:
 refactoring and documentation changes require no new tests. If you are adding
 functionality or fixing a bug, we need tests!
 
-4. Run the tests. `make build-no-cache generate-accounts run generate-accounts-after-run fixtures tests clean`
+4. Run the tests. `make build-no-cache generate-accounts run fixtures tests clean`
 
 5. Push to your fork and submit a pull request. If the changes will apply cleanly
 to the master branch, you will only need to submit one pull request.

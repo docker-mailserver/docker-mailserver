@@ -18,7 +18,7 @@ function setup_file() {
 		-h ldap.my-domain.com -t ldap        
     
     docker run -d --name mail_with_ldap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_LDAP=1 \
 		-e LDAP_SERVER_HOST=ldap \

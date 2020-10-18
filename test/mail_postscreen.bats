@@ -13,7 +13,7 @@ teardown() {
 
 setup_file() {
     docker run -d --name mail_postscreen \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
+		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e POSTSCREEN_ACTION=enforce \
 		--cap-add=NET_ADMIN \

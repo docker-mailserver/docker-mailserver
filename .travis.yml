@@ -39,7 +39,7 @@ script:
   - make eclint
   - make hadolint
   - make shellcheck
-  - make generate-accounts run generate-accounts-after-run fixtures tests
+  - make generate-accounts tests
 
 after_script:
   - make clean
