@@ -2,6 +2,9 @@ load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 load 'test_helper/common'
 
+export IMAGE_NAME
+IMAGE_NAME="${NAME}"
+
 setup() {
   run_setup_file_if_necessary
 }
@@ -11,8 +14,8 @@ setup_file() {
   mv "${private_config}/user-patches/user-patches.sh" "${private_config}/user-patches.sh"
   docker run --rm -d --name mail \
 		-v "${private_config}":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-v "`pwd`/test/onedir":/var/mail-state \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/onedir":/var/mail-state \
 		-e ENABLE_CLAMAV=1 \
 		-e SPOOF_PROTECTION=1 \
 		-e ENABLE_SPAMASSASSIN=1 \
@@ -29,12 +32,12 @@ setup_file() {
 		--cap-add=SYS_PTRACE \
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
 
   wait_for_finished_setup_in_container mail
   
   # generate accounts after container has been started
-  docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t ${NAME} /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${private_config}/postfix-accounts.cf"
+  docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${private_config}/postfix-accounts.cf"
   docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
   
   # setup sieve
@@ -84,12 +87,12 @@ teardown_file() {
 #
 
 @test "checking configuration: user-patches.sh executed" {
-  run echo -n "`docker logs mail | grep 'user\-patches\.sh'`"
+  run docker logs mail
   assert_output --partial "Default user-patches.sh successfully executed"
 }
 
 @test "checking configuration: hostname/domainname" {
-  run docker run `docker inspect --format '{{ .Config.Image }}' mail`
+  run docker run "${IMAGE_NAME:?}"
   assert_success
 }
 
@@ -361,9 +364,9 @@ EOF
 @test "checking postfix: vhost file is correct" {
   run docker exec mail cat /etc/postfix/vhost
   assert_success
-  [ "${lines[0]}" = "localdomain2.com" ]
-  [ "${lines[1]}" = "localhost.localdomain" ]
-  [ "${lines[2]}" = "otherdomain.tld" ]
+  assert_line --index 0 "localdomain2.com" 
+  assert_line --index 1 "localhost.localdomain"
+  assert_line --index 2 "otherdomain.tld"
 }
 
 @test "checking postfix: main.cf overrides" {
@@ -432,7 +435,7 @@ EOF
 		-e ENABLE_LDAP=1 \
 		-e PERMIT_DOCKER=network \
 		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
-		-t ${NAME}
+		-t "${NAME}"
 
   teardown() { docker rm -f mail_smtponly_without_config; }
 
@@ -466,13 +469,13 @@ EOF
       -v "${private_config}/keyDefault/":/tmp/docker-mailserver/ \
       -v "${private_config}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
       -v "${private_config}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-      `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+      "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config | wc -l'
     assert_success
     assert_output 6
 
   run docker run --rm \
     -v "${private_config}/keyDefault/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` \
+    "${IMAGE_NAME:?}" \
     /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
 
   assert_success
@@ -491,13 +494,13 @@ EOF
       -v "${private_config}/key2048/":/tmp/docker-mailserver/ \
       -v "${private_config}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
       -v "${private_config}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-      `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config 2048 | wc -l'
+      "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 | wc -l'
     assert_success
     assert_output 6
 
   run docker run --rm \
     -v "${private_config}/key2048/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` \
+    "${IMAGE_NAME:?}" \
     /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
 
   assert_success
@@ -516,13 +519,13 @@ EOF
       -v "${private_config}/key1024/":/tmp/docker-mailserver/ \
       -v "${private_config}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
       -v "${private_config}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-      `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config 1024 | wc -l'
+      "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 1024 | wc -l'
     assert_success
     assert_output 6
 
   run docker run --rm \
     -v "${private_config}/key1024/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` \
+    "${IMAGE_NAME:?}" \
     /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
 
   assert_success
@@ -537,25 +540,25 @@ EOF
     -v "${private_config}/empty/":/tmp/docker-mailserver/ \
     -v "${private_config}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
     -v "${private_config}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config | wc -l'
   assert_success
   assert_output 6
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "${private_config}/empty/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
   assert_success
   assert_output 2
   # Check keys for otherdomain.tld
   run docker run --rm \
     -v "${private_config}/empty/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
   assert_success
   assert_output 2
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "${private_config}/empty/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
   assert_success
   assert_output 4
 }
@@ -567,25 +570,25 @@ EOF
   run docker run --rm \
     -v "${private_config}/without-accounts/":/tmp/docker-mailserver/ \
     -v "${private_config}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config | wc -l'
   assert_success
   assert_output 5
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "${private_config}/without-accounts/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
   assert_success
   assert_output 2
   # Check keys for otherdomain.tld
   # run docker run --rm \
   #   -v "${private_config}/without-accounts/opendkim":/etc/opendkim \
-  #   `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+  #   "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
   # assert_success
   # [ "${output}" -eq 0 ]
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "${private_config}/without-accounts/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
   assert_success
   assert_output 4
 }
@@ -597,25 +600,25 @@ EOF
   run docker run --rm \
     -v "${private_config}/without-virtual/":/tmp/docker-mailserver/ \
     -v "${private_config}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config | wc -l'
   assert_success
   assert_output 5
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "${private_config}/without-virtual/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
   assert_success
   assert_output 2
   # Check keys for otherdomain.tld
   run docker run --rm \
     -v "${private_config}/without-virtual/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
   assert_success
   assert_output 2
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "${private_config}/without-virtual/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
   assert_success
   assert_output 4
 }
@@ -627,50 +630,50 @@ EOF
     -v "${private_config}/with-domain/":/tmp/docker-mailserver/ \
     -v "${private_config}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
     -v "${private_config}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-config | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config | wc -l'
   assert_success
   assert_output 6
   # Generate key using domain name
   run docker run --rm \
     -v "${private_config}/with-domain/":/tmp/docker-mailserver/ \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'generate-dkim-domain testdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-domain testdomain.tld | wc -l'
   assert_success
   assert_output 1
   # Check keys for localhost.localdomain
   run docker run --rm \
     -v "${private_config}/with-domain/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
   assert_success
   assert_output 2
   # Check keys for otherdomain.tld
   run docker run --rm \
     -v "${private_config}/with-domain/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
   assert_success
   assert_output 2
   # Check keys for testdomain.tld
   run docker run --rm \
     -v "${private_config}/with-domain/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'ls -1 /etc/opendkim/keys/testdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/testdomain.tld | wc -l'
   assert_success
   assert_output 2
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "${private_config}/with-domain/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
   assert_success
   assert_output 4
   # Check valid entries actually present in KeyTable
   run docker run --rm \
     -v "${private_config}/with-domain/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c \
+    "${IMAGE_NAME:?}" /bin/sh -c \
     "egrep 'localhost.localdomain|otherdomain.tld|localdomain2.com|testdomain.tld' /etc/opendkim/KeyTable | wc -l"
   assert_success
   assert_output 4
   # Check valid entries actually present in SigningTable
   run docker run --rm \
     -v "${private_config}/with-domain/opendkim":/etc/opendkim \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c \
+    "${IMAGE_NAME:?}" /bin/sh -c \
     "egrep 'localhost.localdomain|otherdomain.tld|localdomain2.com|testdomain.tld' /etc/opendkim/SigningTable | wc -l"
   assert_success
   assert_output 4
@@ -731,8 +734,8 @@ EOF
 }
 
 @test "checking amavis: VIRUSMAILS_DELETE_DELAY override works as expected" {
-  run docker run --rm -e VIRUSMAILS_DELETE_DELAY=2 `docker inspect --format '{{ .Config.Image }}' mail` /bin/bash -c 'echo ${VIRUSMAILS_DELETE_DELAY} | grep 2'
-  assert_success
+  run docker run --rm -e VIRUSMAILS_DELETE_DELAY=2 "${IMAGE_NAME:?}" /bin/bash -c 'echo "${VIRUSMAILS_DELETE_DELAY}"'
+  assert_output 2
 }
 
 @test "checking amavis: old virusmail is wipped by cron" {
@@ -867,7 +870,7 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ ! -z "${output}" ]
+  [ -n "${output}" ]
 }
 
 @test "checking accounts: auser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -875,7 +878,7 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ ! -z "${output}" ]
+  [ -n "${output}" ]
 }
 
 @test "checking accounts: a.ser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -883,7 +886,7 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^a\.ser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ ! -z "${output}" ]
+  [ -n "${output}" ]
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
@@ -895,23 +898,19 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ ! -z "${output}" ]
+  [ -n "${output}" ]
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
   docker exec mail /bin/sh -c "addmailuser user4@domain.tld mypassword"
 
-  initialpass=$(run docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
+  initialpass=$(docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
   sleep 2
   docker exec mail /bin/sh -c "updatemailuser user4@domain.tld mynewpassword"
   sleep 2
-  changepass=$(run docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
+  changepass=$(docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
 
-  if [ initialpass != changepass ]; then
-    status="0"
-  else
-    status="1"
-  fi
+  [ "$initialpass" != "$changepass" ]
 
   docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
 
@@ -927,7 +926,7 @@ EOF
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
   run docker run --rm \
     -v "$(duplicate_config_for_container without-accounts/ without-accounts-deleting-user)":/tmp/docker-mailserver/ \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'delmailuser -y user3@domain.tld'
+    "${IMAGE_NAME:?}" /bin/sh -c 'delmailuser -y user3@domain.tld'
   assert_success
   [ -z "${output}" ]
 }
@@ -936,13 +935,13 @@ EOF
   private_config=$(duplicate_config_for_container without-accounts/ without-accounts_file_does_not_exist)
   run docker run --rm \
     -v "${private_config}/without-accounts/":/tmp/docker-mailserver/ \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'addmailuser user3@domain.tld mypassword'
+    "${IMAGE_NAME:?}" /bin/sh -c 'addmailuser user3@domain.tld mypassword'
   assert_success
   run docker run --rm \
     -v "${private_config}/without-accounts/":/tmp/docker-mailserver/ \
-    `docker inspect --format '{{ .Config.Image }}' mail` /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
+    "${IMAGE_NAME:?}" /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
   assert_success
-  [ ! -z "${output}" ]
+  [ -n "${output}" ]
 }
 
 
@@ -1059,7 +1058,7 @@ EOF
   run echo "${postfix_message_size}"
   refute_output ""
 
-  postfix_message_size_mb=$((${postfix_message_size} / 1000000))
+  postfix_message_size_mb=$(( postfix_message_size / 1000000))
 
   dovecot_message_size_mb=$(docker exec mail sh -c "doveconf | grep  -oP '(?<=quota_max_mail_size = )[0-9]+'")
   run echo "${dovecot_message_size_mb}"
@@ -1142,6 +1141,7 @@ EOF
   run repeat_until_success_or_timeout 20 sh -c "docker logs mail | grep 'Quota exceeded (mailbox for user is full)'"
   assert_success
 
+  docker exec mail ls -l '/var/mail/otherdomain.tld/quotauser/new/'
   # ensure only the first big message and the warn message are present (other messages are rejected: mailbox is full)
   run docker exec mail sh -c 'ls /var/mail/otherdomain.tld/quotauser/new/ | wc -l'
   assert_success
@@ -1189,13 +1189,13 @@ EOF
 @test "checking setup.sh: Without arguments: status 1, show help text" {
   run ./setup.sh
   assert_failure
-  [ "${lines[1]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
+  assert_line --index 1 "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]"
 }
 
 @test "checking setup.sh: Wrong arguments" {
   run ./setup.sh lol troll
   assert_failure
-  [ "${lines[1]}" = "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]" ]
+  assert_line --index 1 "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]"
 }
 
 # email
@@ -1206,7 +1206,7 @@ EOF
   run ./setup.sh -c mail email add setup_email_add@example.com test_password
   assert_success
 
-  value=$(cat $(private_config_path mail)/postfix-accounts.cf | grep setup_email_add@example.com | awk -F '|' '{print $1}')
+  value=$(grep setup_email_add@example.com "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $1}')
   [ "${value}" = "setup_email_add@example.com" ]
   assert_success
 
@@ -1232,19 +1232,16 @@ EOF
   run ./setup.sh -c mail email add lorem@impsum.org test_test
   assert_success
 
-  initialpass=$(cat $(private_config_path mail)/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  initialpass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
   [ "${initialpass}" != "" ]
   assert_success
 
   run ./setup.sh -c mail email update lorem@impsum.org my password
   assert_success
 
-  updatepass=$(cat $(private_config_path mail)/postfix-accounts.cf | grep lorem@impsum.org | awk -F '|' '{print $2}')
+  updatepass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
   [ "${updatepass}" != "" ]
-  assert_success
-
   [ "${initialpass}" != "${updatepass}" ]
-  assert_success
 
   docker exec mail doveadm pw -t "${updatepass}" -p 'my password' | grep 'verified'
   assert_success
@@ -1262,7 +1259,7 @@ EOF
 #
 #  run docker exec mail ls /var/mail/impsum.org/lorem
 #  assert_failure
-  run grep lorem@impsum.org $(private_config_path mail)/postfix-accounts.cf
+  run grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf"
   assert_failure
 }
 
@@ -1395,14 +1392,14 @@ EOF
 # debug
 @test "checking setup.sh: setup.sh debug fetchmail" {
   run ./setup.sh -c mail debug fetchmail
-  [ "${status}" -eq 11 ]
-  [[ "${output}" == *"fetchmail: normal termination, status 11"* ]]
+  assert_failure 11
+  assert_output --partial "fetchmail: normal termination, status 11"
 }
 @test "checking setup.sh: setup.sh debug inspect" {
   run ./setup.sh -c mail debug inspect
   assert_success
-  [ "${lines[0]}" = "Image: tvial/docker-mailserver:testing" ]
-  [ "${lines[1]}" = "Container: mail" ]
+  assert_line --index 0 "Image: tvial/docker-mailserver:testing" 
+  assert_line --index 1 "Container: mail"
 }
 @test "checking setup.sh: setup.sh debug login ls" {
   run ./setup.sh -c mail debug login ls
