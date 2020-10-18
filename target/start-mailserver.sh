@@ -170,8 +170,8 @@ function register_functions
   _register_setup_function "_setup_environment"
   _register_setup_function "_setup_logrotate"
 
-  [[ ${PFLOGSUMM_TRIGGER:-"none"} != "none" ]] && _register_setup_function "_setup_mail_summary"
-  [[ ${LOGWATCH_INTERVAL:-"none"} != "none" ]] && _register_setup_function "_setup_logwatch"
+  _register_setup_function "_setup_mail_summary"
+  _register_setup_function "_setup_logwatch"
 
   _register_setup_function "_setup_user_patches"
 
@@ -1725,6 +1725,7 @@ function _setup_mail_summary
       _notify 'inf' "Add postrotate action for pflogsumm report"
       sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" /etc/logrotate.d/maillog
       ;;
+    "none" ) _notify 'warn' "Postfix log summary reports disabled. You can enable them with 'PFLOGSUMM_TRIGGER=daily_cron' or 'PFLOGSUMM_TRIGGER=logrotate'" ;;
     * ) _notify 'err' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery' ;;
   esac
 }
@@ -1750,6 +1751,7 @@ function _setup_logwatch
       >> /etc/cron.weekly/logwatch
       chmod 744 /etc/cron.weekly/logwatch
       ;;
+    "none" ) _notify 'warn' "Logwatch reports disabled. You can enable them with 'LOGWATCH_INTERVAL=daily' or 'LOGWATCH_INTERVAL=weekly'" ;;
     * ) _notify 'warn' 'LOGWATCH_INTERVAL not found in _setup_logwatch' ;;
   esac
 }
