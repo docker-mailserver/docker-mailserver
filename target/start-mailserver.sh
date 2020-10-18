@@ -397,7 +397,7 @@ function _setup_default_vars
 
   # set PFLOGSUMM_TRIGGER here for backwards compatibility
   # when REPORT_RECIPIENT is on the old method should be used
-  if [[ "${REPORT_RECIPIENT}" == "0" ]]
+  if [[ ${REPORT_RECIPIENT} == "0" ]]
   then
     DEFAULT_VARS["PFLOGSUMM_TRIGGER"]="${PFLOGSUMM_TRIGGER:="none"}"
   else
@@ -405,7 +405,7 @@ function _setup_default_vars
   fi
 
   # expand address to simplify the rest of the script
-  if [[ "${REPORT_RECIPIENT}" == "0" ]] || [[ "${REPORT_RECIPIENT}" == "1" ]]
+  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "1" ]]
   then
     REPORT_RECIPIENT="${POSTMASTER_ADDRESS}"
     DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT}"
@@ -1339,7 +1339,7 @@ function _setup_postfix_override_configuration
   then
     while read -r line
     do
-      if [[ "${line}" =~ ^[0-9a-z] ]]
+      if [[ ${line} =~ ^[0-9a-z] ]]
       then
         postconf -P "${line}"
       fi
