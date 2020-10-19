@@ -16,7 +16,7 @@ function teardown() {
 function setup_file() {
     docker run -d --name mail_no_quotas \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ENABLE_QUOTAS=0 \
 		-h mail.my-domain.com -t "${NAME}"

@@ -16,7 +16,7 @@ function setup_file() {
 
     docker run -d --name mail_with_relays \
             -v "$tmp_confdir":/tmp/docker-mailserver \
-            -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+            -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
             -e RELAY_HOST=default.relay.com \
             -e RELAY_PORT=2525 \
             -e RELAY_USER=smtp_user \

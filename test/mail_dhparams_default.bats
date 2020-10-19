@@ -23,7 +23,7 @@ function teardown() {
 function setup_file() {
     docker run -d --name mail_default_dhparams_one_dir \
 		-v "$(duplicate_config_for_container . mail_default_dhparams_both_one_dir)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=1 \
 		-h mail.my-domain.com -t ${NAME}
@@ -31,7 +31,7 @@ function setup_file() {
 
     docker run -d --name mail_default_dhparams_not_one_dir \
 		-v "$(duplicate_config_for_container . mail_default_dhparams_both_not_one_dir)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=0 \
 		-h mail.my-domain.com -t ${NAME}

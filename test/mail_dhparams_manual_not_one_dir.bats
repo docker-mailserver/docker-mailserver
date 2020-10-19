@@ -13,21 +13,21 @@ load 'test_helper/common'
 
 
 function setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 function teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    # copy the custom DHE params in local config
-    cp "`pwd`/test/test-files/ssl/custom-dhe-params.pem" "${PRIVATE_CONFIG}/dhparams.pem"
+  local PRIVATE_CONFIG=$(duplicate_config_for_container .)
+  # copy the custom DHE params in local config
+  cp "$(pwd)/test/test-files/ssl/custom-dhe-params.pem" "${PRIVATE_CONFIG}/dhparams.pem"
 
-    docker run -d --name mail_manual_dhparams_not_one_dir \
+  docker run -d --name mail_manual_dhparams_not_one_dir \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=0 \
 		-h mail.my-domain.com -t ${NAME}
@@ -35,7 +35,7 @@ function setup_file() {
 }
 
 function teardown_file() {
-    docker rm -f mail_manual_dhparams_not_one_dir
+  docker rm -f mail_manual_dhparams_not_one_dir
 }
 
 @test "first" {

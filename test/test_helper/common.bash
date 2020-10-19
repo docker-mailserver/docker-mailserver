@@ -75,7 +75,7 @@ function container_is_running() {
 # @param ${1} port
 # @param ${2} container name
 function wait_for_tcp_port_in_container() {
-    repeat_until_success_or_timeout --fatal-test "container_is_running ${2}" "${TEST_TIMEOUT_IN_SECONDS}" docker exec "${2}" /bin/sh -c "nc -z 0.0.0.0 ${1}"
+    repeat_until_success_or_timeout --fatal-test "container_is_running ${2}" "${TEST_TIMEOUT_IN_SECONDS}" docker exec ${2} /bin/sh -c "nc -z 0.0.0.0 ${1}"
 }
 
 # @param ${1} name of the postfix container
@@ -177,8 +177,6 @@ function wait_for_service() {
 function wait_for_changes_to_be_detected_in_container() {
     local CONTAINER_NAME="${1}"
     local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
-    repeat_in_container_until_success_or_timeout \
-        "${TIMEOUT}" \
-        "${CONTAINER_NAME}" \
-        bash -c 'source /usr/local/bin/helper_functions.sh; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}"  >/dev/null'
+    repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" \
+        bash -c 'source /usr/local/bin/helper_functions.sh; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }

@@ -16,7 +16,7 @@ function teardown() {
 function setup_file() {
     docker run -d --name mail_spam_bounced_defined \
 		-v "$(duplicate_config_for_container . mail_spam_bounced_defined)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SPAMASSASSIN_SPAM_TO_INBOX=0 \
 		-h mail.my-domain.com -t "${NAME}"
@@ -25,7 +25,7 @@ function setup_file() {
 
     docker run -d --name mail_spam_bounced_undefined \
 		-v "$(duplicate_config_for_container . mail_spam_bounced_defined)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-h mail.my-domain.com -t "${NAME}"
 

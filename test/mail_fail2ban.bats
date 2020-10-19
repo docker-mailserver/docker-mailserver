@@ -11,7 +11,7 @@ function teardown() {
 function setup_file() {
     docker run --rm -d --name mail_fail2ban \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_FAIL2BAN=1 \
 		-e POSTSCREEN_ACTION=ignore \
 		--cap-add=NET_ADMIN \
@@ -25,7 +25,7 @@ function setup_file() {
         tail -f /var/log/faillog
 
     wait_for_finished_setup_in_container mail_fail2ban
-    
+
 }
 
 function teardown_file() {

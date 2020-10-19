@@ -9,10 +9,12 @@ function teardown() {
 }
 
 function setup_file() {
+  local PRIVATE_CONFIG
+
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_domain)"
   docker run -d --name mail_lets_domain \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-  -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
   -v "${PRIVATE_CONFIG}/letsencrypt/my-domain.com":/etc/letsencrypt/live/my-domain.com \
   -e DMS_DEBUG=0 \
   -e SSL_TYPE=letsencrypt \
@@ -22,7 +24,7 @@ function setup_file() {
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_hostname)"
   docker run -d --name mail_lets_hostname \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-  -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
   -v "${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com":/etc/letsencrypt/live/mail.my-domain.com \
   -e DMS_DEBUG=0 \
   -e SSL_TYPE=letsencrypt \
@@ -34,7 +36,7 @@ function setup_file() {
   docker run -d --name mail_lets_acme_json \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
-    -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e DMS_DEBUG=0 \
     -e SSL_TYPE=letsencrypt \
     -e "SSL_DOMAIN=*.example.com" \

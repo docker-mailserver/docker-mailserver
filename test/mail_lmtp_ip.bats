@@ -12,7 +12,7 @@ setup_file() {
     docker run -d --name mail_lmtp_ip \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
 		-v "$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)":/etc/dovecot \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-e DMS_DEBUG=0 \
