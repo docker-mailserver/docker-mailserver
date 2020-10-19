@@ -1,7 +1,7 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 
-# NAME=tvial/docker-mailserver:testing
+NAME=tvial/docker-mailserver:testing
 
 # default timeout is 120 seconds
 TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-120}
