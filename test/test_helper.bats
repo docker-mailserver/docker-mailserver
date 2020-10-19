@@ -96,11 +96,102 @@ load 'test_helper/common'
     assert_success
 }
 
-@test "wait_for_empty_mail_queue_in_container" {
+@test "wait_for_finished_setup_in_container" {
     # variable not local to make visible to teardown
     CONTAINER_NAME="$(docker run -d --rm \
                         -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+                        -h mail.my-domain.com -t "${NAME}")"
+    teardown() { docker rm -f "${CONTAINER_NAME}"; }
+
+    # the setup should not be finished immediately after starting
+    ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+
+    # but it will finish eventually
+    SECONDS=1
+    wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+    [[ $SECONDS -gt 0 ]]
+}
+
+@test "duplicate_config_for_container" {
+    local path
+    path="$(duplicate_config_for_container duplicate_config_test)"
+
+    run cat "$path/marker"
+    assert_output "This marker file is there to identify the correct config being copied"
+
+    run duplicate_config_for_container non-existant-source-folder "${BATS_TEST_NAME}2"
+    assert_failure
+}
+
+@test "container_has_service_running/wait_for_service" {
+    # variable not local to make visible to teardown
+    CONTAINER_NAME="$(docker run -d --rm \
+                        -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+                        -h mail.my-domain.com -t "${NAME}")"
+    teardown() { docker rm -f "${CONTAINER_NAME}"; }
+
+    # pick a service that was not started
+    ! container_has_service_running "${CONTAINER_NAME}" clamav
+    
+    # wait for a service that should be started
+    wait_for_service "${CONTAINER_NAME}" postfix
+
+    # shut down the service
+    docker exec "${CONTAINER_NAME}" supervisorctl stop postfix
+
+    # now it should be off
+    SECONDS=0
+    TEST_TIMEOUT_IN_SECONDS=5 run wait_for_service "${CONTAINER_NAME}" postfix
+    [[ $SECONDS -ge 5 ]]
+    assert_failure
+}
+
+@test "wait_for_changes_to_be_detected_in_container fails when timeout is reached" {
+    # variable not local to make visible to teardown
+    CONTAINER_NAME="$(docker run -d --rm \
+                        -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+                        -h mail.my-domain.com -t "${NAME}")"
+    teardown() { docker rm -f "${CONTAINER_NAME}"; }
+
+    # wait for the initial checksum detection to complete
+    repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /tmp/docker-mailserver-config-chksum
+
+    # there should be no changes in the beginning
+    TEST_TIMEOUT_IN_SECONDS=0 wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
+
+    # trigger some change
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "addmailuser auser3@mail.my-domain.com mypassword"
+
+    # that should be picked up as not yet detected
+    ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
+}
+
+@test "wait_for_changes_to_be_detected_in_container succeeds within timeout" {
+    # variable not local to make visible to teardown
+    CONTAINER_NAME="$(docker run -d --rm \
+                        -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+                        -h mail.my-domain.com -t "${NAME}")"
+    teardown() { docker rm -f "${CONTAINER_NAME}"; }
+
+    # wait for the initial checksum detection to complete
+    repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /tmp/docker-mailserver-config-chksum
+
+    # trigger some change
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "addmailuser auser3@mail.my-domain.com mypassword"
+
+    # that should eventually be detected
+    SECONDS=0
+    wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
+    [[ $SECONDS -gt 0 ]]
+}
+
+@test "wait_for_empty_mail_queue_in_container fails when timeout reached" {
+    # variable not local to make visible to teardown
+    # enable clamav to make message delivery slower, so we can detect it
+    CONTAINER_NAME="$(docker run -d --rm \
+                        -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
                         -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+                        -e ENABLE_CLAMAV=1 \
                         -h mail.my-domain.com -t "${NAME}")"
     
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
@@ -114,9 +205,29 @@ load 'test_helper/common'
 
     # fill the queue with a message
     docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
-    # the first shot should fail
+    
+    # that should still be stuck in the queue
     ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+}
 
-    # now give it some time to clear the queue
+@test "wait_for_empty_mail_queue_in_container succeeds within timeout" {
+    # variable not local to make visible to teardown
+    # enable clamav to make message delivery slower, so we can detect it
+    CONTAINER_NAME="$(docker run -d --rm \
+                        -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+                        -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+                        -e ENABLE_CLAMAV=1 \
+                        -h mail.my-domain.com -t "${NAME}")"
+    
+    teardown() { docker rm -f "${CONTAINER_NAME}"; }
+
+    wait_for_smtp_port_in_container "${CONTAINER_NAME}" || docker logs "${CONTAINER_NAME}"
+
+    # fill the queue with a message
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+
+    # give it some time to clear the queue
+    SECONDS=0
     wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+    [[ $SECONDS -gt 0 ]]
 }

@@ -157,10 +157,10 @@ function private_config_path() {
 # @return path to the folder where the config is duplicated
 function duplicate_config_for_container() {
     local OUTPUT_FOLDER
-    OUTPUT_FOLDER="$(private_config_path "${2}")"
-    rm -rf "${OUTPUT_FOLDER:?}/" # cleanup
-    mkdir -p "${OUTPUT_FOLDER}"
-    cp -r "${PWD}/test/config/${1:?}/." "${OUTPUT_FOLDER}"
+    OUTPUT_FOLDER="$(private_config_path "${2}")"  || return $?
+    rm -rf "${OUTPUT_FOLDER:?}/" || return $? # cleanup
+    mkdir -p "${OUTPUT_FOLDER}" || return $?
+    cp -r "${PWD}/test/config/${1:?}/." "${OUTPUT_FOLDER}" || return $?
     echo "${OUTPUT_FOLDER}"
 }
 
@@ -173,7 +173,7 @@ function container_has_service_running() {
 function wait_for_service() {
     local CONTAINER_NAME="${1}"
     local SERVICE_NAME="${2}"
-    repeat_until_success_or_timeout --fatal-test "container_is_running ${CONTAINER_NAME}" 60 \
+    repeat_until_success_or_timeout --fatal-test "container_is_running ${CONTAINER_NAME}" "${TEST_TIMEOUT_IN_SECONDS}" \
         container_has_service_running "${CONTAINER_NAME}" "${SERVICE_NAME}"
 }
 
