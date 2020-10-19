@@ -11,7 +11,7 @@ function teardown() {
 function setup_file() {
     docker run -d --name mail_with_postgrey \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_POSTGREY=1 \
 		-e POSTGREY_DELAY=15 \
 		-e POSTGREY_MAX_AGE=35 \

@@ -11,7 +11,7 @@ function teardown() {
 function setup_file() {
     docker run --rm -d --name mail_smtponly \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e SMTP_ONLY=1 \
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \

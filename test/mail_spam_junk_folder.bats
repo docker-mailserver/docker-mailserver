@@ -16,7 +16,7 @@ function teardown() {
 function setup_file() {
     docker run -d --name mail_spam_moved_junk \
 		-v "$(duplicate_config_for_container . mail_spam_moved_junk)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SPAMASSASSIN_SPAM_TO_INBOX=1 \
 		-e MOVE_SPAM_TO_JUNK=1 \
@@ -27,7 +27,7 @@ function setup_file() {
 
     docker run -d --name mail_spam_moved_new \
 		-v "$(duplicate_config_for_container . mail_spam_moved_new)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_SPAMASSASSIN=1 \
 		-e SPAMASSASSIN_SPAM_TO_INBOX=1 \
 		-e MOVE_SPAM_TO_JUNK=0 \

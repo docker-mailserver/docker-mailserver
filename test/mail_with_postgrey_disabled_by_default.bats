@@ -3,7 +3,7 @@ load 'test_helper/common'
 function setup() {
     CONTAINER=$(docker run -d \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com -t ${NAME})
     # using postfix availability as start indicator, this might be insufficient for postgrey

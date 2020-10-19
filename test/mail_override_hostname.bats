@@ -7,7 +7,7 @@ function setup() {
 function setup_file() {
 	docker run --rm -d --name mail_override_hostname \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e DMS_DEBUG=0 \
 		-e ENABLE_SRS=1 \
@@ -15,7 +15,7 @@ function setup_file() {
 		-h unknown.domain.tld \
 		-t ${NAME}
 
-    wait_for_smtp_port_in_container mail_override_hostname   
+    wait_for_smtp_port_in_container mail_override_hostname
     # postfix virtual transport lmtp
 	docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 }

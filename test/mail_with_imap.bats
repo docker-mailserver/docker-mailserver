@@ -12,7 +12,7 @@ teardown() {
 setup_file() {
     docker run -d --name mail_with_imap \
 		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=rimap \
 		-e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
