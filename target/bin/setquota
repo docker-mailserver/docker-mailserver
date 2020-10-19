@@ -1,5 +1,9 @@
 #! /bin/bash
+
 # shellcheck disable=SC2094
+
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
@@ -9,7 +13,6 @@ shift
 QUOTA="${*}"
 
 function usage  { echo "Usage: setquota <user@domain> [<quota>]" ; }
-function errex  { echo "${@}" 1>&2 ; exit 1 ; }
 
 [[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
 [[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain" ; }

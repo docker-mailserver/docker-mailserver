@@ -1,10 +1,11 @@
-#!/bin/bash
+#! /bin/bash
+
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
 
 HOSTNAME=${1}
 RECIPIENT=${2}
 SENDER=${3}
-
-function errex { echo "${@}" 1>&2 ; exit 1 ; }
 
 [[ -x /usr/sbin/pflogsumm ]] || errex "Critical: /usr/sbin/pflogsumm not found"
 

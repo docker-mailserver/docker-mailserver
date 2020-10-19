@@ -1,13 +1,14 @@
 #! /bin/bash
 
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
+
 MODE="${1}"
 USER="${3}"
 
 function usage  {	echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
-function raise  { echo "${@}" 1>&2 ; exit 1 ; }
-function escape { echo "${1//./\\.}" ; }
 
-[[ -z ${MODE} ]] && raise "missing parameters: <add|del|list> <send|receive> [<email@domain.com>]"
+[[ -z ${MODE} ]] && errex "missing parameters: <add|del|list> <send|receive> [<email@domain.com>]"
 
 case ${2} in
   send)
@@ -18,7 +19,7 @@ case ${2} in
     ;;
   *)
     usage
-    raise "missing parameters. Specify \"send\" or \"receive\""
+    errex "missing parameters. Specify \"send\" or \"receive\""
     ;;
 esac
 
@@ -26,12 +27,12 @@ if [[ -z ${USER} ]] && [[ ${MODE} != list ]]
 then
   read -r -p "User(user@domain.com): " USER
   echo
-  [[ -z ${USER} ]] && raise "User must not be empty"
+  [[ -z ${USER} ]] && errex "User must not be empty"
 fi
 
 case ${MODE} in
   add)
-    grep -qi "^$(escape "${USER}")" "${DATABASE}" 2>/dev/null && raise "User \"${USER}\" already denied to ${2} mails"
+    grep -qi "^$(escape "${USER}")" "${DATABASE}" 2>/dev/null && errex "User \"${USER}\" already denied to ${2} mails"
 
     if [[ ! -f ${DATABASE} ]]
     then
@@ -47,7 +48,7 @@ case ${MODE} in
   ;;
 
   del)
-    sed -ie "/^$(escape "${USER}")/d" "${DATABASE}" 2>/dev/null || raise "User \"${USER}\" not found."
+    sed -ie "/^$(escape "${USER}")/d" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" not found."
   ;;
 
   list)
@@ -55,7 +56,7 @@ case ${MODE} in
     ;;
   *)
     usage
-    raise "missing mode. Specify \"add\", \"del\" or \"list\""
+    errex "missing mode. Specify \"add\", \"del\" or \"list\""
   ;;
 
 esac

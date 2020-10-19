@@ -1,17 +1,17 @@
 #! /bin/bash
 
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
+
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
 USER="${1}"
 
 function usage  {	echo "Usage: delquota <username@domain>" ; }
-function errex  { echo "${@}" 1>&2 ; exit 1 ; }
-function escape { echo "${1//./\\.}" ; }
 
 [[ -z ${USER} ]]  && { usage ; errex "No username specified" ; }
-
-[[ "${USER}" =~ .*\@.* ]] || { usage; errex "username must include the domain"; }
+[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain"; }
 
 if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
 then

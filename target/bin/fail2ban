@@ -1,7 +1,9 @@
 #! /bin/bash
 
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
+
 function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
-function raise { echo "${@}" 1>&2 ; exit 1 ; }
 
 declare -a JAILS
 for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g')
@@ -53,13 +55,13 @@ else
           fi
         done
       else
-        raise "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
+        errex "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
       fi
       ;;
 
     *)
       usage
-      raise "unknown command: ${1}"
+      errex "unknown command: ${1}"
       ;;
 
     esac

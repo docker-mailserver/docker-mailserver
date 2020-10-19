@@ -1,11 +1,13 @@
 #! /bin/bash
 
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
+
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-relaymap.cf}
 
 DOMAIN="${1}"
 
 function usage { echo "Usage: excluderelayhost <domain>" ; }
-function errex { echo "${@}" 1>&2 ; exit 1 ; }
 
 [[ -z ${DOMAIN} ]] && { usage ; errex "no domain specified" ; }
 

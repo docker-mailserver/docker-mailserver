@@ -1,6 +1,9 @@
 #! /bin/bash
+
 # shellcheck disable=SC2094
 
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
@@ -11,9 +14,6 @@ function usage
   echo "Usage: delmailuser <-y> <user@domain> <user2@anotherdomain> ..."
   echo "	-y: don't prompt for confirmations"
 }
-
-function errex  { echo "${@}" 1>&2 ; exit 1 ; }
-function escape { echo "${1//./\\.}" ; }
 
 while getopts ":y" OPT
 do

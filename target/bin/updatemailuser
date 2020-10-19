@@ -1,5 +1,9 @@
 #! /bin/bash
+
 # shellcheck disable=SC2094
+
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
@@ -8,8 +12,6 @@ shift
 PASSWD="${*}"
 
 function usage  {	echo "Usage: updatemailuser <user@domain.tld> [password]" ; }
-function errex  { echo "${@}" 1>&2 ; exit 1 ; }
-function escape { echo "${1//./\\.}" ; }
 
 [[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
 

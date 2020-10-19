@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
+
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-relaymap.cf}
 
 DOMAIN="${1}"
@@ -7,8 +10,6 @@ HOST="${2}"
 PORT="${3}"
 
 function usage  { echo "Usage: addrelayhost <domain> <host> [<port>]" ; }
-function errex  { echo "${@}" 1>&2 ; exit 1 ; }
-function escape { echo "${1//./\\.}" ; }
 
 [[ -z ${DOMAIN} ]] && { usage ; errex "no domain specified" ; }
 [[ -z ${HOST} ]] && { usage ; errex "no relay host specified" ; }

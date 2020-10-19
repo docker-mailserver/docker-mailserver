@@ -1,11 +1,11 @@
-#!/bin/bash
+#! /bin/bash
 
 # version  0.2.0
 #
 # <INSERT TASK HERE>
 
 # shellcheck source=/dev/null
-. /usr/local/bin/helper_functions.sh
+. /usr/local/bin/helper-functions.sh
 
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 echo "${LOG_DATE} Start check-for-changes script."

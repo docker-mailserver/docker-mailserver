@@ -1,8 +1,9 @@
 #! /bin/bash
 
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
+# shellcheck source=/dev/null
+. /usr/local/bin/bin-helper.sh
 
-function errex  { echo "${@}" 1>&2 ; exit 1 ; }
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
 [[ -f ${DATABASE} ]] || errex "Error: No postfix-virtual.cf file"
 [[ -s ${DATABASE} ]] || errex "Error: Empty postfix-virtual.cf - no aliases have been added"
