@@ -10,7 +10,8 @@ setup() {
 }
 
 setup_file() {
-  local PRIVATE_CONFIG="$(duplicate_config_for_container . mail)"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail)"
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
   docker run --rm -d --name mail \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
@@ -460,7 +461,8 @@ EOF
 # Instead it tests the file-size (here 511) - which may differ with a different domain names
 # This test may be re-used as a global test to provide better test coverage.
 @test "checking opendkim: generator creates default keys size" {
-    local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_default_key_size)"
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_default_key_size)"
     # Prepare default key size 2048
     rm -rf "${PRIVATE_CONFIG}/keyDefault"
     mkdir -p "${PRIVATE_CONFIG}/keyDefault"
@@ -486,7 +488,8 @@ EOF
 # Instead it tests the file-size (here 511) - which may differ with a different domain names
 # This test may be re-used as a global test to provide better test coverage.
 @test "checking opendkim: generator creates key size 2048" {
-    local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_2048)"
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_2048)"
     # Prepare set key size 2048
     rm -rf "${PRIVATE_CONFIG}/key2048"
     mkdir -p "${PRIVATE_CONFIG}/config/key2048"
@@ -511,7 +514,8 @@ EOF
 # Instead it tests the file-size (here 329) - which may differ with a different domain names
 # This test may be re-used as a global test to provide better test coverage.
 @test "checking opendkim: generator creates key size 1024" {
-    local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_1024)"
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_1024)"
     # Prepare set key size 1024
     rm -rf "${PRIVATE_CONFIG}/key1024"
     mkdir -p "${PRIVATE_CONFIG}/key1024"
@@ -533,7 +537,8 @@ EOF
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts" {
-  local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts)"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts)"
   rm -rf "${PRIVATE_CONFIG}/empty"
   mkdir -p "${PRIVATE_CONFIG}/empty"
   run docker run --rm \
@@ -564,7 +569,8 @@ EOF
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
-  local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts_without_postfix_accounts.cf)"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts_without_postfix_accounts.cf)"
   rm -rf "${PRIVATE_CONFIG}/without-accounts"
   mkdir -p "${PRIVATE_CONFIG}/without-accounts"
   run docker run --rm \
@@ -594,7 +600,8 @@ EOF
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
-  local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts_without_postfix_virtual.cf)"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts_without_postfix_virtual.cf)"
   rm -rf "${PRIVATE_CONFIG}/without-virtual"
   mkdir -p "${PRIVATE_CONFIG}/without-virtual"
   run docker run --rm \
@@ -624,7 +631,8 @@ EOF
 }
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts using domain name" {
-  local PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts_without_postfix_virtual.cf)"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts_without_postfix_virtual.cf)"
   rm -rf "${PRIVATE_CONFIG}/with-domain" && mkdir -p "${PRIVATE_CONFIG}/with-domain"
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
@@ -932,7 +940,8 @@ EOF
 }
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist" {
-  local PRIVATE_CONFIG=$(duplicate_config_for_container without-accounts/ without-accounts_file_does_not_exist)
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container without-accounts/ without-accounts_file_does_not_exist)
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/without-accounts/":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'addmailuser user3@domain.tld mypassword'

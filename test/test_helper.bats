@@ -56,7 +56,8 @@ load 'test_helper/common'
 }
 
 @test "repeat_in_container_until_success_or_timeout run command in container" {
-    local CONTAINER_NAME=$(docker run --rm -d alpine sleep 100)
+    local CONTAINER_NAME
+    CONTAINER_NAME=$(docker run --rm -d alpine sleep 100)
     SECONDS=0
     ! repeat_in_container_until_success_or_timeout 10 "${CONTAINER_NAME}" sh -c "echo '${CONTAINER_NAME}' > /tmp/marker"
     [[ ${SECONDS} -le 1 ]]
@@ -65,14 +66,16 @@ load 'test_helper/common'
 }
 
 @test "container_is_running" {
-    local CONTAINER_NAME=$(docker run --rm -d alpine sleep 100)
+    local CONTAINER_NAME
+    CONTAINER_NAME=$(docker run --rm -d alpine sleep 100)
     container_is_running "${CONTAINER_NAME}"
     docker rm -f "${CONTAINER_NAME}"
     ! container_is_running "${CONTAINER_NAME}"
 }
 
 @test "wait_for_smtp_port_in_container aborts wait after timeout" {
-    local CONTAINER_NAME=$(docker run --rm -d alpine sleep 100)
+    local CONTAINER_NAME
+    CONTAINER_NAME=$(docker run --rm -d alpine sleep 100)
     SECONDS=0
     TEST_TIMEOUT_IN_SECONDS=2 run wait_for_smtp_port_in_container "${CONTAINER_NAME}"
     [[ ${SECONDS} -ge 2 ]]
@@ -81,7 +84,8 @@ load 'test_helper/common'
 }
 
 @test "wait_for_smtp_port_in_container returns immediately when port found" {
-    local CONTAINER_NAME=$(docker run --rm -d alpine sh -c "sleep 10")
+    local CONTAINER_NAME
+    CONTAINER_NAME=$(docker run --rm -d alpine sh -c "sleep 10")
 
     docker exec "${CONTAINER_NAME}" apk add netcat-openbsd
     docker exec "${CONTAINER_NAME}" nc -l 25 &

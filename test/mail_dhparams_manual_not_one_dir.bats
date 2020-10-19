@@ -21,7 +21,8 @@ function teardown() {
 }
 
 function setup_file() {
-  local PRIVATE_CONFIG=$(duplicate_config_for_container .)
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
   # copy the custom DHE params in local config
   cp "$(pwd)/test/test-files/ssl/custom-dhe-params.pem" "${PRIVATE_CONFIG}/dhparams.pem"
 
