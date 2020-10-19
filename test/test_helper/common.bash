@@ -1,6 +1,7 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 
+# shellcheck disable=SC2034
 NAME=tvial/docker-mailserver:testing
 
 # default timeout is 120 seconds
@@ -25,7 +26,7 @@ function repeat_until_success_or_timeout {
     shift 1
     until "${@}"
     do
-        if [[ -n "${FATAL_FAILURE_TEST_COMMAND}" ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"; then
+        if [[ -n ${FATAL_FAILURE_TEST_COMMAND} ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"; then
             echo "\`${FATAL_FAILURE_TEST_COMMAND}\` failed, early aborting repeat_until_success of \`${*}\`" >&2
             return 1
         fi
@@ -41,14 +42,14 @@ function repeat_until_success_or_timeout {
 # @param ${1} timeout
 # @param ... test command to run
 function run_until_success_or_timeout {
-    if ! [[ "${1}" =~ ^[0-9]+$ ]]; then
+    if ! [[ ${1} =~ ^[0-9]+$ ]]; then
         echo "First parameter for timeout must be an integer, recieved \"${1}\""
         return 1
     fi
     local TIMEOUT=${1}
     local STARTTIME=${SECONDS}
     shift 1
-    until run "${@}" && [[ ${status} -eq 0 ]]
+    until run "${@}" && [[ $status -eq 0 ]]
     do
         sleep 1
         if (( SECONDS - STARTTIME > TIMEOUT )); then
@@ -75,7 +76,7 @@ function container_is_running() {
 # @param ${1} port
 # @param ${2} container name
 function wait_for_tcp_port_in_container() {
-    repeat_until_success_or_timeout --fatal-test "container_is_running ${2}" "${TEST_TIMEOUT_IN_SECONDS}" docker exec ${2} /bin/sh -c "nc -z 0.0.0.0 ${1}"
+    repeat_until_success_or_timeout --fatal-test "container_is_running ${2}" "${TEST_TIMEOUT_IN_SECONDS}" docker exec "${2}" /bin/sh -c "nc -z 0.0.0.0 ${1}"
 }
 
 # @param ${1} name of the postfix container
@@ -177,6 +178,6 @@ function wait_for_service() {
 function wait_for_changes_to_be_detected_in_container() {
     local CONTAINER_NAME="${1}"
     local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
-    repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" \
-        bash -c 'source /usr/local/bin/helper_functions.sh; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
+    # shellcheck disable=SC2016
+    repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helper_functions.sh; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
