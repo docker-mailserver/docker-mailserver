@@ -95,3 +95,28 @@ load 'test_helper/common'
     [[ ${SECONDS} -lt 5 ]]
     assert_success
 }
+
+@test "wait_for_empty_mail_queue_in_container" {
+    # variable not local to make visible to teardown
+    CONTAINER_NAME="$(docker run -d --rm \
+                        -v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+                        -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+                        -h mail.my-domain.com -t "${NAME}")"
+    
+    teardown() { docker rm -f "${CONTAINER_NAME}"; }
+
+    wait_for_smtp_port_in_container "${CONTAINER_NAME}" || docker logs "${CONTAINER_NAME}"
+
+    SECONDS=0
+    # no mails -> should return immediately
+    TEST_TIMEOUT_IN_SECONDS=5 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+    [[ $SECONDS -lt 5 ]]
+
+    # fill the queue with a message
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+    # the first shot should fail
+    ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+
+    # now give it some time to clear the queue
+    wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+}

@@ -66,8 +66,8 @@ setup_file() {
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt"
 	docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
 	docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
-  # wait for mails to be analyzed
-	#sleep 80
+
+  wait_for_empty_mail_queue_in_container mail
 }
 
 teardown() {

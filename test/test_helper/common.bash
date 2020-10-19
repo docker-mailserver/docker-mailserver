@@ -183,3 +183,9 @@ function wait_for_changes_to_be_detected_in_container() {
     # shellcheck disable=SC2016
     repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helper_functions.sh; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
+
+function wait_for_empty_mail_queue_in_container() {
+    local CONTAINER_NAME="${1}"
+    local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
+    repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
+}
