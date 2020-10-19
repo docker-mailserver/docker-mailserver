@@ -92,8 +92,8 @@ Download the `docker-compose.yml`, `.env`, `env-mailserver` and the `setup.sh` f
 ``` BASH
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml
-wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver
+curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/template.env
 
 chmod a+x ./setup.sh
 ```
