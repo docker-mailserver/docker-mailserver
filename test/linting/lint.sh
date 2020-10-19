@@ -132,7 +132,7 @@ function _shellcheck
 {
   local SCRIPT='SHELLCHECK'
   local ERR=0
-  local LINT=(/usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50)
+  local LINT=(/usr/bin/shellcheck -x -S style -Cauto -o all -e SC2154 -W 50)
 
   if ! __in_path "${LINT[0]}"
   then
@@ -144,31 +144,40 @@ function _shellcheck
     'type: shellcheck' '(linter version:' \
     "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
 
-
-  if [[ -n "$(find . -iname "*.sh" \
+  # an overengineered solution to allow shellcheck -x to
+  # properly follow `source=<SOURCE FILE>` when sourcing
+  # files with `. <FILE>` in shell scripts.
+  while read -r FILE
+  do
+    if ! (
+      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
+      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
+      then
+        return 1
+      fi
+    )
+    then
+      ERR=1
+    fi
+  done < <(find . -type f -iname "*.sh" \
     -not -path "./test/bats/*" \
-    -not -path "./test/config/*" \
-    -not -path "./target/docker-configomat/*" \
-    -exec "${LINT[@]}" {} \;)" ]]
-  then
-    find . -iname "*.sh" \
-    -not -path "./test/bats/*" \
-    -not -path "./target/docker-configomat/*" \
-    -exec "${LINT[@]}" {} \;
+    -not -path "./test/test_helper/*" \
+    -not -path "./target/docker-configomat/*")
 
-    ERR=1
-  fi
-
-  if [[ -n "$(find target/bin \
-    -executable -type f \
-    -exec "${LINT[@]}" {} \;)" ]]
-  then
-    find target/bin \
-    -executable -type f \
-    -exec "${LINT[@]}" {} \;
-
-    ERR=1
-  fi
+  # the same for executables in target/bin/
+  while read -r FILE
+  do
+    if ! (
+      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
+      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
+      then
+        return 1
+      fi
+    )
+    then
+      ERR=1
+    fi
+  done < <(find target/bin -executable -type f)
 
   if [[ ERR -eq 1 ]]
   then

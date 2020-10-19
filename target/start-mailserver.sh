@@ -2092,7 +2092,7 @@ function _start_changedetector
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-# shellcheck source=/dev/null
+# shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
 if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]

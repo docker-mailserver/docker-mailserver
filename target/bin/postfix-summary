@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# shellcheck source=/dev/null
+# shellcheck source=../bin-helper.sh
 . /usr/local/bin/bin-helper.sh
 
 HOSTNAME=${1}

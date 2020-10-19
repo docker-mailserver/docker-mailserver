@@ -4,7 +4,7 @@
 #
 # <INSERT TASK HERE>
 
-# shellcheck source=/dev/null
+# shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
