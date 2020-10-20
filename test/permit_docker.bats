@@ -7,26 +7,29 @@ setup() {
 	# use two networks (default ("bridge") and our custom network) to recreate problematic test case where PERMIT_DOCKER=host would not help
 	# currently we cannot use --network in `docker run` multiple times, it will just use the last one
 	# instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
+	local PRIVATE_CONFIG
+  	PRIVATE_CONFIG="$(duplicate_config_for_container . mail_smtponly_second_network)"
 	docker create --name mail_smtponly_second_network \
-		-v "$(duplicate_config_for_container . mail_smtponly_second_network)":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SMTP_ONLY=1 \
-		-e PERMIT_DOCKER=connected-networks \
-		-e DMS_DEBUG=0 \
-		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		--network ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME} \
-		-t ${NAME}
-	docker network connect ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2 mail_smtponly_second_network
+					-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+					-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+					-e SMTP_ONLY=1 \
+					-e PERMIT_DOCKER=connected-networks \
+					-e DMS_DEBUG=0 \
+					-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+					--network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" \
+					-t "${NAME}"
+	docker network connect "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" mail_smtponly_second_network
 	docker start mail_smtponly_second_network
+	PRIVATE_CONFIG="$(duplicate_config_for_container . mail_smtponly_second_network_sender)"
 	docker run -d --name mail_smtponly_second_network_sender \
-		-v "$(duplicate_config_for_container . mail_smtponly_second_network_sender)":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SMTP_ONLY=1 \
-		-e PERMIT_DOCKER=connected-networks \
-		-e DMS_DEBUG=0 \
-		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
-		--network ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2 \
-		-t ${NAME}
+				-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+				-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+				-e SMTP_ONLY=1 \
+				-e PERMIT_DOCKER=connected-networks \
+				-e DMS_DEBUG=0 \
+				-e OVERRIDE_HOSTNAME=mail.my-domain.com \
+				--network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" \
+				-t "${NAME}"
 
     # wait until postfix is up
     wait_for_smtp_port_in_container mail_smtponly_second_network

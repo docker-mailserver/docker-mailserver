@@ -10,8 +10,10 @@ teardown() {
 }
 
 setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_with_imap \
-		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=rimap \

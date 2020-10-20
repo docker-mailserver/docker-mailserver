@@ -14,25 +14,28 @@ function teardown() {
 }
 
 function setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_spam_moved_junk)"
     docker run -d --name mail_spam_moved_junk \
-		-v "$(duplicate_config_for_container . mail_spam_moved_junk)":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e SPAMASSASSIN_SPAM_TO_INBOX=1 \
-		-e MOVE_SPAM_TO_JUNK=1 \
-		-e SA_SPAM_SUBJECT="SPAM: " \
-		-h mail.my-domain.com -t "${NAME}"
+              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+              -e ENABLE_SPAMASSASSIN=1 \
+              -e SPAMASSASSIN_SPAM_TO_INBOX=1 \
+              -e MOVE_SPAM_TO_JUNK=1 \
+              -e SA_SPAM_SUBJECT="SPAM: " \
+              -h mail.my-domain.com -t "${NAME}"
 
     wait_for_finished_setup_in_container mail_spam_moved_junk
 
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_spam_moved_new)"
     docker run -d --name mail_spam_moved_new \
-		-v "$(duplicate_config_for_container . mail_spam_moved_new)":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e SPAMASSASSIN_SPAM_TO_INBOX=1 \
-		-e MOVE_SPAM_TO_JUNK=0 \
-		-e SA_SPAM_SUBJECT="SPAM: " \
-		-h mail.my-domain.com -t "${NAME}"
+              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+              -e ENABLE_SPAMASSASSIN=1 \
+              -e SPAMASSASSIN_SPAM_TO_INBOX=1 \
+              -e MOVE_SPAM_TO_JUNK=0 \
+              -e SA_SPAM_SUBJECT="SPAM: " \
+              -h mail.my-domain.com -t "${NAME}"
 
     wait_for_finished_setup_in_container mail_spam_moved_new
 }

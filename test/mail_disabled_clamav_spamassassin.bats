@@ -9,8 +9,10 @@ teardown() {
 }
 
 setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run --rm -d --name mail_disabled_clamav_spamassassin \
-		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_CLAMAV=0 \
 		-e ENABLE_SPAMASSASSIN=0 \

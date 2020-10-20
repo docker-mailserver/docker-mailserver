@@ -9,8 +9,10 @@ function teardown() {
 }
 
 function setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run --rm -d --name mail_fail2ban \
-		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_FAIL2BAN=1 \
 		-e POSTSCREEN_ACTION=ignore \

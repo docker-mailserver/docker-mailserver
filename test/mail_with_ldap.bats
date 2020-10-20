@@ -17,8 +17,10 @@ function setup_file() {
 		-e LDAP_DOMAIN="localhost.localdomain" \
 		-h ldap.my-domain.com -t ldap
 
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_with_ldap \
-		-v "$(duplicate_config_for_container .)":/tmp/docker-mailserver \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_LDAP=1 \
 		-e LDAP_SERVER_HOST=ldap \
