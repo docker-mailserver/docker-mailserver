@@ -1321,13 +1321,13 @@ function _setup_postfix_override_configuration
 
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
-    while read -r line
+    while read -r LINE
     do
       # all valid postfix options start with a lower case letter
       # http://www.postfix.org/postconf.5.html
-      if [[ ${line} =~ ^[a-z] ]]
+      if [[ ${LINE} =~ ^[a-z] ]]
       then
-        postconf -e "${line}"
+        postconf -e "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-main.cf
     _notify 'inf' "Loaded 'config/postfix-main.cf'"
@@ -1337,11 +1337,11 @@ function _setup_postfix_override_configuration
 
   if [[ -f /tmp/docker-mailserver/postfix-master.cf ]]
   then
-    while read -r line
+    while read -r LINE
     do
-      if [[ ${line} =~ ^[0-9a-z] ]]
+      if [[ ${LINE} =~ ^[0-9a-z] ]]
       then
-        postconf -P "${line}"
+        postconf -P "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-master.cf
     _notify 'inf' "Loaded 'config/postfix-master.cf'"
@@ -1431,11 +1431,11 @@ function _setup_postfix_relay_hosts
   then
     _notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
 
-    while read -r line
+    while read -r LINE
     do
-      if ! echo "${line}" | grep -q -e "^\s*#"
+      if ! echo "${LINE}" | grep -q -e "^\s*#"
       then
-        echo "${line}" >> /etc/postfix/sasl_passwd
+        echo "${LINE}" >> /etc/postfix/sasl_passwd
       fi
     done < /tmp/docker-mailserver/postfix-sasl-password.cf
   fi
