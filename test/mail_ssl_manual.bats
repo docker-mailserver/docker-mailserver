@@ -53,6 +53,7 @@ function teardown_file() {
 }
 
 @test "checking ssl: manual cert works correctly" {
+  wait_for_tcp_port_in_container 587 mail_manual_ssl
   run docker exec mail_manual_ssl /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   assert_success
 }
