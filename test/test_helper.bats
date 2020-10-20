@@ -120,7 +120,7 @@ load 'test_helper/common'
     path="$(duplicate_config_for_container duplicate_config_test)"
 
     run cat "$path/marker"
-    assert_output "This marker file is there to identify the correct config being copied"
+    assert_line "This marker file is there to identify the correct config being copied"
 
     run duplicate_config_for_container non-existant-source-folder "${BATS_TEST_NAME}2"
     assert_failure
