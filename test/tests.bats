@@ -604,7 +604,7 @@ EOF
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
   rm -rf "${PRIVATE_CONFIG}/without-virtual"
   mkdir -p "${PRIVATE_CONFIG}/without-virtual"
   run docker run --rm \
@@ -635,7 +635,7 @@ EOF
 
 @test "checking opendkim: generator creates keys, tables and TrustedHosts using domain name" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
   rm -rf "${PRIVATE_CONFIG}/with-domain" && mkdir -p "${PRIVATE_CONFIG}/with-domain"
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
