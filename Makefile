@@ -19,8 +19,8 @@ build:
 backup:
 # if backup directories exist, clean hasn't been called, therefore
 # we shouldn't overwrite it. It still contains the original content.
-	@ if [ ! -d config.bak ]; then cp -rp config config.bak; fi
-	@ if [ ! -d testconfig.bak ]; then cp -rp test/config testconfig.bak; fi
+	@ if [[ ! -d config.bak ]]; then cp -rp config config.bak; fi
+	@ if [[ ! -d testconfig.bak ]]; then cp -rp test/config testconfig.bak; fi
 
 generate-accounts:
 	@ docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf

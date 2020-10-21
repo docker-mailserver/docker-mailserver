@@ -1,29 +1,19 @@
 #! /bin/bash
 
+# shellcheck source=../bin-helper.sh
+. /usr/local/bin/bin-helper.sh
+
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
-EMAIL="$1"
-RECIPIENT="$2"
+EMAIL="${1}"
+RECIPIENT="${2}"
 
-usage() {
-	echo "Usage: delalias <alias@domain> <recipient@other>"
-}
+function usage  { echo "Usage: delalias <alias@domain> <recipient@other>" ; }
 
-errex() {
-	echo "$@" 1>&2
-	exit 1
-}
+[[ -z ${EMAIL} ]] && { usage ; errex "Error: No alias specified" ; }
+[[ -z ${RECIPIENT} ]] && { usage ; errex "Error: No recipient specified" ; }
+[[ -s ${DATABASE} ]] || exit 0
 
-escape() {
-	echo "${1//./\\.}"
-}
-
-[ -z "$EMAIL" ] && { usage; errex "Error: No alias specified"; }
-[ -z "$RECIPIENT" ] && { usage; errex "Error: No recipient specified"; }
-
-[ -s "$DATABASE" ] || exit 0
-
-#CNT=$(grep "^$EMAIL" $DATABASE | wc -w | awk '{print $1}')
-sed -i -e "/^$EMAIL *$RECIPIENT$/d" \
-       -e "/^$EMAIL/s/,$RECIPIENT//g" \
-       -e "/^$EMAIL/s/$RECIPIENT,//g" $DATABASE
+sed -i -e "/^${EMAIL} *${RECIPIENT}$/d" \
+  -e "/^${EMAIL}/s/,${RECIPIENT}//g" \
+  -e "/^${EMAIL}/s/${RECIPIENT},//g" "${DATABASE}"
