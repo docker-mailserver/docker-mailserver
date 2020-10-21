@@ -19,7 +19,7 @@ A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
-Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+[Why was this image was created?](http://tvi.al/simple-mail-server-with-docker/)
 
 1. [Announcements](#announcements)
 2. [Includes](#includes)
@@ -31,13 +31,14 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
 
 ## Announcements
 
-1. Debian Buster is now Docker base image
+1. Since version `v7.1.0`, the use of default variables has changed slightly. Please consult the [environment Variables](#environment-variables) sections
+2. Debian Buster is now Docker base image
    - Filebeat was removed
    - Dovecot was downgraded
-2. ELK was removed
-3. New contributing guidelines were added
-4. Added coherent coding style and linting
-5. Added option to use non-default network interface
+3. ELK was removed
+4. New contributing guidelines were added
+5. Added coherent coding style and linting
+6. Added option to use non-default network interface
 
 ## Includes
 
@@ -90,10 +91,12 @@ Minimum:
 Download the `docker-compose.yml`, `.env`, `env-mailserver` and the `setup.sh` files:
 
 ``` BASH
-curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x ./setup.sh
-curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
-curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
-curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver.dist
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver
+curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/template.env
+
+chmod a+x ./setup.sh
 ```
 
 ### Create a docker-compose environment
