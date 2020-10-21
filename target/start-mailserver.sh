@@ -982,7 +982,7 @@ function _setup_postfix_aliases
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
       # if they are equal it means the line looks like: "user1     other@domain.tld"
-      [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >> /tmp/vhost.tmp
+      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
     _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
@@ -1483,14 +1483,14 @@ function _setup_postfix_dhparam
     if [[ ! -f ${DHPARAMS_FILE} ]]
     then
       _notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
-      rm -f /etc/postfix/dhparams.pem && cp /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
+      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
     else
       _notify 'inf' "Use postfix dhparams that was generated previously"
       _notify 'warn' "Using self-generated dhparams is considered as insecure."
       _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
 
       # Copy from the state directory to the working location
-      rm -f /etc/postfix/dhparams.pem && cp "${DHPARAMS_FILE}" /etc/postfix/dhparams.pem
+      cp -f "${DHPARAMS_FILE}" /etc/postfix/dhparams.pem
     fi
   else
     if [[ ! -f /etc/postfix/dhparams.pem ]]
@@ -1528,14 +1528,14 @@ function _setup_dovecot_dhparam
     if [[ ! -f ${DHPARAMS_FILE} ]]
     then
       _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
-      rm -f /etc/dovecot/dh.pem && cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
+      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
     else
       _notify 'inf' "Use dovecot dhparams that was generated previously"
       _notify 'warn' "Using self-generated dhparams is considered as insecure."
       _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
 
       # Copy from the state directory to the working location
-      rm -f /etc/dovecot/dh.pem && cp "${DHPARAMS_FILE}" /etc/dovecot/dh.pem
+      cp -f "${DHPARAMS_FILE}" /etc/dovecot/dh.pem
     fi
   else
     if [[ ! -f /etc/dovecot/dh.pem ]]
@@ -1545,14 +1545,14 @@ function _setup_dovecot_dhparam
         _notify 'inf' "Copy postfix dhparams to dovecot"
         cp /etc/postfix/dhparams.pem /etc/dovecot/dh.pem
       elif [[ -f /tmp/docker-mailserver/dhparams.pem ]]
-    then
+      then
         _notify 'inf' "Copy pre-generated dhparams to dovecot"
         _notify 'warn' "Using self-generated dhparams is considered as insecure."
         _notify 'warn' "Unless you known what you are doing, please remove /tmp/docker-mailserver/dhparams.pem."
 
         cp /tmp/docker-mailserver/dhparams.pem /etc/dovecot/dh.pem
       else
-    _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
+        _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
         cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
       fi
     else

@@ -19,7 +19,7 @@ A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
-Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+[Why was this image was created?](http://tvi.al/simple-mail-server-with-docker/)
 
 1. [Announcements](#announcements)
 2. [Includes](#includes)
@@ -31,13 +31,14 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
 
 ## Announcements
 
-1. Debian Buster is now Docker base image
+1. Since version `v7.1.0`, the use of default variables has changed slightly. Please consult the [environment Variables](#environment-variables) sections
+2. Debian Buster is now Docker base image
    - Filebeat was removed
    - Dovecot was downgraded
-2. ELK was removed
-3. New contributing guidelines were added
-4. Added coherent coding style and linting
-5. Added option to use non-default network interface
+3. ELK was removed
+4. New contributing guidelines were added
+5. Added coherent coding style and linting
+6. Added option to use non-default network interface
 
 ## Includes
 
@@ -258,6 +259,8 @@ volumes:
 ## Environment variables
 
 If an option doesn't work as documented here, check if you are running the latest image! Values in **bold** are the default values.
+
+**Note**: Since `docker-mailserver v7.1.0`, comparisons for environment variables are executed differently. If you previously used `VARIABLE=''` as the `empty` value, please **update** to now use `VARIABLE=`.
 
 ### Assignments
 
