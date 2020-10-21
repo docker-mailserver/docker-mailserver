@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# ? This is done to ignore the message "Make sure not to read and write
+# ? the same file in the same pipeline", which is a result of ${DATABASE}
+# ? being used below.
 # shellcheck disable=SC2094
 
 # shellcheck source=../bin-helper.sh
