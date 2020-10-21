@@ -81,7 +81,8 @@ function __which { command -v "${@}" &>/dev/null ; }
 
 function _eclint
 {
-  local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$)")
+  local SCRIPT='EDITORCONFIG LINTER'
+  local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$|\.cf$|\.conf$|\.init$)")
 
   if ! __in_path "${LINT[0]}"
   then
@@ -93,7 +94,6 @@ function _eclint
     'type: editorconfig' \
     '(linter version:' "$(${LINT[0]} --version))"
 
-  local SCRIPT='EDITORCONFIG LINTER'
   if "${LINT[@]}"
   then
     __log_success 'no errors detected'
@@ -105,6 +105,7 @@ function _eclint
 
 function _hadolint
 {
+  local SCRIPT='HADOLINT'
   local LINT=(hadolint -c "${CDIR}/.hadolint.yaml")
 
   if ! __in_path "${LINT[0]}"
@@ -117,7 +118,6 @@ function _hadolint
     'type: Dockerfile' \
     '(linter version:' "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*"))"
 
-  local SCRIPT='HADOLINT'
   if git ls-files --exclude='Dockerfile*' --ignored | \
     xargs --max-lines=1 "${LINT[@]}"
   then
@@ -130,7 +130,9 @@ function _hadolint
 
 function _shellcheck
 {
-  local LINT=(/usr/bin/shellcheck -S style -Cauto -o all -e SC2154 -W 50)
+  local SCRIPT='SHELLCHECK'
+  local ERR=0
+  local LINT=(/usr/bin/shellcheck -x -S style -Cauto -o all -e SC2154 -W 50)
 
   if ! __in_path "${LINT[0]}"
   then
@@ -142,17 +144,44 @@ function _shellcheck
     'type: shellcheck' '(linter version:' \
     "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
 
-  local FIND=(
-    find . -iname "*.sh"
-    -not -path "./test/*"
-    -not -path "./target/docker-configomat/*"
-    -exec "${LINT[@]}" {} \;)
+  # an overengineered solution to allow shellcheck -x to
+  # properly follow `source=<SOURCE FILE>` when sourcing
+  # files with `. <FILE>` in shell scripts.
+  while read -r FILE
+  do
+    if ! (
+      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
+      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
+      then
+        return 1
+      fi
+    )
+    then
+      ERR=1
+    fi
+  done < <(find . -type f -iname "*.sh" \
+    -not -path "./test/bats/*" \
+    -not -path "./test/test_helper/*" \
+    -not -path "./target/docker-configomat/*")
 
-  local SCRIPT='SHELLCHECK'
-  if "${FIND[@]}" | grep -q .
+  # the same for executables in target/bin/
+  while read -r FILE
+  do
+    if ! (
+      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
+      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
+      then
+        return 1
+      fi
+    )
+    then
+      ERR=1
+    fi
+  done < <(find target/bin -executable -type f)
+
+  if [[ ERR -eq 1 ]]
   then
-    "${FIND[@]}"
-    __log_abort
+    __log_abort 'errors encountered'
     return 101
   else
     __log_success 'no errors detected'

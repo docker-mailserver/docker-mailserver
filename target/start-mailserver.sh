@@ -1,6 +1,6 @@
-#!/bin/bash
+#! /bin/bash
 
-# version  0.2.0
+# version  0.2.1
 #
 # Starts the mailserver.
 
@@ -49,7 +49,7 @@ DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 DEFAULT_VARS["MOVE_SPAM_TO_JUNK"]="${MOVE_SPAM_TO_JUNK:=1}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:=7}"
 DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:="eth0"}"
-# DEFAULT_VARS["DMS_DEBUG"] defined in helper_functions.sh
+# DEFAULT_VARS["DMS_DEBUG"] defined in helper-functions.sh
 
 ##########################################################################
 # << DEFAULT VARS
@@ -2088,8 +2088,8 @@ function _start_changedetector
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-# shellcheck source=/dev/null
-. /usr/local/bin/helper_functions.sh
+# shellcheck source=./helper-functions.sh
+. /usr/local/bin/helper-functions.sh
 
 if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
 then

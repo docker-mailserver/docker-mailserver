@@ -1,17 +1,19 @@
-#!/bin/bash
+#! /bin/bash
 
-HOSTNAME=$1
-RECIPIENT=$2
-SENDER=$3
-errex() {
-  echo -e "$@" 1>&2
-  exit 1
-}
+# shellcheck source=../bin-helper.sh
+. /usr/local/bin/bin-helper.sh
 
-test -x /usr/sbin/pflogsumm || errex "Critical: /usr/sbin/pflogsumm not found"
+HOSTNAME=${1}
+RECIPIENT=${2}
+SENDER=${3}
 
-# The case that the mail.log.1 file isn't readable shouldn't actually be possible with logrotate not rotating empty files.. But you never know!
-if [ -r "/var/log/mail/mail.log.1" ]; then
+[[ -x /usr/sbin/pflogsumm ]] || errex "Critical: /usr/sbin/pflogsumm not found"
+
+# The case that the mail.log.1 file isn't readable shouldn't
+# actually be possible with logrotate not rotating empty files..
+# But you never know!
+if [[ -r "/var/log/mail/mail.log.1" ]]
+then
   BODY=$(/usr/sbin/pflogsumm /var/log/mail/mail.log.1 --problems-first)
 else
   BODY="Error: Mail log not readable or not found: /var/log/mail/mail.log.1
@@ -19,15 +21,15 @@ else
 In case of mail inactivity since the last report, this might be considered a nuisance warning.
 
 Yours faithfully,
-The $HOSTNAME Mailserver"
+The ${HOSTNAME} Mailserver"
 fi
 
 sendmail -t <<EOF
-From: $SENDER
-To: $RECIPIENT
-Subject: Postfix Summary for $HOSTNAME
+From: ${SENDER}
+To: ${RECIPIENT}
+Subject: Postfix Summary for ${HOSTNAME}
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset=UTF-8
 
-$BODY
+${BODY}
 EOF

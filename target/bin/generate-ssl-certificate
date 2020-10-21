@@ -1,26 +1,32 @@
-#!/bin/bash
+#! /bin/bash
 
 set -e
 
 # check if FQDN was passed as arguement in setup.sh
-if [ -z "$1" ]; then
-	FQDN="$(hostname --fqdn)"
+if [[ -z ${1} ]]
+then
+  FQDN="$(hostname --fqdn)"
 else
-	FQDN="$1"
+  FQDN="${1}"
 fi
 
-ssl_cfg_path="/tmp/docker-mailserver/ssl"
+SSL_CFG_PATH="/tmp/docker-mailserver/ssl"
 
-if [ ! -d "$ssl_cfg_path" ]; then
-	mkdir "$ssl_cfg_path"
+if [[ ! -d ${SSL_CFG_PATH} ]]
+then
+  mkdir "${SSL_CFG_PATH}"
 fi
 
-cd "$ssl_cfg_path" || { echo "cd $ssl_cfg_path error"; exit; }
+cd "${SSL_CFG_PATH}" || { echo "cd ${SSL_CFG_PATH} error" ; exit ; }
+
 # Create CA certificate
 /usr/lib/ssl/misc/CA.pl -newca
+
 # Create an unpassworded private key and create an unsigned public key certificate
-openssl req -new -nodes -keyout "$ssl_cfg_path"/"$FQDN"-key.pem -out "$ssl_cfg_path"/"$FQDN"-req.pem -days 3652
+openssl req -new -nodes -keyout "${SSL_CFG_PATH}"/"${FQDN}"-key.pem -out "${SSL_CFG_PATH}"/"${FQDN}"-req.pem -days 3652
+
 # Sign the public key certificate with CA certificate
-openssl ca -out "$ssl_cfg_path"/"$FQDN"-cert.pem -infiles "$ssl_cfg_path"/"$FQDN"-req.pem
+openssl ca -out "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem -infiles "${SSL_CFG_PATH}"/"${FQDN}"-req.pem
+
 # Combine certificates for courier
-cat "$ssl_cfg_path"/"$FQDN"-key.pem "$ssl_cfg_path"/"$FQDN"-cert.pem > "$ssl_cfg_path"/"$FQDN"-combined.pem
+cat "${SSL_CFG_PATH}"/"${FQDN}"-key.pem "${SSL_CFG_PATH}"/"${FQDN}"-cert.pem > "${SSL_CFG_PATH}"/"${FQDN}"-combined.pem

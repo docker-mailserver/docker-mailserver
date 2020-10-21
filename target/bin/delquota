@@ -1,28 +1,24 @@
 #! /bin/bash
 
+# shellcheck source=../bin-helper.sh
+. /usr/local/bin/bin-helper.sh
+
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-USER="$1"
+USER="${1}"
 
-usage() {
-	echo "Usage: delquota <username@domain>"
-}
+function usage  {	echo "Usage: delquota <username@domain>" ; }
 
-errex() {
-	echo "$@" 1>&2
-	exit 1
-}
+[[ -z ${USER} ]]  && { usage ; errex "No username specified" ; }
+[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain"; }
 
-escape() {
-	echo "${1//./\\.}"
-}
-
-[ -z "$USER" ]  && { usage; errex "No username specified"; }
-expr index "$USER" "@" >/dev/null || { usage; errex "username must include the domain"; }
-if ! grep -qE "^$USER\|" "$USER_DATABASE"; then
-  usage; errex "user $USER does not exist"
+if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
+then
+  usage
+  errex "user ${USER} does not exist"
 fi
-[ -s "$DATABASE" ] || exit 0
 
-sed -i -e "/^$USER:.*$/d" $DATABASE
+[[ -s ${DATABASE} ]] || exit 0
+
+sed -i -e "/^${USER}:.*$/d" "${DATABASE}"
