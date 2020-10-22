@@ -17,7 +17,6 @@ services:
       - maillogs:/var/log/mail
       - ./config/:/tmp/docker-mailserver/
     env_file:
-      - .env
       - mailserver.env
     cap_add:
       - NET_ADMIN
