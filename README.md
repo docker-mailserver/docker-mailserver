@@ -694,7 +694,7 @@ In order to enable inbox sharing, you also need to specify a namespace separator
 Then, you may want to tweak [sharing settings](https://wiki.dovecot.org/SharedMailboxes/Shared) in the config file - `/etc/dovecot/11-shared.conf` in the container.
 Finally, you will want to define how will Dovecot keep track of which mailboxes are shared to a particular user by [defining a dictionary](https://wiki.dovecot.org/Dictionary).
 
-You can share a mailbox by calling a script `/usr/local/bin/share_inbox.sh` in the container e.g. using `docker-compose exec`.
+You can share a mailbox by calling a script `/usr/local/bin/share-inbox.sh` in the container e.g. using `docker-compose exec`.
 That script will sync [mailbox's ACLs](https://doc.dovecot.org/settings/plugin/acl/) together with the dictionary.
 
 #### Postgrey

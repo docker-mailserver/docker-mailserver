@@ -49,9 +49,9 @@ DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 DEFAULT_VARS["MOVE_SPAM_TO_JUNK"]="${MOVE_SPAM_TO_JUNK:=1}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:=7}"
 DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:="eth0"}"
-DEFAULT_VARS["ENABLE_SHARED_INBOX"]="${DOVECOT_ENABLE_INBOX_SHARING:=0}"
-DEFAULT_VARS["NAMESPACE_SEPARATOR_CLAUSE"]="separator = ${DOVECOT_NAMESPACE_SEPARATOR}"
-DEFAULT_VARS["SHARED_INBOX_CONFIG"]="11-shared.conf"
+DEFAULT_VARS["DOVECOT_ENABLE_INBOX_SHARING"]="${DOVECOT_ENABLE_INBOX_SHARING:=0}"
+DEFAULT_VARS["DOVECOT_NAMESPACE_SEPARATOR_CLAUSE"]="separator = ${DOVECOT_NAMESPACE_SEPARATOR}"
+DEFAULT_VARS["DOVECOT_SHARED_INBOX_CONFIG"]="11-shared.conf"
 # DEFAULT_VARS["DMS_DEBUG"] defined in helper-functions.sh
 
 ##########################################################################
@@ -134,7 +134,7 @@ function register_functions
 
   _register_setup_function "_setup_docker_permit"
 
-  _register_setup_function "_setup_namespaces"
+  _register_setup_function "_setup_dovecot_namespaces"
   _register_setup_function "_setup_mailname"
   _register_setup_function "_setup_amavis"
   _register_setup_function "_setup_dmarc_hostname"
@@ -811,28 +811,28 @@ function _setup_ldap
   return 0
 }
 
-function _setup_namespaces
+function _setup_dovecot_namespaces
 {
   _notify 'inf' "Setting up dovecot namespaces"
   uncomment_shared_config_contents=no
-  if [[ "${DEFAULT_VARS[ENABLE_SHARED_INBOX]}" = 0 ]]
+  if [[ "${DEFAULT_VARS[DOVECOT_ENABLE_INBOX_SHARING]}" = 0 ]]
   then
-    _notify 'inf' "Shared inboxes are disabled - the '${DEFAULT_VARS[SHARED_INBOX_CONFIG]}' config file is left commented out"
+    _notify 'inf' "Shared inboxes are disabled - the '${DEFAULT_VARS[DOVECOT_SHARED_INBOX_CONFIG]}' config file is left commented out"
   else
     uncomment_shared_config_contents=yes
   fi
   if [[ -z "${DOVECOT_NAMESPACE_SEPARATOR}" ]]
   then
-    [[ "${DEFAULT_VARS[ENABLE_SHARED_INBOX]}" = 1 ]] && _notify 'warn' 'Namespace separator has to be defined in order for shared inboxes to work.'
+    [[ "${DEFAULT_VARS[DOVECOT_ENABLE_INBOX_SHARING]}" = 1 ]] && _notify 'warn' 'Namespace separator has to be defined in order for shared inboxes to work.'
     uncomment_shared_config_contents=no
-    NAMESPACE_SEPARATOR_CLAUSE="# ${DEFAULT_VARS[NAMESPACE_SEPARATOR_CLAUSE]}"
+    DOVECOT_NAMESPACE_SEPARATOR_CLAUSE="# ${DEFAULT_VARS[DOVECOT_NAMESPACE_SEPARATOR_CLAUSE]}"
   else
-    NAMESPACE_SEPARATOR_CLAUSE="${DEFAULT_VARS[NAMESPACE_SEPARATOR_CLAUSE]}"
+    DOVECOT_NAMESPACE_SEPARATOR_CLAUSE="${DEFAULT_VARS[DOVECOT_NAMESPACE_SEPARATOR_CLAUSE]}"
   fi
 
-  [[ "${uncomment_shared_config_contents}" = yes ]] &&  sed -i -e "s/^#<#//" "/etc/dovecot/conf.d/${DEFAULT_VARS[SHARED_INBOX_CONFIG]}"
-  sed -i -e "s|#@NAMESPACE_SEPARATOR_CLAUSE@|${NAMESPACE_SEPARATOR_CLAUSE}|" /etc/dovecot/conf.d/10-mail.conf
-  sed -i -e "s|@NAMESPACE_SEPARATOR_CLAUSE@|${NAMESPACE_SEPARATOR_CLAUSE}|" "/etc/dovecot/conf.d/${DEFAULT_VARS[SHARED_INBOX_CONFIG]}"
+  [[ "${uncomment_shared_config_contents}" = yes ]] &&  sed -i -e "s/^#<#//" "/etc/dovecot/conf.d/${DEFAULT_VARS[DOVECOT_SHARED_INBOX_CONFIG]}"
+  sed -i -e "s|#@DOVECOT_NAMESPACE_SEPARATOR_CLAUSE@|${DOVECOT_NAMESPACE_SEPARATOR_CLAUSE}|" /etc/dovecot/conf.d/10-mail.conf
+  sed -i -e "s|@DOVECOT_NAMESPACE_SEPARATOR_CLAUSE@|${DOVECOT_NAMESPACE_SEPARATOR_CLAUSE}|" "/etc/dovecot/conf.d/${DEFAULT_VARS[DOVECOT_SHARED_INBOX_CONFIG]}"
 }
 
 function _setup_postgrey

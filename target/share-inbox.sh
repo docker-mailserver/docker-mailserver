@@ -18,9 +18,9 @@ then
   exit 1
 fi
 
-sharing=$1
+SHARING=$1
 shift
-shared_to=$1
+SHARED_TO=$1
 shift
 
-doveadm acl add -u "${sharing}@${DOMAIN}" 'Inbox' "user=${shared_to}@${DOMAIN}" "$@"
+doveadm acl add -u "${SHARING}@${DOMAIN}" 'Inbox' "user=${SHARED_TO}@${DOMAIN}" "$@"
