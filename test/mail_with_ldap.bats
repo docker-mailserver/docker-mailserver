@@ -220,7 +220,7 @@ function teardown_file() {
   assert_success
 
   # checking default logrotation setup
-  run docker exec mail_with_ldap grep "daily" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "weekly" /etc/logrotate.d/maillog
   assert_success
 }
 
