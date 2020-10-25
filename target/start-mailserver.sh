@@ -42,7 +42,7 @@ DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
 DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:=0}"
 DEFAULT_VARS["SRS_SENDER_CLASSES"]="${SRS_SENDER_CLASSES:="envelope_sender"}"
 DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:=0}"
-DEFAULT_VARS["LOGROTATE_INTERVAL"]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-"daily"}}"
+DEFAULT_VARS["LOGROTATE_INTERVAL"]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-"weekly"}}"
 DEFAULT_VARS["LOGWATCH_INTERVAL"]="${LOGWATCH_INTERVAL:="none"}"
 DEFAULT_VARS["EXPLICITLY_DEFINED_SPAMASSASSIN_SPAM_TO_INBOX"]="$( [ -z "${SPAMASSASSIN_SPAM_TO_INBOX}" ] && echo "0" || echo "1" )" # used for backward compatibility
 DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
@@ -1691,15 +1691,15 @@ function _setup_logrotate
   case "${LOGROTATE_INTERVAL}" in
     "daily" )
       _notify 'inf' "Setting postfix logrotate interval to daily"
-      LOGROTATE="${LOGROTATE}  rotate 1\n  daily\n"
+      LOGROTATE="${LOGROTATE}  rotate 7\n  daily\n"
       ;;
     "weekly" )
       _notify 'inf' "Setting postfix logrotate interval to weekly"
-      LOGROTATE="${LOGROTATE}  rotate 1\n  weekly\n"
+      LOGROTATE="${LOGROTATE}  rotate 5\n  weekly\n"
       ;;
     "monthly" )
       _notify 'inf' "Setting postfix logrotate interval to monthly"
-      LOGROTATE="${LOGROTATE}  rotate 1\n  monthly\n"
+      LOGROTATE="${LOGROTATE}  rotate 12\n  monthly\n"
       ;;
     * ) _notify 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate' ;;
   esac
