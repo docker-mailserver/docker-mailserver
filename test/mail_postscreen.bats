@@ -12,12 +12,14 @@ teardown() {
 }
 
 setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_postscreen \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e POSTSCREEN_ACTION=enforce \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t ${NAME}
+              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+              -e POSTSCREEN_ACTION=enforce \
+              --cap-add=NET_ADMIN \
+              -h mail.my-domain.com -t ${NAME}
 
     docker run --name mail_postscreen_sender \
         -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \

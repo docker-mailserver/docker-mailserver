@@ -53,7 +53,6 @@ do
   then
     echo "${LOG_DATE} Change detected"
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
-    mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
     # Bug alert! This overwrites the alias set by start-mailserver.sh
     # Take care that changes in one script are propagated to the other
@@ -231,6 +230,9 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       # prevent restart of dovecot when smtp_only=1
       [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
     ) 200<postfix-accounts.cf # end lock
+
+    # mark changes as applied
+    mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
   fi
 
   sleep 1

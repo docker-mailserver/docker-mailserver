@@ -9,14 +9,16 @@ function teardown() {
 }
 
 function setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_manual_ssl \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e SSL_TYPE=manual \
-		-e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
-		-e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
+              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+              -e SSL_TYPE=manual \
+              -e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
+              -e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
+              -e DMS_DEBUG=0 \
+              -h mail.my-domain.com -t ${NAME}
     wait_for_finished_setup_in_container mail_manual_ssl
 }
 
@@ -51,6 +53,7 @@ function teardown_file() {
 }
 
 @test "checking ssl: manual cert works correctly" {
+  wait_for_tcp_port_in_container 587 mail_manual_ssl
   run docker exec mail_manual_ssl /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   assert_success
 }

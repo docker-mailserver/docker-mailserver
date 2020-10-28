@@ -14,20 +14,23 @@ function teardown() {
 }
 
 function setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_spam_bounced_defined)"
     docker run -d --name mail_spam_bounced_defined \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-e SPAMASSASSIN_SPAM_TO_INBOX=0 \
-		-h mail.my-domain.com -t "${NAME}"
+              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+              -e ENABLE_SPAMASSASSIN=1 \
+              -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
+              -h mail.my-domain.com -t "${NAME}"
 
     wait_for_finished_setup_in_container mail_spam_bounced_defined
 
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_spam_bounced_defined)"
     docker run -d --name mail_spam_bounced_undefined \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_SPAMASSASSIN=1 \
-		-h mail.my-domain.com -t "${NAME}"
+              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+              -e ENABLE_SPAMASSASSIN=1 \
+              -h mail.my-domain.com -t "${NAME}"
 
     wait_for_finished_setup_in_container mail_spam_bounced_undefined
 }

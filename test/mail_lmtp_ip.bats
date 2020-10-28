@@ -9,10 +9,13 @@ teardown() {
 }
 
 setup_file() {
+    local PRIVATE_CONFIG PRIVATE_ETC
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_ETC="$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)"
     docker run -d --name mail_lmtp_ip \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/config/dovecot-lmtp":/etc/dovecot \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+		-v "${PRIVATE_ETC}":/etc/dovecot \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-e DMS_DEBUG=0 \
@@ -43,7 +46,7 @@ teardown_file() {
   wait_for_smtp_port_in_container mail_lmtp_ip
   run docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
-  
+
   # polling needs to avoid wc -l's unconditionally successful return status
   repeat_until_success_or_timeout 60 docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)'"
   run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"

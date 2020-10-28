@@ -9,29 +9,34 @@ function teardown() {
 }
 
 function setup_file() {
+  local PRIVATE_CONFIG
+
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_domain)"
   docker run -d --name mail_lets_domain \
-  -v "`pwd`/test/config":/tmp/docker-mailserver \
-  -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-  -v "`pwd`/test/config/letsencrypt/my-domain.com":/etc/letsencrypt/live/my-domain.com \
+  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+  -v "${PRIVATE_CONFIG}/letsencrypt/my-domain.com":/etc/letsencrypt/live/my-domain.com \
   -e DMS_DEBUG=0 \
   -e SSL_TYPE=letsencrypt \
   -h mail.my-domain.com -t ${NAME}
   wait_for_finished_setup_in_container mail_lets_domain
 
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_hostname)"
   docker run -d --name mail_lets_hostname \
-  -v "`pwd`/test/config":/tmp/docker-mailserver \
-  -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-  -v "`pwd`/test/config/letsencrypt/mail.my-domain.com":/etc/letsencrypt/live/mail.my-domain.com \
+  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+  -v "${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com":/etc/letsencrypt/live/mail.my-domain.com \
   -e DMS_DEBUG=0 \
   -e SSL_TYPE=letsencrypt \
   -h mail.my-domain.com -t ${NAME}
   wait_for_finished_setup_in_container mail_lets_hostname
 
-  cp "`pwd`/test/config/letsencrypt/acme.json" "`pwd`/test/config/acme.json"
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json)"
+  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme.json" "$(private_config_path mail_lets_acme_json)/acme.json"
   docker run -d --name mail_lets_acme_json \
-    -v "`pwd`/test/config":/tmp/docker-mailserver \
-    -v "`pwd`/test/config/acme.json":/etc/letsencrypt/acme.json:ro \
-    -v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e DMS_DEBUG=0 \
     -e SSL_TYPE=letsencrypt \
     -e "SSL_DOMAIN=*.example.com" \
@@ -44,7 +49,6 @@ function teardown_file() {
   docker rm -f mail_lets_domain
   docker rm -f mail_lets_hostname
   docker rm -f mail_lets_acme_json
-  rm "`pwd`/test/config/acme.json"
 }
 
 # this test must come first to reliably identify when to run setup_file
@@ -103,16 +107,16 @@ function teardown_file() {
 
 @test "can extract certs from acme.json" {
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
-  assert_output "$(cat "`pwd`/test/config/letsencrypt/mail.my-domain.com/privkey.pem")"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/privkey.pem")"
   assert_success
 
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
-  assert_output "$(cat "`pwd`/test/config/letsencrypt/mail.my-domain.com/fullchain.pem")"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/fullchain.pem")"
   assert_success
 }
 
 @test "can detect changes" {
-  cp "`pwd`/test/config/letsencrypt/acme-changed.json" "`pwd`/test/config/acme.json"
+  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed.json" "$(private_config_path mail_lets_acme_json)/acme.json"
   sleep 11
   run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "Cert found in /etc/letsencrypt/acme.json for *.example.com"
@@ -121,11 +125,11 @@ function teardown_file() {
   assert_output --partial "Change detected"
 
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
-  assert_output "$(cat "`pwd`/test/config/letsencrypt/changed/key.pem")"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/key.pem")"
   assert_success
 
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
-  assert_output "$(cat "`pwd`/test/config/letsencrypt/changed/fullchain.pem")"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/fullchain.pem")"
   assert_success
 }
 

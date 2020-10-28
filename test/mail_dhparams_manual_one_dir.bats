@@ -20,10 +20,12 @@ function teardown() {
 }
 
 function setup_file() {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_manual_dhparams_one_dir \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
-		-v "`pwd`/test/test-files/ssl/custom-dhe-params.pem":/var/mail-state/lib-shared/dhparams.pem:ro \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "$(pwd)/test/test-files/ssl/custom-dhe-params.pem":/var/mail-state/lib-shared/dhparams.pem:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=1 \
 		-h mail.my-domain.com -t ${NAME}

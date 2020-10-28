@@ -15,11 +15,13 @@ function setup_file() {
 
     docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h ldap.my-domain.com -t ldap        
-    
+		-h ldap.my-domain.com -t ldap
+
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_with_ldap \
-		-v "`pwd`/test/config":/tmp/docker-mailserver \
-		-v "`pwd`/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e ENABLE_LDAP=1 \
 		-e LDAP_SERVER_HOST=ldap \
 		-e LDAP_START_TLS=no \
@@ -214,7 +216,7 @@ function teardown_file() {
 # Pflogsumm delivery check
 #
 
-@test "checking pflogsum delivery" { 
+@test "checking pflogsum delivery" {
   # checking default sender is correctly set when env variable not defined
   run docker exec mail_with_ldap grep "mailserver-report@mail.my-domain.com" /etc/logrotate.d/maillog
   assert_success
