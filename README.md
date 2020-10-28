@@ -88,13 +88,13 @@ Minimum:
 
 ### Get the tools
 
-Download the `docker-compose.yml`, `.env`, `env-mailserver` and the `setup.sh` files:
+Download the `docker-compose.yml`, `compose.env`, `mailserver.env` and the `setup.sh` files:
 
 ``` BASH
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml
-wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver
-curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/template.env
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/mailserver.env
+curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/compose.env
 
 chmod a+x ./setup.sh
 ```
@@ -102,14 +102,14 @@ chmod a+x ./setup.sh
 ### Create a docker-compose environment
 
 - [Install the latest docker-compose](https://docs.docker.com/compose/install/)
-- Edit the files `.env` and `env-mailserver` to your liking:
+- Edit the files `.env` and `mailserver.env` to your liking:
   - `.env` contains the configuration for docker-compose
-  - `env-mailserver` contains the configuration for the mailserver container
+  - `mailserver.env` contains the configuration for the mailserver container
   - These files supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
 
-**Note:**: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `env-mailserver` serves this case where environment variables are used in the container.
+**Note:**: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `mailserver.env` serves this case where environment variables are used in the container.
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 

@@ -17,8 +17,7 @@ services:
       - maillogs:/var/log/mail
       - ./config/:/tmp/docker-mailserver/
     env_file:
-      - .env
-      - env-mailserver
+      - mailserver.env
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
