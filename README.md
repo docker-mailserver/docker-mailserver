@@ -124,7 +124,7 @@ docker-compose up -d mail
 ### Get up and running with SELinux
 - Edit the files `.env` and `docker-compose.yml`:
   - In `.env` uncomment the variable `SELINUX_LABEL`. 
-    - If you want the volume bind mount to be shared amongst other containers switch `-Z` to `-z`.  
+    - If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`.  
   - In `docker-compose.yml` uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
   
 **Note:** When using `setup.sh` use the shell script option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in `.env`.\
