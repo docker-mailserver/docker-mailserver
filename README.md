@@ -109,20 +109,26 @@ chmod a+x ./setup.sh
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
 
-**Note:**: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `mailserver.env` serves this case where environment variables are used in the container.
+**Note:** Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `mailserver.env` serves this case where environment variables are used in the container.
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
 ### Get up and running
-
+**Note:** If using SELinux and is enabled, skip to next section below.
 ``` BASH
 docker-compose up -d mail
 ./setup.sh email add <user@domain> [<password>]
 ./setup.sh config dkim
 ```
 
-**Note:** If you have SELinux enabled, use the shell script option -z or -Z. See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information.\
-Immedietly below you will find an example using option `-Z`.
+### Get up and running with SELinux
+- Edit the files `.env` and `docker-compose.yml`
+  - In `.env` uncomment the variable `SELINUX_LABEL`. 
+    - If you want the volume bind mount to be shared amongst other containers switch `-Z` to `-z`.  
+  - In `docker-compose.yml` uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
+  
+- When using `setup.sh` use the shell script option `-z` or `-Z`. The option used should match the value of `SELINUX_LABEL` in `.env`.\
+See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information regarding `setup.sh`.
 
 ``` BASH
 docker-compose up -d mail
