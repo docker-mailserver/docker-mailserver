@@ -127,7 +127,7 @@ docker-compose up -d mail
     - If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`.  
   - In `docker-compose.yml` uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
   
-**Note:** When using `setup.sh` use the shell script option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in `.env`.\
+**Note:** When using `setup.sh` use the option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in the `.env` file.\
 See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information regarding `setup.sh`.
 
 ``` BASH
