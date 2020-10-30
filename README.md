@@ -121,6 +121,15 @@ docker-compose up -d mail
 ./setup.sh config dkim
 ```
 
+**Note:** If you have SELinux enabled, use the shell script option -z or -Z. See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information.\
+Immedietly below you will find an example using option `-Z`.
+
+``` BASH
+docker-compose up -d mail
+./setup.sh -Z email add <user@domain> [<password>]
+./setup.sh -Z config dkim
+```
+
 Now that the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
 ### Miscellaneous
