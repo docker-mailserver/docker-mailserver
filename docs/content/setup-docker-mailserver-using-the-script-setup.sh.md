@@ -23,7 +23,16 @@ OPTIONS:
 
   -i IMAGE_NAME     The name of the docker-mailserver image, by default
                     'tvial/docker-mailserver:latest'.
+
   -c CONTAINER_NAME The name of the running container.
+
+  -z                Allow container access to the bind mount content
+                    that is shared among multiple containers
+                    on a SELinux-enabled host.
+
+  -Z                Allow container access to the bind mount content
+                    that is private and unshared with other containers
+                    on a SELinux-enabled host.
 
 SUBCOMMANDS:
 
