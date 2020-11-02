@@ -19,7 +19,7 @@ A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
-[Why was this image was created?](http://tvi.al/simple-mail-server-with-docker/)
+[Why was this image was created.](http://tvi.al/simple-mail-server-with-docker/)
 
 1. [Announcements](#announcements)
 2. [Includes](#includes)
