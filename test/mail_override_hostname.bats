@@ -15,7 +15,7 @@ function setup_file() {
 		-e ENABLE_SRS=1 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h unknown.domain.tld \
-		-t ${NAME}
+		-t "${NAME}"
 
     wait_for_smtp_port_in_container mail_override_hostname
     # postfix virtual transport lmtp

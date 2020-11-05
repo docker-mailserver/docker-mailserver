@@ -8,7 +8,7 @@ function setup() {
             -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
             -e ENABLE_SPAMASSASSIN=1 \
             -e SA_SPAM_SUBJECT="undef" \
-            -h mail.my-domain.com -t ${NAME}
+            -h mail.my-domain.com -t "${NAME}"
 
     PRIVATE_CONFIG="$(duplicate_config_for_container . mail_undef_spam_subject_2)"
     CONTAINER=$(docker run -d \
@@ -31,23 +31,23 @@ function setup() {
                           --cap-add=SYS_PTRACE \
                           -e PERMIT_DOCKER=host \
                           -e DMS_DEBUG=0 \
-                          -h mail.my-domain.com -t ${NAME})
+                          -h mail.my-domain.com -t "${NAME}")
     wait_for_finished_setup_in_container mail_undef_spam_subject
-    wait_for_finished_setup_in_container "$CONTAINER"
+    wait_for_finished_setup_in_container "${CONTAINER}"
 }
 
 function teardown() {
-    docker rm -f mail_undef_spam_subject "$CONTAINER"
+    docker rm -f mail_undef_spam_subject "${CONTAINER}"
 }
 
 @test "checking spamassassin: docker env variables are set correctly (custom)" {
-  run docker exec "$CONTAINER" /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
+  run docker exec "${CONTAINER}" /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
   assert_success
-  run docker exec "$CONTAINER" /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
+  run docker exec "${CONTAINER}" /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   assert_success
-  run docker exec "$CONTAINER" /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
+  run docker exec "${CONTAINER}" /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
   assert_success
-  run docker exec "$CONTAINER" /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
+  run docker exec "${CONTAINER}" /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
   assert_success
   run docker exec mail_undef_spam_subject /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
   assert_success

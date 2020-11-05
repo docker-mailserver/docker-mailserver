@@ -20,7 +20,7 @@ function setup_file() {
               -e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
               -e POSTGREY_TEXT="Delayed by postgrey" \
               -e DMS_DEBUG=0 \
-              -h mail.my-domain.com -t ${NAME}
+              -h mail.my-domain.com -t "${NAME}"
     # using postfix availability as start indicator, this might be insufficient for postgrey
     wait_for_smtp_port_in_container mail_with_postgrey
 }
@@ -30,7 +30,7 @@ function teardown_file() {
 }
 
 @test "first" {
-  # this test must come first to reliably identify when to run setup_file
+  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 @test "checking postgrey: /etc/postfix/main.cf correctly edited" {
@@ -99,5 +99,5 @@ function teardown_file() {
 }
 
 @test "last" {
-  # this test is only there to reliably mark the end for the teardown_file
+  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

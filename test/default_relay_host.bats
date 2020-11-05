@@ -10,7 +10,7 @@ function setup() {
 		--cap-add=SYS_PTRACE \
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_with_default_relay
 }
 
