@@ -5,6 +5,7 @@
 
 function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
+unset JAILS
 declare -a JAILS
 for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g')
 do
@@ -13,49 +14,44 @@ done
 
 if [[ -z ${1} ]]
 then
+
   IP_COUNT=0
 
   for JAIL in "${JAILS[@]}"
   do
-    declare -a BANNED_IPS
+    BANNED_IP="$(iptables -L "f2b-${JAIL}" -n 2>/dev/null | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')"
 
-    while read -r LINE
-    do
-      BANNED_IPS+=("$(echo "${LINE}" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')")
-    done < <(iptables -L f2b-"${JAIL}" -n)
-
-    if [[ ${#BANNED_IPS[@]} -ne 0 ]]
+    if [[ -n ${BANNED_IP} ]]
     then
-      for BANNED_IP in "${BANNED_IPS[@]}"
-      do
-        echo "Banned in ${JAIL}: ${BANNED_IP}"
-        IP_COUNT=$(( IP_COUNT + 1 ))
-      done
+      echo "Banned in ${JAIL}: ${BANNED_IP//$'\n'/, }"
+      IP_COUNT=$(( IP_COUNT + 1 ))
     fi
   done
 
   if [[ ${IP_COUNT} -eq 0 ]]
   then
-    echo "No IPs have been banned"
+    echo "No IPs have been banned."
   fi
+
 else
+
   case ${1} in
+
     unban)
       shift
       if [[ -n ${1} ]]
       then
+
         for JAIL in "${JAILS[@]}"
         do
-          RESULT="$(fail2ban-client set "${JAIL}" unbanip "${@}")"
+          RESULT="$(fail2ban-client set "${JAIL}" unbanip "192.0.66.4" 2>&1)"
 
-          if [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]]
-          then
-            echo -n "unbanned IP from ${JAIL}: "
-            echo "${RESULT}"
-          fi
+          [[ "${RESULT}" != *"is not banned"* ]] && [[ "${RESULT}" != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
         done
+
       else
-        errex "You need to specify an IP address. Run \"./setup.sh debug fail2ban\" to get a list of banned IP addresses."
+        echo "You need to specify an IP address. Run './setup.sh debug fail2ban' to get a list of banned IP addresses." >&2
+        exit 0
       fi
       ;;
 
@@ -64,5 +60,8 @@ else
       errex "unknown command: ${1}"
       ;;
 
-    esac
+  esac
+
 fi
+
+exit 0
