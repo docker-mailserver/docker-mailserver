@@ -28,7 +28,7 @@ function setup_file() {
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=1 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_default_dhparams_one_dir
 
     PRIVATE_CONFIG="$(duplicate_config_for_container . mail_default_dhparams_both_not_one_dir)"
@@ -37,7 +37,7 @@ function setup_file() {
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=0 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_default_dhparams_not_one_dir
 }
 
@@ -54,25 +54,25 @@ function teardown_file() {
   # reference used: (22/04/2020) https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls
 
   # check ffdhe params are inchanged
-  repo_checksum=$(sha512sum "$(pwd)/target/shared/ffdhe4096.pem" | awk '{print $1}')
-  mozilla_checksum=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
-  assert_equal "$repo_checksum" "$mozilla_checksum"
-  run echo "$repo_checksum"
+  REPO_CHECKSUM=$(sha512sum "$(pwd)/target/shared/ffdhe4096.pem" | awk '{print $1}')
+  MOZILLA_CHECKSUM=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
+  assert_equal "${REPO_CHECKSUM}" "${MOZILLA_CHECKSUM}"
+  run echo "${REPO_CHECKSUM}"
   refute_output '' # checksum must not be empty
 
   # by default, ffdhe4096 should be used
 
   # ONE_DIR=1
-  docker_dovecot_checksum_one_dir=$(docker exec mail_default_dhparams_one_dir sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
-  docker_postfix_checksum_one_dir=$(docker exec mail_default_dhparams_one_dir sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
-  assert_equal "$docker_dovecot_checksum_one_dir" "$repo_checksum"
-  assert_equal "$docker_postfix_checksum_one_dir" "$repo_checksum"
+  DOCKER_DOVECOT_CHECKSUM_ONE_DIR=$(docker exec mail_default_dhparams_one_dir sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
+  DOCKER_POSTFIX_CHECKSUM_ONE_DIR=$(docker exec mail_default_dhparams_one_dir sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
+  assert_equal "${DOCKER_DOVECOT_CHECKSUM_ONE_DIR}" "${REPO_CHECKSUM}"
+  assert_equal "${DOCKER_POSTFIX_CHECKSUM_ONE_DIR}" "${REPO_CHECKSUM}"
 
   # ONE_DIR=0
-  docker_dovecot_checksum_not_one_dir=$(docker exec mail_default_dhparams_not_one_dir sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
-  docker_postfix_checksum_not_one_dir=$(docker exec mail_default_dhparams_not_one_dir sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
-  assert_equal "$docker_dovecot_checksum_not_one_dir" "$repo_checksum"
-  assert_equal "$docker_postfix_checksum_not_one_dir" "$repo_checksum"
+  DOCKER_DOVECOT_CHECKSUM_NOT_ONE_DIR=$(docker exec mail_default_dhparams_not_one_dir sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
+  DOCKER_POSTFIX_CHECKSUM_NOT_ONE_DIR=$(docker exec mail_default_dhparams_not_one_dir sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
+  assert_equal "${DOCKER_DOVECOT_CHECKSUM_NOT_ONE_DIR}" "${REPO_CHECKSUM}"
+  assert_equal "${DOCKER_POSTFIX_CHECKSUM_NOT_ONE_DIR}" "${REPO_CHECKSUM}"
 }
 
 

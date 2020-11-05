@@ -20,7 +20,7 @@ setup_file() {
                 --cap-add=SYS_PTRACE \
                 -e PERMIT_DOCKER=host \
                 -e DMS_DEBUG=0 \
-                -h mail.my-domain.com -t ${NAME}
+                -h mail.my-domain.com -t "${NAME}"
     wait_for_smtp_port_in_container mail_special_use_folders
 }
 
@@ -37,6 +37,7 @@ teardown_file() {
   run docker exec mail_special_use_folders /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
 
+  # shellcheck disable=SC2016
   repeat_until_success_or_timeout 30 docker exec mail_special_use_folders /bin/sh -c '[ $(ls /var/mail/localhost.localdomain/user1/new | wc -l) -eq 1 ]'
 }
 

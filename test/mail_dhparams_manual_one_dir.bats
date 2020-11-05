@@ -28,7 +28,7 @@ function setup_file() {
 		-v "$(pwd)/test/test-files/ssl/custom-dhe-params.pem":/var/mail-state/lib-shared/dhparams.pem:ro \
 		-e DMS_DEBUG=0 \
 		-e ONE_DIR=1 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_manual_dhparams_one_dir
 }
 
@@ -42,13 +42,13 @@ function teardown_file() {
 
 @test "checking dhparams: ONE_DIR=1 check manual dhparams is used" {
   test_checksum=$(sha512sum "$(pwd)/test/test-files/ssl/custom-dhe-params.pem" | awk '{print $1}')
-  run echo "$test_checksum"
+  run echo "${test_checksum}"
   refute_output '' # checksum must not be empty
 
   docker_dovecot_checksum=$(docker exec mail_manual_dhparams_one_dir sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
   docker_postfix_checksum=$(docker exec mail_manual_dhparams_one_dir sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
-  assert_equal "$docker_dovecot_checksum" "$test_checksum"
-  assert_equal "$docker_postfix_checksum" "$test_checksum"
+  assert_equal "${docker_dovecot_checksum}" "${test_checksum}"
+  assert_equal "${docker_postfix_checksum}" "${test_checksum}"
 }
 
 @test "checking dhparams: ONE_DIR=1 check warning output when using manual dhparams" {

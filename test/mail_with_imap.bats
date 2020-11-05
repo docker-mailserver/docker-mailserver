@@ -20,7 +20,7 @@ setup_file() {
 		-e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_smtp_port_in_container mail_with_imap
 }
 

@@ -9,9 +9,9 @@ function teardown() {
 }
 
 function setup_file() {
-    pushd test/docker-openldap/
+    pushd test/docker-openldap/ || return 1
     docker build -f Dockerfile -t ldap --no-cache .
-    popd
+    popd || return 1
 
     docker run -d --name ldap_for_mail \
 		-e LDAP_DOMAIN="localhost.localdomain" \
@@ -46,7 +46,7 @@ function setup_file() {
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
 		--link ldap_for_mail:ldap \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_smtp_port_in_container mail_with_ldap
 }
 
@@ -55,7 +55,7 @@ function teardown_file() {
 }
 
 @test "first" {
-  # this test must come first to reliably identify when to run setup_file
+  skip 'only used to call setup_file from setup'
 }
 
 # processes
@@ -236,5 +236,5 @@ function teardown_file() {
 }
 
 @test "last" {
-  # this test is only there to reliably mark the end for the teardown_file
+  skip 'only used to call teardown_file from teardown'
 }

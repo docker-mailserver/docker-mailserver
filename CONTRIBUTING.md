@@ -84,7 +84,7 @@ fi
 
 # equality checks with numbers are done
 # with -eq/-ne/-lt/-ge, not != or ==
-if [[ $VAR -ne 42 ]] || [[ $SOME_VAR -eq 6 ]]
+if [[ ${VAR} -ne 42 ]] || [[ ${SOME_VAR} -eq 6 ]]
 then
   <CODE TO RUN>
 fi
