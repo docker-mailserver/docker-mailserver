@@ -18,7 +18,7 @@ function setup_file() {
               -e SSL_CERT_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/fullchain.pem \
               -e SSL_KEY_PATH=/tmp/docker-mailserver/letsencrypt/mail.my-domain.com/privkey.pem \
               -e DMS_DEBUG=0 \
-              -h mail.my-domain.com -t ${NAME}
+              -h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_manual_ssl
 }
 

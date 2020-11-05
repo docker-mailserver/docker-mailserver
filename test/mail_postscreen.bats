@@ -19,11 +19,11 @@ setup_file() {
               -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
               -e POSTSCREEN_ACTION=enforce \
               --cap-add=NET_ADMIN \
-              -h mail.my-domain.com -t ${NAME}
+              -h mail.my-domain.com -t "${NAME}"
 
     docker run --name mail_postscreen_sender \
         -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-        -d ${NAME} \
+        -d "${NAME}" \
         tail -f /var/log/faillog
 
     wait_for_smtp_port_in_container mail_postscreen
@@ -38,20 +38,21 @@ teardown_file() {
 }
 
 @test "checking postscreen: talk too fast" {
-  docker exec mail_postscreen_sender /bin/sh -c "nc $MAIL_POSTSCREEN_IP 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
+  docker exec mail_postscreen_sender /bin/sh -c "nc ${MAIL_POSTSCREEN_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
 
   repeat_until_success_or_timeout 10 run docker exec mail_postscreen grep 'COMMAND PIPELINING' /var/log/mail/mail.log
   assert_success
 }
 
 @test "checking postscreen: positive test (respecting postscreen_greet_wait time and talking in turn)" {
-  for i in {1,2}; do
+  for _ in {1,2}; do
+    # shellcheck disable=SC1004
     docker exec mail_postscreen_sender /bin/bash -c \
-    'exec 3<>/dev/tcp/'$MAIL_POSTSCREEN_IP'/25 && \
+    'exec 3<>/dev/tcp/'"${MAIL_POSTSCREEN_IP}"'/25 && \
     while IFS= read -r cmd; do \
       head -1 <&3; \
-      [[ "$cmd" == "EHLO"* ]] && sleep 6; \
-      echo $cmd >&3; \
+      [[ "${cmd}" == "EHLO"* ]] && sleep 6; \
+      echo ${cmd} >&3; \
     done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
   done
 

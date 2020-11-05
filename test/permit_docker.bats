@@ -2,8 +2,8 @@ load 'test_helper/common'
 
 NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME=non-default-docker-mail-network
 setup() {
-    docker network create --driver bridge ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}
-	docker network create --driver bridge ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
+    docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}"
+	docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
 	# use two networks (default ("bridge") and our custom network) to recreate problematic test case where PERMIT_DOCKER=host would not help
 	# currently we cannot use --network in `docker run` multiple times, it will just use the last one
 	# instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
@@ -39,15 +39,15 @@ teardown() {
     docker logs mail_smtponly_second_network
     docker rm -f mail_smtponly_second_network \
 		        mail_smtponly_second_network_sender
-    docker network rm ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME} ${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2
+    docker network rm "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
 }
 
 @test "checking PERMIT_DOCKER: connected-networks" {
-  ipnet1=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network)
-  ipnet2=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network2)
+  IPNET1=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network)
+  IPNET2=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network2)
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
-  assert_output --partial $ipnet1
-  assert_output --partial $ipnet2
+  assert_output --partial "${IPNET1}"
+  assert_output --partial "${IPNET2}"
 
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf -e smtp_host_lookup=no"
   assert_success
@@ -58,5 +58,5 @@ teardown() {
   assert_output --partial "250 2.0.0 Ok: queued as "
 
   repeat_until_success_or_timeout 60 run docker exec mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
-  [ "$status" -ge 0 ]
+  [ "${status}" -ge 0 ]
 }

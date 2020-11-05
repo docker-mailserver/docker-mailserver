@@ -19,7 +19,7 @@ setup_file() {
 		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
 		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_lmtp_ip
 }
 

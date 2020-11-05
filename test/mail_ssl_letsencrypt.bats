@@ -18,7 +18,7 @@ function setup_file() {
   -v "${PRIVATE_CONFIG}/letsencrypt/my-domain.com":/etc/letsencrypt/live/my-domain.com \
   -e DMS_DEBUG=0 \
   -e SSL_TYPE=letsencrypt \
-  -h mail.my-domain.com -t ${NAME}
+  -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_lets_domain
 
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_hostname)"
@@ -28,7 +28,7 @@ function setup_file() {
   -v "${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com":/etc/letsencrypt/live/mail.my-domain.com \
   -e DMS_DEBUG=0 \
   -e SSL_TYPE=letsencrypt \
-  -h mail.my-domain.com -t ${NAME}
+  -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_lets_hostname
 
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json)"
@@ -40,7 +40,7 @@ function setup_file() {
     -e DMS_DEBUG=0 \
     -e SSL_TYPE=letsencrypt \
     -e "SSL_DOMAIN=*.example.com" \
-    -h mail.my-domain.com -t ${NAME}
+    -h mail.my-domain.com -t "${NAME}"
 
   wait_for_finished_setup_in_container mail_lets_acme_json
 }

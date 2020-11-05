@@ -17,7 +17,7 @@ setup_file() {
 		-e ENABLE_CLAMAV=0 \
 		-e ENABLE_SPAMASSASSIN=0 \
 		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t ${NAME}
+		-h mail.my-domain.com -t "${NAME}"
     # TODO: find a better way to know when we have waited long enough
     #       for clamav to should have come up, if it were enabled
     wait_for_smtp_port_in_container mail_disabled_clamav_spamassassin

@@ -2,6 +2,7 @@ load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 
 # load the helper function into current context
+# shellcheck source=../target/helper-functions.sh
 . ./target/helper-functions.sh
 
 @test "check helper function: _sanitize_ipv4_to_subnet_cidr" {

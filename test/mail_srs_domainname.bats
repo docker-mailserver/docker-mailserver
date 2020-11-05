@@ -12,7 +12,7 @@ load 'test_helper/common'
 				-e SRS_DOMAINNAME=srs.my-domain.com \
 				-e DOMAINNAME=my-domain.com \
 				-h unknown.domain.tld \
-				-t ${NAME}
+				-t "${NAME}"
 
     teardown() { docker rm -f mail_srs_domainname; }
 
@@ -30,7 +30,7 @@ load 'test_helper/common'
 				-e ENABLE_SRS=1 \
 				-e DOMAINNAME=my-domain.com \
 				-h unknown.domain.tld \
-				-t ${NAME}
+				-t "${NAME}"
 
     teardown() { docker rm -f mail_domainname; }
 
