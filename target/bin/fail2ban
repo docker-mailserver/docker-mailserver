@@ -44,7 +44,7 @@ else
 
         for JAIL in "${JAILS[@]}"
         do
-          RESULT="$(fail2ban-client set "${JAIL}" unbanip "192.0.66.4" 2>&1)"
+          RESULT="$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)"
 
           [[ "${RESULT}" != *"is not banned"* ]] && [[ "${RESULT}" != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
         done
