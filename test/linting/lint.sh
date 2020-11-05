@@ -90,9 +90,7 @@ function _eclint
     return 102
   fi
 
-  __log_info \
-    'type: editorconfig' \
-    '(linter version:' "$(${LINT[0]} --version))"
+  __log_info 'linter version:' "$(${LINT[0]} --version))"
 
   if "${LINT[@]}"
   then
@@ -114,9 +112,8 @@ function _hadolint
     return 102
   fi
 
-  __log_info \
-    'type: Dockerfile' \
-    '(linter version:' "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*"))"
+  __log_info 'linter version:' \
+    "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*"))"
 
   if git ls-files --exclude='Dockerfile*' --ignored | \
     xargs --max-lines=1 "${LINT[@]}"
@@ -140,8 +137,7 @@ function _shellcheck
     return 102
   fi
 
-  __log_info \
-    'type: shellcheck' '(linter version:' \
+  __log_info 'linter version:' \
     "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*"))"
 
   # an overengineered solution to allow shellcheck -x to
@@ -179,6 +175,23 @@ function _shellcheck
     fi
   done < <(find target/bin -executable -type f)
 
+  # the same for all test files
+  # while read -r FILE
+  # do
+  #   if ! (
+  #     cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
+  #     if ! "${LINT[@]}" "$(basename -- "${FILE}")"
+  #     then
+  #       return 1
+  #     fi
+  #   )
+  #   then
+  #     # ! Errors / warnings found here are
+  #     # ! currently NOT accounted for.
+  #     :
+  #   fi
+  # done < <(find test/ -maxdepth 1 -type f -iname "*.bats")
+
   if [[ ERR -eq 1 ]]
   then
     __log_abort 'errors encountered'
@@ -196,7 +209,7 @@ function _main
     'shellcheck'  ) _shellcheck ;;
     *)
       __log_abort \
-        "init.sh: '${1}' is not a command nor an option. See 'make help'."
+        "lint.sh: '${1}' is not a command nor an option. See 'make help'."
       exit 11
       ;;
   esac
