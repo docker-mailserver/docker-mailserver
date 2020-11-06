@@ -63,7 +63,8 @@ function teardown_file() {
   assert_success
   run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
   assert_success
-  sleep 5
+
+  wait_for_smtp_port_in_container mail_smtponly
   run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
   assert_success
   run docker exec mail_smtponly /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
