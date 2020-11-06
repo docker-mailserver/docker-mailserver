@@ -32,13 +32,9 @@ Easy to deploy and upgrade.
 ## Announcements
 
 1. Since version `v7.1.0`, the use of default variables has changed slightly. Please consult the [environment Variables](#environment-variables) sections
-2. Debian Buster is now Docker base image
-   - Filebeat was removed
-   - Dovecot was downgraded
-3. ELK was removed
-4. New contributing guidelines were added
-5. Added coherent coding style and linting
-6. Added option to use non-default network interface
+2. New contributing guidelines were added
+3. Added coherent coding style and linting
+4. Added option to use non-default network interface
 
 ## Includes
 
@@ -114,27 +110,30 @@ chmod a+x ./setup.sh
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
 ### Get up and running
-**Note:** If using SELinux and is enabled, skip to next section below.
+
+#### Default - Without SELinux
+
 ``` BASH
 docker-compose up -d mail
+
 ./setup.sh email add <user@domain> [<password>]
 ./setup.sh config dkim
 ```
 
-### Get up and running with SELinux
-- Edit the files `.env` and `docker-compose.yml`:
-  - In `.env` uncomment the variable `SELINUX_LABEL`. 
-    - If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`.  
-  - In `docker-compose.yml` uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
+#### With SELinux
+
+Edit the files `.env` and `docker-compose.yml`. In `.env` uncomment the variable `SELINUX_LABEL`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`. In `docker-compose.yml`, uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
   
-**Note:** When using `setup.sh` use the option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in the `.env` file.\
-See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information regarding `setup.sh`.
+**Note:** When using `setup.sh` use the option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in the `.env` file. See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information regarding `setup.sh`.
 
 ``` BASH
 docker-compose up -d mail
+
 ./setup.sh -Z email add <user@domain> [<password>]
 ./setup.sh -Z config dkim
 ```
+
+### DNS - DKIM
 
 Now that the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
@@ -144,7 +143,7 @@ Now that the keys are generated, you can configure your DNS server by just pasti
 
 ``` BASH
 docker-compose down
-docker pull tvial/docker-mailserver:latest
+docker pull tvial/docker-mailserver:<VERSION TAG>
 docker-compose up -d mail
 ```
 

@@ -1,7 +1,7 @@
-#!/bin/bash
+#! /bin/bash
 
 # Wrapper for various setup scripts
-# included in the docker-mailserver
+# included in docker-mailserver
 
 SCRIPT='SETUP'
 
@@ -252,12 +252,24 @@ function _main
   while getopts ":c:i:p:hzZ" OPT
   do
     case ${OPT} in
-      c) CONTAINER_NAME="${OPTARG}" ; USE_CONTAINER=true ;; # container specified, connect to running instance
-      i) IMAGE_NAME="${OPTARG}" ;;
-      p)
+      i ) IMAGE_NAME="${OPTARG}" ;;
+      z ) USING_SELINUX=":z"     ;;
+      Z ) USING_SELINUX=":Z"     ;;
+      c )
+        # container specified, connect to running instance
+        CONTAINER_NAME="${OPTARG}"
+        USE_CONTAINER=true
+        ;;
+
+      h )
+        _usage
+        return
+        ;;
+
+      p )
         case "${OPTARG}" in
-          /*) WISHED_CONFIG_PATH="${OPTARG}" ;;
-          * ) WISHED_CONFIG_PATH="${CDIR}/${OPTARG}" ;;
+          /* ) WISHED_CONFIG_PATH="${OPTARG}"         ;;
+          *  ) WISHED_CONFIG_PATH="${CDIR}/${OPTARG}" ;;
         esac
 
         if [[ ! -d ${WISHED_CONFIG_PATH} ]]
@@ -267,13 +279,15 @@ function _main
           exit 40
         fi
         ;;
-      h) _usage ; return ;;
-      z) USING_SELINUX=":z" ;;
-      Z) USING_SELINUX=":Z" ;;
-     *) echo "Invalid option: -${OPTARG}" >&2 ;;
+
+      * )
+        echo "Invalid option: -${OPTARG}" >&2
+        ;;
+
     esac
   done
-  shift $((OPTIND-1))
+
+  shift $(( OPTIND - 1 ))
 
   if [[ -z ${WISHED_CONFIG_PATH} ]]
   then

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /bin/bash
 
 # version   v0.1.0 stable
 # executed  by TravisCI / manually
@@ -190,7 +190,7 @@ function _shellcheck
     fi
   done < <(find test/ -maxdepth 1 -type f -iname "*.bats")
 
-  if [[ ERR -eq 1 ]]
+  if [[ ${ERR} -eq 1 ]]
   then
     __log_abort 'errors encountered'
     return 101

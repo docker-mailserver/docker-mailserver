@@ -1,9 +1,5 @@
 #! /bin/bash
 
-# version  0.2.0
-#
-# <INSERT TASK HERE>
-
 # shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
