@@ -506,8 +506,8 @@ the logs.
 
 Defines the interval in which the mail log is being rotated.
 
-- daily => Rotate daily.
-- **weekly** => Rotate weekly.
+- **daily** => Rotate daily.
+- weekly => Rotate weekly.
 - monthly => Rotate monthly.
 
 Note that only the log inside the container is affected.
