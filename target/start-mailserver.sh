@@ -1691,15 +1691,15 @@ function _setup_logrotate
   case "${LOGROTATE_INTERVAL}" in
     "daily" )
       _notify 'inf' "Setting postfix logrotate interval to daily"
-      LOGROTATE="${LOGROTATE}  rotate 1\n  daily\n"
+      LOGROTATE="${LOGROTATE}  rotate 4\n  daily\n"
       ;;
     "weekly" )
       _notify 'inf' "Setting postfix logrotate interval to weekly"
-      LOGROTATE="${LOGROTATE}  rotate 1\n  weekly\n"
+      LOGROTATE="${LOGROTATE}  rotate 4\n  weekly\n"
       ;;
     "monthly" )
       _notify 'inf' "Setting postfix logrotate interval to monthly"
-      LOGROTATE="${LOGROTATE}  rotate 1\n  monthly\n"
+      LOGROTATE="${LOGROTATE}  rotate 4\n  monthly\n"
       ;;
     * ) _notify 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate' ;;
   esac
