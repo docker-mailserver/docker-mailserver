@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#! /usr/bin/env sh
 
 # Report a quota usage warning to an user
 

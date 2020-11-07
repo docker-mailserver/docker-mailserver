@@ -1,10 +1,5 @@
 #! /bin/bash
 
-# version  0.1.1
-#
-# Provides varous helpers.
-
-
 # ? IP and CIDR -------------------------------------------
 
 

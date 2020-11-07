@@ -1,8 +1,9 @@
-#!/bin/sh
-VCS_REF=$(git rev-parse --short HEAD)
-VCS_VERSION=$(git describe --tags --contains --always)
+#! /bin/sh
+
+VCS_REF="$(git rev-parse --short HEAD)"
+VCS_VERSION="$(git describe --tags --contains --always)"
 
 docker build \
-  --build-arg VCS_REF="$VCS_REF" \
-  --build-arg VCS_VERSION="$VCS_VERSION" \
-  -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" .
+  --build-arg VCS_REF="${VCS_REF}" \
+  --build-arg VCS_VERSION="${VCS_VERSION}" \
+  -f "${DOCKERFILE_PATH}" -t "${IMAGE_NAME}" .

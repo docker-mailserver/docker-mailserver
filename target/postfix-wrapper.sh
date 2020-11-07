@@ -1,7 +1,5 @@
 #! /bin/bash
 
-# version  0.1.0
-#
 # You cannot start postfix in some foreground mode and
 # it's more or less important that docker doesn't kill
 # postfix and its chilren if you stop the container.

@@ -58,10 +58,8 @@ When refactoring, writing or altering scripts, that is Shell and Bash scripts, i
 When writing a script, provide the version and the script's task. Please use [semantic versioning][semver].
 
 ``` BASH
-#!/usr/bin/env bash
+#! /bin/bash
 
-# version  0.1.0
-#
 # <TASK DESCRIPTION> -> cut this off
 # to make it not longer than approx.
 # 80 cols.

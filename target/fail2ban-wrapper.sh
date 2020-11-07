@@ -1,7 +1,5 @@
 #! /bin/bash
 
-# version  0.1.0
-#
 # You cannot start fail2ban in some foreground mode and
 # it's more or less important that docker doesn't kill
 # fail2ban and its chilren if you stop the container.
