@@ -670,6 +670,42 @@ Note: activate this only if you are confident in your bayes database for identif
 
 The following variables overwrite the default values for ```/etc/dovecot/dovecot-ldap.conf.ext```.
 
+##### DOVECOT_BASE
+
+- **empty** =>  same as `LDAP_SEARCH_BASE`
+- => Tell Dovecot to search only below this base entry. (e.g. `ou=people,dc=domain,dc=com`)
+
+##### DOVECOT_DEFAULT_PASS_SCHEME
+
+- **empty** =>  `SSHA`
+- => Select one crypt scheme for password hashing from this list of [password schemes](https://doc.dovecot.org/configuration_manual/authentication/password_schemes/).
+
+##### DOVECOT_DN
+
+- **empty** => same as `LDAP_BIND_DN`
+- => Bind dn for LDAP connection. (e.g. `cn=admin,dc=domain,dc=com`)
+
+##### DOVECOT_DNPASS
+
+- **empty** => same as `LDAP_BIND_PW`
+- => Password for LDAP dn sepecifified in `DOVECOT_DN`.
+
+##### DOVECOT_HOSTS
+
+- **empty** => same as `LDAP_SERVER_HOST`
+- => Specify a space separated list of LDAP hosts.
+
+##### DOVECOT_LDAP_VERSION
+
+- **empty** => 3
+- 2 => LDAP version 2 is used
+- 3 => LDAP version 3 is used
+
+##### DOVECOT_AUTH_BIND
+
+- **empty** => no
+- yes => Enable [LDAP authentication binds](https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds)
+
 ##### DOVECOT_USER_FILTER
 
 - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
