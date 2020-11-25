@@ -35,6 +35,7 @@ Easy to deploy and upgrade.
 2. New contributing guidelines were added
 3. Added coherent coding style and linting
 4. Added option to use non-default network interface
+5. SELinux is now supported
 
 ## Includes
 
@@ -139,7 +140,21 @@ Now that the keys are generated, you can configure your DNS server by just pasti
 
 ### Miscellaneous
 
-#### Restart and update the container
+#### Supported Operating Systems
+
+We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mailserver in production.
+
+#### Support for Multiple Domains
+
+`docker-mailserver` supports multiple domains out of the box, so you can do this:
+
+``` BASH
+./setup.sh email add user1@docker.example.com
+./setup.sh email add user1@mail.example.de
+./setup.sh email add user1@server.example.org
+```
+
+#### Updating `docker-mailserver`
 
 ``` BASH
 docker-compose down
@@ -171,6 +186,8 @@ See the [wiki](https://github.com/tomav/docker-mailserver/wiki) for further deta
 ## Examples
 
 ### With Relevant Environmental Variables
+
+This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs.
 
 ``` YAML
 version: '3.8'
