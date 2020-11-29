@@ -454,6 +454,11 @@ And you should see the certificate chain, the server certificate and:
 
     Verify return code: 0 (ok)
 
+In addition, to verify certificate dates:
+
+    docker exec mail openssl s_client -connect 0.0.0.0:25 -starttls smtp -CApath /etc/ssl/certs/ 2>/dev/null | openssl x509 -noout  -dates
+
+
 ### Plain text access
 
 Not recommended for purposes other than testing.
