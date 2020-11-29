@@ -1,6 +1,7 @@
 There are multiple options to enable SSL:
 
 * using [letsencrypt](#lets-encrypt-recommended) (recommended)
+* using [Caddy](#caddy)
 * using [Traefik](#traefik)
 * using [self-signed certificates](#self-signed-certificates-testing-only) with the provided tool
 * using [your own certificates](#custom-certificate-files)
@@ -20,111 +21,7 @@ To enable Let's Encrypt on your mail server, you have to:
 
 You don't have anything else to do. Enjoy.
 
-#### Pitfall with Caddy
 
-If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [issue 1440](https://github.com/tomav/docker-mailserver/issues/1440) for details. In short for Caddy v1 the Caddyfile should look something like:
-
-```
-https://mail.domain.com {
-    tls yourcurrentemail@gmail.com {
-        key_type  rsa2048
-    }
-}
-```
-For Caddy v2 you can specify the key_type in your server's global settings, which would end up looking something like this if you're using a Caddyfile:
-```
-{
-debug
-admin localhost:2019
-http_port 80
-https_port 443
-default_sni mywebserver.com
-key_type rsa4096
-
-}
-````
-
-If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
-
-```
-{
-  "apps": {
-    "http": {
-      "servers": {
-        "srv0": {
-          "listen": [
-            ":443"
-          ],
-          "routes": [
-            {
-              "match": [
-                {
-                  "host": [
-                    "mail.domain.com",
-                  ]
-                }
-              ],
-              "handle": [
-                {
-                  "handler": "subroute",
-                  "routes": [
-                    {
-                      "handle": [
-                        {
-                          "body": "",
-                          "handler": "static_response"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "terminal": true
-            },
-          ]
-        }
-      }
-    },
-    "tls": {
-      "automation": {
-        "policies": [
-          {
-            "subjects": [
-              "mail.domain.com",
-            ],
-            "key_type": "rsa2048",
-            "issuer": {
-              "email": "email@email.com",
-              "module": "acme"
-            }
-          },
-          {
-            "issuer": {
-              "email": "email@email.com",
-              "module": "acme"
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-The generated certificates can be mounted:
-```
-volumes:
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.crt:/etc/letsencrypt/live/mail.domain.com/fullchain.pem
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.key:/etc/letsencrypt/live/mail.domain.com/privkey.pem
-```
-
-EC certificates fail in the TLS handshake:
-
-```
-CONNECTED(00000003)
-140342221178112:error:14094410:SSL routines:ssl3_read_bytes:sslv3 alert handshake failure:ssl/record/rec_layer_s3.c:1543:SSL alert number 40
-no peer certificate available
-No client certificate CA names sent
-```
 
 #### Example using docker for letsencrypt
 Make a directory to store your letsencrypt logs and configs.
@@ -321,6 +218,112 @@ environment:
 
 ```
 DSM-generated letsencrypt certificates get auto-renewed every three months.
+
+### Caddy
+
+If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [issue 1440](https://github.com/tomav/docker-mailserver/issues/1440) for details. In short for Caddy v1 the Caddyfile should look something like:
+
+```
+https://mail.domain.com {
+    tls yourcurrentemail@gmail.com {
+        key_type  rsa2048
+    }
+}
+```
+For Caddy v2 you can specify the key_type in your server's global settings, which would end up looking something like this if you're using a Caddyfile:
+```
+{
+debug
+admin localhost:2019
+http_port 80
+https_port 443
+default_sni mywebserver.com
+key_type rsa4096
+
+}
+````
+
+If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
+
+```
+{
+  "apps": {
+    "http": {
+      "servers": {
+        "srv0": {
+          "listen": [
+            ":443"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "host": [
+                    "mail.domain.com",
+                  ]
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "subroute",
+                  "routes": [
+                    {
+                      "handle": [
+                        {
+                          "body": "",
+                          "handler": "static_response"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "terminal": true
+            },
+          ]
+        }
+      }
+    },
+    "tls": {
+      "automation": {
+        "policies": [
+          {
+            "subjects": [
+              "mail.domain.com",
+            ],
+            "key_type": "rsa2048",
+            "issuer": {
+              "email": "email@email.com",
+              "module": "acme"
+            }
+          },
+          {
+            "issuer": {
+              "email": "email@email.com",
+              "module": "acme"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+The generated certificates can be mounted:
+```
+volumes:
+  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.crt:/etc/letsencrypt/live/mail.domain.com/fullchain.pem
+  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.key:/etc/letsencrypt/live/mail.domain.com/privkey.pem
+```
+
+EC certificates fail in the TLS handshake:
+
+```
+CONNECTED(00000003)
+140342221178112:error:14094410:SSL routines:ssl3_read_bytes:sslv3 alert handshake failure:ssl/record/rec_layer_s3.c:1543:SSL alert number 40
+no peer certificate available
+No client certificate CA names sent
+```
 
 ### Traefik
 
