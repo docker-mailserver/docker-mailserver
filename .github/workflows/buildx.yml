@@ -2,6 +2,8 @@ name: buildx
 
 on:
   push:
+    branches:
+      - '!*'
 
 jobs:
   buildx:
