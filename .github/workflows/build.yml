@@ -1,4 +1,4 @@
-name: multi
+name: build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - gh-workflow
 
 jobs:
-  multi:
+  build:
     runs-on: ubuntu-latest
     steps:
       -
