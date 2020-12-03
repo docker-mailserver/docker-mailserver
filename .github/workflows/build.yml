@@ -1,10 +1,9 @@
-name: build
+name: Build Docker Images
 
 on:
   push:
     branches:
-      - master
-      - gh-workflow
+      - '*'
 
 jobs:
   build:
