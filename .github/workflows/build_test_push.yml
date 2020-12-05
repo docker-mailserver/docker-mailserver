@@ -1,0 +1,107 @@
+name: Build Docker Images
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build_docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            VCS_REF=${{ github.sha }}
+            VCS_VERSION=${{ github.ref }}
+          # platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
+          platforms: linux/amd64,linux/arm64 # while developing to save time
+          pull: true
+          load: true
+          push: false
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/test-dm:latest
+            ${{ secrets.DOCKER_USERNAME }}/test-dm:${{ github.sha::8 }}
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Install xz-utils
+        run: sudo apt-get install -y xz-utils
+      -
+        name: HADOLINT
+        run: |
+          sudo curl -L https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint
+          sudo chmod +rx /usr/local/bin/hadolint
+        env:
+          HADOLINT_VERSION: 1.18.0
+      -
+        name: SHELLCHECK
+        run: |
+          sudo wget -qO- "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJ
+          sudo mv "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+        env:
+          SHELLCHECK_VERSION: 0.7.1
+      -
+        name: ECLINT
+        run: |
+          sudo wget -qO- "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${ECLINT_VERSION}/ec-linux-amd64.tar.gz" | tar -xaz
+          sudo mv bin/ec-linux-amd64 /usr/bin/eclint
+          sudo chmod +x /usr/bin/eclint
+        env:
+          ECLINT_VERSION: 2.1.0
+      -
+        name: run test suite
+        run: |
+          make build
+          make eclint
+          make hadolint
+          make shellcheck
+          make generate-accounts tests
+        env:
+          CI: true
+          HADOLINT_VERSION: 1.18.0
+          SHELLCHECK_VERSION: 0.7.1
+          ECLINT_VERSION: 2.1.0
