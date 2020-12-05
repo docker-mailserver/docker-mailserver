@@ -26,7 +26,7 @@ __DOVECOT__:
 **NOTE**: This page will provide several use cases like recipes to show, how this project can be used with it's LDAP Features.
 
 ### Ldap Setup - Kopano/Zarafa
-```
+```yml
 ---
 version: '2'
 
@@ -102,14 +102,14 @@ volumes:
 
 If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the ```pass_attr``` and the ```user_attr``` mapping, as shown in the example below: 
 
-```
+```yml
     - DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
     - DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
 ```
 
 The following example illustrates this for a directory that has the qmail-schema installed and that uses ```uid```:
 
-```
+```yml
       - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
       - DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
       - DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
