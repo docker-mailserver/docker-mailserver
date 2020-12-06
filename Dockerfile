@@ -119,6 +119,8 @@ RUN echo "0 */6 * * * clamav /usr/bin/freshclam --quiet" > /etc/cron.d/clamav-fr
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/scripts/quota-warning.sh /usr/local/bin/quota-warning.sh
 COPY target/dovecot/sieve/ /etc/dovecot/sieve/
+COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
+RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
 WORKDIR /usr/share/dovecot
 # hadolint ignore=SC2016,SC2086
 RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf && \

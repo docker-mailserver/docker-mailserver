@@ -543,9 +543,13 @@ function _setup_dovecot
 
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
-    sdbox|mdbox|maildir )
+    sdbox|mdbox )
       _notify 'inf' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
       sed -i -e 's/^mail_location = .*$/mail_location = '"${DOVECOT_MAILBOX_FORMAT}"':\/var\/mail\/%d\/%n/g' /etc/dovecot/conf.d/10-mail.conf
+
+      _notify 'inf' "Enabling cron job for dbox purge"
+      mv /etc/cron.d/dovecot-purge.disabled /etc/cron.d/dovecot-purge
+      chmod 644 /etc/cron.d/dovecot-purge
       ;;
     * )
       _notify 'inf' "Dovecot maildir format configured (default)"
