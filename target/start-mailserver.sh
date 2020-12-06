@@ -1095,7 +1095,7 @@ function _setup_ssl
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
 
-      [[ -f /etc/letsencrypt/acme.json ]] && (_extract_certs_from_acme "${HOSTNAME}" || _extract_certs_from_acme "${DOMAINNAME}")
+      [[ -f /etc/letsencrypt/acme.json ]] && (_extract_certs_from_acme "${SSL_DOMAIN}" || _extract_certs_from_acme "${HOSTNAME}" || _extract_certs_from_acme "${DOMAINNAME}")
 
       # first determine the letsencrypt domain by checking both the full hostname or just the domainname if a SAN is used in the cert
       if [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
