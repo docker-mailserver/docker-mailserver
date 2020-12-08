@@ -917,6 +917,7 @@ function _setup_saslauthd
 
   [[ -z ${SASLAUTHD_LDAP_START_TLS} ]] && SASLAUTHD_LDAP_START_TLS=no
   [[ -z ${SASLAUTHD_LDAP_TLS_CHECK_PEER} ]] && SASLAUTHD_LDAP_TLS_CHECK_PEER=no
+  [[ -z ${SASLAUTHD_LDAP_AUTH_METHOD} ]] && SASLAUTHD_LDAP_AUTH_METHOD=bind
 
   if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]
   then
@@ -932,13 +933,27 @@ function _setup_saslauthd
     SASLAUTHD_LDAP_TLS_CACERT_DIR="ldap_tls_cacert_dir: ${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
   fi
 
+  if [[ -z ${SASLAUTHD_LDAP_PASSWORD_ATTR} ]]
+  then
+    SASLAUTHD_LDAP_PASSWORD_ATTR=""
+  else
+    SASLAUTHD_LDAP_PASSWORD_ATTR="ldap_password_attr: ${SASLAUTHD_LDAP_PASSWORD_ATTR}"
+  fi
+
+  if [[ -z ${SASLAUTHD_LDAP_MECH} ]]
+  then
+    SASLAUTHD_LDAP_MECH=""
+  else
+    SASLAUTHD_LDAP_MECH="ldap_mech: ${SASLAUTHD_LDAP_MECH}"
+  fi
+
   if [[ ! -f /etc/saslauthd.conf ]]
   then
     _notify 'inf' "Creating /etc/saslauthd.conf"
     cat > /etc/saslauthd.conf << EOF
 ldap_servers: ${SASLAUTHD_LDAP_PROTO}${SASLAUTHD_LDAP_SERVER}
 
-ldap_auth_method: bind
+ldap_auth_method: ${SASLAUTHD_LDAP_AUTH_METHOD}
 ldap_bind_dn: ${SASLAUTHD_LDAP_BIND_DN}
 ldap_bind_pw: ${SASLAUTHD_LDAP_PASSWORD}
 
@@ -950,6 +965,8 @@ ldap_tls_check_peer: ${SASLAUTHD_LDAP_TLS_CHECK_PEER}
 
 ${SASLAUTHD_LDAP_TLS_CACERT_FILE}
 ${SASLAUTHD_LDAP_TLS_CACERT_DIR}
+${SASLAUTHD_LDAP_PASSWORD_ATTR}
+${SASLAUTHD_LDAP_MECH}
 
 ldap_referrals: yes
 log_level: 10
