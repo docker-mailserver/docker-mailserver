@@ -918,6 +918,20 @@ function _setup_saslauthd
   [[ -z ${SASLAUTHD_LDAP_START_TLS} ]] && SASLAUTHD_LDAP_START_TLS=no
   [[ -z ${SASLAUTHD_LDAP_TLS_CHECK_PEER} ]] && SASLAUTHD_LDAP_TLS_CHECK_PEER=no
 
+  if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]
+  then
+    SASLAUTHD_LDAP_TLS_CACERT_FILE=""
+  else
+    SASLAUTHD_LDAP_TLS_CACERT_FILE="ldap_tls_cacert_file: ${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
+  fi
+
+  if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_DIR} ]]
+  then
+    SASLAUTHD_LDAP_TLS_CACERT_DIR=""
+  else
+    SASLAUTHD_LDAP_TLS_CACERT_DIR="ldap_tls_cacert_dir: ${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
+  fi
+
   if [[ ! -f /etc/saslauthd.conf ]]
   then
     _notify 'inf' "Creating /etc/saslauthd.conf"
@@ -933,6 +947,9 @@ ldap_filter: ${SASLAUTHD_LDAP_FILTER}
 
 ldap_start_tls: ${SASLAUTHD_LDAP_START_TLS}
 ldap_tls_check_peer: ${SASLAUTHD_LDAP_TLS_CHECK_PEER}
+
+${SASLAUTHD_LDAP_TLS_CACERT_FILE}
+${SASLAUTHD_LDAP_TLS_CACERT_DIR}
 
 ldap_referrals: yes
 log_level: 10

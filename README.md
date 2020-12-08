@@ -808,6 +808,30 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 - empty or 0 => `ldap://` will be used
 - 1 => `ldaps://` will be used
 
+##### SASLAUTHD_LDAP_START_TLS
+
+- **empty** => `no`
+- `yes` => Enable `ldap_start_tls` option
+
+##### SASLAUTHD_LDAP_TLS_CHECK_PEER
+
+- **empty** => `no`
+- `yes` => Enable `ldap_tls_check_peer` option
+
+##### SASLAUTHD_LDAP_TLS_CACERT_DIR
+
+Path to directory with CA (Certificate Authority) certificates.
+
+- **empty** => Nothing is added to the configuration
+- Any value => Fills the `ldap_tls_cacert_dir` option
+
+##### SASLAUTHD_LDAP_TLS_CACERT_FILE
+
+File containing CA (Certificate Authority) certificate(s).
+
+- **empty** => Nothing is added to the configuration
+- Any value => Fills the `ldap_tls_cacert_file` option
+
 ##### SASLAUTHD_LDAP_BIND_DN
 
 - empty => anonymous bind
