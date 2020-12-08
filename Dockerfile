@@ -38,6 +38,7 @@ RUN \
   apt-transport-https \
   arj \
   binutils \
+  bsd-mailx \
   bzip2 \
   ca-certificates \
   cabextract \
@@ -134,6 +135,8 @@ RUN sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/e
   # create directory for certificates created by mkcert
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl  && \
+  touch /etc/dovecot/ssl/.rand && \
+  sed -i 's/dev\/urandom/etc\/dovecot\/ssl\/\.rand/' /usr/share/dovecot/dovecot-openssl.cnf && \
   ./mkcert.sh  && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
@@ -197,7 +200,7 @@ RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/postfix/header_checks.pcre target/postfix/sender_header_filter.pcre target/postfix/sender_login_maps.pcre /etc/postfix/maps/
-RUN echo "" > /etc/aliases
+RUN touch /etc/aliases
 
 # Configuring Logs
 RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \

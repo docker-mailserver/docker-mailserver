@@ -1031,8 +1031,12 @@ s/$/ pcre:\/etc\/postfix\/regexp/
 
   _notify 'inf' "Configuring root alias"
 
+  # Generate default /etc/aliases
   echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+  echo "amavis: ${POSTMASTER_ADDRESS}" >> /etc/aliases
+  echo "clamav: ${POSTMASTER_ADDRESS}" >> /etc/aliases
 
+  # Append externally defined aliases
   if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
   then
     cat /tmp/docker-mailserver/postfix-aliases.cf >> /etc/aliases

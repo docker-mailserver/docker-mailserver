@@ -79,8 +79,12 @@ do
         esac
       done
 
-      # regenerate postix aliases
+      # Generate default /etc/aliases
       echo "root: ${PM_ADDRESS}" >/etc/aliases
+      echo "amavis: ${PM_ADDRESS}" >>/etc/aliases
+      echo "clamav: ${PM_ADDRESS}" >>/etc/aliases
+
+      # Append external postifx aliases
       if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
       then
         cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
