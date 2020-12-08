@@ -808,6 +808,30 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 - empty or 0 => `ldap://` will be used
 - 1 => `ldaps://` will be used
 
+##### SASLAUTHD_LDAP_START_TLS
+
+- **empty** => `no`
+- `yes` => Enable `ldap_start_tls` option
+
+##### SASLAUTHD_LDAP_TLS_CHECK_PEER
+
+- **empty** => `no`
+- `yes` => Enable `ldap_tls_check_peer` option
+
+##### SASLAUTHD_LDAP_TLS_CACERT_DIR
+
+Path to directory with CA (Certificate Authority) certificates.
+
+- **empty** => Nothing is added to the configuration
+- Any value => Fills the `ldap_tls_cacert_dir` option
+
+##### SASLAUTHD_LDAP_TLS_CACERT_FILE
+
+File containing CA (Certificate Authority) certificate(s).
+
+- **empty** => Nothing is added to the configuration
+- Any value => Fills the `ldap_tls_cacert_file` option
+
 ##### SASLAUTHD_LDAP_BIND_DN
 
 - empty => anonymous bind
@@ -830,10 +854,30 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 - e.g. for active directory: `(&(sAMAccountName=%U)(objectClass=person))`
 - e.g. for openldap: `(&(uid=%U)(objectClass=person))`
 
+##### SASLAUTHD_LDAP_PASSWORD_ATTR
+
+Specify what password attribute to use for password verification.
+
+- **empty** => Nothing is added to the configuration but the documentation says it is `userPassword` by default.
+- Any value => Fills the `ldap_password_attr` option
+
 ##### SASL_PASSWD
 
 - **empty** => No sasl_passwd will be created
 - string => `/etc/postfix/sasl_passwd` will be created with the string as password
+
+##### SASLAUTHD_LDAP_AUTH_METHOD
+
+- **empty** => `bind` will be used as a default value
+- `fastbind` => The fastbind method is used
+- `custom` => The custom method uses userPassword attribute to verify the password
+
+##### SASLAUTHD_LDAP_MECH
+
+Specify the authentication mechanism for SASL bind.
+
+- **empty** => Nothing is added to the configuration
+- Any value => Fills the `ldap_mech` option
 
 #### SRS (Sender Rewriting Scheme)
 
