@@ -82,7 +82,10 @@ do
       # Generate default /etc/aliases
       echo "root: ${PM_ADDRESS}" >/etc/aliases
       echo "amavis: ${PM_ADDRESS}" >>/etc/aliases
-      echo "clamav: ${PM_ADDRESS}" >>/etc/aliases
+      if [[ ${ENABLE_CLAMAV} -1 1 ]]
+      then
+        echo "clamav: ${PM_ADDRESS}" >>/etc/aliases
+      fi
 
       # Append external postifx aliases
       if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]

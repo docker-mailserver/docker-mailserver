@@ -122,6 +122,7 @@ function register_functions
 
   _register_setup_function "_setup_dkim"
   _register_setup_function "_setup_ssl"
+  _register_setup_function "_setup_postfix_aliases"
 
   [[ ${POSTFIX_INET_PROTOCOLS} != "all" ]] && _register_setup_function "_setup_inet_protocols"
 
@@ -137,7 +138,6 @@ function register_functions
   _register_setup_function "_setup_postfix_sasl"
   _register_setup_function "_setup_postfix_sasl_password"
   _register_setup_function "_setup_security_stack"
-  _register_setup_function "_setup_postfix_aliases"
   _register_setup_function "_setup_postfix_vhost"
   _register_setup_function "_setup_postfix_dhparam"
   _register_setup_function "_setup_postfix_postscreen"
@@ -1034,7 +1034,10 @@ s/$/ pcre:\/etc\/postfix\/regexp/
   # Generate default /etc/aliases
   echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
   echo "amavis: ${POSTMASTER_ADDRESS}" >> /etc/aliases
-  echo "clamav: ${POSTMASTER_ADDRESS}" >> /etc/aliases
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
+  then
+    echo "clamav: ${POSTMASTER_ADDRESS}" >> /etc/aliases
+  fi
 
   # Append externally defined aliases
   if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
