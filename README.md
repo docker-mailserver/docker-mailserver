@@ -118,6 +118,7 @@ chmod a+x ./setup.sh
 docker-compose up -d mail
 
 ./setup.sh email add <user@domain> [<password>]
+./setup.sh alias add postmaster@<domain> <user@domain>
 ./setup.sh config dkim
 ```
 
@@ -131,6 +132,7 @@ Edit the files `.env` and `docker-compose.yml`. In `.env` uncomment the variable
 docker-compose up -d mail
 
 ./setup.sh -Z email add <user@domain> [<password>]
+./setup.sh -Z alias add postmaster@<domain> <user@domain>
 ./setup.sh -Z config dkim
 ```
 
