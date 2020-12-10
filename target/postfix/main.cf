@@ -10,8 +10,6 @@ readme_directory = no
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 mydestination = $myhostname, localhost.$mydomain, localhost
-# Uncomment for container accounts to masquerade as the domain instead of the host
-# myorigin = $mydomain
 relayhost =
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64
 mailbox_size_limit = 0
