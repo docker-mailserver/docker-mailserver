@@ -1,10 +1,10 @@
 #! /bin/bash
 
-# version   v0.1.0 stable
+# version   v0.1.1 stable
 # executed  by TravisCI / manually
 # task      checks files agains linting targets
 
-SCRIPT="LINT TESTS"
+SCRIPT="lint.sh"
 
 function _get_current_directory
 {
@@ -24,7 +24,7 @@ _get_current_directory
 # ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
 
 set -eEuo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__log_err ${FUNCNAME[0]:-'?'} ${_:-'?'} ${LINENO:-'?'} ${?:-'?'}' ERR
 
 function __log_err
 {
@@ -34,7 +34,7 @@ function __log_err
   EXIT_CODE="${4}"
 
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT}" \
+    "  – script    = ${SCRIPT,,}" \
     "  – function  = ${FUNC_NAME}" \
     "  – line      = ${LINE}" \
     "  – exit code = ${EXIT_CODE}"
@@ -52,19 +52,11 @@ function __log_info
     "  – message = ${*}"
 }
 
-function __log_warning
-{
-  printf "\n––– \e[93m%s\e[0m\n%s\n%s\n\n" \
-    "${SCRIPT}" \
-    "  – type    = WARNING" \
-    "  – message = ${*}"
-}
-
-function __log_abort
+function __log_failure
 {
   printf "\n––– \e[91m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT}" \
-    "  – type    = ABORT" \
+    "  – type    = FAILURE" \
     "  – message = ${*:-"errors encountered"}"
 }
 
@@ -86,8 +78,8 @@ function _eclint
 
   if ! __in_path "${LINT[0]}"
   then
-    __log_abort 'linter not in PATH'
-    return 102
+    __log_failure 'linter not in PATH'
+    return 2
   fi
 
   __log_info 'linter version:' "$(${LINT[0]} --version)"
@@ -96,8 +88,8 @@ function _eclint
   then
     __log_success 'no errors detected'
   else
-    __log_abort
-    return 101
+    __log_failure
+    return 1
   fi
 }
 
@@ -108,8 +100,8 @@ function _hadolint
 
   if ! __in_path "${LINT[0]}"
   then
-    __log_abort 'linter not in PATH'
-    return 102
+    __log_failure 'linter not in PATH'
+    return 2
   fi
 
   __log_info 'linter version:' \
@@ -120,8 +112,8 @@ function _hadolint
   then
     __log_success 'no errors detected'
   else
-    __log_abort
-    return 101
+    __log_failure
+    return 1
   fi
 }
 
@@ -133,8 +125,8 @@ function _shellcheck
 
   if ! __in_path "${LINT[0]}"
   then
-    __log_abort 'linter not in PATH'
-    return 102
+    __log_failure 'linter not in PATH'
+    return 2
   fi
 
   __log_info 'linter version:' \
@@ -149,7 +141,7 @@ function _shellcheck
       cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
       if ! "${LINT[@]}" "$(basename -- "${FILE}")"
       then
-        return 1
+        exit 1
       fi
     )
     then
@@ -167,7 +159,7 @@ function _shellcheck
       cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
       if ! "${LINT[@]}" "$(basename -- "${FILE}")"
       then
-        return 1
+        exit 1
       fi
     )
     then
@@ -182,7 +174,7 @@ function _shellcheck
       cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
       if ! "${LINT[@]}" "$(basename -- "${FILE}")"
       then
-        return 1
+        exit 1
       fi
     )
     then
@@ -192,8 +184,8 @@ function _shellcheck
 
   if [[ ${ERR} -eq 1 ]]
   then
-    __log_abort 'errors encountered'
-    return 101
+    __log_failure 'errors encountered'
+    return 1
   else
     __log_success 'no errors detected'
   fi
@@ -206,9 +198,9 @@ function _main
     'hadolint'    ) _hadolint   ;;
     'shellcheck'  ) _shellcheck ;;
     *)
-      __log_abort \
-        "lint.sh: '${1}' is not a command nor an option. See 'make help'."
-      exit 11
+      __log_failure \
+        "${SCRIPT}: '${1}' is not a command nor an option. See 'make help'."
+      exit 3
       ;;
   esac
 }
