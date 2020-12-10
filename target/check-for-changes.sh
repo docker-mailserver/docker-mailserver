@@ -82,7 +82,7 @@ do
       # Generate default /etc/aliases
       echo "root: ${PM_ADDRESS}" >/etc/aliases
       echo "amavis: ${PM_ADDRESS}" >>/etc/aliases
-      if [[ ${ENABLE_CLAMAV} -1 1 ]]
+      if [[ ${ENABLE_CLAMAV} -eq 1 ]]
       then
         echo "clamav: ${PM_ADDRESS}" >>/etc/aliases
       fi
