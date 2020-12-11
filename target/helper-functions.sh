@@ -56,11 +56,12 @@ import sys,json
 acme = json.load(sys.stdin)
 for key, value in acme.items():
     certs = value['Certificates']
-    for cert in certs:
-        if 'domain' in cert and 'key' in cert:
-            if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
-                print cert['key']
-                break
+    if certs is not None:
+        for cert in certs:
+            if 'domain' in cert and 'key' in cert:
+                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
+                    print cert['key']
+                    break
 ")
 
   local CERT
@@ -70,11 +71,12 @@ import sys,json
 acme = json.load(sys.stdin)
 for key, value in acme.items():
     certs = value['Certificates']
-    for cert in certs:
-        if 'domain' in cert and 'certificate' in cert:
-            if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
-                print cert['certificate']
-                break
+    if certs is not None:
+        for cert in certs:
+            if 'domain' in cert and 'certificate' in cert:
+                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
+                    print cert['certificate']
+                    break
 ")
 
   if [[ -n "${KEY}${CERT}" ]]

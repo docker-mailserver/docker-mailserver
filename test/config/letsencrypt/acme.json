@@ -1,4 +1,8 @@
 {
+  "empty": {
+    "Account": null,
+    "Certificates": null
+  },
   "le": {
     "Account": {
       "Email": "acme@admin.com",
