@@ -2,4 +2,4 @@ Email auto-discovery means a client email is able to automagically find out abou
 
 Basically, email clients will search for auto-discoverable settings and prefill almost everything when a user enters its email address :heart:
 
-There exists [docker-email-autodiscover](https://hub.docker.com/r/jsmitsnl/docker-email-autodiscover/) on hub.docker.com but the upstream project is actually gone from GitHub. There are some forks available though.
+There exists [autodiscover-email-settings](https://hub.docker.com/r/monogramm/autodiscover-email-settings/) on hub.docker.com which provides IMAP/POP/SMTP/LDAP autodiscover capabilities on Microsoft Outlook/Apple Mail, autoconfig capabilities for Thunderbird or kmail and configuration profiles for iOS/Apple Mail.
