@@ -1,0 +1,5 @@
+#
+#  Dovecot purge maintenance
+#
+# m h dom mon dow user	command
+38 2	* * *	root    doveadm purge -A
