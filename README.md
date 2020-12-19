@@ -1,23 +1,19 @@
 # docker-mailserver
 
-[![Build Status][build_status]][build_status::travis] [![Docker Pulls][docker_pulls]][docker_hub_pulls::hub] [![Docker layers][layers]][layers_outer::badger] [![Github Stars][gh_stars]][repo] [![Contributors][contributors]][repo] [![Github Forks][forks]][repo] [![Gitter][shields::gitter]][gitter]
+![build_status] [![docker_pulls]][docker::hub]
+[![gh_stars]][repo] [![contributors]][repo] [![forks]][repo]
 
-[build_status]: https://travis-ci.org/tomav/docker-mailserver.svg?branch=master
-[build_status::travis]: https://travis-ci.org/tomav/docker-mailserver
-[docker_pulls]: https://img.shields.io/docker/pulls/tvial/docker-mailserver.svg
-[docker_hub_pulls::hub]: https://hub.docker.com/r/tvial/docker-mailserver/
-[layers]: https://images.microbadger.com/badges/image/tvial/docker-mailserver.svg
-[layers_outer::badger]: https://microbadger.com/images/tvial/docker-mailserver
-[gh_stars]: https://img.shields.io/github/stars/tomav/docker-mailserver.svg?label=github%20%E2%98%85
+[build_status]: https://img.shields.io/travis/tomav/docker-mailserver/master?style=for-the-badge
+
+[docker_pulls]: https://img.shields.io/docker/pulls/tvial/docker-mailserver.svg?style=for-the-badge
+[docker::hub]: https://hub.docker.com/r/tvial/docker-mailserver/
+
+[gh_stars]: https://img.shields.io/github/stars/tomav/docker-mailserver.svg?label=github%20%E2%98%85&style=for-the-badge
+[contributors]: https://img.shields.io/github/contributors/tomav/docker-mailserver.svg?style=for-the-badge
+[forks]: https://img.shields.io/github/forks/tomav/docker-mailserver.svg?label=github%20forks&style=for-the-badge
 [repo]: https://github.com/tomav/docker-mailserver/
-[contributors]: https://img.shields.io/github/contributors/tomav/docker-mailserver.svg
-[forks]: https://img.shields.io/github/forks/tomav/docker-mailserver.svg?label=github%20forks
-[shields::gitter]: https://img.shields.io/gitter/room/tomav/docker-mailserver.svg
-[gitter]: https://gitter.im/tomav/docker-mailserver
 
-A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...).
-Only configuration files, no SQL database. Keep it simple and versioned.
-Easy to deploy and upgrade.
+A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade.
 
 [Why this image was created.](http://tvi.al/simple-mail-server-with-docker/)
 
@@ -29,9 +25,19 @@ Easy to deploy and upgrade.
 6. [Examples](#examples)
 7. [Environment Variables](#environment-variables)
 
-## Announcements
+## Release Notes
 
-1. Since version `v7.1.0`, the use of default variables has changed slightly. Please consult the [environment Variables](#environment-variables) sections
+### `v7.2.0`
+
+1. Refactored `target/bin/`
+2. Enhanced and refactored all tests
+3. Added Code of Conduct
+4. Redesigned environment variable use
+5. Added missing Dovecot descriptions
+
+### `v7.1.0`
+
+1. The use of default variables has changed slightly. Consult the [environment variables](#environment-variables) section
 2. New contributing guidelines were added
 3. Added coherent coding style and linting
 4. Added option to use non-default network interface
@@ -112,23 +118,17 @@ chmod a+x ./setup.sh
 
 ### Get up and running
 
-#### Default - Without SELinux
+If you'd like to use SELinux, add `-z` to the variable `SELINUX_LABEL` in `.env`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`
 
 ``` BASH
+# without SELinux
 docker-compose up -d mail
 
 ./setup.sh email add <user@domain> [<password>]
 ./setup.sh alias add postmaster@<domain> <user@domain>
 ./setup.sh config dkim
-```
 
-#### With SELinux
-
-Edit the files `.env` and `docker-compose.yml`. In `.env` uncomment the variable `SELINUX_LABEL`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`. In `docker-compose.yml`, uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
-  
-**Note:** When using `setup.sh` use the option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in the `.env` file. See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information regarding `setup.sh`.
-
-``` BASH
+# with SELinux
 docker-compose up -d mail
 
 ./setup.sh -Z email add <user@domain> [<password>]
@@ -136,11 +136,63 @@ docker-compose up -d mail
 ./setup.sh -Z config dkim
 ```
 
-### DNS - DKIM
+### Miscellaneous
+
+#### DNS - DKIM
 
 Now that the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
-### Miscellaneous
+#### Custom user changes & patches
+
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place it the `config/` folder that is created on startup and call it `user-patches.sh`. The setup is done like this:
+
+``` BASH
+$ pwd
+/where/docker-mailserver/resides/
+
+$ ls -lhA
+-rw-r--r-- USER GROUP SIZE DATE .env
+-rw-r--r-- USER GROUP SIZE DATE docker-compose.yml
+-rw-r--r-- USER GROUP SIZE DATE mailserver.env
+
+# 1. Either create the config/ directory yourself
+#    or let docker-mailserver create it on initial
+#    startup
+$ mkdir config
+$ cd config
+
+# 2. Create the user-patches.sh script and make it
+#    executable
+$ touch user-patches.sh
+$ chmod +x user-patches.sh
+$ ls -lh
+-rwxr-xr-x USER GROUP SIZE DATE user-patches.sh
+
+# 3. Edit it
+$ vi user-patches.sh
+$ cat user-patches.sh
+#! /bin/bash
+
+# ! THIS IS AN EXAMPLE !
+
+# If you modify any supervisord configuration, make sure
+# to run "supervisorctl update" afterwards.
+
+set -euo pipefail
+echo 'user-patches.sh started'
+
+if ! grep '192.168.0.1' /etc/hosts
+then
+  echo -e '192.168.0.1 some.domain.com' >> /etc/hosts
+fi
+
+sed -i "s/smtpd_sender_restrictions = /smtpd_sender_restrictions = reject_unknown_reverse_client_hostname, /" /etc/postfix/main.cf
+sed -i "s/smtpd_sender_restrictions = /smtpd_sender_restrictions = reject_unknown_client_hostname, /" /etc/postfix/main.cf
+
+echo 'user-patches.sh finished successfully'
+```
+
+And you're done. the user patches script runs right before starting daemons. That means, all the other configuration is in place, so the script can make final adjustments.
 
 #### Supported Operating Systems
 
@@ -289,7 +341,7 @@ volumes:
   maillogs:
 ```
 
-## Environment variables
+## Environment Variables
 
 If an option doesn't work as documented here, check if you are running the latest image! Values in **bold** are the default values.
 

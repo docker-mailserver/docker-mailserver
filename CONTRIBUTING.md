@@ -53,18 +53,6 @@ When refactoring, writing or altering scripts, that is Shell and Bash scripts, i
 
 #### Styling rules
 
-##### Initial Description
-
-When writing a script, provide the version and the script's task. Please use [semantic versioning][semver].
-
-``` BASH
-#! /bin/bash
-
-# <TASK DESCRIPTION> -> cut this off
-# to make it not longer than approx.
-# 80 cols.
-```
-
 ##### If-Else-Statements
 
 ``` BASH
@@ -134,21 +122,16 @@ function _<name_underscored_and_lowercase>
 A construct to trace error in your scripts looks like this. Remember: Remove `set -x` in the end. This is for debugging purposes only.
 
 ``` BASH
-set -euEo pipefail
+set -xeuEo pipefail
 trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
 
 function __log_err
 {
-  local FUNC_NAME LINE EXIT_CODE
-  FUNC_NAME="${1} / ${2}"
-  LINE="${3}"
-  EXIT_CODE="${4}"
-
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT,,}.sh" \
-    "  – function  = ${FUNC_NAME}" \
-    "  – line      = ${LINE}" \
-    "  – exit code = ${EXIT_CODE}"
+    "  – script    = ${SCRIPT,,:-'UNKNOWN'}.sh" \
+    "  – function  = ${1} / ${2}" \
+    "  – line      = ${3}" \
+    "  – exit code = ${4}"
 
   <CODE TO RUN AFTERWARDS>
 }

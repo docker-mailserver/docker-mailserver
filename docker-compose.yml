@@ -15,9 +15,7 @@ services:
       - maildata:/var/mail
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
-      - ./config/:/tmp/docker-mailserver/
-      # ? if SELinux is enabled, uncomment the line below and comment the line above
-      # - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
+      - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
     env_file:
       - mailserver.env
     cap_add:
