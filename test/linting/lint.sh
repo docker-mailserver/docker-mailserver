@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# version   v0.1.1 stable
+# version   v0.1.2 stable
 # executed  by TravisCI / manually
 # task      checks files agains linting targets
 
@@ -24,20 +24,15 @@ _get_current_directory
 # ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
 
 set -eEuo pipefail
-trap '__log_err ${FUNCNAME[0]:-'?'} ${_:-'?'} ${LINENO:-'?'} ${?:-'?'}' ERR
+trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
 
 function __log_err
 {
-  local FUNC_NAME LINE EXIT_CODE
-  FUNC_NAME="${1} / ${2}"
-  LINE="${3}"
-  EXIT_CODE="${4}"
-
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT,,}" \
-    "  – function  = ${FUNC_NAME}" \
-    "  – line      = ${LINE}" \
-    "  – exit code = ${EXIT_CODE}"
+    "  – script    = ${SCRIPT:-${0}}" \
+    "  – function  = ${1} / ${2}" \
+    "  – line      = ${3}" \
+    "  – exit code = ${4}"
 
   unset CDIR SCRIPT OS VERSION
 }
@@ -47,7 +42,7 @@ function __log_err
 function __log_info
 {
   printf "\n––– \e[34m%s\e[0m\n%s\n%s\n\n" \
-    "${SCRIPT}" \
+    "${SCRIPT:-${0}}" \
     "  – type    = INFO" \
     "  – message = ${*}"
 }
@@ -55,9 +50,9 @@ function __log_info
 function __log_failure
 {
   printf "\n––– \e[91m%s\e[0m\n%s\n%s\n\n" \
-    "${SCRIPT}" \
+    "${SCRIPT:-${0}}" \
     "  – type    = FAILURE" \
-    "  – message = ${*:-"errors encountered"}"
+    "  – message = ${*:-'errors encountered'}"
 }
 
 function __log_success
@@ -65,7 +60,7 @@ function __log_success
   printf "\n––– \e[32m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT}" \
     "  – type    = SUCCESS" \
-    "  – message = ${*}"
+    "  – message = no errors detected"
 }
 
 function __in_path { __which "${@}" && return 0 ; return 1 ; }
@@ -86,7 +81,7 @@ function _eclint
 
   if "${LINT[@]}"
   then
-    __log_success 'no errors detected'
+    __log_success
   else
     __log_failure
     return 1
@@ -110,7 +105,7 @@ function _hadolint
   if git ls-files --exclude='Dockerfile*' --ignored | \
     xargs --max-lines=1 "${LINT[@]}"
   then
-    __log_success 'no errors detected'
+    __log_success
   else
     __log_failure
     return 1
@@ -187,7 +182,7 @@ function _shellcheck
     __log_failure 'errors encountered'
     return 1
   else
-    __log_success 'no errors detected'
+    __log_success
   fi
 }
 
