@@ -3,7 +3,7 @@
 # Wrapper for various setup scripts
 # included in docker-mailserver
 
-SCRIPT='SETUP'
+SCRIPT='setup.sh'
 
 set -euEo pipefail
 trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
@@ -17,10 +17,10 @@ function __log_err
   EXIT_CODE="${4}"
 
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT,,}.sh" \
+    "  – script    = ${SCRIPT:-${0}}" \
     "  – function  = ${FUNC_NAME}" \
     "  – line      = ${LINE}" \
-    "  – exit code = ${EXIT_CODE}"
+    "  – exit code = ${EXIT_CODE}" 1>&2
 }
 
 function _unset_vars
@@ -34,7 +34,7 @@ function _get_current_directory
 {
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
-    CDIR="$(cd "$(dirname "$(readlink -f "${0}")")" && pwd)"
+    CDIR="$(dirname "$(readlink -f "${0}")")"
   elif realpath -e -L "${0}" &>/dev/null
   then
     CDIR="$(realpath -e -L "${0}")"
@@ -101,7 +101,7 @@ function _inspect
 
 function _usage
 {
-  echo "${SCRIPT,,}.sh Bootstrapping Script
+  echo "${SCRIPT:-${0}} Bootstrapping Script
 
 Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
