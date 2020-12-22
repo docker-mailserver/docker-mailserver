@@ -1,6 +1,7 @@
 # docker-mailserver
 
 ![build_status] [![docker_pulls]][docker::hub]
+
 [![gh_stars]][repo] [![contributors]][repo] [![forks]][repo]
 
 [build_status]: https://img.shields.io/travis/tomav/docker-mailserver/master?style=for-the-badge
@@ -17,7 +18,7 @@ A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...). Only co
 
 [Why this image was created.](http://tvi.al/simple-mail-server-with-docker/)
 
-1. [Announcements](#announcements)
+1. [Release Notes](#release-notes)
 2. [Includes](#includes)
 3. [Issues & Contributing](#issues--contributing)
 4. [Requirements](#requirements)
@@ -97,7 +98,7 @@ Download the `docker-compose.yml`, `compose.env`, `mailserver.env` and the `setu
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml
 wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/mailserver.env
-curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/compose.env
+wget -O .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/compose.env
 
 chmod a+x ./setup.sh
 ```
@@ -118,7 +119,7 @@ chmod a+x ./setup.sh
 
 ### Get up and running
 
-If you'd like to use SELinux, add `-z` to the variable `SELINUX_LABEL` in `.env`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`
+If you'd like to use SELinux, add `-Z` to the variable `SELINUX_LABEL` in `.env`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`
 
 ``` BASH
 # without SELinux
@@ -248,7 +249,7 @@ version: '3.8'
 
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: docker.io/tvial/docker-mailserver:latest
     hostname: mail          # ${HOSTNAME}
     domainname: domain.com  # ${DOMAINNAME}
     container_name: mail    # ${CONTAINER_NAME}
@@ -268,6 +269,7 @@ services:
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
+      - ENABLE_SASLAUTHD=0
       - ONE_DIR=1
       - DMS_DEBUG=0
     cap_add:
@@ -288,7 +290,7 @@ version: '3.8'
 
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: docker.io/tvial/docker-mailserver:latest
     hostname: mail          # ${HOSTNAME}
     domainname: domain.com  # ${DOMAINNAME}
     container_name: mail    # ${CONTAINER_NAME}

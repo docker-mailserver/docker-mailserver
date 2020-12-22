@@ -125,13 +125,15 @@ A construct to trace error in your scripts looks like this. Remember: Remove `se
 set -xeuEo pipefail
 trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
 
+SCRIPT='NAME OF THIS SCRIPT'
+
 function __log_err
 {
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT,,:-'UNKNOWN'}.sh" \
+    "  – script    = ${SCRIPT:-'unknown'}" \
     "  – function  = ${1} / ${2}" \
     "  – line      = ${3}" \
-    "  – exit code = ${4}"
+    "  – exit code = ${4}" 1>&2
 
   <CODE TO RUN AFTERWARDS>
 }
