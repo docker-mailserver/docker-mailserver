@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+my $defaults = "";
+my $server=0;
+
+open(CONF, "<", "/etc/fetchmailrc") || die "No fetchmail config file found: $!";
+my $fh;
+my $i = 0;
+while(<CONF>){
+	if($_ =~ m/poll/){
+		close($fh);
+		open($fh, ">", "/etc/fetchmailrc.d/fetchmail-$i.rc");
+		$i++;
+		$server = 1;
+		print $fh $defaults;
+		print $fh $_;
+	} elsif ($server == 0) {
+		$defaults .= $_;
+	} else {
+		print $fh $_;
+	}
+}
+close(CONF);
+close($fh);

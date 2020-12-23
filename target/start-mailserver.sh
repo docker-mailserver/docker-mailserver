@@ -16,6 +16,7 @@ DEFAULT_VARS["ENABLE_FAIL2BAN"]="${ENABLE_FAIL2BAN:=0}"
 DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:=0}"
 DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:=0}"
 DEFAULT_VARS["FETCHMAIL_POLL"]="${FETCHMAIL_POLL:=300}"
+DEFAULT_VARS["FETCHMAIL_PARALLEL"]="${FETCHMAIL_PARALLEL:=0}"
 DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:=0}"
 DEFAULT_VARS["ENABLE_QUOTAS"]="${ENABLE_QUOTAS:=1}"
 DEFAULT_VARS["LDAP_START_TLS"]="${LDAP_START_TLS:="no"}"
@@ -2092,7 +2093,40 @@ function _start_daemons_fetchmail
 {
   _notify 'task' 'Starting fetchmail' 'n'
   /usr/local/bin/setup-fetchmail
-  supervisorctl start fetchmail
+  if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
+  then
+    mkdir /etc/fetchmailrc.d/
+    /usr/local/bin/fetchmailrc_split
+
+    i=0
+    for rc in /etc/fetchmailrc.d/fetchmail-*.rc
+    do
+      cat <<EOF > /etc/supervisor/conf.d/fetchmail-${i}.conf
+[program:fetchmail-${i}]
+startsecs=0
+autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+user=fetchmail
+command=/usr/bin/fetchmail -f ${rc} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+EOF
+      i=$((i+1))
+    done
+
+    supervisorctl reread
+    supervisorctl update
+
+    i=0
+    for rc in /etc/fetchmailrc.d/fetchmail-*.rc
+    do
+      supervisorctl start fetchmail-${i}
+      i=$((i+1))
+    done
+
+  else
+    supervisorctl start fetchmail
+  fi
 }
 
 function _start_daemons_clamav
