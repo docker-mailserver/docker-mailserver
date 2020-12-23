@@ -2091,7 +2091,7 @@ function _start_daemons_dovecot
 
 function _start_daemons_fetchmail
 {
-  _notify 'task' 'Starting fetchmail' 'n'
+  _notify 'task' 'Preparing fetchmail config'
   /usr/local/bin/setup-fetchmail
   if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
   then
@@ -2101,6 +2101,7 @@ function _start_daemons_fetchmail
     i=0
     for rc in /etc/fetchmailrc.d/fetchmail-*.rc
     do
+
       cat <<EOF > /etc/supervisor/conf.d/fetchmail-${i}.conf
 [program:fetchmail-${i}]
 startsecs=0
@@ -2120,11 +2121,13 @@ EOF
     i=0
     for rc in /etc/fetchmailrc.d/fetchmail-*.rc
     do
+      _notify 'task' "Starting fetchmail instance ${i}" 'n'
       supervisorctl start fetchmail-${i}
       i=$((i+1))
     done
 
   else
+    _notify 'task' 'Starting fetchmail' 'n'
     supervisorctl start fetchmail
   fi
 }
