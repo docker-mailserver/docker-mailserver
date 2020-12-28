@@ -195,6 +195,7 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 RUN sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail
 RUN mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
+COPY target/fetchmail/fetchmailrc_split /usr/local/bin/fetchmailrc_split
 
 # Configures Postfix
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/

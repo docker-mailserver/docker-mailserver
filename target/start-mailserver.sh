@@ -2102,7 +2102,7 @@ function _start_daemons_fetchmail
     for rc in /etc/fetchmailrc.d/fetchmail-*.rc
     do
 
-      cat <<EOF > /etc/supervisor/conf.d/fetchmail-${i}.conf
+      cat <<EOF > "/etc/supervisor/conf.d/fetchmail-${i}.conf"
 [program:fetchmail-${i}]
 startsecs=0
 autostart=false
@@ -2122,7 +2122,7 @@ EOF
     for rc in /etc/fetchmailrc.d/fetchmail-*.rc
     do
       _notify 'task' "Starting fetchmail instance ${i}" 'n'
-      supervisorctl start fetchmail-${i}
+      supervisorctl start "fetchmail-${i}"
       i=$((i+1))
     done
 
