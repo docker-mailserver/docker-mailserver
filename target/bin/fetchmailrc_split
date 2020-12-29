@@ -3,7 +3,7 @@
 #              smaller fetchmailrc files per server [poll] entries. Each
 #              separate fetchmailrc file is stored in /etc/fetchmailrc.d
 #
-#              The mail purpose for this is to work around what is known 
+#              The mail purpose for this is to work around what is known
 #              as the Fetchmail IMAP idle issue.
 #
 
@@ -12,7 +12,8 @@ FETCHMAILRC="/etc/fetchmailrc"
 FETCHMAILRCD="/etc/fetchmailrc.d"
 DEFAULT_FILE="${FETCHMAILRCD}/defaults"
 
-if [ ! -f "${FETCHMAILRC}" ]
+# Pre checks, check if needed files and folders exists
+if [ ! -r "${FETCHMAILRC}" ]
 then
 	echo "Error: File ${FETCHMAILRC} not found"
 	exit 1
@@ -20,8 +21,7 @@ fi
 
 if [ ! -d "${FETCHMAILRCD}" ]
 then
-	mkdir ${FETCHMAILRCD}
-	if [ "$?" -ne 0 ]
+	if ! mkdir ${FETCHMAILRCD};
 	then
 		echo "Error: Unable to create folder ${FETCHMAILRCD}"
 		exit 1
@@ -30,7 +30,7 @@ fi
 
 COUNTER=0
 SERVER=0
-while read line
+while read -r line
 do
 	if [[ "${line}" =~ poll ]]
 	then
