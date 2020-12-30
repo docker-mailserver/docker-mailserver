@@ -21,7 +21,7 @@ fi
 
 if [ ! -d "${FETCHMAILRCD}" ]
 then
-	if ! mkdir ${FETCHMAILRCD};
+	if ! mkdir "${FETCHMAILRCD}";
 	then
 		echo "Error: Unable to create folder ${FETCHMAILRCD}"
 		exit 1
@@ -45,7 +45,7 @@ do
 	then
 		# We have not yet found "poll". Let's assume we are still reading
 		# the default settings from /etc/fetchmailrc file
-		echo "${line}" >> ${DEFAULT_FILE}
+		echo "${line}" >> "${DEFAULT_FILE}"
 	else
 		# Just the server settings that need to be added to the specific rc.d file
 		echo "${line}" >> "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
