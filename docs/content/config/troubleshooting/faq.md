@@ -279,6 +279,8 @@ Yes, by Adding the Environment Variable `PERMIT_DOCKER: network`.
 
 See https://github.com/tomav/docker-mailserver/issues/1247 for an example.
 
+*ToDo: Write a HowTo/UseCase/Tutorial about authentication with SMTP_ONLY.*
+
 ### Common errors
 
 ```
