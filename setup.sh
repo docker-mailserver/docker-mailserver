@@ -317,13 +317,13 @@ function _main
       shift ; case ${1:-} in
         set      ) shift ; _docker_image setquota "${@}" ;;
         del      ) shift ; _docker_image delquota "${@}" ;;
-        *        )   _usage ;;
+        *        ) _usage ;;
       esac
       ;;
 
     config)
       shift ; case ${1:-} in
-        dkim     ) _docker_image generate-dkim-config "${2:-2048}" ;;
+        dkim     ) _docker_image generate-dkim-config "${2:-2048}" "${3:-}" ;;
         ssl      ) _docker_image generate-ssl-certificate "${2}" ;;
         *        ) _usage ;;
       esac
