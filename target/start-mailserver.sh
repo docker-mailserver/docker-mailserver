@@ -1759,7 +1759,7 @@ function _setup_mail_summary
     "daily_cron" )
       _notify 'inf' "Creating daily cron job for pflogsumm report"
 
-      echo "#!/bin/bash" > /etc/cron.daily/postfix-summary
+      echo "#! /bin/bash" > /etc/cron.daily/postfix-summary
       echo "/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}" >> /etc/cron.daily/postfix-summary
 
       chmod +x /etc/cron.daily/postfix-summary
@@ -1782,14 +1782,14 @@ function _setup_logwatch
   case "${LOGWATCH_INTERVAL}" in
     "daily" )
       _notify 'inf' "Creating daily cron job for logwatch reports"
-      echo "#!/bin/bash" > /etc/cron.daily/logwatch
+      echo "#! /bin/bash" > /etc/cron.daily/logwatch
       echo "/usr/sbin/logwatch --range Yesterday --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
       >> /etc/cron.daily/logwatch
       chmod 744 /etc/cron.daily/logwatch
       ;;
     "weekly" )
       _notify 'inf' "Creating weekly cron job for logwatch reports"
-      echo "#!/bin/bash" > /etc/cron.weekly/logwatch
+      echo "#! /bin/bash" > /etc/cron.weekly/logwatch
       echo "/usr/sbin/logwatch --range 'between -7 days and -1 days' --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
       >> /etc/cron.weekly/logwatch
       chmod 744 /etc/cron.weekly/logwatch
