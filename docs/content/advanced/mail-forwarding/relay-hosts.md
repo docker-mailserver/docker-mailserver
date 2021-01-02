@@ -52,8 +52,8 @@ An example configuration file looks like this:
 @domain2.com        [relay2.org]:2525
 ```
 
-Combined with the previous configuration in `config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from domain1.com via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from domain2.com via `relay2.org:2525` authenticating as `relay_user_2`.
-Note: You still have to define RELAY_HOST to activate the feature
+Combined with the previous configuration in `config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from domain1.com via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from domain2.com via `relay2.org:2525` authenticating as `relay_user_2`.  
+**NOTE** You still have to define RELAY_HOST to activate the feature
 
 ## Excluding Sender Domains
 
