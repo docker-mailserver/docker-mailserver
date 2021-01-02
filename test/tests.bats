@@ -571,6 +571,36 @@ EOF
   assert_output 4
 }
 
+@test "checking opendkim: generator creates keys, tables and TrustedHosts for manual mode" {
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  rm -rf "${PRIVATE_CONFIG}/manual-mode"
+  mkdir -p "${PRIVATE_CONFIG}/manual-mode"
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/manual-mode/":/tmp/docker-mailserver/ \
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 "domain1.tld,domain2.tld" | wc -l'
+  assert_success
+  assert_output 6
+  # Check keys for domain1.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/manual-mode/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
+  assert_success
+  assert_output 2
+  # Check keys for domain2.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/manual-mode/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain2.tld | wc -l'
+  assert_success
+  assert_output 2
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/manual-mode/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
+  assert_success
+  assert_output 4
+}
+
 @test "checking opendkim: generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . )"
