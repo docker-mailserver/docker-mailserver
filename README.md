@@ -121,6 +121,20 @@ docker-compose up -d mail
 
 ### Miscellaneous
 
+### DKIM manual domain mode
+
+LDAP setups would need to use this mode because the user accounts are not in `postfix-accounts.cf` or `postfix-virtual.cf`.
+
+``` BASH
+# without SELinux
+docker-compose up -d mail
+./setup.sh config dkim 2048 'domain1.com,domain2.fr'
+
+# with SELinux
+docker-compose up -d mail
+./setup.sh -Z config dkim 2048 'domain1.com,domain2.fr'
+```
+
 #### DNS - DKIM
 
 When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim).
