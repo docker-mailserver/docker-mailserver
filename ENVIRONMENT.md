@@ -140,6 +140,24 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 
 - **empty** => 10240000 (~10 MB)
 
+##### POSTFIX\_VIRTUAL\_ALIAS\_DOMAINS
+
+Set a virtual domain alias list
+Example: `virtual1.tld virtual2.tld`
+Docs: [Postfix Documentation](http://www.postfix.org/postconf.5.html#virtual_alias_domains)
+
+- **empty** => No configuration will be added
+- Any value => Fills the `virtual_alias_domains` option
+
+##### POSTFIX\_VIRTUAL\_ALIAS\_MAPS
+
+Set a virtual alias map file
+Example: `hash:/etc/postfix/virtual`
+Docs: [Postfix Documentation](http://www.postfix.org/postconf.5.html#virtual_alias_maps)
+
+- **empty** => No configuration will be added
+- Any value => Fills the `virtual_alias_maps` option
+
 ##### ENABLE_MANAGESIEVE
 
 - **empty** => Managesieve service disabled

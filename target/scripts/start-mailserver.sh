@@ -127,6 +127,7 @@ function register_functions
   _register_setup_function "_setup_postfix_dhparam"
   _register_setup_function "_setup_postfix_postscreen"
   _register_setup_function "_setup_postfix_sizelimits"
+  _register_setup_function "_setup_postfix_virtual"
 
   [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function "_setup_spoof_protection"
 
@@ -855,6 +856,20 @@ function _setup_postfix_sizelimits
 
   _notify 'inf' "Configuring postfix virtual mailbox size limit"
   postconf -e "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
+}
+
+function _setup_postfix_virtual
+{
+  _notify 'inf' "Configuring postfix virtual alias domains"
+  if [[ -n ${POSTFIX_VIRTUAL_ALIAS_DOMAINS} ]]
+  then
+    postconf -e "virtual_alias_domains = ${POSTFIX_VIRTUAL_ALIAS_DOMAINS}"
+  fi
+  _notify 'inf' "Configuring postfix virtual alias maps"
+  if [[ -n ${POSTFIX_VIRTUAL_ALIAS_MAPS} ]]
+  then
+    postconf -e "virtual_alias_maps = ${POSTFIX_VIRTUAL_ALIAS_MAPS}"
+  fi
 }
 
 function _setup_postfix_smtputf8
