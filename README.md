@@ -66,10 +66,10 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 Download the `docker-compose.yml`, `compose.env`, `mailserver.env` and the `setup.sh` files:
 
 ``` BASH
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/stable/setup.sh
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/stable/docker-compose.yml
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/stable/mailserver.env
-wget -O .env https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/stable/compose.env
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/docker-compose.yml
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/mailserver.env
+wget -O .env https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/compose.env
 
 chmod a+x ./setup.sh
 ```
