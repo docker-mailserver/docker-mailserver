@@ -42,7 +42,7 @@ RUN \
   altermime amavisd-new apt-transport-https arj binutils bzip2 \
   dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
-  ca-certificates cabextract clamav clamav-daemon cpio curl ed \
+  dumb-init ca-certificates cabextract clamav clamav-daemon cpio curl ed \
   # F - O
   fail2ban fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
@@ -243,5 +243,7 @@ COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
 WORKDIR /
 
 EXPOSE 25 587 143 465 993 110 995 4190
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
