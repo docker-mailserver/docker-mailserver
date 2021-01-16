@@ -1,42 +1,48 @@
 ---
 name: "\U0001F389 Feature request"
 about: Suggest an idea for this project
-title: ''
-labels: feature request, needs triage
+title: '[FR]'
+labels: area/enhancement, kind/feature request, meta/needs triage, priority/low
 assignees: ''
 
 ---
 
-## Is your feature request related to a problem?
-<!-- A clear and concise description of what the problem is. -->
+# Feature Request
+
+## Context
 
 
 
-## Describe the solution you'd like
-<!-- A clear and concise description of what you want to happen. -->
+### Is your Feature Request related to a Problem?
 
 
 
-## Alternatives you've considered
-<!-- A clear and concise description of any alternative solutions or features you've considered. -->
+### Describe the Solution you'd like
 
 
 
-## Who will that feature be useful to?
-<!-- Is it solving a common problem, or is it an improvement that all current users will benefit from? -->
+### Are you going to implement it?
 
+<!-- Select one, remove the other and do not shorten the sentence -->
 
+Yes, because I know the probability of someone else doing it is low and I can learn from it.
 
-## What have you done already?
-<!-- If you already built a prototype or a complete implementation of that feature, where is it possible to see it? -->
+No, and I understand that it is highly likely no one will implement it. Furthermore, I understand that this issue will likely become stale and will be closed.
 
-
-
-## What are you going to contribute?
-<!-- Besides testing volunteering work made by other people, what are you going to contribute in order to help have that feature implemented, tested and documented? -->
+### What are you going to contribute??
 
 
 
 ## Additional context
-<!-- Add any other context about the feature request here. -->
+
+### Alternatives you've considered
+
+
+
+### Who will that Feature be useful to?
+
+
+
+### What have you done already?
+
 

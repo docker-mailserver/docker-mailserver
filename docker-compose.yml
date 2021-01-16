@@ -1,11 +1,12 @@
 version: '3.8'
 
 services:
-  mail:
-    image: tvial/docker-mailserver:latest
+  mailserver:
+    image: docker.io/mailserver/docker-mailserver:latest
     hostname: ${HOSTNAME}
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
+    env_file: mailserver.env
     ports:
       - "25:25"
       - "143:143"
@@ -16,12 +17,8 @@ services:
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
       - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
-    env_file:
-      - mailserver.env
-    cap_add:
-      - NET_ADMIN
-      - SYS_PTRACE
     restart: always
+    cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
 
 volumes:
   maildata:

@@ -1,0 +1,22 @@
+name: "Close Stale Issues"
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 1 # TODO just for testing purposes, otherwise (20)
+          days-before-close: 1 # TODO just for testing purposes, otherwise (10)
+          stale-issue-label: "meta/stale"
+          close-issue-label: "meta/frozen due to age or inactivity"
+          stale-issue-message: >
+            This issue has become stale because it has been open for 20 days without
+            activity. Remove the label and comment or this issue will be closed in 10 days.
+          close-issue-message: >
+            This issue was closed due to inactivity.

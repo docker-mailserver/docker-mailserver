@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# version   v0.1.2 stable
-# executed  by TravisCI / manually
+# version   v0.1.3 stable
+# executed  by CI / manually (via Make)
 # task      checks files agains linting targets
 
 SCRIPT="lint.sh"
@@ -10,7 +10,7 @@ function _get_current_directory
 {
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
-    CDIR="$(cd "$(dirname "$(readlink -f "${0}")")" && pwd)"
+    CDIR="$(dirname "$(readlink -f "${0}")")"
   elif realpath -e -L "${0}" &>/dev/null
   then
     CDIR="$(realpath -e -L "${0}")"
@@ -188,13 +188,13 @@ function _shellcheck
 
 function _main
 {
-  case ${1:- } in
+  case ${1:-} in
     'eclint'      ) _eclint     ;;
     'hadolint'    ) _hadolint   ;;
     'shellcheck'  ) _shellcheck ;;
     *)
       __log_failure \
-        "${SCRIPT}: '${1}' is not a command nor an option. See 'make help'."
+        "${SCRIPT}: '${1}' is not a command nor an option."
       exit 3
       ;;
   esac

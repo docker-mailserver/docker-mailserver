@@ -1,5 +1,8 @@
 ignored:
-  # disable explicit version for apt install
   - DL3008
+  - DL3015
+
 trustedRegistries:
   - docker.io
+  - quay.io
+  - ghcr.io

@@ -1,4 +1,6 @@
 .github
 .git
+.idea
+.vscode
 
 test/

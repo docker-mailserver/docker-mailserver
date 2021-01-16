@@ -18,7 +18,7 @@ function setup_file() {
               -e POSTGREY_DELAY=15 \
               -e POSTGREY_MAX_AGE=35 \
               -e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
-              -e POSTGREY_TEXT="Delayed by postgrey" \
+              -e POSTGREY_TEXT="Delayed by Postgrey" \
               -e DMS_DEBUG=0 \
               -h mail.my-domain.com -t "${NAME}"
     # using postfix availability as start indicator, this might be insufficient for postgrey
@@ -43,7 +43,7 @@ function teardown_file() {
   run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=127.0.0.1:10023 --delay=15 --max-age=35 --auto-whitelist-clients=5\"$' /etc/default/postgrey | wc -l"
   assert_success
   assert_output 1
-  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_TEXT=\"Delayed by postgrey\"$' /etc/default/postgrey | wc -l"
+  run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_TEXT=\"Delayed by Postgrey\"$' /etc/default/postgrey | wc -l"
   assert_success
   assert_output 1
 }

@@ -1138,7 +1138,7 @@ EOF
   # dovecot and postfix has been restarted
   wait_for_service mail postfix
   wait_for_service mail dovecot
-  sleep 5
+  sleep 10
 
   # send some big emails
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
@@ -1151,6 +1151,7 @@ EOF
   # check for quota warn message existence
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'"
   assert_success
+
   run repeat_until_success_or_timeout 20 sh -c "docker logs mail | grep 'Quota exceeded (mailbox for user is full)'"
   assert_success
 
@@ -1411,7 +1412,7 @@ EOF
 @test "checking setup.sh: setup.sh debug inspect" {
   run ./setup.sh -c mail debug inspect
   assert_success
-  assert_line --index 0 "Image: tvial/docker-mailserver:testing"
+  assert_line --index 0 "Image: ${NAME}"
   assert_line --index 1 "Container: mail"
 }
 @test "checking setup.sh: setup.sh debug login ls" {

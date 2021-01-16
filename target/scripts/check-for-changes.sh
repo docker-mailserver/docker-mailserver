@@ -6,34 +6,35 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 echo "${LOG_DATE} Start check-for-changes script."
 
-# ? Checks ------------------------------------------------
+# ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
 
 cd /tmp/docker-mailserver || exit 1
 
-# Check postfix-accounts.cf exist else break
+# check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
   echo "${LOG_DATE} postfix-accounts.cf is missing! This should not run! Exit!"
-  exit
+  exit 0
 fi
 
-# Verify checksum file exists; must be prepared by start-mailserver.sh
+# verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
   echo "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
-  exit
+  exit 0
 fi
 
-# ? Actual script begins ----------------------------------
+# ? ––––––––––––––––––––––––––––––––––––––––––––– Actual script begins
 
-# Determine postmaster address, duplicated from start-mailserver.sh
-# This script previously didn't work when POSTMASTER_ADDRESS was empty
+# determine postmaster address, duplicated from start-mailserver.sh
+# this script previously didn't work when POSTMASTER_ADDRESS was empty
 if [[ -n ${OVERRIDE_HOSTNAME} ]]
 then
   DOMAINNAME="${OVERRIDE_HOSTNAME#*.}"
 else
   DOMAINNAME="$(hostname -d)"
 fi
+
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 echo "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 sleep 10

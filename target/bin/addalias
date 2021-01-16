@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# shellcheck source=../bin-helper.sh
-. /usr/local/bin/bin-helper.sh
+# shellcheck source=../scripts/helper-functions.sh
+. /usr/local/bin/helper-functions.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 

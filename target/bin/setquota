@@ -5,8 +5,8 @@
 # ? being used below. (This disables the message file-wide.)
 # shellcheck disable=SC2094
 
-# shellcheck source=../bin-helper.sh
-. /usr/local/bin/bin-helper.sh
+# shellcheck source=../scripts/helper-functions.sh
+. /usr/local/bin/helper-functions.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}

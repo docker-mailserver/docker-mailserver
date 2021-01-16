@@ -3,8 +3,7 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 
-# shellcheck disable=SC2034
-NAME=tvial/docker-mailserver:testing
+NAME=${NAME:-'docker.io/mailserver/testing:latest'}
 
 # default timeout is 120 seconds
 TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-120}
@@ -180,6 +179,7 @@ function wait_for_service() {
 function wait_for_changes_to_be_detected_in_container() {
     local CONTAINER_NAME="${1}"
     local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
+
     # shellcheck disable=SC2016
     repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helper-functions.sh; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
@@ -187,5 +187,7 @@ function wait_for_changes_to_be_detected_in_container() {
 function wait_for_empty_mail_queue_in_container() {
     local CONTAINER_NAME="${1}"
     local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
+
+    # shellcheck disable=SC2016
     repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
 }

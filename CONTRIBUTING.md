@@ -1,6 +1,6 @@
 # Contributing
 
-`docker-mailserver` is OpenSource. That means that you can contribute on enhancements, bug fixing or improving the documentation in the Wiki.
+This project is Open Source. That means that you can contribute on enhancements, bug fixing or improving the documentation in the [Wiki](https://github.com/docker-mailserver/docker-mailserver/wiki).
 
 1. [Issues & PRs](#issues--prs)
    1. [Opening an Issue](#opening-an-issue)
@@ -23,20 +23,18 @@ You want to add a feature? Feel free to start creating an issue explaining what 
 
 The development workflow is the following:
 
-- Fork the project and clone your fork
-- Create a branch using `git checkout -b branch_name` (you can use `issue-xxx` if fixing an existing issue)
-- Run `git submodule init` and `git submodule update` to get the BATS submodules
-- Code :-)
-- Add integration tests in `test/tests.bats`
-- Use `make clean all` to build image locally and run tests
-  Note that tests work on Linux only; they hang on Mac and Windows.
-- Document your improvements in `README.md` or Wiki depending on content
-- [Commit][commit], if possible with [signing your commit with a GPG key][gpg], push and make a pull-request
-- Pull-request is automatically tested on Travis
-- When tests are green, a review may be done
-- When changed are validated, your branch is merged into `master`
-- `master` is automatically tested on Travis
-- Docker builds a new `latest` image
+1. Fork the project and clone your fork
+   1. Create a new branch to work on
+   2. Run `git submodule update --init --recursive`
+2. Write the code that is needed :D
+3. Add integration tests if necessary
+4. Get the linters with `make install_linters`
+5. Use `make clean all` to build image locally and run tests (note that tests work on Linux **only**)
+6. Document your improvements if necessary (e.g. if you introduced new environment variables, write the description in [`ENVIRONMENT.md`](./ENVIRONMENT.md))
+7. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`
+   1. Pull requests are automatically tested against the CI and will be reviewed when tests pass
+   2. When your changes are validated, your branch is merged
+   3. CI builds the new `:latest` image
 
 ## Coding Style
 

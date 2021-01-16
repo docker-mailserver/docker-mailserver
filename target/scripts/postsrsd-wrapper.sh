@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function _generate_secret { ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "${1}" ) }
+function _generate_secret { ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "${1}" ; ) ; }
 
 if [[ -n ${SRS_DOMAINNAME} ]]
 then
@@ -23,7 +23,7 @@ POSTSRSD_STATE_SECRET_FILE="${POSTSRSD_STATE_DIR}/postsrsd.secret"
 
 if [[ -n ${SRS_SECRET} ]]
 then
-  ( umask 0077 ; echo "${SRS_SECRET}" | tr ',' '\n' > "${POSTSRSD_SECRET_FILE}" )
+  ( umask 0077 ; echo "${SRS_SECRET}" | tr ',' '\n' > "${POSTSRSD_SECRET_FILE}" ; )
 else
   if [[ ${ONE_DIR} -eq 1 ]]
   then

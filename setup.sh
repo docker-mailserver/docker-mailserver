@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# Wrapper for various setup scripts
-# included in docker-mailserver
+# version   v0.2.4 stable
+# executed  manually (via Make)
+# task      wrapper for various setup scripts
 
 SCRIPT='setup.sh'
 
@@ -11,16 +12,11 @@ trap '_unset_vars || :' EXIT
 
 function __log_err
 {
-  local FUNC_NAME LINE EXIT_CODE
-  FUNC_NAME="${1} / ${2}"
-  LINE="${3}"
-  EXIT_CODE="${4}"
-
   printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
     "  – script    = ${SCRIPT:-${0}}" \
-    "  – function  = ${FUNC_NAME}" \
-    "  – line      = ${LINE}" \
-    "  – exit code = ${EXIT_CODE}" 1>&2
+    "  – function  = ${1} / ${2}" \
+    "  – line      = ${3}" \
+    "  – exit code = ${4}" >&2
 }
 
 function _unset_vars
@@ -62,7 +58,7 @@ function _check_root
   if [[ ${EUID} -ne 0 ]]
   then
     echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user."
-    return 1
+    exit 1
   fi
 }
 
@@ -108,8 +104,8 @@ Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 OPTIONS:
 
   -i IMAGE_NAME     The name of the docker-mailserver image, by default
-                    'tvial/docker-mailserver:latest' for docker, and
-                    'docker.io/tvial/docker-mailserver:latest' for podman.
+                    'mailserver/docker-mailserver:latest' for docker, and
+                    'docker.io/mailserver/docker-mailserver:latest' for podman.
 
   -c CONTAINER_NAME The name of the running container.
 
@@ -170,12 +166,8 @@ SUBCOMMANDS:
 
 function _docker_image_exists
 {
-  if ${CRI} history -q "${1}" >/dev/null 2>&1
-  then
-    return 0
-  else
-    return 1
-  fi
+  ${CRI} history -q "${1}" &>/dev/null
+  return ${?}
 }
 
 function _docker_image
@@ -204,17 +196,17 @@ function _docker_container
   then
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@}"
   else
-    echo "The docker-mailserver is not running!"
-    exit 5
+    echo "The mailserver is not running!"
+    exit 1
   fi
 }
 
 function _main
 {
-  if [[ -n $(command -v docker) ]]
+  if command -v docker &>/dev/null
   then
     CRI=docker
-  elif [[ -n $(command -v podman) ]]
+  elif command -v podman &>/dev/null
   then
     CRI=podman
     _check_root
@@ -223,29 +215,25 @@ function _main
     exit 10
   fi
 
-  INFO=$(${CRI} ps \
-    --no-trunc \
-    --format "{{.Image}};{{.Names}}" \
-    --filter label=org.label-schema.name="docker-mailserver" | \
-    tail -1)
+  INFO=$(${CRI} ps --no-trunc --format "{{.Image}};{{.Names}}" --filter \
+    label=org.opencontainers.image.title="docker-mailserver" | tail -1)
 
   IMAGE_NAME=${INFO%;*}
   CONTAINER_NAME=${INFO#*;}
 
   if [[ -z ${IMAGE_NAME} ]]
   then
-    if [[ ${CRI} == "docker" ]]
-    then
-      IMAGE_NAME=tvial/docker-mailserver:latest
-    elif [[ ${CRI} == "podman" ]]
-    then
-      IMAGE_NAME=docker.io/tvial/docker-mailserver:latest
-    fi
+      IMAGE_NAME=${NAME:-'docker.io/mailserver/docker-mailserver:latest'}
   fi
 
-  if tty -s
+  if test -t 0
   then
     USE_TTY="-ti"
+  else
+    # GitHub Actions will fail (or really anything else
+    #   lacking an interactive tty) if we don't set a
+    #   value here; "-t" alone works for these cases.
+    USE_TTY="-t"
   fi
 
   local OPTIND
