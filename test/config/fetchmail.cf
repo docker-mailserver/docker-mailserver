@@ -3,3 +3,9 @@ poll pop3.example.com. with proto POP3
 	password 'secret'
 	is 'user2@domain.tld'
 	here options keep ssl
+	
+poll pop3-2.example.com. with proto POP3
+	user 'username' there with
+	password 'secret'
+	is 'user3@domain.tld'
+	here options keep ssl

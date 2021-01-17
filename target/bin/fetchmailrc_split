@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# Description: This script will split the content of /etc/fetchmailrc into
+#              smaller fetchmailrc files per server [poll] entries. Each
+#              separate fetchmailrc file is stored in /etc/fetchmailrc.d
+#
+#              The mail purpose for this is to work around what is known
+#              as the Fetchmail IMAP idle issue.
+#
+
+FETCHMAILRC="/etc/fetchmailrc"
+FETCHMAILRCD="/etc/fetchmailrc.d"
+DEFAULT_FILE="${FETCHMAILRCD}/defaults"
+
+if [[ ! -r "${FETCHMAILRC}" ]]
+then
+  echo "Error: File ${FETCHMAILRC} not found"
+  exit 1
+fi
+
+if [[ ! -d ${FETCHMAILRCD} ]]
+then
+  if ! mkdir "${FETCHMAILRCD}"
+  then
+    echo "Error: Unable to create folder ${FETCHMAILRCD}"
+    exit 1
+  fi
+fi
+
+COUNTER=0
+SERVER=0
+while read -r LINE
+do
+  if [[ ${LINE} =~ poll ]]
+  then
+    # If we read "poll" then we reached a new server definition
+    # We need to create a new file with fetchmail defaults from
+    # /etc/fetcmailrc
+    COUNTER=$((COUNTER+1))
+    SERVER=1
+    cat "${DEFAULT_FILE}" > "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
+    echo "${LINE}" >> "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
+  elif [[ ${SERVER} -eq 0 ]]
+  then
+    # We have not yet found "poll". Let's assume we are still reading
+    # the default settings from /etc/fetchmailrc file
+    echo "${LINE}" >> "${DEFAULT_FILE}"
+  else
+    # Just the server settings that need to be added to the specific rc.d file
+    echo "${LINE}" >> "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
+  fi
+done < "${FETCHMAILRC}"
+
+rm "${DEFAULT_FILE}"

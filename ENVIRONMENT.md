@@ -131,7 +131,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
-  
+
 See [mailbox quota](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota).
 
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
@@ -334,6 +334,13 @@ Note: activate this only if you are confident in your bayes database for identif
 ##### FETCHMAIL_POLL
 
 - **300** => `fetchmail` The number of seconds for the interval
+
+##### FETCHMAIL_PARALLEL
+
+  **0** => `fetchmail` runs with a single config file `/etc/fetchmailrc`
+  **1** => `/etc/fetchmailrc` is split per poll entry. For every poll entry a seperate fetchmail instance is started  to allow having multiple imap idle configurations defined.
+
+Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate `fetchmail` instances.
 
 #### LDAP
 
