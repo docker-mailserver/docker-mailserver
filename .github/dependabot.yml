@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "radicand"
+      - "aendeavor"
+      - "wernerfred"
+    labels:
+      - "area/dependency"
+      - "pr/needs review"
