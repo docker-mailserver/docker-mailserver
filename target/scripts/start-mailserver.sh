@@ -864,7 +864,9 @@ function _setup_postfix_smtputf8
 function _setup_spoof_protection
 {
   _notify 'inf' "Configuring Spoof Protection"
-  sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
+  sed -i \
+    's+smtpd_sender_restrictions =+smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,+' \
+    /etc/postfix/main.cf
 
   if [[ ${ENABLE_LDAP} -eq 1 ]]
   then
@@ -874,7 +876,7 @@ function _setup_spoof_protection
     then
       postconf -e "smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }"
     else
-      postconf -e "smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/regexp, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+      postconf -e "smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
     fi
   fi
 }
