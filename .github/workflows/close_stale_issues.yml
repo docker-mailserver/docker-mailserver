@@ -8,7 +8,8 @@ jobs:
   stale:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/stale@v3
+      - name: Close stale issues
+        uses: actions/stale@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 1 # TODO just for testing purposes, otherwise (20)

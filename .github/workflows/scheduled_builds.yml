@@ -16,7 +16,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          TAGS="docker.io/mailserver/docker-mailserver:stable"
+          TAGS=${{ secrets.DOCKER_REPOSITORY }}:stable
           echo ::set-output name=tags::${TAGS}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -38,6 +38,5 @@ jobs:
             VCS_REF=${{ github.sha }}
             VCS_VER=${{ github.ref }}
           platforms: linux/amd64,linux/arm/v7,linux/arm64
-          pull: true
           push: true
           tags: ${{ steps.prep.outputs.tags }}

@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 
-NAME    ?= docker.io/mailserver/testing:local
+NAME    ?= mailserver-testing:ci
 VCS_REF := $(shell git rev-parse --short HEAD)
 VCS_VER := $(shell git describe --tags --contains --always)
 
@@ -27,7 +27,7 @@ clean:
 # remove running and stopped test containers
 	-@ [[ -d config.bak ]] && { rm -rf config ; mv config.bak config ; } || :
 	-@ [[ -d testconfig.bak ]] && { sudo rm -rf test/config ; mv testconfig.bak test/config ; } || :
-	-@ docker ps -a | grep -E "testing:local|ldap_for_mail|mail_override_hostname" | cut -f 1-1 -d ' ' | xargs --no-run-if-empty docker rm -f
+	-@ docker ps -a | grep -E "mail|ldap_for_mail|mail_overri.*" | cut -f 1-1 -d ' ' | xargs --no-run-if-empty docker rm -f
 	-@ sudo rm -rf test/onedir test/alias test/quota test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/dovecot-quotas.cf test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf test/config/dhparams.pem test/config/dovecot-lmtp/dh.pem test/config/relay-hosts/dovecot-quotas.cf test/config/user-patches.sh test/alias/config/postfix-virtual.cf test/quota/config/dovecot-quotas.cf test/quota/config/postfix-accounts.cf test/relay/config/postfix-relaymap.cf test/relay/config/postfix-sasl-password.cf test/duplicate_configs/
 
 # –––––––––––––––––––––––––––––––––––––––––––––––

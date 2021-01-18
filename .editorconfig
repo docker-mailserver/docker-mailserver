@@ -1,33 +1,36 @@
+# –––––––––––––––––––––––––––––––––––––––––––––––
+# ––– General –––––––––––––––––––––––––––––––––––
+# ––– https://editorconfig.org ––––––––––––––––––
+# –––––––––––––––––––––––––––––––––––––––––––––––
+
 root = true
 
 [*]
 charset = utf-8
 end_of_line = lf
-trim_trailing_whitespace = true
+indent_style = space
 insert_final_newline = true
+trim_trailing_whitespace = true
 
-[*.md]
-indent_style = space
-trim_trailing_whitespace = false
+# –––––––––––––––––––––––––––––––––––––––––––––––
+# ––– Specific ––––––––––––––––––––––––––––––––––
+# –––––––––––––––––––––––––––––––––––––––––––––––
 
-[*.{yaml,yml}]
-indent_style = space
+[*.{yaml,yml,sh,bats}]
 indent_size = 2
 
 [Makefile]
 indent_style = tab
 indent_size = 4
 
-[Dockerfile]
-indent_style = space
-indent_size = 2
+[*.md]
+trim_trailing_whitespace = false
 
-[*.{sh,bats}]
-indent_style = space
-indent_size = 2
+# –––––––––––––––––––––––––––––––––––––––––––––––
+# ––– Git Submodules ––––––––––––––––––––––––––––
+# –––––––––––––––––––––––––––––––––––––––––––––––
 
-# directories created by git submodules
-[{test/bats/**,test/test_helper/bats-assert/**,test/test_helper/bats-support/**,target/docker-configomat/**}]
+[{test/bats/**,test/test_helper/**,target/docker-configomat/**}]
 indent_style = none
 indent_size = none
 end_of_line = none

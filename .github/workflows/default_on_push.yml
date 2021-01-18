@@ -53,7 +53,7 @@ jobs:
       - name: Prepare tags
         id: prep
         run: |
-          DOCKER_IMAGE=docker.io/mailserver/docker-mailserver
+          DOCKER_IMAGE=${{ secrets.DOCKER_REPOSITORY }}
           VERSION=latest
           [[ $GITHUB_REF == refs/tags/* ]] && VERSION=${GITHUB_REF#refs/tags/v}
           [[ $GITHUB_REF == 'refs/heads/stable' ]] && VERSION=stable

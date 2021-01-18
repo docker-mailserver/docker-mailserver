@@ -103,9 +103,9 @@ Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
 OPTIONS:
 
-  -i IMAGE_NAME     The name of the docker-mailserver image, by default
-                    'mailserver/docker-mailserver:latest' for docker, and
-                    'docker.io/mailserver/docker-mailserver:latest' for podman.
+  -i IMAGE_NAME     The name of the docker-mailserver image
+                    The default value is
+                    'docker.io/mailserver/docker-maiserver:latest'
 
   -c CONTAINER_NAME The name of the running container.
 
@@ -223,7 +223,7 @@ function _main
 
   if [[ -z ${IMAGE_NAME} ]]
   then
-      IMAGE_NAME=${NAME:-'docker.io/mailserver/docker-mailserver:latest'}
+    IMAGE_NAME=${NAME:-docker.io/mailserver/docker-mailserver:latest}
   fi
 
   if test -t 0

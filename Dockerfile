@@ -38,13 +38,13 @@ RUN \
   apt-get -y install apt-utils &>/dev/null && \
   apt-get -y install postfix >/dev/null && \
   apt-get -y --no-install-recommends install \
-  # A - E
+  # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 \
   dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
-  dumb-init ca-certificates cabextract clamav clamav-daemon cpio curl ed \
-  # F - O
-  fail2ban fetchmail file gamin gnupg gzip iproute2 iptables \
+  dumb-init ca-certificates cabextract clamav clamav-daemon cpio curl \
+  # E - O
+  ed fail2ban fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
@@ -73,7 +73,7 @@ RUN \
   rm -rf /var/log/clamav/
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Dovecot –––––––––––––––––––––––––––––––––––
+# ––– Dovecot & MkCert ––––––––––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
@@ -95,7 +95,6 @@ RUN \
   sed -i 's/KEYDIR=.*/KEYDIR=\/etc\/dovecot\/ssl/g' /usr/share/dovecot/mkcert.sh && \
   sed -i 's/KEYFILE=.*/KEYFILE=\$KEYDIR\/dovecot.key/g' /usr/share/dovecot/mkcert.sh && \
   sed -i 's/RANDFILE.*//g' /usr/share/dovecot/dovecot-openssl.cnf && \
-  # create directory for certificates required by mkcert
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl && \
   ./mkcert.sh 2>&1 >/dev/null && \
@@ -156,13 +155,13 @@ RUN \
   sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
   adduser clamav amavis >/dev/null && \
   adduser amavis clamav >/dev/null && \
-  # no syslog user in debian compared to ubuntu
+  # no syslog user in Debian compared to Ubuntu
   adduser --system syslog >/dev/null && \
   useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker >/dev/null && \
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab - && \
   chmod 644 /etc/amavis/conf.d/*
 
-RUN su - amavis -c "razor-admin -create && razor-admin -register"
+RUN su - amavis -c "razor-admin -create && sleep 3 && razor-admin -register"
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Fail2Ban, DKIM & DMARC ––––––––––––––––––––
@@ -180,7 +179,7 @@ COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 
 RUN \
-  # switch iptables and ip6tables to legacy for fail2ban
+  # switch iptables and ip6tables to legacy for Fail2Ban
   update-alternatives --set iptables /usr/sbin/iptables-legacy && \
   update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
@@ -225,12 +224,12 @@ RUN \
   sed -i -r '/postrotate/,/endscript/d' /etc/logrotate.d/clamav-freshclam && \
   sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog && \
   sed -i -r '/\/var\/log\/mail\/mail.log/d' /etc/logrotate.d/rsyslog && \
-  # prevent syslog logrotate warnings \
+  # prevent syslog logrotate warnings
   sed -i -e 's/\(printerror "could not determine current runlevel"\)/#\1/' /usr/sbin/invoke-rc.d && \
   sed -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d && \
   # prevent syslog warning about imklog permissions
   sed -i -e 's/^module(load=\"imklog\")/#module(load=\"imklog\")/' /etc/rsyslog.conf && \
-  # prevent email when /sbin/init or init system is not existing \
+  # prevent email when /sbin/init or init system is not existing
   sed -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
