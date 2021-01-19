@@ -58,14 +58,14 @@ Otherwise, `iptables` won't be able to ban IPs.
   - self-signed => Enables self-signed certificates
   - _any other value_ => SSL required, settings by default
 
-Please read [the SSL page in the wiki](https://github.com/tomav/docker-mailserver/wiki/Configure-SSL) for more information.
+Please read [the SSL page in the wiki](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-SSL) for more information.
 
 ##### TLS_LEVEL
 
 - **empty** => modern
 - modern => Enables TLSv1.2 and modern ciphers only. (default)
 - intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
-- old => NOT implemented. If you really need it, then customize the TLS ciphers overriding postfix and dovecot settings [wiki](https://github.com/tomav/docker-mailserver/wiki/)
+- old => NOT implemented. If you really need it, then customize the TLS ciphers overriding postfix and dovecot settings [wiki](https://github.com/docker-mailserver/docker-mailserver/wiki/)
 
 ##### SPOOF_PROTECTION
 
@@ -132,7 +132,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
 
-See [mailbox quota](https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts#mailbox-quota).
+See [mailbox quota](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Accounts#mailbox-quota).
 
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
 

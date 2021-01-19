@@ -2,7 +2,7 @@
 name: "\U0001F41E Bug report"
 about: Create a report about a reproducible bug
 title: "[BUG]"
-labels: area/bug, meta/needs triage, priority/medium
+labels: kind/bug, meta/needs triage, priority/medium
 assignees: ""
 ---
 
@@ -13,21 +13,21 @@ Possible answers to your issue
   https://github.com/docker-mailserver/docker-mailserver#requirements
 
 * Email seen as spam:
-  https://github.com/tomav/docker-mailserver/wiki/Configure-SPF
-  https://github.com/tomav/docker-mailserver/wiki/Configure-DKIM
+  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-SPF
+  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-DKIM
 
 * Creating new domains and accounts
-  https://github.com/tomav/docker-mailserver/wiki/Configure-Accounts
+  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Accounts
 
 * Use a relay mail server
-  https://github.com/tomav/docker-mailserver/wiki/Configure-AWS-SES
+  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-AWS-SES
   The variable name can be used for other email servers.
 
 * FAQ and tips
-  https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips
+  https://github.com/docker-mailserver/docker-mailserver/wiki/FAQ-and-Tips
 
 * The wiki
-  https://github.com/tomav/docker-mailserver/wiki
+  https://github.com/docker-mailserver/docker-mailserver/wiki
 
 * Open issues
   https://github.com/docker-mailserver/docker-mailserver/issues

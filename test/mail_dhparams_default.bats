@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 # Test case
 # ---------
-# By default, this image is using audited FFDHE groups (https://github.com/tomav/docker-mailserver/pull/1463)
+# By default, this image is using audited FFDHE groups (https://github.com/docker-mailserver/docker-mailserver/pull/1463)
 #
 # This test case covers the described case against both boolean states for `ONE_DIR`.
 #
