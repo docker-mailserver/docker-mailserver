@@ -161,7 +161,10 @@ RUN \
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab - && \
   chmod 644 /etc/amavis/conf.d/*
 
-RUN su - amavis -c "razor-admin -create && sleep 3 && razor-admin -register"
+# overcomplication necessary for CI
+RUN for _ in {1..10}; do su - amavis -c "razor-admin -create" ; sleep 3 ; \
+  if su - amavis -c "razor-admin -register" &>/dev/null; then { EC=0 ; break ; } ; \
+  else EC=${?} ; fi ; done ; (exit ${EC})
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Fail2Ban, DKIM & DMARC ––––––––––––––––––––
