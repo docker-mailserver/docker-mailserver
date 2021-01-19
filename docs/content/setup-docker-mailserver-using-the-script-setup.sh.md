@@ -2,12 +2,6 @@
 
 The latest version of the script is included in the `docker-mailserver` repository. You may retrieve it at any time by running this command in your console:
 
-```sh
-wget -q -O setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh; chmod a+x ./setup.sh
-```
-
-Or if you use curl:
-
 ``` BASH
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
 chmod a+x ./setup.sh
