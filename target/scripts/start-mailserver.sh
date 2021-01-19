@@ -128,6 +128,7 @@ function register_functions
   _register_setup_function "_setup_postfix_postscreen"
   _register_setup_function "_setup_postfix_sizelimits"
 
+  # needs to come after _setup_postfix_aliases
   [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function "_setup_spoof_protection"
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
@@ -866,10 +867,21 @@ function _setup_postfix_smtputf8
 function _setup_spoof_protection
 {
   _notify 'inf' "Configuring Spoof Protection"
-  sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
+  sed -i \
+    's+smtpd_sender_restrictions =+smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,+' \
+    /etc/postfix/main.cf
 
-  # shellcheck disable=SC2015
-  [[ ${ENABLE_LDAP} -eq 1 ]] && postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf" || postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/regexp, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+  if [[ ${ENABLE_LDAP} -eq 1 ]]
+  then
+    postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf"
+  else
+    if [[ -f /etc/postfix/regexp ]]
+    then
+      postconf -e "smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }"
+    else
+      postconf -e "smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+    fi
+  fi
 }
 
 function _setup_postfix_access_control
@@ -1032,10 +1044,9 @@ function _setup_postfix_aliases
     _notify 'inf' "Adding regexp alias file postfix-regexp.cf"
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-    sed -i -e '/^virtual_alias_maps/{
-s/ pcre:.*//
-s/$/ pcre:\/etc\/postfix\/regexp/
-}' /etc/postfix/main.cf
+    sed -i -E \
+      's+virtual_alias_maps(.*)+virtual_alias_maps\1 pcre:/etc/postfix/regexp+g' \
+      /etc/postfix/main.cf
   fi
 
   _notify 'inf' "Configuring root alias"
