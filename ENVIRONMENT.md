@@ -21,8 +21,8 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 - critical => Only show critical messages
 - error => Only show erroneous output
-- warn => Show warnings
-- **info** => Normal informational output
+- **warn** => Show warnings
+- info => Normal informational output
 - debug => Also show debug messages
 
 The log-level will show everything in its class and above.

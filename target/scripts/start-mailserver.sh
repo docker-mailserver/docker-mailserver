@@ -41,7 +41,7 @@ SPAMASSASSIN_SPAM_TO_INBOX="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 SPOOF_PROTECTION="${SPOOF_PROTECTION:=0}"
 SRS_SENDER_CLASSES="${SRS_SENDER_CLASSES:=envelope_sender}"
 SSL_TYPE="${SSL_TYPE:=''}"
-SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:=info}"
+SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:=warn}"
 TLS_LEVEL="${TLS_LEVEL:=modern}"
 VIRUSMAILS_DELETE_DELAY="${VIRUSMAILS_DELETE_DELAY:=7}"
 
@@ -363,9 +363,10 @@ function _setup_supervisor
         /etc/supervisor/supervisord.conf
       ;;
     * )
-      _notify 'warn' "SUPERVISOR_LOGLEVEL value unknown. Defaulting to 'info'"
+      _notify 'warn' \
+        "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
       sed -i -E \
-        "s+loglevel.*+loglevel = info+g" \
+        "s+loglevel.*+loglevel = warn+g" \
         /etc/supervisor/supervisord.conf
       ;;
   esac
@@ -389,9 +390,9 @@ function _setup_default_vars
   # ! needs to be a string comparison
   if [[ ${REPORT_RECIPIENT} == "0" ]]
   then
-    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:="none"}"
+    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=none}"
   else
-    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:="logrotate"}"
+    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=logrotate}"
   fi
 
   # expand address to simplify the rest of the script
@@ -441,6 +442,7 @@ function _setup_default_vars
     echo "SPOOF_PROTECTION=${SPOOF_PROTECTION}"
     echo "SRS_SENDER_CLASSES=${SRS_SENDER_CLASSES}"
     echo "SSL_TYPE=${SSL_TYPE}"
+    echo "SUPERVISOR_LOGLEVEL=${SUPERVISOR_LOGLEVEL}"
     echo "TLS_LEVEL=${TLS_LEVEL}"
     echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}"
     echo "DMS_DEBUG=${DMS_DEBUG}"
