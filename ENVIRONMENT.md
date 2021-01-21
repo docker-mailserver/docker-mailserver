@@ -15,6 +15,18 @@
 - **0** => Debug disabled
 - 1 => Enables debug on startup
 
+##### SUPERVISOR_LOGLEVEL
+
+Here you can adjust the [log-level for Supervisor](http://supervisord.org/logging.html#activity-log-levels). Possible values are
+
+- critical => Only show critical messages
+- error => Only show erroneous output
+- warn => Show warnings
+- **info** => Normal informational output
+- debug => Also show debug messages
+
+The log-level will show everything in its class and above.
+
 ##### ENABLE_CLAMAV
 
 - **0** => Clamav is disabled

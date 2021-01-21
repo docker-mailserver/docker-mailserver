@@ -41,6 +41,7 @@ SPAMASSASSIN_SPAM_TO_INBOX="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 SPOOF_PROTECTION="${SPOOF_PROTECTION:=0}"
 SRS_SENDER_CLASSES="${SRS_SENDER_CLASSES:=envelope_sender}"
 SSL_TYPE="${SSL_TYPE:=''}"
+SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:=info}"
 TLS_LEVEL="${TLS_LEVEL:=modern}"
 VIRUSMAILS_DELETE_DELAY="${VIRUSMAILS_DELETE_DELAY:=7}"
 
@@ -90,6 +91,7 @@ function register_functions
 
   ################### >> setup funcs
 
+  _register_setup_function "_setup_supervisor"
   _register_setup_function "_setup_default_vars"
   _register_setup_function "_setup_file_permissions"
 
@@ -350,6 +352,25 @@ function setup
   do
     ${FUNC}
   done
+}
+
+function _setup_supervisor
+{
+  case ${SUPERVISOR_LOGLEVEL} in
+    critical | error | warn | info | debug )
+      sed -i -E \
+        "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
+        /etc/supervisor/supervisord.conf
+      ;;
+    * )
+      _notify 'warn' "SUPERVISOR_LOGLEVEL value unknown. Defaulting to 'info'"
+      sed -i -E \
+        "s+loglevel.*+loglevel = info+g" \
+        /etc/supervisor/supervisord.conf
+      ;;
+  esac
+
+  supervisorctl update
 }
 
 function _setup_default_vars
@@ -2176,21 +2197,16 @@ then
   printenv
 fi
 
-_notify 'none'
 _notify 'tasklog' 'Welcome to docker-mailserver!'
-_notify 'none'
 
 register_functions
-
 check
 setup
 fix
 misc
 start_daemons
 
-_notify 'none'
 _notify 'tasklog' "${HOSTNAME} is up and running"
-_notify 'none'
 
 touch /var/log/mail/mail.log
 tail -fn 0 /var/log/mail/mail.log
