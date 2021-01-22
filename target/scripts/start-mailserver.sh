@@ -1941,7 +1941,7 @@ function _fix_cleanup_spamassassin
 
 function misc
 {
-  _notify 'tasklog' 'Startin misc'
+  _notify 'inf' 'Startin misc'
 
   for FUNC in "${FUNCS_MISC[@]}"
   do
@@ -2192,14 +2192,11 @@ function _start_changedetector
 
 if [[ ${DMS_DEBUG:-0} -eq 1 ]]
 then
-  _notify 'none'
-  _notify 'tasklog' 'ENVIRONMENT'
-  _notify 'none'
-
+  _notify 'inf' 'ENVIRONMENT'
   printenv
 fi
 
-_notify 'tasklog' 'Welcome to docker-mailserver!'
+_notify 'inf' 'Welcome to docker-mailserver!'
 
 register_functions
 check
