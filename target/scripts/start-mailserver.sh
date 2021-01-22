@@ -41,6 +41,7 @@ SPAMASSASSIN_SPAM_TO_INBOX="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 SPOOF_PROTECTION="${SPOOF_PROTECTION:=0}"
 SRS_SENDER_CLASSES="${SRS_SENDER_CLASSES:=envelope_sender}"
 SSL_TYPE="${SSL_TYPE:=''}"
+SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:=warn}"
 TLS_LEVEL="${TLS_LEVEL:=modern}"
 VIRUSMAILS_DELETE_DELAY="${VIRUSMAILS_DELETE_DELAY:=7}"
 
@@ -90,6 +91,7 @@ function register_functions
 
   ################### >> setup funcs
 
+  _register_setup_function "_setup_supervisor"
   _register_setup_function "_setup_default_vars"
   _register_setup_function "_setup_file_permissions"
 
@@ -352,6 +354,26 @@ function setup
   done
 }
 
+function _setup_supervisor
+{
+  case ${SUPERVISOR_LOGLEVEL} in
+    critical | error | warn | info | debug )
+      sed -i -E \
+        "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
+        /etc/supervisor/supervisord.conf
+      ;;
+    * )
+      _notify 'warn' \
+        "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
+      sed -i -E \
+        "s+loglevel.*+loglevel = warn+g" \
+        /etc/supervisor/supervisord.conf
+      ;;
+  esac
+
+  supervisorctl update
+}
+
 function _setup_default_vars
 {
   _notify 'task' "Setting up default variables"
@@ -368,9 +390,9 @@ function _setup_default_vars
   # ! needs to be a string comparison
   if [[ ${REPORT_RECIPIENT} == "0" ]]
   then
-    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:="none"}"
+    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=none}"
   else
-    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:="logrotate"}"
+    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=logrotate}"
   fi
 
   # expand address to simplify the rest of the script
@@ -420,6 +442,7 @@ function _setup_default_vars
     echo "SPOOF_PROTECTION=${SPOOF_PROTECTION}"
     echo "SRS_SENDER_CLASSES=${SRS_SENDER_CLASSES}"
     echo "SSL_TYPE=${SSL_TYPE}"
+    echo "SUPERVISOR_LOGLEVEL=${SUPERVISOR_LOGLEVEL}"
     echo "TLS_LEVEL=${TLS_LEVEL}"
     echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}"
     echo "DMS_DEBUG=${DMS_DEBUG}"
@@ -808,7 +831,7 @@ function _setup_ldap
   fi
 
   # shellcheck disable=SC2016
-  sed -i -E 's+mydestination = $myhostname, +mydestination = +' /etc/postfix/main.cf
+  sed -i 's+mydestination = \$myhostname, +mydestination = +' /etc/postfix/main.cf
 
   return 0
 }
@@ -1918,7 +1941,7 @@ function _fix_cleanup_spamassassin
 
 function misc
 {
-  _notify 'tasklog' 'Startin misc'
+  _notify 'inf' 'Startin misc'
 
   for FUNC in "${FUNCS_MISC[@]}"
   do
@@ -2169,28 +2192,20 @@ function _start_changedetector
 
 if [[ ${DMS_DEBUG:-0} -eq 1 ]]
 then
-  _notify 'none'
-  _notify 'tasklog' 'ENVIRONMENT'
-  _notify 'none'
-
+  _notify 'inf' 'ENVIRONMENT'
   printenv
 fi
 
-_notify 'none'
-_notify 'tasklog' 'Welcome to docker-mailserver!'
-_notify 'none'
+_notify 'inf' 'Welcome to docker-mailserver!'
 
 register_functions
-
 check
 setup
 fix
 misc
 start_daemons
 
-_notify 'none'
 _notify 'tasklog' "${HOSTNAME} is up and running"
-_notify 'none'
 
 touch /var/log/mail/mail.log
 tail -fn 0 /var/log/mail/mail.log

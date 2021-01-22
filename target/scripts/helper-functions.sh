@@ -97,7 +97,7 @@ for key, value in acme.items():
 
     echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/key.pem || exit 1
     echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/fullchain.pem || exit 1
-    echo "Cert found in /etc/letsencrypt/acme.json for ${1}"
+    _notify 'inf' "Cert found in /etc/letsencrypt/acme.json for ${1}"
 
     return 0
   else
@@ -110,22 +110,17 @@ export -f _extract_certs_from_acme
 
 function _notify
 {
-  local FINAL_MSG=''
-  local MSG="${2:-}"
-  local TYPE="${1:-}"
+  { [[ -z ${1:-} ]] || [[ -z ${2:-} ]] ; } && return
 
-  case "${TYPE}" in
-    'none'    ) FINAL_MSG=' ' ;;
-    'tasklog' ) FINAL_MSG="[ \e[0;92mTASKLOG\e[0m ]  ${MSG}" ;; # light green
-    'warn'    ) FINAL_MSG="[ \e[0;93mWARNING\e[0m ]  ${MSG}" ;; # light yellow
-    'err'     ) FINAL_MSG="[  \e[0;31mERROR\e[0m  ]  ${MSG}" ;; # light red
-    'fatal'   ) FINAL_MSG="[  \e[0;91mFATAL\e[0m  ]  ${MSG}" ;; # red
-    'inf'     ) [[ ${DMS_DEBUG} -eq 1 ]] && FINAL_MSG="[[ \e[0;34mINFO\e[0m ]]   ${MSG}" ;; # light blue
-    'task'    ) [[ ${DMS_DEBUG} -eq 1 ]] && FINAL_MSG="[[ \e[0;37mTASK\e[0m ]]   ${MSG}" ;; # light grey
-    *         ) ;;
+  case ${1} in
+    tasklog  ) echo "-e${3:-}" "[ \e[0;92mTASKLOG\e[0m ]  ${2}" ;; # light green
+    warn     ) echo "-e${3:-}" "[ \e[0;93mWARNING\e[0m ]  ${2}" ;; # light yellow
+    err      ) echo "-e${3:-}" "[  \e[0;31mERROR\e[0m  ]  ${2}" ;; # light red
+    fatal    ) echo "-e${3:-}" "[  \e[0;91mFATAL\e[0m  ]  ${2}" ;; # red
+    inf      ) [[ ${DMS_DEBUG} -eq 1 ]] && echo "-e${3:-}" "[[  \e[0;34mINF\e[0m  ]]  ${2}" ;; # light blue
+    task     ) [[ ${DMS_DEBUG} -eq 1 ]] && echo "-e${3:-}" "[[ \e[0;37mTASKS\e[0m ]]  ${2}" ;; # light grey
+    *        ) ;;
   esac
-
-  [[ -n ${FINAL_MSG} ]] && echo "-e${3:-}" "${FINAL_MSG}"
 }
 export -f _notify
 
