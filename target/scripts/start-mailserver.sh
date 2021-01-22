@@ -831,7 +831,7 @@ function _setup_ldap
   fi
 
   # shellcheck disable=SC2016
-  sed -i -E 's+mydestination = $myhostname, +mydestination = +' /etc/postfix/main.cf
+  sed -i 's+mydestination = \$myhostname, +mydestination = +' /etc/postfix/main.cf
 
   return 0
 }
