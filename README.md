@@ -1,3 +1,6 @@
+[![Last image-template](https://img.shields.io/badge/last%20template%20update-v0.1.0-informational)](https://github.com/Tecnativa/image-template/tree/v0.1.0)
+[![GitHub Container Registry](https://img.shields.io/badge/GitHub%20Container%20Registry-latest-%2324292e)](https://github.com/orgs/docker-mailserver/packages/container/package/docker-mailserver)
+
 # Docker Mailserver
 
 [![ci::status]][ci::github] [![docker::pulls]][docker::hub]

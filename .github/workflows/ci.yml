@@ -1,0 +1,124 @@
+
+name: test
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - stable
+      - master
+  schedule:
+    - cron: "0 0 * * 5"
+  workflow_dispatch:
+
+env:
+  LANG: "en_US.utf-8"
+  LC_ALL: "en_US.utf-8"
+
+jobs:
+    build-push:
+      runs-on: ubuntu-20.04
+      services:
+        registry:
+          image: registry:2
+          ports:
+            - 5000:5000
+      env:
+        DOCKER_IMAGE_NAME: ${{ github.repository }}
+        PUSH: ${{ toJSON(github.event_name != 'pull_request') }}
+      steps:
+        # Set up Docker Environment
+        - uses: actions/checkout@v2
+          if: github.event_name != 'schedule'
+          with:
+            submodules: recursive
+        # HACK: scheduled actions run on the default branch and GH Actions doesn't allow a conditional "ref" assignment
+        - uses: actions/checkout@v2
+          if: github.event_name == 'schedule'
+          with:
+            submodules: recursive
+            ref: stable
+        - uses: actions/cache@v2
+          with:
+            path: |
+              /tmp/.buildx-cache
+            key:
+              buildx|${{ secrets.CACHE_DATE }}|${{ runner.os }}|${{
+              hashFiles('Dockerfile') }}
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v1
+        - name: Set up Docker Buildx
+          id: buildx
+          uses: docker/setup-buildx-action@v1
+          with:
+            driver-opts: network=host
+            install: true
+        # Build and push
+        - name: Docker meta for local images
+          id: docker_meta_local
+          uses: crazy-max/ghaction-docker-meta@v1
+          with:
+            images: localhost:5000/${{ env.DOCKER_IMAGE_NAME }}
+            tag-edge: true
+            tag-semver: |
+              {{version}}
+              {{major}}
+              {{major}}.{{minor}}
+        - name: Build and push to local (test) registry
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            file: ./Dockerfile
+            platforms: |
+              linux/amd64
+              linux/arm/v7
+              linux/arm64
+            load: false
+            push: true
+            cache-from: type=local,src=/tmp/.buildx-cache
+            cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+            labels: ${{ steps.docker_meta_local.outputs.labels }}
+            tags: ${{ steps.docker_meta_local.outputs.tags }}
+        - name: Run test suite
+          # All tags from docker_meta will refer to the same image, so we can use the first one
+          run: >
+            NAME=localhost:5000/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.docker_meta_local.outputs.tags[0] }}
+            bash -c 'make generate-accounts tests'
+          env:
+            CI: true
+        # Next jobs only happen outside of pull requests and on main branches
+        - name: Login to GitHub Container Registry
+          if: ${{ fromJSON(env.PUSH) }}
+          uses: docker/login-action@v1
+          with:
+            registry: ghcr.io
+            username: ${{ secrets.BOT_LOGIN }}
+            password: ${{ secrets.BOT_TOKEN }}
+        - name: Docker meta for public images
+          if: ${{ fromJSON(env.PUSH) }}
+          id: docker_meta_public
+          uses: crazy-max/ghaction-docker-meta@v1
+          with:
+            images: |
+              ghcr.io/${{ env.DOCKER_IMAGE_NAME }}
+            tag-edge: true
+            tag-semver: |
+              {{version}}
+              {{major}}
+              {{major}}.{{minor}}
+        - name: Build and push to public registry(s)
+          if: ${{ fromJSON(env.PUSH) }}
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            file: ./Dockerfile
+            platforms: |
+              linux/amd64
+              linux/arm/v7
+              linux/arm64
+            load: false
+            push: true
+            cache-from: type=local,src=/tmp/.buildx-cache
+            cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+            labels: ${{ steps.docker_meta_public.outputs.labels }}
+            tags: ${{ steps.docker_meta_public.outputs.tags }}

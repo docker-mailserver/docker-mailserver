@@ -1,0 +1,17 @@
+# Changes here will be overwritten by Copier; do NOT edit manually
+_commit: v0.1.0
+_src_path: https://github.com/Tecnativa/image-template.git
+dockerhub_image: ''
+image_platforms:
+- linux/amd64
+- linux/arm/v7
+- linux/arm64
+main_branches:
+- stable
+- master
+project_name: docker-mailserver
+project_owner: docker-mailserver
+push_to_ghcr: true
+pytest: false
+python_versions:
+- '3.9'
