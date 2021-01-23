@@ -2,7 +2,11 @@ name: "Build, Test & Deploy"
 
 on:
   push:
-    branches: [ "master", "stable" ]
+    branches:
+      - master
+      - stable
+    tags:
+      - '*.*.*'
 
 jobs:
   build-and-test-image:
@@ -52,14 +56,16 @@ jobs:
           submodules: recursive
       - name: Prepare tags
         id: prep
-        run: |
-          DOCKER_IMAGE=${{ secrets.DOCKER_REPOSITORY }}
-          VERSION=latest
-          [[ $GITHUB_REF == refs/tags/* ]] && VERSION=${GITHUB_REF#refs/tags/v}
-          [[ $GITHUB_REF == 'refs/heads/stable' ]] && VERSION=stable
-          TAGS="${DOCKER_IMAGE}:${VERSION}"
-          [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] && TAGS="$TAGS,${DOCKER_IMAGE}:latest"
-          echo ::set-output name=tags::${TAGS}
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: |
+            docker.io/mailserver/docker-mailserver
+            ghcr.io/docker-mailserver/docker-mailserver
+          tag-edge: true
+          tag-semver: |
+            {{major}}
+            {{major}}.{{minor}}
+            {{major}}.{{minor}}.{{patch}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -77,6 +83,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_PASSWORD }}
       - name: Build image locally
         uses: docker/build-push-action@v2
         with:
