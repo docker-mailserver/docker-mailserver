@@ -1941,7 +1941,7 @@ function _fix_cleanup_spamassassin
 
 function misc
 {
-  _notify 'inf' 'Startin misc'
+  _notify 'inf' 'Starting misc'
 
   for FUNC in "${FUNCS_MISC[@]}"
   do
