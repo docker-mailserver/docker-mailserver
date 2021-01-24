@@ -61,6 +61,21 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 
 ## Usage
 
+### Available image sources / tags
+
+The [CI/CD workflows](https://github.com/docker-mailserver/docker-mailserver/actions) automatically build, test and push new images to container registries. Currently, the following registries are supported:
+- [DockerHub](https://hub.docker.com/repository/docker/mailserver/docker-mailserver)
+- [GitHub Container Registry](https://github.com/orgs/docker-mailserver/packages?repo_name=docker-mailserver)
+
+All workflows are using the **tagging convention** listed below. It is subsequently applied to all images pushed to supported container registries:
+
+| Event        | Ref                   | Commit SHA | Image Tags                    |
+|--------------|-----------------------|------------|-------------------------------|
+| `push`       | `refs/heads/master`   | `cf20257`  | `edge`                        |
+| `push`       | `refs/heads/stable`   | `cf20257`  | `stable`                      |
+| `push tag`   | `refs/tags/1.2.3`     | `ad132f5`  | `1.2.3`, `1.2`, `1`, `latest` |
+| `push tag`   | `refs/tags/v1.2.3`    | `ad132f5`  | `1.2.3`, `1.2`, `1`, `latest` |
+
 ### Get the tools
 
 Download the `docker-compose.yml`, `compose.env`, `mailserver.env` and the `setup.sh` files:
