@@ -34,7 +34,7 @@ The development workflow is the following:
 7. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`
    1. Pull requests are automatically tested against the CI and will be reviewed when tests pass
    2. When your changes are validated, your branch is merged
-   3. CI builds the new `:latest` image
+   3. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.
 
 ## Coding Style
 
