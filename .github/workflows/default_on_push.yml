@@ -59,8 +59,8 @@ jobs:
         uses: crazy-max/ghaction-docker-meta@v1
         with:
           images: |
-            docker.io/mailserver/docker-mailserver
-            ghcr.io/docker-mailserver/docker-mailserver
+            ${{ secrets.DOCKER_REPOSITORY }}
+            ${{ secrets.GHCR_REPOSITORY }}
           tag-edge: true
           tag-semver: |
             {{major}}
