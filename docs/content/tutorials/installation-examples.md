@@ -160,7 +160,7 @@ We are going to use this docker based mailserver:
 ### Information
 If you are hiding your container behind a proxy service you might have discovered that the proxied requests from now on contain the proxy IP as the request origin. Whilst this behavior is technical correct it produces certain problems on the containers behind the proxy as they cannot distinguish the real origin of the requests anymore.
 
-To solve this problem on TCP connections we can make use of the [proxy protocol](https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt). Compared to other workarounds that exist (`X-Forwarded-For` which only works for HTTP requests or `Tproxy` that requires you to recompile your kernel the proxy protocol:
+To solve this problem on TCP connections we can make use of the [proxy protocol](https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt). Compared to other workarounds that exist (`X-Forwarded-For` which only works for HTTP requests or `Tproxy` that requires you to recompile your kernel) the proxy protocol:
 - it is protocol agnostic (can work with any layer 7 protocols, even when encrypted).
 - it does not require any infrastructure changes
 - nat-ing firewalls have no impact it
