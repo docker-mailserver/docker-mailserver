@@ -65,7 +65,7 @@ jobs:
           tag-semver: |
             {{major}}
             {{major}}.{{minor}}
-            {{major}}.{{minor}}.{{patch}}
+            {{version}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
