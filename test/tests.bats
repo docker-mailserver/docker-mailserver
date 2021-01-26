@@ -633,39 +633,37 @@ EOF
   assert_output 4
 }
 
-@test "checking opendkim: generator creates keys, tables and TrustedHosts using domain name" {
+@test "checking opendkim: generator creates keys, tables and TrustedHosts using manual provided domain name" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
   rm -rf "${PRIVATE_CONFIG}/with-domain" && mkdir -p "${PRIVATE_CONFIG}/with-domain"
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 domain1.tld| wc -l'
   assert_success
-  assert_output 6
+  assert_output 4
   # Generate key using domain name
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-domain testdomain.tld | wc -l'
-  assert_success
-  assert_output 1
-  # Check keys for localhost.localdomain
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 'domain2.tld,domain3.tld' | wc -l'
   assert_success
   assert_output 2
-  # Check keys for otherdomain.tld
+  # Check keys for domain1.tld
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
   assert_success
   assert_output 2
-  # Check keys for testdomain.tld
+  # Check keys for domain2.tld
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/testdomain.tld | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain2.tld | wc -l'
+  assert_success
+  assert_output 2
+  # Check keys for domain3.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain3.tld | wc -l'
   assert_success
   assert_output 2
   # Check presence of tables and TrustedHosts
@@ -678,16 +676,16 @@ EOF
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
     "${IMAGE_NAME:?}" /bin/sh -c \
-    "egrep 'localhost.localdomain|otherdomain.tld|localdomain2.com|testdomain.tld' /etc/opendkim/KeyTable | wc -l"
+    "egrep 'domain1.tld|domain2.tld|domain3.tld' /etc/opendkim/KeyTable | wc -l"
   assert_success
-  assert_output 4
+  assert_output 3
   # Check valid entries actually present in SigningTable
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
     "${IMAGE_NAME:?}" /bin/sh -c \
-    "egrep 'localhost.localdomain|otherdomain.tld|localdomain2.com|testdomain.tld' /etc/opendkim/SigningTable | wc -l"
+    "egrep 'domain1.tld|domain2.tld|domain3.tld' /etc/opendkim/SigningTable | wc -l"
   assert_success
-  assert_output 4
+  assert_output 3
 }
 
 #
