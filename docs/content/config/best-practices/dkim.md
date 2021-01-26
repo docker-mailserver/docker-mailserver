@@ -18,6 +18,12 @@ Once its done, just run the following command to generate the signature (here sh
 >       -v "$(pwd)/config":/tmp/docker-mailserver \
 >       -ti tvial/docker-mailserver:latest generate-dkim-config 2048
 
+For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains): 
+
+    docker run --rm \
+      -v "$(pwd)/config":/tmp/docker-mailserver \
+      -ti docker-mailserver/docker-mailserver:latest generate-dkim-config <key-size> <domain.tld>[,<domain2.tld>]
+
 Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record.
 
 If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
