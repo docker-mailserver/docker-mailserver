@@ -31,7 +31,7 @@ volumes:
 
 2. `etc/dovecot/conf.d/10-plugin.conf`:
 ```
-mail_plugins = fts fts_solr
+mail_plugins = $mail_plugins fts fts_solr
 
 plugin {
   fts = solr
