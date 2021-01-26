@@ -142,7 +142,7 @@ SUBCOMMANDS:
 
   config:
 
-    ${0} config dkim <keysize> (default: 2048)
+    ${0} config dkim <keysize> (default: 2048) <domain> (optional - for LDAP systems)
     ${0} config ssl <fqdn>
 
   relay:
