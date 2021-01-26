@@ -57,7 +57,7 @@ SUBCOMMANDS:
 
   config:
 
-    ./setup.sh config dkim <keysize> (default: 2048)
+    ./setup.sh config dkim <keysize> (default: 2048) <domain.tld> (optional - for LDAP setups)
     ./setup.sh config ssl <fqdn>
 
   relay:
