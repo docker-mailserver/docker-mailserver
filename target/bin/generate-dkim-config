@@ -5,11 +5,11 @@ touch /tmp/vhost.tmp
 # if no keysize is provided, 2048 is default.
 KEYSIZE=${1:-2048}
 # optional domain names
-DOMAINS=${2:-''}
+DOMAINS=${2:=}
 
-if [[ -z "${DOMAINS}" ]]
+if [[ -z ${DOMAINS} ]]
 then
-    # Getting domains FROM mail accounts
+    # getting domains FROM mail accounts
     if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
     then
         # shellcheck disable=SC2034
