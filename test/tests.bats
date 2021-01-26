@@ -637,17 +637,24 @@ EOF
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
   rm -rf "${PRIVATE_CONFIG}/with-domain" && mkdir -p "${PRIVATE_CONFIG}/with-domain"
+  # Generate first key
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 domain1.tld| wc -l'
   assert_success
   assert_output 4
-  # Generate key using domain name
+  # Generate two additional keys different to the previous one
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 'domain2.tld,domain3.tld' | wc -l'
   assert_success
   assert_output 2
+  # Generate an additional key whilst providing already existing domains
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 'domain3.tld,domain4.tld' | wc -l'
+  assert_success
+  assert_output 1
   # Check keys for domain1.tld
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
@@ -666,6 +673,12 @@ EOF
     "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain3.tld | wc -l'
   assert_success
   assert_output 2
+  # Check keys for domain4.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain4.tld | wc -l'
+  assert_success
+  assert_output 2
   # Check presence of tables and TrustedHosts
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
@@ -676,16 +689,16 @@ EOF
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
     "${IMAGE_NAME:?}" /bin/sh -c \
-    "egrep 'domain1.tld|domain2.tld|domain3.tld' /etc/opendkim/KeyTable | wc -l"
+    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/KeyTable | wc -l"
   assert_success
-  assert_output 3
+  assert_output 4
   # Check valid entries actually present in SigningTable
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
     "${IMAGE_NAME:?}" /bin/sh -c \
-    "egrep 'domain1.tld|domain2.tld|domain3.tld' /etc/opendkim/SigningTable | wc -l"
+    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/SigningTable | wc -l"
   assert_success
-  assert_output 3
+  assert_output 4
 }
 
 #
