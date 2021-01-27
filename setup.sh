@@ -44,7 +44,7 @@ _get_current_directory
 CRI=
 INFO=
 IMAGE_NAME=
-CONTAINER_NAME='mail'
+CONTAINER_NAME=
 DEFAULT_CONFIG_PATH="${CDIR}/config"
 USE_CONTAINER=false
 WISHED_CONFIG_PATH=
@@ -105,7 +105,7 @@ OPTIONS:
 
   -i IMAGE_NAME     The name of the docker-mailserver image
                     The default value is
-                    'docker.io/mailserver/docker-maiserver:latest'
+                    'docker.io/mailserver/docker-mailserver:latest'
 
   -c CONTAINER_NAME The name of the running container.
 

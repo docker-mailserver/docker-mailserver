@@ -1184,7 +1184,6 @@ EOF
   assert_success
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
   assert_success
-
   # check for quota warn message existence
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'"
   assert_success
@@ -1192,7 +1191,6 @@ EOF
   run repeat_until_success_or_timeout 20 sh -c "docker logs mail | grep 'Quota exceeded (mailbox for user is full)'"
   assert_success
 
-  docker exec mail ls -l '/var/mail/otherdomain.tld/quotauser/new/'
   # ensure only the first big message and the warn message are present (other messages are rejected: mailbox is full)
   run docker exec mail sh -c 'ls /var/mail/otherdomain.tld/quotauser/new/ | wc -l'
   assert_success
