@@ -12,11 +12,11 @@ Once its done, just run the following command to generate the signature (here sh
       -v "$(pwd)/config":/tmp/docker-mailserver \
       -ti tvial/docker-mailserver:latest generate-dkim-config
 
-> The default keysize when generating the signature is 2048 bits for now. If you need to change it (e.g. your DNS-Provider limits the size), then provide the size as the first parameter of the command:
+> The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS-Provider limits the size), then provide the size as the first parameter of the command:
 >
 >     docker run --rm \
 >       -v "$(pwd)/config":/tmp/docker-mailserver \
->       -ti tvial/docker-mailserver:latest generate-dkim-config 2048
+>       -ti tvial/docker-mailserver:latest generate-dkim-config 4096
 
 For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains): 
 
