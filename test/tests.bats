@@ -461,12 +461,12 @@ EOF
 
 
 # this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
-# Instead it tests the file-size (here 511) - which may differ with a different domain names
+# Instead it tests the file-size (here 861) - which may differ with a different domain names
 # This test may be re-used as a global test to provide better test coverage.
 @test "checking opendkim: generator creates default keys size" {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container . mail_default_key_size)"
-    # Prepare default key size 2048
+    # Prepare default key size 4096
     rm -rf "${PRIVATE_CONFIG}/keyDefault"
     mkdir -p "${PRIVATE_CONFIG}/keyDefault"
 
@@ -484,10 +484,36 @@ EOF
     /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
 
   assert_success
-  assert_output 511
+  assert_output 861
 }
 
 # this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
+# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar
+# Instead it tests the file-size (here 861) - which may differ with a different domain names
+# This test may be re-used as a global test to provide better test coverage.
+@test "checking opendkim: generator creates key size 4096" {
+    local PRIVATE_CONFIG
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_4096)"
+    # Prepare set key size 4096
+    rm -rf "${PRIVATE_CONFIG}/key4096"
+    mkdir -p "${PRIVATE_CONFIG}/config/key4096"
+    run docker run --rm \
+      -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
+      -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
+      -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
+      "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 4096 | wc -l'
+    assert_success
+    assert_output 6
+
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" \
+    /bin/sh -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
+
+  assert_success
+  assert_output 861
+}
+
 # Instead it tests the file-size (here 511) - which may differ with a different domain names
 # This test may be re-used as a global test to provide better test coverage.
 @test "checking opendkim: generator creates key size 2048" {

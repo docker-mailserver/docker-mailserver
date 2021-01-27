@@ -3,7 +3,7 @@
 touch /tmp/vhost.tmp
 
 # if no keysize is provided, 2048 is default.
-KEYSIZE=${1:-2048}
+KEYSIZE=${1:-4096}
 # optional domain names
 DOMAINS=${2:-}
 
