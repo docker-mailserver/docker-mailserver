@@ -2,7 +2,7 @@
 
 Users (email accounts) are managed in `/tmp/docker-mailserver/postfix-accounts.cf`.
 
-The best way to manage accounts is to use the reliable [setup.sh](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) script.
+The best way to manage accounts is to use the reliable [setup.sh](https://github.com/docker-mailserver/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) script.
 
 Or you may directly add the _full_ email address and its encrypted password, separated by a pipe.
 
@@ -37,7 +37,7 @@ Quota implementation relies on [dovecot quota](https://wiki.dovecot.org/Quota/Co
 <br>
 
 
-A warning message will be sent to the user when his mailbox is reaching quota limit. Have a look at [90-quota.cf](https://github.com/tomav/docker-mailserver/tree/master/target/dovecot/90-quota.conf) for further details.
+A warning message will be sent to the user when his mailbox is reaching quota limit. Have a look at [90-quota.cf](https://github.com/docker-mailserver/docker-mailserver/tree/master/target/dovecot/90-quota.conf) for further details.
 
 ### Commands
 _exec in the container_
