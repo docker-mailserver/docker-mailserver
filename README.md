@@ -119,6 +119,14 @@ docker-compose up -d mail
 ./setup.sh -Z config dkim
 ```
 
+If you are using a LDAP setup the setup looks a bit different as you do not add user accounts directly. Therefore `postfix` doesn't know your domain(s) and you need to provide it when configuring `dkim`:
+
+``` BASH
+docker-compose up -d mail
+
+./setup.sh config dkim <key-size> <domain.tld>[,<domain2.tld>]
+```
+
 ### Miscellaneous
 
 #### DNS - DKIM

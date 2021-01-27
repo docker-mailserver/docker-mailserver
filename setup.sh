@@ -142,7 +142,7 @@ SUBCOMMANDS:
 
   config:
 
-    ${0} config dkim <keysize> (default: 2048)
+    ${0} config dkim <keysize> (default: 4096) <domain> (optional - for LDAP systems)
     ${0} config ssl <fqdn>
 
   relay:
@@ -317,13 +317,13 @@ function _main
       shift ; case ${1:-} in
         set      ) shift ; _docker_image setquota "${@}" ;;
         del      ) shift ; _docker_image delquota "${@}" ;;
-        *        )   _usage ;;
+        *        ) _usage ;;
       esac
       ;;
 
     config)
       shift ; case ${1:-} in
-        dkim     ) _docker_image generate-dkim-config "${2:-2048}" ;;
+        dkim     ) _docker_image generate-dkim-config "${2:-4096}" "${3:-}" ;;
         ssl      ) _docker_image generate-ssl-certificate "${2}" ;;
         *        ) _usage ;;
       esac

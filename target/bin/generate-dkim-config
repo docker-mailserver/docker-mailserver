@@ -3,30 +3,37 @@
 touch /tmp/vhost.tmp
 
 # if no keysize is provided, 2048 is default.
-KEYSIZE=${1:-2048}
+KEYSIZE=${1:-4096}
+# optional domain names
+DOMAINS=${2:-}
 
-# Getting domains FROM mail accounts
-if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
+if [[ -z ${DOMAINS} ]]
 then
-  # shellcheck disable=SC2034
-  while IFS=$'|' read -r LOGIN PASS
-  do
-    DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
-    echo "${DOMAIN}" >>/tmp/vhost.tmp
-  done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf || true)
-fi
+    # getting domains FROM mail accounts
+    if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
+    then
+        # shellcheck disable=SC2034
+        while IFS=$'|' read -r LOGIN PASS
+        do
+            DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
+            echo "${DOMAIN}" >>/tmp/vhost.tmp
+        done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf || true)
+    fi
 
-# Getting domains FROM mail aliases
-if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
-then
-  # shellcheck disable=SC2034
-  while read -r FROM TO
-  do
-    UNAME=$(echo "${FROM}" | cut -d @ -f1)
-    DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
+        # Getting domains FROM mail aliases
+    if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
+    then
+        # shellcheck disable=SC2034
+        while read -r FROM TO
+        do
+            UNAME=$(echo "${FROM}" | cut -d @ -f1)
+            DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
-    test "${UNAME}" != "${DOMAIN}" && echo "${DOMAIN}" >>/tmp/vhost.tmp
-  done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
+            test "${UNAME}" != "${DOMAIN}" && echo "${DOMAIN}" >>/tmp/vhost.tmp
+        done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
+    fi
+else
+    tr ',' '\n' <<<"${DOMAINS}" > /tmp/vhost.tmp
 fi
 
 # keeping unique entries
