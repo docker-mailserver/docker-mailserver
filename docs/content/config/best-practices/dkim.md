@@ -1,34 +1,38 @@
-DKIM is a security measure targeting email spoofing. It is greatly recommended one activates it.
+DKIM is a security measure targeting email spoofing. It is greatly recommended one activates it. See [the Wikipedia page](https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail) for more details on DKIM.
 
-See https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail for more details on DKIM.
+### Enabling DKIM signature
 
-## Enabling DKIM signature
-
-To enable DKIM signature, you must have created at least one email accounts.
+To enable DKIM signature, **you must have created at least one email account**.
 
 Once its done, just run the following command to generate the signature (here show from inside the directory of docker-compose.yml in order to use a volume on ./config):
 
-    docker run --rm \
-      -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti tvial/docker-mailserver:latest generate-dkim-config
+```BASH
+docker run --rm \
+  -v "$(pwd)/config":/tmp/docker-mailserver \
+  -ti tvial/docker-mailserver:latest generate-dkim-config
+```
 
-> The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS-Provider limits the size), then provide the size as the first parameter of the command:
->
->     docker run --rm \
->       -v "$(pwd)/config":/tmp/docker-mailserver \
->       -ti tvial/docker-mailserver:latest generate-dkim-config 4096
+The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS-Provider limits the size), then provide the size as the first parameter of the command:
+
+```BASH
+docker run --rm \
+  -v "$(pwd)/config":/tmp/docker-mailserver \
+  -ti tvial/docker-mailserver:latest generate-dkim-config 4096
+```
 
 For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains): 
 
-    docker run --rm \
-      -v "$(pwd)/config":/tmp/docker-mailserver \
-      -ti docker-mailserver/docker-mailserver:latest generate-dkim-config <key-size> <domain.tld>[,<domain2.tld>]
+```BASH
+docker run --rm \
+  -v "$(pwd)/config":/tmp/docker-mailserver \
+  -ti docker-mailserver/docker-mailserver:latest generate-dkim-config <key-size> <domain.tld>[,<domain2.tld>]
+```
 
 Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record.
 
 If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
-```
+``` TXT
 ; OpenDKIM
 mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
 	  "p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN" )  ; ----- DKIM key mail for domain.tld
