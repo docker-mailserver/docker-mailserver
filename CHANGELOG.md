@@ -1,16 +1,30 @@
 # Changelog
 
-## Next Major Release
+## `v8.0.0`
 
-- migrated the whole repository to `docker-mailserver/docker-mailserver`
-- switched from TravisCI to GitHub Actions for CI/CD
-- integrated stale issues action to automatically close stale issues
-- adjusted issue templates
+- **transferred the whole repository** to `docker-mailserver/docker-mailserver`
+- switched from TravisCI to **GitHub Actions for CI/CD**
+  - now building **images for `amd64` and `arm/v7` and `arm/64`**
+  - integrated stale issues action to automatically close stale issues
+  - adjusted issue templates
 - adjusted `README.md` and split off `ENVIRONMENT.md`
-- completely refactored `Dockerfile`
-- adjusted `Makefile`
+- completely **refactored and improved the `Dockerfile`**
+- improved the `Makefile`
+- added a **proper init process**
+- miscellaneous bug fixes and improvements
+- **improved logging** significantly
+- usage of the **GitHub Container Registry**
+- major **LDAP improvements**
 
-## v7.2.0
+### Breaking changes of release `8.0.0`
+
+- log-level now defaults to `warn`
+- DKIM default key size now 4096
+- the `:latest` is now the latest release and `:edge` represents the latest push on `master`
+- URL changes from `tomav/...` to `docker-mailserver/...`
+
+
+## `v7.2.0`
 
 - Refactored `target/bin/`
 - Enhanced and refactored all tests
@@ -18,7 +32,7 @@
 - Redesigned environment variable use
 - Added missing Dovecot descriptions
 
-## v7.1.0
+## `v7.1.0`
 
 - The use of default variables has changed slightly. Consult the [environment variables](./ENVIRONMENT.md) page
 - New contributing guidelines were added
@@ -26,11 +40,7 @@
 - Added option to use non-default network interface
 - SELinux is now supported
 
-## 6.2.0+
-
-- see <https://github.com/docker-mailserver/docker-mailserver/releases>
-
-## 6.1.0
+## `6.1.0`
 
 - Deliver root mail (#952)
 - don't update permissions on non-existent file (#956)
@@ -42,7 +52,7 @@
 - fix SASL domain (#892, #970)
 - DOMAINNAME can fail to be set in postsrsd-wrapper.sh (#989)
 
-## 6.0.0
+## `6.0.0`
 
 - Implementation of multi-domain relay hosts (#922, #926)
   AWS_SES_HOST and AWS_SES_PORT are deprecated now.
