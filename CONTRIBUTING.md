@@ -121,7 +121,7 @@ A construct to trace error in your scripts looks like this. Remember: Remove `se
 
 ``` BASH
 set -xeuEo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__log_err ${FUNCNAME[0]:-"?"} ${BASH_COMMAND:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
 
 SCRIPT='name_of_this_script.sh'
 
