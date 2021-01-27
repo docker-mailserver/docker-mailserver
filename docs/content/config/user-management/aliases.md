@@ -2,7 +2,7 @@ Please first read [Postfix documentation on virtual aliases](http://www.postfix.
 
 ### Configuring aliases
 
-You can use [setup.sh](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh#alias) instead of creating and editing files manually.
+You can use [setup.sh](https://github.com/docker-mailserver/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh#alias) instead of creating and editing files manually.
 
 Aliases are managed in `/tmp/docker-mailserver/postfix-virtual.cf`.
 
