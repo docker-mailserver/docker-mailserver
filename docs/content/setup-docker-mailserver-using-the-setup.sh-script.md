@@ -75,6 +75,4 @@ SUBCOMMANDS:
     ./setup.sh debug login <commands>
 
   help: Show this help dialogue
-
-
 ```
