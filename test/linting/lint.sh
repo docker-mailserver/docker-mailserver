@@ -24,7 +24,7 @@ _get_current_directory
 # ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
 
 set -eEuo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__log_err ${FUNCNAME[0]:-"?"} ${BASH_COMMAND:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
 
 function __log_err
 {
