@@ -846,8 +846,13 @@ function _setup_postgrey
 {
   _notify 'inf' "Configuring postgrey"
 
-  sed -i -e 's/, reject_rbl_client bl.spamcop.net$/, reject_rbl_client bl.spamcop.net, check_policy_service inet:127.0.0.1:10023/' /etc/postfix/main.cf
-  sed -i -e "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=${POSTGREY_DELAY} --max-age=${POSTGREY_MAX_AGE} --auto-whitelist-clients=${POSTGREY_AUTO_WHITELIST_CLIENTS}\"/" /etc/default/postgrey
+  sed -i -E \
+    's+, reject_rbl_client zen.spamhaus.org$+, reject_rbl_client zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023+' \
+    /etc/postfix/main.cf
+
+  sed -i -e \
+    "s/\"--inet=127.0.0.1:10023\"/\"--inet=127.0.0.1:10023 --delay=${POSTGREY_DELAY} --max-age=${POSTGREY_MAX_AGE} --auto-whitelist-clients=${POSTGREY_AUTO_WHITELIST_CLIENTS}\"/" \
+    /etc/default/postgrey
 
   TEXT_FOUND=$(grep -c -i "POSTGREY_TEXT" /etc/default/postgrey)
 
