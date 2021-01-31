@@ -318,7 +318,7 @@ Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`. By default, the m
 
 - **\*\*\*SPAM\*\*\*** => add tag to subject if spam detected
 
-Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`. Add the spamassassin score to the subject line by inserting the keyword _SCORE_: **\*\*\*SPAM(_SCORE_)\*\*\***.
+Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`. Add the spamassassin score to the subject line by inserting the keyword \_SCORE\_: **\*\*\*SPAM(\_SCORE\_)\*\*\***.
 
 ##### SA_SHORTCIRCUIT_BAYES_SPAM
 
