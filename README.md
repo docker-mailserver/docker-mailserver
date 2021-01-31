@@ -190,7 +190,7 @@ We are currently providing support for Linux. Windows is _not_ supported and is 
 ``` BASH
 docker-compose down
 docker pull docker.io/mailserver/docker-mailserver:<VERSION TAG>
-docker-compose up -d mail
+docker-compose up -d mailserver
 ```
 
 You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh -h`.
