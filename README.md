@@ -156,17 +156,17 @@ If you'd like to change, patch or alter files or behavior of `docker-mailserver`
 # ! THIS IS AN EXAMPLE !
 
 # If you modify any supervisord configuration, make sure
-# to run "supervisorctl update" afterwards.
+# to run `supervisorctl update` and/or `supervisorctl reload` afterwards.
 
-set -euo pipefail
-echo 'user-patches.sh started'
+# shellcheck source=/dev/null
+. /usr/local/bin/helper-functions.sh
+
+_notify 'Applying user-patches'
 
 if ! grep '192.168.0.1' /etc/hosts
 then
   echo -e '192.168.0.1 some.domain.com' >> /etc/hosts
 fi
-
-echo 'user-patches.sh finished successfully'
 ```
 
 And you're done. The user patches script runs right before starting daemons. That means, all the other configuration is in place, so the script can make final adjustments.
@@ -224,7 +224,7 @@ This example provides you only with a basic example of what a minimal setup coul
 version: '3.8'
 
 services:
-  mail:
+  mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     hostname: mail          # ${HOSTNAME}
     domainname: domain.com  # ${DOMAINNAME}
@@ -265,7 +265,7 @@ volumes:
 version: '3.8'
 
 services:
-  mail:
+  mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     hostname: mail          # ${HOSTNAME}
     domainname: domain.com  # ${DOMAINNAME}

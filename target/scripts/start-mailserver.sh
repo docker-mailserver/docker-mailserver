@@ -356,22 +356,27 @@ function setup
 
 function _setup_supervisor
 {
-  case ${SUPERVISOR_LOGLEVEL} in
-    critical | error | warn | info | debug )
-      sed -i -E \
-        "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
-        /etc/supervisor/supervisord.conf
-      ;;
-    * )
-      _notify 'warn' \
-        "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
-      sed -i -E \
-        "s+loglevel.*+loglevel = warn+g" \
-        /etc/supervisor/supervisord.conf
-      ;;
-  esac
+  if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
+  then
+    case ${SUPERVISOR_LOGLEVEL} in
+      critical | error | warn | info | debug )
+        sed -i -E \
+          "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
+          /etc/supervisor/supervisord.conf
 
-  supervisorctl update
+        ;;
+      * )
+        _notify 'error' \
+          "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
+
+        sed -i -E \
+          "s+loglevel.*+loglevel = warn+g" \
+          /etc/supervisor/supervisord.conf
+        ;;
+    esac
+
+    supervisorctl reload
+  fi
 }
 
 function _setup_default_vars
