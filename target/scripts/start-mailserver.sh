@@ -364,13 +364,18 @@ function _setup_supervisor
           "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
           /etc/supervisor/supervisord.conf
 
-        supervisorctl reload
         ;;
       * )
-        _notify 'warn' \
+        _notify 'error' \
           "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
+
+        sed -i -E \
+          "s+loglevel.*+loglevel = warn+g" \
+          /etc/supervisor/supervisord.conf
         ;;
     esac
+
+    supervisorctl reload
   fi
 }
 
