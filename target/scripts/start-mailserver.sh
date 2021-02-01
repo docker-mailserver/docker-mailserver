@@ -356,7 +356,7 @@ function setup
 
 function _setup_supervisor
 {
-  if ! grep "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf &>/dev/null
+  if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case ${SUPERVISOR_LOGLEVEL} in
       critical | error | warn | info | debug )
