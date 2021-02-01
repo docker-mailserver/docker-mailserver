@@ -13,7 +13,9 @@ This project is Open Source. That means that you can contribute on enhancements,
 
 ### Opening an Issue
 
-When opening an issue, please provide details use case to let the community reproduce your problem. Please start the mail server with env `DMS_DEBUG=1` and paste the output into the issue. **Use the issue templates** to provide the necessary information. Issues which do not use these templates are not worked on and closed.
+When opening an issue, please provide details use case to let the community reproduce your problem. Please start the mail server with env `DMS_DEBUG=1` and paste the output into the issue. **Use the issue templates** to provide the necessary information. Issues which do not use these templates are not worked on and closed. By raising issues, I agree to these terms and I understand, that the rules set for the issue tracker will help both maintainers as well as everyone to find a solution.
+
+Maintainers take the time to improve on this project and help by solving issues together. It is therefore expected from others to make an effort and **comply with the rules**.
 
 ### Pull Requests
 
