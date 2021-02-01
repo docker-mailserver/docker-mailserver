@@ -12,7 +12,7 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 [Why this image was created.](http://tvi.al/simple-mail-server-with-docker/)
 
 1. [Included Services](#included-services)
-2. [Opening Issues and Contributing](#opening-issues-and-contributing)
+2. [Issues and Contributing](./CONTRIBUTING.md)
 3. [Requirements](#requirements)
 4. [Usage](#usage)
 5. [Examples](#examples)
@@ -39,10 +39,6 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 - Persistent data and state
 - [CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions)
 - [Extension Delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) (`you+extension@example.com` go to `you@example.com`)
-
-## Opening Issues and Contributing
-
-**Before opening an issue**, read this `README` carefully, use the [Wiki](https://github.com/docker-mailserver/docker-mailserver/wiki/), the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! If you'd like to contribute, read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly.
 
 ## Requirements
 
