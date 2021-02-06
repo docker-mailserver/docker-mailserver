@@ -33,7 +33,7 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- [Setup script](https://github.com/docker-mailserver/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) to easily configure and maintain your mailserver
+- [Setup script](https://github.com/docker-mailserver/docker-mailserver/wiki/setup.sh) to easily configure and maintain your mailserver
 - Basic [Sieve support](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
 - SASLauthd with LDAP auth
 - Persistent data and state
