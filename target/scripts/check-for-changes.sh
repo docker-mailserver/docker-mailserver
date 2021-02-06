@@ -136,12 +136,11 @@ do
 
         # creating users ; 'pass' is encrypted
         # comments and empty lines are ignored
-        while IFS=$'|' read -r LOGIN PASS
+        while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
         do
           USER=$(echo "${LOGIN}" | cut -d @ -f1)
           DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
 
-          user_attributes=""
           # test if user has a defined quota
           if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
           then
@@ -149,7 +148,7 @@ do
             IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
             unset IFS
 
-            [[ ${#USER_QUOTA[@]} -eq 2 ]] && user_attributes="${user_attributes}userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+            [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
           fi
 
           echo "${LOGIN} ${DOMAIN}/${USER}/" >>/etc/postfix/vmailbox
@@ -158,7 +157,7 @@ do
           # user:password:uid:gid:(gecos):home:(shell):extra_fields
           # example :
           # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
-          echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${user_attributes}" >>/etc/dovecot/userdb
+          echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >>/etc/dovecot/userdb
           mkdir -p "/var/mail/${DOMAIN}/${USER}"
 
           if [[ -e /tmp/docker-mailserver/${LOGIN}.dovecot.sieve ]]
