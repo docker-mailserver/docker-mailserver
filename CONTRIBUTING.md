@@ -33,7 +33,7 @@ The development workflow is the following:
 4. Get the linters with `make install_linters`
 5. Use `make clean all` to build image locally and run tests (note that tests work on Linux **only**)
 6. Document your improvements if necessary (e.g. if you introduced new environment variables, write the description in [`ENVIRONMENT.md`](./ENVIRONMENT.md))
-7. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`
+7. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist. 
    1. Pull requests are automatically tested against the CI and will be reviewed when tests pass
    2. When your changes are validated, your branch is merged
    3. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.
