@@ -711,13 +711,12 @@ function _setup_dovecot_local_user
 
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored
-    while IFS=$'|' read -r LOGIN PASS
+    while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
     do
       # Setting variables for better readability
       USER=$(echo "${LOGIN}" | cut -d @ -f1)
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
 
-      USER_ATTRIBUTES=""
       # test if user has a defined quota
       if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
@@ -725,7 +724,7 @@ function _setup_dovecot_local_user
         IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
         unset IFS
 
-        [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES}userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+        [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
       fi
 
       # Let's go!
