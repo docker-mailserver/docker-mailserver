@@ -1,40 +1,35 @@
 DKIM is a security measure targeting email spoofing. It is greatly recommended one activates it. See [the Wikipedia page](https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail) for more details on DKIM.
 
-### Enabling DKIM signature
+#### Enabling DKIM signature
 
-To enable DKIM signature, **you must have created at least one email account**.
+To enable DKIM signature, **you must have created at least one email account**. Once its done, just run the following command to generate the signature:
 
-Once its done, just run the following command to generate the signature:
-
-```BASH
+``` BASH
 ./setup.sh config dkim
 ```
 
-The script assumes you're being in the directory where the `config/` directory is located. The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS-Provider limits the size), then provide the size as the first parameter of the command:
+After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate. The script assumes you're being in the directory where the `config/` directory is located. The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS provider limits the size), then provide the size as the first parameter of the command:
 
-```BASH
+``` BASH
 ./setup.sh config dkim <keysize>
 ```
 
 For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains): 
 
-```BASH
+``` BASH
 ./setup.sh config dkim <key-size> <domain.tld>[,<domain2.tld>]
 ```
 
-Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record.
+Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
 
-If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
-
-``` TXT
+``` BASH
 $ dig mail._domainkey.domain.tld TXT
 ---
 ;; ANSWER SECTION
 mail._domainkey.<DOMAIN> 300 IN TXT    "v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN"
 ```
 
-<details>
-<summary>Configuration using a web interface</summary>
+#### Configuration using a web interface
 
 1. Generate a new record of the type `TXT`.
 2. Paste `mail._domainkey` the `Name` txt field.
@@ -42,24 +37,20 @@ mail._domainkey.<DOMAIN> 300 IN TXT    "v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWX
 4. In `TTL` (time to live): Time span in seconds. How long the DNS server should cache the `TXT` record.
 5. Save.
 
-</details>
+**Note**: Sometimes the key in `config/opendkim/keys/domain.tld/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
 
-After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate.
-
-Note: Sometimes the key in `config/opendkim/keys/domain.tld/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
-
-```
+``` BASH
 $ dig mail._domainkey.domain.tld TXT
 ---
 ;; ANSWER SECTION
-mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
+mail._domainkey.<DOMAIN> 300 IN TXT    "v=DKIM1; k=rsa; "
 	  "p=AZERTYUIOPQSDF..."
-	  "asdfQWERTYUIOPQSDF..." )
+	  "asdfQWERTYUIOPQSDF..."
 ```
 
-the target (or value) field must then have all the parts together: `v=DKIM1; k=rsa; p=AZERTYUIOPQSDF...asdfQWERTYUIOPQSDF...`
+The target (or value) field must then have all the parts together: `v=DKIM1; k=rsa; p=AZERTYUIOPQSDF...asdfQWERTYUIOPQSDF...`
 
-## Verify-only
+#### Verify-only
 
 If you want DKIM to only _verify_ incoming emails, the following version of /etc/opendkim.conf may be useful (right now there is no easy mechanism for installing it other than forking the repo):
 
@@ -79,23 +70,14 @@ SendReports             yes
 Mode                    v
 ```
 
-## Debugging
+#### Debugging
 
-### Tools
+- [DKIM-verifer](https://addons.mozilla.org/en-US/thunderbird/addon/dkim-verifier): A add-on for the mail client Thunderbird.
+- You can debug your TXT records with the `dig` tool.
 
-* [DKIM-verifer](https://addons.mozilla.org/en-US/thunderbird/addon/dkim-verifier): A add-on for the mail client Thunderbird.
-
-### DKIM TXT Record
-
-You can debug your TXT records with the `dig` tool.
-
-```
-dig TXT mail._domainkey.domain.tld
-```
-
-Output:
-
-```
+``` BASH
+$ dig TXT mail._domainkey.domain.tld
+---
 ; <<>> DiG 9.10.3-P4-Debian <<>> TXT mail._domainkey.domain.tld
 ;; global options: +cmd
 ;; Got answer:
@@ -116,6 +98,6 @@ mail._domainkey.domain.tld. 3600 IN TXT	"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBA
 ;; MSG SIZE  rcvd: 310
 ```
 
-## Switch off DKIM
+#### Switch off DKIM
 
 Simply remove the DKIM key by recreating (not just relaunching) the mailserver container.
