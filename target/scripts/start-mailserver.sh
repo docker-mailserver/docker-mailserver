@@ -924,7 +924,7 @@ function _setup_spoof_protection
 
 function _setup_postfix_access_control
 {
-  _notify 'inf' "Configuring user access"
+  _notify 'inf' 'Configuring user access'
 
   if [[ -f /tmp/docker-mailserver/postfix-send-access.cf ]]
   then
@@ -939,29 +939,28 @@ function _setup_postfix_access_control
 
 function _setup_postfix_sasl
 {
-  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]
+  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && [[ ! -f /etc/postfix/sasl/smtpd.conf ]]
   then
-    [[ ! -f /etc/postfix/sasl/smtpd.conf ]] && cat > /etc/postfix/sasl/smtpd.conf << EOF
+    cat > /etc/postfix/sasl/smtpd.conf << EOF
 pwcheck_method: saslauthd
 mech_list: plain login
 EOF
   fi
 
-  # cyrus sasl or dovecot sasl
-  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] || [[ ${SMTP_ONLY} -eq 0 ]]
+  if [[ ${ENABLE_SASLAUTHD} -eq 0 ]] && [[ ${SMTP_ONLY} -eq 1 ]]
   then
-    sed -i -e 's|^smtpd_sasl_auth_enable[[:space:]]\+.*|smtpd_sasl_auth_enable = yes|g' /etc/postfix/main.cf
-  else
-    sed -i -e 's|^smtpd_sasl_auth_enable[[:space:]]\+.*|smtpd_sasl_auth_enable = no|g' /etc/postfix/main.cf
+    sed -i -E \
+      's+^smtpd_sasl_auth_enable =.*+smtpd_sasl_auth_enable = no+g' \
+      /etc/postfix/main.cf
+    sed -i -E \
+      's+^  -o smtpd_sasl_auth_enable=.*+  -o smtpd_sasl_auth_enable=no+g' \
+      /etc/postfix/master.cf
   fi
-
-  return 0
 }
 
 function _setup_saslauthd
 {
-  _notify 'task' "Setting up Saslauthd"
-  _notify 'inf' "Configuring Cyrus SASL"
+  _notify 'task' "Setting up SASLAUTHD"
 
   # checking env vars and setting defaults
   [[ -z ${SASLAUTHD_MECHANISMS:-} ]] && SASLAUTHD_MECHANISMS=pam
@@ -1969,42 +1968,45 @@ function misc
 
 function _misc_save_states
 {
-  # consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes
-  statedir=/var/mail-state
+  # consolidate all states into a single directory (`/var/mail-state`)
+  # to allow persistence using docker volumes
 
-  if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${statedir} ]]
+  local STATEDIR=/var/mail-state
+
+  if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]
   then
-    _notify 'inf' "Consolidating all state onto ${statedir}"
+    _notify 'inf' "Consolidating all state onto ${STATEDIR}"
 
     local FILES=(
-      /var/spool/postfix
-      /var/lib/postfix
-      /var/lib/amavis
-      /var/lib/clamav
-      /var/lib/spamassassin
-      /var/lib/fail2ban
-      /var/lib/postgrey
-      /var/lib/dovecot
+      spool/postfix
+      lib/postfix
+      lib/amavis
+      lib/clamav
+      lib/spamassassin
+      lib/fail2ban
+      lib/postgrey
+      lib/dovecot
     )
 
-    for d in "${FILES[@]}"
+    for FILE in "${FILES[@]}"
     do
-      dest="${statedir}/$(echo "${d}" | sed -e 's/.var.//; s/\//-/g')"
+      DEST="${STATEDIR}/${FILE//\//-}"
+      local FILE="/var/${FILE}"
 
-      if [[ -d ${dest} ]]
+      if [[ -d ${DEST} ]]
       then
-        _notify 'inf' "  Destination ${dest} exists, linking ${d} to it"
-        rm -rf "${d}"
-        ln -s "${dest}" "${d}"
-      elif [[ -d ${d} ]]
+        _notify 'inf' "Destination ${DEST} exists, linking ${FILE} to it"
+        rm -rf "${FILE}"
+        ln -s "${DEST}" "${FILE}"
+      elif [[ -d ${FILE} ]]
       then
-        _notify 'inf' "  Moving contents of ${d} to ${dest}:" "$(ls "${d}")"
-        mv "${d}" "${dest}"
-        ln -s "${dest}" "${d}"
+        _notify 'inf' "Moving contents of ${FILE} to ${DEST}:" "$(ls "${FILE}")"
+        mv "${FILE}" "${DEST}"
+        ln -s "${DEST}" "${FILE}"
       else
-        _notify 'inf' "  Linking ${d} to ${dest}"
-        mkdir -p "${dest}"
-        ln -s "${dest}" "${d}"
+        _notify 'inf' "Linking ${FILE} to ${DEST}"
+        mkdir -p "${DEST}"
+        ln -s "${DEST}" "${FILE}"
       fi
     done
 
@@ -2014,7 +2016,6 @@ function _misc_save_states
     chown -R postgrey /var/mail-state/lib-postgrey
     chown -R debian-spamd /var/mail-state/lib-spamassassin
     chown -R postfix /var/mail-state/spool-postfix
-
   fi
 }
 
