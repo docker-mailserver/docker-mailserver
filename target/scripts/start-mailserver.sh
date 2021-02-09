@@ -598,7 +598,7 @@ function _setup_dovecot
   # to the configuration file Dovecot will actually find
   if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]
   then
-    _notify 'inf' "Sieve management enabled"
+    _notify 'inf' 'Sieve management enabled'
     mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
   fi
 
@@ -1007,7 +1007,7 @@ function _setup_saslauthd
 
   if [[ ! -f /etc/saslauthd.conf ]]
   then
-    _notify 'inf' "Creating /etc/saslauthd.conf"
+    _notify 'inf' 'Creating /etc/saslauthd.conf'
     cat > /etc/saslauthd.conf << EOF
 ldap_servers: ${SASLAUTHD_LDAP_PROTO}${SASLAUTHD_LDAP_SERVER}
 
@@ -1086,7 +1086,7 @@ function _setup_postfix_aliases
       /etc/postfix/main.cf
   fi
 
-  _notify 'inf' "Configuring root alias"
+  _notify 'inf' 'Configuring root alias'
 
   echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
 
@@ -1966,18 +1966,19 @@ function misc
   done
 }
 
+# consolidate all states into a single directory
+# (/var/mail-state) to allow persistence using docker volumes
 function _misc_save_states
 {
-  # consolidate all states into a single directory (`/var/mail-state`)
-  # to allow persistence using docker volumes
+  local STATEDIR FILE FILES
 
-  local STATEDIR=/var/mail-state
+  STATEDIR='/var/mail-state'
 
   if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]
   then
     _notify 'inf' "Consolidating all state onto ${STATEDIR}"
 
-    local FILES=(
+    FILES=(
       spool/postfix
       lib/postfix
       lib/amavis
@@ -1991,7 +1992,7 @@ function _misc_save_states
     for FILE in "${FILES[@]}"
     do
       DEST="${STATEDIR}/${FILE//\//-}"
-      local FILE="/var/${FILE}"
+      FILE="/var/${FILE}"
 
       if [[ -d ${DEST} ]]
       then
