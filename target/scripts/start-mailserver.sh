@@ -1140,7 +1140,7 @@ function _setup_ssl
 
   # Primary certificate to serve for TLS
   # NOTE: The `sed` substituion delimiter uses `~` instead of `/` due to file paths as values
-  function _set_certificate()
+  function _set_certificate
   {
     local POSTFIX_FULLKEYCHAIN=$1
     local DOVECOT_CERT=$2
@@ -1157,7 +1157,7 @@ function _setup_ssl
   }
 
   # Enables supporting two certificate types such as ECDSA with an RSA fallback
-  function _set_alt_certificate()
+  function _set_alt_certificate
   {
     local COPY_CERT_FROM_PATH=$1
     local COPY_KEY_FROM_PATH=$2
