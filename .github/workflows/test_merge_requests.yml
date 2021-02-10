@@ -1,6 +1,11 @@
 name: "Test Merge Requests"
 
-on: pull_request
+on: 
+  pull_request:
+    paths-ignore: 
+      - '**.md'
+      - 'LICENSE'
+      - '.github/**'
 
 jobs:
   build-and-test:
