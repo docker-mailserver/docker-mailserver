@@ -1,6 +1,2 @@
-.github
-.git
-.idea
-.vscode
-
-test/
+*
+!target
