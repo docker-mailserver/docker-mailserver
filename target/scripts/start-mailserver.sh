@@ -1177,8 +1177,8 @@ function _setup_ssl
     sed -i 's~^smtpd_tls_chain_files =.*~& '"${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}~" /etc/postfix/main.cf
 
     # Dovecot configuration
-    # Conditionally checks for `#`, in the event that internal container state is persisted
-    # (`docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`)
+    # Conditionally checks for `#`, in the event that internal container state is accidentally persisted,
+    # can be caused by: `docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`
     sed -i 's~^#\?ssl_alt_cert = <.*~ssl_alt_cert = <'"${CERT_CHAIN_ALT}"'~' /etc/dovecot/conf.d/10-ssl.conf
     sed -i 's~^#\?ssl_alt_key = <.*~ssl_alt_key = <'"${PRIVATE_KEY_ALT}"'~' /etc/dovecot/conf.d/10-ssl.conf
   }
@@ -1307,7 +1307,7 @@ function _setup_ssl
       fi
       ;;
     "manual" )
-      # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole  processes (like using kube-lego to generate certs)
+      # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole processes (like using kube-lego to generate certs)
       if [[ -n ${SSL_CERT_PATH} ]] && [[ -n ${SSL_KEY_PATH} ]]
       then
         _notify 'inf' "Configuring certificates using cert ${SSL_CERT_PATH} and key ${SSL_KEY_PATH}"
