@@ -5,6 +5,10 @@ on:
     branches:
       - master
       - stable
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.github/**'
     tags:
       - '*.*.*'
 
