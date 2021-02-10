@@ -3,8 +3,16 @@ name: "Lint"
 on:
   pull_request:
     branches: [ "*" ]
+    paths-ignore: 
+      - '**.md'
+      - 'LICENSE'
+      - '.github/**'
   push:
     branches: [ "master", "stable" ]
+    paths-ignore: 
+      - '**.md'
+      - 'LICENSE'
+      - '.github/**'
 
 jobs:
   lint:
