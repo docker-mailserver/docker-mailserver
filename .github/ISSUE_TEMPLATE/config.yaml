@@ -1,0 +1,13 @@
+# disables the possibility to choose blank issues
+blank_issues_enabled: false
+
+contact_links:
+  - name: Wiki
+    url: https://github.com/docker-mailserver/docker-mailserver/wiki
+    about: Extended documentaton - visit this first before opening issues
+  - name: Default Documentation
+    url: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
+    about: Read this first and carefully
+  - name: Environment Variables Section
+    url: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
+    about: Read this section for information about mail server variables
