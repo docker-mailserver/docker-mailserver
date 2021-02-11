@@ -2,10 +2,13 @@ name: "Test Merge Requests"
 
 on: 
   pull_request:
-    paths-ignore: 
-      - '**.md'
-      - 'LICENSE'
-      - '.github/**'
+    paths: 
+      - 'target/**'
+      - 'test/**'
+      - '.dockerignore'
+      - '.gitmodules'
+      - 'Dockerfile'
+      - 'setup.sh'
 
 jobs:
   build-and-test:
