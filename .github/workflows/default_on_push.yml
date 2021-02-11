@@ -5,10 +5,12 @@ on:
     branches:
       - master
       - stable
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - '.github/**'
+    paths: 
+      - 'target/**'
+      - '.dockerignore'
+      - '.gitmodules'
+      - 'Dockerfile'
+      - 'setup.sh'
     tags:
       - '*.*.*'
 
