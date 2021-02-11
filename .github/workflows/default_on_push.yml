@@ -5,6 +5,12 @@ on:
     branches:
       - master
       - stable
+    paths: 
+      - 'target/**'
+      - '.dockerignore'
+      - '.gitmodules'
+      - 'Dockerfile'
+      - 'setup.sh'
     tags:
       - '*.*.*'
 

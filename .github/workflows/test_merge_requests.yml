@@ -1,6 +1,14 @@
 name: "Test Merge Requests"
 
-on: pull_request
+on: 
+  pull_request:
+    paths: 
+      - 'target/**'
+      - 'test/**'
+      - '.dockerignore'
+      - '.gitmodules'
+      - 'Dockerfile'
+      - 'setup.sh'
 
 jobs:
   build-and-test:
