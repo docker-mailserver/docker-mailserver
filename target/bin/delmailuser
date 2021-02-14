@@ -102,7 +102,7 @@ fi
         errex "Mailbox couldn't be deleted."
       fi
     else
-      errex "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' does not exist."
+      echo "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' did not exist."
     fi
   done
 
