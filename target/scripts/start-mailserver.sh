@@ -86,7 +86,6 @@ function register_functions
 
   ################### >> check funcs
 
-  _register_check_function "_check_environment_variables"
   _register_check_function "_check_hostname"
 
   ################### >> setup funcs
@@ -308,7 +307,7 @@ function check
 
 function _check_hostname
 {
-  _notify "task" "Check that hostname/domainname is provided or overridden (no default docker hostname/kubernetes) [in ${FUNCNAME[0]}]"
+  _notify "task" "Check that hostname/domainname is provided or overridden [in ${FUNCNAME[0]}]"
 
   if [[ -n ${OVERRIDE_HOSTNAME} ]]
   then
@@ -319,19 +318,11 @@ function _check_hostname
   _notify 'inf' "Domain has been set to ${DOMAINNAME}"
   _notify 'inf' "Hostname has been set to ${HOSTNAME}"
 
-  if ( ! grep -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}" >/dev/null )
+  if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
     _notify 'err' "Setting hostname/domainname is required"
     kill "$(< /var/run/supervisord.pid)" && return 1
-  else
-    return 0
   fi
-}
-
-function _check_environment_variables
-{
-  _notify "task" "Check that there are no conflicts with env variables [in ${FUNCNAME[0]}]"
-  return 0
 }
 
 ##########################################################################
