@@ -10,10 +10,11 @@ function __usage
 Generate DKIM Configuration
 
 SYNOPSIS
-    ./setup.sh dkim [OPTIONS...]
+    ./setup.sh config dkim [OPTIONS...]
 
 DESCRIPTION
-    Configures DKIM keys. OPTIONS can be used to configure a more complex setup. LDAP setups require these options.
+    Configures DKIM keys. OPTIONS can be used to configure a more complex setup.
+    LDAP setups require these options.
 
 OPTIONS
     Generic Program Information
@@ -27,7 +28,7 @@ OPTIONS
 END
 }
 
-if [[ ${1} == 'help' ]]
+if [[ ${1:-} == 'help' ]]
 then
   __usage
   exit 0

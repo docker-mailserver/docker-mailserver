@@ -123,7 +123,7 @@ docker-compose up -d mail
 ./setup.sh config dkim [size <size>] [selector <selector>] [domains '<domain.tld>[,<domain2.tld>]']
 ```
 
-If you want to see detailed usage information, run `./setup.sh dkim help`.
+If you want to see detailed usage information, run `./setup.sh config dkim help`.
 
 ### Miscellaneous
 
