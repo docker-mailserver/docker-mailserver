@@ -15,7 +15,7 @@ function setup
 function setup_file
 {
 	local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . ${CONTAINER_NAME})"
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
 
   docker run -d \
     --name "${CONTAINER_NAME}" \
