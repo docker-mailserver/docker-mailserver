@@ -142,7 +142,7 @@ SUBCOMMANDS:
 
   config:
 
-    ${0} config dkim <keysize> (default: 4096) <domain> (optional - for LDAP systems)
+    ${0} config dkim [size <size>] [selector <selector>] [domain '<domain1.tld>[,<domain2.tld>...]']
     ${0} config ssl <fqdn>
 
   relay:
@@ -324,7 +324,7 @@ function _main
     config )
       case ${2:-} in
         dkim     ) shift 2 ; _docker_image generate-dkim-config "${@}" ;;
-        ssl      ) _docker_image generate-ssl-certificate "${2}" ;;
+        ssl      ) shift 2 ; _docker_image generate-ssl-certificate "${1}" ;;
         *        ) _usage ;;
       esac
       ;;
@@ -339,21 +339,21 @@ function _main
       ;;
 
     debug )
-      shift ; case ${1:-} in
+      case ${2:-} in
         fetchmail      ) _docker_image debug-fetchmail ;;
-        fail2ban       ) shift ; _docker_container fail2ban "${@}" ;;
+        fail2ban       ) shift 2 ; _docker_container fail2ban "${@}" ;;
         show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
         login          )
-          shift
-          if [[ -z ${1:-''} ]]
+          shift 2
+          if [[ -z ${1:-} ]]
           then
             _docker_container /bin/bash
           else
             _docker_container /bin/bash -c "${@}"
           fi
           ;;
-        *        ) _usage ; exit 1 ;;
+        * ) _usage ; exit 1 ;;
       esac
       ;;
 
