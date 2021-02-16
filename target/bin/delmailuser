@@ -38,11 +38,15 @@ shift $((OPTIND-1))
 if ! ${MAILDEL}
 then
   read -r -p "Do you want to delete the mailbox as well (removing all mails) ? [Y/n] " MAILDEL_CHOSEN
-  [[ ${MAILDEL_CHOSEN} =~ (y|Y| ) ]] && MAILDEL=true
+  if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
+  then
+    MAILDEL=true
+  fi
 fi
 
 (
   flock -e 200
+  ERROR=false
 
   for USER in "${@}"
   do
@@ -54,13 +58,15 @@ fi
     MAILARR[1]="${USER#*@}"
 
     # ${USER} must not contain /s and other syntactic characters
+    UNESCAPED_USER="${USER}"
     USER=$(escape "${USER}")
 
     if [[ -f ${DATABASE} ]]
     then
       if ! sed -i "/^${USER}|/d" "${DATABASE}"
       then
-        errex "${USER} couldn't be deleted in ${DATABASE}. ${?}"
+        echo "${USER} couldn't be deleted in ${DATABASE}. ${?}" >&2
+        ERROR=true
       fi
     fi
 
@@ -72,9 +78,10 @@ fi
         -e "/ ${USER}$/d" -e "s/,${USER}//g" -e "s/${USER},//g" \
         "${ALIAS_DATABASE}"
       then
-        echo "${USER} and potential aliases deleted."
+        echo "${UNESCAPED_USER} and potential aliases deleted."
       else
-        errex "Aliases for ${USER} couldn't be deleted in ${ALIAS_DATABASE}."
+        echo "Aliases for ${UNESCAPED_USER} couldn't be deleted in ${ALIAS_DATABASE}." >&2
+        ERROR=true
       fi
     fi
 
@@ -83,7 +90,8 @@ fi
     then
       if ! sed -i -e "/^${USER}:.*$/d" "${QUOTA_DATABASE}"
       then
-        errex "Quota for ${USER} couldn't be deleted in ${QUOTA_DATABASE}."
+        echo "Quota for ${UNESCAPED_USER} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+        ERROR=true
       fi
     fi
 
@@ -93,17 +101,20 @@ fi
       exit 0
     fi
 
-    if [[ -d "/var/mail/${MAILARR[1]}/${MAILARR[0]}" ]]
+    if [[ -e "/var/mail/${MAILARR[1]}/${MAILARR[0]}" ]]
     then
-      if rm -r -f "/var/mail/${MAILARR[1]}/${MAILARR[0]}"
+      if rm -R "/var/mail/${MAILARR[1]}/${MAILARR[0]}"
       then
         echo "Mailbox deleted."
       else
-        errex "Mailbox couldn't be deleted."
+        echo "Mailbox couldn't be deleted." >&2
+        ERROR=true
       fi
     else
       echo "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' did not exist."
     fi
   done
+
+  ${ERROR} && errex "Errors encountered."
 
 ) 200< "${DATABASE}"
