@@ -378,3 +378,53 @@ function teardown_file
   assert_success
   assert_output 4
 }
+
+@test "checking opendkim: generator creates keys, tables and TrustedHosts using manual provided selector name" {
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
+  rm -rf "${PRIVATE_CONFIG}/with-selector" && mkdir -p "${PRIVATE_CONFIG}/with-selector"
+
+  # Generate first key
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/":/tmp/docker-mailserver/ \
+    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 domain1.tld mailer| wc -l'
+  assert_success
+  assert_output 4
+
+  # Check keys for domain1.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
+  assert_success
+  assert_output 2
+
+  # Check key names with selector for domain1.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld | grep -E 'mailer.private|mailer.txt' | wc -l'
+  assert_success
+  assert_output 2
+
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
+  assert_success
+  assert_output 4
+
+  # Check valid entries actually present in KeyTable
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c \
+    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/KeyTable | wc -l"
+  assert_success
+  assert_output 4
+  
+  # Check valid entries actually present in SigningTable
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c \
+    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/SigningTable | wc -l"
+  assert_success
+  assert_output 4
+}
