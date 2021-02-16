@@ -85,6 +85,29 @@ function teardown_file() {
     compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILEPATH}" "${CIPHERLIST_TLSv1_3}"
 }
 
+@test "checking tls: cipher list configuration is correct for ports 587, 465, 143, 993, 110, 995" {
+    local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
+
+    run docker run --rm \
+        --user "0:0" \
+        --network "${NETWORK}" \
+        --volume "${TLS_CONFIG_VOLUME}" \
+        --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
+        --workdir "/output" \
+        drwetter/testssl.sh:3.1dev --file /config/ssl/testssl.txt --mode parallel
+    assert_success
+
+    # Explicit(587) and Implicit(465) TLS
+    check_cipherlists "${RESULTS_PATH}/port_587.json"
+    check_cipherlists "${RESULTS_PATH}/port_465.json"
+    # IMAP Explicit(143) and Implicit(993) TLS
+    check_cipherlists "${RESULTS_PATH}/port_143.json"
+    check_cipherlists "${RESULTS_PATH}/port_993.json"
+    # POP3 Explicit(110) and Implicit(995)
+    check_cipherlists "${RESULTS_PATH}/port_110.json"
+    check_cipherlists "${RESULTS_PATH}/port_995.json"
+}
+
 # Use `jq` to extract a specific cipher list from the target`testssl.sh` results json output file
 function compare_cipherlist() {
     local TARGET_CIPHERLIST=$1
@@ -97,6 +120,40 @@ function compare_cipherlist() {
         dwdraju/alpine-curl-jq jq '.scanResult[0].fs[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${RESULTS_FILE}"
     assert_success
     assert_output "${EXPECTED_CIPHERLIST}"
+}
+
+# Compares the expected cipher lists against logged test results from `testssl.sh`
+function check_cipherlists() {
+    local RESULTS_FILE=$1
+
+    compare_cipherlist "cipherorder_TLSv1"   "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1')"
+    compare_cipherlist "cipherorder_TLSv1_1" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_1')"
+    compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_2')"
+    compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_3')"
+}
+
+# Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `start-mailserver.sh`.
+# Excluding Port 25 which uses defaults from Postfix after applying `smtpd_tls_exclude_ciphers` rules.
+function get_cipherlist() {
+    local TLS_VERSION=$1
+
+    if [[ "${TLS_VERSION}" == "TLSv1_3" ]]
+        then
+            # TLS v1.3 cipher suites are not user defineable and not unique to the available certificate(s).
+            # They do not support server enforced order either.
+            echo '"TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_128_GCM_SHA256"'
+        else
+
+        # Associative array for easy querying of required cipher list
+        declare -A CIPHER_LIST
+        # Our TLS v1.0 and v1.1 cipher suites should be the same:
+        CIPHER_LIST["rsa_intermediate_TLSv1"]='"ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA"'
+        CIPHER_LIST["rsa_intermediate_TLSv1_1"]=${CIPHER_LIST["rsa_intermediate_TLSv1"]}
+        CIPHER_LIST["rsa_intermediate_TLSv1_2"]='"ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA"'
+
+        local TARGET_QUERY="${KEY_TYPE}_${TLS_LEVEL}_${TLS_VERSION}"
+        echo "${CIPHER_LIST[${TARGET_QUERY}]}"
+    fi
 }
 
 @test "last" {
