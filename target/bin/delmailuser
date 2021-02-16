@@ -65,7 +65,7 @@ fi
     then
       if ! sed -i "/^${USER}|/d" "${DATABASE}"
       then
-        echo "${USER} couldn't be deleted in ${DATABASE}. ${?}" >&2
+        echo "${USER} couldn't be deleted in ${DATABASE}." >&2
         ERROR=true
       fi
     fi
@@ -91,7 +91,6 @@ fi
       if ! sed -i -e "/^${USER}:.*$/d" "${QUOTA_DATABASE}"
       then
         echo "Quota for ${UNESCAPED_USER} couldn't be deleted in ${QUOTA_DATABASE}." >&2
-        ERROR=true
       fi
     fi
 
@@ -111,10 +110,13 @@ fi
         ERROR=true
       fi
     else
-      echo "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' did not exist."
+      echo "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' did not exist." >&2
+      ERROR=true
     fi
   done
 
-  ${ERROR} && errex "Errors encountered."
+  ${ERROR} && errex 'Errors encountered.'
 
 ) 200< "${DATABASE}"
+
+exit 0
