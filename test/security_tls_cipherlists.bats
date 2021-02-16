@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 load 'test_helper/common'
+# Globals ${BATS_TMPDIR} and ${NAME}
+# `${NAME}` defaults to `mailserver-testing:ci`
 
 function setup() {
     run_setup_file_if_necessary
@@ -77,19 +79,30 @@ function teardown_file() {
     assert_success
 }
 
-@test "checking tls: cipher list configuration is correct for port 25" {
-    local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
-    local RESULTS_FILE="${RESULTS_PATH}/port_25.json"
-
-    compare_cipherlist "cipherorder_TLSv1"   "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_p25')"
-    compare_cipherlist "cipherorder_TLSv1_1" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_1_p25')"
-    compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_2_p25')"
-    compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_3_p25')"
+@test "checking tls: cipher list - rsa intermediate" {
+    check_ports 'rsa' 'intermediate'
 }
 
-@test "checking tls: cipher list configuration is correct for ports 587, 465, 143, 993, 110, 995" {
+@test "checking tls: cipher list - rsa modern" {
+    check_ports 'rsa' 'modern'
+}
+
+@test "checking tls: cipher list - ecdsa intermediate" {
+    check_ports 'ecdsa' 'intermediate'
+}
+
+@test "checking tls: cipher list - ecdsa modern" {
+    check_ports 'ecdsa' 'modern'
+}
+
+function check_ports() {
+    local KEY_TYPE=$1
+    local TLS_LEVEL=$2
     local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
 
+    # SMTP: Opportunistic STARTTLS Explicit(25)
+    # Needs to test against cipher lists specific to Port 25 ('_p25' parameter)
+    check_cipherlists "${RESULTS_PATH}/port_25.json" '_p25'
     # SMTP Submission: Mandatory STARTTLS Explicit(587) and Implicit(465) TLS
     check_cipherlists "${RESULTS_PATH}/port_587.json"
     check_cipherlists "${RESULTS_PATH}/port_465.json"
@@ -118,10 +131,15 @@ function compare_cipherlist() {
 # Compares the expected cipher lists against logged test results from `testssl.sh`
 function check_cipherlists() {
     local RESULTS_FILE=$1
+    local p25=$2 # optional suffix
 
-    compare_cipherlist "cipherorder_TLSv1"   "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1')"
-    compare_cipherlist "cipherorder_TLSv1_1" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_1')"
-    compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_2')"
+    # TLS_LEVEL `modern` doesn't have TLS v1.0 or v1.1 cipher suites. Sets TLS v1.2 as minimum.
+    if [[ "${TLS_LEVEL}" == "intermediate" ]]
+        then
+            compare_cipherlist "cipherorder_TLSv1"   "${RESULTS_FILE}" "$(get_cipherlist "TLSv1${p25}")"
+            compare_cipherlist "cipherorder_TLSv1_1" "${RESULTS_FILE}" "$(get_cipherlist "TLSv1_1${p25}")"
+    fi
+    compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILE}" "$(get_cipherlist "TLSv1_2${p25}")"
     compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_3')"
 }
 
@@ -144,12 +162,30 @@ function get_cipherlist() {
         CIPHER_LIST["rsa_intermediate_TLSv1_1"]=${CIPHER_LIST["rsa_intermediate_TLSv1"]}
         CIPHER_LIST["rsa_intermediate_TLSv1_2"]='"ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA"'
 
+        # `modern` doesn't have TLS v1.0 or v1.1 cipher suites:
+        CIPHER_LIST["rsa_modern_TLSv1_2"]='"ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
+
+        # ECDSA
+        CIPHER_LIST["ecdsa_intermediate_TLSv1"]='"ECDHE-ECDSA-AES128-SHA ECDHE-ECDSA-AES256-SHA"'
+        CIPHER_LIST["ecdsa_intermediate_TLSv1_1"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1"]}
+        CIPHER_LIST["ecdsa_intermediate_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES128-SHA ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA"'
+        CIPHER_LIST["ecdsa_modern_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305"'
+
         # Port 25
         # TLSv1 and TLSv1_1 share the same cipher suites as other ports have. The server order differs.
         # TLSv1_2 has different server order and ARIA, CCM, DHE+CHACHA20-POLY1305 cipher suites
         CIPHER_LIST["rsa_intermediate_TLSv1_p25"]='"ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA"'
         CIPHER_LIST["rsa_intermediate_TLSv1_1_p25"]=${CIPHER_LIST["rsa_intermediate_TLSv1_p25"]}
+
         CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]='"ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA ARIA128-GCM-SHA256"'
+        CIPHER_LIST["rsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]}
+
+        # ECDSA
+        CIPHER_LIST["ecdsa_intermediate_TLSv1_p25"]='"ECDHE-ECDSA-AES256-SHA ECDHE-ECDSA-AES128-SHA"'
+        CIPHER_LIST["ecdsa_intermediate_TLSv1_1_p25"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1_p25"]}
+
+        CIPHER_LIST["ecdsa_intermediate_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES128-SHA"'
+        CIPHER_LIST["ecdsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1_2_p25"]}
 
         local TARGET_QUERY="${KEY_TYPE}_${TLS_LEVEL}_${TLS_VERSION}"
         echo "${CIPHER_LIST[${TARGET_QUERY}]}"
