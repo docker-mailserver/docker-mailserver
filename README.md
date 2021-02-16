@@ -120,8 +120,10 @@ If you are using a LDAP setup the setup looks a bit different as you do not add 
 ``` BASH
 docker-compose up -d mail
 
-./setup.sh config dkim <key-size> <domain.tld>[,<domain2.tld>]
+./setup.sh dkim [size <SIZE>] [selector <SELECTOR>] [domains "<domain.tld>[,<domain2.tld>]"]
 ```
+
+If you want to see detailed usage information, run `./setup.sh dkim help`.
 
 ### Miscellaneous
 

@@ -15,7 +15,7 @@ function setup() {
 }
 
 function teardown() {
-    docker rm -f mail_with_default_relay
+  docker rm -f mail_with_default_relay
 }
 
 #

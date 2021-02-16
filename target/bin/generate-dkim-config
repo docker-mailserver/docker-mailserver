@@ -1,11 +1,90 @@
 #! /bin/bash
 
-touch /tmp/vhost.tmp
+KEYSIZE=4096
+SELECTOR=mail
+DOMAINS=
 
-# if no keysize is provided, default to 4096
-KEYSIZE=${1:-4096}
-# optional domain names
-DOMAINS=${2:-}
+function __usage
+{
+  cat << END
+Generate DKIM Configuration
+
+SYNOPSIS
+    ./setup.sh dkim [OPTIONS...] [LDAP DOMAINS]
+
+DESCRIPTION
+    Configures DKIM keys. OPTIONS can be used to configure a more complex setup. LDAP setups require these options.
+
+OPTIONS
+    Generic Program Information
+        help       Print the usage information.
+
+    Configuration adjustments
+        size       Set the size of the keys to be generated. Possible are 1024, 2024 (default) and 4096.
+        selector   Set a manual selector (default is "mail") for the key. (ATTENTION: NOT IMPLEMENTED YET!)
+
+LDAP DOMAINS:
+        domains    Provide the domains for which keys are to be generated.
+
+END
+}
+
+if [[ ${1} == 'help' ]]
+then
+  __usage
+  exit 0
+fi
+
+while [[ ${#} -gt 0 ]]
+do
+  case ${1} in
+    size )
+      if [[ -n ${2+'set'} ]]
+      then
+        KEYSIZE="${2}"
+        shift
+        shift
+      else
+        echo "No keysize provided after 'size' argument. Aborting." >&2
+        exit 1
+      fi
+      ;;
+
+    selector )
+      if [[ -n ${2+'set'} ]]
+      then
+        # shellcheck disable=SC2034
+        SELECTOR="${2}"
+        shift
+        shift
+      else
+        echo "No selector provided after 'selector' argument. Aborting." >&2
+        exit 1
+      fi
+      ;;
+
+    domain )
+      shift
+      if [[ -n ${*+'set'} ]]
+      then
+        DOMAINS="${*}"
+        break
+      else
+        echo "No domain(s) provided after 'domain' argument. Aborting." >&2
+        exit 1
+      fi
+      ;;
+
+    * )
+      __usage
+      echo -e "\nUnknown options ${1} ${2:-}. Aborting." >&2
+      exit 1
+      ;;
+
+  esac
+done
+
+touch /tmp/vhost.dkim.tmp
 
 if [[ -z ${DOMAINS} ]]
 then
@@ -16,7 +95,7 @@ then
     while IFS=$'|' read -r LOGIN PASS
     do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
-      echo "${DOMAIN}" >>/tmp/vhost.tmp
+      echo "${DOMAIN}" >>/tmp/vhost.dkim.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf || true)
   fi
 
@@ -29,23 +108,19 @@ then
       UNAME=$(echo "${FROM}" | cut -d @ -f1)
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
-      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
+      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.dkim.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   fi
 else
-  tr ',' '\n' <<< "${DOMAINS}" > /tmp/vhost.tmp
+  tr ',' '\n' <<< "${DOMAINS}" > /tmp/vhost.dkim.tmp
 fi
 
-# keeping unique entries
-if [[ -f /tmp/vhost.tmp ]]
-then
-  sort < /tmp/vhost.tmp | uniq >/tmp/vhost && rm /tmp/vhost.tmp
-fi
+sort < /tmp/vhost.dkim.tmp | uniq >/tmp/vhost
+rm /tmp/vhost.dkim.tmp
 
-# exit if no entries found
-if [[ ! -f /tmp/vhost ]]
+if [[ ! -s /tmp/vhost ]]
 then
-  echo "No entries found, no keys to make"
+  echo "No entries found, no keys to make."
   exit 0
 fi
 
@@ -57,7 +132,12 @@ do
   then
     echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/mail.private"
 
-    opendkim-genkey --bits="${KEYSIZE}" --subdomains --DOMAIN="${DOMAINNAME}" --selector=mail -D "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}"
+    opendkim-genkey \
+      --bits="${KEYSIZE}" \
+      --subdomains \
+      --DOMAIN="${DOMAINNAME}" \
+      --selector=mail \
+      -D "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}"
   fi
 
   # write to KeyTable if necessary
@@ -65,11 +145,11 @@ do
   if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]
   then
     echo "Creating DKIM KeyTable"
-    echo "${KEYTABLEENTRY}" > /tmp/docker-mailserver/opendkim/KeyTable
+    echo "${KEYTABLEENTRY}" >/tmp/docker-mailserver/opendkim/KeyTable
   else
     if ! grep -q "${KEYTABLEENTRY}" "/tmp/docker-mailserver/opendkim/KeyTable"
     then
-        echo "${KEYTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/KeyTable
+      echo "${KEYTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/KeyTable
     fi
   fi
 
@@ -82,12 +162,12 @@ do
   else
     if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable
     then
-      echo "${SIGNINGTABLEENTRY}" >> /tmp/docker-mailserver/opendkim/SigningTable
+      echo "${SIGNINGTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/SigningTable
     fi
   fi
 done < <(grep -vE '^(\s*$|#)' /tmp/vhost)
 
-# creates TrustedHosts if missing
+# create TrustedHosts if missing
 if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]
 then
   echo "Creating DKIM TrustedHosts"
