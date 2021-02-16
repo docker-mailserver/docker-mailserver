@@ -7,7 +7,7 @@ These certificates for usage with TLS have been generated via the [Smallstep `st
 `Certificate Details` sections are the output of: `step certificate inspect cert.<key type>.pem`.
 
 ---
-
+<!-- markdownlint-disable MD033 MD040 -->
 **RSA (2048-bit) - self-signed:**
 
 ```sh
@@ -143,3 +143,4 @@ Certificate:
 ```
 
 </details>
+<!-- markdownlint-enable MD033 MD040 -->

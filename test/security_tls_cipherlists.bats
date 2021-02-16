@@ -1,3 +1,4 @@
+#!/usr/bin/env bats
 load 'test_helper/common'
 
 function setup() {
@@ -58,11 +59,12 @@ function teardown_file() {
   skip 'this test must come first to reliably identify when to run setup_file'
 }
 
-@test "checking tls: cipher list configuration is correct for port 25" {
-    local PORT=25
-    local RESULTS_FILE="port_${PORT}.json"
+@test "checking tls: running testssl.sh tests on all mail ports" {
     local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
-    local RESULTS_FILEPATH="${RESULTS_PATH}/${RESULTS_FILE}"
+    local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel"
+    # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure
+    # If tests are failing consider testing a single port with:
+    # local TESTSSL_CMD="--quiet --jsonfile-pretty ${RESULTS_PATH}/port_${PORT}.json --starttls smtp ${DOMAIN}:${PORT}"
 
     # `--user "0:0"` is a workaround: Avoids `permission denied` write errors for results when directory is owned by root
     run docker run --rm \
@@ -71,39 +73,30 @@ function teardown_file() {
         --volume "${TLS_CONFIG_VOLUME}" \
         --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
         --workdir "/output" \
-        drwetter/testssl.sh:3.1dev --quiet --jsonfile-pretty "${RESULTS_FILE}" --starttls smtp "${DOMAIN}:${PORT}"
+        drwetter/testssl.sh:3.1dev ${TESTSSL_CMD}
     assert_success
+}
 
-    local CIPHERLIST_RSA_INTERMEDIATE_TLSv1_1='"ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA"'
-    compare_cipherlist "cipherorder_TLSv1" "${RESULTS_FILEPATH}" "${CIPHERLIST_RSA_INTERMEDIATE_TLSv1_1}"
-    compare_cipherlist "cipherorder_TLSv1_1" "${RESULTS_FILEPATH}" "${CIPHERLIST_RSA_INTERMEDIATE_TLSv1_1}"
+@test "checking tls: cipher list configuration is correct for port 25" {
+    local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
+    local RESULTS_FILE="${RESULTS_PATH}/port_25.json"
 
-    local CIPHERLIST_RSA_INTERMEDIATE_TLSv1_2='"ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA ARIA128-GCM-SHA256"'
-    compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILEPATH}" "${CIPHERLIST_RSA_INTERMEDIATE_TLSv1_2}"
-
-    local CIPHERLIST_TLSv1_3='"TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_128_GCM_SHA256"'
-    compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILEPATH}" "${CIPHERLIST_TLSv1_3}"
+    compare_cipherlist "cipherorder_TLSv1"   "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_p25')"
+    compare_cipherlist "cipherorder_TLSv1_1" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_1_p25')"
+    compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_2_p25')"
+    compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_3_p25')"
 }
 
 @test "checking tls: cipher list configuration is correct for ports 587, 465, 143, 993, 110, 995" {
     local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
 
-    run docker run --rm \
-        --user "0:0" \
-        --network "${NETWORK}" \
-        --volume "${TLS_CONFIG_VOLUME}" \
-        --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
-        --workdir "/output" \
-        drwetter/testssl.sh:3.1dev --file /config/ssl/testssl.txt --mode parallel
-    assert_success
-
-    # Explicit(587) and Implicit(465) TLS
+    # SMTP Submission: Mandatory STARTTLS Explicit(587) and Implicit(465) TLS
     check_cipherlists "${RESULTS_PATH}/port_587.json"
     check_cipherlists "${RESULTS_PATH}/port_465.json"
-    # IMAP Explicit(143) and Implicit(993) TLS
+    # IMAP: Mandatory STARTTLS Explicit(143) and Implicit(993) TLS
     check_cipherlists "${RESULTS_PATH}/port_143.json"
     check_cipherlists "${RESULTS_PATH}/port_993.json"
-    # POP3 Explicit(110) and Implicit(995)
+    # POP3: Mandatory STARTTLS Explicit(110) and Implicit(995)
     check_cipherlists "${RESULTS_PATH}/port_110.json"
     check_cipherlists "${RESULTS_PATH}/port_995.json"
 }
@@ -150,6 +143,13 @@ function get_cipherlist() {
         CIPHER_LIST["rsa_intermediate_TLSv1"]='"ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA"'
         CIPHER_LIST["rsa_intermediate_TLSv1_1"]=${CIPHER_LIST["rsa_intermediate_TLSv1"]}
         CIPHER_LIST["rsa_intermediate_TLSv1_2"]='"ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA"'
+
+        # Port 25
+        # TLSv1 and TLSv1_1 share the same cipher suites as other ports have. The server order differs.
+        # TLSv1_2 has different server order and ARIA, CCM, DHE+CHACHA20-POLY1305 cipher suites
+        CIPHER_LIST["rsa_intermediate_TLSv1_p25"]='"ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA"'
+        CIPHER_LIST["rsa_intermediate_TLSv1_1_p25"]=${CIPHER_LIST["rsa_intermediate_TLSv1_p25"]}
+        CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]='"ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA ARIA128-GCM-SHA256"'
 
         local TARGET_QUERY="${KEY_TYPE}_${TLS_LEVEL}_${TLS_VERSION}"
         echo "${CIPHER_LIST[${TARGET_QUERY}]}"
