@@ -10,7 +10,7 @@ function __usage
 Generate DKIM Configuration
 
 SYNOPSIS
-    ./setup.sh dkim [OPTIONS...] [LDAP DOMAINS]
+    ./setup.sh dkim [OPTIONS...]
 
 DESCRIPTION
     Configures DKIM keys. OPTIONS can be used to configure a more complex setup. LDAP setups require these options.
@@ -22,8 +22,6 @@ OPTIONS
     Configuration adjustments
         size       Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
         selector   Set a manual selector (default is "mail") for the key. (ATTENTION: NOT IMPLEMENTED YET!)
-
-LDAP DOMAINS:
         domains    Provide the domains for which keys are to be generated.
 
 END
@@ -64,10 +62,10 @@ do
       ;;
 
     domain )
-      shift
-      if [[ -n ${*+'set'} ]]
+      if [[ -n ${2+'set'} ]]
       then
-        DOMAINS="${*}"
+        DOMAINS="${2}"
+        break
         break
       else
         echo "No domain(s) provided after 'domain' argument. Aborting." >&2
