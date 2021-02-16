@@ -20,7 +20,7 @@ OPTIONS
         help       Print the usage information.
 
     Configuration adjustments
-        size       Set the size of the keys to be generated. Possible are 1024, 2024 (default) and 4096.
+        size       Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
         selector   Set a manual selector (default is "mail") for the key. (ATTENTION: NOT IMPLEMENTED YET!)
 
 LDAP DOMAINS:
