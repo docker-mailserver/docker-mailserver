@@ -130,7 +130,7 @@ function teardown_file
       -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
       -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
       -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-      "${IMAGE_NAME}" /bin/bash -c 'open-dkim size 4096 | wc -l'
+      "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 4096 | wc -l'
     assert_success
     assert_output 6
 
@@ -158,7 +158,7 @@ function teardown_file
       -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
       -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
       -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-      "${IMAGE_NAME}" /bin/bash -c 'open-dkim size 2048 | wc -l'
+      "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 | wc -l'
     assert_success
     assert_output 6
 
@@ -186,7 +186,7 @@ function teardown_file
       -v "${PRIVATE_CONFIG}/key1024/":/tmp/docker-mailserver/ \
       -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
       -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-      "${IMAGE_NAME}" /bin/bash -c 'open-dkim size 1024 | wc -l'
+      "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 1024 | wc -l'
     assert_success
     assert_output 6
 
@@ -309,21 +309,21 @@ function teardown_file
   # generate first key
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim size 2048 domain domain1.tld | wc -l'
+    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain domain1.tld | wc -l'
   assert_success
   assert_output 4
 
   # generate two additional keys different to the previous one
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim size 2048 domain "domain2.tld,domain3.tld" | wc -l'
+    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain "domain2.tld,domain3.tld" | wc -l'
   assert_success
   assert_output 2
 
   # generate an additional key whilst providing already existing domains
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim size 2048 domain "domain3.tld,domain4.tld" | wc -l'
+    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain "domain3.tld,domain4.tld" | wc -l'
   assert_success
   assert_output 1
 
