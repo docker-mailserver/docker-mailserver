@@ -142,7 +142,7 @@ SUBCOMMANDS:
 
   config:
 
-    ${0} config dkim [size <size>] [selector <selector>] [domain '<domain1.tld>[,<domain2.tld>...]']
+    ${0} config dkim [keysize <size>] [domain '<domain1.tld>[,<domain2.tld>...]']
     ${0} config ssl <fqdn>
 
   relay:
@@ -323,7 +323,7 @@ function _main
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; _docker_image generate-dkim-config "${@}" ;;
+        dkim     ) shift 2 ; _docker_image open-dkim "${@}" ;;
         ssl      ) shift 2 ; _docker_image generate-ssl-certificate "${1}" ;;
         *        ) _usage ;;
       esac

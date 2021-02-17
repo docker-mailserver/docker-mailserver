@@ -6,26 +6,45 @@ DOMAINS=
 
 function __usage
 {
-  cat << END
-Generate DKIM Configuration
+    echo -e "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
 
-SYNOPSIS
-    ./setup.sh config dkim [OPTIONS...]
+\e[38;5;214mNAME\e[39m
+    open-dkim - configure DomainKeys Identified Mail (DKIM)
 
-DESCRIPTION
+\e[38;5;214mSYNOPSIS\e[39m
+    ./setup.sh config dkim [ OPTIONS\e[31m...\e[39m ]
+
+\e[38;5;214mDESCRIPTION\e[39m
     Configures DKIM keys. OPTIONS can be used to configure a more complex setup.
     LDAP setups require these options.
 
-OPTIONS
-    Generic Program Information
+\e[38;5;214mOPTIONS\e[39m
+    \e[94mGeneric Program Information\e[39m
         help       Print the usage information.
 
-    Configuration adjustments
-        size       Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
-        selector   Set a manual selector (default is "mail") for the key. (ATTENTION: NOT IMPLEMENTED YET!)
+    \e[94mConfiguration adjustments\e[39m
+        keysize    Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
+        selector   Set a manual selector (default is 'mail') for the key. (\e[96mATTENTION\e[39m: NOT IMPLEMENTED YET!)
         domains    Provide the domains for which keys are to be generated.
 
-END
+\e[38;5;214mEXAMPLES\e[39m
+    \e[37m./setup.sh config dkim size 2048\e[39m
+        Creates keys of length 2048 bit in a default setup where domains are obtained from
+        your accounts.
+
+    \e[37m./setup.sh config dkim size 2048 selector 2021-dkim\e[39m
+        Creates keys of length 2048 bit in a default setup where domains are obtained from
+        your accounts. The DKIM selector used is '2021-dkim'.
+
+    \e[37m./setup.sh config dkim size 2048 selector 2021-dkim domain 'whoami.com,whoareyou.org'\e[39m
+        Appropriate for an LDAP setup. Creates keys of length 2048 bit in a default setup
+        where domains are obtained from your accounts. The DKIM selector used is '2021-dkim'.
+        The domains for which DKIM keys are generated are 'whoami.com' and 'whoareyou.org'.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
+    errors, the script will exit early with exit status 2.
+"
 }
 
 if [[ ${1:-} == 'help' ]]
@@ -37,7 +56,7 @@ fi
 while [[ ${#} -gt 0 ]]
 do
   case ${1} in
-    size )
+    keysize )
       if [[ -n ${2+'set'} ]]
       then
         KEYSIZE="${2}"
@@ -45,7 +64,7 @@ do
         shift
       else
         echo "No keysize provided after 'size' argument. Aborting." >&2
-        exit 1
+        exit 2
       fi
       ;;
 
@@ -58,7 +77,7 @@ do
         shift
       else
         echo "No selector provided after 'selector' argument. Aborting." >&2
-        exit 1
+        exit 2
       fi
       ;;
 
@@ -70,14 +89,14 @@ do
         break
       else
         echo "No domain(s) provided after 'domain' argument. Aborting." >&2
-        exit 1
+        exit 2
       fi
       ;;
 
     * )
       __usage
       echo -e "\nUnknown options ${1} ${2:-}. Aborting." >&2
-      exit 1
+      exit 2
       ;;
 
   esac
