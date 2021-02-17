@@ -8,12 +8,11 @@ function setup() {
 }
 
 function teardown() {
+    docker rm -f tls_test_cipherlists
     run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    export KEY_TYPE="rsa"
-    export TLS_LEVEL="intermediate"
     export DOMAIN="example.test"
     export NETWORK="test-network"
 
@@ -29,54 +28,17 @@ function setup_file() {
 
     # Copies all of `./test/config/` to specific directory for testing
     # `${PRIVATE_CONFIG}` becomes `$(pwd)/test/duplicate_configs/<bats test filename>`
-    local PRIVATE_CONFIG
+    export PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
-
-    docker run -d --name tls_test_cipherlists \
-        --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
-        --volume "${TLS_CONFIG_VOLUME}" \
-        --env DMS_DEBUG=0 \
-        --env ENABLE_POP3=1 \
-        --env SSL_TYPE="manual" \
-        --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem" \
-        --env SSL_KEY_PATH="/config/ssl/key.${KEY_TYPE}.pem" \
-        --env TLS_LEVEL="${TLS_LEVEL}" \
-        --network "${NETWORK}" \
-        --network-alias "${DOMAIN}" \
-        --hostname "mail.${DOMAIN}" \
-        --tty \
-        "${NAME}" # Image name
-    # `${NAME}` defaults to `mailserver-testing:ci`
-    wait_for_finished_setup_in_container tls_test_cipherlists
-    # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
 }
 
 function teardown_file() {
-    docker rm -f tls_test_cipherlists
     docker network rm "${NETWORK}"
     rm -rf "${TLS_RESULTS_DIR}"
 }
 
 @test "first" {
   skip 'this test must come first to reliably identify when to run setup_file'
-}
-
-@test "checking tls: running testssl.sh tests on all mail ports" {
-    local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
-    local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel"
-    # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure
-    # If tests are failing consider testing a single port with:
-    # local TESTSSL_CMD="--quiet --jsonfile-pretty ${RESULTS_PATH}/port_${PORT}.json --starttls smtp ${DOMAIN}:${PORT}"
-
-    # `--user "0:0"` is a workaround: Avoids `permission denied` write errors for results when directory is owned by root
-    run docker run --rm \
-        --user "0:0" \
-        --network "${NETWORK}" \
-        --volume "${TLS_CONFIG_VOLUME}" \
-        --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
-        --workdir "/output" \
-        drwetter/testssl.sh:3.1dev ${TESTSSL_CMD}
-    assert_success
 }
 
 @test "checking tls: cipher list - rsa intermediate" {
@@ -100,6 +62,8 @@ function check_ports() {
     local TLS_LEVEL=$2
     local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
 
+    collect_cipherlist_data
+
     # SMTP: Opportunistic STARTTLS Explicit(25)
     # Needs to test against cipher lists specific to Port 25 ('_p25' parameter)
     check_cipherlists "${RESULTS_PATH}/port_25.json" '_p25'
@@ -112,6 +76,42 @@ function check_ports() {
     # POP3: Mandatory STARTTLS Explicit(110) and Implicit(995)
     check_cipherlists "${RESULTS_PATH}/port_110.json"
     check_cipherlists "${RESULTS_PATH}/port_995.json"
+}
+
+function collect_cipherlist_data() {
+    run docker run -d --name tls_test_cipherlists \
+        --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
+        --volume "${TLS_CONFIG_VOLUME}" \
+        --env DMS_DEBUG=0 \
+        --env ENABLE_POP3=1 \
+        --env SSL_TYPE="manual" \
+        --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem" \
+        --env SSL_KEY_PATH="/config/ssl/key.${KEY_TYPE}.pem" \
+        --env TLS_LEVEL="${TLS_LEVEL}" \
+        --network "${NETWORK}" \
+        --network-alias "${DOMAIN}" \
+        --hostname "mail.${DOMAIN}" \
+        --tty \
+        "${NAME}" # Image name
+    assert_success
+
+    wait_for_finished_setup_in_container tls_test_cipherlists
+    # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
+
+    local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel"
+    # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
+    # If the failure for a test is misleading consider testing a single port with:
+    # local TESTSSL_CMD="--quiet --jsonfile-pretty ${RESULTS_PATH}/port_${PORT}.json --starttls smtp ${DOMAIN}:${PORT}"
+
+    # `--user "0:0"` is a workaround: Avoids `permission denied` write errors for results when directory is owned by root
+    run docker run --rm \
+        --user "0:0" \
+        --network "${NETWORK}" \
+        --volume "${TLS_CONFIG_VOLUME}" \
+        --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
+        --workdir "/output" \
+        drwetter/testssl.sh:3.1dev ${TESTSSL_CMD}
+    assert_success
 }
 
 # Use `jq` to extract a specific cipher list from the target`testssl.sh` results json output file
