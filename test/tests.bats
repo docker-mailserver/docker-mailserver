@@ -1242,17 +1242,16 @@ EOF
 # setup.sh
 #
 
-# CLI interface
-@test "checking setup.sh: Without arguments: status 1, show help text" {
+@test "setup.sh :: exit with error when no arguments provided" {
   run ./setup.sh
   assert_failure
-  assert_line --index 1 "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]"
+  assert_line --index 2 "    setup.sh - docker-mailserver administration script"
 }
 
-@test "checking setup.sh: Wrong arguments" {
+@test "setup.sh :: exit with error when wrong arguments provided" {
   run ./setup.sh lol troll
   assert_failure
-  assert_line --index 1 "Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]"
+  assert_line --index 2 "    setup.sh - docker-mailserver administration script"
 }
 
 # email
