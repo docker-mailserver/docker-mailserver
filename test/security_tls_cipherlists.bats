@@ -30,6 +30,9 @@ function setup_file() {
     # `${PRIVATE_CONFIG}` becomes `$(pwd)/test/duplicate_configs/<bats test filename>`
     export PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+
+    # Pull `testssl.sh` image in advance to avoid it triggering a test failure
+    docker pull drwetter/testssl.sh:3.1dev
 }
 
 function teardown_file() {
@@ -126,10 +129,7 @@ function compare_cipherlist() {
     local RESULTS_FILE=$2
     local EXPECTED_CIPHERLIST=$3
 
-    run docker run --rm \
-        --volume "${TLS_RESULTS_DIR}:/input" \
-        --workdir "/input" \
-        dwdraju/alpine-curl-jq jq '.scanResult[0].fs[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${RESULTS_FILE}"
+    run jq '.scanResult[0].fs[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${TLS_RESULTS_DIR}/${RESULTS_FILE}"
     assert_success
     assert_output "${EXPECTED_CIPHERLIST}"
 }
