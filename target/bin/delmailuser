@@ -13,10 +13,42 @@ ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
 QUOTA_DATABASE="/tmp/docker-mailserver/dovecot-quotas.cf"
 MAILDEL=false
 
-function usage
+function __usage
 {
-  echo "Usage: delmailuser [-y] <user@domain> [<user2@anotherdomain>]"
+  echo -e "\e[35mDELMAILUSER\e[31m(\e[93m8\e[31m)
+
+\e[38;5;214mNAME\e[39m
+    delmailuser - delete a user and related data
+
+\e[38;5;214mSYNOPSIS\e[39m
+    ./setup.sh email del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS 2>\e[31m...\e[39m] \e[31m|\e[39m help }
+
+\e[38;5;214mDESCRIPTION\e[39m
+    Delete a mail user, aliases, quotas and mail data.
+
+\e[38;5;214mOPTIONS\e[39m
+    -y    Inidicate that \e[1mall mail data\e[22m is to be deleted without another prompt.
+
+\e[38;5;214mEXAMPLES\e[39m
+    ./setup.sh email del -y test@domain.com another-test@domain.com
+        Delete all mail data for the users 'test' and 'another-test'
+        and do not prompt to ask if all mail data should be deleted.
+
+    ./setup.sh email del woohoo@some-domain.org
+        Delete the mail user, quotas and aliases, but ask again whether
+        mailbox data should be deleted.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful, and 1 if there is a an error.
+
+"
 }
+
+if [[ ${1} == 'help' ]]
+then
+  __usage
+  exit 0
+fi
 
 while getopts ":yY" OPT
 do
@@ -25,7 +57,8 @@ do
       MAILDEL=true
       ;;
     * )
-      usage
+      __usage
+      echo "The option ${OPT} is unknown." >&2
       exit 1
       ;;
   esac
@@ -65,7 +98,7 @@ fi
     then
       if ! sed -i "/^${USER}|/d" "${DATABASE}"
       then
-        echo "${USER} couldn't be deleted in ${DATABASE}." >&2
+        echo "${UNESCAPED_USER} couldn't be deleted in ${DATABASE}." >&2
         ERROR=true
       fi
     fi

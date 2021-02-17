@@ -127,7 +127,7 @@ SUBCOMMANDS:
 
     ${0} email add <email> [<password>]
     ${0} email update <email> [<password>]
-    ${0} email del <email>
+    ${0} email del [OPTIONS] <email>
     ${0} email restrict <add|del|list> <send|receive> [<email>]
     ${0} email list
 
