@@ -34,7 +34,7 @@ function setup_file() {
 
 function teardown_file() {
     docker network rm "${NETWORK}"
-    rm -rf "${TLS_RESULTS_DIR}"
+    rm -rf "/tmp/results"
 }
 
 @test "first" {
@@ -98,6 +98,8 @@ function collect_cipherlist_data() {
     wait_for_finished_setup_in_container tls_test_cipherlists
     # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
 
+    mkdir -p "${TLS_RESULTS_DIR}/${RESULTS_PATH}" && cd "${TLS_RESULTS_DIR}/${RESULTS_PATH}" || exit
+
     local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel"
     # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
     # If the failure for a test is misleading consider testing a single port with:
@@ -113,6 +115,9 @@ function collect_cipherlist_data() {
         --workdir "/output" \
         drwetter/testssl.sh:3.1dev ${TESTSSL_CMD}
     assert_success
+
+    cd "${BATS_TEST_DIRNAME}" || exit
+
 }
 
 # Use `jq` to extract a specific cipher list from the target`testssl.sh` results json output file
