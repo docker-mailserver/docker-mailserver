@@ -21,9 +21,9 @@ function setup_file() {
     TLS_CONFIG_VOLUME="$(pwd)/test/test-files/ssl/${DOMAIN}/:/config/ssl/:ro"
     # `${BATS_TMPDIR}` maps to `/tmp`
     export TLS_RESULTS_DIR="${BATS_TMPDIR}/results"
+    mkdir -p "${TLS_RESULTS_DIR}"
 
-    # If the directory or network already exist, test will fail to start
-    mkdir "${TLS_RESULTS_DIR}"
+    # If the network already exists, test will fail to start
     docker network create "${NETWORK}"
 
     # Copies all of `./test/config/` to specific directory for testing
@@ -103,9 +103,10 @@ function collect_cipherlist_data() {
     # If the failure for a test is misleading consider testing a single port with:
     # local TESTSSL_CMD="--quiet --jsonfile-pretty ${RESULTS_PATH}/port_${PORT}.json --starttls smtp ${DOMAIN}:${PORT}"
 
-    # `--user "0:0"` is a workaround: Avoids `permission denied` write errors for results when directory is owned by root
+    # `--user "<uid>:<gid>"` is a workaround: Avoids `permission denied` write errors for json output, uses `id` to match user uid & gid.
+    # shellcheck disable=SC2086 # ${TESTSSL_CMD} doesn't work with double quotes
     run docker run --rm \
-        --user "0:0" \
+        --user "$(id -u):$(id -g)" \
         --network "${NETWORK}" \
         --volume "${TLS_CONFIG_VOLUME}" \
         --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
