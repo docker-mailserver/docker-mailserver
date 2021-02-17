@@ -27,7 +27,11 @@ function __usage
     Delete a mail user, aliases, quotas and mail data.
 
 \e[38;5;214mOPTIONS\e[39m
-    -y    Inidicate that \e[1mall mail data\e[22m is to be deleted without another prompt.
+    -y
+        Indicate that \e[1mall mail data\e[22m is to be deleted without another prompt.
+
+    -h
+        Show this help dialogue.
 
 \e[38;5;214mEXAMPLES\e[39m
     ./setup.sh email del -y test@domain.com another-test@domain.com
@@ -39,8 +43,7 @@ function __usage
         mailbox data should be deleted.
 
 \e[38;5;214mEXIT STATUS\e[39m
-    Exit status is 0 if command was successful, and 1 if there is a an error.
-
+    Exit status is 0 if command was successful, and 1 if there was an error.
 "
 }
 
@@ -50,17 +53,24 @@ then
   exit 0
 fi
 
-while getopts ":yY" OPT
+while getopts ":yYh" OPT
 do
   case ${OPT} in
     y | Y )
       MAILDEL=true
       ;;
+
+    h )
+      __usage
+      exit 0
+      ;;
+
     * )
       __usage
       echo "The option ${OPT} is unknown." >&2
       exit 1
       ;;
+
   esac
 done
 shift $((OPTIND-1))
