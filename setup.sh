@@ -134,6 +134,7 @@ function _usage
         -p PATH
             Provides the config folder path. The default is
             \e[37m${CDIR}/config/\e[39m
+
     \e[94mSELinux\e[39m
         -z
             Allows container access to the bind mount content that is shared among
