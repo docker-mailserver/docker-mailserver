@@ -1,12 +1,14 @@
 SHELL = /bin/bash
 
-NAME    ?= mailserver-testing:ci
-VCS_REF := $(shell git rev-parse --short HEAD)
-VCS_VER := $(shell git describe --tags --contains --always)
+NAME   ?= mailserver-testing:ci
+VCS_REF = $(shell git rev-parse --short HEAD)
+VCS_VER = $(shell git describe --tags --contains --always)
 
-HADOLINT_VERSION   := 1.19.0
-SHELLCHECK_VERSION := 0.7.1
-ECLINT_VERSION     := 2.3.1
+HADOLINT_VERSION   = 1.19.0
+SHELLCHECK_VERSION = 0.7.1
+ECLINT_VERSION     = 2.3.1
+
+export CDIR = $(shell pwd)
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Generic Build Targets –––––––––––––––––––––
@@ -42,7 +44,8 @@ generate-accounts:
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
 tests:
-	@ NAME=$(NAME) ./test/bats/bin/bats test/*.bats
+# @ NAME=$(NAME) ./test/bats/bin/bats test/*.bats
+	@ NAME=$(NAME) ./test/bats/bin/bats test/open_dkim.bats
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
