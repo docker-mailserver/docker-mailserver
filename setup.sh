@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# version   v0.2.4 stable
+# version   v0.2.5 stable
 # executed  manually (via Make)
 # task      wrapper for various setup scripts
 
@@ -331,27 +331,27 @@ function _main
 
   case ${1:-} in
 
-    email)
-      shift ; case ${1:-} in
-        add      ) shift ; _docker_image addmailuser "${@}" ;;
-        update   ) shift ; _docker_image updatemailuser "${@}" ;;
-        del      ) shift ; _docker_image delmailuser "${@}" ;;
-        restrict ) shift ; _docker_container restrict-access "${@}" ;;
+    email )
+      case ${2:-} in
+        add      ) shift 2 ; _docker_image addmailuser "${@}" ;;
+        update   ) shift 2 ; _docker_image updatemailuser "${@}" ;;
+        del      ) shift 2 ; _docker_image delmailuser "${@}" ;;
+        restrict ) shift 2 ; _docker_container restrict-access "${@}" ;;
         list     ) _docker_image listmailuser ;;
         *        ) _usage ;;
       esac
       ;;
 
-    alias)
-      shift ; case ${1:-} in
-        add      ) shift ; _docker_image addalias "${1}" "${2}" ;;
-        del      ) shift ; _docker_image delalias "${1}" "${2}" ;;
-        list     ) shift ; _docker_image listalias ;;
+    alias )
+      case ${2:-} in
+        add      ) shift 2 ; _docker_image addalias "${1}" "${2}" ;;
+        del      ) shift 2 ; _docker_image delalias "${1}" "${2}" ;;
+        list     ) shift 2 ; _docker_image listalias ;;
         *        ) _usage ;;
       esac
       ;;
 
-    quota)
+    quota )
       shift ; case ${1:-} in
         set      ) shift ; _docker_image setquota "${@}" ;;
         del      ) shift ; _docker_image delquota "${@}" ;;
@@ -359,39 +359,39 @@ function _main
       esac
       ;;
 
-    config)
-      shift ; case ${1:-} in
-        dkim     ) _docker_image generate-dkim-config "${2:-4096}" "${3:-}" ;;
-        ssl      ) _docker_image generate-ssl-certificate "${2}" ;;
+    config )
+      case ${2:-} in
+        dkim     ) shift 2 ; _docker_image open-dkim "${@}" ;;
+        ssl      ) shift 2 ; _docker_image generate-ssl-certificate "${1}" ;;
         *        ) _usage ;;
       esac
       ;;
 
-    relay)
-      shift ; case ${1:-} in
-        add-domain     ) shift ; _docker_image addrelayhost "${@}" ;;
-        add-auth       ) shift ; _docker_image addsaslpassword "${@}" ;;
-        exclude-domain ) shift ; _docker_image excluderelaydomain "${@}" ;;
+    relay )
+      case ${2:-} in
+        add-domain     ) shift 2 ; _docker_image addrelayhost "${@}" ;;
+        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@}" ;;
+        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@}" ;;
         *              ) _usage ;;
       esac
       ;;
 
-    debug)
-      shift ; case ${1:-} in
+    debug )
+      case ${2:-} in
         fetchmail      ) _docker_image debug-fetchmail ;;
-        fail2ban       ) shift ; _docker_container fail2ban "${@}" ;;
+        fail2ban       ) shift 2 ; _docker_container fail2ban "${@}" ;;
         show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
         login          )
-          shift
-          if [[ -z ${1:-''} ]]
+          shift 2
+          if [[ -z ${1:-} ]]
           then
             _docker_container /bin/bash
           else
             _docker_container /bin/bash -c "${@}"
           fi
           ;;
-        *        ) _usage ; exit 1 ;;
+        * ) _usage ; exit 1 ;;
       esac
       ;;
 
