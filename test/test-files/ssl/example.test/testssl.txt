@@ -1,0 +1,10 @@
+# Provides commands for `testssl.sh` `--file` option to run multiple tests with
+--jsonfile-pretty port_25.json --starttls smtp example.test:25
+--jsonfile-pretty port_587.json --starttls smtp example.test:587
+--jsonfile-pretty port_465.json example.test:465
+
+--jsonfile-pretty port_110.json --starttls pop3 example.test:110
+--jsonfile-pretty port_995.json example.test:995
+
+--jsonfile-pretty port_143.json --starttls imap example.test:143
+--jsonfile-pretty port_993.json example.test:993
