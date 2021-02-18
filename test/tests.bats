@@ -1130,7 +1130,7 @@ EOF
 @test "setup.sh :: setup.sh config dkim help correctly displayed" {
   run ./setup.sh -c mail config dkim help
   assert_success
-  assert_line --index 3 "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
+  assert_line --index 3 --partial "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
 }
 
 # debug
