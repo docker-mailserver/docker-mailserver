@@ -114,8 +114,8 @@ function _usage
 
     Please note that the script executes most of the commands inside the container itself.
     If the image was not found, this script will pull the \e[37m:latest\e[39m tag of
-    \e[37mmailserver/docker-mailserver\e[39m. This tag refers to the latest release, see the
-    tagging convention in the README under
+    \e[37mmailserver/docker-mailserver\e[39m. This tag refers to the latest release,
+    see the tagging convention in the README under
     \e[34mhttps://github.com/docker-mailserver/docker-mailserver/blob/master/README.md\e[39m
 
     You will be able to see detailed information about the script you're invoking and
@@ -182,21 +182,21 @@ function _usage
 
 \e[38;5;214mEXAMPLES\e[39m
     \e[37m./setup.sh email add test@domain.tld\e[39m
-        Add the email account \e[37mtest@domain.tld\e[39m. You will be prompted to input a
-        password afterwards since no password was supplied.
+        Add the email account \e[37mtest@domain.tld\e[39m. You will be prompted
+        to input a password afterwards since no password was supplied.
 
     \e[37m./setup.sh config dkim size 2048 domain 'whoami.com,whoareyou.org'\e[39m
-        Creates keys of length 2048 but in an LDAP setup where domains are not known to Postfix
-        by default, so you need to provide them yourself in a comma-separated list.
+        Creates keys of length 2048 but in an LDAP setup where domains are not known to
+        Postfix by default, so you need to provide them yourself in a comma-separated list.
 
     \e[37m./setup.sh config dkim help\e[39m
-        This will provide you with a detailed explanation on how to use the \e[37mconfig
-        dkim\e[39m command, showing what arguments can be passed and what they do.
+        This will provide you with a detailed explanation on how to use the \e[37m
+        config dkim\e[39m command, showing what arguments can be passed and what they do.
 
 \e[38;5;214mEXIT STATUS\e[39m
     Exit status is 0 if the command was successful. If there was an unexpected error, an error
-    message is shown describing the error. This is useful to post in case you're opening an issue.
-    In case of an error, the script will exit with exit status 0.
+    message is shown describing the error. In case of an error, the script will exit with exit
+    status 1.
 
 "
 }
