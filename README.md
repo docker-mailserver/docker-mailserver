@@ -74,19 +74,29 @@ All workflows are using the **tagging convention** listed below. It is subsequen
 
 ### Get the tools
 
-Download the `docker-compose.yml`, `compose.env`, `mailserver.env` and the `setup.sh` files:
+Download `docker-compose.yml`, `compose.env`, `mailserver.env`
 
 ``` BASH
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
+wget -O .env https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/compose.env
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/docker-compose.yml
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/mailserver.env
-wget -O .env https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/compose.env
+```
+
+and the `setup.sh`
+
+``` BASH
+# if you're using :edge as the image tag
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
+# if you're using :latest (= :8.0.1) as the image tag
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v8.0.1/setup.sh
 
 chmod a+x ./setup.sh
 
 # and make yourself familiar with the script
 ./setup.sh help
 ```
+
+**Make sure to get the `setup.sh` that comes with the release you're using**. Look up the release and the git commit on which this release is based upon by selecting the appropriate tag on GitHub. This is done to rule out possible inconsistencies between versions.
 
 ### Create a docker-compose environment
 
