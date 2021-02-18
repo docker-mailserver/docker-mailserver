@@ -97,15 +97,16 @@ function _inspect
 
 function _usage
 {
-  echo -e "\e[35mSETUP\e[31m(\e[93m1\e[31m)
+  # shellcheck disable=SC2059
+  printf "\e[35mSETUP\e[31m(\e[93m1\e[31m)
 
 \e[38;5;214mNAME\e[39m
     ${SCRIPT:-${0}} - docker-mailserver administration script
 
 \e[38;5;214mSYNOPSIS\e[39m
-    ./${SCRIPT:-${0}} [ OPTIONS\e[31m...\e[39m ] OBJECT COMMAND [ help \e[31m|\e[39m ARGUMENTS\e[31m...\e[39m ]
+    ./${SCRIPT:-${0}} [ OPTIONS\e[31m...\e[39m ] COMMAND [ help \e[31m|\e[39m ARGUMENTS\e[31m...\e[39m ]
 
-    OBJECT \e[31m:=\e[39m { email \e[31m|\e[39m alias \e[31m|\e[39m quota \e[31m|\e[39m config \e[31m|\e[39m relay \e[31m|\e[39m debug }
+    COMMAND \e[31m:=\e[39m { email \e[31m|\e[39m alias \e[31m|\e[39m quota \e[31m|\e[39m config \e[31m|\e[39m relay \e[31m|\e[39m debug } SUBCOMMAND
 
 \e[38;5;214mDESCRIPTION\e[39m
     This is the main administration script that you use for all interactions with your
@@ -146,33 +147,33 @@ function _usage
         -h \e[31m|\e[39m help
             Shows this help dialogue.
 
-\e[38;5;214mCOMMAND\e[39m
-    \e[94mOBJECT\e[39m email \e[31m:=\e[39m
+\e[31m[\e[38;5;214mSUB\e[31m]\e[38;5;214mCOMMANDS\e[39m
+    \e[94mCOMMAND\e[39m email \e[31m:=\e[39m
         ${0} email add <EMAIL ADDRESS> [<PASSWORD>]
         ${0} email update <EMAIL ADDRESS> [<PASSWORD>]
-        ${0} email del [ ARGUMENTS\e[31m...\e[39m ] <EMAIL ADDRESS>
+        ${0} email del [ OPTIONS\e[31m...\e[39m ] <EMAIL ADDRESS>
         ${0} email restrict <add\e[31m|\e[39mdel\e[31m|\e[39mlist> <send\e[31m|\e[39mreceive> [<EMAIL ADDRESS>]
         ${0} email list
 
-    \e[94mOBJECT\e[39m alias \e[31m:=\e[39m
+    \e[94mCOMMAND\e[39m alias \e[31m:=\e[39m
         ${0} alias add <EMAIL ADDRESS> <RECIPIENT>
         ${0} alias del <EMAIL ADDRESS> <RECIPIENT>
         ${0} alias list
 
-    \e[94mOBJECT\e[39m quota \e[31m:=\e[39m
+    \e[94mCOMMAND\e[39m quota \e[31m:=\e[39m
         ${0} quota set <EMAIL ADDRESS> [<QUOTA>]
         ${0} quota del <EMAIL ADDRESS>
 
-    \e[94mOBJECT\e[39m config \e[31m:=\e[39m
+    \e[94mCOMMAND\e[39m config \e[31m:=\e[39m
         ${0} config dkim [ ARGUMENTS\e[31m...\e[39m ]
         ${0} config ssl <FQDN> (\e[96mATTENTION\e[39m: This is deprecated and will be removed soon.)
 
-    \e[94mOBJECT\e[39m relay \e[31m:=\e[39m
+    \e[94mCOMMAND\e[39m relay \e[31m:=\e[39m
         ${0} relay add-domain <DOMAIN> <HOST> [<PORT>]
         ${0} relay add-auth <DOMAIN> <USERNAME> [<PASSWORD>]
         ${0} relay exclude-domain <DOMAIN>
 
-    \e[94mOBJECT\e[39m debug \e[31m:=\e[39m
+    \e[94mCOMMAND\e[39m debug \e[31m:=\e[39m
         ${0} debug fetchmail
         ${0} debug fail2ban [unban <IP>]
         ${0} debug show-mail-logs
@@ -184,9 +185,9 @@ function _usage
         Add the email account \e[37mtest@domain.tld\e[39m. You will be prompted to input a
         password afterwards since no password was supplied.
 
-    \e[37m./setup.sh config dkim size 2048 selector ds\e[39m
-        Creates keys of length 2048 bit in a default setup where domains are obtained from
-        your accounts. The DKIM selector used is 'ds'.
+    \e[37m./setup.sh config dkim size 2048 domain 'whoami.com,whoareyou.org'\e[39m
+        Creates keys of length 2048 but in an LDAP setup where domains are not known to Postfix
+        by default, so you need to provide them yourself in a comma-separated list.
 
     \e[37m./setup.sh config dkim help\e[39m
         This will provide you with a detailed explanation on how to use the \e[37mconfig
@@ -195,6 +196,8 @@ function _usage
 \e[38;5;214mEXIT STATUS\e[39m
     Exit status is 0 if the command was successful. If there was an unexpected error, an error
     message is shown describing the error. This is useful to post in case you're opening an issue.
+    In case of an error, the script will exit with exit status 0.
+
 "
 }
 
