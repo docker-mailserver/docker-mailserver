@@ -21,9 +21,8 @@ function setup_file() {
     TLS_CONFIG_VOLUME="$(pwd)/test/test-files/ssl/${DOMAIN}/:/config/ssl/:ro"
     # `${BATS_TMPDIR}` maps to `/tmp`
     export TLS_RESULTS_DIR="${BATS_TMPDIR}/results"
-    mkdir -p "${TLS_RESULTS_DIR}"
 
-    # If the network already exists, test will fail to start
+    # NOTE: If the network already exists, test will fail to start.
     docker network create "${NETWORK}"
 
     # Copies all of `./test/config/` to specific directory for testing
@@ -31,13 +30,13 @@ function setup_file() {
     export PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
 
-    # Pull `testssl.sh` image in advance to avoid it triggering a test failure
+    # Pull `testssl.sh` image in advance to avoid it interfering with the `run` captured output.
+    # Only interferes (potential test failure) with `assert_output` not `assert_success`?
     docker pull drwetter/testssl.sh:3.1dev
 }
 
 function teardown_file() {
     docker network rm "${NETWORK}"
-    rm -rf "/tmp/results"
 }
 
 @test "first" {
@@ -101,12 +100,18 @@ function collect_cipherlist_data() {
     wait_for_finished_setup_in_container tls_test_cipherlists
     # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
 
-    mkdir -p "${TLS_RESULTS_DIR}/${RESULTS_PATH}" && cd "${TLS_RESULTS_DIR}/${RESULTS_PATH}" || exit
+    # Make directory with test user ownership. Avoids Docker creating with root ownership.
+    # TODO: Can switch to filename prefix for JSON output when this is resolved: https://github.com/drwetter/testssl.sh/issues/1845
+    mkdir -p "${TLS_RESULTS_DIR}/${RESULTS_PATH}"
 
-    local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel"
+    # For non-CI test runs, instead of removing prior test files after this test suite completes,
+    # they're retained and overwritten by future test runs instead. Useful for inspection.
+    # `--preference` reduces the test scope to the cipher suites reported as supported by the server. Completes in ~35% of the time.
+    local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel --overwrite --preference"
     # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
     # If the failure for a test is misleading consider testing a single port with:
     # local TESTSSL_CMD="--quiet --jsonfile-pretty ${RESULTS_PATH}/port_${PORT}.json --starttls smtp ${DOMAIN}:${PORT}"
+    # TODO: Can use `jq` to check for failure when this is resolved: https://github.com/drwetter/testssl.sh/issues/1844
 
     # `--user "<uid>:<gid>"` is a workaround: Avoids `permission denied` write errors for json output, uses `id` to match user uid & gid.
     # shellcheck disable=SC2086 # ${TESTSSL_CMD} doesn't work with double quotes
@@ -118,9 +123,6 @@ function collect_cipherlist_data() {
         --workdir "/output" \
         drwetter/testssl.sh:3.1dev ${TESTSSL_CMD}
     assert_success
-
-    cd "${BATS_TEST_DIRNAME}" || exit
-
 }
 
 # Use `jq` to extract a specific cipher list from the target`testssl.sh` results json output file
