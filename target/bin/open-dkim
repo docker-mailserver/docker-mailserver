@@ -64,7 +64,7 @@ do
         shift
         shift
       else
-        echo "No keysize provided after 'size' argument. Aborting." >&2
+        echo "No keysize provided after 'keysize' argument. Aborting." >&2
         exit 2
       fi
       ;;
@@ -86,8 +86,8 @@ do
       if [[ -n ${2+'set'} ]]
       then
         DOMAINS="${2}"
-        break
-        break
+        shift
+        shift
       else
         echo "No domain(s) provided after 'domain' argument. Aborting." >&2
         exit 2
