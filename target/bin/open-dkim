@@ -6,7 +6,7 @@ DOMAINS=
 
 function __usage
 {
-    echo -e "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
+    printf "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
     open-dkim - configure DomainKeys Identified Mail (DKIM)
@@ -44,6 +44,7 @@ function __usage
 \e[38;5;214mEXIT STATUS\e[39m
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
     errors, the script will exit early with exit status 2.
+
 "
 }
 

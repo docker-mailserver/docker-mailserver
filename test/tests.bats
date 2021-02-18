@@ -1127,10 +1127,10 @@ EOF
   assert_failure
 }
 
-@test "checking setup.sh: setup.sh dkim help" {
-  run ./setup.sh -c mail dkim help
+@test "checking setup.sh: setup.sh config dkim help" {
+  run ./setup.sh -c mail config dkim help
   assert_success
-  assert_line --index 1 "Generate DKIM Configuration"
+  assert_line --index 2 "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
 }
 
 # debug
