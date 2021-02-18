@@ -83,6 +83,9 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 wget -O .env https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/compose.env
 
 chmod a+x ./setup.sh
+
+# and make yourself familiar with the script
+./setup.sh help
 ```
 
 ### Create a docker-compose environment
@@ -159,7 +162,7 @@ If you'd like to change, patch or alter files or behavior of `docker-mailserver`
 
 _notify 'Applying user-patches'
 
-if ! grep '192.168.0.1' /etc/hosts
+if ! grep -q '192.168.0.1' /etc/hosts
 then
   echo -e '192.168.0.1 some.domain.com' >> /etc/hosts
 fi

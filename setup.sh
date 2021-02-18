@@ -97,71 +97,107 @@ function _inspect
 
 function _usage
 {
-  echo "${SCRIPT:-${0}} Bootstrapping Script
+  # shellcheck disable=SC2059
+  printf "\e[35mSETUP\e[31m(\e[93m1\e[31m)
 
-Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
+\e[38;5;214mNAME\e[39m
+    ${SCRIPT:-${0}} - docker-mailserver administration script
 
-OPTIONS:
+\e[38;5;214mSYNOPSIS\e[39m
+    ./${SCRIPT:-${0}} [ OPTIONS\e[31m...\e[39m ] COMMAND [ help \e[31m|\e[39m ARGUMENTS\e[31m...\e[39m ]
 
-  -i IMAGE_NAME     The name of the docker-mailserver image
-                    The default value is
-                    'docker.io/mailserver/docker-mailserver:latest'
+    COMMAND \e[31m:=\e[39m { email \e[31m|\e[39m alias \e[31m|\e[39m quota \e[31m|\e[39m config \e[31m|\e[39m relay \e[31m|\e[39m debug } SUBCOMMAND
 
-  -c CONTAINER_NAME The name of the running container.
+\e[38;5;214mDESCRIPTION\e[39m
+    This is the main administration script that you use for all interactions with your
+    mail server. Setup, configuration and much more is done with this script.
 
-  -p PATH           Config folder path (default: ${CDIR}/config)
+    Please note that the script executes most of the commands inside the container itself.
+    If the image was not found, this script will pull the \e[37m:latest\e[39m tag of
+    \e[37mmailserver/docker-mailserver\e[39m. This tag refers to the latest release,
+    see the tagging convention in the README under
+    \e[34mhttps://github.com/docker-mailserver/docker-mailserver/blob/master/README.md\e[39m
 
-  -h                Show this help dialogue
+    You will be able to see detailed information about the script you're invoking and
+    its arguments by appending \e[37mhelp\e[39m after your command. Currently, this
+    does not work with all scripts.
 
-  -z                Allow container access to the bind mount content
-                    that is shared among multiple containers
-                    on a SELinux-enabled host.
+\e[38;5;214mOPTIONS\e[39m
+    \e[94mConfig path, container or image adjustments\e[39m
+        -i IMAGE_NAME
+            Provides the name of the docker-mailserver image. The default value is
+            \e[37mdocker.io/mailserver/docker-mailserver:latest\e[39m
 
-  -Z                Allow container access to the bind mount content
-                    that is private and unshared with other containers
-                    on a SELinux-enabled host.
+        -c CONTAINER_NAME
+            Provides the name of the running container.
 
-SUBCOMMANDS:
+        -p PATH
+            Provides the config folder path. The default is
+            \e[37m${CDIR}/config/\e[39m
 
-  email:
+    \e[94mSELinux\e[39m
+        -z
+            Allows container access to the bind mount content that is shared among
+            multiple containers on a SELinux-enabled host.
 
-    ${0} email add <email> [<password>]
-    ${0} email update <email> [<password>]
-    ${0} email del [OPTIONS] <email>
-    ${0} email restrict <add|del|list> <send|receive> [<email>]
-    ${0} email list
+        -Z
+            Allows container access to the bind mount content that is private and
+            unshared with other containers on a SELinux-enabled host.
 
-  alias:
+    \e[94mOthers\e[39m
+        -h \e[31m|\e[39m help
+            Shows this help dialogue.
 
-    ${0} alias add <email> <recipient>
-    ${0} alias del <email> <recipient>
-    ${0} alias list
+\e[31m[\e[38;5;214mSUB\e[31m]\e[38;5;214mCOMMANDS\e[39m
+    \e[94mCOMMAND\e[39m email \e[31m:=\e[39m
+        ${0} email add <EMAIL ADDRESS> [<PASSWORD>]
+        ${0} email update <EMAIL ADDRESS> [<PASSWORD>]
+        ${0} email del [ OPTIONS\e[31m...\e[39m ] <EMAIL ADDRESS>
+        ${0} email restrict <add\e[31m|\e[39mdel\e[31m|\e[39mlist> <send\e[31m|\e[39mreceive> [<EMAIL ADDRESS>]
+        ${0} email list
 
-  quota:
+    \e[94mCOMMAND\e[39m alias \e[31m:=\e[39m
+        ${0} alias add <EMAIL ADDRESS> <RECIPIENT>
+        ${0} alias del <EMAIL ADDRESS> <RECIPIENT>
+        ${0} alias list
 
-    ${0} quota set <email> [<quota>]
-    ${0} quota del <email>
+    \e[94mCOMMAND\e[39m quota \e[31m:=\e[39m
+        ${0} quota set <EMAIL ADDRESS> [<QUOTA>]
+        ${0} quota del <EMAIL ADDRESS>
 
-  config:
+    \e[94mCOMMAND\e[39m config \e[31m:=\e[39m
+        ${0} config dkim [ ARGUMENTS\e[31m...\e[39m ]
+        ${0} config ssl <FQDN> (\e[96mATTENTION\e[39m: This is deprecated and will be removed soon.)
 
-    ${0} config dkim [keysize <size>] [domain '<domain1.tld>[,<domain2.tld>...]']
-    ${0} config ssl <fqdn>
+    \e[94mCOMMAND\e[39m relay \e[31m:=\e[39m
+        ${0} relay add-domain <DOMAIN> <HOST> [<PORT>]
+        ${0} relay add-auth <DOMAIN> <USERNAME> [<PASSWORD>]
+        ${0} relay exclude-domain <DOMAIN>
 
-  relay:
+    \e[94mCOMMAND\e[39m debug \e[31m:=\e[39m
+        ${0} debug fetchmail
+        ${0} debug fail2ban [unban <IP>]
+        ${0} debug show-mail-logs
+        ${0} debug inspect
+        ${0} debug login <COMMANDS>
 
-    ${0} relay add-domain <domain> <host> [<port>]
-    ${0} relay add-auth <domain> <username> [<password>]
-    ${0} relay exclude-domain <domain>
+\e[38;5;214mEXAMPLES\e[39m
+    \e[37m./setup.sh email add test@domain.tld\e[39m
+        Add the email account \e[37mtest@domain.tld\e[39m. You will be prompted
+        to input a password afterwards since no password was supplied.
 
-  debug:
+    \e[37m./setup.sh config dkim size 2048 domain 'whoami.com,whoareyou.org'\e[39m
+        Creates keys of length 2048 but in an LDAP setup where domains are not known to
+        Postfix by default, so you need to provide them yourself in a comma-separated list.
 
-    ${0} debug fetchmail
-    ${0} debug fail2ban [<unban> <ip-address>]
-    ${0} debug show-mail-logs
-    ${0} debug inspect
-    ${0} debug login <commands>
+    \e[37m./setup.sh config dkim help\e[39m
+        This will provide you with a detailed explanation on how to use the \e[37m
+        config dkim\e[39m command, showing what arguments can be passed and what they do.
 
-  help: Show this help dialogue
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if the command was successful. If there was an unexpected error, an error
+    message is shown describing the error. In case of an error, the script will exit with exit
+    status 1.
 
 "
 }
