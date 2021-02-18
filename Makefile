@@ -44,8 +44,7 @@ generate-accounts:
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
 tests:
-# @ NAME=$(NAME) ./test/bats/bin/bats test/*.bats
-	@ NAME=$(NAME) ./test/bats/bin/bats test/open_dkim.bats
+	@ NAME=$(NAME) ./test/bats/bin/bats test/*.bats
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
