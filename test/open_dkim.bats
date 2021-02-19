@@ -379,7 +379,7 @@ function teardown_file
   assert_output 4
 }
 
-@test "checking opendkim: generator creates keys, tables and TrustedHosts using manual provided selector name" {
+@test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
   rm -rf "${PRIVATE_CONFIG}/with-selector" && mkdir -p "${PRIVATE_CONFIG}/with-selector"
