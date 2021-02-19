@@ -387,7 +387,7 @@ function teardown_file
   # Generate first key
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-selector/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c 'generate-dkim-config 2048 domain1.tld mailer| wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c 'open-dkim keysize 2048 domain 'domain1.tld' selector mailer| wc -l'
   assert_success
   assert_output 4
 
