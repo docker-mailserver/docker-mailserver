@@ -25,7 +25,7 @@ function __usage
     \e[94mConfiguration adjustments\e[39m
         keysize    Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
         selector   Set a manual selector (default is 'mail') for the key. (\e[96mATTENTION\e[39m: NOT IMPLEMENTED YET!)
-        domains    Provide the domains for which keys are to be generated.
+        domain     Provide the domain(s) for which keys are to be generated.
 
 \e[38;5;214mEXAMPLES\e[39m
     \e[37m./setup.sh config dkim size 2048\e[39m
