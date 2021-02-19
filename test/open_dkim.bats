@@ -401,7 +401,7 @@ function teardown_file
   # Check key names with selector for domain1.tld
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld | grep -E 'mailer.private|mailer.txt' | wc -l'
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim/keys/domain1.tld | grep -E 'mailer.private|mailer.txt' | wc -l"
   assert_success
   assert_output 2
 
