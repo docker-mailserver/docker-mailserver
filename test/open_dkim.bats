@@ -416,15 +416,15 @@ function teardown_file
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
     "${IMAGE_NAME:?}" /bin/sh -c \
-    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/KeyTable | wc -l"
+    "grep 'domain1.tld' /etc/opendkim/KeyTable | wc -l"
   assert_success
-  assert_output 4
+  assert_output 1
   
   # Check valid entries actually present in SigningTable
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
     "${IMAGE_NAME:?}" /bin/sh -c \
-    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/SigningTable | wc -l"
+    "grep 'domain1.tld' /etc/opendkim/SigningTable | wc -l"
   assert_success
-  assert_output 4
+  assert_output 1
 }
