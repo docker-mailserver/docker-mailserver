@@ -82,7 +82,7 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/mailserver.env
 ```
 
-and the `setup.sh`
+and the `setup.sh` **in the correct version**
 
 ``` BASH
 # if you're using :edge as the image tag
@@ -96,7 +96,7 @@ chmod a+x ./setup.sh
 ./setup.sh help
 ```
 
-**Make sure to get the `setup.sh` that comes with the release you're using**. Look up the release and the git commit on which this release is based upon by selecting the appropriate tag on GitHub. This is done to rule out possible inconsistencies between versions.
+**Make sure to get the `setup.sh` that comes with the release you're using**. Look up the release and the git commit on which this release is based upon by selecting the appropriate tag on GitHub. This can done with the "Switch branches/tags" button on GitHub, choosing the right tag. This is done in order to rule out possible inconsistencies between versions.
 
 ### Create a docker-compose environment
 
@@ -128,7 +128,9 @@ docker-compose up -d mail
 ./setup.sh -Z config dkim
 ```
 
-If you are using a LDAP setup the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
+If you're seeing error messages about unchecked error, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section.
+
+If you are using a LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
 
 ``` BASH
 ./setup.sh config dkim domain '<domain.tld>[,<domain2.tld>]'

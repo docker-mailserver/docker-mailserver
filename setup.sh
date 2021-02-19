@@ -17,6 +17,10 @@ function __log_err
     "  – function  = ${1} / ${2}" \
     "  – line      = ${3}" \
     "  – exit code = ${4}" >&2
+
+  printf "Make sure you use a version of this script that matches
+the version / tag of docker-mailserver. Please read the
+'Get the tools' section in the README on GitHub carefully.\n" >&2
 }
 
 function _unset_vars
@@ -121,6 +125,15 @@ function _usage
     You will be able to see detailed information about the script you're invoking and
     its arguments by appending \e[37mhelp\e[39m after your command. Currently, this
     does not work with all scripts.
+
+\e[38;5;214mVERSION\e[39m
+    The current version of this script is backwards compatible with versions of
+    \e[37mdocker-mailserver\e[39m \e[1mafter\e[0m \e[34m8.0.1\e[0m. In case that there is not a more recent release,
+    this script is currently only working with the \e[37m:edge\e[0m tag.
+
+    You can download the script for your release by substituting TAG from the
+    following URL, where TAG looks like 'vX.X.X':
+    https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/TAG/setup.sh
 
 \e[38;5;214mOPTIONS\e[39m
     \e[94mConfig path, container or image adjustments\e[39m
