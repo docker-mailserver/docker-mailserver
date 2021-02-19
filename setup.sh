@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# version   v0.2.5 stable
-# executed  manually (via Make)
+# version   v0.3.0 stable
+# executed  manually / via Make
 # task      wrapper for various setup scripts
 
 SCRIPT='setup.sh'
@@ -20,7 +20,8 @@ function __log_err
 
   printf "Make sure you use a version of this script that matches
 the version / tag of docker-mailserver. Please read the
-'Get the tools' section in the README on GitHub carefully.\n" >&2
+'Get the tools' section in the README on GitHub careful-
+ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
 function _unset_vars
