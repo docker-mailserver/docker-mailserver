@@ -59,10 +59,29 @@ function teardown_file() {
     check_ports 'ecdsa' 'modern'
 }
 
+
+# Only ECDSA with RSA fallback is tested.
+# There isn't a situation where RSA with ECDSA fallback would make sense.
+@test "checking tls: cipher list - ecdsa intermediate, with rsa fallback" {
+    check_ports 'ecdsa' 'intermediate' 'rsa'
+}
+
+@test "checking tls: cipher list - ecdsa modern, with rsa fallback" {
+    check_ports 'ecdsa' 'modern' 'rsa'
+}
+
 function check_ports() {
     local KEY_TYPE=$1
     local TLS_LEVEL=$2
-    local RESULTS_PATH="${KEY_TYPE}/${TLS_LEVEL}"
+    local ALT_KEY_TYPE=$3 # Optional parameter
+
+    local KEY_TYPE_LABEL="${KEY_TYPE}"
+    # This is just to add a `_` delimiter between the two key types for readability
+    if [[ -n ${ALT_KEY_TYPE} ]]
+    then
+      KEY_TYPE_LABEL="${KEY_TYPE}_${ALT_KEY_TYPE}"
+    fi
+    local RESULTS_PATH="${KEY_TYPE_LABEL}/${TLS_LEVEL}"
 
     collect_cipherlist_data
 
@@ -81,6 +100,15 @@ function check_ports() {
 }
 
 function collect_cipherlist_data() {
+    local ALT_CERT=()
+    local ALT_KEY=()
+
+    if [[ -n ${ALT_KEY_TYPE} ]]
+    then
+        ALT_CERT=(--env SSL_ALT_CERT_PATH="/config/ssl/cert.${ALT_KEY_TYPE}.pem")
+        ALT_KEY=(--env SSL_ALT_KEY_PATH="/config/ssl/key.${ALT_KEY_TYPE}.pem")
+    fi
+
     run docker run -d --name tls_test_cipherlists \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
         --volume "${TLS_CONFIG_VOLUME}" \
@@ -89,6 +117,8 @@ function collect_cipherlist_data() {
         --env SSL_TYPE="manual" \
         --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem" \
         --env SSL_KEY_PATH="/config/ssl/key.${KEY_TYPE}.pem" \
+        "${ALT_CERT[@]}" \
+        "${ALT_KEY[@]}" \
         --env TLS_LEVEL="${TLS_LEVEL}" \
         --network "${NETWORK}" \
         --network-alias "${DOMAIN}" \
@@ -152,6 +182,8 @@ function check_cipherlists() {
 
 # Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `start-mailserver.sh`.
 # Excluding Port 25 which uses defaults from Postfix after applying `smtpd_tls_exclude_ciphers` rules.
+# NOTE: If a test fails, look at the `check_ports` params, then update the corresponding associative key's value
+# with the `actual` error value (assuming an update needs to be made, and not a valid security issue to look into).
 function get_cipherlist() {
     local TLS_VERSION=$1
 
@@ -164,37 +196,53 @@ function get_cipherlist() {
 
         # Associative array for easy querying of required cipher list
         declare -A CIPHER_LIST
-        # Our TLS v1.0 and v1.1 cipher suites should be the same:
+
+        # `intermediate` cipher lists TLS v1.0 and v1.1 cipher suites should be the same:
         CIPHER_LIST["rsa_intermediate_TLSv1"]='"ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA"'
         CIPHER_LIST["rsa_intermediate_TLSv1_1"]=${CIPHER_LIST["rsa_intermediate_TLSv1"]}
         CIPHER_LIST["rsa_intermediate_TLSv1_2"]='"ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES128-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA"'
-
-        # `modern` doesn't have TLS v1.0 or v1.1 cipher suites:
+        # `modern` cipher lists shouldn't have TLS v1.0 or v1.1 cipher suites:
         CIPHER_LIST["rsa_modern_TLSv1_2"]='"ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
 
-        # ECDSA
+        # ECDSA:
         CIPHER_LIST["ecdsa_intermediate_TLSv1"]='"ECDHE-ECDSA-AES128-SHA ECDHE-ECDSA-AES256-SHA"'
         CIPHER_LIST["ecdsa_intermediate_TLSv1_1"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1"]}
         CIPHER_LIST["ecdsa_intermediate_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES128-SHA ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA"'
         CIPHER_LIST["ecdsa_modern_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305"'
 
+        # ECDSA + RSA fallback, dual cert support:
+        CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1"]='"ECDHE-ECDSA-AES128-SHA ECDHE-RSA-AES128-SHA ECDHE-ECDSA-AES256-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA"'
+        CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_1"]=${CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1"]}
+        CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-ECDSA-AES128-SHA ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES128-SHA ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA"'
+        CIPHER_LIST["ecdsa_rsa_modern_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
+
+
         # Port 25
-        # TLSv1 and TLSv1_1 share the same cipher suites as other ports have. The server order differs.
-        # TLSv1_2 has different server order and ARIA, CCM, DHE+CHACHA20-POLY1305 cipher suites
+        # TLSv1 and TLSv1_1 share the same cipher suites as other ports have. But the server order differs:
         CIPHER_LIST["rsa_intermediate_TLSv1_p25"]='"ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA"'
         CIPHER_LIST["rsa_intermediate_TLSv1_1_p25"]=${CIPHER_LIST["rsa_intermediate_TLSv1_p25"]}
-
+        # TLSv1_2 has different server order and also includes ARIA, CCM, DHE+CHACHA20-POLY1305 cipher suites:
         CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]='"ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA ARIA128-GCM-SHA256"'
+        # Port 25 is unaffected by `TLS_LEVEL` profiles (other than min TLS version), it has the same TLS v1.2 cipher list under both:
         CIPHER_LIST["rsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]}
 
-        # ECDSA
+        # ECDSA (Port 25):
         CIPHER_LIST["ecdsa_intermediate_TLSv1_p25"]='"ECDHE-ECDSA-AES256-SHA ECDHE-ECDSA-AES128-SHA"'
         CIPHER_LIST["ecdsa_intermediate_TLSv1_1_p25"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1_p25"]}
 
         CIPHER_LIST["ecdsa_intermediate_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES128-SHA"'
         CIPHER_LIST["ecdsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1_2_p25"]}
 
-        local TARGET_QUERY="${KEY_TYPE}_${TLS_LEVEL}_${TLS_VERSION}"
+
+        # ECDSA + RSA fallback, dual cert support (Port 25):
+        CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_p25"]='"ECDHE-ECDSA-AES256-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ECDHE-ECDSA-AES128-SHA ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA"'
+        CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_1_p25"]=${CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_p25"]}
+
+        CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ECDHE-ECDSA-AES256-SHA ECDHE-RSA-AES256-SHA DHE-RSA-AES256-SHA ARIA256-GCM-SHA384 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ECDHE-ECDSA-AES128-SHA ECDHE-RSA-AES128-SHA DHE-RSA-AES128-SHA ARIA128-GCM-SHA256"'
+        CIPHER_LIST["ecdsa_rsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_2_p25"]}
+
+
+        local TARGET_QUERY="${KEY_TYPE_LABEL}_${TLS_LEVEL}_${TLS_VERSION}"
         echo "${CIPHER_LIST[${TARGET_QUERY}]}"
     fi
 }
