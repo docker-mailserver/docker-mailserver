@@ -1329,6 +1329,11 @@ function _setup_ssl
           _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
 
           _set_alt_certificate "${SSL_ALT_CERT_PATH}" "${SSL_ALT_KEY_PATH}"
+        else
+          # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
+          # but required ENV var is missing, reset to disabled state:
+          sed -i 's~^ssl_alt_cert = <.*~#ssl_alt_cert = </path/to/alternative/cert.pem~' /etc/dovecot/conf.d/10-ssl.conf
+          sed -i 's~^ssl_alt_key = <.*~#ssl_alt_key = </path/to/alternative/key.pem~' /etc/dovecot/conf.d/10-ssl.conf
         fi
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
