@@ -1171,8 +1171,8 @@ function _setup_ssl
 
     # Postfix configuration
     # NOTE: This operation doesn't replace the line, it appends to the end of the line.
-    # Thus this method should only be used when this line has explicitly been replaced
-    # on run. Otherwise without `docker-compose down` first, a `docker-compose up` may
+    # Thus this method should only be used when this line has explicitly been replaced earlier in the script.
+    # Otherwise without `docker-compose down` first, a `docker-compose up` may
     # persist previous container state and cause a failure in postfix configuration.
     sed -i 's~^smtpd_tls_chain_files =.*~& '"${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}~" /etc/postfix/main.cf
 
@@ -1366,16 +1366,18 @@ function _setup_ssl
       ;;
     '' )
       # no SSL certificate, plain text access
+      # TODO: Postfix configuration still responds to TLS negotiations using snakeoil cert from default config
+      # TODO: Dovecot `ssl = yes` also allows TLS, both cases this is insecure and should probably instead enforce no TLS?
 
       # Dovecot configuration
       sed -i -e 's~#disable_plaintext_auth = yes~disable_plaintext_auth = no~g' /etc/dovecot/conf.d/10-auth.conf
       sed -i -e 's~ssl = required~ssl = yes~g' /etc/dovecot/conf.d/10-ssl.conf
 
-      _notify 'inf' "SSL configured with plain text access"
+      _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       ;;
     * )
       # Unknown option, default behavior, no action is required
-      _notify 'warn' "SSL configured by default"
+      _notify 'warn' "(INSECURE!) ENV var 'SSL_TYPE' is invalid. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       ;;
   esac
 }
