@@ -18,7 +18,9 @@ inet_interfaces = all
 inet_protocols = all
 
 # TLS parameters
-smtpd_tls_chain_files = /etc/ssl/certs/ssl-fullkeychain-snakeoil.pem
+# These [snakeoil files actually exist](https://askubuntu.com/questions/396120/what-is-the-purpose-of-the-ssl-cert-snakeoil-key), but shouldn't ever be used in production!
+# If no `SSL_TYPE` env is set, "plaintext" is configured, but still accepts SSL with these:
+smtpd_tls_chain_files = /etc/ssl/private/ssl-cert-snakeoil.key /etc/ssl/certs/ssl-cert-snakeoil.pem
 #smtpd_tls_CAfile =
 #smtp_tls_CAfile =
 smtpd_tls_security_level = may
