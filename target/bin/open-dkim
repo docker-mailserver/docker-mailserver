@@ -6,7 +6,7 @@ DOMAINS=
 
 function __usage
 {
-    printf "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
+  printf "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
     open-dkim - configure DomainKeys Identified Mail (DKIM)
@@ -48,11 +48,7 @@ function __usage
 "
 }
 
-if [[ ${1:-} == 'help' ]]
-then
-  __usage
-  exit 0
-fi
+[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
 while [[ ${#} -gt 0 ]]
 do

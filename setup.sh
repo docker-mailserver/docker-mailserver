@@ -158,10 +158,6 @@ function _usage
             Allows container access to the bind mount content that is private and
             unshared with other containers on a SELinux-enabled host.
 
-    \e[94mOthers\e[39m
-        -h \e[31m|\e[39m help
-            Shows this help dialogue.
-
 \e[31m[\e[38;5;214mSUB\e[31m]\e[38;5;214mCOMMANDS\e[39m
     \e[94mCOMMAND\e[39m email \e[31m:=\e[39m
         ${0} email add <EMAIL ADDRESS> [<PASSWORD>]
@@ -299,11 +295,6 @@ function _main
         # container specified, connect to running instance
         CONTAINER_NAME="${OPTARG}"
         USE_CONTAINER=true
-        ;;
-
-      h )
-        _usage
-        return
         ;;
 
       p )

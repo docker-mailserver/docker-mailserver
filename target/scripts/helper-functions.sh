@@ -6,7 +6,7 @@ DMS_DEBUG="${DMS_DEBUG:=0}"
 
 function errex
 {
-  echo "${@}" 1>&2
+  echo -e "Error :: ${*}\nAborting." >&2
   exit 1
 }
 
@@ -184,40 +184,3 @@ function _monitored_files_checksums
   )
 }
 export -f _monitored_files_checksums
-
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Fetchmail Parallel
-
-function _setup_fetchmail_parallel
-{
-  mkdir /etc/fetchmailrc.d/
-  /usr/local/bin/fetchmailrc_split
-
-  local COUNTER=0
-  for RC in /etc/fetchmailrc.d/fetchmail-*.rc
-  do
-    COUNTER=$(( COUNTER + 1 ))
-    cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
-[program:fetchmail-${COUNTER}]
-startsecs=0
-autostart=false
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
-user=fetchmail
-command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
-EOF
-    chmod 700 "${RC}"
-    chown fetchmail:root "${RC}"
-  done
-
-  supervisorctl reread
-  supervisorctl update
-
-  COUNTER=0
-  for _ in /etc/fetchmailrc.d/fetchmail-*.rc
-  do
-    COUNTER=$(( COUNTER + 1 ))
-    _notify 'task' "Starting fetchmail instance ${COUNTER}" 'n'
-    supervisorctl start "fetchmail-${COUNTER}"
-  done
-}

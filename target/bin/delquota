@@ -6,16 +6,18 @@
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
+function __usage { echo "Usage: delquota <username@domain>" ; }
+
+[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
 USER="${1}"
 
-function usage  {	echo "Usage: delquota <username@domain>" ; }
-
-[[ -z ${USER} ]]  && { usage ; errex "No username specified" ; }
-[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain"; }
+[[ -z ${USER} ]]  && { __usage ; errex "No username specified" ; }
+[[ "${USER}" =~ .*\@.* ]] || { __usage ; errex "Username must include the domain"; }
 
 if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
 then
-  usage
+  __usage
   errex "user ${USER} does not exist"
 fi
 

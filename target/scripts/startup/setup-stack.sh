@@ -13,13 +13,13 @@ function _setup_supervisor
 {
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
-    case ${SUPERVISOR_LOGLEVEL} in
-      critical | error | warn | info | debug )
+    case "${SUPERVISOR_LOGLEVEL}" in
+      "critical" | "error" | "warn" | "info" | "debug" )
         sed -i -E \
           "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
           /etc/supervisor/supervisord.conf
-
         ;;
+
       * )
         _notify 'error' \
           "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
@@ -28,6 +28,7 @@ function _setup_supervisor
           "s+loglevel.*+loglevel = warn+g" \
           /etc/supervisor/supervisord.conf
         ;;
+
     esac
 
     supervisorctl reload
@@ -158,35 +159,35 @@ function _setup_chksum_file
 
 function _setup_mailname
 {
-  _notify 'task' 'Setting up Mailname'
-
-  _notify 'inf' "Creating /etc/mailname"
-  echo "${DOMAINNAME}" > /etc/mailname
+  _notify 'task' 'Setting up mailname / creating /etc/mailname'
+  echo "${DOMAINNAME}" >/etc/mailname
 }
 
 function _setup_amavis
 {
   _notify 'task' 'Setting up Amavis'
 
-  _notify 'inf' "Applying hostname to /etc/amavis/conf.d/05-node_id"
   # shellcheck disable=SC2016
-  sed -i 's/^#\$myhostname = "mail.example.com";/\$myhostname = "'"${HOSTNAME}"'";/' /etc/amavis/conf.d/05-node_id
+  sed -i \
+    "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
+    /etc/amavis/conf.d/05-node_id
 }
 
 function _setup_dmarc_hostname
 {
   _notify 'task' 'Setting up dmarc'
 
-  _notify 'inf' "Applying hostname to /etc/opendmarc.conf"
-  sed -i -e 's/^AuthservID.*$/AuthservID          '"${HOSTNAME}"'/g' \
-    -e 's/^TrustedAuthservIDs.*$/TrustedAuthservIDs  '"${HOSTNAME}"'/g' /etc/opendmarc.conf
+  sed -i -e \
+    "s/^AuthservID.*$/AuthservID          '${HOSTNAME}'/g" \
+    -e "s/^TrustedAuthservIDs.*$/TrustedAuthservIDs  '${HOSTNAME}'/g" \
+    /etc/opendmarc.conf
 }
 
 function _setup_postfix_hostname
 {
   _notify 'task' 'Applying hostname and domainname to Postfix'
+  _notify 'inf' 'Applying hostname to /etc/postfix/main.cf'
 
-  _notify 'inf' "Applying hostname to /etc/postfix/main.cf"
   postconf -e "myhostname = ${HOSTNAME}"
   postconf -e "mydomain = ${DOMAINNAME}"
 }
@@ -195,8 +196,9 @@ function _setup_dovecot_hostname
 {
   _notify 'task' 'Applying hostname to Dovecot'
 
-  _notify 'inf' "Applying hostname to /etc/dovecot/conf.d/15-lda.conf"
-  sed -i 's/^#hostname =.*$/hostname = '"${HOSTNAME}"'/g' /etc/dovecot/conf.d/15-lda.conf
+  sed -i \
+    "s/^#hostname =.*$/hostname = '${HOSTNAME}'/g" \
+    /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot
@@ -213,11 +215,9 @@ function _setup_dovecot
 
   if [[ ! -f /etc/dovecot/ssl/dovecot.pem ]]
   then
-    _notify 'inf' "Generating default dovecot cert"
+    _notify 'inf' 'Generating default Dovecot cert'
 
-    pushd /usr/share/dovecot || return 1
-    ./mkcert.sh
-    popd || return 1
+    /usr/share/dovecot/mkcert.sh
 
     if [[ ${ONE_DIR} -eq 1 ]]
     then
@@ -235,22 +235,28 @@ function _setup_dovecot
   sed -i -e 's/#port = 993/port = 993/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#port = 995/port = 995/g' /etc/dovecot/conf.d/10-master.conf
   sed -i -e 's/#ssl = yes/ssl = required/g' /etc/dovecot/conf.d/10-ssl.conf
-  sed -i 's/^postmaster_address = .*$/postmaster_address = '"${POSTMASTER_ADDRESS}"'/g' /etc/dovecot/conf.d/15-lda.conf
+  sed -i "s/^postmaster_address = .*$/postmaster_address = ${POSTMASTER_ADDRESS}/g" /etc/dovecot/conf.d/15-lda.conf
 
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
-    sdbox|mdbox )
+    "sdbox" | "mdbox" )
       _notify 'inf' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
-      sed -i -e 's/^mail_location = .*$/mail_location = '"${DOVECOT_MAILBOX_FORMAT}"':\/var\/mail\/%d\/%n/g' /etc/dovecot/conf.d/10-mail.conf
+      sed -i -e \
+        "s/^mail_location = .*$/mail_location = ${DOVECOT_MAILBOX_FORMAT}:\/var\/mail\/%d\/%n/g" \
+        /etc/dovecot/conf.d/10-mail.conf
 
       _notify 'inf' "Enabling cron job for dbox purge"
       mv /etc/cron.d/dovecot-purge.disabled /etc/cron.d/dovecot-purge
       chmod 644 /etc/cron.d/dovecot-purge
       ;;
+
     * )
       _notify 'inf' "Dovecot maildir format configured (default)"
-      sed -i -e 's/^mail_location = .*$/mail_location = maildir:\/var\/mail\/%d\/%n/g' /etc/dovecot/conf.d/10-mail.conf
+      sed -i -e \
+        's/^mail_location = .*$/mail_location = maildir:\/var\/mail\/%d\/%n/g' \
+        /etc/dovecot/conf.d/10-mail.conf
       ;;
+
   esac
 
   # enable Managesieve service by setting the symlink
@@ -304,43 +310,50 @@ function _setup_dovecot
 
 function _setup_dovecot_quota
 {
-    _notify 'task' 'Setting up Dovecot quota'
+  _notify 'task' 'Setting up Dovecot quota'
 
-    # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
-    if [[ ${ENABLE_LDAP} -eq 1 ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
+  # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
+  if [[ ${ENABLE_LDAP} -eq 1 ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
+  then
+    # disable dovecot quota in docevot confs
+    if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
     then
-      # disable dovecot quota in docevot confs
-      if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
-      then
-        mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
-        sed -i "s/mail_plugins = \$mail_plugins quota/mail_plugins = \$mail_plugins/g" /etc/dovecot/conf.d/10-mail.conf
-        sed -i "s/mail_plugins = \$mail_plugins imap_quota/mail_plugins = \$mail_plugins/g" /etc/dovecot/conf.d/20-imap.conf
-      fi
+      mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
+      sed -i "s/mail_plugins = \$mail_plugins quota/mail_plugins = \$mail_plugins/g" /etc/dovecot/conf.d/10-mail.conf
+      sed -i "s/mail_plugins = \$mail_plugins imap_quota/mail_plugins = \$mail_plugins/g" /etc/dovecot/conf.d/20-imap.conf
+    fi
 
-      # disable quota policy check in postfix
-      sed -i "s/check_policy_service inet:localhost:65265//g" /etc/postfix/main.cf
-    else
-      if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]
-      then
-        mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
-        sed -i "s/mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins quota/g" /etc/dovecot/conf.d/10-mail.conf
-        sed -i "s/mail_plugins = \$mail_plugin/mail_plugins = \$mail_plugins imap_quota/g" /etc/dovecot/conf.d/20-imap.conf
-      fi
+    # disable quota policy check in postfix
+    sed -i "s/check_policy_service inet:localhost:65265//g" /etc/postfix/main.cf
+  else
+    if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]
+    then
+      mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
+      sed -i "s/mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins quota/g" /etc/dovecot/conf.d/10-mail.conf
+      sed -i "s/mail_plugins = \$mail_plugin/mail_plugins = \$mail_plugins imap_quota/g" /etc/dovecot/conf.d/20-imap.conf
+    fi
 
-      local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
-      local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
+    local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
+    local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
 
-      sed -i "s/quota_max_mail_size =.*/quota_max_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")/g" /etc/dovecot/conf.d/90-quota.conf
-      sed -i "s/quota_rule = \*:storage=.*/quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")/g" /etc/dovecot/conf.d/90-quota.conf
+    sed -i \
+      "s/quota_max_mail_size =.*/quota_max_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")/g" \
+      /etc/dovecot/conf.d/90-quota.conf
 
-      if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-      then
-        _notify 'inf' "'config/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
-        : >/tmp/docker-mailserver/dovecot-quotas.cf
-      fi
+    sed -i \
+      "s/quota_rule = \*:storage=.*/quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")/g" \
+      /etc/dovecot/conf.d/90-quota.conf
 
-      # enable quota policy check in postfix
-      sed -i "s/reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org/reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org/g" /etc/postfix/main.cf
+    if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
+    then
+      _notify 'inf' "'config/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
+      : >/tmp/docker-mailserver/dovecot-quotas.cf
+    fi
+
+    # enable quota policy check in postfix
+    sed -i \
+      "s/reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org/reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org/g" \
+      /etc/postfix/main.cf
     fi
 }
 
@@ -413,7 +426,7 @@ function _setup_dovecot_local_user
   then
     if [[ ${ENABLE_LDAP} -eq 0 ]]
     then
-      _notify 'fatal' "Unless using LDAP, you need at least 1 email account to start Dovecot."
+      _notify 'fatal' 'Unless using LDAP, you need at least 1 email account to start Dovecot.'
       _defunc
     fi
   fi
@@ -460,6 +473,7 @@ function _setup_ldap
   _dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
   _dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
   _dovecot_ldap_mapping["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
+
   # Not sure whether this can be the same or not
   # _dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
   # _dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
@@ -521,7 +535,7 @@ function _setup_postgrey
 
   if [[ ${TEXT_FOUND} -eq 0 ]]
   then
-    printf "POSTGREY_TEXT=\"%s\"\n\n" "${POSTGREY_TEXT}" >> /etc/default/postgrey
+    printf "POSTGREY_TEXT=\"%s\"\n\n" "${POSTGREY_TEXT}" >>/etc/default/postgrey
   fi
 
   if [[ -f /tmp/docker-mailserver/whitelist_clients.local ]]
@@ -537,10 +551,12 @@ function _setup_postgrey
 
 function _setup_postfix_postscreen
 {
-  _notify 'inf' "Configuring postscreen"
-  sed -i -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = ${POSTSCREEN_ACTION}/" \
+  _notify 'inf' 'Configuring postscreen'
+  sed -i \
+    -e "s/postscreen_dnsbl_action = enforce/postscreen_dnsbl_action = ${POSTSCREEN_ACTION}/" \
     -e "s/postscreen_greet_action = enforce/postscreen_greet_action = ${POSTSCREEN_ACTION}/" \
-    -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = ${POSTSCREEN_ACTION}/" /etc/postfix/main.cf
+    -e "s/postscreen_bare_newline_action = enforce/postscreen_bare_newline_action = ${POSTSCREEN_ACTION}/" \
+    /etc/postfix/main.cf
 }
 
 function _setup_postfix_sizelimits
@@ -557,13 +573,14 @@ function _setup_postfix_sizelimits
 
 function _setup_postfix_smtputf8
 {
-  _notify 'inf' "Configuring postfix smtputf8 support (disable)"
+  _notify 'inf' 'Configuring Postfix smtputf8 support (disabling)'
   postconf -e "smtputf8_enable = no"
 }
 
 function _setup_spoof_protection
 {
   _notify 'inf' "Configuring Spoof Protection"
+
   sed -i \
     's+smtpd_sender_restrictions =+smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,+' \
     /etc/postfix/main.cf
@@ -592,7 +609,9 @@ function _setup_postfix_access_control
 
   if [[ -f /tmp/docker-mailserver/postfix-receive-access.cf ]]
   then
-    sed -i 's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
+    sed -i \
+      's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' \
+      /etc/postfix/main.cf
   fi
 }
 
@@ -600,7 +619,7 @@ function _setup_postfix_sasl
 {
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && [[ ! -f /etc/postfix/sasl/smtpd.conf ]]
   then
-    cat > /etc/postfix/sasl/smtpd.conf << EOF
+    cat >/etc/postfix/sasl/smtpd.conf << EOF
 pwcheck_method: saslauthd
 mech_list: plain login
 EOF
@@ -747,7 +766,7 @@ function _setup_postfix_aliases
 
   _notify 'inf' 'Configuring root alias'
 
-  echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+  echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
 
   if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
   then
@@ -914,6 +933,7 @@ function _setup_ssl
       fi
       return 0
       ;;
+
     "custom" )
       # Adding CA signed SSL certificate if provided in 'postfix/ssl' folder
       if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem ]]
@@ -934,6 +954,7 @@ function _setup_ssl
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
       fi
       ;;
+
     "manual" )
       # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole  processes (like using kube-lego to generate certs)
       if [[ -n ${SSL_CERT_PATH} ]] && [[ -n ${SSL_KEY_PATH} ]]
@@ -957,6 +978,7 @@ function _setup_ssl
         _notify 'inf' "SSL configured with 'Manual' certificates"
       fi
       ;;
+
     "self-signed" )
       # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
       if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem ]] \
@@ -990,19 +1012,21 @@ function _setup_ssl
         _notify 'inf' "SSL configured with 'self-signed' certificates"
       fi
       ;;
+
     '' )
       # no SSL certificate, plain text access
-
       # Dovecot configuration
       sed -i -e 's~#disable_plaintext_auth = yes~disable_plaintext_auth = no~g' /etc/dovecot/conf.d/10-auth.conf
       sed -i -e 's~ssl = required~ssl = yes~g' /etc/dovecot/conf.d/10-ssl.conf
 
       _notify 'inf' "SSL configured with plain text access"
       ;;
+
     * )
       # Unknown option, default behavior, no action is required
       _notify 'warn' "SSL configured by default"
       ;;
+
   esac
 }
 
@@ -1012,7 +1036,8 @@ function _setup_postfix_vhost
 
   if [[ -f /tmp/vhost.tmp ]]
   then
-    sort < /tmp/vhost.tmp | uniq > /etc/postfix/vhost && rm /tmp/vhost.tmp
+    sort < /tmp/vhost.tmp | uniq > /etc/postfix/vhost
+    rm /tmp/vhost.tmp
   elif [[ ! -f /etc/postfix/vhost ]]
   then
     touch /etc/postfix/vhost
@@ -1042,7 +1067,7 @@ function _setup_docker_permit
     CONTAINER_NETWORKS+=("${IP}")
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
-  case ${PERMIT_DOCKER} in
+  case "${PERMIT_DOCKER}" in
     "host" )
       _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to my networks"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
@@ -1056,6 +1081,7 @@ function _setup_docker_permit
       echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
       echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
       ;;
+
     "connected-networks" )
       for NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
@@ -1066,12 +1092,14 @@ function _setup_docker_permit
         echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
       done
       ;;
+
     * )
-      _notify 'inf' "Adding container ip in my networks"
+      _notify 'inf' 'Adding container ip in my networks'
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
       echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
       ;;
+
   esac
 }
 
@@ -1430,7 +1458,7 @@ function _setup_security_stack
 
 function _setup_logrotate
 {
-  _notify 'inf' "Setting up logrotate"
+  _notify 'inf' 'Setting up logrotate'
 
   LOGROTATE='/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n'
 
@@ -1439,19 +1467,25 @@ function _setup_logrotate
       _notify 'inf' "Setting postfix logrotate interval to daily"
       LOGROTATE="${LOGROTATE}  rotate 4\n  daily\n"
       ;;
+
     "weekly" )
       _notify 'inf' "Setting postfix logrotate interval to weekly"
       LOGROTATE="${LOGROTATE}  rotate 4\n  weekly\n"
       ;;
+
     "monthly" )
       _notify 'inf' "Setting postfix logrotate interval to monthly"
       LOGROTATE="${LOGROTATE}  rotate 4\n  monthly\n"
       ;;
-    * ) _notify 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate' ;;
+
+    * )
+      _notify 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate'
+      ;;
+
   esac
 
   LOGROTATE="${LOGROTATE}}"
-  echo -e "${LOGROTATE}" > /etc/logrotate.d/maillog
+  echo -e "${LOGROTATE}" >/etc/logrotate.d/maillog
 }
 
 function _setup_mail_summary
@@ -1467,12 +1501,20 @@ function _setup_mail_summary
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
+
     "logrotate" )
       _notify 'inf' "Add postrotate action for pflogsumm report"
       sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" /etc/logrotate.d/maillog
       ;;
-    "none" ) _notify 'inf' "Postfix log summary reports disabled. You can enable them with 'PFLOGSUMM_TRIGGER=daily_cron' or 'PFLOGSUMM_TRIGGER=logrotate'" ;;
-    * ) _notify 'err' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery' ;;
+
+    "none" )
+      _notify 'inf' "Postfix log summary reports disabled. You can enable them with 'PFLOGSUMM_TRIGGER=daily_cron' or 'PFLOGSUMM_TRIGGER=logrotate'"
+      ;;
+
+    * )
+      _notify 'err' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery'
+      ;;
+
   esac
 }
 
