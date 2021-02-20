@@ -107,21 +107,20 @@ function collect_cipherlist_data() {
     # For non-CI test runs, instead of removing prior test files after this test suite completes,
     # they're retained and overwritten by future test runs instead. Useful for inspection.
     # `--preference` reduces the test scope to the cipher suites reported as supported by the server. Completes in ~35% of the time.
-    local TESTSSL_CMD="--quiet --file /config/ssl/testssl.txt --mode parallel --overwrite --preference"
+    local TESTSSL_CMD=(--quiet --file "/config/ssl/testssl.txt" --mode parallel --overwrite --preference)
     # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
     # If the failure for a test is misleading consider testing a single port with:
-    # local TESTSSL_CMD="--quiet --jsonfile-pretty ${RESULTS_PATH}/port_${PORT}.json --starttls smtp ${DOMAIN}:${PORT}"
+    # local TESTSSL_CMD=(--quiet --jsonfile-pretty "${RESULTS_PATH}/port_${PORT}.json" --starttls smtp "${DOMAIN}:${PORT}")
     # TODO: Can use `jq` to check for failure when this is resolved: https://github.com/drwetter/testssl.sh/issues/1844
 
     # `--user "<uid>:<gid>"` is a workaround: Avoids `permission denied` write errors for json output, uses `id` to match user uid & gid.
-    # shellcheck disable=SC2086 # ${TESTSSL_CMD} doesn't work with double quotes
     run docker run --rm \
         --user "$(id -u):$(id -g)" \
         --network "${NETWORK}" \
         --volume "${TLS_CONFIG_VOLUME}" \
         --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
         --workdir "/output" \
-        drwetter/testssl.sh:3.1dev ${TESTSSL_CMD}
+        drwetter/testssl.sh:3.1dev "${TESTSSL_CMD[@]}"
     assert_success
 }
 
