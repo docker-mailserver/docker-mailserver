@@ -149,13 +149,13 @@ function _populate_relayhost_map
     sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
 
     [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r domain
+  } | while read -r DOMAIN
   do
-    # domain not already present *and* not ignored
-    if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
+    # DOMAIN not already present *and* not ignored
+    if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
-      _notify 'inf' "Adding relay mapping for ${domain}"
-      echo "@${domain}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
+      _notify 'inf' "Adding relay mapping for ${DOMAIN}"
+      echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done
 }
@@ -184,3 +184,40 @@ function _monitored_files_checksums
   )
 }
 export -f _monitored_files_checksums
+
+# ? ––––––––––––––––––––––––––––––––––––––––––––– Fetchmail Parallel
+
+function _setup_fetchmail_parallel
+{
+  mkdir /etc/fetchmailrc.d/
+  /usr/local/bin/fetchmailrc_split
+
+  local COUNTER=0
+  for RC in /etc/fetchmailrc.d/fetchmail-*.rc
+  do
+    COUNTER=$(( COUNTER + 1 ))
+    cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
+[program:fetchmail-${COUNTER}]
+startsecs=0
+autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+user=fetchmail
+command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+EOF
+    chmod 700 "${RC}"
+    chown fetchmail:root "${RC}"
+  done
+
+  supervisorctl reread
+  supervisorctl update
+
+  COUNTER=0
+  for _ in /etc/fetchmailrc.d/fetchmail-*.rc
+  do
+    COUNTER=$(( COUNTER + 1 ))
+    _notify 'task' "Starting fetchmail instance ${COUNTER}" 'n'
+    supervisorctl start "fetchmail-${COUNTER}"
+  done
+}

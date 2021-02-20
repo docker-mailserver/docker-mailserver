@@ -30,7 +30,7 @@ The development workflow is the following:
    2. Run `git submodule update --init --recursive`
 2. Write the code that is needed :D
 3. Add integration tests if necessary
-4. Get the linters with `make install_linters`
+4. Get the linters with `make install_linters` and install `jq` with the package manager of your OS
 5. Use `make clean all` to build image locally and run tests (note that tests work on Linux **only**)
 6. Document your improvements if necessary (e.g. if you introduced new environment variables, write the description in [`ENVIRONMENT.md`](./ENVIRONMENT.md))
 7. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist. 
