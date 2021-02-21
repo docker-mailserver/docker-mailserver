@@ -1117,7 +1117,7 @@ function _setup_dkim
     _notify 'inf' "Changing permissions on /etc/opendkim"
 
     chown -R opendkim:opendkim /etc/opendkim/
-    chmod -R 0700 /etc/opendkim/keys/ 
+    chmod -R 0700 /etc/opendkim/keys/
   else
     _notify 'warn' "No DKIM key provided. Check the documentation on how to get your keys."
   fi
