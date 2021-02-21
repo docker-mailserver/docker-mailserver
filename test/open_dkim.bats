@@ -45,25 +45,6 @@ function teardown_file
 # ––– Actual Tests ––––––––––––––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
-@test "${TEST_FILE}/etc/opendkim/KeyTable dummy file generated without keys provided" {
-  docker run --rm -d \
-    --name mail_smtponly_without_config \
-		-e SMTP_ONLY=1 \
-		-e ENABLE_LDAP=1 \
-		-e PERMIT_DOCKER=network \
-		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
-		-t "${IMAGE_NAME}"
-
-  function teardown
-  {
-    docker rm -f mail_smtponly_without_config
-  }
-
-  run repeat_in_container_until_success_or_timeout 15 \
-    mail_smtponly_without_config /bin/bash -c "cat /etc/opendkim/KeyTable"
-  assert_success
-}
-
 @test "${TEST_FILE}/etc/opendkim/KeyTable should contain 2 entries" {
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendkim/KeyTable | wc -l"
   assert_success
@@ -377,4 +358,54 @@ function teardown_file
     "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/SigningTable | wc -l"
   assert_success
   assert_output 4
+}
+
+@test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
+  rm -rf "${PRIVATE_CONFIG}/with-selector" && mkdir -p "${PRIVATE_CONFIG}/with-selector"
+
+  # Generate first key
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/":/tmp/docker-mailserver/ \
+    "${IMAGE_NAME:?}" /bin/sh -c "open-dkim keysize 2048 domain 'domain1.tld' selector mailer| wc -l"
+  assert_success
+  assert_output 4
+
+  # Check keys for domain1.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
+  assert_success
+  assert_output 2
+
+  # Check key names with selector for domain1.tld
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim/keys/domain1.tld | grep -E 'mailer.private|mailer.txt' | wc -l"
+  assert_success
+  assert_output 2
+
+  # Check presence of tables and TrustedHosts
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
+  assert_success
+  assert_output 4
+
+  # Check valid entries actually present in KeyTable
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c \
+    "grep 'domain1.tld' /etc/opendkim/KeyTable | wc -l"
+  assert_success
+  assert_output 1
+  
+  # Check valid entries actually present in SigningTable
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
+    "${IMAGE_NAME:?}" /bin/sh -c \
+    "grep 'domain1.tld' /etc/opendkim/SigningTable | wc -l"
+  assert_success
+  assert_output 1
 }

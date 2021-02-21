@@ -25,7 +25,7 @@ function __usage
     \e[94mConfiguration adjustments\e[39m
         keysize    Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
         selector   Set a manual selector (default is 'mail') for the key. (\e[96mATTENTION\e[39m: NOT IMPLEMENTED YET!)
-        domains    Provide the domains for which keys are to be generated.
+        domain     Provide the domain(s) for which keys are to be generated.
 
 \e[38;5;214mEXAMPLES\e[39m
     \e[37m./setup.sh config dkim size 2048\e[39m
@@ -147,20 +147,20 @@ while read -r DOMAINNAME
 do
   mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}"
 
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/mail.private" ]]
+  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/${SELECTOR}.private" ]]
   then
-    echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/mail.private"
+    echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/${SELECTOR}.private"
 
     opendkim-genkey \
       --bits="${KEYSIZE}" \
       --subdomains \
       --DOMAIN="${DOMAINNAME}" \
-      --selector=mail \
+      --selector="${SELECTOR}" \
       -D "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}"
   fi
 
   # write to KeyTable if necessary
-  KEYTABLEENTRY="mail._domainkey.${DOMAINNAME} ${DOMAINNAME}:mail:/etc/opendkim/keys/${DOMAINNAME}/mail.private"
+  KEYTABLEENTRY="${SELECTOR}._domainkey.${DOMAINNAME} ${DOMAINNAME}:${SELECTOR}:/etc/opendkim/keys/${DOMAINNAME}/${SELECTOR}.private"
   if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]
   then
     echo "Creating DKIM KeyTable"
@@ -173,11 +173,11 @@ do
   fi
 
   # write to SigningTable if necessary
-  SIGNINGTABLEENTRY="*@${DOMAINNAME} mail._domainkey.${DOMAINNAME}"
+  SIGNINGTABLEENTRY="*@${DOMAINNAME} ${SELECTOR}._domainkey.${DOMAINNAME}"
   if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]
   then
     echo "Creating DKIM SigningTable"
-    echo "*@${DOMAINNAME} mail._domainkey.${DOMAINNAME}" >/tmp/docker-mailserver/opendkim/SigningTable
+    echo "*@${DOMAINNAME} ${SELECTOR}._domainkey.${DOMAINNAME}" >/tmp/docker-mailserver/opendkim/SigningTable
   else
     if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable
     then
