@@ -7,7 +7,7 @@ These certificates for usage with TLS have been generated via the [Smallstep `st
 `Certificate Details` sections are the output of: `step certificate inspect cert.<key type>.pem`.
 
 ---
-<!-- markdownlint-disable MD033 MD040 -->
+
 **RSA (2048-bit) - self-signed:**
 
 ```sh
@@ -21,6 +21,7 @@ step certificate create "Smallstep self-signed" cert.rsa.pem key.rsa.pem \
   --kty RSA --size 2048
 ```
 
+<!-- markdownlint-disable MD033 MD040 -->
 <details>
 <summary>Certificate Details:</summary>
 
@@ -144,3 +145,145 @@ Certificate:
 
 </details>
 <!-- markdownlint-enable MD033 MD040 -->
+
+---
+
+`self-signed` certs lacks a chain of trust for verifying a certificate. See `test/mail_ssl_manual.bats` which covers verification test.
+
+The minimal setup to satisfy verification is adding a Root CA (self-signed) that is used to sign the server certificate (leaf cert):
+
+Create an ECDSA Root CA cert:
+
+```sh
+step certificate create "Smallstep Root CA" ca-cert.ecdsa.pem ca-key.ecdsa.pem \
+  --no-password --insecure \
+  --profile root-ca \
+  --not-before "2021-01-01T00:00:00+00:00" \
+  --not-after "2031-01-01T00:00:00+00:00" \
+  --san "example.test" \
+  --san "mail.example.test" \
+  --kty EC --crv P-256
+```
+
+Create an ECDSA Leaf cert, signed with the Root CA key we just created:
+
+```sh
+step certificate create "Smallstep Leaf" cert.ecdsa.pem key.ecdsa.pem \
+  --no-password --insecure \
+  --profile leaf \
+  --ca ca-cert.ecdsa.pem \
+  --ca-key ca-key.ecdsa.pem \
+  --not-before "2021-01-01T00:00:00+00:00" \
+  --not-after "2031-01-01T00:00:00+00:00" \
+  --san "example.test" \
+  --san "mail.example.test" \
+  --kty EC --crv P-256
+```
+
+The Root CA certificate does not need to have the same key type as the Leaf certificate, you can mix and match if necessary (eg: an ECDSA and an RSA leaf certs with shared ECDSA Root CA cert).
+
+<!-- markdownlint-disable MD033 MD040 -->
+<details>
+<summary>Certificate Details (signed by Root CA key):</summary>
+
+`step certificate inspect with_ca/ecdsa/cert.ecdsa.pem`:
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 28540880372304824564361820670143583738 (0x1578c60b9eedca127fe041712f9d55fa)
+    Signature Algorithm: ECDSA-SHA256
+        Issuer: CN=Smallstep Root CA
+        Validity
+            Not Before: Jan 1 00:00:00 2021 UTC
+            Not After : Jan 1 00:00:00 2031 UTC
+        Subject: CN=Smallstep Leaf
+        Subject Public Key Info:
+            Public Key Algorithm: ECDSA
+                Public-Key: (256 bit)
+                X:
+                    b6:64:18:5f:f6:3f:b6:b1:da:09:00:27:e9:70:4e:
+                    8e:11:c4:58:8d:02:a2:46:f6:5b:d5:12:9b:ea:6a:
+                    e4:39
+                Y:
+                    87:56:d8:43:6b:4d:5d:4a:44:73:d2:81:34:1d:cd:
+                    de:53:ed:62:c4:61:76:c6:bf:96:0a:0a:8e:10:fa:
+                    c2:63
+                Curve: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage:
+                Server Authentication, Client Authentication
+            X509v3 Subject Key Identifier:
+                48:C4:A2:B2:31:9B:9C:3D:4D:BD:58:45:60:F0:C6:16:EB:74:C0:3B
+            X509v3 Authority Key Identifier:
+                keyid:3F:3D:65:1A:72:82:16:C6:20:E8:B6:FC:1B:2E:6D:A4:9C:2C:92:78
+            X509v3 Subject Alternative Name:
+                DNS:example.test, DNS:mail.example.test
+    Signature Algorithm: ECDSA-SHA256
+         30:46:02:21:00:b6:dc:7d:ba:f6:d9:b1:3f:28:4d:6d:4c:a4:
+         e9:c5:24:80:d4:6c:a5:fc:9f:74:4e:9a:bb:5b:ca:8a:5e:dd:
+         32:02:21:00:e2:c8:8b:1b:be:a2:f9:5f:cd:41:8c:0a:75:71:
+         ca:e9:be:65:d1:ca:5e:50:77:f7:8a:c0:f8:03:77:1b:53:0a
+```
+
+</details>
+
+<details>
+<summary>Root CA Certificate Details (self-signed):</summary>
+
+`step certificate inspect with_ca/ecdsa/ca-cert.ecdsa.pem`:
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 83158808788179848488617675347018882219 (0x3e8fcdd2d80ab546924c05b4d9339cab)
+    Signature Algorithm: ECDSA-SHA256
+        Issuer: CN=Smallstep Root CA
+        Validity
+            Not Before: Jan 1 00:00:00 2021 UTC
+            Not After : Jan 1 00:00:00 2031 UTC
+        Subject: CN=Smallstep Root CA
+        Subject Public Key Info:
+            Public Key Algorithm: ECDSA
+                Public-Key: (256 bit)
+                X:
+                    76:30:c0:21:d2:6c:6b:ca:de:be:1d:c3:5c:67:08:
+                    93:bf:73:53:2a:23:5d:d8:06:2a:8b:09:bc:39:fd:
+                    0b:0d
+                Y:
+                    a7:74:1f:7c:b9:95:73:6c:ba:00:00:d7:52:06:0c:
+                    e9:00:c8:aa:bb:e1:50:e7:ec:ff:bf:e5:30:bb:9b:
+                    18:07
+                Curve: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:1
+            X509v3 Subject Key Identifier:
+                3F:3D:65:1A:72:82:16:C6:20:E8:B6:FC:1B:2E:6D:A4:9C:2C:92:78
+    Signature Algorithm: ECDSA-SHA256
+         30:45:02:21:00:bf:d7:51:c7:7b:67:41:90:ac:c5:89:cd:04:
+         60:7d:6b:da:8d:75:c2:c6:1c:18:93:82:79:96:35:19:a4:ea:
+         2f:02:20:5a:bc:95:3b:de:f6:8b:00:fd:1a:69:81:57:b5:b6:
+         91:0f:10:ef:2b:b2:39:83:c0:3c:a0:26:21:51:4b:40:3c
+```
+
+</details>
+<!-- markdownlint-enable MD033 MD040 -->
+
+---
+
+When bundling chain of trust into a single certificate file (eg: `fullchain.pem`), starting with the server cert, include any additional parent certificates in the chain - but do not add the final Root CA cert; otherwise you'll get a related error with not being able to verify trust:
+
+```sh
+$ openssl s_client -connect mail.example.test:587 -starttls smtp
+
+# Verification error: self signed certificate in certificate chain
+```
+
+Thus, the minimal bundle would be `leaf->intermediate` (`fullchain.pem`) with separate Root CA cert.
