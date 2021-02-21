@@ -1344,11 +1344,11 @@ function _setup_ssl
         _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
-        if [[ -n ${SSL_ALT_CERT_PATH} ]] && [[ -n ${SSL_ALT_KEY_PATH} ]]
+        if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]
         then
           _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
 
-          _set_alt_certificate "${ALT_PRIVATE_KEY}" "${ALT_CERT_CHAIN}"
+          _set_alt_certificate "${SSL_ALT_KEY_PATH}" "${SSL_ALT_CERT_PATH}"
         else
           # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
           # but required ENV var is missing, reset to disabled state:
