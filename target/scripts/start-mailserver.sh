@@ -1143,8 +1143,19 @@ function _setup_ssl
   function _set_certificate
   {
     local POSTFIX_FULLKEYCHAIN=$1
-    local DOVECOT_CERT=$2
-    local DOVECOT_KEY=$3
+    local DOVECOT_KEY=$1
+    local DOVECOT_CERT=$1
+
+    # If 2nd param is provided, we've been provided separate key and cert instead of a fullkeychain
+    if [[ -n $2 ]]
+    then
+      local PRIVATE_KEY=$1
+      local CERT_CHAIN=$2
+
+      POSTFIX_FULLKEYCHAIN="${PRIVATE_KEY} ${CERT_CHAIN}"
+      DOVECOT_KEY="${PRIVATE_KEY}"
+      DOVECOT_CERT="${CERT_CHAIN}"
+    fi
 
     # Postfix configuration
     # NOTE: `smtpd_tls_chain_files` expects private key defined before public cert chain
@@ -1282,7 +1293,7 @@ function _setup_ssl
         local PRIVATE_KEY='/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/'"${LETSENCRYPT_KEY}"'.pem'
         local CERT_CHAIN='/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/fullchain.pem'
 
-        _set_certificate "${PRIVATE_KEY} ${CERT_CHAIN}" "${CERT_CHAIN}" "${PRIVATE_KEY}"
+        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         _notify 'inf' "SSL configured with 'letsencrypt' certificates"
       fi
@@ -1301,7 +1312,7 @@ function _setup_ssl
         # NOTE: Dovecot works fine still as both values are bundled into the keychain
         local FULLKEYCHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem'
 
-        _set_certificate "${FULLKEYCHAIN}" "${FULLKEYCHAIN}" "${FULLKEYCHAIN}"
+        _set_certificate "${FULLKEYCHAIN}"
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
       fi
@@ -1321,14 +1332,14 @@ function _setup_ssl
         local PRIVATE_KEY='/etc/postfix/ssl/key'
         local CERT_CHAIN='/etc/postfix/ssl/cert'
 
-        _set_certificate "${PRIVATE_KEY} ${CERT_CHAIN}" "${CERT_CHAIN}" "${PRIVATE_KEY}"
+        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
         if [[ -n ${SSL_ALT_CERT_PATH} ]] && [[ -n ${SSL_ALT_KEY_PATH} ]]
         then
           _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
 
-          _set_alt_certificate "${SSL_ALT_CERT_PATH}" "${SSL_ALT_KEY_PATH}"
+          _set_alt_certificate "${ALT_PRIVATE_KEY}" "${ALT_CERT_CHAIN}"
         else
           # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
           # but required ENV var is missing, reset to disabled state:
@@ -1355,7 +1366,7 @@ function _setup_ssl
         local PRIVATE_KEY='/etc/postfix/ssl/'"${HOSTNAME}"'-key.pem'
         local CERT_CHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-cert.pem'
 
-        _set_certificate "${PRIVATE_KEY} ${CERT_CHAIN}" "${CERT_CHAIN}" "${PRIVATE_KEY}"
+        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
         # Have Postfix trust the self-signed CA (which is not installed within the OS trust store)
