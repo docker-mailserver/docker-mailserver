@@ -58,10 +58,7 @@ function teardown_file() {
 
 @test "checking ssl: letsencrypt configuration is correct" {
   #test domain has certificate files
-  run docker exec mail_lets_domain /bin/sh -c 'postconf | grep "smtpd_tls_cert_file = /etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_domain /bin/sh -c 'postconf | grep "smtpd_tls_key_file = /etc/letsencrypt/live/my-domain.com/key.pem" | wc -l'
+  run docker exec mail_lets_domain /bin/sh -c 'postconf | grep "smtpd_tls_chain_files = /etc/letsencrypt/live/my-domain.com/key.pem /etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
   assert_success
   assert_output 1
   run docker exec mail_lets_domain /bin/sh -c 'doveconf | grep "ssl_cert = </etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
@@ -71,10 +68,7 @@ function teardown_file() {
   assert_success
   assert_output 1
   #test hostname has certificate files
-  run docker exec mail_lets_hostname /bin/sh -c 'postconf | grep "smtpd_tls_cert_file = /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_hostname /bin/sh -c 'postconf | grep "smtpd_tls_key_file = /etc/letsencrypt/live/mail.my-domain.com/privkey.pem" | wc -l'
+  run docker exec mail_lets_hostname /bin/sh -c 'postconf | grep "smtpd_tls_chain_files = /etc/letsencrypt/live/mail.my-domain.com/privkey.pem /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'
   assert_success
   assert_output 1
   run docker exec mail_lets_hostname /bin/sh -c 'doveconf | grep "ssl_cert = </etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'

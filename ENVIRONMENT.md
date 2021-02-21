@@ -63,12 +63,13 @@ Otherwise, `iptables` won't be able to ban IPs.
 
 ##### SSL_TYPE
 
-- **empty** => SSL disabled
-- letsencrypt => Enables Let's Encrypt certificates
-- custom => Enables custom certificates
+- **empty** => SSL disabled.
+- letsencrypt => Enables Let's Encrypt certificates.
+- custom => Enables custom certificates.
 - manual => Let you manually specify locations of your SSL certificates for non-standard cases
-  - self-signed => Enables self-signed certificates
-  - _any other value_ => SSL required, settings by default
+  - Requires: `SSL_CERT_PATH` and `SSL_KEY_PATH` ENV vars to be set to the location of the files within the container.
+  - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. Presently only `manual` mode supports this feature.
+- self-signed => Enables self-signed certificates.
 
 Please read [the SSL page in the wiki](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-SSL) for more information.
 
@@ -77,7 +78,6 @@ Please read [the SSL page in the wiki](https://github.com/docker-mailserver/dock
 - **empty** => modern
 - modern => Enables TLSv1.2 and modern ciphers only. (default)
 - intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
-- old => NOT implemented. If you really need it, then customize the TLS ciphers overriding postfix and dovecot settings [wiki](https://github.com/docker-mailserver/docker-mailserver/wiki/)
 
 ##### SPOOF_PROTECTION
 

@@ -1135,21 +1135,80 @@ function _setup_ssl
 {
   _notify 'task' 'Setting up SSL'
 
-  function _apply_tls_level()
+  local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
+  local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
+
+  # Primary certificate to serve for TLS
+  # NOTE: The `sed` substituion delimiter uses `~` instead of `/` due to file paths as values
+  function _set_certificate
+  {
+    local POSTFIX_KEY_WITH_FULLCHAIN=$1
+    local DOVECOT_KEY=$1
+    local DOVECOT_CERT=$1
+
+    # If 2nd param is provided, we've been provided separate key and cert instead of a fullkeychain
+    if [[ -n $2 ]]
+    then
+      local PRIVATE_KEY=$1
+      local CERT_CHAIN=$2
+
+      POSTFIX_KEY_WITH_FULLCHAIN="${PRIVATE_KEY} ${CERT_CHAIN}"
+      DOVECOT_KEY="${PRIVATE_KEY}"
+      DOVECOT_CERT="${CERT_CHAIN}"
+    fi
+
+    # Postfix configuration
+    # NOTE: `smtpd_tls_chain_files` expects private key defined before public cert chain
+    # May be a single PEM file or a sequence of files, so long as the order is key->leaf->chain
+    sed -i "s~^smtpd_tls_chain_files =.*~smtpd_tls_chain_files = ${POSTFIX_KEY_WITH_FULLCHAIN}~" "${POSTFIX_CONFIG_MAIN}"
+
+    # Dovecot configuration
+    sed -i "s~^ssl_key = <.*~ssl_key = <${DOVECOT_KEY}~" "${DOVECOT_CONFIG_SSL}"
+    sed -i "s~^ssl_cert = <.*~ssl_cert = <${DOVECOT_CERT}~" "${DOVECOT_CONFIG_SSL}"
+  }
+
+  # Enables supporting two certificate types such as ECDSA with an RSA fallback
+  function _set_alt_certificate
+  {
+    local COPY_KEY_FROM_PATH=$1
+    local COPY_CERT_FROM_PATH=$2
+    local PRIVATE_KEY_ALT='/etc/postfix/ssl/fallback_key'
+    local CERT_CHAIN_ALT='/etc/postfix/ssl/fallback_cert'
+
+    cp "${COPY_KEY_FROM_PATH}" "${PRIVATE_KEY_ALT}"
+    cp "${COPY_CERT_FROM_PATH}" "${CERT_CHAIN_ALT}"
+    chmod 600 "${PRIVATE_KEY_ALT}"
+    chmod 600 "${CERT_CHAIN_ALT}"
+
+    # Postfix configuration
+    # NOTE: This operation doesn't replace the line, it appends to the end of the line.
+    # Thus this method should only be used when this line has explicitly been replaced earlier in the script.
+    # Otherwise without `docker-compose down` first, a `docker-compose up` may
+    # persist previous container state and cause a failure in postfix configuration.
+    sed -i "s~^smtpd_tls_chain_files =.*~& ${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}~" "${POSTFIX_CONFIG_MAIN}"
+
+    # Dovecot configuration
+    # Conditionally checks for `#`, in the event that internal container state is accidentally persisted,
+    # can be caused by: `docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`
+    sed -i "s~^#\?ssl_alt_key = <.*~ssl_alt_key = <${PRIVATE_KEY_ALT}~" "${DOVECOT_CONFIG_SSL}"
+    sed -i "s~^#\?ssl_alt_cert = <.*~ssl_alt_cert = <${CERT_CHAIN_ALT}~" "${DOVECOT_CONFIG_SSL}"
+  }
+
+  function _apply_tls_level
   {
     local TLS_CIPHERS_ALLOW=$1
     local TLS_PROTOCOL_IGNORE=$2
     local TLS_PROTOCOL_MINIMUM=$3
 
     # Postfix configuration
-    sed -i 's/^smtpd_tls_mandatory_protocols =.*/smtpd_tls_mandatory_protocols = '"${TLS_PROTOCOL_IGNORE}/" /etc/postfix/main.cf
-    sed -i 's/^smtpd_tls_protocols =.*/smtpd_tls_protocols = '"${TLS_PROTOCOL_IGNORE}/" /etc/postfix/main.cf
-    sed -i 's/^smtp_tls_protocols =.*/smtp_tls_protocols = '"${TLS_PROTOCOL_IGNORE}/" /etc/postfix/main.cf
-    sed -i 's/^tls_high_cipherlist =.*/tls_high_cipherlist = '"${TLS_CIPHERS_ALLOW}/" /etc/postfix/main.cf
+    sed -i "s/^smtpd_tls_mandatory_protocols =.*/smtpd_tls_mandatory_protocols = ${TLS_PROTOCOL_IGNORE}/" "${POSTFIX_CONFIG_MAIN}"
+    sed -i "s/^smtpd_tls_protocols =.*/smtpd_tls_protocols = ${TLS_PROTOCOL_IGNORE}/" "${POSTFIX_CONFIG_MAIN}"
+    sed -i "s/^smtp_tls_protocols =.*/smtp_tls_protocols = ${TLS_PROTOCOL_IGNORE}/" "${POSTFIX_CONFIG_MAIN}"
+    sed -i "s/^tls_high_cipherlist =.*/tls_high_cipherlist = ${TLS_CIPHERS_ALLOW}/" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration (secure by default though)
-    sed -i 's/^ssl_min_protocol =.*/ssl_min_protocol = '"${TLS_PROTOCOL_MINIMUM}/" /etc/dovecot/conf.d/10-ssl.conf
-    sed -i 's/^ssl_cipher_list =.*/ssl_cipher_list = '"${TLS_CIPHERS_ALLOW}/" /etc/dovecot/conf.d/10-ssl.conf
+    sed -i "s/^ssl_min_protocol =.*/ssl_min_protocol = ${TLS_PROTOCOL_MINIMUM}/" "${DOVECOT_CONFIG_SSL}"
+    sed -i "s/^ssl_cipher_list =.*/ssl_cipher_list = ${TLS_CIPHERS_ALLOW}/" "${DOVECOT_CONFIG_SSL}"
   }
 
   # TLS strength/level configuration
@@ -1181,6 +1240,8 @@ function _setup_ssl
   esac
 
   # SSL certificate Configuration
+  # TODO: Refactor this feature, it's been extended multiple times for specific inputs/providers unnecessarily.
+  # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming, chmod inconsistent.
   case "${SSL_TYPE}" in
     "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
@@ -1188,6 +1249,9 @@ function _setup_ssl
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
 
+      # 2020 feature intended for Traefik v2 support only:
+      # https://github.com/docker-mailserver/docker-mailserver/pull/1553
+      # Uses `key.pem` and `fullchain.pem`
       if [[ -f /etc/letsencrypt/acme.json ]]
       then
         if ! _extract_certs_from_acme "${SSL_DOMAIN}"
@@ -1231,13 +1295,14 @@ function _setup_ssl
       then
         _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
 
-        # Postfix configuration
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/fullchain.pem~g' /etc/postfix/main.cf
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/'"${LETSENCRYPT_KEY}"'\.pem~g' /etc/postfix/main.cf
+        # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
+        # https://certbot.eff.org/docs/using.html#where-are-my-certificates
+        # `key.pem` was added for `simp_le` support (2016): https://github.com/docker-mailserver/docker-mailserver/pull/288
+        # `key.pem` is also a filename used by the `_extract_certs_from_acme` method (implemented for Traefik v2 only)
+        local PRIVATE_KEY="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/${LETSENCRYPT_KEY}.pem"
+        local CERT_CHAIN="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem"
 
-        # Dovecot configuration
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/fullchain\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/'"${LETSENCRYPT_KEY}"'\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         _notify 'inf' "SSL configured with 'letsencrypt' certificates"
       fi
@@ -1252,85 +1317,93 @@ function _setup_ssl
         mkdir -p /etc/postfix/ssl
         cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem" /etc/postfix/ssl
 
-        # Postfix configuration
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem~g' /etc/postfix/main.cf
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem~g' /etc/postfix/main.cf
+        # Private key with full certificate chain all in a single PEM file
+        # NOTE: Dovecot works fine still as both values are bundled into the keychain
+        local KEY_WITH_FULLCHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem'
 
-        # Dovecot configuration
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'"${HOSTNAME}"'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'"${HOSTNAME}"'-full\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        _set_certificate "${KEY_WITH_FULLCHAIN}"
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
       fi
       ;;
     "manual" )
-      # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole  processes (like using kube-lego to generate certs)
+      # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole processes (like using kube-lego to generate certs)
       if [[ -n ${SSL_CERT_PATH} ]] && [[ -n ${SSL_KEY_PATH} ]]
       then
         _notify 'inf' "Configuring certificates using cert ${SSL_CERT_PATH} and key ${SSL_KEY_PATH}"
 
         mkdir -p /etc/postfix/ssl
-        cp "${SSL_CERT_PATH}" /etc/postfix/ssl/cert
         cp "${SSL_KEY_PATH}" /etc/postfix/ssl/key
-        chmod 600 /etc/postfix/ssl/cert
+        cp "${SSL_CERT_PATH}" /etc/postfix/ssl/cert
         chmod 600 /etc/postfix/ssl/key
+        chmod 600 /etc/postfix/ssl/cert
 
-        # Postfix configuration
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/cert~g' /etc/postfix/main.cf
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/key~g' /etc/postfix/main.cf
+        local PRIVATE_KEY='/etc/postfix/ssl/key'
+        local CERT_CHAIN='/etc/postfix/ssl/cert'
 
-        # Dovecot configuration
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/cert~g' /etc/dovecot/conf.d/10-ssl.conf
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/key~g' /etc/dovecot/conf.d/10-ssl.conf
+        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
+
+        # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
+        if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]
+        then
+          _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
+
+          _set_alt_certificate "${SSL_ALT_KEY_PATH}" "${SSL_ALT_CERT_PATH}"
+        else
+          # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
+          # but required ENV var is missing, reset to disabled state:
+          sed -i 's~^ssl_alt_key = <.*~#ssl_alt_key = </path/to/alternative/key.pem~' "${DOVECOT_CONFIG_SSL}"
+          sed -i 's~^ssl_alt_cert = <.*~#ssl_alt_cert = </path/to/alternative/cert.pem~' "${DOVECOT_CONFIG_SSL}"
+        fi
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
       fi
       ;;
     "self-signed" )
       # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-      if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem ]] \
-      && [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem ]] \
-      && [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-combined.pem ]] \
+      if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem ]] \
+      && [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem ]] \
       && [[ -e /tmp/docker-mailserver/ssl/demoCA/cacert.pem ]]
       then
         _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
 
         mkdir -p /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem" /etc/postfix/ssl
         cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem" /etc/postfix/ssl
-
-        # Force permission on key file
+        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem" /etc/postfix/ssl
         chmod 600 "/etc/postfix/ssl/${HOSTNAME}-key.pem"
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-combined.pem" /etc/postfix/ssl
+
+        local PRIVATE_KEY="/etc/postfix/ssl/${HOSTNAME}-key.pem"
+        local CERT_CHAIN="/etc/postfix/ssl/${HOSTNAME}-cert.pem"
+
+        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
+
         cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
-
-        # Postfix configuration
-        sed -i -r 's~smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem~smtpd_tls_cert_file=/etc/postfix/ssl/'"${HOSTNAME}"'-cert.pem~g' /etc/postfix/main.cf
-        sed -i -r 's~smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key~smtpd_tls_key_file=/etc/postfix/ssl/'"${HOSTNAME}"'-key.pem~g' /etc/postfix/main.cf
-        sed -i -r 's~#smtpd_tls_CAfile=~smtpd_tls_CAfile=/etc/postfix/ssl/cacert.pem~g' /etc/postfix/main.cf
-        sed -i -r 's~#smtp_tls_CAfile=~smtp_tls_CAfile=/etc/postfix/ssl/cacert.pem~g' /etc/postfix/main.cf
-
-        ln -s /etc/postfix/ssl/cacert.pem "/etc/ssl/certs/cacert-${HOSTNAME}.pem"
-
-        # Dovecot configuration
-        sed -i -e 's~ssl_cert = </etc/dovecot/ssl/dovecot\.pem~ssl_cert = </etc/postfix/ssl/'"${HOSTNAME}"'-combined\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
-        sed -i -e 's~ssl_key = </etc/dovecot/ssl/dovecot\.key~ssl_key = </etc/postfix/ssl/'"${HOSTNAME}"'-key\.pem~g' /etc/dovecot/conf.d/10-ssl.conf
+        # Have Postfix trust the self-signed CA (which is not installed within the OS trust store)
+        sed -i -r 's~^#?smtpd_tls_CAfile =.*~smtpd_tls_CAfile = /etc/postfix/ssl/cacert.pem~' "${POSTFIX_CONFIG_MAIN}"
+        sed -i -r 's~^#?smtp_tls_CAfile =.*~smtp_tls_CAfile = /etc/postfix/ssl/cacert.pem~' "${POSTFIX_CONFIG_MAIN}"
+        # Part of the original `self-signed` support, unclear why this symlink was required?
+        # May have been to support the now removed `Courier` (Dovecot replaced it):
+        # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
+        local PRIVATE_CA="/etc/ssl/certs/cacert-${HOSTNAME}.pem"
+        ln -s /etc/postfix/ssl/cacert.pem "${PRIVATE_CA}"
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
       fi
       ;;
     '' )
       # no SSL certificate, plain text access
+      # TODO: Postfix configuration still responds to TLS negotiations using snakeoil cert from default config
+      # TODO: Dovecot `ssl = yes` also allows TLS, both cases this is insecure and should probably instead enforce no TLS?
 
       # Dovecot configuration
       sed -i -e 's~#disable_plaintext_auth = yes~disable_plaintext_auth = no~g' /etc/dovecot/conf.d/10-auth.conf
-      sed -i -e 's~ssl = required~ssl = yes~g' /etc/dovecot/conf.d/10-ssl.conf
+      sed -i -e 's~ssl = required~ssl = yes~g' "${DOVECOT_CONFIG_SSL}"
 
-      _notify 'inf' "SSL configured with plain text access"
+      _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       ;;
     * )
       # Unknown option, default behavior, no action is required
-      _notify 'warn' "SSL configured by default"
+      _notify 'warn' "(INSECURE!) ENV var 'SSL_TYPE' is invalid. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       ;;
   esac
 }
