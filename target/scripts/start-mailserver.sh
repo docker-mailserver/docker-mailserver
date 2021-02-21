@@ -1106,9 +1106,9 @@ function _setup_dkim
 {
   _notify 'task' 'Setting up DKIM'
 
-  mkdir -p /etc/opendkim && touch /etc/opendkim/SigningTable
+  mkdir -p /etc/opendkim
 
-  # Check if keys are already available
+  # Check if any keys are available
   if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
   then
     cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
@@ -1117,12 +1117,9 @@ function _setup_dkim
     _notify 'inf' "Changing permissions on /etc/opendkim"
 
     chown -R opendkim:opendkim /etc/opendkim/
-    chmod -R 0700 /etc/opendkim/keys/ # make sure permissions are right
+    chmod -R 0700 /etc/opendkim/keys/ 
   else
-    _notify 'warn' "No DKIM key provided. Check the documentation to find how to get your keys."
-
-    local KEYTABLE_FILE="/etc/opendkim/KeyTable"
-    [[ ! -f ${KEYTABLE_FILE} ]] && touch "${KEYTABLE_FILE}"
+    _notify 'warn' "No DKIM key provided. Check the documentation on how to get your keys."
   fi
 
   # setup nameservers paramater from /etc/resolv.conf if not defined
