@@ -1240,6 +1240,8 @@ function _setup_ssl
   esac
 
   # SSL certificate Configuration
+  # TODO: Refactor this feature, it's been extended multiple times for specific inputs/providers unnecessarily.
+  # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming, chmod inconsistent.
   case "${SSL_TYPE}" in
     "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
@@ -1247,6 +1249,9 @@ function _setup_ssl
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
 
+      # 2020 feature intended for Traefik v2 support only:
+      # https://github.com/docker-mailserver/docker-mailserver/pull/1553
+      # Uses `key.pem` and `fullchain.pem`
       if [[ -f /etc/letsencrypt/acme.json ]]
       then
         if ! _extract_certs_from_acme "${SSL_DOMAIN}"
@@ -1290,6 +1295,10 @@ function _setup_ssl
       then
         _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
 
+        # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
+        # https://certbot.eff.org/docs/using.html#where-are-my-certificates
+        # `key.pem` was added for `simp_le` support (2016): https://github.com/docker-mailserver/docker-mailserver/pull/288
+        # `key.pem` is also a filename used by the `_extract_certs_from_acme` method (implemented for Traefik v2 only)
         local PRIVATE_KEY='/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/'"${LETSENCRYPT_KEY}"'.pem'
         local CERT_CHAIN='/etc/letsencrypt/live/'"${LETSENCRYPT_DOMAIN}"'/fullchain.pem'
 
@@ -1372,6 +1381,9 @@ function _setup_ssl
         # Have Postfix trust the self-signed CA (which is not installed within the OS trust store)
         sed -i -r 's~^#?smtpd_tls_CAfile =.*~smtpd_tls_CAfile = /etc/postfix/ssl/cacert.pem~' /etc/postfix/main.cf
         sed -i -r 's~^#?smtp_tls_CAfile =.*~smtp_tls_CAfile = /etc/postfix/ssl/cacert.pem~' /etc/postfix/main.cf
+        # Part of the original `self-signed` support, unclear why this symlink was required?
+        # May have been to support the now removed `Courier` (Dovecot replaced it):
+        # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
         local PRIVATE_CA='/etc/ssl/certs/cacert-'"${HOSTNAME}"'.pem'
         ln -s /etc/postfix/ssl/cacert.pem "${PRIVATE_CA}"
 
