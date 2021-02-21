@@ -45,25 +45,6 @@ function teardown_file
 # ––– Actual Tests ––––––––––––––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
-@test "${TEST_FILE}/etc/opendkim/KeyTable dummy file generated without keys provided" {
-  docker run --rm -d \
-    --name mail_smtponly_without_config \
-		-e SMTP_ONLY=1 \
-		-e ENABLE_LDAP=1 \
-		-e PERMIT_DOCKER=network \
-		-e OVERRIDE_HOSTNAME=mail.mydomain.com \
-		-t "${IMAGE_NAME}"
-
-  function teardown
-  {
-    docker rm -f mail_smtponly_without_config
-  }
-
-  run repeat_in_container_until_success_or_timeout 15 \
-    mail_smtponly_without_config /bin/bash -c "cat /etc/opendkim/KeyTable"
-  assert_success
-}
-
 @test "${TEST_FILE}/etc/opendkim/KeyTable should contain 2 entries" {
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendkim/KeyTable | wc -l"
   assert_success
