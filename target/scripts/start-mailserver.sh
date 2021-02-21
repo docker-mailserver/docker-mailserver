@@ -352,7 +352,7 @@ function _setup_supervisor
     case ${SUPERVISOR_LOGLEVEL} in
       critical | error | warn | info | debug )
         sed -i -E \
-          "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
+          "s|loglevel.*|loglevel = ${SUPERVISOR_LOGLEVEL}|g" \
           /etc/supervisor/supervisord.conf
 
         ;;
@@ -361,7 +361,7 @@ function _setup_supervisor
           "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
 
         sed -i -E \
-          "s+loglevel.*+loglevel = warn+g" \
+          "s|loglevel.*|loglevel = warn|g" \
           /etc/supervisor/supervisord.conf
         ;;
     esac
@@ -832,7 +832,7 @@ function _setup_ldap
   fi
 
   # shellcheck disable=SC2016
-  sed -i 's+mydestination = \$myhostname, +mydestination = +' /etc/postfix/main.cf
+  sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf
 
   return 0
 }
@@ -842,7 +842,7 @@ function _setup_postgrey
   _notify 'inf' "Configuring postgrey"
 
   sed -i -E \
-    's+, reject_rbl_client zen.spamhaus.org$+, reject_rbl_client zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023+' \
+    's|, reject_rbl_client zen.spamhaus.org$|, reject_rbl_client zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023|' \
     /etc/postfix/main.cf
 
   sed -i -e \
@@ -897,7 +897,7 @@ function _setup_spoof_protection
 {
   _notify 'inf' "Configuring Spoof Protection"
   sed -i \
-    's+smtpd_sender_restrictions =+smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,+' \
+    's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
     /etc/postfix/main.cf
 
   if [[ ${ENABLE_LDAP} -eq 1 ]]
@@ -941,10 +941,10 @@ EOF
   if [[ ${ENABLE_SASLAUTHD} -eq 0 ]] && [[ ${SMTP_ONLY} -eq 1 ]]
   then
     sed -i -E \
-      's+^smtpd_sasl_auth_enable =.*+smtpd_sasl_auth_enable = no+g' \
+      's|^smtpd_sasl_auth_enable =.*|smtpd_sasl_auth_enable = no|g' \
       /etc/postfix/main.cf
     sed -i -E \
-      's+^  -o smtpd_sasl_auth_enable=.*+  -o smtpd_sasl_auth_enable=no+g' \
+      's|^  -o smtpd_sasl_auth_enable=.*|  -o smtpd_sasl_auth_enable=no|g' \
       /etc/postfix/master.cf
   fi
 }
@@ -1073,7 +1073,7 @@ function _setup_postfix_aliases
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
     sed -i -E \
-      's+virtual_alias_maps(.*)+virtual_alias_maps\1 pcre:/etc/postfix/regexp+g' \
+      's|virtual_alias_maps(.*)|virtual_alias_maps\1 pcre:/etc/postfix/regexp|g' \
       /etc/postfix/main.cf
   fi
 
