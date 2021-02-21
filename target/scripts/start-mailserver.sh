@@ -1142,7 +1142,7 @@ function _setup_ssl
   # NOTE: The `sed` substituion delimiter uses `~` instead of `/` due to file paths as values
   function _set_certificate
   {
-    local POSTFIX_FULLKEYCHAIN=$1
+    local POSTFIX_KEY_WITH_FULLCHAIN=$1
     local DOVECOT_KEY=$1
     local DOVECOT_CERT=$1
 
@@ -1152,7 +1152,7 @@ function _setup_ssl
       local PRIVATE_KEY=$1
       local CERT_CHAIN=$2
 
-      POSTFIX_FULLKEYCHAIN="${PRIVATE_KEY} ${CERT_CHAIN}"
+      POSTFIX_KEY_WITH_FULLCHAIN="${PRIVATE_KEY} ${CERT_CHAIN}"
       DOVECOT_KEY="${PRIVATE_KEY}"
       DOVECOT_CERT="${CERT_CHAIN}"
     fi
@@ -1160,7 +1160,7 @@ function _setup_ssl
     # Postfix configuration
     # NOTE: `smtpd_tls_chain_files` expects private key defined before public cert chain
     # May be a single PEM file or a sequence of files, so long as the order is key->leaf->chain
-    sed -i 's~^smtpd_tls_chain_files =.*~smtpd_tls_chain_files = '"${POSTFIX_FULLKEYCHAIN}~" /etc/postfix/main.cf
+    sed -i 's~^smtpd_tls_chain_files =.*~smtpd_tls_chain_files = '"${POSTFIX_KEY_WITH_FULLCHAIN}~" /etc/postfix/main.cf
 
     # Dovecot configuration
     sed -i 's~^ssl_key = <.*~ssl_key = <'"${DOVECOT_KEY}~" /etc/dovecot/conf.d/10-ssl.conf
@@ -1317,11 +1317,11 @@ function _setup_ssl
         mkdir -p /etc/postfix/ssl
         cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem" /etc/postfix/ssl
 
-        # Private key with full certificate chain all in single PEM file
+        # Private key with full certificate chain all in a single PEM file
         # NOTE: Dovecot works fine still as both values are bundled into the keychain
-        local FULLKEYCHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem'
+        local KEY_WITH_FULLCHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem'
 
-        _set_certificate "${FULLKEYCHAIN}"
+        _set_certificate "${KEY_WITH_FULLCHAIN}"
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
       fi
