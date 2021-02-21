@@ -1,3 +1,4 @@
+#!/usr/bin/env bats
 load 'test_helper/common'
 
 function setup() {
@@ -48,6 +49,13 @@ function teardown_file() {
     skip 'this test must come first to reliably identify when to run setup_file'
 }
 
+@test "checking ssl: ENV vars provided are valid files" {
+    assert docker exec mail_manual_ssl [ -f "${SSL_CERT_PATH}" ]
+    assert docker exec mail_manual_ssl [ -f "${SSL_KEY_PATH}" ]
+    assert docker exec mail_manual_ssl [ -f "${SSL_ALT_CERT_PATH}" ]
+    assert docker exec mail_manual_ssl [ -f "${SSL_ALT_KEY_PATH}" ]
+}
+
 @test "checking ssl: manual configuration is correct" {
     local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
 
@@ -88,14 +96,15 @@ function teardown_file() {
 @test "checking ssl: manual cert works correctly" {
     wait_for_tcp_port_in_container 587 mail_manual_ssl
     local TEST_COMMAND=(timeout 1 openssl s_client -connect mail.example.test:587 -starttls smtp)
+    local RESULT
 
     # Should fail as a chain of trust is required to verify successfully:
-    local RESULT=$(docker exec mail_manual_ssl "${TEST_COMMAND[@]}" | grep 'Verification error:')
+    RESULT=$(docker exec mail_manual_ssl "${TEST_COMMAND[@]}" | grep 'Verification error:')
     assert_equal "${RESULT}" 'Verification error: unable to verify the first certificate'
 
     # Provide the Root CA cert for successful verification:
     local CA_CERT='/config/ssl/ca-cert.ecdsa.pem'
-    assert [ ! -f "${CA_CERT}" ]
+    assert docker exec mail_manual_ssl [ -f "${CA_CERT}" ]
     RESULT=$(docker exec mail_manual_ssl "${TEST_COMMAND[@]}" -CAfile "${CA_CERT}" | grep 'Verification: OK')
     assert_equal "${RESULT}" 'Verification: OK'
 }
