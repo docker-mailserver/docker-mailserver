@@ -2,7 +2,7 @@
 
 function fix
 {
-  _notify 'inf' "Post-configuration checks"
+  _notify 'tasklog' 'Post-configuration checks'
   for FUNC in "${FUNCS_FIX[@]}"
   do
     ${FUNC} || _defunc
@@ -18,19 +18,18 @@ function _fix_var_mail_permissions
   _notify 'task' 'Checking /var/mail permissions'
 
   # fix permissions, but skip this if 3 levels deep the user id is already set
-  if [[ $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .) -ne 0 ]]
+  if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
   then
-    _notify 'inf' "Fixing /var/mail permissions"
+    _notify 'inf' 'Fixing /var/mail permissions'
     chown -R 5000:5000 /var/mail
   else
-    _notify 'inf' "Permissions in /var/mail look OK"
-    return 0
+    _notify 'inf' 'Permissions in /var/mail look OK'
   fi
 }
 
 function _fix_var_amavis_permissions
 {
-  local AMAVIS_STATE_DIR="/var/mail-state/lib-amavis"
+  local AMAVIS_STATE_DIR='/var/mail-state/lib-amavis'
   [[ ${ONE_DIR} -eq 0 ]] && AMAVIS_STATE_DIR="/var/lib/amavis"
   [[ ! -e ${AMAVIS_STATE_DIR} ]] && return 0
 

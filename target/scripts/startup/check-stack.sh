@@ -3,7 +3,6 @@
 function check
 {
   _notify 'tasklog' 'Checking configuration'
-
   for FUNC in "${FUNCS_CHECK[@]}"
   do
     ${FUNC} || _defunc
@@ -12,7 +11,7 @@ function check
 
 function _check_hostname
 {
-  _notify "task" "Checking that hostname/domainname is provided or overridden"
+  _notify 'task' 'Checking that hostname/domainname is provided or overridden'
 
   if [[ -n ${OVERRIDE_HOSTNAME} ]]
   then
@@ -25,7 +24,7 @@ function _check_hostname
 
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
-    _notify 'err' "Setting hostname/domainname is required"
+    _notify 'err' 'Setting hostname/domainname is required'
     kill "$(< /var/run/supervisord.pid)"
     return 1
   fi

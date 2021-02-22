@@ -11,63 +11,67 @@ function start_daemons
 
 function _start_daemons_cron
 {
-  _notify 'task' 'Starting cron' 'n'
+  _notify 'task' 'Starting cron'
   supervisorctl start cron
 }
 
 function _start_daemons_rsyslog
 {
-  _notify 'task' 'Starting rsyslog ' 'n'
+  _notify 'task' 'Starting rsyslog'
   supervisorctl start rsyslog
 }
 
 function _start_daemons_saslauthd
 {
-  _notify 'task' 'Starting saslauthd' 'n'
+  _notify 'task' 'Starting saslauthd'
   supervisorctl start "saslauthd_${SASLAUTHD_MECHANISMS}"
 }
 
 function _start_daemons_fail2ban
 {
-  _notify 'task' 'Starting fail2ban ' 'n'
+  _notify 'task' 'Starting fail2ban'
   touch /var/log/auth.log
 
   # delete fail2ban.sock that probably was left here after container restart
-  [[ -e /var/run/fail2ban/fail2ban.sock ]] && rm /var/run/fail2ban/fail2ban.sock
+  if [[ -e /var/run/fail2ban/fail2ban.sock ]]
+  then
+    rm /var/run/fail2ban/fail2ban.sock
+  fi
+
   supervisorctl start fail2ban
 }
 
 function _start_daemons_opendkim
 {
-  _notify 'task' 'Starting opendkim ' 'n'
+  _notify 'task' 'Starting opendkim'
   supervisorctl start opendkim
 }
 
 function _start_daemons_opendmarc
 {
-  _notify 'task' 'Starting opendmarc ' 'n'
+  _notify 'task' 'Starting opendmarc'
   supervisorctl start opendmarc
 }
 
 function _start_daemons_postsrsd
 {
-  _notify 'task' 'Starting postsrsd ' 'n'
+  _notify 'task' 'Starting postsrsd'
   supervisorctl start postsrsd
 }
 
 function _start_daemons_postfix
 {
-  _notify 'task' 'Starting postfix' 'n'
+  _notify 'task' 'Starting postfix'
   supervisorctl start postfix
 }
 
 function _start_daemons_dovecot
 {
-  _notify 'task' 'Starting dovecot services' 'n'
+  _notify 'task' 'Starting dovecot services'
 
   if [[ ${ENABLE_POP3} -eq 1 ]]
   then
-    _notify 'task' 'Starting pop3 services' 'n'
+    _notify 'task' 'Starting pop3 services'
     mv /etc/dovecot/protocols.d/pop3d.protocol.disab \
       /etc/dovecot/protocols.d/pop3d.protocol
   fi
@@ -115,36 +119,36 @@ EOF
     for _ in /etc/fetchmailrc.d/fetchmail-*.rc
     do
       COUNTER=$(( COUNTER + 1 ))
-      _notify 'task' "Starting fetchmail instance ${COUNTER}" 'n'
+      _notify 'task' "Starting fetchmail instance ${COUNTER}"
       supervisorctl start "fetchmail-${COUNTER}"
     done
   else
-    _notify 'task' 'Starting fetchmail' 'n'
+    _notify 'task' 'Starting fetchmail'
     supervisorctl start fetchmail
   fi
 }
 
 function _start_daemons_clamav
 {
-  _notify 'task' 'Starting clamav' 'n'
+  _notify 'task' 'Starting clamav'
   supervisorctl start clamav
 }
 
 function _start_daemons_postgrey
 {
-  _notify 'task' 'Starting postgrey' 'n'
+  _notify 'task' 'Starting postgrey'
   rm -f /var/run/postgrey/postgrey.pid
   supervisorctl start postgrey
 }
 
 function _start_daemons_amavis
 {
-  _notify 'task' 'Starting amavis' 'n'
+  _notify 'task' 'Starting amavis'
   supervisorctl start amavis
 }
 
 function _start_changedetector
 {
-  _notify 'task' 'Starting changedetector' 'n'
+  _notify 'task' 'Starting changedetector'
   supervisorctl start changedetector
 }

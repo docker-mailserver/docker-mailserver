@@ -69,7 +69,7 @@ function _setup_default_vars
   local VAR
   for VAR in "${!VARS[@]}"
   do
-    echo "export ${VAR}='${VARS[${VAR}]}'"
+    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
   done
 
   {
@@ -77,8 +77,8 @@ function _setup_default_vars
     echo "export PFLOGSUMM_TRIGGER='${PFLOGSUMM_TRIGGER}'"
     echo "export PFLOGSUMM_RECIPIENT='${PFLOGSUMM_RECIPIENT}'"
     echo "export POSTMASTER_ADDRESS='${POSTMASTER_ADDRESS}'"
-    echo "export REPORT_SENDER='${REPORT_SENDER}'"
     echo "export REPORT_RECIPIENT='${REPORT_RECIPIENT}'"
+    echo "export REPORT_SENDER='${REPORT_SENDER}'"
   } >>/root/.bashrc
 }
 
@@ -1214,6 +1214,7 @@ function _setup_postfix_relay_hosts
 
   [[ -z ${RELAY_PORT} ]] && RELAY_PORT=25
 
+  # shellcheck disable=SC2153
   _notify 'inf' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
 
   # setup /etc/postfix/sasl_passwd
