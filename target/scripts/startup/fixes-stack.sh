@@ -5,13 +5,10 @@ function fix
   _notify 'inf' "Post-configuration checks"
   for FUNC in "${FUNCS_FIX[@]}"
   do
-    if ! ${FUNC}
-    then
-      _defunc
-    fi
+    ${FUNC} || _defunc
   done
 
-  _notify 'inf' "Removing leftover PID files from a stop/start"
+  _notify 'inf' 'Removing leftover PID files from a stop/start'
   rm -rf /var/run/*.pid /var/run/*/*.pid
   touch /dev/shm/supervisor.sock
 }

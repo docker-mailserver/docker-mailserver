@@ -33,7 +33,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
 RUN \
-  apt-get -qq --fix-missing update && \
+  apt-get -qq update && \
   apt-get -y install apt-utils &>/dev/null && \
   apt-get -y dist-upgrade >/dev/null && \
   apt-get -y install postfix >/dev/null && \

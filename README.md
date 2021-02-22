@@ -45,7 +45,7 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 **Recommended**:
 
 - 1 Core
-- 1-2GB RAM
+- 2GB RAM
 - Swap enabled for the container
 
 **Minimum**:
@@ -128,7 +128,7 @@ docker-compose up -d mail
 ./setup.sh -Z config dkim
 ```
 
-If you're seeing error messages about unchecked error, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read teh `VERSION` section.
+If you're seeing error messages about unchecked error, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read the `VERSION` section.
 
 In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
 

@@ -12,7 +12,7 @@ function check
 
 function _check_hostname
 {
-  _notify "task" "Check that hostname/domainname is provided or overridden [in ${FUNCNAME[0]}]"
+  _notify "task" "Checking that hostname/domainname is provided or overridden"
 
   if [[ -n ${OVERRIDE_HOSTNAME} ]]
   then
