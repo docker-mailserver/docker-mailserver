@@ -392,10 +392,9 @@ function _setup_default_vars
   fi
 
   # expand address to simplify the rest of the script
-  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "0" ]]
+  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "1" ]]
   then
     REPORT_RECIPIENT="${POSTMASTER_ADDRESS}"
-    REPORT_RECIPIENT="${REPORT_RECIPIENT}"
   fi
 
   PFLOGSUMM_RECIPIENT="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
