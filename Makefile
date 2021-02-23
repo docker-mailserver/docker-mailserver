@@ -66,11 +66,7 @@ install_linters:
 	@ curl -S -L \
 		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(shell uname -s)-$(shell uname -m)" -o tools/hadolint
 	@ curl -S -L \
-		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz" | tar -xJ
+		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz" | tar -Jx shellcheck-v$(SHELLCHECK_VERSION)/shellcheck -O > tools/shellcheck
 	@ curl -S -L \
-		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-linux-amd64.tar.gz" | tar -xaz
-	@ chmod +rx tools/hadolint
-	@ mv "shellcheck-v$(SHELLCHECK_VERSION)/shellcheck" tools/
-	@ mv bin/ec-linux-amd64 tools/eclint
-	@ chmod +x tools/eclint
-	@ rm -rf "shellcheck-v$(SHELLCHECK_VERSION)" bin
+		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-linux-amd64.tar.gz" | tar -zx bin/ec-linux-amd64 -O > tools/eclint
+	@ chmod u+rx tools/*
