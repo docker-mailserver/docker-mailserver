@@ -5,13 +5,39 @@
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 
+function __usage
+{
+  printf "\e[35mADDALIAS\e[31m(\e[93m8\e[31m)
+
+\e[38;5;214mNAME\e[39m
+    addalias - add an email alias for an existing user
+
+\e[38;5;214mSYNOPSIS\e[39m
+    ./setup.sh alias add <EMAIL ADDRESS> <RECIPIENT>
+
+\e[38;5;214mOPTIONS\e[39m
+    \e[94mGeneric Program Information\e[39m
+        help       Print the usage information.
+
+\e[38;5;214mEXAMPLES\e[39m
+    \e[37m./setup.sh alias add alias-for-me@domain.tld admin@domain.tld\e[39m
+        Add the alias alias-for-me@doamin.tld for the existing user
+        admin@domain.tld.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
+
+[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
 EMAIL="${1}"
 RECIPIENT="${2}"
 
-function usage  { echo "Usage: addalias <alias@domain> <recipient@other>" ; }
-
-[[ -z ${EMAIL} ]] && { usage ; errex "Error: No alias specified" ; }
-[[ -z ${RECIPIENT} ]] && { usage ; errex "Error: No recipient specified" ; }
+[[ -z ${EMAIL} ]] && { __usage ; errex 'No alias specified' ; }
+[[ -z ${RECIPIENT} ]] && { __usage ; errex 'No recipient specified' ; }
 
 grep \
   -qi "^$(escape "${EMAIL}")[a-zA-Z@.\ ]*$(escape "${RECIPIENT}")" \

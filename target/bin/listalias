@@ -8,4 +8,5 @@ DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-virtual.cf}
 [[ -f ${DATABASE} ]] || errex "Error: No postfix-virtual.cf file"
 [[ -s ${DATABASE} ]] || errex "Error: Empty postfix-virtual.cf - no aliases have been added"
 
-( grep -v "^\s*$\|^\s*\#" "${DATABASE}" || true )
+grep -v "^\s*$\|^\s*\#" "${DATABASE}"
+exit 0

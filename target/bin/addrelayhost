@@ -5,22 +5,42 @@
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-relaymap.cf}
 
+function __usage
+{
+  printf "\e[35mADDRELAYHOST\e[31m(\e[93m8\e[31m)
+
+\e[38;5;214mNAME\e[39m
+    addrelayhost - add an relay host
+
+\e[38;5;214mSYNOPSIS\e[39m
+    ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
+
+\e[38;5;214mOPTIONS\e[39m
+    \e[94mGeneric Program Information\e[39m
+        help       Print the usage information.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
+
+[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
 DOMAIN="${1}"
 HOST="${2}"
 PORT="${3}"
 
-function usage  { echo "Usage: addrelayhost <domain> <host> [<port>]" ; }
-
-[[ -z ${DOMAIN} ]] && { usage ; errex "no domain specified" ; }
-[[ -z ${HOST} ]] && { usage ; errex "no relay host specified" ; }
-
+[[ -z ${DOMAIN} ]] && { __usage ; errex 'No domain specified' ; }
+[[ -z ${HOST} ]] && { __usage ; errex 'No relay host specified' ; }
 [[ -z ${PORT} ]] && PORT=25
 
 if grep -qi "^@${DOMAIN}" "${DATABASE}" 2>/dev/null
 then
-  # TODO check if fixed
-  # sed -i "s ^@${DOMAIN}.* @${DOMAIN}\t\t[${HOST}]:${PORT}" "${DATABASE}"
-  sed -i "s ^@""${DOMAIN}"".* ""@""${DOMAIN}""\t\t[""${HOST}""]:""${PORT}"" " "${DATABASE}"
+  sed -i \
+    "s|^@${DOMAIN}.*|@${DOMAIN}\t\t[${HOST}]:${PORT}|" \
+    "${DATABASE}"
 else
-  echo -e "@${DOMAIN}\t\t[${HOST}]:${PORT}" >> "${DATABASE}"
+  echo -e "@${DOMAIN}\t\t[${HOST}]:${PORT}" >>"${DATABASE}"
 fi

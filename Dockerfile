@@ -40,9 +40,10 @@ RUN \
   apt-get -y --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 \
+  ca-certificates cabextract clamav clamav-daemon cpio curl \
   dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
-  dumb-init ca-certificates cabextract clamav clamav-daemon cpio curl \
+  dumb-init \
   # E - O
   ed fail2ban fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
@@ -125,6 +126,7 @@ RUN \
 COPY \
   ./target/bin/* \
   ./target/scripts/*.sh \
+  ./target/scripts/startup/*.sh \
   ./target/docker-configomat/configomat.sh \
   /usr/local/bin/
 

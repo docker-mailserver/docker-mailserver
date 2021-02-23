@@ -7,14 +7,40 @@
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
+function __usage
+{
+  printf "\e[35mADDMAILUSER\e[31m(\e[93m8\e[31m)
+
+\e[38;5;214mNAME\e[39m
+    addmailuser - add an email address (i.e. a user)
+
+\e[38;5;214mSYNOPSIS\e[39m
+    ./setup.sh email add <EMAIL ADDRESS> [<PASSWORD>]
+
+\e[38;5;214mOPTIONS\e[39m
+    \e[94mGeneric Program Information\e[39m
+        help       Print the usage information.
+
+\e[38;5;214mEXAMPLES\e[39m
+    \e[37m./setup.sh email add test@domain.tld\e[39m
+        Add the email account test@domain.tld. You will be prompted
+        to input a password afterwards since no password was supplied.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
+
+[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
 USER="${1}"
 shift
 PASSWD="${*}"
 
-function usage  { echo "Usage: addmailuser <user@domain> [<password>]" ; }
-
-[[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
-[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain" ; }
+[[ -z ${USER} ]] && { __usage ; errex 'No username specified' ; }
+[[ "${USER}" =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
 
 # Protect config file with lock to avoid race conditions
 touch "${DATABASE}"

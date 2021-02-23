@@ -6,7 +6,7 @@ DMS_DEBUG="${DMS_DEBUG:=0}"
 
 function errex
 {
-  echo "${@}" 1>&2
+  echo -e "Error :: ${*}\nAborting." >&2
   exit 1
 }
 
@@ -149,13 +149,13 @@ function _populate_relayhost_map
     sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
 
     [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r domain
+  } | while read -r DOMAIN
   do
-    # domain not already present *and* not ignored
-    if ! grep -q -e "^@${domain}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${domain}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
+    # DOMAIN not already present *and* not ignored
+    if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
-      _notify 'inf' "Adding relay mapping for ${domain}"
-      echo "@${domain}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
+      _notify 'inf' "Adding relay mapping for ${DOMAIN}"
+      echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done
 }
