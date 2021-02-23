@@ -82,106 +82,106 @@ function register_functions
 
   # ? >> Checks
 
-  _register_check_function "_check_hostname"
+  _register_check_function '_check_hostname'
 
   # ? >> Setup
 
-  _register_setup_function "_setup_supervisor"
-  _register_setup_function "_setup_default_vars"
-  _register_setup_function "_setup_file_permissions"
+  _register_setup_function '_setup_supervisor'
+  _register_setup_function '_setup_default_vars'
+  _register_setup_function '_setup_file_permissions'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]
   then
-    _register_setup_function "_setup_dovecot"
-    _register_setup_function "_setup_dovecot_dhparam"
-    _register_setup_function "_setup_dovecot_quota"
-    _register_setup_function "_setup_dovecot_local_user"
+    _register_setup_function '_setup_dovecot'
+    _register_setup_function '_setup_dovecot_dhparam'
+    _register_setup_function '_setup_dovecot_quota'
+    _register_setup_function '_setup_dovecot_local_user'
   fi
 
-  [[ ${ENABLE_LDAP} -eq 1 ]] && _register_setup_function "_setup_ldap"
-  [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function "_setup_postgrey"
-  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function "_setup_saslauthd"
-  [[ ${POSTFIX_INET_PROTOCOLS} != "all" ]] && _register_setup_function "_setup_inet_protocols"
+  [[ ${ENABLE_LDAP} -eq 1 ]] && _register_setup_function '_setup_ldap'
+  [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function '_setup_postgrey'
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
+  [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_inet_protocols'
 
-  _register_setup_function "_setup_dkim"
-  _register_setup_function "_setup_ssl"
-  _register_setup_function "_setup_docker_permit"
-  _register_setup_function "_setup_mailname"
-  _register_setup_function "_setup_amavis"
-  _register_setup_function "_setup_dmarc_hostname"
-  _register_setup_function "_setup_postfix_hostname"
-  _register_setup_function "_setup_dovecot_hostname"
-  _register_setup_function "_setup_postfix_smtputf8"
-  _register_setup_function "_setup_postfix_sasl"
-  _register_setup_function "_setup_postfix_sasl_password"
-  _register_setup_function "_setup_security_stack"
-  _register_setup_function "_setup_postfix_aliases"
-  _register_setup_function "_setup_postfix_vhost"
-  _register_setup_function "_setup_postfix_dhparam"
-  _register_setup_function "_setup_postfix_postscreen"
-  _register_setup_function "_setup_postfix_sizelimits"
+  _register_setup_function '_setup_dkim'
+  _register_setup_function '_setup_ssl'
+  _register_setup_function '_setup_docker_permit'
+  _register_setup_function '_setup_mailname'
+  _register_setup_function '_setup_amavis'
+  _register_setup_function '_setup_dmarc_hostname'
+  _register_setup_function '_setup_postfix_hostname'
+  _register_setup_function '_setup_dovecot_hostname'
+  _register_setup_function '_setup_postfix_smtputf8'
+  _register_setup_function '_setup_postfix_sasl'
+  _register_setup_function '_setup_postfix_sasl_password'
+  _register_setup_function '_setup_security_stack'
+  _register_setup_function '_setup_postfix_aliases'
+  _register_setup_function '_setup_postfix_vhost'
+  _register_setup_function '_setup_postfix_dhparam'
+  _register_setup_function '_setup_postfix_postscreen'
+  _register_setup_function '_setup_postfix_sizelimits'
 
   # needs to come after _setup_postfix_aliases
-  [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function "_setup_spoof_protection"
+  [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function '_setup_spoof_protection'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
   then
-    _register_setup_function "_setup_SRS"
-    _register_start_daemon "_start_daemons_postsrsd"
+    _register_setup_function '_setup_SRS'
+    _register_start_daemon '_start_daemons_postsrsd'
   fi
 
-  _register_setup_function "_setup_postfix_access_control"
+  _register_setup_function '_setup_postfix_access_control'
 
-  [[ -n ${DEFAULT_RELAY_HOST} ]] && _register_setup_function "_setup_postfix_default_relay_host"
-  [[ -n ${RELAY_HOST} ]] && _register_setup_function "_setup_postfix_relay_hosts"
-  [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT:-0} -eq 1 ]] && _register_setup_function "_setup_postfix_virtual_transport"
+  [[ -n ${DEFAULT_RELAY_HOST} ]] && _register_setup_function '_setup_postfix_default_relay_host'
+  [[ -n ${RELAY_HOST} ]] && _register_setup_function '_setup_postfix_relay_hosts'
+  [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT:-0} -eq 1 ]] && _register_setup_function '_setup_postfix_virtual_transport'
 
-  _register_setup_function "_setup_postfix_override_configuration"
-  _register_setup_function "_setup_environment"
-  _register_setup_function "_setup_logrotate"
-  _register_setup_function "_setup_mail_summary"
-  _register_setup_function "_setup_logwatch"
-  _register_setup_function "_setup_user_patches"
+  _register_setup_function '_setup_postfix_override_configuration'
+  _register_setup_function '_setup_environment'
+  _register_setup_function '_setup_logrotate'
+  _register_setup_function '_setup_mail_summary'
+  _register_setup_function '_setup_logwatch'
+  _register_setup_function '_setup_user_patches'
 
   # needs to come last as configuration files are modified in-place
-  _register_setup_function "_setup_chksum_file"
+  _register_setup_function '_setup_chksum_file'
 
   # ? >> Fixes
 
-  _register_fix_function "_fix_var_mail_permissions"
-  _register_fix_function "_fix_var_amavis_permissions"
+  _register_fix_function '_fix_var_mail_permissions'
+  _register_fix_function '_fix_var_amavis_permissions'
 
-  [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function "_fix_cleanup_clamav"
-  [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function "_fix_cleanup_spamassassin"
+  [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
+  [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function '_fix_cleanup_spamassassin'
 
   # ? >> Miscellaneous
 
-  _register_misc_function "_misc_save_states"
+  _register_misc_function '_misc_save_states'
 
   # ? >> Daemons
 
-  _register_start_daemon "_start_daemons_cron"
-  _register_start_daemon "_start_daemons_rsyslog"
+  _register_start_daemon '_start_daemons_cron'
+  _register_start_daemon '_start_daemons_rsyslog'
 
-  [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon "_start_daemons_dovecot"
+  [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemons_dovecot'
 
   # needs to be started before SASLauthd
-  _register_start_daemon "_start_daemons_opendkim"
-  _register_start_daemon "_start_daemons_opendmarc"
+  _register_start_daemon '_start_daemons_opendkim'
+  _register_start_daemon '_start_daemons_opendmarc'
 
   # needs to be started before postfix
-  [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon "_start_daemons_postgrey"
+  [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon '_start_daemons_postgrey'
 
-  _register_start_daemon "_start_daemons_postfix"
+  _register_start_daemon '_start_daemons_postfix'
 
   # needs to be started after postfix
-  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_start_daemon "_start_daemons_saslauthd"
-  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon "_start_daemons_fail2ban"
-  [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon "_start_daemons_fetchmail"
-  [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon "_start_daemons_clamav"
-  [[ ${ENABLE_LDAP} -eq 0 ]] && _register_start_daemon "_start_changedetector"
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_start_daemon '_start_daemons_saslauthd'
+  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemons_fail2ban'
+  [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemons_fetchmail'
+  [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemons_clamav'
+  [[ ${ENABLE_LDAP} -eq 0 ]] && _register_start_daemon '_start_changedetector'
 
-  _register_start_daemon "_start_daemons_amavis"
+  _register_start_daemon '_start_daemons_amavis'
 }
 
 function _register_start_daemon
@@ -223,7 +223,7 @@ function _defunc
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 # ? << Registering functions
 # ––
-# ? >> Running all stacks
+# ? >> Sourcing all stacks
 #      1. Checks
 #      2. Setup
 #      3. Fixes
@@ -247,9 +247,9 @@ function _defunc
 . /usr/local/bin/daemons-stack.sh
 
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-# ? << Running all stacks
+# ? << Sourcing all stacks
 # ––
-# ? >> Final function calls and script execution
+# ? >> Executing all stacks
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 _notify 'inf' 'Welcome to docker-mailserver'

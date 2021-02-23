@@ -14,7 +14,7 @@ function _setup_supervisor
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case "${SUPERVISOR_LOGLEVEL}" in
-      "critical" | "error" | "warn" | "info" | "debug" )
+      'critical' | 'error' | 'warn' | 'info' | 'debug' )
         sed -i -E \
           "s|loglevel.*|loglevel = ${SUPERVISOR_LOGLEVEL}|g" \
           /etc/supervisor/supervisord.conf
@@ -25,7 +25,7 @@ function _setup_supervisor
           "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
 
         sed -i -E \
-          "s|loglevel.*|loglevel = warn|g" \
+          's|loglevel.*|loglevel = warn|g' \
           /etc/supervisor/supervisord.conf
         ;;
 
@@ -37,19 +37,19 @@ function _setup_supervisor
 
 function _setup_default_vars
 {
-  _notify 'task' "Setting up default variables"
+  _notify 'task' 'Setting up default variables'
 
   # update POSTMASTER_ADDRESS - must be done done after _check_hostname
-  POSTMASTER_ADDRESS="${POSTMASTER_ADDRESS:="postmaster@${DOMAINNAME}"}"
+  POSTMASTER_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 
   # update REPORT_SENDER - must be done done after _check_hostname
-  REPORT_SENDER="${REPORT_SENDER:="mailserver-report@${HOSTNAME}"}"
+  REPORT_SENDER="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
   PFLOGSUMM_SENDER="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
 
   # set PFLOGSUMM_TRIGGER here for backwards compatibility
   # when REPORT_RECIPIENT is on the old method should be used
   # ! needs to be a string comparison
-  if [[ ${REPORT_RECIPIENT} == "0" ]]
+  if [[ ${REPORT_RECIPIENT} == '0' ]]
   then
     PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=none}"
   else
@@ -57,10 +57,9 @@ function _setup_default_vars
   fi
 
   # expand address to simplify the rest of the script
-  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "0" ]]
+  if [[ ${REPORT_RECIPIENT} == '0' ]] || [[ ${REPORT_RECIPIENT} == '1' ]]
   then
     REPORT_RECIPIENT="${POSTMASTER_ADDRESS}"
-    REPORT_RECIPIENT="${REPORT_RECIPIENT}"
   fi
 
   PFLOGSUMM_RECIPIENT="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
@@ -87,7 +86,7 @@ function _setup_default_vars
 # Set the expected values and create missing folders/files just in case.
 function _setup_file_permissions
 {
-  _notify 'task' "Setting file/folder permissions"
+  _notify 'task' 'Setting file/folder permissions'
 
   mkdir -p /var/log/supervisor
 
@@ -105,7 +104,7 @@ function _setup_file_permissions
 
 function _setup_chksum_file
 {
-  _notify 'task' "Setting up configuration checksum file"
+  _notify 'task' 'Setting up configuration checksum file'
 
   if [[ -d /tmp/docker-mailserver ]]
   then
@@ -1423,7 +1422,7 @@ function _setup_security_stack
 
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]
     then
-      _notify 'inf' "Configure Spamassassin/Amavis to put SPAM inbox"
+      _notify 'inf' 'Configure Spamassassin/Amavis to put SPAM inbox'
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
@@ -1433,7 +1432,7 @@ function _setup_security_stack
 
       if ! ${SPAMASSASSIN_SPAM_TO_INBOX_IS_SET}
       then
-        _notify 'warn' "Spam messages WILL NOT BE DELIVERED, you will NOT be notified of ANY message bounced. Please define SPAMASSASSIN_SPAM_TO_INBOX explicitly."
+        _notify 'warn' 'Spam messages WILL NOT BE DELIVERED, you will NOT be notified of ANY message bounced. Please define SPAMASSASSIN_SPAM_TO_INBOX explicitly.'
       fi
     fi
   fi
@@ -1442,19 +1441,19 @@ function _setup_security_stack
   if [[ ${ENABLE_CLAMAV} -eq 0 ]]
   then
     _notify 'warn' "Clamav is disabled. You can enable it with 'ENABLE_CLAMAV=1'"
-    echo "@bypass_virus_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
+    echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
-    _notify 'inf' "Enabling clamav"
+    _notify 'inf' 'Enabling clamav'
   fi
 
-  echo "1;  # ensure a defined return" >>"${DMS_AMAVIS_FILE}"
+  echo '1;  # ensure a defined return' >>"${DMS_AMAVIS_FILE}"
   chmod 444 "${DMS_AMAVIS_FILE}"
 
   # Fail2ban
   if [[ ${ENABLE_FAIL2BAN} -eq 1 ]]
   then
-    _notify 'inf' "Fail2ban enabled"
+    _notify 'inf' 'Fail2ban enabled'
 
     if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]
     then
@@ -1487,18 +1486,18 @@ function _setup_logrotate
   LOGROTATE='/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n'
 
   case "${LOGROTATE_INTERVAL}" in
-    "daily" )
-      _notify 'inf' "Setting postfix logrotate interval to daily"
+    'daily' )
+      _notify 'inf' 'Setting postfix logrotate interval to daily'
       LOGROTATE="${LOGROTATE}  rotate 4\n  daily\n"
       ;;
 
-    "weekly" )
-      _notify 'inf' "Setting postfix logrotate interval to weekly"
+    'weekly' )
+      _notify 'inf' 'Setting postfix logrotate interval to weekly'
       LOGROTATE="${LOGROTATE}  rotate 4\n  weekly\n"
       ;;
 
-    "monthly" )
-      _notify 'inf' "Setting postfix logrotate interval to monthly"
+    'monthly' )
+      _notify 'inf' 'Setting postfix logrotate interval to monthly'
       LOGROTATE="${LOGROTATE}  rotate 4\n  monthly\n"
       ;;
 
@@ -1516,24 +1515,24 @@ function _setup_mail_summary
   _notify 'inf' "Enable postfix summary with recipient ${PFLOGSUMM_RECIPIENT}"
 
   case "${PFLOGSUMM_TRIGGER}" in
-    "daily_cron" )
-      _notify 'inf' "Creating daily cron job for pflogsumm report"
+    'daily_cron' )
+      _notify 'inf' 'Creating daily cron job for pflogsumm report'
 
-      echo "#! /bin/bash" > /etc/cron.daily/postfix-summary
-      echo "/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}" >> /etc/cron.daily/postfix-summary
+      echo '#! /bin/bash' > /etc/cron.daily/postfix-summary
+      echo "/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}" >>/etc/cron.daily/postfix-summary
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
 
-    "logrotate" )
-      _notify 'inf' "Add postrotate action for pflogsumm report"
+    'logrotate' )
+      _notify 'inf' 'Add postrotate action for pflogsumm report'
       sed -i \
         "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" \
         /etc/logrotate.d/maillog
       ;;
 
-    "none" )
-      _notify 'inf' "Postfix log summary reports disabled."
+    'none' )
+      _notify 'inf' 'Postfix log summary reports disabled.'
       ;;
 
     * )
@@ -1550,24 +1549,24 @@ function _setup_logwatch
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
 
   case "${LOGWATCH_INTERVAL}" in
-    "daily" )
+    'daily' )
       _notify 'inf' "Creating daily cron job for logwatch reports"
       echo "#! /bin/bash" > /etc/cron.daily/logwatch
       echo "/usr/sbin/logwatch --range Yesterday --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
-      >> /etc/cron.daily/logwatch
+        >>/etc/cron.daily/logwatch
       chmod 744 /etc/cron.daily/logwatch
       ;;
 
-    "weekly" )
+    'weekly' )
       _notify 'inf' "Creating weekly cron job for logwatch reports"
       echo "#! /bin/bash" > /etc/cron.weekly/logwatch
       echo "/usr/sbin/logwatch --range 'between -7 days and -1 days' --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
-      >> /etc/cron.weekly/logwatch
+        >>/etc/cron.weekly/logwatch
       chmod 744 /etc/cron.weekly/logwatch
       ;;
 
-    "none" )
-      _notify 'inf' "Logwatch reports disabled. You can enable them with 'LOGWATCH_INTERVAL=daily' or 'LOGWATCH_INTERVAL=weekly'"
+    'none' )
+      _notify 'inf' 'Logwatch reports disabled.'
       ;;
 
     * )
