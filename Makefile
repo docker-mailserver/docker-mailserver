@@ -62,14 +62,15 @@ eclint:
 	@ ./test/linting/lint.sh eclint
 
 install_linters:
-	@ sudo curl -S -L \
-		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(shell uname -s)-$(shell uname -m)" -o /usr/local/bin/hadolint
-	@ sudo curl -S -L \
+	@ mkdir -p tools
+	@ curl -S -L \
+		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(shell uname -s)-$(shell uname -m)" -o tools/hadolint
+	@ curl -S -L \
 		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz" | tar -xJ
-	@ sudo curl -S -L \
+	@ curl -S -L \
 		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-linux-amd64.tar.gz" | tar -xaz
-	@ sudo chmod +rx /usr/local/bin/hadolint
-	@ sudo mv "shellcheck-v$(SHELLCHECK_VERSION)/shellcheck" /usr/bin/
-	@ sudo mv bin/ec-linux-amd64 /usr/bin/eclint
-	@ sudo chmod +x /usr/bin/eclint
-	@ sudo rm -rf "shellcheck-v$(SHELLCHECK_VERSION)" bin
+	@ chmod +rx tools/hadolint
+	@ mv "shellcheck-v$(SHELLCHECK_VERSION)/shellcheck" tools/
+	@ mv bin/ec-linux-amd64 tools/eclint
+	@ chmod +x tools/eclint
+	@ rm -rf "shellcheck-v$(SHELLCHECK_VERSION)" bin

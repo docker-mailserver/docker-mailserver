@@ -116,7 +116,7 @@ function _shellcheck
 {
   local SCRIPT='SHELLCHECK'
   local ERR=0
-  local LINT=(/usr/bin/shellcheck -x -S style -Cauto -o all -e SC2154 -W 50)
+  local LINT=(shellcheck -x -S style -Cauto -o all -e SC2154 -W 50)
 
   if ! __in_path "${LINT[0]}"
   then
@@ -199,5 +199,9 @@ function _main
       ;;
   esac
 }
+
+# prefer linters installed in tools
+PATH="$(pwd)/tools:${PATH}"
+export PATH
 
 _main "${@}" || exit ${?}
