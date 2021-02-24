@@ -382,7 +382,7 @@ function _setup_dovecot_local_user
     _notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
 
-  if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf | grep -q '|'
+  if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
   then
     if [[ ${ENABLE_LDAP} -eq 0 ]]
     then
