@@ -37,7 +37,7 @@ function setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DMS_DEBUG=0 \
+    -e DMS_DEBUG=1 \
     -e SSL_TYPE=letsencrypt \
     -e "SSL_DOMAIN=*.example.com" \
     -h mail.my-domain.com -t "${NAME}"

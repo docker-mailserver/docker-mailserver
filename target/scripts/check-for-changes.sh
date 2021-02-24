@@ -68,17 +68,14 @@ do
       do
         case "${FILE}" in
           "/etc/letsencrypt/acme.json" )
-            for certdomain in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+            for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
             do
-              if _extract_certs_from_acme "${certdomain}"
-              then
-                break
-              fi
+              _extract_certs_from_acme "${CERTDOMAIN}" && break
             done
             ;;
 
           * )
-            _notify 'warn' 'file not found for certificate in check_for_changes.sh'
+            _notify 'warn' 'File not found for certificate in check_for_changes.sh'
             ;;
 
         esac
