@@ -4,7 +4,7 @@
 . /usr/local/bin/helper-functions.sh
 
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-echo "${LOG_DATE} Start check-for-changes script."
+_notify 'task' "${LOG_DATE} Start check-for-changes script."
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
 
@@ -13,14 +13,14 @@ cd /tmp/docker-mailserver || exit 1
 # check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  echo "${LOG_DATE} postfix-accounts.cf is missing! This should not run! Exit!"
+  _notify 'inf' "${LOG_DATE} postfix-accounts.cf is missing! This should not run! Exit!"
   exit 0
 fi
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  echo "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
+  _notify 'err' "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
   exit 0
 fi
 
@@ -36,7 +36,7 @@ else
 fi
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-echo "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
+_notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 sleep 10
 
 while true
@@ -48,7 +48,7 @@ do
 
   if ! cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
   then
-    echo "${LOG_DATE} Change detected"
+    _notify 'inf' "${LOG_DATE} Change detected"
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # Bug alert! This overwrites the alias set by start-mailserver.sh
@@ -66,17 +66,18 @@ do
 
       for FILE in ${CHANGED}
       do
-        case ${FILE} in
-          /etc/letsencrypt/acme.json)
-            for certdomain in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+        case "${FILE}" in
+          "/etc/letsencrypt/acme.json" )
+            for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
             do
-              if _extract_certs_from_acme "${certdomain}"
-              then
-                break
-              fi
+              _extract_certs_from_acme "${CERTDOMAIN}" && break
             done
             ;;
-          * ) _notify 'warn' 'file not found for certificate in check_for_changes.sh' ;;
+
+          * )
+            _notify 'warn' 'File not found for certificate in check_for_changes.sh'
+            ;;
+
         esac
       done
 
@@ -120,7 +121,7 @@ do
           then
             while read -r LINE
             do
-              if ! echo "${LINE}" | grep -q -e "\s*#"
+              if ! grep -q -e "\s*#" <<< "${LINE}"
               then
                 echo "${LINE}" >>/etc/postfix/sasl_passwd
               fi
@@ -212,11 +213,11 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
       if [[ -f /tmp/vhost.tmp ]]
       then
-        # shellcheck disable=SC2002
-        cat /tmp/vhost.tmp | sort | uniq >/etc/postfix/vhost && rm /tmp/vhost.tmp
+        sort < /tmp/vhost.tmp | uniq >/etc/postfix/vhost
+        rm /tmp/vhost.tmp
       fi
 
-      if [[ $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .) -ne 0 ]]
+      if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
       then
         chown -R 5000:5000 /var/mail
       fi
@@ -233,3 +234,5 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
   sleep 1
 done
+
+exit 0
