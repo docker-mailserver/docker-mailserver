@@ -25,6 +25,8 @@ function _fix_var_mail_permissions
   else
     _notify 'inf' 'Permissions in /var/mail look OK'
   fi
+
+  return 0
 }
 
 function _fix_var_amavis_permissions

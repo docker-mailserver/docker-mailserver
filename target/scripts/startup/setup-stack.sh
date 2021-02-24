@@ -21,7 +21,7 @@ function _setup_supervisor
         ;;
 
       * )
-        _notify 'error' \
+        _notify 'err' \
           "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
 
         sed -i -E \
@@ -382,7 +382,7 @@ function _setup_dovecot_local_user
     _notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
 
-  if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf | grep -q '|'
+  if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
   then
     if [[ ${ENABLE_LDAP} -eq 0 ]]
     then
@@ -749,7 +749,7 @@ function _setup_dkim
 {
   _notify 'task' 'Setting up DKIM'
 
-  mkdir -p /etc/opendkim
+  mkdir -p /etc/opendkim && touch /etc/opendkim/SigningTable
 
   # check if any keys are available
   if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
@@ -763,6 +763,7 @@ function _setup_dkim
     chmod -R 0700 /etc/opendkim/keys/
   else
     _notify 'warn' 'No DKIM key provided. Check the documentation on how to get your keys.'
+    [[ ! -f "/etc/opendkim/KeyTable" ]] && touch "/etc/opendkim/KeyTable"
   fi
 
   # setup nameservers paramater from /etc/resolv.conf if not defined
