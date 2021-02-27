@@ -7,7 +7,7 @@
 SCRIPT='setup.sh'
 
 set -euEo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${BASH_COMMAND:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
 trap '_unset_vars || :' EXIT
 
 function __log_err
