@@ -1,0 +1,35 @@
+site_name: 'Docker Mailserver'
+site_description: 'A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
+site_author: 'docker-mailserver (Github Organization)'
+repo_name: 'docker-mailserver'
+repo_url: 'https://github.com/docker-mailserver/docker-mailserver'
+copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
+
+docs_dir: 'content/'
+theme:
+  name: 'material'
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.expand
+
+markdown_extensions:
+  - toc:
+      permalink: ⚓︎
+  - abbr
+  - attr_list
+  - admonition
+  - pymdownx.highlight:
+      extend_pygments_lang:
+        - name: yml
+          lang: yaml
+        - name: cf
+          lang: cfg
+        - name: conf
+          lang: cfg
+  - pymdownx.superfences
+  - pymdownx.magiclink
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
