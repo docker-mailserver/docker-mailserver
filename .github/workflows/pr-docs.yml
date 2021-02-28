@@ -1,0 +1,22 @@
+name: 'Documentation'
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pr-docs.yml'
+      - 'docs/**'
+
+# Jobs will run shell commands from this subdirectory:
+defaults:
+  run:
+    working-directory: docs
+
+jobs:
+  build:
+    name: 'Verify Build'
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 'Build with mkdocs-material via Docker'
+        run: docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build --strict
