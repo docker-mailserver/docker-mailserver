@@ -6,7 +6,7 @@ title: Home
 
 Please first have a look at the [`README.md`][github-file-readme] to setup and configure this server.
 
-This wiki provides you with advanced configuration, detailed examples, and hints.
+This documentation provides you with advanced configuration, detailed examples, and hints.
 
 ## Getting Started
 

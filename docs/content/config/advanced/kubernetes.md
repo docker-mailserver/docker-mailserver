@@ -144,7 +144,7 @@ spec:
       #      mountPath: /tmp/files
       containers:
       - name: docker-mailserver
-        image: tvial/docker-mailserver:latest
+        image: mailserver/docker-mailserver:latest
         imagePullPolicy: Always
         volumeMounts:
           - name: config

@@ -27,7 +27,7 @@ We are going to use this docker based mailserver:
 
     services:
       mail:
-        image: tvial/docker-mailserver:latest
+        image: mailserver/docker-mailserver:latest
         hostname: mail
         domainname: example.org
         container_name: mail
@@ -76,7 +76,7 @@ We are going to use this docker based mailserver:
 
     On your server you may have to do it differently.
 
-- Pull the docker image: `docker pull tvial/docker-mailserver:latest`
+- Pull the docker image: `docker pull mailserver/docker-mailserver:latest`
 
 - Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `config/opendkim/keys/domain.tld/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.org.db`:
 

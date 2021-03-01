@@ -22,7 +22,7 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 ## Included Services
 
 - [Postfix](http://www.postfix.org) with SMTP or LDAP auth
-- [Dovecot](https://www.dovecot.org) for SASL, IMAP (or POP3), with LDAP Auth, Sieve and [quotas](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Accounts#mailbox-quota)
+- [Dovecot](https://www.dovecot.org) for SASL, IMAP (or POP3), with LDAP Auth, Sieve and [quotas](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts#notes)
 - [Amavis](https://www.amavis.org/)
 - [Spamassasin](http://spamassassin.apache.org/) supporting custom rules
 - [ClamAV](https://www.clamav.net/) with automatic updates
@@ -33,8 +33,8 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- [Setup script](https://github.com/docker-mailserver/docker-mailserver/wiki/setup.sh) to easily configure and maintain your mailserver
-- Basic [Sieve support](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Sieve-filters) using dovecot
+- [Setup script](https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh) to easily configure and maintain your mailserver
+- Basic [Sieve support](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve) using dovecot
 - SASLauthd with LDAP auth
 - Persistent data and state
 - [CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions)
@@ -53,7 +53,7 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 - 1 vCore
 - 512MB RAM
 
-**Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see [FAQ](https://github.com/docker-mailserver/docker-mailserver/wiki/FAQ-and-Tips).
+**Note:** You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#what-system-requirements-are-required-to-run-docker-mailserver-effectively).
 
 ## Usage
 
@@ -108,7 +108,7 @@ chmod a+x ./setup.sh
   - don't quote your values
   - variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
 - Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `mailserver.env` serves this case where environment variables are used in the container.
-- If you want to use a bare domain (host name = domain name), see [FAQ](https://github.com/docker-mailserver/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name)
+- If you want to use a bare domain (host name = domain name), see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq#can-i-use-nakedbare-domains-no-host-name)
 
 ### Get up and running
 
@@ -223,7 +223,7 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 2. Receives email and filters for spam and viruses. For submitting outgoing mail you should prefer the submission ports(465, 587), which require authentication. Unless a relay host is configured, outgoing email will leave the server via port 25(thus outbound traffic must not be blocked by your provider or firewall).
 3. A submission port since 2018, [RFC 8314](https://tools.ietf.org/html/rfc8314). Originally a secure variant of port 25.
 
-See the [wiki](https://github.com/docker-mailserver/docker-mailserver/wiki) for further details and best practice advice, especially regarding security concerns.
+See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, especially regarding security concerns.
 
 ## Examples
 

@@ -20,7 +20,7 @@ The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in
         restart: always
 
       mailserver:
-        image: tvial/docker-mailserver:latest
+        image: mailserver/docker-mailserver:latest
         ...
         volumes:
           ...

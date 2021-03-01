@@ -39,7 +39,7 @@ version: '2'
 
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: mailserver/docker-mailserver:latest
     hostname: mail
     domainname: domain.com
     container_name: mail

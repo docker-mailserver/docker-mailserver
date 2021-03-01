@@ -60,7 +60,7 @@ Feel free to add your configuration if you achived the same goal using different
     version: '2'
     services:
       mail:
-        image: tvial/docker-mailserver:release-v7.2.0
+        image: mailserver/docker-mailserver:release-v7.2.0
         restart: always
         networks:
           - proxy

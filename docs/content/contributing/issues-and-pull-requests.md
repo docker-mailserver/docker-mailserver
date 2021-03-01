@@ -8,7 +8,7 @@ This project is Open Source. That means that you can contribute on enhancements,
 
 !!! attention
 
-      **Before opening an issue**, read the [`README`][github-file-readme] carefully, use the [Wiki][wiki], the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! 
+      **Before opening an issue**, read the [`README`][github-file-readme] carefully, study the [documentation][docs], the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! 
 
 When opening an issue, please provide details use case to let the community reproduce your problem. Please start the mail server with env `DMS_DEBUG=1` and paste the output into the issue. 
 
@@ -43,7 +43,7 @@ The development workflow is the following:
    2. When your changes are validated, your branch is merged
    3. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.
 
-[wiki]: https://docker-mailserver.github.io/docker-mailserver
+[docs]: https://docker-mailserver.github.io/docker-mailserver/edge
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 [github-file-env]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
 [commit]: https://help.github.com/articles/closing-issues-via-commit-messages/

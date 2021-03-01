@@ -190,7 +190,7 @@ The second part of the setup is the actual mail container. So, in another folder
 version: '2'
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: mailserver/docker-mailserver:latest
     hostname: ${HOSTNAME}
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
@@ -379,7 +379,7 @@ This allows for support of wild card certificates: `SSL_DOMAIN=*.example.com`. H
 version: '3.8'
 services:
   mail:
-    image: tvial/docker-mailserver:stable
+    image: mailserver/docker-mailserver:stable
     hostname: mail
     domainname: example.com
     volumes:
@@ -427,7 +427,7 @@ Depending of your Traefik configuration, certificates may be stored using a file
 You can easily generate a self-signed SSL certificate by using the following command:
 
 ```sh
-docker run -it --rm -v "$(pwd)"/config/ssl:/tmp/docker-mailserver/ssl -h mail.my-domain.com -t tvial/docker-mailserver generate-ssl-certificate
+docker run -it --rm -v "$(pwd)"/config/ssl:/tmp/docker-mailserver/ssl -h mail.my-domain.com -t mailserver/docker-mailserver generate-ssl-certificate
 
 # Press enter
 # Enter a password when needed

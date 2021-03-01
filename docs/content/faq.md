@@ -187,7 +187,7 @@ Then with plain `docker-compose`:
 ```yaml
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: mailserver/docker-mailserver:latest
     volumes:
       - ./cron/sa-learn:/etc/cron.d/sa-learn
 ```
@@ -199,7 +199,7 @@ version: "3.3"
 
 services:
   mail:
-    image: tvial/docker-mailserver:latest
+    image: mailserver/docker-mailserver:latest
     # ...
     configs:
       - source: my_sa_crontab
@@ -351,7 +351,7 @@ proxy_interfaces = X.X.X.X (your public IP)
 ### What About Updates
 
 You can of course use a own script or every now and then pull && stop && rm && start the images but there are tools available for this.
-There is a page in the [Update and Cleanup][docs-maintenance] wiki page that explains how to use it the docker way.
+There is a section in the [Update and Cleanup][docs-maintenance] documentation page that explains how to use it the docker way.
 
 ### How to adjust settings with the `user-patches.sh` script
 
