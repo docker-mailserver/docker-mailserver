@@ -1,4 +1,8 @@
-### Introduction
+---
+title: 'LDAP Authentication'
+---
+
+## Introduction
 
 Getting started with ldap and this mailserver we need to take 3 parts in account:
 
@@ -6,9 +10,10 @@ Getting started with ldap and this mailserver we need to take 3 parts in account
 * DOVECOT
 * SASLAUTHD (this can also be handled by dovecot above)
 
-### List with the variables to control the container provisioning
+## Variables to Control Provisioning by the Container
 
 __POSTFIX__:
+
 * `LDAP_QUERY_FILTER_USER`
 * `LDAP_QUERY_FILTER_GROUP`
 * `LDAP_QUERY_FILTER_ALIAS`
@@ -19,14 +24,16 @@ __SASLAUTHD__:
 * `SASLAUTHD_LDAP_FILTER`
 
 __DOVECOT__:
+
 * `DOVECOT_USER_FILTER`
 * `DOVECOT_PASS_FILTER`
 
+!!! note
+    This page will provide several use cases like recipes to show, how this project can be used with it's LDAP Features.
 
-**NOTE**: This page will provide several use cases like recipes to show, how this project can be used with it's LDAP Features.
+## LDAP Setup - Kopano / Zarafa
 
-### Ldap Setup - Kopano/Zarafa
-```yml
+```yaml
 ---
 version: '2'
 
@@ -55,7 +62,7 @@ services:
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
-      - SASLAUTHD_PASSWD=      
+      - SASLAUTHD_PASSWD=
 
       # >>> SASL Authentication
       - ENABLE_SASLAUTHD=1
@@ -100,19 +107,18 @@ volumes:
     driver: local
 ```
 
-If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the ```pass_attr``` and the ```user_attr``` mapping, as shown in the example below: 
+If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the `pass_attr` and the `user_attr` mapping, as shown in the example below:
 
-```yml
-    - DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
-    - DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
+```yaml
+- DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
+- DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
 ```
 
-The following example illustrates this for a directory that has the qmail-schema installed and that uses ```uid```:
+The following example illustrates this for a directory that has the qmail-schema installed and that uses `uid`:
 
-```yml
-      - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
-      - DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
-      - DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
-      - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+```yaml
+- DOVECOT_PASS_ATTRS=uid=user,userPassword=password
+- DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
+- DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+- DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
 ```
-

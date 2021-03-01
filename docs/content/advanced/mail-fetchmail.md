@@ -1,16 +1,18 @@
-To enable the [fetchmail](http://www.fetchmail.info) service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`. Your `docker-compose.yml` file should look like following snippet:
+---
+title: 'Email Gathering with Fetchmail'
+---
+
+To enable the [fetchmail][fetchmail-website] service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`. Your `docker-compose.yml` file should look like following snippet:
 
 ```yaml
-...
 environment:
   - ENABLE_FETCHMAIL=1
   - FETCHMAIL_POLL=300
-...
 ```
 
 Generate a file called `fetchmail.cf` and place it in the `config` folder. Your `docker-mailserver` folder should look like this example:
 
-```
+```txt
 ├── config
 │   ├── dovecot.cf
 │   ├── fetchmail.cf
@@ -20,56 +22,59 @@ Generate a file called `fetchmail.cf` and place it in the `config` folder. Your 
 └── README.md
 ```
 
-# Configuration
+## Configuration
 
-A detailed description of the configuration options can be found in the [online version of the manual page](http://www.fetchmail.info/fetchmail-man.html).
+A detailed description of the configuration options can be found in the [online version of the manual page][fetchmail-docs].
 
-## Example IMAP configuration
+### Example IMAP Configuration
 
-```
+```fetchmailrc
 poll 'imap.example.com' proto imap
-	user 'username'
-	pass 'secret'
-	is 'user1@domain.tld'
-	ssl
+  user 'username'
+  pass 'secret'
+  is 'user1@domain.tld'
+  ssl
 ```
 
-## Example POP3 configuration
+### Example POP3 Configuration
 
-```
+```fetchmailrc
 poll 'pop3.example.com' proto pop3
-	user 'username'
-	pass 'secret'
-	is 'user2@domain.tld'
-	ssl
+  user 'username'
+  pass 'secret'
+  is 'user2@domain.tld'
+  ssl
 ```
 
-__IMPORTANT__: Don’t forget the last line: e. g. `is 'user1@domain.tld'`. After `is` you have to specify one email address from the configuration file `config/postfix-accounts.cf`. 
+!!! caution
+    Don’t forget the last line: eg: `is 'user1@domain.tld'`. After `is` you have to specify one email address from the configuration file `config/postfix-accounts.cf`.
 
-More details how to configure fetchmail can be found in the [fetchmail man page in the chapter “The run control file”](http://www.fetchmail.info/fetchmail-man.html#31).
+More details how to configure fetchmail can be found in the [fetchmail man page in the chapter “The run control file”][fetchmail-docs-run].
 
-## Polling interval
+### Polling Interval
 
-By default the fetchmail service searches every 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable `FETCHMAIL_POLL`.
+By default the fetchmail service searches every 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable `FETCHMAIL_POLL`:
 
 ```yaml
+environment:
   - FETCHMAIL_POLL=60
 ```
+
 You must specify a numeric argument which is a polling interval in seconds. The example above polls every minute for new mails.
 
-# Debugging
+## Debugging
 
 To debug your `fetchmail.cf` configuration run this command:
 
-```
+```sh
 ./setup.sh debug fetchmail
 ```
 
-For more informations about the configuration script `setup.sh` [[read the corresponding wiki page|Setup-docker-mailserver-using-the-script-setup.sh]].
+For more informations about the configuration script `setup.sh` [read the corresponding docs][docs-setup].
 
 Here a sample output of `./setup.sh debug fetchmail`:
 
-```
+```log
 fetchmail: 6.3.26 querying outlook.office365.com (protocol POP3) at Mon Aug 29 22:11:09 2016: poll started
 Trying to connect to 132.245.48.18/995...connected.
 fetchmail: Server certificate:
@@ -108,3 +113,8 @@ fetchmail: POP3< +OK Microsoft Exchange Server 2016 POP3 server signing off.
 fetchmail: 6.3.26 querying outlook.office365.com (protocol POP3) at Mon Aug 29 22:11:11 2016: poll completed
 fetchmail: normal termination, status 1
 ```
+
+[docs-setup]: ../config/setup.sh.md
+[fetchmail-website]: https://www.fetchmail.info
+[fetchmail-docs]: https://www.fetchmail.info/fetchmail-man.html
+[fetchmail-docs-run]: https://www.fetchmail.info/fetchmail-man.html#31

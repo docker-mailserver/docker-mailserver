@@ -1,8 +1,14 @@
-[`setup.sh`](https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh) is an administration script that helps with the most common tasks, including initial configuration. It is intented to be used from the host machine, _not_ from within your running container.
+---
+title: Your best friend setup.sh
+hide:
+  - toc # Hide Table of Contents for this page
+---
+
+[`setup.sh`][github-file-setupsh] is an administration script that helps with the most common tasks, including initial configuration. It is intented to be used from the host machine, _not_ from within your running container.
 
 The latest version of the script is included in the `docker-mailserver` repository. You may retrieve it at any time by running this command in your console:
 
-``` BASH
+```sh
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
 chmod a+x ./setup.sh
 ```
@@ -11,7 +17,7 @@ chmod a+x ./setup.sh
 
 Run `./setup.sh -h` and you'll get some usage information:
 
-``` BASH
+```bash
 setup.sh Bootstrapping Script
 
 Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
@@ -76,3 +82,5 @@ SUBCOMMANDS:
 
   help: Show this help dialogue
 ```
+
+[github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh

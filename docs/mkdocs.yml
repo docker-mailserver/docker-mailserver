@@ -34,6 +34,7 @@ markdown_extensions:
   - abbr
   - attr_list
   - admonition
+  - pymdownx.details
   - pymdownx.highlight:
       extend_pygments_lang:
         - name: yml
@@ -42,6 +43,16 @@ markdown_extensions:
           lang: cfg
         - name: conf
           lang: cfg
+        - name: env
+          lang: properties
+        # Not helpful with Python Pygments lexer highlighting, but we might change to a JS highlighter in future
+        # Ideally, this type of codefence might also have word-wrap enabled (CSS: {white-space: pre-wrap})
+        - name: log
+          lang: shell-session
+        - name: fetchmailrc
+          lang: txt
+        - name: caddyfile
+          lang: txt
   - pymdownx.superfences
   - pymdownx.magiclink
   - pymdownx.emoji:
