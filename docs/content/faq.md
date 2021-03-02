@@ -9,11 +9,11 @@ This image is based on config files that can be persisted using Docker volumes, 
 
 ### Where are emails stored?
 
-Mails are stored in `/var/mail/${domain}/${username}`.
+Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
 
-You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data.
+!!! warning
 
-Otherwise, your data may be lost.
+    You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
 
 ### How to alter the running mailserver instance _without_ relaunching the container?
 
@@ -147,68 +147,70 @@ If you run the server with `docker-compose`, you can leverage on docker configs 
 
 The following configuration works nicely:
 
-Create a _system_ cron file:
+??? example
 
-```sh
-# in the docker-compose.yml root directory
-mkdir cron
-touch cron/sa-learn
-chown root:root cron/sa-learn
-chmod 0644 cron/sa-learn
-```
+    Create a _system_ cron file:
 
-Edit the system cron file `nano cron/sa-learn`, and set an appropriate configuration:
+    ```sh
+    # in the docker-compose.yml root directory
+    mkdir cron
+    touch cron/sa-learn
+    chown root:root cron/sa-learn
+    chmod 0644 cron/sa-learn
+    ```
 
-```conf
-# This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
-# with a consolidated config in `/var/mail-state`
-#
-# m h dom mon dow user command
-#
-# Everyday 2:00AM, learn spam from a specific user
-# spam: junk directory
-0  2 * * * root  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-# ham: archive directories
-15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
-# ham: inbox subdirectories
-30 2 * * * root  sa-learn --ham /var/mail/domain.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
-#
-# Everyday 3:00AM, learn spam from all users of a domain
-# spam: junk directory
-0  3 * * * root  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-# ham: archive directories
-15 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
-# ham: inbox subdirectories
-30 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
-```
+    Edit the system cron file `nano cron/sa-learn`, and set an appropriate configuration:
 
-Then with plain `docker-compose`:
+    ```conf
+    # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
+    # with a consolidated config in `/var/mail-state`
+    #
+    # m h dom mon dow user command
+    #
+    # Everyday 2:00AM, learn spam from a specific user
+    # spam: junk directory
+    0  2 * * * root  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    # ham: archive directories
+    15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    # ham: inbox subdirectories
+    30 2 * * * root  sa-learn --ham /var/mail/domain.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    #
+    # Everyday 3:00AM, learn spam from all users of a domain
+    # spam: junk directory
+    0  3 * * * root  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    # ham: archive directories
+    15 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    # ham: inbox subdirectories
+    30 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    ```
 
-```yaml
-services:
-  mail:
-    image: mailserver/docker-mailserver:latest
-    volumes:
-      - ./cron/sa-learn:/etc/cron.d/sa-learn
-```
+    Then with plain `docker-compose`:
 
-Or with [docker swarm](https://docs.docker.com/engine/swarm/configs/):
+    ```yaml
+    services:
+      mail:
+        image: mailserver/docker-mailserver:latest
+        volumes:
+          - ./cron/sa-learn:/etc/cron.d/sa-learn
+    ```
 
-```yaml
-version: "3.3"
+    Or with [docker swarm](https://docs.docker.com/engine/swarm/configs/):
 
-services:
-  mail:
-    image: mailserver/docker-mailserver:latest
-    # ...
+    ```yaml
+    version: "3.3"
+
+    services:
+      mail:
+        image: mailserver/docker-mailserver:latest
+        # ...
+        configs:
+          - source: my_sa_crontab
+            target: /etc/cron.d/sa-learn
+
     configs:
-      - source: my_sa_crontab
-        target: /etc/cron.d/sa-learn
-
-configs:
-  my_sa_crontab:
-    file: ./cron/sa-learn
-```
+      my_sa_crontab:
+        file: ./cron/sa-learn
+    ```
 
 With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
@@ -302,7 +304,7 @@ If we're blind, we won't be able to do anything.
 1 core and 1GB of RAM + swap partition is recommended to run `docker-mailserver` with clamav.
 Otherwise, it could work with 512M of RAM.
 
-!!! note
+!!! warning
     Clamav can consume a lot of memory, as it reads the entire signature database into RAM.
 
     Current figure is about 850M and growing. If you get errors about clamav or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
@@ -407,4 +409,5 @@ supervisorctl update
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
 [github-issue-1639]: https://github.com/docker-mailserver/docker-mailserver/issues/1639
+[github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh

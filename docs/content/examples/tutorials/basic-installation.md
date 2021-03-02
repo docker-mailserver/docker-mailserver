@@ -22,39 +22,41 @@ We are going to use this docker based mailserver:
 
 - Create the file `docker-compose.yml` with a content like this:
 
-    ```yaml
-    version: '2'
+    !!! example
 
-    services:
-      mail:
-        image: mailserver/docker-mailserver:latest
-        hostname: mail
-        domainname: example.org
-        container_name: mail
-        ports:
-        - "25:25"
-        - "587:587"
-        - "465:465"
-        volumes:
-        - ./data/:/var/mail/
-        - ./state/:/var/mail-state/
-        - ./config/:/tmp/docker-mailserver/
-        - /var/ds/wsproxy/letsencrypt/:/etc/letsencrypt/
-        environment:
-        - PERMIT_DOCKER=network
-        - SSL_TYPE=letsencrypt
-        - ONE_DIR=1
-        - DMS_DEBUG=1
-        - SPOOF_PROTECTION=0
-        - REPORT_RECIPIENT=1
-        - ENABLE_SPAMASSASSIN=0
-        - ENABLE_CLAMAV=0
-        - ENABLE_FAIL2BAN=1
-        - ENABLE_POSTGREY=0
-        cap_add:
-        - NET_ADMIN
-        - SYS_PTRACE
-    ```
+        ```yaml
+        version: '2'
+
+        services:
+        mail:
+            image: mailserver/docker-mailserver:latest
+            hostname: mail
+            domainname: example.org
+            container_name: mail
+            ports:
+            - "25:25"
+            - "587:587"
+            - "465:465"
+            volumes:
+            - ./data/:/var/mail/
+            - ./state/:/var/mail-state/
+            - ./config/:/tmp/docker-mailserver/
+            - /var/ds/wsproxy/letsencrypt/:/etc/letsencrypt/
+            environment:
+            - PERMIT_DOCKER=network
+            - SSL_TYPE=letsencrypt
+            - ONE_DIR=1
+            - DMS_DEBUG=1
+            - SPOOF_PROTECTION=0
+            - REPORT_RECIPIENT=1
+            - ENABLE_SPAMASSASSIN=0
+            - ENABLE_CLAMAV=0
+            - ENABLE_FAIL2BAN=1
+            - ENABLE_POSTGREY=0
+            cap_add:
+            - NET_ADMIN
+            - SYS_PTRACE
+        ```
 
     For more details about the environment variables that can be used, and their meaning and possible values, check also these:
 

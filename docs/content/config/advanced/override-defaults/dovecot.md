@@ -48,7 +48,7 @@ To debug your dovecot configuration you can use:
 - Or: `docker exec -it <your-container-name> doveconf | grep <some-keyword>`
 
 !!! note
-    [`setup.sh`][github-file-setupsh] is included in the `docker-mailserver` repository.
+    [`setup.sh`][github-file-setupsh] is included in the `docker-mailserver` repository. Make sure to grap the one matching your image version.
 
 The `config/dovecot.cf` is copied internally to `/etc/dovecot/local.conf`. To check this file run:
 

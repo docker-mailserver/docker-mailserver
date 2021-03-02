@@ -134,98 +134,102 @@ Then: `/path/to/mailserver/docker-compose up -d mail`
 
 The following `docker-compose.yml` is the basic setup you need for using `letsencrypt-nginx-proxy-companion`. It is mainly derived from its own wiki/documenation.
 
-```yaml
-version: "2"
+???+ example "Example Code"
 
-services:
-  nginx: 
-    image: nginx
-    container_name: nginx
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /mnt/data/nginx/htpasswd:/etc/nginx/htpasswd
-      - /mnt/data/nginx/conf.d:/etc/nginx/conf.d
-      - /mnt/data/nginx/vhost.d:/etc/nginx/vhost.d
-      - /mnt/data/nginx/html:/usr/share/nginx/html
-      - /mnt/data/nginx/certs:/etc/nginx/certs:ro
+    ```yaml
+    version: "2"
+
+    services:
+      nginx: 
+        image: nginx
+        container_name: nginx
+        ports:
+          - 80:80
+          - 443:443
+        volumes:
+          - /mnt/data/nginx/htpasswd:/etc/nginx/htpasswd
+          - /mnt/data/nginx/conf.d:/etc/nginx/conf.d
+          - /mnt/data/nginx/vhost.d:/etc/nginx/vhost.d
+          - /mnt/data/nginx/html:/usr/share/nginx/html
+          - /mnt/data/nginx/certs:/etc/nginx/certs:ro
+        networks:
+          - proxy-tier
+        restart: always
+
+      nginx-gen:
+        image: jwilder/docker-gen
+        container_name: nginx-gen
+        volumes:
+          - /var/run/docker.sock:/tmp/docker.sock:ro
+          - /mnt/data/nginx/templates/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+        volumes_from:
+          - nginx
+        entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+        restart: always
+
+      letsencrypt-nginx-proxy-companion:
+        image: jrcs/letsencrypt-nginx-proxy-companion
+        container_name: letsencrypt-companion
+        volumes_from:
+          - nginx
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - /mnt/data/nginx/certs:/etc/nginx/certs:rw
+        environment:
+          - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
+          - DEBUG=false
+        restart: always
+
     networks:
-      - proxy-tier
-    restart: always
-
-  nginx-gen:
-    image: jwilder/docker-gen
-    container_name: nginx-gen
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - /mnt/data/nginx/templates/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
-    volumes_from:
-      - nginx
-    entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
-    restart: always
-
-  letsencrypt-nginx-proxy-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: letsencrypt-companion
-    volumes_from:
-      - nginx
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/data/nginx/certs:/etc/nginx/certs:rw
-    environment:
-      - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
-      - DEBUG=false
-    restart: always
-
-networks:
-  proxy-tier:
-    external:
-      name: nginx-proxy
-```
+      proxy-tier:
+        external:
+          name: nginx-proxy
+    ```
 
 The second part of the setup is the actual mail container. So, in another folder, create another `docker-compose.yml` with the following content (Removed all ENV variables for this example):
 
-```yaml
-version: '2'
-services:
-  mail:
-    image: mailserver/docker-mailserver:latest
-    hostname: ${HOSTNAME}
-    domainname: ${DOMAINNAME}
-    container_name: ${CONTAINER_NAME}
-    ports:
-    - "25:25"
-    - "143:143"
-    - "465:465"
-    - "587:587"
-    - "993:993"
-    volumes:
-    - ./mail:/var/mail
-    - ./mail-state:/var/mail-state
-    - ./config/:/tmp/docker-mailserver/
-    - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
-    cap_add:
-    - NET_ADMIN
-    - SYS_PTRACE
-    restart: always
+???+ example "Example Code"
 
-  cert-companion:
-    image: nginx
-    environment:
-      - "VIRTUAL_HOST="
-      - "VIRTUAL_NETWORK=nginx-proxy"
-      - "LETSENCRYPT_HOST="
-      - "LETSENCRYPT_EMAIL="
+    ```yaml
+    version: '2'
+    services:
+      mail:
+        image: mailserver/docker-mailserver:latest
+        hostname: ${HOSTNAME}
+        domainname: ${DOMAINNAME}
+        container_name: ${CONTAINER_NAME}
+        ports:
+        - "25:25"
+        - "143:143"
+        - "465:465"
+        - "587:587"
+        - "993:993"
+        volumes:
+        - ./mail:/var/mail
+        - ./mail-state:/var/mail-state
+        - ./config/:/tmp/docker-mailserver/
+        - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
+        cap_add:
+        - NET_ADMIN
+        - SYS_PTRACE
+        restart: always
+
+      cert-companion:
+        image: nginx
+        environment:
+          - "VIRTUAL_HOST="
+          - "VIRTUAL_NETWORK=nginx-proxy"
+          - "LETSENCRYPT_HOST="
+          - "LETSENCRYPT_EMAIL="
+        networks:
+          - proxy-tier
+        restart: always
+
     networks:
-      - proxy-tier
-    restart: always
-
-networks:
-  proxy-tier:
-    external:
-      name: nginx-proxy
-```
+      proxy-tier:
+        external:
+          name: nginx-proxy
+    ```
 
 The mail container needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (`VIRTUAL_HOST` and `LETSENCRYPT_HOST` are mandandory, see documentation)
 
@@ -275,70 +279,72 @@ For Caddy v2 you can specify the `key_type` in your server's global settings, wh
 
 If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
 
-```json
-{
-  "apps": {
-    "http": {
-      "servers": {
-        "srv0": {
-          "listen": [
-            ":443"
-          ],
-          "routes": [
-            {
-              "match": [
-                {
-                  "host": [
-                    "mail.domain.com",
-                  ]
-                }
+???+ example "Example Code"
+
+    ```json
+    {
+      "apps": {
+        "http": {
+          "servers": {
+            "srv0": {
+              "listen": [
+                ":443"
               ],
-              "handle": [
+              "routes": [
                 {
-                  "handler": "subroute",
-                  "routes": [
+                  "match": [
                     {
-                      "handle": [
+                      "host": [
+                        "mail.domain.com",
+                      ]
+                    }
+                  ],
+                  "handle": [
+                    {
+                      "handler": "subroute",
+                      "routes": [
                         {
-                          "body": "",
-                          "handler": "static_response"
+                          "handle": [
+                            {
+                              "body": "",
+                              "handler": "static_response"
+                            }
+                          ]
                         }
                       ]
                     }
-                  ]
-                }
-              ],
-              "terminal": true
-            },
-          ]
-        }
-      }
-    },
-    "tls": {
-      "automation": {
-        "policies": [
-          {
-            "subjects": [
-              "mail.domain.com",
-            ],
-            "key_type": "rsa2048",
-            "issuer": {
-              "email": "email@email.com",
-              "module": "acme"
-            }
-          },
-          {
-            "issuer": {
-              "email": "email@email.com",
-              "module": "acme"
+                  ],
+                  "terminal": true
+                },
+              ]
             }
           }
-        ]
+        },
+        "tls": {
+          "automation": {
+            "policies": [
+              {
+                "subjects": [
+                  "mail.domain.com",
+                ],
+                "key_type": "rsa2048",
+                "issuer": {
+                  "email": "email@email.com",
+                  "module": "acme"
+                }
+              },
+              {
+                "issuer": {
+                  "email": "email@email.com",
+                  "module": "acme"
+                }
+              }
+            ]
+          }
+        }
       }
     }
-  }
-}
-```
+    ```
 
 The generated certificates can be mounted:
 
@@ -375,44 +381,46 @@ Traefik's V2 storage format is natively supported if the `acme.json` store is mo
 
 This allows for support of wild card certificates: `SSL_DOMAIN=*.example.com`. Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
-```yaml
-version: '3.8'
-services:
-  mail:
-    image: mailserver/docker-mailserver:stable
-    hostname: mail
-    domainname: example.com
-    volumes:
-    - /etc/ssl/acme-v2.json:/etc/letsencrypt/acme.json:ro
-    environment:
-      SSL_TYPE: letsencrypt
-      # SSL_DOMAIN: "*.example.com" 
-  traefik:
-    image: traefik:v2.2
-    restart: always
-    ports:
-    - "80:80"
-    - "443:443"
-    command:
-    - --providers.docker
-    - --entrypoints.web.address=:80
-    - --entrypoints.web.http.redirections.entryPoint.to=websecure
-    - --entrypoints.web.http.redirections.entryPoint.scheme=https
-    - --entrypoints.websecure.address=:443
-    - --entrypoints.websecure.http.middlewares=hsts@docker
-    - --entrypoints.websecure.http.tls.certResolver=le
-    - --certificatesresolvers.le.acme.email=admin@example.net
-    - --certificatesresolvers.le.acme.storage=/acme.json
-    - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock:ro
-    - /etc/ssl/acme-v2.json:/acme.json
+???+ example "Example Code"
 
-  whoami:
-    image: containous/whoami
-    labels:
-    - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
-```
+    ```yaml
+    version: '3.8'
+    services:
+      mail:
+        image: mailserver/docker-mailserver:stable
+        hostname: mail
+        domainname: example.com
+        volumes:
+        - /etc/ssl/acme-v2.json:/etc/letsencrypt/acme.json:ro
+        environment:
+          SSL_TYPE: letsencrypt
+          # SSL_DOMAIN: "*.example.com" 
+      traefik:
+        image: traefik:v2.2
+        restart: always
+        ports:
+        - "80:80"
+        - "443:443"
+        command:
+        - --providers.docker
+        - --entrypoints.web.address=:80
+        - --entrypoints.web.http.redirections.entryPoint.to=websecure
+        - --entrypoints.web.http.redirections.entryPoint.scheme=https
+        - --entrypoints.websecure.address=:443
+        - --entrypoints.websecure.http.middlewares=hsts@docker
+        - --entrypoints.websecure.http.tls.certResolver=le
+        - --certificatesresolvers.le.acme.email=admin@example.net
+        - --certificatesresolvers.le.acme.storage=/acme.json
+        - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - /etc/ssl/acme-v2.json:/acme.json
+
+      whoami:
+        image: containous/whoami
+        labels:
+        - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
+    ```
 
 This setup only comes with one caveat: The domain has to be configured on another service for traefik to actually request it from lets-encrypt (`whoami` in this case).
 
@@ -422,9 +430,13 @@ If you are using Traefik v1, you might want to _push_ your Traefik-managed certi
 
 Depending of your Traefik configuration, certificates may be stored using a file or a KV Store (consul, etcd...) Either way, certificates will be renewed by Traefik, then automatically pushed to the mailserver thanks to the `cert-renewer` service. Finally, dovecot and postfix will be restarted.
 
-## Self-Signed Certificates (Testing Only)
+## Self-Signed Certificates
 
-You can easily generate a self-signed SSL certificate by using the following command:
+!!! warning
+
+    Use self-signed certificates only for testing purposes!
+
+You can  generate a self-signed SSL certificate by using the following command:
 
 ```sh
 docker run -it --rm -v "$(pwd)"/config/ssl:/tmp/docker-mailserver/ssl -h mail.my-domain.com -t mailserver/docker-mailserver generate-ssl-certificate
@@ -472,7 +484,7 @@ environment:
 
 This will mount the path where your ssl certificates reside as read-only under `/tmp/ssl`. Then all you have to do is to specify the location of your private key and the certificate.
 
-!!! note
+!!! info
     You may have to restart your mailserver once the certificates change.
 
 ## Testing a Certificate is Valid
@@ -509,9 +521,11 @@ docker exec mail openssl s_client \
 
 ## Plain-Text Access
 
-Not recommended for purposes other than testing.
+!!! warning
 
-Just add this to `config/dovecot.cf`:
+    Not recommended for purposes other than testing.
+
+Add this to `config/dovecot.cf`:
 
 ```cf
 ssl = yes

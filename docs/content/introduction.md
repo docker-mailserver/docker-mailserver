@@ -51,15 +51,16 @@ Fetching an email:   MUA <------------------------------ ┫ MDA ╯ ┃
                                                          ┗━━━━━━━┛
 ```
 
-> Let's say Alice owns a Gmail account, `alice@gmail.com`; and Bob owns an account on a `docker-mailserver`'s instance, `bob@dms.io`.
->
-> Make sure not to conflate these two very different scenarios:
-> A) Alice sends an email to `bob@dms.io` => the email is first submitted to MTA `smtp.gmail.com`, then relayed to MTA `smtp.dms.io` where it is then delivered into Bob's mailbox.
-> B) Bob sends an email to `alice@gmail.com` => the email is first submitted to MTA `smtp.dms.io`, then relayed to MTA `smtp.gmail.com` and eventually delivered into Alice's mailbox.
->
-> In scenario *A* the email leaves Gmail's premises, that email's *initial* submission is _not_ handled by your `docker-mailserver` instance(MTA); it merely receives the email after it has been relayed by Gmail's MTA. In scenario *B*, the `docker-mailserver` instance(MTA) handles the submission, prior to relaying.
->
-> The main takeaway is that when a third-party sends an email to a `docker-mailserver` instance(MTA) (or any MTA for that matter), it does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, then some relaying between at least two MTAs is required to deliver the email. That will prove very important when it comes to security management.
+!!! example
+    Let's say Alice owns a Gmail account, `alice@gmail.com`; and Bob owns an account on a `docker-mailserver`'s instance, `bob@dms.io`.
+
+    Make sure not to conflate these two very different scenarios:
+    A) Alice sends an email to `bob@dms.io` => the email is first submitted to MTA `smtp.gmail.com`, then relayed to MTA `smtp.dms.io` where it is then delivered into Bob's mailbox.
+    B) Bob sends an email to `alice@gmail.com` => the email is first submitted to MTA `smtp.dms.io`, then relayed to MTA `smtp.gmail.com` and eventually delivered into Alice's mailbox.
+
+    In scenario *A* the email leaves Gmail's premises, that email's *initial* submission is _not_ handled by your `docker-mailserver` instance(MTA); it merely receives the email after it has been relayed by Gmail's MTA. In scenario *B*, the `docker-mailserver` instance(MTA) handles the submission, prior to relaying.
+
+    The main takeaway is that when a third-party sends an email to a `docker-mailserver` instance(MTA) (or any MTA for that matter), it does _not_ establish a direct connection with that MTA. Email submission first goes through the sender's MTA, then some relaying between at least two MTAs is required to deliver the email. That will prove very important when it comes to security management.
 
 One important thing to note is that MTA and MDA programs may actually handle _multiple_ tasks (which is the case with `docker-mailserver`'s Postfix and Dovecot).
 
@@ -145,7 +146,7 @@ The best practice as of 2020 when it comes to securing Outward Submission is to 
 - [ESMTP][wikipedia-esmtp] is [SMTP][wikipedia-smtp] + extensions. It's the version of the SMTP protocol that most mail servers speak nowadays. For the purpose of this documentation, ESMTP and SMTP are synonymous.
 - Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.
 
-!!! note
+!!! warning
     This Submission setup is sometimes refered to as [SMTPS][wikipedia-smtps]. Long story short: this is incorrect and should be avoided.
 
 Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cutting edge". There exists another well established mail Submission setup that must be supported as well, SMTP+STARTTLS on port 587. It uses Explicit TLS: the client starts with a cleartext connection, then the server informs a TLS-encrypted "upgraded" connection may be established, and the client _may_ eventually decide to establish it prior to the Submission. Basically it's an opportunistic, opt-in TLS upgrade of the connection between the client and the server, at the client's discretion, using a mechanism known as [STARTTLS][wikipedia-starttls] that both ends need to implement.

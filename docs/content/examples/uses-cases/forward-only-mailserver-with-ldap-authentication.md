@@ -97,9 +97,13 @@ postfix reload
 
 You see that besides `query_filter`, I had to customize as well `result_attribute` and `result_format`.
 
-For more details about using LDAP see: [LDAP managed mail server with Postfix and Dovecot for multiple domains](https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains)
+!!! sealso
 
-Another solution that serves as a forward-only mailserver is this: https://gitlab.com/docker-scripts/postfix
+    For more details about using LDAP see: [LDAP managed mail server with Postfix and Dovecot for multiple domains](https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains)
+
+!!! seealso
+
+    Another solution that serves as a forward-only mailserver is this: https://gitlab.com/docker-scripts/postfix
 
 [github-file-readme-patches]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md#custom-user-changes--patches
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

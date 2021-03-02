@@ -12,14 +12,14 @@ Depending on the domain of the sender, you may want to send via a different rela
 
 Basic configuration is done via environment variables:
 
-* **RELAY_HOST** _default host to relay mail through, empty will disable this feature_
-* **RELAY_PORT** _port on default relay, defaults to port 25_
-* **RELAY_USER** _username for the default relay_
-* **RELAY_PASSWORD** _password for the default user_
+* `RELAY_HOST`: _default host to relay mail through, empty will disable this feature_
+* `RELAY_PORT`: _port on default relay, defaults to port 25_
+* `RELAY_USER`: _username for the default relay_
+* `RELAY_PASSWORD`: _password for the default user_
 
 Setting these environment variables will cause mail for all sender domains to be routed via the specified host, authenticating with the user/password combination.
 
-!!! note
+!!! warning
     For users of the previous `AWS_SES_*` variables: please update your configuration to use these new variables, no other configuration is required.
 
 ## Advanced Configuration

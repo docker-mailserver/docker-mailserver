@@ -2,7 +2,7 @@
 title: 'Mail Forwarding | AWS SES'
 ---
 
-!!! note
+!!! warning
     New configuration, see [Configure Relay Hosts][docs-relay]
 
 Instead of letting postfix deliver mail directly it is possible to configure it to deliver outgoing email via Amazon SES (Simple Email Service). (Receiving inbound email via SES is not implemented.) The configuration follows the guidelines provided by AWS in https://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html, specifically, the `STARTTLS` method.

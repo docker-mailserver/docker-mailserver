@@ -4,10 +4,11 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-**We do not recommend using POP. Use IMAP instead.**
+!!! warning
 
-If you really want to have POP3 running, add 3 lines to the docker-compose.yml :  
-Add the ports 110 and 995, and add environment variable ENABLE_POP : 
+    **We do not recommend using POP3. Use IMAP instead.**
+
+If you really want to have POP3 running add the ports 110 and 995 and the environment variable `ENABLE_POP3` to your `docker-compose.yml`: 
 
 ```yaml
 mail:

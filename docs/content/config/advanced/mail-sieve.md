@@ -19,32 +19,38 @@ It's even possible to install a user provided Sieve filter at startup during use
 
 An example of a sieve filter that moves mails to a folder `INBOX/spam` depending on the sender address:
 
-```sieve
-require ["fileinto", "reject"];
+!!! example
 
-if address :contains ["From"] "spam@spam.com" {
-  fileinto "INBOX.spam";
-} else {
-  keep;
-}
-```
+    ```sieve
+    require ["fileinto", "reject"];
 
-!!! note
+    if address :contains ["From"] "spam@spam.com" {
+      fileinto "INBOX.spam";
+    } else {
+      keep;
+    }
+    ```
+
+!!! warning
     That folders have to exist beforehand if sieve should move them.
 
 Another example of a sieve filter that forward mails to a different address:
 
-```sieve
-require ["copy"];
+!!! example 
 
-redirect :copy "user2@otherdomain.tld";
-```
+      ```sieve
+      require ["copy"];
+
+      redirect :copy "user2@otherdomain.tld";
+      ```
 
 Just forward all incoming emails and do not save them locally:
 
-```sieve
-redirect "user2@otherdomain.tld";
-```
+!!! example
+
+    ```sieve
+    redirect "user2@otherdomain.tld";
+    ```
 
 You can also use external programs to filter or pipe (process) messages by adding executable scripts in `config/sieve-pipe` or `config/sieve-filter`. This can be used in lieu of a local alias file, for instance to forward an email to a webservice. These programs can then be referenced by filename, by all users. Note that the process running the scripts run as a privileged user. For further information see [Dovecot's wiki](https://wiki.dovecot.org/Pigeonhole/Sieve/Plugins/Pipe).
 
@@ -59,13 +65,15 @@ For more examples or a detailed description of the Sieve language have a look at
 
 The [Manage Sieve](https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_server/) extension allows users to modify their Sieve script by themselves. The authentication mechanisms are the same as for the main dovecot service. ManageSieve runs on port `4190` and needs to be enabled using the `ENABLE_MANAGESIEVE=1` environment variable.
 
-```yaml
-# docker-compose.yml
-ports:
-  - "4190:4190"
-environment:
-  - ENABLE_MANAGESIEVE=1
-```
+!!! example
+
+    ```yaml
+    # docker-compose.yml
+    ports:
+      - "4190:4190"
+    environment:
+      - ENABLE_MANAGESIEVE=1
+    ```
 
 All user defined sieve scripts that are managed by ManageSieve are stored in the user's home folder in `/var/mail/domain.com/user1/sieve`. Just one sieve script might be active for a user and is sym-linked to `/var/mail/domain.com/user1/.dovecot.sieve` automatically.
 
@@ -73,4 +81,5 @@ All user defined sieve scripts that are managed by ManageSieve are stored in the
     ManageSieve makes sure to not overwrite an existing `.dovecot.sieve` file. If a user activates a new sieve script the old one is backuped and moved to the `sieve` folder.
 
 The extension is known to work with the following ManageSieve clients:
-* **Sieve Editor**  a portable standalone application based on the former Thunderbird plugin (https://github.com/thsmi/sieve).
+
+- **Sieve Editor**  a portable standalone application based on the former Thunderbird plugin (https://github.com/thsmi/sieve).

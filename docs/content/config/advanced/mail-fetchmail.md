@@ -26,25 +26,29 @@ Generate a file called `fetchmail.cf` and place it in the `config` folder. Your 
 
 A detailed description of the configuration options can be found in the [online version of the manual page][fetchmail-docs].
 
-### Example IMAP Configuration
+### IMAP Configuration
 
-```fetchmailrc
-poll 'imap.example.com' proto imap
-  user 'username'
-  pass 'secret'
-  is 'user1@domain.tld'
-  ssl
-```
+!!! example 
 
-### Example POP3 Configuration
+    ```fetchmailrc
+    poll 'imap.example.com' proto imap
+      user 'username'
+      pass 'secret'
+      is 'user1@domain.tld'
+      ssl
+    ```
 
-```fetchmailrc
-poll 'pop3.example.com' proto pop3
-  user 'username'
-  pass 'secret'
-  is 'user2@domain.tld'
-  ssl
-```
+### POP3 Configuration
+
+!!! example
+
+    ```fetchmailrc
+    poll 'pop3.example.com' proto pop3
+      user 'username'
+      pass 'secret'
+      is 'user2@domain.tld'
+      ssl
+    ```
 
 !!! caution
     Don’t forget the last line: eg: `is 'user1@domain.tld'`. After `is` you have to specify one email address from the configuration file `config/postfix-accounts.cf`.

@@ -6,231 +6,258 @@ title: 'Advanced | Kubernetes'
 
 There is nothing much in deploying mailserver to Kubernetes itself. The things are pretty same as in [`docker-compose.yml`][github-file-compose], but with Kubernetes syntax.
 
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: mailserver
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mailserver.env.config
-  namespace: mailserver
-  labels:
-    app: mailserver
-data:
-  OVERRIDE_HOSTNAME: example.com
-  ENABLE_FETCHMAIL: "0"
-  FETCHMAIL_POLL: "120"
-  ENABLE_SPAMASSASSIN: "0"
-  ENABLE_CLAMAV: "0"
-  ENABLE_FAIL2BAN: "0"
-  ENABLE_POSTGREY: "0"
-  ONE_DIR: "1"
-  DMS_DEBUG: "0"
+??? example "ConfigMap"
 
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mailserver.config
-  namespace: mailserver
-  labels:
-    app: mailserver
-data:
-  postfix-accounts.cf: |
-    user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
-
-  postfix-virtual.cf: |
-    alias1@example.com user1@dexample.com
-
-  #dovecot.cf: |
-  #  service stats {
-  #    unix_listener stats-reader {
-  #      group = docker
-  #      mode = 0666
-  #    }
-  #    unix_listener stats-writer {
-  #      group = docker
-  #      mode = 0666
-  #    }
-  #  }
-
-  SigningTable: |
-    *@example.com mail._domainkey.example.com
-
-  KeyTable: |
-    mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com-mail.key
-
-  TrustedHosts: |
-    127.0.0.1
-    localhost
-
-  #user-patches.sh: |
-  #  #!/bin/bash
-
-  #fetchmail.cf: |
-
----
-kind: Secret
-apiVersion: v1
-metadata:
-  name: mailserver.opendkim.keys
-  namespace: mailserver
-  labels:
-    app: mailserver
-type: Opaque
-data:
-  example.com-mail.key: 'base64-encoded-DKIM-key'
-
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: mailserver
-  namespace: mailserver
-  labels:
-    app: mailserver
-spec:
-  selector:
-    app: mailserver
-  ports:
-    - name: smtp
-      port: 25
-      targetPort: smtp
-    - name: smtp-secure
-      port: 465
-      targetPort: smtp-secure
-    - name: smtp-auth
-      port: 587
-      targetPort: smtp-auth
-    - name: imap
-      port: 143
-      targetPort: imap
-    - name: imap-secure
-      port: 993
-      targetPort: imap-secure
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mailserver
-  namespace: mailserver
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mailserver
-  template:
+    ```yaml
+    apiVersion: v1
+    kind: Namespace
     metadata:
+      name: mailserver
+    ---
+    kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: mailserver.env.config
+      namespace: mailserver
       labels:
         app: mailserver
-        role: mail
-        tier: backend
-    spec:
-      #nodeSelector:
-      #  kubernetes.io/hostname: local.k8s
-      #initContainers:
-      #- name: init-myservice
-      #  image: busybox
-      #  command: ["/bin/sh", "-c", "cp /tmp/user-patches.sh /tmp/files"]
-      #  volumeMounts:
-      #    - name: config
-      #      subPath: user-patches.sh
-      #      mountPath: /tmp/user-patches.sh
-      #      readOnly: true
-      #    - name: tmp-files
-      #      mountPath: /tmp/files
-      containers:
-      - name: docker-mailserver
-        image: mailserver/docker-mailserver:latest
-        imagePullPolicy: Always
-        volumeMounts:
-          - name: config
-            subPath: postfix-accounts.cf
-            mountPath: /tmp/docker-mailserver/postfix-accounts.cf
-            readOnly: true
-          #- name: config
-          #  subPath: postfix-main.cf
-          #  mountPath: /tmp/docker-mailserver/postfix-main.cf
-          #  readOnly: true
-          - name: config
-            subPath: postfix-virtual.cf
-            mountPath: /tmp/docker-mailserver/postfix-virtual.cf
-            readOnly: true
-          - name: config
-            subPath: fetchmail.cf
-            mountPath: /tmp/docker-mailserver/fetchmail.cf
-            readOnly: true
-          - name: config
-            subPath: dovecot.cf
-            mountPath: /tmp/docker-mailserver/dovecot.cf
-            readOnly: true
-          #- name: config
-          #  subPath: user1.example.com.dovecot.sieve
-          #  mountPath: /tmp/docker-mailserver/user1@example.com.dovecot.sieve
-          #  readOnly: true
-          #- name: tmp-files
-          #  subPath: user-patches.sh
-          #  mountPath: /tmp/docker-mailserver/user-patches.sh
-          - name: config
-            subPath: SigningTable
-            mountPath: /tmp/docker-mailserver/opendkim/SigningTable
-            readOnly: true
-          - name: config
-            subPath: KeyTable
-            mountPath: /tmp/docker-mailserver/opendkim/KeyTable
-            readOnly: true
-          - name: config
-            subPath: TrustedHosts
-            mountPath: /tmp/docker-mailserver/opendkim/TrustedHosts
-            readOnly: true
-          - name: opendkim-keys
-            mountPath: /tmp/docker-mailserver/opendkim/keys
-            readOnly: true
-          - name: data
-            mountPath: /var/mail
-            subPath: data
-          - name: data
-            mountPath: /var/mail-state
-            subPath: state
-          - name: data
-            mountPath: /var/log/mail
-            subPath: log
-        ports:
-          - name: smtp
-            containerPort: 25
-            protocol: TCP
-          - name: smtp-secure
-            containerPort: 465
-            protocol: TCP
-          - name: smtp-auth
-            containerPort: 587
-          - name: imap
-            containerPort: 143
-            protocol: TCP
-          - name: imap-secure
-            containerPort: 993
-            protocol: TCP
-        envFrom:
-          - configMapRef:
-              name: mailserver.env.config
-      volumes:
-        - name: config
-          configMap:
-            name: mailserver.config
-        - name: opendkim-keys
-          secret:
-            secretName: mailserver.opendkim.keys
-        - name: data
-          persistentVolumeClaim:
-            claimName: mail-storage
-        - name: tmp-files
-          emptyDir: {}
-```
+    data:
+      OVERRIDE_HOSTNAME: example.com
+      ENABLE_FETCHMAIL: "0"
+      FETCHMAIL_POLL: "120"
+      ENABLE_SPAMASSASSIN: "0"
+      ENABLE_CLAMAV: "0"
+      ENABLE_FAIL2BAN: "0"
+      ENABLE_POSTGREY: "0"
+      ONE_DIR: "1"
+      DMS_DEBUG: "0"
 
-!!! note
+    ---
+    kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: mailserver.config
+      namespace: mailserver
+      labels:
+        app: mailserver
+    data:
+      postfix-accounts.cf: |
+        user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
+
+      postfix-virtual.cf: |
+        alias1@example.com user1@dexample.com
+
+      #dovecot.cf: |
+      #  service stats {
+      #    unix_listener stats-reader {
+      #      group = docker
+      #      mode = 0666
+      #    }
+      #    unix_listener stats-writer {
+      #      group = docker
+      #      mode = 0666
+      #    }
+      #  }
+
+      SigningTable: |
+        *@example.com mail._domainkey.example.com
+
+      KeyTable: |
+        mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com-mail.key
+
+      TrustedHosts: |
+        127.0.0.1
+        localhost
+
+      #user-patches.sh: |
+      #  #!/bin/bash
+
+      #fetchmail.cf: |
+    ```
+
+??? example "Secret"
+
+    ```yaml
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: mailserver
+    ---
+    kind: Secret
+    apiVersion: v1
+    metadata:
+      name: mailserver.opendkim.keys
+      namespace: mailserver
+      labels:
+        app: mailserver
+    type: Opaque
+    data:
+      example.com-mail.key: 'base64-encoded-DKIM-key'
+    ```
+
+??? example "Service"
+
+    ```yaml
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: mailserver
+    ---
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: mailserver
+      namespace: mailserver
+      labels:
+        app: mailserver
+    spec:
+      selector:
+        app: mailserver
+      ports:
+        - name: smtp
+          port: 25
+          targetPort: smtp
+        - name: smtp-secure
+          port: 465
+          targetPort: smtp-secure
+        - name: smtp-auth
+          port: 587
+          targetPort: smtp-auth
+        - name: imap
+          port: 143
+          targetPort: imap
+        - name: imap-secure
+          port: 993
+          targetPort: imap-secure
+    ```
+
+??? example "Deployment"
+
+    ```yaml
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: mailserver
+    ---
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: mailserver
+      namespace: mailserver
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: mailserver
+      template:
+        metadata:
+          labels:
+            app: mailserver
+            role: mail
+            tier: backend
+        spec:
+          #nodeSelector:
+          #  kubernetes.io/hostname: local.k8s
+          #initContainers:
+          #- name: init-myservice
+          #  image: busybox
+          #  command: ["/bin/sh", "-c", "cp /tmp/user-patches.sh /tmp/files"]
+          #  volumeMounts:
+          #    - name: config
+          #      subPath: user-patches.sh
+          #      mountPath: /tmp/user-patches.sh
+          #      readOnly: true
+          #    - name: tmp-files
+          #      mountPath: /tmp/files
+          containers:
+          - name: docker-mailserver
+            image: mailserver/docker-mailserver:latest
+            imagePullPolicy: Always
+            volumeMounts:
+              - name: config
+                subPath: postfix-accounts.cf
+                mountPath: /tmp/docker-mailserver/postfix-accounts.cf
+                readOnly: true
+              #- name: config
+              #  subPath: postfix-main.cf
+              #  mountPath: /tmp/docker-mailserver/postfix-main.cf
+              #  readOnly: true
+              - name: config
+                subPath: postfix-virtual.cf
+                mountPath: /tmp/docker-mailserver/postfix-virtual.cf
+                readOnly: true
+              - name: config
+                subPath: fetchmail.cf
+                mountPath: /tmp/docker-mailserver/fetchmail.cf
+                readOnly: true
+              - name: config
+                subPath: dovecot.cf
+                mountPath: /tmp/docker-mailserver/dovecot.cf
+                readOnly: true
+              #- name: config
+              #  subPath: user1.example.com.dovecot.sieve
+              #  mountPath: /tmp/docker-mailserver/user1@example.com.dovecot.sieve
+              #  readOnly: true
+              #- name: tmp-files
+              #  subPath: user-patches.sh
+              #  mountPath: /tmp/docker-mailserver/user-patches.sh
+              - name: config
+                subPath: SigningTable
+                mountPath: /tmp/docker-mailserver/opendkim/SigningTable
+                readOnly: true
+              - name: config
+                subPath: KeyTable
+                mountPath: /tmp/docker-mailserver/opendkim/KeyTable
+                readOnly: true
+              - name: config
+                subPath: TrustedHosts
+                mountPath: /tmp/docker-mailserver/opendkim/TrustedHosts
+                readOnly: true
+              - name: opendkim-keys
+                mountPath: /tmp/docker-mailserver/opendkim/keys
+                readOnly: true
+              - name: data
+                mountPath: /var/mail
+                subPath: data
+              - name: data
+                mountPath: /var/mail-state
+                subPath: state
+              - name: data
+                mountPath: /var/log/mail
+                subPath: log
+            ports:
+              - name: smtp
+                containerPort: 25
+                protocol: TCP
+              - name: smtp-secure
+                containerPort: 465
+                protocol: TCP
+              - name: smtp-auth
+                containerPort: 587
+              - name: imap
+                containerPort: 143
+                protocol: TCP
+              - name: imap-secure
+                containerPort: 993
+                protocol: TCP
+            envFrom:
+              - configMapRef:
+                  name: mailserver.env.config
+          volumes:
+            - name: config
+              configMap:
+                name: mailserver.config
+            - name: opendkim-keys
+              secret:
+                secretName: mailserver.opendkim.keys
+            - name: data
+              persistentVolumeClaim:
+                claimName: mail-storage
+            - name: tmp-files
+              emptyDir: {}
+    ```
+
+!!! warning
     Any sensitive data (keys, etc) should be deployed via [Secrets][k8s-config-secret]. Other configuration just fits well into [ConfigMaps][k8s-config-pod].
 
 !!! note
@@ -246,54 +273,58 @@ Preserving real client IP is relatively [non-trivial in Kubernetes][k8s-service-
 
 If you do not require SPF checks for incoming mails you may disable them in [Postfix configuration][docs-postfix] by dropping following line (which removes `check_policy_service unix:private/policyd-spf` option):
 
-```yaml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mailserver.config
-  labels:
-    app: mailserver
-data:
-  postfix-main.cf: |
-    smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
-# ...
+!!! example
 
----
+    ```yaml
+    kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: mailserver.config
+      labels:
+        app: mailserver
+    data:
+      postfix-main.cf: |
+        smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
+    # ...
 
-kind: Deployment
-apiVersion: extensions/v1beta1
-metadata:
-  name: mailserver
-# ...
-    volumeMounts:
-      - name: config
-        subPath: postfix-main.cf
-        mountPath: /tmp/docker-mailserver/postfix-main.cf
-        readOnly: true
-```
+    ---
+
+    kind: Deployment
+    apiVersion: extensions/v1beta1
+    metadata:
+      name: mailserver
+    # ...
+        volumeMounts:
+          - name: config
+            subPath: postfix-main.cf
+            mountPath: /tmp/docker-mailserver/postfix-main.cf
+            readOnly: true
+    ```
 
 ### External IPs Service
 
 The simplest way is to expose mailserver as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip].
 
-```yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: mailserver
-  labels:
-    app: mailserver
-spec:
-  selector:
-    app: mailserver
-  ports:
-    - name: smtp
-      port: 25
-      targetPort: smtp
-# ...
-  externalIPs:
-    - 80.11.12.10
-```
+!!! example
+
+    ```yaml
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: mailserver
+      labels:
+        app: mailserver
+    spec:
+      selector:
+        app: mailserver
+      ports:
+        - name: smtp
+          port: 25
+          targetPort: smtp
+    # ...
+      externalIPs:
+        - 80.11.12.10
+    ```
 
 **Downsides**
 
@@ -313,29 +344,31 @@ The [Proxy Pod][k8s-proxy-service] helps to avoid necessity of specifying extern
 
 The simplest way to preserve real client IP is to use `hostPort` and `hostNetwork: true` in the mailserver [Pod][k8s-workload-pod]. This comes in price of availability: you can talk to mailserver from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
 
-```yaml
-kind: Deployment
-apiVersion: extensions/v1beta1
-metadata:
-  name: mailserver
-# ...
-    spec:
-      hostNetwork: true
-# ...
-      containers:
-# ...
-          ports:
-            - name: smtp
-              containerPort: 25
-              hostPort: 25
-            - name: smtp-auth
-              containerPort: 587
-              hostPort: 587
-            - name: imap-secure
-              containerPort: 993
-              hostPort: 993
-# ...
-```
+!!! example
+
+    ```yaml
+    kind: Deployment
+    apiVersion: extensions/v1beta1
+    metadata:
+      name: mailserver
+    # ...
+        spec:
+          hostNetwork: true
+    # ...
+          containers:
+    # ...
+              ports:
+                - name: smtp
+                  containerPort: 25
+                  hostPort: 25
+                - name: smtp-auth
+                  containerPort: 587
+                  hostPort: 587
+                - name: imap-secure
+                  containerPort: 993
+                  hostPort: 993
+    # ...
+    ```
 
 **Downsides**
 
@@ -363,53 +396,55 @@ With [HAProxy][dockerhub-haproxy], the configuration should look similar to the 
 
 Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expect the PROXY protocol:
 
-```yaml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mailserver.config
-  labels:
-    app: mailserver
-data:
-  postfix-main.cf: |
-    postscreen_upstream_proxy_protocol = haproxy
-  postfix-master.cf: |
-    submission/inet/smtpd_upstream_proxy_protocol=haproxy
-    smtps/inet/smtpd_upstream_proxy_protocol=haproxy
-  dovecot.cf: |
-    # Assuming your ingress controller is bound to 10.0.0.0/8
-    haproxy_trusted_networks = 10.0.0.0/8, 127.0.0.0/8
-    service imap-login {
-      inet_listener imaps {
-        haproxy = yes
-      }
-    }
-# ...
----
+!!! example
 
-kind: Deployment
-apiVersion: extensions/v1beta1
-metadata:
-  name: mailserver
-spec:
-  template:
+    ```yaml
+    kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: mailserver.config
+      labels:
+        app: mailserver
+    data:
+      postfix-main.cf: |
+        postscreen_upstream_proxy_protocol = haproxy
+      postfix-master.cf: |
+        submission/inet/smtpd_upstream_proxy_protocol=haproxy
+        smtps/inet/smtpd_upstream_proxy_protocol=haproxy
+      dovecot.cf: |
+        # Assuming your ingress controller is bound to 10.0.0.0/8
+        haproxy_trusted_networks = 10.0.0.0/8, 127.0.0.0/8
+        service imap-login {
+          inet_listener imaps {
+            haproxy = yes
+          }
+        }
+    # ...
+    ---
+
+    kind: Deployment
+    apiVersion: extensions/v1beta1
+    metadata:
+      name: mailserver
     spec:
-      containers:
-        - name: docker-mailserver
-          volumeMounts:
-            - name: config
-              subPath: postfix-main.cf
-              mountPath: /tmp/docker-mailserver/postfix-main.cf
-              readOnly: true
-            - name: config
-              subPath: postfix-master.cf
-              mountPath: /tmp/docker-mailserver/postfix-master.cf
-              readOnly: true
-            - name: config
-              subPath: dovecot.cf
-              mountPath: /tmp/docker-mailserver/dovecot.cf
-              readOnly: true
-```
+      template:
+        spec:
+          containers:
+            - name: docker-mailserver
+              volumeMounts:
+                - name: config
+                  subPath: postfix-main.cf
+                  mountPath: /tmp/docker-mailserver/postfix-main.cf
+                  readOnly: true
+                - name: config
+                  subPath: postfix-master.cf
+                  mountPath: /tmp/docker-mailserver/postfix-master.cf
+                  readOnly: true
+                - name: config
+                  subPath: dovecot.cf
+                  mountPath: /tmp/docker-mailserver/dovecot.cf
+                  readOnly: true
+    ```
 
 **Downsides**
 
@@ -419,52 +454,56 @@ spec:
 
 [Kube-Lego][kube-lego] may be used for a role of Let's Encrypt client. It works with Kubernetes [Ingress Resources][k8s-network-ingress] and automatically issues/manages certificates/keys for exposed services via Ingresses.
 
-```yaml
-kind: Ingress
-apiVersion: extensions/v1beta1
-metadata:
-  name: mailserver
-  labels:
-    app: mailserver
-  annotations:
-    kubernetes.io/tls-acme: 'true'
-spec:
-  rules:
-    - host: example.com
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: default-backend
-              servicePort: 80
-  tls:
-    - secretName: mailserver.tls
-      hosts:
-        - example.com
-```
+!!! example
+
+    ```yaml
+    kind: Ingress
+    apiVersion: extensions/v1beta1
+    metadata:
+      name: mailserver
+      labels:
+        app: mailserver
+      annotations:
+        kubernetes.io/tls-acme: 'true'
+    spec:
+      rules:
+        - host: example.com
+          http:
+            paths:
+              - path: /
+                backend:
+                  serviceName: default-backend
+                  servicePort: 80
+      tls:
+        - secretName: mailserver.tls
+          hosts:
+            - example.com
+    ```
 
 Now, you can use Let's Encrypt cert and key from `mailserver.tls` [Secret][k8s-config-secret] in your [Pod][k8s-workload-pod] spec:
 
-```yaml
-# ...
-env:
-  - name: SSL_TYPE
-    value: 'manual'
-  - name: SSL_CERT_PATH
-    value: '/etc/ssl/mailserver/tls.crt'
-  - name: SSL_KEY_PATH
-    value: '/etc/ssl/mailserver/tls.key'
-# ...
-volumeMounts:
-  - name: tls
-    mountPath: /etc/ssl/mailserver
-    readOnly: true
-# ...
-volumes:
-  - name: tls
-    secret:
-      secretName: mailserver.tls
-```
+!!! example
+
+    ```yaml
+    # ...
+    env:
+      - name: SSL_TYPE
+        value: 'manual'
+      - name: SSL_CERT_PATH
+        value: '/etc/ssl/mailserver/tls.crt'
+      - name: SSL_KEY_PATH
+        value: '/etc/ssl/mailserver/tls.key'
+    # ...
+    volumeMounts:
+      - name: tls
+        mountPath: /etc/ssl/mailserver
+        readOnly: true
+    # ...
+    volumes:
+      - name: tls
+        secret:
+          secretName: mailserver.tls
+    ```
 
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md

@@ -4,7 +4,8 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-DMARC Guide: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md
+!!! seealso
+    DMARC Guide: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md
 
 ## Enabling DMARC
 
