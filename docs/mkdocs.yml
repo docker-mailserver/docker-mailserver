@@ -4,7 +4,7 @@ site_author: 'docker-mailserver (Github Organization)'
 repo_name: 'docker-mailserver'
 repo_url: 'https://github.com/docker-mailserver/docker-mailserver'
 copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
-
+edit_uri: 'edit/master/docs/content'
 docs_dir: 'content/'
 site_url: 'https://docker-mailserver.github.io/docker-mailserver'
 theme:
@@ -58,3 +58,54 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - 'Home': index.md
+  - 'Introduction': introduction.md
+  - 'Configuration':
+    - 'Your Best Friend setup.sh': config/setup.sh.md
+    - 'User Management':
+      - 'Accounts': config/user-management/accounts.md
+      - 'Aliases': config/user-management/aliases.md
+    - 'Best Practices':
+      - 'DKIM': config/best-practices/dkim.md
+      - 'DMARC': config/best-practices/dmarc.md
+      - 'SPF': config/best-practices/spf.md
+      - 'Auto-discovery': config/best-practices/autodiscover.md
+    - 'Security':
+      - 'Understanding the Ports': config/security/understanding-the-ports.md
+      - 'SSL/TLS': config/security/ssl.md
+      - 'Fail2Ban': config/security/fail2ban.md
+    - 'Troubleshooting':
+      - 'Debugging': config/troubleshooting/debugging.md
+    - 'Mail Delivery with POP3': config/pop3.md
+    - 'Advanced Configuration':
+        - 'Optional Configuration': config/advanced/optional-config.md
+        - 'Maintenance':
+          - 'Update and Cleanup': config/advanced/maintenance/update-and-cleanup.md
+        - 'Override the Default Configs':
+          - 'Dovecot': config/advanced/override-defaults/dovecot.md
+          - 'Postfix': config/advanced/override-defaults/postfix.md
+        - 'LDAP Authentication': config/advanced/auth-ldap.md
+        - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
+        - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
+        - 'Email Forwarding':
+          - 'Relay Hosts': config/advanced/mail-forwarding/relay-hosts.md
+          - 'AWS SES': config/advanced/mail-forwarding/aws-ses.md
+        - 'Full-Text Search': config/advanced/full-text-search.md
+        - 'Kubernetes': config/advanced/kubernetes.md
+        - 'IPv6': config/advanced/ipv6.md
+  - 'Examples':
+    - 'Tutorials':
+      - 'Basic Installation': examples/tutorials/basic-installation.md
+      - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+    - 'Use Cases':
+      - 'Forward-Only Mailserver with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
+  - 'FAQ' : faq/faq.md
+  - 'Contributing':
+    - 'Issues and Pull Requests': contributing/issues-and-pull-requests.md
+    - 'Coding Style': contributing/coding-style.md
+    - 'Tests': contributing/tests.md
+    - 'Documentation': contributing/documentation.md
+  - 'DockerHub': https://hub.docker.com/repository/docker/mailserver/docker-mailserver
+  - 'GHCR': https://github.com/orgs/docker-mailserver/packages/container/package/docker-mailserver
