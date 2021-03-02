@@ -18,6 +18,11 @@ This wiki provides you with advanced configuration, detailed examples, and hints
 !!! tip
     See the [FAQ][docs-faq] for some more tips!
 
+## Contributing
+
+We are always happy to welcome new contributors. For guidelines and entrypoints please have a look at the [Contributing section][docs-contributing].
+
+[docs-contributing]: ./contributing/issues-and-pull-requests.md
 [docs-faq]: ./config/troubleshooting/faq.md
 [docs-optionalconfig]: ./advanced/optional-config.md
 [docs-setupsh]: ./config/setup.sh.md
