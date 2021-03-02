@@ -115,7 +115,7 @@ chmod a+x ./setup.sh
 If you'd like to use SELinux, add `-Z` to the variable `SELINUX_LABEL` in `.env`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`
 
 ``` BASH
-docker-compose up -d mail
+docker-compose up -d mailserver
 
 # without SELinux
 ./setup.sh email add <user@domain> [<password>]
