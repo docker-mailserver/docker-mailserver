@@ -6,8 +6,11 @@ repo_url: 'https://github.com/docker-mailserver/docker-mailserver'
 copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
 
 docs_dir: 'content/'
+site_url: 'https://docker-mailserver.github.io/docker-mailserver'
 theme:
   name: 'material'
+  favicon: assets/logo/favicon-32x32.png
+  logo: assets/logo/dmo-logo-white.svg
   icon:
     repo: fontawesome/brands/github
   features:
