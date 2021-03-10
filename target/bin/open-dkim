@@ -28,15 +28,15 @@ function __usage
         domain     Provide the domain(s) for which keys are to be generated.
 
 \e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh config dkim size 2048\e[39m
+    \e[37m./setup.sh config dkim keysize 2048\e[39m
         Creates keys of length 2048 bit in a default setup where domains are obtained from
         your accounts.
 
-    \e[37m./setup.sh config dkim size 2048 selector 2021-dkim\e[39m
+    \e[37m./setup.sh config dkim keysize 2048 selector 2021-dkim\e[39m
         Creates keys of length 2048 bit in a default setup where domains are obtained from
         your accounts. The DKIM selector used is '2021-dkim'.
 
-    \e[37m./setup.sh config dkim size 2048 selector 2021-dkim domain 'whoami.com,whoareyou.org'\e[39m
+    \e[37m./setup.sh config dkim keysize 2048 selector 2021-dkim domain 'whoami.com,whoareyou.org'\e[39m
         Appropriate for an LDAP setup. Creates keys of length 2048 bit in a default setup
         where domains are obtained from your accounts. The DKIM selector used is '2021-dkim'.
         The domains for which DKIM keys are generated are 'whoami.com' and 'whoareyou.org'.

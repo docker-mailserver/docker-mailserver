@@ -196,7 +196,7 @@ function _usage
         Add the email account \e[37mtest@domain.tld\e[39m. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    \e[37m./setup.sh config dkim size 2048 domain 'whoami.com,whoareyou.org'\e[39m
+    \e[37m./setup.sh config dkim keysize 2048 domain 'whoami.com,whoareyou.org'\e[39m
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 
@@ -357,9 +357,9 @@ function _main
       ;;
 
     quota )
-      shift ; case ${1:-} in
-        set      ) shift ; _docker_image setquota "${@}" ;;
-        del      ) shift ; _docker_image delquota "${@}" ;;
+      case ${2:-} in
+        set      ) shift 2 ; _docker_image setquota "${@}" ;;
+        del      ) shift 2 ; _docker_image delquota "${@}" ;;
         *        ) _usage ;;
       esac
       ;;
