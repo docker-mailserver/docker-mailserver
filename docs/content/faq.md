@@ -1,5 +1,5 @@
 ---
-title: 'Troubleshooting | FAQ'
+title: 'FAQ'
 ---
 
 ### What kind of database are you using?
@@ -307,7 +307,7 @@ Otherwise, it could work with 512M of RAM.
 
     Current figure is about 850M and growing. If you get errors about clamav or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
 
-### Can `docker-mailserver` run in a [Rancher Environment](http://rancher.com/rancher/)?
+### Can `docker-mailserver` run in a Rancher Environment?
 
 Yes, by adding the environment variable `PERMIT_DOCKER: network`.
 
@@ -401,7 +401,7 @@ sed -i 's/rimap -r/rimap/' /etc/supervisor/conf.d/saslauth.conf
 supervisorctl update
 ```
 
-[docs-maintenance]: ../../advanced/maintenance/update-and-cleanup.md
+[docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
 [github-issue-97]: https://github.com/docker-mailserver/docker-mailserver/issues/97
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

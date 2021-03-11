@@ -1,5 +1,5 @@
 ---
-title: 'Kubernetes'
+title: 'Advanced | Kubernetes'
 ---
 
 ## Deployment Example

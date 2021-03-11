@@ -1,3 +1,7 @@
+---
+title: 'Tutorials | Mailserver behind Proxy'
+---
+
 ## Using `docker-mailserver` behind a Proxy
 
 ### Information
@@ -120,4 +124,4 @@ service imap-login {
 !!! note
     Port `10993` is used here to avoid conflicts with internal systems like `postscreen` and `amavis` as they will exchange messages on the default port and obviously have a different origin then compared to the proxy.
 
-[docs-optionalconfig]: ../advanced/optional-config.md
+[docs-optionalconfig]: ../../config/advanced/optional-config.md

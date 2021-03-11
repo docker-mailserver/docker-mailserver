@@ -101,7 +101,7 @@ nav:
       - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
     - 'Use Cases':
       - 'Forward-Only Mailserver with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
-  - 'FAQ' : faq/faq.md
+  - 'FAQ' : faq.md
   - 'Contributing':
     - 'Issues and Pull Requests': contributing/issues-and-pull-requests.md
     - 'Coding Style': contributing/coding-style.md

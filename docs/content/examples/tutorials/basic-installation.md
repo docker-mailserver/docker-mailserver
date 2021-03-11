@@ -1,5 +1,5 @@
 ---
-title: 'Tutorials | Installation Examples'
+title: 'Tutorials | Basic Installation'
 ---
 
 ## Building a Simple Mailserver

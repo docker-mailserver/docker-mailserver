@@ -1,5 +1,5 @@
 ---
-title: 'IPv6'
+title: 'Advanced | IPv6'
 ---
 
 ## Background

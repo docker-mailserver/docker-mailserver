@@ -1,5 +1,5 @@
 ---
-title: 'Optional Configuration'
+title: 'Advanced | Optional Configuration'
 hide:
   - toc # Hide Table of Contents for this page
 ---
@@ -39,16 +39,16 @@ This is a list of all configuration files and directories which are optional or 
 - **dovecot.cf:** replaces `/etc/dovecot/local.conf`. (Docs: [Override Dovecot Defaults][docs-override-dovecot])
 - **dovecot-quotas.cf:** list of custom quotas per mailbox. (Docs: [Accounts][docs-accounts-quota])
 
-[docs-accounts-quota]: ../config/user-management/accounts.md#notes
-[docs-aliases-regex]: ../config/user-management/aliases.md#configuring-regexp-aliases
-[docs-dkim]: ../config/best-practices/dkim.md
-[docs-fail2ban]: ../config/security/fail2ban.md
-[docs-faq-spamrules]: ../config/troubleshooting/faq.md#how-can-i-manage-my-custom-spamassassin-rules
+[docs-accounts-quota]: ../../config/user-management/accounts.md#notes
+[docs-aliases-regex]: ../../config/user-management/aliases.md#configuring-regexp-aliases
+[docs-dkim]: ../../config/best-practices/dkim.md
+[docs-fail2ban]: ../../config/security/fail2ban.md
+[docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
 [docs-override-postfix]: ./override-defaults/postfix.md
 [docs-override-dovecot]: ./override-defaults/dovecot.md
 [docs-relayhosts-senderauth]: ./mail-forwarding/relay-hosts.md#sender-dependent-authentication
 [docs-relayhosts-senderhost]: ./mail-forwarding/relay-hosts.md#sender-dependent-relay-host
 [docs-sieve]: ./mail-sieve.md
-[docs-setupsh]: ../config/setup.sh.md
-[docs-ssl]: ../config/security/ssl.md
+[docs-setupsh]: ../../config/setup.sh.md
+[docs-ssl]: ../../config/security/ssl.md
 [github-commit-setup-stack.sh-L411]: https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411

@@ -1,5 +1,5 @@
 ---
-title: 'LDAP Authentication'
+title: 'Advanced | LDAP Authentication'
 ---
 
 ## Introduction

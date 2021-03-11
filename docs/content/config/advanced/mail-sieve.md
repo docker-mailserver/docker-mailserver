@@ -1,5 +1,5 @@
 ---
-title: 'Email Filtering with Sieve'
+title: 'Advanced | Email Filtering with Sieve'
 ---
 
 ## User-Defined Sieve Filters

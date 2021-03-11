@@ -1,5 +1,5 @@
 ---
-title: 'Full-Text Search'
+title: 'Advanced | Full-Text Search'
 ---
 
 ## Overview
