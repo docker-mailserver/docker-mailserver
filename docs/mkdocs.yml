@@ -17,6 +17,13 @@ theme:
     - navigation.tabs
     - navigation.expand
 
+# We do not use `mike`, but enabling this will enable the version selector UI.
+# It references `versions.json` on `gh-pages` branch,
+# however we have a basic setup that only matches `version` to a subdirectory.
+extra:
+  version:
+    provider: mike
+
 markdown_extensions:
   - toc:
       permalink: ⚓︎
