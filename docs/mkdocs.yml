@@ -16,6 +16,10 @@ theme:
   features:
     - navigation.tabs
     - navigation.expand
+    - navigation.instant
+
+extra_css:
+  - assets/css/customizations.css
 
 # We do not use `mike`, but enabling this will enable the version selector UI.
 # It references `versions.json` on `gh-pages` branch,
@@ -26,7 +30,7 @@ extra:
 
 markdown_extensions:
   - toc:
-      permalink: ⚓︎
+      anchorlink: true
   - abbr
   - attr_list
   - admonition
