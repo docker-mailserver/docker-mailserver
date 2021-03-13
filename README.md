@@ -204,7 +204,7 @@ docker pull docker.io/mailserver/docker-mailserver:<VERSION TAG>
 docker-compose up -d mailserver
 ```
 
-You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh -h`.
+You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
 
 #### SPF/Forwarding Problems
 
