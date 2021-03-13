@@ -16,6 +16,7 @@ services:
       - maildata:/var/mail
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
     restart: always
     cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
