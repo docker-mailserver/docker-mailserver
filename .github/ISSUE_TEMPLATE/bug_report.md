@@ -63,6 +63,7 @@ Possible answers to your issue
 - version: `v`
 - available RAM: `GB`
 - Docker version: `v`
+- docker-compose version: `v`
 
 ### Environment Variables
 
