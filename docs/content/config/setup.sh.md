@@ -19,7 +19,7 @@ chmod a+x ./setup.sh
 
 ## Usage
 
-Run `./setup.sh -h` and you'll get some usage information:
+Run `./setup.sh help` and you'll get some usage information:
 
 ```bash
 setup.sh Bootstrapping Script
@@ -30,7 +30,7 @@ OPTIONS:
 
   -i IMAGE_NAME     The name of the docker-mailserver image
                     The default value is
-                    'docker.io/mailserver/docker-maiserver:latest'
+                    'docker.io/mailserver/docker-mailserver:latest'
 
   -c CONTAINER_NAME The name of the running container.
 

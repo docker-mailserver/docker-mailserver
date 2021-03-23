@@ -38,12 +38,14 @@ This is a list of all configuration files and directories which are optional or 
 - **amavis.cf:** replaces the `/etc/amavis/conf.d/50-user` file
 - **dovecot.cf:** replaces `/etc/dovecot/local.conf`. (Docs: [Override Dovecot Defaults][docs-override-dovecot])
 - **dovecot-quotas.cf:** list of custom quotas per mailbox. (Docs: [Accounts][docs-accounts-quota])
+- **user-patches.sh:** this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: [FAQ - How to adjust settings with the `user-patches.sh` script][docs-faq-userpatches])
 
 [docs-accounts-quota]: ../../config/user-management/accounts.md#notes
 [docs-aliases-regex]: ../../config/user-management/aliases.md#configuring-regexp-aliases
 [docs-dkim]: ../../config/best-practices/dkim.md
 [docs-fail2ban]: ../../config/security/fail2ban.md
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
+[docs-faq-userpatches]: ../../faq.md#how-to-adjust-settings-with-the-user-patchessh-script
 [docs-override-postfix]: ./override-defaults/postfix.md
 [docs-override-dovecot]: ./override-defaults/dovecot.md
 [docs-relayhosts-senderauth]: ./mail-forwarding/relay-hosts.md#sender-dependent-authentication

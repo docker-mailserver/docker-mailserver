@@ -53,7 +53,7 @@ fail2ban-client stop dovecot
 fail2ban-client stop postfix
 ```
 
-## Send email is never received
+## Sent email is never received
 
 Some hosting provides have a stealth block on port 25. Make sure to check with your hosting provider that traffic on port 25 is allowed
 

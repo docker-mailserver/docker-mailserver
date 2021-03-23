@@ -105,5 +105,9 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
     Another solution that serves as a forward-only mailserver is this: https://gitlab.com/docker-scripts/postfix
 
+!!! tip
+
+    One user reports only having success if `ENABLE_LDAP=0` was set.
+
 [github-file-readme-patches]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md#custom-user-changes--patches
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247
