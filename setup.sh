@@ -312,7 +312,7 @@ function _main
         ;;
 
       * )
-        echo "Invalid option: -${OPTARG}" >&2
+        echo "Invalid option: -${OPT}" >&2
         ;;
 
     esac
@@ -340,7 +340,7 @@ function _main
       case ${2:-} in
         add      ) shift 2 ; _docker_image addmailuser "${@}" ;;
         update   ) shift 2 ; _docker_image updatemailuser "${@}" ;;
-        del      ) shift 2 ; _docker_image delmailuser "${@}" ;;
+        del      ) shift 2 ; _docker_image delmailuser "${*}" ;;
         restrict ) shift 2 ; _docker_container restrict-access "${@}" ;;
         list     ) _docker_image listmailuser ;;
         *        ) _usage ;;

@@ -75,7 +75,7 @@ do
 done
 shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { usage ; errex "No user specifed" ; }
+[[ -z ${*} ]] && { __usage ; errex "No user specifed" ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 if ! ${MAILDEL}
@@ -90,73 +90,72 @@ fi
 (
   flock -e 200
   ERROR=false
+  USER="${*}"
 
-  for USER in "${@}"
-  do
-    # very simple plausibility check
-    [[ ${USER} != *'@'*'.'* ]] && errex "No valid address: ${USER}"
+  # very simple plausibility check
+  [[ ${USER} != *@*.* ]] && errex "No valid address: ${USER}"
 
-    declare -a MAILARR
-    MAILARR[0]="${USER%@*}"
-    MAILARR[1]="${USER#*@}"
+  unset MAILARR
+  declare -a MAILARR
+  MAILARR[0]="${USER%@*}"
+  MAILARR[1]="${USER#*@}"
 
-    # ${USER} must not contain /s and other syntactic characters
-    UNESCAPED_USER="${USER}"
-    USER=$(escape "${USER}")
+  # ${USER} must not contain /s and other syntactic characters
+  UNESCAPED_USER="${USER}"
+  USER=$(escape "${USER}")
 
-    if [[ -f ${DATABASE} ]]
+  if [[ -f ${DATABASE} ]]
+  then
+    if ! sed -i "/^${USER}|/d" "${DATABASE}"
     then
-      if ! sed -i "/^${USER}|/d" "${DATABASE}"
-      then
-        echo "${UNESCAPED_USER} couldn't be deleted in ${DATABASE}." >&2
-        ERROR=true
-      fi
-    fi
-
-    if [[ -f ${ALIAS_DATABASE} ]]
-    then
-      # delete all aliases where the user is the only recipient( " ${USER$}" )
-      # delete user only for all aliases that deliver to multiple recipients ( ",${USER}" "${USER,}" )
-      if sed -i \
-        -e "/ ${USER}$/d" -e "s/,${USER}//g" -e "s/${USER},//g" \
-        "${ALIAS_DATABASE}"
-      then
-        echo "${UNESCAPED_USER} and potential aliases deleted."
-      else
-        echo "Aliases for ${UNESCAPED_USER} couldn't be deleted in ${ALIAS_DATABASE}." >&2
-        ERROR=true
-      fi
-    fi
-
-    # remove quota directives
-    if [[ -f ${QUOTA_DATABASE} ]]
-    then
-      if ! sed -i -e "/^${USER}:.*$/d" "${QUOTA_DATABASE}"
-      then
-        echo "Quota for ${UNESCAPED_USER} couldn't be deleted in ${QUOTA_DATABASE}." >&2
-      fi
-    fi
-
-    if ! ${MAILDEL}
-    then
-      echo "Leaving the mailbox untouched. If you want to delete it at a later point use 'sudo docker exec mail rm -R /var/mail/${MAILARR[1]}/${MAILARR[0]}'"
-      exit 0
-    fi
-
-    if [[ -e "/var/mail/${MAILARR[1]}/${MAILARR[0]}" ]]
-    then
-      if rm -R "/var/mail/${MAILARR[1]}/${MAILARR[0]}"
-      then
-        echo "Mailbox deleted."
-      else
-        echo "Mailbox couldn't be deleted." >&2
-        ERROR=true
-      fi
-    else
-      echo "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' did not exist." >&2
+      echo "${UNESCAPED_USER} couldn't be deleted in ${DATABASE}." >&2
       ERROR=true
     fi
-  done
+  fi
+
+  if [[ -f ${ALIAS_DATABASE} ]]
+  then
+    # delete all aliases where the user is the only recipient( " ${USER$}" )
+    # delete user only for all aliases that deliver to multiple recipients ( ",${USER}" "${USER,}" )
+    if sed -i \
+      -e "/ ${USER}$/d" -e "s/,${USER}//g" -e "s/${USER},//g" \
+      "${ALIAS_DATABASE}"
+    then
+      echo "${UNESCAPED_USER} and potential aliases deleted."
+    else
+      echo "Aliases for ${UNESCAPED_USER} couldn't be deleted in ${ALIAS_DATABASE}." >&2
+      ERROR=true
+    fi
+  fi
+
+  # remove quota directives
+  if [[ -f ${QUOTA_DATABASE} ]]
+  then
+    if ! sed -i -e "/^${USER}:.*$/d" "${QUOTA_DATABASE}"
+    then
+      echo "Quota for ${UNESCAPED_USER} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+    fi
+  fi
+
+  if ! ${MAILDEL}
+  then
+    echo "Leaving the mailbox untouched. If you want to delete it at a later point use 'sudo docker exec mail rm -R /var/mail/${MAILARR[1]}/${MAILARR[0]}'"
+    exit 0
+  fi
+
+  if [[ -e "/var/mail/${MAILARR[1]}/${MAILARR[0]}" ]]
+  then
+    if rm -R "/var/mail/${MAILARR[1]}/${MAILARR[0]}"
+    then
+      echo "Mailbox deleted."
+    else
+      echo "Mailbox couldn't be deleted." >&2
+      ERROR=true
+    fi
+  else
+    echo "Mailbox directory '/var/mail/${MAILARR[1]}/${MAILARR[0]}' did not exist." >&2
+    ERROR=true
+  fi
 
   ${ERROR} && errex 'Errors encountered.'
 
