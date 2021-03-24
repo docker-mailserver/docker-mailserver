@@ -128,10 +128,16 @@ function _setup_mailname
 
 function _setup_amavis
 {
-  _notify 'task' 'Setting up Amavis'
-  sed -i \
-    "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
-    /etc/amavis/conf.d/05-node_id
+  if [[ ${ENABLE_AMAVIS} -eq 1 ]]
+  then
+    _notify 'task' 'Setting up Amavis'
+    sed -i \
+      "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
+      /etc/amavis/conf.d/05-node_id
+  else
+    _notify 'task' 'Remove Amavis from postfix configuration'
+    sed -i 's|content_filter =.*|content_filter =|' /etc/postfix/main.cf
+  fi
 }
 
 function _setup_dmarc_hostname
@@ -1475,11 +1481,14 @@ function _setup_security_stack
   # fix cron.daily for spamassassin
   sed -i -e 's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' /etc/cron.daily/spamassassin
 
-  # copy user provided configuration files if provided
-  if [[ -f /tmp/docker-mailserver/amavis.cf ]]
+  # Amavis
+  if [[ ${ENABLE_AMAVIS} -eq 1 ]]
   then
-    cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
-  fi
+    _notify 'inf' 'Amavis enabled'
+    if [[ -f /tmp/docker-mailserver/amavis.cf ]]
+    then
+      cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
+    fi
 }
 
 function _setup_logrotate
