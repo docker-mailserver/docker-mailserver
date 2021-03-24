@@ -1489,6 +1489,7 @@ function _setup_security_stack
     then
       cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
     fi
+  fi
 }
 
 function _setup_logrotate
