@@ -50,7 +50,7 @@ touch "${DATABASE}"
   if grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null
   then
     echo "User '${USER}' already exists."
-    exit 0
+    exit 1
   fi
 
   if [[ -z ${PASSWD} ]]
