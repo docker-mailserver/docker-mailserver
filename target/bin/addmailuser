@@ -47,8 +47,11 @@ touch "${DATABASE}"
 (
   flock -e 200
 
-  grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null &&
-    errex "User \"${USER}\" already exists"
+  if grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null
+  then
+    echo "User '${USER}' already exists."
+    exit 1
+  fi
 
   if [[ -z ${PASSWD} ]]
   then
