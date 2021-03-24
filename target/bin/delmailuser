@@ -88,7 +88,6 @@ fi
 
 (
   flock -e 200
-  unset EMAIL USER DOMAIN
 
   ERROR=false
   EMAIL="${*}"
