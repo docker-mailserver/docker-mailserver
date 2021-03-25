@@ -27,6 +27,13 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 The log-level will show everything in its class and above.
 
+##### ENABLE_AMAVIS
+
+Amavis content filter (used for ClamAV & Spamassassin)
+
+- 0 => Amavis is disabled
+- **1** => Amavis is enabled
+
 ##### ENABLE_CLAMAV
 
 - **0** => Clamav is disabled
