@@ -29,7 +29,7 @@ The log-level will show everything in its class and above.
 
 ##### ENABLE_AMAVIS
 
-Amavis content filter (used for ClamAV & Spamassassin)
+Amavis content filter (used for ClamAV & SpamAssassin)
 
 - 0 => Amavis is disabled
 - **1** => Amavis is enabled
