@@ -281,14 +281,14 @@ Also note that by default the logs are lost when the container is recycled. To k
 
 Finally the logrotate interval **may** affect the period for generated reports. That is the case when the reports are triggered by log rotation.
 
-#### Spamassassin
+#### SpamAssassin
 
 ##### ENABLE_SPAMASSASSIN
 
-- **0** => Spamassassin is disabled
-- 1 => Spamassassin is enabled
+- **0** => SpamAssassin is disabled
+- 1 => SpamAssassin is enabled
 
-**/!\\ Spam delivery:** when Spamassassin is enabled, messages marked as spam WILL NOT BE DELIVERED.
+**/!\\ Spam delivery:** when SpamAssassin is enabled, messages marked as spam WILL NOT BE DELIVERED.
 Use `SPAMASSASSIN_SPAM_TO_INBOX=1` for receiving spam messages.
 
 ##### SPAMASSASSIN_SPAM_TO_INBOX
@@ -307,29 +307,29 @@ Note: this setting needs `SPAMASSASSIN_SPAM_TO_INBOX=1`
 
 - **2.0** => add spam info headers if at, or above that level
 
-Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### SA_TAG2
 
 - **6.31** => add 'spam detected' headers at that level
 
-Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`
+Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### SA_KILL
 
 - **6.31** => triggers spam evasive actions
 
-Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`. By default, the mailserver is configured to quarantine spam emails. If emails are quarantined, they are compressed and stored in a location dependent on the ONE_DIR setting above. If `ONE_DIR=1` the location is /var/mail-state/lib-amavis/virusmails/. If `ONE_DIR=0` it is /var/lib/amavis/virusmails/. These paths are inside the docker container. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. 100.0.
+Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`. By default, the mailserver is configured to quarantine spam emails. If emails are quarantined, they are compressed and stored in a location dependent on the ONE_DIR setting above. If `ONE_DIR=1` the location is /var/mail-state/lib-amavis/virusmails/. If `ONE_DIR=0` it is /var/lib/amavis/virusmails/. These paths are inside the docker container. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. 100.0.
 
 ##### SA_SPAM_SUBJECT
 
 - **\*\*\*SPAM\*\*\*** => add tag to subject if spam detected
 
-Note: this spamassassin setting needs `ENABLE_SPAMASSASSIN=1`. Add the spamassassin score to the subject line by inserting the keyword \_SCORE\_: **\*\*\*SPAM(\_SCORE\_)\*\*\***.
+Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`. Add the SpamAssassin score to the subject line by inserting the keyword \_SCORE\_: **\*\*\*SPAM(\_SCORE\_)\*\*\***.
 
 ##### SA_SHORTCIRCUIT_BAYES_SPAM
 
-- **1** => will activate spamassassin short circuiting for bayes spam detection.
+- **1** => will activate SpamAssassin short circuiting for bayes spam detection.
 
 This will uncomment the respective line in ```/etc/spamassasin/local.cf```
 
@@ -337,7 +337,7 @@ Note: activate this only if you are confident in your bayes database for identif
 
 ##### SA_SHORTCIRCUIT_BAYES_HAM
 
-- **1** => will activate spamassassin short circuiting for bayes ham detection
+- **1** => will activate SpamAssassin short circuiting for bayes ham detection
 
 This will uncomment the respective line in ```/etc/spamassasin/local.cf```
 

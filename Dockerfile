@@ -103,7 +103,7 @@ RUN \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– LDAP & Spamassassin's Cron ––––––––––––––––
+# ––– LDAP & SpamAssassin's Cron ––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot

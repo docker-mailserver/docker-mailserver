@@ -1379,7 +1379,7 @@ function _setup_security_stack
   echo "# WARNING: this file is auto-generated." >"${DMS_AMAVIS_FILE}"
   echo "use strict;" >>"${DMS_AMAVIS_FILE}"
 
-  # Spamassassin
+  # SpamAssassin
   if [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]]
   then
     _notify 'warn' "Spamassassin is disabled. You can enable it with 'ENABLE_SPAMASSASSIN=1'"
