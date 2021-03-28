@@ -1097,7 +1097,7 @@
       
         <li class="md-nav__item">
   <a href="#how-can-i-manage-my-custom-spamassassin-rules" class="md-nav__link">
-    How can I manage my custom Spamassassin rules?
+    How can I manage my custom SpamAssassin rules?
   </a>
   
 </li>
@@ -1118,7 +1118,7 @@
       
         <li class="md-nav__item">
   <a href="#why-are-spamassassin-x-headers-not-inserted-into-my-sampledomaincom-subdomain-emails" class="md-nav__link">
-    Why are Spamassassin x-headers not inserted into my sample.domain.com subdomain emails?
+    Why are SpamAssassin x-headers not inserted into my sample.domain.com subdomain emails?
   </a>
   
 </li>
@@ -1423,7 +1423,7 @@
       
         <li class="md-nav__item">
   <a href="#how-can-i-manage-my-custom-spamassassin-rules" class="md-nav__link">
-    How can I manage my custom Spamassassin rules?
+    How can I manage my custom SpamAssassin rules?
   </a>
   
 </li>
@@ -1444,7 +1444,7 @@
       
         <li class="md-nav__item">
   <a href="#why-are-spamassassin-x-headers-not-inserted-into-my-sampledomaincom-subdomain-emails" class="md-nav__link">
-    Why are Spamassassin x-headers not inserted into my sample.domain.com subdomain emails?
+    Why are SpamAssassin x-headers not inserted into my sample.domain.com subdomain emails?
   </a>
   
 </li>
@@ -1582,7 +1582,7 @@ This image is based on config files that can be persisted using Docker volumes, 
 <p>You should use a <a href="https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu">data volume container</a> for <code>/var/mail</code> to persist data. Otherwise, your data may be lost.</p>
 </div>
 <h3 id="how-to-alter-the-running-mailserver-instance-without-relaunching-the-container"><a class="toclink" href="#how-to-alter-the-running-mailserver-instance-without-relaunching-the-container">How to alter the running mailserver instance <em>without</em> relaunching the container?</a></h3>
-<p><code>docker-mailserver</code> aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssasin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.</p>
+<p><code>docker-mailserver</code> aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.</p>
 <p>In order to do so, you'll probably want to push your config updates to your server through a Docker volume, then restart the sub-service to apply your changes, using <code>supervisorctl</code>. For instance, after editing fail2ban's config: <code>supervisorctl restart fail2ban</code>.</p>
 <p>See <a href="http://supervisord.org/running.html#running-supervisorctl">supervisorctl's documentation</a>.</p>
 <div class="admonition tip">
@@ -1634,7 +1634,7 @@ Example of data folder persisted: lib-amavis, lib-clamav, lib-fail2ban, lib-post
 <span class="na">password</span><span class="o">:</span>           <span class="s">&lt;mypassword&gt;</span>
 </code></pre></div>
 <p>Please use <code>STARTTLS</code>.</p>
-<h3 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom Spamassassin rules?</a></h3>
+<h3 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom SpamAssassin rules?</a></h3>
 <p>Antispam rules are managed in <code>config/spamassassin-rules.cf</code>.</p>
 <h3 id="what-are-acceptable-sa_spam_subject-values"><a class="toclink" href="#what-are-acceptable-sa_spam_subject-values">What are acceptable <code>SA_SPAM_SUBJECT</code> values?</a></h3>
 <p>For no subject set <code>SA_SPAM_SUBJECT=undef</code>.</p>
@@ -1653,8 +1653,8 @@ Example of data folder persisted: lib-amavis, lib-clamav, lib-fail2ban, lib-post
 <div class="highlight"><pre><span></span><code><span class="go">warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains</span>
 </code></pre></div>
 <p>Plus of course mail delivery fails.</p>
-<h3 id="why-are-spamassassin-x-headers-not-inserted-into-my-sampledomaincom-subdomain-emails"><a class="toclink" href="#why-are-spamassassin-x-headers-not-inserted-into-my-sampledomaincom-subdomain-emails">Why are Spamassassin <code>x-headers</code> not inserted into my <code>sample.domain.com</code> subdomain emails?</a></h3>
-<p>In the default setup, amavis only applies Spamassassin x-headers into domains matching the template listed in the config file (<code>05-domain_id</code> in the amavis defaults).</p>
+<h3 id="why-are-spamassassin-x-headers-not-inserted-into-my-sampledomaincom-subdomain-emails"><a class="toclink" href="#why-are-spamassassin-x-headers-not-inserted-into-my-sampledomaincom-subdomain-emails">Why are SpamAssassin <code>x-headers</code> not inserted into my <code>sample.domain.com</code> subdomain emails?</a></h3>
+<p>In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (<code>05-domain_id</code> in the amavis defaults).</p>
 <p>The default setup <code>@local_domains_acl = ( ".$mydomain" );</code> does not match subdomains. To match subdomains, you can override the <code>@local_domains_acl</code> directive in the amavis user config file <code>50-user</code> with <code>@local_domains_maps = (".");</code> to match any sort of domain template.</p>
 <h3 id="how-can-i-make-spamassassin-better-recognize-spam"><a class="toclink" href="#how-can-i-make-spamassassin-better-recognize-spam">How can I make SpamAssassin better recognize spam?</a></h3>
 <p>Put received spams in <code>.Junk/</code> imap folder using <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> and <code>MOVE_SPAM_TO_JUNK=1</code> and add a <em>user</em> cron like the following:</p>
@@ -1719,7 +1719,7 @@ chmod <span class="m">0644</span> cron/sa-learn
     <span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">./cron/sa-learn</span>
 </code></pre></div>
 </details>
-<p>With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using <code>--ham</code> and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the <a href="https://wiki.apache.org/spamassassin/BayesNotWorking">Spamassassin Wiki</a>.</p>
+<p>With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using <code>--ham</code> and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the <a href="https://wiki.apache.org/spamassassin/BayesNotWorking">SpamAssassin Wiki</a>.</p>
 <h3 id="how-can-i-configure-a-catch-all"><a class="toclink" href="#how-can-i-configure-a-catch-all">How can I configure a catch-all?</a></h3>
 <p>Considering you want to redirect all incoming e-mails for the domain <code>domain.tld</code> to <code>user1@domain.tld</code>, add the following line to <code>config/postfix-virtual.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">@domain.tld user1@domain.tld</span>
@@ -1739,7 +1739,7 @@ chmod <span class="m">0644</span> cron/sa-learn
 <span class="na">SA_KILL</span><span class="o">=</span><span class="s">100000.0</span>
 </code></pre></div>
 <ul>
-<li>The very negative vaue in <code>SA_TAG</code> makes sure, that all emails have the Spamassasin headers included.</li>
+<li>The very negative vaue in <code>SA_TAG</code> makes sure, that all emails have the SpamAssassin headers included.</li>
 <li><code>SA_TAG2</code> is the actual threshold to set the YES/NO flag for spam detection.</li>
 <li><code>SA_KILL</code> needs to be very high, to make sure nothing is bounced at all (<code>SA_KILL</code> superseeds <code>SPAMASSASSIN_SPAM_TO_INBOX</code>)</li>
 </ul>
