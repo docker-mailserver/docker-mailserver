@@ -17,7 +17,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 ### How to alter the running mailserver instance _without_ relaunching the container?
 
-`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssasin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
+`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume, then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
@@ -92,7 +92,7 @@ password:           <mypassword>
 
 Please use `STARTTLS`.
 
-### How can I manage my custom Spamassassin rules?
+### How can I manage my custom SpamAssassin rules?
 
 Antispam rules are managed in `config/spamassassin-rules.cf`.
 
@@ -124,9 +124,9 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
-### Why are Spamassassin `x-headers` not inserted into my `sample.domain.com` subdomain emails?
+### Why are SpamAssassin `x-headers` not inserted into my `sample.domain.com` subdomain emails?
 
-In the default setup, amavis only applies Spamassassin x-headers into domains matching the template listed in the config file (`05-domain_id` in the amavis defaults).
+In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (`05-domain_id` in the amavis defaults).
 
 The default setup `@local_domains_acl = ( ".$mydomain" );` does not match subdomains. To match subdomains, you can override the `@local_domains_acl` directive in the amavis user config file `50-user` with `@local_domains_maps = (".");` to match any sort of domain template.
 
@@ -212,7 +212,7 @@ The following configuration works nicely:
         file: ./cron/sa-learn
     ```
 
-With the default settings, Spamassassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, Spamassasin will not take the learned mails into account. For further reference, see the [Spamassassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
+With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
 ### How can I configure a catch-all?
 
@@ -248,7 +248,7 @@ SA_TAG2=3.75
 SA_KILL=100000.0
 ```
 
-- The very negative vaue in `SA_TAG` makes sure, that all emails have the Spamassasin headers included.
+- The very negative vaue in `SA_TAG` makes sure, that all emails have the SpamAssassin headers included.
 - `SA_TAG2` is the actual threshold to set the YES/NO flag for spam detection.
 - `SA_KILL` needs to be very high, to make sure nothing is bounced at all (`SA_KILL` superseeds `SPAMASSASSIN_SPAM_TO_INBOX`)
 

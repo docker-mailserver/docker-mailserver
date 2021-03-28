@@ -50,6 +50,6 @@ function _fix_cleanup_clamav
 
 function _fix_cleanup_spamassassin
 {
-  _notify 'task' 'Cleaning up disabled spamassassin'
+  _notify 'task' 'Cleaning up disabled SpamAssassin'
   rm -f /etc/cron.daily/spamassassin
 }
