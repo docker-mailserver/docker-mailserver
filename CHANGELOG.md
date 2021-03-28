@@ -1,5 +1,12 @@
 # Changelog
 
+## `v9.0.1`
+
+A small update on the notification function which was made more stable as well as minor fixes.
+
+- **[fix]** `_notify` cannot fail anymore - non-zero returns lead to unintended behavior in the past when `DMS_DEBUG` was not set or `0`
+- **[refactor]** `check-for-changes.sh` now uses `_notify`
+
 ## `v9.0.0`
 
 - **[feat]** Support extra `user_attributes` in accounts configuration ([#1792](https://github.com/docker-mailserver/docker-mailserver/pull/1792))
