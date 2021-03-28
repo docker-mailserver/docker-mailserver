@@ -1,5 +1,14 @@
 # Changelog
 
+## `v9.1.0`
+
+This release marks the breakpoint where the wiki was transferred to a [reworked documentation](https://docker-mailserver.github.io/docker-mailserver/edge/)
+
+- **[feat]** Introduce ENABLE_AMAVIS env ([#1866](https://github.com/docker-mailserver/docker-mailserver/pull/1866))
+- **[docs]** Move wiki to gh-pages ([#1826](https://github.com/docker-mailserver/docker-mailserver/pull/1826)) - Special thanks to @polarathene 👨🏻‍💻 
+  - You can [edit the docs](https://github.com/docker-mailserver/docker-mailserver/tree/master/docs/content) now directly with your code changes
+  - Documentation is now versioned related to docker image versions and viewable here: https://docker-mailserver.github.io/docker-mailserver/edge/
+
 ## `v9.0.1`
 
 A small update on the notification function which was made more stable as well as minor fixes.
