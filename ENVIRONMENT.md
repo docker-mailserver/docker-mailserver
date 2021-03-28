@@ -71,7 +71,7 @@ Otherwise, `iptables` won't be able to ban IPs.
   - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. Presently only `manual` mode supports this feature.
 - self-signed => Enables self-signed certificates.
 
-Please read [the SSL page in the wiki](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-SSL) for more information.
+Please read [the SSL page in the documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/ssl) for more information.
 
 ##### TLS_LEVEL
 
@@ -144,7 +144,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
 
-See [mailbox quota](https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Accounts#mailbox-quota).
+See [mailbox quota](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts/#notes).
 
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
 

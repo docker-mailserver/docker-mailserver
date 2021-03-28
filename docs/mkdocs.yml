@@ -1,0 +1,134 @@
+# Site specific:
+site_name: 'Docker Mailserver'
+site_description: 'A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
+site_author: 'docker-mailserver (Github Organization)'
+copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
+
+# Project source specific:
+repo_name: 'docker-mailserver'
+repo_url: 'https://github.com/docker-mailserver/docker-mailserver'
+
+# All docs `edit` button will go to this subpath of the `repo_url`:
+# For versioned docs, this may be a little misleading for a user not viewing the `edge` docs which match the `master` branch.
+edit_uri: 'edit/master/docs/content'
+
+# The main docs content lives here, any files will be copied over to the deployed version,
+# unless the file or directory name is prefixed with a `.`
+docs_dir: 'content/'
+
+# Canonical URL (HTML content instructs search engines that this is where the preferred version of the docs is located, useful when we have duplicate content like versioned docs)
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Choosing_between_www_and_non-www_URLs#using_%3Clink_relcanonical%3E
+# Also required for `sitemap.xml` generation at build time; which bots use to assist them crawling and indexing a website,
+# the `mkdocs-material` 'Instant Navigation' feature utilizes the sitemap data to work.
+site_url: 'https://docker-mailserver.github.io/docker-mailserver/edge'
+
+# Anything related to the `mkdocs-material` theme config goes here:
+theme:
+  name: 'material'
+  favicon: assets/logo/favicon-32x32.png
+  logo: assets/logo/dmo-logo-white.svg
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.expand
+    - navigation.instant
+
+# We make some minor style adjustments or resolve issues that upstream `mkdocs-material` would not accept a PR for:
+extra_css:
+  - assets/css/customizations.css
+
+# We do not use `mike`, but enabling this will enable the version selector UI.
+# It references `versions.json` on `gh-pages` branch,
+# however we have a basic setup that only matches `version` to a subdirectory.
+extra:
+  version:
+    provider: mike
+
+# Various extensions for `mkdocs` are enabled and configured here to extend supported markdown syntax/features.
+markdown_extensions:
+  - toc:
+      anchorlink: true
+  - abbr
+  - attr_list
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.magiclink
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      extend_pygments_lang:
+        - name: yml
+          lang: yaml
+        - name: cf
+          lang: cfg
+        - name: conf
+          lang: cfg
+        - name: env
+          lang: properties
+        # Not helpful with Python Pygments lexer highlighting, but we might change to a JS highlighter in future
+        # Ideally, this type of codefence might also have word-wrap enabled (CSS: {white-space: pre-wrap})
+        - name: log
+          lang: shell-session
+        - name: fetchmailrc
+          lang: txt
+        - name: caddyfile
+          lang: txt
+
+# Hard-coded navigation list. Key(UI label): Value(relative filepath from `docs_dir`).
+# - If referencing a file more than once, the URLs will all point to the nav hierarchy of the last file reference entry. That usually breaks UX, try avoid it.
+# - The top-level elements are presented as tabs (due to `theme.features.navigation.tabs`).
+#   - Nested elements appear in the sidebar (left) of each tabs page.
+#   - 3rd level and beyond are automatically expanded in the sidebar instead of collapsed (due to `theme.features.navigation.expand`)
+nav:
+  - 'Home': index.md
+  - 'Introduction': introduction.md
+  - 'Configuration':
+    - 'Your Best Friend setup.sh': config/setup.sh.md
+    - 'User Management':
+      - 'Accounts': config/user-management/accounts.md
+      - 'Aliases': config/user-management/aliases.md
+    - 'Best Practices':
+      - 'DKIM': config/best-practices/dkim.md
+      - 'DMARC': config/best-practices/dmarc.md
+      - 'SPF': config/best-practices/spf.md
+      - 'Auto-discovery': config/best-practices/autodiscover.md
+    - 'Security':
+      - 'Understanding the Ports': config/security/understanding-the-ports.md
+      - 'SSL/TLS': config/security/ssl.md
+      - 'Fail2Ban': config/security/fail2ban.md
+    - 'Troubleshooting':
+      - 'Debugging': config/troubleshooting/debugging.md
+    - 'Mail Delivery with POP3': config/pop3.md
+    - 'Advanced Configuration':
+        - 'Optional Configuration': config/advanced/optional-config.md
+        - 'Maintenance':
+          - 'Update and Cleanup': config/advanced/maintenance/update-and-cleanup.md
+        - 'Override the Default Configs':
+          - 'Dovecot': config/advanced/override-defaults/dovecot.md
+          - 'Postfix': config/advanced/override-defaults/postfix.md
+        - 'LDAP Authentication': config/advanced/auth-ldap.md
+        - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
+        - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
+        - 'Email Forwarding':
+          - 'Relay Hosts': config/advanced/mail-forwarding/relay-hosts.md
+          - 'AWS SES': config/advanced/mail-forwarding/aws-ses.md
+        - 'Full-Text Search': config/advanced/full-text-search.md
+        - 'Kubernetes': config/advanced/kubernetes.md
+        - 'IPv6': config/advanced/ipv6.md
+  - 'Examples':
+    - 'Tutorials':
+      - 'Basic Installation': examples/tutorials/basic-installation.md
+      - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+    - 'Use Cases':
+      - 'Forward-Only Mailserver with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
+  - 'FAQ' : faq.md
+  - 'Contributing':
+    - 'Issues and Pull Requests': contributing/issues-and-pull-requests.md
+    - 'Coding Style': contributing/coding-style.md
+    - 'Tests': contributing/tests.md
+    - 'Documentation': contributing/documentation.md
+  - 'DockerHub': https://hub.docker.com/repository/docker/mailserver/docker-mailserver
+  - 'GHCR': https://github.com/orgs/docker-mailserver/packages/container/package/docker-mailserver

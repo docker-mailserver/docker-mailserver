@@ -2,8 +2,8 @@
 blank_issues_enabled: false
 
 contact_links:
-  - name: Wiki
-    url: https://github.com/docker-mailserver/docker-mailserver/wiki
+  - name: Documentation
+    url: https://docker-mailserver.github.io/docker-mailserver/edge
     about: Extended documentaton - visit this first before opening issues
   - name: Default Documentation
     url: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
