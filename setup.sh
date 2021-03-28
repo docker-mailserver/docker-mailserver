@@ -312,7 +312,7 @@ function _main
         ;;
 
       * )
-        echo "Invalid option: -${OPTARG}" >&2
+        echo "Invalid option: -${OPT}" >&2
         ;;
 
     esac

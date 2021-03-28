@@ -14,7 +14,7 @@ SSL_CFG_PATH="/tmp/docker-mailserver/ssl"
 
 if [[ ! -d ${SSL_CFG_PATH} ]]
 then
-  mkdir "${SSL_CFG_PATH}"
+  mkdir --parents "${SSL_CFG_PATH}"
 fi
 
 cd "${SSL_CFG_PATH}" || { echo "cd ${SSL_CFG_PATH} error" ; exit ; }

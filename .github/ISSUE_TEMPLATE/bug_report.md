@@ -13,21 +13,21 @@ Possible answers to your issue
   https://github.com/docker-mailserver/docker-mailserver#requirements
 
 * Email seen as spam:
-  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-SPF
-  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-DKIM
+  https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/spf
+  https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim
 
 * Creating new domains and accounts
-  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-Accounts
+  https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts
 
 * Use a relay mail server
-  https://github.com/docker-mailserver/docker-mailserver/wiki/Configure-AWS-SES
+  https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/aws-ses
   The variable name can be used for other email servers.
 
 * FAQ and tips
-  https://github.com/docker-mailserver/docker-mailserver/wiki/FAQ-and-Tips
+  https://docker-mailserver.github.io/docker-mailserver/edge/faq
 
-* The wiki
-  https://github.com/docker-mailserver/docker-mailserver/wiki
+* The documentation
+  https://docker-mailserver.github.io/docker-mailserver/edge
 
 * Open issues
   https://github.com/docker-mailserver/docker-mailserver/issues
@@ -63,6 +63,7 @@ Possible answers to your issue
 - version: `v`
 - available RAM: `GB`
 - Docker version: `v`
+- docker-compose version: `v`
 
 ### Environment Variables
 

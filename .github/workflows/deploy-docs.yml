@@ -1,0 +1,104 @@
+name: 'Documentation'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/deploy-docs.yml'
+      - 'docs/**'
+    # Responds to tags being pushed (branches and paths conditions above do not apply to tags).
+    # Takes a snapshot of the docs from the tag (unaffected by branch or path restraints above),
+    # Stores build in a subdirectory with name matching the git tag `v<MAJOR>.<MINOR>` substring:
+    tags:
+      - 'v[0-9]+.[0-9]+*'
+
+env:
+  # Default docs version to build and deploy:
+  DOCS_VERSION: edge
+  # Assign commit authorship to official Github Actions bot when pushing to the `gh-pages` branch:
+  GIT_USER: 'github-actions[bot]'
+  GIT_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
+
+jobs:
+  deploy:
+    name: 'Deploy Docs'
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 'Check if deploy is for a `v<major>.<minor>` tag version instead of `edge`'
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: docs
+        run: |
+          DOCS_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+' <<< "${GITHUB_REF}")
+          echo "DOCS_VERSION=${DOCS_VERSION}" >> "${GITHUB_ENV}"
+
+          # Docs should build referencing the tagged version instead:
+          sed -i "s|^\(site_url:.*\)edge|\1${DOCS_VERSION}|" mkdocs.yml
+
+      - name: 'Build with mkdocs-material via Docker'
+        working-directory: docs
+        # --user is required for build output file ownership to match the CI user instead of the containers internal user
+        run: docker run --rm --user "$(id -u):$(id -g)" -v "${PWD}:/docs" squidfunk/mkdocs-material build --strict
+
+      - name: 'If a tagged version, fix canonical links and remove `404.html`'
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: docs/site
+        run: |
+          # 404 is not useful due to how Github Pages implement custom 404 support:
+          # (Note the edge 404.html isn't useful either as it's not copied to the `gh-pages` branch root)
+          rm 404.html
+
+          # Replace '${DOCS_VERSION}' (defaults to 'edge') in the 'canonical' link element of HTML files,
+          # with the tagged docs version:
+          find . -type f -name "*.html" -exec \
+            sed -i "s|^\(.*<link rel=\"canonical\".*\)${DOCS_VERSION}|\1edge|" \
+            {} +
+
+      - name: 'Deploy to Github Pages'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Build directory contents to publish to the `gh-pages` branch:
+          publish_dir: ./docs/site
+          # Directory to place `publish_dir` contents on the `gh-pages` branch:
+          destination_dir: ${{ env.DOCS_VERSION }}
+          user_name: ${{ env.GIT_USER }}
+          user_email: ${{ env.GIT_EMAIL }}
+
+  add-version-to-docs:
+    name: 'Update `versions.json` if necessary'
+    runs-on: ubuntu-20.04
+    if: startsWith(github.ref, 'refs/tags/')
+    # Avoid race condition with pushing to `gh-pages` branch by waiting for `deploy` to complete first
+    needs: deploy
+    steps:
+      - name: 'Checkout the tagged commit (shallow clone)'
+        uses: actions/checkout@v2
+
+      - name: 'Checkout the docs deployment branch to a subdirectory'
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      # Updates `env.DOCS_VERSION` to the tag version; if invalid exits job early.
+      - name: 'Ensure `versions.json` has `v<major>.<minor>` substring from tag name'
+        id: add-version
+        continue-on-error: true
+        working-directory: gh-pages
+        run: '../.github/workflows/scripts/docs/update-versions-json.sh'
+
+      # If an actual change was made to `versions.json`, commit and push it.
+      # Otherwise the step is skipped instead of reporting job failure.
+      - name: 'Push update for `versions.json`'
+        if: ${{ steps.add-version.outcome == 'success' }}
+        working-directory: gh-pages
+        run: |
+          git config user.name ${{ env.GIT_USER }}
+          git config user.email ${{ env.GIT_EMAIL }}
+          git add versions.json
+          git commit -m "chore: Add ${{ env.DOCS_VERSION }} to version selector list"
+          git push
