@@ -9,7 +9,7 @@ When refactoring, writing or altering scripts, that is Shell and bash scripts, i
 1. **Adjust your style of coding to the style that is already present**! Even if you do not like it, this is due to consistency. There was a lot of work involved in making all scripts consistent.
 2. **Use `shellcheck` to check your scripts**! Your contributions are checked by GitHub Actions too, so you will need to do this. You can **lint your work with `make lint`** to check against all targets.
 3. **Use the provided `.editorconfig`** file.
-4. Use `/bin/bash` or `/usr/bin/env bash` instead of `/bin/sh`. Adjust the style accordingly.
+4. Use `/bin/bash` instead of `/bin/sh`. Adjust the style accordingly.
 5. `setup.sh` provides a good starting point to look for.
 6. When appropriate, use the `set` builtin. We recommend `set -euEo pipefail` or `set -uE`.
 
