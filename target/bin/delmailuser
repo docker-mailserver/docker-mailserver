@@ -34,7 +34,7 @@ function __usage
         Show this help dialogue.
 
 \e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh email del test@domain.comwoohoo@some-domain.org\e[39m
+    \e[37m./setup.sh email del woohoo@some-domain.org\e[39m
         Delete the mail user, quotas and aliases, but ask
         again whether mailbox data should be deleted.
 
