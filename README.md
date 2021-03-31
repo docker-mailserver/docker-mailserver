@@ -144,8 +144,7 @@ When keys are generated, you can configure your DNS server by just pasting the c
 
 #### Custom user changes & patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place it the `config/` folder that is created on startup and call it `user-patches.sh`. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/user-patches/).
-
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/user-patches/) for a detailed explanation.
 
 #### Supported Operating Systems
 
