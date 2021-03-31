@@ -103,6 +103,7 @@ nav:
       - 'Debugging': config/troubleshooting/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md
     - 'Advanced Configuration':
+        - 'Additional, user-supplied custom configurations': config/advanced/user-patches.md
         - 'Optional Configuration': config/advanced/optional-config.md
         - 'Maintenance':
           - 'Update and Cleanup': config/advanced/maintenance/update-and-cleanup.md

@@ -18,6 +18,9 @@ This documentation provides you with advanced configuration, detailed examples, 
 !!! tip
     See the [FAQ][docs-faq] for some more tips!
 
+!!! important
+    If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place it in the `config/` folder that is created on startup and call it `user-patches.sh`.
+
 ## Contributing
 
 We are always happy to welcome new contributors. For guidelines and entrypoints please have a look at the [Contributing section][docs-contributing].
