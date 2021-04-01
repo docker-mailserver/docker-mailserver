@@ -1,5 +1,5 @@
 ---
-title: 'Custom user changes & patches'
+title: 'Custom User Changes & Patches | Scripting'
 ---
 
 If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script.

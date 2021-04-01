@@ -104,13 +104,13 @@ nav:
       - 'Debugging': config/troubleshooting/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md
     - 'Advanced Configuration':
-        - 'Additional, user-supplied custom configurations': config/advanced/user-patches.md
         - 'Optional Configuration': config/advanced/optional-config.md
         - 'Maintenance':
           - 'Update and Cleanup': config/advanced/maintenance/update-and-cleanup.md
         - 'Override the Default Configs':
           - 'Dovecot': config/advanced/override-defaults/dovecot.md
           - 'Postfix': config/advanced/override-defaults/postfix.md
+          - 'Modifications via Script': config/advanced/override-defaults/user-patches.md
         - 'LDAP Authentication': config/advanced/auth-ldap.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
