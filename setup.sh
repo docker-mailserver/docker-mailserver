@@ -162,7 +162,7 @@ function _usage
     \e[94mCOMMAND\e[39m email \e[31m:=\e[39m
         ${0} email add <EMAIL ADDRESS> [<PASSWORD>]
         ${0} email update <EMAIL ADDRESS> [<PASSWORD>]
-        ${0} email del [ OPTIONS\e[31m...\e[39m ] <EMAIL ADDRESS>
+        ${0} email del [ OPTIONS\e[31m...\e[39m ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>\e[31m...\e[39m ]
         ${0} email restrict <add\e[31m|\e[39mdel\e[31m|\e[39mlist> <send\e[31m|\e[39mreceive> [<EMAIL ADDRESS>]
         ${0} email list
 
@@ -340,7 +340,7 @@ function _main
       case ${2:-} in
         add      ) shift 2 ; _docker_image addmailuser "${@}" ;;
         update   ) shift 2 ; _docker_image updatemailuser "${@}" ;;
-        del      ) shift 2 ; _docker_image delmailuser "${@}" ;;
+        del      ) shift 2 ; _docker_container delmailuser "${@}" ;;
         restrict ) shift 2 ; _docker_container restrict-access "${@}" ;;
         list     ) _docker_image listmailuser ;;
         *        ) _usage ;;

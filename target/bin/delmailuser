@@ -21,7 +21,7 @@ function __usage
     delmailuser - delete a user and related data
 
 \e[38;5;214mSYNOPSIS\e[39m
-    ./setup.sh email del [ OPTIONS ] { <MAIL ADDRESS> \e[31m|\e[39m help }
+    ./setup.sh email del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>\e[31m...\e[39m] \e[31m|\e[39m help }
 
 \e[38;5;214mDESCRIPTION\e[39m
     Delete a mail user, aliases, quotas and mail data.
@@ -38,7 +38,7 @@ function __usage
         Delete the mail user, quotas and aliases, but ask
         again whether mailbox data should be deleted.
 
-    \e[37m./setup.sh email del -y test@domain.com\e[39m
+    \e[37m./setup.sh email del -y test@domain.com test@domain.com\e[39m
         Delete all mail data for the users 'test' and do not
         prompt to ask if all mail data should be deleted.
 
@@ -89,75 +89,77 @@ fi
 (
   flock -e 200
 
-  ERROR=false
-  EMAIL="${*}"
+  for EMAIL in "${@}"
+  do
+    ERROR=false
 
-  # very simple plausibility check
-  [[ ${EMAIL} != *@*.* ]] && errex "No valid address: ${EMAIL}"
+    # very simple plausibility check
+    [[ ${EMAIL} != *@*.* ]] && errex "No valid address: ${EMAIL}"
 
-  USER="${EMAIL%@*}"
-  DOMAIN="${EMAIL#*@}"
+    USER="${EMAIL%@*}"
+    DOMAIN="${EMAIL#*@}"
 
-  # ${EMAIL} must not contain /s and other syntactic characters
-  UNESCAPED_EMAIL="${EMAIL}"
-  EMAIL=$(escape "${EMAIL}")
+    # ${EMAIL} must not contain /s and other syntactic characters
+    UNESCAPED_EMAIL="${EMAIL}"
+    EMAIL=$(escape "${EMAIL}")
 
-  if [[ -f ${DATABASE} ]]
-  then
-    if ! sed -i "/^${EMAIL}|/d" "${DATABASE}"
+    if [[ -f ${DATABASE} ]]
     then
-      echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
-      ERROR=true
+      if ! sed -i "/^${EMAIL}|/d" "${DATABASE}"
+      then
+        echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
+        ERROR=true
+      fi
     fi
-  fi
 
-  if [[ -f ${ALIAS_DATABASE} ]]
-  then
-    # delete all aliases where the user is the only recipient( " ${EMAIL}" )
-    # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
-    if sed -i \
-      -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
-      "${ALIAS_DATABASE}"
+    if [[ -f ${ALIAS_DATABASE} ]]
     then
-      echo "${UNESCAPED_EMAIL} and potential aliases deleted."
-    else
-      echo "Aliases for ${UNESCAPED_EMAIL} couldn't be deleted in ${ALIAS_DATABASE}." >&2
-      ERROR=true
+      # delete all aliases where the user is the only recipient( " ${EMAIL}" )
+      # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
+      if sed -i \
+        -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
+        "${ALIAS_DATABASE}"
+      then
+        echo "${UNESCAPED_EMAIL} and potential aliases deleted."
+      else
+        echo "Aliases for ${UNESCAPED_EMAIL} couldn't be deleted in ${ALIAS_DATABASE}." >&2
+        ERROR=true
+      fi
     fi
-  fi
 
-  # remove quota directives
-  if [[ -f ${QUOTA_DATABASE} ]]
-  then
-    if ! sed -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
+    # remove quota directives
+    if [[ -f ${QUOTA_DATABASE} ]]
     then
-      echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+      if ! sed -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
+      then
+        echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+      fi
     fi
-  fi
 
-  if ! ${MAILDEL}
-  then
-    echo "Leaving the mailbox untouched.
+    if ! ${MAILDEL}
+    then
+      echo "Leaving the mailbox untouched.
 If you want to delete it at a later point,
 use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
-    exit 0
-  fi
+      exit 0
+    fi
 
-  if [[ -e "/var/mail/${DOMAIN}/${USER}" ]]
-  then
-    if rm -R "/var/mail/${DOMAIN}/${USER}"
+    if [[ -e "/var/mail/${DOMAIN}/${USER}" ]]
     then
-      echo "Mailbox deleted."
+      if rm -R "/var/mail/${DOMAIN}/${USER}"
+      then
+        echo "Mailbox deleted."
+      else
+        echo "Mailbox couldn't be deleted." >&2
+        ERROR=true
+      fi
     else
-      echo "Mailbox couldn't be deleted." >&2
+      echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
       ERROR=true
     fi
-  else
-    echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
-    ERROR=true
-  fi
 
-  ${ERROR} && errex 'See the messages above.'
+    ${ERROR} && errex 'See the messages above.'
+  done
 
 ) 200< "${DATABASE}"
 
