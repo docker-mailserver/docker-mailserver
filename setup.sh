@@ -15,10 +15,7 @@ CYAN="\e[96m"
 BLUE="\e[34m"
 LBLUE="\e[94m"
 BOLD="\e[1m"
-RESET="\e[39m"
-RESET2="\e[0m"
-
-RESET="$RESET2" # for testing
+RESET="\e[0m"
 
 set -euEo pipefail
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
@@ -26,7 +23,7 @@ trap '_unset_vars || :' EXIT
 
 function __log_err
 {
-  printf "\n––– ${BOLD}${RED}UNCHECKED ERROR${RESET2}\n%s\n%s\n%s\n%s\n\n" \
+  printf "\n––– ${BOLD}${RED}UNCHECKED ERROR${RESET}\n%s\n%s\n%s\n%s\n\n" \
     "  – script    = ${SCRIPT:-${0}}" \
     "  – function  = ${1} / ${2}" \
     "  – line      = ${3}" \
@@ -143,8 +140,8 @@ ${ORANGE}DESCRIPTION${RESET}
 
 ${ORANGE}VERSION${RESET}
     The current version of this script is backwards compatible with versions of
-    ${WHITE}docker-mailserver${RESET} ${BOLD}after${RESET2} ${BLUE}8.0.1${RESET2}. In case that there is not a more recent release,
-    this script is currently only working with the ${WHITE}:edge${RESET2} tag.
+    ${WHITE}docker-mailserver${RESET} ${BOLD}after${RESET} ${BLUE}8.0.1${RESET}. In case that there is not a more recent release,
+    this script is currently only working with the ${WHITE}:edge${RESET} tag.
 
     You can download the script for your release by substituting TAG from the
     following URL, where TAG looks like 'vX.X.X':
