@@ -13,14 +13,14 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/postfix/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/">
       
       <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.0">
     
     
       
-        <title>Override the Default Configs | Postfix - Docker Mailserver</title>
+        <title>Custom User Changes & Patches | Scripting - Docker Mailserver</title>
       
     
     
@@ -91,7 +91,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Override the Default Configs | Postfix
+              Custom User Changes & Patches | Scripting
             
           </span>
         </div>
@@ -736,6 +736,18 @@
             
   
   
+  
+    <li class="md-nav__item">
+      <a href="../postfix/" class="md-nav__link">
+        Postfix
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
     
   
   
@@ -745,21 +757,9 @@
       
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Postfix
-      </a>
-      
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../user-patches/" class="md-nav__link">
         Modifications via Script
       </a>
+      
     </li>
   
 
@@ -1160,34 +1160,46 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/override-defaults/postfix.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/override-defaults/user-patches.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>Postfix</h1>
+                  <h1>Modifications via Script</h1>
                 
-                <p>The Postfix default configuration can easily be extended by providing a <code>config/postfix-main.cf</code> in postfix format.
-This can also be used to add configuration that is not in our default configuration.</p>
-<p>For example, one common use of this file is for increasing the default maximum message size:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># increase maximum message size</span>
-<span class="na">message_size_limit</span> <span class="o">=</span> <span class="s">52428800</span>
+                <p>If you'd like to change, patch or alter files or behavior of <code>docker-mailserver</code>, you can use a script.</p>
+<p>In case you cloned this repository, you can copy the file <code>user-patches.sh.dist</code> under <code>config/</code> with <code class="highlight">cp config/user-patches.sh.dist config/user-patches.sh</code> in order to create the <code>user-patches.sh</code> script. In case you are managing your directory structure yourself, create a <code>config/</code> directory and the <code>user-patches.sh</code> file yourself.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Either create the config/ directory yourself</span>
+<span class="c1">#    or let docker-mailserver create it on initial</span>
+<span class="c1">#    startup</span>
+~/somewhere $ mkdir config <span class="o">&amp;&amp;</span> <span class="nb">cd</span> config
+
+<span class="c1"># 2. Create the user-patches.sh and edit it</span>
+~/somewhere/config $ touch user-patches.sh
+~/somewhere/config $ vi user-patches.sh
 </code></pre></div>
-<p>That specific example is now supported and can be handled by setting <code>POSTFIX_MESSAGE_SIZE_LIMIT</code>.</p>
-<div class="admonition seealso">
-<p class="admonition-title">Seealso</p>
-<p><a href="http://www.postfix.org/documentation.html">Postfix documentation</a> remains the best place to find configuration options.</p>
-</div>
-<p>Each line in the provided file will be loaded into postfix.</p>
-<p>In the same way it is possible to add a custom <code>config/postfix-master.cf</code> file that will override the standard <code>master.cf</code>. Each line in the file will be passed to <code>postconf -P</code>. The expected format is <code>&lt;service_name&gt;/&lt;type&gt;/&lt;parameter&gt;</code>, for example:</p>
-<div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_reject_unlisted_recipient</span><span class="o">=</span><span class="s">no</span>
+<p>The contents could look like this</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#! /bin/bash</span>
+
+sed -i -E <span class="s1">&#39;s|(log_level).*|\1 = -1;|g&#39;</span> /etc/amavis/conf.d/49-docker-mailserver
+
+cat &gt;/etc/amavis/conf.d/50-user &lt;&lt; <span class="s2">&quot;END&quot;</span>
+use strict<span class="p">;</span>
+
+<span class="nv">$undecipherable_subject_tag</span> <span class="o">=</span> undef<span class="p">;</span>
+<span class="nv">$admin_maps_by_ccat</span><span class="o">{</span>+CC_UNCHECKED<span class="o">}</span> <span class="o">=</span>  undef<span class="p">;</span>
+
+<span class="c1">#------------ Do not modify anything below this line -------------</span>
+<span class="m">1</span><span class="p">;</span>  <span class="c1"># ensure a defined return</span>
+END
+
+...
 </code></pre></div>
-<p>Run <code>postconf -P</code> in the container without arguments to see the active master options.</p>
+<p>And you're done. The user patches script runs right before starting daemons. That means, all the other configuration is in place, so the script can make final adjustments.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>There should be no space between the parameter and the value.</p>
+<p>Many "patches" can already be done with the Docker Compose-/Stack-file. Adding hostnames to <code>/etc/hosts</code> is done with the <code class="highlight"><span class="nt">extra_hosts</span><span class="p">:</span></code> section, <code>sysctl</code> commands can be managed with the <code class="highlight"><span class="nt">sysctls</span><span class="p">:</span></code> section, etc.</p>
 </div>
-<p>Have a look at the code for more information.</p>
                 
                   
                 
@@ -1208,7 +1220,7 @@ This can also be used to add configuration that is not in our default configurat
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../dovecot/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../postfix/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1217,19 +1229,19 @@ This can also be used to add configuration that is not in our default configurat
               <span class="md-footer__direction">
                 Previous
               </span>
-              Dovecot
+              Postfix
             </div>
           </div>
         </a>
       
       
-        <a href="../user-patches/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../../auth-ldap/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Modifications via Script
+              LDAP Authentication
             </div>
           </div>
           <div class="md-footer__button md-icon">
