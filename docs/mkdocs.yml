@@ -55,6 +55,7 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.magiclink
+  - pymdownx.inlinehilite
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
@@ -109,6 +110,7 @@ nav:
         - 'Override the Default Configs':
           - 'Dovecot': config/advanced/override-defaults/dovecot.md
           - 'Postfix': config/advanced/override-defaults/postfix.md
+          - 'Modifications via Script': config/advanced/override-defaults/user-patches.md
         - 'LDAP Authentication': config/advanced/auth-ldap.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md

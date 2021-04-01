@@ -1,15 +1,17 @@
 # Docker Mailserver
 
-[![ci::status]][ci::github] [![docker::pulls]][docker::hub]
+[![ci::status]][ci::github] [![docker::pulls]][docker::hub] [![documentation::badge]][documentation::web]
 
 [ci::status]: https://img.shields.io/github/workflow/status/docker-mailserver/docker-mailserver/Build%2C%20Test%20%26%20Deploy?color=blue&label=CI&logo=github&logoColor=white&style=for-the-badge
 [ci::github]: https://github.com/docker-mailserver/docker-mailserver/actions
 [docker::pulls]: https://img.shields.io/docker/pulls/mailserver/docker-mailserver.svg?style=for-the-badge&logo=docker&logoColor=white
 [docker::hub]: https://hub.docker.com/r/mailserver/docker-mailserver/
+[documentation::badge]: https://img.shields.io/badge/DOCUMENTATION-GH%20PAGES-0078D4?style=for-the-badge&logo=git&logoColor=white
+[documentation::web]: https://docker-mailserver.github.io/docker-mailserver/edge/
 
-A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade.
+A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created.](https://tvi.al/simple-mail-server-with-docker/).
 
-[Why this image was created.](http://tvi.al/simple-mail-server-with-docker/)
+If you have issues, read the full `README` **and** the [documentation][documentation::web] **for your version** (default is `edge`) first **before opening an issue**. The issue tracker is for issues, not for personal support.
 
 1. [Included Services](#included-services)
 2. [Issues and Contributing](./CONTRIBUTING.md)
@@ -17,7 +19,8 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 4. [Usage](#usage)
 5. [Examples](#examples)
 6. [Environment Variables](./ENVIRONMENT.md)
-7. [Release Notes](./CHANGELOG.md)
+7. [Documentation][documentation::web]
+8. [Release Notes](./CHANGELOG.md)
 
 ## Included Services
 
@@ -59,7 +62,8 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 
 ### Available image sources / tags
 
-The [CI/CD workflows](https://github.com/docker-mailserver/docker-mailserver/actions) automatically build, test and push new images to container registries. Currently, the following registries are supported:
+[CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions) will automatically build, test and push new images to container registries. Currently, the following registries are supported:
+
 - [DockerHub](https://hub.docker.com/repository/docker/mailserver/docker-mailserver)
 - [GitHub Container Registry](https://github.com/orgs/docker-mailserver/packages?repo_name=docker-mailserver)
 
@@ -69,8 +73,7 @@ All workflows are using the **tagging convention** listed below. It is subsequen
 |--------------|-----------------------|------------|-------------------------------|
 | `push`       | `refs/heads/master`   | `cf20257`  | `edge`                        |
 | `push`       | `refs/heads/stable`   | `cf20257`  | `stable`                      |
-| `push tag`   | `refs/tags/1.2.3`     | `ad132f5`  | `1.2.3`, `1.2`, `1`, `latest` |
-| `push tag`   | `refs/tags/v1.2.3`    | `ad132f5`  | `1.2.3`, `1.2`, `1`, `latest` |
+| `push tag`   | `refs/tags/[v]1.2.3`     | `ad132f5`  | `1.2.3`, `1.2`, `1`, `latest` |
 
 ### Get the tools
 
@@ -117,15 +120,10 @@ If you'd like to use SELinux, add `-Z` to the variable `SELINUX_LABEL` in `.env`
 ``` BASH
 docker-compose up -d mailserver
 
-# without SELinux
-./setup.sh email add <user@domain> [<password>]
-./setup.sh alias add postmaster@<domain> <user@domain>
-./setup.sh config dkim
-
-# with SELinux
-./setup.sh -Z email add <user@domain> [<password>]
-./setup.sh -Z alias add postmaster@<domain> <user@domain>
-./setup.sh -Z config dkim
+# for SELinux, use -Z 
+./setup.sh [-Z] email add <user@domain> [<password>]
+./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
+./setup.sh [-Z] config dkim
 ```
 
 If you're seeing error messages about unchecked error, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read the `VERSION` section.
@@ -142,45 +140,11 @@ If you want to see detailed usage information, run `./setup.sh config dkim help`
 
 #### DNS - DKIM
 
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim).
+When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim/) for more details.
 
 #### Custom user changes & patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place it the `config/` folder that is created on startup and call it `user-patches.sh`. The setup is done like this:
-
-``` BASH
-# 1. Either create the config/ directory yourself
-#    or let docker-mailserver create it on initial
-#    startup
-/where/docker-mailserver/resides/ $ mkdir config && cd config
-
-# 2. Create the user-patches.sh script and make it
-#    executable
-/where/docker-mailserver/resides/config/ $ touch user-patches.sh
-/where/docker-mailserver/resides/config/ $ chmod +x user-patches.sh
-
-# 3. Edit it
-/where/docker-mailserver/resides/config/ $ vi user-patches.sh
-/where/docker-mailserver/resides/config/ $ cat user-patches.sh
-#! /bin/bash
-
-# ! THIS IS AN EXAMPLE !
-
-# If you modify any supervisord configuration, make sure
-# to run `supervisorctl update` and/or `supervisorctl reload` afterwards.
-
-# shellcheck source=/dev/null
-. /usr/local/bin/helper-functions.sh
-
-_notify 'Applying user-patches'
-
-if ! grep -q '192.168.0.1' /etc/hosts
-then
-  echo -e '192.168.0.1 some.domain.com' >> /etc/hosts
-fi
-```
-
-And you're done. The user patches script runs right before starting daemons. That means, all the other configuration is in place, so the script can make final adjustments.
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/user-patches/) for a detailed explanation.
 
 #### Supported Operating Systems
 
@@ -210,20 +174,9 @@ You're done! And don't forget to have a look at the remaining functions of the `
 
 If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.md) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
 
-#### Exposed ports
+#### Ports
 
-| Protocol | Opt-in Encryption &#185; | Enforced Encryption | Purpose        |
-| :------: | :----------------------: | :-----------------: | :------------: |
-| SMTP     | 25                       | N/A                 | Transfer&#178; |
-| ESMTP    | 587                      | 465&#179;           | Submission     |
-| POP3     | 110                      | 995                 | Retrieval      |
-| IMAP4    | 143                      | 993                 | Retrieval      |
-
-1. A connection *may* be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured. Port 25 is [required](https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages) to support insecure connections.
-2. Receives email and filters for spam and viruses. For submitting outgoing mail you should prefer the submission ports(465, 587), which require authentication. Unless a relay host is configured, outgoing email will leave the server via port 25(thus outbound traffic must not be blocked by your provider or firewall).
-3. A submission port since 2018, [RFC 8314](https://tools.ietf.org/html/rfc8314). Originally a secure variant of port 25.
-
-See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, especially regarding security concerns.
+See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
 ## Examples
 

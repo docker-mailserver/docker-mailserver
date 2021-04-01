@@ -18,6 +18,9 @@ This documentation provides you with advanced configuration, detailed examples, 
 !!! tip
     See the [FAQ][docs-faq] for some more tips!
 
+!!! important
+    If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place it in the `config/` folder that is created on startup and call it `user-patches.sh`. If you'd like to see the full documentation and an example, visit the ['Modifications via Script' page][docs-userpatches].
+
 ## Contributing
 
 We are always happy to welcome new contributors. For guidelines and entrypoints please have a look at the [Contributing section][docs-contributing].
@@ -26,6 +29,7 @@ We are always happy to welcome new contributors. For guidelines and entrypoints 
 [docs-faq]: ./faq.md
 [docs-optionalconfig]: ./config/advanced/optional-config.md
 [docs-setupsh]: ./config/setup.sh.md
+[docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 [github-file-env]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
 [github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh
