@@ -36,11 +36,11 @@ ly and use ./setup.sh help and read the VERSION section.\n" >&2
 
 function _use_readlink
 {
-  if uname -a | grep Darwin == "" &>/dev/null
+  if uname -a | grep -q Darwin
   then
-    READLINK="$(readlink -f "${0}")"
-  else
     READLINK="$(greadlink -f "${0}")"
+  else
+    READLINK="$(readlink -f "${0}")"
   fi
 }
 
