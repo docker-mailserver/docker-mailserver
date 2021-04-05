@@ -15,13 +15,13 @@ jobs:
           submodules: recursive
       - name: Prepare tags
         id: prep
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v2.2.0
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
             ${{ secrets.GHCR_REPOSITORY }}
-          tag-custom: stable
-          tag-custom-only: true
+          tags: |
+            type=raw,value=stable
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
