@@ -34,11 +34,11 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
+DIR="${0%/*}"
 CRI=
 CONFIG_PATH=
 CONTAINER_NAME=
 DEFAULT_CONFIG_PATH="${DIR}/config"
-DIR="${0%/*}"
 IMAGE_NAME=
 INFO=
 USE_CONTAINER=false
