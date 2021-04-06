@@ -57,7 +57,7 @@ IMAGE_NAME=
 INFO=
 USE_CONTAINER=false
 USE_TTY=
-USING_SELINUX=
+USE_SELINUX=
 VOLUME=
 WISHED_CONFIG_PATH=
 
@@ -236,7 +236,7 @@ function _docker_image
     fi
 
     ${CRI} run --rm \
-      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USING_SELINUX}" \
+      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
       "${USE_TTY}" "${IMAGE_NAME}" "${@}"
   fi
 }
@@ -292,8 +292,8 @@ function _main
   do
     case ${OPT} in
       i ) IMAGE_NAME="${OPTARG}" ;;
-      z ) USING_SELINUX=":z"     ;;
-      Z ) USING_SELINUX=":Z"     ;;
+      z ) USE_SELINUX=":z"     ;;
+      Z ) USE_SELINUX=":Z"     ;;
       c )
         # container specified, connect to running instance
         CONTAINER_NAME="${OPTARG}"
