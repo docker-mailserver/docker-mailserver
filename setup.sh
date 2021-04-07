@@ -19,7 +19,6 @@ RESET="\e[0m"
 
 set -euEo pipefail
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
-trap '_unset_vars || :' EXIT
 
 function __log_err
 {
@@ -35,39 +34,32 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
-function _unset_vars
-{
-  unset CDIR CRI INFO IMAGE_NAME CONTAINER_NAME DEFAULT_CONFIG_PATH
-  unset USE_CONTAINER WISHED_CONFIG_PATH CONFIG_PATH VOLUME USE_TTY
-  unset SCRIPT USING_SELINUX
-}
-
-function _get_current_directory
+function _get_absolute_script_directory
 {
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
-    CDIR="$(dirname "$(readlink -f "${0}")")"
+    DIR="$(dirname "$(readlink -f "${0}")")"
   elif realpath -e -L "${0}" &>/dev/null
   then
-    CDIR="$(realpath -e -L "${0}")"
-    CDIR="${CDIR%/setup.sh}"
+    DIR="$(realpath -e -L "${0}")"
+    DIR="${DIR%/setup.sh}"
   fi
 }
 
-CDIR="$(pwd)"
-_get_current_directory
+DIR="$(pwd)"
+_get_absolute_script_directory
 
 CRI=
-INFO=
-IMAGE_NAME=
-CONTAINER_NAME=
-DEFAULT_CONFIG_PATH="${CDIR}/config"
-USE_CONTAINER=false
-WISHED_CONFIG_PATH=
 CONFIG_PATH=
-VOLUME=
+CONTAINER_NAME=
+DEFAULT_CONFIG_PATH="${DIR}/config"
+IMAGE_NAME=
+INFO=
+USE_CONTAINER=false
 USE_TTY=
-USING_SELINUX=
+USE_SELINUX=
+VOLUME=
+WISHED_CONFIG_PATH=
 
 function _check_root
 {
@@ -158,7 +150,7 @@ ${ORANGE}OPTIONS${RESET}
 
         -p PATH
             Provides the config folder path. The default is
-            ${WHITE}${CDIR}/config/${RESET}
+            ${WHITE}${DIR}/config/${RESET}
 
     ${LBLUE}SELinux${RESET}
         -z
@@ -244,7 +236,7 @@ function _docker_image
     fi
 
     ${CRI} run --rm \
-      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USING_SELINUX}" \
+      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
       "${USE_TTY}" "${IMAGE_NAME}" "${@}"
   fi
 }
@@ -300,8 +292,8 @@ function _main
   do
     case ${OPT} in
       i ) IMAGE_NAME="${OPTARG}" ;;
-      z ) USING_SELINUX=":z"     ;;
-      Z ) USING_SELINUX=":Z"     ;;
+      z ) USE_SELINUX=":z"     ;;
+      Z ) USE_SELINUX=":Z"     ;;
       c )
         # container specified, connect to running instance
         CONTAINER_NAME="${OPTARG}"
@@ -311,7 +303,7 @@ function _main
       p )
         case "${OPTARG}" in
           /* ) WISHED_CONFIG_PATH="${OPTARG}"         ;;
-          *  ) WISHED_CONFIG_PATH="${CDIR}/${OPTARG}" ;;
+          *  ) WISHED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
         esac
 
         if [[ ! -d ${WISHED_CONFIG_PATH} ]]
