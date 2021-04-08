@@ -19,4 +19,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 'Build with mkdocs-material via Docker'
-        run: docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build --strict
+        run: docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:7.1.0 build --strict

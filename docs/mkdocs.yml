@@ -31,8 +31,26 @@ theme:
     repo: fontawesome/brands/github
   features:
     - navigation.tabs
+    - navigation.top
     - navigation.expand
     - navigation.instant
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
 
 # We make some minor style adjustments or resolve issues that upstream `mkdocs-material` would not accept a PR for:
 extra_css:
