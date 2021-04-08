@@ -31,6 +31,7 @@ theme:
     repo: fontawesome/brands/github
   features:
     - navigation.tabs
+    - navigation.top
     - navigation.expand
     - navigation.instant
 
