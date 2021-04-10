@@ -34,11 +34,21 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
+function _use_readlink
+{
+  if uname -a | grep Darwin == "" &>/dev/null
+  then
+    READLINK="$(readlink -f "${0}")"
+  else
+    READLINK="$(greadlink -f "${0}")"
+  fi
+}
+
 function _get_absolute_script_directory
 {
-  if dirname "$(readlink -f "${0}")" &>/dev/null
+  if dirname ${READLINK} &>/dev/null
   then
-    DIR="$(dirname "$(readlink -f "${0}")")"
+    DIR="$(dirname ${READLINK})"
   elif realpath -e -L "${0}" &>/dev/null
   then
     DIR="$(realpath -e -L "${0}")"
@@ -47,6 +57,7 @@ function _get_absolute_script_directory
 }
 
 DIR="$(pwd)"
+_use_readlink
 _get_absolute_script_directory
 
 CRI=
