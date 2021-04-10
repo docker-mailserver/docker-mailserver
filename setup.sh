@@ -34,13 +34,24 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
+<<<<<<< HEAD
 function _use_readlink
+=======
+function _unset_vars
+{
+  unset CDIR CRI INFO IMAGE_NAME CONTAINER_NAME DEFAULT_CONFIG_PATH
+  unset USE_CONTAINER WISHED_CONFIG_PATH CONFIG_PATH VOLUME USE_TTY
+  unset SCRIPT USING_SELINUX
+}
+
+function _get_script_path
+>>>>>>> 513202f (more meaningful names)
 {
   if uname -a | grep -q Darwin
   then
-    READLINK="$(greadlink -f "${0}")"
+    SCRIPT_PATH="$(greadlink -f "${0}")"
   else
-    READLINK="$(readlink -f "${0}")"
+    SCRIPT_PATH="$(readlink -f "${0}")"
   fi
 }
 
