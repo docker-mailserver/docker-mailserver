@@ -172,9 +172,11 @@ RUN for _ in {1..10}; do su - amavis -c "razor-admin -create" ; sleep 3 ; \
 # ––– Fail2Ban, DKIM & DMARC ––––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
-COPY target/fail2ban/jail.conf /etc/fail2ban/jail.conf
-COPY target/fail2ban/filter.d/postfix-sasl.conf /etc/fail2ban/filter.d/postfix-sasl.conf
-RUN mkdir /var/run/fail2ban
+COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
+RUN ln -s /var/log/mail/mail.log /var/log/mail.log && \
+  # disable sshd jail
+  rm /etc/fail2ban/jail.d/defaults-debian.conf && \
+  mkdir /var/run/fail2ban
 
 COPY target/opendkim/opendkim.conf /etc/opendkim.conf
 COPY target/opendkim/default-opendkim /etc/default/opendkim
