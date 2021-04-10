@@ -34,18 +34,7 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
-<<<<<<< HEAD
-function _use_readlink
-=======
-function _unset_vars
-{
-  unset CDIR CRI INFO IMAGE_NAME CONTAINER_NAME DEFAULT_CONFIG_PATH
-  unset USE_CONTAINER WISHED_CONFIG_PATH CONFIG_PATH VOLUME USE_TTY
-  unset SCRIPT USING_SELINUX
-}
-
 function _get_script_path
->>>>>>> 513202f (more meaningful names)
 {
   if uname -a | grep -q Darwin
   then
@@ -57,9 +46,9 @@ function _get_script_path
 
 function _get_absolute_script_directory
 {
-  if dirname ${READLINK} &>/dev/null
+  if dirname "${SCRIPT_PATH}" &>/dev/null
   then
-    DIR="$(dirname ${READLINK})"
+    DIR=$(dirname "${SCRIPT_PATH}")
   elif realpath -e -L "${0}" &>/dev/null
   then
     DIR="$(realpath -e -L "${0}")"
@@ -68,7 +57,7 @@ function _get_absolute_script_directory
 }
 
 DIR="$(pwd)"
-_use_readlink
+_get_script_path
 _get_absolute_script_directory
 
 CRI=
