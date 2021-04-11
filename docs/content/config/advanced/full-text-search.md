@@ -46,7 +46,7 @@ The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in
 
 3. Start the solr container: `docker-compose up -d --remove-orphans solr`
 
-4. Restart the mailserver container: `docker-compose restart mailserver`
+4. Recreating the mailserver container: `docker-compose up -d`
 
 5. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
 
