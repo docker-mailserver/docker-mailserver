@@ -164,7 +164,8 @@ RUN \
   chmod 644 /etc/amavis/conf.d/*
 
 # overcomplication necessary for CI
-RUN for _ in {1..10}; do su - amavis -c "razor-admin -create" ; sleep 3 ; \
+RUN \
+  for _ in {1..10}; do su - amavis -c "razor-admin -create" ; sleep 3 ; \
   if su - amavis -c "razor-admin -register" &>/dev/null; then { EC=0 ; break ; } ; \
   else EC=${?} ; fi ; done ; (exit ${EC})
 
