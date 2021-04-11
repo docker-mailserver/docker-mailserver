@@ -1471,7 +1471,7 @@ function _setup_security_stack
 
     if [[ -e /tmp/docker-mailserver/fail2ban-jail.cf ]]
     then
-      cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.local
+      cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.d/user-jail.local
     fi
   else
     # disable logrotate config for fail2ban if not enabled
