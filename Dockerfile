@@ -173,7 +173,8 @@ RUN for _ in {1..10}; do su - amavis -c "razor-admin -create" ; sleep 3 ; \
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
-RUN ln -s /var/log/mail/mail.log /var/log/mail.log && \
+RUN \
+  ln -s /var/log/mail/mail.log /var/log/mail.log && \
   # disable sshd jail
   rm /etc/fail2ban/jail.d/defaults-debian.conf && \
   mkdir /var/run/fail2ban
