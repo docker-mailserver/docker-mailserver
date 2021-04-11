@@ -20,6 +20,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
     restart: always
+    stop_grace_period: 1m
     cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
 
 volumes:
