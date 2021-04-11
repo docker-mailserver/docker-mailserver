@@ -1317,7 +1317,7 @@
 <p>Start the solr container: <code>docker-compose up -d --remove-orphans solr</code></p>
 </li>
 <li>
-<p>Restart the mailserver container: <code>docker-compose restart mailserver</code></p>
+<p>Recreating the mailserver container: <code>docker-compose up -d</code></p>
 </li>
 <li>
 <p>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker-compose exec mailserver doveadm fts rescan -A</code></p>
