@@ -1290,6 +1290,8 @@
     <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
 
   <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="nt">depends_on</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">solr</span>
     <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
     <span class="l l-Scalar l-Scalar-Plain">...</span>
     <span class="nt">volumes</span><span class="p">:</span>
@@ -1314,14 +1316,9 @@
 </code></pre></div>
 </li>
 <li>
-<p>Start the solr container: <code>docker-compose up -d --remove-orphans solr</code></p>
+<p>Recreate containers: <code>docker-compose down ; docker-compose up -d</code></p>
 </li>
-<li>
-<p>Recreating the mailserver container: <code>docker-compose up -d</code></p>
-</li>
-<li>
-<p>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker-compose exec mailserver doveadm fts rescan -A</code></p>
-</li>
+<li>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker-compose exec mailserver doveadm fts rescan -A</code></li>
 </ol>
 <h2 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h2>
 <p>See <a href="https://github.com/docker-mailserver/docker-mailserver/issues/905">#905</a></p>
