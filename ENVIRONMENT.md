@@ -417,6 +417,11 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 - e.g. `(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for domains
 
+##### LDAP_QUERY_FILTER_SENDERS
+
+- e.g. `(mail=%s)`
+- => Specify how ldap should be asked if a sender address is allowed for a user
+
 ##### DOVECOT_TLS
 
 - **empty** => no
