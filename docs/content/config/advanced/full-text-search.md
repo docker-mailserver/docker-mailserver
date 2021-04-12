@@ -20,6 +20,8 @@ The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in
         restart: always
 
       mailserver:
+        depends_on:
+          - solr
         image: mailserver/docker-mailserver:latest
         ...
         volumes:
@@ -44,12 +46,8 @@ The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in
     }
     ```
 
-3. Start the solr container: `docker-compose up -d --remove-orphans solr`
-
-4. Recreating the mailserver container: `docker-compose up -d`
-
-5. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
-
+3. Recreate containers: `docker-compose down ; docker-compose up -d`
+4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
 
 ## Further Discussion
 
