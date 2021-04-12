@@ -673,7 +673,7 @@ EOF
 @test "checking accounts: listmailuser" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
   assert_success
-  assert_output 'user1@localhost.localdomain'
+  assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
