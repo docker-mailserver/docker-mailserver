@@ -46,10 +46,8 @@ The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in
     }
     ```
 
-3. Recreate containers: `docker-compose down; docker-compose up -d`
-
+3. Recreate containers: `docker-compose down ; docker-compose up -d`
 4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
-
 
 ## Further Discussion
 
