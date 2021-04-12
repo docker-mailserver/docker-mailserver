@@ -437,10 +437,17 @@ function _setup_ldap
 
   declare -A _dovecot_ldap_mapping
 
+  # Add protocol to LDAP_SERVER_HOST so that we can use dovecot's "uris" option:
+  # https://doc.dovecot.org/configuration_manual/authentication/ldap/
+  dovecot_ldap_server_uri="${LDAP_SERVER_HOST}"
+  if ! echo "${dovecot_ldap_server_uri}" | grep -F '://' >/dev/null; then
+    dovecot_ldap_server_uri="ldap://${dovecot_ldap_server_uri}"
+  fi
+
   _dovecot_ldap_mapping["DOVECOT_BASE"]="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
   _dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
   _dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
-  _dovecot_ldap_mapping["DOVECOT_HOSTS"]="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"
+  _dovecot_ldap_mapping["DOVECOT_URIS"]="${DOVECOT_URIS:="${dovecot_ldap_server_uri}"}"
 
   # Not sure whether this can be the same or not
   # _dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"

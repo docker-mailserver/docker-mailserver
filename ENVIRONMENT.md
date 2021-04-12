@@ -379,7 +379,7 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 ##### LDAP_SERVER_HOST
 
 - **empty** => mail.domain.com
-- => Specify the dns-name/ip-address where the ldap-server
+- => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.domain.com`
 - NOTE: If you going to use the mailserver in combination with docker-compose you can set the service name here
 
 ##### LDAP_SEARCH_BASE

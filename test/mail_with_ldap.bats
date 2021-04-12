@@ -155,7 +155,7 @@ function teardown_file() {
 }
 
 @test "checking dovecot: ldap config overwrites success" {
-  run docker exec mail_with_ldap /bin/sh -c "grep 'hosts = ldap' /etc/dovecot/dovecot-ldap.conf.ext"
+  run docker exec mail_with_ldap /bin/sh -c "grep 'uris = ldap://ldap' /etc/dovecot/dovecot-ldap.conf.ext"
   assert_success
   run docker exec mail_with_ldap /bin/sh -c "grep 'tls = no' /etc/dovecot/dovecot-ldap.conf.ext"
   assert_success
