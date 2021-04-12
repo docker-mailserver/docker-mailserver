@@ -3,10 +3,39 @@
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
-DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+function dovecot_quota_to_hr()
+{
+  if [ "${1}" == "-" ]
+  then
+    echo "~"
+  else
+    echo $(( 1024 * ${1} )) | numfmt --to=iec
+  fi
+}
 
-[[ -f ${DATABASE} ]] || errex "Error: No postfix-virtual.cf file"
-[[ -s ${DATABASE} ]] || errex "Error: Empty postfix-virtual.cf - no aliases have been added"
+DATABASE="/tmp/docker-mailserver/postfix-accounts.cf"
+ALIASES="/tmp/docker-mailserver/postfix-virtual.cf"
 
-{ grep -v "^\s*$\|^\s*\#" "${DATABASE}" || true ; } | awk -F '|' '{ print $1; }'
+[[ -f ${DATABASE} ]] || errex "Error: No postfix-accounts.cf file"
+[[ -s ${DATABASE} ]] || errex "Error: Empty postfix-accounts.cf - no accounts have been added"
+
+while read LINE
+do
+  USER=$(echo "${LINE}" | cut -d'|' -f1)
+  
+  # ${QUOTA[0]} => current size
+  # ${QUOTA[1]} => configured size limit
+  # ${QUOTA[2]} => usage in percent
+  QUOTA=($(doveadm quota get -u "${USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }'))
+
+  echo "* ${USER} ( $(dovecot_quota_to_hr "${QUOTA[0]}") / $(dovecot_quota_to_hr "${QUOTA[1]}") ) [${QUOTA[2]}%]"
+
+  if [[ -f ${ALIASES} ]] && grep -q "${USER}" "${ALIASES}"
+  then
+    echo -e "    [ aliases -> "$(grep "${USER}" "${ALIASES}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g')"]\n"
+  else
+    echo
+  fi
+done < "${DATABASE}"
+
 exit 0
