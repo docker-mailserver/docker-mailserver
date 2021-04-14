@@ -1187,11 +1187,7 @@
                 
                   <h1>Mail Delivery with POP3</h1>
                 
-                <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><strong>We do not recommend using POP3. Use IMAP instead.</strong></p>
-</div>
-<p>If you really want to have POP3 running add the ports 110 and 995 and the environment variable <code>ENABLE_POP3</code> to your <code>docker-compose.yml</code>: </p>
+                <p>If you want to use POP3(s), you have to add the ports 110 and/or 995 (TLS secured) and the environment variable <code>ENABLE_POP3</code> to your <code>docker-compose.yml</code>: </p>
 <div class="highlight"><pre><span></span><code><span class="nt">mail</span><span class="p">:</span>
   <span class="nt">ports</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
