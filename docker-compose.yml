@@ -7,18 +7,49 @@ services:
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
     env_file: mailserver.env
-    # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
     ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
+      # SMTP (explicit TLS)
+      - target:    25
+        published: 25
+        protocol:  tcp
+        mode:      host
+      # ESMTP with implicit TLS
+      - target:    465
+        published: 465
+        protocol:  tcp
+        mode:      host
+      # ESMTP with explicit TLS (STARTTLS)
+      - target:    587
+        published: 587
+        protocol:  tcp
+        mode:      host
+      # IMAP4 with explicit TLS
+      - target:    134
+        published: 134
+        protocol:  tcp
+        mode:      host
+      # IMAP4 with implicit TLS
+      - target:    993
+        published: 993
+        protocol:  tcp
+        mode:      host
     volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
-      - /etc/localtime:/etc/localtime:ro
-      - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
+      - type: volume
+        source: maildata
+        target: /var/mail
+      - type: volume
+        source: mailstate
+        target: /var/mail-state
+      - type: volume
+        source: maillogs
+        target: /var/log/mail
+      - type: bind
+        source: ./config/
+        target: /tmp/docker-mailserver/${SELINUX_LABEL}
+      - type: bind
+        source: /etc/localtime
+        target: /etc/localtime
+        read_only: true
     restart: always
     stop_grace_period: 1m
     cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
