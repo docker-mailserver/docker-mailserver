@@ -32,8 +32,8 @@ services:
       - maildata:/var/mail
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
-      - /etc/localtime/:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
     cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
