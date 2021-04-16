@@ -446,10 +446,12 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - **empty** => same as `LDAP_BIND_PW`
 - => Password for LDAP dn sepecifified in `DOVECOT_DN`.
 
-##### DOVECOT_HOSTS
+##### DOVECOT_URIS
 
 - **empty** => same as `LDAP_SERVER_HOST`
-- => Specify a space separated list of LDAP hosts.
+- => Specify a space separated list of LDAP uris.
+- Note: If the protocol is missing, `ldap://` will be used.
+- Note: This deprecates `DOVECOT_HOSTS` (as it didn't allow to use LDAPS), which is currently still supported for backwards compatibility.
 
 ##### DOVECOT_LDAP_VERSION
 
@@ -477,6 +479,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_PASS_FILTER
 
 - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
+- **empty** => same as `DOVECOT_USER_FILTER`
 
 ##### DOVECOT_PASS_ATTRS
 

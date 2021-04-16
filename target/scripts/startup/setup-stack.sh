@@ -435,27 +435,26 @@ function _setup_ldap
 
   _notify 'inf' "Configuring dovecot LDAP"
 
-  declare -A _dovecot_ldap_mapping
+  declare -A DOVECOT_LDAP_MAPPING
 
-  # Add protocol to LDAP_SERVER_HOST so that we can use dovecot's "uris" option:
+  DOVECOT_LDAP_MAPPING["DOVECOT_BASE"]="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
+  DOVECOT_LDAP_MAPPING["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
+  DOVECOT_LDAP_MAPPING["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
+  DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]="${DOVECOT_URIS:="${DOVECOT_HOSTS:="${LDAP_SERVER_HOST}"}"}"
+
+  # Add protocol to DOVECOT_URIS so that we can use dovecot's "uris" option:
   # https://doc.dovecot.org/configuration_manual/authentication/ldap/
-  dovecot_ldap_server_uri="${LDAP_SERVER_HOST}"
-  if ! echo "${dovecot_ldap_server_uri}" | grep -F '://' >/dev/null; then
-    dovecot_ldap_server_uri="ldap://${dovecot_ldap_server_uri}"
+  if [[ "${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]}" != *'://'* ]]
+  then
+    DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]="ldap://${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]}"
   fi
 
-  _dovecot_ldap_mapping["DOVECOT_BASE"]="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
-  _dovecot_ldap_mapping["DOVECOT_DN"]="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
-  _dovecot_ldap_mapping["DOVECOT_DNPASS"]="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
-  _dovecot_ldap_mapping["DOVECOT_URIS"]="${DOVECOT_URIS:="${dovecot_ldap_server_uri}"}"
+  # Default DOVECOT_PASS_FILTER to the same value as DOVECOT_USER_FILTER
+  DOVECOT_LDAP_MAPPING["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${DOVECOT_USER_FILTER}"}"
 
-  # Not sure whether this can be the same or not
-  # _dovecot_ldap_mapping["DOVECOT_PASS_FILTER"]="${DOVECOT_PASS_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
-  # _dovecot_ldap_mapping["DOVECOT_USER_FILTER"]="${DOVECOT_USER_FILTER:="${LDAP_QUERY_FILTER_USER}"}"
-
-  for VAR in "${!_dovecot_ldap_mapping[@]}"
+  for VAR in "${!DOVECOT_LDAP_MAPPING[@]}"
   do
-    export "${VAR}=${_dovecot_ldap_mapping[${VAR}]}"
+    export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
   configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
