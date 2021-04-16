@@ -144,6 +144,7 @@ function teardown_file() {
   run ./setup.sh -c mail_fail2ban debug fail2ban
   assert_output --regexp "^Banned in dovecot: 192.0.66.5.*"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.5
+  assert_output --partial "Unbanned IP from dovecot: 192.0.66.5"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban
   assert_output --partial "You need to specify an IP address. Run"
 }
