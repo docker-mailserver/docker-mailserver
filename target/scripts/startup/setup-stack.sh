@@ -1613,3 +1613,12 @@ function _setup_environment
     echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}" >>/etc/environment
   fi
 }
+
+function _setup_fail2ban
+{
+  _notify 'task' 'Setting up fail2ban'
+  if [[ ${FAIL2BAN_BLOCKTYPE} != "reject" ]]
+  then
+    echo -e "[Init]\nblocktype = DROP" > /etc/fail2ban/action.d/iptables-common.local
+  fi
+}
