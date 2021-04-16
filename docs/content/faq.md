@@ -68,7 +68,7 @@ docker run --rm -ti \
   tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
 
 # delete backups older than 30 days
-find /backup/mail -type f -mtime +30 -delete \;
+find /backup/mail -type f -mtime +30 -delete
 ```
 
 ### What about `mail-state` folder?
