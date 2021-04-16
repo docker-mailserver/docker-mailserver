@@ -54,17 +54,21 @@ Please do not use `CRLF`.
 
 ### What about backups?
 
-Assuming that you use `docker-compose` and a data volumes, you can backup your user mails like this:
+Assuming that you use `docker-compose` and data volumes, you can backup the configuration, emails and logs like this:
 
 ```sh
+# create backup
 docker run --rm -ti \
   -v maildata:/var/mail \
   -v mailstate:/var/mail-state \
+  -v maillogs:/var/logs/mail \
+  -v "$PWD/config":/tmp/docker-mailserver \
   -v /backup/mail:/backup \
-  alpine:3.2 \
-  tar czf "/backup/mail-$(date +%y%m%d-%H%M%S).tgz" /var/mail /var/mail-state
+  alpine:latest \
+  tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
 
-find /backup/mail -type f -mtime +30 -exec rm -f {} \;
+# delete backups older than 30 days
+find /backup/mail -type f -mtime +30 -delete
 ```
 
 ### What about `mail-state` folder?
