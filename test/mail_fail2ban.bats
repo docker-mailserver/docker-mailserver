@@ -109,8 +109,15 @@ function teardown_file() {
   assert_success
 
   # Checking that FAIL_AUTH_MAILER_IP is banned by iptables
-  run docker exec mail_fail2ban /bin/sh -c "iptables -L f2b-postfix-sasl -n | grep DROP | grep '${FAIL_AUTH_MAILER_IP}'"
-  assert_success
+  run docker exec mail_fail2ban /bin/sh -c "iptables -n -L f2b-postfix-sasl"
+  assert_output --regexp "DROP.+all.+${FAIL_AUTH_MAILER_IP}"
+}
+
+@test "checking fail2ban: blocktype set to drop" {
+  FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
+
+  run docker exec mail_fail2ban /bin/sh -c "iptables -n -L f2b-postfix-sasl"
+  assert_output --regexp "DROP.+all.+${FAIL_AUTH_MAILER_IP}"
 }
 
 @test "checking fail2ban: unban ip works" {
