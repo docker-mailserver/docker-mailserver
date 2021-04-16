@@ -75,6 +75,15 @@ function teardown_file() {
 
     run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get ${FILTER} maxretry"
     assert_output 2
+
+    run docker exec mail_fail2ban /bin/sh -c "fail2ban-client -d | grep -F \"['set', 'dovecot', 'addaction', 'iptables-multiport']\""
+    assert_output "['set', 'dovecot', 'addaction', 'iptables-multiport']"
+
+    run docker exec mail_fail2ban /bin/sh -c "fail2ban-client -d | grep -F \"['set', 'postfix', 'addaction', 'iptables-multiport']\""
+    assert_output "['set', 'postfix', 'addaction', 'iptables-multiport']"
+
+    run docker exec mail_fail2ban /bin/sh -c "fail2ban-client -d | grep -F \"['set', 'postfix-sasl', 'addaction', 'iptables-multiport']\""
+    assert_output "['set', 'postfix-sasl', 'addaction', 'iptables-multiport']"
   done
 }
 
