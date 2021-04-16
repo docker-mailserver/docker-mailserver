@@ -420,7 +420,8 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 ##### LDAP_QUERY_FILTER_SENDERS
 
 - e.g. `(mail=%s)`
-- => Specify how ldap should be asked if a sender address is allowed for a user
+- => Override how ldap should be asked if a sender address is allowed for a user
+- Note: by default this is using the user/alias/group maps, so effectively the following filter: `(|($LDAP_QUERY_FILTER_USER)($LDAP_QUERY_FILTER_ALIAS)($LDAP_QUERY_FILTER_GROUP))`
 
 ##### DOVECOT_TLS
 
