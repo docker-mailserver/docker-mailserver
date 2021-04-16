@@ -32,6 +32,8 @@ This limit is quickly reached if users connect to the mail server with multiple 
 
 For major configuration changes it’s best to override the dovecot configuration files. For each configuration file you want to override, add a list entry under the `volumes` key.
 
+You will need to first obtain the configuration from the running container: `mkdir -p ./config/dovecot && docker cp <your-container-name>:/etc/dovecot/conf.d/10-master.conf ./config/dovecot/10-master.conf`
+
 ```yaml
 services:
   mail:
