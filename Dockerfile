@@ -112,6 +112,7 @@ COPY \
   target/postfix/ldap-groups.cf \
   target/postfix/ldap-aliases.cf \
   target/postfix/ldap-domains.cf \
+  target/postfix/ldap-senders.cf \
   /etc/postfix/
 
 # hadolint ignore=SC2016
