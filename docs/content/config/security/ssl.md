@@ -26,7 +26,7 @@ To enable Let's Encrypt on your mail server, you have to:
 
     ```yaml
     services:
-      mail:
+      mailserver:
         hostname: mail
         domainname: myserver.tld
         fqdn: mail.myserver.tld
@@ -193,7 +193,7 @@ The second part of the setup is the actual mail container. So, in another folder
     ```yaml
     version: '2'
     services:
-      mail:
+      mailserver:
         image: mailserver/docker-mailserver:latest
         hostname: ${HOSTNAME}
         domainname: ${DOMAINNAME}
@@ -379,14 +379,14 @@ Traefik's V2 storage format is natively supported if the `acme.json` store is mo
 2. `$HOSTNAME`
 3. `$DOMAINNAME`
 
-This allows for support of wild card certificates: `SSL_DOMAIN=*.example.com`. Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
+This allows for support of wild card certificates: `SSL_DOMAIN=example.com`. Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
 ???+ example "Example Code"
 
     ```yaml
     version: '3.8'
     services:
-      mail:
+      mailserver:
         image: mailserver/docker-mailserver:stable
         hostname: mail
         domainname: example.com
@@ -394,7 +394,7 @@ This allows for support of wild card certificates: `SSL_DOMAIN=*.example.com`. H
         - /etc/ssl/acme-v2.json:/etc/letsencrypt/acme.json:ro
         environment:
           SSL_TYPE: letsencrypt
-          # SSL_DOMAIN: "*.example.com" 
+          # SSL_DOMAIN: example.com" 
       traefik:
         image: traefik:v2.2
         restart: always
