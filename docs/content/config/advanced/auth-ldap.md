@@ -20,6 +20,7 @@ Have a look at the [`ENVIRONMENT.md`][github-file-env] for information on the de
     - `LDAP_QUERY_FILTER_GROUP`
     - `LDAP_QUERY_FILTER_ALIAS`
     - `LDAP_QUERY_FILTER_DOMAIN`
+    - `LDAP_QUERY_FILTER_SENDERS`
 
 !!! example "saslauthd"
 
