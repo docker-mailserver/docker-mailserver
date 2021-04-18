@@ -118,6 +118,7 @@ nav:
       - 'Understanding the Ports': config/security/understanding-the-ports.md
       - 'SSL/TLS': config/security/ssl.md
       - 'Fail2Ban': config/security/fail2ban.md
+      - 'Mail Encryption' : config/security/mail_crypt.md
     - 'Troubleshooting':
       - 'Debugging': config/troubleshooting/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md

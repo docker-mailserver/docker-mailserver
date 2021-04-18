@@ -32,6 +32,7 @@ VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
 VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
 VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
 VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
+VARS[FAIL2BAN_BLOCKTYPE]="${FAIL2BAN_BLOCKTYPE:=drop}"
 VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
 VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
 VARS[LDAP_START_TLS]="${LDAP_START_TLS:=no}"
@@ -103,6 +104,7 @@ function register_functions
   [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function '_setup_postgrey'
   [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
   [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_inet_protocols'
+  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
 
   _register_setup_function '_setup_dkim'
   _register_setup_function '_setup_ssl'

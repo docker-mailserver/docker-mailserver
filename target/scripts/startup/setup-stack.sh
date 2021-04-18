@@ -421,6 +421,7 @@ function _setup_ldap
     /etc/postfix/ldap-groups.cf
     /etc/postfix/ldap-aliases.cf
     /etc/postfix/ldap-domains.cf
+    /etc/postfix/ldap-senders.cf
     /etc/postfix/maps/sender_login_maps.ldap
   )
 
@@ -430,6 +431,7 @@ function _setup_ldap
     [[ ${FILE} =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
     [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
+    [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
     configomat.sh "LDAP_" "${FILE}"
   done
 
@@ -553,7 +555,11 @@ function _setup_spoof_protection
 
   if [[ ${ENABLE_LDAP} -eq 1 ]]
   then
-    postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf"
+    if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]; then
+      postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf"
+    else
+      postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf"
+    fi
   else
     if [[ -f /etc/postfix/regexp ]]
     then
@@ -1611,5 +1617,14 @@ function _setup_environment
   then
     echo "# Docker Mail Server" >>/etc/environment
     echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}" >>/etc/environment
+  fi
+}
+
+function _setup_fail2ban
+{
+  _notify 'task' 'Setting up fail2ban'
+  if [[ ${FAIL2BAN_BLOCKTYPE} != "reject" ]]
+  then
+    echo -e "[Init]\nblocktype = DROP" > /etc/fail2ban/action.d/iptables-common.local
   fi
 }

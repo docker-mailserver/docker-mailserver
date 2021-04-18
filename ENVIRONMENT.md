@@ -63,6 +63,12 @@ cap_add:
 
 Otherwise, `iptables` won't be able to ban IPs.
 
+##### FAIL2BAN_BLOCKTYPE
+
+- **drop**   => drop packet (send NO reply)
+- reject => reject packet (send ICMP unreachable)
+FAIL2BAN_BLOCKTYPE=drop
+
 ##### SMTP_ONLY
 
 - **empty** => all daemons start
@@ -416,6 +422,11 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 - e.g. `(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for domains
+
+##### LDAP_QUERY_FILTER_SENDERS
+
+- **empty**  => use user/alias/group maps directly, equivalent to `(|($LDAP_QUERY_FILTER_USER)($LDAP_QUERY_FILTER_ALIAS)($LDAP_QUERY_FILTER_GROUP))`
+- => Override how ldap should be asked if a sender address is allowed for a user
 
 ##### DOVECOT_TLS
 
