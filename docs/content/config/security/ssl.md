@@ -363,72 +363,63 @@ no peer certificate available
 No client certificate CA names sent
 ```
 
-## Traefik
+## Traefik v2
 
-[Traefik](https://github.com/containous/traefik) is an open-source Edge Router which handles ACME protocol using [lego](https://github.com/go-acme/lego).
+[Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. [Traefik][traefik::github] can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use [Traefik][traefik::github]'s major version 2.
 
-Traefik can request certificates for domains through the ACME protocol (see [Traefik's documentation about its ACME negotiation & storage mechanism](https://docs.traefik.io/https/acme/)). Traefik's router will take care of renewals, challenge negotiations, etc.
+[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Wild card certificates issued for `*.domain.tld` are supported. You will then want to use `#!bash SSL_DOMAIN=domain.tld`. Lookup of the certificate domain happens in the following order:
 
-### Traefik v2
+1. `#!bash ${SSL_DOMAIN}`
+2. `#!bash ${HOSTNAME}`
+3. `#!bash ${DOMAINNAME}`
 
-(For Traefik v1 see [next section](#traefik-v1))
-
-Traefik's V2 storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Lookup of the certificate domain happens in the following order:
-
-1. `$SSL_DOMAIN`
-2. `$HOSTNAME`
-3. `$DOMAINNAME`
-
-This allows for support of wild card certificates: `SSL_DOMAIN=example.com`. Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
+This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from Let'sEncrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
 
 ???+ example "Example Code"
+    Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
-    ```yaml
+    ``` YAML
     version: '3.8'
+
     services:
+
       mailserver:
-        image: mailserver/docker-mailserver:stable
+        image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
-        domainname: example.com
+        domainname: domain.tld
         volumes:
-        - /etc/ssl/acme-v2.json:/etc/letsencrypt/acme.json:ro
+           - /traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
           SSL_TYPE: letsencrypt
-          # SSL_DOMAIN: example.com" 
+          SSL_DOMAIN: mail.example.com"
+          # for a wildcard certificate, use
+          # SSL_DOMAIN: example.com
+      
       traefik:
-        image: traefik:v2.2
-        restart: always
+        image: docker.io/traefik:v2.4.8
         ports:
-        - "80:80"
-        - "443:443"
+           - "80:80"
+           - "443:443"
         command:
-        - --providers.docker
-        - --entrypoints.web.address=:80
-        - --entrypoints.web.http.redirections.entryPoint.to=websecure
-        - --entrypoints.web.http.redirections.entryPoint.scheme=https
-        - --entrypoints.websecure.address=:443
-        - --entrypoints.websecure.http.middlewares=hsts@docker
-        - --entrypoints.websecure.http.tls.certResolver=le
-        - --certificatesresolvers.le.acme.email=admin@example.net
-        - --certificatesresolvers.le.acme.storage=/acme.json
-        - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+           - --providers.docker
+           - --entrypoints.http.address=:80
+           - --entrypoints.http.http.redirections.entryPoint.to=https
+           - --entrypoints.http.http.redirections.entryPoint.scheme=https
+           - --entrypoints.https.address=:443
+           - --entrypoints.https.http.tls.certResolver=letsencrypt
+           - --certificatesresolvers.letsencrypt.acme.email=admin@domain.tld
+           - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+           - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
         volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
-        - /etc/ssl/acme-v2.json:/acme.json
+           - /traefik/acme.json:/acme.json
+           - /var/run/docker.sock:/var/run/docker.sock:ro
 
       whoami:
-        image: containous/whoami
+        image: docker.io/traefik/whoami:latest 
         labels:
-        - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
+           - "traefik.http.routers.whoami.rule=Host(`mail.domain.tld`)"
     ```
-
-This setup only comes with one caveat: The domain has to be configured on another service for traefik to actually request it from lets-encrypt (`whoami` in this case).
-
-### Traefik v1
-
-If you are using Traefik v1, you might want to _push_ your Traefik-managed certificates to the mailserver container, in order to reuse them. Not an easy task, but fortunately, [`youtous/mailserver-traefik`][youtous-mailtraefik] is a certificate renewal service for `docker-mailserver`.
-
-Depending of your Traefik configuration, certificates may be stored using a file or a KV Store (consul, etcd...) Either way, certificates will be renewed by Traefik, then automatically pushed to the mailserver thanks to the `cert-renewer` service. Finally, dovecot and postfix will be restarted.
 
 ## Self-Signed Certificates
 
@@ -637,4 +628,6 @@ fi
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
 [github-issue-1440]: https://github.com/docker-mailserver/docker-mailserver/issues/1440
 [hanscees-renewcerts]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-renew-certs
-[youtous-mailtraefik]: https://github.com/youtous/docker-mailserver-traefik
+
+[traefik::github]: https://github.com/containous/traefik
+[ietf::rfc::acme]: https://tools.ietf.org/html/rfc8555
