@@ -1,0 +1,84 @@
+/* This file adds our styling additions / fixes to maintain. */
+
+/* ============================================================================================================= */
+
+/* External Link icon feature. Rejected from upstreaming to `mkdocs-material`.
+Alternative solution using SVG icon here (Broken on Chrome?): https://github.com/squidfunk/mkdocs-material/issues/2318#issuecomment-789461149
+Tab or Nav sidebar with non-relative links will prepend an icon (font glyph)
+If you want to append instead, switch `::before` to `::after`.
+*/
+/* reference the icon font to use */
+@font-face {
+  font-family: 'external-link';
+  src: url('../fonts/external-link.woff') format('woff');
+}
+
+/* Matches the two nav link classes that start with `http` `href` values, regular docs pages use relative URLs instead. */
+.md-tabs__link[href^="http"]::before, .md-nav__link[href^="http"]::before {
+  display: inline-block; /* treat similar to text */
+  font-family: 'external-link';
+  content:'\0041'; /* represents "A" which our font renders as an icon instead of the "A" glyph */
+  font-size: 80%; /* icon is a little too big by default, scale it down */
+}
+
+/* ============================================================================================================= */
+
+/* UI Improvement: Header bar (top of page) adjustments - Increase scale of logo and adjust white-space */
+/* Make the logo larger without impacting other header components */
+.md-header__button.md-logo > img { transform: scale(180%); margin-left: 0.4rem; }
+/* Reduce the white-space between the Logo and Title components */
+.md-header__title { margin-left: 0.3rem; }
+
+/* ============================================================================================================= */
+
+/* UI Improvement: Add light colour bg for the version selector, with some rounded corners */
+.md-version__current {
+  background-color: rgb(255,255,255,0.18); /* white with 18% opacity */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+/* ============================================================================================================= */
+
+/*
+  UX Bugfix for permalink affecting typography in headings.
+  Upstream will not fix: https://github.com/squidfunk/mkdocs-material/issues/2369
+*/
+
+/* Headings are configured to be links (instead of only the permalink symbol), removes the link colour */
+div.md-content article.md-content__inner a.toclink {
+  color: currentColor;
+}
+
+/* Instead of a permalink symbol at the end of heading text, use a border line on the left spanning height of heading */
+/* Includes optional background fill with rounded right-side corners, and restores inline code style */
+/* NOTE: Headings with markdown links embedded disrupt the bg fill style, as they're not children of `a.toclink` element */
+div.md-content article.md-content__inner a.toclink {
+  display: inline-block; /* Enables multi-line support for both border and bg color */
+  border-left: .2rem solid transparent; /* transparent placeholder to avoid heading shift during reveal transition */
+  margin-left: -0.6rem; /* Offset heading to the left */
+  padding-left: 0.4rem; /* Push heading back to original position, margin-left - border-left widths */
+  transition: background-color 200ms,border-left 200ms;
+
+  /* Only relevant if using background highlight style */
+  border-radius: 0 0.25rem 0.25rem 0;
+  padding-right: 0.4rem;
+}
+
+div.md-content article.md-content__inner a.toclink:hover,
+div.md-content article.md-content__inner :target > a.toclink {
+  border-left: .2rem solid #448aff; /* highlight line on the left */
+  background-color: #b3dbff6e; /* background highlight fill */
+  transition: background-color 200ms,border-left 200ms;
+}
+
+/* Upstream overrides some of the `code` element styles for headings, restore them */
+div.md-content article.md-content__inner a.toclink code {
+  padding: 0 0.3em; /* padding to the left and right, not top and bottom */
+  border-radius: 0.2rem; /* 0.1rem of original style bit too small */
+  background-color: var(--md-code-bg-color);
+}
+
+.highlight.no-copy .md-clipboard { display: none; }
+
+/* ============================================================================================================= */
