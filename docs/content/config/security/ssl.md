@@ -199,19 +199,19 @@ The second part of the setup is the actual mail container. So, in another folder
         domainname: ${DOMAINNAME}
         container_name: ${CONTAINER_NAME}
         ports:
-        - "25:25"
-        - "143:143"
-        - "465:465"
-        - "587:587"
-        - "993:993"
+          - "25:25"
+          - "143:143"
+          - "465:465"
+          - "587:587"
+          - "993:993"
         volumes:
-        - ./mail:/var/mail
-        - ./mail-state:/var/mail-state
-        - ./config/:/tmp/docker-mailserver/
-        - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
+          - ./mail:/var/mail
+          - ./mail-state:/var/mail-state
+          - ./config/:/tmp/docker-mailserver/
+          - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
         cap_add:
-        - NET_ADMIN
-        - SYS_PTRACE
+          - NET_ADMIN
+          - SYS_PTRACE
         restart: always
 
       cert-companion:
