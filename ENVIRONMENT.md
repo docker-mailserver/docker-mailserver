@@ -63,6 +63,12 @@ cap_add:
 
 Otherwise, `iptables` won't be able to ban IPs.
 
+##### FAIL2BAN_BLOCKTYPE
+
+- **drop**   => drop packet (send NO reply)
+- reject => reject packet (send ICMP unreachable)
+FAIL2BAN_BLOCKTYPE=drop
+
 ##### SMTP_ONLY
 
 - **empty** => all daemons start

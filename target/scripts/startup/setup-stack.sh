@@ -805,12 +805,12 @@ function _setup_ssl
   # Primary certificate to serve for TLS
   function _set_certificate
   {
-    local POSTFIX_KEY_WITH_FULLCHAIN=$1
-    local DOVECOT_KEY=$1
-    local DOVECOT_CERT=$1
+    local POSTFIX_KEY_WITH_FULLCHAIN=${1}
+    local DOVECOT_KEY=${1}
+    local DOVECOT_CERT=${1}
 
     # If 2nd param is provided, we've been provided separate key and cert instead of a fullkeychain
-    if [[ -n $2 ]]
+    if [[ -n ${2} ]]
     then
       local PRIVATE_KEY=$1
       local CERT_CHAIN=$2
@@ -897,7 +897,7 @@ function _setup_ssl
       ;;
 
     * )
-      _notify 'err' 'TLS_LEVEL not found [ in _setup_ssl ]'
+      _notify 'err' "TLS_LEVEL not found [ in ${FUNCNAME[0]} ]"
       ;;
 
   esac
@@ -1623,5 +1623,14 @@ function _setup_environment
   then
     echo "# Docker Mail Server" >>/etc/environment
     echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}" >>/etc/environment
+  fi
+}
+
+function _setup_fail2ban
+{
+  _notify 'task' 'Setting up fail2ban'
+  if [[ ${FAIL2BAN_BLOCKTYPE} != "reject" ]]
+  then
+    echo -e "[Init]\nblocktype = DROP" > /etc/fail2ban/action.d/iptables-common.local
   fi
 }
