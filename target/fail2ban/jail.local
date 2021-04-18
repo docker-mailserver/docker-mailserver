@@ -15,6 +15,11 @@ maxretry = 3
 # can be defined using space (and/or comma) separator.
 ignoreip = 127.0.0.1/8
 
+# Default ban action
+# iptables-multiport:	block IP only on affected port
+# iptables-allports:	block IP on all ports
+banaction = iptables-allports
+
 [dovecot]
 enabled = true
 

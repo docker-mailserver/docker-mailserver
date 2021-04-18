@@ -75,6 +75,15 @@ function teardown_file() {
 
     run docker exec mail_fail2ban /bin/sh -c "fail2ban-client get ${FILTER} maxretry"
     assert_output 2
+
+    run docker exec mail_fail2ban /bin/sh -c "fail2ban-client -d | grep -F \"['set', 'dovecot', 'addaction', 'iptables-multiport']\""
+    assert_output "['set', 'dovecot', 'addaction', 'iptables-multiport']"
+
+    run docker exec mail_fail2ban /bin/sh -c "fail2ban-client -d | grep -F \"['set', 'postfix', 'addaction', 'iptables-multiport']\""
+    assert_output "['set', 'postfix', 'addaction', 'iptables-multiport']"
+
+    run docker exec mail_fail2ban /bin/sh -c "fail2ban-client -d | grep -F \"['set', 'postfix-sasl', 'addaction', 'iptables-multiport']\""
+    assert_output "['set', 'postfix-sasl', 'addaction', 'iptables-multiport']"
   done
 }
 
@@ -99,9 +108,9 @@ function teardown_file() {
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep '${FAIL_AUTH_MAILER_IP}'"
   assert_success
 
-  # Checking that FAIL_AUTH_MAILER_IP is banned by iptables
-  run docker exec mail_fail2ban /bin/sh -c "iptables -L f2b-postfix-sasl -n | grep REJECT | grep '${FAIL_AUTH_MAILER_IP}'"
-  assert_success
+  # Checking that FAIL_AUTH_MAILER_IP is banned by iptables and blocktype set to DROP
+  run docker exec mail_fail2ban /bin/sh -c "iptables -n -L f2b-postfix-sasl"
+  assert_output --regexp "DROP.+all.+${FAIL_AUTH_MAILER_IP}"
 }
 
 @test "checking fail2ban: unban ip works" {
@@ -135,6 +144,7 @@ function teardown_file() {
   run ./setup.sh -c mail_fail2ban debug fail2ban
   assert_output --regexp "^Banned in dovecot: 192.0.66.5.*"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.5
+  assert_output --partial "Unbanned IP from dovecot: 192.0.66.5"
   run ./setup.sh -c mail_fail2ban debug fail2ban unban
   assert_output --partial "You need to specify an IP address. Run"
 }
