@@ -102,7 +102,7 @@ We are going to use this docker based mailserver:
 
     Then don't forget to change the serial number and to restart the service.
 
-- Get an SSL certificate from letsencrypt. I use [wsproxy](https://github.com/docker-scripts/wsproxy) for managing SSL letsencrypt certificates of my domains:
+- Get an SSL certificate from letsencrypt. I use [wsproxy](https://gitlab.com/docker-scripts/wsproxy) for managing SSL letsencrypt certificates of my domains:
 
     ```sh
     cd /var/ds/wsproxy
