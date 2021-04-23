@@ -1363,7 +1363,7 @@ ufw allow <span class="m">465</span>
 <p>Then don't forget to change the serial number and to restart the service.</p>
 </li>
 <li>
-<p>Get an SSL certificate from letsencrypt. I use <a href="https://github.com/docker-scripts/wsproxy">wsproxy</a> for managing SSL letsencrypt certificates of my domains:</p>
+<p>Get an SSL certificate from letsencrypt. I use <a href="https://gitlab.com/docker-scripts/wsproxy">wsproxy</a> for managing SSL letsencrypt certificates of my domains:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span> /var/ds/wsproxy
 ds domains-add mail mail.example.org
 ds get-ssl-cert myemail@gmail.com mail.example.org --test
