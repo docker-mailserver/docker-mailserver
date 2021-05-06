@@ -25,6 +25,7 @@ setup_file() {
 		-e SA_TAG=-5.0 \
 		-e SA_TAG2=2.0 \
 		-e SA_KILL=3.0 \
+		-e AMAVIS_LOGLEVEL=2 \
 		-e SA_SPAM_SUBJECT="SPAM: " \
 		-e VIRUSMAILS_DELETE_DELAY=7 \
 		-e ENABLE_SRS=1 \
