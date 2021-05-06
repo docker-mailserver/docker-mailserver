@@ -16,6 +16,7 @@ declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 # ? >> Setup of default and global values / variables
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
+VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
 VARS[DMS_DEBUG]="${DMS_DEBUG:=0}"
 VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"

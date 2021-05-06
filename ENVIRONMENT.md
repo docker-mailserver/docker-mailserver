@@ -2,9 +2,8 @@
 
 ## Variables
 
-1. If an option doesn't work as documented here, check if you are running the latest image!
-2. Values in **bold** are the default values.
-3. Since `docker-mailserver v7.1.0`, comparisons for environment variables are executed differently. If you previously used `VARIABLE=''` as the `empty` value, **update** to now use `VARIABLE=`.
+1. Values in **bold** are the default values.
+2. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `mailserver/docker-mailserver:edge`.
 
 ### Assignments
 
@@ -13,17 +12,17 @@
 ##### DMS_DEBUG
 
 - **0** => Debug disabled
-- 1 => Enables debug on startup
+- 1     => Enables debug on startup
 
 ##### SUPERVISOR_LOGLEVEL
 
 Here you can adjust the [log-level for Supervisor](http://supervisord.org/logging.html#activity-log-levels). Possible values are
 
 - critical => Only show critical messages
-- error => Only show erroneous output
+- error    => Only show erroneous output
 - **warn** => Show warnings
-- info => Normal informational output
-- debug => Also show debug messages
+- info     => Normal informational output
+- debug    => Also show debug messages
 
 The log-level will show everything in its class and above.
 
@@ -31,8 +30,17 @@ The log-level will show everything in its class and above.
 
 Amavis content filter (used for ClamAV & SpamAssassin)
 
-- 0 => Amavis is disabled
+- 0     => Amavis is disabled
 - **1** => Amavis is enabled
+
+##### AMAVIS_LOGLEVEL
+
+[This page](https://lists.amavis.org/pipermail/amavis-users/2011-March/000158.html) provides information on Amavis' logging statistics.
+
+- -1/-2/-3 => Only show errors
+- **0**    => Show warnings
+- 1/2      => Show default informational output
+- 3/4/5    => log debug information (very verbose)
 
 ##### ENABLE_CLAMAV
 

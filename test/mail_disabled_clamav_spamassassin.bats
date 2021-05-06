@@ -12,12 +12,13 @@ setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run --rm -d --name mail_disabled_clamav_spamassassin \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_CLAMAV=0 \
-		-e ENABLE_SPAMASSASSIN=0 \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t "${NAME}"
+		  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+		  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+		  -e ENABLE_CLAMAV=0 \
+		  -e ENABLE_SPAMASSASSIN=0 \
+		  -e DMS_DEBUG=0 \
+		  -e AMAVIS_LOGLEVEL=2 \
+		  -h mail.my-domain.com -t "${NAME}"
     # TODO: find a better way to know when we have waited long enough
     #       for clamav to should have come up, if it were enabled
     wait_for_smtp_port_in_container mail_disabled_clamav_spamassassin
