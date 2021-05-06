@@ -39,7 +39,7 @@ RUN \
   apt-get -y install postfix >/dev/null && \
   apt-get -y --no-install-recommends install \
   # A - D
-  altermime amavisd-new apt-transport-https arj binutils bzip2 \
+  altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
   ca-certificates cabextract clamav clamav-daemon cpio curl \
   dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
