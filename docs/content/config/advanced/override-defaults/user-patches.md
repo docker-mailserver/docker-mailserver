@@ -22,8 +22,6 @@ The contents could look like this
 ``` sh
 #! /bin/bash
 
-sed -i -E 's|(log_level).*|\1 = -1;|g' /etc/amavis/conf.d/49-docker-mailserver
-
 cat >/etc/amavis/conf.d/50-user << "END"
 use strict;
 
