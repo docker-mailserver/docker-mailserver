@@ -34,6 +34,15 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 - 0 => Amavis is disabled
 - **1** => Amavis is enabled
 
+##### AMAVIS_LOGLEVEL
+
+[This page](https://lists.amavis.org/pipermail/amavis-users/2011-March/000158.html) provides information on Amavis' logging statistics.
+
+- -1 => log errors
+- **0** => log warnings
+- 1 => log info
+- 3 => log debug
+
 ##### ENABLE_CLAMAV
 
 - **0** => Clamav is disabled
