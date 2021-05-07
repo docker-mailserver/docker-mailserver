@@ -22,3 +22,48 @@ jobs:
           sed -i "s|^site_url:.*|site_url: 'https://${PREVIEW_PREFIX}--${SITE_NAME}.netlify.app/'|" mkdocs.yml
 
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:7.1.3 build --strict
+
+      # https://github.com/nwtgck/actions-netlify
+      - name: 'Send preview build to Netlify'
+        id: preview
+        uses: nwtgck/actions-netlify@v1.2
+        timeout-minutes: 1
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Assign to non-default Deployment Environment for better organization/maintenance
+          github-deployment-environment: documentation-previews
+          github-deployment-description: Preview deploys for documentation PRs
+          # Fail the job if credentials are missing (eg a fork)
+          fails-without-credentials: true
+          # Sets/creates the Netlify deploy URL prefix.
+          # We make unique to the PR number triggering the preview.
+          alias: ${{ env.PREVIEW_PREFIX }}
+          # Only publish the contents of the build output
+          publish-dir: ./docs/site
+          # Custom message for the deploy log on Netlify
+          deploy-message: "${{ github.event.pull_request.title }} (PR#${{ github.event.pull_request.number }} @ commit: ${{ github.event.pull_request.head.sha }})"
+
+          # If a netlify.toml config is ever needed, enable this:
+          # netlify-config-path: ./docs/netlify.toml
+          # If ever switching from Github Pages, enable this (false by default):
+          # production-deploy: false
+
+          # Disable unwanted action defaults:
+          # Disable adding deploy comment on pre-merge commit (Github creates this for PR diff):
+          enable-commit-comment: false
+          # Disable adding a "Netlify - Netlify deployment" check status:
+          enable-commit-status: false
+          # We provide a custom PR comment in the next action:
+          enable-pull-request-comment: false
+
+      # https://github.com/marocchino/sticky-pull-request-comment
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview
+          message: |
+            [Documentation preview for this PR](${{ steps.preview.outputs.deploy-url }}) is ready! :tada:
+
+            Built with commit ${{ github.event.pull_request.head.sha }}
