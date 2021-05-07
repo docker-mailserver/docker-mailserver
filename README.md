@@ -105,7 +105,7 @@ chmod a+x ./setup.sh
 1. [Install the latest docker-compose](https://docs.docker.com/compose/install/)
 2. Edit `docker-compose.yml` to your liking
    - substitute `<HOSTNAME>` and `<DOMAINNAME>` according to your domain
-   - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
+   - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `:z` or `:Z`
 3. Edit `mailserver.env` to your liking
    - this file contains the configuration for the mailserver container
    - **documentation for these variables** can be found [on this page](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
