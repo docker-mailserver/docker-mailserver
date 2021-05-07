@@ -192,7 +192,7 @@ services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     hostname: mail
-    domainname: domain.com
+    domainname: example.com
     container_name: mailserver
     ports:
       - "25:25"
@@ -233,7 +233,7 @@ services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     hostname: mail
-    domainname: domain.com
+    domainname: example.com
     container_name: mailserver
     ports:
       - "25:25"
