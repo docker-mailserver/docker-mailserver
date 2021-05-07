@@ -33,6 +33,7 @@ VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
 VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
 VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
 VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
+VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
 VARS[FAIL2BAN_BLOCKTYPE]="${FAIL2BAN_BLOCKTYPE:=drop}"
 VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
 VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
@@ -168,6 +169,7 @@ function register_functions
   _register_start_daemon '_start_daemons_rsyslog'
 
   [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemons_dovecot'
+  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemons_update_check'
 
   # needs to be started before SASLauthd
   _register_start_daemon '_start_daemons_opendkim'
