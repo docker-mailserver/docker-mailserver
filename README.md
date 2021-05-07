@@ -146,8 +146,8 @@ If you'd like to change, patch or alter files or behavior of `docker-mailserver`
 #### Updating `docker-mailserver`
 
 ``` BASH
+docker-compose pull
 docker-compose down
-docker pull docker.io/mailserver/docker-mailserver:<VERSION TAG>
 docker-compose up -d mailserver
 ```
 
