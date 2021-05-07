@@ -22,7 +22,7 @@ do
       read -r -d '' MAIL <<- EOM
 	Hello ${POSTMASTER_ADDRESS}!
 
-	There is an docker-mailserver update available on your host: ${HOSTNAME}.${DOMAINNAME}
+	There is a docker-mailserver update available on your host: ${HOSTNAME}.${DOMAINNAME}
 
 	Current version: ${VERSION}
 	Latest  version: ${LATEST}
