@@ -18,7 +18,7 @@ If you have issues, read the full `README` **and** the [documentation][documenta
 3. [Requirements](#requirements)
 4. [Usage](#usage)
 5. [Examples](#examples)
-6. [Environment Variables](./ENVIRONMENT.md)
+6. [Environment Variables](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
 7. [Documentation][documentation::web]
 8. [Release Notes](./CHANGELOG.md)
 
@@ -77,10 +77,9 @@ All workflows are using the **tagging convention** listed below. It is subsequen
 
 ### Get the tools
 
-Download `docker-compose.yml`, `compose.env`, `mailserver.env`
+Download `docker-compose.yml` and `mailserver.env`
 
 ``` BASH
-wget -O .env https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/compose.env
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/docker-compose.yml
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/mailserver.env
 ```
@@ -90,8 +89,8 @@ and the `setup.sh` **in the correct version**
 ``` BASH
 # if you're using :edge as the image tag
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-# if you're using :latest (= :9.0.1) as the image tag
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v9.0.1/setup.sh
+# if you're using :latest (= :9.1.0) as the image tag
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v9.1.0/setup.sh
 
 chmod a+x ./setup.sh
 
@@ -103,19 +102,17 @@ chmod a+x ./setup.sh
 
 ### Create a docker-compose environment
 
-- [Install the latest docker-compose](https://docs.docker.com/compose/install/)
-- Edit the files `.env` and `mailserver.env` to your liking:
-  - `.env` contains the configuration for Docker Compose
-  - `mailserver.env` contains the configuration for the mailserver container
-  - these files supports [only simple `VAR=VAL`](https://docs.docker.com/compose/env-file/)
-  - don't quote your values
-  - variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
-- Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `mailserver.env` serves this case where environment variables are used in the container.
-- If you want to use a bare domain (host name = domain name), see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq#can-i-use-nakedbare-domains-no-host-name)
+1. [Install the latest docker-compose](https://docs.docker.com/compose/install/)
+2. Edit `docker-compose.yml` to your liking
+   - substitute `<HOSTNAME>` and `<DOMAINNAME>` according to your domain
+   - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
+3. Edit `mailserver.env` to your liking
+   - this file contains the configuration for the mailserver container
+   - **documentation for these variables** can be found [on this page](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
+   - these files supports [only simple `VAR=VAL`](https://docs.docker.com/compose/env-file/) - don't quote your values
+   - variable substitution is **not** supported (e.g. ~~`OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`~~)
 
 ### Get up and running
-
-If you'd like to use SELinux, add `-Z` to the variable `SELINUX_LABEL` in `.env`. If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`
 
 ``` BASH
 docker-compose up -d mailserver
@@ -144,21 +141,7 @@ When keys are generated, you can configure your DNS server by just pasting the c
 
 #### Custom user changes & patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/user-patches/) for a detailed explanation.
-
-#### Supported Operating Systems
-
-We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mailserver in production.
-
-#### Support for Multiple Domains
-
-`docker-mailserver` supports multiple domains out of the box, so you can do this:
-
-``` BASH
-./setup.sh email add user1@docker.example.com
-./setup.sh email add user1@mail.example.de
-./setup.sh email add user1@server.example.org
-```
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/) for a detailed explanation.
 
 #### Updating `docker-mailserver`
 
@@ -169,6 +152,24 @@ docker-compose up -d mailserver
 ```
 
 You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
+
+#### Supported Operating Systems
+
+We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mailserver in production.
+
+#### Bare Domains
+
+If you want to use a bare domain (host name = domain name), see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq#can-i-use-nakedbare-domains-no-host-name).
+
+#### Support for Multiple Domains
+
+`docker-mailserver` supports multiple domains out of the box, so you can do this:
+
+``` BASH
+./setup.sh email add user1@docker.example.com
+./setup.sh email add user1@mail.example.de
+./setup.sh email add user1@server.example.org
+```
 
 #### SPF/Forwarding Problems
 
@@ -190,9 +191,9 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
-    hostname: mail          # ${HOSTNAME}
-    domainname: domain.com  # ${DOMAINNAME}
-    container_name: mail    # ${CONTAINER_NAME}
+    hostname: mail
+    domainname: domain.com
+    container_name: mailserver
     ports:
       - "25:25"
       - "143:143"
@@ -231,9 +232,9 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
-    hostname: mail          # ${HOSTNAME}
-    domainname: domain.com  # ${DOMAINNAME}
-    container_name: mail    # ${CONTAINER_NAME}
+    hostname: mail
+    domainname: domain.com
+    container_name: mailserver
     ports:
       - "25:25"
       - "143:143"

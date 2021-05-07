@@ -40,8 +40,7 @@ fi
 
 ### Variables & Braces
 
-!!! attention 
-
+!!! attention
     Variables are always uppercase. We always use braces.
 
 If you forgot this and want to change it later, you can use [this link][regex]. The used regex is `\$([^{("\\'\/])([a-zA-Z0-9_]*)([^}\/ \t'"\n.\]:(=\\-]*)`, where you should in practice be able to replace all variable occurrences without braces with occurrences with braces.
@@ -51,7 +50,7 @@ If you forgot this and want to change it later, you can use [this link][regex]. 
 local VAR="good"
 local NEW="${VAR}"
 
-# bad -> TravisCI will fail
+# bad -> CI will fail
 var="bad"
 new=$var
 ```

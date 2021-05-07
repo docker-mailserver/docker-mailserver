@@ -106,6 +106,7 @@ nav:
   - 'Introduction': introduction.md
   - 'Configuration':
     - 'Your Best Friend setup.sh': config/setup.sh.md
+    - 'Environment Variables': config/environment.md
     - 'User Management':
       - 'Accounts': config/user-management/accounts.md
       - 'Aliases': config/user-management/aliases.md
