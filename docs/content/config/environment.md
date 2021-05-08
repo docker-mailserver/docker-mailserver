@@ -1,10 +1,9 @@
 ---
 title: Environment Variables
-# hide:
-#   - toc # Hide Table of Contents for this page
 ---
 
 !!! info
+
     Values in **bold** are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `mailserver/docker-mailserver:edge`.
 
 #### General

@@ -3,8 +3,8 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
-    hostname: <HOSTNAME>
-    domainname: <DOMAINNAME>
+    hostname: <HOSTNAME> # <-- CHANGE THIS
+    domainname: <DOMAINNAME> # <-- CHANGE THIS
     container_name: mailserver
     env_file: mailserver.env
     # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.

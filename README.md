@@ -105,12 +105,10 @@ chmod a+x ./setup.sh
 1. [Install the latest docker-compose](https://docs.docker.com/compose/install/)
 2. Edit `docker-compose.yml` to your liking
    - substitute `<HOSTNAME>` and `<DOMAINNAME>` according to your domain
-   - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `:z` or `:Z`
-3. Edit `mailserver.env` to your liking
-   - this file contains the configuration for the mailserver container
-   - **documentation for these variables** can be found [on this page](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
-   - these files supports [only simple `VAR=VAL`](https://docs.docker.com/compose/env-file/) - don't quote your values
-   - variable substitution is **not** supported (e.g. ~~`OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`~~)
+   - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
+3. Configure the mailserver container to your liking by editing `mailserver.env` ([**Documentation**](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/))
+   - this files supports [_only_ simple `VAR=VAL`](https://docs.docker.com/compose/env-file/) (**don't** quote your values)
+   - variable substitution is **not** supported (e.g. :no_entry_sign:`OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
 
 ### Get up and running
 

@@ -2,7 +2,7 @@
 title: 'Contributing | Coding Style'
 ---
 
-##Bash and Shell
+## Bash and Shell
 
 When refactoring, writing or altering scripts, that is Shell and bash scripts, in any way, adhere to these rules:
 
@@ -41,6 +41,7 @@ fi
 ### Variables & Braces
 
 !!! attention
+
     Variables are always uppercase. We always use braces.
 
 If you forgot this and want to change it later, you can use [this link][regex]. The used regex is `\$([^{("\\'\/])([a-zA-Z0-9_]*)([^}\/ \t'"\n.\]:(=\\-]*)`, where you should in practice be able to replace all variable occurrences without braces with occurrences with braces.

@@ -14,13 +14,14 @@ chmod a+x ./setup.sh
 ```
 
 !!! info
+
     Make sure to get the `setup.sh` that comes with the release you're using. Look up the release and the git commit on which this release is based upon by selecting the appropriate tag on GitHub. This can done with the "Switch branches/tags" button on GitHub, choosing the right tag. This is done in order to rule out possible inconsistencies between versions.
 
 ## Usage
 
 Run `./setup.sh help` and you'll get some usage information:
 
-``` TXT
+```TXT
 SETUP(1)
 
 NAME
