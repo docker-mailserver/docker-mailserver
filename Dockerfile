@@ -1,4 +1,4 @@
-FROM docker.io/debian:buster-slim
+FROM docker.io/debian:buster-slim as build
 
 ARG VCS_VER
 ARG VCS_REF
@@ -58,6 +58,26 @@ RUN \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
   rm -rf /var/lib/apt/lists/* && \
+  rm -rf /var/log/apt/* && \
+  rm -rf /var/log/dbconfig-common/ && \
+  rm /var/log/alternatives.log && \
+  rm /var/log/dpkg.log && \
+  rm /var/log/faillog && \
+  rm /var/log/lastlog && \
+  rm -rf /var/cache/* && \
+  # Remove Debian documentation
+  rm -rf /usr/share/doc/* && \
+  rm -rf /usr/share/doc-base/ && \
+  # Remove useless .desktop file entries
+  rm /usr/share/applications/*.desktop && \
+  rm -rf /usr/share/apps/konqueror && \
+  rm -rf /usr/share/apps/konsole && \
+  # Package default files cleanup
+  rm /etc/postsrsd.secret && \
+  rm /etc/cron.daily/00logwatch && \
+  rm -rf /usr/share/locale/* && \
+  # Cleanup log dir
+  rm -rf /var/log/clamav/ && \
   c_rehash 2>/dev/null
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
@@ -67,11 +87,12 @@ RUN \
 RUN \
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' > /etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
+  mkdir --mode=777 /var/log/clamav/ && \
   freshclam && \
+  rm -rf /var/log/clamav/ && \
   sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
   mkdir /var/run/clamav && \
-  chown -R clamav:root /var/run/clamav && \
-  rm -rf /var/log/clamav/
+  chown -R clamav:root /var/run/clamav
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Dovecot & MkCert ––––––––––––––––––––––––––
@@ -133,21 +154,21 @@ COPY \
 
 RUN \
   chmod +x /usr/local/bin/* && \
-  rm -rf /usr/share/locale/* && \
   rm -rf /usr/share/man/* && \
-  rm -rf /usr/share/doc/* && \
   touch /var/log/auth.log && \
   update-locale && \
-  rm /etc/postsrsd.secret && \
-  rm /etc/cron.daily/00logwatch
+  rm /var/log/auth.log
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– PostSRSD, Postgrey & Amavis –––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
-COPY target/postsrsd/postsrsd /etc/default/postsrsd
-COPY target/postgrey/postgrey /etc/default/postgrey
+COPY \
+  target/postsrsd/postsrsd \
+  target/postgrey/postgrey \
+  /etc/default/
 COPY target/postgrey/postgrey.init /etc/init.d/postgrey
+
 RUN \
   chmod 755 /etc/init.d/postgrey && \
   mkdir /var/run/postgrey && \
@@ -159,7 +180,7 @@ RUN \
   adduser clamav amavis >/dev/null && \
   adduser amavis clamav >/dev/null && \
   # no syslog user in Debian compared to Ubuntu
-  adduser --system syslog >/dev/null && \
+  adduser --no-create-home --system syslog >/dev/null && \
   useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker >/dev/null && \
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab - && \
   chmod 644 /etc/amavis/conf.d/*
@@ -191,7 +212,8 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 RUN \
   # switch iptables and ip6tables to legacy for Fail2Ban
   update-alternatives --set iptables /usr/sbin/iptables-legacy && \
-  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy && \
+  rm /var/log/alternatives.log
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Fetchmail, Postfix & Let'sEncrypt –––––––––
@@ -248,6 +270,9 @@ RUN \
 
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
+
+FROM scratch
+COPY --from=build / /
 
 WORKDIR /
 
