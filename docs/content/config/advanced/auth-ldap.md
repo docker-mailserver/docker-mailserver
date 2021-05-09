@@ -12,7 +12,7 @@ Getting started with ldap and this mailserver we need to take 3 parts in account
 
 ## Variables to Control Provisioning by the Container
 
-Have a look at the [`ENVIRONMENT.md`][github-file-env] for information on the default values.
+Have a look at [`this site`][docs-environment] for information on the default values.
 
 !!! example "postfix"
 
@@ -125,4 +125,4 @@ The following example illustrates this for a directory that has the qmail-schema
 - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
 ```
 
-[github-file-env]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
+[docs-environment]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/

@@ -60,7 +60,7 @@ We are going to use this docker based mailserver:
 
     For more details about the environment variables that can be used, and their meaning and possible values, check also these:
 
-    - [Environtment Variables][github-file-env]
+    - [Environtment Variables][docs-environment]
     - [`mailserver.env` file][github-file-dotenv]
 
     Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mailserver directly (from a client).  We also use these settings:
@@ -157,6 +157,6 @@ We are going to use this docker based mailserver:
     - **SMTP username**: `info@example.org`
     - **SMTP password**: `passwd123`
 
-[github-file-env]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
+[docs-environment]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
 [github-file-dotenv]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
