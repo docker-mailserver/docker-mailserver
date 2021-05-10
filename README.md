@@ -157,7 +157,7 @@ We are currently providing support for Linux. Windows is _not_ supported and is 
 
 #### Bare Domains
 
-If you want to use a bare domain (host name = domain name), see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq#can-i-use-nakedbare-domains-no-host-name).
+If you want to use a bare domain (`hostname` == `domainname`), see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq#can-i-use-nakedbare-domains-no-host-name).
 
 #### Support for Multiple Domains
 
