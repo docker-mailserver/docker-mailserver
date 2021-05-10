@@ -12,7 +12,7 @@ Getting started with ldap and this mailserver we need to take 3 parts in account
 
 ## Variables to Control Provisioning by the Container
 
-Have a look at [`this site`][docs-environment] for information on the default values.
+Have a look at [the ENV page][docs-environment] for information on the default values.
 
 !!! example "postfix"
 
