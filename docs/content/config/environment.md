@@ -33,8 +33,8 @@ The log-level will show everything in its class and above.
 
 ##### ONE_DIR
 
-- **0** => state in default directories
-- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes
+- **0** => state in default directories.
+- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes.
 
 ##### PERMIT_DOCKER
 
