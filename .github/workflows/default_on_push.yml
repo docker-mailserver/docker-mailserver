@@ -63,7 +63,7 @@ jobs:
           submodules: recursive
       - name: Prepare tags
         id: prep
-        uses: crazy-max/ghaction-docker-meta@v2.5.0
+        uses: docker/metadata-action@v3
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
