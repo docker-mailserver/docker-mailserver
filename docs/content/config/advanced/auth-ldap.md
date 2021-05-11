@@ -125,4 +125,4 @@ The following example illustrates this for a directory that has the qmail-schema
 - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
 ```
 
-[docs-environment]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
+[docs-environment]: ../environment.md
