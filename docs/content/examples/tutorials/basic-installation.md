@@ -157,6 +157,6 @@ We are going to use this docker based mailserver:
     - **SMTP username**: `info@example.org`
     - **SMTP password**: `passwd123`
 
-[docs-environment]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
+[docs-environment]: ../../config/environment.md
 [github-file-dotenv]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
