@@ -62,4 +62,4 @@ Common hosting providers known to have this issue:
 - [Azure](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
 - [AWS EC2](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/)
 
-[docs-environment-dmsdebug]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#dms_debug
+[docs-environment-dmsdebug]: ../environment.md#dms_debug
