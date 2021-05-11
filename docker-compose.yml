@@ -3,9 +3,9 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
-    hostname: ${HOSTNAME}
-    domainname: ${DOMAINNAME}
-    container_name: ${CONTAINER_NAME}
+    hostname: <HOSTNAME> # <-- CHANGE THIS
+    domainname: <DOMAINNAME> # <-- CHANGE THIS
+    container_name: mailserver
     env_file: mailserver.env
     # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
     # More information about the mailserver ports:
@@ -21,7 +21,7 @@ services:
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
       - /etc/localtime:/etc/localtime:ro
-      - ./config/:/tmp/docker-mailserver/${SELINUX_LABEL}
+      - ./config/:/tmp/docker-mailserver/
     restart: always
     stop_grace_period: 1m
     cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]

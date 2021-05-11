@@ -2,7 +2,7 @@
 title: 'Contributing | Coding Style'
 ---
 
-##Bash and Shell
+## Bash and Shell
 
 When refactoring, writing or altering scripts, that is Shell and bash scripts, in any way, adhere to these rules:
 
@@ -40,7 +40,7 @@ fi
 
 ### Variables & Braces
 
-!!! attention 
+!!! attention
 
     Variables are always uppercase. We always use braces.
 
@@ -51,7 +51,7 @@ If you forgot this and want to change it later, you can use [this link][regex]. 
 local VAR="good"
 local NEW="${VAR}"
 
-# bad -> TravisCI will fail
+# bad -> CI will fail
 var="bad"
 new=$var
 ```
