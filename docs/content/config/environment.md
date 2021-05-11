@@ -509,7 +509,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
 - e.g. `uid=user,userPassword=password`
 - => Specify the directory to dovecot variable mapping that fits your directory structure.
-- Note: This is necessary for directories that do not use the Postfix Book Schema
+- Note: This is necessary for directories that do not use the Postfix Book Schema.
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
 - More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups)
 
