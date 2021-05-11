@@ -45,6 +45,6 @@ The development workflow is the following:
 
 [docs]: https://docker-mailserver.github.io/docker-mailserver/edge
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
-[docs-environment]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
+[docs-environment]: ../config/environment.md
 [commit]: https://help.github.com/articles/closing-issues-via-commit-messages/
 [gpg]: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key
