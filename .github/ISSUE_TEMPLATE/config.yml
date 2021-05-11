@@ -9,5 +9,5 @@ contact_links:
     url: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
     about: Read this first and carefully
   - name: Environment Variables Section
-    url: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
+    url: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
     about: Read this section for information about mail server variables

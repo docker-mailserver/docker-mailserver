@@ -195,9 +195,9 @@ The second part of the setup is the actual mail container. So, in another folder
     services:
       mailserver:
         image: mailserver/docker-mailserver:latest
-        hostname: ${HOSTNAME}
-        domainname: ${DOMAINNAME}
-        container_name: ${CONTAINER_NAME}
+        hostname: <HOSTNAME> # <-- change this
+        domainname: <DOMAINNAME> # <-- change this
+        container_name: mailserver
         ports:
           - "25:25"
           - "143:143"

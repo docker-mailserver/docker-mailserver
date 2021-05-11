@@ -21,70 +21,113 @@ chmod a+x ./setup.sh
 
 Run `./setup.sh help` and you'll get some usage information:
 
-```bash
-setup.sh Bootstrapping Script
+```TXT
+SETUP(1)
 
-Usage: ./setup.sh [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
+NAME
+    setup.sh - docker-mailserver administration script
 
-OPTIONS:
+SYNOPSIS
+    ./setup.sh [ OPTIONS... ] COMMAND [ help | ARGUMENTS... ]
 
-  -i IMAGE_NAME     The name of the docker-mailserver image
-                    The default value is
-                    'docker.io/mailserver/docker-mailserver:latest'
+    COMMAND := { email | alias | quota | config | relay | debug } SUBCOMMAND
 
-  -c CONTAINER_NAME The name of the running container.
+DESCRIPTION
+    This is the main administration script that you use for all interactions with your
+    mail server. Setup, configuration and much more is done with this script.
 
-  -p PATH           Config folder path (default: /home/georg/github/docker-mailserver/config)
+    Please note that the script executes most of the commands inside the container itself.
+    If the image was not found, this script will pull the :latest tag of
+    mailserver/docker-mailserver. This tag refers to the latest release,
+    see the tagging convention in the README under
+    https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 
-  -h                Show this help dialogue
+    You will be able to see detailed information about the script you are invoking and
+    its arguments by appending help after your command. Currently, this
+    does not work with all scripts.
 
-  -z                Allow container access to the bind mount content
-                    that is shared among multiple containers
-                    on a SELinux-enabled host.
+VERSION
+    The current version of this script is backwards compatible with versions of
+    docker-mailserver after 8.0.1. In case that there is not a more recent release,
+    this script is currently only working with the :edge tag.
 
-  -Z                Allow container access to the bind mount content
-                    that is private and unshared with other containers
-                    on a SELinux-enabled host.
+    You can download the script for your release by substituting TAG from the
+    following URL, where TAG looks like 'vX.X.X':
+    https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/TAG/setup.sh
 
-SUBCOMMANDS:
+OPTIONS
+    Config path, container or image adjustments
+        -i IMAGE_NAME
+            Provides the name of the docker-mailserver image. The default value is
+            docker.io/mailserver/docker-mailserver:latest
 
-  email:
+        -c CONTAINER_NAME
+            Provides the name of the running container.
 
-    ./setup.sh email add <email> [<password>]
-    ./setup.sh email update <email> [<password>]
-    ./setup.sh email del <email>
-    ./setup.sh email restrict <add|del|list> <send|receive> [<email>]
-    ./setup.sh email list
+        -p PATH
+            Provides the config folder path. The default is
+            /home/maxwell/Dokumente/github/docker-mailserver/config/
 
-  alias:
-    ./setup.sh alias add <email> <recipient>
-    ./setup.sh alias del <email> <recipient>
-    ./setup.sh alias list
+    SELinux
+        -z
+            Allows container access to the bind mount content that is shared among
+            multiple containers on a SELinux-enabled host.
 
-  quota:
-    ./setup.sh quota set <email> [<quota>]
-    ./setup.sh quota del <email>
+        -Z
+            Allows container access to the bind mount content that is private and
+            unshared with other containers on a SELinux-enabled host.
 
-  config:
+[SUB]COMMANDS
+    COMMAND email :=
+        ./setup.sh email add <EMAIL ADDRESS> [<PASSWORD>]
+        ./setup.sh email update <EMAIL ADDRESS> [<PASSWORD>]
+        ./setup.sh email del [ OPTIONS... ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>... ]
+        ./setup.sh email restrict <add|del|list> <send|receive> [<EMAIL ADDRESS>]
+        ./setup.sh email list
 
-    ./setup.sh config dkim <keysize> (default: 4096) <domain.tld> (optional - for LDAP setups)
-    ./setup.sh config ssl <fqdn>
+    COMMAND alias :=
+        ./setup.sh alias add <EMAIL ADDRESS> <RECIPIENT>
+        ./setup.sh alias del <EMAIL ADDRESS> <RECIPIENT>
+        ./setup.sh alias list
 
-  relay:
+    COMMAND quota :=
+        ./setup.sh quota set <EMAIL ADDRESS> [<QUOTA>]
+        ./setup.sh quota del <EMAIL ADDRESS>
 
-    ./setup.sh relay add-domain <domain> <host> [<port>]
-    ./setup.sh relay add-auth <domain> <username> [<password>]
-    ./setup.sh relay exclude-domain <domain>
+    COMMAND config :=
+        ./setup.sh config dkim [ ARGUMENTS... ]
+        ./setup.sh config ssl <FQDN> (ATTENTION: This is deprecated and will be removed soon.)
 
-  debug:
+    COMMAND relay :=
+        ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
+        ./setup.sh relay add-auth <DOMAIN> <USERNAME> [<PASSWORD>]
+        ./setup.sh relay exclude-domain <DOMAIN>
 
-    ./setup.sh debug fetchmail
-    ./setup.sh debug fail2ban [<unban> <ip-address>]
-    ./setup.sh debug show-mail-logs
-    ./setup.sh debug inspect
-    ./setup.sh debug login <commands>
+    COMMAND debug :=
+        ./setup.sh debug fetchmail
+        ./setup.sh debug fail2ban [unban <IP>]
+        ./setup.sh debug show-mail-logs
+        ./setup.sh debug inspect
+        ./setup.sh debug login <COMMANDS>
 
-  help: Show this help dialogue
+EXAMPLES
+    ./setup.sh email add test@domain.tld
+        Add the email account test@domain.tld. You will be prompted
+        to input a password afterwards since no password was supplied.
+
+    ./setup.sh config dkim keysize 2048 domain 'whoami.com,whoareyou.org'
+        Creates keys of length 2048 but in an LDAP setup where domains are not known to
+        Postfix by default, so you need to provide them yourself in a comma-separated list.
+
+    ./setup.sh config dkim help
+        This will provide you with a detailed explanation on how to use the 
+        config dkim command, showing what arguments can be passed and what they do.
+
+EXIT STATUS
+    Exit status is 0 if the command was successful. If there was an unexpected error, an error
+    message is shown describing the error. In case of an error, the script will exit with exit
+    status 1.
+
 ```
 
 [github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh
