@@ -30,6 +30,6 @@ We are always happy to welcome new contributors. For guidelines and entrypoints 
 [docs-optionalconfig]: ./config/advanced/optional-config.md
 [docs-setupsh]: ./config/setup.sh.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
-[docs-environment]: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
+[docs-environment]: ./config/environment.md
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 [github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh
