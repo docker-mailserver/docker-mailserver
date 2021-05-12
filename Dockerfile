@@ -53,7 +53,7 @@ RUN \
   dumb-init \
   # # E - O
   ed fetchmail file gamin gnupg gzip gpg\
-  gpg-agent=2.2.12-1+deb10u1 inotify-tools \
+  gpg-agent inotify-tools \
   iptables locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
