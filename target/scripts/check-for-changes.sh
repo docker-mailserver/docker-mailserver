@@ -42,7 +42,7 @@ sleep 10
 while true
 do
   inotifywait -qq -r \
-    -e modify -e create -e delete -e moved \
+    -e modify -e create -e delete -e move \
     /tmp/docker-mailserver/ \
     /etc/letsencrypt/
 
