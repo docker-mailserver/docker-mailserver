@@ -45,7 +45,7 @@ RUN \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
   dumb-init \
   # E - O
-  ed fail2ban fetchmail file gamin gnupg gzip iproute2 iptables \
+  ed fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
@@ -54,6 +54,10 @@ RUN \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
   unrar-free unzip whois xz-utils >/dev/null && \
+  # Fail2Ban
+  curl -Lso fail2ban.deb https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb && \
+  dpkg -i fail2ban.deb && \
+  rm fail2ban.deb && \
   # cleanup
   apt-get -qq autoclean && \
   apt-get -qq clean && \
