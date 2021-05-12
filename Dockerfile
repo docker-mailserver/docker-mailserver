@@ -52,7 +52,7 @@ RUN \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
   dumb-init \
   # # E - O
-  ed fetchmail file gamin gnupg gzip gpg=2.2.12-1+deb10u1 \
+  ed fetchmail file gamin gnupg gzip gpg\
   gpg-agent=2.2.12-1+deb10u1 inotify-tools \
   iptables locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
