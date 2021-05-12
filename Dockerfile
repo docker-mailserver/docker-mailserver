@@ -75,15 +75,15 @@ RUN \
     echo "ERROR: Invalid GPG signature!" 2>&1; exit 1; fi && \
   if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
-  dpkg -i fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb && \
+  dpkg -i fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb &>/dev/null && \
   # cleanup
   rm -rf fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb && \
-  apt-get purge -qq -y wget gpg gpg-agent && \
-  apt-get autoremove &>/dev/null && \
+  apt-get -qq -y purge wget gpg gpg-agent &>/dev/null && \
+  apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
   rm -rf /var/lib/apt/lists/* && \
-  c_rehash 2>/dev/null
+  c_rehash &>/dev/null
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– ClamAV & FeshClam –––––––––––––––––––––––––
