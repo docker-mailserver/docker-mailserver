@@ -15,7 +15,7 @@ jobs:
           submodules: recursive
       - name: Prepare tags
         id: prep
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v3.1.0
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
@@ -25,7 +25,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.1.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v1.3.0
         id: buildx
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PASSWORD }}
       - name: Build image locally
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v2.4.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
