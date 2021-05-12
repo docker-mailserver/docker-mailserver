@@ -41,6 +41,11 @@ sleep 10
 
 while true
 do
+  inotifywait -r \
+    /tmp/docker-mailserver \
+    /etc/letsencrypt/acme.json \
+    /etc/letsencrypt/live
+
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
   # get chksum and check it, no need to lock config yet
