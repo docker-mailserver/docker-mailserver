@@ -41,10 +41,11 @@ sleep 10
 
 while true
 do
-  inotifywait -qq -r \
-    -e modify -e create -e delete -e move \
-    /tmp/docker-mailserver/ \
-    /etc/letsencrypt/
+  fswatch -r -1 -m poll_monitor \
+    -x Updated -x MovedTo \
+    -x Created -x Removed \
+    /tmp/docker-mailserver \
+    /etc/letsencrypt > /dev/null
 
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
