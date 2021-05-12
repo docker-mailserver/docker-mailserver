@@ -34,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Build image locally
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v2.4.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -63,7 +63,7 @@ jobs:
           submodules: recursive
       - name: Prepare tags
         id: prep
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v3.1.0
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
@@ -99,7 +99,7 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PASSWORD }}
       - name: Build image locally
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v2.4.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
