@@ -67,8 +67,8 @@ RUN \
   wget -q --no-check-certificate ${FAIL2BAN_URL} && \
   wget -q --no-check-certificate ${FAIL2BAN_URL_ASC} && \
   FINGERPRINT="$(LANG=C gpg --verify \
-    fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb.asc \
-    fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb 2>&1 \
+  fail2ban_0.11.2-1.upstream1_all.deb.asc \
+  fail2ban_0.11.2-1.upstream1_all.deb 2>&1 \
     | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')" && \
   if [[ -z ${FINGERPRINT} ]]; then \
     echo "ERROR: Invalid GPG signature!" 2>&1; exit 1; fi && \
