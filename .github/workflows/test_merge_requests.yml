@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
         with:
           submodules: recursive
       - name: Build image locally
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v2.4.0
         with:
           context: .
           file: ./Dockerfile

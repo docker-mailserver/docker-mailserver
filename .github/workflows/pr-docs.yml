@@ -16,7 +16,7 @@ jobs:
     name: 'Verify Build'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
 
       - name: 'Build with mkdocs-material via Docker'
         run: docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:7.1.4 build --strict
