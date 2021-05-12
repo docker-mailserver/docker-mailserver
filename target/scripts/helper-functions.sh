@@ -178,17 +178,16 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 # Compute checksums of monitored files.
 function _monitored_files_checksums
 {
-  (
-    cd /tmp/docker-mailserver || exit 1
-    exec sha512sum 2>/dev/null -- \
-      postfix-accounts.cf \
-      postfix-virtual.cf \
-      postfix-aliases.cf \
-      dovecot-quotas.cf \
-      /etc/letsencrypt/acme.json \
-      "/etc/letsencrypt/live/${HOSTNAME}/key.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
-  )
+  cd /tmp/docker-mailserver || { echo '-1' ; return 1 ; }
+
+  sha512sum 2>/dev/null -- \
+    postfix-accounts.cf \
+    postfix-virtual.cf \
+    postfix-aliases.cf \
+    dovecot-quotas.cf \
+    /etc/letsencrypt/acme.json \
+    "/etc/letsencrypt/live/${HOSTNAME}/key.pem" \
+    "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" \
+    "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
 }
 export -f _monitored_files_checksums

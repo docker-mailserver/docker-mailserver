@@ -111,7 +111,7 @@ function teardown_file() {
 
 @test "can detect changes" {
   cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed.json" "$(private_config_path mail_lets_acme_json)/acme.json"
-  sleep 11
+  sleep 15
   run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"

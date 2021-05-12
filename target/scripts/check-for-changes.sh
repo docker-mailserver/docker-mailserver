@@ -41,10 +41,10 @@ sleep 10
 
 while true
 do
-  inotifywait -r \
-    /tmp/docker-mailserver \
-    /etc/letsencrypt/acme.json \
-    /etc/letsencrypt/live
+  inotifywait -qq -r \
+    -e modify -e create -e delete -e moved \
+    /tmp/docker-mailserver/ \
+    /etc/letsencrypt/
 
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
