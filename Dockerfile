@@ -4,8 +4,8 @@ ARG VCS_VER
 ARG VCS_REF
 ARG DEBIAN_FRONTEND=noninteractive
 
-ARG FAIL2BAN_DEB=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
-ARG FAIL2BAN_DEB_ASC=${FAIL2BAN_DEB}.asc
+ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
+ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
 ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
 ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=keys.gnupg.net
 ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
@@ -64,8 +64,8 @@ RUN \
   gpg gpg-agent >/dev/null && \
   gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
     --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} &>/dev/null && \
-  curl -Lso fail2ban.deb ${FAIL2BAN_DEB} && \
-  curl -Lso fail2ban.deb.asc ${FAIL2BAN_DEB_ASC} && \
+  curl -Lso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
+  curl -Lso fail2ban.deb.asc ${FAIL2BAN_DEB_ASC_URL} && \
   FINGERPRINT="$(LANG=C gpg --verify \
   fail2ban.deb.asc fail2ban.deb 2>&1 \
     | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')" && \
