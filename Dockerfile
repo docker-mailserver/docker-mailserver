@@ -74,7 +74,7 @@ RUN \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
   dpkg -i fail2ban.deb &>/dev/null && \
   # cleanup
-  rm -rf fail2ban.deb fail2ban.deb.asc && \
+  rm fail2ban.deb fail2ban.deb.asc && \
   apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
   apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
