@@ -60,24 +60,23 @@ RUN \
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip wget=1.20.1-1.1 whois xz-utils >/dev/null && \
+  unrar-free unzip whois xz-utils >/dev/null && \
   # Fail2Ban
   gpg --keyserver ${FAIL2BAN_PGP_PUBLIC_KEY_SERVER} \
     --recv-keys ${FAIL2BAN_PGP_PUBLIC_KEY_ID} &>/dev/null && \
-  wget -q --no-check-certificate ${FAIL2BAN_URL} && \
-  wget -q --no-check-certificate ${FAIL2BAN_URL_ASC} && \
+  curl -Lso fail2ban.deb ${FAIL2BAN_URL} && \
+  curl -Lso fail2ban.deb.asc ${FAIL2BAN_URL_ASC} && \
   FINGERPRINT="$(LANG=C gpg --verify \
-  fail2ban_0.11.2-1.upstream1_all.deb.asc \
-  fail2ban_0.11.2-1.upstream1_all.deb 2>&1 \
+  fail2ban.deb.asc fail2ban.deb 2>&1 \
     | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')" && \
   if [[ -z ${FINGERPRINT} ]]; then \
     echo "ERROR: Invalid GPG signature!" 2>&1; exit 1; fi && \
   if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
-  dpkg -i fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb &>/dev/null && \
+  dpkg -i fail2ban.deb &>/dev/null && \
   # cleanup
-  rm -rf fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb && \
-  apt-get -qq -y purge wget gpg gpg-agent &>/dev/null && \
+  rm -rf fail2ban.deb fail2ban.deb.asc && \
+  apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
   apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
