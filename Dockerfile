@@ -50,17 +50,18 @@ RUN \
   dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
   dumb-init \
-  # # E - O
-  ed fetchmail file gamin gnupg gzip gpg gpg-agent iproute2 \
-  iptables locales logwatch lhasa libdate-manip-perl liblz4-tool \
+  # E - O
+  ed fetchmail file gamin gnupg gzip gpg gpg-agent iproute2 iptables \
+  locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
   # P - Z
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip whois xz-utils >/dev/null && \
+  unrar-free unzip whois xz-utils \
   # Fail2Ban
+  gpg gpg-agent >/dev/null && \
   gpg --keyserver ${FAIL2BAN_PGP_PUBLIC_KEY_SERVER} \
     --recv-keys ${FAIL2BAN_PGP_PUBLIC_KEY_ID} &>/dev/null && \
   curl -Lso fail2ban.deb ${FAIL2BAN_URL} && \
@@ -73,9 +74,9 @@ RUN \
   if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
   dpkg -i fail2ban.deb &>/dev/null && \
-  # cleanup
   rm fail2ban.deb fail2ban.deb.asc && \
   apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
+  # cleanup
   apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
