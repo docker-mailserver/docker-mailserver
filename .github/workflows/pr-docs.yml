@@ -1,69 +1,55 @@
-name: 'Documentation'
+name: 'Documentation (PR)'
 
 on:
   pull_request:
     paths:
       - 'docs/**'
 
+# `pull_request` workflow is unreliable alone: Non-collaborator contributions lack access to secrets for security reasons.
+# A separate workflow (docs-preview-deploy.yml) handles the deploy after the potentially untrusted code is first run in this workflow.
+# See: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 jobs:
-  preview:
-    name: 'Deploy Preview'
+  prepare-preview:
+    name: 'Build Preview'
     runs-on: ubuntu-20.04
     env:
-      PREVIEW_PREFIX: pullrequest-${{ github.event.pull_request.number }}
-      SITE_NAME: dms-doc-previews
+      BUILD_DIR: docs/site
+      NETLIFY_SITE_PREFIX: pullrequest-${{ github.event.pull_request.number }}
+      NETLIFY_SITE_NAME: dms-doc-previews
     steps:
       - uses: actions/checkout@v2.3.4
 
       - name: 'Build with mkdocs-material via Docker'
         working-directory: docs
+        env:
+          PREVIEW_URL: 'https://${NETLIFY_SITE_PREFIX}--${NETLIFY_SITE_NAME}.netlify.app/'
         run: |
           # Adjust mkdocs.yml for preview build
-          sed -i "s|^site_url:.*|site_url: 'https://${PREVIEW_PREFIX}--${SITE_NAME}.netlify.app/'|" mkdocs.yml
+          sed -i "s|^site_url:.*|site_url: '${PREVIEW_URL}'|" mkdocs.yml
 
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:7.1.3 build --strict
 
-      # https://github.com/nwtgck/actions-netlify
-      - name: 'Send preview build to Netlify'
-        id: preview
-        uses: nwtgck/actions-netlify@v1.2
-        timeout-minutes: 1
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      # ============================== #
+      # Volley over to secure workflow #
+      # ============================== #
+
+      # Minimize risk of upload failure by bundling files to a single compressed archive (tar + zstd).
+      # Bundles build dir and env file into a compressed archive, nested file paths will be preserved.
+      - name: 'Prepare artifact for transfer'
+        run: |
+          # Save ENV for transfer
+          echo "PR_HEADSHA=${{ github.event.pull_request.head.sha }}" >> pr.env
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}"    >> pr.env
+          echo "PR_TITLE=${{ github.event.pull_request.title }}"      >> pr.env
+          echo "NETLIFY_SITE_PREFIX=${{ env.NETLIFY_SITE_PREFIX }}"   >> pr.env
+          echo "BUILD_DIR=${{ env.BUILD_DIR }}"                       >> pr.env
+
+          tar --zstd -cf artifact.tar.zst pr.env ${{ env.BUILD_DIR }}
+
+      - name: 'Upload artifact for workflow transfer'
+        uses: actions/upload-artifact@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Assign to non-default Deployment Environment for better organization/maintenance
-          github-deployment-environment: documentation-previews
-          github-deployment-description: Preview deploys for documentation PRs
-          # Fail the job if credentials are missing (eg a fork)
-          fails-without-credentials: true
-          # Sets/creates the Netlify deploy URL prefix.
-          # We make unique to the PR number triggering the preview.
-          alias: ${{ env.PREVIEW_PREFIX }}
-          # Only publish the contents of the build output
-          publish-dir: ./docs/site
-          # Custom message for the deploy log on Netlify
-          deploy-message: "${{ github.event.pull_request.title }} (PR#${{ github.event.pull_request.number }} @ commit: ${{ github.event.pull_request.head.sha }})"
+          name: preview-build
+          path: artifact.tar.zst
+          retention-days: 1
 
-          # If a netlify.toml config is ever needed, enable this:
-          # netlify-config-path: ./docs/netlify.toml
-          # If ever switching from Github Pages, enable this (false by default):
-          # production-deploy: false
-
-          # Disable unwanted action defaults:
-          # Disable adding deploy comment on pre-merge commit (Github creates this for PR diff):
-          enable-commit-comment: false
-          # Disable adding a "Netlify - Netlify deployment" check status:
-          enable-commit-status: false
-          # We provide a custom PR comment in the next action:
-          enable-pull-request-comment: false
-
-      # https://github.com/marocchino/sticky-pull-request-comment
-      - uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: preview
-          message: |
-            [Documentation preview for this PR](${{ steps.preview.outputs.deploy-url }}) is ready! :tada:
-
-            Built with commit ${{ github.event.pull_request.head.sha }}

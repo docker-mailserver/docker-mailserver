@@ -1,0 +1,87 @@
+name: 'Documentation (run)'
+
+on:
+  workflow_run:
+    workflows: ['Documentation (PR)']
+    types:
+      - completed
+
+# This workflow runs off the primary branch and has access to secrets as expected.
+jobs:
+  preview:
+    name: 'Deploy Preview'
+    runs-on: ubuntu-20.04
+    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    steps:
+
+      # ======================== #
+      # Restore workflow context #
+      # ======================== #
+
+      # The official Github Action for downloading artifacts does not support multi-workflow
+      - name: 'Download build artifact'
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          run_id: ${{ github.event.workflow_run.id }}
+          workflow: pr-docs.yml
+          name: preview-build
+
+      - name: 'Extract build artifact'
+        run: tar -xf artifact.tar.zst
+
+      - name: 'Restore preserved ENV'
+        run: cat pr.env >> "${GITHUB_ENV}"
+
+      # ==================== #
+      # Deploy preview build #
+      # ==================== #
+
+      - name: 'Send preview build to Netlify'
+        uses: nwtgck/actions-netlify@v1.2
+        id: preview
+        timeout-minutes: 1
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Fail the job early if credentials are missing / invalid:
+          fails-without-credentials: true
+          # Sets/creates the Netlify deploy URL prefix.
+          # Uses the PR number for uniqueness:
+          alias: ${{ env.NETLIFY_SITE_PREFIX }}
+          # Only publish the contents of the build output:
+          publish-dir: ${{ env.BUILD_DIR }}
+          # Custom message for the deploy log on Netlify:
+          deploy-message: '${{ env.PR_TITLE }} (PR #${{ env.PR_NUMBER }} @ commit: ${{ env.PR_HEADSHA }})'
+
+          # Note: Split workflow incorrectly references latest primary branch commit for deployment.
+          # Assign to non-default Deployment Environment for better management:
+          github-deployment-environment: documentation-previews
+          github-deployment-description: Preview deploy for documentation PRs
+
+          # Note - PR context used by this action is incorrect. These features are broken with split workflow:
+          # https://github.com/nwtgck/actions-netlify/issues/545
+          # Disable unwanted action defaults:
+          # Disable adding deploy comment on pre-merge commit (Github creates this for PR diff):
+          enable-commit-comment: false
+          # Disable adding a "Netlify - Netlify deployment" check status:
+          enable-commit-status: false
+          # Disable. We provide a custom PR comment in the next action:
+          enable-pull-request-comment: false
+
+          # If a `netlify.toml` config is ever needed, enable this:
+          # netlify-config-path: ./docs/netlify.toml
+          # If ever switching from Github Pages, enable this conditionally (false by default):
+          # production-deploy: false
+
+      - name: 'Add or update deployment status comment on PR'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ env.PR_NUMBER }}
+          header: preview-comment
+          message: |
+            [Documentation preview for this PR](${{ steps.preview.outputs.deploy-url }}) is ready! :tada:
+
+            Built with commit: ${{ env.PR_HEADSHA }}
