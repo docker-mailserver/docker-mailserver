@@ -1,6 +1,7 @@
 name: "Test Merge Requests"
 
 on: 
+  workflow_dispatch:
   pull_request:
     paths: 
       - 'target/**'
@@ -23,7 +24,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1.3.0
         id: buildx
-      - name: Build image locally
+      - name: Cache Docker layers
+        uses: actions/cache@v2.1.5
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Build images locally
         uses: docker/build-push-action@v2.4.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -33,9 +41,21 @@ jobs:
             VCS_REF=${{ github.sha }}
             VCS_VER=${{ github.ref }}
           platforms: linux/amd64,linux/arm/v7,linux/arm64
-          push: false
+          tags: mailserver-testing:ci
+          cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Build image for test suit
+        uses: docker/build-push-action@v2.4.0
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          file: ./Dockerfile
+          build-args: |
+            VCS_REF=${{ github.sha }}
+            VCS_VER=${{ github.ref }}
+          platforms: linux/amd64
           load: true
           tags: mailserver-testing:ci
+          cache-from: type=local,src=/tmp/.buildx-cache
       - name: Run test suite
         run: >
           NAME=mailserver-testing:ci
