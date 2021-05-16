@@ -4,6 +4,12 @@ ARG VCS_VER
 ARG VCS_REF
 ARG DEBIAN_FRONTEND=noninteractive
 
+ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
+ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
+ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
+ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=keys.gnupg.net
+ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
+
 LABEL org.opencontainers.image.version=${VCS_VER}
 LABEL org.opencontainers.image.revision=${VCS_REF}
 LABEL org.opencontainers.image.title="docker-mailserver"
@@ -45,7 +51,7 @@ RUN \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
   dumb-init \
   # E - O
-  ed fail2ban fetchmail file gamin gnupg gzip iproute2 iptables \
+  ed fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
@@ -53,19 +59,36 @@ RUN \
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip whois xz-utils >/dev/null && \
+  unrar-free unzip whois xz-utils \
+  # Fail2Ban
+  gpg gpg-agent >/dev/null && \
+  gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
+    --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} &>/dev/null && \
+  curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
+  curl -Lkso fail2ban.deb.asc ${FAIL2BAN_DEB_ASC_URL} && \
+  FINGERPRINT="$(LANG=C gpg --verify \
+  fail2ban.deb.asc fail2ban.deb 2>&1 \
+    | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')" && \
+  if [[ -z ${FINGERPRINT} ]]; then \
+    echo "ERROR: Invalid GPG signature!" 2>&1; exit 1; fi && \
+  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \
+    echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
+  dpkg -i fail2ban.deb &>/dev/null && \
+  rm fail2ban.deb fail2ban.deb.asc && \
+  apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
   # cleanup
+  apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
   rm -rf /var/lib/apt/lists/* && \
-  c_rehash 2>/dev/null
+  c_rehash &>/dev/null
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– ClamAV & FeshClam –––––––––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
 RUN \
-  echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' > /etc/cron.d/clamav-freshclam && \
+  echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
   freshclam && \
   sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \

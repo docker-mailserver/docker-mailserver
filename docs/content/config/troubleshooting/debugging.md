@@ -7,7 +7,7 @@ title: 'Troubleshooting | Debugging'
 
 ## Enable Verbose Debugging Output
 
-You may find it useful to enable the [`DMS_DEBUG`][github-file-env-dmsdebug] environment variable.
+You may find it useful to enable the [`DMS_DEBUG`][docs-environment-dmsdebug] environment variable.
 
 ## Invalid Username or Password
 
@@ -58,7 +58,8 @@ fail2ban-client stop postfix
 Some hosting provides have a stealth block on port 25. Make sure to check with your hosting provider that traffic on port 25 is allowed
 
 Common hosting providers known to have this issue:
+
 - [Azure](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
 - [AWS EC2](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/)
 
-[github-file-env-dmsdebug]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md#dms_debug
+[docs-environment-dmsdebug]: ../environment.md#dms_debug
