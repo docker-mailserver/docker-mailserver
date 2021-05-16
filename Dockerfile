@@ -147,13 +147,6 @@ RUN \
 # ––– Scripts & Miscellaneous –––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
-RUN \
-  if [[ ${VCS_VER} =~ ^refs/tags/v.+ ]]; then \
-    echo "export VERSION='${VCS_VER:11}'" >>/root/.bashrc; \
-  else \
-    echo "export VERSION='${VCS_REF}'" >>/root/.bashrc; \
-  fi
-
 COPY \
   ./target/bin/* \
   ./target/scripts/*.sh \
@@ -169,7 +162,13 @@ RUN \
   touch /var/log/auth.log && \
   update-locale && \
   rm /etc/postsrsd.secret && \
-  rm /etc/cron.daily/00logwatch
+  rm /etc/cron.daily/00logwatch && \
+  if [[ ${VCS_VER} =~ ^refs/tags/v.+ ]]; then \
+    echo "export VERSION='${VCS_VER:11}'" >>/root/.bashrc; \
+  else \
+    echo "export VERSION='${VCS_REF}'" >>/root/.bashrc; \
+  fi
+
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– PostSRSD, Postgrey & Amavis –––––––––––––––
