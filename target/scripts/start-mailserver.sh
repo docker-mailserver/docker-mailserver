@@ -250,7 +250,6 @@ function _defunc
 . /usr/local/bin/daemons-stack.sh
 
 # source VERSION variable
-# shellcheck source=/root/.bashrc
 . /root/.bashrc
 
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
