@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - stable
     paths: 
       - 'target/**'
       - '.dockerignore'
