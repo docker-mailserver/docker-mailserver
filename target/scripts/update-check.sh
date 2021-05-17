@@ -1,11 +1,14 @@
 #! /bin/bash
 
+API="https://api.github.com/repos/docker-mailserver/docker-mailserver/releases/latest"
+CHANGELOG="https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md"
+
 while true
 do
   DATE=$(date '+%F %T')
 
   # get remote version information
-  LATEST=$(curl -Lsf https://api.github.com/repos/docker-mailserver/docker-mailserver/releases/latest | jq -r '.tag_name')
+  LATEST=$(curl -Lsf ${API} | jq -r '.tag_name')
 
   # did we get a valid response?
   if [[ ${LATEST} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
@@ -25,7 +28,7 @@ There is a docker-mailserver update available on your host: $(hostname -f)
 Current version: ${DMS_VERSION}
 Latest  version: ${LATEST}
 
-Changelog: https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md
+Changelog: ${CHANGELOG}
 EOM
       echo "${MAIL}" | mail -s "Update available! [ ${DMS_VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && \
 
