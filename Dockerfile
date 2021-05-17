@@ -164,9 +164,9 @@ RUN \
   rm /etc/postsrsd.secret && \
   rm /etc/cron.daily/00logwatch && \
   if [[ ${VCS_VER} =~ ^refs/tags/v.+ ]]; then \
-    echo "export VERSION='${VCS_VER:11}'" >>/root/.bashrc; \
+    echo "export DMS_VERSION='${VCS_VER:11}'" >>/root/.bashrc; \
   else \
-    echo "export VERSION='${VCS_REF}'" >>/root/.bashrc; \
+    echo "export DMS_VERSION='${VCS_REF}'" >>/root/.bashrc; \
   fi
 
 
