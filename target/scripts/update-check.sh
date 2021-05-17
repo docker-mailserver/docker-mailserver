@@ -38,7 +38,7 @@ Latest  version: ${LATEST}
 
 Changelog: ${CHANGELOG}
 EOM
-      echo "${MAIL}" | mail -s "Update available! [ ${DMS_VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && \
+      echo "${MAIL}" | mail -s "Mailserver update available! [ ${DMS_VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && \
 
       echo "${DATE} Info: Update available [ ${DMS_VERSION} --> ${LATEST} ]" && \
 
