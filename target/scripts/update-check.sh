@@ -8,7 +8,7 @@ do
   DATE=$(date '+%F %T')
 
   # get remote version information
-  LATEST=$(curl -Lsf ${API} | jq -r '.tag_name')
+  LATEST=$(curl -Lsf "${API}" | jq -r '.tag_name')
 
   # did we get a valid response?
   if [[ ${LATEST} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
