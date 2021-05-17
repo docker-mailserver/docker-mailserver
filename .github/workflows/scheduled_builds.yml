@@ -1,4 +1,4 @@
-name: "Build Stable on Schedule"
+name: "Build Edge on Schedule"
 
 on:
   schedule:
@@ -11,7 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
-          ref: stable
           submodules: recursive
       - name: Prepare tags
         id: prep
@@ -21,7 +20,7 @@ jobs:
             ${{ secrets.DOCKER_REPOSITORY }}
             ${{ secrets.GHCR_REPOSITORY }}
           tags: |
-            type=raw,value=stable
+            type=raw,value=edge
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.1.0
       - name: Set up Docker Buildx
