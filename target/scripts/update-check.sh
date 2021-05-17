@@ -48,7 +48,7 @@ EOM
       echo "${DATE} Info: No update available"
     fi
   else
-    echo "${DATE} Error: Update-check failed."
+    echo "${DATE} Error: Update check failed."
   fi
   # check again in one day
   sleep 1d
