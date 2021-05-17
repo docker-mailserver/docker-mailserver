@@ -5,6 +5,13 @@ on:
     paths:
       - 'docs/**'
 
+# If the workflow for a PR is triggered multiple times, previous existing runs will be canceled.
+# eg: Applying multiple suggestions from a review directly via the Github UI.
+# Instances of the 2nd phase of this workflow (via `workflow_run`) presently lack concurrency limits due to added complexity.
+concurrency:
+  group: deploypreview-pullrequest-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 # `pull_request` workflow is unreliable alone: Non-collaborator contributions lack access to secrets for security reasons.
 # A separate workflow (docs-preview-deploy.yml) handles the deploy after the potentially untrusted code is first run in this workflow.
 # See: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/

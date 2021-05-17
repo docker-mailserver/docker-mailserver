@@ -6,6 +6,11 @@ on:
     types:
       - completed
 
+# Note: If limiting concurrency is required for this workflow:
+# 1. Add an additional job prior to `preview` to get the PR number make it an output.
+# 2. Assign that new job as a `needs` dependency for the `preview` job.
+# It is still required for `preview` job to download the artifact so that it can access the preview build files.
+
 # This workflow runs off the primary branch and has access to secrets as expected.
 jobs:
   preview:
