@@ -5,12 +5,12 @@ do
   DATE=$(date '+%F %T')
 
   # get remote version information
-  #LATEST=$(curl -sf https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION) # doesn't exist yet
-  LATEST=$(curl -sf https://raw.githubusercontent.com/casperklein/archive_docker-mailserver/update-check/VERSION)
+  LATEST=$(curl -Lsf https://api.github.com/repos/docker-mailserver/docker-mailserver/releases/latest | jq -r '.tag_name')
 
   # did we get a valid response?
-  if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+  if [[ ${LATEST} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
   then
+    LATEST=${LATEST:1}
     echo "${DATE} Info: Remote version information fetched"
 
     # compare versions
