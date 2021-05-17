@@ -193,6 +193,13 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 - **empty** => postmaster@domain.com
 - => Specify the postmaster address
 
+##### ENABLE_UPDATE_CHECK
+
+Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS
+
+- 0 => Update check disabled
+- **1** => Update check enabled
+
 ##### POSTSCREEN_ACTION
 
 - **enforce** => Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.

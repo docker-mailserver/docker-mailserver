@@ -1,5 +1,13 @@
 #! /bin/bash
 
+# DMS_VERSION == Commit hash?
+if [[ ${DMS_VERSION} =~ ^[a-f0-9]{40}$ ]]
+then
+  DATE=$(date '+%F %T')
+  echo "${DATE} Info: You are using an edge build. Update checks are not supported."
+  exit 0
+fi
+
 API="https://api.github.com/repos/docker-mailserver/docker-mailserver/releases/latest"
 CHANGELOG="https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md"
 
