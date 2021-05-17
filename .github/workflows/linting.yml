@@ -4,7 +4,8 @@ on:
   pull_request:
     branches: [ "*" ]
   push:
-    branches: [ "master", "stable" ]
+    branches:
+      - master
 
 jobs:
   lint:
