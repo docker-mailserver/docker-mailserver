@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - stable
     paths: 
       - 'target/**'
       - '.dockerignore'
@@ -98,7 +97,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build image locally
+      - name: Build images locally
         uses: docker/build-push-action@v2.4.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
