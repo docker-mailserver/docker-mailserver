@@ -257,7 +257,7 @@ function _defunc
 # ? >> Executing all stacks
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
-_notify 'inf' "Welcome to docker-mailserver $(</VERSION)"
+_notify 'inf' 'Welcome to docker-mailserver'
 _notify 'inf' 'ENVIRONMENT'
 [[ ${DMS_DEBUG} -eq 1 ]] && printenv
 

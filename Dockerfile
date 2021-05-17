@@ -164,9 +164,6 @@ RUN \
   rm /etc/postsrsd.secret && \
   rm /etc/cron.daily/00logwatch
 
-COPY \
-  ./VERSION /
-
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– PostSRSD, Postgrey & Amavis –––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
