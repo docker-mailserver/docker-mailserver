@@ -1,5 +1,7 @@
 # Changelog
 
+## `v10.0.0`
+
 ## `v9.1.0`
 
 This release marks the breakpoint where the wiki was transferred to a [reworked documentation](https://docker-mailserver.github.io/docker-mailserver/edge/)
