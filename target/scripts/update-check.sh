@@ -11,6 +11,7 @@ _log() {
 }
 
 # check for correct syntax
+# number + suffix. suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
 if [[ ! ${UPDATE_CHECK_INTERVAL} =~ ^[0-9]+[smhd]{1}$ ]]
 then
   _log "Error: Invalid UPDATE_CHECK_INTERVAL value: ${UPDATE_CHECK_INTERVAL}"
