@@ -195,10 +195,16 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 
 ##### ENABLE_UPDATE_CHECK
 
-Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS
+Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS.
 
 - 0 => Update check disabled
 - **1** => Update check enabled
+
+##### UPDATE_CHECK_INTERVAL
+
+Customize the update check interval. Number + Suffix. Suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
+
+- **1d** => Check for updates once a day
 
 ##### POSTSCREEN_ACTION
 

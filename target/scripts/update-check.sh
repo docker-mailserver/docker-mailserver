@@ -44,5 +44,5 @@ EOM
     echo "${DATE} Error: Update check failed."
   fi
   # check again in one day
-  sleep 1d
+  sleep ${UPDATE_CHECK_INTERVAL}
 done
