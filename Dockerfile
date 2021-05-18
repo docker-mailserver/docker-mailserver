@@ -59,9 +59,8 @@ RUN \
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip whois xz-utils \
+  unrar-free unzip whois xz-utils && \
   # Fail2Ban
-  gpg gpg-agent >/dev/null && \
   gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
     --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} &>/dev/null && \
   curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
@@ -75,7 +74,6 @@ RUN \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
   dpkg -i fail2ban.deb &>/dev/null && \
   rm fail2ban.deb fail2ban.deb.asc && \
-  apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
   # cleanup
   apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
