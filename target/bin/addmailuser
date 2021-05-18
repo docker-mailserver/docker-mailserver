@@ -44,22 +44,19 @@ PASSWD="${*}"
 
 # Protect config file with lock to avoid race conditions
 touch "${DATABASE}"
-(
-  flock -e 200
+create_lock "$(basename "$0")"
+if grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null
+then
+  echo "User '${USER}' already exists."
+  exit 1
+fi
 
-  if grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null
-  then
-    echo "User '${USER}' already exists."
-    exit 1
-  fi
+if [[ -z ${PASSWD} ]]
+then
+  read -r -s -p "Enter Password: " PASSWD
+  echo
+  [[ -z ${PASSWD} ]] && errex "Password must not be empty"
+fi
 
-  if [[ -z ${PASSWD} ]]
-  then
-    read -r -s -p "Enter Password: " PASSWD
-    echo
-    [[ -z ${PASSWD} ]] && errex "Password must not be empty"
-  fi
-
-  HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
-  echo "${USER}|${HASH}" >> "${DATABASE}"
-) 200< "${DATABASE}"
+HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
+echo "${USER}|${HASH}" >> "${DATABASE}"
