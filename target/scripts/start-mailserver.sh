@@ -251,16 +251,13 @@ function _defunc
 # shellcheck source=./startup/daemons-stack.sh
 . /usr/local/bin/daemons-stack.sh
 
-# source DMS_VERSION variable
-. /root/.bashrc
-
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 # ? << Sourcing all stacks
 # ––
 # ? >> Executing all stacks
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
-_notify 'tasklog' "Welcome to docker-mailserver ${DMS_VERSION}"
+_notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
 _notify 'inf' 'ENVIRONMENT'
 [[ ${DMS_DEBUG} -eq 1 ]] && printenv
 
