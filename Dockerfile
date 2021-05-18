@@ -51,7 +51,7 @@ RUN \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
   dumb-init \
   # E - O
-  ed fetchmail file gamin gnupg gzip iproute2 iptables jq \
+  ed fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
@@ -154,6 +154,9 @@ COPY \
   ./target/docker-configomat/configomat.sh \
   /usr/local/bin/
 
+COPY \
+  ./VERSION /
+
 RUN \
   chmod +x /usr/local/bin/* && \
   rm -rf /usr/share/locale/* && \
@@ -162,13 +165,7 @@ RUN \
   touch /var/log/auth.log && \
   update-locale && \
   rm /etc/postsrsd.secret && \
-  rm /etc/cron.daily/00logwatch && \
-  if [[ ${VCS_VER} =~ ^refs/tags/v.+ ]]; then \
-    echo "export DMS_VERSION='${VCS_VER:11}'" >>/root/.bashrc; \
-  else \
-    echo "export DMS_VERSION='${VCS_REF}'" >>/root/.bashrc; \
-  fi
-
+  rm /etc/cron.daily/00logwatch
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– PostSRSD, Postgrey & Amavis –––––––––––––––
