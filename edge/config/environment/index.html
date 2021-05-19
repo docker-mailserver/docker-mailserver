@@ -639,6 +639,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_update_check" class="md-nav__link">
+    ENABLE_UPDATE_CHECK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_check_interval" class="md-nav__link">
+    UPDATE_CHECK_INTERVAL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#postscreen_action" class="md-nav__link">
     POSTSCREEN_ACTION
   </a>
@@ -2306,6 +2320,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_update_check" class="md-nav__link">
+    ENABLE_UPDATE_CHECK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_check_interval" class="md-nav__link">
+    UPDATE_CHECK_INTERVAL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#postscreen_action" class="md-nav__link">
     POSTSCREEN_ACTION
   </a>
@@ -3173,6 +3201,17 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <ul>
 <li><strong>empty</strong> =&gt; <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#99;&#111;&#109;">&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#99;&#111;&#109;</a></li>
 <li>=&gt; Specify the postmaster address</li>
+</ul>
+<h5 id="enable_update_check"><a class="toclink" href="#enable_update_check">ENABLE_UPDATE_CHECK</a></h5>
+<p>Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS.</p>
+<ul>
+<li>0 =&gt; Update check disabled</li>
+<li><strong>1</strong> =&gt; Update check enabled</li>
+</ul>
+<h5 id="update_check_interval"><a class="toclink" href="#update_check_interval">UPDATE_CHECK_INTERVAL</a></h5>
+<p>Customize the update check interval. Number + Suffix. Suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.</p>
+<ul>
+<li><strong>1d</strong> =&gt; Check for updates once a day</li>
 </ul>
 <h5 id="postscreen_action"><a class="toclink" href="#postscreen_action">POSTSCREEN_ACTION</a></h5>
 <ul>
