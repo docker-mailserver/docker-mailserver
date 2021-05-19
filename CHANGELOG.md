@@ -2,6 +2,35 @@
 
 ## `v10.0.0`
 
+This release improves on `9.1.0` in many aspect, including general fixes, Fail2Ban, LDAP and documentation. This release contains breaking changes.
+
+## Changelog 
+
+- **[general]** Fixed a lot of typos, spelling mistakes and wrong indentation
+- **[general]** Documentation is now more present
+- **[general]** Added `stop_grace_period:` to example Compose file
+- **[general]** `./setup.sh email list` was enhanced, now showing information neatly (#1898)
+- **[general]** Added update check and notification (#1976 #1951)
+- **[general]** Moved environment variables to the documentation and improvements (#1948 #1947 #1931)
+- **[security]** Major Fail2Ban improvements (cleanup, update and breaking changes, see below)
+- **[fix]** `./setup.sh email del ...` now works properly 
+- **[code]** Added color variables to `setup.sh` and improved the script as a whole (#1879 #1886)
+- **[ldap]** Added `LDAP_QUERY_FILTER_SENDERS` (#1902)
+- **[ldap]** Use dovecots LDAP uris option instead of hosts (#1901)
+
+
+### Breaking Changes:
+
+- **[security]** Fail2Ban adjustments
+  - Fail2ban v0.11 is now used (#1965) 
+  - the old (Debian) configuration was deleted and now the default configuration shipped with Debian 10 is used.
+  - the new default blocktype is now `DROP`, not `REJECT` (#1914)
+  - we now ban on all ports (`iptables-allports`), not just the ones "attacked" (#1914)
+- **[general]** Removed `stable` (#1975)
+  - scheduled build is now based on `edge`
+  - instead of `stable` please use the lastest available version (= `latest`)
+  - `stable` image tag will be removed from dockerhub in near future
+
 ## `v9.1.0`
 
 This release marks the breakpoint where the wiki was transferred to a [reworked documentation](https://docker-mailserver.github.io/docker-mailserver/edge/)
