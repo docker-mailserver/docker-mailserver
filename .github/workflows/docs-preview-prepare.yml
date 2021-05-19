@@ -30,9 +30,17 @@ jobs:
         working-directory: docs
         env:
           PREVIEW_URL: 'https://${NETLIFY_SITE_PREFIX}--${NETLIFY_SITE_NAME}.netlify.app/'
+          NETLIFY_BRANDING: '<img alt="Deploys by Netlify" src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" style="float: right;">'
         run: |
           # Adjust mkdocs.yml for preview build
           sed -i "s|^site_url:.*|site_url: '${PREVIEW_URL}'|" mkdocs.yml
+
+          # Insert sponsor branding into page content (Provider OSS plan requirement):
+          # Upstream does not provide a nicer maintainable way to do this..
+          # Prepends HTML to copyright text and then aligns to the right side.
+          sed -i "s|^copyright: '|copyright: '${NETLIFY_BRANDING}|" mkdocs.yml
+          # Need to override a CSS media query for parent element to always be full width:
+          echo '.md-footer-copyright { width: 100%; }' >> content/assets/css/customizations.css
 
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:7.1.4 build --strict
 
