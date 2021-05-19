@@ -22,10 +22,12 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 ### Breaking Changes:
 
 - **[security]** Fail2Ban adjustments
-  - Fail2ban v0.11 is now used (#1965) 
+  - Fail2ban v0.11.2 is now used (#1965) 
   - the old (Debian) configuration was deleted and now the default configuration shipped with Debian 10 is used.
   - the new default blocktype is now `DROP`, not `REJECT` (#1914)
   - we now ban on all ports (`iptables-allports`), not just the ones "attacked" (#1914)
+  - Fail2ban 0.11 is totally compatible to 0.10, but the database got some new tables and fields (auto-converted during the first start),
+    so once updated to DMS 10.0.0, you have to remove the database `mailstate:/lib-fail2ban/fail2ban.sqlite3` if you would need to downgrade to DMS 9.1.0 for some reason.
 - **[general]** Removed `stable` (#1975)
   - scheduled build is now based on `edge`
   - instead of `stable` please use the lastest available version (= `latest`)
