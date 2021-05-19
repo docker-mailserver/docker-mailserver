@@ -1,11 +1,11 @@
 #! /bin/bash
 
 VERSION=$(</VERSION)
-#VERSION_URL="https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION" # doesn't exist yet
-VERSION_URL="https://raw.githubusercontent.com/casperklein/archive_docker-mailserver/update-check/VERSION"
+VERSION_URL="https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION"
 CHANGELOG="https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md"
 
-_log() {
+function _log
+{
   DATE=$(date '+%F %T')
   echo "${DATE} ${1}"
 }
