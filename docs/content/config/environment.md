@@ -608,18 +608,18 @@ File containing CA (Certificate Authority) certificate(s).
 
 ##### SASLAUTHD_LDAP_BIND_DN
 
-- **empty** => anonymous bind
+- **empty** => same as `LDAP_BIND_DN`
 - specify an object with privileges to search the directory tree
 - e.g. active directory: SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net
 - e.g. openldap: SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=mydomain,dc=net
 
 ##### SASLAUTHD_LDAP_PASSWORD
 
-- **empty** => anonymous bind
+- **empty** => same as `LDAP_BIND_PW`
 
 ##### SASLAUTHD_LDAP_SEARCH_BASE
 
-- **empty** => Reverting to SASLAUTHD_MECHANISMS pam
+- **empty** => same as `LDAP_SEARCH_BASE`
 - specify the search base
 
 ##### SASLAUTHD_LDAP_FILTER
