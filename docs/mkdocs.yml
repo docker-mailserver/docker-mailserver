@@ -27,7 +27,7 @@ theme:
   name: 'material'
   custom_dir: 'overrides/'
   favicon: assets/logo/favicon-32x32.png
-  logo: assets/logo/dmo-logo-white.svg
+  logo: assets/logo/dmo-logo-white.min.svg
   icon:
     repo: fontawesome/brands/github
   features:
