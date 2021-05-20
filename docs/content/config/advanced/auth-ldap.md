@@ -47,7 +47,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     - LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(mail=admin@*))
     ```
 
-### `DOVECOT_*_FILTER`
+### `DOVECOT_*_FILTER` & `DOVECOT_*_ATTRS`
 These variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user.
 
 This is split into the folowing two lookups, both using `%u` as the placeholder for the full login name ([see dovecot documentation for a full list of placeholders](https://doc.dovecot.org/configuration_manual/config_file/config_variables/)). Usually you only need to set `DOVECOT_USER_FILTER`, in which case it will be used for both filters.
@@ -67,6 +67,14 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     For `DOVECOT_*_ATTRS`, you can replace `ldapAttr=dovecotAttr` with `=dovecotAttr=%{ldap:ldapAttr}` for more flexibility, like for example `=home=/var/mail/%{ldap:uid}` or just `=uid=5000`.
 
     A list of dovecot attributes can be found [in the dovecot documentation](https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/#authentication-user-database).
+
+???+ example: Defaults
+
+    ```yaml
+    - DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
+    - DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password
+    - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+    ```
 
 ???+ example
 
