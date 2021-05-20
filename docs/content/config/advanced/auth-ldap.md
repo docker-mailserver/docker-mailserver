@@ -50,14 +50,10 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
 ### `DOVECOT_*_FILTER`
 These variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user.
 
-This is split into two lookups, both using `%u` as the placeholder for the full login name ([see dovecot documentation for a full list of placeholders](https://doc.dovecot.org/configuration_manual/config_file/config_variables/)):
+This is split into the folowing two lookups, both using `%u` as the placeholder for the full login name ([see dovecot documentation for a full list of placeholders](https://doc.dovecot.org/configuration_manual/config_file/config_variables/)). Usually you only need to set `DOVECOT_USER_FILTER`, in which case it will be used for both filters.
 
 - `DOVECOT_USER_FILTER` is used to get the account details (uid, gid, home directory, quota, ...) of a user.
-- `DOVECOT_PASS_FILTER` is used to get the password information of the user as well as to determine if they're allowed to log in at all. TODO: when is this neccessary?
-
-!!! note
-
-    In many cases, both can be the same, in which case you only need to specify `DOVECOT_USER_FILTER`.
+- `DOVECOT_PASS_FILTER` is used to get the password information of the user, and is in pretty much all cases identical to `DOVECOT_USER_FILTER` (which is the default behaviour if left away).
 
 If your directory doesn't have the [postfix-book schema](https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema) installed, then you must change the internal attribute handling for dovecot. For this you have to change the `pass_attr` and the `user_attr` mapping, as shown in the example below:
 
@@ -79,11 +75,13 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     ```yaml
     - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
     - DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
-    - DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
     - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
     ```
 
 The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in [the environment section in the docs][docs-environment].
+
+### `DOVECOT_AUTH_BIND`
+Set this to `yes` to enable authentication binds ([more details in the dovecot documentation](https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds)). Currently, only DN lookup is supported without further changes to the configuration files, so this is only useful when you want to bind as a readonly user without the permission to read passwords.
 
 ### `SASLAUTHD_LDAP_FILTER`
 This filter is used for `saslauthd`, which is called by postfix when someone is authenticating through SMTP (assuming that `SASLAUTHD_MECHANISMS=ldap` is being used). Note that you'll need to set up the LDAP server for saslauthd seperately from postfix.
