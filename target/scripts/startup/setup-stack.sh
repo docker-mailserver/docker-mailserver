@@ -619,12 +619,19 @@ function _setup_saslauthd
   # checking env vars and setting defaults
   [[ -z ${SASLAUTHD_MECHANISMS:-} ]] && SASLAUTHD_MECHANISMS=pam
   [[ ${SASLAUTHD_MECHANISMS:-} == ldap ]] && [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_MECHANISMS=pam
-  [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER=localhost
+  [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER="${LDAP_SERVER_HOST}"
   [[ -z ${SASLAUTHD_LDAP_FILTER} ]] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
 
-  if [[ -z ${SASLAUTHD_LDAP_SSL} ]] || [[ ${SASLAUTHD_LDAP_SSL} -eq 0 ]]
+  if [[ "${SASLAUTHD_LDAP_SERVER}" = *'://'* ]]
   then
-    SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+    # %% removes longest matching suffix pattern; # removes shortest matching prefix pattern
+    SASLAUTHD_LDAP_PROTO="${SASLAUTHD_LDAP_SERVER%%://*}://"
+    SASLAUTHD_LDAP_SERVER="${SASLAUTHD_LDAP_SERVER#*://}"
+  elif [[ -z ${SASLAUTHD_LDAP_SSL} ]] || [[ ${SASLAUTHD_LDAP_SSL} -eq 0 ]]
+  then
+    [[ -z ${SASLAUTHD_LDAP_PROTO} ]] && SASLAUTHD_LDAP_PROTO='ldap://'
+  else
+    [[ -z ${SASLAUTHD_LDAP_PROTO} ]] && SASLAUTHD_LDAP_PROTO='ldaps://'
   fi
 
   [[ -z ${SASLAUTHD_LDAP_START_TLS} ]] && SASLAUTHD_LDAP_START_TLS=no
