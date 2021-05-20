@@ -271,20 +271,4 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
         driver: local
     ```
 
-If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the `pass_attr` and the `user_attr` mapping, as shown in the example below:
-
-```yaml
-- DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
-- DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
-```
-
-The following example illustrates this for a directory that has the qmail-schema installed and that uses `uid`:
-
-```yaml
-- DOVECOT_PASS_ATTRS=uid=user,userPassword=password
-- DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
-- DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
-- DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
-```
-
 [docs-environment]: ../environment.md
