@@ -1501,6 +1501,10 @@ function _setup_security_stack
     then
       cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
     fi
+
+    sed -i -E \
+      "s|(log_level).*|\1 = ${AMAVIS_LOGLEVEL};|g" \
+      /etc/amavis/conf.d/49-docker-mailserver
   fi
 }
 

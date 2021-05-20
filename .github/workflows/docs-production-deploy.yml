@@ -26,7 +26,7 @@ jobs:
     name: 'Deploy Docs'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
 
       - name: 'Check if deploy is for a `v<major>.<minor>` tag version instead of `edge`'
         if: startsWith(github.ref, 'refs/tags/')
@@ -40,8 +40,7 @@ jobs:
 
       - name: 'Build with mkdocs-material via Docker'
         working-directory: docs
-        # --user is required for build output file ownership to match the CI user instead of the containers internal user
-        run: docker run --rm --user "$(id -u):$(id -g)" -v "${PWD}:/docs" squidfunk/mkdocs-material:7.1.2 build --strict
+        run: '../.github/workflows/scripts/docs/build-docs.sh'
 
       - name: 'If a tagged version, fix canonical links and remove `404.html`'
         if: startsWith(github.ref, 'refs/tags/')
@@ -51,8 +50,8 @@ jobs:
           # (Note the edge 404.html isn't useful either as it's not copied to the `gh-pages` branch root)
           rm 404.html
 
-          # Replace '${DOCS_VERSION}' (defaults to 'edge') in the 'canonical' link element of HTML files,
-          # with the tagged docs version:
+          # Replace the tagged '${DOCS_VERSION}' in the 'canonical' link element of HTML files,
+          # to point to the 'edge' version of docs as the authoritative source:
           find . -type f -name "*.html" -exec \
             sed -i "s|^\(.*<link rel=\"canonical\".*\)${DOCS_VERSION}|\1edge|" \
             {} +
@@ -76,10 +75,10 @@ jobs:
     needs: deploy
     steps:
       - name: 'Checkout the tagged commit (shallow clone)'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
 
       - name: 'Checkout the docs deployment branch to a subdirectory'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
         with:
           ref: gh-pages
           path: gh-pages

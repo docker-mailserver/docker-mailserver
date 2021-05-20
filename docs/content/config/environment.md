@@ -1,48 +1,72 @@
-# Environment
+---
+title: Environment Variables
+---
 
-## Variables
+!!! info
 
-1. If an option doesn't work as documented here, check if you are running the latest image!
-2. Values in **bold** are the default values.
-3. Since `docker-mailserver v7.1.0`, comparisons for environment variables are executed differently. If you previously used `VARIABLE=''` as the `empty` value, **update** to now use `VARIABLE=`.
-
-### Assignments
+    Values in **bold** are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `mailserver/docker-mailserver:edge`.
 
 #### General
+
+##### OVERRIDE_HOSTNAME
+
+- empty => uses the `hostname` command to get the mail server's canonical hostname.
+- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.
 
 ##### DMS_DEBUG
 
 - **0** => Debug disabled
-- 1 => Enables debug on startup
+- 1     => Enables debug on startup
 
 ##### SUPERVISOR_LOGLEVEL
 
 Here you can adjust the [log-level for Supervisor](http://supervisord.org/logging.html#activity-log-levels). Possible values are
 
 - critical => Only show critical messages
-- error => Only show erroneous output
+- error    => Only show erroneous output
 - **warn** => Show warnings
-- info => Normal informational output
-- debug => Also show debug messages
+- info     => Normal informational output
+- debug    => Also show debug messages
 
 The log-level will show everything in its class and above.
+
+
+##### ONE_DIR
+
+- **0** => state in default directories.
+- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes.
+
+##### PERMIT_DOCKER
+
+Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
+
+- **empty** => localhost only.
+- host => Add docker host (ipv4 only).
+- network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case.
+- connected-networks => Add all connected docker networks (ipv4 only).
+
+Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
 
 ##### ENABLE_AMAVIS
 
 Amavis content filter (used for ClamAV & SpamAssassin)
 
-- 0 => Amavis is disabled
+- 0     => Amavis is disabled
 - **1** => Amavis is enabled
+
+##### AMAVIS_LOGLEVEL
+
+[This page](https://lists.amavis.org/pipermail/amavis-users/2011-March/000158.html) provides information on Amavis' logging statistics.
+
+- -1/-2/-3 => Only show errors
+- **0**    => Show warnings
+- 1/2      => Show default informational output
+- 3/4/5    => log debug information (very verbose)
 
 ##### ENABLE_CLAMAV
 
 - **0** => Clamav is disabled
 - 1 => Clamav is enabled
-
-##### ONE_DIR
-
-- **0** => state in default directories
-- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes
 
 ##### ENABLE_POP3
 
@@ -106,17 +130,6 @@ Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as f
 - **0** => Disabled
 - 1 => Enabled
 
-##### PERMIT_DOCKER
-
-Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
-
-- **empty** => localhost only
-- host => Add docker host (ipv4 only)
-- network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case
-- connected-networks => Add all connected docker networks (ipv4 only)
-
-Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
-
 ##### NETWORK_INTERFACE
 
 In case your network interface differs from `eth0`, e.g. when you are using HostNetworking in Kubernetes, you can set this to whatever interface you want. This interface will then be used.
@@ -179,6 +192,19 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 
 - **empty** => postmaster@domain.com
 - => Specify the postmaster address
+
+##### ENABLE_UPDATE_CHECK
+
+Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS.
+
+- 0 => Update check disabled
+- **1** => Update check enabled
+
+##### UPDATE_CHECK_INTERVAL
+
+Customize the update check interval. Number + Suffix. Suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
+
+- **1d** => Check for updates once a day
 
 ##### POSTSCREEN_ACTION
 
@@ -483,7 +509,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
 - e.g. `homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail`
 - => Specify the directory to dovecot attribute mapping that fits your directory structure.
-- Note: This is necessary for directories that do not use the [Postfix Book Schema](test/docker-openldap/bootstrap/schema/mmc/postfix-book.schema).
+- Note: This is necessary for directories that do not use the Postfix Book Schema.
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
 - More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/Userdb)
 
@@ -496,7 +522,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 
 - e.g. `uid=user,userPassword=password`
 - => Specify the directory to dovecot variable mapping that fits your directory structure.
-- Note: This is necessary for directories that do not use the [Postfix Book Schema](test/docker-openldap/bootstrap/schema/mmc/postfix-book.schema).
+- Note: This is necessary for directories that do not use the Postfix Book Schema.
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
 - More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups)
 

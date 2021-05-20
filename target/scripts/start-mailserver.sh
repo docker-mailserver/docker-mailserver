@@ -16,6 +16,7 @@ declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 # ? >> Setup of default and global values / variables
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
+VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
 VARS[DMS_DEBUG]="${DMS_DEBUG:=0}"
 VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
@@ -32,6 +33,7 @@ VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
 VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
 VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
 VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
+VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
 VARS[FAIL2BAN_BLOCKTYPE]="${FAIL2BAN_BLOCKTYPE:=drop}"
 VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
 VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
@@ -63,6 +65,7 @@ VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
 VARS[SSL_TYPE]="${SSL_TYPE:=}"
 VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
 VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
+VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
 export HOSTNAME DOMAINNAME CHKSUM_FILE
@@ -167,6 +170,7 @@ function register_functions
   _register_start_daemon '_start_daemons_rsyslog'
 
   [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemons_dovecot'
+  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemons_update_check'
 
   # needs to be started before SASLauthd
   _register_start_daemon '_start_daemons_opendkim'
@@ -254,7 +258,7 @@ function _defunc
 # ? >> Executing all stacks
 # ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
-_notify 'inf' 'Welcome to docker-mailserver'
+_notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
 _notify 'inf' 'ENVIRONMENT'
 [[ ${DMS_DEBUG} -eq 1 ]] && printenv
 
@@ -268,6 +272,6 @@ start_daemons
 _notify 'tasklog' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
-tail -fn 0 /var/log/mail/mail.log
+tail -Fn 0 /var/log/mail/mail.log
 
 exit 0

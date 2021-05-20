@@ -60,7 +60,7 @@ We are going to use this docker based mailserver:
 
     For more details about the environment variables that can be used, and their meaning and possible values, check also these:
 
-    - [Environtment Variables][github-file-env]
+    - [Environment Variables][docs-environment]
     - [`mailserver.env` file][github-file-dotenv]
 
     Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mailserver directly (from a client).  We also use these settings:
@@ -102,7 +102,7 @@ We are going to use this docker based mailserver:
 
     Then don't forget to change the serial number and to restart the service.
 
-- Get an SSL certificate from letsencrypt. I use [wsproxy](https://github.com/docker-scripts/wsproxy) for managing SSL letsencrypt certificates of my domains:
+- Get an SSL certificate from letsencrypt. I use [wsproxy](https://gitlab.com/docker-scripts/wsproxy) for managing SSL letsencrypt certificates of my domains:
 
     ```sh
     cd /var/ds/wsproxy
@@ -157,6 +157,6 @@ We are going to use this docker based mailserver:
     - **SMTP username**: `info@example.org`
     - **SMTP password**: `passwd123`
 
-[github-file-env]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
+[docs-environment]: ../../config/environment.md
 [github-file-dotenv]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498

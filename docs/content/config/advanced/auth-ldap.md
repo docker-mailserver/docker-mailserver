@@ -12,7 +12,7 @@ Getting started with ldap and this mailserver we need to take 3 parts in account
 
 ## Variables to Control Provisioning by the Container
 
-Have a look at the [`ENVIRONMENT.md`][github-file-env] for information on the default values.
+Have a look at [the ENV page][docs-environment] for information on the default values.
 
 ### `LDAP_QUERY_FILTER_*`
 Those variables contain the LDAP lookup filters for postfix, using `%s` as the placeholder for the domain or email address in question. This means that...
@@ -77,7 +77,7 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
     ```
 
-The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in [`ENVIRONMENT.md`][github-file-env].
+The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in [the environment section in the docs][docs-environment].
 
 ### `SASLAUTHD_LDAP_FILTER`
 This filter is used for `saslauthd`, which is called by postfix when someone is authenticating through SMTP (assuming that `SASLAUTHD_MECHANISMS=ldap` is being used). Note that you'll need to set up the LDAP server for saslauthd seperately from postfix.
@@ -260,4 +260,20 @@ TODO
         driver: local
     ```
 
-[github-file-env]: https://github.com/docker-mailserver/docker-mailserver/blob/master/ENVIRONMENT.md
+If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the `pass_attr` and the `user_attr` mapping, as shown in the example below:
+
+```yaml
+- DOVECOT_PASS_ATTR=<YOUR_USER_IDENTIFYER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
+- DOVECOT_USER_ATTR=<YOUR_USER_HOME_DIRECTORY_ATTRIBUTE>=home,<YOUR_USER_MAILSTORE_ATTRIBUTE>=mail,<YOUR_USER_MAIL_UID_ATTRIBUTE>=uid, <YOUR_USER_MAIL_GID_ATTRIBUTE>=gid
+```
+
+The following example illustrates this for a directory that has the qmail-schema installed and that uses `uid`:
+
+```yaml
+- DOVECOT_PASS_ATTRS=uid=user,userPassword=password
+- DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
+- DOVECOT_PASS_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+- DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+```
+
+[docs-environment]: ../environment.md

@@ -4,14 +4,15 @@ on:
   pull_request:
     branches: [ "*" ]
   push:
-    branches: [ "master", "stable" ]
+    branches:
+      - master
 
 jobs:
   lint:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
         with:
           submodules: recursive
       - name: Hadolint
