@@ -30,7 +30,7 @@ jobs:
         working-directory: docs
         env:
           PREVIEW_URL: 'https://${NETLIFY_SITE_PREFIX}--${NETLIFY_SITE_NAME}.netlify.app/'
-          NETLIFY_BRANDING: '<img alt="Deploys by Netlify" src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" style="float: right;">'
+          NETLIFY_BRANDING: '<a href="https://www.netlify.com/"><img alt="Deploys by Netlify" src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" style="float: right;"></a>'
         run: |
           # Adjust mkdocs.yml for preview build
           sed -i "s|^site_url:.*|site_url: '${PREVIEW_URL}'|" mkdocs.yml
