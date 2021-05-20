@@ -68,7 +68,7 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
 
     A list of dovecot attributes can be found [in the dovecot documentation](https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/#authentication-user-database).
 
-???+ example: "Defaults"
+???+ example "Defaults"
 
     ```yaml
     - DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
