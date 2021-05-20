@@ -28,7 +28,9 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     - If the `SENDERS` filter is missing, the `USER`, `ALIAS` and `GROUP` filters will be used in in a disjunction (OR).
     - To for example allow users from the `admin` group to spoof any sender email address, and to force everyone else to only use their personal mailbox address for outgoing email, you can use something like this: `(|(memberOf=cn=admin,*)(mail=%s))`
 
-???+ example "Example Code: A really simple `LDAP_QUERY_FILTER` configuration, using only the user filter and allowing only `admin@*` to spoof any sender addresses"
+???+ example
+
+    A really simple `LDAP_QUERY_FILTER` configuration, using only the _user filter_ and allowing only `admin@*` to spoof any sender addresses.
 
     ```yaml
     - ENABLE_LDAP=1
@@ -46,7 +48,9 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     ```
 
 ### `DOVECOT_*_FILTER`
-Those variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user. This is split into two lookups, buth using e.g. `%u` as the placeholder for the full login name ([see dovecot documentation for a full list of placeholders](https://doc.dovecot.org/configuration_manual/config_file/config_variables/)):
+These variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user.
+
+This is split into two lookups, both using `%u` as the placeholder for the full login name ([see dovecot documentation for a full list of placeholders](https://doc.dovecot.org/configuration_manual/config_file/config_variables/)):
 
 - `DOVECOT_USER_FILTER` is used to get the account details (uid, gid, home directory, quota, ...) of a user.
 - `DOVECOT_PASS_FILTER` is used to get the password information of the user as well as to determine if they're allowed to log in at all. TODO: when is this neccessary?
@@ -68,7 +72,9 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
 
     A list of dovecot attributes can be found [in the dovecot documentation](https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/#authentication-user-database).
 
-???+ example "Example Code: Setup for a directory that has the [qmail-schema](https://github.com/amery/qmail/blob/master/qmail.schema) installed and that uses `uid`"
+???+ example
+
+    Setup for a directory that has the [qmail-schema](https://github.com/amery/qmail/blob/master/qmail.schema) installed and uses `uid`:
 
     ```yaml
     - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
@@ -90,7 +96,7 @@ The filter variables are explained in detail [in the `LDAP_SASLAUTHD` file](http
 
     If you don't want to use a separate filter for SMTP authentication, you can set `SASLAUTHD_MECHANISMS=rimap` and `SASLAUTHD_MECH_OPTIONS=127.0.0.1` to authenticate against dovecot instead - this means that the `DOVECOT_USER_FILTER` and `DOVECOT_PASS_FILTER` will be used for SMTP authentication as well.
 
-???+ example "Example Code: LDAP with saslauthd"
+???+ example "Configure LDAP with `saslauthd`"
 
     ```yaml
     - ENABLE_SASLAUTHD: "1"
@@ -109,7 +115,7 @@ TODO
 
 ### Basic Setup
 
-???+ example "Example Code: Basic Setup"
+???+ example "Basic Setup"
 
     ```yaml
     version: '2'
@@ -185,7 +191,7 @@ TODO
 
 ## LDAP Setup Example - Kopano / Zarafa
 
-??? example "Example Code: Kopano / Zarafa"
+??? example "Kopano / Zarafa"
 
     ```yaml
     version: '2'
