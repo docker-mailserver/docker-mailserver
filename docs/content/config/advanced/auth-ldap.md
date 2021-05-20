@@ -68,8 +68,6 @@ Have a look at [the ENV page][docs-environment] for information on the default v
 
           # >>> SASL Authentication
           - ENABLE_SASLAUTHD=1
-          - SASLAUTHD_LDAP_SERVER=<yourLdapContainer/yourLdapServer>
-          - SASLAUTHD_LDAP_PROTO=
           - SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
           - SASLAUTHD_LDAP_PASSWORD=mypassword
           - SASLAUTHD_LDAP_SEARCH_BASE=dc=mydomain,dc=loc
