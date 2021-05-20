@@ -3,7 +3,8 @@
 # CI ENV `GITHUB_REF` from Github Actions CI provides the tag or branch that triggered the build
 # See `github.ref`: https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
 # https://docs.github.com/en/actions/reference/environment-variables
-function _update-versions-json {
+function _update-versions-json
+{
   # Extract the version tag, truncate `<PATCH>` version and any suffix beyond it.
   local MAJOR_MINOR
   MAJOR_MINOR=$(grep -oE 'v[0-9]+\.[0-9]+' <<< "${GITHUB_REF}")

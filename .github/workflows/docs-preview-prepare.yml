@@ -42,7 +42,7 @@ jobs:
           # Need to override a CSS media query for parent element to always be full width:
           echo '.md-footer-copyright { width: 100%; }' >> content/assets/css/customizations.css
 
-          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:7.1.4 build --strict
+          ../.github/workflows/scripts/docs/build-docs.sh
 
       # ============================== #
       # Volley over to secure workflow #
