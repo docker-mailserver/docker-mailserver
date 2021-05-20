@@ -20,13 +20,14 @@ docs_dir: 'content/'
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Choosing_between_www_and_non-www_URLs#using_%3Clink_relcanonical%3E
 # Also required for `sitemap.xml` generation at build time; which bots use to assist them crawling and indexing a website,
 # the `mkdocs-material` 'Instant Navigation' feature utilizes the sitemap data to work.
-site_url: 'https://docker-mailserver.github.io/docker-mailserver/edge'
+site_url: 'https://docker-mailserver.github.io/docker-mailserver/edge/'
 
 # Anything related to the `mkdocs-material` theme config goes here:
 theme:
   name: 'material'
+  custom_dir: 'overrides/'
   favicon: assets/logo/favicon-32x32.png
-  logo: assets/logo/dmo-logo-white.svg
+  logo: assets/logo/dmo-logo-white.min.svg
   icon:
     repo: fontawesome/brands/github
   features:
@@ -36,7 +37,7 @@ theme:
     - navigation.instant
   palette:
     # Light mode
-    - media: "(prefers-color-scheme: light)"
+    - media: '(prefers-color-scheme: light)'
       scheme: default
       primary: indigo
       accent: indigo
@@ -44,7 +45,7 @@ theme:
         icon: material/weather-night
         name: Switch to dark mode
     # Dark mode
-    - media: "(prefers-color-scheme: dark)"
+    - media: '(prefers-color-scheme: dark)'
       scheme: slate
       primary: indigo
       accent: blue

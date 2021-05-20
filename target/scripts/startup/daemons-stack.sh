@@ -152,3 +152,9 @@ function _start_changedetector
   _notify 'task' 'Starting changedetector'
   supervisorctl start changedetector
 }
+
+function _start_daemons_update_check
+{
+  _notify 'task' 'Starting update-check'
+  supervisorctl start update-check
+}
