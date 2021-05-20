@@ -99,10 +99,6 @@ The filter variables are explained in detail [in the `LDAP_SASLAUTHD` file](http
     ```yaml
     - ENABLE_SASLAUTHD: "1"
     - SASLAUTHD_MECHANISMS: "ldap"
-    - SASLAUTHD_LDAP_SERVER: "ldap.example.org"
-    - SASLAUTHD_LDAP_BIND_DN: "cn=admin,dc=example,dc=org"
-    - SASLAUTHD_LDAP_PASSWORD: "mypassword"
-    - SASLAUTHD_LDAP_SEARCH_BASE: "ou=users,dc=example,dc=org"
     - SASLAUTHD_LDAP_FILTER: "(mail=%U@example.org)"
     ```
 
@@ -140,19 +136,8 @@ TODO
           - ENABLE_CLAMAV=1
           - ENABLE_FAIL2BAN=1
           - ENABLE_POSTGREY=1
-          
-          # >>> SASL Authentication
-          - ENABLE_SASLAUTHD=1
-          - SASLAUTHD_MECHANISMS=ldap
-          - SASLAUTHD_LDAP_SERVER=ldap.example.org
-          - SASLAUTHD_LDAP_SSL=
-          - SASLAUTHD_LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org
-          - SASLAUTHD_LDAP_PASSWORD=mypassword
-          - SASLAUTHD_LDAP_SEARCH_BASE=dc=example,dc=org
-          - SASLAUTHD_LDAP_FILTER=(&(mail=%U@example.org)(objectClass=inetOrgPerson))
-          # <<< SASL Authentication
 
-          # >>> Postfix Ldap Integration
+          # >>> Postfix LDAP Integration
           - ENABLE_LDAP=1
           - LDAP_SERVER_HOST=ldap.example.org
           - LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org
@@ -164,13 +149,19 @@ TODO
           - LDAP_QUERY_FILTER_GROUP=(&(objectClass=inetOrgPerson)(mailGroupMember=%s))
           - LDAP_QUERY_FILTER_SENDERS=(&(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)(mailGroupMember=%s)))
           - SPOOF_PROTECTION=1
-          # <<< Postfix Ldap Integration
+          # <<< Postfix LDAP Integration
 
-          # >>> Dovecot Ldap Integration
+          # >>> Dovecot LDAP Integration
           - DOVECOT_USER_FILTER=(&(objectClass=inetOrgPerson)(mail=%u))
           - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
           - DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid
-          # <<< Dovecot Ldap Integration
+          # <<< Dovecot LDAP Integration
+          
+          # >>> SASL LDAP Authentication
+          - ENABLE_SASLAUTHD=1
+          - SASLAUTHD_MECHANISMS=ldap
+          - SASLAUTHD_LDAP_FILTER=(&(mail=%U@example.org)(objectClass=inetOrgPerson))
+          # <<< SASL LDAP Authentication
 
           - ONE_DIR=1
           - DMS_DEBUG=0
