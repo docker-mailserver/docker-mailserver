@@ -113,7 +113,7 @@ The filter variables are explained in detail [in the `LDAP_SASLAUTHD` file](http
 ## Secure Connection with LDAPS or StartTLS
 To enable LDAPS, all you need to do is to add the protocol to `LDAP_SERVER_HOST`, for example `ldaps://example.org:636`.
 
-To enable LDAP over StartTLS (on port 389), you need to set the following environment variables instead (the protocol must not be `ldaps://` in that case!):
+To enable LDAP over StartTLS (on port 389), you need to set the following environment variables instead (the **protocol must not be `ldaps://`** in this case!):
 
 ```yaml
 - LDAP_START_TLS=yes
