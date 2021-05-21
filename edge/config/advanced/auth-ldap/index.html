@@ -861,11 +861,52 @@
     Variables to Control Provisioning by the Container
   </a>
   
+    <nav class="md-nav" aria-label="Variables to Control Provisioning by the Container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_" class="md-nav__link">
+    LDAP_QUERY_FILTER_*
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot__filter-dovecot__attrs" class="md-nav__link">
+    DOVECOT_*_FILTER &amp; DOVECOT_*_ATTRS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_auth_bind" class="md-nav__link">
+    DOVECOT_AUTH_BIND
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_filter" class="md-nav__link">
+    SASLAUTHD_LDAP_FILTER
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#ldap-setup-kopano-zarafa" class="md-nav__link">
-    LDAP Setup - Kopano / Zarafa
+  <a href="#secure-connection-with-ldaps-or-starttls" class="md-nav__link">
+    Secure Connection with LDAPS or StartTLS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ldap-setup-examples" class="md-nav__link">
+    LDAP Setup Examples
   </a>
   
 </li>
@@ -1279,11 +1320,52 @@
     Variables to Control Provisioning by the Container
   </a>
   
+    <nav class="md-nav" aria-label="Variables to Control Provisioning by the Container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_" class="md-nav__link">
+    LDAP_QUERY_FILTER_*
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot__filter-dovecot__attrs" class="md-nav__link">
+    DOVECOT_*_FILTER &amp; DOVECOT_*_ATTRS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_auth_bind" class="md-nav__link">
+    DOVECOT_AUTH_BIND
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_filter" class="md-nav__link">
+    SASLAUTHD_LDAP_FILTER
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#ldap-setup-kopano-zarafa" class="md-nav__link">
-    LDAP Setup - Kopano / Zarafa
+  <a href="#secure-connection-with-ldaps-or-starttls" class="md-nav__link">
+    Secure Connection with LDAPS or StartTLS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ldap-setup-examples" class="md-nav__link">
+    LDAP Setup Examples
   </a>
   
 </li>
@@ -1310,38 +1392,163 @@
                 <h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
 <p>Getting started with ldap and this mailserver we need to take 3 parts in account:</p>
 <ul>
-<li><code>postfix</code></li>
-<li><code>dovecot</code></li>
-<li><code>saslauthd</code> (this can also be handled by dovecot)</li>
+<li><code>postfix</code> for incoming &amp; outgoing email</li>
+<li><code>dovecot</code> for accessing mailboxes</li>
+<li><code>saslauthd</code> for SMTP authentication (this can also be delegated to dovecot)</li>
 </ul>
 <h2 id="variables-to-control-provisioning-by-the-container"><a class="toclink" href="#variables-to-control-provisioning-by-the-container">Variables to Control Provisioning by the Container</a></h2>
 <p>Have a look at <a href="../../environment/">the ENV page</a> for information on the default values.</p>
-<div class="admonition example">
-<p class="admonition-title">postfix</p>
+<h3 id="ldap_query_filter_"><a class="toclink" href="#ldap_query_filter_"><code>LDAP_QUERY_FILTER_*</code></a></h3>
+<p>Those variables contain the LDAP lookup filters for postfix, using <code>%s</code> as the placeholder for the domain or email address in question. This means that...</p>
 <ul>
-<li><code>LDAP_QUERY_FILTER_USER</code></li>
-<li><code>LDAP_QUERY_FILTER_GROUP</code></li>
-<li><code>LDAP_QUERY_FILTER_ALIAS</code></li>
-<li><code>LDAP_QUERY_FILTER_DOMAIN</code></li>
-<li><code>LDAP_QUERY_FILTER_SENDERS</code></li>
+<li>...for incoming email, the domain must return an entry for the <code>DOMAIN</code> filter (see <a href="http://www.postfix.org/postconf.5.html#virtual_alias_domains"><code>virtual_alias_domains</code></a>).</li>
+<li>...for incoming email, the inboxes which receive the email are chosen by the <code>USER</code>, <code>ALIAS</code> and <code>GROUP</code> filters.<ul>
+<li>The <code>USER</code> filter specifies personal mailboxes, for which only one should exist per address, for example <code>(mail=%s)</code> (also see <a href="http://www.postfix.org/postconf.5.html#virtual_mailbox_maps"><code>virtual_mailbox_maps</code></a>)</li>
+<li>The <code>ALIAS</code> filter specifies aliases for mailboxes, using <a href="http://www.postfix.org/postconf.5.html#virtual_alias_maps"><code>virtual_alias_maps</code></a>, for example <code>(mailAlias=%s)</code></li>
+<li>The <code>GROUP</code> filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using <a href="http://www.postfix.org/postconf.5.html#virtual_alias_maps"><code>virtual_alias_maps</code></a>, for example <code>(mailGroupMember=%s)</code></li>
+<li>Technically, there is no difference between <code>ALIAS</code> and <code>GROUP</code>, but ideally you should use <code>ALIAS</code> for personal aliases for a singular person (like <code>ceo@example.org</code>) and <code>GROUP</code> for multiple people (like <code>hr@example.org</code>).</li>
 </ul>
-</div>
-<div class="admonition example">
-<p class="admonition-title">saslauthd</p>
+</li>
+<li>...for outgoing email, the sender address is put through the <code>SENDERS</code> filter, and only if the authenticated user is one of the returned entries, the email can be sent.<ul>
+<li>This only applies if <code>SPOOF_PROTECTION=1</code>.</li>
+<li>If the <code>SENDERS</code> filter is missing, the <code>USER</code>, <code>ALIAS</code> and <code>GROUP</code> filters will be used in in a disjunction (OR).</li>
+<li>To for example allow users from the <code>admin</code> group to spoof any sender email address, and to force everyone else to only use their personal mailbox address for outgoing email, you can use something like this: <code>(|(memberOf=cn=admin,*)(mail=%s))</code></li>
+</ul>
+</li>
+</ul>
+<details class="example" open="open"><summary>Example</summary><p>A really simple <code>LDAP_QUERY_FILTER</code> configuration, using only the <em>user filter</em> and allowing only <code>admin@*</code> to spoof any sender addresses.</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org&quot;</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,dc=example,dc=org</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span>
+
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(mail=%s)</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(|)</span> <span class="c1"># doesn&#39;t match anything</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(|)</span> <span class="c1"># doesn&#39;t match anything</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(mail=admin@*))</span>
+</code></pre></div>
+</details>
+<h3 id="dovecot__filter-dovecot__attrs"><a class="toclink" href="#dovecot__filter-dovecot__attrs"><code>DOVECOT_*_FILTER</code> &amp; <code>DOVECOT_*_ATTRS</code></a></h3>
+<p>These variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user.</p>
+<p>This is split into the following two lookups, both using <code>%u</code> as the placeholder for the full login name (<a href="https://doc.dovecot.org/configuration_manual/config_file/config_variables/">see dovecot documentation for a full list of placeholders</a>). Usually you only need to set <code>DOVECOT_USER_FILTER</code>, in which case it will be used for both filters.</p>
 <ul>
-<li><code>SASLAUTHD_LDAP_FILTER</code></li>
+<li><code>DOVECOT_USER_FILTER</code> is used to get the account details (uid, gid, home directory, quota, ...) of a user.</li>
+<li><code>DOVECOT_PASS_FILTER</code> is used to get the password information of the user, and is in pretty much all cases identical to <code>DOVECOT_USER_FILTER</code> (which is the default behaviour if left away).</li>
 </ul>
+<p>If your directory doesn't have the <a href="https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema">postfix-book schema</a> installed, then you must change the internal attribute handling for dovecot. For this you have to change the <code>pass_attr</code> and the <code>user_attr</code> mapping, as shown in the example below:</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=&lt;YOUR_USER_IDENTIFIER_ATTRIBUTE&gt;=user,&lt;YOUR_USER_PASSWORD_ATTRIBUTE&gt;=password</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=&lt;YOUR_USER_HOME_DIRECTORY_ATTRIBUTE&gt;=home,&lt;YOUR_USER_MAILSTORE_ATTRIBUTE&gt;=mail,&lt;YOUR_USER_MAIL_UID_ATTRIBUTE&gt;=uid,&lt;YOUR_USER_MAIL_GID_ATTRIBUTE&gt;=gid</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <code>DOVECOT_*_ATTRS</code>, you can replace <code>ldapAttr=dovecotAttr</code> with <code>=dovecotAttr=%{ldap:ldapAttr}</code> for more flexibility, like for example <code>=home=/var/mail/%{ldap:uid}</code> or just <code>=uid=5000</code>.</p>
+<p>A list of dovecot attributes can be found <a href="https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/#authentication-user-database">in the dovecot documentation</a>.</p>
 </div>
-<div class="admonition example">
-<p class="admonition-title">dovecot</p>
-<ul>
-<li><code>DOVECOT_USER_FILTER</code></li>
-<li><code>DOVECOT_PASS_FILTER</code></li>
-</ul>
+<details class="example" open="open"><summary>Defaults</summary><div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</span>
+</code></pre></div>
+</details>
+<details class="example" open="open"><summary>Example</summary><p>Setup for a directory that has the <a href="https://github.com/amery/qmail/blob/master/qmail.schema">qmail-schema</a> installed and uses <code>uid</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span>
+</code></pre></div>
+</details>
+<p>The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in <a href="../../environment/">the environment section in the docs</a>.</p>
+<h3 id="dovecot_auth_bind"><a class="toclink" href="#dovecot_auth_bind"><code>DOVECOT_AUTH_BIND</code></a></h3>
+<p>Set this to <code>yes</code> to enable authentication binds (<a href="https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds">more details in the dovecot documentation</a>). Currently, only DN lookup is supported without further changes to the configuration files, so this is only useful when you want to bind as a readonly user without the permission to read passwords.</p>
+<h3 id="saslauthd_ldap_filter"><a class="toclink" href="#saslauthd_ldap_filter"><code>SASLAUTHD_LDAP_FILTER</code></a></h3>
+<p>This filter is used for <code>saslauthd</code>, which is called by postfix when someone is authenticating through SMTP (assuming that <code>SASLAUTHD_MECHANISMS=ldap</code> is being used). Note that you'll need to set up the LDAP server for saslauthd seperately from postfix.</p>
+<p>The filter variables are explained in detail <a href="https://github.com/winlibs/cyrus-sasl/blob/master/saslauthd/LDAP_SASLAUTHD#L121">in the <code>LDAP_SASLAUTHD</code> file</a>, but unfortunately, this method doesn't really support domains right now - that means that <code>%U</code> is the only token that makes sense in this variable.</p>
+<div class="admonition note">
+<p class="admonition-title">When to use this and how to avoid it</p>
+<p>Using a separate filter for SMTP authentication allows you to for example allow <code>noreply@example.org</code> to send email, but not log in to IMAP or receive email: <code>(&amp;(mail=%U@example.org)(|(memberOf=cn=email,*)(mail=noreply@example.org)))</code></p>
+<p>If you don't want to use a separate filter for SMTP authentication, you can set <code>SASLAUTHD_MECHANISMS=rimap</code> and <code>SASLAUTHD_MECH_OPTIONS=127.0.0.1</code> to authenticate against dovecot instead - this means that the <code>DOVECOT_USER_FILTER</code> and <code>DOVECOT_PASS_FILTER</code> will be used for SMTP authentication as well.</p>
 </div>
-<h2 id="ldap-setup-kopano-zarafa"><a class="toclink" href="#ldap-setup-kopano-zarafa">LDAP Setup - Kopano / Zarafa</a></h2>
-<details class="example" open="open"><summary>Example Code</summary><div class="highlight"><pre><span></span><code><span class="nn">---</span>
-<span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2&#39;</span>
+<details class="example" open="open"><summary>Configure LDAP with <code>saslauthd</code></summary><div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(mail=%U@example.org)</span>
+</code></pre></div>
+</details>
+<h2 id="secure-connection-with-ldaps-or-starttls"><a class="toclink" href="#secure-connection-with-ldaps-or-starttls">Secure Connection with LDAPS or StartTLS</a></h2>
+<p>To enable LDAPS, all you need to do is to add the protocol to <code>LDAP_SERVER_HOST</code>, for example <code>ldaps://example.org:636</code>.</p>
+<p>To enable LDAP over StartTLS (on port 389), you need to set the following environment variables instead (the <strong>protocol must not be <code>ldaps://</code></strong> in this case!):</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_TLS=yes</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_START_TLS=yes</span>
+</code></pre></div>
+<h2 id="ldap-setup-examples"><a class="toclink" href="#ldap-setup-examples">LDAP Setup Examples</a></h2>
+<details class="example" open="open"><summary>Basic Setup</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2&#39;</span>
+<span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mail</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
+    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
+    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.org</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
+
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
+
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">maildata:/var/mail</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mailstate:/var/mail-state</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/:/tmp/docker-mailserver/</span>
+
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SPAMASSASSIN=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_CLAMAV=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span>
+
+      <span class="c1"># &gt;&gt;&gt; Postfix LDAP Integration</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(|(mail=*@%s)(mailAlias=*@%s)(mailGroupMember=*@%s))</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(&amp;(objectClass=inetOrgPerson)(mail=%s))</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(&amp;(objectClass=inetOrgPerson)(mailAlias=%s))</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(&amp;(objectClass=inetOrgPerson)(mailGroupMember=%s))</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(&amp;(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)(mailGroupMember=%s)))</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span>
+      <span class="c1"># &lt;&lt;&lt; Postfix LDAP Integration</span>
+
+      <span class="c1"># &gt;&gt;&gt; Dovecot LDAP Integration</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=inetOrgPerson)(mail=%u))</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid</span>
+      <span class="c1"># &lt;&lt;&lt; Dovecot LDAP Integration</span>
+
+      <span class="c1"># &gt;&gt;&gt; SASL LDAP Authentication</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(mail=%U@example.org)(objectClass=inetOrgPerson))</span>
+      <span class="c1"># &lt;&lt;&lt; SASL LDAP Authentication</span>
+
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ONE_DIR=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DMS_DEBUG=0</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PERMIT_DOCKER=host</span>
+
+    <span class="nt">cap_add</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+  <span class="nt">maildata</span><span class="p">:</span>
+    <span class="nt">driver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
+  <span class="nt">mailstate</span><span class="p">:</span>
+    <span class="nt">driver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
+</code></pre></div>
+</details>
+<details class="example"><summary>Kopano / Zarafa</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2&#39;</span>
 
 <span class="nt">services</span><span class="p">:</span>
   <span class="nt">mail</span><span class="p">:</span>
@@ -1413,16 +1620,6 @@
     <span class="nt">driver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
 </code></pre></div>
 </details>
-<p>If your directory has not the postfix-book schema installed, then you must change the internal attribute handling for dovecot. For this you have to change the <code>pass_attr</code> and the <code>user_attr</code> mapping, as shown in the example below:</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTR=&lt;YOUR_USER_IDENTIFYER_ATTRIBUTE&gt;=user,&lt;YOUR_USER_PASSWORD_ATTRIBUTE&gt;=password</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTR=&lt;YOUR_USER_HOME_DIRECTORY_ATTRIBUTE&gt;=home,&lt;YOUR_USER_MAILSTORE_ATTRIBUTE&gt;=mail,&lt;YOUR_USER_MAIL_UID_ATTRIBUTE&gt;=uid, &lt;YOUR_USER_MAIL_GID_ATTRIBUTE&gt;=gid</span>
-</code></pre></div>
-<p>The following example illustrates this for a directory that has the qmail-schema installed and that uses <code>uid</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span>
-</code></pre></div>
                 
                   
                 
