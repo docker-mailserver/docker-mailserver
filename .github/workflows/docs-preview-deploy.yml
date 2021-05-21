@@ -99,6 +99,7 @@ jobs:
         with:
           number: ${{ env.PR_NUMBER }}
           header: preview-comment
+          recreate: true
           message: |
             [Documentation preview for this PR](${{ steps.preview.outputs.deploy-url }}) is ready! :tada:
 
