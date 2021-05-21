@@ -123,8 +123,6 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 
 ## LDAP Setup Examples
 
-### Basic Setup
-
 ???+ example "Basic Setup"
 
     ```yaml
@@ -193,8 +191,6 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
       mailstate:
         driver: local
     ```
-
-## LDAP Setup Example - Kopano / Zarafa
 
 ??? example "Kopano / Zarafa"
 
