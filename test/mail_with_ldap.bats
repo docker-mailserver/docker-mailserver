@@ -40,8 +40,6 @@ function setup_file() {
 		-e REPORT_RECIPIENT=1 \
 		-e ENABLE_SASLAUTHD=1 \
 		-e SASLAUTHD_MECHANISMS=ldap \
-		-e SASLAUTHD_LDAP_SERVER=ldap://ldap \
-		-e SASLAUTHD_LDAP_SSL=0 \
 		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
 		-e DMS_DEBUG=0 \
 		--link ldap_for_mail:ldap \
