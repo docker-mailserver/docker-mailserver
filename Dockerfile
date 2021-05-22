@@ -1,5 +1,7 @@
 FROM docker.io/debian:buster-slim
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG VCS_VER
 ARG VCS_REF
 ARG DEBIAN_FRONTEND=noninteractive
@@ -10,29 +12,27 @@ ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
 ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=keys.gnupg.net
 ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
 
-LABEL org.opencontainers.image.version=${VCS_VER}
-LABEL org.opencontainers.image.revision=${VCS_REF}
-LABEL org.opencontainers.image.title="docker-mailserver"
-LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
-LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database."
-LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
-LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
-LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
+LABEL org.opencontainers.image.version=${VCS_VER} \
+      org.opencontainers.image.revision=${VCS_REF} \
+      org.opencontainers.image.title="docker-mailserver" \
+      org.opencontainers.image.vendor="The Docker Mailserver Organization" \
+      org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database." \
+      org.opencontainers.image.url="https://github.com/docker-mailserver" \
+      org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md" \
+      org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
 
-ENV ENABLE_POSTGREY=0
-ENV FETCHMAIL_POLL=300
-ENV ONE_DIR=0
-ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
-ENV POSTGREY_DELAY=300
-ENV POSTGREY_MAX_AGE=35
-ENV POSTGREY_TEXT="Delayed by Postgrey"
-ENV SASLAUTHD_MECHANISMS=pam
-ENV SASLAUTHD_MECH_OPTIONS=""
-ENV VIRUSMAILS_DELETE_DELAY=7
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV ENABLE_POSTGREY=0 \
+    FETCHMAIL_POLL=300 \
+    ONE_DIR=0 \
+    POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
+    POSTGREY_DELAY=300 \
+    POSTGREY_MAX_AGE=35 \
+    POSTGREY_TEXT="Delayed by Postgrey" \
+    SASLAUTHD_MECHANISMS=pam \
+    SASLAUTHD_MECH_OPTIONS="" \
+    VIRUSMAILS_DELETE_DELAY=7
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Install Basic Software ––––––––––––––––––––
