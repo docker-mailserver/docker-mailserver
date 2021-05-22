@@ -55,7 +55,6 @@ CONTAINER_NAME=
 DEFAULT_CONFIG_PATH="${DIR}/config"
 IMAGE_NAME=
 INFO=
-USE_CONTAINER=false
 USE_TTY=
 USE_SELINUX=
 VOLUME=
@@ -221,33 +220,31 @@ function _docker_image_exists
   return ${?}
 }
 
-function _docker_image
-{
-  if ${USE_CONTAINER}
-  then
-    # reuse existing container specified on command line
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@}"
-  else
-    # start temporary container with specified image
-    if ! _docker_image_exists "${IMAGE_NAME}"
-    then
-      echo "Image '${IMAGE_NAME}' not found. Pulling ..."
-      ${CRI} pull "${IMAGE_NAME}"
-    fi
-
-    ${CRI} run --rm \
-      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
-      "${USE_TTY}" "${IMAGE_NAME}" "${@}"
-  fi
-}
-
-function _docker_container
+function _docker_execute
 {
   if [[ -n ${CONTAINER_NAME} ]]
   then
+    # reuse existing container specified on command line
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@}"
-  else
-    echo "The mailserver is not running!"
+    return
+  fi
+  # start temporary container with specified image if a running container isn't available
+  if ! _docker_image_exists "${IMAGE_NAME}"
+  then
+    echo "Image '${IMAGE_NAME}' not found. Pulling ..."
+    ${CRI} pull "${IMAGE_NAME}"
+  fi
+
+  ${CRI} run --rm \
+    -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
+    "${USE_TTY}" "${IMAGE_NAME}" "${@}"
+}
+
+function _docker_container_running
+{
+  if ${CRI} container inspect -f '{{.State.Running}}' "${1}" &>/dev/null || false
+  then
+    echo "The mailserver container ${1} is not running!"
     exit 1
   fi
 }
@@ -296,8 +293,8 @@ function _main
       Z ) USE_SELINUX=":Z"     ;;
       c )
         # container specified, connect to running instance
+        _docker_container_running "${OPTARG}"
         CONTAINER_NAME="${OPTARG}"
-        USE_CONTAINER=true
         ;;
 
       p )
@@ -305,13 +302,6 @@ function _main
           /* ) WISHED_CONFIG_PATH="${OPTARG}"         ;;
           *  ) WISHED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
         esac
-
-        if [[ ! -d ${WISHED_CONFIG_PATH} ]]
-        then
-          echo "Directory doesn't exist"
-          _usage
-          exit 40
-        fi
         ;;
 
       * )
@@ -336,59 +326,72 @@ function _main
     CONFIG_PATH=${WISHED_CONFIG_PATH}
   fi
 
+  if [[ ! -d "${CONFIG_PATH}" ]]
+  then
+    echo "The config path ${CONFIG_PATH} does not exist"
+    _usage
+    exit 40
+  else
+    if ! find "${CONFIG_PATH}" -mindepth 1 -maxdepth 1 | read -r
+    then
+      echo "The config path ${CONFIG_PATH} is empty"
+      _usage
+      exit 41
+    fi
+  fi
 
   case ${1:-} in
 
     email )
       case ${2:-} in
-        add      ) shift 2 ; _docker_image addmailuser "${@}" ;;
-        update   ) shift 2 ; _docker_image updatemailuser "${@}" ;;
-        del      ) shift 2 ; _docker_container delmailuser "${@}" ;;
-        restrict ) shift 2 ; _docker_container restrict-access "${@}" ;;
-        list     ) _docker_image listmailuser ;;
+        add      ) shift 2 ; _docker_execute addmailuser "${@}" ;;
+        update   ) shift 2 ; _docker_execute updatemailuser "${@}" ;;
+        del      ) shift 2 ; _docker_execute delmailuser "${@}" ;;
+        restrict ) shift 2 ; _docker_execute restrict-access "${@}" ;;
+        list     ) _docker_execute listmailuser ;;
         *        ) _usage ;;
       esac
       ;;
 
     alias )
       case ${2:-} in
-        add      ) shift 2 ; _docker_image addalias "${1}" "${2}" ;;
-        del      ) shift 2 ; _docker_image delalias "${1}" "${2}" ;;
-        list     ) shift 2 ; _docker_image listalias ;;
+        add      ) shift 2 ; _docker_execute addalias "${1}" "${2}" ;;
+        del      ) shift 2 ; _docker_execute delalias "${1}" "${2}" ;;
+        list     ) shift 2 ; _docker_execute listalias ;;
         *        ) _usage ;;
       esac
       ;;
 
     quota )
       case ${2:-} in
-        set      ) shift 2 ; _docker_image setquota "${@}" ;;
-        del      ) shift 2 ; _docker_image delquota "${@}" ;;
+        set      ) shift 2 ; _docker_execute setquota "${@}" ;;
+        del      ) shift 2 ; _docker_execute delquota "${@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; _docker_image open-dkim "${@}" ;;
-        ssl      ) shift 2 ; _docker_image generate-ssl-certificate "${1}" ;;
+        dkim     ) shift 2 ; _docker_execute open-dkim "${@}" ;;
+        ssl      ) shift 2 ; _docker_execute generate-ssl-certificate "${1}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; _docker_image addrelayhost "${@}" ;;
-        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@}" ;;
-        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@}" ;;
+        add-domain     ) shift 2 ; _docker_execute addrelayhost "${@}" ;;
+        add-auth       ) shift 2 ; _docker_execute addsaslpassword "${@}" ;;
+        exclude-domain ) shift 2 ; _docker_execute excluderelaydomain "${@}" ;;
         *              ) _usage ;;
       esac
       ;;
 
     debug )
       case ${2:-} in
-        fetchmail      ) _docker_image debug-fetchmail ;;
-        fail2ban       ) shift 2 ; _docker_container fail2ban "${@}" ;;
-        show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
+        fetchmail      ) _docker_execute debug-fetchmail ;;
+        fail2ban       ) shift 2 ; _docker_execute fail2ban "${@}" ;;
+        show-mail-logs ) _docker_execute cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
         login          )
           shift 2
