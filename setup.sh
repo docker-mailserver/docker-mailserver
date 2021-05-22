@@ -46,12 +46,31 @@ function _get_absolute_script_directory
   fi
 }
 
+function _ensure_valid_directory
+{
+  if [[ ! -d "${1}" ]]
+  then
+    echo "The path ${1} does not exist"
+    _usage
+    exit 40
+  else
+    if ! find "${1}" -mindepth 1 -maxdepth 1 | read -r
+    then
+      echo "The path ${1} is empty"
+      _usage
+      exit 41
+    fi
+  fi
+}
+
 DIR="$(pwd)"
 _get_absolute_script_directory
 
 CRI=
 CONFIG_PATH=
+MAILDATA_PATH=
 CONTAINER_NAME=
+DEFAULT_MAILDATA_PATH="maildata"
 DEFAULT_CONFIG_PATH="${DIR}/config"
 IMAGE_NAME=
 INFO=
@@ -59,6 +78,7 @@ USE_TTY=
 USE_SELINUX=
 VOLUME=
 WISHED_CONFIG_PATH=
+WISHED_MAILDATA_PATH=
 
 function _check_root
 {
@@ -69,18 +89,19 @@ function _check_root
   fi
 }
 
-function _update_config_path
+function _get_volume
 {
+  unset -v VOLUME
   if [[ -n ${CONTAINER_NAME} ]]
   then
     VOLUME=$(${CRI} inspect "${CONTAINER_NAME}" \
       --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
-      grep "/tmp/docker-mailserver$" 2>/dev/null)
+      grep "${1}$" 2>/dev/null)
   fi
 
-  if [[ -n ${VOLUME} ]]
+  if [[ -n "${VOLUME}" ]]
   then
-    CONFIG_PATH=$(echo "${VOLUME}" | awk '{print $1}')
+    VOLUME="$(echo "${VOLUME}" | awk '{print $1}')"
   fi
 }
 
@@ -150,6 +171,10 @@ ${ORANGE}OPTIONS${RESET}
         -p PATH
             Provides the config folder path. The default is
             ${WHITE}${DIR}/config/${RESET}
+
+        -m VOLUME NAME/PATH
+            Provides the maildata path or volume. The default is a docker volume
+            maildata
 
     ${LBLUE}SELinux${RESET}
         -z
@@ -236,6 +261,7 @@ function _docker_execute
   fi
 
   ${CRI} run --rm \
+    -v "${MAILDATA_PATH}:/var/mail" \
     -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
     "${USE_TTY}" "${IMAGE_NAME}" "${@}"
 }
@@ -285,7 +311,7 @@ function _main
   fi
 
   local OPTIND
-  while getopts ":c:i:p:hzZ" OPT
+  while getopts ":c:i:p:m:hzZ" OPT
   do
     case ${OPT} in
       i ) IMAGE_NAME="${OPTARG}" ;;
@@ -304,6 +330,10 @@ function _main
         esac
         ;;
 
+      m )
+        WISHED_MAILDATA_PATH="${OPTARG}"
+        ;;
+
       * )
         echo "Invalid option: -${OPT}" >&2
         ;;
@@ -316,28 +346,31 @@ function _main
   if [[ -z ${WISHED_CONFIG_PATH} ]]
   then
     # no wished config path
-    _update_config_path
-
-    if [[ -z ${CONFIG_PATH} ]]
+    _get_volume "/tmp/docker-mailserver"
+    if [[ -n "${VOLUME}" ]]
     then
+      CONFIG_PATH="${VOLUME}"
+    else
       CONFIG_PATH=${DEFAULT_CONFIG_PATH}
     fi
   else
     CONFIG_PATH=${WISHED_CONFIG_PATH}
   fi
+  _ensure_valid_directory "${CONFIG_PATH}"
 
-  if [[ ! -d "${CONFIG_PATH}" ]]
+  if [[ -z ${WISHED_MAILDATA_PATH} ]]
   then
-    echo "The config path ${CONFIG_PATH} does not exist"
-    _usage
-    exit 40
-  else
-    if ! find "${CONFIG_PATH}" -mindepth 1 -maxdepth 1 | read -r
+    # no wished config path
+    _get_volume "/var/mail"
+    if [[ -n "${VOLUME}" ]]
     then
-      echo "The config path ${CONFIG_PATH} is empty"
-      _usage
-      exit 41
+      MAILDATA_PATH="${VOLUME}"
+    else
+      MAILDATA_PATH=${DEFAULT_MAILDATA_PATH}
     fi
+  else
+    MAILDATA_PATH=${WISHED_MAILDATA_PATH}
+    _ensure_valid_directory "${MAILDATA_PATH}"
   fi
 
   case ${1:-} in
