@@ -1136,13 +1136,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#saslauthd_ldap_ssl" class="md-nav__link">
-    SASLAUTHD_LDAP_SSL
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#saslauthd_ldap_start_tls" class="md-nav__link">
     SASLAUTHD_LDAP_START_TLS
   </a>
@@ -2817,13 +2810,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#saslauthd_ldap_ssl" class="md-nav__link">
-    SASLAUTHD_LDAP_SSL
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#saslauthd_ldap_start_tls" class="md-nav__link">
     SASLAUTHD_LDAP_START_TLS
   </a>
@@ -3532,7 +3518,7 @@ Use <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> for receiving spam messages.</p>
 </ul>
 <h5 id="saslauthd_mechanisms"><a class="toclink" href="#saslauthd_mechanisms">SASLAUTHD_MECHANISMS</a></h5>
 <ul>
-<li>empty =&gt; pam</li>
+<li><strong>empty</strong> =&gt; pam</li>
 <li><code>ldap</code> =&gt; authenticate against ldap server</li>
 <li><code>shadow</code> =&gt; authenticate against local user db</li>
 <li><code>mysql</code> =&gt; authenticate against mysql db</li>
@@ -3541,17 +3527,13 @@ Use <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> for receiving spam messages.</p>
 </ul>
 <h5 id="saslauthd_mech_options"><a class="toclink" href="#saslauthd_mech_options">SASLAUTHD_MECH_OPTIONS</a></h5>
 <ul>
-<li>empty =&gt; None</li>
+<li><strong>empty</strong> =&gt; None</li>
 <li>e.g. with SASLAUTHD_MECHANISMS rimap you need to specify the ip-address/servername of the imap server  ==&gt; xxx.xxx.xxx.xxx</li>
 </ul>
 <h5 id="saslauthd_ldap_server"><a class="toclink" href="#saslauthd_ldap_server">SASLAUTHD_LDAP_SERVER</a></h5>
 <ul>
-<li>empty =&gt; localhost</li>
-</ul>
-<h5 id="saslauthd_ldap_ssl"><a class="toclink" href="#saslauthd_ldap_ssl">SASLAUTHD_LDAP_SSL</a></h5>
-<ul>
-<li>empty or 0 =&gt; <code>ldap://</code> will be used</li>
-<li>1 =&gt; <code>ldaps://</code> will be used</li>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_SERVER_HOST</code></li>
+<li>Note: since version 10.0.0, you can specify a protocol here (like ldaps://); this deprecates SASLAUTHD_LDAP_SSL.</li>
 </ul>
 <h5 id="saslauthd_ldap_start_tls"><a class="toclink" href="#saslauthd_ldap_start_tls">SASLAUTHD_LDAP_START_TLS</a></h5>
 <ul>
@@ -3577,23 +3559,23 @@ Use <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> for receiving spam messages.</p>
 </ul>
 <h5 id="saslauthd_ldap_bind_dn"><a class="toclink" href="#saslauthd_ldap_bind_dn">SASLAUTHD_LDAP_BIND_DN</a></h5>
 <ul>
-<li>empty =&gt; anonymous bind</li>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_BIND_DN</code></li>
 <li>specify an object with privileges to search the directory tree</li>
 <li>e.g. active directory: SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net</li>
 <li>e.g. openldap: SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=mydomain,dc=net</li>
 </ul>
 <h5 id="saslauthd_ldap_password"><a class="toclink" href="#saslauthd_ldap_password">SASLAUTHD_LDAP_PASSWORD</a></h5>
 <ul>
-<li>empty =&gt; anonymous bind</li>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_BIND_PW</code></li>
 </ul>
 <h5 id="saslauthd_ldap_search_base"><a class="toclink" href="#saslauthd_ldap_search_base">SASLAUTHD_LDAP_SEARCH_BASE</a></h5>
 <ul>
-<li>empty =&gt; Reverting to SASLAUTHD_MECHANISMS pam</li>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_SEARCH_BASE</code></li>
 <li>specify the search base</li>
 </ul>
 <h5 id="saslauthd_ldap_filter"><a class="toclink" href="#saslauthd_ldap_filter">SASLAUTHD_LDAP_FILTER</a></h5>
 <ul>
-<li>empty =&gt; default filter <code>(&amp;(uniqueIdentifier=%u)(mailEnabled=TRUE))</code></li>
+<li><strong>empty</strong> =&gt; default filter <code>(&amp;(uniqueIdentifier=%u)(mailEnabled=TRUE))</code></li>
 <li>e.g. for active directory: <code>(&amp;(sAMAccountName=%U)(objectClass=person))</code></li>
 <li>e.g. for openldap: <code>(&amp;(uid=%U)(objectClass=person))</code></li>
 </ul>
