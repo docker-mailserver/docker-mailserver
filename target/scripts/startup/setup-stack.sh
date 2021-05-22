@@ -618,13 +618,16 @@ function _setup_saslauthd
 
   # checking env vars and setting defaults
   [[ -z ${SASLAUTHD_MECHANISMS:-} ]] && SASLAUTHD_MECHANISMS=pam
-  [[ ${SASLAUTHD_MECHANISMS:-} == ldap ]] && [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_MECHANISMS=pam
-  [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER=localhost
+  [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER="${LDAP_SERVER_HOST}"
   [[ -z ${SASLAUTHD_LDAP_FILTER} ]] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
 
-  if [[ -z ${SASLAUTHD_LDAP_SSL} ]] || [[ ${SASLAUTHD_LDAP_SSL} -eq 0 ]]
+  [[ -z ${SASLAUTHD_LDAP_BIND_DN} ]] && SASLAUTHD_LDAP_BIND_DN="${LDAP_BIND_DN}"
+  [[ -z ${SASLAUTHD_LDAP_PASSWORD} ]] && SASLAUTHD_LDAP_PASSWORD="${LDAP_BIND_PW}"
+  [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_LDAP_SEARCH_BASE="${LDAP_SEARCH_BASE}"
+
+  if [[ "${SASLAUTHD_LDAP_SERVER}" != *'://'* ]]
   then
-    SASLAUTHD_LDAP_PROTO='ldap://' || SASLAUTHD_LDAP_PROTO='ldaps://'
+    SASLAUTHD_LDAP_SERVER="ldap://${SASLAUTHD_LDAP_SERVER}"
   fi
 
   [[ -z ${SASLAUTHD_LDAP_START_TLS} ]] && SASLAUTHD_LDAP_START_TLS=no
@@ -663,7 +666,7 @@ function _setup_saslauthd
   then
     _notify 'inf' 'Creating /etc/saslauthd.conf'
     cat > /etc/saslauthd.conf << EOF
-ldap_servers: ${SASLAUTHD_LDAP_PROTO}${SASLAUTHD_LDAP_SERVER}
+ldap_servers: ${SASLAUTHD_LDAP_SERVER}
 
 ldap_auth_method: ${SASLAUTHD_LDAP_AUTH_METHOD}
 ldap_bind_dn: ${SASLAUTHD_LDAP_BIND_DN}
