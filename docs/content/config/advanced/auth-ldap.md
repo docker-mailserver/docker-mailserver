@@ -226,11 +226,6 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 
           # >>> SASL Authentication
           - ENABLE_SASLAUTHD=1
-          - SASLAUTHD_LDAP_SERVER=<yourLdapContainer/yourLdapServer>
-          - SASLAUTHD_LDAP_PROTO=
-          - SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
-          - SASLAUTHD_LDAP_PASSWORD=mypassword
-          - SASLAUTHD_LDAP_SEARCH_BASE=dc=mydomain,dc=loc
           - SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
           - SASLAUTHD_MECHANISMS=ldap
           # <<< SASL Authentication
