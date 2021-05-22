@@ -50,7 +50,6 @@ do
 
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
-
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
   if [ $? -eq 1 ]
   then

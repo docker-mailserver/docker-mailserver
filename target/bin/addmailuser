@@ -35,19 +35,19 @@ function __usage
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-USER="${1}"
+FULL_EMAIL="${1}"
 shift
 PASSWD="${*}"
 
-[[ -z ${USER} ]] && { __usage ; errex 'No username specified' ; }
-[[ "${USER}" =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
+[[ -z ${FULL_EMAIL} ]] && { __usage ; errex 'No username specified' ; }
+[[ "${FULL_EMAIL}" =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
 
 # Protect config file with lock to avoid race conditions
 touch "${DATABASE}"
 create_lock "$(basename "$0")"
-if grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null
+if grep -qi "^$(escape "${FULL_EMAIL}")|" "${DATABASE}" 2>/dev/null
 then
-  echo "User '${USER}' already exists."
+  echo "User '${FULL_EMAIL}' already exists."
   exit 1
 fi
 
@@ -58,5 +58,15 @@ then
   [[ -z ${PASSWD} ]] && errex "Password must not be empty"
 fi
 
-HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
-echo "${USER}|${HASH}" >> "${DATABASE}"
+HASH="$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")"
+echo "${FULL_EMAIL}|${HASH}" >> "${DATABASE}"
+
+USER="${FULL_EMAIL%@*}"
+DOMAIN="${FULL_EMAIL#*@}"
+
+# Tests fail if the creation of /var/mail/${DOMAIN}/${USER} is too slow and a delete is issued right after adding; prevent this
+while [[ ! -d "/var/mail/${DOMAIN}/${USER}" ]]
+do
+  echo "Waiting for dovecot to create /var/mail/${DOMAIN}/${USER}..."
+  sleep 1
+done
