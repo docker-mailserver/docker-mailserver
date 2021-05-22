@@ -18,6 +18,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 - **[code]** Added color variables to `setup.sh` and improved the script as a whole ([#1879](https://github.com/docker-mailserver/docker-mailserver/pull/1879) [#1886](https://github.com/docker-mailserver/docker-mailserver/pull/1886))
 - **[ldap]** Added `LDAP_QUERY_FILTER_SENDERS` ([#1902](https://github.com/docker-mailserver/docker-mailserver/pull/1902))
 - **[ldap]** Use dovecots LDAP uris option instead of hosts ([#1901](https://github.com/docker-mailserver/docker-mailserver/pull/1901))
+- **[ldap]** Complete rework of LDAP documentation ([#1921](https://github.com/docker-mailserver/docker-mailserver/pull/1921))
 - **[docs]** PRs that contain changes to docs will now be commented with a preview link ([#1988](https://github.com/docker-mailserver/docker-mailserver/pull/1988))
 
 
@@ -30,6 +31,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
   - we now ban on all ports (`iptables-allports`), not just the ones "attacked" ([#1914](https://github.com/docker-mailserver/docker-mailserver/pull/1914))
   - Fail2ban 0.11 is totally compatible to 0.10, but the database got some new tables and fields (auto-converted during the first start),
     so once updated to DMS 10.0.0, you have to remove the database `mailstate:/lib-fail2ban/fail2ban.sqlite3` if you would need to downgrade to DMS 9.1.0 for some reason.
+- **[ldap]** Removed `SASLAUTHD_LDAP_SSL` but allow protocol in `SASLAUTHD_LDAP_SERVER` & adjust `SASLAUTHD_LDAP_` default values. ([#1989](https://github.com/docker-mailserver/docker-mailserver/pull/1989))
 - **[general]** Removed `stable` ([#1975](https://github.com/docker-mailserver/docker-mailserver/pull/1975))
   - scheduled build is now based on `edge`
   - instead of `stable` please use the lastest available version (= `latest`)
