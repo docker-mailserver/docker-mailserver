@@ -8,7 +8,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 
 - **[general]** Fixed a lot of typos, spelling mistakes and wrong indentation
 - **[general]** Documentation is now more present
-- **[general]** Added `stop_grace_period:` to example Compose file
+- **[general]** Added `stop_grace_period:` to example Compose file and supervisord ([#1896](https://github.com/docker-mailserver/docker-mailserver/pull/1896) [#1945](https://github.com/docker-mailserver/docker-mailserver/pull/1945))
 - **[general]** `./setup.sh email list` was enhanced, now showing information neatly ([#1898](https://github.com/docker-mailserver/docker-mailserver/pull/1898))
 - **[general]** Added update check and notification ([#1976](https://github.com/docker-mailserver/docker-mailserver/pull/1976) [#1951](https://github.com/docker-mailserver/docker-mailserver/pull/1951))
 - **[general]** Moved environment variables to the documentation and improvements ([#1948](https://github.com/docker-mailserver/docker-mailserver/pull/1948) [#1947](https://github.com/docker-mailserver/docker-mailserver/pull/1947) [#1931](https://github.com/docker-mailserver/docker-mailserver/pull/1931))
