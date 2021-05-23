@@ -4,9 +4,9 @@ NAME   ?= mailserver-testing:ci
 VCS_REF = $(shell git rev-parse --short HEAD)
 VCS_VER = $(shell git describe --tags --contains --always)
 
-HADOLINT_VERSION   = 1.19.0
-SHELLCHECK_VERSION = 0.7.1
-ECLINT_VERSION     = 2.3.1
+HADOLINT_VERSION   = 2.4.1
+SHELLCHECK_VERSION = 0.7.2
+ECLINT_VERSION     = 2.3.5
 
 export CDIR = $(shell pwd)
 
