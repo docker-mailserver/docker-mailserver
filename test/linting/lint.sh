@@ -176,7 +176,7 @@ function _shellcheck
 
 function __main
 {
-  case ${1:-} in
+  case "${1:-}" in
     'eclint'      ) _eclint     ;;
     'hadolint'    ) _hadolint   ;;
     'shellcheck'  ) _shellcheck ;;
