@@ -1454,7 +1454,7 @@ function _setup_security_stack
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
 
-      if ! ${SPAMASSASSIN_SPAM_TO_INBOX_IS_SET}
+      if [[ ${VARS[SPAMASSASSIN_SPAM_TO_INBOX_SET]} == 'not set' ]]
       then
         _notify 'warn' 'Spam messages WILL NOT BE DELIVERED, you will NOT be notified of ANY message bounced. Please define SPAMASSASSIN_SPAM_TO_INBOX explicitly.'
       fi

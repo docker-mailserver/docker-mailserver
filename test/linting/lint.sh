@@ -1,30 +1,13 @@
 #! /bin/bash
 
-# version   v0.1.3 stable
-# executed  by CI / manually (via Make)
-# task      checks files agains linting targets
+# version   v0.2.0 unstable
+# executed  by Make during CI or manually
+# task      checks files against linting targets
 
 SCRIPT="lint.sh"
 
-function _get_current_directory
-{
-  if dirname "$(readlink -f "${0}")" &>/dev/null
-  then
-    CDIR="$(dirname "$(readlink -f "${0}")")"
-  elif realpath -e -L "${0}" &>/dev/null
-  then
-    CDIR="$(realpath -e -L "${0}")"
-    CDIR="${CDIR%/setup.sh}"
-  fi
-}
-
-CDIR="$(pwd)"
-_get_current_directory
-
-# ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
-
 set -eEuo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${BASH_COMMAND:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
 function __log_err
 {
@@ -33,18 +16,14 @@ function __log_err
     "  – function  = ${1} / ${2}" \
     "  – line      = ${3}" \
     "  – exit code = ${4}"
-
-  unset CDIR SCRIPT OS VERSION
 }
-
-# ? ––––––––––––––––––––––––––––––––––––––––––––– LOG
 
 function __log_info
 {
   printf "\n––– \e[34m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
     "  – type    = INFO" \
-    "  – message = ${*}"
+    "  – version = ${*}"
 }
 
 function __log_failure
@@ -52,7 +31,7 @@ function __log_failure
   printf "\n––– \e[91m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
     "  – type    = FAILURE" \
-    "  – message = ${*:-'errors encountered'}"
+    "  – message = ${*:-errors encountered}"
 }
 
 function __log_success
@@ -63,13 +42,25 @@ function __log_success
     "  – message = no errors detected"
 }
 
-function __in_path { __which "${@}" && return 0 ; return 1 ; }
-function __which { command -v "${@}" &>/dev/null ; }
+function __in_path
+{
+  command -v "${@}" &>/dev/null && return 0 ; return 1 ;
+}
 
 function _eclint
 {
   local SCRIPT='EDITORCONFIG LINTER'
-  local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$|\.cf$|\.conf$|\.init$)")
+
+  local IGNORE='.*\.git.*|.*\.md$|\.bats$|\.cf$|'
+  IGNORE+='\.conf$|\.init$|.*test/.*|.*tools/.*'
+
+  local LINT=(
+    eclint
+    -config
+    "${CDIR}/test/linting/.ecrc.json"
+    -exclude
+    "(${IGNORE})"
+  )
 
   if ! __in_path "${LINT[0]}"
   then
@@ -77,7 +68,7 @@ function _eclint
     return 2
   fi
 
-  __log_info 'linter version:' "$(${LINT[0]} --version)"
+  __log_info "$(${LINT[0]} --version)"
 
   if "${LINT[@]}"
   then
@@ -91,7 +82,7 @@ function _eclint
 function _hadolint
 {
   local SCRIPT='HADOLINT'
-  local LINT=(hadolint -c "${CDIR}/.hadolint.yaml")
+  local LINT=(hadolint -c "${CDIR}/test/linting/.hadolint.yaml")
 
   if ! __in_path "${LINT[0]}"
   then
@@ -99,11 +90,9 @@ function _hadolint
     return 2
   fi
 
-  __log_info 'linter version:' \
-    "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*")"
+  __log_info "$(${LINT[0]} --version | grep -E -o "[0-9\.]*")"
 
-  if git ls-files --exclude='Dockerfile*' --ignored | \
-    xargs --max-lines=1 "${LINT[@]}"
+  if "${LINT[@]}" Dockerfile
   then
     __log_success
   else
@@ -124,8 +113,7 @@ function _shellcheck
     return 2
   fi
 
-  __log_info 'linter version:' \
-    "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
+  __log_info "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
 
   # an overengineered solution to allow shellcheck -x to
   # properly follow `source=<SOURCE FILE>` when sourcing
@@ -186,22 +174,21 @@ function _shellcheck
   fi
 }
 
-function _main
+function __main
 {
-  case ${1:-} in
+  case "${1:-}" in
     'eclint'      ) _eclint     ;;
     'hadolint'    ) _hadolint   ;;
     'shellcheck'  ) _shellcheck ;;
     *)
-      __log_failure \
-        "${SCRIPT}: '${1}' is not a command nor an option."
-      exit 3
+      __log_failure "'${1:-}' is not a command nor an option."
+      return 3
       ;;
   esac
 }
 
 # prefer linters installed in tools
-PATH="$(pwd)/tools:${PATH}"
+PATH="${CDIR}/tools:${PATH}"
 export PATH
 
-_main "${@}" || exit ${?}
+__main "${@}" || exit ${?}
