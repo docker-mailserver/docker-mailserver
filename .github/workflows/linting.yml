@@ -21,7 +21,7 @@ jobs:
           sudo chmod +rx /usr/local/bin/hadolint
           make hadolint
         env:
-          HADOLINT_VERSION: 1.19.0
+          HADOLINT_VERSION: 2.4.1
       - name: ShellCheck
         run: |
           sudo curl -S -L "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJ
@@ -29,7 +29,7 @@ jobs:
           sudo rm -rf "shellcheck-v${SHELLCHECK_VERSION}"
           make shellcheck
         env:
-          SHELLCHECK_VERSION: 0.7.1
+          SHELLCHECK_VERSION: 0.7.2
       - name: ECLint
         run: |
           sudo curl -S -L "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${ECLINT_VERSION}/ec-linux-amd64.tar.gz" | tar -xaz
@@ -38,4 +38,4 @@ jobs:
           sudo chmod +x /usr/bin/eclint
           make eclint
         env:
-          ECLINT_VERSION: 2.3.1
+          ECLINT_VERSION: 2.3.5
