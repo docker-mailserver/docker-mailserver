@@ -6,21 +6,6 @@
 
 SCRIPT="lint.sh"
 
-function _get_current_directory
-{
-  if dirname "$(readlink -f "${0}")" &>/dev/null
-  then
-    CDIR="$(dirname "$(readlink -f "${0}")")"
-  elif realpath -e -L "${0}" &>/dev/null
-  then
-    CDIR="$(realpath -e -L "${0}")"
-    CDIR="${CDIR%/setup.sh}"
-  fi
-}
-
-CDIR="$(pwd)"
-_get_current_directory
-
 # ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
 
 set -eEuo pipefail
@@ -63,13 +48,25 @@ function __log_success
     "  – message = no errors detected"
 }
 
-function __in_path { __which "${@}" && return 0 ; return 1 ; }
-function __which { command -v "${@}" &>/dev/null ; }
+function __in_path
+{
+  command -v "${@}" &>/dev/null && return 0 ; return 1 ;
+}
 
 function _eclint
 {
   local SCRIPT='EDITORCONFIG LINTER'
-  local LINT=(eclint -exclude "(.*\.git.*|.*\.md$|\.bats$|\.cf$|\.conf$|\.init$)")
+
+  local IGNORE='.*\.git.*|.*\.md$|\.bats$|\.cf$|'
+  IGNORE+='\.conf$|\.init$|.*test/.*|tools'
+
+  local LINT=(
+    eclint
+    -config
+    "${CDIR}/test/linting/.ecrc.json"
+    -exclude
+    "(${IGNORE})"
+  )
 
   if ! __in_path "${LINT[0]}"
   then
@@ -77,7 +74,7 @@ function _eclint
     return 2
   fi
 
-  __log_info 'linter version:' "$(${LINT[0]} --version)"
+  __log_info 'linter version' "$(${LINT[0]} --version)"
 
   if "${LINT[@]}"
   then
@@ -91,7 +88,7 @@ function _eclint
 function _hadolint
 {
   local SCRIPT='HADOLINT'
-  local LINT=(hadolint -c "${CDIR}/.hadolint.yaml")
+  local LINT=(hadolint -c "${CDIR}/test/linting/.hadolint.yaml")
 
   if ! __in_path "${LINT[0]}"
   then
@@ -99,11 +96,10 @@ function _hadolint
     return 2
   fi
 
-  __log_info 'linter version:' \
-    "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*")"
+  __log_info 'linter version' \
+    "$(${LINT[0]} --version | grep -E -o "[0-9\.]*")"
 
-  if git ls-files --exclude='Dockerfile*' --ignored | \
-    xargs --max-lines=1 "${LINT[@]}"
+  if "${LINT[@]}" Dockerfile
   then
     __log_success
   else
