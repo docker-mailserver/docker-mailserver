@@ -9,7 +9,6 @@ function teardown() {
 }
 
 function setup_file() {
-  set -x
     # We use a temporary config directory since we'll be dynamically editing
     # it with setup.sh.
     tmp_confdir=$(mktemp -d /tmp/docker-mailserver-config-relay-hosts-XXXXX)
@@ -27,7 +26,6 @@ function setup_file() {
             -e DMS_DEBUG=0 \
             -h mail.my-domain.com -t "${NAME}"
         wait_for_finished_setup_in_container mail_with_relays
-        set +x
 }
 
 function teardown_file() {

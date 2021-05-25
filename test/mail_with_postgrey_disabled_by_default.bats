@@ -1,5 +1,4 @@
 load 'test_helper/common'
-set -x
 
 function setup() {
     local PRIVATE_CONFIG
@@ -21,5 +20,3 @@ function teardown() {
   run docker exec "${CONTAINER}" /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
   assert_failure
 }
-
-set +x
