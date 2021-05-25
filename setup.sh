@@ -332,7 +332,7 @@ function _main
         update   ) shift 2 ; _docker_image updatemailuser "$@" ;;
         del      ) shift 2 ; _docker_container delmailuser "$@" ;;
         restrict ) shift 2 ; _docker_container restrict-access "$@" ;;
-        list     ) _docker_image listmailuser ;;
+        list     ) _docker_container listmailuser ;;
         *        ) _usage ;;
       esac
       ;;

@@ -7,6 +7,10 @@ ARG BUILD_TEST
 ENV BUILD_ENV=${BUILD_TEST:+test}
 ENV BUILD_ENV=${BUILD_ENV:-prod}
 
+ARG BUILD_TEST
+ENV BUILD_ENV=${BUILD_TEST:+test}
+ENV BUILD_ENV=${BUILD_ENV:-prod}
+
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
 ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
 ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
@@ -48,7 +52,7 @@ RUN \
   apt-get -y install postfix >/dev/null && \
   apt-get -y --no-install-recommends install \
   # A - D
-  altermime amavisd-new apt-transport-https arj binutils bzip2 \
+  altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
   ca-certificates cabextract clamav clamav-daemon cpio curl \
   dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
   dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
@@ -62,9 +66,8 @@ RUN \
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip whois xz-utils \
+  unrar-free unzip whois xz-utils && \
   # Fail2Ban
-  gpg gpg-agent >/dev/null && \
   gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
     --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} &>/dev/null && \
   curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
@@ -78,7 +81,6 @@ RUN \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
   dpkg -i fail2ban.deb &>/dev/null && \
   rm fail2ban.deb fail2ban.deb.asc && \
-  apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
   [[ "${BUILD_ENV}" == "test" ]] && apt-get install -y build-essential git; \
   # cleanup
   apt-get -qq autoremove &>/dev/null && \
@@ -158,6 +160,9 @@ COPY \
   ./target/docker-configomat/configomat.sh \
   /usr/local/bin/
 
+COPY \
+  ./VERSION /
+
 RUN \
   chmod +x /usr/local/bin/* && \
   rm -rf /usr/share/locale/* && \
@@ -166,13 +171,7 @@ RUN \
   touch /var/log/auth.log && \
   update-locale && \
   rm /etc/postsrsd.secret && \
-  rm /etc/cron.daily/00logwatch && \
-  if [[ ${VCS_VER} =~ ^refs/tags/v.+ ]]; then \
-    echo "export DMS_VERSION='${VCS_VER:11}'" >>/root/.bashrc; \
-  else \
-    echo "export DMS_VERSION='${VCS_REF}'" >>/root/.bashrc; \
-  fi
-
+  rm /etc/cron.daily/00logwatch
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– PostSRSD, Postgrey & Amavis –––––––––––––––

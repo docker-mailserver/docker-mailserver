@@ -1,15 +1,13 @@
 #! /bin/bash
 
-# version   v0.1.3 stable
-# executed  by CI / manually (via Make)
-# task      checks files agains linting targets
+# version   v0.2.0 unstable
+# executed  by Make during CI or manually
+# task      checks files against linting targets
 
 SCRIPT="lint.sh"
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
-
 set -eEuo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${BASH_COMMAND:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
 function __log_err
 {
@@ -18,18 +16,14 @@ function __log_err
     "  – function  = ${1} / ${2}" \
     "  – line      = ${3}" \
     "  – exit code = ${4}"
-
-  unset CDIR SCRIPT OS VERSION
 }
-
-# ? ––––––––––––––––––––––––––––––––––––––––––––– LOG
 
 function __log_info
 {
   printf "\n––– \e[34m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
     "  – type    = INFO" \
-    "  – message = ${*}"
+    "  – version = ${*}"
 }
 
 function __log_failure
@@ -37,7 +31,7 @@ function __log_failure
   printf "\n––– \e[91m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
     "  – type    = FAILURE" \
-    "  – message = ${*:-'errors encountered'}"
+    "  – message = ${*:-errors encountered}"
 }
 
 function __log_success
@@ -58,7 +52,7 @@ function _eclint
   local SCRIPT='EDITORCONFIG LINTER'
 
   local IGNORE='.*\.git.*|.*\.md$|\.bats$|\.cf$|'
-  IGNORE+='\.conf$|\.init$|.*test/.*|tools'
+  IGNORE+='\.conf$|\.init$|.*test/.*|.*tools/.*'
 
   local LINT=(
     eclint
@@ -74,7 +68,7 @@ function _eclint
     return 2
   fi
 
-  __log_info 'linter version' "$(${LINT[0]} --version)"
+  __log_info "$(${LINT[0]} --version)"
 
   if "${LINT[@]}"
   then
@@ -96,8 +90,7 @@ function _hadolint
     return 2
   fi
 
-  __log_info 'linter version' \
-    "$(${LINT[0]} --version | grep -E -o "[0-9\.]*")"
+  __log_info "$(${LINT[0]} --version | grep -E -o "[0-9\.]*")"
 
   if "${LINT[@]}" Dockerfile
   then
@@ -120,8 +113,7 @@ function _shellcheck
     return 2
   fi
 
-  __log_info 'linter version:' \
-    "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
+  __log_info "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
 
   # an overengineered solution to allow shellcheck -x to
   # properly follow `source=<SOURCE FILE>` when sourcing
@@ -182,22 +174,21 @@ function _shellcheck
   fi
 }
 
-function _main
+function __main
 {
-  case ${1:-} in
+  case "${1:-}" in
     'eclint'      ) _eclint     ;;
     'hadolint'    ) _hadolint   ;;
     'shellcheck'  ) _shellcheck ;;
     *)
-      __log_failure \
-        "${SCRIPT}: '${1}' is not a command nor an option."
-      exit 3
+      __log_failure "'${1:-}' is not a command nor an option."
+      return 3
       ;;
   esac
 }
 
 # prefer linters installed in tools
-PATH="$(pwd)/tools:${PATH}"
+PATH="${CDIR}/tools:${PATH}"
 export PATH
 
-_main "${@}" || exit ${?}
+__main "${@}" || exit ${?}

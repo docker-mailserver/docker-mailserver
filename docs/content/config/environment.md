@@ -193,6 +193,19 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 - **empty** => postmaster@domain.com
 - => Specify the postmaster address
 
+##### ENABLE_UPDATE_CHECK
+
+Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS.
+
+- 0 => Update check disabled
+- **1** => Update check enabled
+
+##### UPDATE_CHECK_INTERVAL
+
+Customize the update check interval. Number + Suffix. Suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
+
+- **1d** => Check for updates once a day
+
 ##### POSTSCREEN_ACTION
 
 - **enforce** => Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.
@@ -466,7 +479,6 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - => Bind dn for LDAP connection. (e.g. `cn=admin,dc=domain,dc=com`)
 
 ##### DOVECOT_DNPASS
-
 - **empty** => same as `LDAP_BIND_PW`
 - => Password for LDAP dn sepecifified in `DOVECOT_DN`.
 
@@ -553,7 +565,7 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### SASLAUTHD_MECHANISMS
 
-- empty => pam
+- **empty** => pam
 - `ldap` => authenticate against ldap server
 - `shadow` => authenticate against local user db
 - `mysql` => authenticate against mysql db
@@ -562,17 +574,13 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### SASLAUTHD_MECH_OPTIONS
 
-- empty => None
+- **empty** => None
 - e.g. with SASLAUTHD_MECHANISMS rimap you need to specify the ip-address/servername of the imap server  ==> xxx.xxx.xxx.xxx
 
 ##### SASLAUTHD_LDAP_SERVER
 
-- empty => localhost
-
-##### SASLAUTHD_LDAP_SSL
-
-- empty or 0 => `ldap://` will be used
-- 1 => `ldaps://` will be used
+- **empty** => same as `LDAP_SERVER_HOST`
+- Note: since version 10.0.0, you can specify a protocol here (like ldaps://); this deprecates SASLAUTHD_LDAP_SSL.
 
 ##### SASLAUTHD_LDAP_START_TLS
 
@@ -600,23 +608,23 @@ File containing CA (Certificate Authority) certificate(s).
 
 ##### SASLAUTHD_LDAP_BIND_DN
 
-- empty => anonymous bind
+- **empty** => same as `LDAP_BIND_DN`
 - specify an object with privileges to search the directory tree
 - e.g. active directory: SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net
 - e.g. openldap: SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=mydomain,dc=net
 
 ##### SASLAUTHD_LDAP_PASSWORD
 
-- empty => anonymous bind
+- **empty** => same as `LDAP_BIND_PW`
 
 ##### SASLAUTHD_LDAP_SEARCH_BASE
 
-- empty => Reverting to SASLAUTHD_MECHANISMS pam
+- **empty** => same as `LDAP_SEARCH_BASE`
 - specify the search base
 
 ##### SASLAUTHD_LDAP_FILTER
 
-- empty => default filter `(&(uniqueIdentifier=%u)(mailEnabled=TRUE))`
+- **empty** => default filter `(&(uniqueIdentifier=%u)(mailEnabled=TRUE))`
 - e.g. for active directory: `(&(sAMAccountName=%U)(objectClass=person))`
 - e.g. for openldap: `(&(uid=%U)(objectClass=person))`
 
