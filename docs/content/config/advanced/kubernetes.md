@@ -173,6 +173,11 @@ There is nothing much in deploying mailserver to Kubernetes itself. The things a
           - name: docker-mailserver
             image: mailserver/docker-mailserver:latest
             imagePullPolicy: Always
+            securityContext:
+              capabilities:
+                # If fail2ban is not enabled, you can remove NET_ADMIN
+                # If you are running on cri-o, you will need SYS_CHROOT, as it is no longer a default capability.
+                add: ["NET_ADMIN", "SYS_PTRACE", "SYS_CHROOT" ]
             volumeMounts:
               - name: config
                 subPath: postfix-accounts.cf
@@ -262,6 +267,12 @@ There is nothing much in deploying mailserver to Kubernetes itself. The things a
 
 !!! note
     Make sure that [Pod][k8s-workload-pod] is [assigned][k8s-assign-pod-node] to specific [Node][k8s-nodes] in case you're using volume for data directly with `hostPath`. Otherwise Pod can be rescheduled on a different Node and previous data won't be found. Except the case when you're using some shared filesystem on your Nodes.
+    
+!!! note
+    If you experience issues with the processes crashing with an error of `operation not permitted`, such as the following:
+    `postfix/pickup[987]: fatal: chroot(/var/spool/postfix): Operation not permitted`
+    Then you should add the `SYS_CHROOT` capability. This is true (at least) for the cri-o container runtime.
+   
 
 ## Exposing to the Outside World
 
