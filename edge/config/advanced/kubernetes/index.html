@@ -1572,6 +1572,12 @@
       <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker-mailserver</span>
         <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
         <span class="nt">imagePullPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Always</span>
+        <span class="nt">securityContext</span><span class="p">:</span>
+          <span class="nt">capabilities</span><span class="p">:</span>
+            <span class="c1"># If Fail2Ban is not enabled, you can remove NET_ADMIN.</span>
+            <span class="c1"># If you are running on CRI-O, you will need the SYS_CHROOT capability,</span>
+            <span class="c1"># as it is no longer a default capability.</span>
+            <span class="nt">add</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;NET_ADMIN&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;SYS_PTRACE&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;SYS_CHROOT&quot;</span> <span class="p p-Indicator">]</span>
         <span class="nt">volumeMounts</span><span class="p">:</span>
           <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
             <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postfix-accounts.cf</span>
@@ -1663,6 +1669,10 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Make sure that <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod">Pod</a> is <a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node">assigned</a> to specific <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> in case you're using volume for data directly with <code>hostPath</code>. Otherwise Pod can be rescheduled on a different Node and previous data won't be found. Except the case when you're using some shared filesystem on your Nodes.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you experience issues with processes crashing showing an error like <code>operation not permitted</code> or <code>postfix/pickup[987]: fatal: chroot(/var/spool/postfix): Operation not permitted</code>, then you should add the <code>SYS_CHROOT</code> capability. Runtimes like CRI-O do not ship with this capability by default.</p>
 </div>
 <h2 id="exposing-to-the-outside-world"><a class="toclink" href="#exposing-to-the-outside-world">Exposing to the Outside World</a></h2>
 <p>The hard part with Kubernetes is to expose deployed mailserver to outside world. Kubernetes provides multiple ways for doing that. Each has its downsides and complexity.</p>
