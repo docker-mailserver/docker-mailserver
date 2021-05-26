@@ -269,9 +269,7 @@ There is nothing much in deploying mailserver to Kubernetes itself. The things a
     Make sure that [Pod][k8s-workload-pod] is [assigned][k8s-assign-pod-node] to specific [Node][k8s-nodes] in case you're using volume for data directly with `hostPath`. Otherwise Pod can be rescheduled on a different Node and previous data won't be found. Except the case when you're using some shared filesystem on your Nodes.
     
 !!! note
-    If you experience issues with the processes crashing with an error of `operation not permitted`, such as the following:
-    `postfix/pickup[987]: fatal: chroot(/var/spool/postfix): Operation not permitted`
-    Then you should add the `SYS_CHROOT` capability. This is true (at least) for the cri-o container runtime.
+    If you experience issues with processes crashing showing an error like `operation not permitted` or `postfix/pickup[987]: fatal: chroot(/var/spool/postfix): Operation not permitted`, then you should add the `SYS_CHROOT` capability. Runtimes like CRI-O do not ship with this capability by default.
    
 
 ## Exposing to the Outside World
