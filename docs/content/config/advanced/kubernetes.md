@@ -175,8 +175,9 @@ There is nothing much in deploying mailserver to Kubernetes itself. The things a
             imagePullPolicy: Always
             securityContext:
               capabilities:
-                # If fail2ban is not enabled, you can remove NET_ADMIN
-                # If you are running on cri-o, you will need SYS_CHROOT, as it is no longer a default capability.
+                # If Fail2Ban is not enabled, you can remove NET_ADMIN.
+                # If you are running on CRI-O, you will need the SYS_CHROOT capability,
+                # as it is no longer a default capability.
                 add: ["NET_ADMIN", "SYS_PTRACE", "SYS_CHROOT" ]
             volumeMounts:
               - name: config
