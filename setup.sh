@@ -180,7 +180,6 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
 
     ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
         ${0} config dkim [ ARGUMENTS${RED}...${RESET} ]
-        ${0} config ssl <FQDN> (${CYAN}ATTENTION${RESET}: This is deprecated and will be removed soon.)
 
     ${LBLUE}COMMAND${RESET} relay ${RED}:=${RESET}
         ${0} relay add-domain <DOMAIN> <HOST> [<PORT>]
@@ -370,7 +369,6 @@ function _main
     config )
       case ${2:-} in
         dkim     ) shift 2 ; _docker_image open-dkim "${@}" ;;
-        ssl      ) shift 2 ; _docker_image generate-ssl-certificate "${1}" ;;
         *        ) _usage ;;
       esac
       ;;
