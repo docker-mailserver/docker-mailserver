@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'docs/**'
+      - '.github/workflows/scripts/docs/build-docs.sh'
+      - '.github/workflows/docs-preview-prepare.yml'
+      - '.github/workflows/docs-preview-deploy.yml'
 
 # If the workflow for a PR is triggered multiple times, previous existing runs will be canceled.
 # eg: Applying multiple suggestions from a review directly via the Github UI.
