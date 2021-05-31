@@ -14,7 +14,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 - **[fix]** `./setup.sh email del ...` now works properly 
 - **[code]** Added color variables to `setup.sh` and improved the script as a whole ([#1879](https://github.com/docker-mailserver/docker-mailserver/pull/1879), [#1886](https://github.com/docker-mailserver/docker-mailserver/pull/1886))
 - **[ldap]** Added `LDAP_QUERY_FILTER_SENDERS` ([#1902](https://github.com/docker-mailserver/docker-mailserver/pull/1902))
-- **[ldap]** Use dovecots LDAP uris option instead of hosts ([#1901](https://github.com/docker-mailserver/docker-mailserver/pull/1901))
+- **[ldap]** Use dovecots LDAP `uris` connect option instead of `hosts` ([#1901](https://github.com/docker-mailserver/docker-mailserver/pull/1901))
 - **[ldap]** Complete rework of LDAP documentation ([#1921](https://github.com/docker-mailserver/docker-mailserver/pull/1921))
 - **[docs]** PRs that contain changes to docs will now be commented with a preview link ([#1988](https://github.com/docker-mailserver/docker-mailserver/pull/1988))
 
