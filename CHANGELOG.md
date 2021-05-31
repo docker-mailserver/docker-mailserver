@@ -4,8 +4,6 @@
 
 This release improves on `9.1.0` in many aspect, including general fixes, Fail2Ban, LDAP and documentation. This release contains breaking changes.
 
-## Changelog 
-
 - **[general]** Fixed a lot of typos, spelling mistakes and wrong indentation
 - **[general]** Documentation is now more present
 - **[general]** Added `stop_grace_period:` to example Compose file and supervisord ([#1896](https://github.com/docker-mailserver/docker-mailserver/pull/1896) [#1945](https://github.com/docker-mailserver/docker-mailserver/pull/1945))
@@ -20,8 +18,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 - **[ldap]** Complete rework of LDAP documentation ([#1921](https://github.com/docker-mailserver/docker-mailserver/pull/1921))
 - **[docs]** PRs that contain changes to docs will now be commented with a preview link ([#1988](https://github.com/docker-mailserver/docker-mailserver/pull/1988))
 
-
-### Breaking Changes:
+### Breaking Changes
 
 - **[security]** Fail2Ban adjustments
   - Fail2ban v0.11.2 is now used ([#1965](https://github.com/docker-mailserver/docker-mailserver/pull/1965)) 
@@ -35,6 +32,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
   - scheduled build is now based on `edge`
   - instead of `stable` please use the lastest available version (= `latest`)
   - `stable` image tag will be removed from dockerhub in near future
+- **[setup]** removed `./setup config ssl` command (deprecated since v9)
 
 ## `v9.1.0`
 
