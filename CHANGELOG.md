@@ -8,8 +8,8 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 - **[general]** Documentation is now more present
 - **[general]** Added `stop_grace_period:` to example Compose file and supervisord ([#1896](https://github.com/docker-mailserver/docker-mailserver/pull/1896) [#1945](https://github.com/docker-mailserver/docker-mailserver/pull/1945))
 - **[general]** `./setup.sh email list` was enhanced, now showing information neatly ([#1898](https://github.com/docker-mailserver/docker-mailserver/pull/1898))
-- **[general]** Added update check and notification ([#1976](https://github.com/docker-mailserver/docker-mailserver/pull/1976) [#1951](https://github.com/docker-mailserver/docker-mailserver/pull/1951))
-- **[general]** Moved environment variables to the documentation and improvements ([#1948](https://github.com/docker-mailserver/docker-mailserver/pull/1948) [#1947](https://github.com/docker-mailserver/docker-mailserver/pull/1947) [#1931](https://github.com/docker-mailserver/docker-mailserver/pull/1931))
+- **[general]** Added update check and notification ([#1976](https://github.com/docker-mailserver/docker-mailserver/pull/1976), [#1951](https://github.com/docker-mailserver/docker-mailserver/pull/1951))
+- **[general]** Moved environment variables to the documentation and improvements ([#1948](https://github.com/docker-mailserver/docker-mailserver/pull/1948), [#1947](https://github.com/docker-mailserver/docker-mailserver/pull/1947), [#1931](https://github.com/docker-mailserver/docker-mailserver/pull/1931))
 - **[security]** Major Fail2Ban improvements (cleanup, update and breaking changes, see below)
 - **[fix]** `./setup.sh email del ...` now works properly 
 - **[code]** Added color variables to `setup.sh` and improved the script as a whole ([#1879](https://github.com/docker-mailserver/docker-mailserver/pull/1879) [#1886](https://github.com/docker-mailserver/docker-mailserver/pull/1886))
