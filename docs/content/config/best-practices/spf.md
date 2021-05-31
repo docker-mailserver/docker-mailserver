@@ -9,7 +9,7 @@ From [Wikipedia](https://en.wikipedia.org/wiki/Sender_Policy_Framework):
 !!! quote
     Sender Policy Framework (SPF) is a simple email-validation system designed to detect email spoofing by providing a mechanism to allow receiving mail exchangers to check that incoming mail from a domain comes from a host authorized by that domain's administrators. The list of authorized sending hosts for a domain is published in the Domain Name System (DNS) records for that domain in the form of a specially formatted TXT record. Email spam and phishing often use forged "from" addresses, so publishing and checking SPF records can be considered anti-spam techniques.
 
-!!! seealso
+!!! note
     For a more technical review: https://github.com/internetstandards/toolbox-wiki/blob/master/SPF-how-to.md
 
 ## Add a SPF Record
