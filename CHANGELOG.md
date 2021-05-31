@@ -27,12 +27,12 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
   - we now ban on all ports (`iptables-allports`), not just the ones "attacked" ([#1914](https://github.com/docker-mailserver/docker-mailserver/pull/1914))
   - Fail2ban 0.11 is totally compatible to 0.10, but the database got some new tables and fields (auto-converted during the first start),
     so once updated to DMS 10.0.0, you have to remove the database `mailstate:/lib-fail2ban/fail2ban.sqlite3` if you would need to downgrade to DMS 9.1.0 for some reason.
-- **[ldap]** Removed `SASLAUTHD_LDAP_SSL` but allow protocol in `SASLAUTHD_LDAP_SERVER` & adjust `SASLAUTHD_LDAP_` default values. ([#1989](https://github.com/docker-mailserver/docker-mailserver/pull/1989))
-- **[general]** Removed `stable` ([#1975](https://github.com/docker-mailserver/docker-mailserver/pull/1975))
-  - scheduled build is now based on `edge`
-  - instead of `stable` please use the lastest available version (= `latest`)
-  - `stable` image tag will be removed from dockerhub in near future
-- **[setup]** removed `./setup config ssl` command (deprecated since v9)
+- **[ldap]** Removed `SASLAUTHD_LDAP_SSL`. Instead provide a protocol in `SASLAUTHD_LDAP_SERVER` and adjust `SASLAUTHD_LDAP_` default values ([#1989](https://github.com/docker-mailserver/docker-mailserver/pull/1989)).
+- **[general]** Removed `stable` release tag ([#1975](https://github.com/docker-mailserver/docker-mailserver/pull/1975)):
+  - Scheduled builds are now based off `edge`.
+  - Instead of `stable`, please use the latest version tag available (_or the `latest` tag_).
+  - The `stable` image tag will be removed from DockerHub in the near future.
+- **[setup]** Removed `./setup config ssl` command (_deprecated since v9_).
 
 ## `v9.1.0`
 
