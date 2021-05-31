@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-!!! seealso
+!!! note
     DMARC Guide: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md
 
 ## Enabling DMARC
