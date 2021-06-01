@@ -681,6 +681,19 @@
     Self-Signed Certificates
   </a>
   
+    <nav class="md-nav" aria-label="Self-Signed Certificates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-a-self-signed-certificate" class="md-nav__link">
+    Generating a self-signed certificate
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1396,6 +1409,19 @@
     Self-Signed Certificates
   </a>
   
+    <nav class="md-nav" aria-label="Self-Signed Certificates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-a-self-signed-certificate" class="md-nav__link">
+    Generating a self-signed certificate
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1806,36 +1832,58 @@
 <p class="admonition-title">Warning</p>
 <p>Use self-signed certificates only for testing purposes!</p>
 </div>
-<p>You can  generate a self-signed SSL certificate by using the following command:</p>
-<div class="highlight"><pre><span></span><code>docker run -it --rm -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span>/config/ssl:/tmp/docker-mailserver/ssl -h mail.my-domain.com -t mailserver/docker-mailserver generate-ssl-certificate
-
-<span class="c1"># Press enter</span>
-<span class="c1"># Enter a password when needed</span>
-<span class="c1"># Fill information like Country, Organisation name</span>
-<span class="c1"># Fill &quot;my-domain.com&quot; as FQDN for CA, and &quot;mail.my-domain.com&quot; for the certificate.</span>
-<span class="c1"># They HAVE to be different, otherwise you&#39;ll get a `TXT_DB error number 2`</span>
-<span class="c1"># Don&#39;t fill extras</span>
-<span class="c1"># Enter same password when needed</span>
-<span class="c1"># Sign the certificate? [y/n]:y</span>
-<span class="c1"># 1 out of 1 certificate requests certified, commit? [y/n]y</span>
-
-<span class="c1"># will generate:</span>
-<span class="c1"># config/ssl/mail.my-domain.com-key.pem (used in postfix)</span>
-<span class="c1"># config/ssl/mail.my-domain.com-req.pem (only used to generate other files)</span>
-<span class="c1"># config/ssl/mail.my-domain.com-cert.pem (used in postfix)</span>
-<span class="c1"># config/ssl/mail.my-domain.com-combined.pem (used in courier)</span>
-<span class="c1"># config/ssl/demoCA/cacert.pem (certificate authority)</span>
-</code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The certificate will be generate for the container <code>fqdn</code>, that is passed as <code>-h</code> argument.</p>
-<p>Check the following page for more information regarding <a href="http://www.mad-hacking.net/documentation/linux/applications/mail/using-ssl-tls-postfix-courier.xml">postfix and SSL/TLS configuration</a>.</p>
-</div>
+<p>This feature requires you to provide the following files into your <a href="../../advanced/optional-config/"><code>config/ssl/</code> directory</a> (internal location: <code>/tmp/docker-mailserver/ssl/</code>):</p>
+<ul>
+<li><code>${HOSTNAME}-key.pem</code></li>
+<li><code>${HOSTNAME}-cert.pem</code></li>
+<li><code>demoCA/cacert.pem</code></li>
+</ul>
+<p>Where <code>${HOSTNAME}</code> is the mailserver <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a> (<code>hostname</code>(<em>mail</em>) + <code>domainname</code>(<em>example.com</em>), eg: <code>mail.example.com</code>).</p>
 <p>To use the certificate:</p>
 <ul>
-<li>Add <code>SSL_TYPE=self-signed</code> to your container environment variables</li>
+<li>Add <code>SSL_TYPE=self-signed</code> to your container environment variables.</li>
 <li>If a matching certificate (files listed above) is found in <code>config/ssl</code>, it will be automatically setup in postfix and dovecot. You just have to place them in <code>config/ssl</code> folder.</li>
 </ul>
+<h4 id="generating-a-self-signed-certificate"><a class="toclink" href="#generating-a-self-signed-certificate">Generating a self-signed certificate</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since v10, support in <code>setup.sh</code> for generating a self-signed SSL certificate internally was removed.</p>
+<p>It is now similar to <code>SSL_TYPE=manual</code> (<em>except <code>manual</code> does not support verification for a custom CA</em>), but does not require additional ENV vars for providing the location of cert files.</p>
+</div>
+<p>One way to generate self-signed certificates is with <a href="https://smallstep.com/docs/step-cli">Smallstep's <code>step</code> CLI</a>. This is exactly what <a href="https://github.com/docker-mailserver/docker-mailserver/tree/master/test/test-files/ssl/example.test"><code>docker-mailserver</code> does for creating test certificates</a>.</p>
+<p>For example with the FQDN <code>mail.example.test</code>, you can generate the required files by running:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#! /bin/sh</span>
+mkdir -p demoCA
+
+step certificate create <span class="s2">&quot;Smallstep Root CA&quot;</span> <span class="s2">&quot;demoCA/cacert.pem&quot;</span> <span class="s2">&quot;demoCA/cakey.pem&quot;</span> <span class="se">\</span>
+  --no-password --insecure <span class="se">\</span>
+  --profile root-ca <span class="se">\</span>
+  --not-before <span class="s2">&quot;2021-01-01T00:00:00+00:00&quot;</span> <span class="se">\</span>
+  --not-after <span class="s2">&quot;2031-01-01T00:00:00+00:00&quot;</span> <span class="se">\</span>
+  --san <span class="s2">&quot;example.test&quot;</span> <span class="se">\</span>
+  --san <span class="s2">&quot;mail.example.test&quot;</span> <span class="se">\</span>
+  --kty RSA --size <span class="m">2048</span>
+
+step certificate create <span class="s2">&quot;Smallstep Leaf&quot;</span> mail.example.test-cert.pem mail.example.test-key.pem <span class="se">\</span>
+  --no-password --insecure <span class="se">\</span>
+  --profile leaf <span class="se">\</span>
+  --ca <span class="s2">&quot;demoCA/cacert.pem&quot;</span> <span class="se">\</span>
+  --ca-key <span class="s2">&quot;demoCA/cakey.pem&quot;</span> <span class="se">\</span>
+  --not-before <span class="s2">&quot;2021-01-01T00:00:00+00:00&quot;</span> <span class="se">\</span>
+  --not-after <span class="s2">&quot;2031-01-01T00:00:00+00:00&quot;</span> <span class="se">\</span>
+  --san <span class="s2">&quot;example.test&quot;</span> <span class="se">\</span>
+  --san <span class="s2">&quot;mail.example.test&quot;</span> <span class="se">\</span>
+  --kty RSA --size <span class="m">2048</span>
+</code></pre></div>
+<p>If you'd rather not install the CLI tool locally to run the <code>step</code> commands above; you can save the script above to a file such as <code>generate-certs.sh</code> (<em>and make it executable <code>chmod +x generate-certs.sh</code></em>) in a directory that you want the certs to be placed, then run that script with docker:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># --user to keep ownership of the files to your user and group ID</span>
+docker run --rm -it <span class="se">\</span>
+  --user <span class="s2">&quot;</span><span class="k">$(</span>id -u<span class="k">)</span><span class="s2">:</span><span class="k">$(</span>id -g<span class="k">)</span><span class="s2">&quot;</span> <span class="se">\</span>
+  --volume <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">:/tmp&quot;</span> <span class="se">\</span>
+  --workdir <span class="s2">&quot;/tmp&quot;</span> <span class="se">\</span>
+  --entrypoint <span class="s2">&quot;/tmp/generate-certs.sh&quot;</span> <span class="se">\</span>
+  smallstep/step-ca
+</code></pre></div>
 <h2 id="custom-certificate-files"><a class="toclink" href="#custom-certificate-files">Custom Certificate Files</a></h2>
 <p>You can also provide your own certificate files. Add these entries to your <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
