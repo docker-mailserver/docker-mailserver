@@ -11,7 +11,7 @@ This is a list of all configuration files and directories which are optional or 
 - **sieve-filter:** directory for sieve filter scripts. (Docs: [Sieve][docs-sieve])
 - **sieve-pipe:** directory for sieve pipe scripts. (Docs: [Sieve][docs-sieve])
 - **opendkim:** DKIM directory. Auto-configurable via [`setup.sh config dkim`][docs-setupsh]. (Docs: [DKIM][docs-dkim])
-- **ssl:** SSL Certificate directory. Auto-configurable via [`setup.sh config ssl`][docs-setupsh]. (Docs: [SSL][docs-ssl])
+- **ssl:** SSL Certificate directory. (Docs: [SSL][docs-ssl])
 
 ## Files
 
