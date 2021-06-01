@@ -485,7 +485,7 @@ docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   --volume "${PWD}:/tmp" \
   --workdir "/tmp"
-  --entrypoint "/tmp/gencerts.sh" \
+  --entrypoint "/tmp/generate-certs.sh" \
   smallstep/step-ca
 ```
 
