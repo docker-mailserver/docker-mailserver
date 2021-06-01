@@ -484,7 +484,7 @@ If you'd rather not install the CLI tool locally to run the `step` commands abov
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   --volume "${PWD}:/tmp" \
-  --workdir "/tmp"
+  --workdir "/tmp" \
   --entrypoint "/tmp/generate-certs.sh" \
   smallstep/step-ca
 ```
