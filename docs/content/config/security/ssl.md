@@ -427,38 +427,67 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 
     Use self-signed certificates only for testing purposes!
 
-You can  generate a self-signed SSL certificate by using the following command:
+This feature requires you to provide the following files into your [`config/ssl/` directory][docs-optional-config] (internal location: `/tmp/docker-mailserver/ssl/`):
 
-```sh
-docker run -it --rm -v "$(pwd)"/config/ssl:/tmp/docker-mailserver/ssl -h mail.my-domain.com -t mailserver/docker-mailserver generate-ssl-certificate
+- `${HOSTNAME}-key.pem`
+- `${HOSTNAME}-cert.pem`
+- `demoCA/cacert.pem`
 
-# Press enter
-# Enter a password when needed
-# Fill information like Country, Organisation name
-# Fill "my-domain.com" as FQDN for CA, and "mail.my-domain.com" for the certificate.
-# They HAVE to be different, otherwise you'll get a `TXT_DB error number 2`
-# Don't fill extras
-# Enter same password when needed
-# Sign the certificate? [y/n]:y
-# 1 out of 1 certificate requests certified, commit? [y/n]y
-
-# will generate:
-# config/ssl/mail.my-domain.com-key.pem (used in postfix)
-# config/ssl/mail.my-domain.com-req.pem (only used to generate other files)
-# config/ssl/mail.my-domain.com-cert.pem (used in postfix)
-# config/ssl/mail.my-domain.com-combined.pem (used in courier)
-# config/ssl/demoCA/cacert.pem (certificate authority)
-```
-
-!!! note
-    The certificate will be generate for the container `fqdn`, that is passed as `-h` argument.
-
-    Check the following page for more information regarding [postfix and SSL/TLS configuration](http://www.mad-hacking.net/documentation/linux/applications/mail/using-ssl-tls-postfix-courier.xml).
+Where `${HOSTNAME}` is the mailserver [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (`hostname`(_mail_) + `domainname`(_example.com_), eg: `mail.example.com`).
 
 To use the certificate:
 
-- Add `SSL_TYPE=self-signed` to your container environment variables
+- Add `SSL_TYPE=self-signed` to your container environment variables.
 - If a matching certificate (files listed above) is found in `config/ssl`, it will be automatically setup in postfix and dovecot. You just have to place them in `config/ssl` folder.
+
+#### Generating a self-signed certificate
+
+!!! note
+
+    Since v10, support in `setup.sh` for generating a self-signed SSL certificate internally was removed.
+    
+    It is now similar to `SSL_TYPE=manual` (_except `manual` does not support verification for a custom CA_), but does not require additional ENV vars for providing the location of cert files.
+
+One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates](https://github.com/docker-mailserver/docker-mailserver/tree/master/test/test-files/ssl/example.test).
+
+For example with the FQDN `mail.example.test`, you can generate the required files by running:
+
+```sh
+#! /bin/sh
+mkdir -p demoCA
+
+step certificate create "Smallstep Root CA" "demoCA/cacert.pem" "demoCA/cakey.pem" \
+  --no-password --insecure \
+  --profile root-ca \
+  --not-before "2021-01-01T00:00:00+00:00" \
+  --not-after "2031-01-01T00:00:00+00:00" \
+  --san "example.test" \
+  --san "mail.example.test" \
+  --kty RSA --size 2048
+
+step certificate create "Smallstep Leaf" mail.example.test-cert.pem mail.example.test-key.pem \
+  --no-password --insecure \
+  --profile leaf \
+  --ca "demoCA/cacert.pem" \
+  --ca-key "demoCA/cakey.pem" \
+  --not-before "2021-01-01T00:00:00+00:00" \
+  --not-after "2031-01-01T00:00:00+00:00" \
+  --san "example.test" \
+  --san "mail.example.test" \
+  --kty RSA --size 2048
+```
+
+If you'd rather not install the CLI tool locally to run the `step` commands above; you can save the script above to a file such as `generate-certs.sh` (_and make it executable `chmod +x generate-certs.sh`_) in a directory that you want the certs to be placed, then run that script with docker:
+
+```sh
+# --user to keep ownership of the files to your user and group ID
+docker run --rm -it \
+  --user "$(id -u):$(id -g)" \
+  --volume "${PWD}:/tmp" \
+  --workdir "/tmp" \
+  --entrypoint "/tmp/generate-certs.sh" \
+  smallstep/step-ca
+```
 
 ## Custom Certificate Files
 
@@ -624,6 +653,8 @@ if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
     echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR 
 fi
 ```
+
+[docs-optional-config]: ../advanced/optional-config.md
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
 [github-issue-1440]: https://github.com/docker-mailserver/docker-mailserver/issues/1440
