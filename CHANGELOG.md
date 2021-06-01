@@ -31,7 +31,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
   - Scheduled builds are now based off `edge`.
   - Instead of `stable`, please use the latest version tag available (_or the `latest` tag_).
   - The `stable` image tag will be removed from DockerHub in the near future.
-- **[setup]** Removed `./setup config ssl` command (_deprecated since v9_).
+- **[setup]** Removed `./setup config ssl` command (_deprecated since v9_). `SSL_TYPE=self-signed` remains supported however. ([`dc8f49de`](https://github.com/docker-mailserver/docker-mailserver/commit/dc8f49de548e2c2e2aa321841585153a99cd3858), [#2021](https://github.com/docker-mailserver/docker-mailserver/pull/2021))
 
 ## `v9.1.0`
 
