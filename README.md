@@ -9,7 +9,7 @@
 [documentation::badge]: https://img.shields.io/badge/DOCUMENTATION-GH%20PAGES-0078D4?style=for-the-badge&logo=git&logoColor=white
 [documentation::web]: https://docker-mailserver.github.io/docker-mailserver/edge/
 
-A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created.](https://tvi.al/simple-mail-server-with-docker/).
+A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created](https://tvi.al/simple-mail-server-with-docker/).
 
 If you have issues, read the full `README` **and** the [documentation][documentation::web] **for your version** (default is `edge`) first **before opening an issue**. The issue tracker is for issues, not for personal support.
 
@@ -60,20 +60,19 @@ If you have issues, read the full `README` **and** the [documentation][documenta
 
 ## Usage
 
-### Available image sources / tags
+### Available Images / Tags - Tagging Convention
 
 [CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions) will automatically build, test and push new images to container registries. Currently, the following registries are supported:
 
 - [DockerHub](https://hub.docker.com/repository/docker/mailserver/docker-mailserver)
 - [GitHub Container Registry](https://github.com/orgs/docker-mailserver/packages?repo_name=docker-mailserver)
 
-All workflows are using the **tagging convention** listed below. It is subsequently applied to all images pushed to supported container registries:
+All workflows are using the tagging convention listed below. It is subsequently applied to all images.
 
-| Event        | Ref                   | Commit SHA | Image Tags                    |
-|--------------|-----------------------|------------|-------------------------------|
-| `push`       | `refs/heads/master`   | `cf20257`  | `edge`                        |
-| `push`       | `refs/heads/stable`   | `cf20257`  | `stable`                      |
-| `push tag`   | `refs/tags/[v]1.2.3`     | `ad132f5`  | `1.2.3`, `1.2`, `1`, `latest` |
+| Event        | Ref                   | Image Tags                    |
+|--------------|-----------------------|-------------------------------|
+| `push`       | `refs/heads/master`   | `edge`                        |
+| `push tag`   | `refs/tags/[v]1.2.3`  | `1.2.3`, `1.2`, `1`, `latest` |
 
 ### Get the tools
 
@@ -89,8 +88,8 @@ and the `setup.sh` **in the correct version**
 ``` BASH
 # if you're using :edge as the image tag
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-# if you're using :latest (= :9.1.0) as the image tag
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v9.1.0/setup.sh
+# if you're using :latest (= :10.0.0) as the image tag
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v10.0.0/setup.sh
 
 chmod a+x ./setup.sh
 
@@ -108,7 +107,7 @@ chmod a+x ./setup.sh
    - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
 3. Configure the mailserver container to your liking by editing `mailserver.env` ([**Documentation**](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/))
    - this file supports [_only_ simple `VAR=VAL`](https://docs.docker.com/compose/env-file/) (**don't** quote your values)
-   - variable substitution is **not** supported (e.g. :no_entry_sign:`OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
+   - variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
 
 ### Get up and running
 
@@ -121,7 +120,7 @@ docker-compose up -d mailserver
 ./setup.sh [-Z] config dkim
 ```
 
-If you're seeing error messages about unchecked error, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read the `VERSION` section.
+If you're seeing error messages about unchecked errors, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read the `VERSION` section.
 
 In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
 
@@ -137,7 +136,7 @@ If you want to see detailed usage information, run `./setup.sh config dkim help`
 
 When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim/) for more details.
 
-#### Custom user changes & patches
+#### Custom User Changes & Patches
 
 If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/) for a detailed explanation.
 
