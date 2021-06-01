@@ -448,7 +448,7 @@ To use the certificate:
     
     It is now similar to `SSL_TYPE=manual` (_except `manual` does not support verification for a custom CA_), but does not require additional ENV vars for providing the location of cert files.
 
-One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what `docker-mailserver` does for creating test certificates](https://github.com/docker-mailserver/docker-mailserver/tree/master/test/test-files/ssl/example.test).
+One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates](https://github.com/docker-mailserver/docker-mailserver/tree/master/test/test-files/ssl/example.test).
 
 For example with the FQDN `mail.example.test`, you can generate the required files by running:
 
