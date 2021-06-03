@@ -13,4 +13,4 @@ title: 'Contributing | Tests'
       brew install bash
       ```
 
-4. Execute `make`
+4. Execute `make clean all`
