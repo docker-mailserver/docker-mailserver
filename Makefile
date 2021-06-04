@@ -7,6 +7,10 @@ VCS_VER = $(shell git describe --tags --contains --always)
 CONTAINER_WORKDIR=/tmp/docker-mailserver
 TOOLS_DIR=$(CONTAINER_WORKDIR)/tools
 
+HADOLINT_VERSION = 2.4.1
+ECLINT_VERSION = 2.3.5
+SHELLCHECK_VERSION = 0.7.2
+
 export CDIR = $(shell pwd)
 
 # –––––––––––––––––––––––––––––––––––––––––––––––
@@ -51,15 +55,12 @@ test/%.bats: ALWAYS_RUN
 
 lint: eclint hadolint shellcheck
 
-HADOLINT_VERSION="2.4.1"
 hadolint:
 	@ docker run --name hadolint -v $(CDIR):$(CONTAINER_WORKDIR) --workdir="$(CONTAINER_WORKDIR)" --rm hadolint/hadolint:v${HADOLINT_VERSION}-debian \
 			bash -c "./test/linting/lint.sh hadolint"
-
 shellcheck:
 	@ docker run --name shellcheck -v $(CDIR):$(CONTAINER_WORKDIR) --workdir="$(CONTAINER_WORKDIR)" --rm debian:buster-slim \
-			bash -c "apt-get -qq update && apt-get install -y curl xz-utils &>/dev/null && ./test/linting/lint.sh shellcheck"
-
+			bash -c "apt-get -qq update && apt-get install -y curl xz-utils &>/dev/null && SHELLCHECK_VERSION=$(SHELLCHECK_VERSION) ./test/linting/lint.sh shellcheck"
 eclint:
 	@ docker run --name eclint -v $(CDIR):$(CONTAINER_WORKDIR) --workdir="$(CONTAINER_WORKDIR)" --rm debian:buster-slim \
-			bash -c "apt-get -qq update && apt-get install -y curl &>/dev/null && ./test/linting/lint.sh eclint"
+			bash -c "apt-get -qq update && apt-get install -y curl &>/dev/null && ECLINT_VERSION=$(ECLINT_VERSION) ./test/linting/lint.sh eclint"

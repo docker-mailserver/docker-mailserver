@@ -13,9 +13,6 @@ KERNEL_NAME=$(uname -s)
 KERNEL_NAME_LOWERCASE=$(echo "${KERNEL_NAME}" | tr '[:upper:]' '[:lower:]')
 MACHINE_ARCH=$(uname -m)
 
-SHELLCHECK_VERSION="0.7.2"
-ECLINT_VERSION="2.3.5"
-
 set -eEuo pipefail
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
