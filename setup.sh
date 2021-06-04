@@ -34,7 +34,20 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+function _get_absolute_script_directory
+{
+  if dirname "$(readlink -f "${0}")" &>/dev/null
+  then
+    DIR="$(dirname "$(readlink -f "${0}")")"
+  elif realpath -e -L "${0}" &>/dev/null
+  then
+    DIR="$(realpath -e -L "${0}")"
+    DIR="${DIR%/setup.sh}"
+  fi
+}
+
+DIR="$(pwd)"
+_get_absolute_script_directory
 
 CRI=
 CONFIG_PATH=
