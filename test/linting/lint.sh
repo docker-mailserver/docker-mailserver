@@ -6,6 +6,16 @@
 
 SCRIPT="lint.sh"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
+
+KERNEL_NAME=$(uname -s)
+KERNEL_NAME_LOWERCASE=$(echo "${KERNEL_NAME}" | tr '[:upper:]' '[:lower:]')
+MACHINE_ARCH=$(uname -m)
+
+SHELLCHECK_VERSION="0.7.2"
+ECLINT_VERSION="2.3.5"
+
 set -eEuo pipefail
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
@@ -57,15 +67,19 @@ function _eclint
   local LINT=(
     eclint
     -config
-    "${CDIR}/test/linting/.ecrc.json"
+    "${REPO_ROOT}/test/linting/.ecrc.json"
     -exclude
     "(${IGNORE})"
   )
 
   if ! __in_path "${LINT[0]}"
   then
-    __log_failure 'linter not in PATH'
-    return 2
+    __log_info 'linter not in PATH... Downloading...'
+    mkdir -p "${REPO_ROOT}/tools"
+    curl -s -S -L \
+      "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${ECLINT_VERSION}/ec-${KERNEL_NAME_LOWERCASE}-amd64.tar.gz" | \
+      tar -zxO "bin/ec-${KERNEL_NAME_LOWERCASE}-amd64" > "${REPO_ROOT}/tools/eclint"
+    chmod u+rx "${REPO_ROOT}/tools/eclint"
   fi
 
   __log_info "$(${LINT[0]} --version)"
@@ -82,7 +96,7 @@ function _eclint
 function _hadolint
 {
   local SCRIPT='HADOLINT'
-  local LINT=(hadolint -c "${CDIR}/test/linting/.hadolint.yaml")
+  local LINT=(hadolint -c "${REPO_ROOT}/test/linting/.hadolint.yaml")
 
   if ! __in_path "${LINT[0]}"
   then
@@ -90,7 +104,7 @@ function _hadolint
     return 2
   fi
 
-  __log_info "$(${LINT[0]} --version | grep -E -o "[0-9\.]*")"
+  __log_info "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*")"
 
   if "${LINT[@]}" Dockerfile
   then
@@ -109,8 +123,12 @@ function _shellcheck
 
   if ! __in_path "${LINT[0]}"
   then
-    __log_failure 'linter not in PATH'
-    return 2
+    __log_info 'linter not in PATH... Downloading...'
+    mkdir -p "${REPO_ROOT}/tools"
+    curl -s -S -L \
+		  "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.${KERNEL_NAME_LOWERCASE}.${MACHINE_ARCH}.tar.xz" | \
+      tar -JxO "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" > "${REPO_ROOT}/tools/shellcheck"
+    chmod u+rx "${REPO_ROOT}/tools/shellcheck"
   fi
 
   __log_info "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
@@ -188,7 +206,7 @@ function __main
 }
 
 # prefer linters installed in tools
-PATH="${CDIR}/tools:${PATH}"
+PATH="${REPO_ROOT}/tools:${PATH}"
 export PATH
 
 __main "${@}" || exit ${?}
