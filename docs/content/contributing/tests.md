@@ -7,6 +7,7 @@ title: 'Contributing | Tests'
 3. Install jq
 
     !!! info "MacOS Specific (needed for tests)"
+
         ```bash
         brew install coreutils
         # bash >= 4.0 for associative arrays
