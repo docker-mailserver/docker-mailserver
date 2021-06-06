@@ -102,6 +102,7 @@ function _shellcheck
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
   # This command is a bit easier to grok as multi-line. There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
+  # shellcheck disable=SC2206
   CMD_SHELLCHECK=(shellcheck 
     --external-sources 
     --check-sourced
@@ -111,13 +112,13 @@ function _shellcheck
     --enable=all
     --exclude=SC2154
     --source-path=SCRIPTDIR
+    ${F_SH} ${F_BIN} ${F_BATS}
   )
 
-  # shellcheck disable=SC2086
   if docker run --rm --tty \
       --volume "${REPO_ROOT}:/ci:ro" \
       --workdir "/ci" \
-      "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" ${F_SH} ${F_BIN} ${F_BATS}
+      "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}"
   then
     __log_success
   else
