@@ -9,9 +9,9 @@ SCRIPT="lint.sh"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
 
-KERNEL_NAME=$(uname -s)
-KERNEL_NAME_LOWERCASE=$(echo "${KERNEL_NAME}" | tr '[:upper:]' '[:lower:]')
-MACHINE_ARCH=$(uname -m)
+HADOLINT_VERSION=2.4.1
+ECLINT_VERSION=2.3.5
+SHELLCHECK_VERSION=0.7.2
 
 set -eEuo pipefail
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
@@ -58,30 +58,11 @@ function _eclint
 {
   local SCRIPT='EDITORCONFIG LINTER'
 
-  local IGNORE='.*\.git.*|.*\.md$|\.bats$|\.cf$|'
-  IGNORE+='\.conf$|\.init$|.*test/.*|.*tools/.*'
-
-  local LINT=(
-    eclint
-    -config
-    "${REPO_ROOT}/test/linting/.ecrc.json"
-    -exclude
-    "(${IGNORE})"
-  )
-
-  if ! __in_path "${LINT[0]}"
-  then
-    __log_info 'linter not in PATH... Downloading...'
-    mkdir -p "${REPO_ROOT}/tools"
-    curl -s -S -L \
-      "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${ECLINT_VERSION}/ec-${KERNEL_NAME_LOWERCASE}-amd64.tar.gz" | \
-      tar -zxO "bin/ec-${KERNEL_NAME_LOWERCASE}-amd64" > "${REPO_ROOT}/tools/eclint"
-    chmod u+rx "${REPO_ROOT}/tools/eclint"
-  fi
-
-  __log_info "$(${LINT[0]} --version)"
-
-  if "${LINT[@]}"
+  if docker run --rm --tty \
+      --volume "${REPO_ROOT}:/ci:ro" \
+      --workdir "/ci" \
+      --name eclint \
+      "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
   then
     __log_success
   else
@@ -93,17 +74,11 @@ function _eclint
 function _hadolint
 {
   local SCRIPT='HADOLINT'
-  local LINT=(hadolint -c "${REPO_ROOT}/test/linting/.hadolint.yaml")
 
-  if ! __in_path "${LINT[0]}"
-  then
-    __log_failure 'linter not in PATH'
-    return 2
-  fi
-
-  __log_info "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*")"
-
-  if "${LINT[@]}" Dockerfile
+  if docker run --rm --tty \
+      --volume "${REPO_ROOT}:/ci:ro" \
+      --workdir "/ci" \
+      "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
   then
     __log_success
   else
@@ -115,77 +90,39 @@ function _hadolint
 function _shellcheck
 {
   local SCRIPT='SHELLCHECK'
-  local ERR=0
-  local LINT=(shellcheck -x -S style -Cauto -o all -e SC2154 -W 50)
+  
+  # File paths for shellcheck:
+  F_SH="$(find . -type f -iname '*.sh' \
+    -not -path './test/bats/*' \
+    -not -path './test/test_helper/*' \
+    -not -path './target/docker-configomat/*' -print0 \
+    | xargs -0
+  )"
+  F_BIN="$(find 'target/bin' -perm +111 -type f -or -type l)"
+  F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
-  if ! __in_path "${LINT[0]}"
+  # This command is a bit easier to grok as multi-line. There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
+  CMD_SHELLCHECK=(shellcheck 
+    --external-sources 
+    --check-sourced
+    --severity=style
+    --color=auto
+    --wiki-link-count=50
+    --enable=all
+    --exclude=SC2154
+    --source-path=SCRIPTDIR
+  )
+
+  # shellcheck disable=SC2086
+  if docker run --rm --tty \
+      --volume "${REPO_ROOT}:/ci:ro" \
+      --workdir "/ci" \
+      "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" ${F_SH} ${F_BIN} ${F_BATS}
   then
-    __log_info 'linter not in PATH... Downloading...'
-    mkdir -p "${REPO_ROOT}/tools"
-    curl -s -S -L \
-		  "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.${KERNEL_NAME_LOWERCASE}.${MACHINE_ARCH}.tar.xz" | \
-      tar -JxO "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" > "${REPO_ROOT}/tools/shellcheck"
-    chmod u+rx "${REPO_ROOT}/tools/shellcheck"
-  fi
-
-  __log_info "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
-
-  # an overengineered solution to allow shellcheck -x to
-  # properly follow `source=<SOURCE FILE>` when sourcing
-  # files with `. <FILE>` in shell scripts.
-  while read -r FILE
-  do
-    if ! (
-      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
-      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
-      then
-        exit 1
-      fi
-    )
-    then
-      ERR=1
-    fi
-  done < <(find . -type f -iname "*.sh" \
-    -not -path "./test/bats/*" \
-    -not -path "./test/test_helper/*" \
-    -not -path "./target/docker-configomat/*")
-
-  # the same for executables in target/bin/
-  while read -r FILE
-  do
-    if ! (
-      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
-      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
-      then
-        exit 1
-      fi
-    )
-    then
-      ERR=1
-    fi
-  done < <(find target/bin -executable -type f)
-
-  # the same for all test files
-  while read -r FILE
-  do
-    if ! (
-      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
-      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
-      then
-        exit 1
-      fi
-    )
-    then
-      ERR=1
-    fi
-  done < <(find test/ -maxdepth 1 -type f -iname "*.bats")
-
-  if [[ ${ERR} -eq 1 ]]
-  then
-    __log_failure 'errors encountered'
-    return 1
-  else
     __log_success
+  else
+    __log_failure
+    return 1
   fi
 }
 
@@ -201,9 +138,5 @@ function __main
       ;;
   esac
 }
-
-# prefer linters installed in tools
-PATH="${REPO_ROOT}/tools:${PATH}"
-export PATH
 
 __main "${@}" || exit ${?}
