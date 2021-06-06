@@ -22,11 +22,11 @@ trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}
 
 function __log_err
 {
-  printf "\n––– ${BOLD}${RED}UNCHECKED ERROR${RESET}\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT:-${0}}" \
-    "  – function  = ${1} / ${2}" \
-    "  – line      = ${3}" \
-    "  – exit code = ${4}" >&2
+  printf "\n--- ${BOLD}${RED}UNCHECKED ERROR${RESET}\n%s\n%s\n%s\n%s\n\n" \
+    "  - script    = ${SCRIPT:-${0}}" \
+    "  - function  = ${1} / ${2}" \
+    "  - line      = ${3}" \
+    "  - exit code = ${4}" >&2
 
   printf "Make sure you use a version of this script that matches
 the version / tag of docker-mailserver. Please read the

@@ -6,7 +6,7 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
+# ? --------------------------------------------- Checks
 
 cd /tmp/docker-mailserver || exit 1
 
@@ -24,7 +24,7 @@ then
   exit 0
 fi
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Actual script begins
+# ? --------------------------------------------- Actual script begins
 
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty

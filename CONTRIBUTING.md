@@ -129,11 +129,11 @@ SCRIPT='name_of_this_script.sh'
 
 function __log_err
 {
-  printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT:-${0}}" \
-    "  – function  = ${1} / ${2}" \
-    "  – line      = ${3}" \
-    "  – exit code = ${4}" 1>&2
+  printf "\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
+    "  - script    = ${SCRIPT:-${0}}" \
+    "  - function  = ${1} / ${2}" \
+    "  - line      = ${3}" \
+    "  - exit code = ${4}" 1>&2
 
   <CODE TO RUN AFTERWARDS>
 }

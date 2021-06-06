@@ -34,15 +34,15 @@ ENV VIRUSMAILS_DELETE_DELAY=7
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Install Basic Software ––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Install Basic Software --------------------
+# -----------------------------------------------
 
 RUN \
   apt-get -qq update && \
-  apt-get -y install apt-utils &>/dev/null && \
-  apt-get -y dist-upgrade >/dev/null && \
-  apt-get -y install postfix >/dev/null && \
+  apt-get -y install apt-utils 2>&1 && \
+  apt-get -y dist-upgrade && \
+  apt-get -y install postfix && \
   apt-get -y --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
@@ -62,28 +62,28 @@ RUN \
   unrar-free unzip whois xz-utils && \
   # Fail2Ban
   gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
-    --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} &>/dev/null && \
+    --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} 2>&1 && \
   curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
   curl -Lkso fail2ban.deb.asc ${FAIL2BAN_DEB_ASC_URL} && \
   FINGERPRINT="$(LANG=C gpg --verify \
   fail2ban.deb.asc fail2ban.deb 2>&1 \
     | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')" && \
   if [[ -z ${FINGERPRINT} ]]; then \
-    echo "ERROR: Invalid GPG signature!" 2>&1; exit 1; fi && \
+    echo "ERROR: Invalid GPG signature!" >&2; exit 1; fi && \
   if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \
-    echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
-  dpkg -i fail2ban.deb &>/dev/null && \
+    echo "ERROR: Wrong GPG fingerprint!" >&2; exit 1; fi && \
+  dpkg -i fail2ban.deb 2>&1 && \
   rm fail2ban.deb fail2ban.deb.asc && \
   # cleanup
-  apt-get -qq autoremove &>/dev/null && \
+  apt-get -qq autoremove 2>&1 && \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
   rm -rf /var/lib/apt/lists/* && \
-  c_rehash &>/dev/null
+  c_rehash 2>&1
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– ClamAV & FeshClam –––––––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- ClamAV & FeshClam -------------------------
+# -----------------------------------------------
 
 RUN \
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam && \
@@ -94,9 +94,9 @@ RUN \
   chown -R clamav:root /var/run/clamav && \
   rm -rf /var/log/clamav/
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Dovecot & MkCert ––––––––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Dovecot & MkCert --------------------------
+# -----------------------------------------------
 
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/sieve/ /etc/dovecot/sieve/
@@ -119,13 +119,13 @@ RUN \
   sed -i 's/RANDFILE.*//g' /usr/share/dovecot/dovecot-openssl.cnf && \
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl && \
-  ./mkcert.sh 2>&1 >/dev/null && \
+  ./mkcert.sh 2>&1 && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– LDAP & SpamAssassin's Cron ––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- LDAP & SpamAssassin's Cron ----------------
+# -----------------------------------------------
 
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
 COPY \
@@ -141,9 +141,9 @@ RUN \
   sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
   sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Scripts & Miscellaneous –––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Scripts & Miscellaneous -------------------
+# -----------------------------------------------
 
 COPY \
   ./target/bin/* \
@@ -165,9 +165,9 @@ RUN \
   rm /etc/postsrsd.secret && \
   rm /etc/cron.daily/00logwatch
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– PostSRSD, Postgrey & Amavis –––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- PostSRSD, Postgrey & Amavis ---------------
+# -----------------------------------------------
 
 COPY target/postsrsd/postsrsd /etc/default/postsrsd
 COPY target/postgrey/postgrey /etc/default/postgrey
@@ -180,23 +180,23 @@ RUN \
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN \
   sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
-  adduser clamav amavis >/dev/null && \
-  adduser amavis clamav >/dev/null && \
+  adduser clamav amavis && \
+  adduser amavis clamav && \
   # no syslog user in Debian compared to Ubuntu
-  adduser --system syslog >/dev/null && \
-  useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker >/dev/null && \
+  adduser --system syslog && \
+  useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker && \
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab - && \
   chmod 644 /etc/amavis/conf.d/*
 
 # overcomplication necessary for CI
 RUN \
   for _ in {1..10}; do su - amavis -c "razor-admin -create" ; sleep 3 ; \
-  if su - amavis -c "razor-admin -register" &>/dev/null; then { EC=0 ; break ; } ; \
+  if su - amavis -c "razor-admin -register" ; then { EC=0 ; break ; } ; \
   else EC=${?} ; fi ; done ; (exit ${EC})
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Fail2Ban, DKIM & DMARC ––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Fail2Ban, DKIM & DMARC --------------------
+# -----------------------------------------------
 
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
 RUN \
@@ -217,9 +217,9 @@ RUN \
   update-alternatives --set iptables /usr/sbin/iptables-legacy && \
   update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Fetchmail, Postfix & Let'sEncrypt –––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Fetchmail, Postfix & Let'sEncrypt ---------
+# -----------------------------------------------
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
@@ -236,9 +236,9 @@ RUN \
   mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail && \
   curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem >/etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Logs ––––––––––––––––––––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Logs --------------------------------------
+# -----------------------------------------------
 
 RUN \
   sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
@@ -266,9 +266,9 @@ RUN \
   # prevent email when /sbin/init or init system is not existing
   sed -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Supervisord & Start –––––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Supervisord & Start -----------------------
+# -----------------------------------------------
 
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
