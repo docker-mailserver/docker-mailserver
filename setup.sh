@@ -36,6 +36,12 @@ ly and use ./setup.sh help and read the VERSION section.\n" >&2
 
 function _get_absolute_script_directory
 {
+  if [[ "$(uname)" == "Darwin" ]]
+  then
+    readlink() {
+      greadlink "${@:+$@}" # Requires coreutils
+    }
+  fi
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
     DIR="$(dirname "$(readlink -f "${0}")")"
@@ -225,7 +231,7 @@ function _docker_image
   if ${USE_CONTAINER}
   then
     # reuse existing container specified on command line
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@}"
+    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
   else
     # start temporary container with specified image
     if ! _docker_image_exists "${IMAGE_NAME}"
@@ -236,7 +242,7 @@ function _docker_image
 
     ${CRI} run --rm \
       -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
-      "${USE_TTY}" "${IMAGE_NAME}" "${@}"
+      "${USE_TTY}" "${IMAGE_NAME}" "${@:+$@}"
   fi
 }
 
@@ -244,7 +250,7 @@ function _docker_container
 {
   if [[ -n ${CONTAINER_NAME} ]]
   then
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@}"
+    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
   else
     echo "The mailserver is not running!"
     exit 1
@@ -340,10 +346,10 @@ function _main
 
     email )
       case ${2:-} in
-        add      ) shift 2 ; _docker_image addmailuser "${@}" ;;
-        update   ) shift 2 ; _docker_image updatemailuser "${@}" ;;
-        del      ) shift 2 ; _docker_container delmailuser "${@}" ;;
-        restrict ) shift 2 ; _docker_container restrict-access "${@}" ;;
+        add      ) shift 2 ; _docker_image addmailuser "${@:+$@}" ;;
+        update   ) shift 2 ; _docker_image updatemailuser "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_container delmailuser "${@:+$@}" ;;
+        restrict ) shift 2 ; _docker_container restrict-access "${@:+$@}" ;;
         list     ) _docker_container listmailuser ;;
         *        ) _usage ;;
       esac
@@ -360,24 +366,24 @@ function _main
 
     quota )
       case ${2:-} in
-        set      ) shift 2 ; _docker_image setquota "${@}" ;;
-        del      ) shift 2 ; _docker_image delquota "${@}" ;;
+        set      ) shift 2 ; _docker_image setquota "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_image delquota "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; _docker_image open-dkim "${@}" ;;
+        dkim     ) shift 2 ; _docker_image open-dkim "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; _docker_image addrelayhost "${@}" ;;
-        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@}" ;;
-        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@}" ;;
+        add-domain     ) shift 2 ; _docker_image addrelayhost "${@:+$@}" ;;
+        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@:+$@}" ;;
+        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@:+$@}" ;;
         *              ) _usage ;;
       esac
       ;;
@@ -385,7 +391,7 @@ function _main
     debug )
       case ${2:-} in
         fetchmail      ) _docker_image debug-fetchmail ;;
-        fail2ban       ) shift 2 ; _docker_container fail2ban "${@}" ;;
+        fail2ban       ) shift 2 ; _docker_container fail2ban "${@:+$@}" ;;
         show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
         login          )
@@ -394,7 +400,7 @@ function _main
           then
             _docker_container /bin/bash
           else
-            _docker_container /bin/bash -c "${@}"
+            _docker_container /bin/bash -c "${@:+$@}"
           fi
           ;;
         * ) _usage ; exit 1 ;;
@@ -406,4 +412,4 @@ function _main
   esac
 }
 
-_main "${@}"
+_main "${@:+$@}"

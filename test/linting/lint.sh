@@ -6,6 +6,13 @@
 
 SCRIPT="lint.sh"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
+
+HADOLINT_VERSION=2.4.1
+ECLINT_VERSION=2.3.5
+SHELLCHECK_VERSION=0.7.2
+
 set -eEuo pipefail
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
@@ -51,26 +58,11 @@ function _eclint
 {
   local SCRIPT='EDITORCONFIG LINTER'
 
-  local IGNORE='.*\.git.*|.*\.md$|\.bats$|\.cf$|'
-  IGNORE+='\.conf$|\.init$|.*test/.*|.*tools/.*'
-
-  local LINT=(
-    eclint
-    -config
-    "${CDIR}/test/linting/.ecrc.json"
-    -exclude
-    "(${IGNORE})"
-  )
-
-  if ! __in_path "${LINT[0]}"
-  then
-    __log_failure 'linter not in PATH'
-    return 2
-  fi
-
-  __log_info "$(${LINT[0]} --version)"
-
-  if "${LINT[@]}"
+  if docker run --rm --tty \
+      --volume "${REPO_ROOT}:/ci:ro" \
+      --workdir "/ci" \
+      --name eclint \
+      "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
   then
     __log_success
   else
@@ -82,17 +74,11 @@ function _eclint
 function _hadolint
 {
   local SCRIPT='HADOLINT'
-  local LINT=(hadolint -c "${CDIR}/test/linting/.hadolint.yaml")
 
-  if ! __in_path "${LINT[0]}"
-  then
-    __log_failure 'linter not in PATH'
-    return 2
-  fi
-
-  __log_info "$(${LINT[0]} --version | grep -E -o "[0-9\.]*")"
-
-  if "${LINT[@]}" Dockerfile
+  if docker run --rm --tty \
+      --volume "${REPO_ROOT}:/ci:ro" \
+      --workdir "/ci" \
+      "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
   then
     __log_success
   else
@@ -104,73 +90,42 @@ function _hadolint
 function _shellcheck
 {
   local SCRIPT='SHELLCHECK'
-  local ERR=0
-  local LINT=(shellcheck -x -S style -Cauto -o all -e SC2154 -W 50)
+  
+  # File paths for shellcheck:
+  F_SH="$(find . -type f -iname '*.sh' \
+    -not -path './test/bats/*' \
+    -not -path './test/test_helper/*' \
+    -not -path './target/docker-configomat/*'
+  )"
+  # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
+  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm +111 -type l -or" || FIND_EXEC="-executable"
+  # shellcheck disable=SC2248
+  F_BIN="$(find 'target/bin' ${FIND_EXEC} -type f)"
+  F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
-  if ! __in_path "${LINT[0]}"
+  # This command is a bit easier to grok as multi-line. There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
+  CMD_SHELLCHECK=(shellcheck 
+    --external-sources 
+    --check-sourced
+    --severity=style
+    --color=auto
+    --wiki-link-count=50
+    --enable=all
+    --exclude=SC2154
+    --source-path=SCRIPTDIR
+    "${F_SH} ${F_BIN} ${F_BATS}"
+  )
+  
+  # shellcheck disable=SC2068
+  if docker run --rm --tty \
+      --volume "${REPO_ROOT}:/ci:ro" \
+      --workdir "/ci" \
+      "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
   then
-    __log_failure 'linter not in PATH'
-    return 2
-  fi
-
-  __log_info "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
-
-  # an overengineered solution to allow shellcheck -x to
-  # properly follow `source=<SOURCE FILE>` when sourcing
-  # files with `. <FILE>` in shell scripts.
-  while read -r FILE
-  do
-    if ! (
-      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
-      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
-      then
-        exit 1
-      fi
-    )
-    then
-      ERR=1
-    fi
-  done < <(find . -type f -iname "*.sh" \
-    -not -path "./test/bats/*" \
-    -not -path "./test/test_helper/*" \
-    -not -path "./target/docker-configomat/*")
-
-  # the same for executables in target/bin/
-  while read -r FILE
-  do
-    if ! (
-      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
-      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
-      then
-        exit 1
-      fi
-    )
-    then
-      ERR=1
-    fi
-  done < <(find target/bin -executable -type f)
-
-  # the same for all test files
-  while read -r FILE
-  do
-    if ! (
-      cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
-      if ! "${LINT[@]}" "$(basename -- "${FILE}")"
-      then
-        exit 1
-      fi
-    )
-    then
-      ERR=1
-    fi
-  done < <(find test/ -maxdepth 1 -type f -iname "*.bats")
-
-  if [[ ${ERR} -eq 1 ]]
-  then
-    __log_failure 'errors encountered'
-    return 1
-  else
     __log_success
+  else
+    __log_failure
+    return 1
   fi
 }
 
@@ -186,9 +141,5 @@ function __main
       ;;
   esac
 }
-
-# prefer linters installed in tools
-PATH="${CDIR}/tools:${PATH}"
-export PATH
 
 __main "${@}" || exit ${?}
