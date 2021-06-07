@@ -163,6 +163,7 @@ function _populate_relayhost_map
     if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
       _notify 'inf' "Adding relay mapping for ${DOMAIN}"
+      # shellcheck disable=SC2153
       echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done

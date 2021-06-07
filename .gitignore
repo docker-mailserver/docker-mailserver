@@ -43,6 +43,9 @@ test/config/without-virtual/
 test/config/with-domain/
 test/onedir
 test/duplicate_configs
+test/alias
+test/quota
+test/relay
 
 config.bak
 testconfig.bak
