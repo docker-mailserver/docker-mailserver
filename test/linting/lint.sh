@@ -98,8 +98,9 @@ function _shellcheck
     -not -path './target/docker-configomat/*' -print0 \
     | xargs -0
   )"
-  [[ "$(uname)" == "Darwin" ]] && PERM="+111" || PERM="/111"
-  F_BIN="$(find 'target/bin' -perm "${PERM}" -type f -or -type l)"
+  # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
+  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm +111 -type l -or" || FIND_EXEC="-executable"
+  F_BIN="$(find 'target/bin' "${FIND_EXEC}" -type f)"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
   # This command is a bit easier to grok as multi-line. There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
