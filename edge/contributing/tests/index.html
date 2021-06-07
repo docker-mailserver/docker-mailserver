@@ -1214,10 +1214,23 @@
                 
                   <h1>Tests</h1>
                 
-                <div class="admonition todo">
-<p class="admonition-title">Todo</p>
-<p>This section should provide a detailed step by step guide on how to write tests</p>
+                <ol>
+<li>Install docker</li>
+<li>Execute <code>git submodule update --init --recursive</code></li>
+<li>
+<p>Install jq</p>
+<div class="admonition info">
+<p class="admonition-title">MacOS Specific (needed for tests)</p>
+<div class="highlight"><pre><span></span><code>brew install coreutils
+<span class="c1"># bash &gt;= 4.0 for associative arrays</span>
+brew install bash
+</code></pre></div>
 </div>
+</li>
+<li>
+<p>Execute <code>make clean all</code></p>
+</li>
+</ol>
                 
                   
                 
