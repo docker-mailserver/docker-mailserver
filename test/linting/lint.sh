@@ -95,8 +95,7 @@ function _shellcheck
   F_SH="$(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
     -not -path './test/test_helper/*' \
-    -not -path './target/docker-configomat/*' -print0 \
-    | xargs -0
+    -not -path './target/docker-configomat/*'
   )"
   # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
   [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm +111 -type l -or" || FIND_EXEC="-executable"
