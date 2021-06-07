@@ -36,8 +36,8 @@ The development workflow is the following:
 2. Write the code that is needed :D
 3. Add integration tests if necessary
 4. [Prepare your environment and run linting and tests][docs-tests]
-6. Document your improvements if necessary (e.g. if you introduced new environment variables, describe those in the [ENV documentation][docs-environment])
-7. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist. 
+5. Document your improvements if necessary (e.g. if you introduced new environment variables, describe those in the [ENV documentation][docs-environment])
+6. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist. 
    1. Pull requests are automatically tested against the CI and will be reviewed when tests pass
    2. When your changes are validated, your branch is merged
    3. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.
@@ -45,5 +45,6 @@ The development workflow is the following:
 [docs]: https://docker-mailserver.github.io/docker-mailserver/edge
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 [docs-environment]: ../config/environment.md
+[docs-tests]: ./tests.md
 [commit]: https://help.github.com/articles/closing-issues-via-commit-messages/
 [gpg]: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key
