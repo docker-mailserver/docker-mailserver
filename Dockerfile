@@ -40,10 +40,10 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN \
   apt-get -qq update && \
-  apt-get -y install apt-utils 2>&1 && \
-  apt-get -y dist-upgrade && \
-  apt-get -y install postfix && \
-  apt-get -y --no-install-recommends install \
+  apt-get -y -qq install apt-utils && \
+  apt-get -y -qq dist-upgrade && \
+  apt-get -y -q install postfix && \
+  apt-get -y -q --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
   ca-certificates cabextract clamav clamav-daemon cpio curl \
@@ -75,7 +75,7 @@ RUN \
   dpkg -i fail2ban.deb 2>&1 && \
   rm fail2ban.deb fail2ban.deb.asc && \
   # cleanup
-  apt-get -qq autoremove 2>&1 && \
+  apt-get -qq autoremove && \
   apt-get -qq autoclean && \
   apt-get -qq clean && \
   rm -rf /var/lib/apt/lists/* && \
