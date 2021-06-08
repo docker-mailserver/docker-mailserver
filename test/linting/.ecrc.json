@@ -1,11 +1,18 @@
 {
-  "Version": "2.3.5",
   "Verbose": false,
   "Debug": false,
   "IgnoreDefaults": false,
   "SpacesAftertabs": true,
   "NoColor": false,
-  "Exclude": [],
+  "Exclude": [
+    "^test/",
+    "\\.git.*",
+    "\\.bats$",
+    "\\.cf$",
+    "\\.conf$",
+    "\\.init$",
+    "\\.md$"
+  ],
   "AllowedContentTypes": [],
   "PassedFiles": [],
   "Disable": {

@@ -96,7 +96,6 @@ OPTIONS
 
     COMMAND config :=
         ./setup.sh config dkim [ ARGUMENTS... ]
-        ./setup.sh config ssl <FQDN> (ATTENTION: This is deprecated and will be removed soon.)
 
     COMMAND relay :=
         ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]

@@ -100,7 +100,7 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
     For more details about using LDAP see: [LDAP managed mail server with Postfix and Dovecot for multiple domains](https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains)
 
-!!! seealso
+!!! note
 
     Another solution that serves as a forward-only mailserver is this: https://gitlab.com/docker-scripts/postfix
 

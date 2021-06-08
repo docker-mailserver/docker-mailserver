@@ -6,11 +6,12 @@ title: 'Contributing | Tests'
 2. Execute `git submodule update --init --recursive`
 3. Install jq
 
-    > MacOS Specific (needed for tests):
-      ```bash
-      brew install coreutils
-      # bash >= 4.0 for associative arrays
-      brew install bash
-      ```
+    !!! info "MacOS Specific (needed for tests)"
 
-4. Execute `make`
+        ```bash
+        brew install coreutils
+        # bash >= 4.0 for associative arrays
+        brew install bash
+        ```
+
+4. Execute `make clean all`
