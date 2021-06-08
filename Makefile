@@ -6,9 +6,9 @@ VCS_VER = $(shell git describe --tags --contains --always)
 
 export CDIR = $(shell pwd)
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Generic Build Targets –––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Generic Build Targets ---------------------
+# -----------------------------------------------
 
 all: lint build backup generate-accounts tests clean
 
@@ -28,9 +28,9 @@ clean:
 	-@ for container in $$(docker ps -a | grep -E "mail|ldap_for_mail|mail_overri.*|hadolint|eclint|shellcheck" | cut -f 1-1 -d ' '); do docker rm -f $$container; done
 	-@ sudo rm -rf test/onedir test/alias test/quota test/relay test/config/dovecot-lmtp/userdb test/config/key* test/config/opendkim/keys/domain.tld/ test/config/opendkim/keys/example.com/ test/config/opendkim/keys/localdomain2.com/ test/config/postfix-aliases.cf test/config/postfix-receive-access.cf test/config/postfix-receive-access.cfe test/config/dovecot-quotas.cf test/config/postfix-send-access.cf test/config/postfix-send-access.cfe test/config/relay-hosts/chksum test/config/relay-hosts/postfix-aliases.cf test/config/dhparams.pem test/config/dovecot-lmtp/dh.pem test/config/relay-hosts/dovecot-quotas.cf test/config/user-patches.sh test/alias/config/postfix-virtual.cf test/quota/config/dovecot-quotas.cf test/quota/config/postfix-accounts.cf test/relay/config/postfix-relaymap.cf test/relay/config/postfix-sasl-password.cf test/duplicate_configs/
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Tests –––––––––––––––––––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Tests -------------------------------------
+# -----------------------------------------------
 
 generate-accounts:
 	@ docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
