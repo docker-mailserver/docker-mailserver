@@ -6,18 +6,14 @@ VCS_VER = $(shell git describe --tags --contains --always)
 
 export CDIR = $(shell pwd)
 
-define docker-execute
-	docker run -v $(CDIR):$(CONTAINER_WORKDIR) --workdir="$(CONTAINER_WORKDIR)" --rm -t $(NAME) bash -c $(1)
-endef
-
 # –––––––––––––––––––––––––––––––––––––––––––––––
 # ––– Generic Build Targets –––––––––––––––––––––
 # –––––––––––––––––––––––––––––––––––––––––––––––
 
-all: build lint backup generate-accounts tests clean
+all: lint build backup generate-accounts tests clean
 
 build:
-	docker build -t $(NAME) . --build-arg VCS_VER=$(VCS_VER) --build-arg VCS_REF=$(VCS_REF) --build-arg BUILD_TEST=1
+	docker build -t $(NAME) . --build-arg VCS_VER=$(VCS_VER) --build-arg VCS_REF=$(VCS_REF)
 
 backup:
 # if backup directories exist, clean hasn't been called, therefore
@@ -50,8 +46,7 @@ tests:
 test/%.bats: ALWAYS_RUN
 	@ ./test/bats/bin/bats $@
 
-lint:
-	$(call docker-execute,"[[ ! -e "$(TOOLS_DIR)/hadolint" ]] && make install_linters; make hadolint shellcheck eclint")
+lint: eclint hadolint shellcheck
 
 hadolint:
 	@ ./test/linting/lint.sh hadolint
