@@ -6,7 +6,13 @@
 
 SCRIPT="lint.sh"
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+if [[ "$(uname)" == "Darwin" ]]
+then
+  readlink() {
+    greadlink "${@:+$@}" # Requires coreutils
+  }
+fi
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
 
 HADOLINT_VERSION=2.4.1
