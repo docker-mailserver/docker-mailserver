@@ -3,13 +3,6 @@ FROM docker.io/debian:buster-slim
 ARG VCS_VER
 ARG VCS_REF
 ARG DEBIAN_FRONTEND=noninteractive
-ARG BUILD_TEST
-ENV BUILD_ENV=${BUILD_TEST:+test}
-ENV BUILD_ENV=${BUILD_ENV:-prod}
-
-ARG BUILD_TEST
-ENV BUILD_ENV=${BUILD_TEST:+test}
-ENV BUILD_ENV=${BUILD_ENV:-prod}
 
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
 ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
@@ -81,7 +74,6 @@ RUN \
     echo "ERROR: Wrong GPG fingerprint!" 2>&1; exit 1; fi && \
   dpkg -i fail2ban.deb &>/dev/null && \
   rm fail2ban.deb fail2ban.deb.asc && \
-  [[ "${BUILD_ENV}" == "test" ]] && apt-get install -y build-essential git; \
   # cleanup
   apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \
