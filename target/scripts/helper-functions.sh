@@ -2,7 +2,7 @@
 
 DMS_DEBUG="${DMS_DEBUG:=0}"
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– BIN HELPER
+# ? --------------------------------------------- BIN HELPER
 
 function errex
 {
@@ -72,7 +72,7 @@ function _sanitize_ipv4_to_subnet_cidr
 }
 export -f _sanitize_ipv4_to_subnet_cidr
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– ACME
+# ? --------------------------------------------- ACME
 
 function _extract_certs_from_acme
 {
@@ -121,7 +121,7 @@ for key, value in acme.items():
 }
 export -f _extract_certs_from_acme
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Notifications
+# ? --------------------------------------------- Notifications
 
 function _notify
 {
@@ -147,7 +147,7 @@ function _notify
 }
 export -f _notify
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Relay Host Map
+# ? --------------------------------------------- Relay Host Map
 
 # setup /etc/postfix/relayhost_map
 # --
@@ -185,7 +185,7 @@ function _populate_relayhost_map
 }
 export -f _populate_relayhost_map
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– File Checksums
+# ? --------------------------------------------- File Checksums
 
 # file storing the checksums of the monitored files.
 # shellcheck disable=SC2034

@@ -26,7 +26,7 @@ then
   exit 0
 fi
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Actual script begins
+# ? --------------------------------------------- Actual script begins
 
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty

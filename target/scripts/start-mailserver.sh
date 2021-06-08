@@ -10,11 +10,11 @@ unset DAEMONS_START HOSTNAME DOMAINNAME CHKSUM_FILE
 declare -A VARS
 declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 # ? <<
-# ––
+# --
 # ? >> Setup of default and global values / variables
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 
 VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
@@ -71,11 +71,11 @@ HOSTNAME="$(hostname -f)"
 DOMAINNAME="$(hostname -d)"
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 # ? << Setup of default and global values / variables
-# ––
+# --
 # ? >> Registering functions
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 
 function register_functions
 {
@@ -223,16 +223,16 @@ function _defunc
   exit 1
 }
 
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 # ? << Registering functions
-# ––
+# --
 # ? >> Sourcing all stacks
 #      1. Checks
 #      2. Setup
 #      3. Fixes
 #      4. Miscellaneous
 #      5. Daemons
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 
 # shellcheck source=./startup/check-stack.sh
 . /usr/local/bin/check-stack.sh
@@ -249,11 +249,11 @@ function _defunc
 # shellcheck source=./startup/daemons-stack.sh
 . /usr/local/bin/daemons-stack.sh
 
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 # ? << Sourcing all stacks
-# ––
+# --
 # ? >> Executing all stacks
-# ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# ------------------------------------------------------------
 
 _notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
 _notify 'inf' 'ENVIRONMENT'

@@ -41,9 +41,9 @@ function teardown_file
   docker rm -f "${CONTAINER_NAME}"
 }
 
-# –––––––––––––––––––––––––––––––––––––––––––––––
-# ––– Actual Tests ––––––––––––––––––––––––––––––
-# –––––––––––––––––––––––––––––––––––––––––––––––
+# -----------------------------------------------
+# --- Actual Tests ------------------------------
+# -----------------------------------------------
 
 @test "${TEST_FILE}/etc/opendkim/KeyTable should contain 2 entries" {
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendkim/KeyTable | wc -l"
@@ -400,7 +400,7 @@ function teardown_file
     "grep 'domain1.tld' /etc/opendkim/KeyTable | wc -l"
   assert_success
   assert_output 1
-  
+
   # Check valid entries actually present in SigningTable
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \

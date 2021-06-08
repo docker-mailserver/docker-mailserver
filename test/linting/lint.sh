@@ -24,40 +24,40 @@ trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' E
 
 function __log_err
 {
-  printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT:-${0}}" \
-    "  – function  = ${1} / ${2}" \
-    "  – line      = ${3}" \
-    "  – exit code = ${4}"
+  printf "\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
+    "  - script    = ${SCRIPT:-${0}}" \
+    "  - function  = ${1} / ${2}" \
+    "  - line      = ${3}" \
+    "  - exit code = ${4}"
 }
 
 function __log_info
 {
-  printf "\n––– \e[34m%s\e[0m\n%s\n%s\n\n" \
+  printf "\n--- \e[34m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
-    "  – type    = INFO" \
-    "  – version = ${*}"
+    "  - type    = INFO" \
+    "  - version = ${*}"
 }
 
 function __log_failure
 {
-  printf "\n––– \e[91m%s\e[0m\n%s\n%s\n\n" \
+  printf "\n--- \e[91m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
-    "  – type    = FAILURE" \
-    "  – message = ${*:-errors encountered}"
+    "  - type    = FAILURE" \
+    "  - message = ${*:-errors encountered}"
 }
 
 function __log_success
 {
-  printf "\n––– \e[32m%s\e[0m\n%s\n%s\n\n" \
+  printf "\n--- \e[32m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT}" \
-    "  – type    = SUCCESS" \
-    "  – message = no errors detected"
+    "  - type    = SUCCESS" \
+    "  - message = no errors detected"
 }
 
 function __in_path
 {
-  command -v "${@}" &>/dev/null && return 0 ; return 1 ;
+  command -v "${@:+$@}" &>/dev/null && return 0 ; return 1 ;
 }
 
 function _eclint
@@ -148,4 +148,4 @@ function __main
   esac
 }
 
-__main "${@}" || exit ${?}
+__main "${@:+$@}" || exit ${?}
