@@ -151,7 +151,7 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
       echo "Mailbox couldn't be deleted." >&2
       ERROR=true
     fi
-    rmdir "/var/mail/${DOMAIN}" || true
+    rmdir "/var/mail/${DOMAIN}" 2>/dev/null || true
   else
     echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
     ERROR=true
