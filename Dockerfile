@@ -40,10 +40,10 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN \
   apt-get -qq update && \
-  apt-get -y -qq install apt-utils && \
-  apt-get -y -qq dist-upgrade && \
-  apt-get -y -q install postfix && \
-  apt-get -y -q --no-install-recommends install \
+  apt-get -qq install apt-utils 2>/dev/null && \
+  apt-get -qq dist-upgrade && \
+  apt-get -qq install postfix && \
+  apt-get -qq --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
   ca-certificates cabextract clamav clamav-daemon cpio curl \
