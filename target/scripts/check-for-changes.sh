@@ -51,6 +51,10 @@ do
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
+  # cmp return codes
+  # 0 – files are identical
+  # 1 – files differ
+  # 2 – inaccessible or missing argument
   if [ $? -eq 1 ]
   then
     _notify 'inf' "${LOG_DATE} Change detected"
