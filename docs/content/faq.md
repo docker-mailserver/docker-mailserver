@@ -54,16 +54,22 @@ Please do not use `CRLF`.
 
 ### What about backups?
 
+#### Bind mounts (default)
+
+```bash
+tar czf backup-$(date +%F).tar.gz config data
+```
+
+#### Volumes
+
 Assuming that you use `docker-compose` and data volumes, you can backup the configuration, emails and logs like this:
 
 ```sh
 # create backup
-docker run --rm -ti \
-  -v maildata:/var/mail \
-  -v mailstate:/var/mail-state \
-  -v maillogs:/var/logs/mail \
+docker run --rm -it \
   -v "$PWD/config":/tmp/docker-mailserver \
   -v /backup/mail:/backup \
+  --volumes-from mailserver \
   alpine:latest \
   tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
 
