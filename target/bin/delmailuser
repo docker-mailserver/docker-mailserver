@@ -86,81 +86,77 @@ then
   fi
 fi
 
-(
-  flock -e 200
+create_lock "$(basename "$0")"
+for EMAIL in "${@}"
+do
+  ERROR=false
 
-  for EMAIL in "${@}"
-  do
-    ERROR=false
+  # very simple plausibility check
+  [[ ${EMAIL} != *@*.* ]] && errex "No valid email address: ${EMAIL}"
 
-    # very simple plausibility check
-    [[ ${EMAIL} != *@*.* ]] && errex "No valid address: ${EMAIL}"
+  USER="${EMAIL%@*}"
+  DOMAIN="${EMAIL#*@}"
 
-    USER="${EMAIL%@*}"
-    DOMAIN="${EMAIL#*@}"
+  # ${EMAIL} must not contain /s and other syntactic characters
+  UNESCAPED_EMAIL="${EMAIL}"
+  EMAIL=$(escape "${EMAIL}")
 
-    # ${EMAIL} must not contain /s and other syntactic characters
-    UNESCAPED_EMAIL="${EMAIL}"
-    EMAIL=$(escape "${EMAIL}")
-
-    if [[ -f ${DATABASE} ]]
+  if [[ -f ${DATABASE} ]]
+  then
+    if ! sed -i "/^${EMAIL}|/d" "${DATABASE}"
     then
-      if ! sed -i "/^${EMAIL}|/d" "${DATABASE}"
-      then
-        echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
-        ERROR=true
-      fi
-    fi
-
-    if [[ -f ${ALIAS_DATABASE} ]]
-    then
-      # delete all aliases where the user is the only recipient( " ${EMAIL}" )
-      # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
-      if sed -i \
-        -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
-        "${ALIAS_DATABASE}"
-      then
-        echo "${UNESCAPED_EMAIL} and potential aliases deleted."
-      else
-        echo "Aliases for ${UNESCAPED_EMAIL} couldn't be deleted in ${ALIAS_DATABASE}." >&2
-        ERROR=true
-      fi
-    fi
-
-    # remove quota directives
-    if [[ -f ${QUOTA_DATABASE} ]]
-    then
-      if ! sed -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
-      then
-        echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
-      fi
-    fi
-
-    if ! ${MAILDEL}
-    then
-      echo "Leaving the mailbox untouched.
-If you want to delete it at a later point,
-use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
-      exit 0
-    fi
-
-    if [[ -e "/var/mail/${DOMAIN}/${USER}" ]]
-    then
-      if rm -R "/var/mail/${DOMAIN}/${USER}"
-      then
-        echo "Mailbox deleted."
-      else
-        echo "Mailbox couldn't be deleted." >&2
-        ERROR=true
-      fi
-    else
-      echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
+      echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
       ERROR=true
     fi
+  fi
 
-    ${ERROR} && errex 'See the messages above.'
-  done
+  if [[ -f ${ALIAS_DATABASE} ]]
+  then
+    # delete all aliases where the user is the only recipient( " ${EMAIL}" )
+    # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
+    if sed -i \
+      -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
+      "${ALIAS_DATABASE}"
+    then
+      echo "${UNESCAPED_EMAIL} and potential aliases deleted."
+    else
+      echo "Aliases for ${UNESCAPED_EMAIL} couldn't be deleted in ${ALIAS_DATABASE}." >&2
+      ERROR=true
+    fi
+  fi
 
-) 200< "${DATABASE}"
+  # remove quota directives
+  if [[ -f ${QUOTA_DATABASE} ]]
+  then
+    if ! sed -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
+    then
+      echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+    fi
+  fi
 
+  if ! ${MAILDEL}
+  then
+    echo "Leaving the mailbox untouched.
+If you want to delete it at a later point,
+use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
+    exit 0
+  fi
+
+  if [[ -e "/var/mail/${DOMAIN}/${USER}" ]]
+  then
+    if rm -R "/var/mail/${DOMAIN}/${USER}"
+    then
+      echo "Mailbox deleted."
+    else
+      echo "Mailbox couldn't be deleted." >&2
+      ERROR=true
+    fi
+    rmdir "/var/mail/${DOMAIN}" 2>/dev/null || true
+  else
+    echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
+    ERROR=true
+  fi
+
+  ${ERROR} && errex 'See the messages above.'
+done
 exit 0
