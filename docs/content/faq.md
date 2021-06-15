@@ -65,7 +65,7 @@ tar --gzip -cf "backup-$(date +%F).tar.gz" config data
 Then to restore `./config` and `./data` folders from your backup file:
 
 ```bash
-tar -xf backup-date.tar.gz
+tar --gzip -xf backup-date.tar.gz
 ```
 
 #### Volumes
