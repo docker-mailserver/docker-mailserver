@@ -56,8 +56,16 @@ Please do not use `CRLF`.
 
 #### Bind mounts (default)
 
+From the location of your `docker-compose.yml`, create a compressed archive of your `./config` and `./data` folders:
+
 ```bash
-tar czf backup-$(date +%F).tar.gz config data
+tar --gzip -cf "backup-$(date +%F).tar.gz" config data
+```
+
+Then to restore `./config` and `./data` folders from your backup file:
+
+```bash
+tar -xf backup-date.tar.gz
 ```
 
 #### Volumes
