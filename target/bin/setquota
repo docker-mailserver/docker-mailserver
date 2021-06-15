@@ -33,24 +33,21 @@ then
 fi
 
 # Protect config file with lock to avoid race conditions
+create_lock "$(basename "$0")"
+
 touch "${DATABASE}"
-(
-  flock -e 200
+if [ -z "${QUOTA}" ]; then
+  read -r -s "Enter quota (e.g. 10M): " QUOTA
+  echo
+  [[ -z "${QUOTA}" ]] && errex "Quota must not be empty. Use 0 for unlimited quota"
+fi
 
-  if [ -z "${QUOTA}" ]; then
-    read -r -s "Enter quota (e.g. 10M): " QUOTA
-    echo
-    [[ -z "${QUOTA}" ]] && errex "Quota must not be empty. Use 0 for unlimited quota"
-  fi
+# check quota
+if [[ -n ${QUOTA} ]] && ! echo "${QUOTA}" | grep -qE "^([0-9]+(B|k|M|G|T)|0)\$"
+then
+  usage
+  errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
+fi
 
-  # check quota
-  if [[ -n ${QUOTA} ]] && ! echo "${QUOTA}" | grep -qE "^([0-9]+(B|k|M|G|T)|0)\$"
-  then
-    usage
-    errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
-  fi
-
-  delquota "${USER}"
-  echo "${USER}:${QUOTA}" >>"${DATABASE}"
-) 200< "${DATABASE}"
-
+delquota "${USER}"
+echo "${USER}:${QUOTA}" >>"${DATABASE}"
