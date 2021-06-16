@@ -54,16 +54,30 @@ Please do not use `CRLF`.
 
 ### What about backups?
 
+#### Bind mounts (default)
+
+From the location of your `docker-compose.yml`, create a compressed archive of your `./config` and `./data` folders:
+
+```bash
+tar --gzip -cf "backup-$(date +%F).tar.gz" config data
+```
+
+Then to restore `./config` and `./data` folders from your backup file:
+
+```bash
+tar --gzip -xf backup-date.tar.gz
+```
+
+#### Volumes
+
 Assuming that you use `docker-compose` and data volumes, you can backup the configuration, emails and logs like this:
 
 ```sh
 # create backup
-docker run --rm -ti \
-  -v maildata:/var/mail \
-  -v mailstate:/var/mail-state \
-  -v maillogs:/var/logs/mail \
+docker run --rm -it \
   -v "$PWD/config":/tmp/docker-mailserver \
   -v /backup/mail:/backup \
+  --volumes-from mailserver \
   alpine:latest \
   tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
 
