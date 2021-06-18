@@ -18,7 +18,7 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
 
 ## Single Encryption Key / Global Method
 
-1. Create `10-custom.conf` and populate it with in the following:
+1. Create `10-custom.conf` and populate it with the following:
 
     ```
     # Enables mail_crypt for all services (imap, pop3, etc)
@@ -64,4 +64,3 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
     ```
 
 This should be the minimum required for encryption of the mail while in storage.
-
