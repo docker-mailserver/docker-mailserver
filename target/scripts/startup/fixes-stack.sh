@@ -9,7 +9,7 @@ function fix
   done
 
   _notify 'inf' 'Removing leftover PID files from a stop/start'
-  rm -rf /var/run/*.pid /var/run/*/*.pid
+  find /var/run/ -not -name 'supervisord.pid' -name '*.pid' -delete
   touch /dev/shm/supervisor.sock
 }
 
