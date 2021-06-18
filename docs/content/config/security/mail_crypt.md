@@ -45,7 +45,7 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
         . . .
     ```
 
-5. While you're editing the docker-compose.yml, add the configuration file:
+5. While you're editing the `docker-compose.yml`, add the configuration file:
     ```yaml
     services:
       mailserver:
