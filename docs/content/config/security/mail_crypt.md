@@ -32,7 +32,7 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
 
 2. Shutdown your mailserver (`docker-compose down`)
 
-3. You then need to [generate your global EC key](https://doc.dovecot.org/configuration_manual/mail_crypt_plugin/#ec-key). We named them `/certs/ecprivkey.pem` and `/certs/ecpubkey.pem` in Step #1.
+3. You then need to [generate your global EC key](https://doc.dovecot.org/configuration_manual/mail_crypt_plugin/#ec-key). We named them `/certs/ecprivkey.pem` and `/certs/ecpubkey.pem` in step #1.
 
 4. The EC key needs to be available in the container. I prefer to mount a /certs directory into the container: 
     ```yaml
