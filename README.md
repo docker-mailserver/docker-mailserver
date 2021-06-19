@@ -176,6 +176,16 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
+#### Folders
+
+By default, `INBOX`, `Drafts`, `Sent`, `Junk`, `Trash` are created and automatically subscribed. Please take a look at `target/dovecot/15-mailboxes.conf` for the definitions and possibilities. For example, user would find it useful to enable the `Archive` folder to let different mail clients share the same archive folder automatically. 
+In current default [docker-compose.yml](./docker-compose.yml) mounts the local `config` directory as a whole to `/tmp/docker-mailserver`, user might need to pass through this file separately:
+``` YAML
+volumes:
+  ......
+  - ./custom-config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
+```
+
 ## Examples
 
 ### With Relevant Environmental Variables
