@@ -180,11 +180,11 @@ See the [documentation](https://docker-mailserver.github.io/docker-mailserver/ed
 
 By default, `INBOX`, `Drafts`, `Sent`, `Junk`, `Trash` are created and automatically subscribed. Please take a look at `target/dovecot/15-mailboxes.conf` for the definitions and possibilities. For example, user would find it useful to enable the `Archive` folder to let different mail clients share the same archive folder automatically. 
 
-In current default [docker-compose.yml](./docker-compose.yml) mounts the local `config` directory as a whole to `/tmp/docker-mailserver`, user might need to pass through this file separately:
+In current default [docker-compose.yml](./docker-compose.yml) mounts the local `config` directory as a whole to `/tmp/docker-mailserver`, user might need to pass through this file separately, please refer to [Override Configuration in Dovecot](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/#override-configuration):
 ``` YAML
 volumes:
   ......
-  - ./custom-config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
+  - ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
 ```
 
 ## Examples
