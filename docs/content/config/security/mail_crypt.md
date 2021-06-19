@@ -59,7 +59,7 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
 
 6. Start the container, monitor the logs for any errors, send yourself a message, and then confirm the file on disk is encrypted:
     ```
-    [root@ip-XXXXXXXXXX ~]# cat /mnt/efs-us-west-2/maildata/awesomesite.com/me/cur/1623989305.M6v�z�@�� m}��,��9����B*�247.us-west-2.compute.inE��\Ck*�@7795,W=7947:2,
+    [root@ip-XXXXXXXXXX ~]# cat -A /mnt/efs-us-west-2/maildata/awesomesite.com/me/cur/1623989305.M6v�z�@�� m}��,��9����B*�247.us-west-2.compute.inE��\Ck*�@7795,W=7947:2,
     T�9�8t�6�� t���e�W��S   `�H��C�ڤ �yeY��XZ��^�d�/��+�A
     ```
 
