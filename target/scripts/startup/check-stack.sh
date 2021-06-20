@@ -25,7 +25,7 @@ function _check_hostname
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
     _notify 'err' 'Setting hostname/domainname is required'
-    kill "$(< /var/run/supervisord.pid)"
+    _shutdown
     return 1
   fi
 }

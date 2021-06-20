@@ -208,3 +208,9 @@ function _monitored_files_checksums
   )
 }
 export -f _monitored_files_checksums
+
+function _shutdown
+{
+  _notify 'err' "Shutting down.."
+  kill 1
+}

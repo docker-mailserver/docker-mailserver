@@ -1108,6 +1108,12 @@ function _setup_docker_permit
     grep 'inet ' | sed 's|[^0-9\.\/]*||g' | cut -d '/' -f 1)
   CONTAINER_NETWORK="$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0"
 
+  if [[ -z ${CONTAINER_IP} ]]
+  then
+    _notify 'err' "Detecting the container IP address failed. Check if NETWORK_INTERFACE is correctly configured."
+    _shutdown
+  fi
+
   while read -r IP
   do
     CONTAINER_NETWORKS+=("${IP}")
@@ -1156,7 +1162,7 @@ function _setup_postfix_virtual_transport
   if [[ -z ${POSTFIX_DAGENT} ]]
   then
     _notify 'err' "${POSTFIX_DAGENT} not set."
-    kill -15 "$(< /var/run/supervisord.pid)"
+    _shutdown
     return 1
   fi
 
