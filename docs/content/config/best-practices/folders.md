@@ -4,23 +4,29 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-## Add a folder
+## Adding a mailbox folder
 
-Please refer to `target/dovecot/15-mailboxes.conf` for existing folders definition and potential folders creation.
-More detail available on [Upstream example config](https://github.com/dovecot/core/blob/master/doc/example-config/conf.d/15-mailboxes.conf).
+See [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existing folder definitions you can modify or enable.
+Dovecot also [provides their own example config][dovecot-config-mailboxes] for reference, with further information in [their documentation][dovecot-docs-mailboxes].
 
-## Consideration
+## Caution
 
-### Create folder needed as soon as possible. 
+### Adding folders to an existing setup
 
-Different mail clients have different way of handling folders. Users might experience issues such like archived emails are only available in local environment. And if the folders are available / created later, users shall need to move quite a few emails between exising and newly created folders.
+Handling of newly added mailbox folders can be inconsistent across mail clients:
 
+- Users may experience issues such as archived emails only being available locally.
+- Users may need to migrate emails manually between two folders.
 
-### Tag v.s. Folder name
+### Tag Support
 
-Certain email clients simply ignore the tag defined in `RFC 6154` and look of the exact name instead. So it might be necessary to create folder with name the same as tag. 
+Not all mail clients support tags (_defined in [RFC 6154][rfc-6154]_), using the exact mailbox name instead. To support those clients, you may prefer to keep the tag and folder name identical.
 
-### i18n 
+### Internationalization (i18n)
 
-Users and email clients might want to have folder names in local language instead of English. Please test carefully. This might need to find a balance with the tag v.s. folder name issue.
+Users and mail clients may prefer localized mailbox names instead of English. Take care to test localized names work well, keep in mind concerns such as tag support.
 
+[gh-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
+[dovecot-config-mailboxes]: https://github.com/dovecot/core/blob/master/doc/example-config/conf.d/15-mailboxes.conf
+[dovecot-docs-mailboxes]: https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings
+[rfc-6154]: https://datatracker.ietf.org/doc/html/rfc6154
