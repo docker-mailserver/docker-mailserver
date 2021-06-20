@@ -178,15 +178,19 @@ See the [documentation](https://docker-mailserver.github.io/docker-mailserver/ed
 
 #### Folders
 
-By default, `INBOX`, `Drafts`, `Sent`, `Junk`, `Trash` are created and automatically subscribed. Please take a look at `target/dovecot/15-mailboxes.conf` for the definitions and possibilities. For example, user would find it useful to enable the `Archive` folder to let different mail clients share the same archive folder automatically. 
+By default, `INBOX`, `Drafts`, `Sent`, `Junk`, `Trash` are created and automatically subscribed. Please take a look at [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existing folder definitions as reference. A useful example is to enable the `Archive` folder, allowing different mail clients to share the same archive folder automatically. 
 
-In current default [docker-compose.yml](./docker-compose.yml) mounts the local `config` directory as a whole to `/tmp/docker-mailserver`, user might need to pass through this file separately, please refer to [Override Configuration in Dovecot](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/#override-configuration):
-``` YAML
+With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `config` to the container location `/tmp/docker-mailserver`. Config overrides should be mounted to a different location, please refer to [Override Configuration in Dovecot][docs-config-overrides-dovecot]:
+
+```YAML
 volumes:
-  ......
+  ...
   - ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
 ```
 
+[gh-config-dockercompose]: ./docker-compose.yml
+[gh-config-dovecot-mailboxes]: ./target/dovecot/15-mailboxes.conf
+[docs-config-overrides-dovecot]: https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/#override-configuration
 ## Examples
 
 ### With Relevant Environmental Variables
