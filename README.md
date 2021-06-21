@@ -212,9 +212,10 @@ services:
       - "587:587"
       - "993:993"
     volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
+      - ./data/maildata:/var/mail
+      - ./data/mailstate:/var/mail-state
+      - ./data/maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
@@ -229,11 +230,6 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     restart: always
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
 ```
 
 #### LDAP setup
@@ -253,9 +249,10 @@ services:
       - "587:587"
       - "993:993"
     volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
+      - ./data/maildata:/var/mail
+      - ./data/mailstate:/var/mail-state
+      - ./data/maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
@@ -289,9 +286,4 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     restart: always
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
 ```
