@@ -31,24 +31,17 @@ Not all mail clients support Special Use Mailbox (_defined in [RFC 6154][rfc-615
 Users and mail clients may prefer localized mailbox names instead of English. Take care to test localized names work well, keep in mind concerns such as `Special Use Mailbox` support.
 
 ### Email Clients Support
-*	Thunderbird
 
-	If new email account is added without `Special Use Mailbox` enabled for archives, Thunderbird suggests and may create `Archives` folder on server.
-	If new email account is added after `Special Use Mailbox` enabled for archives, it will pick up the name assigned.
+- If a new email account is added without `Special Use Mailbox` enabled for archives:
+    - Thunderbird suggests and may create an `Archives` folder on the server.
+    - _Outlook for Android_ archives locally.
+    - _Spark for Android_ archives on the server folder named `Archive`.
+- If a new email account is added after `Special Use Mailbox` is enabled for archives:
+    - _Thunderbird_, _Outlook for Android_ and _Spark for Android_ will pick up the name assigned.
 
-*	Outlook for Android
-	
-	If new email account is added without `Special Use Mailbox` enabled for archive, it archives locally.
-	If new email account is added after `Special Use Mailbox` enabled for archives, it will pick up the name assgined.
+!!! caution "Windows Mail"
 
-*	Spark for Android
-	
-	If new email account is added without `Special Use Mailbox` enabled for archive, it archives on server folder named `Archive`.
-	If new email account is added after `Special Use Mailbox` enabled for archives, it will pick up the name assgined.
-
-* 	Windows Mail
-	
-	People suggested that it will look for the name instead of `Special Use Mailbox`.
+    _Windows Mail_ has been said to ignore `Special Use Mailbox` and look only at the name assigned.
 
 [gh-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
 [dovecot-config-mailboxes]: https://github.com/dovecot/core/blob/master/doc/example-config/conf.d/15-mailboxes.conf
