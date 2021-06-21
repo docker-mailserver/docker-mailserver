@@ -184,12 +184,6 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 
         cap_add:
           - NET_ADMIN
-
-    volumes:
-      maildata:
-        driver: local
-      mailstate:
-        driver: local
     ```
 
 ??? example "Kopano / Zarafa"

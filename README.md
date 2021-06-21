@@ -214,11 +214,6 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     restart: always
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
 ```
 
 #### LDAP setup
@@ -274,9 +269,4 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     restart: always
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
 ```
