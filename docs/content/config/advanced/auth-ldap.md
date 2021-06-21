@@ -141,8 +141,10 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
           - "993:993"
 
         volumes:
-          - maildata:/var/mail
-          - mailstate:/var/mail-state
+          - ./data/maildata:/var/mail
+          - ./data/mailstate:/var/mail-state
+          - ./data/maillogs:/var/log/mail
+          - /etc/localtime:/etc/localtime:ro
           - ./config/:/tmp/docker-mailserver/
 
         environment:
@@ -184,12 +186,6 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 
         cap_add:
           - NET_ADMIN
-
-    volumes:
-      maildata:
-        driver: local
-      mailstate:
-        driver: local
     ```
 
 ??? example "Kopano / Zarafa"
