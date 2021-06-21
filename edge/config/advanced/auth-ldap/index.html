@@ -1499,8 +1499,10 @@
       <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
 
     <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">maildata:/var/mail</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mailstate:/var/mail-state</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/maildata:/var/mail</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/mailstate:/var/mail-state</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/maillogs:/var/log/mail</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/:/tmp/docker-mailserver/</span>
 
     <span class="nt">environment</span><span class="p">:</span>
@@ -1542,12 +1544,6 @@
 
     <span class="nt">cap_add</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
-
-<span class="nt">volumes</span><span class="p">:</span>
-  <span class="nt">maildata</span><span class="p">:</span>
-    <span class="nt">driver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
-  <span class="nt">mailstate</span><span class="p">:</span>
-    <span class="nt">driver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
 </code></pre></div>
 </details>
 <details class="example"><summary>Kopano / Zarafa</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2&#39;</span>
