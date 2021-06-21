@@ -24,11 +24,11 @@ Handling of newly added mailbox folders can be inconsistent across mail clients:
 
 ### Special Use Mailbox Support
 
-Not all mail clients support Special Use Mailbox (_defined in [RFC 6154][rfc-6154]_), using the exact mailbox name instead. To support those clients, you may prefer to keep the tag and folder name identical.
+Not all mail clients support Special Use Mailbox (_defined in [RFC 6154][rfc-6154]_), using the exact mailbox name instead. To support those clients, you may prefer to keep the `Speical Use Mailbox` and folder name identical.
 
 ### Internationalization (i18n)
 
-Users and mail clients may prefer localized mailbox names instead of English. Take care to test localized names work well, keep in mind concerns such as tag support.
+Users and mail clients may prefer localized mailbox names instead of English. Take care to test localized names work well, keep in mind concerns such as `Special Use Mailbox` support.
 
 ### Email Clients Support
 *	Thunderbird
