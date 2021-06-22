@@ -176,11 +176,13 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
-#### Folders
+#### Mailboxes (_aka IMAP Folders_)
 
-By default, `INBOX`, `Drafts`, `Sent`, `Junk`, `Trash` are created and automatically subscribed. Please take a look at [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existing folder definitions as reference. A useful example is to enable the `Archive` folder, allowing different mail clients to share the same archive folder automatically. 
+`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
 
-With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `config` to the container location `/tmp/docker-mailserver`. Config overrides should be mounted to a different location, please refer to [Override Configuration in Dovecot][docs-config-overrides-dovecot]:
+The `Archive` special IMAP folder can be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients will know to treat this folder for storing archived mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
+
+With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `config` to the container location `/tmp/docker-mailserver`. Config overrides should be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
 
 ```YAML
 volumes:
@@ -188,9 +190,15 @@ volumes:
   - ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
 ```
 
+Visit our [Customizing IMAP Folders][docs-examples-imapfolders] docs page for more information.
+
 [gh-config-dockercompose]: ./docker-compose.yml
 [gh-config-dovecot-mailboxes]: ./target/dovecot/15-mailboxes.conf
 [docs-config-overrides-dovecot]: https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/#override-configuration
+[docs-examples-imapfolders]: https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders
+[dovecot-docs-namespaces]: https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox
+[rfc-6154]: https://datatracker.ietf.org/doc/html/rfc6154
+
 ## Examples
 
 ### With Relevant Environmental Variables
