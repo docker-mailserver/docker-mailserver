@@ -176,6 +176,12 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
+#### Mailboxes (_aka IMAP Folders_)
+
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_][docs-examples-imapfolders] for more information.
+
+[docs-examples-imapfolders]: https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders
+
 ## Examples
 
 ### With Relevant Environmental Variables
