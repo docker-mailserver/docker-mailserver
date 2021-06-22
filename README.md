@@ -178,26 +178,9 @@ See the [documentation](https://docker-mailserver.github.io/docker-mailserver/ed
 
 #### Mailboxes (_aka IMAP Folders_)
 
-`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_][docs-examples-imapfolders] for more information.
 
-The `Archive` special IMAP folder can be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients will know to treat this folder for storing archived mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
-
-With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `config` to the container location `/tmp/docker-mailserver`. Config overrides should be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
-
-```YAML
-volumes:
-  ...
-  - ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
-```
-
-Visit our [Customizing IMAP Folders][docs-examples-imapfolders] docs page for more information.
-
-[gh-config-dockercompose]: ./docker-compose.yml
-[gh-config-dovecot-mailboxes]: ./target/dovecot/15-mailboxes.conf
-[docs-config-overrides-dovecot]: https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/#override-configuration
 [docs-examples-imapfolders]: https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders
-[dovecot-docs-namespaces]: https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox
-[rfc-6154]: https://datatracker.ietf.org/doc/html/rfc6154
 
 ## Examples
 

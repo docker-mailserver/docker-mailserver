@@ -1,17 +1,28 @@
 ---
-title: 'Use Cases | Folders'
+title: 'Use Cases | Customize Mailbox Folders'
 hide:
   - toc # Hide Table of Contents for this page
 ---
-## Introduction
 
-This provides a solution letting different email clients sharing the same archive folder.
-It might also help when troubleshooting sharing `Sent` and `Drafts` folders. 
+# Mailboxes (_aka IMAP Folders_)
+
+`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
+
+These IMAP folders are considered special because they add a [_"SPECIAL-USE"_ attribute][rfc-6154], which is a standardized way to communicate to mail clients that the folder serves a purpose like storing spam/junk mail (`\Junk`) or deleted mail (`\Trash`). This differentiates them from regular mail folders that you may use for organizing.
 
 ## Adding a mailbox folder
 
-See [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existing folder definitions you can modify or enable.
-Dovecot also [provides their own example config][dovecot-config-mailboxes] for reference, with further information in [their documentation][dovecot-docs-mailboxes].
+See [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the [official Dovecot documentation][dovecot-docs-mailboxes].
+
+The `Archive` special IMAP folder may be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
+
+With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `config` to the container location `/tmp/docker-mailserver`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
+
+```YAML
+volumes:
+  ...
+  - ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
+```
 
 ## Caution
 
@@ -22,28 +33,41 @@ Handling of newly added mailbox folders can be inconsistent across mail clients:
 - Users may experience issues such as archived emails only being available locally.
 - Users may need to migrate emails manually between two folders.
 
-### Special Use Mailbox Support
+### Support for `SPECIAL-USE` attributes
 
-Not all mail clients support Special Use Mailbox (_defined in [RFC 6154][rfc-6154]_), using the exact mailbox name instead. To support those clients, you may prefer to keep the `Speical Use Mailbox` and folder name identical.
+Not all mail clients support the `SPECIAL-USE` attribute for mailboxes (_defined in [RFC 6154][rfc-6154]_). These clients will treat the mailbox folder as any other, using the name assigned to it instead.
+
+Some clients may still know to treat these folders for their intended purpose if the mailbox name matches the common names that the `SPECIAL-USE` attributes represent (_eg `Sent` as the mailbox name for `\Sent`_).
 
 ### Internationalization (i18n)
 
-Users and mail clients may prefer localized mailbox names instead of English. Take care to test localized names work well, keep in mind concerns such as `Special Use Mailbox` support.
+Usually the mail client will know via context such as the `SPECIAL-USE` attribute or common English mailbox names, to provide a localized label for the users preferred language.
+
+Take care to test localized names work well as well.
 
 ### Email Clients Support
 
-- If a new email account is added without `Special Use Mailbox` enabled for archives:
-    - Thunderbird suggests and may create an `Archives` folder on the server.
-    - _Outlook for Android_ archives locally.
-    - _Spark for Android_ archives on the server folder named `Archive`.
-- If a new email account is added after `Special Use Mailbox` is enabled for archives:
-    - _Thunderbird_, _Outlook for Android_ and _Spark for Android_ will pick up the name assigned.
+- If a new mail account is added without the `SPECIAL-USE` attribute enabled for archives:
+    - **Thunderbird** suggests and may create an `Archives` folder on the server.
+    - **Outlook for Android** archives to a local folder.
+    - **Spark for Android** archives to server folder named `Archive`.
+- If a new mail account is added after the `SPECIAL-USE` attribute is enabled for archives:
+    - **Thunderbird**, **Outlook for Android** and **Spark for Android** will use the mailbox folder name assigned.
 
 !!! caution "Windows Mail"
 
-    _Windows Mail_ has been said to ignore `Special Use Mailbox` and look only at the name assigned.
+    **Windows Mail** has been said to ignore `SPECIAL-USE` attribute and look only at the mailbox folder name assigned.
 
+!!! note "Needs citation"
+
+    This information is provided by the community.
+    
+    It presently lacks references to confirm the behaviour. If any information is incorrect please let us know! :smile:
+
+
+[docs-config-overrides-dovecot]: ../../config/advanced/override-defaults/dovecot.md#override-configuration
+[gh-config-dockercompose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
 [gh-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
-[dovecot-config-mailboxes]: https://github.com/dovecot/core/blob/master/doc/example-config/conf.d/15-mailboxes.conf
+[dovecot-docs-namespaces]: https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox
 [dovecot-docs-mailboxes]: https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings
 [rfc-6154]: https://datatracker.ietf.org/doc/html/rfc6154
