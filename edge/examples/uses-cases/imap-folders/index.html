@@ -13,21 +13,21 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/aws-ses/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/imap-folders/">
       
-      <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.8">
     
     
       
-        <title>Mail Forwarding | AWS SES - Docker Mailserver</title>
+        <title>Use Cases | Customize Mailbox Folders - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ca7ac06f.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ca7ac06f.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.f1a3b89f.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.f1a3b89f.min.css">
         
       
     
@@ -42,7 +42,7 @@
     
     
     
-      <link rel="stylesheet" href="../../../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../assets/css/customizations.css">
     
     
       
@@ -63,7 +63,7 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
       <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
@@ -72,6 +72,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#mailboxes-aka-imap-folders" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -79,9 +84,9 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -97,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Mail Forwarding | AWS SES
+              Use Cases | Customize Mailbox Folders
             
           </span>
         </div>
@@ -190,7 +195,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../../.." class="md-tabs__link">
+    <a href="../../.." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -202,7 +207,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../../../introduction/" class="md-tabs__link">
+    <a href="../../../introduction/" class="md-tabs__link">
       Introduction
     </a>
   </li>
@@ -211,15 +216,13 @@
         
   
   
-    
-  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../../../setup.sh/" class="md-tabs__link md-tabs__link--active">
+      <a href="../../../config/setup.sh/" class="md-tabs__link">
         Configuration
       </a>
     </li>
@@ -229,6 +232,8 @@
         
   
   
+    
+  
 
 
   
@@ -240,7 +245,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../../examples/tutorials/basic-installation/" class="md-tabs__link">
+      <a href="../../tutorials/basic-installation/" class="md-tabs__link md-tabs__link--active">
         Examples
       </a>
     </li>
@@ -255,7 +260,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../../../faq/" class="md-tabs__link">
+    <a href="../../../faq/" class="md-tabs__link">
       FAQ
     </a>
   </li>
@@ -270,7 +275,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../../contributing/issues-and-pull-requests/" class="md-tabs__link">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-tabs__link">
         Contributing
       </a>
     </li>
@@ -311,6 +316,8 @@
           
             
               
+                
+              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -321,9 +328,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -352,7 +359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         Home
       </a>
     </li>
@@ -367,7 +374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../introduction/" class="md-nav__link">
+      <a href="../../../introduction/" class="md-nav__link">
         Introduction
       </a>
     </li>
@@ -380,14 +387,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" data-md-state="indeterminate" type="checkbox" id="__nav_3" checked>
       
       <label class="md-nav__link" for="__nav_3">
         Configuration
@@ -405,7 +410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../setup.sh/" class="md-nav__link">
+      <a href="../../../config/setup.sh/" class="md-nav__link">
         Your Best Friend setup.sh
       </a>
     </li>
@@ -417,7 +422,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../environment/" class="md-nav__link">
+      <a href="../../../config/environment/" class="md-nav__link">
         Environment Variables
       </a>
     </li>
@@ -450,7 +455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../user-management/accounts/" class="md-nav__link">
+      <a href="../../../config/user-management/accounts/" class="md-nav__link">
         Accounts
       </a>
     </li>
@@ -462,7 +467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../user-management/aliases/" class="md-nav__link">
+      <a href="../../../config/user-management/aliases/" class="md-nav__link">
         Aliases
       </a>
     </li>
@@ -501,7 +506,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/dkim/" class="md-nav__link">
+      <a href="../../../config/best-practices/dkim/" class="md-nav__link">
         DKIM
       </a>
     </li>
@@ -513,7 +518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/dmarc/" class="md-nav__link">
+      <a href="../../../config/best-practices/dmarc/" class="md-nav__link">
         DMARC
       </a>
     </li>
@@ -525,7 +530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/spf/" class="md-nav__link">
+      <a href="../../../config/best-practices/spf/" class="md-nav__link">
         SPF
       </a>
     </li>
@@ -537,7 +542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../../config/best-practices/autodiscover/" class="md-nav__link">
         Auto-discovery
       </a>
     </li>
@@ -576,7 +581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../../config/security/understanding-the-ports/" class="md-nav__link">
         Understanding the Ports
       </a>
     </li>
@@ -588,7 +593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/ssl/" class="md-nav__link">
+      <a href="../../../config/security/ssl/" class="md-nav__link">
         SSL/TLS
       </a>
     </li>
@@ -600,7 +605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/fail2ban/" class="md-nav__link">
+      <a href="../../../config/security/fail2ban/" class="md-nav__link">
         Fail2Ban
       </a>
     </li>
@@ -612,7 +617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/mail_crypt/" class="md-nav__link">
+      <a href="../../../config/security/mail_crypt/" class="md-nav__link">
         Mail Encryption
       </a>
     </li>
@@ -651,7 +656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshooting/debugging/" class="md-nav__link">
+      <a href="../../../config/troubleshooting/debugging/" class="md-nav__link">
         Debugging
       </a>
     </li>
@@ -669,7 +674,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pop3/" class="md-nav__link">
+      <a href="../../../config/pop3/" class="md-nav__link">
         Mail Delivery with POP3
       </a>
     </li>
@@ -679,14 +684,12 @@
             
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8" type="checkbox" id="__nav_3_8" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8" data-md-state="indeterminate" type="checkbox" id="__nav_3_8" checked>
       
       <label class="md-nav__link" for="__nav_3_8">
         Advanced Configuration
@@ -704,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../optional-config/" class="md-nav__link">
+      <a href="../../../config/advanced/optional-config/" class="md-nav__link">
         Optional Configuration
       </a>
     </li>
@@ -737,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../../../config/advanced/maintenance/update-and-cleanup/" class="md-nav__link">
         Update and Cleanup
       </a>
     </li>
@@ -776,7 +779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../override-defaults/dovecot/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/dovecot/" class="md-nav__link">
         Dovecot
       </a>
     </li>
@@ -788,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../override-defaults/postfix/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/postfix/" class="md-nav__link">
         Postfix
       </a>
     </li>
@@ -800,7 +803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../override-defaults/user-patches/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/user-patches/" class="md-nav__link">
         Modifications via Script
       </a>
     </li>
@@ -818,7 +821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../auth-ldap/" class="md-nav__link">
+      <a href="../../../config/advanced/auth-ldap/" class="md-nav__link">
         LDAP Authentication
       </a>
     </li>
@@ -830,7 +833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mail-sieve/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-sieve/" class="md-nav__link">
         Email Filtering with Sieve
       </a>
     </li>
@@ -842,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mail-fetchmail/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-fetchmail/" class="md-nav__link">
         Email Gathering with Fetchmail
       </a>
     </li>
@@ -852,14 +855,12 @@
             
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8_7" type="checkbox" id="__nav_3_8_7" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8_7" data-md-state="indeterminate" type="checkbox" id="__nav_3_8_7" checked>
       
       <label class="md-nav__link" for="__nav_3_8_7">
         Email Forwarding
@@ -877,7 +878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../relay-hosts/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
         Relay Hosts
       </a>
     </li>
@@ -887,19 +888,11 @@
             
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../config/advanced/mail-forwarding/aws-ses/" class="md-nav__link">
         AWS SES
       </a>
-      
     </li>
   
 
@@ -915,7 +908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../full-text-search/" class="md-nav__link">
+      <a href="../../../config/advanced/full-text-search/" class="md-nav__link">
         Full-Text Search
       </a>
     </li>
@@ -927,7 +920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../kubernetes/" class="md-nav__link">
+      <a href="../../../config/advanced/kubernetes/" class="md-nav__link">
         Kubernetes
       </a>
     </li>
@@ -939,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ipv6/" class="md-nav__link">
+      <a href="../../../config/advanced/ipv6/" class="md-nav__link">
         IPv6
       </a>
     </li>
@@ -964,12 +957,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" data-md-state="indeterminate" type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
       
       <label class="md-nav__link" for="__nav_4">
         Examples
@@ -1008,7 +1003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../tutorials/basic-installation/" class="md-nav__link">
         Basic Installation
       </a>
     </li>
@@ -1020,7 +1015,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../tutorials/mailserver-behind-proxy/" class="md-nav__link">
         Mailserver behind Proxy
       </a>
     </li>
@@ -1036,12 +1031,14 @@
             
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" data-md-state="indeterminate" type="checkbox" id="__nav_4_2" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
       
       <label class="md-nav__link" for="__nav_4_2">
         Use Cases
@@ -1059,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         Forward-Only Mailserver with LDAP
       </a>
     </li>
@@ -1069,11 +1066,92 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../../../examples/uses-cases/imap-folders/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Customize IMAP Folders
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Customize IMAP Folders
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-mailbox-folder" class="md-nav__link">
+    Adding a mailbox folder
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caution" class="md-nav__link">
+    Caution
+  </a>
+  
+    <nav class="md-nav" aria-label="Caution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-folders-to-an-existing-setup" class="md-nav__link">
+    Adding folders to an existing setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#support-for-special-use-attributes" class="md-nav__link">
+    Support for SPECIAL-USE attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internationalization-i18n" class="md-nav__link">
+    Internationalization (i18n)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email-clients-support" class="md-nav__link">
+    Email Clients Support
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1098,7 +1176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         FAQ
       </a>
     </li>
@@ -1134,7 +1212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         Issues and Pull Requests
       </a>
     </li>
@@ -1146,7 +1224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/coding-style/" class="md-nav__link">
+      <a href="../../../contributing/coding-style/" class="md-nav__link">
         Coding Style
       </a>
     </li>
@@ -1158,7 +1236,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/tests/" class="md-nav__link">
+      <a href="../../../contributing/tests/" class="md-nav__link">
         Tests
       </a>
     </li>
@@ -1170,7 +1248,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/documentation/" class="md-nav__link">
+      <a href="../../../contributing/documentation/" class="md-nav__link">
         Documentation
       </a>
     </li>
@@ -1220,38 +1298,137 @@
               </div>
             
             
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-mailbox-folder" class="md-nav__link">
+    Adding a mailbox folder
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caution" class="md-nav__link">
+    Caution
+  </a>
+  
+    <nav class="md-nav" aria-label="Caution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-folders-to-an-existing-setup" class="md-nav__link">
+    Adding folders to an existing setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#support-for-special-use-attributes" class="md-nav__link">
+    Support for SPECIAL-USE attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internationalization-i18n" class="md-nav__link">
+    Internationalization (i18n)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email-clients-support" class="md-nav__link">
+    Email Clients Support
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/mail-forwarding/aws-ses.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/uses-cases/imap-folders.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>AWS SES</h1>
-                
-                <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>New configuration, see <a href="../relay-hosts/">Configure Relay Hosts</a></p>
+                <h1 id="mailboxes-aka-imap-folders"><a class="toclink" href="#mailboxes-aka-imap-folders">Mailboxes (<em>aka IMAP Folders</em>)</a></h1>
+<p><code>INBOX</code> is setup as the private <a href="https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox"><code>inbox</code> namespace</a>. By default <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> configures the special IMAP folders <code>Drafts</code>, <code>Sent</code>, <code>Junk</code> and <code>Trash</code> to be automatically created and subscribed. They are all assigned to the private <a href="https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox"><code>inbox</code> namespace</a> (<em>which implicitly provides the <code>INBOX</code> folder</em>).</p>
+<p>These IMAP folders are considered special because they add a <a href="https://datatracker.ietf.org/doc/html/rfc6154"><em>"SPECIAL-USE"</em> attribute</a>, which is a standardized way to communicate to mail clients that the folder serves a purpose like storing spam/junk mail (<code>\Junk</code>) or deleted mail (<code>\Trash</code>). This differentiates them from regular mail folders that you may use for organizing.</p>
+<h2 id="adding-a-mailbox-folder"><a class="toclink" href="#adding-a-mailbox-folder">Adding a mailbox folder</a></h2>
+<p>See <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the <a href="https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings">official Dovecot documentation</a>.</p>
+<p>The <code>Archive</code> special IMAP folder may be useful to enable. To do so, make a copy of <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> and uncomment the <code>Archive</code> mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the <a href="https://datatracker.ietf.org/doc/html/rfc6154"><code>\Archive</code> <em>"SPECIAL-USE"</em> attribute</a>.</p>
+<p>With the provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml">docker-compose.yml</a> example, a volume bind mounts the host directory <code>config</code> to the container location <code>/tmp/docker-mailserver</code>. Config file overrides should instead be mounted to a different location as described in <a href="../../../config/advanced/override-defaults/dovecot/#override-configuration">Overriding Configuration for Dovecot</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">...</span>
+  <span class="l l-Scalar l-Scalar-Plain">- ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro</span>
+</code></pre></div>
+<h2 id="caution"><a class="toclink" href="#caution">Caution</a></h2>
+<h3 id="adding-folders-to-an-existing-setup"><a class="toclink" href="#adding-folders-to-an-existing-setup">Adding folders to an existing setup</a></h3>
+<p>Handling of newly added mailbox folders can be inconsistent across mail clients:</p>
+<ul>
+<li>Users may experience issues such as archived emails only being available locally.</li>
+<li>Users may need to migrate emails manually between two folders.</li>
+</ul>
+<h3 id="support-for-special-use-attributes"><a class="toclink" href="#support-for-special-use-attributes">Support for <code>SPECIAL-USE</code> attributes</a></h3>
+<p>Not all mail clients support the <code>SPECIAL-USE</code> attribute for mailboxes (<em>defined in <a href="https://datatracker.ietf.org/doc/html/rfc6154">RFC 6154</a></em>). These clients will treat the mailbox folder as any other, using the name assigned to it instead.</p>
+<p>Some clients may still know to treat these folders for their intended purpose if the mailbox name matches the common names that the <code>SPECIAL-USE</code> attributes represent (<em>eg <code>Sent</code> as the mailbox name for <code>\Sent</code></em>).</p>
+<h3 id="internationalization-i18n"><a class="toclink" href="#internationalization-i18n">Internationalization (i18n)</a></h3>
+<p>Usually the mail client will know via context such as the <code>SPECIAL-USE</code> attribute or common English mailbox names, to provide a localized label for the users preferred language.</p>
+<p>Take care to test localized names work well as well.</p>
+<h3 id="email-clients-support"><a class="toclink" href="#email-clients-support">Email Clients Support</a></h3>
+<ul>
+<li>If a new mail account is added without the <code>SPECIAL-USE</code> attribute enabled for archives:<ul>
+<li><strong>Thunderbird</strong> suggests and may create an <code>Archives</code> folder on the server.</li>
+<li><strong>Outlook for Android</strong> archives to a local folder.</li>
+<li><strong>Spark for Android</strong> archives to server folder named <code>Archive</code>.</li>
+</ul>
+</li>
+<li>If a new mail account is added after the <code>SPECIAL-USE</code> attribute is enabled for archives:<ul>
+<li><strong>Thunderbird</strong>, <strong>Outlook for Android</strong> and <strong>Spark for Android</strong> will use the mailbox folder name assigned.</li>
+</ul>
+</li>
+</ul>
+<div class="admonition caution">
+<p class="admonition-title">Windows Mail</p>
+<p><strong>Windows Mail</strong> has been said to ignore <code>SPECIAL-USE</code> attribute and look only at the mailbox folder name assigned.</p>
 </div>
-<p>Instead of letting postfix deliver mail directly it is possible to configure it to deliver outgoing email via Amazon SES (Simple Email Service). (Receiving inbound email via SES is not implemented.) The configuration follows the guidelines provided by AWS in <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html">https://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html</a>, specifically, the <code>STARTTLS</code> method.</p>
-<p>As described in the AWS Developer Guide you will have to generate SMTP credentials and define the following two environment variables in the docker-compose.yml with the appropriate values for your AWS SES subscription (the values for <code>AWS_SES_USERPASS</code> are the "SMTP username" and "SMTP password" provided when you create SMTP credentials for SES):</p>
-<div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">AWS_SES_HOST=email-smtp.us-east-1.amazonaws.com</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">AWS_SES_USERPASS=AKIAXXXXXXXXXXXXXXXX:kqXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-</code></pre></div>
-<p>If necessary, you can also provide <code>AWS_SES_PORT</code>. If not provided, it defaults to 25.</p>
-<p>When you start the container you will see a log line as follows confirming the configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="go">Setting up outgoing email via AWS SES host email-smtp.us-east-1.amazonaws.com</span>
-</code></pre></div>
-<p>To verify proper operation, send an email to some external account of yours and inspect the mail headers. You will also see the connection to SES in the mail logs. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="go">May 23 07:09:36 mail postfix/smtp[692]: Trusted TLS connection established to email-smtp.us-east-1.amazonaws.com[107.20.142.169]:25:</span>
-<span class="go">TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits)</span>
-<span class="go">May 23 07:09:36 mail postfix/smtp[692]: 8C82A7E7: to=&lt;someone@example.com&gt;, relay=email-smtp.us-east-1.amazonaws.com[107.20.142.169]:25,</span>
-<span class="go">delay=0.35, delays=0/0.02/0.13/0.2, dsn=2.0.0, status=sent (250 Ok 01000154dc729264-93fdd7ea-f039-43d6-91ed-653e8547867c-000000)</span>
-</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Needs citation</p>
+<p>This information is provided by the community.</p>
+<p>It presently lacks references to confirm the behaviour. If any information is incorrect please let us know! <img alt="😄" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f604.svg" title=":smile:" /></p>
+</div>
                 
                   
                 
@@ -1277,7 +1454,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../relay-hosts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Relay Hosts" rel="prev">
+        <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Forward-Only Mailserver with LDAP" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1286,20 +1463,20 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Relay Hosts
+              Forward-Only Mailserver with LDAP
             </div>
           </div>
         </a>
       
       
         
-        <a href="../../full-text-search/" class="md-footer__link md-footer__link--next" aria-label="Next: Full-Text Search" rel="next">
+        <a href="../../../faq/" class="md-footer__link md-footer__link--next" aria-label="Next: FAQ" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Full-Text Search
+              FAQ
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1332,10 +1509,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.b0710199.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.b0710199.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.76f349be.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.76f349be.min.js"></script>
       
     
   </body>
