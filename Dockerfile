@@ -35,16 +35,12 @@ ENV VIRUSMAILS_DELETE_DELAY=7
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # -----------------------------------------------
-# --- Prepare Backports Repo  -------------------
-# -----------------------------------------------
-
-RUN printf "deb http://httpredir.debian.org/debian buster-backports main non-free\ndeb-src http://httpredir.debian.org/debian buster-backports main non-free" > /etc/apt/sources.list.d/backports.list
-
-# -----------------------------------------------
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
 RUN \
+  # Backport repo for dovecot-fts-xapian package. This can be removed once Debian 11 is used as base image.
+  echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
   apt-get -qq update && \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
