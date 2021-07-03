@@ -1,4 +1,4 @@
-FROM docker.io/debian:bullseye-slim
+FROM docker.io/debian:buster-slim
 
 ARG VCS_VER
 ARG VCS_REF
@@ -33,6 +33,12 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 ENV VIRUSMAILS_DELETE_DELAY=7
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# -----------------------------------------------
+# --- Prepare Backports Repo  -------------------
+# -----------------------------------------------
+
+RUN printf "deb http://httpredir.debian.org/debian buster-backports main non-free\ndeb-src http://httpredir.debian.org/debian buster-backports main non-free" > /etc/apt/sources.list.d/backports.list
 
 # -----------------------------------------------
 # --- Install Basic Software --------------------

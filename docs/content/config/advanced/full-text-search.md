@@ -20,9 +20,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
 #### Setup
 
-1. configure fts-xapian as a dovecot plugin
-
-    create a `fts-xapian-plugin.conf` file and place the following in it
+1. To configure fts-xapian as a dovecot plugin, create a `fts-xapian-plugin.conf` file and place the following in it:
 
     ```
     mail_plugins = $mail_plugins fts fts_xapian
@@ -57,7 +55,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
     adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments
 
-2. update `docker-compose.yml` to load the previously created dovecot plugin config file
+2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
 
     ```yaml
 
@@ -100,7 +98,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
       docker-compose exec mailserver doveadm index -A -q \*
     ```
 
-  5. run the following command in a daily cron job
+  5. Run the following command in a daily cron job:
 
     ```
       docker-compose exec mailserver doveadm fts optimize -A
