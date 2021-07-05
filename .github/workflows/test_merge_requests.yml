@@ -22,7 +22,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.2.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1.3.0
+        uses: docker/setup-buildx-action@v1.5.0
         id: buildx
       - name: Cache Docker layers
         uses: actions/cache@v2.1.6
@@ -32,7 +32,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Build images locally
-        uses: docker/build-push-action@v2.5.0
+        uses: docker/build-push-action@v2.6.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -44,7 +44,7 @@ jobs:
           tags: mailserver-testing:ci
           cache-to: type=local,dest=/tmp/.buildx-cache
       - name: Build image for test suit
-        uses: docker/build-push-action@v2.5.0
+        uses: docker/build-push-action@v2.6.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
