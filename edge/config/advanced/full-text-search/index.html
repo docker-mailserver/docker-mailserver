@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/full-text-search/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.8">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
     
     
       
@@ -943,19 +943,58 @@
     Overview
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#setup-steps" class="md-nav__link">
-    Setup Steps
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xapian" class="md-nav__link">
+    Xapian
+  </a>
+  
+    <nav class="md-nav" aria-label="Xapian">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solr" class="md-nav__link">
+    Solr
+  </a>
+  
+    <nav class="md-nav" aria-label="Solr">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup_1" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#further-discussion" class="md-nav__link">
     Further Discussion
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1286,19 +1325,58 @@
     Overview
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#setup-steps" class="md-nav__link">
-    Setup Steps
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xapian" class="md-nav__link">
+    Xapian
+  </a>
+  
+    <nav class="md-nav" aria-label="Xapian">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solr" class="md-nav__link">
+    Solr
+  </a>
+  
+    <nav class="md-nav" aria-label="Solr">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup_1" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#further-discussion" class="md-nav__link">
     Further Discussion
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1322,9 +1400,98 @@
                   <h1>Full-Text Search</h1>
                 
                 <h2 id="overview"><a class="toclink" href="#overview">Overview</a></h2>
-<p>Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content.</p>
+<p>Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported <a href="https://doc.dovecot.org/configuration_manual/fts/">FTS indexing backends</a>.</p>
+<p>Docker-mailserver comes pre-installed with two plugins that can be enabled with a dovecot config file.</p>
+<p>Please be aware that indexing consumes memory and takes up additional disk space.</p>
+<h3 id="xapian"><a class="toclink" href="#xapian">Xapian</a></h3>
+<p>The <a href="https://github.com/grosjo/fts-xapian">dovecot-fts-xapian</a> plugin makes use of <a href="https://xapian.org/">Xapian</a>. Xapian enables embedding an FTS engine without the need for additional backends.</p>
+<p>The indexes will be stored as a subfolder named <code>xapian-indexes</code> inside your <code>mail</code> folder. With the default settings, 10GB of email data may generate around 4GB of indexed data.</p>
+<p>While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB) as compared to Solr.</p>
+<h4 id="setup"><a class="toclink" href="#setup">Setup</a></h4>
+<ol>
+<li>
+<p>To configure fts-xapian as a dovecot plugin, create a <code>fts-xapian-plugin.conf</code> file and place the following in it:</p>
+<div class="highlight"><pre><span></span><code>mail_plugins = $mail_plugins fts fts_xapian
+
+plugin {
+    fts = xapian
+    fts_xapian = partial=3 full=20 verbose=0
+
+    fts_autoindex = yes
+    fts_enforced = yes
+
+    # disable indexing of folders
+    # fts_autoindex_exclude = \Trash
+
+    # Index attachements
+    # fts_decoder = decode2text
+}
+
+service indexer-worker {
+    # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
+    vsz_limit = 1GB
+}
+
+# service decode2text {
+#     executable = script /usr/libexec/dovecot/decode2text.sh
+#     user = dovecot
+#     unix_listener decode2text {
+#         mode = 0666
+#     }
+# }
+</code></pre></div>
+<p>adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments</p>
+</li>
+<li>
+<p>Update <code>docker-compose.yml</code> to load the previously created dovecot plugin config file:</p>
+<div class="highlight"><pre><span></span><code>  <span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
+  <span class="nt">services</span><span class="p">:</span>
+    <span class="nt">mailserver</span><span class="p">:</span>
+      <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
+      <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
+      <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+      <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+      <span class="nt">env_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.env</span>
+      <span class="nt">ports</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>    <span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>  <span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;465:465&quot;</span>  <span class="c1"># ESMTP (implicit TLS)</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>  <span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>  <span class="c1"># IMAP4 (implicit TLS)</span>
+      <span class="nt">volumes</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/mail:/var/mail</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/state:/var/mail-state</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/logs:/var/log/mail</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/:/tmp/docker-mailserver/</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
+      <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
+      <span class="nt">stop_grace_period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1m</span>
+      <span class="nt">cap_add</span><span class="p">:</span> <span class="p p-Indicator">[</span> <span class="s">&quot;NET_ADMIN&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;SYS_PTRACE&quot;</span> <span class="p p-Indicator">]</span>
+</code></pre></div>
+</li>
+<li>
+<p>Recreate containers: </p>
+<div class="highlight"><pre><span></span><code>  docker-compose down
+  docker-compose up -d
+</code></pre></div>
+</li>
+<li>
+<p>Initialize indexing on all users for all mail:</p>
+<div class="highlight"><pre><span></span><code>  docker-compose exec mailserver doveadm index -A -q \*
+</code></pre></div>
+</li>
+<li>
+<p>Run the following command in a daily cron job:</p>
+<div class="highlight"><pre><span></span><code>  docker-compose exec mailserver doveadm fts optimize -A
+</code></pre></div>
+</li>
+</ol>
+<h3 id="solr"><a class="toclink" href="#solr">Solr</a></h3>
 <p>The <a href="https://wiki2.dovecot.org/Plugins/FTS/Solr">dovecot-solr Plugin</a> is used in conjunction with <a href="https://lucene.apache.org/solr/">Apache Solr</a> running in a separate container. This is quite straightforward to setup using the following instructions.</p>
-<h2 id="setup-steps"><a class="toclink" href="#setup-steps">Setup Steps</a></h2>
+<p>Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email. </p>
+<p>However, Solr also requires a fair bit of RAM. While Solr is <a href="https://solr.apache.org/guide/7_0/query-settings-in-solrconfig.html">highly tuneable</a>, it may require a bit of testing to get it right.</p>
+<h4 id="setup_1"><a class="toclink" href="#setup_1">Setup</a></h4>
 <ol>
 <li>
 <p><code>docker-compose.yml</code>:</p>
@@ -1363,9 +1530,11 @@
 <li>
 <p>Recreate containers: <code>docker-compose down ; docker-compose up -d</code></p>
 </li>
-<li>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker-compose exec mailserver doveadm fts rescan -A</code></li>
+<li>
+<p>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker-compose exec mailserver doveadm fts rescan -A</code></p>
+</li>
 </ol>
-<h2 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h2>
+<h4 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h4>
 <p>See <a href="https://github.com/docker-mailserver/docker-mailserver/issues/905">#905</a></p>
                 
                   
@@ -1447,10 +1616,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.b0710199.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.477d984a.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.76f349be.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.82b56eb2.min.js"></script>
       
     
   </body>
