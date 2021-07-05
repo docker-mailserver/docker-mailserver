@@ -39,6 +39,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 RUN \
+  # Backport repo for dovecot-fts-xapian package. This can be removed once Debian 11 is used as base image.
+  echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
   apt-get -qq update && \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
@@ -47,9 +49,9 @@ RUN \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
   ca-certificates cabextract clamav clamav-daemon cpio curl \
-  dbconfig-no-thanks dovecot-core dovecot-imapd dovecot-ldap \
-  dovecot-lmtpd dovecot-managesieved dovecot-pop3d dovecot-sieve \
-  dovecot-solr dumb-init \
+  dbconfig-no-thanks dovecot-core dovecot-fts-xapian dovecot-imapd \
+  dovecot-ldap dovecot-lmtpd dovecot-managesieved dovecot-pop3d \
+  dovecot-sieve dovecot-solr dumb-init \
   # E - O
   ed fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
