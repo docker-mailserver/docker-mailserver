@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "eleith",
+      "name": "eleith",
+      "avatar_url": "https://avatars.githubusercontent.com/u/284832?v=4",
+      "profile": "http://eleith.com",
+      "contributions": [
+        "infra"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "docker-mailserver",
+  "projectOwner": "docker-mailserver",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
