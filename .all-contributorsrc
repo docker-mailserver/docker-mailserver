@@ -16,6 +16,7 @@
     }
   ],
   "contributorsPerLine": 7,
+  "badgeTemplate": ""
   "projectName": "docker-mailserver",
   "projectOwner": "docker-mailserver",
   "repoType": "github",
