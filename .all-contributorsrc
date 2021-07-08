@@ -14,6 +14,15 @@
         "infra",
         "doc"
       ]
+    },
+    {
+      "login": "NorseGaud",
+      "name": "Nathan Pierce",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5896030?v=4",
+      "profile": "https://github.com/NorseGaud",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
