@@ -1,0 +1,26 @@
+{
+  "files": [
+    "CONTRIBUTORS.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "eleith",
+      "name": "eleith",
+      "avatar_url": "https://avatars.githubusercontent.com/u/284832?v=4",
+      "profile": "http://eleith.com",
+      "contributions": [
+        "infra",
+        "docs"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "badgeTemplate": ""
+  "projectName": "docker-mailserver",
+  "projectOwner": "docker-mailserver",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": false
+}
