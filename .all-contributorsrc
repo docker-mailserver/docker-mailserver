@@ -17,10 +17,11 @@
     }
   ],
   "contributorsPerLine": 7,
-  "badgeTemplate": ""
+  "badgeTemplate": "",
   "projectName": "docker-mailserver",
   "projectOwner": "docker-mailserver",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": false
+  "skipCi": false,
+  "commitConvention": "none"
 }
