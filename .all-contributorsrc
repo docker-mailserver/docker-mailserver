@@ -30,7 +30,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/44545919?v=4",
       "profile": "https://github.com/georglauterbach",
       "contributions": [
-        "maintenance"
+        "maintenance",
+        "code",
+        "question",
+        "review"
       ]
     }
   ],
