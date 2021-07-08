@@ -23,6 +23,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "hnws",
+      "name": "hnws",
+      "avatar_url": "https://avatars.githubusercontent.com/u/668137?v=4",
+      "profile": "https://github.com/hnws",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
