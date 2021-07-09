@@ -44,6 +44,16 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "wernerfred",
+      "name": "Frederic Werner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20406381?v=4",
+      "profile": "https://github.com/wernerfred",
+      "contributions": [
+        "doc",
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7,
