@@ -14,7 +14,7 @@ A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.)
 If you have issues, read the full `README` **and** the [documentation][documentation::web] **for your version** (default is `edge`) first **before opening an issue**. The issue tracker is for issues, not for personal support.
 
 1. [Included Services](#included-services)
-2. [Issues and Contributing](./CONTRIBUTING.md)
+2. [Issues and Contributing](https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/)
 3. [Requirements](#requirements)
 4. [Usage](#usage)
 5. [Examples](#examples)
