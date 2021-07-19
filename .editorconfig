@@ -30,7 +30,7 @@ trim_trailing_whitespace = false
 # --- Git Submodules ----------------------------
 # -----------------------------------------------
 
-[{test/bats/**,test/test_helper/**,target/docker-configomat/**}]
+[{test/bats-core/**,test/test_helper/**,target/docker-configomat/**}]
 indent_style = none
 indent_size = none
 end_of_line = none

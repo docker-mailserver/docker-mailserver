@@ -99,7 +99,7 @@ function _shellcheck
   
   # File paths for shellcheck:
   F_SH="$(find . -type f -iname '*.sh' \
-    -not -path './test/bats/*' \
+    -not -path './test/bats-core/*' \
     -not -path './test/test_helper/*' \
     -not -path './target/docker-configomat/*'
   )"
