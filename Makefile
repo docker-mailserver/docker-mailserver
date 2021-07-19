@@ -40,11 +40,11 @@ generate-accounts:
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
 tests:
-	@ NAME=$(NAME) ./test/bats-core/bin/bats test/*.bats
+	@ NAME=$(NAME) ./test/bats-core/bin/bats --log test/*.bats
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
-	@ ./test/bats-core/bin/bats $@
+	@ ./test/bats-core/bin/bats --log $@
 
 lint: eclint hadolint shellcheck
 

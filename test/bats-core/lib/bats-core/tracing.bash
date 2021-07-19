@@ -31,27 +31,33 @@ bats_print_stack_trace() {
 	local lineno
 
 	for frame in "$@"; do
+    local line=''
 		bats_frame_filename "$frame" 'filename'
 		bats_trim_filename "$filename" 'filename'
 		bats_frame_lineno "$frame" 'lineno'
 
 		if [[ $index -eq 1 ]]; then
-			printf '# ('
+		  line+="# ("
 		else
-			printf '#  '
+			line+="#  "
 		fi
 
 		local fn
 		bats_frame_function "$frame" 'fn'
 		if [[ "$fn" != "$BATS_TEST_NAME" ]]; then
-			printf "from function \`%s' " "$fn"
+      line+="from function \`$fn' "
 		fi
 
 		if [[ $index -eq $count ]]; then
-			printf 'in test file %s, line %d)\n' "$filename" "$lineno"
+			line+="in test file $filename, line $lineno)"
 		else
-			printf 'in file %s, line %d,\n' "$filename" "$lineno"
+			line+="in file $filename, line $lineno,"
 		fi
+
+    echo "$line"
+    if [ -w "${BATS_LOG}" ]; then
+      echo "$line" >> "${BATS_LOG}"
+    fi
 
 		((++index))
 	done
@@ -63,18 +69,24 @@ bats_print_failed_command() {
 	local lineno
 	local failed_line
 	local failed_command
+  local output=''
 
 	bats_frame_filename "$frame" 'filename'
 	bats_frame_lineno "$frame" 'lineno'
 	bats_extract_line "$filename" "$lineno" 'failed_line'
 	bats_strip_string "$failed_line" 'failed_command'
-	printf '%s' "#   \`${failed_command}' "
+	output+=$(printf '%s' "#   \`${failed_command}' ")
 
 	if [[ "$BATS_ERROR_STATUS" -eq 1 ]]; then
-		printf 'failed\n'
+		output+="failed"
 	else
-		printf 'failed with status %d\n' "$BATS_ERROR_STATUS"
+    output+="failed with status $BATS_ERROR_STATUS"
 	fi
+  
+  echo "$output"
+  if [ -w "${BATS_LOG}" ]; then
+    echo "$output" >> "${BATS_LOG}"
+  fi
 }
 
 bats_frame_lineno() {

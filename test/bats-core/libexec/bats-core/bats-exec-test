@@ -71,6 +71,7 @@ bats_exit_trap() {
   local line
   local status
   local skipped=''
+  local to_log=''
   trap - ERR EXIT
 
   if [[ -n "$BATS_TEST_SKIPPED" ]]; then
@@ -83,6 +84,10 @@ bats_exit_trap() {
   BATS_TEST_TIME=''
   if [[ -z "${skipped}" && -n "$BATS_ENABLE_TIMING" ]]; then
     BATS_TEST_TIME=" in "$(( $(get_mills_since_epoch) - BATS_TEST_START_TIME ))"ms"
+  fi
+
+  if [ -w "${BATS_LOG}" ]; then
+    echo "[$$] <<< end output (took ${BATS_TEST_TIME}) >>>" >> "${BATS_LOG}"
   fi
 
   if [[ -z "$BATS_TEST_COMPLETED" || -z "$BATS_TEARDOWN_COMPLETED" ]]; then
@@ -99,6 +104,7 @@ bats_exit_trap() {
       BATS_STACK_TRACE=("${BATS_CURRENT_STACK_TRACE[@]}")
       BATS_ERROR_STATUS=1
     fi
+    to_log="not ok $BATS_TEST_NUMBER '$BATS_TEST_DESCRIPTION' ${BATS_TEST_TIME}"
     printf 'not ok %d %s\n' "$BATS_SUITE_TEST_NUMBER" "${BATS_TEST_DESCRIPTION}${BATS_TEST_TIME}" >&3
     bats_print_stack_trace "${BATS_STACK_TRACE[@]}" >&3
     bats_print_failed_command >&3
@@ -113,7 +119,12 @@ bats_exit_trap() {
   else
     printf 'ok %d %s%s\n' "$BATS_SUITE_TEST_NUMBER" "${BATS_TEST_DESCRIPTION}${BATS_TEST_TIME}" \
       "$skipped" >&3
+    to_log="ok $BATS_TEST_NUMBER '$BATS_TEST_DESCRIPTION' ${BATS_TEST_TIME} $skipped"
     status=0
+  fi
+
+  if [ -w "${BATS_LOG}" ]; then
+    echo "[$$] $to_log" >> "${BATS_LOG}"
   fi
 
   rm -f "$BATS_OUT"

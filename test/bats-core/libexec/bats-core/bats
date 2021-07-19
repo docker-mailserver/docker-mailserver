@@ -46,6 +46,7 @@ HELP_TEXT_HEADER
   -p, --pretty              Shorthand for "--formatter pretty"
   -r, --recursive           Include tests in subdirectories
   -t, --tap                 Shorthand for "--formatter tap"
+  -l, --log                 Output a log file containing STDOUT/ERR from each test and commands
   -T, --timing              Add timing information to tests
   -v, --version             Display the version number
 
@@ -189,6 +190,12 @@ while [[ "$#" -ne 0 ]]; do
   --tempdir) # for internal test consumption only!
     BATS_RUN_TMPDIR="$2"
     shift
+    ;;
+  -l | --log)
+    if [[ -z "${BATS_LOG}" ]]; then
+      export BATS_LOG="/tmp/bats.log"
+    fi
+    touch "${BATS_LOG}"
     ;;
   -*)
     abort "Bad command line option '$1'"
