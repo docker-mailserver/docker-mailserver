@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# "unofficial" bash strict mode
+# See: http://redsymbol.net/articles/unofficial-bash-strict-mode
+set -o errexit  # Exit when simple command fails               'set -e'
+set -o errtrace # Exit on error inside any functions or subshells.
+set -o nounset  # Trigger error when expanding unset variables 'set -u'
+set -o pipefail # Do not hide errors within pipes              'set -o pipefail'
+set -o xtrace   # Display expanded command and arguments       'set -x'
+IFS=$'\n\t'     # Split words on \n\t rather than spaces
+
+main() {
+  tar -czf "$dst_tarball" -C "$src_dir" .
+}
+
+main "$@"

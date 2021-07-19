@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -e
+
+count_only_flag=''
+filter=''
+num_jobs=${BATS_NUMBER_OF_PARALLEL_JOBS-1}
+have_gnu_parallel=
+bats_parallel_args=()
+bats_no_parallelize_across_files=${BATS_NO_PARALLELIZE_ACROSS_FILES-}
+bats_no_parallelize_within_files=
+flags=('--dummy-flag') # add a dummy flag to prevent unset varialeb errors on empty array expansion in old bash versions
+
+abort() {
+  printf 'Error: %s\n' "$1" >&2
+  exit 1
+}
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+  -c)
+    count_only_flag=1
+    ;;
+  -f)
+    shift
+    filter="$1"
+    flags+=('-f' "$filter")
+    ;;
+  -j)
+    shift
+    num_jobs="$1"
+    flags+=('-j' "$num_jobs")
+    ;;
+  -T)
+    flags+=('-T')
+    ;;
+  -x)
+    flags+=('-x')
+    ;;
+  --no-parallelize-across-files)
+    bats_no_parallelize_across_files=1
+    ;;
+  --no-parallelize-within-files)
+    bats_no_parallelize_within_files=1
+    flags+=("--no-parallelize-within-files")
+    ;;
+  --dummy-flag)
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
+done
+
+if (type -p parallel &>/dev/null); then
+  # shellcheck disable=SC2034
+  have_gnu_parallel=1
+elif [[ "$num_jobs" != 1 && -z "$bats_no_parallelize_across_files" ]]; then
+  abort "Cannot execute \"${num_jobs}\" jobs without GNU parallel"
+  exit 1
+fi
+
+trap 'kill 0; exit 1' INT
+
+# create a file that contains all (filtered) tests to run from all files
+TESTS_LIST_FILE="${BATS_RUN_TMPDIR}/test_list_file.txt"
+
+all_tests=()
+for filename in "$@"; do
+  if [[ ! -f "$filename" ]]; then
+    abort "Test file \"${filename}\" does not exist"
+  fi
+
+  test_names=()
+  test_dupes=()
+  while read -r line; do
+    if [[ ! "$line" =~ ^bats_test_function\  ]]; then
+      continue
+    fi
+    line="${line%$'\r'}"
+    line="${line#* }"
+    test_line=$(printf "%s\t%s" "$filename" "$line")
+    all_tests+=("$test_line")
+    printf "%s\n" "$test_line" >>"$TESTS_LIST_FILE"
+    # avoid unbound variable errors on empty array expansion with old bash versions
+    if [[ ${#test_names[@]} -gt 0 && " ${test_names[*]} " == *" $line "* ]]; then
+      test_dupes+=("$line")
+      continue
+    fi
+    test_names+=("$line")
+  done < <(BATS_TEST_FILTER="$filter" bats-preprocess "$filename")
+
+  if [[ "${#test_dupes[@]}" -ne 0 ]]; then
+    abort "Duplicate test name(s) in file \"${filename}\": ${test_dupes[*]}"
+  fi
+done
+
+test_count="${#all_tests[@]}"
+
+if [[ -n "$count_only_flag" ]]; then
+  printf '%d\n' "${test_count}"
+  exit
+fi
+
+if [[ -n "$bats_no_parallelize_across_files" ]] && [[ ! "$num_jobs" -gt 1 ]]; then
+  abort "The flag --no-parallelize-across-files requires at least --jobs 2"
+  exit 1
+fi
+
+if [[ -n "$bats_no_parallelize_within_files" ]] && [[ ! "$num_jobs" -gt 1 ]]; then
+  abort "The flag --no-parallelize-across-files requires at least --jobs 2"
+  exit 1
+fi
+
+status=0
+printf '1..%d\n' "${test_count}"
+
+# No point on continuing if there's no tests.
+if [[ "${test_count}" == 0 ]]; then
+  exit
+fi
+
+# Deduplicate filenames (without reordering) to avoid running duplicate tests n by n times.
+# (see https://github.com/bats-core/bats-core/issues/329)
+# If a file was specified multiple times, we already got it repeatedly in our TESTS_LIST_FILE.
+# Thus, it suffices to bats-exec-file it once to run all repeated tests on it.
+IFS=$'\n' read -d '' -r -a  BATS_UNIQUE_TEST_FILENAMES < <(printf "%s\n" "$@"| nl | sort -k 2 | uniq -f 1 | sort -n | cut -f 2-) || true
+
+if [[ "$num_jobs" -gt 1 ]] && [[ -z "$bats_no_parallelize_across_files" ]]; then
+  # run files in parallel to get the maximum pool of parallel tasks
+  if [[ ${#flags[@]} -eq 0 ]]; then
+    # if there are no flags, our quoting below would keep an empty arg, which is wrong
+    parallel "${bats_parallel_args[@]}" --keep-order --jobs "$num_jobs" bats-exec-file "{}" "$TESTS_LIST_FILE"  ::: "${BATS_UNIQUE_TEST_FILENAMES[@]}" 2>&1 || status=1
+  else
+    # shellcheck disable=SC2086,SC2068
+    # we need to handle the quoting of ${flags[@]} ourselves,
+    # because parallel can only quote it as one
+    parallel --keep-order --jobs "$num_jobs" bats-exec-file "$(printf "%q " "${flags[@]}")" "{}" "$TESTS_LIST_FILE"  ::: "${BATS_UNIQUE_TEST_FILENAMES[@]}" 2>&1 || status=1
+  fi
+else
+  for filename in "${BATS_UNIQUE_TEST_FILENAMES[@]}"; do
+    bats-exec-file "${flags[@]}" "$filename" "${TESTS_LIST_FILE}" || status=1
+  done
+fi
+
+exit "$status"

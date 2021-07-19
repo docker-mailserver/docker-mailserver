@@ -1,0 +1,7 @@
+/docker-compose.override.yml
+/docs/build
+
+# npm
+/bats-*.tgz
+# we don't have any deps; un-ignore if that changes
+/package-lock.json

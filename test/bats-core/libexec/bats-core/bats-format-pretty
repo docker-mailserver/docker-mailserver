@@ -1,0 +1,235 @@
+#!/usr/bin/env bash
+set -e
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+  -T)
+    BATS_ENABLE_TIMING="-T"
+    ;;
+  esac
+  shift
+done
+
+update_count_column_width() {
+  count_column_width=$((${#count} * 2 + 2))
+  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+    # additional space for ' in %s sec'
+    count_column_width=$((count_column_width + ${#SECONDS} + 8))
+  fi
+  # also update dependent value
+  update_count_column_left
+}
+
+update_screen_width() {
+  screen_width="$(tput cols)"
+  # also update dependent value
+  update_count_column_left
+}
+
+update_count_column_left() {
+  count_column_left=$((screen_width - count_column_width))
+}
+
+trap update_screen_width WINCH
+update_screen_width
+
+begin() {
+  go_to_column 0
+  update_count_column_width
+  buffer_with_truncation $((count_column_left - 1)) '   %s' "$name"
+  clear_to_end_of_line
+  go_to_column $count_column_left
+  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+    buffer "%${#count}s/${count} in %s sec" "$index" "$SECONDS"
+  else
+    buffer "%${#count}s/${count}" "$index"
+  fi
+  go_to_column 1
+}
+
+pass() {
+  go_to_column 0
+  buffer ' ✓ %s' "$name"
+  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+    set_color 2
+    buffer ' [%s]' "$1"
+  fi
+  advance
+}
+
+skip() {
+  local reason="$1"
+  if [[ -n "$reason" ]]; then
+    reason=": $reason"
+  fi
+  go_to_column 0
+  buffer ' - %s (skipped%s)' "$name" "$reason"
+  advance
+}
+
+fail() {
+  go_to_column 0
+  set_color 1 bold
+  buffer ' ✗ %s' "$name"
+  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+    set_color 2
+    buffer ' [%s]' "$1"
+  fi
+  advance
+}
+
+log() {
+  set_color 1
+  buffer '   %s\n' "$1"
+  clear_color
+}
+
+summary() {
+  buffer '\n%d test' "$count"
+  if [[ "$count" -ne 1 ]]; then
+    buffer 's'
+  fi
+
+  buffer ', %d failure' "$failures"
+  if [[ "$failures" -ne 1 ]]; then
+    buffer 's'
+  fi
+
+  if [[ "$skipped" -gt 0 ]]; then
+    buffer ', %d skipped' "$skipped"
+  fi
+
+  not_run=$((count - passed - failures - skipped))
+  if [[ "$not_run" -gt 0 ]]; then
+    buffer ', %d not run' "$not_run"
+  fi
+
+  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+    buffer " in $SECONDS seconds"
+  fi
+
+  buffer '\n'
+}
+
+buffer_with_truncation() {
+  local width="$1"
+  shift
+  local string
+
+  # shellcheck disable=SC2059
+  printf -v 'string' -- "$@"
+
+  if [[ "${#string}" -gt "$width" ]]; then
+    buffer '%s...' "${string:0:$((width - 4))}"
+  else
+    buffer '%s' "$string"
+  fi
+}
+
+go_to_column() {
+  local column="$1"
+  buffer '\x1B[%dG' $((column + 1))
+}
+
+clear_to_end_of_line() {
+  buffer '\x1B[K'
+}
+
+advance() {
+  clear_to_end_of_line
+  buffer '\n'
+  clear_color
+}
+
+set_color() {
+  local color="$1"
+  local weight=22
+
+  if [[ "$2" == 'bold' ]]; then
+    weight=1
+  fi
+  buffer '\x1B[%d;%dm' "$((30 + color))" "$weight"
+}
+
+clear_color() {
+  buffer '\x1B[0m'
+}
+
+_buffer=
+
+buffer() {
+  local content
+  # shellcheck disable=SC2059
+  printf -v content -- "$@"
+  _buffer+="$content"
+}
+
+flush() {
+  printf '%s' "$_buffer"
+  _buffer=
+}
+
+finish() {
+  flush
+  printf '\n'
+}
+
+trap finish EXIT
+
+# shellcheck source=lib/bats-core/formatter.bash
+source "$BATS_ROOT/lib/bats-core/formatter.bash"
+
+bats_tap_stream_plan() {
+  count="$1"
+  index=0
+  passed=0
+  failures=0
+  skipped=0
+  name=
+  update_count_column_width
+}
+
+bats_tap_stream_begin() {
+  index="$1"
+  name="$2"
+  begin
+  flush
+}
+  
+bats_tap_stream_ok() {
+  index="$1"
+  ((++passed))
+  if [[ "$1" == "--duration" ]]; then
+    pass "$2"
+  else
+    pass
+  fi
+}
+
+bats_tap_stream_skipped() {
+  index="$1"
+  ((++skipped))
+  skip "$3"
+}
+
+bats_tap_stream_not_ok() {
+  index="$1"
+  ((++failures))
+  if [[ "$1" == "--duration" ]]; then
+    fail "$2"
+  else
+    fail
+  fi
+}
+
+bats_tap_stream_comment() {
+  log "$1"
+}
+
+bats_tap_stream_suite() {
+  : #test_file="$1"
+}
+
+bats_parse_internal_extended_tap
+
+summary

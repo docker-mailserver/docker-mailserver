@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+set -eET
+
+export flags=()
+num_jobs=1
+filter=''
+extended_syntax=''
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+  -c) ;;
+
+  -f)
+    shift
+    filter="$1"
+    flags+=('-f' "$filter")
+    ;;
+  -j)
+    shift
+    num_jobs="$1"
+    ;;
+  -T)
+    flags+=('-T')
+    ;;
+  -x)
+    flags+=('-x')
+    extended_syntax=1
+    ;;
+  --no-parallelize-within-files)
+    # use singular to allow for users to override in file
+    BATS_NO_PARALLELIZE_WITHIN_FILE=1
+    ;;
+  --dummy-flag)
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
+done
+
+filename="$1"
+TESTS_FILE="$2"
+
+if [[ ! -f "$filename" ]]; then
+  printf 'Testfile "%s" not found\n' "$filename" >&2
+  exit 1
+fi
+
+BATS_TEST_FILENAME="$filename"
+
+# shellcheck source=lib/bats-core/preprocessing.bash
+# shellcheck disable=SC2153
+source "$BATS_ROOT/lib/bats-core/preprocessing.bash"
+
+bats_run_setup_file() {
+  # shellcheck source=lib/bats-core/tracing.bash
+  # shellcheck disable=SC2153
+  source "$BATS_ROOT/lib/bats-core/tracing.bash"
+  # shellcheck source=lib/bats-core/test_functions.bash
+  # shellcheck disable=SC2153
+  source "$BATS_ROOT/lib/bats-core/test_functions.bash"
+
+  exec 3<&1
+
+  BATS_STACK_TRACE=()
+  # shellcheck disable=2034
+  BATS_CURRENT_STACK_TRACE=() # used in tracing.bash
+
+  # these are defined only to avoid errors when referencing undefined variables down the line
+  # shellcheck disable=2034
+  BATS_TEST_NAME=      # used in tracing.bash
+  # shellcheck disable=2034
+  BATS_TEST_COMPLETED= # used in tracing.bash
+
+  BATS_SETUP_FILE_COMPLETED=
+  BATS_TEARDOWN_FILE_COMPLETED=
+  # shellcheck disable=2034
+  BATS_ERROR_STATUS= # used in tracing.bash
+  trap 'bats_debug_trap "$BASH_SOURCE"' DEBUG
+  trap 'bats_error_trap' ERR
+  trap 'bats_file_teardown_trap' EXIT
+
+  touch "$BATS_OUT"
+  # get the setup_file/teardown_file functions for this file (if it has them)
+  # shellcheck disable=SC1090
+  source "$BATS_TEST_SOURCE"
+  setup_file >>"$BATS_OUT" 2>&1
+
+  BATS_SETUP_FILE_COMPLETED=1
+}
+
+bats_run_teardown_file() {
+  # avoid running the therdown trap due to errors in teardown_file
+  trap 'bats_file_exit_trap' EXIT
+  local status=0
+  # rely on bats_error_trap to catch failures
+  teardown_file >>"$BATS_OUT" 2>&1
+
+  BATS_TEARDOWN_FILE_COMPLETED=1
+}
+
+bats_file_teardown_trap() {
+  bats_error_trap
+  local status=0
+  bats_run_teardown_file
+
+  bats_file_exit_trap
+}
+
+bats_file_exit_trap() {
+  trap - ERR EXIT
+  if [[ -z "$BATS_SETUP_FILE_COMPLETED" || -z "$BATS_TEARDOWN_FILE_COMPLETED" ]]; then
+    if [[ -z "$BATS_SETUP_FILE_COMPLETED" ]]; then
+      FAILURE_REASON='setup_file'
+    else
+      FAILURE_REASON='teardown_file'
+    fi
+    printf "not ok %d %s\n" "$((test_number_in_suite + 1))" "$FAILURE_REASON failed" >&3
+    bats_print_stack_trace "${BATS_STACK_TRACE[@]}" >&3
+    bats_print_failed_command >&3
+    while IFS= read -r line; do
+      printf "# %s\n" "$line"
+    done <"$BATS_OUT" >&3
+    if [[ -n "$line" ]]; then
+      printf '# %s\n' "$line"
+    fi
+    rm -rf "$BATS_OUT"
+    status=1
+  fi
+  exit $status
+}
+
+function setup_file() {
+  return 0
+}
+
+function teardown_file() {
+  return 0
+}
+
+bats_forward_output_of_parallel_test() {
+  local test_number_in_suite=$1
+  local status=0
+  wait "$(cat "$output_folder/$test_number_in_suite/pid")" || status=1
+  cat "$output_folder/$test_number_in_suite/stdout"
+  cat "$output_folder/$test_number_in_suite/stderr" >&2
+  return $status
+}
+
+bats_is_next_parallel_test_finished() {
+  local PID
+  # get the pid of the next potentially finished test
+  PID=$(cat "$output_folder/$(( test_number_in_suite_of_last_finished_test + 1 ))/pid")
+  # try to send a signal to this process
+  # if it fails, the process exited,
+  # if it succeeds, the process is still running
+  if kill -0 "$PID" 2>/dev/null; then
+    return 1
+  fi
+}
+
+# prints output from all tests in the order they were started
+# $1 == "blocking": wait for a test to finish before printing
+#    != "blocking": abort printing, when a test has not finished
+bats_forward_output_for_parallel_tests() {
+  local status=0
+  # was the next test already started?
+  while [[ $(( test_number_in_suite_of_last_finished_test + 1 )) -le $test_number_in_suite ]]; do
+    # if we are okay with waiting or if the test has already been finished
+    if [[ "$1" == "blocking" ]] || bats_is_next_parallel_test_finished ; then
+      (( ++test_number_in_suite_of_last_finished_test ))
+      bats_forward_output_of_parallel_test "$test_number_in_suite_of_last_finished_test" || status=1
+    else
+      # non-blocking and the process has not finished -> abort the printing
+      break
+    fi
+  done
+  return $status
+}
+
+bats_run_tests_in_parallel() {
+  local output_folder="$BATS_RUN_TMPDIR/parallel_output"
+  local status=0
+  mkdir -p "$output_folder"
+  # shellcheck source=lib/bats-core/semaphore.bash
+  source "$BATS_ROOT/lib/bats-core/semaphore.bash"
+  # the test_number_in_file is not yet incremented -> one before the next test to run
+  local test_number_in_suite_of_last_finished_test="$test_number_in_suite" # stores which test was printed last
+  for test_name in "${tests_to_run[@]}"; do
+    # Only handle non-empty lines
+    if [[ $test_name ]]; then
+      ((++test_number_in_suite))
+      ((++test_number_in_file))
+      mkdir -p "$output_folder/$test_number_in_suite"
+      bats_semaphore_run "$output_folder/$test_number_in_suite" \
+                          "$BATS_LIBEXEC/bats-exec-test" "${flags[@]}" "$filename" "$test_name" "$test_number_in_suite" "$test_number_in_file" \
+                          > "$output_folder/$test_number_in_suite/pid"
+    fi
+    # print results early to get interactive feedback
+    bats_forward_output_for_parallel_tests non-blocking || status=1 # ignore if we did not finish yet
+  done
+  bats_forward_output_for_parallel_tests blocking || status=1
+  return $status
+}
+
+bats_run_tests() {
+  status=0
+  tests_to_run=()
+  local line_number=0
+  # the global test number must be visible to traps -> not local
+  first_test_number_in_suite=''
+  while read -r test_line; do
+    # check if the line begins with filename
+    # filename might contain some hard to parse characters,
+    # use simple string operations to work around that issue
+    if [[ "$filename" == "${test_line::${#filename}}" ]]; then
+      # get the rest of the line without the separator \t
+      test_name=${test_line:$((1 + ${#filename} ))}
+      tests_to_run+=("$test_name")
+      # save the first test's number for later iteration
+      # this assumes that tests for a file are stored consecutive in the file!
+      if [[ -z "$first_test_number_in_suite" ]]; then
+        first_test_number_in_suite=$line_number
+      fi
+    fi
+    ((++line_number))
+  done <"$TESTS_FILE"
+
+  test_number_in_suite="$first_test_number_in_suite"
+  test_number_in_file=0
+  if [[ "$num_jobs" != 1 && "${BATS_NO_PARALLELIZE_WITHIN_FILE-False}" == False ]]; then
+    export BATS_SEMAPHORE_NUMBER_OF_SLOTS="$num_jobs"
+    bats_run_tests_in_parallel "$BATS_RUN_TMPDIR/parallel_output" || status=1
+  else
+    for test_name in "${tests_to_run[@]}"; do
+      # Only handle non-empty lines
+      if [[ $test_name ]]; then
+        ((++test_number_in_suite))
+        ((++test_number_in_file))
+        # deal with empty flags to avoid spurious "unbound variable" errors on Bash 4.3 and lower
+        if [[ "${#flags[@]}" -gt 0 ]]; then
+          "$BATS_LIBEXEC/bats-exec-test" "${flags[@]}" "$filename" "$test_name" "$test_number_in_suite" "$test_number_in_file" || status=1
+        else
+          "$BATS_LIBEXEC/bats-exec-test" "$filename" "$test_name" "$test_number_in_suite" "$test_number_in_file" || status=1
+        fi
+      fi
+    done
+  fi
+  export status
+}
+
+if [[ -n "$extended_syntax" ]]; then
+  printf "suite %s\n" "$filename"
+fi
+
+bats_preprocess_source "$filename"
+bats_run_setup_file
+bats_run_tests
+bats_run_teardown_file
+
+exit $status

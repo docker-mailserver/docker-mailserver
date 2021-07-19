@@ -1,0 +1,131 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "BATS" "1" "November 2020" "bats-core" "Bash Automated Testing System"
+.
+.SH "NAME"
+\fBbats\fR \- Bash Automated Testing System
+.
+.SH "SYNOPSIS"
+Usage: bats [OPTIONS] \fItests\fR bats [\-h | \-v]
+.
+.P
+\fItests\fR is the path to a Bats test file, or the path to a directory containing Bats test files (ending with "\.bats")
+.
+.SH "DESCRIPTION"
+Bats is a TAP\-compliant testing framework for Bash\. It provides a simple way to verify that the UNIX programs you write behave as expected\.
+.
+.P
+A Bats test file is a Bash script with special syntax for defining test cases\. Under the hood, each test case is just a function with a description\.
+.
+.P
+Test cases consist of standard shell commands\. Bats makes use of Bash\'s \fBerrexit\fR (\fBset \-e\fR) option when running test cases\. If every command in the test case exits with a \fB0\fR status code (success), the test passes\. In this way, each line is an assertion of truth\.
+.
+.P
+See \fBbats\fR(7) for more information on writing Bats tests\.
+.
+.SH "RUNNING TESTS"
+To run your tests, invoke the \fBbats\fR interpreter with a path to a test file\. The file\'s test cases are run sequentially and in isolation\. If all the test cases pass, \fBbats\fR exits with a \fB0\fR status code\. If there are any failures, \fBbats\fR exits with a \fB1\fR status code\.
+.
+.P
+You can invoke the \fBbats\fR interpreter with multiple test file arguments, or with a path to a directory containing multiple \fB\.bats\fR files\. Bats will run each test file individually and aggregate the results\. If any test case fails, \fBbats\fR exits with a \fB1\fR status code\.
+.
+.SH "OPTIONS"
+.
+.IP "\(bu" 4
+\fB\-c\fR, \fB\-\-count\fR: Count the number of test cases without running any tests
+.
+.IP "\(bu" 4
+\fB\-f\fR, \fB\-\-filter <regex>\fR: Filter test cases by names matching the regular expression
+.
+.IP "\(bu" 4
+\fB\-F\fR, \fB\-\-formatter <type>\fR: Switch between formatters: pretty (default), tap (default w/o term), tap13, junit
+.
+.IP "\(bu" 4
+\fB\-h\fR, \fB\-\-help\fR: Display this help message
+.
+.IP "\(bu" 4
+\fB\-j\fR, \fB\-\-jobs <jobs>\fR: Number of parallel jobs (requires GNU parallel)
+.
+.IP "\(bu" 4
+\fB\-\-no\-tempdir\-cleanup\fR: Preserve test output temporary directory
+.
+.IP "\(bu" 4
+\fB\-\-no\-parallelize\-across\-files\fR Serialize test file execution instead of running them in parallel (requires \-\-jobs >1)
+.
+.IP "\(bu" 4
+\fB\-\-no\-parallelize\-within\-files\fR Serialize test execution within files instead of running them in parallel (requires \-\-jobs >1)
+.
+.IP "\(bu" 4
+\fB\-\-report\-formatter <type>\fR: Switch between reporters (same options as \-\-formatter)
+.
+.IP "\(bu" 4
+\fB\-o\fR, \fB\-\-output <dir>\fR: Directory to write report files
+.
+.IP "\(bu" 4
+\fB\-p\fR, \fB\-\-pretty\fR: Shorthand for "\-\-formatter pretty"
+.
+.IP "\(bu" 4
+\fB\-r\fR, \fB\-\-recursive\fR: Include tests in subdirectories
+.
+.IP "\(bu" 4
+\fB\-t\fR, \fB\-\-tap\fR: Shorthand for "\-\-formatter tap"
+.
+.IP "\(bu" 4
+\fB\-T\fR, \fB\-\-timing\fR: Add timing information to tests
+.
+.IP "\(bu" 4
+\fB\-v\fR, \fB\-\-version\fR: Display the version number
+.
+.IP "" 0
+.
+.SH "OUTPUT"
+When you run Bats from a terminal, you\'ll see output as each test is performed, with a check\-mark next to the test\'s name if it passes or an "X" if it fails\.
+.
+.IP "" 4
+.
+.nf
+
+$ bats addition\.bats
+ ✓ addition using bc
+ ✓ addition using dc
+
+2 tests, 0 failures
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If Bats is not connected to a terminal\-\-in other words, if you run it from a continuous integration system or redirect its output to a file\-\-the results are displayed in human\-readable, machine\-parsable TAP format\. You can force TAP output from a terminal by invoking Bats with the \fB\-\-tap\fR option\.
+.
+.IP "" 4
+.
+.nf
+
+$ bats \-\-tap addition\.bats
+1\.\.2
+ok 1 addition using bc
+ok 2 addition using dc
+.
+.fi
+.
+.IP "" 0
+.
+.SH "EXIT STATUS"
+The \fBbats\fR interpreter exits with a value of \fB0\fR if all test cases pass, or \fB1\fR if one or more test cases fail\.
+.
+.SH "SEE ALSO"
+Bats wiki: \fIhttps://github\.com/bats\-core/bats\-core/wiki/\fR
+.
+.P
+\fBbash\fR(1), \fBbats\fR(7)
+.
+.SH "COPYRIGHT"
+(c) 2017\-2018 bats\-core organization
+.
+.br
+(c) 2011\-2016 Sam Stephenson
+.
+.P
+Bats is released under the terms of an MIT\-style license\.

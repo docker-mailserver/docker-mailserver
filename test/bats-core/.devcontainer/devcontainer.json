@@ -1,0 +1,5 @@
+{
+    "name": "Bats core development environment",
+    "dockerFile": "Dockerfile",
+    "build": {"args": {"bashver": "4.3"}}
+}

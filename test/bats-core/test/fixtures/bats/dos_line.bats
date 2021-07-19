@@ -1,0 +1,3 @@
+@test "foo" {
+  echo "foo"
+}

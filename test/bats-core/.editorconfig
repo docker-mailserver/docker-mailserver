@@ -1,0 +1,32 @@
+root = true
+
+[*]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+max_line_length = 80
+trim_trailing_whitespace = true
+
+# The JSON files contain newlines inconsistently
+[*.json]
+indent_size = 2
+insert_final_newline = ignore
+
+# YAML
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Makefiles always use tabs for recipe indentation
+[{Makefile,*.mak}]
+indent_style = tab
+
+# Markdown
+[*.{md,rmd,mkd,mkdn,mdwn,mdown,markdown,litcoffee}]
+max_line_length = 80
+# tabs behave as if they were replaced by spaces with a tab stop of 4 characters
+tab_width = 4
+# trailing spaces indicates word wrap
+trim_trailing_spaces = false
+trim_trailing_whitespace = false

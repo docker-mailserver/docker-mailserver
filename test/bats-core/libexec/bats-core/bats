@@ -1,0 +1,294 @@
+#!/usr/bin/env bash
+set -e
+
+export BATS_VERSION='1.3.0'
+VALID_FORMATTERS="pretty, junit, tap, tap13"
+
+version() {
+  printf 'Bats %s\n' "$BATS_VERSION"
+}
+
+abort() {
+  printf 'Error: %s\n' "$1" >&2
+  usage >&2
+  exit 1
+}
+
+usage() {
+  local cmd="${0##*/}"
+  local line
+
+  cat <<HELP_TEXT_HEADER
+Usage: ${cmd} [OPTIONS] <tests>
+       ${cmd} [-h | -v]
+
+HELP_TEXT_HEADER
+
+  cat <<'HELP_TEXT_BODY'
+  <tests> is the path to a Bats test file, or the path to a directory
+  containing Bats test files (ending with ".bats")
+
+  -c, --count               Count test cases without running any tests
+  -f, --filter <regex>      Only run tests that match the regular expression
+  -F, --formatter <type>    Switch between formatters: pretty (default),
+                              tap (default w/o term), tap13, junit
+  -h, --help                Display this help message
+  -j, --jobs <jobs>         Number of parallel jobs (requires GNU parallel)
+  --no-tempdir-cleanup      Preserve test output temporary directory
+  --no-parallelize-across-files
+                            Serialize test file execution instead of running
+                            them in parallel (requires --jobs >1)
+  --no-parallelize-within-files
+                            Serialize test execution within files instead of
+                            running them in parallel (requires --jobs >1)
+  --report-formatter <type> Switch between reporters (same options as --formatter)
+  -o, --output <dir>        Directory to write report files
+  -p, --pretty              Shorthand for "--formatter pretty"
+  -r, --recursive           Include tests in subdirectories
+  -t, --tap                 Shorthand for "--formatter tap"
+  -T, --timing              Add timing information to tests
+  -v, --version             Display the version number
+
+  For more information, see https://github.com/bats-core/bats-core
+HELP_TEXT_BODY
+}
+
+expand_path() {
+  local path="${1%/}"
+  local dirname="${path%/*}"
+  local result="$2"
+
+  if [[ "$dirname" == "$path" ]]; then
+    dirname="$PWD"
+  else
+    cd "$dirname"
+    dirname="$PWD"
+    cd "$OLDPWD"
+  fi
+  printf -v "$result" '%s/%s' "$dirname" "${path##*/}"
+}
+
+BATS_LIBEXEC="$(dirname "$(bats_readlinkf "${BASH_SOURCE[0]}")")"
+export BATS_LIBEXEC
+export BATS_CWD="$PWD"
+export BATS_TEST_PATTERN="^[[:blank:]]*@test[[:blank:]]+(.*[^[:blank:]])[[:blank:]]+\{(.*)\$"
+export BATS_TEST_PATTERN_COMMENT="[[:blank:]]*([^[:blank:]()]+)[[:blank:]]*\(?\)?[[:blank:]]+\{[[:blank:]]+#[[:blank:]]*@test[[:blank:]]*\$"
+export BATS_TEST_FILTER=
+export PATH="$BATS_LIBEXEC:$PATH"
+export BATS_ROOT_PID=$$
+if [[ -z "${TMPDIR-}" ]]; then
+  export BATS_TMPDIR="/tmp"
+else
+  export BATS_TMPDIR="${TMPDIR%/}"
+fi
+export BATS_RUN_TMPDIR="$BATS_TMPDIR/bats-run-$BATS_ROOT_PID"
+
+arguments=()
+
+# Unpack single-character options bundled together, e.g. -cr, -pr.
+for arg in "$@"; do
+  if [[ "$arg" =~ ^-[^-]. ]]; then
+    index=1
+    while option="${arg:$((index++)):1}"; do
+      if [[ -z "$option" ]]; then
+        break
+      fi
+      arguments+=("-$option")
+    done
+  else
+    arguments+=("$arg")
+  fi
+  shift
+done
+
+set -- "${arguments[@]}"
+arguments=()
+
+unset flags recursive formatter_flags
+flags=('--dummy-flag') # add a dummy flag to prevent unset varialeb errors on empty array expansion in old bash versions
+formatter_flags=('--dummy-flag') # add a dummy flag to prevent unset varialeb errors on empty array expansion in old bash versions
+formatter='tap'
+report_formatter=''
+recursive=
+export BATS_TEMPDIR_CLEANUP=1
+output=
+if [[ -z "${CI:-}" && -t 0 && -t 1 ]] && command -v tput >/dev/null; then
+  formatter='pretty'
+fi
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+  -h | --help)
+    version
+    usage
+    exit 0
+    ;;
+  -v | --version)
+    version
+    exit 0
+    ;;
+  -c | --count)
+    flags+=('-c')
+    ;;
+  -f | --filter)
+    shift
+    flags+=('-f' "$1")
+    ;;
+  -F | --formatter)
+    shift
+    # allow cat formatter to see extended output but don't advertise to users
+    if [[ $1 =~ ^(pretty|junit|tap|tap13|cat)$ ]]; then
+      formatter="$1"
+    else
+      printf "Unknown formatter '%s', valid options are %s\n" "$1" "${VALID_FORMATTERS}"
+      exit 1
+    fi
+    ;;
+  --report-formatter)
+    shift
+    if [[ $1 =~ ^(pretty|junit|tap|tap13)$ ]]; then
+      report_formatter="$1"
+    else
+      printf "Unknown report formatter '%s', valid options are %s\n" "$1" "${VALID_FORMATTERS}"
+      exit 1
+    fi
+    ;;
+  -o | --output)
+    shift
+    output="$1"
+    ;;
+  -p | --pretty)
+    formatter='pretty'
+    ;;
+  -j | --jobs)
+    shift
+    flags+=('-j' "$1")
+    ;;
+  -r | --recursive)
+    recursive=1
+    ;;
+  -t | --tap)
+    formatter='tap'
+    ;;
+  -T | --timing)
+    flags+=('-T')
+    formatter_flags+=('-T')
+    ;;
+  # this flag is now a no-op, as it is the parallel default
+  --parallel-preserve-environment)
+    ;;
+  --no-parallelize-across-files)
+    flags+=("--no-parallelize-across-files")
+    ;;
+  --no-parallelize-within-files)
+    flags+=("--no-parallelize-within-files")
+    ;;
+  --no-tempdir-cleanup)
+    BATS_TEMPDIR_CLEANUP=''
+    ;;
+  --tempdir) # for internal test consumption only!
+    BATS_RUN_TMPDIR="$2"
+    shift
+    ;;
+  -*)
+    abort "Bad command line option '$1'"
+    ;;
+  *)
+    arguments+=("$1")
+    ;;
+  esac
+  shift
+done
+
+if [[ -d "$BATS_RUN_TMPDIR" ]]; then
+  printf "Error: BATS_RUN_TMPDIR (%s) already exists\n" "$BATS_RUN_TMPDIR" >&2
+  printf "Reusing old run directories can lead to unexpected results ... aborting!\n" >&2
+  exit 1
+fi
+mkdir -p "$BATS_RUN_TMPDIR"
+if [[ -n "$BATS_TEMPDIR_CLEANUP" ]]; then
+  trap 'rm -rf "$BATS_RUN_TMPDIR"' ERR EXIT
+fi
+
+if [[ "$formatter" != "tap" ]]; then
+  flags+=('-x')
+fi
+
+if [[ -n "$report_formatter" && "$report_formatter" != "tap" ]]; then
+  flags+=('-x')
+fi
+
+if [[ "$formatter" == "junit" ]]; then
+  flags+=('-T')
+  formatter_flags+=('--base-path' "${arguments[0]}")
+fi
+if [[ "$report_formatter" == "junit" ]]; then
+  flags+=('-T')
+  report_formatter_flags+=('--base-path' "${arguments[0]}")
+fi
+
+# if we don't need to filter extended syntax, use the faster formatter
+if [[ "$formatter" == tap && -z "$report_formatter" ]]; then
+  formatter="cat"
+fi
+
+if [[ "${#arguments[@]}" -eq 0 ]]; then
+  abort 'Must specify at least one <test>'
+fi
+
+if [[ -n "$report_formatter" ]]; then
+  # default to the current directory for output
+  if [[ -z "$output" ]]; then
+    output=.
+  fi
+  case "$report_formatter" in
+    tap|tap13)
+      BATS_REPORT_FILE_NAME="report.tap"
+      ;;
+    junit)
+      BATS_REPORT_FILE_NAME="report.xml"
+      ;;
+    pretty)
+      BATS_REPORT_FILE_NAME="report.log"
+      ;;
+  esac
+fi
+
+if [[ -n "$output" ]]; then
+  if [[ ! -w "${output}" ]]; then
+    abort "Output path ${output} is not writeable"
+  fi
+  export BATS_REPORT_OUTPUT_PATH="$output"
+fi
+
+filenames=()
+for filename in "${arguments[@]}"; do
+  expand_path "$filename" 'filename'
+
+  if [[ -d "$filename" ]]; then
+    shopt -s nullglob
+    if [[ "$recursive" -eq 1 ]]; then
+      while IFS= read -r -d $'\0' file; do
+        filenames+=("$file")
+      done < <(find -L "$filename" -type f -name "*.${BATS_FILE_EXTENSION:-bats}" -print0 | sort -z)
+    else
+      for suite_filename in "$filename"/*."${BATS_FILE_EXTENSION:-bats}"; do
+        filenames+=("$suite_filename")
+      done
+    fi
+    shopt -u nullglob
+  else
+    filenames+=("$filename")
+  fi
+done
+
+# shellcheck source=lib/bats-core/validator.bash
+source "$BATS_ROOT/lib/bats-core/validator.bash"
+
+set -o pipefail execfail
+
+if [[ -n "$report_formatter" ]]; then
+  exec bats-exec-suite "${flags[@]}" "${filenames[@]}" | tee >("bats-format-${report_formatter}" "${report_formatter_flags[@]}" >"${BATS_REPORT_OUTPUT_PATH}/${BATS_REPORT_FILE_NAME}") | bats_test_count_validator | "bats-format-${formatter}" "${formatter_flags[@]}"
+else
+  exec bats-exec-suite "${flags[@]}" "${filenames[@]}" | bats_test_count_validator | "bats-format-${formatter}" "${formatter_flags[@]}"
+fi

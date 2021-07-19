@@ -1,0 +1,8 @@
+# Copy this file to docker-compose.override.yml
+version: '3.6'
+services:
+    bats:
+        entrypoint:
+            - "bash"
+networks:
+    default:

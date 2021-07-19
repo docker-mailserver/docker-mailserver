@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+set -eET
+
+# Variables used in other scripts.
+BATS_COUNT_ONLY=''
+BATS_TEST_FILTER=''
+BATS_ENABLE_TIMING=''
+BATS_EXTENDED_SYNTAX=''
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+  -c)
+    # shellcheck disable=SC2034
+    BATS_COUNT_ONLY=1
+    ;;
+  -f)
+    shift
+    # shellcheck disable=SC2034
+    BATS_TEST_FILTER="$1"
+    ;;
+  -T)
+    BATS_ENABLE_TIMING='-T'
+    BATS_PERFORM_TEST_CMD+=('-T')
+    ;;
+  -x)
+    # shellcheck disable=SC2034
+    BATS_EXTENDED_SYNTAX='-x'
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
+done
+
+BATS_TEST_FILENAME="$1"
+shift
+if [[ -z "$BATS_TEST_FILENAME" ]]; then
+  printf 'usage: bats-exec-test <filename>\n' >&2
+  exit 1
+elif [[ ! -f "$BATS_TEST_FILENAME" ]]; then
+  printf 'bats: %s does not exist\n' "$BATS_TEST_FILENAME" >&2
+  exit 1
+fi
+
+# load the test helper functions like `load` or `run` that are needed to run a (preprocessed) .bats file without bash errors
+# shellcheck source=lib/bats-core/test_functions.bash disable=SC2153
+source "$BATS_ROOT/lib/bats-core/test_functions.bash"
+# shellcheck source=lib/bats-core/tracing.bash disable=SC2153
+source "$BATS_ROOT/lib/bats-core/tracing.bash"
+
+bats_teardown_trap() {
+  bats_error_trap
+  local status=0
+  # mark the start of this function to distinguish where skip is called
+  # parameter 1 will signify the reason why this function was called
+  # this is used to identify when this is called as exit trap function
+  BATS_TEARDOWN_STARTED=${1:-1}
+  teardown >>"$BATS_OUT" 2>&1 || status="$?"
+
+  if [[ $status -eq 0 ]]; then
+    BATS_TEARDOWN_COMPLETED=1
+  elif [[ -n "$BATS_TEST_COMPLETED" ]]; then
+    BATS_ERROR_STATUS="$status"
+  fi
+
+  bats_exit_trap
+}
+
+bats_exit_trap() {
+  local line
+  local status
+  local skipped=''
+  trap - ERR EXIT
+
+  if [[ -n "$BATS_TEST_SKIPPED" ]]; then
+    skipped=' # skip'
+    if [[ "$BATS_TEST_SKIPPED" != '1' ]]; then
+      skipped+=" $BATS_TEST_SKIPPED"
+    fi
+  fi
+
+  BATS_TEST_TIME=''
+  if [[ -z "${skipped}" && -n "$BATS_ENABLE_TIMING" ]]; then
+    BATS_TEST_TIME=" in "$(( $(get_mills_since_epoch) - BATS_TEST_START_TIME ))"ms"
+  fi
+
+  if [[ -z "$BATS_TEST_COMPLETED" || -z "$BATS_TEARDOWN_COMPLETED" ]]; then
+    if [[ "$BATS_ERROR_STATUS" -eq 0 ]]; then
+      # For some versions of bash, `$?` may not be set properly for some error
+      # conditions before triggering the EXIT trap directly (see #72 and #81).
+      # Thanks to the `BATS_TEARDOWN_COMPLETED` signal, this will pinpoint such
+      # errors if they happen during `teardown()` when `bats_perform_test` calls
+      # `bats_teardown_trap` directly after the test itself passes.
+      #
+      # If instead the test fails, and the `teardown()` error happens while
+      # `bats_teardown_trap` runs as the EXIT trap, the test will fail with no
+      # output, since there's no way to reach the `bats_exit_trap` call.
+      BATS_STACK_TRACE=("${BATS_CURRENT_STACK_TRACE[@]}")
+      BATS_ERROR_STATUS=1
+    fi
+    printf 'not ok %d %s\n' "$BATS_SUITE_TEST_NUMBER" "${BATS_TEST_DESCRIPTION}${BATS_TEST_TIME}" >&3
+    bats_print_stack_trace "${BATS_STACK_TRACE[@]}" >&3
+    bats_print_failed_command >&3
+
+    while IFS= read -r line; do
+      printf '# %s\n' "$line" || break # avoid feedback loop when errors are redirected into BATS_OUT (see #353)
+    done <"$BATS_OUT" >&3
+    if [[ -n "$line" ]]; then
+      printf '# %s\n' "$line"
+    fi
+    status=1
+  else
+    printf 'ok %d %s%s\n' "$BATS_SUITE_TEST_NUMBER" "${BATS_TEST_DESCRIPTION}${BATS_TEST_TIME}" \
+      "$skipped" >&3
+    status=0
+  fi
+
+  rm -f "$BATS_OUT"
+  exit "$status"
+}
+
+get_mills_since_epoch() {
+  local ms_since_epoch
+  ms_since_epoch=$(date +%s%N)
+  if [[ "$ms_since_epoch" == *N || "${#ms_since_epoch}" -lt 19 ]]; then
+        ms_since_epoch=$(( $(date +%s) * 1000 ))
+  else
+        ms_since_epoch=$(( ms_since_epoch / 1000000 ))
+  fi
+
+  printf "%d\n" "$ms_since_epoch"
+}
+
+bats_perform_test() {
+  export BATS_TEST_NAME="$1"
+  export BATS_SUITE_TEST_NUMBER="$2"
+  export BATS_TEST_NUMBER="$3"
+
+  if ! declare -F "$BATS_TEST_NAME" &>/dev/null; then
+    printf "bats: unknown test name \`%s'\n" "$BATS_TEST_NAME" >&2
+    exit 1
+  fi
+
+  # Some versions of Bash will reset BASH_LINENO to the first line of the
+  # function when the ERR trap fires. All versions of Bash appear to reset it
+  # on an unbound variable access error. bats_debug_trap will fire both before
+  # the offending line is executed, and when the error is triggered.
+  # Consequently, we use `BATS_CURRENT_STACK_TRACE` recorded by the
+  # first call to bats_debug_trap, _before_ the ERR trap or unbound variable
+  # access fires.
+  BATS_STACK_TRACE=()
+  BATS_CURRENT_STACK_TRACE=()
+
+  BATS_TEST_COMPLETED=
+  BATS_TEST_SKIPPED=
+  BATS_TEARDOWN_COMPLETED=
+  BATS_ERROR_STATUS=
+  trap 'bats_debug_trap "$BASH_SOURCE"' DEBUG
+  trap 'bats_error_trap' ERR
+  # mark this call as trap call
+  trap 'bats_teardown_trap as-exit-trap' EXIT
+
+  BATS_TEST_START_TIME=$(get_mills_since_epoch)
+  "$BATS_TEST_NAME" >>"$BATS_OUT" 2>&1
+
+  BATS_TEST_COMPLETED=1
+  trap 'bats_exit_trap' EXIT
+  bats_teardown_trap "" # pass empty parameter to signify call outside trap
+}
+
+# shellcheck source=lib/bats-core/preprocessing.bash
+source "$BATS_ROOT/lib/bats-core/preprocessing.bash"
+
+exec 3<&1
+
+# Run the given test.
+bats_evaluate_preprocessed_source
+bats_perform_test "$@"

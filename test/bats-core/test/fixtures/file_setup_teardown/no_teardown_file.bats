@@ -1,0 +1,3 @@
+@test "first" {
+    true
+}

@@ -1,0 +1,5 @@
+# Helper to detect regressions in load's lookup ordering.
+# An exact name match should be prioritized over name.bash.
+
+echo "Should not have loaded this file!" >&2
+exit 1

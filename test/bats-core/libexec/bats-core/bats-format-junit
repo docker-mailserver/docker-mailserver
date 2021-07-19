@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BASE_PATH=.
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+    --base-path)
+      shift
+      # the relative path root to use for reporting filenames
+      # this is mainly intended for suite mode, where this will be the suite root folder
+      BASE_PATH="$1"
+      # use the containing directory when --base-path is a file
+      if [[ ! -d "$BASE_PATH" ]]; then
+        BASE_PATH="$(dirname "$BASE_PATH")"
+      fi
+      # get the absolute path
+      BASE_PATH="$(cd "$BASE_PATH"; pwd)"
+      # ensure the path ends with / to strip that later on
+      if [[ "${BASE_PATH}" != *"/" ]]; then
+        BASE_PATH="$BASE_PATH/"
+      fi
+    ;;
+  esac
+  shift
+done
+
+init_suite() {
+  suite_test_exec_time=0
+  # since we have to print the suite header before its contents but we don't know the contents before the header, 
+  # we have to buffer the contents
+  _suite_buffer=""
+  test_result_state="" # declare for the first flush, when no test has been encountered
+}
+
+_buffer_log=
+init_file() {
+  file_count=0
+  file_failures=0
+  file_skipped=0
+  file_exec_time=0
+  test_exec_time=0
+  _buffer=""
+  _buffer_log=""
+  _system_out_log=""
+  test_result_state="" # mark that no test has run in this file so far
+}
+
+host() {
+  local hostname="${HOST:-}"
+  [[ -z "$hostname" ]] && hostname="${HOSTNAME:-}"
+  [[ -z "$hostname" ]] && hostname="$(uname -n)"
+  [[ -z "$hostname" ]] && hostname="$(hostname -f)"
+
+  echo "$hostname"
+}
+
+# convert $1 (time in milliseconds) to seconds
+milliseconds_to_seconds() {
+  # we cannot rely on having bc for this calculation
+  full_seconds=$(($1 / 1000))
+  remaining_milliseconds=$(($1 % 1000))
+  if [[ $remaining_milliseconds -eq 0 ]]; then
+    printf "%d" "$full_seconds"
+  else
+    printf "%d.%03d" "$full_seconds" "$remaining_milliseconds"
+  fi
+}
+
+suite_header() {
+  printf "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<testsuites time=\"%s\">\n" "$(milliseconds_to_seconds "${suite_test_exec_time}")"
+}
+
+file_header() {
+  timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S")
+  printf "<testsuite name=\"%s\" tests=\"%s\" failures=\"%s\" errors=\"0\" skipped=\"%s\" time=\"%s\" timestamp=\"%s\" hostname=\"%s\">\n" \
+                     "$(xml_escape "${class}")" "${file_count}" "${file_failures}" "${file_skipped}" "$(milliseconds_to_seconds "${file_exec_time}")" "${timestamp}" "$(host)"
+}
+
+file_footer() {
+  printf "</testsuite>\n"
+}
+
+suite_footer() {
+  printf "</testsuites>\n"
+}
+
+print_test_case() {
+  if [[ "$test_result_state" == ok && -z "$_system_out_log" && -z "$_buffer_log" ]]; then
+    # pass and no output can be shortened
+    printf "    <testcase classname=\"%s\" name=\"%s\" time=\"%s\" />\n" "$(xml_escape "${class}")" "$(xml_escape "${name}")" "$(milliseconds_to_seconds "${test_exec_time}")"
+  else
+    printf "    <testcase classname=\"%s\" name=\"%s\" time=\"%s\">\n" "$(xml_escape "${class}")" "$(xml_escape "${name}")" "$(milliseconds_to_seconds "${test_exec_time}")"
+    if [[ -n "$_system_out_log" ]]; then
+      printf "        <system-out>%s</system-out>\n" "$(xml_escape "${_system_out_log}")"
+    fi
+    if [[ -n "$_buffer_log" || "$test_result_state" == not_ok ]]; then
+      printf "        <failure type=\"failure\">%s</failure>\n" "$(xml_escape "${_buffer_log}")"
+    fi
+    if [[ "$test_result_state" == skipped ]]; then
+      printf "        <skipped>%s</skipped>\n" "$(xml_escape "$test_skip_message")"
+    fi
+    printf "    </testcase>\n"
+  fi
+}
+
+xml_escape() {
+  output=${1//&/&amp;}
+  output=${output//</&lt;}
+  output=${output//>/&gt;}
+  output=${output//'"'/&quot;}
+  output=${output//\'/&#39;}
+  local CONTROL_CHAR=$'\033'
+  output="${output//$CONTROL_CHAR/&#27;}"
+  printf "%s" "$output"
+}
+
+suite_buffer() {
+  local output
+  output="$("$@"; printf "x")" # use x marker to avoid losing trailing newlines
+  _suite_buffer="${_suite_buffer}${output%x}"
+}
+
+suite_flush() {
+  echo -n "${_suite_buffer}"
+  _suite_buffer=""
+}
+
+buffer() {
+  local output
+  output="$("$@"; printf "x")" # use x marker to avoid losing trailing newlines
+  _buffer="${_buffer}${output%x}"
+}
+
+flush() {
+  echo -n "${_buffer}"
+  _buffer=""
+}
+
+log() {
+  if [[ -n "$_buffer_log" ]]; then
+    _buffer_log="${_buffer_log}
+$1"
+  else
+    _buffer_log="$1"
+  fi
+}
+
+flush_log() {
+  if [[ -n "$test_result_state" ]]; then
+    buffer print_test_case
+  fi
+  _buffer_log=""
+  _system_out_log=""
+}
+
+log_system_out() {
+  if [[ -n "$_system_out_log" ]]; then
+    _system_out_log="${_system_out_log}
+$1"
+  else
+    _system_out_log="$1"
+  fi
+}
+
+finish_file() {
+  if [[ "${class-JUNIT_FORMATTER_NO_FILE_ENCOUNTERED}" != JUNIT_FORMATTER_NO_FILE_ENCOUNTERED ]]; then
+    file_header
+    printf "%s\n" "${_buffer}"
+    file_footer
+  fi
+}
+
+finish_suite() {
+  flush_log
+  suite_header
+  suite_flush
+  finish_file # must come after suite flush to not print the last file before the others
+  suite_footer
+}
+
+# shellcheck source=lib/bats-core/formatter.bash
+source "$BATS_ROOT/lib/bats-core/formatter.bash"
+
+bats_tap_stream_plan() { #  <number of tests>
+  :
+}
+
+init_suite
+trap finish_suite EXIT
+
+bats_tap_stream_begin() { # <test index> <test name>
+  flush_log
+  # set after flushing to avoid overriding name of test
+  name="$2"
+}
+
+bats_tap_stream_ok() { # [--duration <milliseconds] <test index> <test name>
+  if [[ "$1" == "--duration" ]]; then
+    test_exec_time="${BASH_REMATCH[1]}"
+  else
+    test_exec_time=0
+  fi
+  ((file_count += 1))
+  test_result_state='ok'
+  file_exec_time="$((file_exec_time + test_exec_time))"
+  suite_test_exec_time=$((suite_test_exec_time + test_exec_time))
+}
+
+bats_tap_stream_skipped() { # <test index> <test name> <skip reason>
+  ((file_count += 1))
+  ((file_skipped += 1))
+  test_result_state='skipped'
+  test_exec_time=0
+  test_skip_message="$3"
+}
+
+bats_tap_stream_not_ok() { # [--duration <milliseconds>] <test index> <test name>
+  ((file_count += 1))
+  ((file_failures += 1))
+  if [[ "$1" == "--duration" ]]; then
+    test_exec_time="${BASH_REMATCH[1]}"
+  else
+    test_exec_time=0
+  fi
+  test_result_state=not_ok
+  file_exec_time="$((file_exec_time + test_exec_time))"
+  suite_test_exec_time=$((suite_test_exec_time + test_exec_time))
+}
+
+bats_tap_stream_comment() { # <comment text without leading '# '> <scope>
+  if [[ "$2" == begin ]]; then
+    # everything that happens between begin and [not] ok is FD3 output from the test
+    log_system_out "$1"
+  else
+    # everything else is considered error output
+    log "$1"
+  fi
+}
+
+bats_tap_stream_suite() { # <file name>
+  flush_log
+  suite_buffer finish_file
+  init_file
+  class="$(remove_prefix "$BASE_PATH" "$1")"
+}
+
+bats_tap_stream_unknown() { # <full line>
+  :
+}
+
+bats_parse_internal_extended_tap

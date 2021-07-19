@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -e
+
+# shellcheck source=lib/bats-core/formatter.bash
+source "$BATS_ROOT/lib/bats-core/formatter.bash"
+
+bats_tap_stream_plan() {
+    printf "1..%d\n" "$1"
+}
+
+bats_tap_stream_begin() { #<test index> <test name>
+    :
+}
+
+bats_tap_stream_ok() { # [--duration <milliseconds] <test index> <test name>
+    if [[ "$1" == "--duration" ]]; then
+        printf "ok %d %s # in %d ms\n" "$3" "$4" "$2"
+    else
+        printf "ok %d %s\n" "$1" "$2"
+    fi
+}
+
+bats_tap_stream_not_ok() { # [--duration <milliseconds>] <test index> <test name>
+    if [[ "$1" == "--duration" ]]; then
+        printf "not ok %d %s # in %d ms\n" "$3" "$4" "$2"
+    else
+        printf "not ok %d %s\n" "$1" "$2"
+    fi
+}
+
+bats_tap_stream_skipped() { # <test index> <test name> <reason>
+    if [[ -n "$3" ]]; then
+        printf "ok %d %s # skip %s\n" "$1" "$2" "$3"
+    else
+        printf "ok %d %s # skip\n" "$1" "$2" 
+    fi
+}
+
+bats_tap_stream_comment() { # <comment text without leading '# '>
+    printf "# %s\n" "$1"
+}
+
+bats_tap_stream_suite() { # <file name>
+    :
+}
+
+bats_tap_stream_unknown() { # <full line>       
+    printf "%s\n" "$1"
+}
+
+bats_parse_internal_extended_tap

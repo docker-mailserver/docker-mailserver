@@ -1,0 +1,13 @@
+version: '3.6'
+services:
+    bats:
+        build:
+            context: "."
+            dockerfile: "Dockerfile"
+        networks:
+            - "default"
+        user: "root"
+        volumes:
+            - "./:/opt/bats"
+networks:
+    default:

@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -e
+
+while [[ "$#" -ne 0 ]]; do
+  case "$1" in
+  -T)
+    BATS_ENABLE_TIMING="-T"
+    ;;
+  esac
+  shift
+done
+
+header_pattern='[0-9]+\.\.[0-9]+'
+IFS= read -r header
+
+if [[ "$header" =~ $header_pattern ]]; then
+  printf "TAP version 13\n"
+  printf "%s\n" "$header"
+else
+  # If the first line isn't a TAP plan, print it and pass the rest through
+  printf '%s\n' "$header"
+  exec cat
+fi
+
+yaml_block_open=''
+add_yaml_entry() {
+  if [[ -z "$yaml_block_open" ]]; then
+    printf "  ...\n"
+  fi
+  printf "  %s: %s\n" "$1" "$2"
+  yaml_block_open=1
+}
+
+close_previous_yaml_block() {
+  if [[ -n "$yaml_block_open" ]]; then
+    printf "  ...\n"
+    yaml_block_open=''
+  fi
+}
+
+while IFS= read -r line; do
+  case "$line" in
+  'begin '*) ;;
+  'ok '*)
+    close_previous_yaml_block
+    number_of_printed_log_lines_for_this_test_so_far=0
+    if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+      timing_expr="(ok [0-9]+ .+) in ([0-9]+)ms$"
+      if [[ "$line" =~ $timing_expr ]]; then
+        printf "%s\n" "${BASH_REMATCH[1]}"
+        add_yaml_entry "duration_ms" "${BASH_REMATCH[2]}"
+      else
+        echo "Could not match output line to timing regex: $line" >&2
+        exit 1
+      fi
+    else
+      printf "%s\n" "${line}"
+    fi
+    ;;
+  'not ok '*)
+    close_previous_yaml_block
+    number_of_printed_log_lines_for_this_test_so_far=0
+    timing_expr="not ok [0-9]+ (.)+ in ([0-9])+ms$"
+    if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+      if [[ "$line" =~ $timing_expr ]]; then
+        printf "%s\n" "${BATS_REMATCH[1]}"
+        add_yaml_entry "duration_ms" "${BASH_REMATCH[2]}"
+      else
+        echo "Could not match failure line to timing regex: $line" >&2
+        exit 1
+      fi
+    else
+      printf "%s\n" "${line}"
+    fi
+    ;;
+  '# '*)
+    if [[ $number_of_printed_log_lines_for_this_test_so_far -eq 0 ]]; then
+      add_yaml_entry "message" "|" # use a multiline string for this entry
+    fi
+    ((++number_of_printed_log_lines_for_this_test_so_far))
+    printf "    %s\n" "$(echo "\"${line}\"" | cut -b 3-)"
+    ;;
+  'suite '*) ;;
+  esac
+done
+# close the final block if there was one
+close_previous_yaml_block

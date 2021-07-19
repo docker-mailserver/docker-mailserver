@@ -1,0 +1,3 @@
+@test "test.bats" {
+    true
+}

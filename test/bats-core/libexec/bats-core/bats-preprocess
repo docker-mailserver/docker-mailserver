@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -e
+
+bats_encode_test_name() {
+  local name="$1"
+  local result='test_'
+  local hex_code
+
+  if [[ ! "$name" =~ [^[:alnum:]\ _-] ]]; then
+    name="${name//_/-5f}"
+    name="${name//-/-2d}"
+    name="${name// /_}"
+    result+="$name"
+  else
+    local length="${#name}"
+    local char i
+
+    for ((i = 0; i < length; i++)); do
+      char="${name:$i:1}"
+      if [[ "$char" == ' ' ]]; then
+        result+='_'
+      elif [[ "$char" =~ [[:alnum:]] ]]; then
+        result+="$char"
+      else
+        printf -v 'hex_code' -- '-%02x' \'"$char"
+        result+="$hex_code"
+      fi
+    done
+  fi
+
+  printf -v "$2" '%s' "$result"
+}
+
+test_file="$1"
+tests=()
+{
+  while IFS= read -r line; do
+    line="${line//$'\r'/}"
+    if [[ "$line" =~ $BATS_TEST_PATTERN ]] || [[ "$line" =~ $BATS_TEST_PATTERN_COMMENT ]]; then
+      name="${BASH_REMATCH[1]#[\'\"]}"
+      name="${name%[\'\"]}"
+      body="${BASH_REMATCH[2]}"
+      bats_encode_test_name "$name" 'encoded_name'
+      printf '%s() { bats_test_begin "%s"; %s\n' "${encoded_name:?}" "$name" "$body" || :
+
+      if [[ -z "$BATS_TEST_FILTER" || "$name" =~ $BATS_TEST_FILTER ]]; then
+        tests+=("$encoded_name")
+      fi
+    else
+      printf '%s\n' "$line"
+    fi
+  done
+} <<<"$(<"$test_file")"$'\n'
+
+for test_name in "${tests[@]}"; do
+  printf 'bats_test_function %s\n' "$test_name"
+done

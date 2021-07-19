@@ -1,0 +1,91 @@
+name: Tests
+
+# Controls when the action will run. 
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run shellcheck
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install shellcheck
+          ./shellcheck.sh
+
+  linux:
+    strategy:
+      matrix:
+        os: ['ubuntu-20.04', 'ubuntu-18.04', 'ubuntu-16.04']
+        env_vars:
+          - ''
+          # allow for some parallelity without GNU parallel, since it is not installed by default
+          - 'BATS_NO_PARALLELIZE_ACROSS_FILES=1 BATS_NUMBER_OF_PARALLEL_JOBS=2'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run test on OS ${{ matrix.os }}
+        shell: 'script -q -e -c "bash {0}"' # work around tty issues
+        env:
+          TERM: linux # fix tput for tty issue work around
+        run: |
+          bash --version
+          bash -c "time ${{ matrix.env_vars }} bin/bats --formatter tap test"
+          
+  windows:
+    strategy:
+      matrix:
+        os: ['windows-2019']
+        env_vars:
+          - ''
+          # allow for some parallelity without GNU parallel, since it is not installed by default
+          - 'BATS_NO_PARALLELIZE_ACROSS_FILES=1 BATS_NUMBER_OF_PARALLEL_JOBS=2'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run test on OS ${{ matrix.os }}
+        run: |
+          bash --version
+          bash -c "time ${{ matrix.env_vars }} bin/bats --formatter tap test"
+          
+  macos:
+    strategy:
+      matrix:
+        os: ['macos-10.15']
+        env_vars:
+          - ''
+          # allow for some parallelity without GNU parallel, since it is not installed by default
+          - 'BATS_NO_PARALLELIZE_ACROSS_FILES=1 BATS_NUMBER_OF_PARALLEL_JOBS=2'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install unbuffer via expect
+        run: brew install expect
+      - name: Run test on OS ${{ matrix.os }}
+        shell: 'unbuffer bash {0}' # work around tty issues
+        env:
+          TERM: linux # fix tput for tty issue work around
+        run: |
+          bash --version
+          bash -c "time ${{ matrix.env_vars }} bin/bats --formatter tap test"
+
+  bash-version:
+    strategy:
+      matrix:
+        version: ['3.2', '4.0', '4.1', '4.2', '4.3', '4.4', '4', '5.0', '5.1', '5', 'latest']
+        env_vars:
+            - ''
+            # also test running (recursively!) in parallel
+            - '-e BATS_NUMBER_OF_PARALLEL_JOBS=2'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run test on bash version ${{ matrix.version }}
+        shell: 'script -q -e -c "bash {0}"' # work around tty issues
+        run: |
+          set -e
+          docker build --build-arg bashver="${{ matrix.version }}" --tag "bats/bats:bash-${{ matrix.version }}" .
+          docker run -it "bash:${{ matrix.version }}" --version
+          time docker run -it ${{ matrix.env_vars }} "bats/bats:bash-${{ matrix.version }}" --tap /opt/bats/test
+    

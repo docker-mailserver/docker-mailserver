@@ -1,0 +1,161 @@
+bats(7) -- Bats test file format
+================================
+
+
+DESCRIPTION
+-----------
+
+A Bats test file is a Bash script with special syntax for defining
+test cases. Under the hood, each test case is just a function with a
+description.
+
+    #!/usr/bin/env bats
+
+    @test "addition using bc" {
+      result="$(echo 2+2 | bc)"
+      [ "$result" -eq 4 ]
+    }
+
+    @test "addition using dc" {
+      result="$(echo 2 2+p | dc)"
+      [ "$result" -eq 4 ]
+    }
+
+
+Each Bats test file is evaluated n+1 times, where _n_ is the number of
+test cases in the file. The first run counts the number of test cases,
+then iterates over the test cases and executes each one in its own
+process.
+
+
+THE RUN HELPER
+--------------
+
+Many Bats tests need to run a command and then make assertions about
+its exit status and output. Bats includes a `run` helper that invokes
+its arguments as a command, saves the exit status and output into
+special global variables, and then returns with a `0` status code so
+you can continue to make assertions in your test case.
+
+For example, let's say you're testing that the `foo` command, when
+passed a nonexistent filename, exits with a `1` status code and prints
+an error message.
+
+    @test "invoking foo with a nonexistent file prints an error" {
+      run foo nonexistent_filename
+      [ "$status" -eq 1 ]
+      [ "$output" = "foo: no such file 'nonexistent_filename'" ]
+    }
+
+The `$status` variable contains the status code of the command, and
+the `$output` variable contains the combined contents of the command's
+standard output and standard error streams.
+
+A third special variable, the `$lines` array, is available for easily
+accessing individual lines of output. For example, if you want to test
+that invoking `foo` without any arguments prints usage information on
+the first line:
+
+    @test "invoking foo without arguments prints usage" {
+      run foo
+      [ "$status" -eq 1 ]
+      [ "${lines[0]}" = "usage: foo <filename>" ]
+    }
+
+
+THE LOAD COMMAND
+----------------
+
+You may want to share common code across multiple test files. Bats
+includes a convenient `load` command for sourcing a Bash source file
+relative to the location of the current test file. For example, if you
+have a Bats test in `test/foo.bats`, the command
+
+    load test_helper
+
+will source the script `test/test_helper.bash` in your test file. This
+can be useful for sharing functions to set up your environment or load
+fixtures.
+
+
+THE SKIP COMMAND
+----------------
+
+Tests can be skipped by using the `skip` command at the point in a
+test you wish to skip.
+
+    @test "A test I don't want to execute for now" {
+      skip
+      run foo
+      [ "$status" -eq 0 ]
+    }
+
+Optionally, you may include a reason for skipping:
+
+    @test "A test I don't want to execute for now" {
+      skip "This command will return zero soon, but not now"
+      run foo
+      [ "$status" -eq 0 ]
+    }
+
+Or you can skip conditionally:
+
+    @test "A test which should run" {
+      if [ foo != bar ]; then
+        skip "foo isn't bar"
+      fi
+
+      run foo
+      [ "$status" -eq 0 ]
+    }
+
+
+SETUP AND TEARDOWN FUNCTIONS
+----------------------------
+
+You can define special `setup` and `teardown` functions which run
+before and after each test case, respectively. Use these to load
+fixtures, set up your environment, and clean up when you're done.
+
+
+CODE OUTSIDE OF TEST CASES
+--------------------------
+
+You can include code in your test file outside of `@test` functions.
+For example, this may be useful if you want to check for dependencies
+and fail immediately if they're not present. However, any output that
+you print in code outside of `@test`, `setup` or `teardown` functions
+must be redirected to `stderr` (`>&2`). Otherwise, the output may
+cause Bats to fail by polluting the TAP stream on `stdout`.
+
+
+SPECIAL VARIABLES
+-----------------
+
+There are several global variables you can use to introspect on Bats
+tests:
+
+* `$BATS_TEST_FILENAME` is the fully expanded path to the Bats test
+file.
+* `$BATS_TEST_DIRNAME` is the directory in which the Bats test file is
+located.
+* `$BATS_TEST_NAMES` is an array of function names for each test case.
+* `$BATS_TEST_NAME` is the name of the function containing the current
+test case.
+* `$BATS_TEST_DESCRIPTION` is the description of the current test
+case.
+* `$BATS_TEST_NUMBER` is the (1-based) index of the current test case
+in the test file.
+* `$BATS_SUITE_TEST_NUMBER` is the (1-based) index of the current test 
+  case in the test suite (over all files).
+* `$BATS_TMPDIR` is the location to a directory that may be used to
+store temporary files.
+* `$BATS_FILE_EXTENSION` (default: `bats`) specifies the extension of 
+test files that should be found when running a suite (via 
+`bats [-r] suite_folder/`)
+
+
+SEE ALSO
+--------
+
+`bash`(1), `bats`(1)

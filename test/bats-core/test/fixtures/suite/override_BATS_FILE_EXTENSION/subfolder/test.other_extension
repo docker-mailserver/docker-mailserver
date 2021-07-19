@@ -1,0 +1,3 @@
+@test "test.other_extension" {
+    true
+}

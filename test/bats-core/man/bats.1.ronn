@@ -1,0 +1,131 @@
+bats(1) -- Bash Automated Testing System
+========================================
+
+
+SYNOPSIS
+--------
+
+Usage: bats [OPTIONS] <tests>
+       bats [-h | -v]
+
+  <tests> is the path to a Bats test file, or the path to a directory
+  containing Bats test files (ending with ".bats")
+
+
+DESCRIPTION
+-----------
+
+Bats is a TAP-compliant testing framework for Bash. It provides a simple
+way to verify that the UNIX programs you write behave as expected.
+
+A Bats test file is a Bash script with special syntax for defining
+test cases. Under the hood, each test case is just a function with a
+description.
+
+Test cases consist of standard shell commands. Bats makes use of
+Bash's `errexit` (`set -e`) option when running test cases. If every
+command in the test case exits with a `0` status code (success), the
+test passes. In this way, each line is an assertion of truth.
+
+See `bats`(7) for more information on writing Bats tests.
+
+
+RUNNING TESTS
+-------------
+
+To run your tests, invoke the `bats` interpreter with a path to a test
+file. The file's test cases are run sequentially and in isolation. If
+all the test cases pass, `bats` exits with a `0` status code. If there
+are any failures, `bats` exits with a `1` status code.
+
+You can invoke the `bats` interpreter with multiple test file arguments,
+or with a path to a directory containing multiple `.bats` files. Bats
+will run each test file individually and aggregate the results. If any
+test case fails, `bats` exits with a `1` status code.
+
+
+OPTIONS
+-------
+
+  * `-c`, `--count`:
+    Count the number of test cases without running any tests
+  * `-f`, `--filter <regex>`:
+    Filter test cases by names matching the regular expression
+  * `-F`, `--formatter <type>`:
+    Switch between formatters: pretty (default), tap (default w/o term), tap13, junit
+  * `-h`, `--help`:
+    Display this help message
+  * `-j`, `--jobs <jobs>`:
+    Number of parallel jobs (requires GNU parallel)
+  * `--no-tempdir-cleanup`:
+    Preserve test output temporary directory
+  * `--no-parallelize-across-files`
+    Serialize test file execution instead of running them in parallel (requires --jobs >1)
+  * `--no-parallelize-within-files`
+    Serialize test execution within files instead of running them in parallel (requires --jobs >1)
+  * `--report-formatter <type>`:
+    Switch between reporters (same options as --formatter)
+  * `-o`, `--output <dir>`:
+    Directory to write report files
+  * `-p`, `--pretty`:
+    Shorthand for "--formatter pretty"
+  * `-r`, `--recursive`:
+    Include tests in subdirectories
+  * `-t`, `--tap`:
+    Shorthand for "--formatter tap"
+  * `-T`, `--timing`:
+    Add timing information to tests
+  * `-v`, `--version`:
+    Display the version number
+
+
+OUTPUT
+------
+
+When you run Bats from a terminal, you'll see output as each test is
+performed, with a check-mark next to the test's name if it passes or
+an "X" if it fails.
+
+    $ bats addition.bats
+     ✓ addition using bc
+     ✓ addition using dc
+
+    2 tests, 0 failures
+
+If Bats is not connected to a terminal--in other words, if you run it
+from a continuous integration system or redirect its output to a
+file--the results are displayed in human-readable, machine-parsable
+TAP format. You can force TAP output from a terminal by invoking Bats
+with the `--tap` option.
+
+    $ bats --tap addition.bats
+    1..2
+    ok 1 addition using bc
+    ok 2 addition using dc
+
+
+EXIT STATUS
+-----------
+
+The `bats` interpreter exits with a value of `0` if all test cases pass,
+or `1` if one or more test cases fail.
+
+
+SEE ALSO
+--------
+
+Bats wiki: _https://github.com/bats\-core/bats\-core/wiki/_
+
+`bash`(1), `bats`(7)
+
+
+COPYRIGHT
+---------
+
+(c) 2017-2018 bats-core organization<br/>
+(c) 2011-2016 Sam Stephenson
+
+Bats is released under the terms of an MIT-style license.
+
+
+

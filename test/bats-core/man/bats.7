@@ -1,0 +1,184 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "BATS" "7" "November 2020" "bats-core" "Bash Automated Testing System"
+.
+.SH "NAME"
+\fBbats\fR \- Bats test file format
+.
+.SH "DESCRIPTION"
+A Bats test file is a Bash script with special syntax for defining test cases\. Under the hood, each test case is just a function with a description\.
+.
+.IP "" 4
+.
+.nf
+
+#!/usr/bin/env bats
+
+@test "addition using bc" {
+  result="$(echo 2+2 | bc)"
+  [ "$result" \-eq 4 ]
+}
+
+@test "addition using dc" {
+  result="$(echo 2 2+p | dc)"
+  [ "$result" \-eq 4 ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Each Bats test file is evaluated n+1 times, where \fIn\fR is the number of test cases in the file\. The first run counts the number of test cases, then iterates over the test cases and executes each one in its own process\.
+.
+.SH "THE RUN HELPER"
+Many Bats tests need to run a command and then make assertions about its exit status and output\. Bats includes a \fBrun\fR helper that invokes its arguments as a command, saves the exit status and output into special global variables, and then returns with a \fB0\fR status code so you can continue to make assertions in your test case\.
+.
+.P
+For example, let\'s say you\'re testing that the \fBfoo\fR command, when passed a nonexistent filename, exits with a \fB1\fR status code and prints an error message\.
+.
+.IP "" 4
+.
+.nf
+
+@test "invoking foo with a nonexistent file prints an error" {
+  run foo nonexistent_filename
+  [ "$status" \-eq 1 ]
+  [ "$output" = "foo: no such file \'nonexistent_filename\'" ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The \fB$status\fR variable contains the status code of the command, and the \fB$output\fR variable contains the combined contents of the command\'s standard output and standard error streams\.
+.
+.P
+A third special variable, the \fB$lines\fR array, is available for easily accessing individual lines of output\. For example, if you want to test that invoking \fBfoo\fR without any arguments prints usage information on the first line:
+.
+.IP "" 4
+.
+.nf
+
+@test "invoking foo without arguments prints usage" {
+  run foo
+  [ "$status" \-eq 1 ]
+  [ "${lines[0]}" = "usage: foo <filename>" ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.SH "THE LOAD COMMAND"
+You may want to share common code across multiple test files\. Bats includes a convenient \fBload\fR command for sourcing a Bash source file relative to the location of the current test file\. For example, if you have a Bats test in \fBtest/foo\.bats\fR, the command
+.
+.IP "" 4
+.
+.nf
+
+load test_helper
+.
+.fi
+.
+.IP "" 0
+.
+.P
+will source the script \fBtest/test_helper\.bash\fR in your test file\. This can be useful for sharing functions to set up your environment or load fixtures\.
+.
+.SH "THE SKIP COMMAND"
+Tests can be skipped by using the \fBskip\fR command at the point in a test you wish to skip\.
+.
+.IP "" 4
+.
+.nf
+
+@test "A test I don\'t want to execute for now" {
+  skip
+  run foo
+  [ "$status" \-eq 0 ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Optionally, you may include a reason for skipping:
+.
+.IP "" 4
+.
+.nf
+
+@test "A test I don\'t want to execute for now" {
+  skip "This command will return zero soon, but not now"
+  run foo
+  [ "$status" \-eq 0 ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Or you can skip conditionally:
+.
+.IP "" 4
+.
+.nf
+
+@test "A test which should run" {
+  if [ foo != bar ]; then
+    skip "foo isn\'t bar"
+  fi
+
+  run foo
+  [ "$status" \-eq 0 ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.SH "SETUP AND TEARDOWN FUNCTIONS"
+You can define special \fBsetup\fR and \fBteardown\fR functions which run before and after each test case, respectively\. Use these to load fixtures, set up your environment, and clean up when you\'re done\.
+.
+.SH "CODE OUTSIDE OF TEST CASES"
+You can include code in your test file outside of \fB@test\fR functions\. For example, this may be useful if you want to check for dependencies and fail immediately if they\'re not present\. However, any output that you print in code outside of \fB@test\fR, \fBsetup\fR or \fBteardown\fR functions must be redirected to \fBstderr\fR (\fB>&2\fR)\. Otherwise, the output may cause Bats to fail by polluting the TAP stream on \fBstdout\fR\.
+.
+.SH "SPECIAL VARIABLES"
+There are several global variables you can use to introspect on Bats tests:
+.
+.IP "\(bu" 4
+\fB$BATS_TEST_FILENAME\fR is the fully expanded path to the Bats test file\.
+.
+.IP "\(bu" 4
+\fB$BATS_TEST_DIRNAME\fR is the directory in which the Bats test file is located\.
+.
+.IP "\(bu" 4
+\fB$BATS_TEST_NAMES\fR is an array of function names for each test case\.
+.
+.IP "\(bu" 4
+\fB$BATS_TEST_NAME\fR is the name of the function containing the current test case\.
+.
+.IP "\(bu" 4
+\fB$BATS_TEST_DESCRIPTION\fR is the description of the current test case\.
+.
+.IP "\(bu" 4
+\fB$BATS_TEST_NUMBER\fR is the (1\-based) index of the current test case in the test file\.
+.
+.IP "\(bu" 4
+\fB$BATS_SUITE_TEST_NUMBER\fR is the (1\-based) index of the current test case in the test suite (over all files)\.
+.
+.IP "\(bu" 4
+\fB$BATS_TMPDIR\fR is the location to a directory that may be used to store temporary files\.
+.
+.IP "\(bu" 4
+\fB$BATS_FILE_EXTENSION\fR (default: \fBbats\fR) specifies the extension of test files that should be found when running a suite (via \fBbats [\-r] suite_folder/\fR)
+.
+.IP "" 0
+.
+.SH "SEE ALSO"
+\fBbash\fR(1), \fBbats\fR(1)
