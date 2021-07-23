@@ -45,6 +45,8 @@ RUN \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
   apt-get -qq install postfix && \
+  # Work around possible problems with init
+  echo -e "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d && \
   apt-get -qq --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
