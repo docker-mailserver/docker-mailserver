@@ -43,6 +43,7 @@ sleep 10
 
 while true
 do
+  START_SECONDS="$SECONDS"
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
   # Lock configuration while working
@@ -59,7 +60,7 @@ do
   then
     _notify 'inf' "${LOG_DATE} Change detected"
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
-
+    WAIT_FOR_PIDS=()
     # Bug alert! This overwrites the alias set by start-mailserver.sh
     # Take care that changes in one script are propagated to the other
 
@@ -74,10 +75,13 @@ do
     do
       case "${FILE}" in
         "/etc/letsencrypt/acme.json" )
-          for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
-          do
-            _extract_certs_from_acme "${CERTDOMAIN}" && break
-          done
+          {
+            for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+            do
+              _extract_certs_from_acme "${CERTDOMAIN}" && break
+            done
+          } &
+          WAIT_FOR_PIDS+=($!)
           ;;
 
         * )
@@ -88,16 +92,22 @@ do
     done
 
     # regenerate postix aliases
-    echo "root: ${PM_ADDRESS}" >/etc/aliases
-    if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-    then
-      cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-    fi
-    postalias /etc/aliases
+    { 
+      echo "root: ${PM_ADDRESS}" >/etc/aliases
+      if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
+      then
+        cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
+      fi
+      postalias /etc/aliases
+    } &
+    WAIT_FOR_PIDS+=($!)
 
     # regenerate postfix accounts
-    : >/etc/postfix/vmailbox
-    : >/etc/dovecot/userdb
+    {
+      : >/etc/postfix/vmailbox
+      : >/etc/dovecot/userdb
+    } &
+    WAIT_FOR_PIDS+=($!)
 
     if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
     then
@@ -176,13 +186,18 @@ do
       done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
     fi
 
-    [[ -n ${RELAY_HOST} ]] && _populate_relayhost_map
-
+    if [[ -n ${RELAY_HOST} ]]
+    then
+      _populate_relayhost_map &
+      WAIT_FOR_PIDS+=($!)
+    fi
 
     if [[ -f /etc/postfix/sasl_passwd ]]
     then
-      chown root:root /etc/postfix/sasl_passwd
-      chmod 0600 /etc/postfix/sasl_passwd
+      {
+        chown root:root /etc/postfix/sasl_passwd
+        chmod 0600 /etc/postfix/sasl_passwd
+      } &
     fi
 
     if [[ -f postfix-virtual.cf ]]
@@ -217,22 +232,35 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       fi
     fi
 
+    for USER_MAIL_LOCATION in $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \)); do
+      chown -R 5000:5000 "${USER_MAIL_LOCATION}" &
+      WAIT_FOR_PIDS+=($!)
+    done
+
+    # relies on if [[ -f postfix-virtual.cf ]] block
     if [[ -f /tmp/vhost.tmp ]]
     then
       sort < /tmp/vhost.tmp | uniq >/etc/postfix/vhost
       rm /tmp/vhost.tmp
     fi
 
-    if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
-    then
-      chown -R 5000:5000 /var/mail
-    fi
+    echo "waiting for ${WAIT_FOR_PIDS[*]} ..."
+
+    wait ${WAIT_FOR_PIDS[*]}
 
     supervisorctl restart postfix
-
     # prevent restart of dovecot when smtp_only=1
-    [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
+    if [[ ${SMTP_ONLY} -ne 1 ]]
+    then
+      supervisorctl restart dovecot
+    fi
+
   fi
+
+  END_SECONDS=$SECONDS
+  RUNTIME=$((END_SECONDS - START_SECONDS))
+
+  echo "DONE TOTAL RUNTIME SECONDS: $RUNTIME"
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
