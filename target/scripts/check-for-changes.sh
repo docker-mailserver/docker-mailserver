@@ -43,7 +43,7 @@ sleep 10
 
 while true
 do
-  START_SECONDS="$SECONDS"
+  START_SECONDS="${SECONDS}"
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
   # Lock configuration while working
@@ -92,7 +92,7 @@ do
     done
 
     # regenerate postix aliases
-    { 
+    {
       echo "root: ${PM_ADDRESS}" >/etc/aliases
       if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
       then
@@ -233,6 +233,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       fi
     fi
 
+    # shellcheck disable=SC2044
     for USER_MAIL_LOCATION in $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \)); do
       chown -R 5000:5000 "${USER_MAIL_LOCATION}" &
       WAIT_FOR_PIDS+=($!)
@@ -246,8 +247,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
     fi
 
     echo "waiting for ${WAIT_FOR_PIDS[*]} ..."
-
-    wait ${WAIT_FOR_PIDS[*]}
+    wait "${WAIT_FOR_PIDS[*]}"
 
     supervisorctl restart postfix
     # prevent restart of dovecot when smtp_only=1
@@ -258,10 +258,10 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
   fi
 
-  END_SECONDS=$SECONDS
-  RUNTIME=$((END_SECONDS - START_SECONDS))
+  END_SECONDS="${SECONDS}"
+  RUNTIME="$((END_SECONDS - START_SECONDS))"
 
-  echo "DONE TOTAL RUNTIME SECONDS: $RUNTIME"
+  echo "DONE TOTAL RUNTIME SECONDS: ${RUNTIME}"
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
