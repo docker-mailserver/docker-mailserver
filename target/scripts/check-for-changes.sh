@@ -198,6 +198,7 @@ do
         chown root:root /etc/postfix/sasl_passwd
         chmod 0600 /etc/postfix/sasl_passwd
       } &
+      WAIT_FOR_PIDS+=($!)
     fi
 
     if [[ -f postfix-virtual.cf ]]
