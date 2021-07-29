@@ -75,6 +75,15 @@
         "security",
         "question"
       ]
+    },
+    {
+      "login": "andrewlow",
+      "name": "Andrew Low",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2952475?v=4",
+      "profile": "https://github.com/andrewlow",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
