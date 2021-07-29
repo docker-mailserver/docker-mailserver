@@ -2,26 +2,21 @@
 title: 'Mail Forwarding | AWS SES'
 ---
 
-!!! warning
-    New configuration, see [Configure Relay Hosts][docs-relay]
+[Amazon SES (Simple Email Service)](https://aws.amazon.com/ses/) is intended to provide a simple way for cloud based applications to send email and receive email. For the purposes of this project only sending email via SES is supported.  Older versions of docker-mailserver used `AWS_SES_HOST` and `AWS_SES_USERPASS` to configure sending, this has changed and the setup is mananged through [Configure Relay Hosts][docs-relay].
 
-Instead of letting postfix deliver mail directly it is possible to configure it to deliver outgoing email via Amazon SES (Simple Email Service). (Receiving inbound email via SES is not implemented.) The configuration follows the guidelines provided by AWS in https://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html, specifically, the `STARTTLS` method.
+You will need to create some [Amazon SES SMTP credentials](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html). The SMTP credentials you create will be used to populate the `RELAY_USER` and `RELAY_PASSWORD` environment variables.
 
-As described in the AWS Developer Guide you will have to generate SMTP credentials and define the following two environment variables in the docker-compose.yml with the appropriate values for your AWS SES subscription (the values for `AWS_SES_USERPASS` are the "SMTP username" and "SMTP password" provided when you create SMTP credentials for SES):
+The `RELAY_HOST` should match your [AWS SES region](https://docs.aws.amazon.com/general/latest/gr/ses.html), the `RELAY_PORT` will be 587.
 
-```yaml
-environment:
-  - AWS_SES_HOST=email-smtp.us-east-1.amazonaws.com
-  - AWS_SES_USERPASS=AKIAXXXXXXXXXXXXXXXX:kqXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+If all of your email is being forwarded through AWS SES, `DEFAULT_RELAY_HOST` should be set accordingly.
+
+Example:
+```
+DEFAULT_RELAY_HOST=[email-smtp.us-west-2.amazonaws.com]:587
 ```
 
-If necessary, you can also provide `AWS_SES_PORT`. If not provided, it defaults to 25.
-
-When you start the container you will see a log line as follows confirming the configuration:
-
-```log
-Setting up outgoing email via AWS SES host email-smtp.us-east-1.amazonaws.com
-```
+!!! note
+    If you set up [AWS Easy DKIM](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-authentication-dkim-easy.html) you can safely skip setting up DKIM as the AWS SES will take care of signing your outgoing email.
 
 To verify proper operation, send an email to some external account of yours and inspect the mail headers. You will also see the connection to SES in the mail logs. For example:
 
