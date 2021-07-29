@@ -46,9 +46,7 @@ LAST_CMP_RESULT=
 
 while true
 do
-  START_SECONDS="${SECONDS}"
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-  echo "Started $START_SECONDS"
 
   # Lock configuration while working
   create_lock "${SCRIPT_NAME}"
@@ -258,7 +256,8 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       # prevent restart of dovecot when smtp_only=1
       if [[ ${SMTP_ONLY} -ne 1 ]]
       then
-        supervisorctl restart dovecot
+        supervisorctl restart dovecot &
+        wait $!
       fi
 
       LAST_CMP_RESULT=
@@ -275,11 +274,6 @@ s/$/ regexp:\/etc\/postfix\/regexp/
   else # Checksum files don't differ
     LAST_CMP_RESULT=
   fi
-
-  END_SECONDS="${SECONDS}"
-  RUNTIME="$((END_SECONDS - START_SECONDS))"
-
-  echo "DONE TOTAL RUNTIME SECONDS: ${RUNTIME}"
 
   remove_lock "${SCRIPT_NAME}"
 
