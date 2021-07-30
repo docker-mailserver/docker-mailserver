@@ -248,7 +248,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
         rm /tmp/vhost.tmp
       fi
 
-      echo "waiting for ${WAIT_FOR_PIDS[*]} ..."
+      # shellcheck disable=SC2086
       wait ${WAIT_FOR_PIDS[*]}
 
       supervisorctl restart postfix &
@@ -265,7 +265,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
       # mark changes as applied
       mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
-      
+
     else # LAST_CMP_RESULT is empty, so let's set it
       _notify 'inf' "${LOG_DATE} Changes to checksum files detected... Ensuring changes have settled before proceeding..."
       LAST_CMP_RESULT="${CMP_RESULT}"
