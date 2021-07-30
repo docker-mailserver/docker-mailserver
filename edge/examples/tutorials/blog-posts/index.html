@@ -13,14 +13,14 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/forward-only-mailserver-with-ldap-authentication/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/blog-posts/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.1">
     
     
       
-        <title>Use Cases | Forward-Only Mailserver with LDAP - Docker Mailserver</title>
+        <title>Tutorials | Blog Posts - Docker Mailserver</title>
       
     
     
@@ -72,11 +72,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#building-a-forward-only-mailserver" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -102,7 +97,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Use Cases | Forward-Only Mailserver with LDAP
+              Tutorials | Blog Posts
             
           </span>
         </div>
@@ -249,7 +244,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../tutorials/basic-installation/" class="md-tabs__link md-tabs__link--active">
+      <a href="../basic-installation/" class="md-tabs__link md-tabs__link--active">
         Examples
       </a>
     </li>
@@ -982,12 +977,14 @@
             
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_1" data-md-state="indeterminate" type="checkbox" id="__nav_4_1" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" checked>
       
       <label class="md-nav__link" for="__nav_4_1">
         Tutorials
@@ -1005,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/basic-installation/" class="md-nav__link">
+      <a href="../basic-installation/" class="md-nav__link">
         Basic Installation
       </a>
     </li>
@@ -1017,7 +1014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../mailserver-behind-proxy/" class="md-nav__link">
         Mailserver behind Proxy
       </a>
     </li>
@@ -1027,11 +1024,19 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../tutorials/blog-posts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Blog Posts
       </a>
+      
     </li>
   
 
@@ -1045,14 +1050,12 @@
             
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" data-md-state="indeterminate" type="checkbox" id="__nav_4_2" checked>
       
       <label class="md-nav__link" for="__nav_4_2">
         Use Cases
@@ -1068,54 +1071,11 @@
             
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Forward-Only Mailserver with LDAP
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         Forward-Only Mailserver with LDAP
       </a>
-      
-        
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#building-a-forward-only-mailserver" class="md-nav__link">
-    Building a Forward-Only Mailserver
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#authenticating-with-ldap" class="md-nav__link">
-    Authenticating with LDAP
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1125,7 +1085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../imap-folders/" class="md-nav__link">
+      <a href="../../uses-cases/imap-folders/" class="md-nav__link">
         Customize IMAP Folders
       </a>
     </li>
@@ -1274,141 +1234,23 @@
               </div>
             
             
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#building-a-forward-only-mailserver" class="md-nav__link">
-    Building a Forward-Only Mailserver
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#authenticating-with-ldap" class="md-nav__link">
-    Authenticating with LDAP
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/tutorials/blog-posts.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>Forward-Only Mailserver with LDAP</h1>
+                  <h1>Blog Posts</h1>
                 
-                <h2 id="building-a-forward-only-mailserver"><a class="toclink" href="#building-a-forward-only-mailserver">Building a Forward-Only Mailserver</a></h2>
-<p>A <strong>forward-only</strong> mailserver does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a gmail account). You can also send email from the localhost (the computer where the mailserver is installed), using as sender any of the alias addresses.</p>
-<p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
-<div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span>
-<span class="na">ENABLE_POP3</span><span class="o">=</span>
-<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">0</span>
-<span class="na">SMTP_ONLY</span><span class="o">=</span><span class="s">1</span>
-<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
-<span class="na">ENABLE_FETCHMAIL</span><span class="o">=</span><span class="s">0</span>
-</code></pre></div>
-<p>Since there are no local mailboxes, we use <code>SMTP_ONLY=1</code> to disable <code>dovecot</code>. We disable as well the other services that are related to local mailboxes (<code>POP3</code>, <code>ClamAV</code>, <code>SpamAssassin</code>, etc.)</p>
-<p>We can create aliases with <code>./setup.sh</code>, like this:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh <span class="nb">alias</span> add &lt;alias-address&gt; &lt;external-email-account&gt;
-</code></pre></div>
-<h2 id="authenticating-with-ldap"><a class="toclink" href="#authenticating-with-ldap">Authenticating with LDAP</a></h2>
-<p>If you want to send emails from outside the mailserver you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
-<div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1</span>
-<span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
-<span class="na">LDAP_SERVER_HOST</span><span class="o">=</span><span class="s">ldap.example.org</span>
-<span class="na">LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span>
-<span class="na">LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span>
-<span class="na">LDAP_BIND_PW</span><span class="o">=</span><span class="s">pass1234</span>
-
-<span class="na">ENABLE_SASLAUTHD</span><span class="o">=</span><span class="s">1</span>
-<span class="na">SASLAUTHD_MECHANISMS</span><span class="o">=</span><span class="s">ldap</span>
-<span class="na">SASLAUTHD_LDAP_SERVER</span><span class="o">=</span><span class="s">ldap.example.org</span>
-<span class="na">SASLAUTHD_LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
-<span class="na">SASLAUTHD_LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span>
-<span class="na">SASLAUTHD_LDAP_PASSWORD</span><span class="o">=</span><span class="s">pass1234</span>
-<span class="na">SASLAUTHD_LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span>
-<span class="na">SASLAUTHD_LDAP_FILTER</span><span class="o">=</span><span class="s">(&amp;(uid=%U)(objectClass=inetOrgPerson))</span>
-</code></pre></div>
-<p>My LDAP data structure is very basic, containing only the username, password, and the external email address where to forward emails for this user. An entry looks like this</p>
-<div class="highlight"><pre><span></span><code><span class="na">add uid</span><span class="o">=</span><span class="s">username,ou=users,dc=example,dc=org</span>
-<span class="na">uid</span><span class="o">:</span> <span class="s">username</span>
-<span class="na">objectClass</span><span class="o">:</span> <span class="s">inetOrgPerson</span>
-<span class="na">sn</span><span class="o">:</span> <span class="s">username</span>
-<span class="na">cn</span><span class="o">:</span> <span class="s">username</span>
-<span class="na">userPassword</span><span class="o">:</span> <span class="s">{SSHA}abcdefghi123456789</span>
-<span class="na">email</span><span class="o">:</span> <span class="s">real-email-address@external-domain.com</span>
-</code></pre></div>
-<p>This structure is different from what is expected/assumed from the configuration scripts of the mailserver, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to do <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md#custom-user-changes--patches">custom configuration</a>. I created the script <code>config/user-patches.sh</code>, with a content like this:</p>
-<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
-
-rm -f /etc/postfix/<span class="o">{</span>ldap-groups.cf,ldap-domains.cf<span class="o">}</span>
-
-postconf <span class="se">\</span>
-    <span class="s2">&quot;virtual_mailbox_domains = /etc/postfix/vhost&quot;</span> <span class="se">\</span>
-    <span class="s2">&quot;virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf texthash:/etc/postfix/virtual&quot;</span> <span class="se">\</span>
-    <span class="s2">&quot;smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf&quot;</span>
-
-sed -i /etc/postfix/ldap-users.cf <span class="se">\</span>
-    -e <span class="s1">&#39;/query_filter/d&#39;</span> <span class="se">\</span>
-    -e <span class="s1">&#39;/result_attribute/d&#39;</span> <span class="se">\</span>
-    -e <span class="s1">&#39;/result_format/d&#39;</span>
-cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-users.cf</span>
-<span class="s">query_filter = (uid=%u)</span>
-<span class="s">result_attribute = uid</span>
-<span class="s">result_format = %s@example.org</span>
-<span class="s">EOF</span>
-
-sed -i /etc/postfix/ldap-aliases.cf <span class="se">\</span>
-    -e <span class="s1">&#39;/domain/d&#39;</span> <span class="se">\</span>
-    -e <span class="s1">&#39;/query_filter/d&#39;</span> <span class="se">\</span>
-    -e <span class="s1">&#39;/result_attribute/d&#39;</span>
-cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-aliases.cf</span>
-<span class="s">domain = example.org</span>
-<span class="s">query_filter = (uid=%u)</span>
-<span class="s">result_attribute = mail</span>
-<span class="s">EOF</span>
-
-postfix reload
-</code></pre></div>
-<p>You see that besides <code>query_filter</code>, I had to customize as well <code>result_attribute</code> and <code>result_format</code>.</p>
-<div class="admonition sealso">
-<p class="admonition-title">Sealso</p>
-<p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail server with Postfix and Dovecot for multiple domains</a></p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Another solution that serves as a forward-only mailserver is this: <a href="https://gitlab.com/docker-scripts/postfix">https://gitlab.com/docker-scripts/postfix</a></p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>One user reports only having success if <code>ENABLE_LDAP=0</code> was set.</p>
-</div>
+                <p>This site lists blog entries that write about the project. If you blogged about <code>docker-mailserver</code> as well feel free to add your site!</p>
+<ul>
+<li><a href="https://lowtek.ca/roo/2021/installing-docker-mailserver/">Installing docker-mailserver</a> by <a href="https://github.com/andrewlow">@andrewlow</a> </li>
+<li><a href="https://tvi.al/simple-mail-server-with-docker/">Simple Mailserver with docker</a> by <a href="https://github.com/tomav">@tomav</a></li>
+</ul>
                 
                   
                 
@@ -1435,7 +1277,7 @@ postfix reload
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../../tutorials/blog-posts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Blog Posts" rel="prev">
+        <a href="../mailserver-behind-proxy/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mailserver behind Proxy" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1444,20 +1286,20 @@ postfix reload
               <span class="md-footer__direction">
                 Previous
               </span>
-              Blog Posts
+              Mailserver behind Proxy
             </div>
           </div>
         </a>
       
       
         
-        <a href="../imap-folders/" class="md-footer__link md-footer__link--next" aria-label="Next: Customize IMAP Folders" rel="next">
+        <a href="../../uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-footer__link md-footer__link--next" aria-label="Next: Forward-Only Mailserver with LDAP" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Customize IMAP Folders
+              Forward-Only Mailserver with LDAP
             </div>
           </div>
           <div class="md-footer__button md-icon">
