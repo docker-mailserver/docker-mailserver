@@ -58,7 +58,7 @@ do
   then
     # If the current run's CMP_RESULT is equal to the LAST_CMP_RESULT, changes have settled and we can safely proceed
     # This prevents multiple restarts of postfix from happening all at once and causing problems or delays
-    if [[ -n "${LAST_CMP_RESULT}" && "${CMP_RESULT}" == "${LAST_CMP_RESULT}" ]]
+    if [[ "${CMP_RESULT}" == "${LAST_CMP_RESULT}" ]]
     then
       _notify 'inf' "${LOG_DATE} Changes to checksum files settled"
       CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
@@ -266,9 +266,10 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       # mark changes as applied
       mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
-    else # LAST_CMP_RESULT is empty, so let's set it
+    else # The files differ...
       _notify 'inf' "${LOG_DATE} Changes to checksum files detected... Ensuring changes have settled before proceeding..."
       LAST_CMP_RESULT="${CMP_RESULT}"
+      sleep 5 # The longer the sleep here, the more time there is for users to make changes before a full restart
     fi
 
   else # Checksum files don't differ
@@ -277,7 +278,6 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
   remove_lock "${SCRIPT_NAME}"
 
-  sleep 5 # The longer the sleep here, the more time there is for users to make changes before a full restart
 done
 
 exit 0
