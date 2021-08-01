@@ -15,6 +15,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://www.heiko-barth.de"><img src="https://avatars.githubusercontent.com/u/590174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Casper</b></sub></a><br /><a href="#maintenance-casperklein" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/polarathene"><img src="https://avatars.githubusercontent.com/u/5098581?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brennan Kinney</b></sub></a><br /><a href="#maintenance-polarathene" title="Maintenance">🚧</a> <a href="https://github.com/docker-mailserver/docker-mailserver/commits?author=polarathene" title="Documentation">📖</a> <a href="#security-polarathene" title="Security">🛡️</a> <a href="#question-polarathene" title="Answering Questions">💬</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/andrewlow"><img src="https://avatars.githubusercontent.com/u/2952475?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andrew Low</b></sub></a><br /><a href="https://github.com/docker-mailserver/docker-mailserver/commits?author=andrewlow" title="Documentation">📖</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->
@@ -23,3 +26,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+____
+
+Note:
+
+We started using [all-contributors](https://github.com/all-contributors/all-contributors) in July 2021. We will add contributors with their future PRs or Issues. If you are [one of the 200+](https://github.com/docker-mailserver/docker-mailserver/graphs/contributors) that contributed to the project in the past and would like to see your name here too, please reach out!
