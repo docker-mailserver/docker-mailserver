@@ -20,7 +20,7 @@ function setup_file() {
     export TLS_CONFIG_VOLUME
     TLS_CONFIG_VOLUME="$(pwd)/test/test-files/ssl/${DOMAIN}/:/config/ssl/:ro"
     # `${TMPDIR}` maps to `/tmp`
-    export TLS_RESULTS_DIR="${TMPDIR}/results"
+    export TLS_RESULTS_DIR="/tmp/results"
 
     # NOTE: If the network already exists, test will fail to start.
     docker network create "${NETWORK}"
