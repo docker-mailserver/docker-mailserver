@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 load 'test_helper/common'
-# Globals ${BATS_TMPDIR} and ${NAME}
+# Globals ${BATS_RUN_TMPDIR} and ${NAME}
 # `${NAME}` defaults to `mailserver-testing:ci`
 
 function setup() {
@@ -19,8 +19,8 @@ function setup_file() {
     # Shared config for TLS testing (read-only)
     export TLS_CONFIG_VOLUME
     TLS_CONFIG_VOLUME="$(pwd)/test/test-files/ssl/${DOMAIN}/:/config/ssl/:ro"
-    # `${BATS_TMPDIR}` maps to `/tmp`
-    export TLS_RESULTS_DIR="${BATS_TMPDIR}/results"
+    # `${BATS_RUN_TMPDIR}` maps to `/tmp`
+    export TLS_RESULTS_DIR="${BATS_RUN_TMPDIR}/results"
 
     # NOTE: If the network already exists, test will fail to start.
     docker network create "${NETWORK}"
