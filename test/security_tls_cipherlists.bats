@@ -150,6 +150,7 @@ function collect_cipherlist_data() {
         --volume "${TLS_CONFIG_VOLUME}" \
         --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
         --workdir "/output" \
+        --security-opt seccomp=unconfined \
         drwetter/testssl.sh:3.1dev "${TESTSSL_CMD[@]}"
     assert_success
 }
