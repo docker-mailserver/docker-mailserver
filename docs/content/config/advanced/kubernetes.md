@@ -267,7 +267,7 @@ spec:
           emptyDir: {}
 ```
 
-By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to chose yourself, which approach you'd want to go. The [TLS](../security/ssl.md) section provides you with an overview.
+By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS](../security/ssl.md) section provides you with an overview.
 
 !!! attention "Sensitive Data"
 
