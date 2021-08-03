@@ -313,7 +313,7 @@ This approach
 
 ### Proxy port to Service
 
-The [proxy pod][k8s-proxy-service] helps to avoid the necessity of specifying external IPs explicitly. This comes st the price of complexity: you must deploy a proxy pod on each [Node][k8s-nodes] you want to expose mailserver on.
+The [proxy pod][k8s-proxy-service] helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each [Node][k8s-nodes] you want to expose mailserver on.
 
 This approach
 
