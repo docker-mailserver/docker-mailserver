@@ -147,9 +147,9 @@ metadata:
 
   annotations:
     ignore-check.kube-linter.io/run-as-non-root: >-
-      The mail server needs to run as root
+      The mailserver needs to run as root
     ignore-check.kube-linter.io/privileged-ports: >-
-      The mail server needs privilegdes ports
+      The mailserver needs privilegdes ports
     ignore-check.kube-linter.io/no-read-only-root-fs: >-
       There are too many files written to make The
       root FS read-only
@@ -267,21 +267,21 @@ spec:
           emptyDir: {}
 ```
 
-By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS](../security/ssl.md) section provides you with an overview.
+By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS] section provides you with an overview.
 
 !!! attention "Sensitive Data"
 
     For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMaps` and use them the same way.
 
-## Exposing your Mail Server to the Outside World
+## Exposing your Mailserver to the Outside World
 
-The more difficult part with K8s is to expose a deployed mail server to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing the mail server to outside world in K8s is to [preserve the real client IP][k8s-service-source-ip]. The real client IP is required by the mail server for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line stat states `check_policy_service unix:private/policyd-spf`.
+The more difficult part with K8s is to expose a deployed mailserver to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing the mailserver to outside world in K8s is to [preserve the real client IP][k8s-service-source-ip]. The real client IP is required by the mailserver for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line that states `check_policy_service unix:private/policyd-spf`.
 
 The easiest approaches were covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too.
 
 ### External IPs Service
 
-The simplest way is to expose the mail server as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip].
+The simplest way is to expose the mailserver as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip].
 
 ```yaml
 ---
@@ -308,8 +308,8 @@ spec:
 
 This approach
 
-- does not preserve the real client IP, so SPF check of incoming mail will fail
-- requires you to specify the exposed IPs explicitly
+- does not preserve the real client IP, so SPF check of incoming mail will fail.
+- requires you to specify the exposed IPs explicitly.
 
 ### Proxy port to Service
 
@@ -317,11 +317,11 @@ The [proxy pod][k8s-proxy-service] helps to avoid the necessity of specifying ex
 
 This approach
 
-- does not preserve the real client IP, so SPF check of incoming mail will fail
+- does not preserve the real client IP, so SPF check of incoming mail will fail.
 
 ### Bind to concrete Node and use host network
 
-One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes at the cost of availability; you can talk to the mail server from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
+One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes at the cost of availability; you can talk to the mailserver from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
 
 ```yaml
 ---
@@ -353,8 +353,8 @@ metadata:
 
 With this approach,
 
-- it is not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at
-- every Port within the Container is exposed on the Host side
+- it is not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.
+- every Port within the Container is exposed on the Host side.
 
 ### Proxy Port to Service via PROXY Protocol
 
@@ -434,9 +434,10 @@ Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expe
 
 With this approach,
 
-- it is not possible to access the mail server via cluster-DNS, as the PROXY protocol is required for incoming connections
+- it is not possible to access the mailserver via cluster-DNS, as the PROXY protocol is required for incoming connections.
 
 [Kustomize]: https://kustomize.io/
+[TLS]: ../security/ssl.md
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
