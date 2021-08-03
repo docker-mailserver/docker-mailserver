@@ -53,7 +53,7 @@ data:
   SPAMASSASSIN_SPAM_TO_INBOX: '1'
 ```
 
-We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust `docker-mailserver` to our likings. We encourage you to have a look at [Kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
+We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust `docker-mailserver` to our likings. We encourage you to have a look at [Kustomize][docs-kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
 
 ```yaml
 ---
@@ -279,7 +279,7 @@ spec:
 
 ### Sensitive Data
 
-By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS] section provides you with an overview.
+By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS][docs-tls] section provides you with an overview.
 
 !!! attention "Sensitive Data"
 
@@ -448,8 +448,8 @@ With this approach,
 
 - it is not possible to access the mailserver via cluster-DNS, as the PROXY protocol is required for incoming connections.
 
-[Kustomize]: https://kustomize.io/
-[TLS]: ../security/ssl.md
+[docs-kustomize]: https://kustomize.io/
+[docs-tls]: ../security/ssl.md
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
