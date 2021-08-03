@@ -321,7 +321,7 @@ This approach
 
 ### Bind to concrete Node and use host network
 
-One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes in price of availability: you can talk to the mail server from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
+One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes at the cost of availability; you can talk to the mail server from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
 
 ```yaml
 ---
