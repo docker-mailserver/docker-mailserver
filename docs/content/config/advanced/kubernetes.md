@@ -86,7 +86,7 @@ spec:
       storage: 1Gi
 ```
 
-A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world). The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have on instance anyway, and users that need high availability know how to do it anyways. You will want to have your load-balancer give this service an external, routable IP address.
+A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world). The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways. You will want to have your load-balancer give this service an external, routable IP address.
 
 ```yaml
 ---
