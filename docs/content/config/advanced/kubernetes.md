@@ -16,7 +16,9 @@ We assume basic knowledge about K8s from the reader. If you're not familiar with
 
 ## Manifests
 
-First of all, we want to provide the basic configuration with environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
+### Configuration
+
+We want to provide the basic configuration in the form of environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
 
 
 ```yaml
@@ -67,7 +69,9 @@ data:
     other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere
 ```
 
-Thereafter, we need persistence for our data. We will write a `PersistentVolumeClaim`.
+### Persistence
+
+Thereafter, we need persistence for our data.
 
 ```yaml
 ---
@@ -86,7 +90,11 @@ spec:
       storage: 1Gi
 ```
 
-A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world). The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways. You will want to have your load-balancer give this service an external, routable IP address.
+### Service
+
+A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
+
+The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways. You will want to have your load-balancer give this service an external, routable IP address.
 
 ```yaml
 ---
@@ -134,6 +142,8 @@ spec:
       protocol: TCP
 
 ```
+
+### Deployments
 
 Last but not least, the `Deployment` becomes the most complex component. The deployment brings maximal security measures without compromising on ease of use.
 
@@ -266,6 +276,8 @@ spec:
         - name: tmp-files
           emptyDir: {}
 ```
+
+### Sensitive Data
 
 By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS] section provides you with an overview.
 
