@@ -434,7 +434,7 @@ Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expe
 
 With this approach,
 
-- is is not possible to access the mail server via cluster-DNS, as the PROXY protocol is required for incoming connections
+- it is not possible to access the mail server via cluster-DNS, as the PROXY protocol is required for incoming connections
 
 [Kustomize]: https://kustomize.io/
 [docs-dovecot]: ./override-defaults/dovecot.md
