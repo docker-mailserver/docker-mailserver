@@ -53,7 +53,7 @@ data:
   SPAMASSASSIN_SPAM_TO_INBOX: '1'
 ```
 
-We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust `docker-mailserver` to our likings. We encourage you to have a look at [Kustomize][docs-kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
+We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust `docker-mailserver` to our likings. We encourage you to have a look at [Kustomize][kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
 
 ```yaml
 ---
