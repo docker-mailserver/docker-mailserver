@@ -448,7 +448,7 @@ With this approach,
 
 - it is not possible to access the mailserver via cluster-DNS, as the PROXY protocol is required for incoming connections.
 
-[docs-kustomize]: https://kustomize.io/
+[kustomize]: https://kustomize.io/
 [docs-tls]: ../security/ssl.md
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
