@@ -270,6 +270,12 @@ RUN \
   sed -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
 
 # -----------------------------------------------
+# --- Logwatch ----------------------------------
+# -----------------------------------------------
+
+COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
+
+# -----------------------------------------------
 # --- Supervisord & Start -----------------------
 # -----------------------------------------------
 
