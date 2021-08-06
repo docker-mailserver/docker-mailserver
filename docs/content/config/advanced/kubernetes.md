@@ -94,7 +94,9 @@ spec:
 
 A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
 
-The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways. You will want to have your load-balancer give this service an external, routable IP address.
+The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways.
+
+With this setup, you want your load-balancer (e.g. MetalLB) to give this service an external, especially routable IP address.
 
 ```yaml
 ---
@@ -106,15 +108,9 @@ metadata:
   labels:
     app: mailserver
 
-  annotations:
-    metallb.universe.tf/address-pool: mailserver
-
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
-
-  ipFamilies: [IPv4]            # not strictly required
-  ipFamilyPolicy: SingleStack   # not strictly required
 
   selector:
     app: mailserver
@@ -293,7 +289,7 @@ The easiest approaches were covered above, using `#!yaml externalTrafficPolicy: 
 
 ### External IPs Service
 
-The simplest way is to expose the mailserver as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip].
+The simplest way is to expose the mailserver as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip]. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.
 
 ```yaml
 ---
@@ -390,7 +386,7 @@ With an [NGINX ingress controller][k8s-nginx], set `externalTrafficPolicy: Local
 
 Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expect the PROXY protocol:
 
-!!! example
+??? example "HAProxy Example"
 
     ```yaml
     kind: ConfigMap
