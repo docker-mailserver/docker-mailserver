@@ -197,9 +197,12 @@ spec:
                 - SETGID
                 - SETUID
                 - DAC_OVERRIDE
+                # network capabilities
+                - NET_ADMIN
+                - NET_BIND_SERVICE
                 # miscellaneous  capabilities
                 - SYS_CHROOT
-                - NET_BIND_SERVICE
+                - SYS_PTRACE
                 - KILL
               drop: [ALL]
             seccompProfile:
