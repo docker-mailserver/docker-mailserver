@@ -1,5 +1,16 @@
 # Changelog
 
+## `v10.1.0`
+
+This release mainly improves on `v10.0.0` with many bugfixes. 
+
+- **[docs]** Various documentation updates ([#2105](https://github.com/docker-mailserver/docker-mailserver/pull/2105), [#2045](https://github.com/docker-mailserver/docker-mailserver/pull/2045), [#2043](https://github.com/docker-mailserver/docker-mailserver/pull/2043), [#2035](https://github.com/docker-mailserver/docker-mailserver/pull/2035), [#2001](https://github.com/docker-mailserver/docker-mailserver/pull/2001))
+- **[misc]** Fixed a lot of small bugs, updated dependencies and improved functionality ([#2095](https://github.com/docker-mailserver/docker-mailserver/pull/2095), [#2047](https://github.com/docker-mailserver/docker-mailserver/pull/2047), [#2046](https://github.com/docker-mailserver/docker-mailserver/pull/2046), [#2041](https://github.com/docker-mailserver/docker-mailserver/pull/2041), [#1980](https://github.com/docker-mailserver/docker-mailserver/pull/1980), [#2030](https://github.com/docker-mailserver/docker-mailserver/pull/2030), [#2024](https://github.com/docker-mailserver/docker-mailserver/pull/2024), [#2001](https://github.com/docker-mailserver/docker-mailserver/pull/2001), [#2000](https://github.com/docker-mailserver/docker-mailserver/pull/2000), [#2059](https://github.com/docker-mailserver/docker-mailserver/pull/2059))
+- **[feat]** Added dovecot-fts-xapian ([#2064](https://github.com/docker-mailserver/docker-mailserver/pull/2064))
+- **[security]** Switch GPG keyserver ([#2051](https://github.com/docker-mailserver/docker-mailserver/pull/2051))
+
+
+
 ## `v10.0.0`
 
 This release improves on `9.1.0` in many aspect, including general fixes, Fail2Ban, LDAP and documentation. This release contains breaking changes.

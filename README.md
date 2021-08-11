@@ -88,8 +88,8 @@ and the `setup.sh` **in the correct version**
 ``` BASH
 # if you're using :edge as the image tag
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-# if you're using :latest (= :10.0.0) as the image tag
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v10.0.0/setup.sh
+# if you're using :latest (= :10.1.0) as the image tag
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v10.1.0/setup.sh
 
 chmod a+x ./setup.sh
 
