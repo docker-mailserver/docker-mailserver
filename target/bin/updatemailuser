@@ -25,6 +25,7 @@ then
   [[ -z ${PASSWD} ]] && errex "Password must not be empty"
 fi
 
+[ ! -f /etc/dovecot/dh.pem ] && ln -s /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 # Protect config file with lock to avoid race conditions
