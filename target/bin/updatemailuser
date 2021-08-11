@@ -10,24 +10,98 @@
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-USER="${1}"
+MAIL_CRYPT_ENABLED=false
+
+function __usage
+{
+  echo -e "\e[35mUPDATEMAILUSER\e[31m(\e[93m8\e[31m)
+
+\e[38;5;214mNAME\e[39m
+    updatemailuser - allows user to update an existing email user
+      If mail_crypt is enabled, you'll need to provide the email user's old password.
+
+\e[38;5;214mSYNOPSIS\e[39m
+    updatemailuser <EMAIL ADDRESS> [ OPTIONS ] [<PASSWORD>]
+
+\e[38;5;214mOPTIONS\e[39m
+    \e[94mGeneric Program Information\e[39m
+        help       Print the usage information.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful, and 1 if there was an error.
+"
+}
+
+if [[ ${1} == 'help' ]]
+then
+  __usage
+  exit 0
+fi
+
+# Check if mail_crypt/per user storage encryption is enabled
+if ! grep '^#.*auth-passwdfile-mailcrypt' /etc/dovecot/conf.d/10-auth.conf &>/dev/null
+then
+  MAIL_CRYPT_ENABLED=true
+fi
+
+while getopts "hp:" OPT
+do
+  case ${OPT} in
+    p )
+      CRYPTOKEY_UPDATE_PASSWORD="${OPTARG}"
+      ;;
+    h )
+      __usage
+      exit 0
+      ;;
+    * )
+      __usage
+      echo "Invalid option: -${OPT}" >&2
+      ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+
+FULL_EMAIL="${1}"
 shift
 PASSWD="${*}"
 
-function usage  {	echo "Usage: updatemailuser <user@domain.tld> [password]" ; }
+[[ -z ${FULL_EMAIL} ]] && { usage ; errex "no username specified" ; }
 
-[[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
+USER="${FULL_EMAIL%@*}"
+DOMAIN="${FULL_EMAIL#*@}"
 
 if [[ -z ${PASSWD} ]]
 then
-  read -r -s -p "Enter Password: " PASSWD
+  read -r -s -p "Enter New Password: " PASSWD
   echo
-  [[ -z ${PASSWD} ]] && errex "Password must not be empty"
+  [[ -z ${PASSWD} ]] && errex "password must not be empty"
 fi
 
-HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
+HASH="$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")"
 
 touch "${DATABASE}"
 create_lock # Protect config file with lock to avoid race conditions
-grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
-sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"
+
+# Per user storage encryption
+if [[ "${MAIL_CRYPT_ENABLED}" == true ]]
+then
+  if [[ ! -f "/var/mail/${DOMAIN}/${USER}/.attributes" ]] # create key if it doesn't exist already
+  then
+    doveadm -o plugin/mail_crypt_private_password="$(echo -n "${PASSWD}" | sha256sum | awk '{print $1}')" mailbox cryptokey generate -u "${FULL_EMAIL}" -U
+  else
+    if [[ -z "${CRYPTOKEY_UPDATE_PASSWORD}" ]]
+    then
+      read -r -s -p "Enter Old Password (to update encryption key): " CRYPTOKEY_UPDATE_PASSWORD
+      echo
+      [[ -z ${CRYPTOKEY_UPDATE_PASSWORD} ]] && errex "old encryption password must not be empty"
+    fi
+    doveadm mailbox cryptokey password -u "${FULL_EMAIL}" -n "$(echo -n "${PASSWD}" | sha256sum | awk '{print $1}')" -o "$(echo -n "${CRYPTOKEY_UPDATE_PASSWORD}" | sha256sum | awk '{print $1}')"
+  fi
+fi
+
+grep -qi "^$(escape "${FULL_EMAIL}")|" "${DATABASE}" 2>/dev/null || errex "User \"${FULL_EMAIL}\" does not exist"
+sed -i "s ^""${FULL_EMAIL}""|.* ""${FULL_EMAIL}""|""${HASH}"" " "${DATABASE}"
+
+echo "Successfully Updated ${FULL_EMAIL}"

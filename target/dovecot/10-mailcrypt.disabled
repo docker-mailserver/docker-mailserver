@@ -1,0 +1,7 @@
+mail_attribute_dict = file:%h/.attributes
+mail_plugins = $mail_plugins mail_crypt
+plugin {
+  mail_crypt_curve = {CURVE}
+  mail_crypt_save_version = 2
+  mail_crypt_require_encrypted_user_key = yes
+}

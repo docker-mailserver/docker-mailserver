@@ -1533,6 +1533,30 @@ function _setup_security_stack
       "s|(log_level).*|\1 = ${AMAVIS_LOGLEVEL};|g" \
       /etc/amavis/conf.d/49-docker-mailserver
   fi
+
+  # Per user storage encryption
+  if [[ ${ENABLE_PER_USER_STORAGE_ENCRYPTION} -eq 1 ]]
+  then
+    if [[ ! -f /etc/dovecot/conf.d/10-mailcrypt.conf ]]
+    then
+      mv /etc/dovecot/conf.d/10-mailcrypt.disabled /etc/dovecot/conf.d/10-mailcrypt.conf
+      sedfile -i "s|mail_crypt_curve = {CURVE}|mail_crypt_curve = ${PER_USER_STORAGE_ENCRYPTION_CURVE}|" /etc/dovecot/conf.d/10-mailcrypt.conf
+      sedfile -i 's|^\(\!include auth-passwdfile\.inc\)|#\1|' /etc/dovecot/conf.d/10-auth.conf # comment out old inc
+      sedfile -i 's|^#\(\!include auth-passwdfile-mailcrypt\.inc\)|\1|' /etc/dovecot/conf.d/10-auth.conf # uncomment mailcrypt inc
+      sedfile -i "s|scheme={SCHEME}|scheme=${PER_USER_STORAGE_ENCRYPTION_SCHEME}|" /etc/dovecot/conf.d/auth-passwdfile-mailcrypt.inc
+      _notify 'inf' 'Per user storage encryption enabled'
+    fi
+  else # Ensure it's disabled if the user previously turned it on, but now has ENABLE_PER_USER_STORAGE_ENCRYPTION=0
+    if [[ -f /etc/dovecot/conf.d/10-mailcrypt.conf ]]
+    then
+      mv /etc/dovecot/conf.d/10-mailcrypt.conf /etc/dovecot/conf.d/10-mailcrypt.disabled
+      sedfile -i "s|mail_crypt_curve =.*|mail_crypt_curve = {CURVE}|" /etc/dovecot/conf.d/10-mailcrypt.disabled
+      sedfile -i 's|^\(\!include auth-passwdfile-mailcrypt\.inc\)|#\1|' /etc/dovecot/conf.d/10-auth.conf # comment out old inc
+      sedfile -i 's|^#\(\!include auth-passwdfile\.inc\)|\1|' /etc/dovecot/conf.d/10-auth.conf # uncomment mailcrypt inc
+      sedfile -i "s|scheme=.*[[:space:]]u|scheme={SCHEME} u|" /etc/dovecot/conf.d/auth-passwdfile-mailcrypt.inc
+      _notify 'inf' 'Per user storage encryption disabled'
+    fi
+  fi
 }
 
 function _setup_logrotate

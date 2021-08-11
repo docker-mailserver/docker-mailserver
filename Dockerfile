@@ -253,6 +253,19 @@ RUN \
 COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
 
 # -----------------------------------------------
+# --- Security ----------------------------------
+# -----------------------------------------------
+
+COPY target/dovecot/auth-passwdfile-mailcrypt.inc /etc/dovecot/conf.d/
+COPY target/dovecot/10-mailcrypt.disabled /etc/dovecot/conf.d/
+
+# -----------------------------------------------
+# --- Logwatch ----------------------------------
+# -----------------------------------------------
+
+COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
+
+# -----------------------------------------------
 # --- Supervisord & Start -----------------------
 # -----------------------------------------------
 

@@ -72,3 +72,17 @@ then
     sleep 1
   done
 fi
+
+# Per user storage encryption
+if ! grep '^#.*auth-passwdfile-mailcrypt' /etc/dovecot/conf.d/10-auth.conf &>/dev/null
+then
+  while [[ $(stat -c '%U' "/var/mail/${DOMAIN}/${USER}") != docker ]] # handle slow ownership setting problem
+  do
+    echo "Waiting for proper owner to be set on /var/mail/${DOMAIN}/${USER}..."
+    sleep 1
+  done
+  doveadm -o plugin/mail_crypt_private_password="$(echo -n "${PASSWD}" | sha256sum | awk '{print $1}')" mailbox cryptokey generate -u "${FULL_EMAIL}" -U
+  EXTRA_SUCCESS="with password protected storage encryption keys"
+fi
+
+echo "Successfully created ${FULL_EMAIL} ${EXTRA_SUCCESS}"
