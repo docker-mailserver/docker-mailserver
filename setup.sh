@@ -61,7 +61,6 @@ CONTAINER_NAME=
 DEFAULT_CONFIG_PATH="${DIR}/config"
 IMAGE_NAME=
 INFO=
-USE_CONTAINER=false
 USE_TTY=
 USE_SELINUX=
 VOLUME=
@@ -126,8 +125,10 @@ ${ORANGE}DESCRIPTION${RESET}
     This is the main administration script that you use for all interactions with your
     mail server. Setup, configuration and much more is done with this script.
 
-    Please note that the script executes most of the commands inside the container itself.
-    If the image was not found, this script will pull the ${WHITE}:latest${RESET} tag of
+    Please note that this script executes most of its commands inside the running 'mailserver' container itself.
+    If it cannot find a running container, it will attempt to run one using any available tags
+    which include label=org.opencontainers.image.title=\"docker-mailserver\" and then run the necessary commands.
+    If the tag for the container is not found, this script will pull the ${WHITE}:latest${RESET} tag of
     ${WHITE}mailserver/docker-mailserver${RESET}. This tag refers to the latest release,
     see the tagging convention in the README under
     ${BLUE}https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md${RESET}
@@ -155,7 +156,7 @@ ${ORANGE}OPTIONS${RESET}
             Provides the name of the running container.
 
         -p PATH
-            Provides the config folder path. The default is
+            Provides the config folder path to the temporary container (does not work if docker-mailserver container already exists). The default is
             ${WHITE}${DIR}/config/${RESET}
 
     ${LBLUE}SELinux${RESET}
@@ -228,22 +229,16 @@ function _docker_image_exists
 
 function _docker_image
 {
-  if ${USE_CONTAINER}
+  # start temporary container with specified image
+  if ! _docker_image_exists "${IMAGE_NAME}"
   then
-    # reuse existing container specified on command line
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
-  else
-    # start temporary container with specified image
-    if ! _docker_image_exists "${IMAGE_NAME}"
-    then
-      echo "Image '${IMAGE_NAME}' not found. Pulling ..."
-      ${CRI} pull "${IMAGE_NAME}"
-    fi
-
-    ${CRI} run --rm \
-      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
-      "${USE_TTY}" "${IMAGE_NAME}" "${@:+$@}"
+    echo "Image '${IMAGE_NAME}' not found. Pulling ..."
+    ${CRI} pull "${IMAGE_NAME}"
   fi
+
+  ${CRI} run --rm \
+    -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
+    "${USE_TTY}" "${IMAGE_NAME}" "${@:+$@}"
 }
 
 function _docker_container
@@ -252,8 +247,8 @@ function _docker_container
   then
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
   else
-    echo "The mailserver is not running!"
-    exit 1
+    # If no container yet, run a temporary one: https://github.com/docker-mailserver/docker-mailserver/pull/1874#issuecomment-809781531
+    _docker_image "${@:+$@}"
   fi
 }
 
@@ -302,7 +297,6 @@ function _main
       c )
         # container specified, connect to running instance
         CONTAINER_NAME="${OPTARG}"
-        USE_CONTAINER=true
         ;;
 
       p )
@@ -346,8 +340,8 @@ function _main
 
     email )
       case ${2:-} in
-        add      ) shift 2 ; _docker_image addmailuser "${@:+$@}" ;;
-        update   ) shift 2 ; _docker_image updatemailuser "${@:+$@}" ;;
+        add      ) shift 2 ; _docker_container addmailuser "${@:+$@}" ;;
+        update   ) shift 2 ; _docker_container updatemailuser "${@:+$@}" ;;
         del      ) shift 2 ; _docker_container delmailuser "${@:+$@}" ;;
         restrict ) shift 2 ; _docker_container restrict-access "${@:+$@}" ;;
         list     ) _docker_container listmailuser ;;
@@ -357,40 +351,40 @@ function _main
 
     alias )
       case ${2:-} in
-        add      ) shift 2 ; _docker_image addalias "${1}" "${2}" ;;
-        del      ) shift 2 ; _docker_image delalias "${1}" "${2}" ;;
-        list     ) shift 2 ; _docker_image listalias ;;
+        add      ) shift 2 ; _docker_container addalias "${1}" "${2}" ;;
+        del      ) shift 2 ; _docker_container delalias "${1}" "${2}" ;;
+        list     ) shift 2 ; _docker_container listalias ;;
         *        ) _usage ;;
       esac
       ;;
 
     quota )
       case ${2:-} in
-        set      ) shift 2 ; _docker_image setquota "${@:+$@}" ;;
-        del      ) shift 2 ; _docker_image delquota "${@:+$@}" ;;
+        set      ) shift 2 ; _docker_container setquota "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_container delquota "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; _docker_image open-dkim "${@:+$@}" ;;
+        dkim     ) shift 2 ; _docker_container open-dkim "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; _docker_image addrelayhost "${@:+$@}" ;;
-        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@:+$@}" ;;
-        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@:+$@}" ;;
+        add-domain     ) shift 2 ; _docker_container addrelayhost "${@:+$@}" ;;
+        add-auth       ) shift 2 ; _docker_container addsaslpassword "${@:+$@}" ;;
+        exclude-domain ) shift 2 ; _docker_container excluderelaydomain "${@:+$@}" ;;
         *              ) _usage ;;
       esac
       ;;
 
     debug )
       case ${2:-} in
-        fetchmail      ) _docker_image debug-fetchmail ;;
+        fetchmail      ) _docker_container debug-fetchmail ;;
         fail2ban       ) shift 2 ; _docker_container fail2ban "${@:+$@}" ;;
         show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
