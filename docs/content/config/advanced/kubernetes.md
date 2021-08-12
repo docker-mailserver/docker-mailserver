@@ -196,7 +196,8 @@ spec:
                 - SETUID
                 - DAC_OVERRIDE
                 # network capabilities
-                - NET_ADMIN
+                - NET_ADMIN  # needed for F2B
+                - NET_RAW    # needed for F2B
                 - NET_BIND_SERVICE
                 # miscellaneous  capabilities
                 - SYS_CHROOT
