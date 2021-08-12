@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/kubernetes/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.1">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.4">
     
     
       
@@ -24,10 +24,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.1118c9be.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.f7f47774.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ba0d045b.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
         
       
     
@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deployment-example" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -955,18 +955,66 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#deployment-example" class="md-nav__link">
-    Deployment Example
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#exposing-to-the-outside-world" class="md-nav__link">
-    Exposing to the Outside World
+  <a href="#manifests" class="md-nav__link">
+    Manifests
   </a>
   
-    <nav class="md-nav" aria-label="Exposing to the Outside World">
+    <nav class="md-nav" aria-label="Manifests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistence" class="md-nav__link">
+    Persistence
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service" class="md-nav__link">
+    Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployments" class="md-nav__link">
+    Deployments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensitive-data" class="md-nav__link">
+    Sensitive Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exposing-your-mailserver-to-the-outside-world" class="md-nav__link">
+    Exposing your Mailserver to the Outside World
+  </a>
+  
+    <nav class="md-nav" aria-label="Exposing your Mailserver to the Outside World">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1019,13 +1067,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#lets-encrypt-certificates" class="md-nav__link">
-    Let's Encrypt Certificates
-  </a>
   
 </li>
       
@@ -1352,18 +1393,66 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#deployment-example" class="md-nav__link">
-    Deployment Example
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#exposing-to-the-outside-world" class="md-nav__link">
-    Exposing to the Outside World
+  <a href="#manifests" class="md-nav__link">
+    Manifests
   </a>
   
-    <nav class="md-nav" aria-label="Exposing to the Outside World">
+    <nav class="md-nav" aria-label="Manifests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistence" class="md-nav__link">
+    Persistence
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service" class="md-nav__link">
+    Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployments" class="md-nav__link">
+    Deployments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensitive-data" class="md-nav__link">
+    Sensitive Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exposing-your-mailserver-to-the-outside-world" class="md-nav__link">
+    Exposing your Mailserver to the Outside World
+  </a>
+  
+    <nav class="md-nav" aria-label="Exposing your Mailserver to the Outside World">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1419,13 +1508,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#lets-encrypt-certificates" class="md-nav__link">
-    Let's Encrypt Certificates
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1445,307 +1527,276 @@
                 
                   <h1>Kubernetes</h1>
                 
-                <h2 id="deployment-example"><a class="toclink" href="#deployment-example">Deployment Example</a></h2>
-<p>There is nothing much in deploying mailserver to Kubernetes itself. The things are pretty same as in <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>, but with Kubernetes syntax.</p>
-<details class="example"><summary>ConfigMap</summary><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Namespace</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nn">---</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+                <h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
+<p>Kubernetes (also known by its abbreviation K8s) is a production-grade orchestrating tool for containers. This article describes how to deploy <code>docker-mailserver</code> to K8s. K8s differs from Docker especially when it comes to separation of concerns: Whereas with Docker Compose, you can fit everything in one file, with K8s, the information is split. This may seem (too) verbose, but actually provides a clear structure with more features and scalability. We are going to have a look at how to deploy one instance of <code>docker-mailserver</code> to your cluster.</p>
+<p>We assume basic knowledge about K8s from the reader. If you're not familiar with K8s, we highly recommend starting with something less complex, like Docker Compose.</p>
+<div class="admonition warning">
+<p class="admonition-title">About Support for K8s</p>
+<p>Please note that Kubernetes <strong>is not</strong> officially supported and we do not build images specifically designed for it. When opening an issue, please remember that only Docker &amp; Docker Compose are officially supported.</p>
+<p>This content is entirely community-supported. If you find errors, please open an issue and provide a PR.</p>
+</div>
+<h2 id="manifests"><a class="toclink" href="#manifests">Manifests</a></h2>
+<h3 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h3>
+<p>We want to provide the basic configuration in the form of environment variables with a <code>ConfigMap</code>. Note that this is just an example configuration; tune the <code>ConfigMap</code> to your needs.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.env.config</span>
-  <span class="nt">namespace</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">labels</span><span class="p">:</span>
-    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nt">data</span><span class="p">:</span>
-  <span class="nt">OVERRIDE_HOSTNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-  <span class="nt">ENABLE_FETCHMAIL</span><span class="p">:</span> <span class="s">&quot;0&quot;</span>
-  <span class="nt">FETCHMAIL_POLL</span><span class="p">:</span> <span class="s">&quot;120&quot;</span>
-  <span class="nt">ENABLE_SPAMASSASSIN</span><span class="p">:</span> <span class="s">&quot;0&quot;</span>
-  <span class="nt">ENABLE_CLAMAV</span><span class="p">:</span> <span class="s">&quot;0&quot;</span>
-  <span class="nt">ENABLE_FAIL2BAN</span><span class="p">:</span> <span class="s">&quot;0&quot;</span>
-  <span class="nt">ENABLE_POSTGREY</span><span class="p">:</span> <span class="s">&quot;0&quot;</span>
-  <span class="nt">ONE_DIR</span><span class="p">:</span> <span class="s">&quot;1&quot;</span>
-  <span class="nt">DMS_DEBUG</span><span class="p">:</span> <span class="s">&quot;0&quot;</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
 
-<span class="nn">---</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
-<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.config</span>
-  <span class="nt">namespace</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">labels</span><span class="p">:</span>
-    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.environment</span>
+
+<span class="nt">immutable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span> <span class="c1"># turn off during development</span>
+
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">TLS_LEVEL</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modern</span>
+  <span class="nt">POSTSCREEN_ACTION</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">drop</span>
+  <span class="nt">OVERRIDE_HOSTNAME</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+  <span class="nt">FAIL2BAN_BLOCKTYPE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">drop</span>
+  <span class="nt">POSTMASTER_ADDRESS</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postmaster@example.com</span>
+  <span class="nt">UPDATE_CHECK_INTERVAL</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10d</span>
+  <span class="nt">POSTFIX_INET_PROTOCOLS</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ipv4</span>
+  <span class="nt">ONE_DIR</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">DMS_DEBUG</span><span class="p">:</span> <span class="s">&#39;0&#39;</span>
+  <span class="nt">ENABLE_CLAMAV</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">ENABLE_POSTGREY</span><span class="p">:</span> <span class="s">&#39;0&#39;</span>
+  <span class="nt">ENABLE_FAIL2BAN</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">AMAVIS_LOGLEVEL</span><span class="p">:</span> <span class="s">&#39;-1&#39;</span>
+  <span class="nt">SPOOF_PROTECTION</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">MOVE_SPAM_TO_JUNK</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">ENABLE_UPDATE_CHECK</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">ENABLE_SPAMASSASSIN</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+  <span class="nt">SUPERVISOR_LOGLEVEL</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warn</span>
+  <span class="nt">SPAMASSASSIN_SPAM_TO_INBOX</span><span class="p">:</span> <span class="s">&#39;1&#39;</span>
+</code></pre></div>
+<p>We can also make use of user-provided configuration files, e.g. <code>user-patches.sh</code>, <code>postfix-accounts.cf</code> and more, to adjust <code>docker-mailserver</code> to our likings. We encourage you to have a look at <a href="https://kustomize.io/">Kustomize</a> for creating <code>ConfigMap</code>s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.files</span>
+
 <span class="nt">data</span><span class="p">:</span>
   <span class="nt">postfix-accounts.cf</span><span class="p">:</span> <span class="p p-Indicator">|</span>
-    <span class="no">user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1</span>
-
-  <span class="nt">postfix-virtual.cf</span><span class="p">:</span> <span class="p p-Indicator">|</span>
-    <span class="no">alias1@example.com user1@dexample.com</span>
-
-  <span class="c1">#dovecot.cf: |</span>
-  <span class="c1">#  service stats {</span>
-  <span class="c1">#    unix_listener stats-reader {</span>
-  <span class="c1">#      group = docker</span>
-  <span class="c1">#      mode = 0666</span>
-  <span class="c1">#    }</span>
-  <span class="c1">#    unix_listener stats-writer {</span>
-  <span class="c1">#      group = docker</span>
-  <span class="c1">#      mode = 0666</span>
-  <span class="c1">#    }</span>
-  <span class="c1">#  }</span>
-
-  <span class="nt">SigningTable</span><span class="p">:</span> <span class="p p-Indicator">|</span>
-    <span class="no">*@example.com mail._domainkey.example.com</span>
-
-  <span class="nt">KeyTable</span><span class="p">:</span> <span class="p p-Indicator">|</span>
-    <span class="no">mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com-mail.key</span>
-
-  <span class="nt">TrustedHosts</span><span class="p">:</span> <span class="p p-Indicator">|</span>
-    <span class="no">127.0.0.1</span>
-    <span class="no">localhost</span>
-
-  <span class="c1">#user-patches.sh: |</span>
-  <span class="c1">#  #!/bin/bash</span>
-
-  <span class="c1">#fetchmail.cf: |</span>
+    <span class="no">test@example.com|{SHA512-CRYPT}$6$someHashValueHere</span>
+    <span class="no">other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere</span>
 </code></pre></div>
-</details>
-<details class="example"><summary>Secret</summary><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Namespace</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nn">---</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Secret</span>
+<h3 id="persistence"><a class="toclink" href="#persistence">Persistence</a></h3>
+<p>Thereafter, we need persistence for our data.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">PersistentVolumeClaim</span>
+
 <span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.opendkim.keys</span>
-  <span class="nt">namespace</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">labels</span><span class="p">:</span>
-    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Opaque</span>
-<span class="nt">data</span><span class="p">:</span>
-  <span class="nt">example.com-mail.key</span><span class="p">:</span> <span class="s">&#39;base64-encoded-DKIM-key&#39;</span>
-</code></pre></div>
-</details>
-<details class="example"><summary>Service</summary><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Namespace</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nn">---</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
-<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">namespace</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">labels</span><span class="p">:</span>
-    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+
 <span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">storageClassName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local-path</span>
+  <span class="nt">accessModes</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+  <span class="nt">resources</span><span class="p">:</span>
+    <span class="nt">requests</span><span class="p">:</span>
+      <span class="nt">storage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25Gi</span>
+</code></pre></div>
+<h3 id="service"><a class="toclink" href="#service">Service</a></h3>
+<p>A <code>Service</code> is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. <a href="#exposing-your-mail-server-to-the-outside-world">More about this further down below</a>.</p>
+<p>The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
+
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">LoadBalancer</span>
+  <span class="nt">externalTrafficPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Local</span>
+
   <span class="nt">selector</span><span class="p">:</span>
     <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+
   <span class="nt">ports</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp</span>
+    <span class="c1"># Transfer</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">transfer</span>
       <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25</span>
-      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp</span>
-    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp-secure</span>
+      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">transfer</span>
+      <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+    <span class="c1"># ESMTP with implicit TLS</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">esmtp-implicit</span>
       <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">465</span>
-      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp-secure</span>
-    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp-auth</span>
+      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">esmtp-implicit</span>
+      <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+    <span class="c1"># ESMTP with explicit TLS (STARTTLS)</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">esmtp-explicit</span>
       <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">587</span>
-      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp-auth</span>
-    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap</span>
-      <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">143</span>
-      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap</span>
-    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-secure</span>
+      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">esmtp-explicit</span>
+      <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+    <span class="c1"># IMAPS with implicit TLS</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-implicit</span>
       <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">993</span>
-      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-secure</span>
+      <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-implicit</span>
+      <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
 </code></pre></div>
-</details>
-<details class="example"><summary>Deployment</summary><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Namespace</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nn">---</span>
+<h3 id="deployments"><a class="toclink" href="#deployments">Deployments</a></h3>
+<p>Last but not least, the <code>Deployment</code> becomes the most complex component. It instructs Kubernetes how to run the docker-mailserver container and how to apply your ConfigMaps and persisted storage. Additionally, we can set options to enforce runtime security here.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
 <span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+
 <span class="nt">metadata</span><span class="p">:</span>
   <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">namespace</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+
+  <span class="nt">annotations</span><span class="p">:</span>
+    <span class="nt">ignore-check.kube-linter.io/run-as-non-root</span><span class="p">:</span> <span class="p p-Indicator">&gt;-</span>
+      <span class="no">The mailserver needs to run as root</span>
+    <span class="nt">ignore-check.kube-linter.io/privileged-ports</span><span class="p">:</span> <span class="p p-Indicator">&gt;-</span>
+      <span class="no">The mailserver needs privilegdes ports</span>
+    <span class="nt">ignore-check.kube-linter.io/no-read-only-root-fs</span><span class="p">:</span> <span class="p p-Indicator">&gt;-</span>
+      <span class="no">There are too many files written to make The</span>
+      <span class="no">root FS read-only</span>
+
 <span class="nt">spec</span><span class="p">:</span>
   <span class="nt">replicas</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="nt">selector</span><span class="p">:</span>
     <span class="nt">matchLabels</span><span class="p">:</span>
       <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+
   <span class="nt">template</span><span class="p">:</span>
     <span class="nt">metadata</span><span class="p">:</span>
       <span class="nt">labels</span><span class="p">:</span>
         <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-        <span class="nt">role</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-        <span class="nt">tier</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">backend</span>
+
+      <span class="nt">annotations</span><span class="p">:</span>
+        <span class="nt">container.apparmor.security.beta.kubernetes.io/mailserver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runtime/default</span>
+
     <span class="nt">spec</span><span class="p">:</span>
-      <span class="c1">#nodeSelector:</span>
-      <span class="c1">#  kubernetes.io/hostname: local.k8s</span>
-      <span class="c1">#initContainers:</span>
-      <span class="c1">#- name: init-myservice</span>
-      <span class="c1">#  image: busybox</span>
-      <span class="c1">#  command: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;cp /tmp/user-patches.sh /tmp/files&quot;]</span>
-      <span class="c1">#  volumeMounts:</span>
-      <span class="c1">#    - name: config</span>
-      <span class="c1">#      subPath: user-patches.sh</span>
-      <span class="c1">#      mountPath: /tmp/user-patches.sh</span>
-      <span class="c1">#      readOnly: true</span>
-      <span class="c1">#    - name: tmp-files</span>
-      <span class="c1">#      mountPath: /tmp/files</span>
+      <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
       <span class="nt">containers</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker-mailserver</span>
-        <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
-        <span class="nt">imagePullPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Always</span>
-        <span class="nt">securityContext</span><span class="p">:</span>
-          <span class="nt">capabilities</span><span class="p">:</span>
-            <span class="c1"># If Fail2Ban is not enabled, you can remove NET_ADMIN.</span>
-            <span class="c1"># If you are running on CRI-O, you will need the SYS_CHROOT capability,</span>
-            <span class="c1"># as it is no longer a default capability.</span>
-            <span class="nt">add</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;NET_ADMIN&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;SYS_PTRACE&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;SYS_CHROOT&quot;</span> <span class="p p-Indicator">]</span>
-        <span class="nt">volumeMounts</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postfix-accounts.cf</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="c1">#- name: config</span>
-          <span class="c1">#  subPath: postfix-main.cf</span>
-          <span class="c1">#  mountPath: /tmp/docker-mailserver/postfix-main.cf</span>
-          <span class="c1">#  readOnly: true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postfix-virtual.cf</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-virtual.cf</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">fetchmail.cf</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/fetchmail.cf</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dovecot.cf</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/dovecot.cf</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="c1">#- name: config</span>
-          <span class="c1">#  subPath: user1.example.com.dovecot.sieve</span>
-          <span class="c1">#  mountPath: /tmp/docker-mailserver/user1@example.com.dovecot.sieve</span>
-          <span class="c1">#  readOnly: true</span>
-          <span class="c1">#- name: tmp-files</span>
-          <span class="c1">#  subPath: user-patches.sh</span>
-          <span class="c1">#  mountPath: /tmp/docker-mailserver/user-patches.sh</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SigningTable</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/opendkim/SigningTable</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">KeyTable</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/opendkim/KeyTable</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TrustedHosts</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/opendkim/TrustedHosts</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">opendkim-keys</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/opendkim/keys</span>
-            <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/mail</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/mail-state</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">state</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
-            <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/log/mail</span>
-            <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">log</span>
-        <span class="nt">ports</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp</span>
-            <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25</span>
-            <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp-secure</span>
-            <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">465</span>
-            <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp-auth</span>
-            <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">587</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap</span>
-            <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">143</span>
-            <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-          <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-secure</span>
-            <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">993</span>
-            <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
-        <span class="nt">envFrom</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="nt">configMapRef</span><span class="p">:</span>
-              <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.env.config</span>
+        <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+          <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:10.0.0</span>
+          <span class="nt">imagePullPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IfNotPresent</span>
+
+          <span class="nt">securityContext</span><span class="p">:</span>
+            <span class="nt">allowPrivilegeEscalation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+            <span class="nt">readOnlyRootFilesystem</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+            <span class="nt">runAsUser</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+            <span class="nt">runAsGroup</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+            <span class="nt">runAsNonRoot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+            <span class="nt">privileged</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+            <span class="nt">capabilities</span><span class="p">:</span>
+              <span class="nt">add</span><span class="p">:</span>
+                <span class="c1"># file permission capabilities</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CHOWN</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FOWNER</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">MKNOD</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SETGID</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SETUID</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DAC_OVERRIDE</span>
+                <span class="c1"># network capabilities</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>  <span class="c1"># needed for F2B</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_RAW</span>    <span class="c1"># needed for F2B</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_BIND_SERVICE</span>
+                <span class="c1"># miscellaneous  capabilities</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SYS_CHROOT</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SYS_PTRACE</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">KILL</span>
+              <span class="nt">drop</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">ALL</span><span class="p p-Indicator">]</span>
+            <span class="nt">seccompProfile</span><span class="p">:</span>
+              <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">RuntimeDefault</span>
+
+          <span class="c1"># You want to tune this to your needs. If you disable ClamAV,</span>
+          <span class="c1">#   you can use less RAM and CPU. This becomes important in</span>
+          <span class="c1">#   case you&#39;re low on resources and Kubernetes refuses to</span>
+          <span class="c1">#   schedule new pods.</span>
+          <span class="nt">resources</span><span class="p">:</span>
+            <span class="nt">limits</span><span class="p">:</span>
+              <span class="nt">memory</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4Gi</span>
+              <span class="nt">cpu</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1500m</span>
+            <span class="nt">requests</span><span class="p">:</span>
+              <span class="nt">memory</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2Gi</span>
+              <span class="nt">cpu</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">600m</span>
+
+          <span class="nt">volumeMounts</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">files</span>
+              <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postfix-accounts.cf</span>
+              <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
+              <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+            <span class="c1"># PVCs</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+              <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/mail</span>
+              <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+              <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+              <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/mail-state</span>
+              <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">state</span>
+              <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+              <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/log/mail</span>
+              <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">log</span>
+              <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+            <span class="c1"># other</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tmp-files</span>
+              <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp</span>
+              <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+          <span class="nt">ports</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">transfer</span>
+              <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25</span>
+              <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">esmtp-implicit</span>
+              <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">465</span>
+              <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">esmtp-explicit</span>
+              <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">587</span>
+            <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-implicit</span>
+              <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">993</span>
+              <span class="nt">protocol</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TCP</span>
+
+          <span class="nt">envFrom</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="nt">configMapRef</span><span class="p">:</span>
+                <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.environment</span>
+
+      <span class="nt">restartPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Always</span>
+
       <span class="nt">volumes</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
+        <span class="c1"># configuration files</span>
+        <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">files</span>
           <span class="nt">configMap</span><span class="p">:</span>
-            <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.config</span>
-        <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">opendkim-keys</span>
-          <span class="nt">secret</span><span class="p">:</span>
-            <span class="nt">secretName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.opendkim.keys</span>
+            <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.files</span>
+
+        <span class="c1"># PVCs</span>
         <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
           <span class="nt">persistentVolumeClaim</span><span class="p">:</span>
-            <span class="nt">claimName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail-storage</span>
+            <span class="nt">claimName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data</span>
+
+        <span class="c1"># other</span>
         <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tmp-files</span>
           <span class="nt">emptyDir</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
 </code></pre></div>
-</details>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Any sensitive data (keys, etc) should be deployed via <a href="https://kubernetes.io/docs/concepts/configuration/secret">Secrets</a>. Other configuration just fits well into <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configmap">ConfigMaps</a>.</p>
+<h3 id="sensitive-data"><a class="toclink" href="#sensitive-data">Sensitive Data</a></h3>
+<p>By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The <a href="../../security/ssl/">TLS</a> section provides you with an overview.</p>
+<div class="admonition attention">
+<p class="admonition-title">Sensitive Data</p>
+<p>For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using <code>Secret</code>s. You can mount secrets like <code>ConfigMap</code>s and use them the same way.</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Make sure that <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod">Pod</a> is <a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node">assigned</a> to specific <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> in case you're using volume for data directly with <code>hostPath</code>. Otherwise Pod can be rescheduled on a different Node and previous data won't be found. Except the case when you're using some shared filesystem on your Nodes.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you experience issues with processes crashing showing an error like <code>operation not permitted</code> or <code>postfix/pickup[987]: fatal: chroot(/var/spool/postfix): Operation not permitted</code>, then you should add the <code>SYS_CHROOT</code> capability. Runtimes like CRI-O do not ship with this capability by default.</p>
-</div>
-<h2 id="exposing-to-the-outside-world"><a class="toclink" href="#exposing-to-the-outside-world">Exposing to the Outside World</a></h2>
-<p>The hard part with Kubernetes is to expose deployed mailserver to outside world. Kubernetes provides multiple ways for doing that. Each has its downsides and complexity.</p>
-<p>The major problem with exposing mailserver to outside world in Kubernetes is to <a href="https://kubernetes.io/docs/tutorials/services/source-ip">preserve real client IP</a>. Real client IP is required by mailserver for performing IP-based SPF checks and spam checks.</p>
-<p>Preserving real client IP is relatively <a href="https://kubernetes.io/docs/tutorials/services/source-ip">non-trivial in Kubernetes</a> and most exposing ways do not provide it. So, it's up to you to decide which exposing way suits better your needs in a price of complexity.</p>
-<p>If you do not require SPF checks for incoming mails you may disable them in <a href="../override-defaults/postfix/">Postfix configuration</a> by dropping following line (which removes <code>check_policy_service unix:private/policyd-spf</code> option):</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
-<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.config</span>
-  <span class="nt">labels</span><span class="p">:</span>
-    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="nt">data</span><span class="p">:</span>
-  <span class="nt">postfix-main.cf</span><span class="p">:</span> <span class="p p-Indicator">|</span>
-    <span class="no">smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net</span>
-<span class="c1"># ...</span>
-
-<span class="nn">---</span>
-
-<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
-<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="c1"># ...</span>
-    <span class="nt">volumeMounts</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config</span>
-        <span class="nt">subPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postfix-main.cf</span>
-        <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-main.cf</span>
-        <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-</div>
+<h2 id="exposing-your-mailserver-to-the-outside-world"><a class="toclink" href="#exposing-your-mailserver-to-the-outside-world">Exposing your Mailserver to the Outside World</a></h2>
+<p>The more difficult part with K8s is to expose a deployed mailserver to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing the mailserver to outside world in K8s is to <a href="https://kubernetes.io/docs/tutorials/services/source-ip">preserve the real client IP</a>. The real client IP is required by the mailserver for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your <a href="../override-defaults/postfix/">Postfix configuration</a> by dropping the line that states <code>check_policy_service unix:private/policyd-spf</code>.</p>
+<p>The easiest approach was covered above, using <code class="highlight"><span class="nt">externalTrafficPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Local</span></code>, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. <strong>But</strong> we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.</p>
 <h3 id="external-ips-service"><a class="toclink" href="#external-ips-service">External IPs Service</a></h3>
-<p>The simplest way is to expose mailserver as a <a href="https://kubernetes.io/docs/concepts/services-networking/service">Service</a> with <a href="https://kubernetes.io/docs/concepts/services-networking/service/#external-ips">external IPs</a>.</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
+<p>The simplest way is to expose the mailserver as a <a href="https://kubernetes.io/docs/concepts/services-networking/service">Service</a> with <a href="https://kubernetes.io/docs/concepts/services-networking/service/#external-ips">external IPs</a>. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
+
 <span class="nt">metadata</span><span class="p">:</span>
   <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
   <span class="nt">labels</span><span class="p">:</span>
     <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+
 <span class="nt">spec</span><span class="p">:</span>
   <span class="nt">selector</span><span class="p">:</span>
     <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
@@ -1753,40 +1804,38 @@
     <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp</span>
       <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25</span>
       <span class="nt">targetPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp</span>
-<span class="c1"># ...</span>
+    <span class="c1"># ...</span>
+
   <span class="nt">externalIPs</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">80.11.12.10</span>
 </code></pre></div>
-</div>
-<p><strong>Downsides</strong></p>
+<p>This approach</p>
 <ul>
-<li>
-<p><strong>Real client IP is not preserved</strong>, so SPF check of incoming mail will fail.</p>
-</li>
-<li>
-<p>Requirement to specify exposed IPs explicitly.</p>
-</li>
+<li>does not preserve the real client IP, so SPF check of incoming mail will fail.</li>
+<li>requires you to specify the exposed IPs explicitly.</li>
 </ul>
 <h3 id="proxy-port-to-service"><a class="toclink" href="#proxy-port-to-service">Proxy port to Service</a></h3>
-<p>The <a href="https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service">Proxy Pod</a> helps to avoid necessity of specifying external IPs explicitly. This comes in price of complexity: you must deploy Proxy Pod on each <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> you want to expose mailserver on.</p>
-<p><strong>Downsides</strong></p>
+<p>The <a href="https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service">proxy pod</a> helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> you want to expose mailserver on.</p>
+<p>This approach</p>
 <ul>
-<li><strong>Real client IP is not preserved</strong>, so SPF check of incoming mail will fail.</li>
+<li>does not preserve the real client IP, so SPF check of incoming mail will fail.</li>
 </ul>
 <h3 id="bind-to-concrete-node-and-use-host-network"><a class="toclink" href="#bind-to-concrete-node-and-use-host-network">Bind to concrete Node and use host network</a></h3>
-<p>The simplest way to preserve real client IP is to use <code>hostPort</code> and <code>hostNetwork: true</code> in the mailserver <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod">Pod</a>. This comes in price of availability: you can talk to mailserver from outside world only via IPs of <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> where mailserver is deployed.</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<p>One way to preserve the real client IP is to use <code>hostPort</code> and <code>hostNetwork: true</code>. This comes at the cost of availability; you can talk to the mailserver from outside world only via IPs of <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> where mailserver is deployed.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+
 <span class="nt">metadata</span><span class="p">:</span>
   <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+
 <span class="c1"># ...</span>
     <span class="nt">spec</span><span class="p">:</span>
       <span class="nt">hostNetwork</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="c1"># ...</span>
+
+    <span class="c1"># ...</span>
       <span class="nt">containers</span><span class="p">:</span>
-<span class="c1"># ...</span>
+        <span class="c1"># ...</span>
           <span class="nt">ports</span><span class="p">:</span>
             <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">smtp</span>
               <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25</span>
@@ -1797,16 +1846,15 @@
             <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">imap-secure</span>
               <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">993</span>
               <span class="nt">hostPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">993</span>
-<span class="c1"># ...</span>
+        <span class="c1">#  ...</span>
 </code></pre></div>
-</div>
-<p><strong>Downsides</strong></p>
+<p>With this approach,</p>
 <ul>
-<li>Not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.</li>
-<li>Every Port within the Container is exposed on the Host side, regardless of what the <code>ports</code> section in the Configuration defines. </li>
+<li>it is not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.</li>
+<li>every Port within the Container is exposed on the Host side.</li>
 </ul>
 <h3 id="proxy-port-to-service-via-proxy-protocol"><a class="toclink" href="#proxy-port-to-service-via-proxy-protocol">Proxy Port to Service via PROXY Protocol</a></h3>
-<p>This way is ideologically the same as <a href="#proxy-port-to-service">using Proxy Pod</a>, but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the mailserver pod using the PROXY protocol, which preserves the real client IP.</p>
+<p>This way is ideologically the same as <a href="#proxy-port-to-service">using a proxy pod</a>, but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the mailserver pod using the PROXY protocol, which preserves the real client IP.</p>
 <h4 id="configure-your-ingress"><a class="toclink" href="#configure-your-ingress">Configure your Ingress</a></h4>
 <p>With an <a href="https://kubernetes.github.io/ingress-nginx">NGINX ingress controller</a>, set <code>externalTrafficPolicy: Local</code> for its service, and add the following to the TCP services config map (as described <a href="https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services">here</a>):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">25</span><span class="p">:</span>  <span class="s">&quot;mailserver/mailserver:25::PROXY&quot;</span>
@@ -1814,12 +1862,13 @@
 <span class="nt">587</span><span class="p">:</span> <span class="s">&quot;mailserver/mailserver:587::PROXY&quot;</span>
 <span class="nt">993</span><span class="p">:</span> <span class="s">&quot;mailserver/mailserver:993::PROXY&quot;</span>
 </code></pre></div>
+<div class="admonition help">
+<p class="admonition-title">HAProxy</p>
 <p>With <a href="https://hub.docker.com/_/haproxy">HAProxy</a>, the configuration should look similar to the above. If you know what it actually looks like, add an example here. <img alt="😃" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f603.svg" title=":smiley:" /></p>
+</div>
 <h4 id="configure-the-mailserver"><a class="toclink" href="#configure-the-mailserver">Configure the Mailserver</a></h4>
 <p>Then, configure both <a href="../override-defaults/postfix/">Postfix</a> and <a href="../override-defaults/dovecot/">Dovecot</a> to expect the PROXY protocol:</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<details class="example"><summary>HAProxy Example</summary><div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">metadata</span><span class="p">:</span>
   <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.config</span>
@@ -1869,61 +1918,11 @@
               <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/dovecot.cf</span>
               <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-</div>
-<p><strong>Downsides</strong></p>
+</details>
+<p>With this approach,</p>
 <ul>
-<li>Not possible to access mailserver via inner cluster Kubernetes DNS, as PROXY protocol is required for incoming connections.</li>
+<li>it is not possible to access the mailserver via cluster-DNS, as the PROXY protocol is required for incoming connections.</li>
 </ul>
-<h2 id="lets-encrypt-certificates"><a class="toclink" href="#lets-encrypt-certificates">Let's Encrypt Certificates</a></h2>
-<p><a href="https://github.com/jetstack/kube-lego">Kube-Lego</a> may be used for a role of Let's Encrypt client. It works with Kubernetes <a href="https://kubernetes.io/docs/concepts/services-networking/ingress">Ingress Resources</a> and automatically issues/manages certificates/keys for exposed services via Ingresses.</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Ingress</span>
-<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
-<span class="nt">metadata</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">labels</span><span class="p">:</span>
-    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-  <span class="nt">annotations</span><span class="p">:</span>
-    <span class="nt">kubernetes.io/tls-acme</span><span class="p">:</span> <span class="s">&#39;true&#39;</span>
-<span class="nt">spec</span><span class="p">:</span>
-  <span class="nt">rules</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-      <span class="nt">http</span><span class="p">:</span>
-        <span class="nt">paths</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/</span>
-            <span class="nt">backend</span><span class="p">:</span>
-              <span class="nt">serviceName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">default-backend</span>
-              <span class="nt">servicePort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span>
-  <span class="nt">tls</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">secretName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.tls</span>
-      <span class="nt">hosts</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-</code></pre></div>
-</div>
-<p>Now, you can use Let's Encrypt cert and key from <code>mailserver.tls</code> <a href="https://kubernetes.io/docs/concepts/configuration/secret">Secret</a> in your <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod">Pod</a> spec:</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
-<span class="nt">env</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&#39;manual&#39;</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&#39;/etc/ssl/mailserver/tls.crt&#39;</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&#39;/etc/ssl/mailserver/tls.key&#39;</span>
-<span class="c1"># ...</span>
-<span class="nt">volumeMounts</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tls</span>
-    <span class="nt">mountPath</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/etc/ssl/mailserver</span>
-    <span class="nt">readOnly</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="c1"># ...</span>
-<span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tls</span>
-    <span class="nt">secret</span><span class="p">:</span>
-      <span class="nt">secretName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.tls</span>
-</code></pre></div>
-</div>
                 
                   
                 
@@ -2005,10 +2004,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.53c85856.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.709b4209.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.716f8af4.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.febc23d1.min.js"></script>
       
     
   </body>
