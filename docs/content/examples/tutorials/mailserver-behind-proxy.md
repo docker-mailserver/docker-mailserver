@@ -23,7 +23,7 @@ Luckily `dovecot` and `postfix` are both Proxy-Protocol ready softwares so it de
 
 The configuration depends on the used proxy system. I will provide the configuration examples of [traefik v2](https://traefik.io/) using IMAP and SMTP with implicit TLS.
 
-Feel free to add your configuration if you achived the same goal using different proxy software below:
+Feel free to add your configuration if you archived the same goal using different proxy software below:
 
 ??? "Traefik v2"
 
@@ -88,11 +88,11 @@ Feel free to add your configuration if you achived the same goal using different
     [...]
     ```
 
-    Keep in mind that it is neccessary to use port `10993` here. More information below at `dovecot` configuration.
+    Keep in mind that it is necessary to use port `10993` here. More information below at `dovecot` configuration.
 
 ### Configuration of the Backend (`dovecot` and `postfix`)
 
-The following changes can be achived completely by adding the content to the appropriate files by using the projects [function to overwrite config files][docs-optionalconfig].
+The following changes can be achieved completely by adding the content to the appropriate files by using the projects [function to overwrite config files][docs-optionalconfig].
 
 Changes for `postfix` can be applied by adding the following content to `config/postfix-main.cf`:
 
