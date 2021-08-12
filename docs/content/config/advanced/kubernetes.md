@@ -87,7 +87,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 25Gi
 ```
 
 ### Service
@@ -95,8 +95,6 @@ spec:
 A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
 
 The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways.
-
-With this setup, you want your load-balancer (e.g. MetalLB) to give this service an external, especially routable IP address.
 
 ```yaml
 ---
@@ -141,7 +139,7 @@ spec:
 
 ### Deployments
 
-Last but not least, the `Deployment` becomes the most complex component. The deployment brings maximal security measures without compromising on ease of use.
+Last but not least, the `Deployment` becomes the most complex component. It instructs Kubernetes how to run the docker-mailserver container and how to apply your ConfigMaps and persisted storage. Additionally, we can set options to enforce runtime security here.
 
 ```yaml
 ---
@@ -208,6 +206,10 @@ spec:
             seccompProfile:
               type: RuntimeDefault
 
+          # You want to tune this to your needs. If you disable ClamAV,
+          #   you can use less RAM and CPU. This becomes important in
+          #   case you're low on resources and Kubernetes refuses to
+          #   schedule new pods.
           resources:
             limits:
               memory: 4Gi
@@ -282,13 +284,13 @@ By now, the mailserver starts, but does not really work for long (or at all), be
 
 !!! attention "Sensitive Data"
 
-    For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMaps` and use them the same way.
+    For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMap`s and use them the same way.
 
 ## Exposing your Mailserver to the Outside World
 
 The more difficult part with K8s is to expose a deployed mailserver to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing the mailserver to outside world in K8s is to [preserve the real client IP][k8s-service-source-ip]. The real client IP is required by the mailserver for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line that states `check_policy_service unix:private/policyd-spf`.
 
-The easiest approaches were covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too.
+The easiest approach was covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. **But** we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.
 
 ### External IPs Service
 
