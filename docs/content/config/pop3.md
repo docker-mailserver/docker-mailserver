@@ -7,7 +7,7 @@ hide:
 If you want to use POP3(S), you have to add the ports 110 and/or 995 (TLS secured) and the environment variable `ENABLE_POP3` to your `docker-compose.yml`:
 
 ```yaml
-mail:
+mailserver:
   ports:
     - "25:25"    # SMTP  (explicit TLS => STARTTLS)
     - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
