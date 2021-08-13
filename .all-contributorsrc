@@ -95,6 +95,15 @@
         "code",
         "platform"
       ]
+    },
+    {
+      "login": "williamdes",
+      "name": "William Desportes",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7784660?v=4",
+      "profile": "https://williamdes.eu/en/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
