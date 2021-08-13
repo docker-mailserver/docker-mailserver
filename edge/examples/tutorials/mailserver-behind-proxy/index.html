@@ -1377,7 +1377,7 @@
 <p>Luckily <code>dovecot</code> and <code>postfix</code> are both Proxy-Protocol ready softwares so it depends only on your used reverse-proxy / loadbalancer.</p>
 <h3 id="configuration-of-the-used-proxy-software"><a class="toclink" href="#configuration-of-the-used-proxy-software">Configuration of the used Proxy Software</a></h3>
 <p>The configuration depends on the used proxy system. I will provide the configuration examples of <a href="https://traefik.io/">traefik v2</a> using IMAP and SMTP with implicit TLS.</p>
-<p>Feel free to add your configuration if you achived the same goal using different proxy software below:</p>
+<p>Feel free to add your configuration if you archived the same goal using different proxy software below:</p>
 <details><summary>Traefik v2</summary><p>Truncated configuration of traefik itself:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.7&#39;</span>
 <span class="nt">services</span><span class="p">:</span>
@@ -1433,10 +1433,10 @@
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.sieve.loadbalancer.server.port=4190&quot;</span>
 <span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<p>Keep in mind that it is neccessary to use port <code>10993</code> here. More information below at <code>dovecot</code> configuration.</p>
+<p>Keep in mind that it is necessary to use port <code>10993</code> here. More information below at <code>dovecot</code> configuration.</p>
 </details>
 <h3 id="configuration-of-the-backend-dovecot-and-postfix"><a class="toclink" href="#configuration-of-the-backend-dovecot-and-postfix">Configuration of the Backend (<code>dovecot</code> and <code>postfix</code>)</a></h3>
-<p>The following changes can be achived completely by adding the content to the appropriate files by using the projects <a href="../../../config/advanced/optional-config/">function to overwrite config files</a>.</p>
+<p>The following changes can be achieved completely by adding the content to the appropriate files by using the projects <a href="../../../config/advanced/optional-config/">function to overwrite config files</a>.</p>
 <p>Changes for <code>postfix</code> can be applied by adding the following content to <code>config/postfix-main.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">postscreen_upstream_proxy_protocol</span> <span class="o">=</span> <span class="s">haproxy</span>
 </code></pre></div>

@@ -1441,7 +1441,7 @@ docker-compose up mail
 ./setup.sh email list
 ./setup.sh <span class="nb">alias</span> list
 </code></pre></div>
-<p>This extra step is required to avoid the <code>553 5.7.1 Sender address rejected: not owned by user</code> error (the account used for setting up gmail is <code>admin.gmail@example.org</code> and <code>info.gmail@example.org</code> )</p>
+<p>This extra step is required to avoid the <code>553 5.7.1 Sender address rejected: not owned by user</code> error (the account used for setting up Gmail is <code>admin.gmail@example.org</code> and <code>info.gmail@example.org</code> )</p>
 </li>
 <li>
 <p>Send some test emails to these addresses and make other tests. Then stop the container with <code>ctrl+c</code> and start it again as a daemon: <code>docker-compose up -d mail</code>.</p>

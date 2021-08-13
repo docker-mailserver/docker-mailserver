@@ -1324,7 +1324,7 @@
                   <h1>Forward-Only Mailserver with LDAP</h1>
                 
                 <h2 id="building-a-forward-only-mailserver"><a class="toclink" href="#building-a-forward-only-mailserver">Building a Forward-Only Mailserver</a></h2>
-<p>A <strong>forward-only</strong> mailserver does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a gmail account). You can also send email from the localhost (the computer where the mailserver is installed), using as sender any of the alias addresses.</p>
+<p>A <strong>forward-only</strong> mailserver does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where the mailserver is installed), using as sender any of the alias addresses.</p>
 <p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
 <div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span>
 <span class="na">ENABLE_POP3</span><span class="o">=</span>
@@ -1397,8 +1397,8 @@ cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-aliases.cf</span>
 postfix reload
 </code></pre></div>
 <p>You see that besides <code>query_filter</code>, I had to customize as well <code>result_attribute</code> and <code>result_format</code>.</p>
-<div class="admonition sealso">
-<p class="admonition-title">Sealso</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
 <p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail server with Postfix and Dovecot for multiple domains</a></p>
 </div>
 <div class="admonition note">
