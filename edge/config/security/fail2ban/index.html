@@ -72,6 +72,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#configuration-files" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -615,9 +620,77 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Fail2Ban
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Fail2Ban
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-files" class="md-nav__link">
+    Configuration files
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-compose-config" class="md-nav__link">
+    Docker-compose config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manage-bans" class="md-nav__link">
+    Manage bans
+  </a>
+  
+    <nav class="md-nav" aria-label="Manage bans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-bans" class="md-nav__link">
+    List bans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#un-ban" class="md-nav__link">
+    Un-ban
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1236,6 +1309,78 @@
               </div>
             
             
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-files" class="md-nav__link">
+    Configuration files
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-compose-config" class="md-nav__link">
+    Docker-compose config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manage-bans" class="md-nav__link">
+    Manage bans
+  </a>
+  
+    <nav class="md-nav" aria-label="Manage bans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-bans" class="md-nav__link">
+    List bans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#un-ban" class="md-nav__link">
+    Un-ban
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
@@ -1248,8 +1393,21 @@
                 
                   <h1>Fail2Ban</h1>
                 
-                <p>Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default. If you want to change this, you can easily edit <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf"><code>config/fail2ban-jail.cf</code></a>.</p>
+                <p>Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default.</p>
+<h2 id="configuration-files"><a class="toclink" href="#configuration-files">Configuration files</a></h2>
+<p>If you want to change this, you can easily edit <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf"><code>config/fail2ban-jail.cf</code></a>.</p>
 <p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf"><code>config/fail2ban-fail2ban.cf</code></a>.</p>
+<p>The configuration files need to be located at the root of the <code>/tmp/docker-mailserver/</code> volume bind.</p>
+<p>This following configuration files from <code>/tmp/docker-mailserver/</code> will be copied at boot time.</p>
+<ul>
+<li><code>fail2ban-jail.cf</code> -&gt; <code>/etc/fail2ban/jail.d/user-jail.local</code></li>
+<li><code>fail2ban-fail2ban.cf</code> -&gt; <code>/etc/fail2ban/fail2ban.local</code></li>
+</ul>
+<h3 id="docker-compose-config"><a class="toclink" href="#docker-compose-config">Docker-compose config</a></h3>
+<p>Example configuration volume bind:</p>
+<div class="highlight"><pre><span></span><code>    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/:/tmp/docker-mailserver/</span>
+</code></pre></div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>The mail container must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the iptable rules that actually ban IP addresses.</p>
@@ -1265,7 +1423,15 @@
 <span class="go">2016-06-01 00:53:51,284 fail2ban.action         [678]: ERROR   iptables -w -D INPUT -p tcp -m multiport --dports smtp,465,submission -</span>
 <span class="go">j f2b-postfix</span>
 </code></pre></div>
+<h2 id="manage-bans"><a class="toclink" href="#manage-bans">Manage bans</a></h2>
 <p>You can also manage and list the banned IPs with the <a href="../../setup.sh/"><code>setup.sh</code></a> script.</p>
+<h3 id="list-bans"><a class="toclink" href="#list-bans">List bans</a></h3>
+<div class="highlight"><pre><span></span><code>./setup.sh debug fail2ban
+</code></pre></div>
+<h3 id="un-ban"><a class="toclink" href="#un-ban">Un-ban</a></h3>
+<p>Here <code>192.168.1.15</code> is our banned IP.</p>
+<div class="highlight"><pre><span></span><code>./setup.sh debug fail2ban unban <span class="m">192</span>.168.1.15
+</code></pre></div>
                 
                   
                 
