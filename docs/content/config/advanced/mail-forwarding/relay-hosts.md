@@ -39,7 +39,7 @@ An example configuration file looks like this:
 @domain2.com           relay_user_2:password_2
 ```
 
-If there is no other configuration, this will cause Postfix to deliver email throught the relay specified in `RELAY_HOST` env variable, authenticating as `relay_user_1` when sent from `domain1.com` and authenticating as `relay_user_2` when sending from domain2.com.
+If there is no other configuration, this will cause Postfix to deliver email through the relay specified in `RELAY_HOST` env variable, authenticating as `relay_user_1` when sent from `domain1.com` and authenticating as `relay_user_2` when sending from domain2.com.
 
 !!! note
     To activate the configuration you must either restart the container, or you can also trigger an update by modifying a mail account.

@@ -82,7 +82,18 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/2952475?v=4",
       "profile": "https://github.com/andrewlow",
       "contributions": [
-        "doc"
+        "doc",
+        "code"
+      ]
+    },
+    {
+      "login": "funkypenguin",
+      "name": "David Young",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1524686?v=4",
+      "profile": "https://www.funkypenguin.co.nz",
+      "contributions": [
+        "code",
+        "platform"
       ]
     }
   ],

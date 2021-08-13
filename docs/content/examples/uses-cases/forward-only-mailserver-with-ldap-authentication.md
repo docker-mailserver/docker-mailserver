@@ -4,7 +4,7 @@ title: 'Use Cases | Forward-Only Mailserver with LDAP'
 
 ## Building a Forward-Only Mailserver
 
-A **forward-only** mailserver does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a gmail account). You can also send email from the localhost (the computer where the mailserver is installed), using as sender any of the alias addresses.
+A **forward-only** mailserver does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where the mailserver is installed), using as sender any of the alias addresses.
 
 The important settings for this setup (on `mailserver.env`) are these:
 
@@ -96,7 +96,7 @@ postfix reload
 
 You see that besides `query_filter`, I had to customize as well `result_attribute` and `result_format`.
 
-!!! sealso
+!!! seealso "See also"
 
     For more details about using LDAP see: [LDAP managed mail server with Postfix and Dovecot for multiple domains](https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains)
 
