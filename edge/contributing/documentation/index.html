@@ -72,6 +72,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#prerequisites" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -1181,9 +1186,97 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Documentation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Documentation
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-and-serving-the-documentation" class="md-nav__link">
+    Building and serving the documentation
+  </a>
+  
+    <nav class="md-nav" aria-label="Building and serving the documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#python-way" class="md-nav__link">
+    Python way
+  </a>
+  
+    <nav class="md-nav" aria-label="Python way">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-modules" class="md-nav__link">
+    Install the modules
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serve" class="md-nav__link">
+    Serve
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-way" class="md-nav__link">
+    Docker way
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker way">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serve_1" class="md-nav__link">
+    Serve
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1232,6 +1325,96 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-and-serving-the-documentation" class="md-nav__link">
+    Building and serving the documentation
+  </a>
+  
+    <nav class="md-nav" aria-label="Building and serving the documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#python-way" class="md-nav__link">
+    Python way
+  </a>
+  
+    <nav class="md-nav" aria-label="Python way">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-modules" class="md-nav__link">
+    Install the modules
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serve" class="md-nav__link">
+    Serve
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-way" class="md-nav__link">
+    Docker way
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker way">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serve_1" class="md-nav__link">
+    Serve
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
@@ -1244,10 +1427,36 @@
                 
                   <h1>Documentation</h1>
                 
-                <div class="admonition todo">
-<p class="admonition-title">Todo</p>
-<p>This section should provide a detailed step by step guide on how to contribute to documentation</p>
+                <h2 id="prerequisites"><a class="toclink" href="#prerequisites">Prerequisites</a></h2>
+<p>You will need have Python and Python pip installed. Or just docker.</p>
+<h2 id="building-and-serving-the-documentation"><a class="toclink" href="#building-and-serving-the-documentation">Building and serving the documentation</a></h2>
+<p>This tutorial was written using Python <code>2.7.18</code> and Python pip <code>20.3.4</code>.
+And Docker <code>19.03.6</code>.</p>
+<h3 id="python-way"><a class="toclink" href="#python-way">Python way</a></h3>
+<h4 id="install-the-modules"><a class="toclink" href="#install-the-modules">Install the modules</a></h4>
+<p>The documentation builder</p>
+<div class="highlight"><pre><span></span><code>pip install mkdocs
+</code></pre></div>
+<p>Now the theme</p>
+<div class="highlight"><pre><span></span><code>pip install mkdocs-material
+</code></pre></div>
+<h4 id="serve"><a class="toclink" href="#serve">Serve</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note: be sure to be in the docs folder (<code>cd ./docs/</code>)</p>
 </div>
+<div class="highlight"><pre><span></span><code>mkdocs serve
+</code></pre></div>
+<p>Wait for it to build and open the URL in your browser.
+Each change will be hot-reloaded onto the page you view, just edit, save and look at the result.</p>
+<h3 id="docker-way"><a class="toclink" href="#docker-way">Docker way</a></h3>
+<p>Using the official image (<a href="https://hub.docker.com/r/squidfunk/mkdocs-material">squidfunk/mkdocs-material</a>) for our documentation theme.</p>
+<h4 id="serve_1"><a class="toclink" href="#serve_1">Serve</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note: be sure to be in the docs folder (<code>cd ./docs/</code>)</p>
+</div>
+<div class="highlight"><pre><span></span><code>docker run --rm -it -p <span class="m">8000</span>:8000 -v <span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>:/docs squidfunk/mkdocs-material
+</code></pre></div>
+<p>Each change will be hot-reloaded onto the page you view, just edit, save and look at the result.</p>
                 
                   
                 
