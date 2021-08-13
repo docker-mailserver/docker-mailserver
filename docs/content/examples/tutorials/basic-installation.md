@@ -146,7 +146,7 @@ We are going to use this docker based mailserver:
     ./setup.sh alias list
     ```
 
-    This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up gmail is `admin.gmail@example.org` and `info.gmail@example.org` )
+    This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up Gmail is `admin.gmail@example.org` and `info.gmail@example.org` )
 
 - Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mail`.
 
