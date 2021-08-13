@@ -2,392 +2,377 @@
 title: 'Advanced | Kubernetes'
 ---
 
-## Deployment Example
+## Introduction
 
-There is nothing much in deploying mailserver to Kubernetes itself. The things are pretty same as in [`docker-compose.yml`][github-file-compose], but with Kubernetes syntax.
+Kubernetes (also known by its abbreviation K8s) is a production-grade orchestrating tool for containers. This article describes how to deploy `docker-mailserver` to K8s. K8s differs from Docker especially when it comes to separation of concerns: Whereas with Docker Compose, you can fit everything in one file, with K8s, the information is split. This may seem (too) verbose, but actually provides a clear structure with more features and scalability. We are going to have a look at how to deploy one instance of `docker-mailserver` to your cluster.
 
-??? example "ConfigMap"
+We assume basic knowledge about K8s from the reader. If you're not familiar with K8s, we highly recommend starting with something less complex, like Docker Compose.
 
-    ```yaml
-    apiVersion: v1
-    kind: Namespace
+!!! warning "About Support for K8s"
+
+    Please note that Kubernetes **is not** officially supported and we do not build images specifically designed for it. When opening an issue, please remember that only Docker & Docker Compose are officially supported.
+
+    This content is entirely community-supported. If you find errors, please open an issue and provide a PR.
+
+## Manifests
+
+### Configuration
+
+We want to provide the basic configuration in the form of environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
+
+
+```yaml
+---
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: mailserver.environment
+
+immutable: true # turn off during development
+
+data:
+  TLS_LEVEL: modern
+  POSTSCREEN_ACTION: drop
+  OVERRIDE_HOSTNAME: mail.example.com
+  FAIL2BAN_BLOCKTYPE: drop
+  POSTMASTER_ADDRESS: postmaster@example.com
+  UPDATE_CHECK_INTERVAL: 10d
+  POSTFIX_INET_PROTOCOLS: ipv4
+  ONE_DIR: '1'
+  DMS_DEBUG: '0'
+  ENABLE_CLAMAV: '1'
+  ENABLE_POSTGREY: '0'
+  ENABLE_FAIL2BAN: '1'
+  AMAVIS_LOGLEVEL: '-1'
+  SPOOF_PROTECTION: '1'
+  MOVE_SPAM_TO_JUNK: '1'
+  ENABLE_UPDATE_CHECK: '1'
+  ENABLE_SPAMASSASSIN: '1'
+  SUPERVISOR_LOGLEVEL: warn
+  SPAMASSASSIN_SPAM_TO_INBOX: '1'
+```
+
+We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust `docker-mailserver` to our likings. We encourage you to have a look at [Kustomize][kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
+
+```yaml
+---
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: mailserver.files
+
+data:
+  postfix-accounts.cf: |
+    test@example.com|{SHA512-CRYPT}$6$someHashValueHere
+    other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere
+```
+
+### Persistence
+
+Thereafter, we need persistence for our data.
+
+```yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: data
+
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 25Gi
+```
+
+### Service
+
+A `Service` is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
+
+The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways.
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: mailserver
+  labels:
+    app: mailserver
+
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+
+  selector:
+    app: mailserver
+
+  ports:
+    # Transfer
+    - name: transfer
+      port: 25
+      targetPort: transfer
+      protocol: TCP
+    # ESMTP with implicit TLS
+    - name: esmtp-implicit
+      port: 465
+      targetPort: esmtp-implicit
+      protocol: TCP
+    # ESMTP with explicit TLS (STARTTLS)
+    - name: esmtp-explicit
+      port: 587
+      targetPort: esmtp-explicit
+      protocol: TCP
+    # IMAPS with implicit TLS
+    - name: imap-implicit
+      port: 993
+      targetPort: imap-implicit
+      protocol: TCP
+
+```
+
+### Deployments
+
+Last but not least, the `Deployment` becomes the most complex component. It instructs Kubernetes how to run the docker-mailserver container and how to apply your ConfigMaps and persisted storage. Additionally, we can set options to enforce runtime security here.
+
+```yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: mailserver
+
+  annotations:
+    ignore-check.kube-linter.io/run-as-non-root: >-
+      The mailserver needs to run as root
+    ignore-check.kube-linter.io/privileged-ports: >-
+      The mailserver needs privilegdes ports
+    ignore-check.kube-linter.io/no-read-only-root-fs: >-
+      There are too many files written to make The
+      root FS read-only
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailserver
+
+  template:
     metadata:
-      name: mailserver
-    ---
-    kind: ConfigMap
-    apiVersion: v1
-    metadata:
-      name: mailserver.env.config
-      namespace: mailserver
       labels:
         app: mailserver
-    data:
-      OVERRIDE_HOSTNAME: example.com
-      ENABLE_FETCHMAIL: "0"
-      FETCHMAIL_POLL: "120"
-      ENABLE_SPAMASSASSIN: "0"
-      ENABLE_CLAMAV: "0"
-      ENABLE_FAIL2BAN: "0"
-      ENABLE_POSTGREY: "0"
-      ONE_DIR: "1"
-      DMS_DEBUG: "0"
 
-    ---
-    kind: ConfigMap
-    apiVersion: v1
-    metadata:
-      name: mailserver.config
-      namespace: mailserver
-      labels:
-        app: mailserver
-    data:
-      postfix-accounts.cf: |
-        user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/mailserver: runtime/default
 
-      postfix-virtual.cf: |
-        alias1@example.com user1@dexample.com
-
-      #dovecot.cf: |
-      #  service stats {
-      #    unix_listener stats-reader {
-      #      group = docker
-      #      mode = 0666
-      #    }
-      #    unix_listener stats-writer {
-      #      group = docker
-      #      mode = 0666
-      #    }
-      #  }
-
-      SigningTable: |
-        *@example.com mail._domainkey.example.com
-
-      KeyTable: |
-        mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com-mail.key
-
-      TrustedHosts: |
-        127.0.0.1
-        localhost
-
-      #user-patches.sh: |
-      #  #!/bin/bash
-
-      #fetchmail.cf: |
-    ```
-
-??? example "Secret"
-
-    ```yaml
-    apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: mailserver
-    ---
-    kind: Secret
-    apiVersion: v1
-    metadata:
-      name: mailserver.opendkim.keys
-      namespace: mailserver
-      labels:
-        app: mailserver
-    type: Opaque
-    data:
-      example.com-mail.key: 'base64-encoded-DKIM-key'
-    ```
-
-??? example "Service"
-
-    ```yaml
-    apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: mailserver
-    ---
-    kind: Service
-    apiVersion: v1
-    metadata:
-      name: mailserver
-      namespace: mailserver
-      labels:
-        app: mailserver
     spec:
-      selector:
-        app: mailserver
-      ports:
-        - name: smtp
-          port: 25
-          targetPort: smtp
-        - name: smtp-secure
-          port: 465
-          targetPort: smtp-secure
-        - name: smtp-auth
-          port: 587
-          targetPort: smtp-auth
-        - name: imap
-          port: 143
-          targetPort: imap
-        - name: imap-secure
-          port: 993
-          targetPort: imap-secure
-    ```
+      hostname: mailserver
+      containers:
+        - name: mailserver
+          image: ghcr.io/docker-mailserver/docker-mailserver:10.0.0
+          imagePullPolicy: IfNotPresent
 
-??? example "Deployment"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            privileged: false
+            capabilities:
+              add:
+                # file permission capabilities
+                - CHOWN
+                - FOWNER
+                - MKNOD
+                - SETGID
+                - SETUID
+                - DAC_OVERRIDE
+                # network capabilities
+                - NET_ADMIN  # needed for F2B
+                - NET_RAW    # needed for F2B
+                - NET_BIND_SERVICE
+                # miscellaneous  capabilities
+                - SYS_CHROOT
+                - SYS_PTRACE
+                - KILL
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
 
-    ```yaml
-    apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: mailserver
-    ---
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: mailserver
-      namespace: mailserver
-    spec:
-      replicas: 1
-      selector:
-        matchLabels:
-          app: mailserver
-      template:
-        metadata:
-          labels:
-            app: mailserver
-            role: mail
-            tier: backend
-        spec:
-          #nodeSelector:
-          #  kubernetes.io/hostname: local.k8s
-          #initContainers:
-          #- name: init-myservice
-          #  image: busybox
-          #  command: ["/bin/sh", "-c", "cp /tmp/user-patches.sh /tmp/files"]
-          #  volumeMounts:
-          #    - name: config
-          #      subPath: user-patches.sh
-          #      mountPath: /tmp/user-patches.sh
-          #      readOnly: true
-          #    - name: tmp-files
-          #      mountPath: /tmp/files
-          containers:
-          - name: docker-mailserver
-            image: mailserver/docker-mailserver:latest
-            imagePullPolicy: Always
-            securityContext:
-              capabilities:
-                # If Fail2Ban is not enabled, you can remove NET_ADMIN.
-                # If you are running on CRI-O, you will need the SYS_CHROOT capability,
-                # as it is no longer a default capability.
-                add: ["NET_ADMIN", "SYS_PTRACE", "SYS_CHROOT" ]
-            volumeMounts:
-              - name: config
-                subPath: postfix-accounts.cf
-                mountPath: /tmp/docker-mailserver/postfix-accounts.cf
-                readOnly: true
-              #- name: config
-              #  subPath: postfix-main.cf
-              #  mountPath: /tmp/docker-mailserver/postfix-main.cf
-              #  readOnly: true
-              - name: config
-                subPath: postfix-virtual.cf
-                mountPath: /tmp/docker-mailserver/postfix-virtual.cf
-                readOnly: true
-              - name: config
-                subPath: fetchmail.cf
-                mountPath: /tmp/docker-mailserver/fetchmail.cf
-                readOnly: true
-              - name: config
-                subPath: dovecot.cf
-                mountPath: /tmp/docker-mailserver/dovecot.cf
-                readOnly: true
-              #- name: config
-              #  subPath: user1.example.com.dovecot.sieve
-              #  mountPath: /tmp/docker-mailserver/user1@example.com.dovecot.sieve
-              #  readOnly: true
-              #- name: tmp-files
-              #  subPath: user-patches.sh
-              #  mountPath: /tmp/docker-mailserver/user-patches.sh
-              - name: config
-                subPath: SigningTable
-                mountPath: /tmp/docker-mailserver/opendkim/SigningTable
-                readOnly: true
-              - name: config
-                subPath: KeyTable
-                mountPath: /tmp/docker-mailserver/opendkim/KeyTable
-                readOnly: true
-              - name: config
-                subPath: TrustedHosts
-                mountPath: /tmp/docker-mailserver/opendkim/TrustedHosts
-                readOnly: true
-              - name: opendkim-keys
-                mountPath: /tmp/docker-mailserver/opendkim/keys
-                readOnly: true
-              - name: data
-                mountPath: /var/mail
-                subPath: data
-              - name: data
-                mountPath: /var/mail-state
-                subPath: state
-              - name: data
-                mountPath: /var/log/mail
-                subPath: log
-            ports:
-              - name: smtp
-                containerPort: 25
-                protocol: TCP
-              - name: smtp-secure
-                containerPort: 465
-                protocol: TCP
-              - name: smtp-auth
-                containerPort: 587
-              - name: imap
-                containerPort: 143
-                protocol: TCP
-              - name: imap-secure
-                containerPort: 993
-                protocol: TCP
-            envFrom:
-              - configMapRef:
-                  name: mailserver.env.config
-          volumes:
-            - name: config
-              configMap:
-                name: mailserver.config
-            - name: opendkim-keys
-              secret:
-                secretName: mailserver.opendkim.keys
+          # You want to tune this to your needs. If you disable ClamAV,
+          #   you can use less RAM and CPU. This becomes important in
+          #   case you're low on resources and Kubernetes refuses to
+          #   schedule new pods.
+          resources:
+            limits:
+              memory: 4Gi
+              cpu: 1500m
+            requests:
+              memory: 2Gi
+              cpu: 600m
+
+          volumeMounts:
+            - name: files
+              subPath: postfix-accounts.cf
+              mountPath: /tmp/docker-mailserver/postfix-accounts.cf
+              readOnly: true
+
+            # PVCs
             - name: data
-              persistentVolumeClaim:
-                claimName: mail-storage
+              mountPath: /var/mail
+              subPath: data
+              readOnly: false
+            - name: data
+              mountPath: /var/mail-state
+              subPath: state
+              readOnly: false
+            - name: data
+              mountPath: /var/log/mail
+              subPath: log
+              readOnly: false
+
+            # other
             - name: tmp-files
-              emptyDir: {}
-    ```
+              mountPath: /tmp
+              readOnly: false
 
-!!! warning
-    Any sensitive data (keys, etc) should be deployed via [Secrets][k8s-config-secret]. Other configuration just fits well into [ConfigMaps][k8s-config-pod].
+          ports:
+            - name: transfer
+              containerPort: 25
+              protocol: TCP
+            - name: esmtp-implicit
+              containerPort: 465
+              protocol: TCP
+            - name: esmtp-explicit
+              containerPort: 587
+            - name: imap-implicit
+              containerPort: 993
+              protocol: TCP
 
-!!! note
-    Make sure that [Pod][k8s-workload-pod] is [assigned][k8s-assign-pod-node] to specific [Node][k8s-nodes] in case you're using volume for data directly with `hostPath`. Otherwise Pod can be rescheduled on a different Node and previous data won't be found. Except the case when you're using some shared filesystem on your Nodes.
-    
-!!! note
-    If you experience issues with processes crashing showing an error like `operation not permitted` or `postfix/pickup[987]: fatal: chroot(/var/spool/postfix): Operation not permitted`, then you should add the `SYS_CHROOT` capability. Runtimes like CRI-O do not ship with this capability by default.
-   
+          envFrom:
+            - configMapRef:
+                name: mailserver.environment
 
-## Exposing to the Outside World
+      restartPolicy: Always
 
-The hard part with Kubernetes is to expose deployed mailserver to outside world. Kubernetes provides multiple ways for doing that. Each has its downsides and complexity.
+      volumes:
+        # configuration files
+        - name: files
+          configMap:
+            name: mailserver.files
 
-The major problem with exposing mailserver to outside world in Kubernetes is to [preserve real client IP][k8s-service-source-ip]. Real client IP is required by mailserver for performing IP-based SPF checks and spam checks.
+        # PVCs
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
 
-Preserving real client IP is relatively [non-trivial in Kubernetes][k8s-service-source-ip] and most exposing ways do not provide it. So, it's up to you to decide which exposing way suits better your needs in a price of complexity.
+        # other
+        - name: tmp-files
+          emptyDir: {}
+```
 
-If you do not require SPF checks for incoming mails you may disable them in [Postfix configuration][docs-postfix] by dropping following line (which removes `check_policy_service unix:private/policyd-spf` option):
+### Sensitive Data
 
-!!! example
+By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The [TLS][docs-tls] section provides you with an overview.
 
-    ```yaml
-    kind: ConfigMap
-    apiVersion: v1
-    metadata:
-      name: mailserver.config
-      labels:
-        app: mailserver
-    data:
-      postfix-main.cf: |
-        smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org, reject_rbl_client bl.spamcop.net
-    # ...
+!!! attention "Sensitive Data"
 
-    ---
+    For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMap`s and use them the same way.
 
-    kind: Deployment
-    apiVersion: extensions/v1beta1
-    metadata:
-      name: mailserver
-    # ...
-        volumeMounts:
-          - name: config
-            subPath: postfix-main.cf
-            mountPath: /tmp/docker-mailserver/postfix-main.cf
-            readOnly: true
-    ```
+## Exposing your Mailserver to the Outside World
+
+The more difficult part with K8s is to expose a deployed mailserver to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing the mailserver to outside world in K8s is to [preserve the real client IP][k8s-service-source-ip]. The real client IP is required by the mailserver for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line that states `check_policy_service unix:private/policyd-spf`.
+
+The easiest approach was covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. **But** we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.
 
 ### External IPs Service
 
-The simplest way is to expose mailserver as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip].
+The simplest way is to expose the mailserver as a [Service][k8s-network-service] with [external IPs][k8s-network-external-ip]. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.
 
-!!! example
+```yaml
+---
+apiVersion: v1
+kind: Service
 
-    ```yaml
-    kind: Service
-    apiVersion: v1
-    metadata:
-      name: mailserver
-      labels:
-        app: mailserver
-    spec:
-      selector:
-        app: mailserver
-      ports:
-        - name: smtp
-          port: 25
-          targetPort: smtp
+metadata:
+  name: mailserver
+  labels:
+    app: mailserver
+
+spec:
+  selector:
+    app: mailserver
+  ports:
+    - name: smtp
+      port: 25
+      targetPort: smtp
     # ...
-      externalIPs:
-        - 80.11.12.10
-    ```
 
-**Downsides**
+  externalIPs:
+    - 80.11.12.10
+```
 
-- __Real client IP is not preserved__, so SPF check of incoming mail will fail.
+This approach
 
-- Requirement to specify exposed IPs explicitly.
+- does not preserve the real client IP, so SPF check of incoming mail will fail.
+- requires you to specify the exposed IPs explicitly.
 
 ### Proxy port to Service
 
-The [Proxy Pod][k8s-proxy-service] helps to avoid necessity of specifying external IPs explicitly. This comes in price of complexity: you must deploy Proxy Pod on each [Node][k8s-nodes] you want to expose mailserver on.
+The [proxy pod][k8s-proxy-service] helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each [Node][k8s-nodes] you want to expose mailserver on.
 
-**Downsides**
+This approach
 
-- __Real client IP is not preserved__, so SPF check of incoming mail will fail.
+- does not preserve the real client IP, so SPF check of incoming mail will fail.
 
 ### Bind to concrete Node and use host network
 
-The simplest way to preserve real client IP is to use `hostPort` and `hostNetwork: true` in the mailserver [Pod][k8s-workload-pod]. This comes in price of availability: you can talk to mailserver from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
+One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes at the cost of availability; you can talk to the mailserver from outside world only via IPs of [Node][k8s-nodes] where mailserver is deployed.
 
-!!! example
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
 
-    ```yaml
-    kind: Deployment
-    apiVersion: extensions/v1beta1
-    metadata:
-      name: mailserver
-    # ...
-        spec:
-          hostNetwork: true
-    # ...
-          containers:
-    # ...
-              ports:
-                - name: smtp
-                  containerPort: 25
-                  hostPort: 25
-                - name: smtp-auth
-                  containerPort: 587
-                  hostPort: 587
-                - name: imap-secure
-                  containerPort: 993
-                  hostPort: 993
-    # ...
-    ```
+metadata:
+  name: mailserver
 
-**Downsides**
+# ...
+    spec:
+      hostNetwork: true
+    
+    # ...
+      containers:
+        # ...
+          ports:
+            - name: smtp
+              containerPort: 25
+              hostPort: 25
+            - name: smtp-auth
+              containerPort: 587
+              hostPort: 587
+            - name: imap-secure
+              containerPort: 993
+              hostPort: 993
+        #  ...
+```
 
-- Not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.
-- Every Port within the Container is exposed on the Host side, regardless of what the `ports` section in the Configuration defines. 
+With this approach,
+
+- it is not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.
+- every Port within the Container is exposed on the Host side.
 
 ### Proxy Port to Service via PROXY Protocol
 
-This way is ideologically the same as [using Proxy Pod](#proxy-port-to-service), but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the mailserver pod using the PROXY protocol, which preserves the real client IP.
+This way is ideologically the same as [using a proxy pod](#proxy-port-to-service), but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the mailserver pod using the PROXY protocol, which preserves the real client IP.
 
 #### Configure your Ingress
 
@@ -400,13 +385,14 @@ With an [NGINX ingress controller][k8s-nginx], set `externalTrafficPolicy: Local
 993: "mailserver/mailserver:993::PROXY"
 ```
 
-With [HAProxy][dockerhub-haproxy], the configuration should look similar to the above. If you know what it actually looks like, add an example here. :smiley:
+!!! help "HAProxy"
+    With [HAProxy][dockerhub-haproxy], the configuration should look similar to the above. If you know what it actually looks like, add an example here. :smiley:
 
 #### Configure the Mailserver
 
 Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expect the PROXY protocol:
 
-!!! example
+??? example "HAProxy Example"
 
     ```yaml
     kind: ConfigMap
@@ -460,79 +446,19 @@ Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expe
                   readOnly: true
     ```
 
-**Downsides**
+With this approach,
 
-- Not possible to access mailserver via inner cluster Kubernetes DNS, as PROXY protocol is required for incoming connections.
+- it is not possible to access the mailserver via cluster-DNS, as the PROXY protocol is required for incoming connections.
 
-## Let's Encrypt Certificates
-
-[Kube-Lego][kube-lego] may be used for a role of Let's Encrypt client. It works with Kubernetes [Ingress Resources][k8s-network-ingress] and automatically issues/manages certificates/keys for exposed services via Ingresses.
-
-!!! example
-
-    ```yaml
-    kind: Ingress
-    apiVersion: extensions/v1beta1
-    metadata:
-      name: mailserver
-      labels:
-        app: mailserver
-      annotations:
-        kubernetes.io/tls-acme: 'true'
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /
-                backend:
-                  serviceName: default-backend
-                  servicePort: 80
-      tls:
-        - secretName: mailserver.tls
-          hosts:
-            - example.com
-    ```
-
-Now, you can use Let's Encrypt cert and key from `mailserver.tls` [Secret][k8s-config-secret] in your [Pod][k8s-workload-pod] spec:
-
-!!! example
-
-    ```yaml
-    # ...
-    env:
-      - name: SSL_TYPE
-        value: 'manual'
-      - name: SSL_CERT_PATH
-        value: '/etc/ssl/mailserver/tls.crt'
-      - name: SSL_KEY_PATH
-        value: '/etc/ssl/mailserver/tls.key'
-    # ...
-    volumeMounts:
-      - name: tls
-        mountPath: /etc/ssl/mailserver
-        readOnly: true
-    # ...
-    volumes:
-      - name: tls
-        secret:
-          secretName: mailserver.tls
-    ```
-
+[kustomize]: https://kustomize.io/
+[docs-tls]: ../security/ssl.md
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
-[github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
-[kube-lego]: https://github.com/jetstack/kube-lego
-[k8s-assign-pod-node]: https://kubernetes.io/docs/concepts/configuration/assign-pod-node
-[k8s-config-pod]: https://kubernetes.io/docs/tasks/configure-pod-container/configmap
-[k8s-config-secret]: https://kubernetes.io/docs/concepts/configuration/secret
 [k8s-nginx]: https://kubernetes.github.io/ingress-nginx
 [k8s-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
-[k8s-network-ingress]: https://kubernetes.io/docs/concepts/services-networking/ingress
 [k8s-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
 [k8s-network-external-ip]: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
 [k8s-nodes]: https://kubernetes.io/docs/concepts/architecture/nodes
 [k8s-proxy-service]: https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service
 [k8s-service-source-ip]: https://kubernetes.io/docs/tutorials/services/source-ip
-[k8s-workload-pod]: https://kubernetes.io/docs/concepts/workloads/pods/pod
