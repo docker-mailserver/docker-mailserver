@@ -103,6 +103,7 @@ RUN \
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/sieve/ /etc/dovecot/sieve/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
+COPY target/shared/ffdhe4096.pem /etc/dovecot/dh.pem
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
 WORKDIR /usr/share/dovecot
 
