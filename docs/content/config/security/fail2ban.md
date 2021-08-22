@@ -19,6 +19,8 @@ This following configuration files from `/tmp/docker-mailserver/` will be copied
 - `fail2ban-jail.cf` -> `/etc/fail2ban/jail.d/user-jail.local`
 - `fail2ban-fail2ban.cf` -> `/etc/fail2ban/fail2ban.local`
 
+You might want to make a volume bind for the `fail2ban` db to persist at `/var/lib/fail2ban/fail2ban.sqlite3` between container re-creations.
+
 ### Docker-compose config
 
 Example configuration volume bind:
