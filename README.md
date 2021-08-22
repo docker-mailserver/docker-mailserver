@@ -150,6 +150,8 @@ docker-compose down
 docker-compose up -d mailserver
 ```
 
+You should see the new version number on startup, for example: `[ TASKLOG ]  Welcome to docker-mailserver 10.1.0`.
+
 You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
 
 #### Supported Operating Systems
