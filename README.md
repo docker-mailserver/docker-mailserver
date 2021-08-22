@@ -140,7 +140,9 @@ When keys are generated, you can configure your DNS server by just pasting the c
 
 If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/) for a detailed explanation.
 
-#### Updating `docker-mailserver`
+#### Update `docker-mailserver`
+
+Make sure, to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md) before, to be prepared for possible breaking changes.
 
 ``` BASH
 docker-compose pull
