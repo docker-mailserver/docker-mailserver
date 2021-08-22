@@ -142,7 +142,7 @@ If you'd like to change, patch or alter files or behavior of `docker-mailserver`
 
 #### Update `docker-mailserver`
 
-Make sure, to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md) before, to be prepared for possible breaking changes.
+Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md) before, to be prepared for possible breaking changes.
 
 ``` BASH
 docker-compose pull
