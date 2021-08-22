@@ -1635,7 +1635,7 @@ Thanks goes to these wonderful people ✨
 
 ## Further Contributors
 
-[emoji key](https://allcontributors.org/docs/en/emoji-key)
+[Emoji Key ✨ (and Contribution Types)](https://allcontributors.org/docs/en/emoji-key)
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
