@@ -19,3 +19,16 @@
 # iptables-multiport:	block IP only on affected port
 # iptables-allports:	block IP on all ports
 #banaction = iptables-allports
+
+# Email settings
+
+#destemail = admin@example.org
+#sender = server@example.org
+#sendername = fail2ban
+#mta = sendmail
+
+# to ban & send an e-mail with whois report to the destemail.
+#action = %(action_mw)s
+
+# same as action_mw but also send relevant log lines
+#action = %(action_mwl)s
