@@ -12,7 +12,7 @@ jobs:
     - name: Auto-add contributors
       uses: BobAnkh/add-contributors@v0.2.1
       with:
-        REPO_NAME: 'barthheiko/docker-mailserver'
+        REPO_NAME: 'docker-mailserver/docker-mailserver'
         CONTRIBUTOR: '## Contributors'
         COLUMN_PER_ROW: '6'
         ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
