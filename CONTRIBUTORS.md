@@ -1635,7 +1635,7 @@ Thanks goes to these wonderful people ✨
 
 ## Further Contributors
 
-Also thanks goes to these wonderful people, that have contributed in various other ways than code line ✨
+Also thanks goes to these wonderful people, that have contributed in various other ways than code lines ✨
 
 [Emoji Key ✨ (and Contribution Types)](https://allcontributors.org/docs/en/emoji-key)
 
