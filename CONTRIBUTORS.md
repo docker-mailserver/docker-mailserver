@@ -1654,3 +1654,9 @@ Also thanks goes to these wonderful people, that have contributed in various oth
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+____
+
+Note:
+
+We started using [all-contributors](https://github.com/all-contributors/all-contributors) in July 2021. We will add contributors with their future PRs or Issues. If you are [one of the 200+](https://github.com/docker-mailserver/docker-mailserver/graphs/contributors) that contributed to the project in the past and would like to see your name here too, please reach out!
