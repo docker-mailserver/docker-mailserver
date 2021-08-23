@@ -14,7 +14,7 @@ jobs:
           submodules: recursive
       - name: Prepare tags
         id: prep
-        uses: docker/metadata-action@v3.4.1
+        uses: docker/metadata-action@v3.5.0
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
