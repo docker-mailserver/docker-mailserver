@@ -1,5 +1,16 @@
 # Changelog
 
+## `v10.1.1`
+
+This release mainly improves on `v10.1.0` with small bugfixes/improvements and dependency updates
+
+- **[feat]** Add logwatch maillog.conf file to support /var/log/mail/ ([#2112](https://github.com/docker-mailserver/docker-mailserver/pull/2112))
+- **[docs]** `CONTRIBUTORS.md` now also shows every code contributor from the past ([#2143](https://github.com/docker-mailserver/docker-mailserver/pull/2143))
+- **[improve]** Avoid chmod +x when not needed ([#2127](https://github.com/docker-mailserver/docker-mailserver/pull/2127))
+- **[improve]** check-for-changes: performance improvements ([#2104](https://github.com/docker-mailserver/docker-mailserver/pull/2104))
+- **[dependency]** Update various dependencies through docs and base image 
+
+
 ## `v10.1.0`
 
 This release mainly improves on `v10.0.0` with many bugfixes. 
