@@ -1,0 +1,23 @@
+name: Update contributors
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  add-contributors:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Auto-add contributors
+      uses: BobAnkh/add-contributors@v0.2.1
+      with:
+        REPO_NAME: 'docker-mailserver/docker-mailserver'
+        CONTRIBUTOR: '## Contributors'
+        COLUMN_PER_ROW: '6'
+        ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        IMG_WIDTH: '100'
+        FONT_SIZE: '14'
+        PATH: '/CONTRIBUTORS.md'
+        COMMIT_MESSAGE: 'docs(CONTRIBUTORS): update contributors'
+        AVATAR_SHAPE: 'round'
