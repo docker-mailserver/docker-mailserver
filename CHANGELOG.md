@@ -8,7 +8,8 @@ This release mainly improves on `v10.1.0` with small bugfixes/improvements and d
 - **[docs]** `CONTRIBUTORS.md` now also shows every code contributor from the past ([#2143](https://github.com/docker-mailserver/docker-mailserver/pull/2143))
 - **[improve]** Avoid chmod +x when not needed ([#2127](https://github.com/docker-mailserver/docker-mailserver/pull/2127))
 - **[improve]** check-for-changes: performance improvements ([#2104](https://github.com/docker-mailserver/docker-mailserver/pull/2104))
-- **[dependency]** Update various dependencies through docs and base image 
+- **[dependency]** Update various dependencies through docs and base image
+- **[security]** This release contains also [security fixes for OpenSSL](https://www.openssl.org/news/secadv/20210824.txt)
 
 
 ## `v10.1.0`
