@@ -2,7 +2,7 @@
 
 ## `v10.1.2`
 
-This is bug fix release. It reverts a regression introduced with #2104.
+This is bug fix release. It reverts a regression introduced with [#2104](https://github.com/docker-mailserver/docker-mailserver/pull/2112).
 
 ## `v10.1.1`
 
