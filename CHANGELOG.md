@@ -1,5 +1,9 @@
 # Changelog
 
+## `v10.1.2`
+
+This is bug fix release. It reverts a regression introduced with #2104.
+
 ## `v10.1.1`
 
 This release mainly improves on `v10.1.0` with small bugfixes/improvements and dependency updates
