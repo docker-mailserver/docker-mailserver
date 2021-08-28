@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/pop3/">
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.1">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.5">
     
     
       
@@ -24,10 +24,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.1118c9be.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.be71726b.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ba0d045b.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
         
       
     
@@ -1246,15 +1246,16 @@
                 
                   <h1>Mail Delivery with POP3</h1>
                 
-                <p>If you want to use POP3(S), you have to add the ports 110 and/or 995 (TLS secured) and the environment variable <code>ENABLE_POP3</code> to your <code>docker-compose.yml</code>: </p>
-<div class="highlight"><pre><span></span><code><span class="nt">mail</span><span class="p">:</span>
+                <p>If you want to use POP3(S), you have to add the ports 110 and/or 995 (TLS secured) and the environment variable <code>ENABLE_POP3</code> to your <code>docker-compose.yml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">mailserver</span><span class="p">:</span>
   <span class="nt">ports</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;110:110&quot;</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;995:995&quot;</span> 
+    <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>    <span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>  <span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;465:465&quot;</span>  <span class="c1"># ESMTP (implicit TLS)</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>  <span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>  <span class="c1"># IMAP4 (implicit TLS)</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;110:110&quot;</span>  <span class="c1"># POP3</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;995:995&quot;</span>  <span class="c1"># POP3 (with TLS)</span>
   <span class="nt">environment</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_POP3=1</span>
 </code></pre></div>
@@ -1339,10 +1340,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.53c85856.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.716f8af4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56a63758.min.js"></script>
       
     
   </body>

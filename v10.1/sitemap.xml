@@ -2,197 +2,197 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/faq/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/introduction/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/environment/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/pop3/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/setup.sh/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/auth-ldap/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/full-text-search/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/ipv6/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/kubernetes/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/mail-fetchmail/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/mail-sieve/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/optional-config/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/mail-forwarding/aws-ses/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/mail-forwarding/relay-hosts/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/maintenance/update-and-cleanup/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/override-defaults/dovecot/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/override-defaults/postfix/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/advanced/override-defaults/user-patches/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/best-practices/autodiscover/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/best-practices/dkim/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/best-practices/dmarc/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/best-practices/spf/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/security/fail2ban/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/security/mail_crypt/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/security/ssl/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/security/understanding-the-ports/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/troubleshooting/debugging/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/user-management/accounts/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/config/user-management/aliases/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/contributing/coding-style/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/contributing/documentation/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/contributing/issues-and-pull-requests/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/contributing/tests/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/examples/tutorials/basic-installation/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/examples/tutorials/blog-posts/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/examples/tutorials/mailserver-behind-proxy/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/examples/uses-cases/forward-only-mailserver-with-ldap-authentication/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v10.1/examples/uses-cases/imap-folders/</loc>
-         <lastmod>2021-08-11</lastmod>
+         <lastmod>2021-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
