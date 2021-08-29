@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# wrapper for 'sed -i': fail if file was not modified by sed
+
+set -ueo pipefail
+
+HASHTOOL="sha1sum"
+
+if [ $# -lt 1 ]; then
+  echo "Error: No file given."
+  echo
+  exit 1
+fi >&2
+
+# get last argument
+FILE=${*: -1}
+
+OLD=$($HASHTOOL "$FILE")
+sed "$@"
+NEW=$($HASHTOOL "$FILE")
+
+# fail if file was not modified
+if [ "$OLD" == "$NEW" ]; then
+  echo "Error: sed $*"
+  exit 1
+fi >&2
+exit 0
