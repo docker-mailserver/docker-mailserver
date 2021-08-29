@@ -6,7 +6,7 @@ set -ueo pipefail
 
 HASHTOOL="sha1sum"
 
-if [ $# -lt 1 ]
+if [[ $# -lt 1 ]]
 then
   echo "Error: No file given."
   echo
@@ -21,7 +21,7 @@ sed "$@"
 NEW=$(${HASHTOOL} "${FILE}")
 
 # fail if file was not modified
-if [ "${OLD}" == "${NEW}" ]
+if [[ ${OLD} == "${NEW}" ]]
 then
   echo "Error: sed $*"
   exit 1
