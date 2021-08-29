@@ -184,7 +184,7 @@ function teardown_file() {
 }
 
 @test "checking spoofing: rejects sender forging" {
-  wait_for_smtp_port_in_container_to_respond mail
+  wait_for_smtp_port_in_container_to_respond mail_with_ldap
   run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
   assert_success
 }
