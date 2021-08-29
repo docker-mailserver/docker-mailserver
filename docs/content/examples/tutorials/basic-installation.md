@@ -38,8 +38,10 @@ We are going to use this docker based mailserver:
                 - "587:587"
                 - "465:465"
             volumes:
-                - ./data/:/var/mail/
-                - ./state/:/var/mail-state/
+                - ./data/maildata:/var/mail
+                - ./data/mailstate:/var/mail-state
+                - ./data/maillogs:/var/log/mail
+                - /etc/localtime:/etc/localtime:ro
                 - ./config/:/tmp/docker-mailserver/
                 - /var/ds/wsproxy/letsencrypt/:/etc/letsencrypt/
             environment:
