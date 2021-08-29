@@ -395,7 +395,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
           # SSL_DOMAIN: example.com
 
       traefik:
-        image: docker.io/traefik:v2.4
+        image: docker.io/traefik:v2.5
         ports:
            - "80:80"
            - "443:443"
