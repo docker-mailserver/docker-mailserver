@@ -129,7 +129,7 @@ ${ORANGE}DESCRIPTION${RESET}
     If it cannot find a running container, it will attempt to run one using any available tags
     which include label=org.opencontainers.image.title=\"docker-mailserver\" and then run the necessary commands.
     If the tag for the container is not found, this script will pull the ${WHITE}:latest${RESET} tag of
-    ${WHITE}mailserver/docker-mailserver${RESET}. This tag refers to the latest release,
+    ${WHITE}docker.io/mailserver/docker-mailserver${RESET}. This tag refers to the latest release,
     see the tagging convention in the README under
     ${BLUE}https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md${RESET}
 
