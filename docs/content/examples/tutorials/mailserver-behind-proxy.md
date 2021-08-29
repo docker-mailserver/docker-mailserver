@@ -54,13 +54,16 @@ Feel free to add your configuration if you archived the same goal using differen
     [...]
     ```
 
-    Truncated list of neccessary labels on the mailserver container:
+    Truncated list of necessary labels on the mailserver container:
 
     ```yaml
-    version: '2'
+    version: '3.8'
     services:
-      mail:
-        image: mailserver/docker-mailserver:release-v7.2.0
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
+        hostname: mail
+        domainname: example.com
+        container_name: mailserver
         restart: always
         networks:
           - proxy

@@ -3,8 +3,8 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
-    hostname: <HOSTNAME> # <-- CHANGE THIS
-    domainname: <DOMAINNAME> # <-- CHANGE THIS
+    hostname: mail
+    domainname: example.com
     container_name: mailserver
     env_file: mailserver.env
     # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
@@ -24,4 +24,7 @@ services:
       - ./config/:/tmp/docker-mailserver/
     restart: always
     stop_grace_period: 1m
-    cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
+

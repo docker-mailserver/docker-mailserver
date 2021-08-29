@@ -140,7 +140,7 @@ The following `docker-compose.yml` is the basic setup you need for using `letsen
     version: "2"
 
     services:
-      nginx: 
+      nginx:
         image: nginx
         container_name: nginx
         ports:
@@ -191,12 +191,12 @@ The second part of the setup is the actual mail container. So, in another folder
 ???+ example "Example Code"
 
     ```yaml
-    version: '2'
+    version: '3.8'
     services:
       mailserver:
-        image: mailserver/docker-mailserver:latest
-        hostname: <HOSTNAME> # <-- change this
-        domainname: <DOMAINNAME> # <-- change this
+        image: docker.io/mailserver/docker-mailserver:latest
+        hostname: mail
+        domainname: example.com
         container_name: mailserver
         ports:
           - "25:25"
@@ -380,14 +380,12 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 
     ``` YAML
     version: '3.8'
-
     services:
-
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
-        container_name: mailserver
         hostname: mail
-        domainname: domain.tld
+        domainname: example.com
+        container_name: mailserver
         volumes:
            - /traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
@@ -395,9 +393,9 @@ This setup only comes with one caveat: The domain has to be configured on anothe
           SSL_DOMAIN: mail.example.com"
           # for a wildcard certificate, use
           # SSL_DOMAIN: example.com
-      
+
       traefik:
-        image: docker.io/traefik:v2.4.8
+        image: docker.io/traefik:v2.4
         ports:
            - "80:80"
            - "443:443"
@@ -416,7 +414,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
            - /var/run/docker.sock:/var/run/docker.sock:ro
 
       whoami:
-        image: docker.io/traefik/whoami:latest 
+        image: docker.io/traefik/whoami:latest
         labels:
            - "traefik.http.routers.whoami.rule=Host(`mail.domain.tld`)"
     ```
