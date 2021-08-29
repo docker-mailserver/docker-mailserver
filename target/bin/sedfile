@@ -16,12 +16,12 @@ fi >&2
 # get last argument
 FILE=${*: -1}
 
-OLD=$($HASHTOOL "$FILE")
+OLD=$(${HASHTOOL} "${FILE}")
 sed "$@"
-NEW=$($HASHTOOL "$FILE")
+NEW=$(${HASHTOOL} "${FILE}")
 
 # fail if file was not modified
-if [ "$OLD" == "$NEW" ]
+if [ "${OLD}" == "${NEW}" ]
 then
   echo "Error: sed $*"
   exit 1
