@@ -155,7 +155,7 @@ RUN \
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
 # -----------------------------------------------
-# --- Miscellaneous ----a------------------------
+# --- Miscellaneous -----------------------------
 # -----------------------------------------------
 
 COPY \
