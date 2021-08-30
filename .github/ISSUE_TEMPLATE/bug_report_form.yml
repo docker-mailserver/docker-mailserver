@@ -76,6 +76,22 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: cpu-count
+    attributes:
+      label: How many CPU cores are available?
+      description: Please tell us how many CPU cores are available for DMS. A vCore is a CPU core used in virtual machines, a physical core is a real CPU core.
+      options:
+        - 1 vCore
+        - 2 vCores
+        - 4 vCores
+        - \> 4 vCores
+        - 1 physical Core
+        - 2 physical Cores
+        - 4 physical Cores
+        - \> 4 physical Cores
+    validations:
+      required: true
+  - type: dropdown
     id: operating-system
     attributes:
       label: What operating system is DMS running on?
@@ -167,3 +183,7 @@ body:
       options:
         - label: I read the README, the documentation and searched the issue tracker and could not find such an issue
           required: true
+        - label: I checked that all ports are open and not blocked by my ISP / hoster.
+          required: true
+        - label: Just to make sure you're not just clicking checkboxes, please do not check this checkbox.
+          required: false
