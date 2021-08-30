@@ -118,7 +118,7 @@ body:
         - Docker
         - Docker Compose
         - Podman
-        - Kubernetes (or something similar)
+        - Kubernetes
         - Something else
     validations:
       required: true
@@ -164,6 +164,21 @@ body:
       label: Other relevant information
       description: If there is more, you can tell us here. Make sure to use Markdown formatting here.
       render: Markdown
+  - type: dropdown
+    id: experience
+    attributes:
+      label: What level of experience do you have with Docker and mail servers?
+      description: You are not obliged to answer this question. But answering it helps us better understand where possible causes of errors lie. Less experienced users are more likely do make "obvious" mistakes, which is fine, and by answering this question, we know to look for them as well. We encourage everyone to participate, regardless of their level of experience.
+      options:
+        - I'm very much a beginner
+        - I'm a novice
+        - I know containerization but have less experience with mail
+        - I have experience with mail but less experience with containerization
+        - I know both pretty well and I'm experienced
+        - I'm an expert
+        - Trust me, I'm a (computer) engineer
+    validations:
+      required: false
   - type: checkboxes
     id: terms-code-of-conduct
     attributes:
