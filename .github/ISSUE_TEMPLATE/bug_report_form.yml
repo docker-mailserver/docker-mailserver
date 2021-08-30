@@ -118,7 +118,7 @@ body:
   - type: input
     id: docker-compose-version
     attributes:
-      label: Docker version
+      label: Docker compose version
       description: Please show us the output of `docker-compose --version` on the host your mail server is running on. Note that if you are not using Docker Compose, there is no official support provided by maintainers as DMS mainly focuses on Docker COmpose (and Docker).
       placeholder: docker-compose version 1.28.6, build 5db8d86f
     validations:
