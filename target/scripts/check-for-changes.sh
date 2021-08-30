@@ -77,13 +77,10 @@ do
       do
         case "${FILE}" in
           "/etc/letsencrypt/acme.json" )
-            {
               for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
               do
                 _extract_certs_from_acme "${CERTDOMAIN}" && break
               done
-            } &
-            WAIT_FOR_PIDS+=($!)
             ;;
 
           * )
