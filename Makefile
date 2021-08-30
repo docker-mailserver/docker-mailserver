@@ -4,6 +4,8 @@ NAME   ?= mailserver-testing:ci
 VCS_REF = $(shell git rev-parse --short HEAD)
 VCS_VER = $(shell git describe --tags --contains --always)
 
+export CDIR = $(shell pwd)
+
 # -----------------------------------------------
 # --- Generic Build Targets ---------------------
 # -----------------------------------------------

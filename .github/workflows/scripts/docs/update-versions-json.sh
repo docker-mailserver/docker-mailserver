@@ -57,4 +57,4 @@ function _update_versions_json
   fi
 }
 
-_update-versions-json
+_update_versions_json

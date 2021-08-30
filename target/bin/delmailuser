@@ -154,6 +154,7 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
     rmdir "/var/mail/${DOMAIN}" 2>/dev/null || true
   else
     echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
+    ERROR=true
   fi
 
   ${ERROR} && errex 'See the messages above.'

@@ -21,7 +21,7 @@ function setup_file
     --name "${CONTAINER_NAME}" \
 		--cap-add=SYS_PTRACE \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+		-v "${CDIR}/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
 		-e PERMIT_DOCKER=host \
 		-e DMS_DEBUG=0 \
