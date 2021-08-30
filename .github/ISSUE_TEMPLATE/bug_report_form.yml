@@ -1,0 +1,155 @@
+name: Bug Report
+description: File a bug report
+title: "[BUG] "
+labels:
+  - kind/possible bug
+  - meta/needs triage
+  - priority/medium
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts.
+
+        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. If this template is not adhered to, it will be marked with a label called `meta/no template - no support` and will not be worked on.
+
+        **Make sure** you read through the whole README, the documentation and the issue tracker before opening a new bug report.
+  - type: input
+    id: affected-components
+    attributes:
+      label: Affected Component(s)
+      description: What is affected by this bug?
+      placeholder: Postfix and Fail2Ban
+    validations:
+      required: true
+  - type: textarea
+    id: when-does-it-occur
+    attributes:
+      label:  When does this occur? What happened?
+      description: Tell us what happened. Use Markdown formatting for code!
+      placeholder: Although `DMS_DEBUG=1` is set, I see no debug.
+      render: Markdown
+    validations:
+      required: true
+  - type: textarea
+    id: what-did-you-expect-to-happen
+    attributes:
+      label:  What did you expect to happen?
+      description: Tell us what you expected.
+      placeholder: I expected to see debug messages.
+      render: Markdown
+    validations:
+      required: true
+  - type: textarea
+    id: how-do-we-replicate-this-issue
+    attributes:
+      label: How do we replicate the issue?
+      description: What did you do and how can we replicate this issue=
+      value: |
+        1.
+        2.
+        3.
+        ...
+      render: Markdown
+    validations:
+      required: true
+  - type: input
+    id: mailserver-version
+    attributes:
+      label: Mail server version
+      description: What version are you running? Paste your image tag here.
+      placeholder: v10.1.2
+    validations:
+      required: true
+  - type: dropdown
+    id: main-memory
+    attributes:
+      label: How much RAM is available?
+      description: Please tell us how much main memory is available for DMS.
+      options:
+        - 1GB or less
+        - < 2GB
+        - < 4GB
+        - < 8GB
+        - \>= 8GB
+    validations:
+      required: true
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: What operating system is DMS running on?
+      options:
+        - Linux
+        - macOS
+        - Windows
+    validations:
+      required: true
+  - type: dropdown
+    id: isa
+    attributes:
+      label: What instruction set architecture is DMS running on?
+      options:
+        - x86_64 / AMD64
+        - ARM v7
+        - ARM64
+    validations:
+      required: true
+  - type: dropdown
+    id: container-orchestrator
+    attributes:
+      label: What container orchestration tool are you using?
+      options:
+        - Docker
+        - Docker Compose
+        - Podman
+        - Kubernetes (or something similar)
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: docker-version
+    attributes:
+      label: Docker version
+      description: Please show us the output of `docker --version` on the host your mail server is running on if you are using Docker. Note that if you are not using Docker, there is no official support provided by maintainers as DMS mainly focuses on Docker (and Docker Compose).
+      placeholder: Docker version 20.10.7, build f0df350
+    validations:
+      required: false
+  - type: input
+    id: docker-compose-version
+    attributes:
+      label: Docker version
+      description: Please show us the output of `docker-compose --version` on the host your mail server is running on. Note that if you are not using Docker Compose, there is no official support provided by maintainers as DMS mainly focuses on Docker COmpose (and Docker).
+      placeholder: docker-compose version 1.28.6, build 5db8d86f
+    validations:
+      required: false
+  - type: textarea
+    id: important-environment-variables
+    attributes:
+      label: Important environment variables
+      description: If there are environment variables important to this issue, please post them here. If we ask for the values of variables, make sure to put them in here too.
+      render: bash
+  - type: textarea
+    id: relevant-log-output
+    attributes:
+      label: Relevant log output
+      description: Show us relevant log output here. You can enable debug output by setting `DMS_DEBUG` to `1`.
+      render: shell
+  - type: textarea
+    id: other-relevant-information
+    attributes:
+      label: Other relevant information
+      description: If there is more, you can tell us here. Make sure to use Markdown formatting here.
+      render: Markdown
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+        - label: I have read this project's Code of Conduct
+          required: true
+        - label: I read the README and the documentation and could not find this issue
+          required: true

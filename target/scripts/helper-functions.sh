@@ -15,6 +15,20 @@ function escape
   echo "${1//./\\.}"
 }
 
+function print_environment
+{
+  [[ ${DMS_DEBUG} == 0 ]] && return
+  echo
+  _notify 'inf' 'BEGIN ENVIRONMENT'
+
+  for VARIABLE in "${!VARS[@]}"
+  do
+    echo "${VARIABLE}=${VARS[${VARIABLE}]}"
+  done
+
+  _notify 'inf' 'END ENVIRONMENT\n'
+}
+
 function create_lock
 {
     SCRIPT_NAME="$1"
