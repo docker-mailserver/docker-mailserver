@@ -2,7 +2,7 @@ name: Bug Report
 description: File a bug report
 title: "[BUG] "
 labels:
-  - kind/possible bug
+  - kind/bug
   - meta/needs triage
   - priority/medium
 
@@ -20,7 +20,7 @@ body:
     attributes:
       label: Affected Component(s)
       description: What is affected by this bug? Please describe it with only a few words here. Detailed description can be given later.
-      placeholder: Postfix is not starting
+      placeholder: No debug output ist shown
     validations:
       required: true
   - type: textarea
@@ -71,8 +71,7 @@ body:
         - <= 1GB
         - <= 2GB
         - <= 4GB
-        - <= 8GB
-        - \>= 8GB
+        - \> 4GB
     validations:
       required: true
   - type: dropdown
@@ -169,21 +168,21 @@ body:
     id: terms-code-of-conduct
     attributes:
       label: Code of conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md).
+      description: By submitting this issue, you agree to follow [our code of conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md).
       options:
-        - label: I agree to follow this project's Code of Conduct
+        - label: I read this project's Code of Conduct and I agree
           required: true
-        - label: I have read this project's Code of Conduct
+        - label: I read the README and the documentation but could not find a solution
           required: true
   - type: checkboxes
-    id: terms-guidelines
+    id: terms-miscellaneous
     attributes:
-      label: Issue guidelines and documentation
-      description: We as maintainers help others in our free time to solve issues submitted in this issue tracker. As a consequence, we demand that the documentation and README is read carefully and that the issue tracker was searched for prior issues.
+      label: Miscellaneous
+      description: Please read these carefully and check the appropriate boxes.
       options:
-        - label: I read the README, the documentation and searched the issue tracker and could not find such an issue
-          required: true
         - label: I checked that all ports are open and not blocked by my ISP / hoster.
           required: true
         - label: Just to make sure you're not just clicking checkboxes, please do not check this checkbox.
           required: false
+        - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
+          required: true

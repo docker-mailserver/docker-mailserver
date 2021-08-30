@@ -17,6 +17,7 @@ function escape
 
 function print_environment
 {
+  _notify 'inf' 'Debug output enabled. Make sure no sensitive data is copied.'
   _notify 'inf' 'BEGIN ENVIRONMENT'
 
   for VARIABLE in "${!VARS[@]}"
