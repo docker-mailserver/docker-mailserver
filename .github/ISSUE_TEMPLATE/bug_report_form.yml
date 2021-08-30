@@ -123,6 +123,14 @@ body:
       placeholder: docker-compose version 1.28.6, build 5db8d86f
     validations:
       required: false
+  - type: input
+    id: uname-a
+    attributes:
+      label: The output of `uname -a`
+      description: TO double-check that all is well, please past the output of `uname -a` here.
+      placeholder: Linux swift 5.11.0-31-generic \#33-Ubuntu SMP Wed Aug 11 13:19:04 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
+    validations:
+      required: true
   - type: textarea
     id: important-environment-variables
     attributes:
