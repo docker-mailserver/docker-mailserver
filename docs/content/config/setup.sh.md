@@ -66,7 +66,7 @@ OPTIONS
 
         -p PATH
             Provides the config folder path. The default is
-            /home/maxwell/Documents/github/docker-mailserver/config/
+            /${HOME}/Documents/github/docker-mailserver/config/
 
     SELinux
         -z
