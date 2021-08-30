@@ -19,14 +19,14 @@ body:
     id: affected-components
     attributes:
       label: Affected Component(s)
-      description: What is affected by this bug?
-      placeholder: Postfix and Fail2Ban
+      description: What is affected by this bug? Please describe it with only a few words here. Detailed description can be given later.
+      placeholder: Postfix is not starting
     validations:
       required: true
   - type: textarea
     id: when-does-it-occur
     attributes:
-      label:  When does this occur? What happened?
+      label:  When does this occur and what happened?
       description: Tell us what happened. Use Markdown formatting for code!
       placeholder: Although `DMS_DEBUG=1` is set, I see no debug.
       render: Markdown
@@ -144,12 +144,12 @@ body:
   - type: checkboxes
     id: terms
     attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
+      label: Terms
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md)
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true
         - label: I have read this project's Code of Conduct
           required: true
-        - label: I read the README and the documentation and could not find this issue
+        - label: I read the README, the documentation and searches the issue tracker and could not find such an issue
           required: true
