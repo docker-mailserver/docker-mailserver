@@ -17,8 +17,6 @@ function escape
 
 function print_environment
 {
-  [[ ${DMS_DEBUG} == 0 ]] && return
-  echo
   _notify 'inf' 'BEGIN ENVIRONMENT'
 
   for VARIABLE in "${!VARS[@]}"

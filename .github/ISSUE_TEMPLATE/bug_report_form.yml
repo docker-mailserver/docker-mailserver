@@ -68,10 +68,10 @@ body:
       label: How much RAM is available?
       description: Please tell us how much main memory is available for DMS.
       options:
-        - 1GB or less
-        - < 2GB
-        - < 4GB
-        - < 8GB
+        - <= 1GB
+        - <= 2GB
+        - <= 4GB
+        - <= 8GB
         - \>= 8GB
     validations:
       required: true
@@ -127,7 +127,7 @@ body:
     id: uname-a
     attributes:
       label: The output of `uname -a`
-      description: TO double-check that all is well, please past the output of `uname -a` here.
+      description: To double-check that the information above is correct, please paste the output of `uname -a` here.
       placeholder: Linux swift 5.11.0-31-generic \#33-Ubuntu SMP Wed Aug 11 13:19:04 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
     validations:
       required: true
@@ -150,14 +150,20 @@ body:
       description: If there is more, you can tell us here. Make sure to use Markdown formatting here.
       render: Markdown
   - type: checkboxes
-    id: terms
+    id: terms-code-of-conduct
     attributes:
-      label: Terms
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md)
+      label: Code of conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md).
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true
         - label: I have read this project's Code of Conduct
           required: true
-        - label: I read the README, the documentation and searches the issue tracker and could not find such an issue
+  - type: checkboxes
+    id: terms-guidelines
+    attributes:
+      label: Issue guidelines and documentation
+      description: We as maintainers help others in our free time to solve issues submitted in this issue tracker. As a consequence, we demand that the documentation and README is read carefully and that the issue tracker was searched for prior issues.
+      options:
+        - label: I read the README, the documentation and searched the issue tracker and could not find such an issue
           required: true
