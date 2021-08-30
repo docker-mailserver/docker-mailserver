@@ -143,7 +143,7 @@ body:
     id: uname-a
     attributes:
       label: The output of `uname -a`
-      description: To double-check that the information above is correct, please paste the output of `uname -a` here.
+      description: Please paste the output of `uname -a` here.
       placeholder: Linux swift 5.11.0-31-generic \#33-Ubuntu SMP Wed Aug 11 13:19:04 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
     validations:
       required: true
