@@ -92,12 +92,12 @@ teardown_file() {
 # CPU usage
 #
 
-@test "cpu stress test" {
-  while [[ $(cat /proc/loadavg | awk '{print $1}' | sed 's/\.//g'| sed 's/^0//g') -gt 60 ]]; do
-    sleep 2
-  done
-  true
-}
+#@test "cpu stress test" {
+#  while [[ $(cat /proc/loadavg | awk '{print $1}' | sed 's/\.//g'| sed 's/^0//g') -gt 60 ]]; do
+#    sleep 2
+#  done
+#  true
+#}
 
 #
 # configuration checks

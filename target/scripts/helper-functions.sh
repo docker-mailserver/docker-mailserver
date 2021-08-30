@@ -194,6 +194,13 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 # Compute checksums of monitored files.
 function _monitored_files_checksums
 {
+  # If there is no /etc/letsencrypt/live/${HOSTNAME}, cmp throws 
+  # "cmp: EOF on /tmp/docker-mailserver-config-chksum.new after byte 596, line 4"
+  DYNAMIC_FILES=
+  for FILE in $(ls /etc/letsencrypt/live/${HOSTNAME}/*.pem 2>/dev/null)
+  do 
+    DYNAMIC_FILES="${DYNAMIC_FILES} ${FILE}"
+  done
   (
     cd /tmp/docker-mailserver || exit 1
     exec sha512sum 2>/dev/null -- \
@@ -202,9 +209,7 @@ function _monitored_files_checksums
       postfix-aliases.cf \
       dovecot-quotas.cf \
       /etc/letsencrypt/acme.json \
-      "/etc/letsencrypt/live/${HOSTNAME}/key.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
+      "${DYNAMIC_FILES}"
   )
 }
 export -f _monitored_files_checksums

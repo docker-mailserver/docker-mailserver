@@ -44,6 +44,8 @@ sleep 10
 CMP_RESULT=
 LAST_CMP_RESULT=
 
+remove_lock "${SCRIPT_NAME}" # clears any locks that might have been orphaned, on first boot
+
 while true
 do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
@@ -268,7 +270,6 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       LAST_CMP_RESULT="${CMP_RESULT}"
       sleep 5 # The longer the sleep here, the more time there is for users to make changes before a full restart
     fi
-
   else # Checksum files don't differ
     LAST_CMP_RESULT=
   fi

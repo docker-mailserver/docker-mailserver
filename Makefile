@@ -38,7 +38,7 @@ generate-accounts:
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
 tests:
-	@ NAME=$(NAME) ./test/bats/bin/bats --verbose-run --trace test/*bats
+	@ NAME=$(NAME) ./test/bats/bin/bats --verbose-run --trace --show-output-of-passing-tests --timing test/*bats
 #@ NAME=$(NAME) ./test/bats/bin/bats test/*.bats
 
 .PHONY: ALWAYS_RUN
