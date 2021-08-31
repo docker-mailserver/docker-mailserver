@@ -52,7 +52,7 @@ do
 
   # Lock configuration while working
   create_lock "${SCRIPT_NAME}"
-
+  sleep 2
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   CMP_RESULT=$(cmp -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new")
@@ -93,22 +93,16 @@ do
       done
 
       # regenerate postix aliases
-      {
-        echo "root: ${PM_ADDRESS}" >/etc/aliases
-        if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-        then
-          cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-        fi
-        postalias /etc/aliases
-      } &
-      WAIT_FOR_PIDS+=($!)
+      echo "root: ${PM_ADDRESS}" >/etc/aliases
+      if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
+      then
+        cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
+      fi
+      postalias /etc/aliases
 
       # regenerate postfix accounts
-      {
-        : >/etc/postfix/vmailbox
-        : >/etc/dovecot/userdb
-      } &
-      WAIT_FOR_PIDS+=($!)
+      : >/etc/postfix/vmailbox
+      : >/etc/dovecot/userdb
 
       if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
       then
@@ -189,17 +183,13 @@ do
 
       if [[ -n ${RELAY_HOST} ]]
       then
-        _populate_relayhost_map &
-        WAIT_FOR_PIDS+=($!)
+        _populate_relayhost_map
       fi
 
       if [[ -f /etc/postfix/sasl_passwd ]]
       then
-        {
-          chown root:root /etc/postfix/sasl_passwd
-          chmod 0600 /etc/postfix/sasl_passwd
-        } &
-        WAIT_FOR_PIDS+=($!)
+        chown root:root /etc/postfix/sasl_passwd
+        chmod 0600 /etc/postfix/sasl_passwd
       fi
 
       if [[ -f postfix-virtual.cf ]]
@@ -268,7 +258,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
     else # The files differ...
       _notify 'inf' "${LOG_DATE} Changes to checksum files detected... Ensuring changes have settled before proceeding..."
       LAST_CMP_RESULT="${CMP_RESULT}"
-      sleep 5 # The longer the sleep here, the more time there is for users to make changes before a full restart
+      sleep 3 # The longer the sleep here, the more time there is for users to make changes before a full restart
     fi
   else # Checksum files don't differ
     LAST_CMP_RESULT=
