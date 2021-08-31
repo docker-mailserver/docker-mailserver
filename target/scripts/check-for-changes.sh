@@ -93,16 +93,22 @@ do
       done
 
       # regenerate postix aliases
-      echo "root: ${PM_ADDRESS}" >/etc/aliases
-      if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-      then
-        cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-      fi
-      postalias /etc/aliases
+      {
+        echo "root: ${PM_ADDRESS}" >/etc/aliases
+        if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
+        then
+          cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
+        fi
+        postalias /etc/aliases
+      } &
+      WAIT_FOR_PIDS+=($!)
 
       # regenerate postfix accounts
-      : >/etc/postfix/vmailbox
-      : >/etc/dovecot/userdb
+      {
+        : >/etc/postfix/vmailbox
+        : >/etc/dovecot/userdb
+      } &
+      WAIT_FOR_PIDS+=($!)
 
       if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
       then
@@ -183,13 +189,17 @@ do
 
       if [[ -n ${RELAY_HOST} ]]
       then
-        _populate_relayhost_map
+        _populate_relayhost_map &
+        WAIT_FOR_PIDS+=($!)
       fi
 
       if [[ -f /etc/postfix/sasl_passwd ]]
       then
-        chown root:root /etc/postfix/sasl_passwd
-        chmod 0600 /etc/postfix/sasl_passwd
+        {
+          chown root:root /etc/postfix/sasl_passwd
+          chmod 0600 /etc/postfix/sasl_passwd
+        } &
+        WAIT_FOR_PIDS+=($!)
       fi
 
       if [[ -f postfix-virtual.cf ]]
@@ -226,7 +236,8 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
       # shellcheck disable=SC2044
       for USER_MAIL_LOCATION in $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \)); do
-        chown -R 5000:5000 "${USER_MAIL_LOCATION}"
+        chown -R 5000:5000 "${USER_MAIL_LOCATION}" &
+        WAIT_FOR_PIDS+=($!)
       done
 
       # relies on if [[ -f postfix-virtual.cf ]] block
@@ -237,7 +248,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       fi
 
       # shellcheck disable=SC2086
-      # wait ${WAIT_FOR_PIDS[*]}
+      wait ${WAIT_FOR_PIDS[*]}
 
       supervisorctl restart postfix &
       wait $!
