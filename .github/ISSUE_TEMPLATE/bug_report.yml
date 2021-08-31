@@ -12,7 +12,9 @@ body:
       value: |
         Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts.
 
-        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. If this template is not adhered to, it will be marked with a label called `meta/no template - no support` and will not be worked on.
+        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it.
+        The maintainers and moderators are volunteers that need you to fill this template with accurate informations in order to help you in the best and quickest way.
+        We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly.
 
         **Make sure** you read through the whole README, the documentation and the issue tracker before opening a new bug report.
   - type: checkboxes
