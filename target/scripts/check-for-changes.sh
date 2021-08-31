@@ -226,8 +226,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
       # shellcheck disable=SC2044
       for USER_MAIL_LOCATION in $(find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \)); do
-        chown -R 5000:5000 "${USER_MAIL_LOCATION}" &
-        WAIT_FOR_PIDS+=($!)
+        chown -R 5000:5000 "${USER_MAIL_LOCATION}"
       done
 
       # relies on if [[ -f postfix-virtual.cf ]] block
@@ -238,7 +237,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       fi
 
       # shellcheck disable=SC2086
-      wait ${WAIT_FOR_PIDS[*]}
+      # wait ${WAIT_FOR_PIDS[*]}
 
       supervisorctl restart postfix &
       wait $!
