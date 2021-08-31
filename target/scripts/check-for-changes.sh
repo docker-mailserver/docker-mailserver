@@ -35,7 +35,7 @@ if [[ -n "${OVERRIDE_HOSTNAME}" ]]
 then
   DOMAINNAME="${OVERRIDE_HOSTNAME}"
 else
-  DOMAINNAME="$(hostname -d)"
+  DOMAINNAME="$(hostname)"
 fi
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
