@@ -15,6 +15,16 @@ body:
         Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. If this template is not adhered to, it will be marked with a label called `meta/no template - no support` and will not be worked on.
 
         **Make sure** you read through the whole README, the documentation and the issue tracker before opening a new bug report.
+  - type: checkboxes
+    id: miscellaneous-first-checks
+    attributes:
+      label: Miscellaneous first checks
+      description: Please read these carefully and check the appropriate boxes.
+      options:
+        - label: I checked that all ports are open and not blocked by my ISP / hoster.
+          required: true
+        - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
+          required: true
   - type: input
     id: affected-components
     attributes:
@@ -28,7 +38,7 @@ body:
     attributes:
       label:  When does this occur and what happened?
       description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
-      placeholder: Although `DMS_DEBUG=1` is set, I see no debug.
+      placeholder: Although `DMS_DEBUG=1` is set, I see no debug output.
       render: Markdown
     validations:
       required: true
@@ -57,16 +67,16 @@ body:
   - type: input
     id: mailserver-version
     attributes:
-      label: Mail server version
-      description: What version are you running? Paste your image tag here.
+      label: DMS version
+      description: With which version did yor encounter this bug? Paste your image tag here.
       placeholder: v10.1.2
     validations:
       required: true
   - type: dropdown
     id: main-memory
     attributes:
-      label: How much RAM is available?
-      description: Please tell us how much main memory is available for DMS.
+      label: How much RAM is available to DMS explicitly?
+      description: Please provide the amount of memory that DMS can really use. This includes main memory (RAM), but also swap or zram. If you're using Kubernetes, provide the resource limit here if you set one.
       options:
         - <= 1GB
         - <= 2GB
@@ -77,17 +87,24 @@ body:
   - type: dropdown
     id: cpu-count
     attributes:
-      label: How many CPU cores are available?
-      description: Please tell us how many CPU cores are available for DMS. A vCore is a CPU core used in virtual machines, a physical core is a real CPU core.
+      label: How many CPU cores / threads are available?
+      description: How many CPU cores or threads can DMS use? If you're using Kubernetes, provide the resource limit here if you set one.
       options:
-        - 1 vCore
-        - 2 vCores
-        - 4 vCores
-        - \> 4 vCores
-        - 1 physical Core
-        - 2 physical Cores
-        - 4 physical Cores
-        - \> 4 physical Cores
+        - <= 1 Core
+        - <= 2 Cores
+        - <= 4 Cores
+        - \> 4 Cores
+    validations:
+      required: true
+  - type: dropdown
+    id: system-type
+    attributes:
+      label: Is DMS running in a virtualized environment?
+      description: Choose the option that your setup is the most similar to. DMS is running on...
+      options:
+        - ... a physical host (with real, physical CPU cores)
+        - ... a Virtual Dedicated Server (VDS) (with real, physical cores)
+        - ... a Virtual Private Server (VPS) (with virtual CPU cores)
     validations:
       required: true
   - type: dropdown
@@ -106,8 +123,8 @@ body:
       label: What instruction set architecture is DMS running on?
       options:
         - x86_64 / AMD64
+        - ARM64 / ARM v8 (and newer)
         - ARM v7
-        - ARM64
     validations:
       required: true
   - type: dropdown
@@ -119,30 +136,30 @@ body:
         - Docker Compose
         - Podman
         - Kubernetes
-        - Something else
+        - Other
     validations:
       required: true
   - type: input
     id: docker-version
     attributes:
       label: Docker version
-      description: Please show us the output of `docker --version` on the host your mail server is running on if you are using Docker. Note that if you are not using Docker, there is no official support provided by maintainers as DMS mainly focuses on Docker (and Docker Compose).
+      description: Please show us the output of `docker --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
       placeholder: Docker version 20.10.7, build f0df350
     validations:
       required: false
   - type: input
     id: docker-compose-version
     attributes:
-      label: Docker compose version
-      description: Please show us the output of `docker-compose --version` on the host your mail server is running on. Note that if you are not using Docker Compose, there is no official support provided by maintainers as DMS mainly focuses on Docker COmpose (and Docker).
+      label: Docker Compose version
+      description: Please show us the output of `docker-compose --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
       placeholder: docker-compose version 1.28.6, build 5db8d86f
     validations:
       required: false
   - type: input
-    id: uname-a
+    id: uname-movar
     attributes:
-      label: The output of `uname -a`
-      description: Please paste the output of `uname -a` here.
+      label: The output of `uname -movar`
+      description: Please paste the output of `uname -movar` here. If you're unable to do so (maybe because you're on Windows), tell us the reason for your inability here.
       placeholder: Linux swift 5.11.0-31-generic \#33-Ubuntu SMP Wed Aug 11 13:19:04 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
     validations:
       required: true
@@ -156,7 +173,7 @@ body:
     id: relevant-log-output
     attributes:
       label: Relevant log output
-      description: Show us relevant log output here. You can enable debug output by setting `DMS_DEBUG` to `1`.
+      description: Show us relevant log output here. You can enable debug output by setting the environment variable `DMS_DEBUG` to `1`.
       render: shell
   - type: textarea
     id: other-relevant-information
@@ -168,15 +185,14 @@ body:
     id: experience
     attributes:
       label: What level of experience do you have with Docker and mail servers?
-      description: You are not obliged to answer this question. But answering it helps us better understand where possible causes of errors lie. Less experienced users are more likely do make "obvious" mistakes, which is fine, and by answering this question, we know to look for them as well. We encourage everyone to participate, regardless of their level of experience.
+      description: _You are not obliged to answer this question_. We do encourage answering though as it provides context to better assist you. Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily. For the more experienced, we can skip ahead and communicate more effectively to resolve the issue ASAP.
       options:
-        - I'm very much a beginner
-        - I'm a novice
-        - I know containerization but have less experience with mail
-        - I have experience with mail but less experience with containerization
-        - I know both pretty well and I'm experienced
-        - I'm an expert
-        - Trust me, I'm a (computer) engineer
+        - I have no idea what I'm doing! [beginner]
+        - I know the basics, I've used Docker before [novice]
+        - I'm comfortable with Docker / containers, but I'm relatively new to all this mail stuff
+        - I have experience with mail servers, but less experience working with containers
+        - I know both pretty well actually [experienced]
+        - Trust me, I'm a (computer) engineer! [expert]
     validations:
       required: false
   - type: checkboxes
@@ -187,17 +203,7 @@ body:
       options:
         - label: I read this project's Code of Conduct and I agree
           required: true
-        - label: I read the README and the documentation but could not find a solution
-          required: true
-  - type: checkboxes
-    id: terms-miscellaneous
-    attributes:
-      label: Miscellaneous
-      description: Please read these carefully and check the appropriate boxes.
-      options:
-        - label: I checked that all ports are open and not blocked by my ISP / hoster.
-          required: true
         - label: Just to make sure you're not just clicking checkboxes, please do not check this checkbox.
           required: false
-        - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
+        - label: I read the README and the documentation but could not find a solution
           required: true
