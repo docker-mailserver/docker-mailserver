@@ -70,7 +70,7 @@ body:
     id: mailserver-version
     attributes:
       label: DMS version
-      description: With which version did yor encounter this bug? Paste your image tag here.
+      description: On which version (image tag) did you encounter this bug?
       placeholder: v10.1.2
     validations:
       required: true
