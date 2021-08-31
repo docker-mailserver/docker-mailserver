@@ -45,7 +45,7 @@ body:
     id: how-do-we-replicate-this-issue
     attributes:
       label: How do we replicate the issue?
-      description: What did you do and how can we replicate this issue=
+      description: What did you do and how can we replicate this issue?
       value: |
         1.
         2.
