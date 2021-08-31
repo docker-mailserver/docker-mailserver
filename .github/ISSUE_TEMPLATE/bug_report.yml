@@ -158,10 +158,10 @@ body:
     validations:
       required: false
   - type: input
-    id: uname-movar
+    id: uname-a
     attributes:
-      label: The output of `uname -movar`
-      description: Please paste the output of `uname -movar` here. If you're unable to do so (maybe because you're on Windows), tell us the reason for your inability here.
+      label: The output of `uname -a`
+      description: Please paste the output of `uname -a` here. If you're unable to do so (maybe because you're on Windows), tell us the reason here.
       placeholder: Linux swift 5.11.0-31-generic \#33-Ubuntu SMP Wed Aug 11 13:19:04 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
     validations:
       required: true
