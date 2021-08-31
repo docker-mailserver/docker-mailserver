@@ -20,7 +20,7 @@ body:
     attributes:
       label: Affected Component(s)
       description: What is affected by this bug? Please describe it with only a few words here. Detailed description can be given later.
-      placeholder: No debug output ist shown
+      placeholder: No debug output is shown.
     validations:
       required: true
   - type: textarea
