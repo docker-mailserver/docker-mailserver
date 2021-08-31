@@ -78,7 +78,7 @@ body:
     id: main-memory
     attributes:
       label: How much RAM is available to DMS explicitly?
-      description: Please provide the amount of memory that DMS can really use. This includes main memory (RAM), but also swap or zram. If you're using Kubernetes, provide the resource limit here if you set one.
+      description: Please provide the amount of memory that DMS can really use. This includes physical memory (RAM), but also virtual memory (swap or zram). If you're using Kubernetes, provide the resource limit here if you set one.
       options:
         - <= 1GB
         - <= 2GB
