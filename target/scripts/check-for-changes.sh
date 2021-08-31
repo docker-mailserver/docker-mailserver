@@ -28,11 +28,12 @@ fi
 
 # ? --------------------------------------------- Actual script begins
 
-# determine postmaster address, duplicated from start-mailserver.sh
+# determine postmaster address
 # this script previously didn't work when POSTMASTER_ADDRESS was empty
-if [[ -n ${OVERRIDE_HOSTNAME} ]]
+# used in helper-functions.sh/_monitored_files_checksums
+if [[ -n "${OVERRIDE_HOSTNAME}" ]]
 then
-  DOMAINNAME="${OVERRIDE_HOSTNAME#*.}"
+  DOMAINNAME="${OVERRIDE_HOSTNAME}"
 else
   DOMAINNAME="$(hostname -d)"
 fi
