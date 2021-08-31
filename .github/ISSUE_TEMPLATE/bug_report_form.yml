@@ -27,7 +27,7 @@ body:
     id: when-does-it-occur
     attributes:
       label:  When does this occur and what happened?
-      description: Tell us what happened. Use Markdown formatting for code!
+      description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `DMS_DEBUG=1` is set, I see no debug.
       render: Markdown
     validations:
