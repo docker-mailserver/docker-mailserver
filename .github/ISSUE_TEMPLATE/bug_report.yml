@@ -14,7 +14,7 @@ body:
 
         Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. If this template is not adhered to, it will be marked with a label called `meta/no template - no support` and will not be worked on.
 
-        **Make sure** you read through the whole README, the documentation and the issue tracker before opening a new bug report.
+        **Make sure** you read through the whole [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md), the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
   - type: checkboxes
     id: miscellaneous-first-checks
     attributes:
@@ -76,19 +76,19 @@ body:
     id: main-memory
     attributes:
       label: How much RAM is available to DMS explicitly?
-      description: Please provide the amount of memory that DMS can really use. This includes main memory (RAM), but also swap or zram. If you're using Kubernetes, provide the resource limit here if you set one.
+      description: Please provide the amount of memory that DMS can really use. This includes physical memory (RAM), but also virtual memory (like swap or zram).  Think about all possible resource restrictions on memory here.
       options:
-        - <= 1GB
-        - <= 2GB
-        - <= 4GB
-        - \> 4GB
+        - <= 1GB (very low)
+        - <= 2GB (low)
+        - <= 4GB (sufficient)
+        - \> 4GB (more than enough)
     validations:
       required: true
   - type: dropdown
     id: cpu-count
     attributes:
-      label: How many CPU cores / threads are available?
-      description: How many CPU cores or threads can DMS use? If you're using Kubernetes, provide the resource limit here if you set one.
+      label: How many CPU cores are available?
+      description: How many CPU cores can DMS use? Think about all possible resource restrictions on CPU cores here.
       options:
         - <= 1 Core
         - <= 2 Cores
@@ -102,9 +102,9 @@ body:
       label: Is DMS running in a virtualized environment?
       description: Choose the option that your setup is the most similar to. DMS is running on...
       options:
-        - ... a physical host (with real, physical CPU cores)
-        - ... a Virtual Dedicated Server (VDS) (with real, physical cores)
-        - ... a Virtual Private Server (VPS) (with virtual CPU cores)
+        - ... a physical host (with real, physical CPU cores, i.e. bare metal)
+        - ... a virtual dedicated server (VDS) (with real, physical cores)
+        - ... a virtual private server (VPS) (with virtual CPU cores)
     validations:
       required: true
   - type: dropdown
@@ -113,9 +113,9 @@ body:
       label: What operating system is DMS running on?
       options:
         - Linux
-        - macOS
-        - Windows
-        - Other
+        - macOS (not officially supported)
+        - Windows (unsupported)
+        - Other (unsupported)
     validations:
       required: true
   - type: dropdown
@@ -136,9 +136,9 @@ body:
       options:
         - Docker
         - Docker Compose
-        - Podman
-        - Kubernetes
-        - Other
+        - Podman (not officially supported)
+        - Kubernetes (not officially supported)
+        - Other (unsupported)
     validations:
       required: true
   - type: input
@@ -203,9 +203,9 @@ body:
       label: Code of conduct
       description: By submitting this issue, you agree to follow [our code of conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md).
       options:
-        - label: I read this project's Code of Conduct and I agree
+        - label: I have read this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree
           required: true
         - label: Just to make sure you're not just clicking checkboxes, please do not check this checkbox.
           required: false
-        - label: I read the README and the documentation but could not find a solution
+        - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) but could not find a solution
           required: true
