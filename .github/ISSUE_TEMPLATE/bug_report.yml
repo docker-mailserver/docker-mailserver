@@ -115,6 +115,7 @@ body:
         - Linux
         - macOS
         - Windows
+        - Other
     validations:
       required: true
   - type: dropdown
@@ -125,6 +126,7 @@ body:
         - x86_64 / AMD64
         - ARM64 / ARM v8 (and newer)
         - ARM v7
+        - Unsupported / Other
     validations:
       required: true
   - type: dropdown
