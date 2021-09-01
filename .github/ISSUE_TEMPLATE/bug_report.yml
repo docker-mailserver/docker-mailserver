@@ -10,16 +10,32 @@ body:
   - type: markdown
     attributes:
       value: |
+        # Filing a report
+
         Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts.
 
         Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. The maintainers and moderators are volunteers that need you to fill this template with accurate informations in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly.
 
         **Make sure** you read through the whole [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md), the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
+
+        ## Levels of support
+
+        We provide official support for
+
+        1. OS/ARCH: Linux on amd64/x86_64 or ARMv7 or ARM64
+        2. Containerization platform: Docker and Docker Compose (i.e. based on Docker Engine)
+
+        Other configurations are not officially supported, but there are maintainers that may be able to help you. This is the case for
+
+        1. OS/ARCH: macOS
+        2. Containerization platform: Kubernetes (K8s)
+
+        Support for these cases is dependent on specific maintainers, and these cases are marked with `not officially supported`. All other cases are not supported and there are very likely no maintainers that can help you. These cases are marked with `unsupported`.
   - type: checkboxes
     id: miscellaneous-first-checks
     attributes:
       label: Miscellaneous first checks
-      description: Please read these carefully and check the appropriate boxes.
+      description: Please read these carefully.
       options:
         - label: I checked that all ports are open and not blocked by my ISP / hoster.
           required: true
@@ -36,7 +52,7 @@ body:
   - type: textarea
     id: when-does-it-occur
     attributes:
-      label:  When does this occur and what happened?
+      label:  What happened and when does this occur?
       description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `DMS_DEBUG=1` is set, I see no debug output.
       render: Markdown
@@ -76,24 +92,24 @@ body:
     id: main-memory
     attributes:
       label: How much RAM is available to DMS explicitly?
-      description: Please provide the amount of memory that DMS can really use. This includes physical memory (RAM), but also virtual memory (like swap or zram).  Think about all possible resource restrictions on memory here.
+      description: Please provide the amount of memory that DMS can really use. This includes physical memory (RAM), but also virtual memory (like swap or zram). Consider any resource limits you may have set that would affect this.
       options:
         - <= 1GB (very low)
-        - <= 2GB (low)
-        - <= 4GB (sufficient)
-        - \> 4GB (more than enough)
+        - <= 2GB
+        - <= 4GB
+        - more than 4GB
     validations:
       required: true
   - type: dropdown
     id: cpu-count
     attributes:
       label: How many CPU cores are available?
-      description: How many CPU cores can DMS use? Think about all possible resource restrictions on CPU cores here.
+      description: How many CPU cores can DMS use? Consider any resource limits you may have set that would affect this.
       options:
         - <= 1 Core
         - <= 2 Cores
         - <= 4 Cores
-        - \> 4 Cores
+        - more than 4 Cores
     validations:
       required: true
   - type: dropdown
@@ -129,6 +145,14 @@ body:
         - Unsupported / Other
     validations:
       required: true
+  - type: input
+    id: persistent-memory
+    attributes:
+      label: I/O - Persistent memory
+      description: As we had problems with I/O and slow disks in the past, please provide a _short_ description of the underlying persistent memory architecture. Especially the file system is of interest.
+      placeholder: Docker bind-mount from local EXT4 storage
+    validations:
+      required: true
   - type: dropdown
     id: container-orchestrator
     attributes:
@@ -145,7 +169,7 @@ body:
     id: docker-version
     attributes:
       label: Docker version
-      description: Please show us the output of `docker --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
+      description: If you're using Docker, please show us the output of `docker --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
       placeholder: Docker version 20.10.7, build f0df350
     validations:
       required: false
@@ -153,7 +177,7 @@ body:
     id: docker-compose-version
     attributes:
       label: Docker Compose version
-      description: Please show us the output of `docker-compose --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
+      description: If you're using Docker Compose, please show us the output of `docker-compose --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
       placeholder: docker-compose version 1.28.6, build 5db8d86f
     validations:
       required: false
@@ -187,7 +211,11 @@ body:
     id: experience
     attributes:
       label: What level of experience do you have with Docker and mail servers?
-      description: _You are not obliged to answer this question_. We do encourage answering though as it provides context to better assist you. Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily. For the more experienced, we can skip ahead and communicate more effectively to resolve the issue ASAP.
+      description: >
+        **You are not obliged to answer this question**.
+        We do encourage answering though as it provides context to better assist you.
+        Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
+        For the more experienced, we can skip ahead and communicate more effectively to resolve the issue ASAP.
       options:
         - I have no idea what I'm doing! [beginner]
         - I know the basics, I've used Docker before [novice]
