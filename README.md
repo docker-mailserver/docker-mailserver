@@ -154,6 +154,14 @@ You should see the new version number on startup, for example: `[ TASKLOG ]  Wel
 
 You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
 
+#### Build Your Own Docker Image
+You'll need to retrieve the git submodules prior to building your own Docker image. From within your copy of the git repo, run:
+
+``` BASH
+git submodule update --init --recursive
+docker build .
+```
+
 #### Supported Operating Systems
 
 We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mailserver in production.
