@@ -235,5 +235,5 @@ body:
           required: true
         - label: Just to make sure you're not just clicking checkboxes, please do not check this checkbox.
           required: false
-        - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) but could not find a solution
+        - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and I searched the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) but could not find a solution
           required: true
