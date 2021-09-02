@@ -257,10 +257,10 @@ function _defunc
 
 _notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
 
-[[ ${DMS_DEBUG} -eq 1 ]] && print_environment
 register_functions
 check
 setup
+[[ ${DMS_DEBUG} -eq 1 ]] && print-environment
 fix
 start_misc
 start_daemons

@@ -15,19 +15,6 @@ function escape
   echo "${1//./\\.}"
 }
 
-function print_environment
-{
-  _notify 'inf' 'Debug output enabled. Make sure no sensitive data is copied.'
-  _notify 'inf' 'BEGIN ENVIRONMENT'
-
-  for VARIABLE in "${!VARS[@]}"
-  do
-    echo "${VARIABLE}=${VARS[${VARIABLE}]}"
-  done
-
-  _notify 'inf' 'END ENVIRONMENT\n'
-}
-
 function create_lock
 {
     SCRIPT_NAME="$1"

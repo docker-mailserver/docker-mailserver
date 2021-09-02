@@ -37,7 +37,7 @@ body:
       label: Miscellaneous first checks
       description: Please read these carefully.
       options:
-        - label: I checked that all ports are open and not blocked by my ISP / hoster.
+        - label: I checked that all ports are open and not blocked by my ISP / hosting provider.
           required: true
         - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
           required: true
