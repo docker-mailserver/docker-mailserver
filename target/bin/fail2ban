@@ -3,11 +3,11 @@
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
-if ! iptables -L &>/tmp/iptables-check-command-output
+if ! IPTABLES_OUTPUT=$(iptables -L 2>&1)
 then
   echo "IPTables does not seem to work properly. The output of 'iptables -L' was:
 
-$(</tmp/iptables-check-command-output)
+${IPTABLES_OUTPUT}
 
 Possible causes for this errore are
 
