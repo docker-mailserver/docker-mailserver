@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/mailserver-behind-proxy/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.4">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.f7f47774.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1382,7 +1382,7 @@
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.7&#39;</span>
 <span class="nt">services</span><span class="p">:</span>
   <span class="nt">reverse-proxy</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">traefik:v2.4</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">traefik:latest</span>
     <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker-traefik</span>
     <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
     <span class="nt">command</span><span class="p">:</span>
@@ -1406,7 +1406,7 @@
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2&#39;</span>
 <span class="nt">services</span><span class="p">:</span>
   <span class="nt">mail</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:release-v7.2.0</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
     <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
     <span class="nt">networks</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">proxy</span>
@@ -1418,6 +1418,7 @@
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.server.port=25&quot;</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=1&quot;</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.rule=HostSNI(`*`)&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.tls=false&quot;</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.entrypoints=smtp-ssl&quot;</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.service=smtp-ssl&quot;</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.server.port=465&quot;</span>
@@ -1540,10 +1541,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.709b4209.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.febc23d1.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
       
     
   </body>
