@@ -3,6 +3,23 @@
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
+if ! iptables -L &>/tmp/iptables-check-command-output
+then
+  echo "IPTables does not seem to work properly. The output of 'iptables -L' was:
+
+$(</tmp/iptables-check-command-output)
+
+Possible causes for this errore are
+
+1. Missing capabilities
+2. Modification by user-patches.sh
+
+Aborting.
+"
+
+  exit 1
+fi
+
 function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
 unset JAILS
