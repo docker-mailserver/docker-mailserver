@@ -5,16 +5,17 @@
 
 if ! IPTABLES_OUTPUT=$(iptables -L 2>&1)
 then
-  echo "IPTables does not seem to work properly. The output of 'iptables -L' was:
+  echo "IPTables is not functioning correctly. The output of \`iptables -L\` was:
 
 ${IPTABLES_OUTPUT}
 
-Possible causes for this errore are
+Possible causes for this error are
 
-1. Missing capabilities
-2. Modification by user-patches.sh
+1. Missing capabilities (you need CAP_NET_RAW & CAP_NET_ADMIN, see \`capsh --print\`)
+2. Modifications caused by user-patches.sh
+3. Host is configured incorrectly
 
-Aborting.
+Aborting...
 "
 
   exit 1
