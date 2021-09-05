@@ -42,9 +42,6 @@ PASSWD="${*}"
 [[ -z ${FULL_EMAIL} ]] && { __usage ; errex 'No username specified' ; }
 [[ "${FULL_EMAIL}" =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
 
-# very simple plausibility check
-[[ ${FULL_EMAIL} != *@*.* ]] && errex "No valid email address: ${FULL_EMAIL}"
-
 # Protect config file with lock to avoid race conditions
 touch "${DATABASE}"
 create_lock "$(basename "$0")"
