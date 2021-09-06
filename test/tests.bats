@@ -942,13 +942,13 @@ EOF
 @test "setup.sh :: exit with error when no arguments provided" {
   run ./setup.sh
   assert_failure
-  assert_line --index 0 --partial "The commands '' is invalid."
+  assert_line --index 0 --partial "The command '' is invalid."
 }
 
 @test "setup.sh :: exit with error when wrong arguments provided" {
   run ./setup.sh lol troll
   assert_failure
-  assert_line --index 0 --partial "The commands 'lol troll' is invalid."
+  assert_line --index 0 --partial "The command 'lol troll' is invalid."
 }
 
 @test "checking setup.sh: setup.sh email add and login" {
