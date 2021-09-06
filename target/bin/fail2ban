@@ -3,6 +3,24 @@
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
+if ! IPTABLES_OUTPUT=$(iptables -L 2>&1)
+then
+  echo "IPTables is not functioning correctly. The output of \`iptables -L\` was:
+
+${IPTABLES_OUTPUT}
+
+Possible causes for this error are
+
+1. Missing capabilities (you need CAP_NET_RAW & CAP_NET_ADMIN, see \`capsh --print\`)
+2. Modifications caused by user-patches.sh
+3. Host is configured incorrectly
+
+Aborting...
+"
+
+  exit 1
+fi
+
 function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
 unset JAILS
