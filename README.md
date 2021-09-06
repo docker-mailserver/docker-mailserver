@@ -76,28 +76,17 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
 ### Get the tools
 
-Download `docker-compose.yml` and `mailserver.env`
-
 ``` BASH
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/docker-compose.yml
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/mailserver.env
-```
-
-and the `setup.sh` **in the correct version**
-
-``` BASH
-# if you're using :edge as the image tag
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-# if you're using :latest (= :10.1.1) as the image tag
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v10.1.2/setup.sh
+DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
+wget "${DMS_GITHUB_URL}/docker-compose.yml"
+wget "${DMS_GITHUB_URL}/mailserver.env"
+wget "${DMS_GITHUB_URL}/setup.sh"
 
 chmod a+x ./setup.sh
-
-# and make yourself familiar with the script
 ./setup.sh help
 ```
 
-**Make sure to get the `setup.sh` that comes with the release you're using**. Look up the release and the git commit on which this release is based upon by selecting the appropriate tag on GitHub. This can done with the "Switch branches/tags" button on GitHub, choosing the right tag. This is done in order to rule out possible inconsistencies between versions.
+**NOTE** _If you're using Docker Mailserver version `v10.1.x` or below_, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the mail server version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
 ### Create a docker-compose environment
 

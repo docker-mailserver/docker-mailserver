@@ -942,13 +942,13 @@ EOF
 @test "setup.sh :: exit with error when no arguments provided" {
   run ./setup.sh
   assert_failure
-  assert_line --index 2 "    setup.sh - docker-mailserver administration script"
+  assert_line --index 0 --partial "The commands '' is invalid."
 }
 
 @test "setup.sh :: exit with error when wrong arguments provided" {
   run ./setup.sh lol troll
   assert_failure
-  assert_line --index 2 "    setup.sh - docker-mailserver administration script"
+  assert_line --index 0 --partial "The commands 'lol troll' is invalid."
 }
 
 @test "checking setup.sh: setup.sh email add and login" {
@@ -1125,17 +1125,13 @@ EOF
 }
 
 # debug
+
 @test "checking setup.sh: setup.sh debug fetchmail" {
   run ./setup.sh -c mail debug fetchmail
-  assert_failure 11
+  assert_failure
   assert_output --partial "fetchmail: normal termination, status 11"
 }
-@test "checking setup.sh: setup.sh debug inspect" {
-  run ./setup.sh -c mail debug inspect
-  assert_success
-  assert_line --index 0 "Image: ${NAME}"
-  assert_line --index 1 "Container: mail"
-}
+
 @test "checking setup.sh: setup.sh debug login ls" {
   run ./setup.sh -c mail debug login ls
   assert_success
