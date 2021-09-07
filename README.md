@@ -76,7 +76,9 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
 ### Get the tools
 
-Since Docker Mailserver `v10.2.0`, you can run the commands you previously executed with `./setup.sh ...` directly via `docker exec <CONTAINER> setup ...` if there already is a container running. The script `setup.sh` is here for convenience, and if you're using Docker or Docker Compose, it is recommended to use `setup.sh` if you're new to Docker Mailserver.
+Since Docker Mailserver `v10.2.0`, `setup.sh` functionality is included within the Docker image. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead.
+
+> **Note:** If you're using Docker or Docker Compose and are new to Docker Mailserver, it is recommended to use the script `setup.sh` for convenience.
 
 ``` BASH
 DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
