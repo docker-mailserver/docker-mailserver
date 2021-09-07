@@ -13,11 +13,14 @@ function __err
 {
   [[ ${4} -gt 1 ]] && exit 1
 
-  printf -- "--- \e[31m\e[1mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  - script    = ${SCRIPT:-${0}}" \
-    "  - function  = ${1} / ${2}" \
-    "  - line      = ${3}" \
-    "  - exit code = ${4}" >&2
+  local ERR_MSG='--- \e[31m\e[1mUNCHECKED ERROR\e[0m'
+  ERR_MSG+="\n  - script    = ${SCRIPT:-${0}}"
+  ERR_MSG+="\n  - function  = ${1} / ${2}"
+  ERR_MSG+="\n  - line      = ${3}"
+  ERR_MSG+="\n  - exit code = ${4}"
+  ERR_MSG+='\n'
+
+  echo -e "${ERR_MSG}"
 }
 
 function _show_local_usage
@@ -94,7 +97,9 @@ function _check_root
 {
   if [[ ${EUID} -ne 0 ]]
   then
-    echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user."
+    echo "Curently, DMS doesn't support podman's rootless mode.
+Please run this script as root user."
+
     exit 1
   fi
 }
@@ -111,24 +116,6 @@ function _update_config_path
   if [[ -n ${VOLUME} ]]
   then
     CONFIG_PATH=$(echo "${VOLUME}" | awk '{print $1}')
-  fi
-}
-
-function _inspect
-{
-  if _docker_image_exists "${IMAGE_NAME}"
-  then
-    echo "Image: ${IMAGE_NAME}"
-  else
-    echo "Image: '${IMAGE_NAME}' can’t be found."
-  fi
-
-  if [[ -n ${CONTAINER_NAME} ]]
-  then
-    echo "Container: ${CONTAINER_NAME}"
-    echo "Config mount: ${CONFIG_PATH}"
-  else
-    echo "Container: Not running, please start docker-mailserver."
   fi
 }
 
@@ -158,7 +145,7 @@ function _docker_container
   then
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
   else
-    # If no container yet, run a temporary one:
+    # if no container is running, run a temporary one:
     #   https://github.com/docker-mailserver/docker-mailserver/pull/1874#issuecomment-809781531
     _docker_image "${@:+$@}"
   fi
@@ -175,7 +162,7 @@ function _main
     _check_root
   else
     echo "No supported Container Runtime Interface detected."
-    exit 10
+    exit 1
   fi
 
   INFO=$(${CRI} ps --no-trunc --format "{{.Image}};{{.Names}}" --filter \
@@ -200,33 +187,29 @@ function _main
   fi
 
   local OPTIND
-  while getopts ":c:i:p:hzZ" OPT
+  while getopts ":c:i:p:zZ" OPT
   do
     case ${OPT} in
-      i ) IMAGE_NAME="${OPTARG}" ;;
-      z ) USE_SELINUX=":z"     ;;
-      Z ) USE_SELINUX=":Z"     ;;
-      c )
-        # container specified, connect to running instance
-        CONTAINER_NAME="${OPTARG}"
-        ;;
+      ( i ) IMAGE_NAME="${OPTARG}"       ;;
+      ( z | Z ) USE_SELINUX=":${OPTARG}" ;;
+      ( c ) CONTAINER_NAME="${OPTARG}"   ;;
 
-      p )
+      ( p )
         case "${OPTARG}" in
-          /* ) WISHED_CONFIG_PATH="${OPTARG}"         ;;
-          *  ) WISHED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
+          ( /* ) WISHED_CONFIG_PATH="${OPTARG}"        ;;
+          ( *  ) WISHED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
         esac
 
         if [[ ! -d ${WISHED_CONFIG_PATH} ]]
         then
-          echo "Directory doesn't exist"
-          _usage
-          exit 40
+          echo "Specified directory '${WISHED_CONFIG_PATH}' doesn't exist" >&2
+          exit 1
         fi
         ;;
 
-      * )
+      ( * )
         echo "Invalid option: -${OPT}" >&2
+        exit 1
         ;;
 
     esac

@@ -20,7 +20,7 @@ function _usage
   printf "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
 
 ${ORANGE}NAME${RESET}
-    ${SCRIPT:-${0}} - docker-mailserver administration script
+    ${SCRIPT:-${0}} - docker-mailserver administration & configuration script
 
 ${ORANGE}SYNOPSIS${RESET}
     ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
