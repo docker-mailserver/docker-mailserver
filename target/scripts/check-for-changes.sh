@@ -30,12 +30,7 @@ fi
 
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty
-if [[ -n ${OVERRIDE_HOSTNAME} ]]
-then
-  DOMAINNAME="${OVERRIDE_HOSTNAME#*.}"
-else
-  DOMAINNAME="$(hostname -d)"
-fi
+_obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"

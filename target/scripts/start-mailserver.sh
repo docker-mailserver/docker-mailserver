@@ -67,8 +67,8 @@ VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
 export HOSTNAME DOMAINNAME CHKSUM_FILE
 
-HOSTNAME="$(hostname -f)"
-DOMAINNAME="$(hostname -d)"
+_obtain_hostname_and_domainname
+
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # ------------------------------------------------------------
