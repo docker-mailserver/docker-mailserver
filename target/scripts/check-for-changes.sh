@@ -30,13 +30,7 @@ fi
 
 # determine postmaster address
 # this script previously didn't work when POSTMASTER_ADDRESS was empty
-# used in helper-functions.sh/_monitored_files_checksums
-if [[ -n "${OVERRIDE_HOSTNAME}" ]]
-then
-  DOMAINNAME="${OVERRIDE_HOSTNAME}"
-else
-  DOMAINNAME="$(hostname)"
-fi
+_obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
