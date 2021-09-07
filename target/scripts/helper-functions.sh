@@ -222,11 +222,12 @@ function _obtain_hostname_and_domainname
       DOMAINNAME="${HOSTNAME}"
     fi
   else
+    # These hostname commands will fail with "hostname: Name or service not known" if the hostname is not real
     HOSTNAME="$(hostname -f)"
     DOMAINNAME="$(hostname -d)"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]] # Handle situations where the hostname is name.tld and hostname -d ends up just showing "tld"
+    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
     then
-      DOMAINNAME="$(hostname)"
+      DOMAINNAME="${HOSTNAME}"
     fi
   fi
 }
