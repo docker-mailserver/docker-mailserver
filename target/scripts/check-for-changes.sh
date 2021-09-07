@@ -28,6 +28,8 @@ fi
 
 # ? --------------------------------------------- Actual script begins
 
+# determine postmaster address, duplicated from start-mailserver.sh
+# this script previously didn't work when POSTMASTER_ADDRESS was empty
 _obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
