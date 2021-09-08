@@ -216,7 +216,7 @@ function _obtain_hostname_and_domainname
   if [[ -n "${OVERRIDE_HOSTNAME}" ]]
   then
     export HOSTNAME="${OVERRIDE_HOSTNAME}"
-    export DOMAINNAME="${HOSTNAME#*.}"
+    export DOMAINNAME="${DOMAINNAME:-${HOSTNAME#*.}}"
     if [[ ! "${DOMAINNAME}" =~ .*\..* ]] # Handle situations where the hostname is name.tld and hostname -d ends up just showing "tld"
     then
       DOMAINNAME="${HOSTNAME}"
@@ -224,7 +224,7 @@ function _obtain_hostname_and_domainname
   else
     # These hostname commands will fail with "hostname: Name or service not known" if the hostname is not real
     HOSTNAME="$(hostname -f)"
-    DOMAINNAME="$(hostname -d)"
+    DOMAINNAME="${DOMAINNAME:-$(hostname -d)}"
     if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
     then
       DOMAINNAME="${HOSTNAME}"

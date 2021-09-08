@@ -6,7 +6,7 @@ function setup() {
 
 function setup_file() {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_override_hostname)"
 	docker run --rm -d --name mail_override_hostname \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -17,7 +17,7 @@ function setup_file() {
 		-h unknown.domain.tld \
 		-t "${NAME}"
 
-  PRIVATE_CONFIG_TWO="$(duplicate_config_for_container .)"
+  PRIVATE_CONFIG_TWO="$(duplicate_config_for_container . mail_non_subdomain_hostname)"
 	docker run --rm -d --name mail_non_subdomain_hostname \
 		-v "${PRIVATE_CONFIG_TWO}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -28,17 +28,52 @@ function setup_file() {
     --domainname domain.com \
 		-t "${NAME}"
 
+  PRIVATE_CONFIG_THREE="$(duplicate_config_for_container . mail_srs_domainname)"
+  docker run --rm -d --name mail_srs_domainname \
+    -v "${PRIVATE_CONFIG_THREE}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e PERMIT_DOCKER=network \
+    -e DMS_DEBUG=0 \
+    -e ENABLE_SRS=1 \
+    -e SRS_DOMAINNAME=srs.my-domain.com \
+    -e DOMAINNAME=my-domain.com \
+    -h unknown.domain.tld \
+    -t "${NAME}"
+
+  PRIVATE_CONFIG_FOUR="$(duplicate_config_for_container . mail_domainname)"
+  docker run --rm -d --name mail_domainname \
+    -v "${PRIVATE_CONFIG_FOUR}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e PERMIT_DOCKER=network \
+    -e DMS_DEBUG=0 \
+    -e ENABLE_SRS=1 \
+    -e DOMAINNAME=my-domain.com \
+    -h unknown.domain.tld \
+    -t "${NAME}"
+
   wait_for_smtp_port_in_container mail_override_hostname
   
   wait_for_smtp_port_in_container mail_non_subdomain_hostname
   
+  wait_for_smtp_port_in_container mail_srs_domainname
+
+  wait_for_smtp_port_in_container mail_domainname
+
   # postfix virtual transport lmtp
   docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 }
 
 @test "first" {
-    skip 'only used to call setup_file from setup'
+  skip 'only used to call setup_file from setup'
+}
+
+@test "checking SRS: SRS_DOMAINNAME is used correctly" {
+  repeat_until_success_or_timeout 15 docker exec mail_srs_domainname grep "SRS_DOMAIN=srs.my-domain.com" /etc/default/postsrsd
+}
+
+@test "checking SRS: DOMAINNAME is handled correctly" {
+  repeat_until_success_or_timeout 15 docker exec mail_domainname grep "SRS_DOMAIN=my-domain.com" /etc/default/postsrsd
 }
 
 @test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
@@ -142,13 +177,23 @@ function setup_file() {
 # clean exit
 #
 
-@test "checking that the container stops cleanly" {
+@test "checking that the container stops cleanly: mail_override_hostname" {
   run docker stop -t 60 mail_override_hostname
   assert_success
 }
 
-@test "checking that the container stops cleanly non-subdomain" {
+@test "checking that the container stops cleanly: mail_non_subdomain_hostname" {
   run docker stop -t 60 mail_non_subdomain_hostname
+  assert_success
+}
+
+@test "checking that the container stops cleanly: mail_srs_domainname" {
+  run docker stop -t 60 mail_srs_domainname
+  assert_success
+}
+
+@test "checking that the container stops cleanly: mail_domainname" {
+  run docker stop -t 60 mail_domainname
   assert_success
 }
 
