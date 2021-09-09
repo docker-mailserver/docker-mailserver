@@ -218,7 +218,8 @@ load 'test_helper/common'
     TEST_TIMEOUT_IN_SECONDS=5 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
     [[ ${SECONDS} -lt 5 ]]
 
-    # fill the queue with a message
+    # fill the queue with two messages
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
     docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
 
     # that should still be stuck in the queue
@@ -246,6 +247,6 @@ load 'test_helper/common'
 
     # give it some time to clear the queue
     SECONDS=0
-    wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+    TEST_TIMEOUT_IN_SECONDS=30 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
     [[ ${SECONDS} -gt 0 ]]
 }
