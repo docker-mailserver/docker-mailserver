@@ -90,7 +90,7 @@ chmod a+x ./setup.sh
 ./setup.sh help
 ```
 
-Running `./setup.sh help` will also pull the `:latest` image (which is the latest stable release), if this has not been done beforehand.
+If no `docker-mailserver` container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current stable release), performing a `pull` if necessary followed by running the command in a temporary container. 
 
 **NOTE** _If you're using Docker Mailserver version `v10.1.x` or below_, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the mail server version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
