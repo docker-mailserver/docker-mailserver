@@ -94,9 +94,9 @@ body:
       label: How much RAM is available to DMS explicitly?
       description: Please provide the amount of memory that DMS can really use. This includes physical memory (RAM), but also virtual memory (like swap or zram). Consider any resource limits you may have set that would affect this.
       options:
-        - <= 1GB (very low)
-        - <= 2GB
-        - <= 4GB
+        - less than 1GB (very low)
+        - less than 2GB
+        - less than 4GB
         - more than 4GB
     validations:
       required: true
@@ -106,9 +106,9 @@ body:
       label: How many CPU cores are available?
       description: How many CPU cores can DMS use? Consider any resource limits you may have set that would affect this.
       options:
-        - <= 1 Core
-        - <= 2 Cores
-        - <= 4 Cores
+        - less than 1 Core
+        - less than 2 Cores
+        - less than 4 Cores
         - more than 4 Cores
     validations:
       required: true
@@ -142,7 +142,7 @@ body:
         - x86_64 / AMD64
         - ARM64 / ARM v8 (and newer)
         - ARM v7
-        - Unsupported / Other
+        - Other (unsupported)
     validations:
       required: true
   - type: input
@@ -233,7 +233,11 @@ body:
       options:
         - label: I have read this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree
           required: true
-        - label: Just to make sure you're not just clicking checkboxes, please do not check this checkbox.
-          required: false
         - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and I searched the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) but could not find a solution
           required: true
+  - type: textarea
+    id: form-improvements
+    attributes:
+      label: Improvements to this form?
+      description: If have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
+      render: Markdown
