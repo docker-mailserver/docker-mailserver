@@ -65,6 +65,8 @@ Root-less container is one of podman's major feature. But due to some restrictio
 - Root-less container is running in user namespace so you can't bind port under 1024.
 - Root-less container's systemd file can only pleaced in folder under `~/.config`.
 
+Also noticed that Podman's rootless mode is not about running as a non-root user inside the container, but about the mapping of (normal, non-root) host users to root inside the container.
+
 !!! warning "Warning"
     In order to make root-less mailserver work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman root mode and Docker are still good and security enough for normal daily usage.
 
