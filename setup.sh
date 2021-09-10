@@ -70,8 +70,12 @@ function _check_root
 {
   if [[ ${EUID} -ne 0 ]]
   then
-    echo "Curently docker-mailserver doesn't support podman's rootless mode, please run this script as root user."
-    exit 1
+    read -p "You are now running in the rootless mode of podman, are you sure you want to continue? (Y/N):" yn
+    case $yn in
+      [Yy]* ) ;;
+      [Nn]* ) exit 1;;
+      * ) echo "Please answer Y(es) or N(o)."; exit 1;;
+    esac
   fi
 }
 
