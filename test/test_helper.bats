@@ -198,6 +198,9 @@ load 'test_helper/common'
 }
 
 @test "wait_for_empty_mail_queue_in_container fails when timeout reached" {
+    # TODO investigate why these commands fail
+    skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/issues/2176'
+
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     # variable not local to make visible to teardown
@@ -218,16 +221,17 @@ load 'test_helper/common'
     TEST_TIMEOUT_IN_SECONDS=5 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
     [[ ${SECONDS} -lt 5 ]]
 
-    # TODO
-    # # fill the queue with two messages
-    # docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+    # fill the queue with two messages
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
 
-    # investigate why these commands fails
-    # # that should still be stuck in the queue
-    # ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+    # that should still be stuck in the queue
+    ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
 @test "wait_for_empty_mail_queue_in_container succeeds within timeout" {
+    # TODO investigate why these commands fail
+    skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/issues/2176'
+
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     # variable not local to make visible to teardown
@@ -243,13 +247,10 @@ load 'test_helper/common'
 
     wait_for_smtp_port_in_container "${CONTAINER_NAME}" || docker logs "${CONTAINER_NAME}"
 
-    # TODO
-    # # fill the queue with a message
-    # docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+    docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
 
-    # investigate why these commands fails
-    # # give it some time to clear the queue
-    # SECONDS=0
-    # TEST_TIMEOUT_IN_SECONDS=30 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
-    # [[ ${SECONDS} -gt 0 ]]
+    # give it some time to clear the queue
+    SECONDS=0
+    TEST_TIMEOUT_IN_SECONDS=30 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+    [[ ${SECONDS} -gt 0 ]]
 }
