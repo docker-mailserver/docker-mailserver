@@ -70,8 +70,8 @@ function _check_root
 {
   if [[ ${EUID} -ne 0 ]]
   then
-    read -p "You are now running in the rootless mode of podman, are you sure you want to continue? (Y/N):" yn
-    case $yn in
+    read -p "You are now running in the rootless mode of podman, are you sure you want to continue? (Y/N):" -r yn
+    case ${yn} in
       [Yy]* ) ;;
       [Nn]* ) exit 1;;
       * ) echo "Please answer Y(es) or N(o)."; exit 1;;
