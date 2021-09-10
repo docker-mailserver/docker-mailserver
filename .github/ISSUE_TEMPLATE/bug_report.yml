@@ -239,5 +239,5 @@ body:
     id: form-improvements
     attributes:
       label: Improvements to this form?
-      description: If have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
+      description: If you have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
       render: Markdown
