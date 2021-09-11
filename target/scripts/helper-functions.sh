@@ -35,6 +35,7 @@ function create_lock
     done
     # Trap premature interrupts of create_lock and remove the lock so it doesn't block
     # (useful for slow/network disks)
+    # shellcheck disable=SC2064
     trap "remove_lock ${SCRIPT_NAME} ${LOCK_ID}" INT
     echo "${LOCK_ID}" > "${LOCK_FILE}"
 }

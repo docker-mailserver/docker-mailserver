@@ -32,6 +32,7 @@ touch "${DATABASE}"
 SCRIPT_NAME="$(basename "$0")"
 LOCK_ID="${RANDOM}"
 create_lock "${SCRIPT_NAME}" "${LOCK_ID}"
+# shellcheck disable=SC2064
 trap "remove_lock ${SCRIPT_NAME} ${LOCK_ID}" EXIT
 grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
 sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"

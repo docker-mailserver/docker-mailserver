@@ -8,6 +8,7 @@ _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
 SCRIPT_NAME="$(basename "$0")"
 LOCK_ID="${RANDOM}" # Required for create_lock uniqueness and cleanup
+# shellcheck disable=SC2064
 trap "remove_lock ${SCRIPT_NAME} ${LOCK_ID}" EXIT
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– Checks

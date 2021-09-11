@@ -36,6 +36,7 @@ fi
 SCRIPT_NAME="$(basename "$0")"
 LOCK_ID="${RANDOM}"
 create_lock "${SCRIPT_NAME}" "${LOCK_ID}"
+# shellcheck disable=SC2064
 trap "remove_lock ${SCRIPT_NAME} ${LOCK_ID}" EXIT
 
 touch "${DATABASE}"
