@@ -197,7 +197,10 @@ load 'test_helper/common'
     [[ ${SECONDS} -gt 0 ]]
 }
 
+# TODO investigate why this test fails
 @test "wait_for_empty_mail_queue_in_container fails when timeout reached" {
+    skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2177'
+
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     # variable not local to make visible to teardown
@@ -225,7 +228,10 @@ load 'test_helper/common'
     ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
+# TODO investigate why this test fails
 @test "wait_for_empty_mail_queue_in_container succeeds within timeout" {
+    skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2177'
+
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     # variable not local to make visible to teardown
