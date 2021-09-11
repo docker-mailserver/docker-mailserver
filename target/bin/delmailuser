@@ -111,7 +111,7 @@ do
   then
     # delete all aliases where the user is the only recipient( " ${EMAIL}" )
     # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
-    if sedfile -i \
+    if sed -i \
       -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
       "${ALIAS_DATABASE}"
     then
