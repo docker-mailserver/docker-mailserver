@@ -3057,7 +3057,7 @@
 <h5 id="override_hostname"><a class="toclink" href="#override_hostname">OVERRIDE_HOSTNAME</a></h5>
 <ul>
 <li>empty =&gt; uses the <code>hostname</code> command to get the mail server's canonical hostname.</li>
-<li>=&gt; Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.</li>
+<li>=&gt; Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's <code>hostname:</code> and <code>domainname:</code> values.</li>
 </ul>
 <h5 id="dms_debug"><a class="toclink" href="#dms_debug">DMS_DEBUG</a></h5>
 <ul>
