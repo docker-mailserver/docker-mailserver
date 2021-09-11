@@ -13,12 +13,6 @@ function _check_hostname
 {
   _notify 'task' 'Checking that hostname/domainname is provided or overridden'
 
-  if [[ -n ${OVERRIDE_HOSTNAME} ]]
-  then
-    export HOSTNAME=${OVERRIDE_HOSTNAME}
-    export DOMAINNAME="${HOSTNAME#*.}"
-  fi
-
   _notify 'inf' "Domain has been set to ${DOMAINNAME}"
   _notify 'inf' "Hostname has been set to ${HOSTNAME}"
 
