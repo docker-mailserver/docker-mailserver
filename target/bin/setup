@@ -138,9 +138,9 @@ function _main
 
     relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; addrelayhost "${@:+$@}" ;;
-        add-auth       ) shift 2 ; addsaslpassword "${@:+$@}" ;;
-        exclude-domain ) shift 2 ; excluderelaydomain "${@:+$@}" ;;
+        add-domain     ) shift 2 ; addrelayhost "${@}" ;;
+        add-auth       ) shift 2 ; addsaslpassword "${@}" ;;
+        exclude-domain ) shift 2 ; excluderelaydomain "${@}" ;;
         *              ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
