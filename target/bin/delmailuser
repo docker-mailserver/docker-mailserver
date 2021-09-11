@@ -100,7 +100,7 @@ do
 
   if [[ -f ${DATABASE} ]]
   then
-    if ! sed -i "/^${EMAIL}|/d" "${DATABASE}"
+    if ! sedfile -i "/^${EMAIL}|/d" "${DATABASE}"
     then
       echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
       ERROR=true
@@ -111,7 +111,7 @@ do
   then
     # delete all aliases where the user is the only recipient( " ${EMAIL}" )
     # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
-    if sed -i \
+    if sedfile -i \
       -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
       "${ALIAS_DATABASE}"
     then
@@ -125,7 +125,7 @@ do
   # remove quota directives
   if [[ -f ${QUOTA_DATABASE} ]]
   then
-    if ! sed -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
+    if ! sedfile -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
     then
       echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
     fi
