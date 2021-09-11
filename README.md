@@ -88,8 +88,8 @@ and the `setup.sh` **in the correct version**
 ``` BASH
 # if you're using :edge as the image tag
 wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-# if you're using :latest (= :10.1.0) as the image tag
-wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v10.1.0/setup.sh
+# if you're using :latest (= :10.1.1) as the image tag
+wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/v10.1.2/setup.sh
 
 chmod a+x ./setup.sh
 
@@ -140,13 +140,17 @@ When keys are generated, you can configure your DNS server by just pasting the c
 
 If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/) for a detailed explanation.
 
-#### Updating `docker-mailserver`
+#### Update `docker-mailserver`
+
+Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md) before, to be prepared for possible breaking changes.
 
 ``` BASH
 docker-compose pull
 docker-compose down
 docker-compose up -d mailserver
 ```
+
+You should see the new version number on startup, for example: `[ TASKLOG ]  Welcome to docker-mailserver 10.1.2`.
 
 You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
 

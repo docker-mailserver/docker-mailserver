@@ -42,7 +42,7 @@ VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-daily}}"
 VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
 VARS[MOVE_SPAM_TO_JUNK]="${MOVE_SPAM_TO_JUNK:=1}"
 VARS[NETWORK_INTERFACE]="${NETWORK_INTERFACE:=eth0}"
-VARS[ONE_DIR]="${ONE_DIR:=0}"
+VARS[ONE_DIR]="${ONE_DIR:=1}"
 VARS[OVERRIDE_HOSTNAME]="${OVERRIDE_HOSTNAME}"
 VARS[POSTGREY_AUTO_WHITELIST_CLIENTS]="${POSTGREY_AUTO_WHITELIST_CLIENTS:=5}"
 VARS[POSTGREY_DELAY]="${POSTGREY_DELAY:=300}"
@@ -256,12 +256,11 @@ function _defunc
 # ------------------------------------------------------------
 
 _notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
-_notify 'inf' 'ENVIRONMENT'
-[[ ${DMS_DEBUG} -eq 1 ]] && printenv
 
 register_functions
 check
 setup
+[[ ${DMS_DEBUG} -eq 1 ]] && print-environment
 fix
 start_misc
 start_daemons

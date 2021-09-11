@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/dock
 
 ENV ENABLE_POSTGREY=0
 ENV FETCHMAIL_POLL=300
-ENV ONE_DIR=0
+ENV ONE_DIR=1
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300
 ENV POSTGREY_MAX_AGE=35
@@ -84,6 +84,17 @@ RUN \
   c_rehash 2>&1
 
 # -----------------------------------------------
+# --- Scripts -----------------------------------
+# -----------------------------------------------
+
+COPY \
+  ./target/bin/* \
+  ./target/scripts/*.sh \
+  ./target/scripts/startup/*.sh \
+  ./target/docker-configomat/configomat.sh \
+  /usr/local/bin/
+
+# -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
 # -----------------------------------------------
 
@@ -91,7 +102,7 @@ RUN \
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
   freshclam && \
-  sed -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
+  sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
   mkdir /var/run/clamav && \
   chown -R clamav:root /var/run/clamav && \
   rm -rf /var/log/clamav/
@@ -108,17 +119,12 @@ WORKDIR /usr/share/dovecot
 
 # hadolint ignore=SC2016,SC2086,SC2069
 RUN \
-  sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf && \
-  sed -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf && \
-  sed -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
-  sed -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
-  sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf && \
-  sed -i 's/#imap_idle_notify_interval = 2 mins/imap_idle_notify_interval = 29 mins/' /etc/dovecot/conf.d/20-imap.conf && \
-  # adapt mkcert for Dovecot community repo
-  sed -i 's/CERTDIR=.*/CERTDIR=\/etc\/dovecot\/ssl/g' /usr/share/dovecot/mkcert.sh && \
-  sed -i 's/KEYDIR=.*/KEYDIR=\/etc\/dovecot\/ssl/g' /usr/share/dovecot/mkcert.sh && \
-  sed -i 's/KEYFILE=.*/KEYFILE=\$KEYDIR\/dovecot.key/g' /usr/share/dovecot/mkcert.sh && \
-  sed -i 's/RANDFILE.*//g' /usr/share/dovecot/dovecot-openssl.cnf && \
+  sedfile -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf && \
+  sedfile -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf && \
+  sedfile -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
+  sedfile -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
+  sedfile -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf && \
+  sedfile -i 's/RANDFILE.*//g' /usr/share/dovecot/dovecot-openssl.cnf && \
   mkdir /etc/dovecot/ssl && \
   chmod 755 /etc/dovecot/ssl && \
   ./mkcert.sh 2>&1 && \
@@ -140,19 +146,12 @@ COPY \
 
 # hadolint ignore=SC2016
 RUN \
-  sed -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
-  sed -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
+  sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
+  sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
 # -----------------------------------------------
-# --- Scripts & Miscellaneous -------------------
+# --- Miscellaneous -----------------------------
 # -----------------------------------------------
-
-COPY \
-  ./target/bin/* \
-  ./target/scripts/*.sh \
-  ./target/scripts/startup/*.sh \
-  ./target/docker-configomat/configomat.sh \
-  /usr/local/bin/
 
 COPY \
   ./VERSION /
@@ -182,7 +181,7 @@ RUN \
 
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN \
-  sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
+  sedfile -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
   adduser clamav amavis && \
   adduser amavis clamav && \
   # no syslog user in Debian compared to Ubuntu
@@ -235,7 +234,7 @@ COPY \
 
 RUN \
   : >/etc/aliases && \
-  sed -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail && \
+  sedfile -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail && \
   mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail && \
   curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem >/etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
 
@@ -244,30 +243,30 @@ RUN \
 # -----------------------------------------------
 
 RUN \
-  sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
+  sedfile -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf && \
   mkdir -p /var/log/mail && \
   chown syslog:root /var/log/mail && \
   touch /var/log/mail/clamav.log && \
   chown -R clamav:root /var/log/mail/clamav.log && \
   touch /var/log/mail/freshclam.log && \
   chown -R clamav:root /var/log/mail/freshclam.log && \
-  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.conf && \
-  sed -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.conf && \
-  sed -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf && \
-  sed -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf && \
-  sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon && \
-  sed -i -r 's|invoke-rc.d.*|/usr/bin/supervisorctl signal hup clamav >/dev/null \|\| true|g' /etc/logrotate.d/clamav-daemon && \
-  sed -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-freshclam && \
-  sed -i -r '/postrotate/,/endscript/d' /etc/logrotate.d/clamav-freshclam && \
-  sed -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog && \
-  sed -i -r '/\/var\/log\/mail\/mail.log/d' /etc/logrotate.d/rsyslog && \
+  sedfile -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/rsyslog.conf && \
+  sedfile -i -r 's|;auth,authpriv.none|;mail.none;mail.error;auth,authpriv.none|g' /etc/rsyslog.conf && \
+  sedfile -i -r 's|LogFile /var/log/clamav/|LogFile /var/log/mail/|g' /etc/clamav/clamd.conf && \
+  sedfile -i -r 's|UpdateLogFile /var/log/clamav/|UpdateLogFile /var/log/mail/|g' /etc/clamav/freshclam.conf && \
+  sedfile -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-daemon && \
+  sedfile -i -r 's|invoke-rc.d.*|/usr/bin/supervisorctl signal hup clamav >/dev/null \|\| true|g' /etc/logrotate.d/clamav-daemon && \
+  sedfile -i -r 's|/var/log/clamav|/var/log/mail|g' /etc/logrotate.d/clamav-freshclam && \
+  sedfile -i -r '/postrotate/,/endscript/d' /etc/logrotate.d/clamav-freshclam && \
+  sedfile -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog && \
+  sedfile -i -r '/\/var\/log\/mail\/mail.log/d' /etc/logrotate.d/rsyslog && \
   # prevent syslog logrotate warnings
-  sed -i -e 's/\(printerror "could not determine current runlevel"\)/#\1/' /usr/sbin/invoke-rc.d && \
-  sed -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d && \
+  sedfile -i -e 's/\(printerror "could not determine current runlevel"\)/#\1/' /usr/sbin/invoke-rc.d && \
+  sedfile -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d && \
   # prevent syslog warning about imklog permissions
-  sed -i -e 's/^module(load=\"imklog\")/#module(load=\"imklog\")/' /etc/rsyslog.conf && \
+  sedfile -i -e 's/^module(load=\"imklog\")/#module(load=\"imklog\")/' /etc/rsyslog.conf && \
   # prevent email when /sbin/init or init system is not existing
-  sed -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
+  sedfile -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
 
 # -----------------------------------------------
 # --- Logwatch ----------------------------------
