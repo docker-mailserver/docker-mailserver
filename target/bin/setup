@@ -131,7 +131,7 @@ function _main
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; open-dkim "${@:+$@}" ;;
+        dkim     ) shift 2 ; open-dkim "${@}" ;;
         *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
