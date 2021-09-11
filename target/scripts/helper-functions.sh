@@ -209,6 +209,31 @@ function _monitored_files_checksums
 }
 export -f _monitored_files_checksums
 
+# ? --------------------------------------------- General
+
+function _obtain_hostname_and_domainname
+{
+  if [[ -n "${OVERRIDE_HOSTNAME}" ]]
+  then
+    export HOSTNAME="${OVERRIDE_HOSTNAME}"
+    export DOMAINNAME="${DOMAINNAME:-${HOSTNAME#*.}}"
+    # Handle situations where the hostname is name.tld and hostname -d ends up just showing "tld"
+    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
+    then
+      DOMAINNAME="${HOSTNAME}"
+    fi
+  else
+    # These hostname commands will fail with "hostname: Name or service not known"
+    # if the hostname is not valid (important for tests)
+    HOSTNAME="$(hostname -f)"
+    DOMAINNAME="${DOMAINNAME:-$(hostname -d)}"
+    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
+    then
+      DOMAINNAME="${HOSTNAME}"
+    fi
+  fi
+}
+
 function _shutdown
 {
   _notify 'err' "Shutting down.."

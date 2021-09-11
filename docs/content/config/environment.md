@@ -11,7 +11,7 @@ title: Environment Variables
 ##### OVERRIDE_HOSTNAME
 
 - empty => uses the `hostname` command to get the mail server's canonical hostname.
-- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.
+- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's `hostname:` and `domainname:` values.
 
 ##### DMS_DEBUG
 
