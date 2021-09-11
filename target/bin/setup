@@ -148,7 +148,7 @@ function _main
     debug )
       case ${2:-} in
         fetchmail      ) debug-fetchmail ;;
-        fail2ban       ) shift 2 ; fail2ban "${@:+$@}" ;;
+        fail2ban       ) shift 2 ; fail2ban "${@}" ;;
         show-mail-logs ) cat /var/log/mail/mail.log ;;
         login          )
           shift 2
