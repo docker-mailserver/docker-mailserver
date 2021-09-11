@@ -168,4 +168,4 @@ function _main
   esac
 }
 
-_main "${@:+$@}"
+_main "${@}"
