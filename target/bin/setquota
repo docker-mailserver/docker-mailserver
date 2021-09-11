@@ -33,7 +33,10 @@ then
 fi
 
 # Protect config file with lock to avoid race conditions
-create_lock "$(basename "$0")"
+SCRIPT_NAME="$(basename "$0")"
+LOCK_ID="${RANDOM}"
+create_lock "${SCRIPT_NAME}" "${LOCK_ID}"
+trap "remove_lock ${SCRIPT_NAME} ${LOCK_ID}" EXIT
 
 touch "${DATABASE}"
 if [ -z "${QUOTA}" ]; then
