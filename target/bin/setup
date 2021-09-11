@@ -123,8 +123,8 @@ function _main
 
     quota )
       case ${2:-} in
-        set      ) shift 2 ; setquota "${@:+$@}" ;;
-        del      ) shift 2 ; delquota "${@:+$@}" ;;
+        set      ) shift 2 ; setquota "${@}" ;;
+        del      ) shift 2 ; delquota "${@}" ;;
         *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
