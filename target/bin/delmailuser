@@ -91,9 +91,6 @@ for EMAIL in "${@}"
 do
   ERROR=false
 
-  # very simple plausibility check
-  [[ ${EMAIL} != *@*.* ]] && errex "No valid email address: ${EMAIL}"
-
   USER="${EMAIL%@*}"
   DOMAIN="${EMAIL#*@}"
 
