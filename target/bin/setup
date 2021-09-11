@@ -156,7 +156,7 @@ function _main
           then
             /bin/bash
           else
-            /bin/bash -c "${@:+$@}"
+            /bin/bash -c "${@}"
           fi
           ;;
         * ) _invalid_command "${1}" "${2}" ;;
