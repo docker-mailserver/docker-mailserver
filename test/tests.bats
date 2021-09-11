@@ -929,8 +929,9 @@ EOF
   assert_output 1
 }
 
-
+# TODO investigate why these commands fail
 @test "checking user login: predefined user can login" {
+  skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/issues/2176'
   run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \\a \`p^a.*ssword' | grep 'passdb'"
   assert_output "passdb: pass@localhost.localdomain auth succeeded"
 }
