@@ -1,18 +1,17 @@
 #! /bin/bash
 
+# shellcheck source=./helper-functions.sh
+. /usr/local/bin/helper-functions.sh
+
 function _generate_secret { ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "${1}" ; ) ; }
 
-if [[ -n ${SRS_DOMAINNAME} ]]
+_obtain_hostname_and_domainname
+
+if [[ -n "${SRS_DOMAINNAME}" ]]
 then
   NEW_DOMAIN_NAME="${SRS_DOMAINNAME}"
-elif [[ -n ${OVERRIDE_HOSTNAME} ]]
-then
-  NEW_DOMAIN_NAME="${OVERRIDE_HOSTNAME#*.}"
-elif [[ -n ${DOMAINNAME} ]]
-then
-  NEW_DOMAIN_NAME="${DOMAINNAME}"
 else
-  NEW_DOMAIN_NAME=$(hostname -d)
+  NEW_DOMAIN_NAME="${DOMAINNAME}"
 fi
 
 sed -i -e "s/localdomain/${NEW_DOMAIN_NAME}/g" /etc/default/postsrsd
