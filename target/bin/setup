@@ -103,10 +103,10 @@ function _main
 
     email )
       case ${2:-} in
-        add      ) shift 2 ; addmailuser "${@:+$@}" ;;
-        update   ) shift 2 ; updatemailuser "${@:+$@}" ;;
-        del      ) shift 2 ; delmailuser "${@:+$@}" ;;
-        restrict ) shift 2 ; restrict-access "${@:+$@}" ;;
+        add      ) shift 2 ; addmailuser "${@}" ;;
+        update   ) shift 2 ; updatemailuser "${@}" ;;
+        del      ) shift 2 ; delmailuser "${@}" ;;
+        restrict ) shift 2 ; restrict-access "${@}" ;;
         list     ) listmailuser ;;
         *        ) _invalid_command "${1}" "${2}" ;;
       esac
