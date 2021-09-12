@@ -29,7 +29,7 @@ HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 # Protect config file with lock to avoid race conditions
 touch "${DATABASE}"
-LOCK_ID="${RANDOM}"
+LOCK_ID="$(uuid)"
 create_lock
 grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
 sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"

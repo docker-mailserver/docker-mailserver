@@ -26,7 +26,7 @@ fi
 
 # ? --------------------------------------------- Actual script begins
 
-LOCK_ID="${RANDOM}" # Required for create_lock uniqueness and cleanup
+LOCK_ID="$(uuid)" # Required for create_lock uniqueness and cleanup
 
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty

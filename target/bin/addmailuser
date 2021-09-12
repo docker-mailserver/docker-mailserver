@@ -44,7 +44,7 @@ PASSWD="${*}"
 
 touch "${DATABASE}"
 # Protect config file with lock to avoid race conditions
-LOCK_ID="${RANDOM}"
+LOCK_ID="$(uuid)"
 create_lock
 if grep -qi "^$(escape "${FULL_EMAIL}")|" "${DATABASE}"
 then
