@@ -16,7 +16,7 @@ Podman is a daemonless container engine for developing, managing, and running OC
 
     This guide only tested under Fedora 34 with systemd and firewalld. Also it require podman version >= 3.2.
 
-## Root Mode
+## Rootfull Mode
 
 while using podman, you can just manage docker-mailserver as what you did with docker. Your best friend setup.sh include the minimum code in order to support podman since it's 100% compatible with Docker CLI.
 
@@ -26,13 +26,13 @@ And for the installation is also basically the same. Podman v3.2 introduced a RE
 
 Install podman and docker-compose with your package manager first.
 
-```
+```bash
 sudo dnf install podman docker-compose
 ```
 
-Them enable `podman.socket` using systemctl.
+Then enable `podman.socket` using systemctl.
 
-```
+```bash
 systemctl enable --now podman.socket
 ```
 
@@ -40,7 +40,7 @@ This will create a unix socket locate under `/run/podman/podman.sock`, which is 
 
 Then setup your `mailserver.env` file follow the document and use docker-compose to boot up the container.
 
-```
+```bash
 export DOCKER_HOST="unix:/run/podman/podman.sock" # Specify API location.
 docker-compose up -d mailserver
 docker-compose ps
@@ -52,29 +52,29 @@ You should see that docker-mailserver is running now.
 
 podman is daemonless, that means if you want docker-mailserver self-start while boot up the system, you have to generate a systemd file with podman CLI.
 
-```
+```bash
 podman generate systemd mailserver > /etc/systemd/system/mailserver.service
 systemctl daemon-reload
 systemctl enable --now mailserver.service
 ```
 
-## Root-less Mode
+## Rootless Mode
 
-Root-less container is one of podman's major feature. But due to some restrictions, deploying docker-mailserver in root-less mode is not as easy as root mode.
+Rootless container is one of podman's major feature. But due to some restrictions, deploying docker-mailserver in rootless mode is not as easy as rootfull mode.
 
-- Root-less container is running in user namespace so you can't bind port under 1024.
-- Root-less container's systemd file can only pleaced in folder under `~/.config`.
+- Rootless container is running in user namespace so you can't bind port under 1024.
+- Rootless container's systemd file can only pleaced in folder under `~/.config`.
 
 Also noticed that Podman's rootless mode is not about running as a non-root user inside the container, but about the mapping of (normal, non-root) host users to root inside the container.
 
 !!! warning "Warning"
-    In order to make root-less mailserver work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman root mode and Docker are still good and security enough for normal daily usage.
+    In order to make rootless mailserver work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.
 
-### Installnation
+### Installation
 
 First, enable `podman.socket` in systemd's userspace with a non-root user.
 
-```
+```bash
 systemctl enable --now --user podman.socket
 ```
 
@@ -82,7 +82,7 @@ The socket file should locate at `/var/run/user/<uid>/podman/podman.sock`, in th
 
 Then modify `docker-compose.yml` file to make sure all ports are binding on non-privilege port.
 
-```
+```yaml
 services:
   mailserver:
     ports:
@@ -95,7 +95,7 @@ services:
 
 Then setup your `mailserver.env` file follow the document and use docker-compose to boot up the container.
 
-```
+```bash
 export DOCKER_HOST="unix:/var/run/user/1000/podman/podman.sock" # Specify API location.
 docker-compose up -d mailserver
 docker-compose ps
@@ -105,8 +105,20 @@ docker-compose ps
 
 About how to forward port using firewalld, see [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld) for more infomation.
 
-```
+```bash
 firewall-cmd --permanent --add-forward-port=port=<25|143|465|587|993>:proto=<tcp>:toport=<10025|10143|10465|10587|10993>
+...
+# After you set all ports up.
+firewall-cmd --reload
+```
+
+Noticed this will only open the access to the external client. If you want to access privilege port in your server, do this:
+
+```bash
+firewall-cmd --permanent --direct --add-rule <ipv4|ipv6> nat OUTPUT 0 -p <tcp|udp> -o lo --dport <25|143|465|587|993> -j REDIRECT --to-ports <10025|10143|10465|10587|10993>
+...
+# After you set all ports up.
+firewall-cmd --reload
 ```
 
 Just map all the privilege port with non-privilege port you set in docker-compose.yml before as root user.
@@ -115,7 +127,7 @@ Just map all the privilege port with non-privilege port you set in docker-compos
 
 Generate systemd file with podman CLI.
 
-```
+```bash
 podman generate systemd mailserver > ~/.config/systemd/user/mailserver.service
 systemctl --user daemon-reload
 systemctl enable --user --now mailserver.service
@@ -123,7 +135,7 @@ systemctl enable --user --now mailserver.service
 
 Systemd user space service is only started when a specific user logs in and stops when you log out. In order to make it to start with the system, we need to enable linger with `loginctl`
 
-```
+```bash
 loginctl enable-linger <username>
 ```
 
