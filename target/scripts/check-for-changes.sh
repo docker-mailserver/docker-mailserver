@@ -6,10 +6,8 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
-SCRIPT_NAME="$(basename "$0")"
 LOCK_ID="${RANDOM}" # Required for create_lock uniqueness and cleanup
-# shellcheck disable=SC2064
-trap "remove_lock ${SCRIPT_NAME} ${LOCK_ID}" EXIT
+trap remove_lock EXIT
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
 
@@ -54,7 +52,7 @@ do
   then
     _notify 'inf' "${LOG_DATE} Change detected"
     # Lock configuration while working
-    create_lock "${SCRIPT_NAME}" "${LOCK_ID}"
+    create_lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # Bug alert! This overwrites the alias set by start-mailserver.sh
@@ -230,7 +228,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
     # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
-    remove_lock "${SCRIPT_NAME}" "${LOCK_ID}"
+    remove_lock
   fi
 
   # mark changes as applied
