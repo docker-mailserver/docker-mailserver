@@ -1,8 +1,8 @@
 #! /bin/bash
 
 DMS_DEBUG="${DMS_DEBUG:=0}"
-SCRIPT_NAME="$(basename "$0")"
-LOCK_ID="$(uuid)" # Required for create_lock uniqueness and cleanup
+SCRIPT_NAME="$(basename "$0")" # This becomes the sourcing script name (Example: check-for-changes.sh)
+LOCK_ID="$(uuid)" # Used inside of lock files to identify them and prevent removal by other instances of docker-mailserver
 
 # ? --------------------------------------------- BIN HELPER
 
