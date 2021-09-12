@@ -156,5 +156,5 @@ nav:
     - 'Coding Style': contributing/coding-style.md
     - 'Tests': contributing/tests.md
     - 'Documentation': contributing/documentation.md
-  - 'DockerHub': https://hub.docker.com/repository/docker/mailserver/docker-mailserver
-  - 'GHCR': https://github.com/orgs/docker-mailserver/packages/container/package/docker-mailserver
+  - 'DockerHub': https://hub.docker.com/r/mailserver/docker-mailserver/
+  - 'GHCR': https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
