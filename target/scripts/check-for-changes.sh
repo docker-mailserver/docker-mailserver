@@ -26,8 +26,6 @@ fi
 
 # ? --------------------------------------------- Actual script begins
 
-LOCK_ID="$(uuid)" # Required for create_lock uniqueness and cleanup
-
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty
 _obtain_hostname_and_domainname
@@ -50,8 +48,7 @@ do
   if [ $? -eq 1 ]
   then
     _notify 'inf' "${LOG_DATE} Change detected"
-    # Lock configuration while working
-    create_lock
+    create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # Bug alert! This overwrites the alias set by start-mailserver.sh

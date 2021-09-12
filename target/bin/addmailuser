@@ -43,9 +43,7 @@ PASSWD="${*}"
 [[ "${FULL_EMAIL}" =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
 
 touch "${DATABASE}"
-# Protect config file with lock to avoid race conditions
-LOCK_ID="$(uuid)"
-create_lock
+create_lock # Protect config file with lock to avoid race conditions
 if grep -qi "^$(escape "${FULL_EMAIL}")|" "${DATABASE}"
 then
   echo "User '${FULL_EMAIL}' already exists."

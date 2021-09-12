@@ -2,6 +2,7 @@
 
 DMS_DEBUG="${DMS_DEBUG:=0}"
 SCRIPT_NAME="$(basename "$0")"
+LOCK_ID="$(uuid)" # Required for create_lock uniqueness and cleanup
 
 # ? --------------------------------------------- BIN HELPER
 

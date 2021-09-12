@@ -32,9 +32,7 @@ then
   errex "invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))"
 fi
 
-# Protect config file with lock to avoid race conditions
-LOCK_ID="$(uuid)"
-create_lock
+create_lock # Protect config file with lock to avoid race conditions
 
 touch "${DATABASE}"
 if [ -z "${QUOTA}" ]; then
