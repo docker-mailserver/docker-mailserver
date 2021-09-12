@@ -89,7 +89,6 @@ fi
 # Protect config file with lock to avoid race conditions
 LOCK_ID="${RANDOM}"
 create_lock
-trap remove_lock EXIT
 
 for EMAIL in "${@}"
 do

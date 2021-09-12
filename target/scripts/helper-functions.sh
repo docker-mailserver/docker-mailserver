@@ -19,7 +19,6 @@ function escape
 function create_lock
 {
     LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
-    LOCK_ID="${LOCK_ID:-$1}"
     while [[ -e "${LOCK_FILE}" ]]
     do
       _notify 'warn' "Lock file ${LOCK_FILE} exists. Another ${SCRIPT_NAME} execution is happening. Trying again shortly..."
@@ -36,14 +35,13 @@ function create_lock
     # Trap premature interrupts of create_lock and remove the lock so it doesn't block
     # (useful for slow/network disks)
     # shellcheck disable=SC2064
-    trap "remove_lock ${LOCK_ID}" INT
+    trap remove_lock EXIT
     echo "${LOCK_ID}" > "${LOCK_FILE}"
 }
 
 function remove_lock
 {
   LOCK_FILE="${LOCK_FILE:-"/tmp/docker-mailserver/${SCRIPT_NAME}.lock"}"
-  LOCK_ID="${LOCK_ID:-$1}"
   [[ -z "${LOCK_ID}" ]] && errex "Cannot remove ${LOCK_FILE} as there is no LOCK_ID set"
   if [[ -e "${LOCK_FILE}" && $(grep -c "${LOCK_ID}" "${LOCK_FILE}") -gt 0 ]] # Ensure we don't delete a lock that's not ours
   then

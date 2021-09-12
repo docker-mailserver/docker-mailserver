@@ -6,9 +6,6 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
-LOCK_ID="${RANDOM}" # Required for create_lock uniqueness and cleanup
-trap remove_lock EXIT
-
 # ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
 
 cd /tmp/docker-mailserver || exit 1
@@ -28,6 +25,8 @@ then
 fi
 
 # ? --------------------------------------------- Actual script begins
+
+LOCK_ID="${RANDOM}" # Required for create_lock uniqueness and cleanup
 
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty

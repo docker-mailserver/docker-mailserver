@@ -31,6 +31,5 @@ HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 touch "${DATABASE}"
 LOCK_ID="${RANDOM}"
 create_lock
-trap remove_lock EXIT
 grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
 sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"
