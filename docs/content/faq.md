@@ -87,7 +87,9 @@ find /backup/mail -type f -mtime +30 -delete
 
 ### What is the `mail-state` folder for?
 
-When you run `docker-mailserver` with the ENV var `ONE_DIR=1` (_default since v10.2_), this folder will store the data from internal services so that you can more easily persist state.
+When you run `docker-mailserver` with the ENV var `ONE_DIR=1` (_default since v10.2_), this folder will store the data from internal services so that you can more easily persist state to disk (via `volumes`).
+
+This has the advantage of fail2ban blocks, ClamAV anti-virus updates and the like being kept across restarts for example.
 
 Service data is [relocated to the `mail-state` folder][mail-state-folders] for services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.
 
