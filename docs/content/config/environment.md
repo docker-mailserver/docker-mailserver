@@ -716,4 +716,4 @@ you to replace both instead of just the envelope sender.
 - **empty** => no default
 - password for default relay user
 
-[docs-faq-onedir]: ../faq.md#what-about-mail-state-folder
+[docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for
