@@ -61,7 +61,7 @@ RUN \
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip whois xz-utils && \
+  unrar-free unzip uuid whois xz-utils && \
   # Fail2Ban
   gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
     --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} 2>&1 && \
