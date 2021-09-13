@@ -39,5 +39,5 @@ function teardown_file() {
 }
 
 @test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
+    skip 'this test is only there to reliably mark the end for the teardown_file'
 }
