@@ -26,7 +26,7 @@ function teardown_file() {
 }
 
 @test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
+    skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 @test "check helper-functions.sh: _sanitize_ipv4_to_subnet_cidr" {
