@@ -33,8 +33,8 @@ The log-level will show everything in its class and above.
 
 ##### ONE_DIR
 
-- **0** => state in default directories.
-- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes.
+- 0 => state in default directories.
+- **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
 
 ##### PERMIT_DOCKER
 
@@ -715,3 +715,5 @@ you to replace both instead of just the envelope sender.
 
 - **empty** => no default
 - password for default relay user
+
+[docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for

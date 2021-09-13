@@ -1,6 +1,8 @@
 #! /bin/bash
 
 DMS_DEBUG="${DMS_DEBUG:=0}"
+SCRIPT_NAME="$(basename "$0")" # This becomes the sourcing script name (Example: check-for-changes.sh)
+LOCK_ID="$(uuid)" # Used inside of lock files to identify them and prevent removal by other instances of docker-mailserver
 
 # ? --------------------------------------------- BIN HELPER
 
@@ -17,17 +19,33 @@ function escape
 
 function create_lock
 {
-    SCRIPT_NAME="$1"
-    LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
-    [[ -e "${LOCK_FILE}" ]] && errex "Lock file ${LOCK_FILE} exists. Another $1 execution is happening. Try again later."
-    trap remove_lock EXIT # This won't work if the script is, for example, check-for-changes.sh which uses a while loop to stay running; you'll need to include a remove_lock call at the end of your logic
-    touch "${LOCK_FILE}"
+  LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
+  while [[ -e "${LOCK_FILE}" ]]
+  do
+    _notify 'warn' "Lock file ${LOCK_FILE} exists. Another ${SCRIPT_NAME} execution is happening. Trying again shortly..."
+    # Handle stale lock files left behind on crashes
+    # or premature/non-graceful exits of containers while they're making changes
+    if [[ -n "$(find "${LOCK_FILE}" -mmin +1 2>/dev/null)" ]]
+    then
+      _notify 'warn' "Lock file older than 1 minute. Removing stale lock file."
+      rm -f "${LOCK_FILE}"
+      _notify 'inf' "Removed stale lock ${LOCK_FILE}."
+    fi
+    sleep 5
+  done
+  trap remove_lock EXIT
+  echo "${LOCK_ID}" > "${LOCK_FILE}"
 }
 
 function remove_lock
 {
-  SCRIPT_NAME=${SCRIPT_NAME:-$1}
-  rm -f "/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
+  LOCK_FILE="${LOCK_FILE:-"/tmp/docker-mailserver/${SCRIPT_NAME}.lock"}"
+  [[ -z "${LOCK_ID}" ]] && errex "Cannot remove ${LOCK_FILE} as there is no LOCK_ID set"
+  if [[ -e "${LOCK_FILE}" && $(grep -c "${LOCK_ID}" "${LOCK_FILE}") -gt 0 ]] # Ensure we don't delete a lock that's not ours
+  then
+    rm -f "${LOCK_FILE}"
+    _notify 'inf' "Removed lock ${LOCK_FILE}."
+  fi
 }
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– IP & CIDR

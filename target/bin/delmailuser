@@ -86,7 +86,8 @@ then
   fi
 fi
 
-create_lock "$(basename "$0")"
+create_lock # Protect config file with lock to avoid race conditions
+
 for EMAIL in "${@}"
 do
   ERROR=false
