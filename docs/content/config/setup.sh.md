@@ -13,6 +13,10 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 chmod a+x ./setup.sh
 ```
 
+!!! warning "`setup.sh` for Docker Mailserver version `v10.1.x` and below"
+
+    If you're using Docker Mailserver version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the mail server version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
+
 ## Usage
 
 Run `./setup.sh help` and you'll get ~~all you have ever wanted~~ some usage information:
@@ -41,15 +45,6 @@ DESCRIPTION
     You will be able to see detailed information about the script you are invoking and
     its arguments by appending help after your command. Currently, this
     does not work with all scripts.
-
-VERSION
-    The current version of this script is backwards compatible with versions of
-    docker-mailserver after 8.0.1. In case that there is not a more recent release,
-    this script is currently only working with the :edge tag.
-
-    You can download the script for your release by substituting TAG from the
-    following URL, where TAG looks like 'vX.X.X':
-    https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/TAG/setup.sh
 
 [SUB]COMMANDS
     COMMAND email :=
