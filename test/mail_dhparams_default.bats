@@ -9,6 +9,9 @@ load 'test_helper/common'
 # Description:
 # 1. Verify that the file `ffdhe4096.pem` has not been modified (checksum verification).
 # 2. Verify Postfix and Dovecot are using the default `ffdhe4096.pem` from Dockerfile build.
+# 3. When custom DHE parameters are supplied by the user as `/tmp/docker-mailserver/dhparams.pem`:
+#    - Verify Postfix and Dovecot use the custom `custom-dhe-params.pem` (contents is actually `ffdhe2048.pem`).
+#    - A warning is raised about usage of potentially insecure parameters.
 
 function setup() {
     run_setup_file_if_necessary
@@ -32,6 +35,9 @@ function setup_file() {
 
   local DH_DEFAULT_PARAMS="$(pwd)/target/shared/ffdhe4096.pem"
   export DH_DEFAULT_CHECKSUM="$(sha512sum ${DH_DEFAULT_PARAMS} | awk '{print $1}')"
+
+  export DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
+  export DH_CUSTOM_CHECKSUM="$(sha512sum ${DH_CUSTOM_PARAMS} | awk '{print $1}')"
 }
 
 function teardown_file() {
@@ -68,6 +74,27 @@ function teardown_file() {
     should_have_valid_checksum "${DH_DEFAULT_CHECKSUM}"
 }
 
+@test "testing tls: DH Parameters - Custom [ONE_DIR=0]" {
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_0)"
+    DMS_ONE_DIR=0
+
+    cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
+
+    common_container_setup
+    should_have_valid_checksum "${DH_CUSTOM_CHECKSUM}"
+    should_emit_warning
+}
+
+@test "testing tls: DH Parameters - Custom [ONE_DIR=1]" {
+    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_1)"
+
+    cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
+
+    common_container_setup
+    should_have_valid_checksum "${DH_CUSTOM_CHECKSUM}"
+    should_emit_warning
+}
+
 @test "last" {
     skip 'this test is only there to reliably mark the end for the teardown_file'
 }
@@ -94,4 +121,9 @@ function should_have_valid_checksum() {
 
     local DH_CHECKSUM_POSTFIX=$(docker exec mail_dhparams sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
     assert_equal "${DH_CHECKSUM_POSTFIX}" "${DH_CHECKSUM}"
+}
+
+function should_emit_warning() {
+    run sh -c "docker logs mail_dhparams | grep 'Using self-generated dhparams is considered insecure.'"
+    assert_success
 }
