@@ -225,7 +225,13 @@ RUN \
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
-COPY target/shared/ffdhe4096.pem /etc/dms/ffdhe4096.pem
+
+# DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
+# This file is for TLS <1.3 handshakes that rely on DHE cipher suites
+# Handled at build to avoid failures by doveadm validating ssl_dh filepath in 10-ssl.auth (eg generate-accounts)
+COPY target/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
+COPY target/shared/ffdhe4096.pem /etc/dovecot/dh.pem
+
 COPY \
   target/postfix/header_checks.pcre \
   target/postfix/sender_header_filter.pcre \

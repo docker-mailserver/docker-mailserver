@@ -1301,18 +1301,12 @@ function _setup_postfix_relay_hosts
 
 function _setup_postfix_dhparam
 {
-  local DH_SERVICE='postfix'
-  local DH_DEST=/etc/postfix/dhparams.pem
-
-   _setup_dhparam "${DH_SERVICE} ${DH_DEST}"
+   _setup_dhparam 'postfix' '/etc/postfix/dhparams.pem'
 }
 
 function _setup_dovecot_dhparam
 {
-  local DH_SERVICE='dovecot'
-  local DH_DEST=/etc/dovecot/dh.pem
-
-  _setup_dhparam "${DH_SERVICE} ${DH_DEST}"
+  _setup_dhparam 'dovecot' '/etc/dovecot/dh.pem'
 }
 
 function _setup_dhparam
@@ -1328,23 +1322,14 @@ function _setup_dhparam
     DH_CUSTOM=/var/mail-state/dms/dhparams.pem
   fi
 
-  if [[ ! -f ${DH_DEST} ]]
-  then
-    if [[ -f ${DH_CUSTOM} ]]
-    then # use custom supplied dh params (assumes they're probably insecure)
-      _notify 'inf' "Copy pre-generated dhparams to ${DH_SERVICE}"
-      _notify 'warn' "Using self-generated dhparams is considered as insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove ${DH_CUSTOM}."
+  if [[ -f ${DH_CUSTOM} ]]
+  then # use custom supplied dh params (assumes they're probably insecure)
+    _notify 'inf' "${DH_SERVICE} will use custom provided DH paramters."
+    _notify 'warn' "Using self-generated dhparams is considered insecure. Unless you know what you are doing, please remove ${DH_CUSTOM}."
 
-      cp ${DH_CUSTOM} "${DH_DEST}"
-    else # use official standardized dh params
-      _notify 'inf' "Use ffdhe4096 for dhparams (${DH_SERVICE})"
-      cp /etc/dms/ffdhe4096.pem "${DH_DEST}"
-    fi
-  else # use existing params found for service (assumes they're probably insecure)
-    _notify 'inf' "Use existing ${DH_SERVICE} dhparams"
-    _notify 'warn' "Using self-generated dhparams is considered insecure."
-    _notify 'warn' "Unless you known what you are doing, please remove ${DH_DEST}."
+    cp -f ${DH_CUSTOM} "${DH_DEST}"
+  else # use official standardized dh params (provided via Dockerfile)
+    _notify 'inf' "${DH_SERVICE} will use official standardized DH parameters (ffdhe4096)."
   fi
 }
 
