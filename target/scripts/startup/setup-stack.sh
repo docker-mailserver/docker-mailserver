@@ -1310,7 +1310,7 @@ function _setup_postfix_dhparam
     if [[ ! -f ${DHPARAMS_FILE} ]]
     then
       _notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
-      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
+      cp -f /etc/dms/ffdhe4096.pem /etc/postfix/dhparams.pem
     else
       _notify 'inf' "Use postfix dhparams that was generated previously"
       _notify 'warn' "Using self-generated dhparams is considered as insecure."
@@ -1334,7 +1334,7 @@ function _setup_postfix_dhparam
         cp /tmp/docker-mailserver/dhparams.pem /etc/postfix/dhparams.pem
       else
         _notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
-        cp /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
+        cp /etc/dms/ffdhe4096.pem /etc/postfix/dhparams.pem
       fi
     else
       _notify 'inf' "Use existing postfix dhparams"
@@ -1355,7 +1355,7 @@ function _setup_dovecot_dhparam
     if [[ ! -f ${DHPARAMS_FILE} ]]
     then
       _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
-      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
+      cp -f /etc/dms/ffdhe4096.pem /etc/dovecot/dh.pem
     else
       _notify 'inf' "Use dovecot dhparams that was generated previously"
       _notify 'warn' "Using self-generated dhparams is considered as insecure."
@@ -1380,7 +1380,7 @@ function _setup_dovecot_dhparam
         cp /tmp/docker-mailserver/dhparams.pem /etc/dovecot/dh.pem
       else
         _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
-        cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
+        cp /etc/dms/ffdhe4096.pem /etc/dovecot/dh.pem
       fi
     else
       _notify 'inf' "Use existing dovecot dhparams"
