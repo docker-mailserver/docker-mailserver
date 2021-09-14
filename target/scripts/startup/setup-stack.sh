@@ -1317,11 +1317,6 @@ function _setup_dhparam
 
   _notify 'task' "Setting up ${DH_SERVICE} dhparam"
 
-  if [[ ${ONE_DIR} -eq 1 ]]
-  then
-    DH_CUSTOM=/var/mail-state/dms/dhparams.pem
-  fi
-
   if [[ -f ${DH_CUSTOM} ]]
   then # use custom supplied dh params (assumes they're probably insecure)
     _notify 'inf' "${DH_SERVICE} will use custom provided DH paramters."
