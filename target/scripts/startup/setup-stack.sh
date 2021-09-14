@@ -1301,7 +1301,7 @@ function _setup_postfix_relay_hosts
 
 function _setup_postfix_dhparam
 {
-   _setup_dhparam 'postfix' '/etc/postfix/dhparams.pem'
+  _setup_dhparam 'postfix' '/etc/postfix/dhparams.pem'
 }
 
 function _setup_dovecot_dhparam
