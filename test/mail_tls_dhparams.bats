@@ -43,7 +43,7 @@ function setup_file() {
   DH_DEFAULT_CHECKSUM="$(sha512sum "${DH_DEFAULT_PARAMS}" | awk '{print $1}')"
 
   DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
-  DH_CUSTOM_CHECKSUM="$(sha512sum ${DH_CUSTOM_PARAMS} | awk '{print $1}')"
+  DH_CUSTOM_CHECKSUM="$(sha512sum "${DH_CUSTOM_PARAMS}" | awk '{print $1}')"
 }
 
 # Not used
@@ -84,7 +84,7 @@ function setup_file() {
 
 @test "testing tls: DH Parameters - Custom [ONE_DIR=0]" {
     PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_0)"
-    # shellcheck disable=SC2031
+    # shellcheck disable=SC2030
     DMS_ONE_DIR=0
 
     cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
@@ -95,6 +95,7 @@ function setup_file() {
 }
 
 @test "testing tls: DH Parameters - Custom [ONE_DIR=1]" {
+    # shellcheck disable=SC2030
     PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_1)"
 
     cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
@@ -109,6 +110,7 @@ function setup_file() {
 }
 
 function common_container_setup() {
+    # shellcheck disable=SC2031
     docker run -d --name mail_dhparams \
         -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
         -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
