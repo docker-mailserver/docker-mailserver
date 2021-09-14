@@ -896,6 +896,14 @@ function _setup_ssl
 
       _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
 
+      # Lowers the minimum acceptable TLS version connection to `TLS 1.0` (from Debian upstream `TLS 1.2`)
+      # Lowers Security Level to `1` (from Debian upstream `2`)
+      # https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1
+      # https://dovecot.org/pipermail/dovecot/2020-October/120225.html
+      # TODO: This is a fix for Debian Bullseye Dovecot. Deprecate TLS <1.2 to resolve properly.
+      sedfile -i 's|^MinProtocol = .*|MinProtocol = TLSv1|' /usr/lib/ssl/openssl.cnf
+      sedfile -i 's|^CipherString = .*|CipherString = DEFAULT@SECLEVEL=1|' /usr/lib/ssl/openssl.cnf
+
       _notify 'inf' "TLS configured with 'intermediate' ciphers"
       ;;
 
