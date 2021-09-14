@@ -1305,48 +1305,8 @@ function _setup_postfix_dhparam
   local DH_DEST=/etc/postfix/dhparams.pem
   local DH_ALT_SERVICE='dovecot'
   local DH_ALT_DEST=/etc/dovecot/dh.pem
-  local DH_CUSTOM=/tmp/docker-mailserver/dhparams.pem
-  _notify 'task' "Setting up ${DH_SERVICE} dhparam"
 
-  if [[ ${ONE_DIR} -eq 1 ]]
-  then
-    DH_CUSTOM=/var/mail-state/dms/dhparams.pem
-
-    if [[ ! -f ${DH_CUSTOM} ]]
-    then # use official standardized dh params
-      _notify 'inf' "Use ffdhe4096 for dhparams (${DH_SERVICE})"
-      cp -f /etc/dms/ffdhe4096.pem "${DH_DEST}"
-    else # use custom supplied dh params (assumes they're probably insecure)
-      _notify 'inf' "Use ${DH_SERVICE} dhparams that was generated previously"
-      _notify 'warn' "Using self-generated dhparams is considered as insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove ${DH_CUSTOM}."
-
-      # Copy from the state directory to the working location (-f used unlike below as no exist check is done)
-      cp -f "${DH_CUSTOM}" "${DH_DEST}"
-    fi
-  else
-    if [[ ! -f ${DH_DEST} ]]
-    then
-      if [[ -f ${DH_ALT_DEST} ]]
-      then # use alt service dh params
-        _notify 'inf' "Copy ${DH_ALT_SERVICE} dhparams to ${DH_SERVICE}"
-        cp "${DH_ALT_DEST}" "${DH_DEST}"
-      elif [[ -f ${DH_CUSTOM} ]]
-      then # use custom supplied dh params (assumes they're probably insecure)
-        _notify 'inf' "Copy pre-generated dhparams to ${DH_SERVICE}"
-        _notify 'warn' "Using self-generated dhparams is considered as insecure."
-        _notify 'warn' "Unless you known what you are doing, please remove ${DH_CUSTOM}."
-        cp ${DH_CUSTOM} "${DH_DEST}"
-      else # use official standardized dh params
-        _notify 'inf' "Use ffdhe4096 for dhparams (${DH_SERVICE})"
-        cp /etc/dms/ffdhe4096.pem "${DH_DEST}"
-      fi
-    else # use existing params found for service (assumes they're probably insecure)
-      _notify 'inf' "Use existing ${DH_SERVICE} dhparams"
-      _notify 'warn' "Using self-generated dhparams is considered insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove ${DH_DEST}."
-    fi
-  fi
+   _setup_dhparam "${DH_SERVICE} ${DH_DEST} ${DH_ALT_SERVICE} ${DH_ALT_DEST}"
 }
 
 function _setup_dovecot_dhparam
@@ -1355,7 +1315,18 @@ function _setup_dovecot_dhparam
   local DH_DEST=/etc/dovecot/dh.pem
   local DH_ALT_SERVICE='postfix'
   local DH_ALT_DEST=/etc/postfix/dhparams.pem
+
+  _setup_dhparam "${DH_SERVICE} ${DH_DEST} ${DH_ALT_SERVICE} ${DH_ALT_DEST}"
+}
+
+function _setup_dhparam
+{
+  local DH_SERVICE=$1
+  local DH_DEST=$2
+  local DH_ALT_SERVICE=$3
+  local DH_ALT_DEST=$4
   local DH_CUSTOM=/tmp/docker-mailserver/dhparams.pem
+
   _notify 'task' "Setting up ${DH_SERVICE} dhparam"
 
   if [[ ${ONE_DIR} -eq 1 ]]
