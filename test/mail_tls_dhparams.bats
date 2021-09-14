@@ -40,7 +40,7 @@ function setup_file() {
 
 
   DH_DEFAULT_PARAMS="$(pwd)/target/shared/ffdhe4096.pem"
-  DH_DEFAULT_CHECKSUM="$(sha512sum ${DH_DEFAULT_PARAMS} | awk '{print $1}')"
+  DH_DEFAULT_CHECKSUM="$(sha512sum "${DH_DEFAULT_PARAMS}" | awk '{print $1}')"
 
   DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
   DH_CUSTOM_CHECKSUM="$(sha512sum ${DH_CUSTOM_PARAMS} | awk '{print $1}')"
@@ -84,6 +84,7 @@ function setup_file() {
 
 @test "testing tls: DH Parameters - Custom [ONE_DIR=0]" {
     PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_0)"
+    # shellcheck disable=SC2031
     DMS_ONE_DIR=0
 
     cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"

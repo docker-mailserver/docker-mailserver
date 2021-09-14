@@ -1322,7 +1322,7 @@ function _setup_dhparam
     _notify 'inf' "${DH_SERVICE} will use custom provided DH paramters."
     _notify 'warn' "Using self-generated dhparams is considered insecure. Unless you know what you are doing, please remove ${DH_CUSTOM}."
 
-    cp -f ${DH_CUSTOM} "${DH_DEST}"
+    cp -f "${DH_CUSTOM}" "${DH_DEST}"
   else # use official standardized dh params (provided via Dockerfile)
     _notify 'inf' "${DH_SERVICE} will use official standardized DH parameters (ffdhe4096)."
   fi
