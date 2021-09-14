@@ -33,15 +33,22 @@ function setup_file() {
 
   export DMS_ONE_DIR=1 # default
 
-  local DH_DEFAULT_PARAMS="$(pwd)/target/shared/ffdhe4096.pem"
-  export DH_DEFAULT_CHECKSUM="$(sha512sum ${DH_DEFAULT_PARAMS} | awk '{print $1}')"
+  local DH_DEFAULT_PARAMS
+  export DH_DEFAULT_CHECKSUM
+  export DH_CUSTOM_PARAMS
+  export DH_CUSTOM_CHECKSUM
 
-  export DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
-  export DH_CUSTOM_CHECKSUM="$(sha512sum ${DH_CUSTOM_PARAMS} | awk '{print $1}')"
+
+  DH_DEFAULT_PARAMS="$(pwd)/target/shared/ffdhe4096.pem"
+  DH_DEFAULT_CHECKSUM="$(sha512sum ${DH_DEFAULT_PARAMS} | awk '{print $1}')"
+
+  DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
+  DH_CUSTOM_CHECKSUM="$(sha512sum ${DH_CUSTOM_PARAMS} | awk '{print $1}')"
 }
 
-function teardown_file() {
-}
+# Not used
+# function teardown_file() {
+# }
 
 @test "first" {
     skip 'this test must come first to reliably identify when to run setup_file'
@@ -55,7 +62,8 @@ function teardown_file() {
     refute_output '' # checksum must not be empty
 
     # Verify the FFDHE params file has not been modified (equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
-    local DH_MOZILLA_CHECKSUM="$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')"
+    local DH_MOZILLA_CHECKSUM
+    DH_MOZILLA_CHECKSUM="$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')"
     assert_equal "${DH_DEFAULT_CHECKSUM}" "${DH_MOZILLA_CHECKSUM}"
 }
 
@@ -116,10 +124,12 @@ function common_container_setup() {
 function should_have_valid_checksum() {
     local DH_CHECKSUM=$1
 
-    local DH_CHECKSUM_DOVECOT=$(docker exec mail_dhparams sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
+    local DH_CHECKSUM_DOVECOT
+    DH_CHECKSUM_DOVECOT=$(docker exec mail_dhparams sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
     assert_equal "${DH_CHECKSUM_DOVECOT}" "${DH_CHECKSUM}"
 
-    local DH_CHECKSUM_POSTFIX=$(docker exec mail_dhparams sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
+    local DH_CHECKSUM_POSTFIX
+    DH_CHECKSUM_POSTFIX=$(docker exec mail_dhparams sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
     assert_equal "${DH_CHECKSUM_POSTFIX}" "${DH_CHECKSUM}"
 }
 
