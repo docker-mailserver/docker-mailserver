@@ -730,6 +730,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#custom-dh-parameters" class="md-nav__link">
+    Custom DH Parameters
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1482,6 +1489,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#custom-dh-parameters" class="md-nav__link">
+    Custom DH Parameters
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1806,7 +1820,7 @@
 <span class="go">No client certificate CA names sent</span>
 </code></pre></div>
 <h2 id="traefik-v2"><a class="toclink" href="#traefik-v2">Traefik v2</a></h2>
-<p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://tools.ietf.org/html/rfc8555">ACME protocol</a>. <a href="https://github.com/containous/traefik">Traefik</a> can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use <a href="https://github.com/containous/traefik">Traefik</a>'s major version 2.</p>
+<p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://datatracker.ietf.org/doc/html/rfc8555">ACME protocol</a>. <a href="https://github.com/containous/traefik">Traefik</a> can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use <a href="https://github.com/containous/traefik">Traefik</a>'s major version 2.</p>
 <p><a href="https://github.com/containous/traefik">Traefik</a>'s storage format is natively supported if the <code>acme.json</code> store is mounted into the container at <code>/etc/letsencrypt/acme.json</code>. The file is also monitored for changes and will trigger a reload of the mail services. Wild card certificates issued for <code>*.domain.tld</code> are supported. You will then want to use <code class="highlight"><span class="nv">SSL_DOMAIN</span><span class="o">=</span>domain.tld</code>. Lookup of the certificate domain happens in the following order:</p>
 <ol>
 <li><code class="highlight"><span class="si">${</span><span class="nv">SSL_DOMAIN</span><span class="si">}</span></code></li>
@@ -2054,6 +2068,9 @@ openssl s_client <span class="se">\</span>
     <span class="nb">echo</span> <span class="s2">&quot;Certwatch: cert </span><span class="nv">$SITE_URL</span><span class="s2"> will expire in two weeks&quot;</span> <span class="p">|</span> mail -s <span class="s2">&quot;cert </span><span class="nv">$SITE_URL</span><span class="s2"> expires in two weeks &quot;</span> <span class="nv">$ALERT_EMAIL_ADDR</span> 
 <span class="k">fi</span>
 </code></pre></div>
+<h2 id="custom-dh-parameters"><a class="toclink" href="#custom-dh-parameters">Custom DH Parameters</a></h2>
+<p>By default <code>docker-mailserver</code> uses <a href="https://github.com/internetstandards/dhe_groups"><code>ffdhe4096</code></a> from <a href="https://datatracker.ietf.org/doc/html/rfc7919">IETF RFC 7919</a>. These are standardized pre-defined DH groups and the only available DH groups for TLS 1.3. It is <a href="https://crypto.stackexchange.com/questions/29926/what-diffie-hellman-parameters-should-i-use">discouraged to generate your own DH parameters</a> as it is often less secure.</p>
+<p>Despite this, if you must use non-standard DH parameters or you would like to swap <code>ffdhe4096</code> for a different group (eg <code>ffdhe2048</code>); Add your own PEM encoded DH params file via a volume to <code>/tmp/docker-mailserver/dhparams.pem</code>. This will replace DH params for both Dovecot and Postfix services during container startup.</p>
                 
                   
                 
