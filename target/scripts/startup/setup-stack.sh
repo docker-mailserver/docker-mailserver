@@ -168,27 +168,6 @@ function _setup_dovecot
 {
   _notify 'task' 'Setting up Dovecot'
 
-  # moved from docker file, copy or generate default self-signed cert
-  if [[ -f /var/mail-state/lib-dovecot/dovecot.pem ]] && [[ ${ONE_DIR} -eq 1 ]]
-  then
-    _notify 'inf' "Copying default dovecot cert"
-    cp /var/mail-state/lib-dovecot/dovecot.key /etc/dovecot/ssl/
-    cp /var/mail-state/lib-dovecot/dovecot.pem /etc/dovecot/ssl/
-  fi
-
-  if [[ ! -f /etc/dovecot/ssl/dovecot.pem ]]
-  then
-    _notify 'inf' 'Generating default Dovecot cert'
-    /usr/share/dovecot/mkcert.sh
-
-    if [[ ${ONE_DIR} -eq 1 ]]
-    then
-      mkdir -p /var/mail-state/lib-dovecot
-      cp /etc/dovecot/ssl/dovecot.key /var/mail-state/lib-dovecot/
-      cp /etc/dovecot/ssl/dovecot.pem /var/mail-state/lib-dovecot/
-    fi
-  fi
-
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
   # disable pop3 (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
