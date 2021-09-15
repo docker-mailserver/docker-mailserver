@@ -1309,92 +1309,30 @@ function _setup_postfix_relay_hosts
 
 function _setup_postfix_dhparam
 {
-  _notify 'task' 'Setting up Postfix dhparam'
-
-  if [[ ${ONE_DIR} -eq 1 ]]
-  then
-    DHPARAMS_FILE=/var/mail-state/lib-shared/dhparams.pem
-
-    if [[ ! -f ${DHPARAMS_FILE} ]]
-    then
-      _notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
-      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
-    else
-      _notify 'inf' "Use postfix dhparams that was generated previously"
-      _notify 'warn' "Using self-generated dhparams is considered as insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
-
-      # Copy from the state directory to the working location
-      cp -f "${DHPARAMS_FILE}" /etc/postfix/dhparams.pem
-    fi
-  else
-    if [[ ! -f /etc/postfix/dhparams.pem ]]
-    then
-      if [[ -f /etc/dovecot/dh.pem ]]
-      then
-        _notify 'inf' "Copy dovecot dhparams to postfix"
-        cp /etc/dovecot/dh.pem /etc/postfix/dhparams.pem
-      elif [[ -f /tmp/docker-mailserver/dhparams.pem ]]
-      then
-        _notify 'inf' "Copy pre-generated dhparams to postfix"
-        _notify 'warn' "Using self-generated dhparams is considered as insecure."
-        _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
-        cp /tmp/docker-mailserver/dhparams.pem /etc/postfix/dhparams.pem
-      else
-        _notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
-        cp /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
-      fi
-    else
-      _notify 'inf' "Use existing postfix dhparams"
-      _notify 'warn' "Using self-generated dhparams is considered insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove /etc/postfix/dhparams.pem."
-    fi
-  fi
+  _setup_dhparam 'postfix' '/etc/postfix/dhparams.pem'
 }
 
 function _setup_dovecot_dhparam
 {
-  _notify 'task' 'Setting up Dovecot dhparam'
+  _setup_dhparam 'dovecot' '/etc/dovecot/dh.pem'
+}
 
-  if [[ ${ONE_DIR} -eq 1 ]]
-  then
-    DHPARAMS_FILE=/var/mail-state/lib-shared/dhparams.pem
+function _setup_dhparam
+{
+  local DH_SERVICE=$1
+  local DH_DEST=$2
+  local DH_CUSTOM=/tmp/docker-mailserver/dhparams.pem
 
-    if [[ ! -f ${DHPARAMS_FILE} ]]
-    then
-      _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
-      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
-    else
-      _notify 'inf' "Use dovecot dhparams that was generated previously"
-      _notify 'warn' "Using self-generated dhparams is considered as insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
+  _notify 'task' "Setting up ${DH_SERVICE} dhparam"
 
-      # Copy from the state directory to the working location
-      cp -f "${DHPARAMS_FILE}" /etc/dovecot/dh.pem
-    fi
-  else
-    if [[ ! -f /etc/dovecot/dh.pem ]]
-    then
-      if [[ -f /etc/postfix/dhparams.pem ]]
-      then
-        _notify 'inf' "Copy postfix dhparams to dovecot"
-        cp /etc/postfix/dhparams.pem /etc/dovecot/dh.pem
-      elif [[ -f /tmp/docker-mailserver/dhparams.pem ]]
-      then
-        _notify 'inf' "Copy pre-generated dhparams to dovecot"
-        _notify 'warn' "Using self-generated dhparams is considered as insecure."
-        _notify 'warn' "Unless you known what you are doing, please remove /tmp/docker-mailserver/dhparams.pem."
+  if [[ -f ${DH_CUSTOM} ]]
+  then # use custom supplied dh params (assumes they're probably insecure)
+    _notify 'inf' "${DH_SERVICE} will use custom provided DH paramters."
+    _notify 'warn' "Using self-generated dhparams is considered insecure. Unless you know what you are doing, please remove ${DH_CUSTOM}."
 
-        cp /tmp/docker-mailserver/dhparams.pem /etc/dovecot/dh.pem
-      else
-        _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
-        cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
-      fi
-    else
-      _notify 'inf' "Use existing dovecot dhparams"
-      _notify 'warn' "Using self-generated dhparams is considered as insecure."
-      _notify 'warn' "Unless you known what you are doing, please remove /etc/dovecot/dh.pem."
-    fi
+    cp -f "${DH_CUSTOM}" "${DH_DEST}"
+  else # use official standardized dh params (provided via Dockerfile)
+    _notify 'inf' "${DH_SERVICE} will use official standardized DH parameters (ffdhe4096)."
   fi
 }
 

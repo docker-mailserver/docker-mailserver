@@ -654,6 +654,12 @@ if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
 fi
 ```
 
+## Custom DH Parameters
+
+By default `docker-mailserver` uses [`ffdhe4096`][ffdhe4096-src] from [IETF RFC 7919][ietf::rfc::ffdhe]. These are standardized pre-defined DH groups and the only available DH groups for TLS 1.3. It is [discouraged to generate your own DH parameters][dh-avoid-selfgenerated] as it is often less secure.
+
+Despite this, if you must use non-standard DH parameters or you would like to swap `ffdhe4096` for a different group (eg `ffdhe2048`); Add your own PEM encoded DH params file via a volume to `/tmp/docker-mailserver/dhparams.pem`. This will replace DH params for both Dovecot and Postfix services during container startup.
+
 [docs-optional-config]: ../advanced/optional-config.md
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
@@ -661,4 +667,8 @@ fi
 [hanscees-renewcerts]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-renew-certs
 
 [traefik::github]: https://github.com/containous/traefik
-[ietf::rfc::acme]: https://tools.ietf.org/html/rfc8555
+[ietf::rfc::acme]: https://datatracker.ietf.org/doc/html/rfc8555
+
+[ietf::rfc::ffdhe]: https://datatracker.ietf.org/doc/html/rfc7919
+[ffdhe4096-src]: https://github.com/internetstandards/dhe_groups
+[dh-avoid-selfgenerated]: https://crypto.stackexchange.com/questions/29926/what-diffie-hellman-parameters-should-i-use
