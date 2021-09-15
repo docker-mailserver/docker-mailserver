@@ -805,6 +805,10 @@ function _setup_ssl
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
   local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
 
+  local TMP_DMS_TLS_PATH='/tmp/docker-mailserver/ssl' # config volume
+  local DMS_TLS_PATH='/etc/dms/tls'
+  mkdir -p "${DMS_TLS_PATH}"
+
   # Primary certificate to serve for TLS
   function _set_certificate
   {
@@ -838,13 +842,13 @@ function _setup_ssl
   {
     local COPY_KEY_FROM_PATH=$1
     local COPY_CERT_FROM_PATH=$2
-    local PRIVATE_KEY_ALT='/etc/postfix/ssl/fallback_key'
-    local CERT_CHAIN_ALT='/etc/postfix/ssl/fallback_cert'
+    local PRIVATE_KEY_ALT="${DMS_TLS_PATH}/fallback_key"
+    local CERT_CHAIN_ALT="${DMS_TLS_PATH}/fallback_cert"
 
     cp "${COPY_KEY_FROM_PATH}" "${PRIVATE_KEY_ALT}"
     cp "${COPY_CERT_FROM_PATH}" "${CERT_CHAIN_ALT}"
     chmod 600 "${PRIVATE_KEY_ALT}"
-    chmod 600 "${CERT_CHAIN_ALT}"
+    chmod 644 "${CERT_CHAIN_ALT}"
 
     # Postfix configuration
     # NOTE: This operation doesn't replace the line, it appends to the end of the line.
@@ -983,17 +987,19 @@ function _setup_ssl
       return 0
       ;;
     "custom" )
-      # Adding CA signed SSL certificate if provided in 'postfix/ssl' folder
-      if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem ]]
+      # Private key with full certificate chain all in a single PEM file
+      # NOTE: Dovecot works fine still as both values are bundled into the keychain
+      local COMBINED_PEM_NAME="${HOSTNAME}-full.pem"
+      local TMP_KEY_WITH_FULLCHAIN="${TMP_DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
+      local KEY_WITH_FULLCHAIN="${DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
+
+      # Adding CA signed SSL certificate if provided in '${DMS_TLS_PATH}' folder
+      if [[ -e ${TMP_KEY_WITH_FULLCHAIN} ]]
       then
         _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
 
-        mkdir -p /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem" /etc/postfix/ssl
-
-        # Private key with full certificate chain all in a single PEM file
-        # NOTE: Dovecot works fine still as both values are bundled into the keychain
-        local KEY_WITH_FULLCHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem'
+        cp "${TMP_KEY_WITH_FULLCHAIN}" "${KEY_WITH_FULLCHAIN}"
+        chmod 600 "${KEY_WITH_FULLCHAIN}"
 
         _set_certificate "${KEY_WITH_FULLCHAIN}"
 
@@ -1001,19 +1007,18 @@ function _setup_ssl
       fi
       ;;
     "manual" )
+      local PRIVATE_KEY="${DMS_TLS_PATH}/key"
+      local CERT_CHAIN="${DMS_TLS_PATH}/cert"
+
       # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole processes (like using kube-lego to generate certs)
       if [[ -n ${SSL_CERT_PATH} ]] && [[ -n ${SSL_KEY_PATH} ]]
       then
         _notify 'inf' "Configuring certificates using cert ${SSL_CERT_PATH} and key ${SSL_KEY_PATH}"
 
-        mkdir -p /etc/postfix/ssl
-        cp "${SSL_KEY_PATH}" /etc/postfix/ssl/key
-        cp "${SSL_CERT_PATH}" /etc/postfix/ssl/cert
-        chmod 600 /etc/postfix/ssl/key
-        chmod 600 /etc/postfix/ssl/cert
-
-        local PRIVATE_KEY='/etc/postfix/ssl/key'
-        local CERT_CHAIN='/etc/postfix/ssl/cert'
+        cp "${SSL_KEY_PATH}" "${PRIVATE_KEY}"
+        cp "${SSL_CERT_PATH}" "${CERT_CHAIN}"
+        chmod 600 "${PRIVATE_KEY}"
+        chmod 644 "${CERT_CHAIN}"
 
         _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
@@ -1034,32 +1039,42 @@ function _setup_ssl
       fi
       ;;
     "self-signed" )
-      # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-      if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem ]] \
-      && [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem ]] \
-      && [[ -e /tmp/docker-mailserver/ssl/demoCA/cacert.pem ]]
+      local KEY_NAME="${HOSTNAME}-key.pem"
+      local CERT_NAME="${HOSTNAME}-cert.pem"
+
+      local SS_KEY="${TMP_DMS_TLS_PATH}/${KEY_NAME}"
+      local SS_CERT="${TMP_DMS_TLS_PATH}/${CERT_NAME}"
+      local SS_CA_CERT="${TMP_DMS_TLS_PATH}/demoCA/cacert.pem"
+
+      local PRIVATE_KEY="${DMS_TLS_PATH}/${KEY_NAME}"
+      local CERT_CHAIN="${DMS_TLS_PATH}/${CERT_NAME}"
+      local CA_CERT="${DMS_TLS_PATH}/cacert.pem"
+
+      # Adding self-signed SSL certificate if provided in '${DMS_TLS_PATH}' folder
+      if [[ -e ${SS_KEY} ]] \
+      && [[ -e ${SS_CERT} ]] \
+      && [[ -e ${SS_CA_CERT} ]]
       then
         _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
 
-        mkdir -p /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem" /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem" /etc/postfix/ssl
-        chmod 600 "/etc/postfix/ssl/${HOSTNAME}-key.pem"
-
-        local PRIVATE_KEY="/etc/postfix/ssl/${HOSTNAME}-key.pem"
-        local CERT_CHAIN="/etc/postfix/ssl/${HOSTNAME}-cert.pem"
+        cp "${SS_KEY}" "${PRIVATE_KEY}"
+        cp "${SS_CERT}" "${CERT_CHAIN}"
+        chmod 600 "${PRIVATE_KEY}"
+        chmod 644 "${CERT_CHAIN}"
 
         _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
-        cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
+        cp "${SS_CA_CERT}" "${CA_CERT}"
+        chmod 644 "${CA_CERT}"
+
         # Have Postfix trust the self-signed CA (which is not installed within the OS trust store)
-        sed -i -r 's|^#?smtpd_tls_CAfile =.*|smtpd_tls_CAfile = /etc/postfix/ssl/cacert.pem|' "${POSTFIX_CONFIG_MAIN}"
-        sed -i -r 's|^#?smtp_tls_CAfile =.*|smtp_tls_CAfile = /etc/postfix/ssl/cacert.pem|' "${POSTFIX_CONFIG_MAIN}"
+        sed -i -r "s|^#?smtpd_tls_CAfile =.*|smtpd_tls_CAfile = ${CA_CERT}|" "${POSTFIX_CONFIG_MAIN}"
+        sed -i -r "s|^#?smtp_tls_CAfile =.*|smtp_tls_CAfile = ${CA_CERT}|" "${POSTFIX_CONFIG_MAIN}"
         # Part of the original `self-signed` support, unclear why this symlink was required?
         # May have been to support the now removed `Courier` (Dovecot replaced it):
         # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
         local PRIVATE_CA="/etc/ssl/certs/cacert-${HOSTNAME}.pem"
-        ln -s /etc/postfix/ssl/cacert.pem "${PRIVATE_CA}"
+        ln -s "${CA_CERT}" "${PRIVATE_CA}"
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
       fi
