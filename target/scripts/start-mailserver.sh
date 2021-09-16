@@ -67,8 +67,8 @@ VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
 export HOSTNAME DOMAINNAME CHKSUM_FILE
 
-HOSTNAME="$(hostname -f)"
-DOMAINNAME="$(hostname -d)"
+_obtain_hostname_and_domainname
+
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # ------------------------------------------------------------
@@ -256,12 +256,11 @@ function _defunc
 # ------------------------------------------------------------
 
 _notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
-_notify 'inf' 'ENVIRONMENT'
-[[ ${DMS_DEBUG} -eq 1 ]] && printenv
 
 register_functions
 check
 setup
+[[ ${DMS_DEBUG} -eq 1 ]] && print-environment
 fix
 start_misc
 start_daemons
