@@ -1,32 +1,32 @@
 load 'test_helper/common'
 
 function setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 function teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
-    docker run -d --name mail_privacy \
-              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-              -e SASL_PASSWD="external-domain.com username:password" \
-              -e ENABLE_MANAGESIEVE=1 \
-              --cap-add=SYS_PTRACE \
-              -e PERMIT_DOCKER=host \
-              -e DMS_DEBUG=0 \
-              -h mail.my-domain.com -t "${NAME}"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+  docker run -d --name mail_privacy \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e SASL_PASSWD="external-domain.com username:password" \
+    -e ENABLE_MANAGESIEVE=1 \
+    --cap-add=SYS_PTRACE \
+    -e PERMIT_DOCKER=host \
+    -e DMS_DEBUG=0 \
+    -h mail.my-domain.com -t "${NAME}"
 
-    wait_for_amavis_port_in_container mail_privacy
-    wait_for_smtp_port_in_container mail_privacy
+  wait_for_amavis_port_in_container mail_privacy
+  wait_for_smtp_port_in_container mail_privacy
 }
 
 function teardown_file() {
-    docker rm -f mail_privacy
+  docker rm -f mail_privacy
 }
 
 @test "first" {

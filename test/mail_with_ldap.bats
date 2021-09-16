@@ -1,54 +1,54 @@
 load 'test_helper/common'
 
 function setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 function teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    pushd test/docker-openldap/ || return 1
-    docker build -f Dockerfile -t ldap --no-cache .
-    popd || return 1
+  pushd test/docker-openldap/ || return 1
+  docker build -f Dockerfile -t ldap --no-cache .
+  popd || return 1
 
-    docker run -d --name ldap_for_mail \
-		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h ldap.my-domain.com -t ldap
+  docker run -d --name ldap_for_mail \
+    -e LDAP_DOMAIN="localhost.localdomain" \
+    -h ldap.my-domain.com -t ldap
 
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
-    docker run -d --name mail_with_ldap \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_LDAP=1 \
-		-e LDAP_SERVER_HOST=ldap \
-		-e LDAP_START_TLS=no \
-		-e SPOOF_PROTECTION=1 \
-		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_PW=admin \
-		-e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
-		-e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
-		-e LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))" \
-		-e DOVECOT_TLS=no \
-		-e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e REPORT_RECIPIENT=1 \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=ldap \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=0 \
-		--link ldap_for_mail:ldap \
-		-h mail.my-domain.com -t "${NAME}"
-    wait_for_smtp_port_in_container mail_with_ldap
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+  docker run -d --name mail_with_ldap \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e ENABLE_LDAP=1 \
+    -e LDAP_SERVER_HOST=ldap \
+    -e LDAP_START_TLS=no \
+    -e SPOOF_PROTECTION=1 \
+    -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
+    -e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
+    -e LDAP_BIND_PW=admin \
+    -e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
+    -e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
+    -e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
+    -e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
+    -e LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))" \
+    -e DOVECOT_TLS=no \
+    -e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+    -e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+    -e REPORT_RECIPIENT=1 \
+    -e ENABLE_SASLAUTHD=1 \
+    -e SASLAUTHD_MECHANISMS=ldap \
+    -e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
+    -e DMS_DEBUG=0 \
+    --link ldap_for_mail:ldap \
+    -h mail.my-domain.com -t "${NAME}"
+  wait_for_smtp_port_in_container mail_with_ldap
 }
 
 function teardown_file() {
-    docker rm -f ldap_for_mail mail_with_ldap
+  docker rm -f ldap_for_mail mail_with_ldap
 }
 
 @test "first" {
