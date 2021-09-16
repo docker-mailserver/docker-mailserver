@@ -257,7 +257,6 @@ function _main
       read -r -p "You are now running Podman in rootless mode. Are you sure you want to continue? [Y/n] "
       [[ -n ${REPLY} ]] && [[ ${REPLY} =~ (n|N) ]] && exit 0
     fi
-  fi
   else
     echo "No supported Container Runtime Interface detected."
     exit 10
