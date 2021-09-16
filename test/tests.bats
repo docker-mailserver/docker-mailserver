@@ -436,11 +436,6 @@ EOF
 # ssl
 #
 
-@test "checking ssl: generated default cert works correctly" {
-  run docker exec mail /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 0 (ok)'"
-  assert_success
-}
-
 @test "checking ssl: lets-encrypt-x3-cross-signed.pem is installed" {
   run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
   assert_success
@@ -1215,60 +1210,6 @@ EOF
   run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
 }
-
-
-#
-# PCI compliance
-#
-
-# dovecot
-@test "checking dovecot: only A grade TLS ciphers are used" {
-  run docker run --rm -i --link mail:dovecot \
-    --entrypoint sh instrumentisto/nmap -c \
-      'nmap --script ssl-enum-ciphers -p 993 dovecot | grep "least strength: A"'
-  assert_success
-}
-
-@test "checking dovecot: nmap produces no warnings on TLS ciphers verifying" {
-  run docker run --rm -i --link mail:dovecot \
-    --entrypoint sh instrumentisto/nmap -c \
-      'nmap --script ssl-enum-ciphers -p 993 dovecot | grep "warnings" | wc -l'
-  assert_success
-  assert_output 0
-}
-
-# postfix submission TLS
-@test "checking postfix submission: only A grade TLS ciphers are used" {
-  run docker run --rm -i --link mail:postfix \
-    --entrypoint sh instrumentisto/nmap -c \
-      'nmap --script ssl-enum-ciphers -p 587 postfix | grep "least strength: A"'
-  assert_success
-}
-
-@test "checking postfix submission: nmap produces no warnings on TLS ciphers verifying" {
-  run docker run --rm -i --link mail:postfix \
-    --entrypoint sh instrumentisto/nmap -c \
-      'nmap --script ssl-enum-ciphers -p 587 postfix | grep "warnings" | wc -l'
-  assert_success
-  assert_output 0
-}
-
-# postfix smtps SSL
-@test "checking postfix smtps: only A grade TLS ciphers are used" {
-  run docker run --rm -i --link mail:postfix \
-    --entrypoint sh instrumentisto/nmap -c \
-      'nmap --script ssl-enum-ciphers -p 465 postfix | grep "least strength: A"'
-  assert_success
-}
-
-@test "checking postfix smtps: nmap produces no warnings on TLS ciphers verifying" {
-  run docker run --rm -i --link mail:postfix \
-    --entrypoint sh instrumentisto/nmap -c \
-      'nmap --script ssl-enum-ciphers -p 465 postfix | grep "warnings" | wc -l'
-  assert_success
-  assert_output 0
-}
-
 
 #
 # supervisor

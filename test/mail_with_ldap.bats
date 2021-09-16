@@ -13,9 +13,20 @@ function setup_file() {
   docker build -f Dockerfile -t ldap --no-cache .
   popd || return 1
 
+  export FQDN_MAIL='mail.my-domain.com'
+  export FQDN_LDAP='ldap.my-domain.com'
+  export DMS_TEST_NETWORK='test-network-ldap'
+
+  # NOTE: If the network already exists, test will fail to start.
+  docker network create "${DMS_TEST_NETWORK}"
+
   docker run -d --name ldap_for_mail \
     -e LDAP_DOMAIN="localhost.localdomain" \
-    -h ldap.my-domain.com -t ldap
+    --network "${DMS_TEST_NETWORK}" \
+    --network-alias 'ldap' \
+    --hostname "${FQDN_LDAP}" \
+    --tty \
+    ldap # Image name
 
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -42,13 +53,18 @@ function setup_file() {
     -e SASLAUTHD_MECHANISMS=ldap \
     -e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
     -e DMS_DEBUG=0 \
-    --link ldap_for_mail:ldap \
-    -h mail.my-domain.com -t "${NAME}"
+    -e SSL_TYPE='snakeoil' \
+    --network "${DMS_TEST_NETWORK}" \
+    --hostname "${FQDN_MAIL}" \
+    --tty \
+    "${NAME}" # Image name
+
   wait_for_smtp_port_in_container mail_with_ldap
 }
 
 function teardown_file() {
   docker rm -f ldap_for_mail mail_with_ldap
+  docker network rm "${DMS_TEST_NETWORK}"
 }
 
 @test "first" {
@@ -220,7 +236,7 @@ function teardown_file() {
 
 @test "checking pflogsum delivery" {
   # checking default sender is correctly set when env variable not defined
-  run docker exec mail_with_ldap grep "mailserver-report@mail.my-domain.com" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
   assert_success
 
   # checking default logrotation setup

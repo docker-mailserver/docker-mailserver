@@ -1143,6 +1143,11 @@ function _setup_ssl
       sed -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
       ;;
 
+    ( 'snakeoil' ) # This is a temporary workaround for testing only, using the insecure snakeoil cert.
+      # mail_privacy.bats and mail_with_ldap.bats both attempt to make a starttls connection with openssl,
+      # failing if SSL/TLS is not available.
+      ;;
+
     ( * ) # Unknown option, panic.
       dms_panic "${SCOPE_TLS_LEVEL}" "${PANIC_INVALID_VALUE}" "SSL_TYPE"
       ;;

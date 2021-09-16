@@ -19,7 +19,10 @@ function setup_file() {
     --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -e DMS_DEBUG=0 \
-    -h mail.my-domain.com -t "${NAME}"
+    -h mail.my-domain.com \
+    -e SSL_TYPE='snakeoil' \
+    --tty \
+    "${NAME}" # Image name
 
   wait_for_amavis_port_in_container mail_privacy
   wait_for_smtp_port_in_container mail_privacy
