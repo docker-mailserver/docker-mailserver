@@ -31,10 +31,13 @@ setup_file() {
     -e ENABLE_SRS=1 \
     -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_MANAGESIEVE=1 \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -e DMS_DEBUG=0 \
-    -h mail.my-domain.com -t "${NAME}"
+    -e SSL_TYPE='snakeoil' \
+    -h mail.my-domain.com \
+    --cap-add=SYS_PTRACE \
+    --tty \
+    "${NAME}"
 
   wait_for_finished_setup_in_container mail
 
