@@ -782,6 +782,7 @@ function _setup_ssl
   _notify 'task' 'Setting up SSL'
 
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
+  local POSTFIX_CONFIG_MASTER='/etc/postfix/master.cf'
   local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
 
   local TMP_DMS_TLS_PATH='/tmp/docker-mailserver/ssl' # config volume
@@ -1083,17 +1084,49 @@ function _setup_ssl
       fi
       ;;
 
-    ( 'disabled' ) # untested
-      # no SSL certificate, plain text access
-      # TODO: Postfix configuration still responds to TLS negotiations using snakeoil cert from default config
-      # TODO: Dovecot `ssl = yes` also allows TLS, both cases this is insecure and should probably instead enforce no TLS?
-
-      # Dovecot configuration
-      # WARNING: This may not be corrected(reset?) if `SSL_TYPE` is changed and internal config state persisted
-      sedfile -i -r 's|^#?(disable_plaintext_auth =).*|\1 no|' /etc/dovecot/conf.d/10-auth.conf
-      sedfile -i -r 's|^(ssl =).*|\1 yes|' "${DOVECOT_CONFIG_SSL}"
-
+    ( 'disabled' ) # No SSL/TLS certificate used/required, plaintext auth permitted over insecure connections
       _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
+      # Untested. Not officially supported.
+
+      # Postfix configuration:
+      # smtp_tls_security_level (default: 'may', amavis 'none' x2) | http://www.postfix.org/postconf.5.html#smtp_tls_security_level
+      # '_setup_postfix_relay_hosts' also adds 'smtp_tls_security_level = encrypt'
+      # smtpd_tls_security_level (default: 'may', port 587 'encrypt') | http://www.postfix.org/postconf.5.html#smtpd_tls_security_level
+      #
+      # smtpd_tls_auth_only (default not applied, 'no', implicitly 'yes' if security_level is 'encrypt')
+      # | http://www.postfix.org/postconf.5.html#smtpd_tls_auth_only | http://www.postfix.org/TLS_README.html#server_tls_auth
+      #
+      # smtp_tls_wrappermode (default: not applied, 'no') | http://www.postfix.org/postconf.5.html#smtp_tls_wrappermode
+      # smtpd_tls_wrappermode (default: 'yes' for service port 'smtps') | http://www.postfix.org/postconf.5.html#smtpd_tls_wrappermode
+      # NOTE: Enabling wrappermode requires a security_level of 'encrypt' or stronger. Port 465 presently does not meet this condition.
+      #
+      # Postfix main.cf (base config):
+      sedfile -i -r "s|^#?(smtp_tls_security_level).*|\1 = none|" "${POSTFIX_CONFIG_MAIN}"
+      sedfile -i -r "s|^#?(smtpd_tls_security_level).*|\1 = none|" "${POSTFIX_CONFIG_MAIN}"
+      sed -i -r "s|^#?(smtpd_tls_auth_only).*|\1 = no|" "${POSTFIX_CONFIG_MAIN}"
+      #
+      # Postfix master.cf (per connection overrides):
+      # Disables implicit TLS on port 465 for inbound (smtpd) and outbound (smtp) traffic. Treats it as equivalent to port 25 SMTP with explicit STARTTLS.
+      # Inbound 465 (aka service port aliases: submissions / smtps) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
+      # Outbound 465 as alternative to port 587 when sending to another MTA (with authentication), such as a relay service (eg SendGrid).
+      sed -i "/smtp_tls_security_level/s|=.*|=none|g" "${POSTFIX_CONFIG_MASTER}"
+      sed -i "/smtpd_tls_security_level/s|=.*|=none|g" "${POSTFIX_CONFIG_MASTER}"
+      sed -i '/smtp_tls_wrappermode/s|yes|no|g' "${POSTFIX_CONFIG_MASTER}"
+      sed -i '/smtpd_tls_wrappermode/s|yes|no|g' "${POSTFIX_CONFIG_MASTER}"
+      sed -i '/smtpd_tls_auth_only/s|yes|no|g' "${POSTFIX_CONFIG_MAIN}"
+
+      # Dovecot configuration:
+      # https://doc.dovecot.org/configuration_manual/dovecot_ssl_configuration/
+      # > The plaintext authentication is always allowed (and SSL not required) for connections from localhost, as they’re assumed to be secure anyway.
+      # > This applies to all connections where the local and the remote IP addresses are equal.
+      # > Also IP ranges specified by login_trusted_networks setting are assumed to be secure.
+      #
+      # no => insecure auth allowed, yes (default) => plaintext auth only allowed over a secure connection (insecure connection acceptable for non-plaintext auth)
+      local DISABLE_PLAINTEXT_AUTH='no'
+      # no => disabled, yes => optional (secure connections not required), required (default) => mandatory (only secure connections allowed)
+      local DOVECOT_SSL_ENABLED='yes'
+      sedfile -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
+      sedfile -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
       ;;
 
     ( * ) # Unknown option, panic.
@@ -1319,7 +1352,6 @@ function _setup_postfix_relay_hosts
     "smtp_sasl_auth_enable = yes" \
     "smtp_sasl_security_options = noanonymous" \
     "smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
-    "smtp_use_tls = yes" \
     "smtp_tls_security_level = encrypt" \
     "smtp_tls_note_starttls_offer = yes" \
     "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
