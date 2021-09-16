@@ -12,6 +12,37 @@ function errex
   exit 1
 }
 
+PANIC_NO_ENV='no-env'
+PANIC_NO_FILE='no-file'
+PANIC_INVALID_VALUE='invalid-value'
+function dms_panic
+{
+  local PANIC_SCOPE=$1
+  local PANIC_TYPE=$2
+  local PANIC_INFO=$3
+
+  function _exit_with_message
+  {
+    _notify 'fatal' "${PANIC_SCOPE} | ${1} Exiting.."
+    exit 1
+  }
+
+  case "${PANIC_TYPE}" in
+    ( "${PANIC_NO_ENV}" )
+      _exit_with_message "ENV ${PANIC_INFO} is not set!"
+    ;;
+    ( "${PANIC_NO_FILE}" )
+      _exit_with_message "File ${PANIC_INFO} does not exist!"
+    ;;
+    ( "${PANIC_INVALID_VALUE}" )
+      _exit_with_message "Invalid value for ${PANIC_INFO}!"
+    ;;
+    ( * )
+      _exit_with_message 'Something broke :('
+    ;;
+  esac
+}
+
 function escape
 {
   echo "${1//./\\.}"

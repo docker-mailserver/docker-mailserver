@@ -795,7 +795,7 @@ function _setup_ssl
     local DOVECOT_KEY=${1}
     local DOVECOT_CERT=${1}
 
-    # If 2nd param is provided, we've been provided separate key and cert instead of a fullkeychain
+    # If a 2nd param is provided, a separate key and cert was received instead of a fullkeychain
     if [[ -n ${2} ]]
     then
       local PRIVATE_KEY=$1
@@ -808,7 +808,7 @@ function _setup_ssl
 
     # Postfix configuration
     # NOTE: `smtpd_tls_chain_files` expects private key defined before public cert chain
-    # May be a single PEM file or a sequence of files, so long as the order is key->leaf->chain
+    # Value can be a single PEM file, or a sequence of files; so long as the order is key->leaf->chain
     sed -i "s|^smtpd_tls_chain_files =.*|smtpd_tls_chain_files = ${POSTFIX_KEY_WITH_FULLCHAIN}|" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration
@@ -896,12 +896,14 @@ function _setup_ssl
 
   esac
 
+  local SCOPE_SSL_TYPE="TLS Setup [SSL_TYPE=${SSL_TYPE}]"
   # SSL certificate Configuration
   # TODO: Refactor this feature, it's been extended multiple times for specific inputs/providers unnecessarily.
-  # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming, chmod inconsistent.
+  # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming.
   case "${SSL_TYPE}" in
     "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
+
       # letsencrypt folders and files mounted in /etc/letsencrypt
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
@@ -965,35 +967,51 @@ function _setup_ssl
       fi
       return 0
       ;;
-    "custom" )
-      # Private key with full certificate chain all in a single PEM file
+
+    "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.
+      _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
+
       # NOTE: Dovecot works fine still as both values are bundled into the keychain
       local COMBINED_PEM_NAME="${HOSTNAME}-full.pem"
       local TMP_KEY_WITH_FULLCHAIN="${TMP_DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
       local KEY_WITH_FULLCHAIN="${DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
 
-      # Adding CA signed SSL certificate if provided in '${DMS_TLS_PATH}' folder
-      if [[ -e ${TMP_KEY_WITH_FULLCHAIN} ]]
+      if [[ -f ${TMP_KEY_WITH_FULLCHAIN} ]]
       then
-        _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
-
         cp "${TMP_KEY_WITH_FULLCHAIN}" "${KEY_WITH_FULLCHAIN}"
         chmod 600 "${KEY_WITH_FULLCHAIN}"
 
         _set_certificate "${KEY_WITH_FULLCHAIN}"
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
+      else
+        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "${TMP_KEY_WITH_FULLCHAIN}"
       fi
       ;;
-    "manual" )
+
+    "manual" ) # (dynamic path via ENV) Use separate private key and cert/chain files (should be PEM encoded)
+      _notify 'inf' "Configuring certificates using key ${SSL_KEY_PATH} and cert ${SSL_CERT_PATH}"
+
+      # Source files are copied internally to these destinations:
       local PRIVATE_KEY="${DMS_TLS_PATH}/key"
       local CERT_CHAIN="${DMS_TLS_PATH}/cert"
 
-      # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole processes (like using kube-lego to generate certs)
-      if [[ -n ${SSL_CERT_PATH} ]] && [[ -n ${SSL_KEY_PATH} ]]
+      # Fail early:
+      if [[ -z ${SSL_KEY_PATH} ]] && [[ -z ${SSL_CERT_PATH} ]]
       then
-        _notify 'inf' "Configuring certificates using cert ${SSL_CERT_PATH} and key ${SSL_KEY_PATH}"
+        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_ENV}" "SSL_KEY_PATH or SSL_CERT_PATH"
+      fi
 
+      if [[ -n ${SSL_ALT_KEY_PATH} ]] \
+      && [[ -n ${SSL_ALT_CERT_PATH} ]] \
+      && [[ ! -f ${SSL_ALT_KEY_PATH} ]] \
+      && [[ ! -f ${SSL_ALT_CERT_PATH} ]]
+      then
+        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}"
+      fi
+
+      if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]
+      then
         cp "${SSL_KEY_PATH}" "${PRIVATE_KEY}"
         cp "${SSL_CERT_PATH}" "${CERT_CHAIN}"
         chmod 600 "${PRIVATE_KEY}"
@@ -1004,7 +1022,7 @@ function _setup_ssl
         # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
         if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]
         then
-          _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
+          _notify 'inf' "Configuring fallback certificates using key ${SSL_ALT_KEY_PATH} and cert ${SSL_ALT_CERT_PATH}"
 
           _set_alt_certificate "${SSL_ALT_KEY_PATH}" "${SSL_ALT_CERT_PATH}"
         else
@@ -1015,27 +1033,31 @@ function _setup_ssl
         fi
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
+      else
+        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "${SSL_KEY_PATH} or ${SSL_CERT_PATH}"
       fi
       ;;
-    "self-signed" )
+
+    "self-signed" ) # (hard-coded path) Use separate private key and cert/chain files (should be PEM encoded), expects self-signed CA
+      _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
+
       local KEY_NAME="${HOSTNAME}-key.pem"
       local CERT_NAME="${HOSTNAME}-cert.pem"
 
+      # Self-Signed source files:
       local SS_KEY="${TMP_DMS_TLS_PATH}/${KEY_NAME}"
       local SS_CERT="${TMP_DMS_TLS_PATH}/${CERT_NAME}"
       local SS_CA_CERT="${TMP_DMS_TLS_PATH}/demoCA/cacert.pem"
 
+      # Source files are copied internally to these destinations:
       local PRIVATE_KEY="${DMS_TLS_PATH}/${KEY_NAME}"
       local CERT_CHAIN="${DMS_TLS_PATH}/${CERT_NAME}"
       local CA_CERT="${DMS_TLS_PATH}/cacert.pem"
 
-      # Adding self-signed SSL certificate if provided in '${DMS_TLS_PATH}' folder
-      if [[ -e ${SS_KEY} ]] \
-      && [[ -e ${SS_CERT} ]] \
-      && [[ -e ${SS_CA_CERT} ]]
+      if [[ -f ${SS_KEY} ]] \
+      && [[ -f ${SS_CERT} ]] \
+      && [[ -f ${SS_CA_CERT} ]]
       then
-        _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
-
         cp "${SS_KEY}" "${PRIVATE_KEY}"
         cp "${SS_CERT}" "${CERT_CHAIN}"
         chmod 600 "${PRIVATE_KEY}"
@@ -1056,9 +1078,12 @@ function _setup_ssl
         ln -s "${CA_CERT}" "${PRIVATE_CA}"
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
+      else
+        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "${SS_KEY} or ${SS_CERT}"
       fi
       ;;
-    '' )
+
+    'disabled' ) # untested
       # no SSL certificate, plain text access
       # TODO: Postfix configuration still responds to TLS negotiations using snakeoil cert from default config
       # TODO: Dovecot `ssl = yes` also allows TLS, both cases this is insecure and should probably instead enforce no TLS?
@@ -1070,10 +1095,11 @@ function _setup_ssl
 
       _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       ;;
-    * )
-      # Unknown option, default behavior, no action is required
-      _notify 'warn' "(INSECURE!) ENV var 'SSL_TYPE' is invalid. DO NOT USE FOR PRODUCTION DEPLOYMENT."
+
+    * ) # Unknown option, panic.
+      dms_panic "${SCOPE_TLS_LEVEL}" "${PANIC_INVALID_VALUE}" "SSL_TYPE"
       ;;
+
   esac
 }
 
