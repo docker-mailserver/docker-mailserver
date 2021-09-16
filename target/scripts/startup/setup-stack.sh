@@ -887,11 +887,13 @@ function _setup_ssl
 
       _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
 
-      # Lowers the minimum acceptable TLS version connection to `TLS 1.0` (from Debian upstream `TLS 1.2`)
-      # Lowers Security Level to `1` (from Debian upstream `2`)
+      # Lowers the minimum acceptable TLS version connection to `TLSv1` (from Debian upstream `TLSv1.2`)
+      # Lowers Security Level to `1` (from Debian upstream `2`, openssl release defaults to `1`)
+      # https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html
       # https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1
       # https://dovecot.org/pipermail/dovecot/2020-October/120225.html
-      # TODO: This is a fix for Debian Bullseye Dovecot. Deprecate TLS <1.2 to resolve properly.
+      # TODO: This is a fix for Debian Bullseye Dovecot. Can remove when we only support TLS >=1.2.
+      # WARNING: This applies to all processes that use openssl and respect these settings.
       sedfile -i -r \
         -e 's|^(MinProtocol).*|\1 = TLSv1|' \
         -e 's|^(CipherString).*|\1 = DEFAULT@SECLEVEL=1|' \
@@ -1085,6 +1087,7 @@ function _setup_ssl
         # Part of the original `self-signed` support, unclear why this symlink was required?
         # May have been to support the now removed `Courier` (Dovecot replaced it):
         # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
+        # smtp_tls_CApath and smtpd_tls_CApath both point to /etc/ssl/certs
         local PRIVATE_CA="/etc/ssl/certs/cacert-${HOSTNAME}.pem"
         ln -s "${CA_CERT}" "${PRIVATE_CA}"
 
