@@ -1097,7 +1097,7 @@ function _setup_ssl
       fi
       ;;
 
-    ( 'disabled' ) # No SSL/TLS certificate used/required, plaintext auth permitted over insecure connections
+    ( '' ) # No SSL/TLS certificate used/required, plaintext auth permitted over insecure connections
       _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       # Untested. Not officially supported.
 
@@ -1138,7 +1138,7 @@ function _setup_ssl
       # no => insecure auth allowed, yes (default) => plaintext auth only allowed over a secure connection (insecure connection acceptable for non-plaintext auth)
       local DISABLE_PLAINTEXT_AUTH='no'
       # no => disabled, yes => optional (secure connections not required), required (default) => mandatory (only secure connections allowed)
-      local DOVECOT_SSL_ENABLED='yes'
+      local DOVECOT_SSL_ENABLED='no'
       sed -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
       sed -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
       ;;
