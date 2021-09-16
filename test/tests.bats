@@ -433,15 +433,6 @@ EOF
 }
 
 #
-# ssl
-#
-
-@test "checking ssl: lets-encrypt-x3-cross-signed.pem is installed" {
-  run docker exec mail grep 'BEGIN CERTIFICATE' /etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
-  assert_success
-}
-
-#
 # postsrsd
 #
 

@@ -237,8 +237,7 @@ COPY \
 RUN \
   : >/etc/aliases && \
   sedfile -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail && \
-  mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail && \
-  curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem >/etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
+  mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # -----------------------------------------------
 # --- Logs --------------------------------------
