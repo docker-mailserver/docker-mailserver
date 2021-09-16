@@ -66,18 +66,6 @@ USE_SELINUX=
 VOLUME=
 WISHED_CONFIG_PATH=
 
-function _check_root
-{
-  if [[ ${EUID} -ne 0 ]]
-  then
-    read -r -p "You are now running in the rootless mode of podman, are you sure you want to continue? [Y/n] "
-    if [[ -n ${REPLY} ]] && [[ ${REPLY} =~ (n|N) ]]
-    then
-      exit 0
-    fi
-  fi
-}
-
 function _update_config_path
 {
   if [[ -n ${CONTAINER_NAME} ]]
@@ -250,7 +238,8 @@ function _docker_container
   then
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
   else
-    # If no container yet, run a temporary one: https://github.com/docker-mailserver/docker-mailserver/pull/1874#issuecomment-809781531
+    # If no container yet, run a temporary one:
+    #   https://github.com/docker-mailserver/docker-mailserver/pull/1874#issuecomment-809781531
     _docker_image "${@:+$@}"
   fi
 }
@@ -263,7 +252,12 @@ function _main
   elif command -v podman &>/dev/null
   then
     CRI=podman
-    _check_root
+    if [[ ${EUID} -ne 0 ]]
+    then
+      read -r -p "You are now running Podman in rootless mode. Are you sure you want to continue? [Y/n] "
+      [[ -n ${REPLY} ]] && [[ ${REPLY} =~ (n|N) ]] && exit 0
+    fi
+  fi
   else
     echo "No supported Container Runtime Interface detected."
     exit 10
