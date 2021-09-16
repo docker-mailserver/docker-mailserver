@@ -813,8 +813,10 @@ function _setup_ssl
     sedfile -i -r "s|^(smtpd_tls_chain_files =).*|\1 ${POSTFIX_KEY_WITH_FULLCHAIN}|" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration
-    sedfile -i -r "s|^(ssl_key =).*|\1 <${DOVECOT_KEY}|" "${DOVECOT_CONFIG_SSL}"
-    sedfile -i -r "s|^(ssl_cert =).*|\1 <${DOVECOT_CERT}|" "${DOVECOT_CONFIG_SSL}"
+    sedfile -i -r \
+      -e "s|^(ssl_key =).*|\1 <${DOVECOT_KEY}|" \
+      -e "s|^(ssl_cert =).*|\1 <${DOVECOT_CERT}|" \
+      "${DOVECOT_CONFIG_SSL}"
   }
 
   # Enables supporting two certificate types such as ECDSA with an RSA fallback
@@ -840,8 +842,10 @@ function _setup_ssl
     # Dovecot configuration
     # Conditionally checks for `#`, in the event that internal container state is accidentally persisted,
     # can be caused by: `docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`
-    sedfile -i -r "s|^#?(ssl_alt_key =).*|\1 <${PRIVATE_KEY_ALT}|" "${DOVECOT_CONFIG_SSL}"
-    sedfile -i -r "s|^#?(ssl_alt_cert =).*|\1 <${CERT_CHAIN_ALT}|" "${DOVECOT_CONFIG_SSL}"
+    sedfile -i -r \
+      -e "s|^#?(ssl_alt_key =).*|\1 <${PRIVATE_KEY_ALT}|" \
+      -e "s|^#?(ssl_alt_cert =).*|\1 <${CERT_CHAIN_ALT}|" \
+      "${DOVECOT_CONFIG_SSL}"
   }
 
   function _apply_tls_level
@@ -851,14 +855,17 @@ function _setup_ssl
     local TLS_PROTOCOL_MINIMUM=$3
 
     # Postfix configuration
-    sedfile -i -r "s|^(smtpd_tls_mandatory_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" "${POSTFIX_CONFIG_MAIN}"
-    sedfile -i -r "s|^(smtpd_tls_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" "${POSTFIX_CONFIG_MAIN}"
-    sedfile -i -r "s|^(smtp_tls_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" "${POSTFIX_CONFIG_MAIN}"
-    sedfile -i -r "s|^(tls_high_cipherlist =).*|\1 ${TLS_CIPHERS_ALLOW}|" "${POSTFIX_CONFIG_MAIN}"
+    sed -i -r \
+      -e "s|^(smtpd?_tls_mandatory_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
+      -e "s|^(smtpd?_tls_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
+      -e "s|^(tls_high_cipherlist =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
+      "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration (secure by default though)
-    sedfile -i -r "s|^(ssl_min_protocol =).*|\1 ${TLS_PROTOCOL_MINIMUM}|" "${DOVECOT_CONFIG_SSL}"
-    sedfile -i -r "s|^(ssl_cipher_list =).*|\1 ${TLS_CIPHERS_ALLOW}|" "${DOVECOT_CONFIG_SSL}"
+    sed -i -r \
+      -e "s|^(ssl_min_protocol =).*|\1 ${TLS_PROTOCOL_MINIMUM}|" \
+      -e "s|^(ssl_cipher_list =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
+      "${DOVECOT_CONFIG_SSL}"
   }
 
   # TLS strength/level configuration
@@ -885,8 +892,10 @@ function _setup_ssl
       # https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1
       # https://dovecot.org/pipermail/dovecot/2020-October/120225.html
       # TODO: This is a fix for Debian Bullseye Dovecot. Deprecate TLS <1.2 to resolve properly.
-      sedfile -i 's|^MinProtocol = .*|MinProtocol = TLSv1|' /usr/lib/ssl/openssl.cnf
-      sedfile -i 's|^CipherString = .*|CipherString = DEFAULT@SECLEVEL=1|' /usr/lib/ssl/openssl.cnf
+      sedfile -i -r \
+        -e 's|^(MinProtocol).*|\1 = TLSv1|' \
+        -e 's|^(CipherString).*|\1 = DEFAULT@SECLEVEL=1|' \
+        /usr/lib/ssl/openssl.cnf
 
       _notify 'inf' "TLS configured with 'intermediate' ciphers"
       ;;
@@ -1029,8 +1038,10 @@ function _setup_ssl
         else
           # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
           # but required ENV var is missing, reset to disabled state:
-          sed -i -r 's|^(ssl_alt_key =).*|#\1 </path/to/alternative/key.pem|' "${DOVECOT_CONFIG_SSL}"
-          sed -i -r 's|^(ssl_alt_cert =).*|#\1 </path/to/alternative/cert.pem|' "${DOVECOT_CONFIG_SSL}"
+          sed -i -r \
+            -e 's|^(ssl_alt_key =).*|#\1 </path/to/alternative/key.pem|' \
+            -e 's|^(ssl_alt_cert =).*|#\1 </path/to/alternative/cert.pem|' \
+            "${DOVECOT_CONFIG_SSL}"
         fi
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
@@ -1070,8 +1081,7 @@ function _setup_ssl
         chmod 644 "${CA_CERT}"
 
         # Have Postfix trust the self-signed CA (which is not installed within the OS trust store)
-        sedfile -i -r "s|^#?(smtpd_tls_CAfile =).*|\1 ${CA_CERT}|" "${POSTFIX_CONFIG_MAIN}"
-        sedfile -i -r "s|^#?(smtp_tls_CAfile =).*|\1 ${CA_CERT}|" "${POSTFIX_CONFIG_MAIN}"
+        sedfile -i -r "s|^#?(smtpd?_tls_CAfile =).*|\1 ${CA_CERT}|" "${POSTFIX_CONFIG_MAIN}"
         # Part of the original `self-signed` support, unclear why this symlink was required?
         # May have been to support the now removed `Courier` (Dovecot replaced it):
         # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
@@ -1101,19 +1111,20 @@ function _setup_ssl
       # NOTE: Enabling wrappermode requires a security_level of 'encrypt' or stronger. Port 465 presently does not meet this condition.
       #
       # Postfix main.cf (base config):
-      sedfile -i -r "s|^#?(smtp_tls_security_level).*|\1 = none|" "${POSTFIX_CONFIG_MAIN}"
-      sedfile -i -r "s|^#?(smtpd_tls_security_level).*|\1 = none|" "${POSTFIX_CONFIG_MAIN}"
-      sed -i -r "s|^#?(smtpd_tls_auth_only).*|\1 = no|" "${POSTFIX_CONFIG_MAIN}"
+      sedfile -i -r \
+        -e "s|^#?(smtpd?_tls_security_level).*|\1 = none|" \
+        -e "s|^#?(smtpd_tls_auth_only).*|\1 = no|" \
+        "${POSTFIX_CONFIG_MAIN}"
       #
       # Postfix master.cf (per connection overrides):
       # Disables implicit TLS on port 465 for inbound (smtpd) and outbound (smtp) traffic. Treats it as equivalent to port 25 SMTP with explicit STARTTLS.
       # Inbound 465 (aka service port aliases: submissions / smtps) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
       # Outbound 465 as alternative to port 587 when sending to another MTA (with authentication), such as a relay service (eg SendGrid).
-      sed -i "/smtp_tls_security_level/s|=.*|=none|g" "${POSTFIX_CONFIG_MASTER}"
-      sed -i "/smtpd_tls_security_level/s|=.*|=none|g" "${POSTFIX_CONFIG_MASTER}"
-      sed -i '/smtp_tls_wrappermode/s|yes|no|g' "${POSTFIX_CONFIG_MASTER}"
-      sed -i '/smtpd_tls_wrappermode/s|yes|no|g' "${POSTFIX_CONFIG_MASTER}"
-      sed -i '/smtpd_tls_auth_only/s|yes|no|g' "${POSTFIX_CONFIG_MAIN}"
+      sedfile -i -r \
+        -e "/smtpd?_tls_security_level/s|=.*|=none|" \
+        -e '/smtpd?_tls_wrappermode/s|yes|no|' \
+        -e '/smtpd_tls_auth_only/s|yes|no|' \
+        "${POSTFIX_CONFIG_MASTER}"
 
       # Dovecot configuration:
       # https://doc.dovecot.org/configuration_manual/dovecot_ssl_configuration/
@@ -1125,8 +1136,8 @@ function _setup_ssl
       local DISABLE_PLAINTEXT_AUTH='no'
       # no => disabled, yes => optional (secure connections not required), required (default) => mandatory (only secure connections allowed)
       local DOVECOT_SSL_ENABLED='yes'
-      sedfile -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
-      sedfile -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
+      sed -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
+      sed -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
       ;;
 
     ( * ) # Unknown option, panic.
