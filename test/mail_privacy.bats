@@ -36,12 +36,7 @@ function teardown_file() {
   skip 'this test must come first to reliably identify when to run setup_file'
 }
 
-#
-# LDAP
-#
-
-# postfix
-
+# What this test should cover: https://github.com/docker-mailserver/docker-mailserver/issues/681
 @test "checking postfix: remove privacy details of the sender" {
   docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
   # shellcheck disable=SC2016
@@ -54,7 +49,6 @@ function teardown_file() {
   assert_success
   assert_output 0
 }
-
 
 @test "last" {
   skip 'this test is only there to reliably mark the end for the teardown_file'
