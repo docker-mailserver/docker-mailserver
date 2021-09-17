@@ -1190,8 +1190,7 @@ function _setup_docker_permit
 
   if [[ -z ${CONTAINER_IP} ]]
   then
-    _notify 'err' "Detecting the container IP address failed. Check if NETWORK_INTERFACE is correctly configured."
-    _shutdown
+    _shutdown "Detecting the container IP address failed. Check if NETWORK_INTERFACE is correctly configured."
   fi
 
   while read -r IP
@@ -1241,8 +1240,7 @@ function _setup_postfix_virtual_transport
 
   if [[ -z ${POSTFIX_DAGENT} ]]
   then
-    _notify 'err' "${POSTFIX_DAGENT} not set."
-    _shutdown
+    _shutdown "${POSTFIX_DAGENT} not set."
     return 1
   fi
 

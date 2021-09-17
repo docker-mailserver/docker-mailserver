@@ -29,26 +29,24 @@ function dms_panic
   local PANIC_TYPE=$2
   local PANIC_INFO=$3
 
-  function _shutdown_with_message
-  {
-    _notify 'fatal' "${PANIC_SCOPE} | ${1}"
-    _shutdown
-  }
+  local SHUTDOWN_MESSAGE
 
   case "${PANIC_TYPE}" in
     ( "${PANIC_NO_ENV}" )
-      _shutdown_with_message "ENV ${PANIC_INFO} is not set!"
+      SHUTDOWN_MESSAGE="ENV ${PANIC_INFO} is not set!"
     ;;
     ( "${PANIC_NO_FILE}" )
-      _shutdown_with_message "File ${PANIC_INFO} does not exist!"
+      SHUTDOWN_MESSAGE="File ${PANIC_INFO} does not exist!"
     ;;
     ( "${PANIC_INVALID_VALUE}" )
-      _shutdown_with_message "Invalid value for ${PANIC_INFO}!"
+      SHUTDOWN_MESSAGE="Invalid value for ${PANIC_INFO}!"
     ;;
     ( * )
-      _shutdown_with_message 'Something broke :('
+      SHUTDOWN_MESSAGE='Something broke :('
     ;;
   esac
+
+  _shutdown "${PANIC_SCOPE} | ${SHUTDOWN_MESSAGE}"
 }
 
 function escape
@@ -293,6 +291,7 @@ function _obtain_hostname_and_domainname
 
 function _shutdown
 {
+  _notify 'fatal' "${1}"
   _notify 'err' "Shutting down.."
   kill 1
 }
