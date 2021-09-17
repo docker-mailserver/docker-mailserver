@@ -12,6 +12,14 @@ function errex
   exit 1
 }
 
+# Call this method when you want to panic (emit FATAL log level error and exit uncleanly).
+# Appropriate when the type of error is a not recoverable,
+# or needs to be very clear to the user about misconfiguration.
+#
+# Method is called with args:
+# PANIC_SCOPE => string id to better identify/lookup script location (you choose the string).
+# PANIC_TYPE => Must be one of the PANIC_ "enums" specified above the method to match a case on (reference the var, not the string).
+# PANIC_INFO => Provide your own string content to insert into the error message for that PANIC_TYPE.
 PANIC_NO_ENV='no-env'
 PANIC_NO_FILE='no-file'
 PANIC_INVALID_VALUE='invalid-value'
