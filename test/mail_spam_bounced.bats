@@ -6,43 +6,43 @@ load 'test_helper/common'
 
 
 function setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 function teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    local PRIVATE_CONFIG_A
-    PRIVATE_CONFIG_A="$(duplicate_config_for_container . mail_spam_bounced_defined)"
-    docker run -d --name mail_spam_bounced_defined \
-        -v "${PRIVATE_CONFIG_A}:/tmp/docker-mailserver" \
-        -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
-        -e ENABLE_SPAMASSASSIN=1 \
-        -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
-        -h mail.my-domain.com \
-        --tty \
-        "${NAME}"
+  local PRIVATE_CONFIG_A
+  PRIVATE_CONFIG_A="$(duplicate_config_for_container . mail_spam_bounced_defined)"
+  docker run -d --name mail_spam_bounced_defined \
+    -v "${PRIVATE_CONFIG_A}:/tmp/docker-mailserver" \
+    -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
+    -e ENABLE_SPAMASSASSIN=1 \
+    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
+    -h mail.my-domain.com \
+    --tty \
+    "${NAME}"
 
-    wait_for_finished_setup_in_container mail_spam_bounced_defined
+  wait_for_finished_setup_in_container mail_spam_bounced_defined
 
-    local PRIVATE_CONFIG_B
-    PRIVATE_CONFIG_B="$(duplicate_config_for_container . mail_spam_bounced_undefined)"
-    docker run -d --name mail_spam_bounced_undefined \
-        -v "${PRIVATE_CONFIG_B}:/tmp/docker-mailserver" \
-        -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
-        -e ENABLE_SPAMASSASSIN=1 \
-        -h mail.my-domain.com \
-        --tty \
-        "${NAME}"
+  local PRIVATE_CONFIG_B
+  PRIVATE_CONFIG_B="$(duplicate_config_for_container . mail_spam_bounced_undefined)"
+  docker run -d --name mail_spam_bounced_undefined \
+    -v "${PRIVATE_CONFIG_B}:/tmp/docker-mailserver" \
+    -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
+    -e ENABLE_SPAMASSASSIN=1 \
+    -h mail.my-domain.com \
+    --tty \
+    "${NAME}"
 
-    wait_for_finished_setup_in_container mail_spam_bounced_undefined
+  wait_for_finished_setup_in_container mail_spam_bounced_undefined
 }
 
 function teardown_file() {
-    docker rm -f mail_spam_bounced_defined
-    docker rm -f mail_spam_bounced_undefined
+  docker rm -f mail_spam_bounced_defined
+  docker rm -f mail_spam_bounced_undefined
 }
 
 @test "first" {
