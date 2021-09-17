@@ -29,24 +29,24 @@ function dms_panic
   local PANIC_TYPE=$2
   local PANIC_INFO=$3
 
-  function _exit_with_message
+  function _shutdown_with_message
   {
-    _notify 'fatal' "${PANIC_SCOPE} | ${1} Exiting.."
-    exit 1
+    _notify 'fatal' "${PANIC_SCOPE} | ${1}"
+    _shutdown
   }
 
   case "${PANIC_TYPE}" in
     ( "${PANIC_NO_ENV}" )
-      _exit_with_message "ENV ${PANIC_INFO} is not set!"
+      _shutdown_with_message "ENV ${PANIC_INFO} is not set!"
     ;;
     ( "${PANIC_NO_FILE}" )
-      _exit_with_message "File ${PANIC_INFO} does not exist!"
+      _shutdown_with_message "File ${PANIC_INFO} does not exist!"
     ;;
     ( "${PANIC_INVALID_VALUE}" )
-      _exit_with_message "Invalid value for ${PANIC_INFO}!"
+      _shutdown_with_message "Invalid value for ${PANIC_INFO}!"
     ;;
     ( * )
-      _exit_with_message 'Something broke :('
+      _shutdown_with_message 'Something broke :('
     ;;
   esac
 }
