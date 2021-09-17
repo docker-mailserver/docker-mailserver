@@ -2,7 +2,9 @@ load 'test_helper/common'
 
 # Test case
 # ---------
-# When SPAMASSASSIN_SPAM_TO_INBOX=0, spam messages must be bounced.
+# When SPAMASSASSIN_SPAM_TO_INBOX=0, spam messages must be bounced (rejected).
+# SPAMASSASSIN_SPAM_TO_INBOX=1 is covered in `mail_spam_junk_folder.bats`.
+# Original test PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
 
 
 function setup() {
@@ -27,6 +29,7 @@ function setup_file() {
 
   wait_for_finished_setup_in_container mail_spam_bounced_defined
 
+  # SPAMASSASSIN_SPAM_TO_INBOX=0 is the default, but without an explicit value should log a warning at startup.
   local PRIVATE_CONFIG_B
   PRIVATE_CONFIG_B="$(duplicate_config_for_container . mail_spam_bounced_undefined)"
   docker run -d --name mail_spam_bounced_undefined \
@@ -49,7 +52,7 @@ function teardown_file() {
   skip 'this test must come first to reliably identify when to run setup_file'
 }
 
-@test "checking amavis: spam message is bounced" {
+@test "checking amavis: spam message is bounced (rejected)" {
   # this warning should only be raised when no explicit value for SPAMASSASSIN_SPAM_TO_INBOX is defined
   run sh -c "docker logs mail_spam_bounced_defined | grep 'Spam messages WILL NOT BE DELIVERED'"
   assert_failure
@@ -62,7 +65,7 @@ function teardown_file() {
   assert_success
 }
 
-@test "checking amavis: spam message is bounced, undefined SPAMASSASSIN_SPAM_TO_INBOX raise a warning" {
+@test "checking amavis: spam message is bounced (rejected), undefined SPAMASSASSIN_SPAM_TO_INBOX should raise a warning" {
   run sh -c "docker logs mail_spam_bounced_undefined | grep 'Spam messages WILL NOT BE DELIVERED'"
   assert_success
 
