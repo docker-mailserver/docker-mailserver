@@ -997,7 +997,7 @@ function _setup_ssl
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
       else
-        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "${TMP_KEY_WITH_FULLCHAIN}"
+        dms_panic__no_file "${TMP_KEY_WITH_FULLCHAIN}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
@@ -1011,7 +1011,7 @@ function _setup_ssl
       # Fail early:
       if [[ -z ${SSL_KEY_PATH} ]] && [[ -z ${SSL_CERT_PATH} ]]
       then
-        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_ENV}" "SSL_KEY_PATH or SSL_CERT_PATH"
+        dms_panic__no_env 'SSL_KEY_PATH or SSL_CERT_PATH' "${SCOPE_SSL_TYPE}"
       fi
 
       if [[ -n ${SSL_ALT_KEY_PATH} ]] \
@@ -1019,7 +1019,7 @@ function _setup_ssl
       && [[ ! -f ${SSL_ALT_KEY_PATH} ]] \
       && [[ ! -f ${SSL_ALT_CERT_PATH} ]]
       then
-        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}"
+        dms_panic__no_file "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
 
       if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]
@@ -1048,7 +1048,7 @@ function _setup_ssl
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
       else
-        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "${SSL_KEY_PATH} or ${SSL_CERT_PATH}"
+        dms_panic__no_file "${SSL_KEY_PATH} or ${SSL_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
@@ -1093,7 +1093,7 @@ function _setup_ssl
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
       else
-        dms_panic "${SCOPE_SSL_TYPE}" "${PANIC_NO_FILE}" "${SS_KEY} or ${SS_CERT}"
+        dms_panic__no_file "${SS_KEY} or ${SS_CERT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
@@ -1149,7 +1149,7 @@ function _setup_ssl
       ;;
 
     ( * ) # Unknown option, panic.
-      dms_panic "${SCOPE_TLS_LEVEL}" "${PANIC_INVALID_VALUE}" "SSL_TYPE"
+      dms_panic__invalid_value 'SSL_TYPE' "${SCOPE_TLS_LEVEL}"
       ;;
 
   esac
@@ -1191,7 +1191,7 @@ function _setup_docker_permit
   if [[ -z ${CONTAINER_IP} ]]
   then
     _notify 'err' 'Detecting the container IP address failed.'
-    dms_panic 'Network Setup [docker_permit]' "${PANIC_MISCONFIGURED}" 'NETWORK_INTERFACE'
+    dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]'
   fi
 
   while read -r IP
@@ -1242,7 +1242,7 @@ function _setup_postfix_virtual_transport
 
   if [[ -z ${POSTFIX_DAGENT} ]]
   then
-    dms_panic 'Postfix Setup [virtual_transport]' "${PANIC_NO_ENV}" 'POSTFIX_DAGENT'
+    dms_panic__no_env 'POSTFIX_DAGENT' 'Postfix Setup [virtual_transport]'
     return 1
   fi
 
