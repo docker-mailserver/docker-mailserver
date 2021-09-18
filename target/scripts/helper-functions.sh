@@ -22,6 +22,7 @@ function errex
 # PANIC_INFO => Provide your own string content to insert into the error message for that PANIC_TYPE.
 PANIC_NO_ENV='no-env'
 PANIC_NO_FILE='no-file'
+PANIC_MISCONFIGURED='misconfigured'
 PANIC_INVALID_VALUE='invalid-value'
 function dms_panic
 {
@@ -37,6 +38,9 @@ function dms_panic
     ;;
     ( "${PANIC_NO_FILE}" )
       SHUTDOWN_MESSAGE="File ${PANIC_INFO} does not exist!"
+    ;;
+    ( "${PANIC_MISCONFIGURED}" )
+      SHUTDOWN_MESSAGE="${PANIC_INFO} appears to be misconfigured, please verify."
     ;;
     ( "${PANIC_INVALID_VALUE}" )
       SHUTDOWN_MESSAGE="Invalid value for ${PANIC_INFO}!"

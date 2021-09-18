@@ -1190,7 +1190,8 @@ function _setup_docker_permit
 
   if [[ -z ${CONTAINER_IP} ]]
   then
-    _shutdown "Detecting the container IP address failed. Check if NETWORK_INTERFACE is correctly configured."
+    _notify 'err' 'Detecting the container IP address failed.'
+    dms_panic 'Network Setup [docker_permit]' "${PANIC_MISCONFIGURED}" 'NETWORK_INTERFACE'
   fi
 
   while read -r IP
@@ -1234,13 +1235,14 @@ function _setup_docker_permit
   esac
 }
 
+# Requires ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
 function _setup_postfix_virtual_transport
 {
   _notify 'task' 'Setting up Postfix virtual transport'
 
   if [[ -z ${POSTFIX_DAGENT} ]]
   then
-    _shutdown "${POSTFIX_DAGENT} not set."
+    dms_panic 'Postfix Setup [virtual_transport]' "${PANIC_NO_ENV}" 'POSTFIX_DAGENT'
     return 1
   fi
 
