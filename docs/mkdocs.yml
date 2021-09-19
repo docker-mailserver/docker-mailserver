@@ -142,6 +142,7 @@ nav:
         - 'Full-Text Search': config/advanced/full-text-search.md
         - 'Kubernetes': config/advanced/kubernetes.md
         - 'IPv6': config/advanced/ipv6.md
+        - 'Podman': config/advanced/podman.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
