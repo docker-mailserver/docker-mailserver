@@ -5,7 +5,7 @@ function check
   _notify 'tasklog' 'Checking configuration'
   for FUNC in "${FUNCS_CHECK[@]}"
   do
-    ${FUNC} || _defunc
+    ${FUNC}
   done
 }
 
@@ -20,6 +20,5 @@ function _check_hostname
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
     _shutdown 'Setting hostname/domainname is required'
-    return 1
   fi
 }
