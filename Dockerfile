@@ -101,7 +101,7 @@ RUN \
   rm -rf /var/log/clamav/
 
 # -----------------------------------------------
-# --- Dovecot & MkCert --------------------------
+# --- Dovecot -----------------------------------
 # -----------------------------------------------
 
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
@@ -117,10 +117,6 @@ RUN \
   sedfile -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
   sedfile -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
   sedfile -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf && \
-  sedfile -i 's/RANDFILE.*//g' /usr/share/dovecot/dovecot-openssl.cnf && \
-  mkdir /etc/dovecot/ssl && \
-  chmod 755 /etc/dovecot/ssl && \
-  ./mkcert.sh 2>&1 && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
@@ -218,8 +214,7 @@ COPY \
 RUN \
   : >/etc/aliases && \
   sedfile -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail && \
-  mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail && \
-  curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem >/etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
+  mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # -----------------------------------------------
 # --- Logs --------------------------------------
