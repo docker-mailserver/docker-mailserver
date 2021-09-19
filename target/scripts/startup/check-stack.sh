@@ -16,10 +16,10 @@ function _check_hostname
   _notify 'inf' "Domain has been set to ${DOMAINNAME}"
   _notify 'inf' "Hostname has been set to ${HOSTNAME}"
 
+  # HOSTNAME should be an FQDN (eg: hostname.domain)
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
-    _notify 'err' 'Setting hostname/domainname is required'
-    _shutdown
+    _shutdown 'Setting hostname/domainname is required'
     return 1
   fi
 }

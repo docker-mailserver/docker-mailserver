@@ -1,54 +1,73 @@
 load 'test_helper/common'
 
 function setup() {
-    run_setup_file_if_necessary
+  run_setup_file_if_necessary
 }
 
 function teardown() {
-    run_teardown_file_if_necessary
+  run_teardown_file_if_necessary
 }
 
 function setup_file() {
-    pushd test/docker-openldap/ || return 1
-    docker build -f Dockerfile -t ldap --no-cache .
-    popd || return 1
+  pushd test/docker-openldap/ || return 1
+  docker build -f Dockerfile -t ldap --no-cache .
+  popd || return 1
 
-    docker run -d --name ldap_for_mail \
-		-e LDAP_DOMAIN="localhost.localdomain" \
-		-h ldap.my-domain.com -t ldap
+  export FQDN_MAIL='mail.my-domain.com'
+  export FQDN_LDAP='ldap.my-domain.com'
+  export FQDN_LOCALHOST_A='localhost.localdomain'
+  export FQDN_LOCALHOST_B='localhost.otherdomain'
+  export DMS_TEST_NETWORK='test-network-ldap'
 
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
-    docker run -d --name mail_with_ldap \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_LDAP=1 \
-		-e LDAP_SERVER_HOST=ldap \
-		-e LDAP_START_TLS=no \
-		-e SPOOF_PROTECTION=1 \
-		-e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
-		-e LDAP_BIND_PW=admin \
-		-e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
-		-e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
-		-e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
-		-e LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))" \
-		-e DOVECOT_TLS=no \
-		-e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-		-e REPORT_RECIPIENT=1 \
-		-e ENABLE_SASLAUTHD=1 \
-		-e SASLAUTHD_MECHANISMS=ldap \
-		-e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
-		-e DMS_DEBUG=0 \
-		--link ldap_for_mail:ldap \
-		-h mail.my-domain.com -t "${NAME}"
-    wait_for_smtp_port_in_container mail_with_ldap
+  # NOTE: If the network already exists, test will fail to start.
+  docker network create "${DMS_TEST_NETWORK}"
+
+  docker run -d --name ldap_for_mail \
+    --env LDAP_DOMAIN="${FQDN_LOCALHOST_A}" \
+    --network "${DMS_TEST_NETWORK}" \
+    --network-alias 'ldap' \
+    --hostname "${FQDN_LDAP}" \
+    --tty \
+    ldap # Image name
+
+  # _setup_ldap uses configomat with .ext files and ENV vars like DOVECOT_TLS with a prefix (eg DOVECOT_ or LDAP_)
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+  docker run -d --name mail_with_ldap \
+    -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
+    -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
+    -e SPOOF_PROTECTION=1 \
+    -e ENABLE_LDAP=1 \
+    -e LDAP_SERVER_HOST=ldap \
+    -e LDAP_START_TLS=no \
+    -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
+    -e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
+    -e LDAP_BIND_PW=admin \
+    -e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
+    -e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
+    -e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
+    -e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
+    -e LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))" \
+    -e DOVECOT_TLS=no \
+    -e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+    -e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+    -e REPORT_RECIPIENT=1 \
+    -e ENABLE_SASLAUTHD=1 \
+    -e SASLAUTHD_MECHANISMS=ldap \
+    -e POSTMASTER_ADDRESS="postmaster@${FQDN_LOCALHOST_A}" \
+    -e DMS_DEBUG=0 \
+    -e SSL_TYPE='snakeoil' \
+    --network "${DMS_TEST_NETWORK}" \
+    --hostname "${FQDN_MAIL}" \
+    --tty \
+    "${NAME}" # Image name
+
+  wait_for_smtp_port_in_container mail_with_ldap
 }
 
 function teardown_file() {
-    docker rm -f ldap_for_mail mail_with_ldap
+  docker rm -f ldap_for_mail mail_with_ldap
+  docker network rm "${DMS_TEST_NETWORK}"
 }
 
 @test "first" {
@@ -64,31 +83,31 @@ function teardown_file() {
 
 # postfix
 @test "checking postfix: ldap lookup works correctly" {
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user@localhost.localdomain ldap:/etc/postfix/ldap-users.cf"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user@${FQDN_LOCALHOST_A} ldap:/etc/postfix/ldap-users.cf"
   assert_success
-  assert_output "some.user@localhost.localdomain"
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q postmaster@localhost.localdomain ldap:/etc/postfix/ldap-aliases.cf"
+  assert_output "some.user@${FQDN_LOCALHOST_A}"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q postmaster@${FQDN_LOCALHOST_A} ldap:/etc/postfix/ldap-aliases.cf"
   assert_success
-  assert_output "some.user@localhost.localdomain"
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@localhost.localdomain ldap:/etc/postfix/ldap-groups.cf"
+  assert_output "some.user@${FQDN_LOCALHOST_A}"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@${FQDN_LOCALHOST_A} ldap:/etc/postfix/ldap-groups.cf"
   assert_success
-  assert_output "some.user@localhost.localdomain"
+  assert_output "some.user@${FQDN_LOCALHOST_A}"
 
   # Test of the user part of the domain is not the same as the uniqueIdentifier part in the ldap
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user.email@localhost.localdomain ldap:/etc/postfix/ldap-users.cf"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user.email@${FQDN_LOCALHOST_A} ldap:/etc/postfix/ldap-users.cf"
   assert_success
-  assert_output "some.user.email@localhost.localdomain"
+  assert_output "some.user.email@${FQDN_LOCALHOST_A}"
 
   # Test email receiving from a other domain then the primary domain of the mailserver
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.other.user@localhost.otherdomain ldap:/etc/postfix/ldap-users.cf"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q some.other.user@${FQDN_LOCALHOST_B} ldap:/etc/postfix/ldap-users.cf"
   assert_success
-  assert_output "some.other.user@localhost.otherdomain"
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q postmaster@localhost.otherdomain ldap:/etc/postfix/ldap-aliases.cf"
+  assert_output "some.other.user@${FQDN_LOCALHOST_B}"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q postmaster@${FQDN_LOCALHOST_B} ldap:/etc/postfix/ldap-aliases.cf"
   assert_success
-  assert_output "some.other.user@localhost.otherdomain"
-  run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@localhost.otherdomain ldap:/etc/postfix/ldap-groups.cf"
+  assert_output "some.other.user@${FQDN_LOCALHOST_B}"
+  run docker exec mail_with_ldap /bin/sh -c "postmap -q employees@${FQDN_LOCALHOST_B} ldap:/etc/postfix/ldap-groups.cf"
   assert_success
-  assert_output "some.other.user@localhost.otherdomain"
+  assert_output "some.other.user@${FQDN_LOCALHOST_B}"
 }
 
 @test "checking postfix: ldap custom config files copied" {
@@ -136,17 +155,17 @@ function teardown_file() {
 }
 
 @test "checking dovecot: ldap mail delivery works" {
-  run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@localhost.localdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
+  run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@${FQDN_LOCALHOST_A} < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
-  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.user/new | wc -l"
+  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/${FQDN_LOCALHOST_A}/some.user/new | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking dovecot: ldap mail delivery works for a different domain then the mailserver" {
-  run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.other.user@localhost.otherdomain < /tmp/docker-mailserver-test/email-templates/test-email.txt"
+  run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.other.user@${FQDN_LOCALHOST_B} < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
-  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/localhost.localdomain/some.other.user/new | wc -l"
+  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/${FQDN_LOCALHOST_A}/some.other.user/new | wc -l"
   assert_success
   assert_output 1
 }
@@ -163,7 +182,7 @@ function teardown_file() {
 }
 
 @test "checking dovecot: postmaster address" {
-  run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@localhost.localdomain' /etc/dovecot/conf.d/15-lda.conf"
+  run docker exec mail_with_ldap /bin/sh -c "grep 'postmaster_address = postmaster@${FQDN_LOCALHOST_A}' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 
@@ -220,7 +239,7 @@ function teardown_file() {
 
 @test "checking pflogsum delivery" {
   # checking default sender is correctly set when env variable not defined
-  run docker exec mail_with_ldap grep "mailserver-report@mail.my-domain.com" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
   assert_success
 
   # checking default logrotation setup
