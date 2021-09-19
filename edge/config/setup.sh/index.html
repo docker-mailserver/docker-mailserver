@@ -1316,6 +1316,11 @@
 <div class="highlight"><pre><span></span><code>wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
 chmod a+x ./setup.sh
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title"><code>setup.sh</code> for Docker Mailserver version <code>v10.1.x</code> and below</p>
+<p>If you're using Docker Mailserver version <code>v10.1.x</code> or below, you will need to get <code>setup.sh</code> with a specific version. Substitute <code>&lt;VERSION&gt;</code> with the <a href="https://github.com/docker-mailserver/docker-mailserver/tags">tagged release version</a> that you're using:</p>
+<p><code>wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/&lt;VERSION&gt;/setup.sh</code>.</p>
+</div>
 <h2 id="usage"><a class="toclink" href="#usage">Usage</a></h2>
 <p>Run <code>./setup.sh help</code> and you'll get <del>all you have ever wanted</del> some usage information:</p>
 <div class="highlight"><pre><span></span><code>SETUP(1)
@@ -1341,15 +1346,6 @@ DESCRIPTION
     You will be able to see detailed information about the script you are invoking and
     its arguments by appending help after your command. Currently, this
     does not work with all scripts.
-
-VERSION
-    The current version of this script is backwards compatible with versions of
-    docker-mailserver after 8.0.1. In case that there is not a more recent release,
-    this script is currently only working with the :edge tag.
-
-    You can download the script for your release by substituting TAG from the
-    following URL, where TAG looks like &#39;vX.X.X&#39;:
-    https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/TAG/setup.sh
 
 [SUB]COMMANDS
     COMMAND email :=
