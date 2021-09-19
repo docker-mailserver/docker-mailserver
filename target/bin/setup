@@ -101,56 +101,56 @@ function _main
 {
   case ${1:-} in
 
-    email )
+    ( email )
       case ${2:-} in
-        add      ) shift 2 ; addmailuser "${@}" ;;
-        update   ) shift 2 ; updatemailuser "${@}" ;;
-        del      ) shift 2 ; delmailuser "${@}" ;;
-        restrict ) shift 2 ; restrict-access "${@}" ;;
-        list     ) listmailuser ;;
-        *        ) _invalid_command "${1}" "${2}" ;;
+        ( add      ) shift 2 ; addmailuser "${@}" ;;
+        ( update   ) shift 2 ; updatemailuser "${@}" ;;
+        ( del      ) shift 2 ; delmailuser "${@}" ;;
+        ( restrict ) shift 2 ; restrict-access "${@}" ;;
+        ( list     ) listmailuser ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
 
-    alias )
+    ( alias )
       case ${2:-} in
-        add      ) shift 2 ; addalias "${1}" "${2}" ;;
-        del      ) shift 2 ; delalias "${1}" "${2}" ;;
-        list     ) shift 2 ; listalias ;;
-        *        ) _invalid_command "${1}" "${2}" ;;
+        ( add      ) shift 2 ; addalias "${1}" "${2}" ;;
+        ( del      ) shift 2 ; delalias "${1}" "${2}" ;;
+        ( list     ) shift 2 ; listalias ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
 
-    quota )
+    ( quota )
       case ${2:-} in
-        set      ) shift 2 ; setquota "${@}" ;;
-        del      ) shift 2 ; delquota "${@}" ;;
-        *        ) _invalid_command "${1}" "${2}" ;;
+        ( set      ) shift 2 ; setquota "${@}" ;;
+        ( del      ) shift 2 ; delquota "${@}" ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
 
-    config )
+    ( config )
       case ${2:-} in
-        dkim     ) shift 2 ; open-dkim "${@}" ;;
-        *        ) _invalid_command "${1}" "${2}" ;;
+        ( dkim     ) shift 2 ; open-dkim "${@}" ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
 
-    relay )
+    ( relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; addrelayhost "${@}" ;;
-        add-auth       ) shift 2 ; addsaslpassword "${@}" ;;
-        exclude-domain ) shift 2 ; excluderelaydomain "${@}" ;;
-        *              ) _invalid_command "${1}" "${2}" ;;
+        ( add-domain     ) shift 2 ; addrelayhost "${@}" ;;
+        ( add-auth       ) shift 2 ; addsaslpassword "${@}" ;;
+        ( exclude-domain ) shift 2 ; excluderelaydomain "${@}" ;;
+        ( *              ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
 
-    debug )
+    ( debug )
       case ${2:-} in
-        fetchmail      ) debug-fetchmail ;;
-        fail2ban       ) shift 2 ; fail2ban "${@}" ;;
-        show-mail-logs ) cat /var/log/mail/mail.log ;;
-        login          )
+        ( fetchmail      ) debug-fetchmail ;;
+        ( fail2ban       ) shift 2 ; fail2ban "${@}" ;;
+        ( show-mail-logs ) cat /var/log/mail/mail.log ;;
+        ( login          )
           shift 2
           if [[ -z ${1:-} ]]
           then
@@ -159,12 +159,12 @@ function _main
             /bin/bash -c "${@}"
           fi
           ;;
-        * ) _invalid_command "${1}" "${2}" ;;
+        ( * ) _invalid_command "${*}" ;;
       esac
       ;;
 
-    help ) _usage ;;
-    *    ) _invalid_command "${*}" ;;
+    ( help ) _usage ;;
+    ( *    ) _invalid_command "${*}" ;;
   esac
 }
 
