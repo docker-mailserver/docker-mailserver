@@ -6,8 +6,6 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
-SCRIPT_NAME="$(basename "$0")"
-
 # ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
 
 cd /tmp/docker-mailserver || exit 1
@@ -30,12 +28,7 @@ fi
 
 # determine postmaster address, duplicated from start-mailserver.sh
 # this script previously didn't work when POSTMASTER_ADDRESS was empty
-if [[ -n ${OVERRIDE_HOSTNAME} ]]
-then
-  DOMAINNAME="${OVERRIDE_HOSTNAME#*.}"
-else
-  DOMAINNAME="$(hostname -d)"
-fi
+_obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
@@ -44,9 +37,6 @@ sleep 10
 while true
 do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-
-  # Lock configuration while working
-  create_lock "${SCRIPT_NAME}"
 
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
@@ -58,6 +48,7 @@ do
   if [ $? -eq 1 ]
   then
     _notify 'inf' "${LOG_DATE} Change detected"
+    create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # Bug alert! This overwrites the alias set by start-mailserver.sh
@@ -232,11 +223,12 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
     # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
+
+    remove_lock
   fi
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
-  remove_lock "${SCRIPT_NAME}"
 
   sleep 1
 done

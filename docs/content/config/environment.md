@@ -11,7 +11,7 @@ title: Environment Variables
 ##### OVERRIDE_HOSTNAME
 
 - empty => uses the `hostname` command to get the mail server's canonical hostname.
-- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.
+- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's `hostname:` and `domainname:` values.
 
 ##### DMS_DEBUG
 
@@ -33,8 +33,8 @@ The log-level will show everything in its class and above.
 
 ##### ONE_DIR
 
-- **0** => state in default directories.
-- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes.
+- 0 => state in default directories.
+- **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
 
 ##### PERMIT_DOCKER
 
@@ -715,3 +715,5 @@ you to replace both instead of just the envelope sender.
 
 - **empty** => no default
 - password for default relay user
+
+[docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for
