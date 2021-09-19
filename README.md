@@ -78,7 +78,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
 Since Docker Mailserver `v10.2.0`, `setup.sh` functionality is included within the Docker image. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead.
 
-> **Note:** If you're using Docker or Docker Compose and are new to Docker Mailserver, it is recommended to use the script `setup.sh` for convenience.
+**Note:** If you're using Docker or Docker Compose and are new to Docker Mailserver, it is recommended to use the script `setup.sh` for convenience.
 
 ``` BASH
 DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
@@ -92,7 +92,9 @@ chmod a+x ./setup.sh
 
 If no `docker-mailserver` container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current stable release), performing a `pull` if necessary followed by running the command in a temporary container. 
 
-**NOTE** _If you're using Docker Mailserver version `v10.1.x` or below_, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the mail server version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
+#### `setup.sh` for Docker Mailserver version `v10.1.x` and below
+
+If you're using Docker Mailserver version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the mail server version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
 ### Create a docker-compose environment
 

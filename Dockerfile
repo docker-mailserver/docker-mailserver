@@ -83,16 +83,9 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   c_rehash 2>&1
 
-# -----------------------------------------------
-# --- Scripts -----------------------------------
-# -----------------------------------------------
+COPY ./target/bin/sedfile /usr/local/bin/sedfile
 
-COPY \
-  ./target/bin/* \
-  ./target/scripts/*.sh \
-  ./target/scripts/startup/*.sh \
-  ./target/docker-configomat/configomat.sh \
-  /usr/local/bin/
+RUN chmod +x /usr/local/bin/sedfile
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -108,7 +101,7 @@ RUN \
   rm -rf /var/log/clamav/
 
 # -----------------------------------------------
-# --- Dovecot & MkCert --------------------------
+# --- Dovecot -----------------------------------
 # -----------------------------------------------
 
 COPY target/dovecot/auth-passwdfile.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
@@ -124,10 +117,6 @@ RUN \
   sedfile -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
   sedfile -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf && \
   sedfile -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf && \
-  sedfile -i 's/RANDFILE.*//g' /usr/share/dovecot/dovecot-openssl.cnf && \
-  mkdir /etc/dovecot/ssl && \
-  chmod 755 /etc/dovecot/ssl && \
-  ./mkcert.sh 2>&1 && \
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global && \
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 
@@ -150,23 +139,6 @@ RUN \
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
 # -----------------------------------------------
-# --- Miscellaneous -----------------------------
-# -----------------------------------------------
-
-COPY \
-  ./VERSION /
-
-RUN \
-  chmod +x /usr/local/bin/* && \
-  rm -rf /usr/share/locale/* && \
-  rm -rf /usr/share/man/* && \
-  rm -rf /usr/share/doc/* && \
-  touch /var/log/auth.log && \
-  update-locale && \
-  rm /etc/postsrsd.secret && \
-  rm /etc/cron.daily/00logwatch
-
-# -----------------------------------------------
 # --- PostSRSD, Postgrey & Amavis ---------------
 # -----------------------------------------------
 
@@ -182,6 +154,7 @@ RUN \
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN \
   sedfile -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
+  # add users clamav and amavis to each others group
   adduser clamav amavis && \
   adduser amavis clamav && \
   # no syslog user in Debian compared to Ubuntu
@@ -241,8 +214,7 @@ COPY \
 RUN \
   : >/etc/aliases && \
   sedfile -i 's/START_DAEMON=no/START_DAEMON=yes/g' /etc/default/fetchmail && \
-  mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail && \
-  curl -s https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem >/etc/ssl/certs/lets-encrypt-x3-cross-signed.pem
+  mkdir /var/run/fetchmail && chown fetchmail /var/run/fetchmail
 
 # -----------------------------------------------
 # --- Logs --------------------------------------
@@ -286,6 +258,30 @@ COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
 
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
+
+# -----------------------------------------------
+# --- Scripts & Miscellaneous--------------------
+# -----------------------------------------------
+
+RUN \
+  rm -rf /usr/share/locale/* && \
+  rm -rf /usr/share/man/* && \
+  rm -rf /usr/share/doc/* && \
+  touch /var/log/auth.log && \
+  update-locale && \
+  rm /etc/postsrsd.secret && \
+  rm /etc/cron.daily/00logwatch
+
+COPY ./VERSION /
+
+COPY \
+  ./target/bin/* \
+  ./target/scripts/*.sh \
+  ./target/scripts/startup/*.sh \
+  ./target/docker-configomat/configomat.sh \
+  /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/*
 
 WORKDIR /
 
