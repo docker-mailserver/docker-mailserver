@@ -83,16 +83,9 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   c_rehash 2>&1
 
-# -----------------------------------------------
-# --- Scripts -----------------------------------
-# -----------------------------------------------
+COPY ./target/bin/sedfile /usr/local/bin/sedfile
 
-COPY \
-  ./target/bin/* \
-  ./target/scripts/*.sh \
-  ./target/scripts/startup/*.sh \
-  ./target/docker-configomat/configomat.sh \
-  /usr/local/bin/
+RUN chmod +x /usr/local/bin/sedfile
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -146,23 +139,6 @@ RUN \
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
 
 # -----------------------------------------------
-# --- Miscellaneous -----------------------------
-# -----------------------------------------------
-
-COPY \
-  ./VERSION /
-
-RUN \
-  chmod +x /usr/local/bin/* && \
-  rm -rf /usr/share/locale/* && \
-  rm -rf /usr/share/man/* && \
-  rm -rf /usr/share/doc/* && \
-  touch /var/log/auth.log && \
-  update-locale && \
-  rm /etc/postsrsd.secret && \
-  rm /etc/cron.daily/00logwatch
-
-# -----------------------------------------------
 # --- PostSRSD, Postgrey & Amavis ---------------
 # -----------------------------------------------
 
@@ -178,6 +154,7 @@ RUN \
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN \
   sedfile -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode && \
+  # add users clamav and amavis to each others group
   adduser clamav amavis && \
   adduser amavis clamav && \
   # no syslog user in Debian compared to Ubuntu
@@ -281,6 +258,30 @@ COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
 
 COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
+
+# -----------------------------------------------
+# --- Scripts & Miscellaneous--------------------
+# -----------------------------------------------
+
+RUN \
+  rm -rf /usr/share/locale/* && \
+  rm -rf /usr/share/man/* && \
+  rm -rf /usr/share/doc/* && \
+  touch /var/log/auth.log && \
+  update-locale && \
+  rm /etc/postsrsd.secret && \
+  rm /etc/cron.daily/00logwatch
+
+COPY ./VERSION /
+
+COPY \
+  ./target/bin/* \
+  ./target/scripts/*.sh \
+  ./target/scripts/startup/*.sh \
+  ./target/docker-configomat/configomat.sh \
+  /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/*
 
 WORKDIR /
 
