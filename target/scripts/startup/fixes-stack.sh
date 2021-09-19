@@ -21,7 +21,7 @@ function _fix_var_mail_permissions
   if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
   then
     _notify 'inf' 'Fixing /var/mail permissions'
-    chown -R 5000:5000 /var/mail || _notify 'err' 'Failed to fix /var/mail permissions'
+    chown -R 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
   else
     _notify 'inf' 'Permissions in /var/mail look OK'
   fi
@@ -34,17 +34,17 @@ function _fix_var_amavis_permissions
   [[ ! -e ${AMAVIS_STATE_DIR} ]] && return 0
 
   _notify 'inf' 'Fixing Amavis permissions'
-  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}" || _notify 'err' 'Failed to fix Amavis permissions'
+  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}" || _shutdown 'Failed to fix Amavis permissions'
 }
 
 function _fix_cleanup_clamav
 {
   _notify 'task' 'Cleaning up disabled ClamAV'
-  rm /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam || _notify 'err' 'Failed to remove ClamAV configuration'
+  rm /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam || _shutdown 'Failed to remove ClamAV configuration'
 }
 
 function _fix_cleanup_spamassassin
 {
   _notify 'task' 'Cleaning up disabled SpamAssassin'
-  rm /etc/cron.daily/spamassassin || _notify 'err' 'Failed to remove SpamAssassin configuration'
+  rm /etc/cron.daily/spamassassin || _shutdown 'Failed to remove SpamAssassin configuration'
 }
