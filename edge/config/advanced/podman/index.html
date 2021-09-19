@@ -13,21 +13,21 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/">
       
-      <link rel="icon" href="../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
     
     
       
-        <title>Your best friend setup.sh - Docker Mailserver</title>
+        <title>Advanced | Podman - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
         
       
     
@@ -42,7 +42,7 @@
     
     
     
-      <link rel="stylesheet" href="../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../assets/css/customizations.css">
     
     
       
@@ -63,7 +63,7 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
-    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
       <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#usage" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -84,9 +84,9 @@
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Your best friend setup.sh
+              Advanced | Podman
             
           </span>
         </div>
@@ -199,7 +199,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../.." class="md-tabs__link">
+    <a href="../../.." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -211,7 +211,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../introduction/" class="md-tabs__link">
+    <a href="../../../introduction/" class="md-tabs__link">
       Introduction
     </a>
   </li>
@@ -228,7 +228,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="./" class="md-tabs__link md-tabs__link--active">
+      <a href="../../setup.sh/" class="md-tabs__link md-tabs__link--active">
         Configuration
       </a>
     </li>
@@ -249,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../examples/tutorials/basic-installation/" class="md-tabs__link">
+      <a href="../../../examples/tutorials/basic-installation/" class="md-tabs__link">
         Examples
       </a>
     </li>
@@ -264,7 +264,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../faq/" class="md-tabs__link">
+    <a href="../../../faq/" class="md-tabs__link">
       FAQ
     </a>
   </li>
@@ -279,7 +279,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../contributing/issues-and-pull-requests/" class="md-tabs__link">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-tabs__link">
         Contributing
       </a>
     </li>
@@ -320,8 +320,6 @@
           
             
               
-                
-              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -332,9 +330,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -363,7 +361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         Home
       </a>
     </li>
@@ -378,7 +376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../introduction/" class="md-nav__link">
+      <a href="../../../introduction/" class="md-nav__link">
         Introduction
       </a>
     </li>
@@ -414,47 +412,11 @@
             
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Your Best Friend setup.sh
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../setup.sh/" class="md-nav__link">
         Your Best Friend setup.sh
       </a>
-      
-        
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -464,7 +426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../environment/" class="md-nav__link">
+      <a href="../../environment/" class="md-nav__link">
         Environment Variables
       </a>
     </li>
@@ -497,7 +459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-management/accounts/" class="md-nav__link">
+      <a href="../../user-management/accounts/" class="md-nav__link">
         Accounts
       </a>
     </li>
@@ -509,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-management/aliases/" class="md-nav__link">
+      <a href="../../user-management/aliases/" class="md-nav__link">
         Aliases
       </a>
     </li>
@@ -548,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/dkim/" class="md-nav__link">
+      <a href="../../best-practices/dkim/" class="md-nav__link">
         DKIM
       </a>
     </li>
@@ -560,7 +522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/dmarc/" class="md-nav__link">
+      <a href="../../best-practices/dmarc/" class="md-nav__link">
         DMARC
       </a>
     </li>
@@ -572,7 +534,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/spf/" class="md-nav__link">
+      <a href="../../best-practices/spf/" class="md-nav__link">
         SPF
       </a>
     </li>
@@ -584,7 +546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../best-practices/autodiscover/" class="md-nav__link">
         Auto-discovery
       </a>
     </li>
@@ -623,7 +585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../security/understanding-the-ports/" class="md-nav__link">
         Understanding the Ports
       </a>
     </li>
@@ -635,7 +597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/ssl/" class="md-nav__link">
+      <a href="../../security/ssl/" class="md-nav__link">
         SSL/TLS
       </a>
     </li>
@@ -647,7 +609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/fail2ban/" class="md-nav__link">
+      <a href="../../security/fail2ban/" class="md-nav__link">
         Fail2Ban
       </a>
     </li>
@@ -659,7 +621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/mail_crypt/" class="md-nav__link">
+      <a href="../../security/mail_crypt/" class="md-nav__link">
         Mail Encryption
       </a>
     </li>
@@ -698,7 +660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshooting/debugging/" class="md-nav__link">
+      <a href="../../troubleshooting/debugging/" class="md-nav__link">
         Debugging
       </a>
     </li>
@@ -716,7 +678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pop3/" class="md-nav__link">
+      <a href="../../pop3/" class="md-nav__link">
         Mail Delivery with POP3
       </a>
     </li>
@@ -726,12 +688,14 @@
             
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8" data-md-state="indeterminate" type="checkbox" id="__nav_3_8" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8" type="checkbox" id="__nav_3_8" checked>
       
       <label class="md-nav__link" for="__nav_3_8">
         Advanced Configuration
@@ -749,7 +713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/optional-config/" class="md-nav__link">
+      <a href="../optional-config/" class="md-nav__link">
         Optional Configuration
       </a>
     </li>
@@ -782,7 +746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../maintenance/update-and-cleanup/" class="md-nav__link">
         Update and Cleanup
       </a>
     </li>
@@ -821,7 +785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/dovecot/" class="md-nav__link">
+      <a href="../override-defaults/dovecot/" class="md-nav__link">
         Dovecot
       </a>
     </li>
@@ -833,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/postfix/" class="md-nav__link">
+      <a href="../override-defaults/postfix/" class="md-nav__link">
         Postfix
       </a>
     </li>
@@ -845,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/user-patches/" class="md-nav__link">
+      <a href="../override-defaults/user-patches/" class="md-nav__link">
         Modifications via Script
       </a>
     </li>
@@ -863,7 +827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/auth-ldap/" class="md-nav__link">
+      <a href="../auth-ldap/" class="md-nav__link">
         LDAP Authentication
       </a>
     </li>
@@ -875,7 +839,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-sieve/" class="md-nav__link">
+      <a href="../mail-sieve/" class="md-nav__link">
         Email Filtering with Sieve
       </a>
     </li>
@@ -887,7 +851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-fetchmail/" class="md-nav__link">
+      <a href="../mail-fetchmail/" class="md-nav__link">
         Email Gathering with Fetchmail
       </a>
     </li>
@@ -920,7 +884,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../mail-forwarding/relay-hosts/" class="md-nav__link">
         Relay Hosts
       </a>
     </li>
@@ -932,7 +896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../mail-forwarding/aws-ses/" class="md-nav__link">
         AWS SES
       </a>
     </li>
@@ -950,7 +914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/full-text-search/" class="md-nav__link">
+      <a href="../full-text-search/" class="md-nav__link">
         Full-Text Search
       </a>
     </li>
@@ -962,7 +926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/kubernetes/" class="md-nav__link">
+      <a href="../kubernetes/" class="md-nav__link">
         Kubernetes
       </a>
     </li>
@@ -974,7 +938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/ipv6/" class="md-nav__link">
+      <a href="../ipv6/" class="md-nav__link">
         IPv6
       </a>
     </li>
@@ -984,11 +948,94 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../advanced/podman/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Podman
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Podman
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-in-rootfull-mode" class="md-nav__link">
+    Installation in Rootfull Mode
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation in Rootfull Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#self-start-in-rootfull-mode" class="md-nav__link">
+    Self-start in Rootfull Mode
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-in-rootless-mode" class="md-nav__link">
+    Installation in Rootless Mode
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation in Rootless Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#self-start-in-rootless-mode" class="md-nav__link">
+    Self-start in Rootless Mode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-forwarding" class="md-nav__link">
+    Port Forwarding
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1055,7 +1102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../../examples/tutorials/basic-installation/" class="md-nav__link">
         Basic Installation
       </a>
     </li>
@@ -1067,7 +1114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
         Mailserver behind Proxy
       </a>
     </li>
@@ -1079,7 +1126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/blog-posts/" class="md-nav__link">
+      <a href="../../../examples/tutorials/blog-posts/" class="md-nav__link">
         Blog Posts
       </a>
     </li>
@@ -1118,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         Forward-Only Mailserver with LDAP
       </a>
     </li>
@@ -1130,7 +1177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/uses-cases/imap-folders/" class="md-nav__link">
+      <a href="../../../examples/uses-cases/imap-folders/" class="md-nav__link">
         Customize IMAP Folders
       </a>
     </li>
@@ -1157,7 +1204,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         FAQ
       </a>
     </li>
@@ -1193,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         Issues and Pull Requests
       </a>
     </li>
@@ -1205,7 +1252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/coding-style/" class="md-nav__link">
+      <a href="../../../contributing/coding-style/" class="md-nav__link">
         Coding Style
       </a>
     </li>
@@ -1217,7 +1264,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/tests/" class="md-nav__link">
+      <a href="../../../contributing/tests/" class="md-nav__link">
         Tests
       </a>
     </li>
@@ -1229,7 +1276,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/documentation/" class="md-nav__link">
+      <a href="../../../contributing/documentation/" class="md-nav__link">
         Documentation
       </a>
     </li>
@@ -1280,9 +1327,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1298,9 +1343,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-in-rootfull-mode" class="md-nav__link">
+    Installation in Rootfull Mode
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation in Rootfull Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#self-start-in-rootfull-mode" class="md-nav__link">
+    Self-start in Rootfull Mode
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-in-rootless-mode" class="md-nav__link">
+    Installation in Rootless Mode
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation in Rootless Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#self-start-in-rootless-mode" class="md-nav__link">
+    Self-start in Rootless Mode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-forwarding" class="md-nav__link">
+    Port Forwarding
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1316,121 +1408,97 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/setup.sh.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/podman.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>Your Best Friend setup.sh</h1>
+                  <h1>Podman</h1>
                 
-                <p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is an administration script that helps with the most common tasks, including initial configuration. It is intended to be used from the host machine, <em>not</em> from within your running container.</p>
-<p>The latest version of the script is included in the <code>docker-mailserver</code> repository. You may retrieve it at any time by running this command in your console:</p>
-<div class="highlight"><pre><span></span><code>wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-chmod a+x ./setup.sh
-</code></pre></div>
+                <h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
+<p>Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux System.</p>
 <div class="admonition warning">
-<p class="admonition-title"><code>setup.sh</code> for Docker Mailserver version <code>v10.1.x</code> and below</p>
-<p>If you're using Docker Mailserver version <code>v10.1.x</code> or below, you will need to get <code>setup.sh</code> with a specific version. Substitute <code>&lt;VERSION&gt;</code> with the <a href="https://github.com/docker-mailserver/docker-mailserver/tags">tagged release version</a> that you're using:</p>
-<p><code>wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/&lt;VERSION&gt;/setup.sh</code>.</p>
+<p class="admonition-title">About Support for Podman</p>
+<p>Please note that Podman <strong>is not</strong> officially supported as Docker Mailserver is built and verified on top of the Docker Engine. This content is entirely community-supported. If you find errors, please open an issue and provide a PR.</p>
 </div>
-<h2 id="usage"><a class="toclink" href="#usage">Usage</a></h2>
-<p>Run <code>./setup.sh help</code> and you'll get <del>all you have ever wanted</del> some usage information:</p>
-<div class="highlight"><pre><span></span><code>SETUP(1)
-
-NAME
-    setup.sh - docker-mailserver administration script
-
-SYNOPSIS
-    ./setup.sh [ OPTIONS... ] COMMAND [ help | ARGUMENTS... ]
-
-    COMMAND := { email | alias | quota | config | relay | debug } SUBCOMMAND
-
-DESCRIPTION
-    This is the main administration script that you use for all interactions with your
-    mail server. Setup, configuration and much more is done with this script.
-
-    Please note that the script executes most of the commands inside the container itself.
-    If the image was not found, this script will pull the :latest tag of
-    mailserver/docker-mailserver. This tag refers to the latest release,
-    see the tagging convention in the README under
-    https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
-
-    You will be able to see detailed information about the script you are invoking and
-    its arguments by appending help after your command. Currently, this
-    does not work with all scripts.
-
-[SUB]COMMANDS
-    COMMAND email :=
-        ./setup.sh email add &lt;EMAIL ADDRESS&gt; [&lt;PASSWORD&gt;]
-        ./setup.sh email update &lt;EMAIL ADDRESS&gt; [&lt;PASSWORD&gt;]
-        ./setup.sh email del [ OPTIONS... ] &lt;EMAIL ADDRESS&gt; [ &lt;EMAIL ADDRESS&gt;... ]
-        ./setup.sh email restrict &lt;add|del|list&gt; &lt;send|receive&gt; [&lt;EMAIL ADDRESS&gt;]
-        ./setup.sh email list
-
-    COMMAND alias :=
-        ./setup.sh alias add &lt;EMAIL ADDRESS&gt; &lt;RECIPIENT&gt;
-        ./setup.sh alias del &lt;EMAIL ADDRESS&gt; &lt;RECIPIENT&gt;
-        ./setup.sh alias list
-
-    COMMAND quota :=
-        ./setup.sh quota set &lt;EMAIL ADDRESS&gt; [&lt;QUOTA&gt;]
-        ./setup.sh quota del &lt;EMAIL ADDRESS&gt;
-
-    COMMAND config :=
-        ./setup.sh config dkim [ ARGUMENTS... ]
-
-    COMMAND relay :=
-        ./setup.sh relay add-domain &lt;DOMAIN&gt; &lt;HOST&gt; [&lt;PORT&gt;]
-        ./setup.sh relay add-auth &lt;DOMAIN&gt; &lt;USERNAME&gt; [&lt;PASSWORD&gt;]
-        ./setup.sh relay exclude-domain &lt;DOMAIN&gt;
-
-    COMMAND debug :=
-        ./setup.sh debug fetchmail
-        ./setup.sh debug fail2ban [unban &lt;IP&gt;]
-        ./setup.sh debug show-mail-logs
-        ./setup.sh debug inspect
-        ./setup.sh debug login &lt;COMMANDS&gt;
-
-EXAMPLES
-    ./setup.sh email add test@domain.tld
-        Add the email account test@domain.tld. You will be prompted
-        to input a password afterwards since no password was supplied.
-
-    ./setup.sh config dkim keysize 2048 domain &#39;whoami.com,whoareyou.org&#39;
-        Creates keys of length 2048 but in an LDAP setup where domains are not known to
-        Postfix by default, so you need to provide them yourself in a comma-separated list.
-
-    ./setup.sh config dkim help
-        This will provide you with a detailed explanation on how to use the 
-        config dkim command, showing what arguments can be passed and what they do.
-
-OPTIONS
-    Config path, container or image adjustments
-        -i IMAGE_NAME
-            Provides the name of the docker-mailserver image. The default value is
-            docker.io/mailserver/docker-mailserver:latest
-
-        -c CONTAINER_NAME
-            Provides the name of the running container.
-
-        -p PATH
-            Provides the config folder path to the temporary container 
-            (does not work if docker-mailserver container already exists).
-
-    SELinux
-        -z
-            Allows container access to the bind mount content that is shared among
-            multiple containers on a SELinux-enabled host.
-
-        -Z
-            Allows container access to the bind mount content that is private and
-            unshared with other containers on a SELinux-enabled host.
-
-EXIT STATUS
-    Exit status is 0 if the command was successful. If there was an unexpected error, an error
-    message is shown describing the error. In case of an error, the script will exit with exit
-    status 1.
+<div class="admonition warning">
+<p class="admonition-title">About this Guide</p>
+<p>This guide was tested with Fedora 34 using <code>systemd</code> and <code>firewalld</code>. Moreover, it requires Podman version &gt;= 3.2. You may be able to substitute <code>dnf</code> - Fedora's package maneger - with others such as <code>apt</code>.</p>
+</div>
+<h2 id="installation-in-rootfull-mode"><a class="toclink" href="#installation-in-rootfull-mode">Installation in Rootfull Mode</a></h2>
+<p>While using Podman, you can just manage docker-mailserver as what you did with Docker. Your best friend <code>setup.sh</code> includes the minimum code in order to support Podman since it's 100% compatible with the Docker CLI.</p>
+<p>The installation is basically the same. Podman v3.2 introduced a RESTful API that is 100% compatible with the Docker API, so you can use docker-compose with Podman easily. Install Podman and docker-compose with your package manager first.</p>
+<div class="highlight"><pre><span></span><code>sudo dnf install podman docker-compose
 </code></pre></div>
+<p>Then enable <code>podman.socket</code> using <code>systemctl</code>.</p>
+<div class="highlight"><pre><span></span><code>systemctl <span class="nb">enable</span> --now podman.socket
+</code></pre></div>
+<p>This will create a unix socket locate under <code>/run/podman/podman.sock</code>, which is the entrypoint of Podman's API. Now, configure docker-mailserver and start it.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:/run/podman/podman.sock&quot;</span>
+docker-compose up -d mailserver
+docker-compose ps
+</code></pre></div>
+<p>You should see that docker-mailserver is running now.</p>
+<h3 id="self-start-in-rootfull-mode"><a class="toclink" href="#self-start-in-rootfull-mode">Self-start in Rootfull Mode</a></h3>
+<p>Podman is daemonless, that means if you want docker-mailserver self-start while boot up the system, you have to generate a systemd file with Podman CLI.</p>
+<div class="highlight"><pre><span></span><code>podman generate systemd mailserver &gt; /etc/systemd/system/mailserver.service
+systemctl daemon-reload
+systemctl <span class="nb">enable</span> --now mailserver.service
+</code></pre></div>
+<h2 id="installation-in-rootless-mode"><a class="toclink" href="#installation-in-rootless-mode">Installation in Rootless Mode</a></h2>
+<p>Running rootless containers is one of Podman's major features. But due to some restrictions, deploying docker-mailserver in rootless mode is not as easy compared to rootfull mode.</p>
+<ul>
+<li>a rootless container is running in a user namespace so you cannot bind ports lower than 1024</li>
+<li>a rootless container's systemd file can only be placed in folder under <code>~/.config</code></li>
+</ul>
+<p>Also notice that Podman's rootless mode is not about running as a non-root user inside the container, but about the mapping of (normal, non-root) host users to root inside the container.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In order to make rootless mailserver work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.</p>
+</div>
+<p>First, enable <code>podman.socket</code> in systemd's userspace with a non-root user.</p>
+<div class="highlight"><pre><span></span><code>systemctl <span class="nb">enable</span> --now --user podman.socket
+</code></pre></div>
+<p>The socket file should be located at <code>/var/run/user/$(id -u)/podman/podman.sock</code>. Then, modify <code>docker-compose.yml</code> to make sure all ports are bindings are on non-privileged ports.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;10025:25&quot;</span>   <span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;10143:143&quot;</span>  <span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;10465:465&quot;</span>  <span class="c1"># ESMTP (implicit TLS)</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;10587:587&quot;</span>  <span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;10993:993&quot;</span>  <span class="c1"># IMAP4 (implicit TLS)</span>
+</code></pre></div>
+<p>Then, setup your <code>mailserver.env</code> file follow the documentation and use docker-compose to start the container.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:/var/run/user/1000/podman/podman.sock&quot;</span>
+docker-compose up -d mailserver
+docker-compose ps
+</code></pre></div>
+<h3 id="self-start-in-rootless-mode"><a class="toclink" href="#self-start-in-rootless-mode">Self-start in Rootless Mode</a></h3>
+<p>Generate a systemd file with the Podman CLI.</p>
+<div class="highlight"><pre><span></span><code>podman generate systemd mailserver &gt; ~/.config/systemd/user/mailserver.service
+systemctl --user daemon-reload
+systemctl <span class="nb">enable</span> --user --now mailserver.service
+</code></pre></div>
+<p>Systemd's user space service is only started when a specific user logs in and stops when you log out. In order to make it to start with the system, we need to enable linger with <code>loginctl</code></p>
+<div class="highlight"><pre><span></span><code>loginctl enable-linger &lt;username&gt;
+</code></pre></div>
+<p>Remember to run this command as root user.</p>
+<h3 id="port-forwarding"><a class="toclink" href="#port-forwarding">Port Forwarding</a></h3>
+<p>When it comes to forwarding ports using <code>firewalld</code>, see <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld">https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld</a> for more infomation.</p>
+<div class="highlight"><pre><span></span><code>firewall-cmd --permanent --add-forward-port<span class="o">=</span><span class="nv">port</span><span class="o">=</span>&lt;<span class="m">25</span><span class="p">|</span><span class="m">143</span><span class="p">|</span><span class="m">465</span><span class="p">|</span><span class="m">587</span><span class="p">|</span><span class="m">993</span>&gt;:proto<span class="o">=</span>&lt;tcp&gt;:toport<span class="o">=</span>&lt;<span class="m">10025</span><span class="p">|</span><span class="m">10143</span><span class="p">|</span><span class="m">10465</span><span class="p">|</span><span class="m">10587</span><span class="p">|</span><span class="m">10993</span>&gt;
+...
+
+<span class="c1"># After you set all ports up.</span>
+firewall-cmd --reload
+</code></pre></div>
+<p>Notice that this will only open the access to the external client. If you want to access privileges port in your server, do this:</p>
+<div class="highlight"><pre><span></span><code>firewall-cmd --permanent --direct --add-rule &lt;ipv4<span class="p">|</span>ipv6&gt; nat OUTPUT <span class="m">0</span> -p &lt;tcp<span class="p">|</span>udp&gt; -o lo --dport &lt;<span class="m">25</span><span class="p">|</span><span class="m">143</span><span class="p">|</span><span class="m">465</span><span class="p">|</span><span class="m">587</span><span class="p">|</span><span class="m">993</span>&gt; -j REDIRECT --to-ports &lt;<span class="m">10025</span><span class="p">|</span><span class="m">10143</span><span class="p">|</span><span class="m">10465</span><span class="p">|</span><span class="m">10587</span><span class="p">|</span><span class="m">10993</span>&gt;
+...
+<span class="c1"># After you set all ports up.</span>
+firewall-cmd --reload
+</code></pre></div>
+<p>Just map all the privilege port with non-privilege port you set in docker-compose.yml before as root user.</p>
                 
                   
                 
@@ -1457,7 +1525,7 @@ EXIT STATUS
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../../introduction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
+        <a href="../ipv6/" class="md-footer__link md-footer__link--prev" aria-label="Previous: IPv6" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1466,20 +1534,20 @@ EXIT STATUS
               <span class="md-footer__direction">
                 Previous
               </span>
-              Introduction
+              IPv6
             </div>
           </div>
         </a>
       
       
         
-        <a href="../environment/" class="md-footer__link md-footer__link--next" aria-label="Next: Environment Variables" rel="next">
+        <a href="../../../examples/tutorials/basic-installation/" class="md-footer__link md-footer__link--next" aria-label="Next: Basic Installation" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Environment Variables
+              Basic Installation
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1512,10 +1580,10 @@ EXIT STATUS
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
       
     
   </body>

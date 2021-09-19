@@ -66,6 +66,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/</loc>
+         <lastmod>2021-09-19</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/aws-ses/</loc>
          <lastmod>2021-09-19</lastmod>
          <changefreq>daily</changefreq>
