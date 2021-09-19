@@ -146,7 +146,7 @@ function _docker_container
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
   else
     # if no container is running, run a temporary one:
-    # https://github.com/docker-mailserver/docker-mailserver/pull/1874#issuecomment-809781531
+    #   https://github.com/docker-mailserver/docker-mailserver/pull/1874#issuecomment-809781531
     _docker_image "${@:+$@}"
   fi
 }
@@ -159,11 +159,7 @@ function _main
   elif command -v podman &>/dev/null
   then
     CRI=podman
-    if [[ ${EUID} -ne 0 ]]
-    then
-      read -r -p "You are now running Podman in rootless mode. Are you sure you want to continue? [Y/n] "
-      [[ -n ${REPLY} ]] && [[ ${REPLY} =~ (n|N) ]] && exit 0
-    fi
+    _check_root
   else
     echo "No supported Container Runtime Interface detected."
     exit 1
