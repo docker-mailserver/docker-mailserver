@@ -44,7 +44,7 @@ DESCRIPTION
     see the tagging convention in the README under
     https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 
-    You will be able to see detailed information about the script you are invoking and
+    You will be able to see detailed information about the script you're invoking and
     its arguments by appending help after your command. Currently, this
     does not work with all scripts.
 
