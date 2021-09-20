@@ -1371,7 +1371,7 @@
 <p>For major configuration changes it’s best to override the dovecot configuration files. For each configuration file you want to override, add a list entry under the <code>volumes</code> key.</p>
 <p>You will need to first obtain the configuration from the running container: <code>mkdir -p ./config/dovecot &amp;&amp; docker cp mailserver:/etc/dovecot/conf.d/10-master.conf ./config/dovecot/10-master.conf</code></p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mail</span><span class="p">:</span>
+  <span class="nt">mailserver</span><span class="p">:</span>
     <span class="nt">volumes</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">maildata:/var/mail</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf</span>

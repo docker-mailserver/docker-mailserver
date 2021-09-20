@@ -1637,7 +1637,7 @@
 <details class="example" open="open"><summary>Example Code</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&quot;2&quot;</span>
 
 <span class="nt">services</span><span class="p">:</span>
-  <span class="nt">nginx</span><span class="p">:</span> 
+  <span class="nt">nginx</span><span class="p">:</span>
     <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
     <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
     <span class="nt">ports</span><span class="p">:</span>
@@ -1684,12 +1684,12 @@
 </code></pre></div>
 </details>
 <p>The second part of the setup is the actual mail container. So, in another folder, create another <code>docker-compose.yml</code> with the following content (Removed all ENV variables for this example):</p>
-<details class="example" open="open"><summary>Example Code</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2&#39;</span>
+<details class="example" open="open"><summary>Example Code</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
 <span class="nt">services</span><span class="p">:</span>
   <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver/docker-mailserver:latest</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;HOSTNAME&gt;</span> <span class="c1"># &lt;-- change this</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;DOMAINNAME&gt;</span> <span class="c1"># &lt;-- change this</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
+    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
+    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
     <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
     <span class="nt">ports</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
@@ -1842,14 +1842,12 @@
 <p>This setup only comes with one caveat: The domain has to be configured on another service for <a href="https://github.com/containous/traefik">Traefik</a> to actually request it from Let'sEncrypt, i.e. <a href="https://github.com/containous/traefik">Traefik</a> will not issue a certificate without a service / router demanding it.</p>
 <details class="example" open="open"><summary>Example Code</summary><p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>docker-compose</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-
 <span class="nt">services</span><span class="p">:</span>
-
   <span class="nt">mailserver</span><span class="p">:</span>
     <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
     <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">domain.tld</span>
+    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
     <span class="nt">volumes</span><span class="p">:</span>
        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/traefik/acme.json:/etc/letsencrypt/acme.json:ro</span>
     <span class="nt">environment</span><span class="p">:</span>
@@ -1859,7 +1857,7 @@
       <span class="c1"># SSL_DOMAIN: example.com</span>
 
   <span class="nt">traefik</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik:v2.4.8</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik:v2.5</span>
     <span class="nt">ports</span><span class="p">:</span>
        <span class="p p-Indicator">-</span> <span class="s">&quot;80:80&quot;</span>
        <span class="p p-Indicator">-</span> <span class="s">&quot;443:443&quot;</span>
@@ -1878,7 +1876,7 @@
        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span>
 
   <span class="nt">whoami</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik/whoami:latest</span> 
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik/whoami:latest</span>
     <span class="nt">labels</span><span class="p">:</span>
        <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.http.routers.whoami.rule=Host(`mail.domain.tld`)&quot;</span>
 </code></pre></div>
