@@ -33,7 +33,7 @@ Feel free to add your configuration if you archived the same goal using differen
     version: '3.7'
     services:
       reverse-proxy:
-        image: traefik:v2.4
+        image: traefik:latest
         container_name: docker-traefik
         restart: always
         command:
@@ -75,6 +75,7 @@ Feel free to add your configuration if you archived the same goal using differen
           - "traefik.tcp.services.smtp.loadbalancer.server.port=25"
           - "traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=1"
           - "traefik.tcp.routers.smtp-ssl.rule=HostSNI(`*`)"
+          - "traefik.tcp.routers.smtp-ssl.tls=false"
           - "traefik.tcp.routers.smtp-ssl.entrypoints=smtp-ssl"
           - "traefik.tcp.routers.smtp-ssl.service=smtp-ssl"
           - "traefik.tcp.services.smtp-ssl.loadbalancer.server.port=465"
