@@ -1469,11 +1469,13 @@ function _setup_security_stack
 
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]
     then
-      _notify 'inf' 'Configure Spamassassin/Amavis to put SPAM inbox'
+      _notify 'inf' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
     else
+      _notify 'inf' 'Configuring Spamassassin/Amavis to bounce SPAM'
+
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
 
