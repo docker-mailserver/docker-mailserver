@@ -4,19 +4,20 @@
 # executed  manually / via Make
 # task      wrapper for various setup scripts
 
-SCRIPT='setup.sh'
 DIR="$(pwd)"
-CRI=
 CONFIG_PATH=
 CONTAINER_NAME=
+CRI=
 DEFAULT_CONFIG_PATH=
+DESIRED_CONFIG_PATH=
+DMS_CONFIG='/tmp/docker-mailserver'
 IMAGE_NAME=
 INFO=
-USE_TTY=
-USE_SELINUX=
-VOLUME=
-WISHED_CONFIG_PATH=
 PODMAN_ROOTLESS=false
+SCRIPT='setup.sh'
+USE_SELINUX=
+USE_TTY=
+VOLUME=
 
 set -euEo pipefail
 trap '__err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
@@ -107,14 +108,14 @@ function _get_absolute_script_directory
 
 function _handle_config_path
 {
-  if [[ -z ${WISHED_CONFIG_PATH} ]]
+  if [[ -z ${DESIRED_CONFIG_PATH} ]]
   then
-    # no wished config path
+    # no desired config path
     if [[ -n ${CONTAINER_NAME} ]]
     then
       VOLUME=$(${CRI} inspect "${CONTAINER_NAME}" \
         --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
-        grep "/tmp/docker-mailserver$" 2>/dev/null || :)
+        grep "${DMS_CONFIG}$" 2>/dev/null || :)
     fi
 
     if [[ -n ${VOLUME} ]]
@@ -127,7 +128,7 @@ function _handle_config_path
       CONFIG_PATH=${DEFAULT_CONFIG_PATH}
     fi
   else
-    CONFIG_PATH=${WISHED_CONFIG_PATH}
+    CONFIG_PATH=${DESIRED_CONFIG_PATH}
   fi
 }
 
@@ -141,7 +142,7 @@ function _run_in_new_container
   fi
 
   ${CRI} run --rm "${USE_TTY}" \
-    -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
+    -v "${CONFIG_PATH}:${DMS_CONFIG}${USE_SELINUX}" \
     "${IMAGE_NAME}" "${@:+$@}"
 }
 
@@ -159,20 +160,20 @@ function _main
       ( R )     PODMAN_ROOTLESS=true       ;;
       ( p )
         case "${OPTARG}" in
-          ( /* ) WISHED_CONFIG_PATH="${OPTARG}"        ;;
-          ( *  ) WISHED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
+          ( /* ) DESIRED_CONFIG_PATH="${OPTARG}"        ;;
+          ( *  ) DESIRED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
         esac
 
-        if [[ ! -d ${WISHED_CONFIG_PATH} ]]
+        if [[ ! -d ${DESIRED_CONFIG_PATH} ]]
         then
-          echo "Specified directory '${WISHED_CONFIG_PATH}' doesn't exist" >&2
+          echo "Specified directory '${DESIRED_CONFIG_PATH}' doesn't exist" >&2
           exit 1
         fi
         ;;
 
       ( * )
         echo "Invalid option: '-${OPTARG}'" >&2
-        echo -e "Use './setup.sh help' to get a complete overview.\n"
+        echo -e "Use './setup.sh help' to get a complete overview.\n" >&2
         _show_local_usage 'no-exit'
         exit 1
         ;;
