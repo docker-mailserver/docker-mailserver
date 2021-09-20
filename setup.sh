@@ -54,8 +54,8 @@ function _show_local_usage
             Provides the name of the running container.
 
         -p PATH
-            Provides the config folder path to the temporary container
-            Does not work if docker-mailserver container already exists.
+            Provides the local path of the config folder to the temporary container instance.
+            Does not work if an existing docker-mailserver container is already running.
 
     ${LBLUE}SELinux${RESET}
         -z
