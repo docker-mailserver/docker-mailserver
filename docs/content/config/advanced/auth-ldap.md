@@ -126,13 +126,13 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 ???+ example "Basic Setup"
 
     ```yaml
-    version: '2'
+    version: '3.8'
     services:
-      mail:
-        image: mailserver/docker-mailserver:latest
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
         hostname: mail
-        domainname: example.org
-        container_name: mail
+        domainname: example.com
+        container_name: mailserver
 
         ports:
           - "25:25"
@@ -172,7 +172,7 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
           - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
           - DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid
           # <<< Dovecot LDAP Integration
-          
+
           # >>> SASL LDAP Authentication
           - ENABLE_SASLAUTHD=1
           - SASLAUTHD_MECHANISMS=ldap
@@ -191,14 +191,14 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 ??? example "Kopano / Zarafa"
 
     ```yaml
-    version: '2'
+    version: '3.8'
 
     services:
-      mail:
-        image: mailserver/docker-mailserver:latest
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
         hostname: mail
-        domainname: domain.com
-        container_name: mail
+        domainname: example.com
+        container_name: mailserver
 
         ports:
           - "25:25"

@@ -209,8 +209,8 @@ The following configuration works nicely:
 
     ```yaml
     services:
-      mail:
-        image: mailserver/docker-mailserver:latest
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
         volumes:
           - ./cron/sa-learn:/etc/cron.d/sa-learn
     ```
@@ -221,8 +221,8 @@ The following configuration works nicely:
     version: "3.3"
 
     services:
-      mail:
-        image: mailserver/docker-mailserver:latest
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
         # ...
         configs:
           - source: my_sa_crontab

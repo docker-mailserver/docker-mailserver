@@ -36,7 +36,7 @@ You will need to first obtain the configuration from the running container: `mkd
 
 ```yaml
 services:
-  mail:
+  mailserver:
     volumes:
       - maildata:/var/mail
       - ./config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf
