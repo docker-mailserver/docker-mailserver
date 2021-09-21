@@ -85,7 +85,7 @@ docker run --rm -it \
 find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 ```
 
-### What is the `mail-state` folder for?
+### What about `docker-data/dms/mail-state` folder? (_`/var/mail-state` internally_)
 
 When you run `docker-mailserver` with the ENV var `ONE_DIR=1` (_default since v10.2_), this folder will store the data from internal services so that you can more easily persist state to disk (via `volumes`).
 

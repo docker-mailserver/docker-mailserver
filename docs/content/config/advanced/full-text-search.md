@@ -73,9 +73,9 @@ While indexing is memory intensive, you can configure the plugin to limit the am
             - "587:587"  # ESMTP (explicit TLS => STARTTLS)
             - "993:993"  # IMAP4 (implicit TLS)
           volumes:
-            - ./data/mail:/var/mail
-            - ./data/state:/var/mail-state
-            - ./data/logs:/var/log/mail
+            - ./docker-data/dms/mail-data/:/var/mail/
+            - ./docker-data/dms/mail-state/:/var/mail-state/
+            - ./docker-data/dms/mail-logs/:/var/log/mail/
             - ./docker-data/dms/config/:/tmp/docker-mailserver/
             - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
             - /etc/localtime:/etc/localtime:ro

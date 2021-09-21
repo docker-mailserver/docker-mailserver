@@ -122,8 +122,8 @@ Inside your `/path/to/mailserver/docker-compose.yml` (for the mailserver from th
 
 ```yaml
 volumes:
-  - maildata:/var/mail
-  - mailstate:/var/mail-state
+  - ./docker-data/dms/mail-data/:/var/mail/
+  - ./docker-data/dms/mail-state/:/var/mail-state/
   - ./docker-data/dms/config/:/tmp/docker-mailserver/
   - /server/letsencrypt/etc:/etc/letsencrypt/live
 ```
@@ -205,10 +205,10 @@ The second part of the setup is the actual mail container. So, in another folder
           - "587:587"
           - "993:993"
         volumes:
-          - ./mail:/var/mail
-          - ./mail-state:/var/mail-state
+          - ./docker-data/dms/mail-data/:/var/mail/
+          - ./docker-data/dms/mail-state/:/var/mail-state/
           - ./docker-data/dms/config/:/tmp/docker-mailserver/
-          - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
+          - ./docker-data/nginx-proxy/certs/:/etc/letsencrypt/live/:ro
         cap_add:
           - NET_ADMIN
           - SYS_PTRACE
@@ -387,7 +387,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
         domainname: example.com
         container_name: mailserver
         volumes:
-           - /traefik/acme.json:/etc/letsencrypt/acme.json:ro
+           - ./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
           SSL_TYPE: letsencrypt
           SSL_DOMAIN: mail.example.com
@@ -410,7 +410,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
            - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
            - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
         volumes:
-           - /traefik/acme.json:/acme.json
+           - ./docker-data/traefik/acme.json:/acme.json
            - /var/run/docker.sock:/var/run/docker.sock:ro
 
       whoami:

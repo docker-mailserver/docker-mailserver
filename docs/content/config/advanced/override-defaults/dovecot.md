@@ -36,7 +36,7 @@ For major configuration changes it’s best to override the dovecot configuratio
 services:
   mailserver:
     volumes:
-      - maildata:/var/mail
+      - ./docker-data/dms/mail-data/:/var/mail/
       - ./docker-data/dms/config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf
 ```
 
