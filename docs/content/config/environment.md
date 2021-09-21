@@ -108,7 +108,7 @@ FAIL2BAN_BLOCKTYPE=drop
   - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. Presently only `manual` mode supports this feature.
 - self-signed => Enables self-signed certificates.
 
-Please read [the SSL page in the documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/ssl) for more information.
+Please read [the SSL page in the documentation][docs-ssl] for more information.
 
 ##### TLS_LEVEL
 
@@ -170,7 +170,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
 
-See [mailbox quota](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts/#notes).
+See [mailbox quota][docs-accounts].
 
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
 
@@ -717,3 +717,5 @@ you to replace both instead of just the envelope sender.
 - password for default relay user
 
 [docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for
+[docs-ssl]: ./config/security/ssl.md
+[docs-accounts]: ./config/user-management/accounts.md#notes

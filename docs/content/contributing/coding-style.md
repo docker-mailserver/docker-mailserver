@@ -139,7 +139,7 @@ function _setup_postfix_aliases
       [[ "${UNAME}" != "${DOMAIN}" ]] && echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
-    _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
+    _notify 'inf' "Warning '/tmp/docker-mailserver/postfix-virtual.cf' is not provided. No mail alias/forward created."
   fi
 
   ...

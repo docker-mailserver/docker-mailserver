@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-This is a list of all configuration files and directories which are optional or automatically generated in your `config` directory.
+This is a list of all configuration files and directories which are optional or automatically generated in your `docker-data/dms/config/` directory.
 
 ## Directories
 

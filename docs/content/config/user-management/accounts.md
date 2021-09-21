@@ -20,10 +20,10 @@ docker run --rm \
   -e MAIL_USER=user1@example.com \
   -e MAIL_PASS=mypassword \
   -it mailserver/docker-mailserver:latest \
-  /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)"' >> config/postfix-accounts.cf
+  /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)"' >> docker-data/dms/config/postfix-accounts.cf
 ```
 
-You will then be asked for a password, and be given back the data for a new account entry, as text. To actually _add_ this new account, just copy all the output text in `config/postfix-accounts.cf` file of your running container.
+You will then be asked for a password, and be given back the data for a new account entry, as text. To actually _add_ this new account, just copy all the output text in `docker-data/dms/config/postfix-accounts.cf` file of your running container.
 
 !!! note
 

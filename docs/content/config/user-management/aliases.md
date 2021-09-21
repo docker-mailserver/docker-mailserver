@@ -21,7 +21,7 @@ alias2@example.com external-account@gmail.com
 
 ## Configuring RegExp Aliases
 
-Additional regexp aliases can be configured by placing them into `config/postfix-regexp.cf`. The regexp aliases get evaluated after the virtual aliases (`/tmp/docker-mailserver/postfix-virtual.cf`). For example, the following `config/postfix-regexp.cf` causes all email to "test" users to be delivered to `qa@example.com`:
+Additional regexp aliases can be configured by placing them into `docker-data/dms/config/postfix-regexp.cf`. The regexp aliases get evaluated after the virtual aliases (container path: `/tmp/docker-mailserver/postfix-virtual.cf`). For example, the following `docker-data/dms/config/postfix-regexp.cf` causes all email sent to "test" users to be delivered to `qa@example.com` instead:
 
 ```cf
 /^test[0-9][0-9]*@example.com/ qa@example.com
@@ -29,11 +29,11 @@ Additional regexp aliases can be configured by placing them into `config/postfix
 
 ## Address Tags (Extension Delimiters) an Alternative to Aliases
 
-Postfix supports so-called address tags, in the form of plus (+) tags - i.e. address+tag@example.com will end up at address@example.com. This is configured by default and the (configurable !) separator is set to `+`. For more info, see [How to use Address Tagging (`user+tag@example.com`) with Postfix](https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/) and the [official documentation](http://www.postfix.org/postconf.5.html#recipient_delimiter).
+Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`. This is configured by default and the (configurable !) separator is set to `+`. For more info, see [How to use Address Tagging (`user+tag@example.com`) with Postfix](https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/) and the [official documentation](http://www.postfix.org/postconf.5.html#recipient_delimiter).
 
 !!! note
 
-    If you do decide to change the configurable separator, you must add the same line to *both* `config/postfix-main.cf` and `config/dovecot.cf`, because Dovecot is acting as the delivery agent. For example, to switch to `-`, add:
+    If you do decide to change the configurable separator, you must add the same line to *both* `docker-data/dms/config/postfix-main.cf` and `docker-data/dms/config/dovecot.cf`, because Dovecot is acting as the delivery agent. For example, to switch to `-`, add:
 
 ```cf
 recipient_delimiter = -

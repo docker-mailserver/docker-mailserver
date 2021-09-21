@@ -10,10 +10,10 @@ environment:
   - FETCHMAIL_POLL=300
 ```
 
-Generate a file called `fetchmail.cf` and place it in the `config` folder. Your `docker-mailserver` folder should look like this example:
+Generate a file called `fetchmail.cf` and place it in the `docker-data/dms/config/` folder. Your `docker-mailserver` folder should look like this example:
 
 ```txt
-├── config
+├── docker-data/dms/config
 │   ├── dovecot.cf
 │   ├── fetchmail.cf
 │   ├── postfix-accounts.cf
@@ -52,7 +52,7 @@ A detailed description of the configuration options can be found in the [online 
 
 !!! caution
 
-    Don’t forget the last line! (_eg: `is 'user1@example.com'`_). After `is`, you have to specify an email address from the configuration file: `config/postfix-accounts.cf`.
+    Don’t forget the last line! (_eg: `is 'user1@example.com'`_). After `is`, you have to specify an email address from the configuration file: `docker-data/dms/config/postfix-accounts.cf`.
 
 More details how to configure fetchmail can be found in the [fetchmail man page in the chapter “The run control file”][fetchmail-docs-run].
 

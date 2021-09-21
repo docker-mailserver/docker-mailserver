@@ -124,7 +124,7 @@ Inside your `/path/to/mailserver/docker-compose.yml` (for the mailserver from th
 volumes:
   - maildata:/var/mail
   - mailstate:/var/mail-state
-  - ./config/:/tmp/docker-mailserver/
+  - ./docker-data/dms/config/:/tmp/docker-mailserver/
   - /server/letsencrypt/etc:/etc/letsencrypt/live
 ```
 
@@ -207,7 +207,7 @@ The second part of the setup is the actual mail container. So, in another folder
         volumes:
           - ./mail:/var/mail
           - ./mail-state:/var/mail-state
-          - ./config/:/tmp/docker-mailserver/
+          - ./docker-data/dms/config/:/tmp/docker-mailserver/
           - /mnt/data/nginx/certs/:/etc/letsencrypt/live/:ro
         cap_add:
           - NET_ADMIN
@@ -425,7 +425,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 
     Use self-signed certificates only for testing purposes!
 
-This feature requires you to provide the following files into your [`config/ssl/` directory][docs-optional-config] (internal location: `/tmp/docker-mailserver/ssl/`):
+This feature requires you to provide the following files into your [`docker-data/dms/config/ssl/` directory][docs-optional-config] (internal location: `/tmp/docker-mailserver/ssl/`):
 
 - `${HOSTNAME}-key.pem`
 - `${HOSTNAME}-cert.pem`
@@ -436,7 +436,7 @@ Where `${HOSTNAME}` is the mailserver [FQDN](https://en.wikipedia.org/wiki/Fully
 To use the certificate:
 
 - Add `SSL_TYPE=self-signed` to your container environment variables.
-- If a matching certificate (files listed above) is found in `config/ssl`, it will be automatically setup in postfix and dovecot. You just have to place them in `config/ssl` folder.
+- If a matching certificate (files listed above) is found in `docker-data/dms/config/ssl`, it will be automatically setup in postfix and dovecot. You just have to place them in `docker-data/dms/config/ssl` folder.
 
 #### Generating a self-signed certificate
 
@@ -493,7 +493,7 @@ You can also provide your own certificate files. Add these entries to your `dock
 
 ```yaml
 volumes:
-  - /etc/ssl:/tmp/ssl:ro
+  - ./docker-data/dms/config/ssl/:/tmp/ssl/:ro
 environment:
   - SSL_TYPE=manual
   - SSL_CERT_PATH=/tmp/ssl/cert/public.crt
@@ -543,7 +543,7 @@ docker exec mail openssl s_client \
 
     Not recommended for purposes other than testing.
 
-Add this to `config/dovecot.cf`:
+Add this to `docker-data/dms/config/dovecot.cf`:
 
 ```cf
 ssl = yes
@@ -562,9 +562,9 @@ If you have another source for SSL/TLS certificates you can import them into the
 
 The steps to follow are these:
 
-1. Transport the new certificates to `./config/ssl` (`/tmp/ssl` in the container)
+1. Transfer the new certificates to `./docker-data/dms/config/ssl` (`/tmp/ssl` in the container)
 2. You should provide `fullchain.key` and `privkey.pem`
-3. Place the script in `./config/` (or `/tmp/docker-mailserver/` inside the container)
+3. Place the script in `./docker-data/dms/config/` (or `/tmp/docker-mailserver/` inside the container)
 4. Make the script executable (`chmod +x tomav-renew-certs.sh`)
 5. Run the script: `docker exec mail /tmp/docker-mailserver/tomav-renew-certs.sh`
 

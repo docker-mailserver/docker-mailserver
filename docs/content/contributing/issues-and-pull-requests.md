@@ -8,13 +8,13 @@ This project is Open Source. That means that you can contribute on enhancements,
 
 !!! attention
 
-      **Before opening an issue**, read the [`README`][github-file-readme] carefully, study the [documentation][docs], the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! 
+    **Before opening an issue**, read the [`README`][github-file-readme] carefully, study the [documentation][docs], the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! 
 
-When opening an issue, please provide details use case to let the community reproduce your problem. Please start the mail server with env `DMS_DEBUG=1` and paste the output into the issue. 
+When opening an issue, please provide details use case to let the community reproduce your problem. Please start the mail server with env `DMS_DEBUG=1` and paste the output into the issue.
 
 !!! attention
 
-      **Use the issue templates** to provide the necessary information. Issues which do not use these templates are not worked on and closed. 
+    **Use the issue templates** to provide the necessary information. Issues which do not use these templates are not worked on and closed. 
 
 By raising issues, I agree to these terms and I understand, that the rules set for the issue tracker will help both maintainers as well as everyone to find a solution.
 
@@ -26,7 +26,7 @@ Maintainers take the time to improve on this project and help by solving issues 
 
 !!! question "Motivation"
 
-      You want to add a feature? Feel free to start creating an issue explaining what you want to do and how you're thinking doing it. Other users may have the same need and collaboration may lead to better results.
+    You want to add a feature? Feel free to start creating an issue explaining what you want to do and how you're thinking doing it. Other users may have the same need and collaboration may lead to better results.
 
 The development workflow is the following:
 
@@ -37,7 +37,7 @@ The development workflow is the following:
 3. Add integration tests if necessary
 4. [Prepare your environment and run linting and tests][docs-tests]
 5. Document your improvements if necessary (e.g. if you introduced new environment variables, describe those in the [ENV documentation][docs-environment])
-6. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist. 
+6. [Commit][commit] and [sign your commit][gpg], push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist.
    1. Pull requests are automatically tested against the CI and will be reviewed when tests pass
    2. When your changes are validated, your branch is merged
    3. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.

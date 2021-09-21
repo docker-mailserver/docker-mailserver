@@ -19,7 +19,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 `docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
 
-In order to do so, you'll probably want to push your config updates to your server through a Docker volume, then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
+In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
 See [supervisorctl's documentation](http://supervisord.org/running.html#running-supervisorctl).
 
@@ -56,13 +56,13 @@ Please do not use `CRLF`.
 
 #### Bind mounts (default)
 
-From the location of your `docker-compose.yml`, create a compressed archive of your `./config` and `./data` folders:
+From the location of your `docker-compose.yml`, create a compressed archive of your `docker-data/dms/config/` and `docker-data/dms/mail-*` folders:
 
 ```bash
-tar --gzip -cf "backup-$(date +%F).tar.gz" config data
+tar --gzip -cf "backup-$(date +%F).tar.gz" ./docker-data/dms
 ```
 
-Then to restore `./config` and `./data` folders from your backup file:
+Then to restore `docker-data/dms/config/` and `docker-data/dms/mail-*` folders from your backup file:
 
 ```bash
 tar --gzip -xf backup-date.tar.gz
@@ -75,14 +75,14 @@ Assuming that you use `docker-compose` and data volumes, you can backup the conf
 ```sh
 # create backup
 docker run --rm -it \
-  -v "$PWD/config":/tmp/docker-mailserver \
-  -v /backup/mail:/backup \
+  -v "${PWD}/docker-data/dms/config/:/tmp/docker-mailserver/" \
+  -v "${PWD}/docker-data/dms-backups/:/backup/" \
   --volumes-from mailserver \
   alpine:latest \
   tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
 
 # delete backups older than 30 days
-find /backup/mail -type f -mtime +30 -delete
+find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 ```
 
 ### What is the `mail-state` folder for?
@@ -115,7 +115,7 @@ Please use `STARTTLS`.
 
 ### How can I manage my custom SpamAssassin rules?
 
-Antispam rules are managed in `config/spamassassin-rules.cf`.
+Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
 ### What are acceptable `SA_SPAM_SUBJECT` values?
 
@@ -137,7 +137,7 @@ To use a bare domain (_where the host name is `example.com` and the domain is al
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to `config/postfix-main.cf`. That should work. Without that change there will be warnings in the logs like:
+Add the latter line to `docker-data/dms/config/postfix-main.cf`. That should work. Without that change there will be warnings in the logs like:
 
 ```log
 warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
@@ -174,13 +174,13 @@ The following configuration works nicely:
 
     ```sh
     # in the docker-compose.yml root directory
-    mkdir cron
-    touch cron/sa-learn
-    chown root:root cron/sa-learn
-    chmod 0644 cron/sa-learn
+    mkdir -p ./docker-data/dms/cron
+    touch ./docker-data/dms/cron/sa-learn
+    chown root:root ./docker-data/dms/cron/sa-learn
+    chmod 0644 ./docker-data/dms/cron/sa-learn
     ```
 
-    Edit the system cron file `nano cron/sa-learn`, and set an appropriate configuration:
+    Edit the system cron file `nano ./docker-data/dms/cron/sa-learn`, and set an appropriate configuration:
 
     ```conf
     # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
@@ -212,13 +212,13 @@ The following configuration works nicely:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
         volumes:
-          - ./cron/sa-learn:/etc/cron.d/sa-learn
+          - ./docker-data/dms/cron/sa-learn:/etc/cron.d/sa-learn
     ```
 
     Or with [docker swarm](https://docs.docker.com/engine/swarm/configs/):
 
     ```yaml
-    version: "3.3"
+    version: '3.8'
 
     services:
       mailserver:
@@ -230,14 +230,14 @@ The following configuration works nicely:
 
     configs:
       my_sa_crontab:
-        file: ./cron/sa-learn
+        file: ./docker-data/dms/cron/sa-learn
     ```
 
 With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
 ### How can I configure a catch-all?
 
-Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `config/postfix-virtual.cf`:
+Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
 
 ```cf
 @example.com user1@example.com
@@ -245,13 +245,13 @@ Considering you want to redirect all incoming e-mails for the domain `example.co
 
 ### How can I delete all the emails for a specific user?
 
-First of all, create a special alias named `devnull` by editing `config/postfix-aliases.cf`:
+First of all, create a special alias named `devnull` by editing `docker-data/dms/config/postfix-aliases.cf`:
 
 ```cf
 devnull: /dev/null
 ```
 
-Considering you want to delete all the e-mails received for `baduser@example.com`, add the following line to `config/postfix-virtual.cf`:
+Considering you want to delete all the e-mails received for `baduser@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
 
 ```cf
 baduser@example.com devnull
@@ -293,7 +293,7 @@ if header :contains "X-Spam-Flag" "YES" {
 }
 ```
 
-Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into `config/amavis.cf`
+Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into `docker-data/dms/config/amavis.cf`
 
 ```cf
 $clean_quarantine_to      = "amavis\@example.com";
@@ -365,7 +365,7 @@ mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
 
 ### How to use when behind a Proxy
 
-Add to `/etc/postfix/main.cf` :
+[Using `user-patches.sh`][docs-userpatches], update the container file `/etc/postfix/main.cf` to include:
 
 ```cf
 proxy_interfaces = X.X.X.X (your public IP)
@@ -373,21 +373,22 @@ proxy_interfaces = X.X.X.X (your public IP)
 
 ### What About Updates
 
-You can of course use a own script or every now and then pull && stop && rm && start the images but there are tools available for this.
-There is a section in the [Update and Cleanup][docs-maintenance] documentation page that explains how to use it the docker way.
+You can use your own scripts, or every now and then `pull && stop && rm && start` the images but there are tools already available for this.
+
+There is a section in the [Update and Cleanup][docs-maintenance] documentation page that explains how to do it the docker way.
 
 ### How to adjust settings with the `user-patches.sh` script
 
 Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
 
-This docker-container has a built-in way to do post-install processes. If you place a script called **user-patches.sh** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
+`docker-mailserver` has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
 
-The config file I am talking about is this volume in the yml file: `./config/:/tmp/docker-mailserver/`
+It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
-To place such a script you can just make it in the config dir, for instance like this:
+Add or create the script file to your config directory:
 
 ```sh
-cd ./config
+cd ./docker-data/dms/config
 touch user-patches.sh
 chmod +x user-patches.sh
 ```
@@ -410,11 +411,13 @@ cat /tmp/docker-mailserver/user-patches.sh
 exit
 ```
 
-You can do a lot of things with such a script. You can find an example `user-patches.sh` script here: [example `user-patches.sh` script][hanscees-userpatches]
+You can do a lot of things with such a script. You can find an example `user-patches.sh` script here: [example `user-patches.sh` script][hanscees-userpatches].
+
+We also have a [very similar docs page][docs-userpatches] specifically about this feature!
 
 #### Special use-case - Patching the `supervisord` config
 
-It seems worth noting, that the `user-patches.sh` gets executed trough supervisord. If you need to patch some supervisord config (e.g. `/etc/supervisor/conf.d/saslauth.conf`), the patching happens too late.
+It seems worth noting, that the `user-patches.sh` gets executed through `supervisord`. If you need to patch some supervisord config (e.g. `/etc/supervisor/conf.d/saslauth.conf`), the patching happens too late.
 
 An easy workaround is to make the `user-patches.sh` reload the supervisord config after patching it:
 
@@ -425,6 +428,7 @@ supervisorctl update
 ```
 
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
+[docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
 [github-issue-97]: https://github.com/docker-mailserver/docker-mailserver/issues/97
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

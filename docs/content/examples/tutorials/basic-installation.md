@@ -41,8 +41,8 @@ We are going to use this docker based mailserver:
                 - ./data/maildata:/var/mail
                 - ./data/mailstate:/var/mail-state
                 - ./data/maillogs:/var/log/mail
+                - ./docker-data/dms/config/:/tmp/docker-mailserver/
                 - /etc/localtime:/etc/localtime:ro
-                - ./config/:/tmp/docker-mailserver/
                 - /var/ds/wsproxy/letsencrypt/:/etc/letsencrypt/
             environment:
                 - PERMIT_DOCKER=network
@@ -82,7 +82,7 @@ We are going to use this docker based mailserver:
 
 - Pull the docker image: `docker pull mailserver/docker-mailserver:latest`
 
-- Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `config/opendkim/keys/example.com/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
+- Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
 
     ```txt
     mail._domainkey IN      TXT     ( "v=DKIM1; h=sha256; k=rsa; "

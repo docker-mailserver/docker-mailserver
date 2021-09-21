@@ -26,7 +26,7 @@ Setting these environment variables will cause mail for all sender domains to be
 
 ### Sender-dependent Authentication
 
-Sender dependent authentication is done in `config/postfix-sasl-password.cf`. You can create this file manually, or use:
+Sender dependent authentication is done in `docker-data/dms/config/postfix-sasl-password.cf`. You can create this file manually, or use:
 
 ```sh
 setup.sh relay add-auth <domain> <username> [<password>]
@@ -46,7 +46,7 @@ If there is no other configuration, this will cause Postfix to deliver email thr
 
 ### Sender-dependent Relay Host
 
-Sender dependent relay hosts are configured in `config/postfix-relaymap.cf`. You can create this file manually, or use:
+Sender dependent relay hosts are configured in `docker-data/dms/config/postfix-relaymap.cf`. You can create this file manually, or use:
 
 ```sh
 setup.sh relay add-domain <domain> <host> [<port>]
@@ -59,14 +59,14 @@ An example configuration file looks like this:
 @domain2.com        [relay2.org]:2525
 ```
 
-Combined with the previous configuration in `config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from domain1.com via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from domain2.com via `relay2.org:2525` authenticating as `relay_user_2`.
+Combined with the previous configuration in `docker-data/dms/config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from domain1.com via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from domain2.com via `relay2.org:2525` authenticating as `relay_user_2`.
 
 !!! note
     You still have to define `RELAY_HOST` to activate the feature
 
 ### Excluding Sender Domains
 
-If you want mail sent from some domains to be delivered directly, you can exclude them from being delivered via the default relay by adding them to `config/postfix-relaymap.cf` with no destination. You can also do this via:
+If you want mail sent from some domains to be delivered directly, you can exclude them from being delivered via the default relay by adding them to `docker-data/dms/config/postfix-relaymap.cf` with no destination. You can also do this via:
 
 ```sh
 setup.sh relay exclude-domain <domain>

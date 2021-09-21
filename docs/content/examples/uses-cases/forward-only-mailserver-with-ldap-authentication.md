@@ -59,7 +59,7 @@ userPassword: {SSHA}abcdefghi123456789
 email: external-account@gmail.com
 ```
 
-This structure is different from what is expected/assumed from the configuration scripts of the mailserver, so it doesn't work just by using the `LDAP_QUERY_FILTER_...` settings. Instead, I had to do [custom configuration][github-file-readme-patches]. I created the script `config/user-patches.sh`, with a content like this:
+This structure is different from what is expected/assumed from the configuration scripts of the mailserver, so it doesn't work just by using the `LDAP_QUERY_FILTER_...` settings. Instead, I had to do [custom configuration][docs-userpatches]. I created the script `docker-data/dms/config/user-patches.sh`, with a content like this:
 
 ```bash
 #!/bin/bash
@@ -96,7 +96,7 @@ postfix reload
 
 You see that besides `query_filter`, I had to customize as well `result_attribute` and `result_format`.
 
-!!! seealso "See also"
+!!! note "See also"
 
     For more details about using LDAP see: [LDAP managed mail server with Postfix and Dovecot for multiple domains](https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains)
 
@@ -108,5 +108,5 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
     One user reports only having success if `ENABLE_LDAP=0` was set.
 
-[github-file-readme-patches]: https://github.com/docker-mailserver/docker-mailserver/#custom-user-changes--patches
+[docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

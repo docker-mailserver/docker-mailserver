@@ -15,7 +15,11 @@ To enable DKIM signature, **you must have created at least one email account**. 
 ./setup.sh config dkim
 ```
 
-After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate. The script assumes you're being in the directory where the `config/` directory is located. The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS provider limits the size), then provide the size as the first parameter of the command:
+After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate.
+
+The script should ideally be run with a volume for _config_ attached (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`), otherwise by default it will mount `./config/:/tmp/docker-mailserver/`.
+
+The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS provider limits the size), then provide the size as the first parameter of the command:
 
 ```sh
 ./setup.sh config dkim keysize <keysize>
@@ -27,7 +31,7 @@ For LDAP systems that do not have any directly created user account you can run 
 ./setup.sh config dkim keysize <key-size> domain <example.com>[,<not-example.com>]
 ```
 
-Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/example.com/mail.txt` in your `example.com.hosts` zone.
+Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `docker-data/dms/config/opendkim/keys/example.com/mail.txt` in your `example.com.hosts` zone.
 
 ```console
 $ dig mail._domainkey.example.com TXT
@@ -45,7 +49,7 @@ mail._domainkey.<DOMAIN> 300 IN TXT    "v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWX
 5. Save.
 
 !!! note
-    Sometimes the key in `config/opendkim/keys/example.com/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
+    Sometimes the key in `docker-data/dms/config/opendkim/keys/example.com/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
 
 ```console
 $ dig mail._domainkey.example.com TXT

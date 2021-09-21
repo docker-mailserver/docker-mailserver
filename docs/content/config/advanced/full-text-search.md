@@ -6,7 +6,7 @@ title: 'Advanced | Full-Text Search'
 
 Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported [FTS indexing backends](https://doc.dovecot.org/configuration_manual/fts/).
 
-Docker-mailserver comes pre-installed with two plugins that can be enabled with a dovecot config file.
+`docker-mailserver` comes pre-installed with two plugins that can be enabled with a dovecot config file.
 
 Please be aware that indexing consumes memory and takes up additional disk space.
 
@@ -20,7 +20,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
 #### Setup
 
-1. To configure fts-xapian as a dovecot plugin, create a `fts-xapian-plugin.conf` file and place the following in it:
+1. To configure `fts-xapian` as a dovecot plugin, create a file at `docker-data/dms/config/dovecot/fts-xapian-plugin.conf` and place the following in it:
 
     ```
     mail_plugins = $mail_plugins fts fts_xapian
@@ -58,7 +58,6 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
 
     ```yaml
-
       version: '3.8'
       services:
         mailserver:
@@ -77,9 +76,9 @@ While indexing is memory intensive, you can configure the plugin to limit the am
             - ./data/mail:/var/mail
             - ./data/state:/var/mail-state
             - ./data/logs:/var/log/mail
+            - ./docker-data/dms/config/:/tmp/docker-mailserver/
+            - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
             - /etc/localtime:/etc/localtime:ro
-            - ./config/:/tmp/docker-mailserver/
-            - ./fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
           restart: always
           stop_grace_period: 1m
           cap_add:
@@ -87,23 +86,23 @@ While indexing is memory intensive, you can configure the plugin to limit the am
             - SYS_PTRACE
     ```
 
-  3. Recreate containers: 
+3. Recreate containers:
 
     ```
-      docker-compose down
-      docker-compose up -d
+    docker-compose down
+    docker-compose up -d
     ```
 
-  4. Initialize indexing on all users for all mail:
+4. Initialize indexing on all users for all mail:
 
     ```
-      docker-compose exec mailserver doveadm index -A -q \*
+    docker-compose exec mailserver doveadm index -A -q \*
     ```
 
-  5. Run the following command in a daily cron job:
+5. Run the following command in a daily cron job:
 
     ```
-      docker-compose exec mailserver doveadm fts optimize -A
+    docker-compose exec mailserver doveadm fts optimize -A
     ```
 
 ### Solr
@@ -122,7 +121,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
       solr:
         image: lmmdock/dovecot-solr:latest
         volumes:
-          - solr-dovecot:/opt/solr/server/solr/dovecot
+          - ./docker-data/dms/config/dovecot/solr-dovecot:/opt/solr/server/solr/dovecot
         restart: always
 
       mailserver:
@@ -132,15 +131,11 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
         ...
         volumes:
           ...
-          - ./etc/dovecot/conf.d/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
+          - ./docker-data/dms/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
         ...
-
-    volumes:
-      solr-dovecot:
-        driver: local
     ```
 
-2. `etc/dovecot/conf.d/10-plugin.conf`:
+2. `./docker-data/dms/config/dovecot/10-plugin.conf`:
 
     ```conf
     mail_plugins = $mail_plugins fts fts_solr
