@@ -4,7 +4,7 @@ title: 'Tutorials | Docker Build'
 
 ## Building your own Docker image
 
-You'll need to retrieve the git submodules prior to building your own Docker image. From within your copy of the git repo and build the Docker image, run:
+You'll need to retrieve the git submodules prior to building your own Docker image. From within your copy of the git repo run the following to retrieve the submodules and build the Docker image:
 
 ```sh
 git submodule update --init --recursive
