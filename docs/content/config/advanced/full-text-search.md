@@ -28,22 +28,22 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     plugin {
         fts = xapian
         fts_xapian = partial=3 full=20 verbose=0
-    
+
         fts_autoindex = yes
         fts_enforced = yes
-    
+
         # disable indexing of folders
         # fts_autoindex_exclude = \Trash
-    
+
         # Index attachements
         # fts_decoder = decode2text
     }
-    
+
     service indexer-worker {
         # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
         vsz_limit = 1GB
     }
-    
+
     # service decode2text {
     #     executable = script /usr/libexec/dovecot/decode2text.sh
     #     user = dovecot
@@ -62,7 +62,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
       version: '3.8'
       services:
         mailserver:
-          image: mailserver/docker-mailserver:latest
+          image: docker.io/mailserver/docker-mailserver:latest
           hostname: mail
           domainname: example.com
           container_name: mailserver
@@ -82,7 +82,9 @@ While indexing is memory intensive, you can configure the plugin to limit the am
             - ./fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
           restart: always
           stop_grace_period: 1m
-          cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
+          cap_add:
+            - NET_ADMIN
+            - SYS_PTRACE
     ```
 
   3. Recreate containers: 
@@ -126,7 +128,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
       mailserver:
         depends_on:
           - solr
-        image: mailserver/docker-mailserver:latest
+        image: docker.io/mailserver/docker-mailserver:latest
         ...
         volumes:
           ...
@@ -146,7 +148,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
     plugin {
       fts = solr
       fts_autoindex = yes
-      fts_solr = url=http://solr:8983/solr/dovecot/ 
+      fts_solr = url=http://solr:8983/solr/dovecot/
     }
     ```
 
