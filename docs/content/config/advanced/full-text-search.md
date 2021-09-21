@@ -14,7 +14,7 @@ Please be aware that indexing consumes memory and takes up additional disk space
 
 The [dovecot-fts-xapian](https://github.com/grosjo/fts-xapian) plugin makes use of [Xapian](https://xapian.org/). Xapian enables embedding an FTS engine without the need for additional backends.
 
-The indexes will be stored as a subfolder named `xapian-indexes` inside your `mail` folder. With the default settings, 10GB of email data may generate around 4GB of indexed data.
+The indexes will be stored as a subfolder named `xapian-indexes` inside your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
 
 While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB) as compared to Solr.
 

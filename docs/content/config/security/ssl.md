@@ -116,9 +116,7 @@ docker run -d \
 
 You may want to add `-e LETSENCRYPT_TEST=true` to the above while testing to avoid the Let's Encrypt certificate generation rate limits.
 
-Finally, start the mailserver with the `docker-compose.yml`. Make sure your mount path to the letsencrypt certificates is correct.
-
-Inside your `/path/to/mailserver/docker-compose.yml` (for the mailserver from this repo) make sure volumes look like below example:
+Make sure your mount path to the letsencrypt certificates is correct. Edit your `/path/to/mailserver/docker-compose.yml` for the `mailserver` service to have volumes added like the example below:
 
 ```yaml
 volumes:
@@ -128,7 +126,7 @@ volumes:
   - /server/letsencrypt/etc:/etc/letsencrypt/live
 ```
 
-Then: `/path/to/mailserver/docker-compose up -d mail`
+Then from the `docker-compose.yml` directory, run: `docker-compose up -d mailserver`.
 
 ### Example using Docker, `nginx-proxy` and `letsencrypt-nginx-proxy-companion` with `docker-compose`
 
@@ -510,7 +508,7 @@ This will mount the path where your ssl certificates reside as read-only under `
 - From your host:
 
     ```sh
-    docker exec mail openssl s_client \
+    docker exec mailserver openssl s_client \
       -connect 0.0.0.0:25 \
       -starttls smtp \
       -CApath /etc/ssl/certs/
@@ -519,7 +517,7 @@ This will mount the path where your ssl certificates reside as read-only under `
 - Or:
 
     ```sh
-    docker exec mail openssl s_client \
+    docker exec mailserver openssl s_client \
       -connect 0.0.0.0:143 \
       -starttls imap \
       -CApath /etc/ssl/certs/
@@ -530,7 +528,7 @@ And you should see the certificate chain, the server certificate and: `Verify re
 In addition, to verify certificate dates:
 
 ```sh
-docker exec mail openssl s_client \
+docker exec mailserver openssl s_client \
   -connect 0.0.0.0:25 \
   -starttls smtp \
   -CApath /etc/ssl/certs/ \
@@ -566,7 +564,7 @@ The steps to follow are these:
 2. You should provide `fullchain.key` and `privkey.pem`
 3. Place the script in `./docker-data/dms/config/` (or `/tmp/docker-mailserver/` inside the container)
 4. Make the script executable (`chmod +x tomav-renew-certs.sh`)
-5. Run the script: `docker exec mail /tmp/docker-mailserver/tomav-renew-certs.sh`
+5. Run the script: `docker exec mailserver /tmp/docker-mailserver/tomav-renew-certs.sh`
 
 If an error occurs the script will inform you. If not you will see both postfix and dovecot restart.
 

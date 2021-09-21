@@ -119,7 +119,7 @@ We are going to use this docker based mailserver:
 
     ```sh
     apt install docker-compose
-    docker-compose up mail
+    docker-compose up mailserver
     ```
 
 - Create email accounts and aliases with `SPOOF_PROTECTION=0`:
@@ -150,7 +150,7 @@ We are going to use this docker based mailserver:
 
     This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up Gmail is `admin.gmail@example.com` and `info.gmail@example.com` )
 
-- Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mail`.
+- Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mailserver`.
 
 - Now save on Moodle configuration the SMTP settings and test by trying to send some messages to other users:
 

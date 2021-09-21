@@ -306,7 +306,7 @@ Defines the interval in which the mail log is being rotated.
 - monthly => Rotate monthly.
 
 Note that only the log inside the container is affected.
-The full log output is still available via `docker logs mail` (or your respective container name).
+The full log output is still available via `docker logs mailserver` (_or your respective container name_).
 If you want to control logrotation for the docker generated logfile see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
 
 Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
