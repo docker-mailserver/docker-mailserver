@@ -47,7 +47,7 @@ SASLAUTHD_LDAP_SEARCH_BASE=ou=users,dc=example,dc=org
 SASLAUTHD_LDAP_FILTER=(&(uid=%U)(objectClass=inetOrgPerson))
 ```
 
-My LDAP data structure is very basic, containing only the username, password, and the external email address where to forward emails for this user. An entry looks like this
+My LDAP data structure is very basic, containing only the username, password, and the external email address where to forward emails for this user. An entry looks like this:
 
 ```properties
 add uid=username,ou=users,dc=example,dc=org
@@ -56,7 +56,7 @@ objectClass: inetOrgPerson
 sn: username
 cn: username
 userPassword: {SSHA}abcdefghi123456789
-email: real-email-address@external-domain.com
+email: external-account@gmail.com
 ```
 
 This structure is different from what is expected/assumed from the configuration scripts of the mailserver, so it doesn't work just by using the `LDAP_QUERY_FILTER_...` settings. Instead, I had to do [custom configuration][github-file-readme-patches]. I created the script `config/user-patches.sh`, with a content like this:
@@ -108,5 +108,5 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
     One user reports only having success if `ENABLE_LDAP=0` was set.
 
-[github-file-readme-patches]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md#custom-user-changes--patches
+[github-file-readme-patches]: https://github.com/docker-mailserver/docker-mailserver/#custom-user-changes--patches
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

@@ -81,11 +81,11 @@ DESCRIPTION
         ./setup.sh debug login <COMMANDS>
 
 EXAMPLES
-    ./setup.sh email add test@domain.tld
-        Add the email account test@domain.tld. You will be prompted
+    ./setup.sh email add test@example.com
+        Add the email account test@example.com. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ./setup.sh config dkim keysize 2048 domain 'whoami.com,whoareyou.org'
+    ./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 

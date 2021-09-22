@@ -9,14 +9,14 @@ You can use [`setup.sh`][docs-setupsh] instead of creating and editing files man
 * delivered to an existing account registered in `/tmp/docker-mailserver/postfix-accounts.cf`
 * redirected to one or more other email addresses
 
-Alias and target are space separated. An example on a server with domain.tld as its domain:
+Alias and target are space separated. An example on a server with example.com as its domain:
 
 ```cf
 # Alias delivered to an existing account
-alias1@domain.tld user1@domain.tld
+alias1@example.com user1@example.com
 
 # Alias forwarded to an external email address
-alias2@domain.tld external@gmail.com
+alias2@example.com external-account@gmail.com
 ```
 
 ## Configuring RegExp Aliases
@@ -32,6 +32,7 @@ Additional regexp aliases can be configured by placing them into `config/postfix
 Postfix supports so-called address tags, in the form of plus (+) tags - i.e. address+tag@example.com will end up at address@example.com. This is configured by default and the (configurable !) separator is set to `+`. For more info, see [How to use Address Tagging (`user+tag@example.com`) with Postfix](https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/) and the [official documentation](http://www.postfix.org/postconf.5.html#recipient_delimiter).
 
 !!! note
+
     If you do decide to change the configurable separator, you must add the same line to *both* `config/postfix-main.cf` and `config/dovecot.cf`, because Dovecot is acting as the delivery agent. For example, to switch to `-`, add:
 
 ```cf

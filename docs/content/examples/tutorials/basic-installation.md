@@ -12,8 +12,8 @@ We are going to use this docker based mailserver:
 - First create a directory for the mailserver and get the setup script:
 
     ```sh
-    mkdir -p /var/ds/mail.example.org
-    cd /var/ds/mail.example.org/
+    mkdir -p /var/ds/mail.example.com
+    cd /var/ds/mail.example.com/
 
     curl -o setup.sh \
         https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
@@ -65,7 +65,7 @@ We are going to use this docker based mailserver:
     - [Environment Variables][docs-environment]
     - [`mailserver.env` file][github-file-dotenv]
 
-    Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mailserver directly (from a client).  We also use these settings:
+    Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mailserver directly (from a client). We also use these settings:
 
     - `PERMIT_DOCKER=network` because we want to send emails from other docker containers.
     - `SSL_TYPE=letsencrypt` because we will manage SSL certificates with letsencrypt.
@@ -82,12 +82,12 @@ We are going to use this docker based mailserver:
 
 - Pull the docker image: `docker pull mailserver/docker-mailserver:latest`
 
-- Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `config/opendkim/keys/domain.tld/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.org.db`:
+- Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `config/opendkim/keys/example.com/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
 
     ```txt
     mail._domainkey IN      TXT     ( "v=DKIM1; h=sha256; k=rsa; "
             "p=MIIBIjANBgkqhkiG9w0BAQEFACAQ8AMIIBCgKCAQEAaH5KuPYPSF3Ppkt466BDMAFGOA4mgqn4oPjZ5BbFlYA9l5jU3bgzRj3l6/Q1n5a9lQs5fNZ7A/HtY0aMvs3nGE4oi+LTejt1jblMhV/OfJyRCunQBIGp0s8G9kIUBzyKJpDayk2+KJSJt/lxL9Iiy0DE5hIv62ZPP6AaTdHBAsJosLFeAzuLFHQ6USyQRojefqFQtgYqWQ2JiZQ3"
-            "iqq3bD/BVlwKRp5gH6TEYEmx8EBJUuDxrJhkWRUk2VDl1fqhVBy8A9O7Ah+85nMrlOHIFsTaYo9o6+cDJ6t1i6G1gu+bZD0d3/3bqGLPBQV9LyEL1Rona5V7TJBGg099NQkTz1IwIDAQAB" )  ; ----- DKIM key mail for example.org
+            "iqq3bD/BVlwKRp5gH6TEYEmx8EBJUuDxrJhkWRUk2VDl1fqhVBy8A9O7Ah+85nMrlOHIFsTaYo9o6+cDJ6t1i6G1gu+bZD0d3/3bqGLPBQV9LyEL1Rona5V7TJBGg099NQkTz1IwIDAQAB" )  ; ----- DKIM key mail for example.com
     ```
 
 - Add these configurations as well on the same file on the DNS server:
@@ -95,8 +95,8 @@ We are going to use this docker based mailserver:
     ```txt
     mail      IN  A   10.11.12.13
 
-    ; mailservers for example.org
-        3600  IN  MX  1  mail.example.org.
+    ; mailservers for example.com
+        3600  IN  MX  1  mail.example.com.
 
     ; Add SPF record
               IN TXT "v=spf1 mx ~all"
@@ -108,12 +108,12 @@ We are going to use this docker based mailserver:
 
     ```sh
     cd /var/ds/wsproxy
-    ds domains-add mail mail.example.org
-    ds get-ssl-cert myemail@gmail.com mail.example.org --test
-    ds get-ssl-cert myemail@gmail.com mail.example.org
+    ds domains-add mail mail.example.com
+    ds get-ssl-cert external-account@gmail.com mail.example.com --test
+    ds get-ssl-cert external-account@gmail.com mail.example.com
     ```
 
-    Now the certificates will be available on `/var/ds/wsproxy/letsencrypt/live/mail.example.org`.
+    Now the certificates will be available on `/var/ds/wsproxy/letsencrypt/live/mail.example.com`.
 
 - Start the mailserver and check for any errors:
 
@@ -125,10 +125,10 @@ We are going to use this docker based mailserver:
 - Create email accounts and aliases with `SPOOF_PROTECTION=0`:
 
     ```sh
-    ./setup.sh email add admin@example.org passwd123
-    ./setup.sh email add info@example.org passwd123
-    ./setup.sh alias add admin@example.org myemail@gmail.com
-    ./setup.sh alias add info@example.org myemail@gmail.com
+    ./setup.sh email add admin@example.com passwd123
+    ./setup.sh email add info@example.com passwd123
+    ./setup.sh alias add admin@example.com external-account@gmail.com
+    ./setup.sh alias add info@example.com external-account@gmail.com
     ./setup.sh email list
     ./setup.sh alias list
     ```
@@ -138,25 +138,25 @@ We are going to use this docker based mailserver:
 - Or create email accounts and aliases with `SPOOF_PROTECTION=1`:
 
     ```sh
-    ./setup.sh email add admin.gmail@example.org passwd123
-    ./setup.sh email add info.gmail@example.org passwd123
-    ./setup.sh alias add admin@example.org admin.gmail@example.org
-    ./setup.sh alias add info@example.org info.gmail@example.org
-    ./setup.sh alias add admin.gmail@example.org myemail@gmail.com
-    ./setup.sh alias add info.gmail@example.org myemail@gmail.com
+    ./setup.sh email add admin.gmail@example.com passwd123
+    ./setup.sh email add info.gmail@example.com passwd123
+    ./setup.sh alias add admin@example.com admin.gmail@example.com
+    ./setup.sh alias add info@example.com info.gmail@example.com
+    ./setup.sh alias add admin.gmail@example.com external-account@gmail.com
+    ./setup.sh alias add info.gmail@example.com external-account@gmail.com
     ./setup.sh email list
     ./setup.sh alias list
     ```
 
-    This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up Gmail is `admin.gmail@example.org` and `info.gmail@example.org` )
+    This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up Gmail is `admin.gmail@example.com` and `info.gmail@example.com` )
 
 - Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mail`.
 
 - Now save on Moodle configuration the SMTP settings and test by trying to send some messages to other users:
 
-    - **SMTP hosts**: `mail.example.org:465`
+    - **SMTP hosts**: `mail.example.com:465`
     - **SMTP security**: `SSL`
-    - **SMTP username**: `info@example.org`
+    - **SMTP username**: `info@example.com`
     - **SMTP password**: `passwd123`
 
 [docs-environment]: ../../config/environment.md

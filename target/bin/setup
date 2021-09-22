@@ -75,11 +75,11 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} debug ${CYAN}login${RESET} <COMMANDS>
 
 ${ORANGE}EXAMPLES${RESET}
-    ${WHITE}./setup.sh email add test@domain.tld${RESET}
-        Add the email account ${WHITE}test@domain.tld${RESET}. You will be prompted
+    ${WHITE}./setup.sh email add test@example.com${RESET}
+        Add the email account ${WHITE}test@example.com${RESET}. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ${WHITE}./setup.sh config dkim keysize 2048 domain 'whoami.com,whoareyou.org'${RESET}
+    ${WHITE}./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 

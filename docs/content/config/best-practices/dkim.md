@@ -21,16 +21,16 @@ After generating DKIM keys, you should restart the mail server. DNS edits may ta
 ./setup.sh config dkim keysize <keysize>
 ```
 
-For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains): 
+For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains):
 
 ```sh
-./setup.sh config dkim keysize <key-size> domain <domain.tld>[,<domain2.tld>]
+./setup.sh config dkim keysize <key-size> domain <example.com>[,<not-example.com>]
 ```
 
-Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
+Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of `config/opendkim/keys/example.com/mail.txt` in your `example.com.hosts` zone.
 
 ```console
-$ dig mail._domainkey.domain.tld TXT
+$ dig mail._domainkey.example.com TXT
 ---
 ;; ANSWER SECTION
 mail._domainkey.<DOMAIN> 300 IN TXT    "v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN"
@@ -45,10 +45,10 @@ mail._domainkey.<DOMAIN> 300 IN TXT    "v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWX
 5. Save.
 
 !!! note
-    Sometimes the key in `config/opendkim/keys/domain.tld/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
+    Sometimes the key in `config/opendkim/keys/example.com/mail.txt` can be on multiple lines. If so then you need to concatenate the values in the TXT record:
 
 ```console
-$ dig mail._domainkey.domain.tld TXT
+$ dig mail._domainkey.example.com TXT
 ---
 ;; ANSWER SECTION
 mail._domainkey.<DOMAIN> 300 IN TXT "v=DKIM1; k=rsa; "
@@ -72,7 +72,7 @@ SyslogSuccess           yes
 Socket                  inet:12301@localhost
 PidFile                 /var/run/opendkim/opendkim.pid
 
-ReportAddress           postmaster@my-domain.com
+ReportAddress           postmaster@example.com
 SendReports             yes
 
 Mode                    v
@@ -88,9 +88,9 @@ Simply remove the DKIM key by recreating (not just relaunching) the mailserver c
 - You can debug your TXT records with the `dig` tool.
 
 ```console
-$ dig TXT mail._domainkey.domain.tld
+$ dig TXT mail._domainkey.example.com
 ---
-; <<>> DiG 9.10.3-P4-Debian <<>> TXT mail._domainkey.domain.tld
+; <<>> DiG 9.10.3-P4-Debian <<>> TXT mail._domainkey.example.com
 ;; global options: +cmd
 ;; Got answer:
 ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 39669
@@ -99,10 +99,10 @@ $ dig TXT mail._domainkey.domain.tld
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 512
 ;; QUESTION SECTION:
-;mail._domainkey.domain.tld. IN	TXT
+;mail._domainkey.example.com. IN TXT
 
 ;; ANSWER SECTION:
-mail._domainkey.domain.tld. 3600 IN TXT "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxBSjG6RnWAdU3oOlqsdf2WC0FOUmU8uHVrzxPLW2R3yRBPGLrGO1++yy3tv6kMieWZwEBHVOdefM6uQOQsZ4brahu9lhG8sFLPX4MaKYN/NR6RK4gdjrZu+MYSdfk3THgSbNwIDAQAB"
+mail._domainkey.example.com. 3600 IN TXT "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxBSjG6RnWAdU3oOlqsdf2WC0FOUmU8uHVrzxPLW2R3yRBPGLrGO1++yy3tv6kMieWZwEBHVOdefM6uQOQsZ4brahu9lhG8sFLPX4MaKYN/NR6RK4gdjrZu+MYSdfk3THgSbNwIDAQAB"
 
 ;; Query time: 50 msec
 ;; SERVER: 127.0.1.1#53(127.0.1.1)

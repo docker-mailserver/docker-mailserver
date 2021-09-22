@@ -28,8 +28,8 @@ To enable Let's Encrypt on your mail server, you have to:
     services:
       mailserver:
         hostname: mail
-        domainname: myserver.tld
-        fqdn: mail.myserver.tld
+        domainname: example.com
+        fqdn: mail.example.com
     ```
 
 You don't have anything else to do. Enjoy.
@@ -43,7 +43,7 @@ You don't have anything else to do. Enjoy.
     cd /home/ubuntu/docker/letsencrypt
     ```
 
-2. Now get the certificate (modify `mail.myserver.tld`) and following the certbot instructions.
+2. Now get the certificate (modify `mail.example.com`) and following the certbot instructions.
 
 3. This will need access to port 80 from the internet, adjust your firewall if needed:
 
@@ -52,7 +52,7 @@ You don't have anything else to do. Enjoy.
       -v $PWD/log/:/var/log/letsencrypt/ \
       -v $PWD/etc/:/etc/letsencrypt/ \
       -p 80:80 \
-      certbot/certbot certonly --standalone -d mail.myserver.tld
+      certbot/certbot certonly --standalone -d mail.example.com
     ```
 
 4. You can now mount `/home/ubuntu/docker/letsencrypt/etc/` in `/etc/letsencrypt` of `docker-mailserver`.
@@ -103,14 +103,14 @@ docker run --detach \
 
 Start the rest of your web server containers as usual.
 
-Start another container for your `mail.myserver.tld`. This will generate a Let's Encrypt certificate for your domain, which can be used by `docker-mailserver`. It will also run a web server on port 80 at that address:
+Start another container for your `mail.example.com`. This will generate a Let's Encrypt certificate for your domain, which can be used by `docker-mailserver`. It will also run a web server on port 80 at that address:
 
 ```sh
 docker run -d \
   --name webmail \
-  -e "VIRTUAL_HOST=mail.myserver.tld" \
-  -e "LETSENCRYPT_HOST=mail.myserver.tld" \
-  -e "LETSENCRYPT_EMAIL=foo@bar.com" \
+  -e "VIRTUAL_HOST=mail.example.com" \
+  -e "LETSENCRYPT_HOST=mail.example.com" \
+  -e "LETSENCRYPT_EMAIL=admin@example.com" \
   library/nginx
 ```
 
@@ -257,8 +257,8 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [#1440][github-issue-1440] for details. In short for Caddy v1 the `Caddyfile` should look something like:
 
 ```caddyfile
-https://mail.domain.com {
-  tls yourcurrentemail@gmail.com {
+https://mail.example.com {
+  tls admin@example.com {
     key_type rsa2048
   }
 }
@@ -272,7 +272,7 @@ For Caddy v2 you can specify the `key_type` in your server's global settings, wh
   admin localhost:2019
   http_port 80
   https_port 443
-  default_sni mywebserver.com
+  default_sni example.com
   key_type rsa4096
 }
 ```
@@ -295,7 +295,7 @@ If you are instead using a json config for Caddy v2, you can set it in your site
                   "match": [
                     {
                       "host": [
-                        "mail.domain.com",
+                        "mail.example.com",
                       ]
                     }
                   ],
@@ -325,17 +325,17 @@ If you are instead using a json config for Caddy v2, you can set it in your site
             "policies": [
               {
                 "subjects": [
-                  "mail.domain.com",
+                  "mail.example.com",
                 ],
                 "key_type": "rsa2048",
                 "issuer": {
-                  "email": "email@email.com",
+                  "email": "admin@example.com",
                   "module": "acme"
                 }
               },
               {
                 "issuer": {
-                  "email": "email@email.com",
+                  "email": "admin@example.com",
                   "module": "acme"
                 }
               }
@@ -350,8 +350,8 @@ The generated certificates can be mounted:
 
 ```yaml
 volumes:
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.crt:/etc/letsencrypt/live/mail.domain.com/fullchain.pem
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.domain.com/mail.domain.com.key:/etc/letsencrypt/live/mail.domain.com/privkey.pem
+  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem
+  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
 ```
 
 EC certificates fail in the TLS handshake:
@@ -367,7 +367,7 @@ No client certificate CA names sent
 
 [Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. [Traefik][traefik::github] can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use [Traefik][traefik::github]'s major version 2.
 
-[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Wild card certificates issued for `*.domain.tld` are supported. You will then want to use `#!bash SSL_DOMAIN=domain.tld`. Lookup of the certificate domain happens in the following order:
+[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Wild card certificates issued for `*.example.com` are supported. You will then want to use `#!bash SSL_DOMAIN=example.com`. Lookup of the certificate domain happens in the following order:
 
 1. `#!bash ${SSL_DOMAIN}`
 2. `#!bash ${HOSTNAME}`
@@ -390,7 +390,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
            - /traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
           SSL_TYPE: letsencrypt
-          SSL_DOMAIN: mail.example.com"
+          SSL_DOMAIN: mail.example.com
           # for a wildcard certificate, use
           # SSL_DOMAIN: example.com
 
@@ -406,7 +406,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
            - --entrypoints.http.http.redirections.entryPoint.scheme=https
            - --entrypoints.https.address=:443
            - --entrypoints.https.http.tls.certResolver=letsencrypt
-           - --certificatesresolvers.letsencrypt.acme.email=admin@domain.tld
+           - --certificatesresolvers.letsencrypt.acme.email=admin@example.com
            - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
            - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
         volumes:
@@ -416,7 +416,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
       whoami:
         image: docker.io/traefik/whoami:latest
         labels:
-           - "traefik.http.routers.whoami.rule=Host(`mail.domain.tld`)"
+           - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
     ```
 
 ## Self-Signed Certificates
@@ -574,23 +574,23 @@ After the certificates have been loaded you can check the certificate:
 
 ```sh
 openssl s_client \
-  -servername mail.mydomain.net \
+  -servername mail.example.com \
   -connect 192.168.0.72:465 \
   2>/dev/null | openssl x509
 
 # or
 
 openssl s_client \
-  -servername mail.mydomain.net \
-  -connect mail.mydomain.net:465 \
+  -servername mail.example.com \
+  -connect mail.example.com:465 \
   2>/dev/null | openssl x509
 ```
 
 Or you can check how long the new certificate is valid with commands like:
 
 ```sh
-export SITE_URL="mail.mydomain.net"
-export SITE_IP_URL="192.168.0.72" # can also be `mail.mydomain.net`
+export SITE_URL="mail.example.com"
+export SITE_IP_URL="192.168.0.72" # can also be `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
 
 ##works: check if certificate will expire in two weeks 
@@ -623,10 +623,11 @@ You can of course run the script by cron once a week or something. In that way y
 ## please adjust varables! 
 ## make sure the mail -s command works! Test!
 
-export SITE_URL="mail.mydomain.net"
-export SITE_IP_URL="192.168.2.72" # can also be `mail.mydomain.net`
+export SITE_URL="mail.example.com"
+export SITE_IP_URL="192.168.2.72" # can also be `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
-export ALERT_EMAIL_ADDR="bill@gates321boom.com"
+# Below can be from a different domain; like your personal email, not handled by this docker-mailserver:
+export ALERT_EMAIL_ADDR="external-account@gmail.com"
 
 certcheck_2weeks=`openssl s_client -connect ${SITE_IP_URL}:${SITE_SSL_PORT} \
   -servername ${SITE_URL} 2> /dev/null | openssl x509 -noout -checkend 1209600`

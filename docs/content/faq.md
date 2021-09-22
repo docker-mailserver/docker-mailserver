@@ -95,19 +95,19 @@ Service data is [relocated to the `mail-state` folder][mail-state-folders] for s
 
 ### How can I configure my email client?
 
-Login are full email address (`user@domain.com`).
+Login is full email address (`<user>@<domain>`).
 
 ```properties
 # imap
-username:           <user1@domain.tld>
+username:           <user1@example.com>
 password:           <mypassword>
-server:             <mail.domain.tld>
+server:             <mail.example.com>
 imap port:          143 or 993 with ssl (recommended)
 imap path prefix:   INBOX
 
 # smtp
 smtp port:          25 or 587 with ssl (recommended)
-username:           <user1@domain.tld>
+username:           <user1@example.com>
 password:           <mypassword>
 ```
 
@@ -132,7 +132,7 @@ environment:
 
 Yes, but not without some configuration changes. Normally it is assumed that `docker-mailserver` runs on a host with a name, so the fully qualified host name might be `mail.example.com` with the domain `example.com`. The MX records point to `mail.example.com`.
 
-To use a bare domain where the host name is `example.com` and the domain is also `example.com`, change `mydestination`:
+To use a bare domain (_where the host name is `example.com` and the domain is also `example.com`_), change `mydestination`:
 
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
@@ -145,7 +145,7 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
-### Why are SpamAssassin `x-headers` not inserted into my `sample.domain.com` subdomain emails?
+### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
 In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (`05-domain_id` in the amavis defaults).
 
@@ -161,7 +161,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 #
 # m h dom mon dow command
 # Everyday 2:00AM, learn spam from a specific user
-0 2 * * * docker exec mail sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+0 2 * * * docker exec mail sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
 If you run the server with `docker-compose`, you can leverage on docker configs and the mailserver's own cron. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which the mailserver is running and avoids errors if the server is not running.
@@ -190,19 +190,19 @@ The following configuration works nicely:
     #
     # Everyday 2:00AM, learn spam from a specific user
     # spam: junk directory
-    0  2 * * * root  sa-learn --spam /var/mail/domain.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
     # ham: archive directories
-    15 2 * * * root  sa-learn --ham /var/mail/domain.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
     # ham: inbox subdirectories
-    30 2 * * * root  sa-learn --ham /var/mail/domain.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
     #
     # Everyday 3:00AM, learn spam from all users of a domain
     # spam: junk directory
-    0  3 * * * root  sa-learn --spam /var/mail/otherdomain.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
     # ham: archive directories
-    15 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
     # ham: inbox subdirectories
-    30 3 * * * root  sa-learn --ham /var/mail/otherdomain.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
     ```
 
     Then with plain `docker-compose`:
@@ -237,10 +237,10 @@ With the default settings, SpamAssassin will require 200 mails trained for spam 
 
 ### How can I configure a catch-all?
 
-Considering you want to redirect all incoming e-mails for the domain `domain.tld` to `user1@domain.tld`, add the following line to `config/postfix-virtual.cf`:
+Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `config/postfix-virtual.cf`:
 
 ```cf
-@domain.tld user1@domain.tld
+@example.com user1@example.com
 ```
 
 ### How can I delete all the emails for a specific user?
@@ -251,10 +251,10 @@ First of all, create a special alias named `devnull` by editing `config/postfix-
 devnull: /dev/null
 ```
 
-Considering you want to delete all the e-mails received for `baduser@domain.tld`, add the following line to `config/postfix-virtual.cf`:
+Considering you want to delete all the e-mails received for `baduser@example.com`, add the following line to `config/postfix-virtual.cf`:
 
 ```cf
-baduser@domain.tld devnull
+baduser@example.com devnull
 ```
 
 ### How do I have more control about what SPAMASSASIN is filtering?
@@ -296,11 +296,11 @@ if header :contains "X-Spam-Flag" "YES" {
 Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into `config/amavis.cf`
 
 ```cf
-$clean_quarantine_to      = "amavis\@domain.com";
-$virus_quarantine_to      = "amavis\@domain.com";
-$banned_quarantine_to     = "amavis\@domain.com";
-$bad_header_quarantine_to = "amavis\@domain.com";
-$spam_quarantine_to       = "amavis\@domain.com";
+$clean_quarantine_to      = "amavis\@example.com";
+$virus_quarantine_to      = "amavis\@example.com";
+$banned_quarantine_to     = "amavis\@example.com";
+$bad_header_quarantine_to = "amavis\@example.com";
+$spam_quarantine_to       = "amavis\@example.com";
 ```
 
 ### What kind of SSL certificates can I use?
@@ -314,7 +314,7 @@ The only thing is that we provide a `self-signed` certificate tool and a `letsen
 If this migration implies a DNS modification, be sure to wait for DNS propagation before opening an issue.
 Few examples of symptoms can be found [here][github-issue-95] or [here][github-issue-97].
 
-This could be related to a modification of your `MX` record, or the IP mapped to `mail.my-domain.tld`. Additionally, [validate your DNS configuration](https://intodns.com/).
+This could be related to a modification of your `MX` record, or the IP mapped to `mail.example.com`. Additionally, [validate your DNS configuration](https://intodns.com/).
 
 If everything is OK regarding DNS, please provide [formatted logs](https://guides.github.com/features/mastering-markdown/) and config files. This will allow us to help you.
 
