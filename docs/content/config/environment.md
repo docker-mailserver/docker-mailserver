@@ -10,7 +10,7 @@ title: Environment Variables
 
 ##### OVERRIDE_HOSTNAME
 
-- empty => uses the `hostname` command to get the mail server's canonical hostname.
+- **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
 - => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's `hostname:` and `domainname:` values.
 
 ##### DMS_DEBUG
@@ -125,7 +125,7 @@ Configures the handling of creating mails with forged sender addresses.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if `docker-mailserver` acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -412,7 +412,7 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 - **empty** => mail.example.com
 - => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
-- NOTE: If you going to use the mailserver in combination with docker-compose you can set the service name here
+- NOTE: If you going to use `docker-mailserver` in combination with `docker-compose.yml` you can set the service name here
 
 ##### LDAP_SEARCH_BASE
 

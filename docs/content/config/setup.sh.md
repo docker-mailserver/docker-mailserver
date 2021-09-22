@@ -13,9 +13,9 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 chmod a+x ./setup.sh
 ```
 
-!!! warning "`setup.sh` for Docker Mailserver version `v10.1.x` and below"
+!!! warning "`setup.sh` for `docker-mailserver` version `v10.1.x` and below"
 
-    If you're using Docker Mailserver version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the [tagged release version](https://github.com/docker-mailserver/docker-mailserver/tags) that you're using:
+    If you're using `docker-mailserver` version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the [tagged release version](https://github.com/docker-mailserver/docker-mailserver/tags) that you're using:
     
     `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
@@ -35,8 +35,8 @@ SYNOPSIS
     COMMAND := { email | alias | quota | config | relay | debug } SUBCOMMAND
 
 DESCRIPTION
-    This is the main administration script that you use for all interactions with your
-    mail server. Setup, configuration and much more is done with this script.
+    This is the main administration script that you use for all your interactions with
+    'docker-mailserver'. Setup, configuration and much more is done with this script.
 
     Please note that the script executes most of the commands inside the container itself.
     If the image was not found, this script will pull the :latest tag of

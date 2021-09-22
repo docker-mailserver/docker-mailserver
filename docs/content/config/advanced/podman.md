@@ -8,7 +8,7 @@ Podman is a daemonless container engine for developing, managing, and running OC
 
 !!! warning "About Support for Podman"
 
-    Please note that Podman **is not** officially supported as Docker Mailserver is built and verified on top of the Docker Engine. This content is entirely community-supported. If you find errors, please open an issue and provide a PR.
+    Please note that Podman **is not** officially supported as `docker-mailserver` is built and verified on top of the _Docker Engine_. This content is entirely community supported. If you find errors, please open an issue and provide a PR.
 
 !!! warning "About this Guide"
 
@@ -61,7 +61,7 @@ Also notice that Podman's rootless mode is not about running as a non-root user 
 
 !!! warning
 
-    In order to make rootless mailserver work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.
+    In order to make rootless `docker-mailserver` work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.
 
 First, enable `podman.socket` in systemd's userspace with a non-root user.
 

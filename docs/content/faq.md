@@ -15,9 +15,9 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
     You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
 
-### How to alter the running mailserver instance _without_ relaunching the container?
+### How to alter the running `docker-mailserver` instance _without_ relaunching the container?
 
-`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
+`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
@@ -164,7 +164,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 0 2 * * * docker exec mail sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-If you run the server with `docker-compose`, you can leverage on docker configs and the mailserver's own cron. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which the mailserver is running and avoids errors if the server is not running.
+With `docker-compose` you can more easily use the internal instance of `cron` within `docker-mailserver`. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which `docker-mailserver` is running, and avoids errors if the mail-server is not running.
 
 The following configuration works nicely:
 
@@ -305,11 +305,11 @@ $spam_quarantine_to       = "amavis\@example.com";
 
 ### What kind of SSL certificates can I use?
 
-You can use the same certificates you use with another mail server.
+You can use the same certificates you would use with another mail-server.
 
 The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
 
-### I just moved from my old mail server, but "it doesn't work"?
+### I just moved from my old Mail-Server, but "it doesn't work"?
 
 If this migration implies a DNS modification, be sure to wait for DNS propagation before opening an issue.
 Few examples of symptoms can be found [here][github-issue-95] or [here][github-issue-97].

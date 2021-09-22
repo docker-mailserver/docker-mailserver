@@ -15,7 +15,7 @@ To enable DKIM signature, **you must have created at least one email account**. 
 ./setup.sh config dkim
 ```
 
-After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate.
+After generating DKIM keys, you should restart `docker-mailserver`. DNS edits may take a few minutes to hours to propagate.
 
 The script should ideally be run with a volume for _config_ attached (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`), otherwise by default it will mount `./config/:/tmp/docker-mailserver/`.
 
@@ -84,7 +84,7 @@ Mode                    v
 
 ## Switch Off DKIM
 
-Simply remove the DKIM key by recreating (not just relaunching) the mailserver container.
+Simply remove the DKIM key by recreating (not just relaunching) the `docker-mailserver` container.
 
 ## Debugging
 
@@ -118,6 +118,6 @@ mail._domainkey.example.com. 3600 IN TXT "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEB
 
 !!! warning "Key sizes >=4096-bit"
 
-    Keys of 4096 bits could de denied by some mailservers. According to https://tools.ietf.org/html/rfc6376 keys are preferably between 512 and 2048 bits. See issue [#1854][github-issue-1854].
+    Keys of 4096 bits could de denied by some mail-servers. According to https://tools.ietf.org/html/rfc6376 keys are preferably between 512 and 2048 bits. See issue [#1854][github-issue-1854].
 
 [github-issue-1854]: https://github.com/docker-mailserver/docker-mailserver/issues/1854

@@ -28,11 +28,11 @@ ${ORANGE}SYNOPSIS${RESET}
     COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
 
 ${ORANGE}DESCRIPTION${RESET}
-    This is the main administration script that you use for all interactions with your
-    mail server. Setup, configuration and much more is done with this script.
+    This is the main administration script that you use for all your interactions with
+    'docker-mailserver'. Setup, configuration and much more is done with this script.
 
-    Please note that this script executes most of its commands inside the running 'mailserver'
-    container itself. If it cannot find a running container, it will attempt to run one using
+    Please note that this script executes most of its commands inside the container itself.
+    If it cannot find a running 'docker-mailserver' container, it will attempt to run one using
     any available tags which include label=org.opencontainers.image.title=\"docker-mailserver\"
     and then run the necessary commands. If the tag for the container is not found, this script
     will pull the ${WHITE}:latest${RESET} tag of ${WHITE}docker.io/mailserver/docker-mailserver${RESET}.This tag refers to the

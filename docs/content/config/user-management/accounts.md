@@ -13,7 +13,7 @@ user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZk
 user2@not-example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1
 ```
 
-In the example above, we've added 2 mail accounts for 2 different domains. Consequently, the mail server will automatically be configured for multi-domains. Therefore, to generate a new mail account data, directly from your docker host, you could for example run the following:
+In the example above, we've added 2 mail accounts for 2 different domains. Consequently, the mail-server will automatically be configured for multi-domains. Therefore, to generate a new mail account data, directly from your docker host, you could for example run the following:
 
 ```sh
 docker run --rm \

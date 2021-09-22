@@ -17,7 +17,7 @@ After installation, you can test your setup with:
 
 ## Let's Encrypt (Recommended)
 
-To enable Let's Encrypt on your mail server, you have to:
+To enable Let's Encrypt for `docker-mailserver`, you have to:
 
 - Get your certificate using [letsencrypt client](https://github.com/letsencrypt/letsencrypt)
 - Add an environment variable `SSL_TYPE` with value `letsencrypt` (see [`docker-compose.yml`][github-file-compose])
@@ -70,7 +70,7 @@ You don't have anything else to do. Enjoy.
 
 ### Example using Docker, `nginx-proxy` and `letsencrypt-nginx-proxy-companion`
 
-If you are running a web server already, it is non-trivial to generate a Let's Encrypt certificate for your mail server using `certbot`, because port 80 is already occupied. In the following example, we show how `docker-mailserver` can be run alongside the docker containers `nginx-proxy` and `letsencrypt-nginx-proxy-companion`.
+If you are running a web server already, it is non-trivial to generate a Let's Encrypt certificate for your `docker-mailserver` using `certbot`, because port 80 is already occupied. In the following example, we show how `docker-mailserver` can be run alongside the docker containers `nginx-proxy` and `letsencrypt-nginx-proxy-companion`.
 
 There are several ways to start `nginx-proxy` and `letsencrypt-nginx-proxy-companion`. Any method should be suitable here.
 
@@ -186,7 +186,7 @@ The following `docker-compose.yml` is the basic setup you need for using `letsen
           name: nginx-proxy
     ```
 
-The second part of the setup is the actual mail container. So, in another folder, create another `docker-compose.yml` with the following content (Removed all ENV variables for this example):
+The second part of the setup is the `docker-mailserver` container. So, in another folder, create another `docker-compose.yml` with the following content (Removed all ENV variables for this example):
 
 ???+ example "Example Code"
 
@@ -231,13 +231,13 @@ The second part of the setup is the actual mail container. So, in another folder
           name: nginx-proxy
     ```
 
-The mail container needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (`VIRTUAL_HOST` and `LETSENCRYPT_HOST` are mandandory, see documentation)
+`docker-mailserver` needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (`VIRTUAL_HOST` and `LETSENCRYPT_HOST` are mandandory, see documentation)
 
 ### Example using the Let's Encrypt Certificates on a Synology NAS
 
 Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.
 
-Amongst other things, you can use these to secure your mail server. DSM locates the generated certificates in a folder below `/usr/syno/etc/certificate/_archive/`.
+Amongst other things, you can use these to secure your mail-server. DSM locates the generated certificates in a folder below `/usr/syno/etc/certificate/_archive/`.
 
 Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your `docker-compose.yml` declaration file:
 
@@ -503,7 +503,7 @@ environment:
 This will mount the path where your ssl certificates reside as read-only under `/tmp/ssl`. Then all you have to do is to specify the location of your private key and the certificate.
 
 !!! info
-    You may have to restart your mailserver once the certificates change.
+    You may have to restart `docker-mailserver` once the certificates change.
 
 ## Testing a Certificate is Valid
 
@@ -619,9 +619,10 @@ What does the script that imports the certificates do:
 You can of course run the script by cron once a week or something. In that way you could automate cert renewal. If you do so it is probably wise to run an automated check on certificate expiry as well. Such a check could look something like this:
 
 ```sh
+# This script is run inside docker-mailserver via 'docker exec ...', using the 'mail' command to send alerts.
 ## code below will alert if certificate expires in less than two weeks
 ## please adjust varables! 
-## make sure the mail -s command works! Test!
+## make sure the 'mail -s' command works! Test!
 
 export SITE_URL="mail.example.com"
 export SITE_IP_URL="192.168.2.72" # can also be `mail.example.com`

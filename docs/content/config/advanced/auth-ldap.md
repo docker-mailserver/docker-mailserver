@@ -4,7 +4,7 @@ title: 'Advanced | LDAP Authentication'
 
 ## Introduction
 
-Getting started with ldap and this mailserver we need to take 3 parts in account:
+Getting started with ldap and `docker-mailserver` we need to take 3 parts in account:
 
 - `postfix` for incoming & outgoing email
 - `dovecot` for accessing mailboxes

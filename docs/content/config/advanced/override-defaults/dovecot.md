@@ -26,7 +26,7 @@ mail_max_userip_connections = 100
 
 Another important option is the `default_process_limit` (defaults to `100`). If high-security mode is enabled you'll need to make sure this count is higher than the maximum number of users that can be logged in simultaneously.
 
-This limit is quickly reached if users connect to the mail server with multiple end devices.
+This limit is quickly reached if users connect to the `docker-mailserver` with multiple end devices.
 
 ## Override Configuration
 

@@ -82,7 +82,7 @@ Due to these security concerns, [RFC 8314 (Section 4.1)][rfc-8314-s41] encourage
 
 Communication is always encrypted, avoiding the above mentioned issues with Explicit TLS.
 
-You may know of these ports as **SMTPS, POP3S, IMAPS**, which indicate the protocol in combination with a TLS connection. However, Explicit TLS ports provide the same benefit when `STARTTLS` is successfully negotiated; Implicit TLS better communicates the improved security to all three protocols (SMTP/POP3/IMAP over Implicit TLS). 
+You may know of these ports as **SMTPS, POP3S, IMAPS**, which indicate the protocol in combination with a TLS connection. However, Explicit TLS ports provide the same benefit when `STARTTLS` is successfully negotiated; Implicit TLS better communicates the improved security to all three protocols (SMTP/POP3/IMAP over Implicit TLS).
 
 Additionally, referring to port 465 as *SMTPS* would be incorrect, as it is a submissions port requiring authentication to proceed via *ESMTP*, whereas ESMTPS has a different meaning(STARTTLS supported). Port 25 may lack Implicit TLS, but can be configured to be more secure between trusted parties via MTA-STS, STARTTLS Policy List, DNSSEC and DANE.
 
@@ -94,9 +94,9 @@ Additionally, referring to port 465 as *SMTPS* would be incorrect, as it is a su
 !!! todo
     A related section or page on ciphers used may be useful, although less important for users to be concerned about.
 
-### TLS connections on mail servers, compared to web browsers
+### TLS connections for a Mail-Server, compared to web browsers
 
-Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below is not the equivalent safety that HTTPS provides when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully. 
+Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below is not the equivalent safety that HTTPS provides when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully.
 
 Other machines that facilitate a connection that generally aren't taken into account can exist between a client and server, such as those where your connection passes through your ISP provider are capable of compromising a cleartext connection through interception.
 

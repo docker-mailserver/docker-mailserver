@@ -2,14 +2,14 @@
 title: 'Tutorials | Basic Installation'
 ---
 
-## Building a Simple Mailserver
+## Building a Simple Mail-Server
 
 !!! warning
     Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
 
 We are going to use this docker based mailserver:
 
-- First create a directory for the mailserver and get the setup script:
+- First create a directory for `docker-mailserver` to store data in, and get the `setup.sh` script:
 
     ```sh
     mkdir -p /var/ds/mail.example.com
@@ -65,7 +65,7 @@ We are going to use this docker based mailserver:
     - [Environment Variables][docs-environment]
     - [`mailserver.env` file][github-file-dotenv]
 
-    Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mailserver directly (from a client). We also use these settings:
+    Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mail-server directly (from a client). We also use these settings:
 
     - `PERMIT_DOCKER=network` because we want to send emails from other docker containers.
     - `SSL_TYPE=letsencrypt` because we will manage SSL certificates with letsencrypt.
@@ -95,7 +95,7 @@ We are going to use this docker based mailserver:
     ```txt
     mail      IN  A   10.11.12.13
 
-    ; mailservers for example.com
+    ; mail-server for example.com
         3600  IN  MX  1  mail.example.com.
 
     ; Add SPF record
@@ -115,7 +115,7 @@ We are going to use this docker based mailserver:
 
     Now the certificates will be available on `/var/ds/wsproxy/letsencrypt/live/mail.example.com`.
 
-- Start the mailserver and check for any errors:
+- Start `docker-mailserver` and check for any errors:
 
     ```sh
     apt install docker-compose
@@ -133,7 +133,7 @@ We are going to use this docker based mailserver:
     ./setup.sh alias list
     ```
 
-    Aliases make sure that any email that comes to these accounts is forwarded to my real email address, so that I don't need to use POP3/IMAP in order to get these messages. Also no anti-spam and anti-virus software is needed, making the mailserver lighter.
+    Aliases make sure that any email that comes to these accounts is forwarded to my real email address, so that I don't need to use POP3/IMAP in order to get these messages. Also no anti-spam and anti-virus software is needed, making the mail-server lighter.
 
 - Or create email accounts and aliases with `SPOOF_PROTECTION=1`:
 

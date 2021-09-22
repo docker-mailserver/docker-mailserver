@@ -1,5 +1,5 @@
 ---
-title: 'Tutorials | Mailserver behind Proxy'
+title: 'Tutorials | Mail-Server behind a Proxy'
 ---
 
 ## Using `docker-mailserver` behind a Proxy
@@ -54,7 +54,7 @@ Feel free to add your configuration if you achieved the same goal using differen
     [...]
     ```
 
-    Truncated list of necessary labels on the mailserver container:
+    Truncated list of necessary labels on the `docker-mailserver` container:
 
     ```yaml
     version: '3.8'
