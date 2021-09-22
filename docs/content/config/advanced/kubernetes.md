@@ -173,10 +173,10 @@ spec:
         container.apparmor.security.beta.kubernetes.io/mailserver: runtime/default
 
     spec:
-      hostname: mailserver
+      hostname: mail
       containers:
         - name: mailserver
-          image: ghcr.io/docker-mailserver/docker-mailserver:latest
+          image: docker.io/docker-mailserver/docker-mailserver:latest
           imagePullPolicy: IfNotPresent
 
           securityContext:

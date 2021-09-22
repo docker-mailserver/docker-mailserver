@@ -351,7 +351,13 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 - **6.31** => triggers spam evasive actions
 
-Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`. By default, the mailserver is configured to quarantine spam emails. If emails are quarantined, they are compressed and stored in a location dependent on the ONE_DIR setting above. If `ONE_DIR=1` the location is /var/mail-state/lib-amavis/virusmails/. If `ONE_DIR=0` it is /var/lib/amavis/virusmails/. These paths are inside the docker container. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. 100.0.
+!!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
+
+    By default, `docker-mailserver` is configured to quarantine spam emails.
+    
+    If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
+
+    If `ONE_DIR=1` (default) the location is `/var/mail-state/lib-amavis/virusmails/`, or if `ONE_DIR=0`: `/var/lib/amavis/virusmails/`. These paths are inside the docker container.
 
 ##### SA_SPAM_SUBJECT
 

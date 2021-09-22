@@ -423,18 +423,15 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 
     Use self-signed certificates only for testing purposes!
 
-This feature requires you to provide the following files into your [`docker-data/dms/config/ssl/` directory][docs-optional-config] (internal location: `/tmp/docker-mailserver/ssl/`):
+This feature requires you to provide the following files into your [`docker-data/dms/config/ssl/` directory][docs-optional-config] (_internal location: `/tmp/docker-mailserver/ssl/`_):
 
-- `${HOSTNAME}-key.pem`
-- `${HOSTNAME}-cert.pem`
+- `<FQDN>-key.pem`
+- `<FQDN>-cert.pem`
 - `demoCA/cacert.pem`
 
-Where `${HOSTNAME}` is the mailserver [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (`hostname`(_mail_) + `domainname`(_example.com_), eg: `mail.example.com`).
+Where `<FQDN>` is the [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) assigned to `docker-mailserver` (_eg: `mail.example.com` (FQDN) => `mail` (hostname) + `example.com` (domainname)_) via `docker run` command or `docker-compose.yml` config.
 
-To use the certificate:
-
-- Add `SSL_TYPE=self-signed` to your container environment variables.
-- If a matching certificate (files listed above) is found in `docker-data/dms/config/ssl`, it will be automatically setup in postfix and dovecot. You just have to place them in `docker-data/dms/config/ssl` folder.
+Add `SSL_TYPE=self-signed` to your `docker-mailserver` environment variables. Postfix and Dovecot will be configured to use the provided certificate (_`.pem` files above_) during container startup.
 
 #### Generating a self-signed certificate
 
@@ -619,7 +616,7 @@ You can of course run the script by cron once a week or something. In that way y
 ```sh
 # This script is run inside docker-mailserver via 'docker exec ...', using the 'mail' command to send alerts.
 ## code below will alert if certificate expires in less than two weeks
-## please adjust varables! 
+## please adjust varables!
 ## make sure the 'mail -s' command works! Test!
 
 export SITE_URL="mail.example.com"
