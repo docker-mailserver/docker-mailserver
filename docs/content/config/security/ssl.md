@@ -365,7 +365,7 @@ No client certificate CA names sent
 
 [Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. [Traefik][traefik::github] can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use [Traefik][traefik::github]'s major version 2.
 
-[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services. Wild card certificates issued for `*.example.com` are supported. You will then want to use `#!bash SSL_DOMAIN=example.com`. Lookup of the certificate domain happens in the following order:
+[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot). Wild card certificates issued for `*.example.com` are supported. You will then want to use `#!bash SSL_DOMAIN=example.com`. Lookup of the certificate domain happens in the following order:
 
 1. `#!bash ${SSL_DOMAIN}`
 2. `#!bash ${HOSTNAME}`
@@ -376,7 +376,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 ???+ example "Example Code"
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
-    ``` YAML
+    ```yaml
     version: '3.8'
     services:
       mailserver:
@@ -392,8 +392,8 @@ This setup only comes with one caveat: The domain has to be configured on anothe
           # for a wildcard certificate, use
           # SSL_DOMAIN: example.com
 
-      traefik:
-        image: docker.io/traefik:v2.5
+      reverse-proxy:
+        image: docker.io/traefik:latest #v2.5
         container_name: docker-traefik
         ports:
            - "80:80"
@@ -434,15 +434,13 @@ Where `<FQDN>` is the [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domai
 
 Add `SSL_TYPE=self-signed` to your `docker-mailserver` environment variables. Postfix and Dovecot will be configured to use the provided certificate (_`.pem` files above_) during container startup.
 
-#### Generating a self-signed certificate
+### Generating a self-signed certificate
 
 !!! note
 
-    Since v10, support in `setup.sh` for generating a self-signed SSL certificate internally was removed.
-    
-    It is now similar to `SSL_TYPE=manual` (_except `manual` does not support verification for a custom CA_), but does not require additional ENV vars for providing the location of cert files.
+    Since `docker-mailserver` v10, support in `setup.sh` for generating a _self-signed SSL certificate_ internally was removed.
 
-One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates](https://github.com/docker-mailserver/docker-mailserver/tree/master/test/test-files/ssl/example.test).
+One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates][github-file::tls-readme].
 
 For example with the FQDN `mail.example.test`, you can generate the required files by running:
 
@@ -474,7 +472,8 @@ step certificate create "Smallstep Leaf" mail.example.test-cert.pem mail.example
 If you'd rather not install the CLI tool locally to run the `step` commands above; you can save the script above to a file such as `generate-certs.sh` (_and make it executable `chmod +x generate-certs.sh`_) in a directory that you want the certs to be placed, then run that script with docker:
 
 ```sh
-# --user to keep ownership of the files to your user and group ID
+# '--user' is to keep ownership of the files written to
+# the local volume to use your systems User and Group ID values.
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
   --volume "${PWD}:/tmp" \
@@ -483,7 +482,7 @@ docker run --rm -it \
   smallstep/step-ca
 ```
 
-## Custom Certificate Files
+## Bring Your Own Certificates
 
 You can also provide your own certificate files. Add these entries to your `docker-compose.yml`:
 
@@ -586,7 +585,7 @@ Or you can check how long the new certificate is valid with commands like:
 
 ```sh
 export SITE_URL="mail.example.com"
-export SITE_IP_URL="192.168.0.72" # can also be `mail.example.com`
+export SITE_IP_URL="192.168.0.72" # can also use `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
 
 ##works: check if certificate will expire in two weeks 
@@ -599,7 +598,7 @@ certcheck_2weeks=`openssl s_client -connect ${SITE_IP_URL}:${SITE_SSL_PORT} \
   -servername ${SITE_URL} 2> /dev/null | openssl x509 -noout -checkend 1209600`
 
 ####################################
-#notes: output can be
+#notes: output could be either:
 #Certificate will not expire
 #Certificate will expire
 ####################
@@ -607,7 +606,7 @@ certcheck_2weeks=`openssl s_client -connect ${SITE_IP_URL}:${SITE_SSL_PORT} \
 
 What does the script that imports the certificates do:
 
-1. Check if there are new certs in the `/tmp/ssl` folder.
+1. Check if there are new certs in the internal container folder: `/tmp/ssl`.
 2. Check with the ssl cert fingerprint if they differ from the current certificates.
 3. If so it will copy the certs to the right places.
 4. And restart postfix and dovecot.
@@ -621,7 +620,7 @@ You can of course run the script by cron once a week or something. In that way y
 ## make sure the 'mail -s' command works! Test!
 
 export SITE_URL="mail.example.com"
-export SITE_IP_URL="192.168.2.72" # can also be `mail.example.com`
+export SITE_IP_URL="192.168.2.72" # can also use `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
 # Below can be from a different domain; like your personal email, not handled by this docker-mailserver:
 export ALERT_EMAIL_ADDR="external-account@gmail.com"
@@ -638,7 +637,7 @@ certcheck_2weeks=`openssl s_client -connect ${SITE_IP_URL}:${SITE_SSL_PORT} \
 #echo "certcheck 2 weeks gives $certcheck_2weeks"
 
 ##automated check you might run by cron or something
-## does tls/ssl certificate expire within two weeks?
+## does the certificate expire within two weeks?
 
 if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
   echo "all is well, certwatch 2 weeks says $certcheck_2weeks"
@@ -659,6 +658,7 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [docs-optional-config]: ../advanced/optional-config.md
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
+[github-file::tls-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/3b8059f2daca80d967635e04d8d81e9abb755a4d/test/test-files/ssl/example.test/README.md
 [github-issue-1440]: https://github.com/docker-mailserver/docker-mailserver/issues/1440
 [hanscees-renewcerts]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-renew-certs
 

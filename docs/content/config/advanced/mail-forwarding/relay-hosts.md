@@ -12,10 +12,10 @@ Depending on the domain of the sender, you may want to send via a different rela
 
 Basic configuration is done via environment variables:
 
-* `RELAY_HOST`: _default host to relay mail through, empty will disable this feature_
-* `RELAY_PORT`: _port on default relay, defaults to port 25_
-* `RELAY_USER`: _username for the default relay_
-* `RELAY_PASSWORD`: _password for the default user_
+- `RELAY_HOST`: _default host to relay mail through, `empty` (aka '', or no ENV set) will disable this feature_
+- `RELAY_PORT`: _port on default relay, defaults to port 25_
+- `RELAY_USER`: _username for the default relay_
+- `RELAY_PASSWORD`: _password for the default user_
 
 Setting these environment variables will cause mail for all sender domains to be routed via the specified host, authenticating with the user/password combination.
 
@@ -39,7 +39,7 @@ An example configuration file looks like this:
 @domain2.com           relay_user_2:password_2
 ```
 
-If there is no other configuration, this will cause Postfix to deliver email through the relay specified in `RELAY_HOST` env variable, authenticating as `relay_user_1` when sent from `domain1.com` and authenticating as `relay_user_2` when sending from domain2.com.
+If there is no other configuration, this will cause Postfix to deliver email through the relay specified in `RELAY_HOST` env variable, authenticating as `relay_user_1` when sent from `domain1.com` and authenticating as `relay_user_2` when sending from `domain2.com`.
 
 !!! note
     To activate the configuration you must either restart the container, or you can also trigger an update by modifying a mail account.
@@ -59,7 +59,7 @@ An example configuration file looks like this:
 @domain2.com        [relay2.org]:2525
 ```
 
-Combined with the previous configuration in `docker-data/dms/config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from domain1.com via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from domain2.com via `relay2.org:2525` authenticating as `relay_user_2`.
+Combined with the previous configuration in `docker-data/dms/config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from `domain1.com` via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from `domain2.com` via `relay2.org:2525` authenticating as `relay_user_2`.
 
 !!! note
     You still have to define `RELAY_HOST` to activate the feature
@@ -80,11 +80,10 @@ Extending the configuration file from above:
 @domain3.com
 ```
 
-This will cause email sent from domain3.com to be delivered directly.
+This will cause email sent from `domain3.com` to be delivered directly.
 
 #### References
 
-Thanks to the author of [this article][1] for the inspiration. This is also worth reading to understand a bit more about how to set up Mailgun to work with this.
+Thanks to the author of [this article][guide-relayhost-mailgun] for the inspiration. This is also worth reading to understand a bit more about how to set up Mailgun to work with this.
 
-[1]: https://community.rackspace.com/products/f/email-products-forum/3897/how-to-setup-postfix-with-a-mailgun-smtp-relay-when-using-multiple-domains
-
+[guide-relayhost-mailgun]: https://community.rackspace.com/products/f/email-products-forum/3897/how-to-setup-postfix-with-a-mailgun-smtp-relay-when-using-multiple-domains

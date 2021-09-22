@@ -205,7 +205,7 @@ The following configuration works nicely:
     30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
     ```
 
-    Then with plain `docker-compose`:
+    Then with `docker-compose.yml`:
 
     ```yaml
     services:
@@ -215,7 +215,7 @@ The following configuration works nicely:
           - ./docker-data/dms/cron/sa-learn:/etc/cron.d/sa-learn
     ```
 
-    Or with [docker swarm](https://docs.docker.com/engine/swarm/configs/):
+    Or with [Docker Swarm](https://docs.docker.com/engine/swarm/configs/):
 
     ```yaml
     version: '3.8'
@@ -307,7 +307,7 @@ $spam_quarantine_to       = "amavis\@example.com";
 
 You can use the same certificates you would use with another mail-server.
 
-The only thing is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
+The only difference is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
 
 ### I just moved from my old Mail-Server, but "it doesn't work"?
 

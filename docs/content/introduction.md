@@ -21,7 +21,7 @@ Unlike the client-side where usually a single program is used to perform retriev
 The following components are required to create a [complete delivery chain][wikipedia-emailagent]:
 
 - MUA: a [Mail User Agent][wikipedia-mua] is basically any client/program capable of sending emails to a mail-server; while also capable of fetching emails from a mail-server for presenting them to the end users.
-- MTA: a [Mail Transfer Agent][wikipedia-mta] is the so-called "mail-server" as seen from the MUA's perspective. It's a piece of software dedicated to accepting submitted emails, then forwarding them-where exactly will depend on an email's final destination. If the receiving MTA is responsible for the hostname the email is sent to, then an MTA is to forward that email to an MDA (see below). Otherwise, it is to transfer (ie. forward, relay) to another MTA, "closer" to the email's final destination.
+- MTA: a [Mail Transfer Agent][wikipedia-mta] is the so-called "mail-server" as seen from the MUA's perspective. It's a piece of software dedicated to accepting submitted emails, then forwarding them-where exactly will depend on an email's final destination. If the receiving MTA is responsible for the FQDN the email is sent to, then an MTA is to forward that email to an MDA (see below). Otherwise, it is to transfer (ie. forward, relay) to another MTA, "closer" to the email's final destination.
 - MDA: a [Mail Delivery Agent][wikipedia-mda] is responsible for accepting emails from an MTA and dropping them into their recipients' mailboxes, whichever the form.
 
 Here's a schematic view of mail delivery:

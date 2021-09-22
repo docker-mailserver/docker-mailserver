@@ -11,7 +11,7 @@ title: Environment Variables
 ##### OVERRIDE_HOSTNAME
 
 - **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
-- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's `hostname:` and `domainname:` values.
+- => Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will take priority over `docker run` options: `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents: `hostname:` and `domainname:`.
 
 ##### DMS_DEBUG
 
@@ -29,7 +29,6 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 - debug    => Also show debug messages
 
 The log-level will show everything in its class and above.
-
 
 ##### ONE_DIR
 
@@ -183,11 +182,6 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 - **empty** => Managesieve service disabled
 - 1 => Enables Managesieve on port 4190
 
-##### OVERRIDE_HOSTNAME
-
-- **empty** => uses the `hostname` command to get the mail server's canonical hostname
-- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.
-
 ##### POSTMASTER_ADDRESS
 
 - **empty** => postmaster@example.com
@@ -307,7 +301,7 @@ Defines the interval in which the mail log is being rotated.
 
 Note that only the log inside the container is affected.
 The full log output is still available via `docker logs mailserver` (_or your respective container name_).
-If you want to control logrotation for the docker generated logfile see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
+If you want to control logrotation for the docker generated logfile, see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
 
 Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
 
@@ -688,7 +682,7 @@ you to replace both instead of just the envelope sender.
 
 ##### SRS_DOMAINNAME
 
-- **empty** => Derived from OVERRIDE_HOSTNAME, DOMAINNAME, or the container's hostname
+- **empty** => Derived from [`OVERRIDE_HOSTNAME`](#override_hostname), `$DOMAINNAME` (internal), or the container's hostname
 - Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs
 
 #### Default Relay Host

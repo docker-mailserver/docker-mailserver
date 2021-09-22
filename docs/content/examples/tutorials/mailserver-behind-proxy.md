@@ -33,7 +33,7 @@ Feel free to add your configuration if you achieved the same goal using differen
     version: '3.8'
     services:
       reverse-proxy:
-        image: traefik:latest
+        image: docker.io/traefik:latest # v2.5
         container_name: docker-traefik
         restart: always
         command:
