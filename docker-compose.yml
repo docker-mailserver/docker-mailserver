@@ -3,13 +3,13 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
+    container_name: mailserver
     hostname: mail
     domainname: example.com
-    container_name: mailserver
     env_file: mailserver.env
-    # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
-    # More information about the mailserver ports:
+    # More information about the mail-server ports:
     # https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/
+    # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
     ports:
       - "25:25"    # SMTP  (explicit TLS => STARTTLS)
       - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
@@ -17,11 +17,11 @@ services:
       - "587:587"  # ESMTP (explicit TLS => STARTTLS)
       - "993:993"  # IMAP4 (implicit TLS)
     volumes:
-      - ./data/maildata:/var/mail
-      - ./data/mailstate:/var/mail-state
-      - ./data/maillogs:/var/log/mail
-      - /etc/localtime:/etc/localtime:ro
-      - ./config/:/tmp/docker-mailserver/
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro/
     restart: always
     stop_grace_period: 1m
     cap_add:
