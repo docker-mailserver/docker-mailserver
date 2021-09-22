@@ -1,5 +1,5 @@
 ---
-title: 'Tutorials | Mailserver behind Proxy'
+title: 'Tutorials | Mail-Server behind a Proxy'
 ---
 
 ## Using `docker-mailserver` behind a Proxy
@@ -23,17 +23,17 @@ Luckily `dovecot` and `postfix` are both Proxy-Protocol ready softwares so it de
 
 The configuration depends on the used proxy system. I will provide the configuration examples of [traefik v2](https://traefik.io/) using IMAP and SMTP with implicit TLS.
 
-Feel free to add your configuration if you archived the same goal using different proxy software below:
+Feel free to add your configuration if you achieved the same goal using different proxy software below:
 
 ??? "Traefik v2"
 
     Truncated configuration of traefik itself:
 
     ```yaml
-    version: '3.7'
+    version: '3.8'
     services:
       reverse-proxy:
-        image: traefik:latest
+        image: docker.io/traefik:latest # v2.5
         container_name: docker-traefik
         restart: always
         command:
@@ -54,16 +54,16 @@ Feel free to add your configuration if you archived the same goal using differen
     [...]
     ```
 
-    Truncated list of necessary labels on the mailserver container:
+    Truncated list of necessary labels on the `docker-mailserver` container:
 
     ```yaml
     version: '3.8'
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
         domainname: example.com
-        container_name: mailserver
         restart: always
         networks:
           - proxy
@@ -98,20 +98,20 @@ Feel free to add your configuration if you archived the same goal using differen
 
 The following changes can be achieved completely by adding the content to the appropriate files by using the projects [function to overwrite config files][docs-optionalconfig].
 
-Changes for `postfix` can be applied by adding the following content to `config/postfix-main.cf`:
+Changes for `postfix` can be applied by adding the following content to `docker-data/dms/config/postfix-main.cf`:
 
 ```cf
 postscreen_upstream_proxy_protocol = haproxy
 ```
 
-and to `config/postfix-master.cf`:
+and to `docker-data/dms/config/postfix-master.cf`:
 
 ```cf
 submission/inet/smtpd_upstream_proxy_protocol=haproxy
 smtps/inet/smtpd_upstream_proxy_protocol=haproxy
 ```
 
-Changes for `dovecot` can be applied by adding the following content to `config/dovecot.cf`:
+Changes for `dovecot` can be applied by adding the following content to `docker-data/dms/config/dovecot.cf`:
 
 ```cf
 haproxy_trusted_networks = <your-proxy-ip>, <optional-cidr-notation>

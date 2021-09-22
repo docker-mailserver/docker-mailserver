@@ -4,7 +4,7 @@ hide:
   - toc
 ---
 
-[`setup.sh`][github-file-setupsh] is an administration script that helps with the most common tasks, including initial configuration. It is intended to be used from the host machine, _not_ from within your running container.
+[`setup.sh`][github-file-setupsh] is an administration script that helps with the most common tasks, including initial configuration. It is intended to be run from the host machine, _not_ from inside your running container.
 
 The latest version of the script is included in the `docker-mailserver` repository. You may retrieve it at any time by running this command in your console:
 
@@ -13,9 +13,9 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 chmod a+x ./setup.sh
 ```
 
-!!! warning "`setup.sh` for Docker Mailserver version `v10.1.x` and below"
+!!! warning "`setup.sh` for `docker-mailserver` version `v10.1.x` and below"
 
-    If you're using Docker Mailserver version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the [tagged release version](https://github.com/docker-mailserver/docker-mailserver/tags) that you're using:
+    If you're using `docker-mailserver` version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the [tagged release version](https://github.com/docker-mailserver/docker-mailserver/tags) that you're using:
     
     `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
@@ -35,12 +35,12 @@ SYNOPSIS
     COMMAND := { email | alias | quota | config | relay | debug } SUBCOMMAND
 
 DESCRIPTION
-    This is the main administration script that you use for all interactions with your
-    mail server. Setup, configuration and much more is done with this script.
+    This is the main administration script that you use for all your interactions with
+    'docker-mailserver'. Setup, configuration and much more is done with this script.
 
     Please note that the script executes most of the commands inside the container itself.
-    If the image was not found, this script will pull the :latest tag of
-    mailserver/docker-mailserver. This tag refers to the latest release,
+    If the image was not found, this script will pull the ':latest' tag of
+    'mailserver/docker-mailserver'. This tag refers to the latest release,
     see the tagging convention in the README under
     https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 
@@ -81,30 +81,30 @@ DESCRIPTION
         ./setup.sh debug login <COMMANDS>
 
 EXAMPLES
-    ./setup.sh email add test@domain.tld
-        Add the email account test@domain.tld. You will be prompted
+    ./setup.sh email add test@example.com
+        Add the email account test@example.com. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ./setup.sh config dkim keysize 2048 domain 'whoami.com,whoareyou.org'
+    ./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 
     ./setup.sh config dkim help
-        This will provide you with a detailed explanation on how to use the 
+        This will provide you with a detailed explanation on how to use the
         config dkim command, showing what arguments can be passed and what they do.
 
 OPTIONS
     Config path, container or image adjustments
         -i IMAGE_NAME
-            Provides the name of the docker-mailserver image. The default value is
-            docker.io/mailserver/docker-mailserver:latest
+            Provides the name of the 'docker-mailserver' image. The default value is
+            'docker.io/mailserver/docker-mailserver:latest'
 
         -c CONTAINER_NAME
             Provides the name of the running container.
 
         -p PATH
-            Provides the config folder path to the temporary container 
-            (does not work if docker-mailserver container already exists).
+            Provides the config folder path to the temporary container
+            (does not work if a 'docker-mailserver' container already exists).
 
     SELinux
         -z

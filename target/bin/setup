@@ -20,7 +20,7 @@ function _usage
   printf "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
 
 ${ORANGE}NAME${RESET}
-    ${SCRIPT:-${0}} - docker-mailserver administration & configuration script
+    ${SCRIPT:-${0}} - 'docker-mailserver' Administration & Configuration script
 
 ${ORANGE}SYNOPSIS${RESET}
     ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
@@ -28,19 +28,19 @@ ${ORANGE}SYNOPSIS${RESET}
     COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
 
 ${ORANGE}DESCRIPTION${RESET}
-    This is the main administration script that you use for all interactions with your
-    mail server. Setup, configuration and much more is done with this script.
+    This is the main administration script that you use for all your interactions with
+    'docker-mailserver'. Setup, configuration and much more is done with this script.
 
-    Please note that this script executes most of its commands inside the running 'mailserver'
-    container itself. If it cannot find a running container, it will attempt to run one using
-    any available tags which include label=org.opencontainers.image.title=\"docker-mailserver\"
+    Please note that this script executes most of its commands inside the container itself.
+    If it cannot find a running 'docker-mailserver' container, it will attempt to run one using
+    any available tags which include 'label=org.opencontainers.image.title=\"docker-mailserver\"'
     and then run the necessary commands. If the tag for the container is not found, this script
-    will pull the ${WHITE}:latest${RESET} tag of ${WHITE}docker.io/mailserver/docker-mailserver${RESET}.This tag refers to the
-    latest release, see the tagging convention in the README under
+    will pull the '${WHITE}:latest${RESET}' tag of '${WHITE}docker.io/mailserver/docker-mailserver${RESET}'.
+    This tag refers to the latest release, see the tagging convention in the README under:
     ${BLUE}https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md${RESET}
 
     You will be able to see detailed information about the script you're invoking and their
-    arguments by appending ${WHITE}help${RESET} after your command. Currently, this does not work with all scripts.
+    arguments by appending '${WHITE}help${RESET}' after your command. Currently, this does not work with all scripts.
 
 ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
     ${LBLUE}COMMAND${RESET} email ${RED}:=${RESET}
@@ -75,11 +75,11 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} debug ${CYAN}login${RESET} <COMMANDS>
 
 ${ORANGE}EXAMPLES${RESET}
-    ${WHITE}./setup.sh email add test@domain.tld${RESET}
-        Add the email account ${WHITE}test@domain.tld${RESET}. You will be prompted
+    ${WHITE}./setup.sh email add test@example.com${RESET}
+        Add the email account ${WHITE}test@example.com${RESET}. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ${WHITE}./setup.sh config dkim keysize 2048 domain 'whoami.com,whoareyou.org'${RESET}
+    ${WHITE}./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 
