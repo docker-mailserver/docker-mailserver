@@ -2,12 +2,12 @@
 title: 'Security | TLS (aka SSL)'
 ---
 
-There are multiple options to enable SSL:
+There are multiple options to enable SSL (via [`SSL_TYPE`][docs-env::ssl-type]):
 
 - Using [letsencrypt](#lets-encrypt-recommended) (recommended)
 - Using [Caddy](#caddy)
 - Using [Traefik](#traefik)
-- Using [self-signed certificates](#self-signed-certificates-testing-only) with the provided tool
+- Using [self-signed certificates](#self-signed-certificates-testing-only)
 - Using [your own certificates](#custom-certificate-files)
 
 After installation, you can test your setup with:
@@ -502,6 +502,8 @@ This will mount the path where your certificate files reside locally into the _r
 
 The local and internal paths may be whatever you prefer, so long as both `SSL_CERT_PATH` and `SSL_KEY_PATH` point to the correct internal file paths. The certificate files may also be named to your preference, but should be PEM encoded.
 
+`SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` are additional ENV vars to support a 2nd certificate as a fallback. Commonly known as hybrid or dual certificate support. This is useful for using a modern ECDSA as your primary certificate, and RSA as your fallback for older connections. They work in the same manner as the non-`ALT` versions.
+
 !!! info
 
     You may have to restart `docker-mailserver` once the certificates change.
@@ -671,6 +673,7 @@ By default `docker-mailserver` uses [`ffdhe4096`][ffdhe4096-src] from [IETF RFC 
 
 Despite this, if you must use non-standard DH parameters or you would like to swap `ffdhe4096` for a different group (eg `ffdhe2048`); Add your own PEM encoded DH params file via a volume to `/tmp/docker-mailserver/dhparams.pem`. This will replace DH params for both Dovecot and Postfix services during container startup.
 
+[docs-env::ssl-type]: ../environment.md#ssl_type
 [docs-optional-config]: ../advanced/optional-config.md
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
