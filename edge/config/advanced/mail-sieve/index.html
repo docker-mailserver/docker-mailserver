@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1075,7 +1075,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1126,7 +1126,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1341,11 +1341,11 @@ There are global and user specific filters which are filtering the incoming emai
 <ul>
 <li>Global-before -&gt; User specific -&gt; Global-after</li>
 </ul>
-<p>Global filters are applied to EVERY incoming mail for EVERY email address. 
-To specify a global Sieve filter provide a <code>config/before.dovecot.sieve</code> or a <code>config/after.dovecot.sieve</code> file with your filter rules.
+<p>Global filters are applied to EVERY incoming mail for EVERY email address.
+To specify a global Sieve filter provide a <code>docker-data/dms/config/before.dovecot.sieve</code> or a <code>docker-data/dms/config/after.dovecot.sieve</code> file with your filter rules.
 If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters(e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)</p>
-<p>To specify a user-defined Sieve filter place a <code>.dovecot.sieve</code> file into a virtual user's mail folder e.g. <code>/var/mail/domain.com/user1/.dovecot.sieve</code>. If this file exists dovecot will apply the filtering rules.</p>
-<p>It's even possible to install a user provided Sieve filter at startup during users setup: simply include a Sieve file in the <code>config</code> path for each user login that need a filter. The file name provided should be in the form <code>&lt;user_login&gt;.dovecot.sieve</code>, so for example for <code>user1@domain.tld</code> you should provide a Sieve file named <code>config/user1@domain.tld.dovecot.sieve</code>.</p>
+<p>To specify a user-defined Sieve filter place a <code>.dovecot.sieve</code> file into a virtual user's mail folder e.g. <code>/var/mail/example.com/user1/.dovecot.sieve</code>. If this file exists dovecot will apply the filtering rules.</p>
+<p>It's even possible to install a user provided Sieve filter at startup during users setup: simply include a Sieve file in the <code>docker-data/dms/config/</code> path for each user login that needs a filter. The file name provided should be in the form <code>&lt;user_login&gt;.dovecot.sieve</code>, so for example for <code>user1@example.com</code> you should provide a Sieve file named <code>docker-data/dms/config/user1@example.com.dovecot.sieve</code>.</p>
 <p>An example of a sieve filter that moves mails to a folder <code>INBOX/spam</code> depending on the sender address:</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
@@ -1367,16 +1367,16 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
 <p class="admonition-title">Example</p>
 <div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;copy&quot;</span><span class="p">];</span>
 
-<span class="nb">redirect</span> <span class="nt">:copy</span> <span class="s">&quot;user2@otherdomain.tld&quot;</span><span class="p">;</span>
+<span class="nb">redirect</span> <span class="nt">:copy</span> <span class="s">&quot;user2@not-example.com&quot;</span><span class="p">;</span>
 </code></pre></div>
 </div>
 <p>Just forward all incoming emails and do not save them locally:</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nb">redirect</span> <span class="s">&quot;user2@otherdomain.tld&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">redirect</span> <span class="s">&quot;user2@not-example.com&quot;</span><span class="p">;</span>
 </code></pre></div>
 </div>
-<p>You can also use external programs to filter or pipe (process) messages by adding executable scripts in <code>config/sieve-pipe</code> or <code>config/sieve-filter</code>. This can be used in lieu of a local alias file, for instance to forward an email to a webservice. These programs can then be referenced by filename, by all users. Note that the process running the scripts run as a privileged user. For further information see <a href="https://wiki.dovecot.org/Pigeonhole/Sieve/Plugins/Pipe">Dovecot's wiki</a>.</p>
+<p>You can also use external programs to filter or pipe (process) messages by adding executable scripts in <code>docker-data/dms/config/sieve-pipe</code> or <code>docker-data/dms/config/sieve-filter</code>. This can be used in lieu of a local alias file, for instance to forward an email to a webservice. These programs can then be referenced by filename, by all users. Note that the process running the scripts run as a privileged user. For further information see <a href="https://wiki.dovecot.org/Pigeonhole/Sieve/Plugins/Pipe">Dovecot's wiki</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;vnd.dovecot.pipe&quot;</span><span class="p">];</span>
 <span class="err">pipe</span> <span class="s">&quot;external-program&quot;</span><span class="p">;</span>
 </code></pre></div>
@@ -1392,7 +1392,7 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_MANAGESIEVE=1</span>
 </code></pre></div>
 </div>
-<p>All user defined sieve scripts that are managed by ManageSieve are stored in the user's home folder in <code>/var/mail/domain.com/user1/sieve</code>. Just one sieve script might be active for a user and is sym-linked to <code>/var/mail/domain.com/user1/.dovecot.sieve</code> automatically.</p>
+<p>All user defined sieve scripts that are managed by ManageSieve are stored in the user's home folder in <code>/var/mail/example.com/user1/sieve</code>. Just one sieve script might be active for a user and is sym-linked to <code>/var/mail/example.com/user1/.dovecot.sieve</code> automatically.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>ManageSieve makes sure to not overwrite an existing <code>.dovecot.sieve</code> file. If a user activates a new sieve script the old one is backuped and moved to the <code>sieve</code> folder.</p>
@@ -1483,10 +1483,10 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

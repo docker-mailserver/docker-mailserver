@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1083,7 +1083,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1134,7 +1134,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1353,17 +1353,17 @@
                 
                 <h2 id="adding-a-new-account"><a class="toclink" href="#adding-a-new-account">Adding a New Account</a></h2>
 <p>Users (email accounts) are managed in <code>/tmp/docker-mailserver/postfix-accounts.cf</code>. <strong><em>The best way to manage accounts is to use the reliable <a href="../../setup.sh/"><code>setup.sh</code></a> script</em></strong>. Or you may directly add the <em>full</em> email address and its encrypted password, separated by a pipe:</p>
-<div class="highlight"><pre><span></span><code><span class="na">user1@domain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1</span>
-<span class="na">user2@otherdomain.tld|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1</span>
+<div class="highlight"><pre><span></span><code><span class="na">user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1</span>
+<span class="na">user2@not-example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1</span>
 </code></pre></div>
-<p>In the example above, we've added 2 mail accounts for 2 different domains. Consequently, the mail server will automatically be configured for multi-domains. Therefore, to generate a new mail account data, directly from your docker host, you could for example run the following:</p>
+<p>In the example above, we've added 2 mail accounts for 2 different domains. Consequently, the mail-server will automatically be configured for multi-domains. Therefore, to generate a new mail account data, directly from your docker host, you could for example run the following:</p>
 <div class="highlight"><pre><span></span><code>docker run --rm <span class="se">\</span>
-  -e <span class="nv">MAIL_USER</span><span class="o">=</span>user1@domain.tld <span class="se">\</span>
+  -e <span class="nv">MAIL_USER</span><span class="o">=</span>user1@example.com <span class="se">\</span>
   -e <span class="nv">MAIL_PASS</span><span class="o">=</span>mypassword <span class="se">\</span>
   -it mailserver/docker-mailserver:latest <span class="se">\</span>
-  /bin/sh -c <span class="s1">&#39;echo &quot;$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)&quot;&#39;</span> &gt;&gt; config/postfix-accounts.cf
+  /bin/sh -c <span class="s1">&#39;echo &quot;$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)&quot;&#39;</span> &gt;&gt; docker-data/dms/config/postfix-accounts.cf
 </code></pre></div>
-<p>You will then be asked for a password, and be given back the data for a new account entry, as text. To actually <em>add</em> this new account, just copy all the output text in <code>config/postfix-accounts.cf</code> file of your running container.</p>
+<p>You will then be asked for a password, and be given back the data for a new account entry, as text. To actually <em>add</em> this new account, just copy all the output text in <code>docker-data/dms/config/postfix-accounts.cf</code> file of your running container.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code>doveadm pw</code> command lets you choose between several encryption schemes for the password.</p>
@@ -1461,10 +1461,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/basic-installation/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#building-a-simple-mailserver" class="md-skip">
+        <a href="#building-a-simple-mail-server" class="md-skip">
           Skip to content
         </a>
       
@@ -1048,8 +1048,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#building-a-simple-mailserver" class="md-nav__link">
-    Building a Simple Mailserver
+  <a href="#building-a-simple-mail-server" class="md-nav__link">
+    Building a Simple Mail-Server
   </a>
   
 </li>
@@ -1068,7 +1068,7 @@
   
     <li class="md-nav__item">
       <a href="../mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1119,7 +1119,7 @@
   
     <li class="md-nav__item">
       <a href="../../uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1296,8 +1296,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#building-a-simple-mailserver" class="md-nav__link">
-    Building a Simple Mailserver
+  <a href="#building-a-simple-mail-server" class="md-nav__link">
+    Building a Simple Mail-Server
   </a>
   
 </li>
@@ -1321,7 +1321,7 @@
                 
                   <h1>Basic Installation</h1>
                 
-                <h2 id="building-a-simple-mailserver"><a class="toclink" href="#building-a-simple-mailserver">Building a Simple Mailserver</a></h2>
+                <h2 id="building-a-simple-mail-server"><a class="toclink" href="#building-a-simple-mail-server">Building a Simple Mail-Server</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498">if IPv6 is enabled on the host machine but not in Docker</a>.</p>
@@ -1329,9 +1329,9 @@
 <p>We are going to use this docker based mailserver:</p>
 <ul>
 <li>
-<p>First create a directory for the mailserver and get the setup script:</p>
-<div class="highlight"><pre><span></span><code>mkdir -p /var/ds/mail.example.org
-<span class="nb">cd</span> /var/ds/mail.example.org/
+<p>First create a directory for <code>docker-mailserver</code> to store data in, and get the <code>setup.sh</code> script:</p>
+<div class="highlight"><pre><span></span><code>mkdir -p /var/ds/mail.example.com
+<span class="nb">cd</span> /var/ds/mail.example.com/
 
 curl -o setup.sh <span class="se">\</span>
     https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
@@ -1347,19 +1347,19 @@ chmod a+x ./setup.sh
 <span class="nt">services</span><span class="p">:</span>
   <span class="nt">mailserver</span><span class="p">:</span>
     <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
     <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
     <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
     <span class="nt">ports</span><span class="p">:</span>
         <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
         <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>
         <span class="p p-Indicator">-</span> <span class="s">&quot;465:465&quot;</span>
     <span class="nt">volumes</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/maildata:/var/mail</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/mailstate:/var/mail-state</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./data/maillogs:/var/log/mail</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
         <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/:/tmp/docker-mailserver/</span>
         <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/ds/wsproxy/letsencrypt/:/etc/letsencrypt/</span>
     <span class="nt">environment</span><span class="p">:</span>
         <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PERMIT_DOCKER=network</span>
@@ -1382,7 +1382,7 @@ chmod a+x ./setup.sh
 <li><a href="../../../config/environment/">Environment Variables</a></li>
 <li><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env"><code>mailserver.env</code> file</a></li>
 </ul>
-<p>Make sure to set the proper <code>domainname</code> that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mailserver directly (from a client).  We also use these settings:</p>
+<p>Make sure to set the proper <code>domainname</code> that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mail-server directly (from a client). We also use these settings:</p>
 <ul>
 <li><code>PERMIT_DOCKER=network</code> because we want to send emails from other docker containers.</li>
 <li><code>SSL_TYPE=letsencrypt</code> because we will manage SSL certificates with letsencrypt.</li>
@@ -1400,18 +1400,18 @@ ufw allow <span class="m">465</span>
 <p>Pull the docker image: <code>docker pull mailserver/docker-mailserver:latest</code></p>
 </li>
 <li>
-<p>Now generate the DKIM keys with <code>./setup.sh config dkim</code> and copy the content of the file <code>config/opendkim/keys/domain.tld/mail.txt</code> on the domain zone configuration at the DNS server. I use <a href="https://github.com/docker-scripts/bind9">bind9</a> for managing my domains, so I just paste it on <code>example.org.db</code>:</p>
+<p>Now generate the DKIM keys with <code>./setup.sh config dkim</code> and copy the content of the file <code>docker-data/dms/config/opendkim/keys/example.com/mail.txt</code> on the domain zone configuration at the DNS server. I use <a href="https://github.com/docker-scripts/bind9">bind9</a> for managing my domains, so I just paste it on <code>example.com.db</code>:</p>
 <div class="highlight"><pre><span></span><code>mail._domainkey IN      TXT     ( &quot;v=DKIM1; h=sha256; k=rsa; &quot;
         &quot;p=MIIBIjANBgkqhkiG9w0BAQEFACAQ8AMIIBCgKCAQEAaH5KuPYPSF3Ppkt466BDMAFGOA4mgqn4oPjZ5BbFlYA9l5jU3bgzRj3l6/Q1n5a9lQs5fNZ7A/HtY0aMvs3nGE4oi+LTejt1jblMhV/OfJyRCunQBIGp0s8G9kIUBzyKJpDayk2+KJSJt/lxL9Iiy0DE5hIv62ZPP6AaTdHBAsJosLFeAzuLFHQ6USyQRojefqFQtgYqWQ2JiZQ3&quot;
-        &quot;iqq3bD/BVlwKRp5gH6TEYEmx8EBJUuDxrJhkWRUk2VDl1fqhVBy8A9O7Ah+85nMrlOHIFsTaYo9o6+cDJ6t1i6G1gu+bZD0d3/3bqGLPBQV9LyEL1Rona5V7TJBGg099NQkTz1IwIDAQAB&quot; )  ; ----- DKIM key mail for example.org
+        &quot;iqq3bD/BVlwKRp5gH6TEYEmx8EBJUuDxrJhkWRUk2VDl1fqhVBy8A9O7Ah+85nMrlOHIFsTaYo9o6+cDJ6t1i6G1gu+bZD0d3/3bqGLPBQV9LyEL1Rona5V7TJBGg099NQkTz1IwIDAQAB&quot; )  ; ----- DKIM key mail for example.com
 </code></pre></div>
 </li>
 <li>
 <p>Add these configurations as well on the same file on the DNS server:</p>
 <div class="highlight"><pre><span></span><code>mail      IN  A   10.11.12.13
 
-; mailservers for example.org
-    3600  IN  MX  1  mail.example.org.
+; mail-server for example.com
+    3600  IN  MX  1  mail.example.com.
 
 ; Add SPF record
           IN TXT &quot;v=spf1 mx ~all&quot;
@@ -1421,51 +1421,51 @@ ufw allow <span class="m">465</span>
 <li>
 <p>Get an SSL certificate from letsencrypt. I use <a href="https://gitlab.com/docker-scripts/wsproxy">wsproxy</a> for managing SSL letsencrypt certificates of my domains:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span> /var/ds/wsproxy
-ds domains-add mail mail.example.org
-ds get-ssl-cert myemail@gmail.com mail.example.org --test
-ds get-ssl-cert myemail@gmail.com mail.example.org
+ds domains-add mail mail.example.com
+ds get-ssl-cert external-account@gmail.com mail.example.com --test
+ds get-ssl-cert external-account@gmail.com mail.example.com
 </code></pre></div>
-<p>Now the certificates will be available on <code>/var/ds/wsproxy/letsencrypt/live/mail.example.org</code>.</p>
+<p>Now the certificates will be available on <code>/var/ds/wsproxy/letsencrypt/live/mail.example.com</code>.</p>
 </li>
 <li>
-<p>Start the mailserver and check for any errors:</p>
+<p>Start <code>docker-mailserver</code> and check for any errors:</p>
 <div class="highlight"><pre><span></span><code>apt install docker-compose
-docker-compose up mail
+docker-compose up mailserver
 </code></pre></div>
 </li>
 <li>
 <p>Create email accounts and aliases with <code>SPOOF_PROTECTION=0</code>:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh email add admin@example.org passwd123
-./setup.sh email add info@example.org passwd123
-./setup.sh <span class="nb">alias</span> add admin@example.org myemail@gmail.com
-./setup.sh <span class="nb">alias</span> add info@example.org myemail@gmail.com
+<div class="highlight"><pre><span></span><code>./setup.sh email add admin@example.com passwd123
+./setup.sh email add info@example.com passwd123
+./setup.sh <span class="nb">alias</span> add admin@example.com external-account@gmail.com
+./setup.sh <span class="nb">alias</span> add info@example.com external-account@gmail.com
 ./setup.sh email list
 ./setup.sh <span class="nb">alias</span> list
 </code></pre></div>
-<p>Aliases make sure that any email that comes to these accounts is forwarded to my real email address, so that I don't need to use POP3/IMAP in order to get these messages. Also no anti-spam and anti-virus software is needed, making the mailserver lighter.</p>
+<p>Aliases make sure that any email that comes to these accounts is forwarded to my real email address, so that I don't need to use POP3/IMAP in order to get these messages. Also no anti-spam and anti-virus software is needed, making the mail-server lighter.</p>
 </li>
 <li>
 <p>Or create email accounts and aliases with <code>SPOOF_PROTECTION=1</code>:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh email add admin.gmail@example.org passwd123
-./setup.sh email add info.gmail@example.org passwd123
-./setup.sh <span class="nb">alias</span> add admin@example.org admin.gmail@example.org
-./setup.sh <span class="nb">alias</span> add info@example.org info.gmail@example.org
-./setup.sh <span class="nb">alias</span> add admin.gmail@example.org myemail@gmail.com
-./setup.sh <span class="nb">alias</span> add info.gmail@example.org myemail@gmail.com
+<div class="highlight"><pre><span></span><code>./setup.sh email add admin.gmail@example.com passwd123
+./setup.sh email add info.gmail@example.com passwd123
+./setup.sh <span class="nb">alias</span> add admin@example.com admin.gmail@example.com
+./setup.sh <span class="nb">alias</span> add info@example.com info.gmail@example.com
+./setup.sh <span class="nb">alias</span> add admin.gmail@example.com external-account@gmail.com
+./setup.sh <span class="nb">alias</span> add info.gmail@example.com external-account@gmail.com
 ./setup.sh email list
 ./setup.sh <span class="nb">alias</span> list
 </code></pre></div>
-<p>This extra step is required to avoid the <code>553 5.7.1 Sender address rejected: not owned by user</code> error (the account used for setting up Gmail is <code>admin.gmail@example.org</code> and <code>info.gmail@example.org</code> )</p>
+<p>This extra step is required to avoid the <code>553 5.7.1 Sender address rejected: not owned by user</code> error (the account used for setting up Gmail is <code>admin.gmail@example.com</code> and <code>info.gmail@example.com</code> )</p>
 </li>
 <li>
-<p>Send some test emails to these addresses and make other tests. Then stop the container with <code>ctrl+c</code> and start it again as a daemon: <code>docker-compose up -d mail</code>.</p>
+<p>Send some test emails to these addresses and make other tests. Then stop the container with <code>ctrl+c</code> and start it again as a daemon: <code>docker-compose up -d mailserver</code>.</p>
 </li>
 <li>
 <p>Now save on Moodle configuration the SMTP settings and test by trying to send some messages to other users:</p>
 <ul>
-<li><strong>SMTP hosts</strong>: <code>mail.example.org:465</code></li>
+<li><strong>SMTP hosts</strong>: <code>mail.example.com:465</code></li>
 <li><strong>SMTP security</strong>: <code>SSL</code></li>
-<li><strong>SMTP username</strong>: <code>info@example.org</code></li>
+<li><strong>SMTP username</strong>: <code>info@example.com</code></li>
 <li><strong>SMTP password</strong>: <code>passwd123</code></li>
 </ul>
 </li>
@@ -1512,13 +1512,13 @@ docker-compose up mail
       
       
         
-        <a href="../mailserver-behind-proxy/" class="md-footer__link md-footer__link--next" aria-label="Next: Mailserver behind Proxy" rel="next">
+        <a href="../mailserver-behind-proxy/" class="md-footer__link md-footer__link--next" aria-label="Next: Mail-Server behind a Proxy" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Mailserver behind Proxy
+              Mail-Server behind a Proxy
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1551,10 +1551,10 @@ docker-compose up mail
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

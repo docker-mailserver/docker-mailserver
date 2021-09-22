@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1110,7 +1110,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1161,7 +1161,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1407,10 +1407,10 @@
                 
                 <p>Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default.</p>
 <h2 id="configuration-files"><a class="toclink" href="#configuration-files">Configuration files</a></h2>
-<p>If you want to change this, you can easily edit <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf"><code>config/fail2ban-jail.cf</code></a>.</p>
-<p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf"><code>config/fail2ban-fail2ban.cf</code></a>.</p>
-<p>The configuration files need to be located at the root of the <code>/tmp/docker-mailserver/</code> volume bind.</p>
-<p>This following configuration files from <code>/tmp/docker-mailserver/</code> will be copied at boot time.</p>
+<p>If you want to change this, you can easily edit our github example file: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf"><code>config/fail2ban-jail.cf</code></a>.</p>
+<p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf"><code>config/fail2ban-fail2ban.cf</code></a>.</p>
+<p>The configuration files need to be located at the root of the <code>/tmp/docker-mailserver/</code> volume bind (usually <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
+<p>This following configuration files from <code>/tmp/docker-mailserver/</code> will be copied during container startup.</p>
 <ul>
 <li><code>fail2ban-jail.cf</code> -&gt; <code>/etc/fail2ban/jail.d/user-jail.local</code></li>
 <li><code>fail2ban-fail2ban.cf</code> -&gt; <code>/etc/fail2ban/fail2ban.local</code></li>
@@ -1418,12 +1418,12 @@
 <h3 id="docker-compose-config"><a class="toclink" href="#docker-compose-config">Docker-compose config</a></h3>
 <p>Example configuration volume bind:</p>
 <div class="highlight"><pre><span></span><code>    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/:/tmp/docker-mailserver/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
 </code></pre></div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>The mail container must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the iptable rules that actually ban IP addresses.</p>
-<p>Thus either include <code>--cap-add=NET_ADMIN</code> in the docker run commandline or the equivalent <code>docker-compose.yml</code>:</p>
+<p><code>docker-mailserver</code> must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the iptable rules that actually ban IP addresses.</p>
+<p>Thus either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
 </code></pre></div>
@@ -1525,10 +1525,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

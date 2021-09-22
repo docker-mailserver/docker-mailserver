@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/spf/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1077,7 +1077,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1128,7 +1128,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1351,19 +1351,19 @@
 <h2 id="add-a-spf-record"><a class="toclink" href="#add-a-spf-record">Add a SPF Record</a></h2>
 <p>To add a SPF record in your DNS, insert the following line in your DNS zone:</p>
 <div class="highlight"><pre><span></span><code>; MX record must be declared for SPF to work
-domain.com. IN  MX 1 mail.domain.com.
+example.com. IN  MX 1 mail.example.com.
 
 ; SPF record
-domain.com. IN TXT &quot;v=spf1 mx ~all&quot; 
+example.com. IN TXT &quot;v=spf1 mx ~all&quot;
 </code></pre></div>
-<p>This enables the <em>Softfail</em> mode for SPF. You could first add this SPF record with a very low TTL.<br />
-<em>SoftFail</em> is a good setting for getting started and testing, as it lets all email through, with spams tagged as such in the mailbox.</p>
+<p>This enables the <em>Softfail</em> mode for SPF. You could first add this SPF record with a very low TTL.</p>
+<p><em>SoftFail</em> is a good setting for getting started and testing, as it lets all email through, with spams tagged as such in the mailbox.</p>
 <p>After verification, you <em>might</em> want to change your SPF record to <code>v=spf1 mx -all</code> so as to enforce the <em>HardFail</em> policy. See <a href="http://www.open-spf.org/SPF_Record_Syntax">http://www.open-spf.org/SPF_Record_Syntax</a> for more details about SPF policies.</p>
 <p>In any case, increment the SPF record's TTL to its final value.</p>
 <h2 id="backup-mx-secondary-mx"><a class="toclink" href="#backup-mx-secondary-mx">Backup MX, Secondary MX</a></h2>
 <p>For whitelisting a IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
 <p><strong>Example:</strong></p>
-<p>Create and edit a <code>policyd-spf.conf</code> file here <code>/&lt;your docker-mailserver dir&gt;/config/postfix-policyd-spf.conf</code>:</p>
+<p>Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">debugLevel</span> <span class="o">=</span> <span class="s">1</span>
 <span class="c1">#0(only errors)-4(complete data received)</span>
 
@@ -1371,11 +1371,11 @@ domain.com. IN TXT &quot;v=spf1 mx ~all&quot;
 
 <span class="c1"># Preferably use IP-Addresses for whitelist lookups:</span>
 <span class="na">Whitelist</span> <span class="o">=</span> <span class="s">192.168.0.0/31,192.168.1.0/30</span>
-<span class="c1"># Domain_Whitelist = mx1.mybackupmx.com,mx2.mybackupmx.com</span>
+<span class="c1"># Domain_Whitelist = mx1.not-example.com,mx2.not-example.com</span>
 </code></pre></div>
 <p>Then add this line to <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf</span>
 </code></pre></div>
                 
                   
@@ -1458,10 +1458,10 @@ domain.com. IN TXT &quot;v=spf1 mx ~all&quot;
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

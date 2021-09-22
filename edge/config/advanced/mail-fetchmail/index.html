@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-fetchmail/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1102,7 +1102,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1153,7 +1153,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1394,8 +1394,8 @@
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_FETCHMAIL=1</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FETCHMAIL_POLL=300</span>
 </code></pre></div>
-<p>Generate a file called <code>fetchmail.cf</code> and place it in the <code>config</code> folder. Your <code>docker-mailserver</code> folder should look like this example:</p>
-<div class="highlight"><pre><span></span><code>├── config
+<p>Generate a file called <code>fetchmail.cf</code> and place it in the <code>docker-data/dms/config/</code> folder. Your <code>docker-mailserver</code> folder should look like this example:</p>
+<div class="highlight"><pre><span></span><code>├── docker-data/dms/config
 │   ├── dovecot.cf
 │   ├── fetchmail.cf
 │   ├── postfix-accounts.cf
@@ -1408,26 +1408,26 @@
 <h3 id="imap-configuration"><a class="toclink" href="#imap-configuration">IMAP Configuration</a></h3>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code>poll &#39;imap.example.com&#39; proto imap
+<div class="highlight"><pre><span></span><code>poll &#39;imap.gmail.com&#39; proto imap
   user &#39;username&#39;
   pass &#39;secret&#39;
-  is &#39;user1@domain.tld&#39;
+  is &#39;user1@example.com&#39;
   ssl
 </code></pre></div>
 </div>
 <h3 id="pop3-configuration"><a class="toclink" href="#pop3-configuration">POP3 Configuration</a></h3>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code>poll &#39;pop3.example.com&#39; proto pop3
+<div class="highlight"><pre><span></span><code>poll &#39;pop3.gmail.com&#39; proto pop3
   user &#39;username&#39;
   pass &#39;secret&#39;
-  is &#39;user2@domain.tld&#39;
+  is &#39;user2@example.com&#39;
   ssl
 </code></pre></div>
 </div>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
-<p>Don’t forget the last line: eg: <code>is 'user1@domain.tld'</code>. After <code>is</code> you have to specify one email address from the configuration file <code>config/postfix-accounts.cf</code>.</p>
+<p>Don’t forget the last line! (<em>eg: <code>is 'user1@example.com'</code></em>). After <code>is</code>, you have to specify an email address from the configuration file: <code>docker-data/dms/config/postfix-accounts.cf</code>.</p>
 </div>
 <p>More details how to configure fetchmail can be found in the <a href="https://www.fetchmail.info/fetchmail-man.html#31">fetchmail man page in the chapter “The run control file”</a>.</p>
 <h3 id="polling-interval"><a class="toclink" href="#polling-interval">Polling Interval</a></h3>
@@ -1561,10 +1561,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

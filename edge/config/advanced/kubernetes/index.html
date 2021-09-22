@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/kubernetes/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1010,11 +1010,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#exposing-your-mailserver-to-the-outside-world" class="md-nav__link">
-    Exposing your Mailserver to the Outside World
+  <a href="#exposing-your-mail-server-to-the-outside-world" class="md-nav__link">
+    Exposing your Mail-Server to the Outside World
   </a>
   
-    <nav class="md-nav" aria-label="Exposing your Mailserver to the Outside World">
+    <nav class="md-nav" aria-label="Exposing your Mail-Server to the Outside World">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1177,7 +1177,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1228,7 +1228,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1460,11 +1460,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#exposing-your-mailserver-to-the-outside-world" class="md-nav__link">
-    Exposing your Mailserver to the Outside World
+  <a href="#exposing-your-mail-server-to-the-outside-world" class="md-nav__link">
+    Exposing your Mail-Server to the Outside World
   </a>
   
-    <nav class="md-nav" aria-label="Exposing your Mailserver to the Outside World">
+    <nav class="md-nav" aria-label="Exposing your Mail-Server to the Outside World">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1662,9 +1662,9 @@
 
   <span class="nt">annotations</span><span class="p">:</span>
     <span class="nt">ignore-check.kube-linter.io/run-as-non-root</span><span class="p">:</span> <span class="p p-Indicator">&gt;-</span>
-      <span class="no">The mailserver needs to run as root</span>
+      <span class="no">&#39;mailserver&#39; needs to run as root</span>
     <span class="nt">ignore-check.kube-linter.io/privileged-ports</span><span class="p">:</span> <span class="p p-Indicator">&gt;-</span>
-      <span class="no">The mailserver needs privilegdes ports</span>
+      <span class="no">&#39;mailserver&#39; needs privilegdes ports</span>
     <span class="nt">ignore-check.kube-linter.io/no-read-only-root-fs</span><span class="p">:</span> <span class="p p-Indicator">&gt;-</span>
       <span class="no">There are too many files written to make The</span>
       <span class="no">root FS read-only</span>
@@ -1684,10 +1684,10 @@
         <span class="nt">container.apparmor.security.beta.kubernetes.io/mailserver</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">runtime/default</span>
 
     <span class="nt">spec</span><span class="p">:</span>
-      <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
+      <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
       <span class="nt">containers</span><span class="p">:</span>
         <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-          <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+          <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/docker-mailserver/docker-mailserver:latest</span>
           <span class="nt">imagePullPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IfNotPresent</span>
 
           <span class="nt">securityContext</span><span class="p">:</span>
@@ -1790,16 +1790,16 @@
           <span class="nt">emptyDir</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
 </code></pre></div>
 <h3 id="sensitive-data"><a class="toclink" href="#sensitive-data">Sensitive Data</a></h3>
-<p>By now, the mailserver starts, but does not really work for long (or at all), because we're lacking certificates. You will need to choose yourself, which approach you'd want to go with. The <a href="../../security/ssl/">TLS</a> section provides you with an overview.</p>
+<p>By now, <code>docker-mailserver</code> starts, but does not really work for long (or at all), because we're lacking certificates. The <a href="../../security/ssl/">TLS docs page</a> provides guidance for various approaches.</p>
 <div class="admonition attention">
 <p class="admonition-title">Sensitive Data</p>
 <p>For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using <code>Secret</code>s. You can mount secrets like <code>ConfigMap</code>s and use them the same way.</p>
 </div>
-<h2 id="exposing-your-mailserver-to-the-outside-world"><a class="toclink" href="#exposing-your-mailserver-to-the-outside-world">Exposing your Mailserver to the Outside World</a></h2>
-<p>The more difficult part with K8s is to expose a deployed mailserver to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing the mailserver to outside world in K8s is to <a href="https://kubernetes.io/docs/tutorials/services/source-ip">preserve the real client IP</a>. The real client IP is required by the mailserver for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your <a href="../override-defaults/postfix/">Postfix configuration</a> by dropping the line that states <code>check_policy_service unix:private/policyd-spf</code>.</p>
-<p>The easiest approach was covered above, using <code class="highlight"><span class="nt">externalTrafficPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Local</span></code>, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. <strong>But</strong> we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.</p>
+<h2 id="exposing-your-mail-server-to-the-outside-world"><a class="toclink" href="#exposing-your-mail-server-to-the-outside-world">Exposing your Mail-Server to the Outside World</a></h2>
+<p>The more difficult part with K8s is to expose a deployed <code>docker-mailserver</code> to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing <code>docker-mailserver</code> to outside world in K8s is to <a href="https://kubernetes.io/docs/tutorials/services/source-ip">preserve the real client IP</a>. The real client IP is required by <code>docker-mailserver</code> for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your <a href="../override-defaults/postfix/">Postfix configuration</a> by dropping the line that states: <code>check_policy_service unix:private/policyd-spf</code>.</p>
+<p>The easiest approach was covered above, using <code class="highlight"><span class="nt">externalTrafficPolicy</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Local</span></code>, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. <strong>But</strong> we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail-server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.</p>
 <h3 id="external-ips-service"><a class="toclink" href="#external-ips-service">External IPs Service</a></h3>
-<p>The simplest way is to expose the mailserver as a <a href="https://kubernetes.io/docs/concepts/services-networking/service">Service</a> with <a href="https://kubernetes.io/docs/concepts/services-networking/service/#external-ips">external IPs</a>. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.</p>
+<p>The simplest way is to expose <code>docker-mailserver</code> as a <a href="https://kubernetes.io/docs/concepts/services-networking/service">Service</a> with <a href="https://kubernetes.io/docs/concepts/services-networking/service/#external-ips">external IPs</a>. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Service</span>
@@ -1827,13 +1827,13 @@
 <li>requires you to specify the exposed IPs explicitly.</li>
 </ul>
 <h3 id="proxy-port-to-service"><a class="toclink" href="#proxy-port-to-service">Proxy port to Service</a></h3>
-<p>The <a href="https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service">proxy pod</a> helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> you want to expose mailserver on.</p>
+<p>The <a href="https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service">proxy pod</a> helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> you want to expose <code>docker-mailserver</code> on.</p>
 <p>This approach</p>
 <ul>
 <li>does not preserve the real client IP, so SPF check of incoming mail will fail.</li>
 </ul>
 <h3 id="bind-to-concrete-node-and-use-host-network"><a class="toclink" href="#bind-to-concrete-node-and-use-host-network">Bind to concrete Node and use host network</a></h3>
-<p>One way to preserve the real client IP is to use <code>hostPort</code> and <code>hostNetwork: true</code>. This comes at the cost of availability; you can talk to the mailserver from outside world only via IPs of <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> where mailserver is deployed.</p>
+<p>One way to preserve the real client IP is to use <code>hostPort</code> and <code>hostNetwork: true</code>. This comes at the cost of availability; you can reach <code>docker-mailserver</code> from the outside world only via IPs of <a href="https://kubernetes.io/docs/concepts/architecture/nodes">Node</a> where <code>docker-mailserver</code> is deployed.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">extensions/v1beta1</span>
 <span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Deployment</span>
@@ -1862,11 +1862,11 @@
 </code></pre></div>
 <p>With this approach,</p>
 <ul>
-<li>it is not possible to access mailserver via other cluster Nodes, only via the one mailserver deployed at.</li>
+<li>it is not possible to access <code>docker-mailserver</code> via other cluster Nodes, only via the Node <code>docker-mailserver</code> was deployed at.</li>
 <li>every Port within the Container is exposed on the Host side.</li>
 </ul>
 <h3 id="proxy-port-to-service-via-proxy-protocol"><a class="toclink" href="#proxy-port-to-service-via-proxy-protocol">Proxy Port to Service via PROXY Protocol</a></h3>
-<p>This way is ideologically the same as <a href="#proxy-port-to-service">using a proxy pod</a>, but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the mailserver pod using the PROXY protocol, which preserves the real client IP.</p>
+<p>This way is ideologically the same as <a href="#proxy-port-to-service">using a proxy pod</a>, but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the <code>docker-mailserver</code> pod using the PROXY protocol, which preserves the real client IP.</p>
 <h4 id="configure-your-ingress"><a class="toclink" href="#configure-your-ingress">Configure your Ingress</a></h4>
 <p>With an <a href="https://kubernetes.github.io/ingress-nginx">NGINX ingress controller</a>, set <code>externalTrafficPolicy: Local</code> for its service, and add the following to the TCP services config map (as described <a href="https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services">here</a>):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">25</span><span class="p">:</span>  <span class="s">&quot;mailserver/mailserver:25::PROXY&quot;</span>
@@ -1933,7 +1933,7 @@
 </details>
 <p>With this approach,</p>
 <ul>
-<li>it is not possible to access the mailserver via cluster-DNS, as the PROXY protocol is required for incoming connections.</li>
+<li>it is not possible to access <code>docker-mailserver</code> via cluster-DNS, as the PROXY protocol is required for incoming connections.</li>
 </ul>
                 
                   
@@ -2016,10 +2016,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

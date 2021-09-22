@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dmarc/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1070,7 +1070,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1121,7 +1121,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1325,20 +1325,17 @@
                 
                   <h1>DMARC</h1>
                 
-                <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>DMARC Guide: <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md">https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md</a></p>
-</div>
+                <p>More information at <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md">DMARC Guide</a>.</p>
 <h2 id="enabling-dmarc"><a class="toclink" href="#enabling-dmarc">Enabling DMARC</a></h2>
-<p>In <code>docker-mailserver</code>, DMARC is pre-configured out-of the box. The only thing you need to do in order to enable it, is to add new TXT entry to your DNS.</p>
-<p>In contrast with <a href="../dkim/">DKIM</a>, DMARC DNS entry does not require any keys, but merely setting the <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags">configuration values</a>. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org/">https://dmarcguide.globalcyberalliance.org/</a>).</p>
-<p>Typically something like this should be good to start with (don't forget to replace <code>@domain.com</code> to your actual domain)
-<div class="highlight"><pre><span></span><code>_dmarc.domain.com. IN TXT &quot;v=DMARC1; p=none; rua=mailto:dmarc.report@domain.com; ruf=mailto:dmarc.report@domain.com; sp=none; ri=86400&quot;
-</code></pre></div></p>
-<p>Or a bit more strict policies (mind <code>p=quarantine</code> and <code>sp=quarantine</code>):
-<div class="highlight"><pre><span></span><code>_dmarc IN TXT &quot;v=DMARC1; p=quarantine; rua=mailto:dmarc.report@domain.com; ruf=mailto:dmarc.report@domain.com; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; sp=quarantine&quot;
-</code></pre></div></p>
-<p>DMARC status is not being displayed instantly in Gmail for instance. If you want to check it directly after DNS entries, you can use some services around the Internet such as <a href="https://dmarcguide.globalcyberalliance.org/">https://dmarcguide.globalcyberalliance.org/</a> or <a href="https://ondmarc.redsift.com/">https://ondmarc.redsift.com/</a>. In other case, email clients will show "DMARC: PASS" in ~1 day or so.</p>
+<p>In <code>docker-mailserver</code>, DMARC is pre-configured out of the box. The only thing you need to do in order to enable it, is to add new <code>TXT</code> entry to your DNS.</p>
+<p>In contrast with <a href="../dkim/">DKIM</a>, the DMARC DNS entry does not require any keys, but merely setting the [configuration values][dmarc-howto-configtags]. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org">this one</a>).</p>
+<p>Typically something like this should be good to start with (<em>don't forget to replace <code>@example.com</code> to your actual domain</em>):</p>
+<div class="highlight"><pre><span></span><code>_dmarc.example.com. IN TXT &quot;v=DMARC1; p=none; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com; sp=none; ri=86400&quot;
+</code></pre></div>
+<p>Or a bit more strict policies (<em>mind <code>p=quarantine</code> and <code>sp=quarantine</code></em>):</p>
+<div class="highlight"><pre><span></span><code>_dmarc IN TXT &quot;v=DMARC1; p=quarantine; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; sp=quarantine&quot;
+</code></pre></div>
+<p>DMARC status is not being displayed instantly in Gmail for instance. If you want to check it directly after DNS entries, you can use some services around the Internet such as from <a href="https://dmarcguide.globalcyberalliance.org">Global Cyber Alliance</a> or <a href="https://ondmarc.redsift.com">RedSift</a>. In other cases, email clients will show "DMARC: PASS" in ~1 day or so.</p>
 <p>Reference: <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1511">#1511</a></p>
                 
                   
@@ -1421,10 +1418,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

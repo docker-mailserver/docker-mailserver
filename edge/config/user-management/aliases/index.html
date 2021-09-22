@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/aliases/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1075,7 +1075,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1126,7 +1126,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1341,22 +1341,22 @@
 <li>delivered to an existing account registered in <code>/tmp/docker-mailserver/postfix-accounts.cf</code></li>
 <li>redirected to one or more other email addresses</li>
 </ul>
-<p>Alias and target are space separated. An example on a server with domain.tld as its domain:</p>
+<p>Alias and target are space separated. An example on a server with example.com as its domain:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Alias delivered to an existing account</span>
-<span class="na">alias1@domain.tld user1@domain.tld</span>
+<span class="na">alias1@example.com user1@example.com</span>
 
 <span class="c1"># Alias forwarded to an external email address</span>
-<span class="na">alias2@domain.tld external@gmail.com</span>
+<span class="na">alias2@example.com external-account@gmail.com</span>
 </code></pre></div>
 <h2 id="configuring-regexp-aliases"><a class="toclink" href="#configuring-regexp-aliases">Configuring RegExp Aliases</a></h2>
-<p>Additional regexp aliases can be configured by placing them into <code>config/postfix-regexp.cf</code>. The regexp aliases get evaluated after the virtual aliases (<code>/tmp/docker-mailserver/postfix-virtual.cf</code>). For example, the following <code>config/postfix-regexp.cf</code> causes all email to "test" users to be delivered to <code>qa@example.com</code>:</p>
+<p>Additional regexp aliases can be configured by placing them into <code>docker-data/dms/config/postfix-regexp.cf</code>. The regexp aliases get evaluated after the virtual aliases (container path: <code>/tmp/docker-mailserver/postfix-virtual.cf</code>). For example, the following <code>docker-data/dms/config/postfix-regexp.cf</code> causes all email sent to "test" users to be delivered to <code>qa@example.com</code> instead:</p>
 <div class="highlight"><pre><span></span><code><span class="na">/^test[0-9][0-9]*@example.com/ qa@example.com</span>
 </code></pre></div>
 <h2 id="address-tags-extension-delimiters-an-alternative-to-aliases"><a class="toclink" href="#address-tags-extension-delimiters-an-alternative-to-aliases">Address Tags (Extension Delimiters) an Alternative to Aliases</a></h2>
-<p>Postfix supports so-called address tags, in the form of plus (+) tags - i.e. <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#100;&#100;&#114;&#101;&#115;&#115;&#43;&#116;&#97;&#103;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;">&#97;&#100;&#100;&#114;&#101;&#115;&#115;&#43;&#116;&#97;&#103;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a> will end up at <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#100;&#100;&#114;&#101;&#115;&#115;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;">&#97;&#100;&#100;&#114;&#101;&#115;&#115;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a>. This is configured by default and the (configurable !) separator is set to <code>+</code>. For more info, see <a href="https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/">How to use Address Tagging (<code>user+tag@example.com</code>) with Postfix</a> and the <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">official documentation</a>.</p>
+<p>Postfix supports so-called address tags, in the form of plus (+) tags - i.e. <code>address+tag@example.com</code> will end up at <code>address@example.com</code>. This is configured by default and the (configurable !) separator is set to <code>+</code>. For more info, see <a href="https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/">How to use Address Tagging (<code>user+tag@example.com</code>) with Postfix</a> and the <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">official documentation</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you do decide to change the configurable separator, you must add the same line to <em>both</em> <code>config/postfix-main.cf</code> and <code>config/dovecot.cf</code>, because Dovecot is acting as the delivery agent. For example, to switch to <code>-</code>, add:</p>
+<p>If you do decide to change the configurable separator, you must add the same line to <em>both</em> <code>docker-data/dms/config/postfix-main.cf</code> and <code>docker-data/dms/config/dovecot.cf</code>, because Dovecot is acting as the delivery agent. For example, to switch to <code>-</code>, add:</p>
 </div>
 <div class="highlight"><pre><span></span><code><span class="na">recipient_delimiter</span> <span class="o">=</span> <span class="s">-</span>
 </code></pre></div>
@@ -1441,10 +1441,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

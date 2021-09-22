@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1096,7 +1096,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1147,7 +1147,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1386,14 +1386,16 @@
 <p>To enable DKIM signature, <strong>you must have created at least one email account</strong>. Once its done, just run the following command to generate the signature:</p>
 <div class="highlight"><pre><span></span><code>./setup.sh config dkim
 </code></pre></div>
-<p>After generating DKIM keys, you should restart the mail server. DNS edits may take a few minutes to hours to propagate. The script assumes you're being in the directory where the <code>config/</code> directory is located. The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS provider limits the size), then provide the size as the first parameter of the command:</p>
+<p>After generating DKIM keys, you should restart <code>docker-mailserver</code>. DNS edits may take a few minutes to hours to propagate.</p>
+<p>The script should ideally be run with a volume for <em>config</em> attached (eg: <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>), otherwise by default it will mount <code>./config/:/tmp/docker-mailserver/</code>.</p>
+<p>The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS provider limits the size), then provide the size as the first parameter of the command:</p>
 <div class="highlight"><pre><span></span><code>./setup.sh config dkim keysize &lt;keysize&gt;
 </code></pre></div>
-<p>For LDAP systems that do not have any directly created user account you can run the following command (since <code>8.0.0</code>) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains): </p>
-<div class="highlight"><pre><span></span><code>./setup.sh config dkim keysize &lt;key-size&gt; domain &lt;domain.tld&gt;<span class="o">[</span>,&lt;domain2.tld&gt;<span class="o">]</span>
+<p>For LDAP systems that do not have any directly created user account you can run the following command (since <code>8.0.0</code>) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains):</p>
+<div class="highlight"><pre><span></span><code>./setup.sh config dkim keysize &lt;key-size&gt; domain &lt;example.com&gt;<span class="o">[</span>,&lt;not-example.com&gt;<span class="o">]</span>
 </code></pre></div>
-<p>Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of <code>config/opendkim/keys/domain.tld/mail.txt</code> in your <code>domain.tld.hosts</code> zone.</p>
-<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig mail._domainkey.domain.tld TXT
+<p>Now the keys are generated, you can configure your DNS server with DKIM signature, simply by adding a TXT record. If you have direct access to your DNS zone file, then it's only a matter of pasting the content of <code>docker-data/dms/config/opendkim/keys/example.com/mail.txt</code> in your <code>example.com.hosts</code> zone.</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig mail._domainkey.example.com TXT
 <span class="go">---</span>
 <span class="go">;; ANSWER SECTION</span>
 <span class="go">mail._domainkey.&lt;DOMAIN&gt; 300 IN TXT    &quot;v=DKIM1; k=rsa; p=AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN/AZERTYUIOPQSDFGHJKLMWXCVBN&quot;</span>
@@ -1408,9 +1410,9 @@
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Sometimes the key in <code>config/opendkim/keys/domain.tld/mail.txt</code> can be on multiple lines. If so then you need to concatenate the values in the TXT record:</p>
+<p>Sometimes the key in <code>docker-data/dms/config/opendkim/keys/example.com/mail.txt</code> can be on multiple lines. If so then you need to concatenate the values in the TXT record:</p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig mail._domainkey.domain.tld TXT
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig mail._domainkey.example.com TXT
 <span class="go">---</span>
 <span class="go">;; ANSWER SECTION</span>
 <span class="go">mail._domainkey.&lt;DOMAIN&gt; 300 IN TXT &quot;v=DKIM1; k=rsa; &quot;</span>
@@ -1429,21 +1431,21 @@
 <span class="na">Socket                  inet:12301@localhost</span>
 <span class="na">PidFile                 /var/run/opendkim/opendkim.pid</span>
 
-<span class="na">ReportAddress           postmaster@my-domain.com</span>
+<span class="na">ReportAddress           postmaster@example.com</span>
 <span class="na">SendReports             yes</span>
 
 <span class="na">Mode                    v</span>
 </code></pre></div>
 <h2 id="switch-off-dkim"><a class="toclink" href="#switch-off-dkim">Switch Off DKIM</a></h2>
-<p>Simply remove the DKIM key by recreating (not just relaunching) the mailserver container.</p>
+<p>Simply remove the DKIM key by recreating (not just relaunching) the <code>docker-mailserver</code> container.</p>
 <h2 id="debugging"><a class="toclink" href="#debugging">Debugging</a></h2>
 <ul>
 <li><a href="https://addons.mozilla.org/en-US/thunderbird/addon/dkim-verifier">DKIM-verifer</a>: A add-on for the mail client Thunderbird.</li>
 <li>You can debug your TXT records with the <code>dig</code> tool.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig TXT mail._domainkey.domain.tld
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig TXT mail._domainkey.example.com
 <span class="go">---</span>
-<span class="go">; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; TXT mail._domainkey.domain.tld</span>
+<span class="go">; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; TXT mail._domainkey.example.com</span>
 <span class="go">;; global options: +cmd</span>
 <span class="go">;; Got answer:</span>
 <span class="go">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 39669</span>
@@ -1452,10 +1454,10 @@
 <span class="go">;; OPT PSEUDOSECTION:</span>
 <span class="go">; EDNS: version: 0, flags:; udp: 512</span>
 <span class="go">;; QUESTION SECTION:</span>
-<span class="go">;mail._domainkey.domain.tld. IN TXT</span>
+<span class="go">;mail._domainkey.example.com. IN TXT</span>
 
 <span class="go">;; ANSWER SECTION:</span>
-<span class="go">mail._domainkey.domain.tld. 3600 IN TXT &quot;v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxBSjG6RnWAdU3oOlqsdf2WC0FOUmU8uHVrzxPLW2R3yRBPGLrGO1++yy3tv6kMieWZwEBHVOdefM6uQOQsZ4brahu9lhG8sFLPX4MaKYN/NR6RK4gdjrZu+MYSdfk3THgSbNwIDAQAB&quot;</span>
+<span class="go">mail._domainkey.example.com. 3600 IN TXT &quot;v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxBSjG6RnWAdU3oOlqsdf2WC0FOUmU8uHVrzxPLW2R3yRBPGLrGO1++yy3tv6kMieWZwEBHVOdefM6uQOQsZ4brahu9lhG8sFLPX4MaKYN/NR6RK4gdjrZu+MYSdfk3THgSbNwIDAQAB&quot;</span>
 
 <span class="go">;; Query time: 50 msec</span>
 <span class="go">;; SERVER: 127.0.1.1#53(127.0.1.1)</span>
@@ -1465,7 +1467,7 @@
 <hr />
 <div class="admonition warning">
 <p class="admonition-title">Key sizes &gt;=4096-bit</p>
-<p>Keys of 4096 bits could de denied by some mailservers. According to <a href="https://tools.ietf.org/html/rfc6376">https://tools.ietf.org/html/rfc6376</a> keys are preferably between 512 and 2048 bits. See issue <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1854">#1854</a>.</p>
+<p>Keys of 4096 bits could de denied by some mail-servers. According to <a href="https://tools.ietf.org/html/rfc6376">https://tools.ietf.org/html/rfc6376</a> keys are preferably between 512 and 2048 bits. See issue <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1854">#1854</a>.</p>
 </div>
                 
                   
@@ -1548,10 +1550,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

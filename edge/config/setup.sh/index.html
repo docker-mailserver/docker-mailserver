@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh/">
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1068,7 +1068,7 @@
   
     <li class="md-nav__item">
       <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1119,7 +1119,7 @@
   
     <li class="md-nav__item">
       <a href="../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1323,14 +1323,14 @@
                 
                   <h1>Your Best Friend setup.sh</h1>
                 
-                <p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is an administration script that helps with the most common tasks, including initial configuration. It is intended to be used from the host machine, <em>not</em> from within your running container.</p>
+                <p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is an administration script that helps with the most common tasks, including initial configuration. It is intended to be run from the host machine, <em>not</em> from inside your running container.</p>
 <p>The latest version of the script is included in the <code>docker-mailserver</code> repository. You may retrieve it at any time by running this command in your console:</p>
 <div class="highlight"><pre><span></span><code>wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
 chmod a+x ./setup.sh
 </code></pre></div>
 <div class="admonition warning">
-<p class="admonition-title"><code>setup.sh</code> for Docker Mailserver version <code>v10.1.x</code> and below</p>
-<p>If you're using Docker Mailserver version <code>v10.1.x</code> or below, you will need to get <code>setup.sh</code> with a specific version. Substitute <code>&lt;VERSION&gt;</code> with the <a href="https://github.com/docker-mailserver/docker-mailserver/tags">tagged release version</a> that you're using:</p>
+<p class="admonition-title"><code>setup.sh</code> for <code>docker-mailserver</code> version <code>v10.1.x</code> and below</p>
+<p>If you're using <code>docker-mailserver</code> version <code>v10.1.x</code> or below, you will need to get <code>setup.sh</code> with a specific version. Substitute <code>&lt;VERSION&gt;</code> with the <a href="https://github.com/docker-mailserver/docker-mailserver/tags">tagged release version</a> that you're using:</p>
 <p><code>wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/&lt;VERSION&gt;/setup.sh</code>.</p>
 </div>
 <h2 id="usage"><a class="toclink" href="#usage">Usage</a></h2>
@@ -1346,12 +1346,12 @@ SYNOPSIS
     COMMAND := { email | alias | quota | config | relay | debug } SUBCOMMAND
 
 DESCRIPTION
-    This is the main administration script that you use for all interactions with your
-    mail server. Setup, configuration and much more is done with this script.
+    This is the main administration script that you use for all your interactions with
+    &#39;docker-mailserver&#39;. Setup, configuration and much more is done with this script.
 
     Please note that the script executes most of the commands inside the container itself.
-    If the image was not found, this script will pull the :latest tag of
-    mailserver/docker-mailserver. This tag refers to the latest release,
+    If the image was not found, this script will pull the &#39;:latest&#39; tag of
+    &#39;mailserver/docker-mailserver&#39;. This tag refers to the latest release,
     see the tagging convention in the README under
     https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 
@@ -1392,30 +1392,30 @@ DESCRIPTION
         ./setup.sh debug login &lt;COMMANDS&gt;
 
 EXAMPLES
-    ./setup.sh email add test@domain.tld
-        Add the email account test@domain.tld. You will be prompted
+    ./setup.sh email add test@example.com
+        Add the email account test@example.com. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ./setup.sh config dkim keysize 2048 domain &#39;whoami.com,whoareyou.org&#39;
+    ./setup.sh config dkim keysize 2048 domain &#39;example.com,not-example.com&#39;
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 
     ./setup.sh config dkim help
-        This will provide you with a detailed explanation on how to use the 
+        This will provide you with a detailed explanation on how to use the
         config dkim command, showing what arguments can be passed and what they do.
 
 OPTIONS
     Config path, container or image adjustments
         -i IMAGE_NAME
-            Provides the name of the docker-mailserver image. The default value is
-            docker.io/mailserver/docker-mailserver:latest
+            Provides the name of the &#39;docker-mailserver&#39; image. The default value is
+            &#39;docker.io/mailserver/docker-mailserver:latest&#39;
 
         -c CONTAINER_NAME
             Provides the name of the running container.
 
         -p PATH
-            Provides the config folder path to the temporary container 
-            (does not work if docker-mailserver container already exists).
+            Provides the config folder path to the temporary container
+            (does not work if a &#39;docker-mailserver&#39; container already exists).
 
     SELinux
         -z
@@ -1512,10 +1512,10 @@ EXIT STATUS
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

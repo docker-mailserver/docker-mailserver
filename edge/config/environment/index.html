@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/">
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -626,13 +626,6 @@
           <li class="md-nav__item">
   <a href="#enable_managesieve" class="md-nav__link">
     ENABLE_MANAGESIEVE
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#override_hostname_1" class="md-nav__link">
-    OVERRIDE_HOSTNAME
   </a>
   
 </li>
@@ -1937,7 +1930,7 @@
   
     <li class="md-nav__item">
       <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1988,7 +1981,7 @@
   
     <li class="md-nav__item">
       <a href="../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -2336,13 +2329,6 @@
           <li class="md-nav__item">
   <a href="#enable_managesieve" class="md-nav__link">
     ENABLE_MANAGESIEVE
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#override_hostname_1" class="md-nav__link">
-    OVERRIDE_HOSTNAME
   </a>
   
 </li>
@@ -3068,8 +3054,8 @@
 <h4 id="general"><a class="toclink" href="#general">General</a></h4>
 <h5 id="override_hostname"><a class="toclink" href="#override_hostname">OVERRIDE_HOSTNAME</a></h5>
 <ul>
-<li>empty =&gt; uses the <code>hostname</code> command to get the mail server's canonical hostname.</li>
-<li>=&gt; Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's <code>hostname:</code> and <code>domainname:</code> values.</li>
+<li><strong>empty</strong> =&gt; uses the <code>hostname</code> command to get canonical hostname for <code>docker-mailserver</code> to use.</li>
+<li>=&gt; Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (<em>eg: you're in a container platform that doesn't let you</em>) specify it via this environment variable. It will take priority over <code>docker run</code> options: <code>--hostname</code> and <code>--domainname</code>, or <code>docker-compose.yml</code> config equivalents: <code>hostname:</code> and <code>domainname:</code>.</li>
 </ul>
 <h5 id="dms_debug"><a class="toclink" href="#dms_debug">DMS_DEBUG</a></h5>
 <ul>
@@ -3146,16 +3132,20 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li>1 =&gt; only launch postfix smtp</li>
 </ul>
 <h5 id="ssl_type"><a class="toclink" href="#ssl_type">SSL_TYPE</a></h5>
+<p>In the majority of cases, you want <code>letsencrypt</code> or <code>manual</code>.</p>
+<p><code>self-signed</code> can be used for testing SSL until you provide a valid certificate, note that third-parties cannot trust <code>self-signed</code> certificates, do not use this type in production. <code>custom</code> is a temporary workaround that is not officially supported.</p>
 <ul>
 <li><strong>empty</strong> =&gt; SSL disabled.</li>
-<li>letsencrypt =&gt; Enables Let's Encrypt certificates.</li>
-<li>custom =&gt; Enables custom certificates.</li>
-<li>manual =&gt; Let you manually specify locations of your SSL certificates for non-standard cases</li>
+<li>letsencrypt =&gt; Support for using certificates with <em>Let's Encrypt</em> provisioners. (Docs: <a href="../security/ssl/#lets-encrypt-recommended"><em>Let's Encrypt</em> Setup</a>)</li>
+<li>manual =&gt; Provide your own certificate via separate key and cert files. (Docs: <a href="../security/ssl/#bring-your-own-certificates">Bring Your Own Certificates</a>)<ul>
 <li>Requires: <code>SSL_CERT_PATH</code> and <code>SSL_KEY_PATH</code> ENV vars to be set to the location of the files within the container.</li>
-<li>Optional: <code>SSL_ALT_CERT_PATH</code> and <code>SSL_ALT_KEY_PATH</code> allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. Presently only <code>manual</code> mode supports this feature.</li>
-<li>self-signed =&gt; Enables self-signed certificates.</li>
+<li>Optional: <code>SSL_ALT_CERT_PATH</code> and <code>SSL_ALT_KEY_PATH</code> allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. <em>Presently only <code>manual</code> mode supports this feature</em>.</li>
 </ul>
-<p>Please read <a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/ssl">the SSL page in the documentation</a> for more information.</p>
+</li>
+<li>custom =&gt; Provide your own certificate as a single file containing both the private key and full certificate chain. (Docs: <code>None</code>)</li>
+<li>self-signed =&gt; Provide your own self-signed certificate files. Expects a self-signed CA cert for verification. <strong>Use only for local testing of your setup</strong>. (Docs: <a href="../security/ssl/#self-signed-certificates">Self-Signed Certificates</a>)</li>
+</ul>
+<p>Please read <a href="./config/security/ssl.md">the SSL page in the documentation</a> for more information.</p>
 <h5 id="tls_level"><a class="toclink" href="#tls_level">TLS_LEVEL</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; modern</li>
@@ -3169,7 +3159,7 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li>1 =&gt; (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">extension delimiters</a> are not able to send messages.</li>
 </ul>
 <h5 id="enable_srs"><a class="toclink" href="#enable_srs">ENABLE_SRS</a></h5>
-<p>Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as forwarder. See <a href="https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course">postsrsd</a> for further explanation.</p>
+<p>Enables the Sender Rewriting Scheme. SRS is needed if <code>docker-mailserver</code> acts as forwarder. See <a href="https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course">postsrsd</a> for further explanation.</p>
 <ul>
 <li><strong>0</strong> =&gt; Disabled</li>
 <li>1 =&gt; Enabled</li>
@@ -3209,7 +3199,7 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li><strong>1</strong> =&gt; Dovecot quota is enabled</li>
 <li>0 =&gt; Dovecot quota is disabled</li>
 </ul>
-<p>See <a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts/#notes">mailbox quota</a>.</p>
+<p>See <a href="./config/user-management/accounts.md#notes">mailbox quota</a>.</p>
 <h5 id="postfix_message_size_limit"><a class="toclink" href="#postfix_message_size_limit">POSTFIX_MESSAGE_SIZE_LIMIT</a></h5>
 <p>Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!)</p>
 <ul>
@@ -3220,14 +3210,9 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li><strong>empty</strong> =&gt; Managesieve service disabled</li>
 <li>1 =&gt; Enables Managesieve on port 4190</li>
 </ul>
-<h5 id="override_hostname_1"><a class="toclink" href="#override_hostname_1">OVERRIDE_HOSTNAME</a></h5>
-<ul>
-<li><strong>empty</strong> =&gt; uses the <code>hostname</code> command to get the mail server's canonical hostname</li>
-<li>=&gt; Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.</li>
-</ul>
 <h5 id="postmaster_address"><a class="toclink" href="#postmaster_address">POSTMASTER_ADDRESS</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#99;&#111;&#109;">&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#99;&#111;&#109;</a></li>
+<li><strong>empty</strong> =&gt; <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;">&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a></li>
 <li>=&gt; Specify the postmaster address</li>
 </ul>
 <h5 id="enable_update_check"><a class="toclink" href="#enable_update_check">ENABLE_UPDATE_CHECK</a></h5>
@@ -3327,8 +3312,8 @@ the logs.</p>
 <li>monthly =&gt; Rotate monthly.</li>
 </ul>
 <p>Note that only the log inside the container is affected.
-The full log output is still available via <code>docker logs mail</code> (or your respective container name).
-If you want to control logrotation for the docker generated logfile see: <a href="https://docs.docker.com/config/containers/logging/configure/">Docker Logging Drivers</a>.</p>
+The full log output is still available via <code>docker logs mailserver</code> (<em>or your respective container name</em>).
+If you want to control logrotation for the docker generated logfile, see: <a href="https://docs.docker.com/config/containers/logging/configure/">Docker Logging Drivers</a>.</p>
 <p>Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.</p>
 <p>Finally the logrotate interval <strong>may</strong> affect the period for generated reports. That is the case when the reports are triggered by log rotation.</p>
 <h4 id="spamassassin"><a class="toclink" href="#spamassassin">SpamAssassin</a></h4>
@@ -3364,7 +3349,12 @@ Use <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> for receiving spam messages.</p>
 <ul>
 <li><strong>6.31</strong> =&gt; triggers spam evasive actions</li>
 </ul>
-<p>Note: this SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code>. By default, the mailserver is configured to quarantine spam emails. If emails are quarantined, they are compressed and stored in a location dependent on the ONE_DIR setting above. If <code>ONE_DIR=1</code> the location is /var/mail-state/lib-amavis/virusmails/. If <code>ONE_DIR=0</code> it is /var/lib/amavis/virusmails/. These paths are inside the docker container. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. 100.0.</p>
+<div class="admonition note">
+<p class="admonition-title">This SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code></p>
+<p>By default, <code>docker-mailserver</code> is configured to quarantine spam emails.</p>
+<p>If emails are quarantined, they are compressed and stored in a location dependent on the <code>ONE_DIR</code> setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. <code>100.0</code>.</p>
+<p>If <code>ONE_DIR=1</code> (default) the location is <code>/var/mail-state/lib-amavis/virusmails/</code>, or if <code>ONE_DIR=0</code>: <code>/var/lib/amavis/virusmails/</code>. These paths are inside the docker container.</p>
+</div>
 <h5 id="sa_spam_subject"><a class="toclink" href="#sa_spam_subject">SA_SPAM_SUBJECT</a></h5>
 <ul>
 <li><strong>***SPAM***</strong> =&gt; add tag to subject if spam detected</li>
@@ -3412,9 +3402,9 @@ Use <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> for receiving spam messages.</p>
 </ul>
 <h5 id="ldap_server_host"><a class="toclink" href="#ldap_server_host">LDAP_SERVER_HOST</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; mail.domain.com</li>
-<li>=&gt; Specify the dns-name/ip-address where the ldap-server is listening, or an URI like <code>ldaps://mail.domain.com</code></li>
-<li>NOTE: If you going to use the mailserver in combination with docker-compose you can set the service name here</li>
+<li><strong>empty</strong> =&gt; mail.example.com</li>
+<li>=&gt; Specify the dns-name/ip-address where the ldap-server is listening, or an URI like <code>ldaps://mail.example.com</code></li>
+<li>NOTE: If you going to use <code>docker-mailserver</code> in combination with <code>docker-compose.yml</code> you can set the service name here</li>
 </ul>
 <h5 id="ldap_search_base"><a class="toclink" href="#ldap_search_base">LDAP_SEARCH_BASE</a></h5>
 <ul>
@@ -3670,7 +3660,7 @@ you to replace both instead of just the envelope sender.</p>
 </ul>
 <h5 id="srs_domainname"><a class="toclink" href="#srs_domainname">SRS_DOMAINNAME</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; Derived from OVERRIDE_HOSTNAME, DOMAINNAME, or the container's hostname</li>
+<li><strong>empty</strong> =&gt; Derived from <a href="#override_hostname"><code>OVERRIDE_HOSTNAME</code></a>, <code>$DOMAINNAME</code> (internal), or the container's hostname</li>
 <li>Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs</li>
 </ul>
 <h4 id="default-relay-host"><a class="toclink" href="#default-relay-host">Default Relay Host</a></h4>
@@ -3783,10 +3773,10 @@ you to replace both instead of just the envelope sender.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

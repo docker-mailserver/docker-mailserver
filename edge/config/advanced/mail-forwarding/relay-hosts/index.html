@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/relay-hosts/">
       
       <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1124,7 +1124,7 @@
   
     <li class="md-nav__item">
       <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1175,7 +1175,7 @@
   
     <li class="md-nav__item">
       <a href="../../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1437,7 +1437,7 @@
 <h2 id="basic-configuration"><a class="toclink" href="#basic-configuration">Basic Configuration</a></h2>
 <p>Basic configuration is done via environment variables:</p>
 <ul>
-<li><code>RELAY_HOST</code>: <em>default host to relay mail through, empty will disable this feature</em></li>
+<li><code>RELAY_HOST</code>: <em>default host to relay mail through, <code>empty</code> (aka '', or no ENV set) will disable this feature</em></li>
 <li><code>RELAY_PORT</code>: <em>port on default relay, defaults to port 25</em></li>
 <li><code>RELAY_USER</code>: <em>username for the default relay</em></li>
 <li><code>RELAY_PASSWORD</code>: <em>password for the default user</em></li>
@@ -1449,33 +1449,33 @@
 </div>
 <h2 id="advanced-configuration"><a class="toclink" href="#advanced-configuration">Advanced Configuration</a></h2>
 <h3 id="sender-dependent-authentication"><a class="toclink" href="#sender-dependent-authentication">Sender-dependent Authentication</a></h3>
-<p>Sender dependent authentication is done in <code>config/postfix-sasl-password.cf</code>. You can create this file manually, or use:</p>
+<p>Sender dependent authentication is done in <code>docker-data/dms/config/postfix-sasl-password.cf</code>. You can create this file manually, or use:</p>
 <div class="highlight"><pre><span></span><code>setup.sh relay add-auth &lt;domain&gt; &lt;username&gt; <span class="o">[</span>&lt;password&gt;<span class="o">]</span>
 </code></pre></div>
 <p>An example configuration file looks like this:</p>
 <div class="highlight"><pre><span></span><code>@domain1.com           relay_user_1:password_1
 @domain2.com           relay_user_2:password_2
 </code></pre></div>
-<p>If there is no other configuration, this will cause Postfix to deliver email through the relay specified in <code>RELAY_HOST</code> env variable, authenticating as <code>relay_user_1</code> when sent from <code>domain1.com</code> and authenticating as <code>relay_user_2</code> when sending from domain2.com.</p>
+<p>If there is no other configuration, this will cause Postfix to deliver email through the relay specified in <code>RELAY_HOST</code> env variable, authenticating as <code>relay_user_1</code> when sent from <code>domain1.com</code> and authenticating as <code>relay_user_2</code> when sending from <code>domain2.com</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To activate the configuration you must either restart the container, or you can also trigger an update by modifying a mail account.</p>
 </div>
 <h3 id="sender-dependent-relay-host"><a class="toclink" href="#sender-dependent-relay-host">Sender-dependent Relay Host</a></h3>
-<p>Sender dependent relay hosts are configured in <code>config/postfix-relaymap.cf</code>. You can create this file manually, or use:</p>
+<p>Sender dependent relay hosts are configured in <code>docker-data/dms/config/postfix-relaymap.cf</code>. You can create this file manually, or use:</p>
 <div class="highlight"><pre><span></span><code>setup.sh relay add-domain &lt;domain&gt; &lt;host&gt; <span class="o">[</span>&lt;port&gt;<span class="o">]</span>
 </code></pre></div>
 <p>An example configuration file looks like this:</p>
 <div class="highlight"><pre><span></span><code>@domain1.com        [relay1.org]:587
 @domain2.com        [relay2.org]:2525
 </code></pre></div>
-<p>Combined with the previous configuration in <code>config/postfix-sasl-password.cf</code>, this will cause Postfix to deliver mail sent from domain1.com via <code>relay1.org:587</code>, authenticating as <code>relay_user_1</code>, and mail sent from domain2.com via <code>relay2.org:2525</code> authenticating as <code>relay_user_2</code>.</p>
+<p>Combined with the previous configuration in <code>docker-data/dms/config/postfix-sasl-password.cf</code>, this will cause Postfix to deliver mail sent from <code>domain1.com</code> via <code>relay1.org:587</code>, authenticating as <code>relay_user_1</code>, and mail sent from <code>domain2.com</code> via <code>relay2.org:2525</code> authenticating as <code>relay_user_2</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You still have to define <code>RELAY_HOST</code> to activate the feature</p>
 </div>
 <h3 id="excluding-sender-domains"><a class="toclink" href="#excluding-sender-domains">Excluding Sender Domains</a></h3>
-<p>If you want mail sent from some domains to be delivered directly, you can exclude them from being delivered via the default relay by adding them to <code>config/postfix-relaymap.cf</code> with no destination. You can also do this via:</p>
+<p>If you want mail sent from some domains to be delivered directly, you can exclude them from being delivered via the default relay by adding them to <code>docker-data/dms/config/postfix-relaymap.cf</code> with no destination. You can also do this via:</p>
 <div class="highlight"><pre><span></span><code>setup.sh relay exclude-domain &lt;domain&gt;
 </code></pre></div>
 <p>Extending the configuration file from above:</p>
@@ -1483,7 +1483,7 @@
 @domain2.com        [relay2.org]:2525
 @domain3.com
 </code></pre></div>
-<p>This will cause email sent from domain3.com to be delivered directly.</p>
+<p>This will cause email sent from <code>domain3.com</code> to be delivered directly.</p>
 <h4 id="references"><a class="toclink" href="#references">References</a></h4>
 <p>Thanks to the author of <a href="https://community.rackspace.com/products/f/email-products-forum/3897/how-to-setup-postfix-with-a-mailgun-smtp-relay-when-using-multiple-domains">this article</a> for the inspiration. This is also worth reading to understand a bit more about how to set up Mailgun to work with this.</p>
                 
@@ -1567,10 +1567,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.6">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.8">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.802231af.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.92558b1b.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -698,8 +698,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tls-connections-on-mail-servers-compared-to-web-browsers" class="md-nav__link">
-    TLS connections on mail servers, compared to web browsers
+  <a href="#tls-connections-for-a-mail-server-compared-to-web-browsers" class="md-nav__link">
+    TLS connections for a Mail-Server, compared to web browsers
   </a>
   
 </li>
@@ -1155,7 +1155,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
-        Mailserver behind Proxy
+        Mail-Server behind a Proxy
       </a>
     </li>
   
@@ -1206,7 +1206,7 @@
   
     <li class="md-nav__item">
       <a href="../../../examples/uses-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mailserver with LDAP
+        Forward-Only Mail-Server with LDAP
       </a>
     </li>
   
@@ -1465,8 +1465,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tls-connections-on-mail-servers-compared-to-web-browsers" class="md-nav__link">
-    TLS connections on mail servers, compared to web browsers
+  <a href="#tls-connections-for-a-mail-server-compared-to-web-browsers" class="md-nav__link">
+    TLS connections for a Mail-Server, compared to web browsers
   </a>
   
 </li>
@@ -1587,7 +1587,7 @@
 <p>Due to these security concerns, <a href="https://tools.ietf.org/html/rfc8314#section-4.1">RFC 8314 (Section 4.1)</a> encourages you to <strong>prefer Implicit TLS ports where possible</strong>. </p>
 <h4 id="implicit-tls-enforced-encryption"><a class="toclink" href="#implicit-tls-enforced-encryption">Implicit TLS - Enforced Encryption</a></h4>
 <p>Communication is always encrypted, avoiding the above mentioned issues with Explicit TLS.</p>
-<p>You may know of these ports as <strong>SMTPS, POP3S, IMAPS</strong>, which indicate the protocol in combination with a TLS connection. However, Explicit TLS ports provide the same benefit when <code>STARTTLS</code> is successfully negotiated; Implicit TLS better communicates the improved security to all three protocols (SMTP/POP3/IMAP over Implicit TLS). </p>
+<p>You may know of these ports as <strong>SMTPS, POP3S, IMAPS</strong>, which indicate the protocol in combination with a TLS connection. However, Explicit TLS ports provide the same benefit when <code>STARTTLS</code> is successfully negotiated; Implicit TLS better communicates the improved security to all three protocols (SMTP/POP3/IMAP over Implicit TLS).</p>
 <p>Additionally, referring to port 465 as <em>SMTPS</em> would be incorrect, as it is a submissions port requiring authentication to proceed via <em>ESMTP</em>, whereas ESMTPS has a different meaning(STARTTLS supported). Port 25 may lack Implicit TLS, but can be configured to be more secure between trusted parties via MTA-STS, STARTTLS Policy List, DNSSEC and DANE.</p>
 <h2 id="security"><a class="toclink" href="#security">Security</a></h2>
 <div class="admonition todo">
@@ -1598,8 +1598,8 @@
 <p class="admonition-title">Todo</p>
 <p>A related section or page on ciphers used may be useful, although less important for users to be concerned about.</p>
 </div>
-<h3 id="tls-connections-on-mail-servers-compared-to-web-browsers"><a class="toclink" href="#tls-connections-on-mail-servers-compared-to-web-browsers">TLS connections on mail servers, compared to web browsers</a></h3>
-<p>Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below is not the equivalent safety that HTTPS provides when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully. </p>
+<h3 id="tls-connections-for-a-mail-server-compared-to-web-browsers"><a class="toclink" href="#tls-connections-for-a-mail-server-compared-to-web-browsers">TLS connections for a Mail-Server, compared to web browsers</a></h3>
+<p>Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below is not the equivalent safety that HTTPS provides when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully.</p>
 <p>Other machines that facilitate a connection that generally aren't taken into account can exist between a client and server, such as those where your connection passes through your ISP provider are capable of compromising a cleartext connection through interception.</p>
                 
                   
@@ -1682,10 +1682,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.409db549.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.94ec81fe.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.756773cc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.48dfec6c.min.js"></script>
       
     
   </body>
