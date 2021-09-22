@@ -61,9 +61,9 @@ Feel free to add your configuration if you achieved the same goal using differen
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
         domainname: example.com
-        container_name: mailserver
         restart: always
         networks:
           - proxy

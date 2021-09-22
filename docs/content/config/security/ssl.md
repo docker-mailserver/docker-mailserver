@@ -193,9 +193,9 @@ The second part of the setup is the `docker-mailserver` container. So, in anothe
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
         domainname: example.com
-        container_name: mailserver
         ports:
           - "25:25"
           - "143:143"
@@ -381,9 +381,9 @@ This setup only comes with one caveat: The domain has to be configured on anothe
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
         domainname: example.com
-        container_name: mailserver
         volumes:
            - ./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
@@ -394,6 +394,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 
       traefik:
         image: docker.io/traefik:v2.5
+        container_name: docker-traefik
         ports:
            - "80:80"
            - "443:443"

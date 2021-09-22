@@ -135,9 +135,9 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
         domainname: example.com
-        container_name: mailserver
 
         ports:
           - "25:25"
@@ -201,9 +201,9 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
+        container_name: mailserver
         hostname: mail
         domainname: example.com
-        container_name: mailserver
 
         ports:
           - "25:25"

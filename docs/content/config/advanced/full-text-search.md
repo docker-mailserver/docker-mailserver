@@ -62,9 +62,9 @@ While indexing is memory intensive, you can configure the plugin to limit the am
       services:
         mailserver:
           image: docker.io/mailserver/docker-mailserver:latest
+          container_name: mailserver
           hostname: mail
           domainname: example.com
-          container_name: mailserver
           env_file: mailserver.env
           ports:
             - "25:25"    # SMTP  (explicit TLS => STARTTLS)

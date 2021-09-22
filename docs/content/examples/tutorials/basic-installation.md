@@ -30,9 +30,9 @@ We are going to use this docker based mailserver:
         services:
           mailserver:
             image: docker.io/mailserver/docker-mailserver:latest
+            container_name: mailserver
             hostname: mail
             domainname: example.com
-            container_name: mailserver
             ports:
                 - "25:25"
                 - "587:587"
