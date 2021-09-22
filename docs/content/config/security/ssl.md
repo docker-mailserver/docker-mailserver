@@ -240,12 +240,14 @@ Amongst other things, you can use these to secure your mail-server. DSM locates 
 Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your `docker-compose.yml` declaration file:
 
 ```yaml
+# Note: If you have an existing setup that was working pre docker-mailserver v10.2,
+# '/tmp/dms/custom-certs' below has replaced the previous '/tmp/ssl' container path.
 volumes:
-  - /usr/syno/etc/certificate/_archive/<your-folder>/:/tmp/ssl
+  - /usr/syno/etc/certificate/_archive/<your-folder>/:/tmp/dms/custom-certs/
 environment:
   - SSL_TYPE=manual
-  - SSL_CERT_PATH=/tmp/ssl/fullchain.pem
-  - SSL_KEY_PATH=/tmp/ssl/privkey.pem
+  - SSL_CERT_PATH=/tmp/dms/custom-certs/fullchain.pem
+  - SSL_KEY_PATH=/tmp/dms/custom-certs/privkey.pem
 ```
 
 DSM-generated letsencrypt certificates get auto-renewed every three months.
@@ -469,16 +471,16 @@ step certificate create "Smallstep Leaf" mail.example.test-cert.pem mail.example
   --kty RSA --size 2048
 ```
 
-If you'd rather not install the CLI tool locally to run the `step` commands above; you can save the script above to a file such as `generate-certs.sh` (_and make it executable `chmod +x generate-certs.sh`_) in a directory that you want the certs to be placed, then run that script with docker:
+If you'd rather not install the CLI tool locally to run the `step` commands above; you can save the script above to a file such as `generate-certs.sh` (_and make it executable `chmod +x generate-certs.sh`_) in a directory that you want the certs to be placed (eg: `docker-data/dms/custom-certs/`), then use docker to run that script in a container:
 
 ```sh
 # '--user' is to keep ownership of the files written to
 # the local volume to use your systems User and Group ID values.
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \
-  --volume "${PWD}:/tmp" \
-  --workdir "/tmp" \
-  --entrypoint "/tmp/generate-certs.sh" \
+  --volume "${PWD}/docker-data/dms/custom-certs/:/tmp/step-ca/" \
+  --workdir "/tmp/step-ca/" \
+  --entrypoint "/tmp/step-ca/generate-certs.sh" \
   smallstep/step-ca
 ```
 
@@ -488,16 +490,20 @@ You can also provide your own certificate files. Add these entries to your `dock
 
 ```yaml
 volumes:
-  - ./docker-data/dms/config/ssl/:/tmp/ssl/:ro
+  - ./docker-data/dms/custom-certs/:/tmp/dms/custom-certs/:ro
 environment:
   - SSL_TYPE=manual
-  - SSL_CERT_PATH=/tmp/ssl/cert/public.crt
-  - SSL_KEY_PATH=/tmp/ssl/private/private.key
+  # Values should match the file paths inside the container:
+  - SSL_CERT_PATH=/tmp/dms/custom-certs/public.crt
+  - SSL_KEY_PATH=/tmp/dms/custom-certs/private.key
 ```
 
-This will mount the path where your ssl certificates reside as read-only under `/tmp/ssl`. Then all you have to do is to specify the location of your private key and the certificate.
+This will mount the path where your certificate files reside locally into the _read-only_ container folder: `/tmp/dms/custom-certs`.
+
+The local and internal paths may be whatever you prefer, so long as both `SSL_CERT_PATH` and `SSL_KEY_PATH` point to the correct internal file paths. The certificate files may also be named to your preference, but should be PEM encoded.
 
 !!! info
+
     You may have to restart `docker-mailserver` once the certificates change.
 
 ## Testing a Certificate is Valid
@@ -555,11 +561,21 @@ These options in conjunction mean:
 
 If you have another source for SSL/TLS certificates you can import them into the server via an external script. The external script can be found here: [external certificate import script][hanscees-renewcerts].
 
+!!! attention "Only compatible with `docker-mailserver` releases < `v10.2`"
+
+    The script expects `/etc/postfix/ssl/cert` and `/etc/postfix/ssl/key` files to be configured paths for both Postfix and Dovecot to use.
+
+    Since the `docker-mailserver` 10.2 release, certificate files have moved to `/etc/dms/tls/`, and the file name may differ depending on provisioning method.
+
+    This third-party script also has `fullchain.pem` and `privkey.pem` as hard-coded, thus is incompatible with other filenames.
+
+    Additionally it has never supported handling `ALT` fallback certificates (for supporting dual/hybrid, RSA + ECDSA).
+
 The steps to follow are these:
 
-1. Transfer the new certificates to `./docker-data/dms/config/ssl` (`/tmp/ssl` in the container)
+1. Transfer the new certificates to `./docker-data/dms/custom-certs/` (volume mounted to: `/tmp/ssl/`)
 2. You should provide `fullchain.key` and `privkey.pem`
-3. Place the script in `./docker-data/dms/config/` (or `/tmp/docker-mailserver/` inside the container)
+3. Place the script in `./docker-data/dms/config/` (volume mounted to: `/tmp/docker-mailserver/`)
 4. Make the script executable (`chmod +x tomav-renew-certs.sh`)
 5. Run the script: `docker exec mailserver /tmp/docker-mailserver/tomav-renew-certs.sh`
 
