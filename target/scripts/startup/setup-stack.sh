@@ -293,7 +293,7 @@ function _setup_dovecot_quota
 
       if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
-        _notify 'inf' "'config/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
+        _notify 'inf' "'/tmp/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
         : >/tmp/docker-mailserver/dovecot-quotas.cf
       fi
 
@@ -316,7 +316,7 @@ function _setup_dovecot_local_user
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
 
     _notify 'inf' "Regenerating postfix user list"
-    echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
+    echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
 
     # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
     # shellcheck disable=SC1003
@@ -366,7 +366,7 @@ function _setup_dovecot_local_user
       echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
   else
-    _notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
+    _notify 'inf' "'/tmp/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
 
   if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
@@ -708,7 +708,7 @@ function _setup_postfix_aliases
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
-    _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
+    _notify 'inf' "Warning '/tmp/docker-mailserver/postfix-virtual.cf' is not provided. No mail alias/forward created."
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
@@ -729,7 +729,7 @@ function _setup_postfix_aliases
   then
     cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
   else
-    _notify 'inf' "'config/postfix-aliases.cf' is not provided and will be auto created."
+    _notify 'inf' "'/tmp/docker-mailserver/postfix-aliases.cf' is not provided, it will be auto created."
     : >/tmp/docker-mailserver/postfix-aliases.cf
   fi
 
@@ -1263,7 +1263,7 @@ function _setup_postfix_override_configuration
         postconf -e "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-main.cf
-    _notify 'inf' "Loaded 'config/postfix-main.cf'"
+    _notify 'inf' "Loaded '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
   fi
@@ -1277,7 +1277,7 @@ function _setup_postfix_override_configuration
         postconf -P "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-master.cf
-    _notify 'inf' "Loaded 'config/postfix-master.cf'"
+    _notify 'inf' "Loaded '/tmp/docker-mailserver/postfix-master.cf'"
   else
     _notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided."
   fi

@@ -48,15 +48,15 @@ function _show_local_usage
   printf "${ORANGE}OPTIONS${RESET}
     ${LBLUE}Config path, container or image adjustments${RESET}
         -i IMAGE_NAME
-            Provides the name of the docker-mailserver image. The default value is
-            ${WHITE}docker.io/mailserver/docker-mailserver:latest${RESET}
+            Provides the name of the 'docker-mailserver' image. The default value is
+            '${WHITE}docker.io/mailserver/docker-mailserver:latest${RESET}'
 
         -c CONTAINER_NAME
             Provides the name of the running container.
 
         -p PATH
             Provides the local path of the config folder to the temporary container instance.
-            Does not work if an existing docker-mailserver container is already running.
+            Does not work if an existing a 'docker-mailserver' container is already running.
 
     ${LBLUE}SELinux${RESET}
         -z
@@ -210,7 +210,7 @@ function _main
 
   if test -t 0
   then
-    USE_TTY="-ti"
+    USE_TTY="-it"
   else
     # GitHub Actions will fail (or really anything else
     #   lacking an interactive tty) if we don't set a

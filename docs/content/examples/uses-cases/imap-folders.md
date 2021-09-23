@@ -16,12 +16,11 @@ See [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existi
 
 The `Archive` special IMAP folder may be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
 
-With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `config` to the container location `/tmp/docker-mailserver`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
+With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
 
-```YAML
+```yaml
 volumes:
-  ...
-  - ./config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
+  - ./docker-data/dms/config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
 ```
 
 ## Caution

@@ -18,13 +18,14 @@ To add a SPF record in your DNS, insert the following line in your DNS zone:
 
 ```txt
 ; MX record must be declared for SPF to work
-domain.com. IN  MX 1 mail.domain.com.
+example.com. IN  MX 1 mail.example.com.
 
 ; SPF record
-domain.com. IN TXT "v=spf1 mx ~all" 
+example.com. IN TXT "v=spf1 mx ~all"
 ```
 
-This enables the _Softfail_ mode for SPF. You could first add this SPF record with a very low TTL.  
+This enables the _Softfail_ mode for SPF. You could first add this SPF record with a very low TTL.
+
 _SoftFail_ is a good setting for getting started and testing, as it lets all email through, with spams tagged as such in the mailbox.
 
 After verification, you _might_ want to change your SPF record to `v=spf1 mx -all` so as to enforce the _HardFail_ policy. See http://www.open-spf.org/SPF_Record_Syntax for more details about SPF policies.
@@ -37,7 +38,7 @@ For whitelisting a IP Address from the SPF test, you can create a config file (s
 
 **Example:**
 
-Create and edit a `policyd-spf.conf` file here `/<your docker-mailserver dir>/config/postfix-policyd-spf.conf`:
+Create and edit a `policyd-spf.conf` file at `docker-data/dms/config/postfix-policyd-spf.conf`:
 
 ```conf
 debugLevel = 1
@@ -47,12 +48,12 @@ skip_addresses = 127.0.0.0/8,::ffff:127.0.0.0/104,::1
 
 # Preferably use IP-Addresses for whitelist lookups:
 Whitelist = 192.168.0.0/31,192.168.1.0/30
-# Domain_Whitelist = mx1.mybackupmx.com,mx2.mybackupmx.com
+# Domain_Whitelist = mx1.not-example.com,mx2.not-example.com
 ```
 
 Then add this line to `docker-compose.yml`:
 
 ```yaml
 volumes:
-  - ./config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf
+  - ./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf
 ```

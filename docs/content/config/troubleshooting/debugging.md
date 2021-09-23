@@ -38,7 +38,7 @@ I spent HOURS trying to debug "Connection Refused" and "Connection closed by for
 
 ```sh
 sudo su
-docker exec -ti mail bash
+docker exec -it mailserver bash
 cd /var/log
 cat fail2ban.log | grep dovecot
 
