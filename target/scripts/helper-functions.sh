@@ -21,13 +21,17 @@ function errex
 # PANIC_SCOPE => Optionally provide a string for debugging to better identify/locate the source of the panic.
 function dms_panic
 {
-  local PANIC_TYPE=$1
-  local PANIC_INFO=$2
-  local PANIC_SCOPE=$3 #optional
+  local PANIC_TYPE=${1}
+  local PANIC_INFO=${2}
+  local PANIC_SCOPE=${3} #optional
 
   local SHUTDOWN_MESSAGE
 
   case "${PANIC_TYPE}" in
+    ( 'fail-init' ) # PANIC_INFO == <name of service or process that failed to start / initialize>
+      SHUTDOWN_MESSAGE="Failed to start ${PANIC_INFO}!"
+    ;;
+
     ( 'no-env' ) # PANIC_INFO == <ENV VAR name>
       SHUTDOWN_MESSAGE="Environment Variable: ${PANIC_INFO} is not set!"
     ;;
@@ -58,6 +62,7 @@ function dms_panic
 }
 
 # Convenience wrappers based on type:
+function dms_panic__fail_init { dms_panic 'fail-init' "${1}" "${2}"; }
 function dms_panic__no_env { dms_panic 'no-env' "${1}" "${2}"; }
 function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }

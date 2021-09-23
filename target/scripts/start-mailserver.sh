@@ -217,12 +217,6 @@ function _register_misc_function
   _notify 'inf' "${1}() registered"
 }
 
-function _defunc
-{
-  _notify 'fatal' 'Please fix your configuration. Exiting...'
-  exit 1
-}
-
 # ------------------------------------------------------------
 # ? << Registering functions
 # --
