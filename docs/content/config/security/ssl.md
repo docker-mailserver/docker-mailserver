@@ -15,6 +15,14 @@ After installation, you can test your setup with:
 - [`checktls.com`](https://www.checktls.com/TestReceiver)
 - [`testssl.sh`](https://github.com/drwetter/testssl.sh)
 
+!!! warning "Exposure of DNS labels through Certificate Transparency"
+
+    All public Certificate Authorities (CAs) are required to log certificates they issue publicly via [Certificate Transparency][certificate-transparency]. This helps to better establish trust.
+
+    When using a public CA for certificates used in private networks, be aware that the associated DNS labels in the certificate are logged publicly and [easily searchable][ct-search]. These logs are _append only_, you **cannot** redact this information.
+
+    You could use a [wildcard certificate][wildcard-cert]. This avoids accidentally leaking information to the internet, but keep in mind the [potential security risks][security::wildcard-cert] of wildcard certs.
+
 ## Let's Encrypt (Recommended)
 
 To enable Let's Encrypt for `docker-mailserver`, you have to:
@@ -687,3 +695,8 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [ietf::rfc::ffdhe]: https://datatracker.ietf.org/doc/html/rfc7919
 [ffdhe4096-src]: https://github.com/internetstandards/dhe_groups
 [dh-avoid-selfgenerated]: https://crypto.stackexchange.com/questions/29926/what-diffie-hellman-parameters-should-i-use
+
+[certificate-transparency]: https://certificate.transparency.dev/
+[ct-search]: https://crt.sh/
+[wildcard-cert]: https://en.wikipedia.org/wiki/Wildcard_certificate#Examples
+[security::wildcard-cert]: https://gist.github.com/joepie91/7e5cad8c0726fd6a5e90360a754fc568
