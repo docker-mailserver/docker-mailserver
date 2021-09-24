@@ -97,65 +97,68 @@ You don't have to do anything else. Enjoy!
 
     Certbot does support [alternative certificate providers via the `--server`][certbot::custom-ca] option. In most cases you'll want to use the default _Let's Encrypt_.
 
-### Example using Docker, `nginx-proxy` and `letsencrypt-nginx-proxy-companion`
+### Example using `nginx-proxy` and `acme-companion` with Docker
 
-If you are running a web server already, it is non-trivial to generate a Let's Encrypt certificate for your `docker-mailserver` using `certbot`, because port 80 is already occupied. In the following example, we show how `docker-mailserver` can be run alongside the docker containers `nginx-proxy` and `letsencrypt-nginx-proxy-companion`.
+If you are running a web server already, port 80 will be in use which Certbot requires. You could use the [Certbot `--webroot`][certbot::webroot] feature, but it is more common to leverage a _reverse proxy_ that manages the provisioning and renewal of certificates for your services automatically.
 
-There are several ways to start `nginx-proxy` and `letsencrypt-nginx-proxy-companion`. Any method should be suitable here.
+In the following example, we show how `docker-mailserver` can be run alongside the docker containers [`nginx-proxy`][nginx-proxy::github] and [`acme-companion`][acme-companion::github] (_Referencing: [`acme-companion` documentation][acme-companion::docs]_):
 
-For example start `nginx-proxy` as in the `letsencrypt-nginx-proxy-companion` [documentation](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion):
+1. Start the _reverse proxy_ (`nginx-proxy`):
 
-```sh
-docker run --detach \
-  --name nginx-proxy \
-  --restart always \
-  --publish 80:80 \
-  --publish 443:443 \
-  --volume /server/letsencrypt/etc:/etc/nginx/certs:ro \
-  --volume /etc/nginx/vhost.d \
-  --volume /usr/share/nginx/html \
-  --volume /var/run/docker.sock:/tmp/docker.sock:ro \
-  jwilder/nginx-proxy
-```
+    ```sh
+    docker run --detach \
+      --name nginx-proxy \
+      --restart always \
+      --publish 80:80 \
+      --publish 443:443 \
+      --volume "${PWD}/docker-data/nginx-proxy/html/:/usr/share/nginx/html/" \
+      --volume "${PWD}/docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/" \
+      --volume "${PWD}/docker-data/acme-companion/certs/:/etc/nginx/certs/:ro" \
+      --volume '/var/run/docker.sock:/tmp/docker.sock:ro' \
+      nginxproxy/nginx-proxy
+    ```
 
-Then start `nginx-proxy-letsencrypt`:
+2. Then start the _certificate provisioner_ (`acme-companion`), which will provide certificates to `nginx-proxy`:
 
-```sh
-docker run --detach \
-  --name nginx-proxy-letsencrypt \
-  --restart always \
-  --volume /server/letsencrypt/etc:/etc/nginx/certs:rw \
-  --volumes-from nginx-proxy \
-  --volume /var/run/docker.sock:/var/run/docker.sock:ro \
-  jrcs/letsencrypt-nginx-proxy-companion
-```
+    ```sh
+    # Inherit `nginx-proxy` volumes via `--volumes-from`, but make `certs/` writeable:
+    docker run --detach \
+      --name nginx-proxy-acme \
+      --restart always \
+      --volumes-from nginx-proxy \
+      --volume "${PWD}/docker-data/acme-companion/certs/:/etc/nginx/certs/:rw" \
+      --volume "${PWD}/docker-data/acme-companion/acme-state/:/etc/acme.sh/" \
+      --volume '/var/run/docker.sock:/var/run/docker.sock:ro' \
+      --env 'DEFAULT_EMAIL=admin@example.com' \
+      nginxproxy/acme-companion
+    ```
 
-Start the rest of your web server containers as usual.
+3. Start the rest of your web server containers as usual.
 
-Start another container for your `mail.example.com`. This will generate a Let's Encrypt certificate for your domain, which can be used by `docker-mailserver`. It will also run a web server on port 80 at that address:
+4. Start a _dummy container_ to provision certificatess for your FQDN (eg: `mail.example.com`). `acme-companion` will detect the container and generate a _Let's Encrypt_ certificate for your domain, which can be used by `docker-mailserver`:
 
-```sh
-docker run -d \
-  --name webmail \
-  -e "VIRTUAL_HOST=mail.example.com" \
-  -e "LETSENCRYPT_HOST=mail.example.com" \
-  -e "LETSENCRYPT_EMAIL=admin@example.com" \
-  library/nginx
-```
+    ```sh
+    docker run --detach \
+      --name webmail \
+      --env 'VIRTUAL_HOST=mail.example.com' \
+      --env 'LETSENCRYPT_HOST=mail.example.com' \
+      --env 'LETSENCRYPT_EMAIL=admin@example.com' \
+      nginx
+    ```
 
-You may want to add `-e LETSENCRYPT_TEST=true` to the above while testing to avoid the Let's Encrypt certificate generation rate limits.
+    You may want to add `--env LETSENCRYPT_TEST=true` to the above while testing, to avoid the _Let's Encrypt_ certificate generation rate limits.
 
-Make sure your mount path to the letsencrypt certificates is correct. Edit your `/path/to/mailserver/docker-compose.yml` for the `mailserver` service to have volumes added like the example below:
+5. Make sure your mount path to the `letsencrypt` certificates directory is correct. Edit your `docker-compose.yml` for the `mailserver` service to have volumes added like below:
 
-```yaml
-volumes:
-  - ./docker-data/dms/mail-data/:/var/mail/
-  - ./docker-data/dms/mail-state/:/var/mail-state/
-  - ./docker-data/dms/config/:/tmp/docker-mailserver/
-  - /server/letsencrypt/etc:/etc/letsencrypt/live
-```
+    ```yaml
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - ./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro
+    ```
 
-Then from the `docker-compose.yml` directory, run: `docker-compose up -d mailserver`.
+6. Then from the `docker-compose.yml` project directory, run: `docker-compose up -d mailserver`.
 
 ### Example using Docker, `nginx-proxy` and `letsencrypt-nginx-proxy-companion` with `docker-compose`
 
@@ -730,3 +733,8 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [certbot::renew]: https://certbot.eff.org/docs/using.html#renewing-certificates
 [certbot::automated-renewal]: https://certbot.eff.org/docs/using.html#automated-renewals
 [certbot::custom-ca]: https://certbot.eff.org/docs/using.htmlchanging-the-acme-server
+[certbot::webroot]: https://certbot.eff.org/docs/using.html#webroot
+
+[nginx-proxy::github]: https://github.com/nginx-proxy/nginx-proxy
+[acme-companion::github]: https://github.com/nginx-proxy/acme-companion
+[acme-companion::docs]: https://github.com/nginx-proxy/acme-companion/blob/main/docs
