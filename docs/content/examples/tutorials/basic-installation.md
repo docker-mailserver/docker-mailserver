@@ -109,35 +109,37 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 
 7. Start `docker-mailserver` and check the terminal output for any errors: `docker-compose up`.
 
-- Create email accounts and aliases with `SPOOF_PROTECTION=0`:
+8. Create email accounts and aliases:
 
-    ```sh
-    ./setup.sh email add admin@example.com passwd123
-    ./setup.sh email add info@example.com passwd123
-    ./setup.sh alias add admin@example.com external-account@gmail.com
-    ./setup.sh alias add info@example.com external-account@gmail.com
-    ./setup.sh email list
-    ./setup.sh alias list
-    ```
+    !!! example "With `SPOOF_PROTECTION=0`"
 
-    Aliases make sure that any email that comes to these accounts is forwarded to my real email address, so that I don't need to use POP3/IMAP in order to get these messages. Also no anti-spam and anti-virus software is needed, making the mail-server lighter.
+        ```sh
+        ./setup.sh email add admin@example.com passwd123
+        ./setup.sh email add info@example.com passwd123
+        ./setup.sh alias add admin@example.com external-account@gmail.com
+        ./setup.sh alias add info@example.com external-account@gmail.com
+        ./setup.sh email list
+        ./setup.sh alias list
+        ```
 
-- Or create email accounts and aliases with `SPOOF_PROTECTION=1`:
+        Aliases make sure that any email that comes to these accounts is forwarded to your third-party email address (`external-account@gmail.com`), where they are retrieved (_eg: via third-party web or mobile app_), instead of connecting directly to `docker-mailserer` with POP3 / IMAP.
 
-    ```sh
-    ./setup.sh email add admin.gmail@example.com passwd123
-    ./setup.sh email add info.gmail@example.com passwd123
-    ./setup.sh alias add admin@example.com admin.gmail@example.com
-    ./setup.sh alias add info@example.com info.gmail@example.com
-    ./setup.sh alias add admin.gmail@example.com external-account@gmail.com
-    ./setup.sh alias add info.gmail@example.com external-account@gmail.com
-    ./setup.sh email list
-    ./setup.sh alias list
-    ```
+    !!! example "With `SPOOF_PROTECTION=1`"
 
-    This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (the account used for setting up Gmail is `admin.gmail@example.com` and `info.gmail@example.com` )
+        ```sh
+        ./setup.sh email add admin.gmail@example.com passwd123
+        ./setup.sh email add info.gmail@example.com passwd123
+        ./setup.sh alias add admin@example.com admin.gmail@example.com
+        ./setup.sh alias add info@example.com info.gmail@example.com
+        ./setup.sh alias add admin.gmail@example.com external-account@gmail.com
+        ./setup.sh alias add info.gmail@example.com external-account@gmail.com
+        ./setup.sh email list
+        ./setup.sh alias list
+        ```
 
-- Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mailserver`.
+        This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (_the accounts used for submitting mail to Gmail are `admin.gmail@example.com` and `info.gmail@example.com`_)
+
+9. Send some test emails to these addresses and make other tests. Once everything is working well, stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d`.
 
 [docs-ports]: ../../config/security/understanding-the-ports.md
 [docs-setup-script]: ../../config/setup.sh.md
