@@ -25,22 +25,35 @@ After installation, you can test your setup with:
 
 ## Let's Encrypt (Recommended)
 
-To enable Let's Encrypt for `docker-mailserver`, you have to:
+To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
 
-- Get your certificate using [letsencrypt client](https://github.com/letsencrypt/letsencrypt)
-- Add an environment variable `SSL_TYPE` with value `letsencrypt` (see [`docker-compose.yml`][github-file-compose])
-- Mount your whole `letsencrypt` folder to `/etc/letsencrypt`
-- The certs folder name located in `letsencrypt/live/` must be the `fqdn` of your container responding to the `hostname` command. The `fqdn` (full qualified domain name) inside the docker container is built combining the `hostname` and `domainname` values of the `docker-compose` file, eg:
+1. Get your certificate using the _Let's Encrypt_ client [Certbot][certbot::github].
+2. For your `docker-mailserver` container:
+
+    1. Add the environment variable `SSL_TYPE=letsencrypt`.
+    2. Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`.
+
+You don't have to do anything else. Enjoy!
+
+!!! note
+
+    `/etc/letsencrypt/live` stores provisioned certificates in individual folders named by their FQDN (_Fully Qualified Domain Name_). `docker-mailserver` looks for it's certificate folder via the `hostname` command. The FQDN inside the docker container is derived from the `--hostname` and `--domainname` options.
+
+!!! example
+
+    Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
 
     ```yaml
     services:
       mailserver:
+        # For the FQDN 'mail.example.com':
         hostname: mail
         domainname: example.com
-        fqdn: mail.example.com
+        environment:
+          - SSL_TYPE=letsencrypt
+        volumes:
+          - /etc/letsencrypt:/etc/letsencrypt
     ```
-
-You don't have anything else to do. Enjoy.
 
 ### Example using Docker for Let's Encrypt
 
@@ -700,3 +713,7 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [ct-search]: https://crt.sh/
 [wildcard-cert]: https://en.wikipedia.org/wiki/Wildcard_certificate#Examples
 [security::wildcard-cert]: https://gist.github.com/joepie91/7e5cad8c0726fd6a5e90360a754fc568
+
+[certbot::github]: https://github.com/certbot/certbot
+[certbot::certs-storage]: https://certbot.eff.org/docs/using.html#where-are-my-certificates
+[certbot::log-rotation]: https://certbot.eff.org/docs/using.html#log-rotation
