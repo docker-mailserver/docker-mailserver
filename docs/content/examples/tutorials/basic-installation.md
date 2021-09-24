@@ -18,7 +18,7 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 
 2. Pull the docker image: `docker pull docker.io/mailserver/docker-mailserver:latest`.
 
-- Create the file `docker-compose.yml` with a content like this:
+3. Create the file `docker-compose.yml` with a content like this:
 
     !!! example
 
@@ -30,53 +30,52 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
             image: docker.io/mailserver/docker-mailserver:latest
             container_name: mailserver
             hostname: mail
+            # Change this to your domain, it is used for your email accounts (eg: user@example.com):
             domainname: example.com
             ports:
-                - "25:25"
-                - "587:587"
-                - "465:465"
+              - "25:25"
+              - "587:587"
+              - "465:465"
             volumes:
-                - ./docker-data/dms/mail-data/:/var/mail/
-                - ./docker-data/dms/mail-state/:/var/mail-state/
-                - ./docker-data/dms/mail-logs/:/var/log/mail/
-                - ./docker-data/dms/config/:/tmp/docker-mailserver/
-                - /etc/localtime:/etc/localtime:ro
-                - /var/ds/wsproxy/letsencrypt/:/etc/letsencrypt/
+              - ./docker-data/dms/mail-data/:/var/mail/
+              - ./docker-data/dms/mail-state/:/var/mail-state/
+              - ./docker-data/dms/mail-logs/:/var/log/mail/
+              - ./docker-data/dms/config/:/tmp/docker-mailserver/
+              # The "from" path will vary based on where your certs are locally:
+              - ./docker-data/nginx-proxy/certs/:/etc/letsencrypt/
+              - /etc/localtime:/etc/localtime:ro
             environment:
-                - PERMIT_DOCKER=network
-                - SSL_TYPE=letsencrypt
-                - ONE_DIR=1
-                - DMS_DEBUG=0
-                - SPOOF_PROTECTION=0
-                - REPORT_RECIPIENT=1
-                - ENABLE_SPAMASSASSIN=0
-                - ENABLE_CLAMAV=0
-                - ENABLE_FAIL2BAN=1
-                - ENABLE_POSTGREY=0
+              - ENABLE_FAIL2BAN=1
+              # Using letsencrypt for SSL/TLS certificates
+              - SSL_TYPE=letsencrypt
+              # Allow sending emails from other docker containers
+              # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#permit_docker
+              - PERMIT_DOCKER=network
+              # All env below are default settings:
+              - DMS_DEBUG=0
+              - ONE_DIR=1
+              - ENABLE_POSTGREY=0
+              - ENABLE_CLAMAV=0
+              - ENABLE_SPAMASSASSIN=0
+              # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#spoof_protection
+              # See step 8 below, which demonstrates setup with enabled/disabled SPOOF_PROTECTION:
+              - SPOOF_PROTECTION=0
             cap_add:
-                - NET_ADMIN
-                - SYS_PTRACE
+              - NET_ADMIN # For Fail2Ban to work
+              - SYS_PTRACE
         ```
 
-    For more details about the environment variables that can be used, and their meaning and possible values, check also these:
+    - The docs have a detailed page on [Environment Variables][docs-environment] for reference.
 
-    - [Environment Variables][docs-environment]
-    - [`mailserver.env` file][github-file-dotenv]
+    !!! note "Firewalled ports"
 
-    Make sure to set the proper `domainname` that you will use for the emails. We forward only SMTP ports (not POP3 and IMAP) because we are not interested in accessing the mail-server directly (from a client). We also use these settings:
+        You may need to open ports `25`, `587` and `465` on the firewall. For example, with the firewall `ufw`, run:
 
-    - `PERMIT_DOCKER=network` because we want to send emails from other docker containers.
-    - `SSL_TYPE=letsencrypt` because we will manage SSL certificates with letsencrypt.
-
-- We need to open ports `25`, `587` and `465` on the firewall:
-
-    ```sh
-    ufw allow 25
-    ufw allow 587
-    ufw allow 465
-    ```
-
-    On your server you may have to do it differently.
+        ```sh
+        ufw allow 25
+        ufw allow 587
+        ufw allow 465
+        ```
 
 - Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
 
@@ -151,5 +150,5 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 [docs-ports]: ../../config/security/understanding-the-ports.md
 [docs-setup-script]: ../../config/setup.sh.md
 [docs-environment]: ../../config/environment.md
-[github-file-dotenv]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
+
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
