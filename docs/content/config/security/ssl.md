@@ -6,9 +6,9 @@ There are multiple options to enable SSL (via [`SSL_TYPE`][docs-env::ssl-type]):
 
 - Using [letsencrypt](#lets-encrypt-recommended) (recommended)
 - Using [Caddy](#caddy)
-- Using [Traefik](#traefik)
-- Using [self-signed certificates](#self-signed-certificates-testing-only)
-- Using [your own certificates](#custom-certificate-files)
+- Using [Traefik](#traefik-v2)
+- Using [self-signed certificates](#self-signed-certificates)
+- Using [your own certificates](#bring-your-own-certificates)
 
 After installation, you can test your setup with:
 
