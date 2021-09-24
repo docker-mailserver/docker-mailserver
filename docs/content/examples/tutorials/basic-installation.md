@@ -2,23 +2,21 @@
 title: 'Tutorials | Basic Installation'
 ---
 
-## Building a Simple Mail-Server
+## Setting up a Simple Mail-Server
 
-!!! warning
-    Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
+This is a community contributed guide. Please let us know via a Github Issue if you're having any difficulty following the guide so that we can update it.
 
-We are going to use this docker based mailserver:
+This guide is focused on only using [SMTP ports (not POP3 and IMAP)][docs-ports] with the intent to send received mail to another MTA service such as _Gmail_. It is not intended to have a MUA client (_eg: Thunderbird_) to retrieve mail directly from `docker-mailserver` via POP3/IMAP.
 
-- First create a directory for `docker-mailserver` to store data in, and get the `setup.sh` script:
+In this setup `docker-mailserver` is not intended to receive email externally, so no anti-spam or anti-virus software is needed, making the service lighter to run.
 
-    ```sh
-    mkdir -p /var/ds/mail.example.com
-    cd /var/ds/mail.example.com/
+!!! warning "Open Relays"
 
-    curl -o setup.sh \
-        https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
-    chmod a+x ./setup.sh
-    ```
+    Adding the docker network's gateway to the list of trusted hosts (_eg: using the `network` or `connected-networks` option_), can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay). For instance [if IPv6 is enabled on the host machine, but not in Docker][github-issue-1405-comment].
+
+1. If you're running a version of `docker-mailserver` earlier than v10.2, [you'll need to get `setup.sh`][docs-setup-script]. Otherwise you can substitute `./setup.sh <command>` with `docker exec mailserver setup <command>`.
+
+2. Pull the docker image: `docker pull docker.io/mailserver/docker-mailserver:latest`.
 
 - Create the file `docker-compose.yml` with a content like this:
 
@@ -79,8 +77,6 @@ We are going to use this docker based mailserver:
     ```
 
     On your server you may have to do it differently.
-
-- Pull the docker image: `docker pull mailserver/docker-mailserver:latest`
 
 - Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
 
@@ -152,6 +148,8 @@ We are going to use this docker based mailserver:
 
 - Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mailserver`.
 
+[docs-ports]: ../../config/security/understanding-the-ports.md
+[docs-setup-script]: ../../config/setup.sh.md
 [docs-environment]: ../../config/environment.md
 [github-file-dotenv]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
