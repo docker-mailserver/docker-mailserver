@@ -77,15 +77,9 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
         ufw allow 465
         ```
 
-- Now generate the DKIM keys with `./setup.sh config dkim` and copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` on the domain zone configuration at the DNS server. I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
+4. Configure your DNS service to use an MX record for the _hostname_ (eg: `mail`) you configured in the previous step and add the [SPF][docs-spf] TXT record.
 
-    ```txt
-    mail._domainkey IN      TXT     ( "v=DKIM1; h=sha256; k=rsa; "
-            "p=MIIBIjANBgkqhkiG9w0BAQEFACAQ8AMIIBCgKCAQEAaH5KuPYPSF3Ppkt466BDMAFGOA4mgqn4oPjZ5BbFlYA9l5jU3bgzRj3l6/Q1n5a9lQs5fNZ7A/HtY0aMvs3nGE4oi+LTejt1jblMhV/OfJyRCunQBIGp0s8G9kIUBzyKJpDayk2+KJSJt/lxL9Iiy0DE5hIv62ZPP6AaTdHBAsJosLFeAzuLFHQ6USyQRojefqFQtgYqWQ2JiZQ3"
-            "iqq3bD/BVlwKRp5gH6TEYEmx8EBJUuDxrJhkWRUk2VDl1fqhVBy8A9O7Ah+85nMrlOHIFsTaYo9o6+cDJ6t1i6G1gu+bZD0d3/3bqGLPBQV9LyEL1Rona5V7TJBGg099NQkTz1IwIDAQAB" )  ; ----- DKIM key mail for example.com
-    ```
-
-- Add these configurations as well on the same file on the DNS server:
+    If you manually manage the DNS zone file for the domain, it would look something like this:
 
     ```txt
     mail      IN  A   10.11.12.13
@@ -99,23 +93,21 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 
     Then don't forget to change the serial number and to restart the service.
 
-- Get an SSL certificate from letsencrypt. I use [wsproxy](https://gitlab.com/docker-scripts/wsproxy) for managing SSL letsencrypt certificates of my domains:
+5. [Generate DKIM keys][docs-dkim] for your domain via `./setup.sh config dkim`.
 
-    ```sh
-    cd /var/ds/wsproxy
-    ds domains-add mail mail.example.com
-    ds get-ssl-cert external-account@gmail.com mail.example.com --test
-    ds get-ssl-cert external-account@gmail.com mail.example.com
+    Copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` and add it to your DNS records as a TXT like SPF was handled above.
+
+    I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
+
+    ```txt
+    mail._domainkey IN      TXT     ( "v=DKIM1; h=sha256; k=rsa; "
+            "p=MIIBIjANBgkqhkiG9w0BAQEFACAQ8AMIIBCgKCAQEAaH5KuPYPSF3Ppkt466BDMAFGOA4mgqn4oPjZ5BbFlYA9l5jU3bgzRj3l6/Q1n5a9lQs5fNZ7A/HtY0aMvs3nGE4oi+LTejt1jblMhV/OfJyRCunQBIGp0s8G9kIUBzyKJpDayk2+KJSJt/lxL9Iiy0DE5hIv62ZPP6AaTdHBAsJosLFeAzuLFHQ6USyQRojefqFQtgYqWQ2JiZQ3"
+            "iqq3bD/BVlwKRp5gH6TEYEmx8EBJUuDxrJhkWRUk2VDl1fqhVBy8A9O7Ah+85nMrlOHIFsTaYo9o6+cDJ6t1i6G1gu+bZD0d3/3bqGLPBQV9LyEL1Rona5V7TJBGg099NQkTz1IwIDAQAB" )  ; ----- DKIM key mail for example.com
     ```
 
-    Now the certificates will be available on `/var/ds/wsproxy/letsencrypt/live/mail.example.com`.
+6. Get an SSL certificate, [we have a guide for you here][docs-ssl] (_Let's Encrypt_ is a popular service to get free SSL certificates).
 
-- Start `docker-mailserver` and check for any errors:
-
-    ```sh
-    apt install docker-compose
-    docker-compose up mailserver
-    ```
+7. Start `docker-mailserver` and check the terminal output for any errors: `docker-compose up`.
 
 - Create email accounts and aliases with `SPOOF_PROTECTION=0`:
 
@@ -150,5 +142,8 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 [docs-ports]: ../../config/security/understanding-the-ports.md
 [docs-setup-script]: ../../config/setup.sh.md
 [docs-environment]: ../../config/environment.md
+[docs-spf]: ../../config/best-practice/spf.md
+[docs-dkim]: ../../config/best-practice/dkim.md
+[docs-ssl]: ../../config/security/ssl.md#lets-encrypt-recommended
 
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
