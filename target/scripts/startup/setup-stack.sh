@@ -373,8 +373,7 @@ function _setup_dovecot_local_user
   then
     if [[ ${ENABLE_LDAP} -eq 0 ]]
     then
-      _notify 'fatal' 'Unless using LDAP, you need at least 1 email account to start Dovecot.'
-      _defunc
+      _shutdown 'Unless using LDAP, you need at least 1 email account to start Dovecot.'
     fi
   fi
 }
