@@ -160,110 +160,134 @@ In the following example, we show how `docker-mailserver` can be run alongside t
 
 6. Then from the `docker-compose.yml` project directory, run: `docker-compose up -d mailserver`.
 
-### Example using Docker, `nginx-proxy` and `letsencrypt-nginx-proxy-companion` with `docker-compose`
+### Example using `nginx-proxy` and `acme-companion` with `docker-compose`
 
-The following `docker-compose.yml` is the basic setup you need for using `letsencrypt-nginx-proxy-companion`. It is mainly derived from its own wiki/documenation.
+The following example is the [basic setup][acme-companion::basic-setup] you need for using `nginx-proxy` and `acme-companion` with `docker-mailserver` (_Referencing: [`acme-companion` documentation][acme-companion::docs]_):
 
-???+ example "Example Code"
+???+ example "Example: `docker-compose.yml`"
 
-    ```yaml
-    version: "2"
-
-    services:
-      nginx:
-        image: nginx
-        container_name: nginx
-        ports:
-          - 80:80
-          - 443:443
-        volumes:
-          - /mnt/data/nginx/htpasswd:/etc/nginx/htpasswd
-          - /mnt/data/nginx/conf.d:/etc/nginx/conf.d
-          - /mnt/data/nginx/vhost.d:/etc/nginx/vhost.d
-          - /mnt/data/nginx/html:/usr/share/nginx/html
-          - /mnt/data/nginx/certs:/etc/nginx/certs:ro
-        networks:
-          - proxy-tier
-        restart: always
-
-      nginx-gen:
-        image: jwilder/docker-gen
-        container_name: nginx-gen
-        volumes:
-          - /var/run/docker.sock:/tmp/docker.sock:ro
-          - /mnt/data/nginx/templates/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
-        volumes_from:
-          - nginx
-        entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
-        restart: always
-
-      letsencrypt-nginx-proxy-companion:
-        image: jrcs/letsencrypt-nginx-proxy-companion
-        container_name: letsencrypt-companion
-        volumes_from:
-          - nginx
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock:ro
-          - /mnt/data/nginx/certs:/etc/nginx/certs:rw
-        environment:
-          - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
-          - DEBUG=false
-        restart: always
-
-    networks:
-      proxy-tier:
-        external:
-          name: nginx-proxy
-    ```
-
-The second part of the setup is the `docker-mailserver` container. So, in another folder, create another `docker-compose.yml` with the following content (Removed all ENV variables for this example):
-
-???+ example "Example Code"
+    You should have an existing `docker-compose.yml` with a `mailserver` service. Below are the modifications to add for integrating with `nginx-proxy` and `acme-companion` services:
 
     ```yaml
     version: '3.8'
     services:
+      # Add the following `environment` and `volumes` to your existing `mailserver` service:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
-        container_name: mailserver
-        hostname: mail
-        domainname: example.com
-        ports:
-          - "25:25"
-          - "143:143"
-          - "465:465"
-          - "587:587"
-          - "993:993"
-        volumes:
-          - ./docker-data/dms/mail-data/:/var/mail/
-          - ./docker-data/dms/mail-state/:/var/mail-state/
-          - ./docker-data/dms/config/:/tmp/docker-mailserver/
-          - ./docker-data/nginx-proxy/certs/:/etc/letsencrypt/live/:ro
-        cap_add:
-          - NET_ADMIN
-          - SYS_PTRACE
-        restart: always
-
-      cert-companion:
-        image: nginx
         environment:
-          - "VIRTUAL_HOST="
-          - "VIRTUAL_NETWORK=nginx-proxy"
-          - "LETSENCRYPT_HOST="
-          - "LETSENCRYPT_EMAIL="
-        networks:
-          - proxy-tier
-        restart: always
+          # SSL_TYPE:         Uses the `letsencrypt` method to find mounted certificates.
+          # VIRTUAL_HOST:     The FQDN that `nginx-proxy` will configure itself to handle for HTTP[S] connections.
+          # LETSENCRYPT_HOST: The FQDN for a certificate that `acme-companion` will provision and renew.
+          - SSL_TYPE=letsencrypt
+          - VIRTUAL_HOST=mail.example.com
+          - LETSENCRYPT_HOST=mail.example.com
+        volumes:
+          - ./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro
 
-    networks:
-      proxy-tier:
-        external:
-          name: nginx-proxy
+      # If you don't yet have your own `nginx-proxy` and `acme-companion` setup,
+      # here is an example you can use:
+      reverse-proxy:
+        image: nginxproxy/nginx-proxy
+        container_name: nginx-proxy
+        restart: always
+        ports:
+          # Port  80: Required for HTTP-01 challenges to `acme-companion`.
+          # Port 443: Only required for containers that need access over HTTPS. TLS-ALPN-01 challenge not supported.
+          - "80:80"
+          - "443:443"
+        volumes:
+          # `certs/`:      Managed by the `acme-companion` container (_read-only_).
+          # `docker.sock`: Required to interact with containers via the Docker API.
+          # `dhparam`:     A named data volume to prevent `nginx-proxy` creating an anonymous volume each time.
+          - ./docker-data/nginx-proxy/html/:/usr/share/nginx/html/
+          - ./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/
+          - ./docker-data/acme-companion/certs/:/etc/nginx/certs/:ro
+          - /var/run/docker.sock:/tmp/docker.sock:ro
+          - dhparam:/etc/nginx/dhparam
+
+      acme-companion:
+        image: nginxproxy/acme-companion
+        container_name: nginx-proxy-acme
+        restart: always
+        environment:
+          # Only docker-compose v2 supports: `volumes_from: [nginx-proxy]`,
+          # reference the _reverse-proxy_ `container_name` here:
+          - NGINX_PROXY_CONTAINER=nginx-proxy
+        volumes:
+          # `html/`:       Write ACME HTTP-01 challenge files that `nginx-proxy` will serve.
+          # `vhost.d/`:    To enable web access via `nginx-proxy` to HTTP-01 challenge files.
+          # `certs/`:      To store certificates and private keys.
+          # `acme-state/`: To persist config and state for the ACME provisioner (`acme.sh`).
+          # `docker.sock`: Required to interact with containers via the Docker API.
+          - ./docker-data/nginx-proxy/html/:/usr/share/nginx/html/
+          - ./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/
+          - ./docker-data/acme-companion/certs/:/etc/nginx/certs/:rw
+          - ./docker-data/acme-companion/acme-state/:/etc/acme.sh/
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    # Once `nginx-proxy` fixes their Dockerfile, this named data volume can be removed from docs.
+    # Users can opt for a local bind mount volume like all others if they prefer, but this volume
+    # is only intended to be temporary.
+    volumes:
+      dhparam:
     ```
 
-`docker-mailserver` needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (`VIRTUAL_HOST` and `LETSENCRYPT_HOST` are mandandory, see documentation)
+!!! tip "Optional ENV vars worth knowing about"
 
-### Example using the Let's Encrypt Certificates on a Synology NAS
+    [Per container ENV][acme-companion::env-container] that `acme-companion` will detect to override default provisioning settings:
+
+    - `LETSENCRYPT_TEST=true`: _Recommended during initial setup_. Otherwise the default production endpoint has a [rate limit of 5 duplicate certificates per week][letsencrypt::limits]. Overrides `ACME_CA_URI` to use the _Let's Encrypt_ staging endpoint.
+    - `LETSENCRYPT_EMAIL`: For when you don't use `DEFAULT_EMAIL` on `acme-companion`, or want to assign a different email contact for this container.
+    - `LETSENCRYPT_KEYSIZE`: Allows you to configure the type (RSA or ECDSA) and size of the private key for your certificate. Default is RSA 4096.
+    - `LETSENCRYPT_RESTART_CONTAINER=true`: When the certificate is renewed, the entire container will be restarted to ensure the new certificate is used.
+
+    [`acme-companion` ENV for default settings][acme-companion::env-config] that apply to all containers using `LETSENCRYPT_HOST`:
+
+    - `DEFAULT_EMAIL`: An email address that the CA (_eg: Let's Encrypt_) can contact you about expiring certificates, failed renewals, or for account recovery. You may want to use an email address not handled by your mail-server to ensure deliverability in the event your mail-server breaks.
+    - `CERTS_UPDATE_INTERVAL`: If you need to adjust the frequency to check for renewals. 3600 seconds (1 hour) by default.
+    - `DEBUG=1`: Should be helpful when [troubleshooting provisioning issues][acme-companion::troubleshooting] from `acme-companion` logs.
+    - `ACME_CA_URI`: Useful in combination with `CA_BUNDLE` to use a private CA. To change the default _Let's Encrypt_ endpoint to the staging endpoint, use `https://acme-staging-v02.api.letsencrypt.org/directory`.
+    - `CA_BUNDLE`: If you want to use a private CA instead of _Let's Encrypt_.
+
+!!! tip "Alternative to required ENV on `mailserver` service"
+
+    While you will still need both `nginx-proxy` and `acme-companion` containers, you can manage certificates without adding ENV vars to containers. Instead the ENV is moved into a file and uses the `acme-companion` feature [Standalone certificates][acme-companion::standalone].
+
+    This requires adding another shared volume between `nginx-proxy` and `acme-companion`:
+
+    ```yaml
+    services:
+      reverse-proxy:
+        volumes:
+          - ./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/
+
+      acme-companion:
+        volumes:
+          - ./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/
+          - ./docker-data/acme-companion/standalone.sh:/app/letsencrypt_user_data:ro
+    ```
+
+    `acme-companion` mounts a shell script (`standalone.sh`), which defines variables to customize certificate provisioning:
+
+    ```sh
+    # A list IDs for certificates to provision:
+    LETSENCRYPT_STANDALONE_CERTS=('mail')
+
+    # Each ID inserts itself into the standard `acme-companion` supported container ENV vars below.
+    # The LETSENCRYPT_<ID>_HOST var is a list of FQDNs to provision a certificate for as the SAN field:
+    LETSENCRYPT_mail_HOST=('mail.example.com')
+
+    # Optional variables:
+    LETSENCRYPT_mail_TEST=true
+    LETSENCRYPT_mail_EMAIL='admin@example.com'
+    # RSA-4096 => `4096`, ECDSA-256 => `ec-256`:
+    LETSENCRYPT_mail_KEYSIZE=4096
+    ```
+
+    Unlike with the equivalent ENV for containers, [changes to this file will **not** be detected automatically][acme-companion::standalone-changes]. You would need to wait until the next renewal check by `acme-companion` (_every hour by default_), restart `acme-companion`, or [manually invoke the _service loop_][acme-companion::service-loop]:
+
+    `#!bash docker exec nginx-proxy-acme /app/signal_le_service`
+
+### Example using _Let's Encrypt_ Certificates with a _Synology NAS_
 
 Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.
 
@@ -724,6 +748,7 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [ct-search]: https://crt.sh/
 [wildcard-cert]: https://en.wikipedia.org/wiki/Wildcard_certificate#Examples
 [security::wildcard-cert]: https://gist.github.com/joepie91/7e5cad8c0726fd6a5e90360a754fc568
+[letsencrypt::limits]: https://letsencrypt.org/docs/rate-limits/
 
 [certbot::github]: https://github.com/certbot/certbot
 [certbot::certs-storage]: https://certbot.eff.org/docs/using.html#where-are-my-certificates
@@ -738,3 +763,10 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [nginx-proxy::github]: https://github.com/nginx-proxy/nginx-proxy
 [acme-companion::github]: https://github.com/nginx-proxy/acme-companion
 [acme-companion::docs]: https://github.com/nginx-proxy/acme-companion/blob/main/docs
+[acme-companion::basic-setup]: https://github.com/nginx-proxy/acme-companion#basic-usage-with-the-nginx-proxy-container
+[acme-companion::env-container]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Let's-Encrypt-and-ACME.md
+[acme-companion::env-config]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-configuration.md
+[acme-companion::troubleshooting]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Invalid-authorizations.md
+[acme-companion::standalone]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md
+[acme-companion::standalone-changes]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md#picking-up-changes-to-letsencrypt_user_data
+[acme-companion::service-loop]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-utilities.md
