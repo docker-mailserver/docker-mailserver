@@ -152,13 +152,6 @@ We are going to use this docker based mailserver:
 
 - Send some test emails to these addresses and make other tests. Then stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d mailserver`.
 
-- Now save on Moodle configuration the SMTP settings and test by trying to send some messages to other users:
-
-    - **SMTP hosts**: `mail.example.com:465`
-    - **SMTP security**: `SSL`
-    - **SMTP username**: `info@example.com`
-    - **SMTP password**: `passwd123`
-
 [docs-environment]: ../../config/environment.md
 [github-file-dotenv]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
