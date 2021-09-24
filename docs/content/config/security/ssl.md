@@ -55,39 +55,47 @@ You don't have to do anything else. Enjoy!
           - /etc/letsencrypt:/etc/letsencrypt
     ```
 
-### Example using Docker for Let's Encrypt
+### Example using Docker for _Let's Encrypt_
 
-1. Make a directory to store your letsencrypt logs and configs. In my case:
+- Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store these, so that they can later be accessed by `docker-mailserver` container.
+- You may also want to persist Certbot [logs][certbot::log-rotation], just in case you need to troubleshoot.
 
-    ```sh
-    mkdir -p /home/ubuntu/docker/letsencrypt 
-    cd /home/ubuntu/docker/letsencrypt
-    ```
-
-2. Now get the certificate (modify `mail.example.com`) and following the certbot instructions.
-
-3. This will need access to port 80 from the internet, adjust your firewall if needed:
+1. Getting a certificate is this simple! (_Referencing: [Certbot docker instructions][certbot::docker] and [`certonly --standalone` mode][certbot::standalone]_):
 
     ```sh
+    # Change `mail.example.com` below to your own FQDN.
+    # Requires access to port 80 from the internet, adjust your firewall if needed.
     docker run --rm -it \
-      -v $PWD/log/:/var/log/letsencrypt/ \
-      -v $PWD/etc/:/etc/letsencrypt/ \
+      -v "${PWD}/docker-data/certbot/certs/:/etc/letsencrypt/" \
+      -v "${PWD}/docker-data/certbot/logs/:/var/log/letsencrypt/" \
       -p 80:80 \
       certbot/certbot certonly --standalone -d mail.example.com
     ```
 
-4. You can now mount `/home/ubuntu/docker/letsencrypt/etc/` in `/etc/letsencrypt` of `docker-mailserver`.
+2. Add a volume for `docker-mailserver` that maps the _local `certbot/certs/` folder_ to the container path `/etc/letsencrypt/`.
+3. The certificate setup is complete, but remember _it will expire_. Consider automating renewals.
 
-    To renew your certificate just run (this will need access to port 443 from the internet, adjust your firewall if needed):
+!!! tip "Renewing Certificates"
+
+    When running the above `certonly --standalone` snippet again, the existing certificate is renewed if it would expire within 30 days.
+
+    Alternatively, Certbot can look at all the certificates it manages, and only renew those nearing their expiry via the [`renew` command][certbot::renew]:
 
     ```sh
+    # This will need access to port 443 from the internet, adjust your firewall if needed.
     docker run --rm -it \
-      -v $PWD/log/:/var/log/letsencrypt/ \
-      -v $PWD/etc/:/etc/letsencrypt/ \
+      -v "${PWD}/docker-data/certbot/certs/:/etc/letsencrypt/" \
+      -v "${PWD}/docker-data/certbot/logs/:/var/log/letsencrypt/" \
       -p 80:80 \
       -p 443:443 \
       certbot/certbot renew
     ```
+
+    This process can also be [automated via _cron_ or _systemd timers_][certbot::automated-renewal].
+
+!!! note "Using a different ACME CA"
+
+    Certbot does support [alternative certificate providers via the `--server`][certbot::custom-ca] option. In most cases you'll want to use the default _Let's Encrypt_.
 
 ### Example using Docker, `nginx-proxy` and `letsencrypt-nginx-proxy-companion`
 
@@ -717,3 +725,8 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [certbot::github]: https://github.com/certbot/certbot
 [certbot::certs-storage]: https://certbot.eff.org/docs/using.html#where-are-my-certificates
 [certbot::log-rotation]: https://certbot.eff.org/docs/using.html#log-rotation
+[certbot::docker]: https://certbot.eff.org/docs/install.html#running-with-docker
+[certbot::standalone]: https://certbot.eff.org/docs/using.html#standalone
+[certbot::renew]: https://certbot.eff.org/docs/using.html#renewing-certificates
+[certbot::automated-renewal]: https://certbot.eff.org/docs/using.html#automated-renewals
+[certbot::custom-ca]: https://certbot.eff.org/docs/using.htmlchanging-the-acme-server
