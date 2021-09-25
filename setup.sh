@@ -29,7 +29,7 @@ trap '__err "${BASH_SOURCE}" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:
 
 function __err
 {
-  [[ ${4} -gt 1 ]] && exit 1
+  [[ ${5} -gt 1 ]] && exit 1
 
   local ERR_MSG="\n--- ${RED}UNCHECKED ERROR${RESET}"
   ERR_MSG+="\n  - script    = ${1}"
