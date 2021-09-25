@@ -9,10 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Auto-add contributors
-      uses: BobAnkh/add-contributors@v0.2.1
+    - name: Delete old contributors-update branch
+      uses: dawidd6/action-delete-branch@v3
       with:
-        REPO_NAME: 'docker-mailserver/docker-mailserver'
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        branches: contributors-update
+    - name: Create contributors-update branch
+      uses: peterjgrainger/action-create-branch@v2.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        branch: 'contributors-update'
+    - name: Auto-add contributors
+      uses: BobAnkh/add-contributors@v0.2.2
+      with:
+        BRANCH: 'contributors-update'
+        PULL_REQUEST: 'master'
         CONTRIBUTOR: '## Contributors'
         COLUMN_PER_ROW: '6'
         ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
