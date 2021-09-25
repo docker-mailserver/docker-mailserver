@@ -99,7 +99,6 @@ function __err
   ERR_MSG+="\n  - command   = ${3}"
   ERR_MSG+="\n  - line      = ${4}"
   ERR_MSG+="\n  - exit code = ${5}"
-  ERR_MSG+='\n\nThis should not have happened. Please file a bug report.\n'
 
   echo -e "${ERR_MSG}"
 
