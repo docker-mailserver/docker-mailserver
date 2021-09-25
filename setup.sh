@@ -4,34 +4,39 @@
 # executed  manually / via Make
 # task      wrapper for various setup scripts
 
-DIR="$(pwd)"
 CONFIG_PATH=
 CONTAINER_NAME=
 CRI=
 DEFAULT_CONFIG_PATH=
 DESIRED_CONFIG_PATH=
+DIR="$(pwd)"
 DMS_CONFIG='/tmp/docker-mailserver'
 IMAGE_NAME=
 INFO=
 PODMAN_ROOTLESS=false
-SCRIPT='setup.sh'
 USE_SELINUX=
 USE_TTY=
 VOLUME=
 
+RED="\e[31m\e[1m"
+WHITE="\e[37m"
+ORANGE="\e[38;5;214m"
+LBLUE="\e[94m"
+RESET="\e[0m"
+
 set -euEo pipefail
-trap '__err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
+trap '__err "${BASH_SOURCE}" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
 
 function __err
 {
   [[ ${4} -gt 1 ]] && exit 1
 
-  local ERR_MSG='\n--- \e[31m\e[1mUNCHECKED ERROR\e[0m'
-  ERR_MSG+="\n  - script    = ${SCRIPT:-${0}}"
-  ERR_MSG+="\n  - function  = ${1}"
-  ERR_MSG+="\n  - command   = ${2}"
-  ERR_MSG+="\n  - line      = ${3}"
-  ERR_MSG+="\n  - exit code = ${4}"
+  local ERR_MSG="\n--- ${RED}UNCHECKED ERROR${RESET}"
+  ERR_MSG+="\n  - script    = ${1}"
+  ERR_MSG+="\n  - function  = ${2}"
+  ERR_MSG+="\n  - command   = ${3}"
+  ERR_MSG+="\n  - line      = ${4}"
+  ERR_MSG+="\n  - exit code = ${5}"
   ERR_MSG+='\n\nThis should not have happened. Please file a bug report.\n'
 
   echo -e "${ERR_MSG}"
@@ -39,11 +44,6 @@ function __err
 
 function _show_local_usage
 {
-  local WHITE="\e[37m"
-  local ORANGE="\e[38;5;214m"
-  local LBLUE="\e[94m"
-  local RESET="\e[0m"
-
   # shellcheck disable=SC2059
   printf "${ORANGE}OPTIONS${RESET}
     ${LBLUE}Config path, container or image adjustments${RESET}
