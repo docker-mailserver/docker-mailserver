@@ -21,7 +21,7 @@ jobs:
       with:
         branch: 'contributors-update'
     - name: Auto-add contributors
-      uses: BobAnkh/add-contributors@
+      uses: BobAnkh/add-contributors@v0.2.2
       with:
         BRANCH: 'contributors-update'
         PULL_REQUEST: 'master'
