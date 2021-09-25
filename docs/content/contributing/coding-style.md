@@ -87,17 +87,21 @@ A construct to trace error in your scripts looks like this. Remember: Remove `se
 
 ```bash
 set -xeuEo pipefail
-trap '__log_err ${FUNCNAME[0]:-"?"} ${BASH_COMMAND:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '__err "${BASH_SOURCE}" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
 
-SCRIPT='name_of_this_script.sh'
-
-function __log_err
+function __err
 {
-  printf "\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  - script    = ${SCRIPT:-${0}}" \
-    "  - function  = ${1} / ${2}" \
-    "  - line      = ${3}" \
-    "  - exit code = ${4}" 1>&2
+  local RED="\e[31m\e[1m"
+  local RESET="\e[0m"
+  local ERR_MSG="\n--- ${RED}UNCHECKED ERROR${RESET}"
+  ERR_MSG+="\n  - script    = ${1}"
+  ERR_MSG+="\n  - function  = ${2}"
+  ERR_MSG+="\n  - command   = ${3}"
+  ERR_MSG+="\n  - line      = ${4}"
+  ERR_MSG+="\n  - exit code = ${5}"
+  ERR_MSG+='\n\nThis should not have happened. Please file a bug report.\n'
+
+  echo -e "${ERR_MSG}"
 
   <CODE TO RUN AFTERWARDS>
 }
