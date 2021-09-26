@@ -1,5 +1,30 @@
 # Changelog
 
+## `v10.2.0`
+
+### Miscellaneous small additions and changes
+
+- **[ci]** improved caching [#2197](https://github.com/docker-mailserver/docker-mailserver/pull/2197)
+- **[ci]** refactored spam tests and introduced common container setup template [#2198](https://github.com/docker-mailserver/docker-mailserver/pull/2198)
+- **[fix]** update Fail2Ban wrapper to propagate errors to user [#2170](https://github.com/docker-mailserver/docker-mailserver/pull/2170)
+- **[fix]** Dockerfile `sed`'s are now checked [#2158](https://github.com/docker-mailserver/docker-mailserver/pull/2158)
+- **[general]** Updated default value of `ONE_DIR` to `1` [#2148](https://github.com/docker-mailserver/docker-mailserver/pull/2148)
+- **[docs]** updated Kubernetes documentation [#2111](https://github.com/docker-mailserver/docker-mailserver/pull/2111)
+- **[docs]** introduced dedicated Podman documentation [#2179](https://github.com/docker-mailserver/docker-mailserver/pull/2179)
+- **[docs]** miscellaneous documentation improvements
+- **[misc]** introduced GitHub issue forms for  issue templates [#2160](https://github.com/docker-mailserver/docker-mailserver/pull/2160)
+- **[misc]** removed old `mkcert.sh` [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196)
+
+### Bigger scripts-related improvements
+
+- **[scripts]** update `setup.sh` to now use a running container first if one exists [#2134](https://github.com/docker-mailserver/docker-mailserver/pull/2134)
+- **[scripts]** included `setup.sh` functionality inside the container to be version independent again [#2174](https://github.com/docker-mailserver/docker-mailserver/pull/2174)
+- **[scripts]** `HOSTNAME` and `DOMAINNAME` setup improved [#2175](https://github.com/docker-mailserver/docker-mailserver/pull/2175)
+- **[scripts]** `delmailuser` can now delete mailboxed without TLD [#2172](https://github.com/docker-mailserver/docker-mailserver/pull/2172)
+- **[scripts]** refactored `_setup_ssl` in `setup-stack.sh` [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196)
+- **[scripts]** properly exit on failure ([#2199](https://github.com/docker-mailserver/docker-mailserver/pull/2199) in conjunction with [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196))
+- **[scripts]** make `setup.sh` completely non-interactive for Podman users [#2201](https://github.com/docker-mailserver/docker-mailserver/pull/2201)
+
 ## `v10.1.2`
 
 This is bug fix release. It reverts [a regression](https://github.com/docker-mailserver/docker-mailserver/issues/2154) introduced with [#2104](https://github.com/docker-mailserver/docker-mailserver/pull/2104).
