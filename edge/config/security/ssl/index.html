@@ -688,22 +688,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion" class="md-nav__link">
-    Example using Docker, nginx-proxy and letsencrypt-nginx-proxy-companion
+  <a href="#example-using-nginx-proxy-and-acme-companion-with-docker" class="md-nav__link">
+    Example using nginx-proxy and acme-companion with Docker
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion-with-docker-compose" class="md-nav__link">
-    Example using Docker, nginx-proxy and letsencrypt-nginx-proxy-companion with docker-compose
+  <a href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose" class="md-nav__link">
+    Example using nginx-proxy and acme-companion with docker-compose
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-using-the-lets-encrypt-certificates-on-a-synology-nas" class="md-nav__link">
-    Example using the Let's Encrypt Certificates on a Synology NAS
+  <a href="#example-using-lets-encrypt-certificates-with-a-synology-nas" class="md-nav__link">
+    Example using Let's Encrypt Certificates with a Synology NAS
   </a>
   
 </li>
@@ -1565,22 +1565,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion" class="md-nav__link">
-    Example using Docker, nginx-proxy and letsencrypt-nginx-proxy-companion
+  <a href="#example-using-nginx-proxy-and-acme-companion-with-docker" class="md-nav__link">
+    Example using nginx-proxy and acme-companion with Docker
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion-with-docker-compose" class="md-nav__link">
-    Example using Docker, nginx-proxy and letsencrypt-nginx-proxy-companion with docker-compose
+  <a href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose" class="md-nav__link">
+    Example using nginx-proxy and acme-companion with docker-compose
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-using-the-lets-encrypt-certificates-on-a-synology-nas" class="md-nav__link">
-    Example using the Let's Encrypt Certificates on a Synology NAS
+  <a href="#example-using-lets-encrypt-certificates-with-a-synology-nas" class="md-nav__link">
+    Example using Let's Encrypt Certificates with a Synology NAS
   </a>
   
 </li>
@@ -1682,200 +1682,266 @@
 <ul>
 <li>Using <a href="#lets-encrypt-recommended">letsencrypt</a> (recommended)</li>
 <li>Using <a href="#caddy">Caddy</a></li>
-<li>Using <a href="#traefik">Traefik</a></li>
-<li>Using <a href="#self-signed-certificates-testing-only">self-signed certificates</a></li>
-<li>Using <a href="#custom-certificate-files">your own certificates</a></li>
+<li>Using <a href="#traefik-v2">Traefik</a></li>
+<li>Using <a href="#self-signed-certificates">self-signed certificates</a></li>
+<li>Using <a href="#bring-your-own-certificates">your own certificates</a></li>
 </ul>
 <p>After installation, you can test your setup with:</p>
 <ul>
 <li><a href="https://www.checktls.com/TestReceiver"><code>checktls.com</code></a></li>
 <li><a href="https://github.com/drwetter/testssl.sh"><code>testssl.sh</code></a></li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Exposure of DNS labels through Certificate Transparency</p>
+<p>All public Certificate Authorities (CAs) are required to log certificates they issue publicly via <a href="https://certificate.transparency.dev/">Certificate Transparency</a>. This helps to better establish trust.</p>
+<p>When using a public CA for certificates used in private networks, be aware that the associated DNS labels in the certificate are logged publicly and <a href="https://crt.sh/">easily searchable</a>. These logs are <em>append only</em>, you <strong>cannot</strong> redact this information.</p>
+<p>You could use a <a href="https://en.wikipedia.org/wiki/Wildcard_certificate#Examples">wildcard certificate</a>. This avoids accidentally leaking information to the internet, but keep in mind the <a href="https://gist.github.com/joepie91/7e5cad8c0726fd6a5e90360a754fc568">potential security risks</a> of wildcard certs.</p>
+</div>
 <h2 id="lets-encrypt-recommended"><a class="toclink" href="#lets-encrypt-recommended">Let's Encrypt (Recommended)</a></h2>
-<p>To enable Let's Encrypt for <code>docker-mailserver</code>, you have to:</p>
-<ul>
-<li>Get your certificate using <a href="https://github.com/letsencrypt/letsencrypt">letsencrypt client</a></li>
-<li>Add an environment variable <code>SSL_TYPE</code> with value <code>letsencrypt</code> (see <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>)</li>
-<li>Mount your whole <code>letsencrypt</code> folder to <code>/etc/letsencrypt</code></li>
+<p>To enable <em>Let's Encrypt</em> for <code>docker-mailserver</code>, you have to:</p>
+<ol>
+<li>Get your certificate using the <em>Let's Encrypt</em> client <a href="https://github.com/certbot/certbot">Certbot</a>.</li>
 <li>
-<p>The certs folder name located in <code>letsencrypt/live/</code> must be the <code>fqdn</code> of your container responding to the <code>hostname</code> command. The <code>fqdn</code> (full qualified domain name) inside the docker container is built combining the <code>hostname</code> and <code>domainname</code> values of the <code>docker-compose</code> file, eg:</p>
+<p>For your <code>docker-mailserver</code> container:</p>
+<ol>
+<li>Add the environment variable <code>SSL_TYPE=letsencrypt</code>.</li>
+<li>Mount <a href="https://certbot.eff.org/docs/using.html#where-are-my-certificates">your local <code>letsencrypt</code> folder</a> as a volume to <code>/etc/letsencrypt</code>.</li>
+</ol>
+</li>
+</ol>
+<p>You don't have to do anything else. Enjoy!</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>/etc/letsencrypt/live</code> stores provisioned certificates in individual folders named by their FQDN (<em>Fully Qualified Domain Name</em>). <code>docker-mailserver</code> looks for it's certificate folder via the <code>hostname</code> command. The FQDN inside the docker container is derived from the <code>--hostname</code> and <code>--domainname</code> options.</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
   <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="c1"># For the FQDN &#39;mail.example.com&#39;:</span>
     <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
     <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-    <span class="nt">fqdn</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/letsencrypt:/etc/letsencrypt</span>
 </code></pre></div>
-</li>
-</ul>
-<p>You don't have anything else to do. Enjoy.</p>
-<h3 id="example-using-docker-for-lets-encrypt"><a class="toclink" href="#example-using-docker-for-lets-encrypt">Example using Docker for Let's Encrypt</a></h3>
-<ol>
+</div>
+<h3 id="example-using-docker-for-lets-encrypt"><a class="toclink" href="#example-using-docker-for-lets-encrypt">Example using Docker for <em>Let's Encrypt</em></a></h3>
+<ul>
+<li>Certbot provisions certificates to <code>/etc/letsencrypt</code>. Add a volume to store these, so that they can later be accessed by <code>docker-mailserver</code> container.</li>
 <li>
-<p>Make a directory to store your letsencrypt logs and configs. In my case:</p>
-<div class="highlight"><pre><span></span><code>mkdir -p /home/ubuntu/docker/letsencrypt 
-<span class="nb">cd</span> /home/ubuntu/docker/letsencrypt
-</code></pre></div>
+<p>You may also want to persist Certbot <a href="https://certbot.eff.org/docs/using.html#log-rotation">logs</a>, just in case you need to troubleshoot.</p>
 </li>
 <li>
-<p>Now get the certificate (modify <code>mail.example.com</code>) and following the certbot instructions.</p>
-</li>
-<li>
-<p>This will need access to port 80 from the internet, adjust your firewall if needed:</p>
-<div class="highlight"><pre><span></span><code>docker run --rm -it <span class="se">\</span>
-  -v <span class="nv">$PWD</span>/log/:/var/log/letsencrypt/ <span class="se">\</span>
-  -v <span class="nv">$PWD</span>/etc/:/etc/letsencrypt/ <span class="se">\</span>
+<p>Getting a certificate is this simple! (<em>Referencing: <a href="https://certbot.eff.org/docs/install.html#running-with-docker">Certbot docker instructions</a> and <a href="https://certbot.eff.org/docs/using.html#standalone"><code>certonly --standalone</code> mode</a></em>):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Change `mail.example.com` below to your own FQDN.</span>
+<span class="c1"># Requires access to port 80 from the internet, adjust your firewall if needed.</span>
+docker run --rm -it <span class="se">\</span>
+  -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/certbot/certs/:/etc/letsencrypt/&quot;</span> <span class="se">\</span>
+  -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/certbot/logs/:/var/log/letsencrypt/&quot;</span> <span class="se">\</span>
   -p <span class="m">80</span>:80 <span class="se">\</span>
   certbot/certbot certonly --standalone -d mail.example.com
 </code></pre></div>
 </li>
 <li>
-<p>You can now mount <code>/home/ubuntu/docker/letsencrypt/etc/</code> in <code>/etc/letsencrypt</code> of <code>docker-mailserver</code>.</p>
-<p>To renew your certificate just run (this will need access to port 443 from the internet, adjust your firewall if needed):</p>
-<div class="highlight"><pre><span></span><code>docker run --rm -it <span class="se">\</span>
-  -v <span class="nv">$PWD</span>/log/:/var/log/letsencrypt/ <span class="se">\</span>
-  -v <span class="nv">$PWD</span>/etc/:/etc/letsencrypt/ <span class="se">\</span>
+<p>Add a volume for <code>docker-mailserver</code> that maps the <em>local <code>certbot/certs/</code> folder</em> to the container path <code>/etc/letsencrypt/</code>.</p>
+</li>
+<li>The certificate setup is complete, but remember <em>it will expire</em>. Consider automating renewals.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Renewing Certificates</p>
+<p>When running the above <code>certonly --standalone</code> snippet again, the existing certificate is renewed if it would expire within 30 days.</p>
+<p>Alternatively, Certbot can look at all the certificates it manages, and only renew those nearing their expiry via the <a href="https://certbot.eff.org/docs/using.html#renewing-certificates"><code>renew</code> command</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># This will need access to port 443 from the internet, adjust your firewall if needed.</span>
+docker run --rm -it <span class="se">\</span>
+  -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/certbot/certs/:/etc/letsencrypt/&quot;</span> <span class="se">\</span>
+  -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/certbot/logs/:/var/log/letsencrypt/&quot;</span> <span class="se">\</span>
   -p <span class="m">80</span>:80 <span class="se">\</span>
   -p <span class="m">443</span>:443 <span class="se">\</span>
   certbot/certbot renew
 </code></pre></div>
-</li>
-</ol>
-<h3 id="example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion"><a class="toclink" href="#example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion">Example using Docker, <code>nginx-proxy</code> and <code>letsencrypt-nginx-proxy-companion</code></a></h3>
-<p>If you are running a web server already, it is non-trivial to generate a Let's Encrypt certificate for your <code>docker-mailserver</code> using <code>certbot</code>, because port 80 is already occupied. In the following example, we show how <code>docker-mailserver</code> can be run alongside the docker containers <code>nginx-proxy</code> and <code>letsencrypt-nginx-proxy-companion</code>.</p>
-<p>There are several ways to start <code>nginx-proxy</code> and <code>letsencrypt-nginx-proxy-companion</code>. Any method should be suitable here.</p>
-<p>For example start <code>nginx-proxy</code> as in the <code>letsencrypt-nginx-proxy-companion</code> <a href="https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion">documentation</a>:</p>
+<p>This process can also be <a href="https://certbot.eff.org/docs/using.html#automated-renewals">automated via <em>cron</em> or <em>systemd timers</em></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Using a different ACME CA</p>
+<p>Certbot does support <a href="https://certbot.eff.org/docs/using.htmlchanging-the-acme-server">alternative certificate providers via the <code>--server</code></a> option. In most cases you'll want to use the default <em>Let's Encrypt</em>.</p>
+</div>
+<h3 id="example-using-nginx-proxy-and-acme-companion-with-docker"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with Docker</a></h3>
+<p>If you are running a web server already, port 80 will be in use which Certbot requires. You could use the <a href="https://certbot.eff.org/docs/using.html#webroot">Certbot <code>--webroot</code></a> feature, but it is more common to leverage a <em>reverse proxy</em> that manages the provisioning and renewal of certificates for your services automatically.</p>
+<p>In the following example, we show how <code>docker-mailserver</code> can be run alongside the docker containers <a href="https://github.com/nginx-proxy/nginx-proxy"><code>nginx-proxy</code></a> and <a href="https://github.com/nginx-proxy/acme-companion"><code>acme-companion</code></a> (<em>Referencing: <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs"><code>acme-companion</code> documentation</a></em>):</p>
+<ol>
+<li>
+<p>Start the <em>reverse proxy</em> (<code>nginx-proxy</code>):</p>
 <div class="highlight"><pre><span></span><code>docker run --detach <span class="se">\</span>
   --name nginx-proxy <span class="se">\</span>
   --restart always <span class="se">\</span>
   --publish <span class="m">80</span>:80 <span class="se">\</span>
   --publish <span class="m">443</span>:443 <span class="se">\</span>
-  --volume /server/letsencrypt/etc:/etc/nginx/certs:ro <span class="se">\</span>
-  --volume /etc/nginx/vhost.d <span class="se">\</span>
-  --volume /usr/share/nginx/html <span class="se">\</span>
-  --volume /var/run/docker.sock:/tmp/docker.sock:ro <span class="se">\</span>
-  jwilder/nginx-proxy
+  --volume <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/nginx-proxy/html/:/usr/share/nginx/html/&quot;</span> <span class="se">\</span>
+  --volume <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/&quot;</span> <span class="se">\</span>
+  --volume <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/acme-companion/certs/:/etc/nginx/certs/:ro&quot;</span> <span class="se">\</span>
+  --volume <span class="s1">&#39;/var/run/docker.sock:/tmp/docker.sock:ro&#39;</span> <span class="se">\</span>
+  nginxproxy/nginx-proxy
 </code></pre></div>
-<p>Then start <code>nginx-proxy-letsencrypt</code>:</p>
-<div class="highlight"><pre><span></span><code>docker run --detach <span class="se">\</span>
-  --name nginx-proxy-letsencrypt <span class="se">\</span>
+</li>
+<li>
+<p>Then start the <em>certificate provisioner</em> (<code>acme-companion</code>), which will provide certificates to <code>nginx-proxy</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Inherit `nginx-proxy` volumes via `--volumes-from`, but make `certs/` writeable:</span>
+docker run --detach <span class="se">\</span>
+  --name nginx-proxy-acme <span class="se">\</span>
   --restart always <span class="se">\</span>
-  --volume /server/letsencrypt/etc:/etc/nginx/certs:rw <span class="se">\</span>
   --volumes-from nginx-proxy <span class="se">\</span>
-  --volume /var/run/docker.sock:/var/run/docker.sock:ro <span class="se">\</span>
-  jrcs/letsencrypt-nginx-proxy-companion
+  --volume <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/acme-companion/certs/:/etc/nginx/certs/:rw&quot;</span> <span class="se">\</span>
+  --volume <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/acme-companion/acme-state/:/etc/acme.sh/&quot;</span> <span class="se">\</span>
+  --volume <span class="s1">&#39;/var/run/docker.sock:/var/run/docker.sock:ro&#39;</span> <span class="se">\</span>
+  --env <span class="s1">&#39;DEFAULT_EMAIL=admin@example.com&#39;</span> <span class="se">\</span>
+  nginxproxy/acme-companion
 </code></pre></div>
+</li>
+<li>
 <p>Start the rest of your web server containers as usual.</p>
-<p>Start another container for your <code>mail.example.com</code>. This will generate a Let's Encrypt certificate for your domain, which can be used by <code>docker-mailserver</code>. It will also run a web server on port 80 at that address:</p>
-<div class="highlight"><pre><span></span><code>docker run -d <span class="se">\</span>
+</li>
+<li>
+<p>Start a <em>dummy container</em> to provision certificatess for your FQDN (eg: <code>mail.example.com</code>). <code>acme-companion</code> will detect the container and generate a <em>Let's Encrypt</em> certificate for your domain, which can be used by <code>docker-mailserver</code>:</p>
+<div class="highlight"><pre><span></span><code>docker run --detach <span class="se">\</span>
   --name webmail <span class="se">\</span>
-  -e <span class="s2">&quot;VIRTUAL_HOST=mail.example.com&quot;</span> <span class="se">\</span>
-  -e <span class="s2">&quot;LETSENCRYPT_HOST=mail.example.com&quot;</span> <span class="se">\</span>
-  -e <span class="s2">&quot;LETSENCRYPT_EMAIL=admin@example.com&quot;</span> <span class="se">\</span>
-  library/nginx
+  --env <span class="s1">&#39;VIRTUAL_HOST=mail.example.com&#39;</span> <span class="se">\</span>
+  --env <span class="s1">&#39;LETSENCRYPT_HOST=mail.example.com&#39;</span> <span class="se">\</span>
+  --env <span class="s1">&#39;LETSENCRYPT_EMAIL=admin@example.com&#39;</span> <span class="se">\</span>
+  nginx
 </code></pre></div>
-<p>You may want to add <code>-e LETSENCRYPT_TEST=true</code> to the above while testing to avoid the Let's Encrypt certificate generation rate limits.</p>
-<p>Make sure your mount path to the letsencrypt certificates is correct. Edit your <code>/path/to/mailserver/docker-compose.yml</code> for the <code>mailserver</code> service to have volumes added like the example below:</p>
+<p>You may want to add <code>--env LETSENCRYPT_TEST=true</code> to the above while testing, to avoid the <em>Let's Encrypt</em> certificate generation rate limits.</p>
+</li>
+<li>
+<p>Make sure your mount path to the <code>letsencrypt</code> certificates directory is correct. Edit your <code>docker-compose.yml</code> for the <code>mailserver</code> service to have volumes added like below:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/server/letsencrypt/etc:/etc/letsencrypt/live</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro</span>
 </code></pre></div>
-<p>Then from the <code>docker-compose.yml</code> directory, run: <code>docker-compose up -d mailserver</code>.</p>
-<h3 id="example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion-with-docker-compose"><a class="toclink" href="#example-using-docker-nginx-proxy-and-letsencrypt-nginx-proxy-companion-with-docker-compose">Example using Docker, <code>nginx-proxy</code> and <code>letsencrypt-nginx-proxy-companion</code> with <code>docker-compose</code></a></h3>
-<p>The following <code>docker-compose.yml</code> is the basic setup you need for using <code>letsencrypt-nginx-proxy-companion</code>. It is mainly derived from its own wiki/documenation.</p>
-<details class="example" open="open"><summary>Example Code</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&quot;2&quot;</span>
-
+</li>
+<li>
+<p>Then from the <code>docker-compose.yml</code> project directory, run: <code>docker-compose up -d mailserver</code>.</p>
+</li>
+</ol>
+<h3 id="example-using-nginx-proxy-and-acme-companion-with-docker-compose"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with <code>docker-compose</code></a></h3>
+<p>The following example is the <a href="https://github.com/nginx-proxy/acme-companion#basic-usage-with-the-nginx-proxy-container">basic setup</a> you need for using <code>nginx-proxy</code> and <code>acme-companion</code> with <code>docker-mailserver</code> (<em>Referencing: <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs"><code>acme-companion</code> documentation</a></em>):</p>
+<details class="example" open="open"><summary>Example: <code>docker-compose.yml</code></summary><p>You should have an existing <code>docker-compose.yml</code> with a <code>mailserver</code> service. Below are the modifications to add for integrating with <code>nginx-proxy</code> and <code>acme-companion</code> services:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
 <span class="nt">services</span><span class="p">:</span>
-  <span class="nt">nginx</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">80:80</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">443:443</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/htpasswd:/etc/nginx/htpasswd</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/conf.d:/etc/nginx/conf.d</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/vhost.d:/etc/nginx/vhost.d</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/html:/usr/share/nginx/html</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/certs:/etc/nginx/certs:ro</span>
-    <span class="nt">networks</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">proxy-tier</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-
-  <span class="nt">nginx-gen</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">jwilder/docker-gen</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-gen</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/tmp/docker.sock:ro</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/templates/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro</span>
-    <span class="nt">volumes_from</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-    <span class="nt">entrypoint</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-
-  <span class="nt">letsencrypt-nginx-proxy-companion</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">jrcs/letsencrypt-nginx-proxy-companion</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">letsencrypt-companion</span>
-    <span class="nt">volumes_from</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/data/nginx/certs:/etc/nginx/certs:rw</span>
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NGINX_DOCKER_GEN_CONTAINER=nginx-gen</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DEBUG=false</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-
-<span class="nt">networks</span><span class="p">:</span>
-  <span class="nt">proxy-tier</span><span class="p">:</span>
-    <span class="nt">external</span><span class="p">:</span>
-      <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-proxy</span>
-</code></pre></div>
-</details>
-<p>The second part of the setup is the <code>docker-mailserver</code> container. So, in another folder, create another <code>docker-compose.yml</code> with the following content (Removed all ENV variables for this example):</p>
-<details class="example" open="open"><summary>Example Code</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
+  <span class="c1"># Add the following `environment` and `volumes` to your existing `mailserver` service:</span>
   <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;465:465&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/certs/:/etc/letsencrypt/live/:ro</span>
-    <span class="nt">cap_add</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SYS_PTRACE</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-
-  <span class="nt">cert-companion</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
     <span class="nt">environment</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;VIRTUAL_HOST=&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;VIRTUAL_NETWORK=nginx-proxy&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;LETSENCRYPT_HOST=&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;LETSENCRYPT_EMAIL=&quot;</span>
-    <span class="nt">networks</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">proxy-tier</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
+      <span class="c1"># SSL_TYPE:         Uses the `letsencrypt` method to find mounted certificates.</span>
+      <span class="c1"># VIRTUAL_HOST:     The FQDN that `nginx-proxy` will configure itself to handle for HTTP[S] connections.</span>
+      <span class="c1"># LETSENCRYPT_HOST: The FQDN for a certificate that `acme-companion` will provision and renew.</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">VIRTUAL_HOST=mail.example.com</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LETSENCRYPT_HOST=mail.example.com</span>
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro</span>
 
-<span class="nt">networks</span><span class="p">:</span>
-  <span class="nt">proxy-tier</span><span class="p">:</span>
-    <span class="nt">external</span><span class="p">:</span>
-      <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-proxy</span>
+  <span class="c1"># If you don&#39;t yet have your own `nginx-proxy` and `acme-companion` setup,</span>
+  <span class="c1"># here is an example you can use:</span>
+  <span class="nt">reverse-proxy</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginxproxy/nginx-proxy</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-proxy</span>
+    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="c1"># Port  80: Required for HTTP-01 challenges to `acme-companion`.</span>
+      <span class="c1"># Port 443: Only required for containers that need access over HTTPS. TLS-ALPN-01 challenge not supported.</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;80:80&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;443:443&quot;</span>
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="c1"># `certs/`:      Managed by the `acme-companion` container (_read-only_).</span>
+      <span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span>
+      <span class="c1"># `dhparam`:     A named data volume to prevent `nginx-proxy` creating an anonymous volume each time.</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:ro</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/tmp/docker.sock:ro</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dhparam:/etc/nginx/dhparam</span>
+
+  <span class="nt">acme-companion</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginxproxy/acme-companion</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-proxy-acme</span>
+    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="c1"># Only docker-compose v2 supports: `volumes_from: [nginx-proxy]`,</span>
+      <span class="c1"># reference the _reverse-proxy_ `container_name` here:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NGINX_PROXY_CONTAINER=nginx-proxy</span>
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="c1"># `html/`:       Write ACME HTTP-01 challenge files that `nginx-proxy` will serve.</span>
+      <span class="c1"># `vhost.d/`:    To enable web access via `nginx-proxy` to HTTP-01 challenge files.</span>
+      <span class="c1"># `certs/`:      To store certificates and private keys.</span>
+      <span class="c1"># `acme-state/`: To persist config and state for the ACME provisioner (`acme.sh`).</span>
+      <span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:rw</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/acme-state/:/etc/acme.sh/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span>
+
+<span class="c1"># Once `nginx-proxy` fixes their Dockerfile, this named data volume can be removed from docs.</span>
+<span class="c1"># Users can opt for a local bind mount volume like all others if they prefer, but this volume</span>
+<span class="c1"># is only intended to be temporary.</span>
+<span class="nt">volumes</span><span class="p">:</span>
+  <span class="nt">dhparam</span><span class="p">:</span>
 </code></pre></div>
 </details>
-<p><code>docker-mailserver</code> needs to have the letsencrypt certificate folder mounted as a volume. No further changes are needed. The second container is a dummy-sidecar we need, because the mail-container do not expose any web-ports. Set your ENV variables as you need. (<code>VIRTUAL_HOST</code> and <code>LETSENCRYPT_HOST</code> are mandandory, see documentation)</p>
-<h3 id="example-using-the-lets-encrypt-certificates-on-a-synology-nas"><a class="toclink" href="#example-using-the-lets-encrypt-certificates-on-a-synology-nas">Example using the Let's Encrypt Certificates on a Synology NAS</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Optional ENV vars worth knowing about</p>
+<p><a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Let's-Encrypt-and-ACME.md">Per container ENV</a> that <code>acme-companion</code> will detect to override default provisioning settings:</p>
+<ul>
+<li><code>LETSENCRYPT_TEST=true</code>: <em>Recommended during initial setup</em>. Otherwise the default production endpoint has a <a href="https://letsencrypt.org/docs/rate-limits/">rate limit of 5 duplicate certificates per week</a>. Overrides <code>ACME_CA_URI</code> to use the <em>Let's Encrypt</em> staging endpoint.</li>
+<li><code>LETSENCRYPT_EMAIL</code>: For when you don't use <code>DEFAULT_EMAIL</code> on <code>acme-companion</code>, or want to assign a different email contact for this container.</li>
+<li><code>LETSENCRYPT_KEYSIZE</code>: Allows you to configure the type (RSA or ECDSA) and size of the private key for your certificate. Default is RSA 4096.</li>
+<li><code>LETSENCRYPT_RESTART_CONTAINER=true</code>: When the certificate is renewed, the entire container will be restarted to ensure the new certificate is used.</li>
+</ul>
+<p><a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-configuration.md"><code>acme-companion</code> ENV for default settings</a> that apply to all containers using <code>LETSENCRYPT_HOST</code>:</p>
+<ul>
+<li><code>DEFAULT_EMAIL</code>: An email address that the CA (<em>eg: Let's Encrypt</em>) can contact you about expiring certificates, failed renewals, or for account recovery. You may want to use an email address not handled by your mail-server to ensure deliverability in the event your mail-server breaks.</li>
+<li><code>CERTS_UPDATE_INTERVAL</code>: If you need to adjust the frequency to check for renewals. 3600 seconds (1 hour) by default.</li>
+<li><code>DEBUG=1</code>: Should be helpful when <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Invalid-authorizations.md">troubleshooting provisioning issues</a> from <code>acme-companion</code> logs.</li>
+<li><code>ACME_CA_URI</code>: Useful in combination with <code>CA_BUNDLE</code> to use a private CA. To change the default <em>Let's Encrypt</em> endpoint to the staging endpoint, use <code>https://acme-staging-v02.api.letsencrypt.org/directory</code>.</li>
+<li><code>CA_BUNDLE</code>: If you want to use a private CA instead of <em>Let's Encrypt</em>.</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Alternative to required ENV on <code>mailserver</code> service</p>
+<p>While you will still need both <code>nginx-proxy</code> and <code>acme-companion</code> containers, you can manage certificates without adding ENV vars to containers. Instead the ENV is moved into a file and uses the <code>acme-companion</code> feature <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md">Standalone certificates</a>.</p>
+<p>This requires adding another shared volume between <code>nginx-proxy</code> and <code>acme-companion</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">reverse-proxy</span><span class="p">:</span>
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/</span>
+
+  <span class="nt">acme-companion</span><span class="p">:</span>
+    <span class="nt">volumes</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/standalone.sh:/app/letsencrypt_user_data:ro</span>
+</code></pre></div>
+<p><code>acme-companion</code> mounts a shell script (<code>standalone.sh</code>), which defines variables to customize certificate provisioning:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A list IDs for certificates to provision:</span>
+<span class="nv">LETSENCRYPT_STANDALONE_CERTS</span><span class="o">=(</span><span class="s1">&#39;mail&#39;</span><span class="o">)</span>
+
+<span class="c1"># Each ID inserts itself into the standard `acme-companion` supported container ENV vars below.</span>
+<span class="c1"># The LETSENCRYPT_&lt;ID&gt;_HOST var is a list of FQDNs to provision a certificate for as the SAN field:</span>
+<span class="nv">LETSENCRYPT_mail_HOST</span><span class="o">=(</span><span class="s1">&#39;mail.example.com&#39;</span><span class="o">)</span>
+
+<span class="c1"># Optional variables:</span>
+<span class="nv">LETSENCRYPT_mail_TEST</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">LETSENCRYPT_mail_EMAIL</span><span class="o">=</span><span class="s1">&#39;admin@example.com&#39;</span>
+<span class="c1"># RSA-4096 =&gt; `4096`, ECDSA-256 =&gt; `ec-256`:</span>
+<span class="nv">LETSENCRYPT_mail_KEYSIZE</span><span class="o">=</span><span class="m">4096</span>
+</code></pre></div>
+<p>Unlike with the equivalent ENV for containers, <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md#picking-up-changes-to-letsencrypt_user_data">changes to this file will <strong>not</strong> be detected automatically</a>. You would need to wait until the next renewal check by <code>acme-companion</code> (<em>every hour by default</em>), restart <code>acme-companion</code>, or <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-utilities.md">manually invoke the <em>service loop</em></a>:</p>
+<p><code class="highlight">docker <span class="nb">exec</span> nginx-proxy-acme /app/signal_le_service</code></p>
+</div>
+<h3 id="example-using-lets-encrypt-certificates-with-a-synology-nas"><a class="toclink" href="#example-using-lets-encrypt-certificates-with-a-synology-nas">Example using <em>Let's Encrypt</em> Certificates with a <em>Synology NAS</em></a></h3>
 <p>Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.</p>
 <p>Amongst other things, you can use these to secure your mail-server. DSM locates the generated certificates in a folder below <code>/usr/syno/etc/certificate/_archive/</code>.</p>
 <p>Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your <code>docker-compose.yml</code> declaration file:</p>
