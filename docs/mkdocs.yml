@@ -146,7 +146,8 @@ nav:
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
-      - 'Mail-Server behind a Proxy': examples/tutorials/mailserver-behind-proxy.md
+      - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+      - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
     - 'Use Cases':
       - 'Forward-Only Mail-Server with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
