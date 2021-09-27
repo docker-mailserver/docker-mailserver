@@ -26,17 +26,17 @@ Thanks goes to these wonderful people ✨
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/chikamichi>
-            <img src=https://avatars.githubusercontent.com/u/106689?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jean-Denis Vauguet/>
-            <br />
-            <sub style="font-size:14px"><b>Jean-Denis Vauguet</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/casperklein>
             <img src=https://avatars.githubusercontent.com/u/590174?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Casper/>
             <br />
             <sub style="font-size:14px"><b>Casper</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/chikamichi>
+            <img src=https://avatars.githubusercontent.com/u/106689?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jean-Denis Vauguet/>
+            <br />
+            <sub style="font-size:14px"><b>Jean-Denis Vauguet</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -77,17 +77,17 @@ Thanks goes to these wonderful people ✨
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/17Halbe>
-            <img src=https://avatars.githubusercontent.com/u/16878671?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=17Halbe/>
-            <br />
-            <sub style="font-size:14px"><b>17Halbe</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/polarathene>
             <img src=https://avatars.githubusercontent.com/u/5098581?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Brennan Kinney/>
             <br />
             <sub style="font-size:14px"><b>Brennan Kinney</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/17Halbe>
+            <img src=https://avatars.githubusercontent.com/u/16878671?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=17Halbe/>
+            <br />
+            <sub style="font-size:14px"><b>17Halbe</b></sub>
         </a>
     </td>
 </tr>
