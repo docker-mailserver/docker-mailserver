@@ -9,8 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      -
-        name: Delete old contributors-update branch
+      - name: Delete old contributors-update branch
         uses: dawidd6/action-delete-branch@v3
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
