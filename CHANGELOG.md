@@ -2,6 +2,31 @@
 
 ## `v10.2.0`
 
+- You no longer need to maintain a copy of `setup.sh` matching your version release from v10.2 of `docker-mailserver` onwards. Version specific functionality of `setup.sh` has moved into the container itself, while `setup.sh` remains as a convenient wrapper to: `docker exec -it <container name> setup <command>`.
+- [`ONE_DIR`](https://docker-mailserver.github.io/docker-mailserver/v10.2/config/environment/#one_dir) now defaults to enabled (`1`).
+- For anyone relying on internal location of certificates (_internal copy of mounted files at startup_), the Postfix and Dovecot location of `/etc/postfix/ssl` has changed to `/etc/dms/tls`. This may affect any third-party `user-patches.sh` scripts that depended on this path to update certs.
+- The [_Let's Encrypt_ section of our SSL / TLS docs](https://docker-mailserver.github.io/docker-mailserver/v10.2/config/security/ssl#lets-encrypt-recommended) has been brought up to date.
+
+### Bigger scripts-related improvements
+
+- **[scripts]** update `setup.sh` to now use a running container first if one exists [#2134](https://github.com/docker-mailserver/docker-mailserver/pull/2134)
+- **[scripts]** included `setup.sh` functionality inside the container to be version independent again [#2174](https://github.com/docker-mailserver/docker-mailserver/pull/2174)
+- **[scripts]** `HOSTNAME` and `DOMAINNAME` setup improved [#2175](https://github.com/docker-mailserver/docker-mailserver/pull/2175)
+- **[scripts]** `delmailuser` can now delete mailboxed without TLD [#2172](https://github.com/docker-mailserver/docker-mailserver/pull/2172)
+- **[scripts]** properly exit on failure ([#2199](https://github.com/docker-mailserver/docker-mailserver/pull/2199) in conjunction with [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196))
+- **[scripts]** make `setup.sh` completely non-interactive for Podman users [#2201](https://github.com/docker-mailserver/docker-mailserver/pull/2201)
+
+### Security
+
+Some internal refactoring and fixes happened this release cycle in [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196):
+
+- **[improve]** The Postfix and Dovecot location of `/etc/postfix/ssl` has changed to `/etc/dms/tls`
+- **[improve]** An invalid `SSL_TYPE` or a valid value with an invalid configuration will now panic, exiting the container and emitting a fatal error to the logs
+- **[fix]** An unconfigured/empty `SSL_TYPE` ENV now correctly disables SSL support for Dovecot and general Postfix configurations. A reminder that this is unsupported officially, and is only intended for tests and troubleshooting. Use only [a valid `SSL_TYPE`](https://docker-mailserver.github.io/docker-mailserver/v10.2/config/environment/#ssl_type) (_`letsencrypt` and `manual` are recommended_) for production deployments
+- **[fix]** `TLS_LEVEL=intermediate` now modifies the system (container) `openssl.cnf` config to set the minimum protocol to TLS 1.0 (_from 1.2_) and cipher-suite support to `DEFAULT@SECLEVEL=1` (_from `2`_). This change is required for Dovecot in upcoming Debian Bullseye upgrade, to be compatible with the `TLS_LEVEL=intermediate` cipher-suite profile. It may affect other software within the container that relies on this openssl config, should you extend the Docker image [#2193](https://github.com/docker-mailserver/docker-mailserver/pull/2193)
+- **[fix]** Provide DH parameters (_default: RFC 7919 group `ffdhe406.pem`_) at build-time, instead of during startup. Custom DH parameters regardless of `ONE_DIR` are now only detected when mounted to `/tmp/docker-mailserver/dhparams.pem` [#2192](https://github.com/docker-mailserver/docker-mailserver/pull/2192)
+- **[docs]** Revise the _Let's Encrypt_ section of our SSL / TLS docs [#2209](https://github.com/docker-mailserver/docker-mailserver/pull/2209)
+
 ### Miscellaneous small additions and changes
 
 - **[ci]** improved caching [#2197](https://github.com/docker-mailserver/docker-mailserver/pull/2197)
@@ -12,18 +37,8 @@
 - **[docs]** updated Kubernetes documentation [#2111](https://github.com/docker-mailserver/docker-mailserver/pull/2111)
 - **[docs]** introduced dedicated Podman documentation [#2179](https://github.com/docker-mailserver/docker-mailserver/pull/2179)
 - **[docs]** miscellaneous documentation improvements
-- **[misc]** introduced GitHub issue forms for  issue templates [#2160](https://github.com/docker-mailserver/docker-mailserver/pull/2160)
-- **[misc]** removed old `mkcert.sh` [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196)
-
-### Bigger scripts-related improvements
-
-- **[scripts]** update `setup.sh` to now use a running container first if one exists [#2134](https://github.com/docker-mailserver/docker-mailserver/pull/2134)
-- **[scripts]** included `setup.sh` functionality inside the container to be version independent again [#2174](https://github.com/docker-mailserver/docker-mailserver/pull/2174)
-- **[scripts]** `HOSTNAME` and `DOMAINNAME` setup improved [#2175](https://github.com/docker-mailserver/docker-mailserver/pull/2175)
-- **[scripts]** `delmailuser` can now delete mailboxed without TLD [#2172](https://github.com/docker-mailserver/docker-mailserver/pull/2172)
-- **[scripts]** refactored `_setup_ssl` in `setup-stack.sh` [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196)
-- **[scripts]** properly exit on failure ([#2199](https://github.com/docker-mailserver/docker-mailserver/pull/2199) in conjunction with [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196))
-- **[scripts]** make `setup.sh` completely non-interactive for Podman users [#2201](https://github.com/docker-mailserver/docker-mailserver/pull/2201)
+- **[misc]** introduced GitHub issue forms for issue templates [#2160](https://github.com/docker-mailserver/docker-mailserver/pull/2160)
+- **[misc]** Removed the internal `mkcert.sh` script for Dovecot as it is no longer needed [#2196](https://github.com/docker-mailserver/docker-mailserver/pull/2196)
 
 ## `v10.1.2`
 
