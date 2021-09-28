@@ -9,28 +9,26 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - 
-        name: Delete old contributors-update branch
+      - name: Delete old contributors-update branch
         uses: dawidd6/action-delete-branch@v3
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           branches: contributors-update
-    
+
   add-contributors:
     runs-on: ubuntu-latest
     needs: delete-old-branch
     steps:
-      - 
-        uses: actions/checkout@v2
-      - 
-        name: Create contributors-update branch
+      - uses: actions/checkout@v2
+
+      - name: Create contributors-update branch
         uses: peterjgrainger/action-create-branch@v2.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           branch: 'contributors-update'
-      - 
-        name: Auto-add contributors
+
+      - name: Auto-add contributors
         uses: BobAnkh/add-contributors@v0.2.2
         with:
           BRANCH: 'contributors-update'
