@@ -21,7 +21,7 @@ services:
       - ./docker-data/dms/mail-state/:/var/mail-state/
       - ./docker-data/dms/mail-logs/:/var/log/mail/
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
-      - /etc/localtime:/etc/localtime:ro/
+      - /etc/localtime:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
     cap_add:
