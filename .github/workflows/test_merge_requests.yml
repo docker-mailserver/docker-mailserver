@@ -1,9 +1,9 @@
 name: "Test Merge Requests"
 
-on: 
+on:
   workflow_dispatch:
   pull_request:
-    paths: 
+    paths:
       - 'target/**'
       - 'test/**'
       - '.dockerignore'
@@ -19,11 +19,14 @@ jobs:
         uses: actions/checkout@v2.3.4
         with:
           submodules: recursive
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.2.0
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1.6.0
         id: buildx
+
       - name: Cache Docker layers
         uses: actions/cache@v2.1.6
         with:
@@ -31,6 +34,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+
       - name: Build images locally
         uses: docker/build-push-action@v2.7.0
         with:
@@ -43,6 +47,7 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: mailserver-testing:ci
           cache-to: type=local,dest=/tmp/.buildx-cache
+
       - name: Build image for test suit
         uses: docker/build-push-action@v2.7.0
         with:
@@ -56,6 +61,7 @@ jobs:
           load: true
           tags: mailserver-testing:ci
           cache-from: type=local,src=/tmp/.buildx-cache
+
       - name: Run test suite
         run: >
           NAME=mailserver-testing:ci
