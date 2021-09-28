@@ -6,11 +6,6 @@ on:
   push:
     branches:
       - master
-  # These workflows when done will trigger this workflow too:
-  workflow_run:
-    workflows: ['Update contributors']
-    types:
-      - completed
 
 jobs:
   lint:
