@@ -43,3 +43,22 @@ jobs:
           PATH: '/CONTRIBUTORS.md'
           COMMIT_MESSAGE: 'docs(CONTRIBUTORS): update contributors'
           AVATAR_SHAPE: 'round'
+
+      # This workflow will not trigger a `pull_request` event without a PAT.
+      # The lint workflow is not important for this type of PR, skip it and pretend it was successful:
+      - name: 'Get the latest commit hash from the contributors-update branch'
+        id: commit-data
+        run: 'echo "::set-output name=head_sha::$(git rev-parse contributors-update)"'
+
+      - name: 'Commit Status: Set Lint status to success (skipped)'
+        uses: myrotvorets/set-commit-status-action@1.1.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Skipped workflows are still assigned a "success" status:
+          status: success
+          # This should be the correct commit SHA on the contributors-update branch:
+          sha: ${{ steps.commit-data.outputs.head_sha }}
+          # Name of status check to add/update:
+          context: 'lint'
+          # Optional message/note we can inline to the right of the context name in the UI:
+          description: "Lint skipped. Not relevant."
