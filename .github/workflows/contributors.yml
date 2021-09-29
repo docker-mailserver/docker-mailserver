@@ -46,7 +46,10 @@ jobs:
       # The lint workflow is not important for this type of PR, skip it and pretend it was successful:
       - name: 'Get the latest commit hash from the contributors-update branch'
         id: commit-data
-        run: 'echo "::set-output name=head_sha::$(git rev-parse contributors-update)"'
+        run: |
+          git pull
+          git checkout contributors-update
+          echo "::set-output name=head_sha::$(git rev-parse contributors-update)"
 
       - name: 'Commit Status: Set Lint status to success (skipped)'
         uses: myrotvorets/set-commit-status-action@1.1.4
