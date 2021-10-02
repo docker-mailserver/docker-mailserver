@@ -21,7 +21,7 @@ function _fix_var_mail_permissions
   if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
   then
     _notify 'inf' 'Fixing /var/mail permissions'
-    chown -R 5000:5000 /var/mail || _notify 'err' 'Failed to fix /var/mail permissions'
+    chown -R 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
   else
     _notify 'inf' 'Permissions in /var/mail look OK'
   fi
