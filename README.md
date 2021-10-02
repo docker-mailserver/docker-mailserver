@@ -108,16 +108,35 @@ If you're using `docker-mailserver` version `v10.1.x` or below, you will need to
 
 ### Get up and running
 
+#### First Things First
+
+**Use `docker-compose up / down`, not `docker-compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state.
+
+You are able to get a full overview of how the configuration works by either running:
+
+1. `./setup.sh help` which includes the options of `setup.sh`.
+2. `docker run --rm docker.io/mailserver/docker-mailserver:latest setup help` which provides you with all the information on configuration provided "inside" the container itself.
+
+#### Starting for the first time
+
+On first start, you will likely see an error stating that there are no mail accounts and the container will exit. You must now do one of two things:
+
+1. Use `setup.sh` to help you: `./setup.sh email add <user@domain> <password>`. You may need to provide the correct configuration path (to the directory mounted to `/tmp/docker-mailserver` inside the container yourself) with the `-c` option. This will spin up a new container, mount your configuration volume, and create your first account.
+2. Execute the complete command yourself: `docker run --rm -v ./docker-data/dms/config/:/tmp/docker-mailserver/ docker.io/mailserver/docker-mailserver setup email add <user@domain> <password>`. Make sure to mount the correct configuration directory.
+
+You can then proceed by creating the postmaster alias and by creating DKIM keys.
+
 ``` BASH
 docker-compose up -d mailserver
 
-# for SELinux, use -Z 
+# you may add some more users
 ./setup.sh [-Z] email add <user@domain> [<password>]
+
+# and configure aliases, DKIM and more
+# for SELinux, use -Z
 ./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
 ./setup.sh [-Z] config dkim
 ```
-
-If you're seeing error messages about unchecked errors, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read the `VERSION` section.
 
 In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
 
