@@ -134,7 +134,6 @@ docker-compose up -d mailserver
 ./setup.sh [-Z] email add <user@domain> [<password>]
 
 # and configure aliases, DKIM and more
-# for SELinux, use -Z
 ./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
 ./setup.sh [-Z] config dkim
 ```
