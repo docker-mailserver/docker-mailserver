@@ -3,7 +3,7 @@
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
-if ! IPTABLES_OUTPUT=$(iptables -L 2>&1)
+if ! IPTABLES_OUTPUT=$(iptables -L -n 2>&1)
 then
   echo "IPTables is not functioning correctly. The output of \`iptables -L\` was:
 
