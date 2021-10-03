@@ -130,6 +130,7 @@ You can then proceed by creating the postmaster alias and by creating DKIM keys.
 docker-compose up -d mailserver
 
 # you may add some more users
+# for SELinux, use -Z
 ./setup.sh [-Z] email add <user@domain> [<password>]
 
 # and configure aliases, DKIM and more
