@@ -121,7 +121,7 @@ You are able to get a full overview of how the configuration works by either run
 
 On first start, you will likely see an error stating that there are no mail accounts and the container will exit. You must now do one of two things:
 
-1. Use `setup.sh` to help you: `./setup.sh email add <user@domain> <password>`. You may need to provide the correct configuration path (to the directory mounted to `/tmp/docker-mailserver` inside the container yourself) with the `-c` option. This will spin up a new container, mount your configuration volume, and create your first account.
+1. Use `setup.sh` to help you: `./setup.sh email add <user@domain> <password>`. You may need  the `-c` option to provide the local path for persisting configuration (_a directory that mounts to `/tmp/docker-mailserver` inside the container_). This will spin up a new container, mount your configuration volume, and create your first account.
 2. Execute the complete command yourself: `docker run --rm -v ./docker-data/dms/config/:/tmp/docker-mailserver/ docker.io/mailserver/docker-mailserver setup email add <user@domain> <password>`. Make sure to mount the correct configuration directory.
 
 You can then proceed by creating the postmaster alias and by creating DKIM keys.
