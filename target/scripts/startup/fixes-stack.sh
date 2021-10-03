@@ -34,7 +34,7 @@ function _fix_var_amavis_permissions
   [[ ! -e ${AMAVIS_STATE_DIR} ]] && return 0
 
   _notify 'inf' 'Fixing Amavis permissions'
-  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}" || _notify 'err' 'Failed to fix Amavis permissions'
+  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}" || _shutdown 'Failed to fix Amavis permissions'
 }
 
 function _fix_cleanup_clamav
