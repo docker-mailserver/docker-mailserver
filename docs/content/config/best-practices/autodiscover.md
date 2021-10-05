@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-Email auto-discovery means a client email is able to automagically find out about what ports and security options to use, based on the mail server URL. It can help simplify the tedious / confusing task of adding own's email account for non-tech savvy users.
+Email auto-discovery means a client email is able to automagically find out about what ports and security options to use, based on the mail-server URI. It can help simplify the tedious / confusing task of adding own's email account for non-tech savvy users.
 
 Email clients will search for auto-discoverable settings and prefill almost everything when a user enters its email address :heart:
 

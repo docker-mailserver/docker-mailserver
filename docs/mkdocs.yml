@@ -1,6 +1,6 @@
 # Site specific:
 site_name: 'Docker Mailserver'
-site_description: 'A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
+site_description: 'A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
 site_author: 'docker-mailserver (Github Organization)'
 copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
 
@@ -142,13 +142,15 @@ nav:
         - 'Full-Text Search': config/advanced/full-text-search.md
         - 'Kubernetes': config/advanced/kubernetes.md
         - 'IPv6': config/advanced/ipv6.md
+        - 'Podman': config/advanced/podman.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
       - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+      - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
     - 'Use Cases':
-      - 'Forward-Only Mailserver with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
+      - 'Forward-Only Mail-Server with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/uses-cases/imap-folders.md
   - 'FAQ' : faq.md
   - 'Contributing':

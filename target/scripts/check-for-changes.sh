@@ -6,7 +6,7 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
+# ? --------------------------------------------- Checks
 
 cd /tmp/docker-mailserver || exit 1
 

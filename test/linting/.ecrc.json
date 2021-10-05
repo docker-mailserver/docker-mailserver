@@ -7,7 +7,6 @@
   "Exclude": [
     "^test/",
     "\\.git.*",
-    "\\.bats$",
     "\\.cf$",
     "\\.conf$",
     "\\.init$",

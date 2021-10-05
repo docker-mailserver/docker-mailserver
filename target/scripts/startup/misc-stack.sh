@@ -5,7 +5,7 @@ function start_misc
   _notify 'inf' 'Starting miscellaneous tasks'
   for FUNC in "${FUNCS_MISC[@]}"
   do
-    ${FUNC} || _defunc
+    ${FUNC}
   done
 }
 

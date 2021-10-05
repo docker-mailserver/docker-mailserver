@@ -168,27 +168,6 @@ function _setup_dovecot
 {
   _notify 'task' 'Setting up Dovecot'
 
-  # moved from docker file, copy or generate default self-signed cert
-  if [[ -f /var/mail-state/lib-dovecot/dovecot.pem ]] && [[ ${ONE_DIR} -eq 1 ]]
-  then
-    _notify 'inf' "Copying default dovecot cert"
-    cp /var/mail-state/lib-dovecot/dovecot.key /etc/dovecot/ssl/
-    cp /var/mail-state/lib-dovecot/dovecot.pem /etc/dovecot/ssl/
-  fi
-
-  if [[ ! -f /etc/dovecot/ssl/dovecot.pem ]]
-  then
-    _notify 'inf' 'Generating default Dovecot cert'
-    /usr/share/dovecot/mkcert.sh
-
-    if [[ ${ONE_DIR} -eq 1 ]]
-    then
-      mkdir -p /var/mail-state/lib-dovecot
-      cp /etc/dovecot/ssl/dovecot.key /var/mail-state/lib-dovecot/
-      cp /etc/dovecot/ssl/dovecot.pem /var/mail-state/lib-dovecot/
-    fi
-  fi
-
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
   # disable pop3 (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
@@ -314,7 +293,7 @@ function _setup_dovecot_quota
 
       if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
-        _notify 'inf' "'config/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
+        _notify 'inf' "'/tmp/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
         : >/tmp/docker-mailserver/dovecot-quotas.cf
       fi
 
@@ -337,7 +316,7 @@ function _setup_dovecot_local_user
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
 
     _notify 'inf' "Regenerating postfix user list"
-    echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." > /etc/postfix/vmailbox
+    echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
 
     # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
     # shellcheck disable=SC1003
@@ -387,15 +366,14 @@ function _setup_dovecot_local_user
       echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
   else
-    _notify 'inf' "'config/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
+    _notify 'inf' "'/tmp/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
 
   if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
   then
     if [[ ${ENABLE_LDAP} -eq 0 ]]
     then
-      _notify 'fatal' 'Unless using LDAP, you need at least 1 email account to start Dovecot.'
-      _defunc
+      _shutdown 'Unless using LDAP, you need at least 1 email account to start Dovecot.'
     fi
   fi
 }
@@ -730,7 +708,7 @@ function _setup_postfix_aliases
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
-    _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
+    _notify 'inf' "Warning '/tmp/docker-mailserver/postfix-virtual.cf' is not provided. No mail alias/forward created."
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
@@ -751,7 +729,7 @@ function _setup_postfix_aliases
   then
     cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
   else
-    _notify 'inf' "'config/postfix-aliases.cf' is not provided and will be auto created."
+    _notify 'inf' "'/tmp/docker-mailserver/postfix-aliases.cf' is not provided, it will be auto created."
     : >/tmp/docker-mailserver/postfix-aliases.cf
   fi
 
@@ -803,7 +781,12 @@ function _setup_ssl
   _notify 'task' 'Setting up SSL'
 
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
+  local POSTFIX_CONFIG_MASTER='/etc/postfix/master.cf'
   local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
+
+  local TMP_DMS_TLS_PATH='/tmp/docker-mailserver/ssl' # config volume
+  local DMS_TLS_PATH='/etc/dms/tls'
+  mkdir -p "${DMS_TLS_PATH}"
 
   # Primary certificate to serve for TLS
   function _set_certificate
@@ -812,7 +795,7 @@ function _setup_ssl
     local DOVECOT_KEY=${1}
     local DOVECOT_CERT=${1}
 
-    # If 2nd param is provided, we've been provided separate key and cert instead of a fullkeychain
+    # If a 2nd param is provided, a separate key and cert was received instead of a fullkeychain
     if [[ -n ${2} ]]
     then
       local PRIVATE_KEY=$1
@@ -825,12 +808,14 @@ function _setup_ssl
 
     # Postfix configuration
     # NOTE: `smtpd_tls_chain_files` expects private key defined before public cert chain
-    # May be a single PEM file or a sequence of files, so long as the order is key->leaf->chain
-    sed -i "s|^smtpd_tls_chain_files =.*|smtpd_tls_chain_files = ${POSTFIX_KEY_WITH_FULLCHAIN}|" "${POSTFIX_CONFIG_MAIN}"
+    # Value can be a single PEM file, or a sequence of files; so long as the order is key->leaf->chain
+    sedfile -i -r "s|^(smtpd_tls_chain_files =).*|\1 ${POSTFIX_KEY_WITH_FULLCHAIN}|" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration
-    sed -i "s|^ssl_key = <.*|ssl_key = <${DOVECOT_KEY}|" "${DOVECOT_CONFIG_SSL}"
-    sed -i "s|^ssl_cert = <.*|ssl_cert = <${DOVECOT_CERT}|" "${DOVECOT_CONFIG_SSL}"
+    sedfile -i -r \
+      -e "s|^(ssl_key =).*|\1 <${DOVECOT_KEY}|" \
+      -e "s|^(ssl_cert =).*|\1 <${DOVECOT_CERT}|" \
+      "${DOVECOT_CONFIG_SSL}"
   }
 
   # Enables supporting two certificate types such as ECDSA with an RSA fallback
@@ -838,26 +823,28 @@ function _setup_ssl
   {
     local COPY_KEY_FROM_PATH=$1
     local COPY_CERT_FROM_PATH=$2
-    local PRIVATE_KEY_ALT='/etc/postfix/ssl/fallback_key'
-    local CERT_CHAIN_ALT='/etc/postfix/ssl/fallback_cert'
+    local PRIVATE_KEY_ALT="${DMS_TLS_PATH}/fallback_key"
+    local CERT_CHAIN_ALT="${DMS_TLS_PATH}/fallback_cert"
 
     cp "${COPY_KEY_FROM_PATH}" "${PRIVATE_KEY_ALT}"
     cp "${COPY_CERT_FROM_PATH}" "${CERT_CHAIN_ALT}"
     chmod 600 "${PRIVATE_KEY_ALT}"
-    chmod 600 "${CERT_CHAIN_ALT}"
+    chmod 644 "${CERT_CHAIN_ALT}"
 
     # Postfix configuration
     # NOTE: This operation doesn't replace the line, it appends to the end of the line.
     # Thus this method should only be used when this line has explicitly been replaced earlier in the script.
     # Otherwise without `docker-compose down` first, a `docker-compose up` may
     # persist previous container state and cause a failure in postfix configuration.
-    sed -i "s|^smtpd_tls_chain_files =.*|& ${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}|" "${POSTFIX_CONFIG_MAIN}"
+    sedfile -i "s|^smtpd_tls_chain_files =.*|& ${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}|" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration
     # Conditionally checks for `#`, in the event that internal container state is accidentally persisted,
     # can be caused by: `docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`
-    sed -i "s|^#\?ssl_alt_key = <.*|ssl_alt_key = <${PRIVATE_KEY_ALT}|" "${DOVECOT_CONFIG_SSL}"
-    sed -i "s|^#\?ssl_alt_cert = <.*|ssl_alt_cert = <${CERT_CHAIN_ALT}|" "${DOVECOT_CONFIG_SSL}"
+    sedfile -i -r \
+      -e "s|^#?(ssl_alt_key =).*|\1 <${PRIVATE_KEY_ALT}|" \
+      -e "s|^#?(ssl_alt_cert =).*|\1 <${CERT_CHAIN_ALT}|" \
+      "${DOVECOT_CONFIG_SSL}"
   }
 
   function _apply_tls_level
@@ -867,19 +854,22 @@ function _setup_ssl
     local TLS_PROTOCOL_MINIMUM=$3
 
     # Postfix configuration
-    sed -i "s|^smtpd_tls_mandatory_protocols =.*|smtpd_tls_mandatory_protocols = ${TLS_PROTOCOL_IGNORE}|" "${POSTFIX_CONFIG_MAIN}"
-    sed -i "s|^smtpd_tls_protocols =.*|smtpd_tls_protocols = ${TLS_PROTOCOL_IGNORE}|" "${POSTFIX_CONFIG_MAIN}"
-    sed -i "s|^smtp_tls_protocols =.*|smtp_tls_protocols = ${TLS_PROTOCOL_IGNORE}|" "${POSTFIX_CONFIG_MAIN}"
-    sed -i "s|^tls_high_cipherlist =.*|tls_high_cipherlist = ${TLS_CIPHERS_ALLOW}|" "${POSTFIX_CONFIG_MAIN}"
+    sed -i -r \
+      -e "s|^(smtpd?_tls_mandatory_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
+      -e "s|^(smtpd?_tls_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
+      -e "s|^(tls_high_cipherlist =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
+      "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration (secure by default though)
-    sed -i "s|^ssl_min_protocol =.*|ssl_min_protocol = ${TLS_PROTOCOL_MINIMUM}|" "${DOVECOT_CONFIG_SSL}"
-    sed -i "s|^ssl_cipher_list =.*|ssl_cipher_list = ${TLS_CIPHERS_ALLOW}|" "${DOVECOT_CONFIG_SSL}"
+    sed -i -r \
+      -e "s|^(ssl_min_protocol =).*|\1 ${TLS_PROTOCOL_MINIMUM}|" \
+      -e "s|^(ssl_cipher_list =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
+      "${DOVECOT_CONFIG_SSL}"
   }
 
   # TLS strength/level configuration
   case "${TLS_LEVEL}" in
-    "modern" )
+    ( "modern" )
       local TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384'
       local TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
       local TLS_MODERN_MIN='TLSv1.2'
@@ -889,36 +879,42 @@ function _setup_ssl
       _notify 'inf' "TLS configured with 'modern' ciphers"
       ;;
 
-    "intermediate" )
+    ( "intermediate" )
       local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA'
       local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3'
       local TLS_INTERMEDIATE_MIN='TLSv1'
 
       _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
 
-      # Lowers the minimum acceptable TLS version connection to `TLS 1.0` (from Debian upstream `TLS 1.2`)
-      # Lowers Security Level to `1` (from Debian upstream `2`)
+      # Lowers the minimum acceptable TLS version connection to `TLSv1` (from Debian upstream `TLSv1.2`)
+      # Lowers Security Level to `1` (from Debian upstream `2`, openssl release defaults to `1`)
+      # https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html
       # https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1
       # https://dovecot.org/pipermail/dovecot/2020-October/120225.html
-      # TODO: This is a fix for Debian Bullseye Dovecot. Deprecate TLS <1.2 to resolve properly.
-      sedfile -i 's|^MinProtocol = .*|MinProtocol = TLSv1|' /usr/lib/ssl/openssl.cnf
-      sedfile -i 's|^CipherString = .*|CipherString = DEFAULT@SECLEVEL=1|' /usr/lib/ssl/openssl.cnf
+      # TODO: This is a fix for Debian Bullseye Dovecot. Can remove when we only support TLS >=1.2.
+      # WARNING: This applies to all processes that use openssl and respect these settings.
+      sedfile -i -r \
+        -e 's|^(MinProtocol).*|\1 = TLSv1|' \
+        -e 's|^(CipherString).*|\1 = DEFAULT@SECLEVEL=1|' \
+        /usr/lib/ssl/openssl.cnf
 
       _notify 'inf' "TLS configured with 'intermediate' ciphers"
       ;;
 
-    * )
+    ( * )
       _notify 'err' "TLS_LEVEL not found [ in ${FUNCNAME[0]} ]"
       ;;
 
   esac
 
+  local SCOPE_SSL_TYPE="TLS Setup [SSL_TYPE=${SSL_TYPE}]"
   # SSL certificate Configuration
   # TODO: Refactor this feature, it's been extended multiple times for specific inputs/providers unnecessarily.
-  # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming, chmod inconsistent.
+  # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming.
   case "${SSL_TYPE}" in
-    "letsencrypt" )
+    ( "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
+
       # letsencrypt folders and files mounted in /etc/letsencrypt
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
@@ -982,104 +978,179 @@ function _setup_ssl
       fi
       return 0
       ;;
-    "custom" )
-      # Adding CA signed SSL certificate if provided in 'postfix/ssl' folder
-      if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem ]]
+
+    ( "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.
+      _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
+
+      # NOTE: Dovecot works fine still as both values are bundled into the keychain
+      local COMBINED_PEM_NAME="${HOSTNAME}-full.pem"
+      local TMP_KEY_WITH_FULLCHAIN="${TMP_DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
+      local KEY_WITH_FULLCHAIN="${DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
+
+      if [[ -f ${TMP_KEY_WITH_FULLCHAIN} ]]
       then
-        _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
-
-        mkdir -p /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-full.pem" /etc/postfix/ssl
-
-        # Private key with full certificate chain all in a single PEM file
-        # NOTE: Dovecot works fine still as both values are bundled into the keychain
-        local KEY_WITH_FULLCHAIN='/etc/postfix/ssl/'"${HOSTNAME}"'-full.pem'
+        cp "${TMP_KEY_WITH_FULLCHAIN}" "${KEY_WITH_FULLCHAIN}"
+        chmod 600 "${KEY_WITH_FULLCHAIN}"
 
         _set_certificate "${KEY_WITH_FULLCHAIN}"
 
         _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
+      else
+        dms_panic__no_file "${TMP_KEY_WITH_FULLCHAIN}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
-    "manual" )
-      # Lets you manually specify the location of the SSL Certs to use. This gives you some more control over this whole processes (like using kube-lego to generate certs)
-      if [[ -n ${SSL_CERT_PATH} ]] && [[ -n ${SSL_KEY_PATH} ]]
+
+    ( "manual" ) # (dynamic path via ENV) Use separate private key and cert/chain files (should be PEM encoded)
+      _notify 'inf' "Configuring certificates using key ${SSL_KEY_PATH} and cert ${SSL_CERT_PATH}"
+
+      # Source files are copied internally to these destinations:
+      local PRIVATE_KEY="${DMS_TLS_PATH}/key"
+      local CERT_CHAIN="${DMS_TLS_PATH}/cert"
+
+      # Fail early:
+      if [[ -z ${SSL_KEY_PATH} ]] && [[ -z ${SSL_CERT_PATH} ]]
       then
-        _notify 'inf' "Configuring certificates using cert ${SSL_CERT_PATH} and key ${SSL_KEY_PATH}"
+        dms_panic__no_env 'SSL_KEY_PATH or SSL_CERT_PATH' "${SCOPE_SSL_TYPE}"
+      fi
 
-        mkdir -p /etc/postfix/ssl
-        cp "${SSL_KEY_PATH}" /etc/postfix/ssl/key
-        cp "${SSL_CERT_PATH}" /etc/postfix/ssl/cert
-        chmod 600 /etc/postfix/ssl/key
-        chmod 600 /etc/postfix/ssl/cert
+      if [[ -n ${SSL_ALT_KEY_PATH} ]] \
+      && [[ -n ${SSL_ALT_CERT_PATH} ]] \
+      && [[ ! -f ${SSL_ALT_KEY_PATH} ]] \
+      && [[ ! -f ${SSL_ALT_CERT_PATH} ]]
+      then
+        dms_panic__no_file "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}" "${SCOPE_SSL_TYPE}"
+      fi
 
-        local PRIVATE_KEY='/etc/postfix/ssl/key'
-        local CERT_CHAIN='/etc/postfix/ssl/cert'
+      if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]
+      then
+        cp "${SSL_KEY_PATH}" "${PRIVATE_KEY}"
+        cp "${SSL_CERT_PATH}" "${CERT_CHAIN}"
+        chmod 600 "${PRIVATE_KEY}"
+        chmod 644 "${CERT_CHAIN}"
 
         _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
         if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]
         then
-          _notify 'inf' "Configuring alternative certificates using cert ${SSL_ALT_CERT_PATH} and key ${SSL_ALT_KEY_PATH}"
+          _notify 'inf' "Configuring fallback certificates using key ${SSL_ALT_KEY_PATH} and cert ${SSL_ALT_CERT_PATH}"
 
           _set_alt_certificate "${SSL_ALT_KEY_PATH}" "${SSL_ALT_CERT_PATH}"
         else
           # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
           # but required ENV var is missing, reset to disabled state:
-          sed -i 's|^ssl_alt_key = <.*|#ssl_alt_key = </path/to/alternative/key.pem|' "${DOVECOT_CONFIG_SSL}"
-          sed -i 's|^ssl_alt_cert = <.*|#ssl_alt_cert = </path/to/alternative/cert.pem|' "${DOVECOT_CONFIG_SSL}"
+          sed -i -r \
+            -e 's|^(ssl_alt_key =).*|#\1 </path/to/alternative/key.pem|' \
+            -e 's|^(ssl_alt_cert =).*|#\1 </path/to/alternative/cert.pem|' \
+            "${DOVECOT_CONFIG_SSL}"
         fi
 
         _notify 'inf' "SSL configured with 'Manual' certificates"
+      else
+        dms_panic__no_file "${SSL_KEY_PATH} or ${SSL_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
-    "self-signed" )
-      # Adding self-signed SSL certificate if provided in 'postfix/ssl' folder
-      if [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem ]] \
-      && [[ -e /tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem ]] \
-      && [[ -e /tmp/docker-mailserver/ssl/demoCA/cacert.pem ]]
+
+    ( "self-signed" ) # (hard-coded path) Use separate private key and cert/chain files (should be PEM encoded), expects self-signed CA
+      _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
+
+      local KEY_NAME="${HOSTNAME}-key.pem"
+      local CERT_NAME="${HOSTNAME}-cert.pem"
+
+      # Self-Signed source files:
+      local SS_KEY="${TMP_DMS_TLS_PATH}/${KEY_NAME}"
+      local SS_CERT="${TMP_DMS_TLS_PATH}/${CERT_NAME}"
+      local SS_CA_CERT="${TMP_DMS_TLS_PATH}/demoCA/cacert.pem"
+
+      # Source files are copied internally to these destinations:
+      local PRIVATE_KEY="${DMS_TLS_PATH}/${KEY_NAME}"
+      local CERT_CHAIN="${DMS_TLS_PATH}/${CERT_NAME}"
+      local CA_CERT="${DMS_TLS_PATH}/cacert.pem"
+
+      if [[ -f ${SS_KEY} ]] \
+      && [[ -f ${SS_CERT} ]] \
+      && [[ -f ${SS_CA_CERT} ]]
       then
-        _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
-
-        mkdir -p /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-key.pem" /etc/postfix/ssl
-        cp "/tmp/docker-mailserver/ssl/${HOSTNAME}-cert.pem" /etc/postfix/ssl
-        chmod 600 "/etc/postfix/ssl/${HOSTNAME}-key.pem"
-
-        local PRIVATE_KEY="/etc/postfix/ssl/${HOSTNAME}-key.pem"
-        local CERT_CHAIN="/etc/postfix/ssl/${HOSTNAME}-cert.pem"
+        cp "${SS_KEY}" "${PRIVATE_KEY}"
+        cp "${SS_CERT}" "${CERT_CHAIN}"
+        chmod 600 "${PRIVATE_KEY}"
+        chmod 644 "${CERT_CHAIN}"
 
         _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
-        cp /tmp/docker-mailserver/ssl/demoCA/cacert.pem /etc/postfix/ssl
+        cp "${SS_CA_CERT}" "${CA_CERT}"
+        chmod 644 "${CA_CERT}"
+
         # Have Postfix trust the self-signed CA (which is not installed within the OS trust store)
-        sed -i -r 's|^#?smtpd_tls_CAfile =.*|smtpd_tls_CAfile = /etc/postfix/ssl/cacert.pem|' "${POSTFIX_CONFIG_MAIN}"
-        sed -i -r 's|^#?smtp_tls_CAfile =.*|smtp_tls_CAfile = /etc/postfix/ssl/cacert.pem|' "${POSTFIX_CONFIG_MAIN}"
+        sedfile -i -r "s|^#?(smtpd?_tls_CAfile =).*|\1 ${CA_CERT}|" "${POSTFIX_CONFIG_MAIN}"
         # Part of the original `self-signed` support, unclear why this symlink was required?
         # May have been to support the now removed `Courier` (Dovecot replaced it):
         # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
+        # smtp_tls_CApath and smtpd_tls_CApath both point to /etc/ssl/certs
         local PRIVATE_CA="/etc/ssl/certs/cacert-${HOSTNAME}.pem"
-        ln -s /etc/postfix/ssl/cacert.pem "${PRIVATE_CA}"
+        ln -s "${CA_CERT}" "${PRIVATE_CA}"
 
         _notify 'inf' "SSL configured with 'self-signed' certificates"
+      else
+        dms_panic__no_file "${SS_KEY} or ${SS_CERT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
-    '' )
-      # no SSL certificate, plain text access
-      # TODO: Postfix configuration still responds to TLS negotiations using snakeoil cert from default config
-      # TODO: Dovecot `ssl = yes` also allows TLS, both cases this is insecure and should probably instead enforce no TLS?
 
-      # Dovecot configuration
-      # WARNING: This may not be corrected(reset?) if `SSL_TYPE` is changed and internal config state persisted
-      sed -i -e 's|^#disable_plaintext_auth = yes|disable_plaintext_auth = no|g' /etc/dovecot/conf.d/10-auth.conf
-      sed -i -e 's|^ssl = required|ssl = yes|g' "${DOVECOT_CONFIG_SSL}"
-
+    ( '' ) # No SSL/TLS certificate used/required, plaintext auth permitted over insecure connections
       _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
+      # Untested. Not officially supported.
+
+      # Postfix configuration:
+      # smtp_tls_security_level (default: 'may', amavis 'none' x2) | http://www.postfix.org/postconf.5.html#smtp_tls_security_level
+      # '_setup_postfix_relay_hosts' also adds 'smtp_tls_security_level = encrypt'
+      # smtpd_tls_security_level (default: 'may', port 587 'encrypt') | http://www.postfix.org/postconf.5.html#smtpd_tls_security_level
+      #
+      # smtpd_tls_auth_only (default not applied, 'no', implicitly 'yes' if security_level is 'encrypt')
+      # | http://www.postfix.org/postconf.5.html#smtpd_tls_auth_only | http://www.postfix.org/TLS_README.html#server_tls_auth
+      #
+      # smtp_tls_wrappermode (default: not applied, 'no') | http://www.postfix.org/postconf.5.html#smtp_tls_wrappermode
+      # smtpd_tls_wrappermode (default: 'yes' for service port 'smtps') | http://www.postfix.org/postconf.5.html#smtpd_tls_wrappermode
+      # NOTE: Enabling wrappermode requires a security_level of 'encrypt' or stronger. Port 465 presently does not meet this condition.
+      #
+      # Postfix main.cf (base config):
+      sedfile -i -r \
+        -e "s|^#?(smtpd?_tls_security_level).*|\1 = none|" \
+        -e "s|^#?(smtpd_tls_auth_only).*|\1 = no|" \
+        "${POSTFIX_CONFIG_MAIN}"
+      #
+      # Postfix master.cf (per connection overrides):
+      # Disables implicit TLS on port 465 for inbound (smtpd) and outbound (smtp) traffic. Treats it as equivalent to port 25 SMTP with explicit STARTTLS.
+      # Inbound 465 (aka service port aliases: submissions / smtps) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
+      # Outbound 465 as alternative to port 587 when sending to another MTA (with authentication), such as a relay service (eg SendGrid).
+      sedfile -i -r \
+        -e "/smtpd?_tls_security_level/s|=.*|=none|" \
+        -e '/smtpd?_tls_wrappermode/s|yes|no|' \
+        -e '/smtpd_tls_auth_only/s|yes|no|' \
+        "${POSTFIX_CONFIG_MASTER}"
+
+      # Dovecot configuration:
+      # https://doc.dovecot.org/configuration_manual/dovecot_ssl_configuration/
+      # > The plaintext authentication is always allowed (and SSL not required) for connections from localhost, as they’re assumed to be secure anyway.
+      # > This applies to all connections where the local and the remote IP addresses are equal.
+      # > Also IP ranges specified by login_trusted_networks setting are assumed to be secure.
+      #
+      # no => insecure auth allowed, yes (default) => plaintext auth only allowed over a secure connection (insecure connection acceptable for non-plaintext auth)
+      local DISABLE_PLAINTEXT_AUTH='no'
+      # no => disabled, yes => optional (secure connections not required), required (default) => mandatory (only secure connections allowed)
+      local DOVECOT_SSL_ENABLED='no'
+      sed -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
+      sed -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
       ;;
-    * )
-      # Unknown option, default behavior, no action is required
-      _notify 'warn' "(INSECURE!) ENV var 'SSL_TYPE' is invalid. DO NOT USE FOR PRODUCTION DEPLOYMENT."
+
+    ( 'snakeoil' ) # This is a temporary workaround for testing only, using the insecure snakeoil cert.
+      # mail_privacy.bats and mail_with_ldap.bats both attempt to make a starttls connection with openssl,
+      # failing if SSL/TLS is not available.
       ;;
+
+    ( * ) # Unknown option, panic.
+      dms_panic__invalid_value 'SSL_TYPE' "${SCOPE_TLS_LEVEL}"
+      ;;
+
   esac
 }
 
@@ -1118,8 +1189,8 @@ function _setup_docker_permit
 
   if [[ -z ${CONTAINER_IP} ]]
   then
-    _notify 'err' "Detecting the container IP address failed. Check if NETWORK_INTERFACE is correctly configured."
-    _shutdown
+    _notify 'err' 'Detecting the container IP address failed.'
+    dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]'
   fi
 
   while read -r IP
@@ -1163,14 +1234,14 @@ function _setup_docker_permit
   esac
 }
 
+# Requires ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
 function _setup_postfix_virtual_transport
 {
   _notify 'task' 'Setting up Postfix virtual transport'
 
   if [[ -z ${POSTFIX_DAGENT} ]]
   then
-    _notify 'err' "${POSTFIX_DAGENT} not set."
-    _shutdown
+    dms_panic__no_env 'POSTFIX_DAGENT' 'Postfix Setup [virtual_transport]'
     return 1
   fi
 
@@ -1192,7 +1263,7 @@ function _setup_postfix_override_configuration
         postconf -e "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-main.cf
-    _notify 'inf' "Loaded 'config/postfix-main.cf'"
+    _notify 'inf' "Loaded '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided."
   fi
@@ -1206,7 +1277,7 @@ function _setup_postfix_override_configuration
         postconf -P "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-master.cf
-    _notify 'inf' "Loaded 'config/postfix-master.cf'"
+    _notify 'inf' "Loaded '/tmp/docker-mailserver/postfix-master.cf'"
   else
     _notify 'inf' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided."
   fi
@@ -1299,7 +1370,6 @@ function _setup_postfix_relay_hosts
     "smtp_sasl_auth_enable = yes" \
     "smtp_sasl_security_options = noanonymous" \
     "smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
-    "smtp_use_tls = yes" \
     "smtp_tls_security_level = encrypt" \
     "smtp_tls_note_starttls_offer = yes" \
     "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
@@ -1398,11 +1468,13 @@ function _setup_security_stack
 
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]
     then
-      _notify 'inf' 'Configure Spamassassin/Amavis to put SPAM inbox'
+      _notify 'inf' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
     else
+      _notify 'inf' 'Configuring Spamassassin/Amavis to bounce SPAM'
+
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
 
