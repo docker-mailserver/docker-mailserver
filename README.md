@@ -9,7 +9,7 @@
 [documentation::badge]: https://img.shields.io/badge/DOCUMENTATION-GH%20PAGES-0078D4?style=for-the-badge&logo=git&logoColor=white
 [documentation::web]: https://docker-mailserver.github.io/docker-mailserver/edge/
 
-A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created](https://tvi.al/simple-mail-server-with-docker/).
+A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created](https://tvi.al/simple-mail-server-with-docker/).
 
 If you have issues, read the full `README` **and** the [documentation][documentation::web] **for your version** (default is `edge`) first **before opening an issue**. The issue tracker is for issues, not for personal support.
 
@@ -36,7 +36,7 @@ If you have issues, read the full `README` **and** the [documentation][documenta
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
 - [LetsEncrypt](https://letsencrypt.org/) and self-signed certificates
-- [Setup script](https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh) to easily configure and maintain your mailserver
+- [Setup script](https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh) to easily configure and maintain your mail-server
 - Basic [Sieve support](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve) using dovecot
 - SASLauthd with LDAP auth
 - Persistent data and state
@@ -78,7 +78,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
 Since Docker Mailserver `v10.2.0`, `setup.sh` functionality is included within the Docker image. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead.
 
-**Note:** If you're using Docker or Docker Compose and are new to Docker Mailserver, it is recommended to use the script `setup.sh` for convenience.
+**Note:** If you're using Docker or Docker Compose and are new to `docker-mailserver`, it is recommended to use the script `setup.sh` for convenience.
 
 ``` BASH
 DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
@@ -90,34 +90,53 @@ chmod a+x ./setup.sh
 ./setup.sh help
 ```
 
-If no `docker-mailserver` container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current stable release), performing a `pull` if necessary followed by running the command in a temporary container. 
+If no `docker-mailserver` container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current stable release), performing a `pull` if necessary followed by running the command in a temporary container.
 
-#### `setup.sh` for Docker Mailserver version `v10.1.x` and below
+#### `setup.sh` for `docker-mailserver` version `v10.1.x` and below
 
-If you're using Docker Mailserver version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the mail server version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
+If you're using `docker-mailserver` version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the `docker-mailserver` release version you're using: `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
 ### Create a docker-compose environment
 
 1. [Install the latest docker-compose](https://docs.docker.com/compose/install/)
 2. Edit `docker-compose.yml` to your liking
-   - substitute `<HOSTNAME>` and `<DOMAINNAME>` according to your domain
-   - if you want to use SELinux for the `./config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
-3. Configure the mailserver container to your liking by editing `mailserver.env` ([**Documentation**](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/))
-   - this file supports [_only_ simple `VAR=VAL`](https://docs.docker.com/compose/env-file/) (**don't** quote your values)
+   - substitute `mail` (hostname) and `example.com` (domainname) according to your FQDN
+   - if you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
+3. Configure the mailserver container to your liking by editing `mailserver.env` ([**Documentation**](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)), but keep in mind this `.env` file:
+   - [_only_ basic `VAR=VAL`](https://docs.docker.com/compose/env-file/) is supported (**do not** quote your values!)
    - variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
 
 ### Get up and running
 
+#### First Things First
+
+**Use `docker-compose up / down`, not `docker-compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state.
+
+You are able to get a full overview of how the configuration works by either running:
+
+1. `./setup.sh help` which includes the options of `setup.sh`.
+2. `docker run --rm docker.io/mailserver/docker-mailserver:latest setup help` which provides you with all the information on configuration provided "inside" the container itself.
+
+#### Starting for the first time
+
+On first start, you will likely see an error stating that there are no mail accounts and the container will exit. You must now do one of two things:
+
+1. Use `setup.sh` to help you: `./setup.sh email add <user@domain> <password>`. You may need  the `-c` option to provide the local path for persisting configuration (_a directory that mounts to `/tmp/docker-mailserver` inside the container_). This will spin up a new container, mount your configuration volume, and create your first account.
+2. Execute the complete command yourself: `docker run --rm -v "${PWD}/docker-data/dms/config/:/tmp/docker-mailserver/" docker.io/mailserver/docker-mailserver setup email add <user@domain> <password>`. Make sure to mount the correct configuration directory.
+
+You can then proceed by creating the postmaster alias and by creating DKIM keys.
+
 ``` BASH
 docker-compose up -d mailserver
 
-# for SELinux, use -Z 
+# you may add some more users
+# for SELinux, use -Z
 ./setup.sh [-Z] email add <user@domain> [<password>]
+
+# and configure aliases, DKIM and more
 ./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
 ./setup.sh [-Z] config dkim
 ```
-
-If you're seeing error messages about unchecked errors, please **verify that you're using the right version of `setup.sh`**. Refer to the [Get the tools](#get-the-tools) section and / or execute `./setup.sh help` and read the `VERSION` section.
 
 In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
 
@@ -137,9 +156,9 @@ When keys are generated, you can configure your DNS server by just pasting the c
 
 If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/) for a detailed explanation.
 
-#### Update `docker-mailserver`
+#### Updating `docker-mailserver`
 
-Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md) before, to be prepared for possible breaking changes.
+Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md) before updating to new versions, to be prepared for possible breaking changes.
 
 ``` BASH
 docker-compose pull
@@ -153,7 +172,7 @@ You're done! And don't forget to have a look at the remaining functions of the `
 
 #### Supported Operating Systems
 
-We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mailserver in production.
+We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mail-server in production.
 
 #### Bare Domains
 
@@ -195,20 +214,20 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
+    container_name: mailserver
     hostname: mail
     domainname: example.com
-    container_name: mailserver
     ports:
       - "25:25"
       - "143:143"
       - "587:587"
       - "993:993"
     volumes:
-      - ./data/maildata:/var/mail
-      - ./data/mailstate:/var/mail-state
-      - ./data/maillogs:/var/log/mail
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
-      - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
       - SPAMASSASSIN_SPAM_TO_INBOX=1
@@ -232,20 +251,20 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
+    container_name: mailserver
     hostname: mail
     domainname: example.com
-    container_name: mailserver
     ports:
       - "25:25"
       - "143:143"
       - "587:587"
       - "993:993"
     volumes:
-      - ./data/maildata:/var/mail
-      - ./data/mailstate:/var/mail-state
-      - ./data/maillogs:/var/log/mail
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
-      - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
       - SPAMASSASSIN_SPAM_TO_INBOX=1

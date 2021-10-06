@@ -2,7 +2,7 @@
 title: 'Override the Default Configs | Postfix'
 ---
 
-The Postfix default configuration can easily be extended by providing a `config/postfix-main.cf` in postfix format.
+The Postfix default configuration can easily be extended by providing a `docker-data/dms/config/postfix-main.cf` in postfix format.
 This can also be used to add configuration that is not in our default configuration.
 
 For example, one common use of this file is for increasing the default maximum message size:
@@ -20,7 +20,7 @@ That specific example is now supported and can be handled by setting `POSTFIX_ME
 
 Each line in the provided file will be loaded into postfix.
 
-In the same way it is possible to add a custom `config/postfix-master.cf` file that will override the standard `master.cf`. Each line in the file will be passed to `postconf -P`. The expected format is `<service_name>/<type>/<parameter>`, for example:
+In the same way it is possible to add a custom `docker-data/dms/config/postfix-master.cf` file that will override the standard `master.cf`. Each line in the file will be passed to `postconf -P`. The expected format is `<service_name>/<type>/<parameter>`, for example:
 
 ```cf
 submission/inet/smtpd_reject_unlisted_recipient=no
