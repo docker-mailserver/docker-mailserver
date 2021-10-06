@@ -1,4 +1,4 @@
-FROM docker.io/debian:bullseye-20210721-slim
+FROM docker.io/debian:bullseye-20210927-slim
 
 ARG VCS_VER
 ARG VCS_REF
