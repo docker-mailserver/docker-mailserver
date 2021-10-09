@@ -6,9 +6,7 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
-SCRIPT_NAME="$(basename "$0")"
-
-# ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
+# ? --------------------------------------------- Checks
 
 cd /tmp/docker-mailserver || exit 1
 
@@ -39,14 +37,9 @@ sleep 10
 CMP_RESULT=
 LAST_CMP_RESULT=
 
-remove_lock "${SCRIPT_NAME}" # clears any locks that might have been orphaned, on first boot
-
 while true
 do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-
-  # Lock configuration while working
-  create_lock "${SCRIPT_NAME}"
   sleep 2
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
@@ -58,6 +51,7 @@ do
     if [[ "${CMP_RESULT}" == "${LAST_CMP_RESULT}" ]]
     then
       _notify 'inf' "${LOG_DATE} Changes to checksum files settled"
+      create_lock # Shared config safety lock
       CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
       WAIT_FOR_PIDS=()
       # Bug alert! This overwrites the alias set by start-mailserver.sh
@@ -257,19 +251,20 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       LAST_CMP_RESULT=
       CMP_RESULT=
 
-      # mark changes as applied
-      mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+      remove_lock "${SCRIPT_NAME}"
 
     else # The files differ...
       _notify 'inf' "${LOG_DATE} Changes to checksum files detected... Ensuring changes have settled before proceeding..."
       LAST_CMP_RESULT="${CMP_RESULT}"
       sleep 3 # The longer the sleep here, the more time there is for users to make changes before a full restart
     fi
+
   else # Checksum files don't differ
     LAST_CMP_RESULT=
   fi
 
-  remove_lock "${SCRIPT_NAME}"
+  # mark changes as applied
+  mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
 done
 

@@ -5,7 +5,7 @@ function fix
   _notify 'tasklog' 'Post-configuration checks'
   for FUNC in "${FUNCS_FIX[@]}"
   do
-    ${FUNC} || _defunc
+    ${FUNC}
   done
 
   _notify 'inf' 'Removing leftover PID files from a stop/start'
@@ -21,12 +21,10 @@ function _fix_var_mail_permissions
   if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
   then
     _notify 'inf' 'Fixing /var/mail permissions'
-    chown -R 5000:5000 /var/mail
+    chown -R 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
   else
     _notify 'inf' 'Permissions in /var/mail look OK'
   fi
-
-  return 0
 }
 
 function _fix_var_amavis_permissions
@@ -35,21 +33,18 @@ function _fix_var_amavis_permissions
   [[ ${ONE_DIR} -eq 0 ]] && AMAVIS_STATE_DIR="/var/lib/amavis"
   [[ ! -e ${AMAVIS_STATE_DIR} ]] && return 0
 
-  _notify 'inf' 'Checking and fixing Amavis permissions'
-  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}"
-
-  return 0
+  _notify 'inf' 'Fixing Amavis permissions'
+  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}" || _shutdown 'Failed to fix Amavis permissions'
 }
 
 function _fix_cleanup_clamav
 {
-  _notify 'task' 'Cleaning up disabled Clamav'
-  rm -f /etc/logrotate.d/clamav-*
-  rm -f /etc/cron.d/clamav-freshclam
+  _notify 'task' 'Cleaning up disabled ClamAV'
+  rm /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam || _notify 'err' 'Failed to remove ClamAV configuration'
 }
 
 function _fix_cleanup_spamassassin
 {
   _notify 'task' 'Cleaning up disabled SpamAssassin'
-  rm -f /etc/cron.daily/spamassassin
+  rm /etc/cron.daily/spamassassin || _notify 'err' 'Failed to remove SpamAssassin configuration'
 }

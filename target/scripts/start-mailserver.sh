@@ -217,12 +217,6 @@ function _register_misc_function
   _notify 'inf' "${1}() registered"
 }
 
-function _defunc
-{
-  _notify 'fatal' 'Please fix your configuration. Exiting...'
-  exit 1
-}
-
 # ------------------------------------------------------------
 # ? << Registering functions
 # --
@@ -256,12 +250,11 @@ function _defunc
 # ------------------------------------------------------------
 
 _notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
-_notify 'inf' 'ENVIRONMENT'
-[[ ${DMS_DEBUG} -eq 1 ]] && printenv
 
 register_functions
 check
 setup
+[[ ${DMS_DEBUG} -eq 1 ]] && print-environment
 fix
 start_misc
 start_daemons

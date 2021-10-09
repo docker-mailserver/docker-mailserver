@@ -10,8 +10,13 @@ title: Environment Variables
 
 ##### OVERRIDE_HOSTNAME
 
+<<<<<<< HEAD
 - empty => uses the `hostname` command to get the mail server's canonical hostname.
 - => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable. It will take priority over your docker-compose.yml's `hostname:` and `domainname:` values.
+=======
+- **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
+- => Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will take priority over `docker run` options: `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents: `hostname:` and `domainname:`.
+>>>>>>> master
 
 ##### DMS_DEBUG
 
@@ -30,11 +35,10 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 The log-level will show everything in its class and above.
 
-
 ##### ONE_DIR
 
-- **0** => state in default directories.
-- 1 => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes.
+- 0 => state in default directories.
+- **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
 
 ##### PERMIT_DOCKER
 
@@ -100,15 +104,19 @@ FAIL2BAN_BLOCKTYPE=drop
 
 ##### SSL_TYPE
 
-- **empty** => SSL disabled.
-- letsencrypt => Enables Let's Encrypt certificates.
-- custom => Enables custom certificates.
-- manual => Let you manually specify locations of your SSL certificates for non-standard cases
-  - Requires: `SSL_CERT_PATH` and `SSL_KEY_PATH` ENV vars to be set to the location of the files within the container.
-  - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. Presently only `manual` mode supports this feature.
-- self-signed => Enables self-signed certificates.
+In the majority of cases, you want `letsencrypt` or `manual`.
 
-Please read [the SSL page in the documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/ssl) for more information.
+`self-signed` can be used for testing SSL until you provide a valid certificate, note that third-parties cannot trust `self-signed` certificates, do not use this type in production. `custom` is a temporary workaround that is not officially supported.
+
+- **empty** => SSL disabled.
+- letsencrypt => Support for using certificates with _Let's Encrypt_ provisioners. (Docs: [_Let's Encrypt_ Setup][docs-tls-letsencrypt])
+- manual => Provide your own certificate via separate key and cert files. (Docs: [Bring Your Own Certificates][docs-tls-manual])
+    - Requires: `SSL_CERT_PATH` and `SSL_KEY_PATH` ENV vars to be set to the location of the files within the container.
+    - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. _Presently only `manual` mode supports this feature_.
+- custom => Provide your own certificate as a single file containing both the private key and full certificate chain. (Docs: `None`)
+- self-signed => Provide your own self-signed certificate files. Expects a self-signed CA cert for verification. **Use only for local testing of your setup**. (Docs: [Self-Signed Certificates][docs-tls-selfsigned])
+
+Please read [the SSL page in the documentation][docs-tls] for more information.
 
 ##### TLS_LEVEL
 
@@ -125,7 +133,7 @@ Configures the handling of creating mails with forged sender addresses.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if your mail server acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if `docker-mailserver` acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -170,7 +178,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
 
-See [mailbox quota](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts/#notes).
+See [mailbox quota][docs-accounts].
 
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
 
@@ -183,14 +191,9 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 - **empty** => Managesieve service disabled
 - 1 => Enables Managesieve on port 4190
 
-##### OVERRIDE_HOSTNAME
-
-- **empty** => uses the `hostname` command to get the mail server's canonical hostname
-- => Specify a fully-qualified domainname to serve mail for.  This is used for many of the config features so if you can't set your hostname (e.g. you're in a container platform that doesn't let you) specify it in this environment variable.
-
 ##### POSTMASTER_ADDRESS
 
-- **empty** => postmaster@domain.com
+- **empty** => postmaster@example.com
 - => Specify the postmaster address
 
 ##### ENABLE_UPDATE_CHECK
@@ -306,8 +309,8 @@ Defines the interval in which the mail log is being rotated.
 - monthly => Rotate monthly.
 
 Note that only the log inside the container is affected.
-The full log output is still available via `docker logs mail` (or your respective container name).
-If you want to control logrotation for the docker generated logfile see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
+The full log output is still available via `docker logs mailserver` (_or your respective container name_).
+If you want to control logrotation for the docker generated logfile, see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
 
 Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
 
@@ -351,7 +354,13 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 - **6.31** => triggers spam evasive actions
 
-Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`. By default, the mailserver is configured to quarantine spam emails. If emails are quarantined, they are compressed and stored in a location dependent on the ONE_DIR setting above. If `ONE_DIR=1` the location is /var/mail-state/lib-amavis/virusmails/. If `ONE_DIR=0` it is /var/lib/amavis/virusmails/. These paths are inside the docker container. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. 100.0.
+!!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
+
+    By default, `docker-mailserver` is configured to quarantine spam emails.
+    
+    If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
+
+    If `ONE_DIR=1` (default) the location is `/var/mail-state/lib-amavis/virusmails/`, or if `ONE_DIR=0`: `/var/lib/amavis/virusmails/`. These paths are inside the docker container.
 
 ##### SA_SPAM_SUBJECT
 
@@ -410,9 +419,9 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 ##### LDAP_SERVER_HOST
 
-- **empty** => mail.domain.com
-- => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.domain.com`
-- NOTE: If you going to use the mailserver in combination with docker-compose you can set the service name here
+- **empty** => mail.example.com
+- => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
+- NOTE: If you going to use `docker-mailserver` in combination with `docker-compose.yml` you can set the service name here
 
 ##### LDAP_SEARCH_BASE
 
@@ -682,7 +691,7 @@ you to replace both instead of just the envelope sender.
 
 ##### SRS_DOMAINNAME
 
-- **empty** => Derived from OVERRIDE_HOSTNAME, DOMAINNAME, or the container's hostname
+- **empty** => Derived from [`OVERRIDE_HOSTNAME`](#override_hostname), `$DOMAINNAME` (internal), or the container's hostname
 - Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs
 
 #### Default Relay Host
@@ -715,3 +724,10 @@ you to replace both instead of just the envelope sender.
 
 - **empty** => no default
 - password for default relay user
+
+[docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for
+[docs-tls]: ./config/security/ssl.md
+[docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
+[docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
+[docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
+[docs-accounts]: ./config/user-management/accounts.md#notes

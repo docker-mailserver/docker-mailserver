@@ -1,6 +1,6 @@
 # Site specific:
 site_name: 'Docker Mailserver'
-site_description: 'A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
+site_description: 'A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
 site_author: 'docker-mailserver (Github Organization)'
 copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
 
@@ -75,6 +75,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.magiclink
   - pymdownx.inlinehilite
+  - pymdownx.tilde
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
@@ -141,13 +142,15 @@ nav:
         - 'Full-Text Search': config/advanced/full-text-search.md
         - 'Kubernetes': config/advanced/kubernetes.md
         - 'IPv6': config/advanced/ipv6.md
+        - 'Podman': config/advanced/podman.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
       - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+      - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
     - 'Use Cases':
-      - 'Forward-Only Mailserver with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
+      - 'Forward-Only Mail-Server with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/uses-cases/imap-folders.md
   - 'FAQ' : faq.md
   - 'Contributing':
@@ -155,5 +158,5 @@ nav:
     - 'Coding Style': contributing/coding-style.md
     - 'Tests': contributing/tests.md
     - 'Documentation': contributing/documentation.md
-  - 'DockerHub': https://hub.docker.com/repository/docker/mailserver/docker-mailserver
-  - 'GHCR': https://github.com/orgs/docker-mailserver/packages/container/package/docker-mailserver
+  - 'DockerHub': https://hub.docker.com/r/mailserver/docker-mailserver/
+  - 'GHCR': https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver

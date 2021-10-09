@@ -1,0 +1,171 @@
+#! /bin/bash
+
+SCRIPT='setup'
+
+set -euE -o pipefail
+
+function _usage
+{
+  local WHITE="\e[37m"
+  local RED="\e[31m"
+  local PURPLE="\e[35m"
+  local YELLOW="\e[93m"
+  local ORANGE="\e[38;5;214m"
+  local CYAN="\e[96m"
+  local BLUE="\e[34m"
+  local LBLUE="\e[94m"
+  local RESET="\e[0m"
+
+  # shellcheck disable=SC2059
+  printf "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
+
+${ORANGE}NAME${RESET}
+    ${SCRIPT:-${0}} - 'docker-mailserver' Administration & Configuration script
+
+${ORANGE}SYNOPSIS${RESET}
+    ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
+
+    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
+
+${ORANGE}DESCRIPTION${RESET}
+    This is the main administration script that you use for all your interactions with
+    'docker-mailserver'. Setup, configuration and much more is done with this script.
+
+    Please note that this script executes most of its commands inside the container itself.
+    If it cannot find a running 'docker-mailserver' container, it will attempt to run one using
+    any available tags which include 'label=org.opencontainers.image.title=\"docker-mailserver\"'
+    and then run the necessary commands. If the tag for the container is not found, this script
+    will pull the '${WHITE}:latest${RESET}' tag of '${WHITE}docker.io/mailserver/docker-mailserver${RESET}'.
+    This tag refers to the latest release, see the tagging convention in the README under:
+    ${BLUE}https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md${RESET}
+
+    You will be able to see detailed information about the script you're invoking and their
+    arguments by appending '${WHITE}help${RESET}' after your command. Currently, this does not work with all scripts.
+
+${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
+    ${LBLUE}COMMAND${RESET} email ${RED}:=${RESET}
+        ${0} email ${CYAN}add${RESET} <EMAIL ADDRESS> [<PASSWORD>]
+        ${0} email ${CYAN}update${RESET} <EMAIL ADDRESS> [<PASSWORD>]
+        ${0} email ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>${RED}...${RESET} ]
+        ${0} email ${CYAN}restrict${RESET} <add${RED}|${RESET}del${RED}|${RESET}list> <send${RED}|${RESET}receive> [<EMAIL ADDRESS>]
+        ${0} email ${CYAN}list${RESET}
+
+    ${LBLUE}COMMAND${RESET} alias ${RED}:=${RESET}
+        ${0} alias ${CYAN}add${RESET} <EMAIL ADDRESS> <RECIPIENT>
+        ${0} alias ${CYAN}del${RESET} <EMAIL ADDRESS> <RECIPIENT>
+        ${0} alias ${CYAN}list${RESET}
+
+    ${LBLUE}COMMAND${RESET} quota ${RED}:=${RESET}
+        ${0} quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
+        ${0} quota ${CYAN}del${RESET} <EMAIL ADDRESS>
+
+    ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
+        ${0} config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
+
+    ${LBLUE}COMMAND${RESET} relay ${RED}:=${RESET}
+        ${0} relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
+        ${0} relay ${CYAN}add-auth${RESET} <DOMAIN> <USERNAME> [<PASSWORD>]
+        ${0} relay ${CYAN}exclude-domain${RESET} <DOMAIN>
+
+    ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
+        ${0} debug ${CYAN}fetchmail${RESET}
+        ${0} debug ${CYAN}fail2ban${RESET} [unban <IP>]
+        ${0} debug ${CYAN}show-mail-logs${RESET}
+        ${0} debug ${CYAN}inspect${RESET}
+        ${0} debug ${CYAN}login${RESET} <COMMANDS>
+
+${ORANGE}EXAMPLES${RESET}
+    ${WHITE}./setup.sh email add test@example.com${RESET}
+        Add the email account ${WHITE}test@example.com${RESET}. You will be prompted
+        to input a password afterwards since no password was supplied.
+
+    ${WHITE}./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
+        Creates keys of length 2048 but in an LDAP setup where domains are not known to
+        Postfix by default, so you need to provide them yourself in a comma-separated list.
+
+    ${WHITE}./setup.sh config dkim help${RESET}
+        This will provide you with a detailed explanation on how to use the ${WHITE}
+        config dkim${RESET} command, showing what arguments can be passed and what they do.
+
+"
+}
+
+function _invalid_command
+{
+  echo "The command '${*}' is invalid.
+Use \`./setup.sh help\` to get an overview of all commands." >&2
+  exit 2
+}
+
+function _main
+{
+  case ${1:-} in
+
+    ( email )
+      case ${2:-} in
+        ( add      ) shift 2 ; addmailuser "${@}" ;;
+        ( update   ) shift 2 ; updatemailuser "${@}" ;;
+        ( del      ) shift 2 ; delmailuser "${@}" ;;
+        ( restrict ) shift 2 ; restrict-access "${@}" ;;
+        ( list     ) listmailuser ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( alias )
+      case ${2:-} in
+        ( add      ) shift 2 ; addalias "${1}" "${2}" ;;
+        ( del      ) shift 2 ; delalias "${1}" "${2}" ;;
+        ( list     ) shift 2 ; listalias ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( quota )
+      case ${2:-} in
+        ( set      ) shift 2 ; setquota "${@}" ;;
+        ( del      ) shift 2 ; delquota "${@}" ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( config )
+      case ${2:-} in
+        ( dkim     ) shift 2 ; open-dkim "${@}" ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( relay )
+      case ${2:-} in
+        ( add-domain     ) shift 2 ; addrelayhost "${@}" ;;
+        ( add-auth       ) shift 2 ; addsaslpassword "${@}" ;;
+        ( exclude-domain ) shift 2 ; excluderelaydomain "${@}" ;;
+        ( *              ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( debug )
+      case ${2:-} in
+        ( fetchmail      ) debug-fetchmail ;;
+        ( fail2ban       ) shift 2 ; fail2ban "${@}" ;;
+        ( show-mail-logs ) cat /var/log/mail/mail.log ;;
+        ( login          )
+          shift 2
+          if [[ -z ${1:-} ]]
+          then
+            /bin/bash
+          else
+            /bin/bash -c "${@}"
+          fi
+          ;;
+        ( * ) _invalid_command "${*}" ;;
+      esac
+      ;;
+
+    ( help ) _usage ;;
+    ( *    ) _invalid_command "${*}" ;;
+  esac
+}
+
+_main "${@}"

@@ -104,6 +104,7 @@ function wait_for_amavis_port_in_container() {
     wait_for_tcp_port_in_container 10024 "${1}"
 }
 
+# TODO: Should also fail early on "docker logs ${1} | egrep '^[  FATAL  ]'"?
 # @param ${1} name of the postfix container
 function wait_for_finished_setup_in_container() {
     local STATUS=0
@@ -204,4 +205,35 @@ function wait_for_empty_mail_queue_in_container() {
 
     # shellcheck disable=SC2016
     repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
+}
+
+# Common defaults appropriate for most tests, override vars in each test when necessary.
+# TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
+function init_with_defaults() {
+  # Ignore absolute dir path and file extension, only extract filename:
+  export TEST_NAME
+  TEST_NAME="$(basename "${BATS_TEST_FILENAME}" '.bats')"
+
+  export PRIVATE_CONFIG
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${TEST_NAME}")"
+  export TEST_FILES_VOLUME="${PWD}/test/test-files:/tmp/docker-mailserver-test:ro"
+  export TEST_CONFIG_VOLUME="${PRIVATE_CONFIG}:/tmp/docker-mailserver:ro"
+
+  export TEST_FQDN='mail.my-domain.com'
+}
+
+# Common docker run command that should satisfy most tests which only modify ENV.
+function common_container_setup() {
+  local TEST_ENV_FILE=$1
+
+  run docker run -d --name "${TEST_NAME}" \
+    --volume "${TEST_FILES_VOLUME}" \
+    --volume "${TEST_CONFIG_VOLUME}" \
+    --hostname "${TEST_FQDN}" \
+    --env-file "${TEST_ENV_FILE}" \
+    --tty \
+    "${NAME}"
+  assert_success
+
+  wait_for_finished_setup_in_container "${TEST_NAME}"
 }

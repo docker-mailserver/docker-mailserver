@@ -11,10 +11,10 @@ function teardown() {
 
 function setup_file() {
     # Internal copies made by `start-mailserver.sh`:
-    export PRIMARY_KEY='/etc/postfix/ssl/key'
-    export PRIMARY_CERT='/etc/postfix/ssl/cert'
-    export FALLBACK_KEY='/etc/postfix/ssl/fallback_key'
-    export FALLBACK_CERT='/etc/postfix/ssl/fallback_cert'
+    export PRIMARY_KEY='/etc/dms/tls/key'
+    export PRIMARY_CERT='/etc/dms/tls/cert'
+    export FALLBACK_KEY='/etc/dms/tls/fallback_key'
+    export FALLBACK_CERT='/etc/dms/tls/fallback_cert'
 
     # Volume mounted certs:
     export SSL_KEY_PATH='/config/ssl/key.ecdsa.pem'
