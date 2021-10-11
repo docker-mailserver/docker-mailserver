@@ -4,7 +4,7 @@ services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     container_name: mailserver
-    hostname: mail
+    hostname: mail # If you don't use a subdomain for your mail server (example: mail.example.com), you can set only `hostname` to the domain
     domainname: example.com
     env_file: mailserver.env
     # More information about the mail-server ports:

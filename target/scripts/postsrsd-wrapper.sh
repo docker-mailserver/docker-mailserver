@@ -7,12 +7,7 @@ function _generate_secret { ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/d
 
 _obtain_hostname_and_domainname
 
-if [[ -n "${SRS_DOMAINNAME}" ]]
-then
-  NEW_DOMAIN_NAME="${SRS_DOMAINNAME}"
-else
-  NEW_DOMAIN_NAME="${DOMAINNAME}"
-fi
+NEW_DOMAIN_NAME="${SRS_DOMAINNAME:-"${DOMAINNAME}"}"
 
 sed -i -e "s/localdomain/${NEW_DOMAIN_NAME}/g" /etc/default/postsrsd
 

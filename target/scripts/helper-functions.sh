@@ -268,6 +268,14 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 # Compute checksums of monitored files.
 function _monitored_files_checksums
 {
+  # If there is no /etc/letsencrypt/live/${HOSTNAME}, cmp throws:
+  # "cmp: EOF on /tmp/docker-mailserver-config-chksum.new after byte 596, line 4"
+  shopt -s nullglob
+  DYNAMIC_FILES=
+  for FILE in /etc/letsencrypt/live/*/*.pem
+  do
+    DYNAMIC_FILES="${DYNAMIC_FILES} ${FILE}"
+  done
   (
     cd /tmp/docker-mailserver || exit 1
     exec sha512sum 2>/dev/null -- \
@@ -276,9 +284,7 @@ function _monitored_files_checksums
       postfix-aliases.cf \
       dovecot-quotas.cf \
       /etc/letsencrypt/acme.json \
-      "/etc/letsencrypt/live/${HOSTNAME}/key.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
+      "${DYNAMIC_FILES}"
   )
 }
 export -f _monitored_files_checksums
@@ -287,25 +293,23 @@ export -f _monitored_files_checksums
 
 function _obtain_hostname_and_domainname
 {
+  HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
   if [[ -n "${OVERRIDE_HOSTNAME}" ]]
   then
-    export HOSTNAME="${OVERRIDE_HOSTNAME}"
-    export DOMAINNAME="${DOMAINNAME:-${HOSTNAME#*.}}"
-    # Handle situations where the hostname is name.tld and hostname -d ends up just showing "tld"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
+    if [[ $(awk -F. '{ print NF - 1 }' <<< "${HOSTNAME}") -gt 1 ]]
     then
-      DOMAINNAME="${HOSTNAME}"
+      DOMAINNAME="$(echo "${HOSTNAME}" | cut -d. -f2-99)"
     fi
   else
     # These hostname commands will fail with "hostname: Name or service not known"
     # if the hostname is not valid (important for tests)
-    HOSTNAME="$(hostname -f)"
-    DOMAINNAME="${DOMAINNAME:-$(hostname -d)}"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
+    if [[ $(awk -F. '{ print NF - 1 }' <<< "${HOSTNAME}") -gt 1 ]]
     then
-      DOMAINNAME="${HOSTNAME}"
+      #shellcheck disable=SC2034
+      DOMAINNAME="$(hostname -d)"
     fi
   fi
+  DOMAINNAME="${DOMAINNAME:-"${HOSTNAME}"}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
