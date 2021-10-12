@@ -148,7 +148,7 @@ body:
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
         Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
-        For the more experienced, we can skip ahead and communicate more effectively to resolve the issue ASAP.
+        
       options:
         - I am inexperienced with docker
         - I am inexperienced with mail servers
