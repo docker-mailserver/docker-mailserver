@@ -25,6 +25,18 @@ After installation, you can test your setup with:
 
 ## Let's Encrypt (Recommended)
 
+!!! note
+
+    `docker-mailserver` uses provisioned certificates under `/etc/letsencrypt/live/`. This means that if we want `mail.example.com` to have an SSL certificate on our server, we will need to ensure `/etc/letsencrypt/` is mounted into the container and it contains `live/mail.example.com` (there are symlinks that point from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`, so you'll need to mount the whole folder).
+
+    There is also a specific order that `docker-mailserver` looks for the certificate with and will use the first found: 
+    
+    1. First, using `SSL_DOMAIN`.
+    
+    2. Next, using an internal `HOSTNAME` variable derived from `hostname -f` or `OVERRIDE_HOSTNAME`.
+
+    3. Finally, using an internal `DOMAINNAME` variable derived from `hostname -d`. If using `OVERRIDE_HOSTNAME`, `DOMAINNAME` will be taken from `HOSTNAME` (`mail.example.com` -> `example.com`).
+
 To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
 
 1. Get your certificate using the _Let's Encrypt_ client [Certbot][certbot::github].
@@ -34,11 +46,7 @@ To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
     2. Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`.
 
 You don't have to do anything else. Enjoy!
-
-!!! note
-
-    `/etc/letsencrypt/live` stores provisioned certificates in individual folders named by their FQDN (_Fully Qualified Domain Name_). `docker-mailserver` looks for it's certificate folder via the `hostname` command. The FQDN inside the docker container is derived from the `--hostname` and `--domainname` options.
-
+    
 !!! example
 
     Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
@@ -135,7 +143,7 @@ In the following example, we show how `docker-mailserver` can be run alongside t
 
 3. Start the rest of your web server containers as usual.
 
-4. Start a _dummy container_ to provision certificatess for your FQDN (eg: `mail.example.com`). `acme-companion` will detect the container and generate a _Let's Encrypt_ certificate for your domain, which can be used by `docker-mailserver`:
+4. Start a _dummy container_ to provision certificates for your FQDN (eg: `mail.example.com`). `acme-companion` will detect the container and generate a _Let's Encrypt_ certificate for your domain, which can be used by `docker-mailserver`:
 
     ```sh
     docker run --detach \
@@ -423,13 +431,15 @@ No client certificate CA names sent
 
 [Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. [Traefik][traefik::github] can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use [Traefik][traefik::github]'s major version 2.
 
-[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot). Wild card certificates issued for `*.example.com` are supported. You will then want to use `#!bash SSL_DOMAIN=example.com`. Lookup of the certificate domain happens in the following order:
+[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot). Wild card certificates issued for `*.example.com` are supported. You will then want to use `#!bash SSL_DOMAIN=example.com`. 
+
+Lookup of the certificate domain happens in the following order:
 
 1. `#!bash ${SSL_DOMAIN}`
 2. `#!bash ${HOSTNAME}`
 3. `#!bash ${DOMAINNAME}`
 
-This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from Let'sEncrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
+This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from LetsEncrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
 
 ???+ example "Example Code"
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
