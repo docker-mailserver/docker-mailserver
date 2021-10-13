@@ -298,7 +298,7 @@ function _obtain_hostname_and_domainname
   then
     if [[ $(awk -F. '{ print NF - 1 }' <<< "${HOSTNAME}") -gt 1 ]]
     then
-      DOMAINNAME="$(echo "${HOSTNAME}" | cut -d. -f2-99)"
+      DMS_HOSTNAME_DOMAIN="$(echo "${HOSTNAME}" | cut -d. -f2-99)"
     fi
   else
     # These hostname commands will fail with "hostname: Name or service not known"
@@ -306,10 +306,10 @@ function _obtain_hostname_and_domainname
     if [[ $(awk -F. '{ print NF - 1 }' <<< "${HOSTNAME}") -gt 1 ]]
     then
       #shellcheck disable=SC2034
-      DOMAINNAME="$(hostname -d)"
+      DMS_HOSTNAME_DOMAIN="$(hostname -d)"
     fi
   fi
-  DOMAINNAME="${DOMAINNAME:-"${HOSTNAME}"}"
+  DMS_HOSTNAME_DOMAIN="${DMS_HOSTNAME_DOMAIN:-"${HOSTNAME}"}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).

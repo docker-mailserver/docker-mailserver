@@ -35,7 +35,7 @@ After installation, you can test your setup with:
     
     2. Next, using an internal `HOSTNAME` variable derived from `hostname -f` (or `OVERRIDE_HOSTNAME` if set).
 
-    3. Finally, using an internal `DOMAINNAME` variable derived from `hostname -d`. If using `OVERRIDE_HOSTNAME`, `DOMAINNAME` will be taken from `HOSTNAME` (`mail.example.com` -> `example.com`).
+    3. Finally, using an internal `DMS_HOSTNAME_DOMAIN` variable derived from `hostname -d`. If using `OVERRIDE_HOSTNAME`, `DMS_HOSTNAME_DOMAIN` will be taken from `HOSTNAME` (`mail.example.com` -> `example.com`).
 
 To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
 
@@ -437,7 +437,7 @@ Lookup of the certificate domain happens in the following order:
 
 1. `#!bash ${SSL_DOMAIN}`
 2. `#!bash ${HOSTNAME}`
-3. `#!bash ${DOMAINNAME}`
+3. `#!bash ${DMS_HOSTNAME_DOMAIN}`
 
 This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from Let's Encrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
 

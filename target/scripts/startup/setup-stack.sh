@@ -42,7 +42,7 @@ function _setup_default_vars
   _notify 'task' 'Setting up default variables'
 
   # update POSTMASTER_ADDRESS - must be done done after _check_hostname
-  POSTMASTER_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+  POSTMASTER_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DMS_HOSTNAME_DOMAIN}}"
 
   # update REPORT_SENDER - must be done done after _check_hostname
   REPORT_SENDER="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
@@ -123,7 +123,7 @@ function _setup_chksum_file
 function _setup_mailname
 {
   _notify 'task' 'Setting up mailname / creating /etc/mailname'
-  echo "${DOMAINNAME}" >/etc/mailname
+  echo "${DMS_HOSTNAME_DOMAIN}" >/etc/mailname
 }
 
 function _setup_amavis
@@ -153,7 +153,7 @@ function _setup_postfix_hostname
 {
   _notify 'task' 'Applying hostname and domainname to Postfix'
   postconf -e "myhostname = ${HOSTNAME}"
-  postconf -e "mydomain = ${DOMAINNAME}"
+  postconf -e "mydomain = ${DMS_HOSTNAME_DOMAIN}"
 }
 
 function _setup_dovecot_hostname
@@ -440,7 +440,7 @@ function _setup_ldap
   configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
 
   # add domainname to vhost
-  echo "${DOMAINNAME}" >>/tmp/vhost.tmp
+  echo "${DMS_HOSTNAME_DOMAIN}" >>/tmp/vhost.tmp
 
   _notify 'inf' "Enabling dovecot LDAP authentification"
 
@@ -928,7 +928,7 @@ function _setup_ssl
         then
           if ! _extract_certs_from_acme "${HOSTNAME}"
           then
-            _extract_certs_from_acme "${DOMAINNAME}"
+            _extract_certs_from_acme "${DMS_HOSTNAME_DOMAIN}"
           fi
         fi
       fi
@@ -940,11 +940,11 @@ function _setup_ssl
       elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${HOSTNAME}
-      elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
+      elif [[ -e /etc/letsencrypt/live/${DMS_HOSTNAME_DOMAIN}/fullchain.pem ]]
       then
-        LETSENCRYPT_DOMAIN=${DOMAINNAME}
+        LETSENCRYPT_DOMAIN=${DMS_HOSTNAME_DOMAIN}
       else
-        _notify 'err' "Cannot access '/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem' or '/etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem'"
+        _notify 'err' "Cannot access '/etc/letsencrypt/live/${SSL_DOMAIN}/fullchain.pem', '/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem', or '/etc/letsencrypt/live/${DMS_HOSTNAME_DOMAIN}/fullchain.pem'"
         return 1
       fi
 

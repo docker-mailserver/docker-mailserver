@@ -30,7 +30,7 @@ fi
 # this script previously didn't work when POSTMASTER_ADDRESS was empty
 _obtain_hostname_and_domainname
 
-PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DMS_HOSTNAME_DOMAIN}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 sleep 10
 
@@ -66,7 +66,7 @@ do
       case "${FILE}" in
         "/etc/letsencrypt/acme.json" )
           _notify 'inf' "${LOG_DATE} Extracting certs from changed /etc/letsencrypt/acme.json"
-          for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+          for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DMS_HOSTNAME_DOMAIN}
           do
             _extract_certs_from_acme "${CERTDOMAIN}"
           done

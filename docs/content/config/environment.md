@@ -686,7 +686,7 @@ you to replace both instead of just the envelope sender.
 
 ##### SRS_DOMAINNAME
 
-- **empty** => Derived from [`OVERRIDE_HOSTNAME`](#override_hostname), `$DOMAINNAME` (internal), or the container's hostname
+- **empty** => Derived from [`OVERRIDE_HOSTNAME`](#override_hostname), `$DMS_HOSTNAME_DOMAIN` (internal), or the container's hostname
 - Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs
 
 #### Default Relay Host

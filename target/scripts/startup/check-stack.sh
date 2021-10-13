@@ -13,7 +13,7 @@ function _check_hostname
 {
   _notify 'task' 'Checking that hostname/domainname is provided or overridden'
 
-  _notify 'inf' "Domain has been set to ${DOMAINNAME}"
+  _notify 'inf' "Domain has been set to ${DMS_HOSTNAME_DOMAIN}"
   _notify 'inf' "Hostname has been set to ${HOSTNAME}"
 
   # HOSTNAME should be an FQDN (eg: hostname.domain)
