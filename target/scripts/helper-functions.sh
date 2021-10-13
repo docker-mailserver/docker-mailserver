@@ -182,10 +182,10 @@ for key, value in acme.items():
 
   if [[ -n "${KEY}${CERT}" ]]
   then
-    mkdir -p "/etc/letsencrypt/live/${HOSTNAME}/"
+    mkdir -p "/etc/letsencrypt/live/${1}/"
 
-    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/key.pem || exit 1
-    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/fullchain.pem || exit 1
+    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${1}"/key.pem || exit 1
+    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${1}"/fullchain.pem || exit 1
     _notify 'inf' "Cert found in /etc/letsencrypt/acme.json for ${1}"
 
     return 0

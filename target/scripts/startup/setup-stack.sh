@@ -934,7 +934,10 @@ function _setup_ssl
       fi
 
       # first determine the letsencrypt domain by checking both the full hostname or just the domainname if a SAN is used in the cert
-      if [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
+      if [[ -e /etc/letsencrypt/live/${SSL_DOMAIN}/fullchain.pem ]]
+      then
+        LETSENCRYPT_DOMAIN=${SSL_DOMAIN}
+      elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${HOSTNAME}
       elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
