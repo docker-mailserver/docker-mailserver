@@ -272,7 +272,7 @@ function _monitored_files_checksums
   # "cmp: EOF on /tmp/docker-mailserver-config-chksum.new after byte 596, line 4"
   shopt -s nullglob
   DYNAMIC_FILES=
-  for FILE in /etc/letsencrypt/live/${SSL_DOMAIN}/*.pem /etc/letsencrypt/live/${HOSTNAME}/*.pem /etc/letsencrypt/live/${DMS_HOSTNAME_DOMAIN}/*.pem
+  for FILE in /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem /etc/letsencrypt/live/"${HOSTNAME}"/*.pem /etc/letsencrypt/live/"${DMS_HOSTNAME_DOMAIN}"/*.pem
   do
     DYNAMIC_FILES="${DYNAMIC_FILES} ${FILE}"
   done
