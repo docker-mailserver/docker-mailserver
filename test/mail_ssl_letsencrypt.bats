@@ -32,7 +32,7 @@ function setup_file() {
   wait_for_finished_setup_in_container mail_lets_hostname
 
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json)"
-  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme.json" "$(private_config_path mail_lets_acme_json)/acme.json"
+  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-mail.my-domain.com.json" "$(private_config_path mail_lets_acme_json)/acme.json"
   docker run -d --name mail_lets_acme_json \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
@@ -42,12 +42,24 @@ function setup_file() {
     -e "SSL_DOMAIN=*.example.com" \
     -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_lets_acme_json
+
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json_example_wildcard)"
+  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/acme-*.example.com.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
+  docker run -d --name mail_lets_acme_json_example_wildcard \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e DMS_DEBUG=1 \
+    -e SSL_TYPE=letsencrypt \
+    -h example.com -t "${NAME}"
+  wait_for_finished_setup_in_container mail_lets_acme_json_example_wildcard
 }
 
 function teardown_file() {
   docker rm -f mail_lets_domain
   docker rm -f mail_lets_hostname
   docker rm -f mail_lets_acme_json
+  docker rm -f mail_lets_acme_json_example_wildcard
 }
 
 # this test must come first to reliably identify when to run setup_file
@@ -109,7 +121,7 @@ function teardown_file() {
 }
 
 @test "can detect changes" {
-  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed.json" "$(private_config_path mail_lets_acme_json)/acme.json"
+  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed-mail.my-domain.com.json" "$(private_config_path mail_lets_acme_json)/acme.json"
   sleep 15
   run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "Change detected"
@@ -117,12 +129,24 @@ function teardown_file() {
   assert_output --partial "postfix: started"
 
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/fullchain.pem")"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed-mail.my-domain.com/fullchain.pem")"
   assert_success
 }
 
+@test "can detect changes (wildcard example.com)" {
+  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/acme-changed-*.example.com.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
+  sleep 15
+  run docker exec mail_lets_acme_json_example_wildcard /bin/bash -c "supervisorctl tail changedetector"
+  assert_output --partial "Change detected"
+  assert_output --partial "postfix: stopped"
+  assert_output --partial "postfix: started"
 
- # this test is only there to reliably mark the end for the teardown_file
+  run docker exec mail_lets_acme_json_example_wildcard /bin/bash -c "cat /etc/letsencrypt/live/example.com/fullchain.pem"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/changed-*.example.com/fullchain.pem")"
+  assert_success
+}
+
+# this test is only there to reliably mark the end for the teardown_file
 @test "last" {
   skip 'Finished testing of letsencrypt SSL'
 }
