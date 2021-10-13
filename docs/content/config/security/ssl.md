@@ -33,7 +33,7 @@ After installation, you can test your setup with:
     
     1. First, using `SSL_DOMAIN`.
     
-    2. Next, using an internal `HOSTNAME` variable derived from `hostname -f` or `OVERRIDE_HOSTNAME`.
+    2. Next, using an internal `HOSTNAME` variable derived from `hostname -f` (or `OVERRIDE_HOSTNAME` if set).
 
     3. Finally, using an internal `DOMAINNAME` variable derived from `hostname -d`. If using `OVERRIDE_HOSTNAME`, `DOMAINNAME` will be taken from `HOSTNAME` (`mail.example.com` -> `example.com`).
 
