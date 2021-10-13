@@ -116,8 +116,6 @@ function teardown_file() {
   assert_output --partial "postfix: started"
   assert_output --partial "Change detected"
 
-
-
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
   assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/fullchain.pem")"
   assert_success
