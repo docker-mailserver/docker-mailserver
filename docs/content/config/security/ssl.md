@@ -439,7 +439,7 @@ Lookup of the certificate domain happens in the following order:
 2. `#!bash ${HOSTNAME}`
 3. `#!bash ${DOMAINNAME}`
 
-This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from LetsEncrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
+This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from Let's Encrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
 
 ???+ example "Example Code"
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
