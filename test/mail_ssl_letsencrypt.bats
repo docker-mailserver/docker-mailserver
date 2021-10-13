@@ -41,7 +41,6 @@ function setup_file() {
     -e SSL_TYPE=letsencrypt \
     -e "SSL_DOMAIN=*.example.com" \
     -h mail.my-domain.com -t "${NAME}"
-
   wait_for_finished_setup_in_container mail_lets_acme_json
 }
 
@@ -117,9 +116,7 @@ function teardown_file() {
   assert_output --partial "postfix: started"
   assert_output --partial "Change detected"
 
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/key.pem")"
-  assert_success
+
 
   run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
   assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/fullchain.pem")"
