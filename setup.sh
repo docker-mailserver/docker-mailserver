@@ -102,8 +102,17 @@ function _get_absolute_script_directory
     DIR="$(realpath -e -L "${0}")"
     DIR="${DIR%/setup.sh}"
   fi
+}
 
-  DEFAULT_CONFIG_PATH="${DIR}/config"
+function _set_default_config_path
+{
+  if [[ -d "${DIR}/config" ]]
+  then
+    # legacy path (pre v10.2.0)
+    DEFAULT_CONFIG_PATH="${DIR}/config"
+  else
+    DEFAULT_CONFIG_PATH="${DIR}/docker-data/dms/config"
+  fi
 }
 
 function _handle_config_path
@@ -149,6 +158,7 @@ function _run_in_new_container
 function _main
 {
   _get_absolute_script_directory
+  _set_default_config_path
 
   local OPTIND
   while getopts ":c:i:p:zZR" OPT
