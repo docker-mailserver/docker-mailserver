@@ -12,6 +12,7 @@ DESIRED_CONFIG_PATH=
 DIR="$(pwd)"
 DMS_CONFIG='/tmp/docker-mailserver'
 IMAGE_NAME=
+DEFAULT_IMAGE_NAME='docker.io/mailserver/docker-mailserver:latest'
 INFO=
 PODMAN_ROOTLESS=false
 USE_SELINUX=
@@ -49,7 +50,7 @@ function _show_local_usage
     ${LBLUE}Config path, container or image adjustments${RESET}
         -i IMAGE_NAME
             Provides the name of the 'docker-mailserver' image. The default value is
-            '${WHITE}docker.io/mailserver/docker-mailserver:latest${RESET}'
+            '${WHITE}${DEFAULT_IMAGE_NAME}${RESET}'
 
         -c CONTAINER_NAME
             Provides the name of the running container.
@@ -215,7 +216,7 @@ function _main
   [[ -z ${IMAGE_NAME} ]] && IMAGE_NAME=${INFO%;*}
   if [[ -z ${IMAGE_NAME} ]]
   then
-    IMAGE_NAME=${NAME:-docker.io/mailserver/docker-mailserver:latest}
+    IMAGE_NAME=${NAME:-${DEFAULT_IMAGE_NAME}}
   fi
 
   if test -t 0
