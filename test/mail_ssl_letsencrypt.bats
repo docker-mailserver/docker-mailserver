@@ -44,7 +44,7 @@ function setup_file() {
   wait_for_finished_setup_in_container mail_lets_acme_json
 
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json_example_wildcard)"
-  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/acme-*.example.com.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
+  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/acme-wildcard.example.com.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
   docker run -d --name mail_lets_acme_json_example_wildcard \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
@@ -134,7 +134,7 @@ function teardown_file() {
 }
 
 @test "can detect changes (wildcard example.com)" {
-  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/acme-changed-*.example.com.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
+  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/acme-changed-wildcard.example.com.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
   sleep 15
   run docker exec mail_lets_acme_json_example_wildcard /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "Change detected"
@@ -142,7 +142,7 @@ function teardown_file() {
   assert_output --partial "postfix: started"
 
   run docker exec mail_lets_acme_json_example_wildcard /bin/bash -c "cat /etc/letsencrypt/live/example.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/changed-*.example.com/fullchain.pem")"
+  assert_output "$(cat "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/changed-wildcard.example.com/fullchain.pem")"
   assert_success
 }
 
