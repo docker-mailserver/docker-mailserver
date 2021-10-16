@@ -121,10 +121,10 @@ teardown_file() {
   # check container hostname is applied correctly
   run docker exec mail_non_subdomain_hostname /bin/bash -c "hostname | grep ^domain.com"
   assert_success
-
-  # Check that it's applied to all of the various configs
   run docker exec mail_non_subdomain_hostname /bin/bash -c "cat /etc/hosts | grep domain.com"
   assert_success
+
+  # Check that it's applied to all of the various configs
   run docker exec mail_non_subdomain_hostname /bin/bash -c "cat /etc/mailname | grep ^domain.com"
   assert_success
   run docker exec mail_non_subdomain_hostname /bin/bash -c "postconf -n | grep ^mydomain | grep domain.com"
