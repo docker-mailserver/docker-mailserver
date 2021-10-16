@@ -150,7 +150,7 @@ do
     opendkim-genkey \
       --bits="${KEYSIZE}" \
       --subdomains \
-      --DOMAIN="${DKIM_DOMAIN}" \
+      --domain="${DKIM_DOMAIN}" \
       --selector="${SELECTOR}" \
       -D "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
   fi
