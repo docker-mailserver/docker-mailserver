@@ -4,9 +4,6 @@ function setup() {
     run_setup_file_if_necessary
 }
 
-function setup_file() {
-}
-
 teardown_file() {
     docker rm -f mail_override_hostname_and_domainname mail_non_subdomain_hostname mail_srs_domainname mail_srs_hostname_and_domainname
 }
@@ -22,13 +19,14 @@ teardown_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e PERMIT_DOCKER=network \
-    -e DMS_DEBUG=0 \
+    -e DMS_DEBUG=1 \
     -e ENABLE_SRS=1 \
     --domainname sld.tld \
     -h subdomain \
     -t "${NAME}"
   wait_for_smtp_port_in_container mail_srs_hostname_and_domainname
-  # Check when SRS_DOMAINNAME is not set
+
+  # Check SRS_DOMAINNAME is not set and the DMS_HOSTNAME_DOMAIN is used
   repeat_until_success_or_timeout 15 docker exec mail_srs_hostname_and_domainname grep "SRS_DOMAIN=sld.tld" /etc/default/postsrsd
 
   # Ensure container cleanly stops
@@ -47,6 +45,8 @@ teardown_file() {
     -h subdomain \
     -t "${NAME}"
   wait_for_smtp_port_in_container mail_srs_domainname
+
+  # Check when SRS_DOMAINNAME is set
   repeat_until_success_or_timeout 15 docker exec mail_srs_domainname grep "SRS_DOMAIN=srs.sld.tld" /etc/default/postsrsd
   
   # Ensure container cleanly stops
@@ -127,7 +127,7 @@ teardown_file() {
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e ENABLE_SRS=1 \
-		-e DMS_DEBUG=0 \
+		-e DMS_DEBUG=1 \
 		-h domain.com \
 		-t "${NAME}"
   wait_for_smtp_port_in_container mail_non_subdomain_hostname

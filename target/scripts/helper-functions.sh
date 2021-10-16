@@ -109,8 +109,7 @@ function remove_lock
 function _get_label_length
 {
   local INPUT="${1}"
-
-  "$(awk -F '.' '{ print NF }' <<< "${INPUT}")"
+  awk -F. '{ print NF - 1 }' <<< "${INPUT}"
 }
 
 # ? --------------------------------------------- IP & CIDR
