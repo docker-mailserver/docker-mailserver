@@ -431,7 +431,11 @@ No client certificate CA names sent
 
 [Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. [Traefik][traefik::github] can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use [Traefik][traefik::github]'s major version 2.
 
-[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot). Wild card certificates issued for `*.example.com` are supported. You will then want to use `#!bash SSL_DOMAIN=example.com`. 
+[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot).
+
+Wildcard certificates are supported. If your FQDN is `mail.example.com` and your wildcard certificate is `*.example.com`, add the ENV: `#!bash SSL_DOMAIN=example.com`.
+
+The mail-server will select it's certificate from `acme.json` via matching the FQDN from (_in order of priority_): 
 
 Lookup of the certificate domain happens in the following order:
 
