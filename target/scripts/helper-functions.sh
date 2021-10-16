@@ -308,7 +308,7 @@ export -f _monitored_files_checksums
 function _obtain_hostname_and_domainname
 {
   # Collect HOSTNAME to use throughout the various setup scripts and commands (setup-stack.sh/postconf, etc)
-  HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
+  export HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
   if [[ -z "${HOSTNAME}" ]]
   then
     dms_panic__fail_init '_obtain_hostname_and_domainname' \
@@ -330,7 +330,7 @@ function _obtain_hostname_and_domainname
     fi
   fi
 
-  DMS_HOSTNAME_DOMAIN="${DMS_HOSTNAME_DOMAIN:-"${HOSTNAME}"}"
+  export DMS_HOSTNAME_DOMAIN="${DMS_HOSTNAME_DOMAIN:-"${HOSTNAME}"}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
