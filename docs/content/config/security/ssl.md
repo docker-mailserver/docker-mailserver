@@ -27,7 +27,7 @@ After installation, you can test your setup with:
 
 !!! note
 
-    `docker-mailserver` uses provisioned certificates under `/etc/letsencrypt/live/`. This means that if we want `mail.example.com` to have an SSL certificate on our server, we will need to ensure `/etc/letsencrypt/` is mounted into the container and it contains `live/mail.example.com` (there are symlinks that point from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`, so you'll need to mount the whole folder).
+    `docker-mailserver` uses provisioned certificates under `/etc/letsencrypt/live/`. This means that if we want `mail.example.com` to have an SSL certificate on our server, we will need to ensure `/etc/letsencrypt/` is mounted into the container and it contains `live/mail.example.com` (if using `certbot`, there are symlinks that point from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`, so you'll need to mount the whole folder).
 
     There is also a specific order that `docker-mailserver` looks for the certificate with and will use the first found: 
     
