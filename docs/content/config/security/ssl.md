@@ -25,28 +25,20 @@ After installation, you can test your setup with:
 
 ## Let's Encrypt (Recommended)
 
-!!! note
-
-    `docker-mailserver` uses provisioned certificates under `/etc/letsencrypt/live/`. This means that if we want `mail.example.com` to have an SSL certificate on our server, we will need to ensure `/etc/letsencrypt/` is mounted into the container and it contains `live/mail.example.com` (if using `certbot`, there are symlinks that point from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`, so you'll need to mount the whole folder).
-
-    There is also a specific order that `docker-mailserver` looks for the certificate with and will use the first found: 
-    
-    1. First, using `SSL_DOMAIN`.
-    
-    2. Next, using an internal `HOSTNAME` variable derived from `hostname -f` (or `OVERRIDE_HOSTNAME` if set).
-
-    3. Finally, using an internal `DMS_HOSTNAME_DOMAIN` variable derived from `hostname -d`. If using `OVERRIDE_HOSTNAME`, `DMS_HOSTNAME_DOMAIN` will be taken from `HOSTNAME` (`mail.example.com` -> `example.com`).
-
 To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
 
 1. Get your certificate using the _Let's Encrypt_ client [Certbot][certbot::github].
 2. For your `docker-mailserver` container:
 
     1. Add the environment variable `SSL_TYPE=letsencrypt`.
-    2. Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`.
+    2. Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`. Make sure that the entire folder is mounted as there are typically symlinks from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`.
 
 You don't have to do anything else. Enjoy!
     
+!!! note
+
+    `docker-mailserver` uses provisioned certificates under `/etc/letsencrypt/live/` which match your configured FQDN (_Fully Qualified Domain Name_). The FQDN inside the docker container is derived via the `hostname -f` command inside of the container.
+
 !!! example
 
     Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
