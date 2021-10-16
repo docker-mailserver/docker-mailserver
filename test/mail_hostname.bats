@@ -68,6 +68,7 @@ teardown_file() {
     -h subdomain2 \
     -t "${NAME}"
   wait_for_smtp_port_in_container mail_override_hostname_and_domainname
+  # postfix virtual transport lmtp
   docker exec mail_override_hostname_and_domainname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 
   # Check container hostname is present
@@ -131,6 +132,7 @@ teardown_file() {
 		-h domain.com \
 		-t "${NAME}"
   wait_for_smtp_port_in_container mail_non_subdomain_hostname
+  # postfix virtual transport lmtp
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 
   # check container hostname is applied correctly
