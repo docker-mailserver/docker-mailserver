@@ -165,7 +165,6 @@ for key, value in acme.items():
                     print cert['key']
                     break
 ")
-
   local CERT
   # shellcheck disable=SC2002
   CERT=$(cat /etc/letsencrypt/acme.json | python -c "
@@ -180,17 +179,21 @@ for key, value in acme.items():
                     print cert['certificate']
                     break
 ")
-
-  if [[ -n "${KEY}${CERT}" ]]
+  if [[ -n "${KEY}" ]]
   then
-    mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
-
-    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/key.pem || exit 1
-    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/fullchain.pem || exit 1
-    _notify 'inf' "_extract_certs_from_acme | Cert found in /etc/letsencrypt/acme.json for ${CERT_DOMAIN}"
-
-    return 0
+    if [[ -n "${CERT}" ]]
+    then
+      mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
+      echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/key.pem || exit 1
+      echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/fullchain.pem || exit 1
+      _notify 'inf' "_extract_certs_from_acme | Cert found in /etc/letsencrypt/acme.json for ${CERT_DOMAIN}"
+      return 0
+    else
+      _notify 'warn' "Unable to find cert in /etc/letsencrypt/acme.json."
+      return 1
+    fi
   else
+    _notify 'warn' "Unable to find key in /etc/letsencrypt/acme.json."
     return 1
   fi
 }
