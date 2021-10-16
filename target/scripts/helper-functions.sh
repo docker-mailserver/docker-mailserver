@@ -104,6 +104,15 @@ function remove_lock
   fi
 }
 
+# Outputs the DNS label count (delimited by `.`) for the given input string
+# Useful for determining an FQDN like `mail.example.com` (3 labels) vs `example.com` (2 labels).
+function _get_label_length
+{
+  local INPUT="${1}"
+
+  echo $(awk -F '.' '{ print NF }' <<< "${INPUT}")
+}
+
 # ? --------------------------------------------- IP & CIDR
 
 function _mask_ip_digit
@@ -179,6 +188,7 @@ for key, value in acme.items():
                     print cert['certificate']
                     break
 ")
+
   if [[ -n "${KEY}" ]]
   then
     if [[ -n "${CERT}" ]]
@@ -297,22 +307,29 @@ export -f _monitored_files_checksums
 
 function _obtain_hostname_and_domainname
 {
+  # Collect HOSTNAME to use throughout the various setup scripts and commands (setup-stack.sh/postconf, etc)
   HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
+  if [[ -z "${HOSTNAME}" ]]
+  then
+    dms_panic__fail_init '_obtain_hostname_and_domainname' \
+    'Internally used hostname obtained from hostname -f or OVERRIDE_HOSTNAME'
+  fi
+
+  # Attempt to derive the domain name from HOSTNAME (if it's a subdomain)
   if [[ -n "${OVERRIDE_HOSTNAME}" ]]
   then
-    if [[ $(awk -F. '{ print NF - 1 }' <<< "${HOSTNAME}") -gt 1 ]]
+    if [[ $(_get_label_length "${HOSTNAME}") -gt 1 ]]
     then
       DMS_HOSTNAME_DOMAIN="$(echo "${HOSTNAME}" | cut -d. -f2-99)"
     fi
   else
-    # These hostname commands will fail with "hostname: Name or service not known"
-    # if the hostname is not valid (important for tests)
-    if [[ $(awk -F. '{ print NF - 1 }' <<< "${HOSTNAME}") -gt 1 ]]
+    if [[ $(_get_label_length "${HOSTNAME}") -gt 1 ]]
     then
       #shellcheck disable=SC2034
       DMS_HOSTNAME_DOMAIN="$(hostname -d)"
     fi
   fi
+
   DMS_HOSTNAME_DOMAIN="${DMS_HOSTNAME_DOMAIN:-"${HOSTNAME}"}"
 }
 
