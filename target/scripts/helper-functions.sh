@@ -110,7 +110,7 @@ function _get_label_length
 {
   local INPUT="${1}"
 
-  echo "$(awk -F '.' '{ print NF }' <<< "${INPUT}")"
+  "$(awk -F '.' '{ print NF }' <<< "${INPUT}")"
 }
 
 # ? --------------------------------------------- IP & CIDR
