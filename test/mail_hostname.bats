@@ -5,8 +5,19 @@ function setup() {
 }
 
 function setup_file() {
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_hostname_and_domainname)"
-  docker run --rm -d --name mail_hostname_and_domainname \
+}
+
+teardown_file() {
+    docker rm -f mail_override_hostname_and_domainname mail_non_subdomain_hostname mail_srs_domainname mail_srs_hostname_and_domainname
+}
+
+@test "first" {
+  skip 'only used to call setup_file from setup'
+}
+
+@test "checking configuration: SRS_DOMAINNAME" {
+  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_srs_hostname_and_domainname)"
+  docker run --rm -d --name mail_srs_hostname_and_domainname \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e PERMIT_DOCKER=network \
@@ -15,18 +26,10 @@ function setup_file() {
     --domainname sld.tld \
     -h subdomain \
     -t "${NAME}"
-  wait_for_smtp_port_in_container mail_hostname_and_domainname
-}
+  wait_for_smtp_port_in_container mail_srs_hostname_and_domainname
+  # Check when SRS_DOMAINNAME is not set
+  repeat_until_success_or_timeout 15 docker exec mail_srs_hostname_and_domainname grep "SRS_DOMAIN=sld.tld" /etc/default/postsrsd
 
-teardown_file() {
-    docker rm -f mail_override_hostname_and_domainname mail_non_subdomain_hostname mail_srs_domainname mail_hostname_and_domainname
-}
-
-@test "first" {
-  skip 'only used to call setup_file from setup'
-}
-
-@test "checking configuration: SRS_DOMAINNAME" {
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_srs_domainname)"
   docker run --rm -d --name mail_srs_domainname \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
@@ -40,8 +43,6 @@ teardown_file() {
     -t "${NAME}"
   wait_for_smtp_port_in_container mail_srs_domainname
   repeat_until_success_or_timeout 15 docker exec mail_srs_domainname grep "SRS_DOMAIN=srs.sld.tld" /etc/default/postsrsd
-  # Check when SRS_DOMAINNAME is not set
-  repeat_until_success_or_timeout 15 docker exec mail_hostname_and_domainname grep "SRS_DOMAIN=sld.tld" /etc/default/postsrsd
 }
 
 @test "checking configuration: OVERRIDE_HOSTNAME" {
@@ -173,13 +174,10 @@ teardown_file() {
   assert_success
 }
 
-@test "checking that the container stops cleanly: mail_srs_domainname" {
+@test "checking that the containers stop cleanly: mail_srs_*" {
   run docker stop -t 60 mail_srs_domainname
   assert_success
-}
-
-@test "checking that the container stops cleanly: mail_hostname_and_domainname" {
-  run docker stop -t 60 mail_hostname_and_domainname
+  run docker stop -t 60 mail_srs_hostname_and_domainname
   assert_success
 }
 
