@@ -150,6 +150,7 @@ export -f _sanitize_ipv4_to_subnet_cidr
 
 function _extract_certs_from_acme
 {
+  local CERT_DOMAIN="${1}"
   local KEY
   # shellcheck disable=SC2002
   KEY=$(cat /etc/letsencrypt/acme.json | python -c "
@@ -160,7 +161,7 @@ for key, value in acme.items():
     if certs is not None:
         for cert in certs:
             if 'domain' in cert and 'key' in cert:
-                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
+                if 'main' in cert['domain'] and cert['domain']['main'] == '${CERT_DOMAIN}' or 'sans' in cert['domain'] and '${CERT_DOMAIN}' in cert['domain']['sans']:
                     print cert['key']
                     break
 ")
@@ -175,18 +176,18 @@ for key, value in acme.items():
     if certs is not None:
         for cert in certs:
             if 'domain' in cert and 'certificate' in cert:
-                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
+                if 'main' in cert['domain'] and cert['domain']['main'] == '${CERT_DOMAIN}' or 'sans' in cert['domain'] and '${CERT_DOMAIN}' in cert['domain']['sans']:
                     print cert['certificate']
                     break
 ")
 
   if [[ -n "${KEY}${CERT}" ]]
   then
-    mkdir -p "/etc/letsencrypt/live/${1}/"
+    mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
 
-    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${1}"/key.pem || exit 1
-    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${1}"/fullchain.pem || exit 1
-    _notify 'inf' "_extract_certs_from_acme | Cert found in /etc/letsencrypt/acme.json for ${1}"
+    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/key.pem || exit 1
+    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/fullchain.pem || exit 1
+    _notify 'inf' "_extract_certs_from_acme | Cert found in /etc/letsencrypt/acme.json for ${CERT_DOMAIN}"
 
     return 0
   else
