@@ -31,6 +31,10 @@ teardown_file() {
   # Check when SRS_DOMAINNAME is not set
   repeat_until_success_or_timeout 15 docker exec mail_srs_hostname_and_domainname grep "SRS_DOMAIN=sld.tld" /etc/default/postsrsd
 
+  # Ensure container cleanly stops
+  run docker stop -t 60 mail_srs_hostname_and_domainname
+  assert_success
+
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_srs_domainname)"
   docker run --rm -d --name mail_srs_domainname \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
@@ -44,6 +48,10 @@ teardown_file() {
     -t "${NAME}"
   wait_for_smtp_port_in_container mail_srs_domainname
   repeat_until_success_or_timeout 15 docker exec mail_srs_domainname grep "SRS_DOMAIN=srs.sld.tld" /etc/default/postsrsd
+  
+  # Ensure container cleanly stops
+  run docker stop -t 60 mail_srs_domainname
+  assert_success
 }
 
 @test "checking configuration: OVERRIDE_HOSTNAME" {
@@ -105,6 +113,10 @@ teardown_file() {
   # postmaster address
   run docker exec mail_override_hostname_and_domainname /bin/sh -c "grep 'postmaster_address = postmaster@sld.tld' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
+
+  # Ensure container cleanly stops
+  run docker stop -t 60 mail_override_hostname_and_domainname
+  assert_success
 }
 
 @test "checking configuration: non-subdomain hostname" {
@@ -161,26 +173,9 @@ teardown_file() {
   # postmaster address is correct
   run docker exec mail_non_subdomain_hostname /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
-}
 
-#
-# clean exit
-#
-
-@test "checking that the container stops cleanly: mail_override_hostname_and_domainname" {
-  run docker stop -t 60 mail_override_hostname_and_domainname
-  assert_success
-}
-
-@test "checking that the container stops cleanly: mail_non_subdomain_hostname" {
+  # Ensure container cleanly stops
   run docker stop -t 60 mail_non_subdomain_hostname
-  assert_success
-}
-
-@test "checking that the containers stop cleanly: mail_srs_*" {
-  run docker stop -t 60 mail_srs_domainname
-  assert_success
-  run docker stop -t 60 mail_srs_hostname_and_domainname
   assert_success
 }
 
