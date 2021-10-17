@@ -48,6 +48,29 @@ t initialize iptables table `filter': Permission denied (you must be root)\nPerh
 j f2b-postfix
 ```
 
+## Running Fail2ban in a rootless container
+
+It is necessary to use `slirp4netns` port forwarding backend because `RootlessKit`, which is the default forwarder for rootless mode in Podman and Docker, does not preserve source IPs.
+
+Docker-compose configuration:
+
+```yaml
+services:
+  mailserver:
+    network_mode: "slirp4netns:port_handler=slirp4netns"
+```
+
+You also have to change `NETWORK_INTERFACE` environment variable to `tap0` because `slirp4netns` uses a TAP device injected inside the container's network namespace:
+
+```yaml
+services:
+  mailserver:
+    environment:
+      - ENABLE_FAIL2BAN=1
+      - NETWORK_INTERFACE=tap0
+      ...
+```
+
 ## Manage bans
 
 You can also manage and list the banned IPs with the [`setup.sh`][docs-setupsh] script.
