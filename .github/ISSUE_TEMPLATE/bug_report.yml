@@ -89,41 +89,6 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: main-memory
-    attributes:
-      label: How much RAM is available to DMS explicitly?
-      description: Please provide the amount of memory that DMS can really use. This includes physical memory (RAM), but also virtual memory (like swap or zram). Consider any resource limits you may have set that would affect this.
-      options:
-        - less than 1GB (very low)
-        - less than 2GB
-        - less than 4GB
-        - more than 4GB
-    validations:
-      required: true
-  - type: dropdown
-    id: cpu-count
-    attributes:
-      label: How many CPU cores are available?
-      description: How many CPU cores can DMS use? Consider any resource limits you may have set that would affect this.
-      options:
-        - less than 1 Core
-        - less than 2 Cores
-        - less than 4 Cores
-        - more than 4 Cores
-    validations:
-      required: true
-  - type: dropdown
-    id: system-type
-    attributes:
-      label: Is DMS running in a virtualized environment?
-      description: Choose the option that your setup is the most similar to. DMS is running on...
-      options:
-        - ... a physical host (with real, physical CPU cores, i.e. bare metal)
-        - ... a virtual dedicated server (VDS) (with real, physical cores)
-        - ... a virtual private server (VPS) (with virtual CPU cores)
-    validations:
-      required: true
-  - type: dropdown
     id: operating-system
     attributes:
       label: What operating system is DMS running on?
@@ -145,14 +110,6 @@ body:
         - Other (unsupported)
     validations:
       required: true
-  - type: input
-    id: persistent-memory
-    attributes:
-      label: I/O - Persistent memory
-      description: As we had problems with I/O and slow disks in the past, please provide a _short_ description of the underlying persistent memory architecture. Especially the file system is of interest.
-      placeholder: Docker bind-mount from local EXT4 storage
-    validations:
-      required: true
   - type: dropdown
     id: container-orchestrator
     attributes:
@@ -165,36 +122,12 @@ body:
         - Other (unsupported)
     validations:
       required: true
-  - type: input
-    id: docker-version
-    attributes:
-      label: Docker version
-      description: If you're using Docker, please show us the output of `docker --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
-      placeholder: Docker version 20.10.7, build f0df350
-    validations:
-      required: false
-  - type: input
-    id: docker-compose-version
-    attributes:
-      label: Docker Compose version
-      description: If you're using Docker Compose, please show us the output of `docker-compose --version` on the host running your DMS container. _Note that maintainers primarily provide support for Docker Engine only (users of `docker` and `docker-compose`)._
-      placeholder: docker-compose version 1.28.6, build 5db8d86f
-    validations:
-      required: false
-  - type: input
-    id: uname-a
-    attributes:
-      label: The output of `uname -a`
-      description: Please paste the output of `uname -a` here. If you're unable to do so (maybe because you're on Windows), tell us the reason here.
-      placeholder: Linux swift 5.11.0-31-generic \#33-Ubuntu SMP Wed Aug 11 13:19:04 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-    validations:
-      required: true
   - type: textarea
     id: important-environment-variables
     attributes:
-      label: Important environment variables
-      description: If there are environment variables important to this issue, please post them here. If we ask for the values of variables, make sure to put them in here too.
-      render: bash
+      label: docker-compose.yml
+      description: Show us your docker-compose.yml file or your equivalent "docker run" command.
+      render: yaml
   - type: textarea
     id: relevant-log-output
     attributes:
@@ -215,14 +148,11 @@ body:
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
         Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
-        For the more experienced, we can skip ahead and communicate more effectively to resolve the issue ASAP.
+        
       options:
-        - I have no idea what I'm doing! [beginner]
-        - I know the basics, I've used Docker before [novice]
-        - I'm comfortable with Docker / containers, but I'm relatively new to all this mail stuff
-        - I have experience with mail servers, but less experience working with containers
-        - I know both pretty well actually [experienced]
-        - Trust me, I'm a (computer) engineer! [expert]
+        - I am inexperienced with docker
+        - I am inexperienced with mail servers
+        - I am uncomfortable with the CLI
     validations:
       required: false
   - type: checkboxes
