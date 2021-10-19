@@ -346,7 +346,10 @@ function _setup_dovecot_local_user
         IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
         unset IFS
 
-        [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+        if [[ ${#USER_QUOTA[@]} -eq 2 ]]
+        then
+          USER_ATTRIBUTES="${USER_ATTRIBUTES:-}${USER_ATTRIBUTES+ }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+        fi
       fi
 
       if [[ -z ${USER_ATTRIBUTES} ]]
@@ -374,47 +377,59 @@ function _setup_dovecot_local_user
       echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
 
-    # adding aliases to Dovecot's userdb
-    local ALIAS REAL_USER
-    while read -r ALIAS REAL_USER
-    do
-      [[ ${ALIAS} == \#* ]] && continue
-
-      # setting variables for better readability
-      USER=$(echo "${REAL_USER}" | cut -d @ -f1)
-      DOMAIN=$(echo "${REAL_USER}" | cut -d @ -f2)
-
-      _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_USER}' to Dovecot userdb"
-
-      local PASS USER_ATTRIBUTES
-      while IFS=$'|' read -r LOGIN REAL_PASS USER_ATTRIBUTES
+    if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
+    then
+      # adding aliases to Dovecot's userdb
+      # ${REAL_FQUN} is a user's fully-qualified username
+      local ALIAS REAL_FQUN
+      while read -r ALIAS REAL_FQUN
       do
-        PASS=${REAL_PASS}
-        USER_ATTRIBUTES
-        break
-      done < <(grep "${REAL_USER}" /tmp/docker-mailserver/postfix-accounts.cf)
+        # ignore comments
+        [[ ${ALIAS} == \#* ]] && continue
 
-      # test if user has a defined quota
-      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-      then
-        declare -a USER_QUOTA
-        IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-        unset IFS
+        # alias is assumed to not be a proper e-mail
+        # these aliases do not need to be added to Dovecot's userdb
+        [[ ! ${ALIAS} == *@* ]] && continue
 
-        [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
-      fi
+        # clear possibly already filled arrays
+        unset REAL_ACC USER_QUOTA
+        declare -a REAL_ACC USER_QUOTA
 
-      if [[ -z ${PASS} ]]
-      then
-        _notify 'war' "Could not acquire password of user '${REAL_USER}' while adding alias '${ALIAS}'"
-        continue
-      fi
+        local REAL_USERNAME REAL_DOMAINNAME
+        REAL_USERNAME=$(cut -d @ -f1 <<< "${REAL_FQUN}")
+        REAL_DOMAINNAME=$(cut -d @ -f2 <<< "${REAL_FQUN}")
 
-      echo \
-        "${ALIAS}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES:-}" \
-        >> /etc/dovecot/userdb
+        _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot userdb"
 
-    done < <(cat /tmp/docker-mailserver/postfix-virtual.cf)
+        # REAL_ACC is an indexed array with
+        #
+        # | position | content                                       |
+        # |        0 | real account name (e-mail address) == ${FQUN} |
+        # |        1 | password hash                                 |
+        # |        2 | optional user attributes                      |
+        IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf)
+
+        if [[ -z ${REAL_ACC[1]} ]]
+        then
+          _notify 'err' "Could not acquire password hash of user '${REAL_FQUN}' while adding alias '${ALIAS}'"
+          continue
+        fi
+
+        # test if user has a defined quota
+        if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
+        then
+          IFS=':' read -r -a USER_QUOTA < <(grep "${REAL_FQUN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
+          if [[ ${#USER_QUOTA[@]} -eq 2 ]]
+          then
+            REAL_ACC[2]="${REAL_ACC[2]:-}${REAL_ACC[2]+ }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+          fi
+        fi
+
+        echo \
+          "${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}" \
+          >> /etc/dovecot/userdb
+      done < /tmp/docker-mailserver/postfix-virtual.cf
+    fi
   else
     _notify 'inf' "'/tmp/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
