@@ -17,13 +17,15 @@ function _fix_var_mail_permissions
 {
   _notify 'task' 'Checking /var/mail permissions'
 
-  # fix permissions, but skip this if 3 levels deep the user id is already set
-  if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
-  then
+  # Adapts the permissions of the /var/mail folder.
+  mail_owner_user=$(stat -c '%u' /var/mail)
+  mail_owner_group=$(stat -c '%g' /var/mail)
+
+  if  [[ $mail_owner_user -ne 5000 || $mail_owner_group -ne 5000 ]]; then
     _notify 'inf' 'Fixing /var/mail permissions'
-    chown -R 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
+    chown 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
   else
-    _notify 'inf' 'Permissions in /var/mail look OK'
+    _notify 'inf' 'Permissions of /var/mail look OK'
   fi
 }
 
