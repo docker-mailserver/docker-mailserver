@@ -48,11 +48,11 @@ t initialize iptables table `filter': Permission denied (you must be root)\nPerh
 j f2b-postfix
 ```
 
-## Running Fail2ban in a rootless container
+## Running fail2ban in a rootless container
 
 It is necessary to use `slirp4netns` port forwarding backend because `RootlessKit`, which is the default forwarder for rootless mode in Podman and Docker, does not preserve source IPs.
 
-Docker-compose configuration:
+`docker-compose` configuration:
 
 ```yaml
 services:
