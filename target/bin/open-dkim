@@ -152,7 +152,7 @@ do
       --subdomains \
       --domain="${DKIM_DOMAIN}" \
       --selector="${SELECTOR}" \
-      --directory "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+      --directory="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
   fi
 
   # write to KeyTable if necessary

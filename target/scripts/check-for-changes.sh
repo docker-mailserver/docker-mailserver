@@ -61,6 +61,7 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
+    # TODO: Consider refactoring this:
     for FILE in ${CHANGED}
     do
       case "${FILE}" in
@@ -72,6 +73,8 @@ do
           done
           ;;
 
+        # This seems like an invalid warning, as if the whole loop and case statement
+        # are only intended for the `acme.json` file..?
         * )
           _notify 'warn' 'File not found for certificate in check_for_changes.sh'
           ;;
@@ -79,6 +82,10 @@ do
       esac
     done
 
+    # WARNING: This block of duplicate code is already out of sync
+    # It appears to unneccesarily run, even if the related entry in the CHKSUM_FILE
+    # has not changed?
+    #
     # regenerate postix aliases
     echo "root: ${PM_ADDRESS}" >/etc/aliases
     if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]

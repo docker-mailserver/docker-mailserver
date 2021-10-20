@@ -34,7 +34,7 @@ To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
     2. Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`. Make sure that the entire folder is mounted as there are typically symlinks from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`.
 
 You don't have to do anything else. Enjoy!
-    
+
 !!! note
 
     `docker-mailserver` uses provisioned certificates under `/etc/letsencrypt/live/` which match your configured FQDN (_Fully Qualified Domain Name_). The FQDN inside the docker container is derived via the `hostname -f` command inside of the container.
@@ -427,9 +427,7 @@ No client certificate CA names sent
 
 Wildcard certificates are supported. If your FQDN is `mail.example.com` and your wildcard certificate is `*.example.com`, add the ENV: `#!bash SSL_DOMAIN=example.com`.
 
-The mail-server will select it's certificate from `acme.json` via matching the FQDN from (_in order of priority_): 
-
-Lookup of the certificate domain happens in the following order:
+The mail-server will select it's certificate from `acme.json` checking these ENV for a matching FQDN (_in order of priority_):
 
 1. `#!bash ${SSL_DOMAIN}`
 2. `#!bash ${HOSTNAME}`
