@@ -21,9 +21,12 @@ function _fix_var_mail_permissions
   mail_owner_user=$(stat -c '%u' /var/mail)
   mail_owner_group=$(stat -c '%g' /var/mail)
 
-  if  [[ ${mail_owner_user} -ne 5000 || ${mail_owner_group} -ne 5000 ]]; then
-    _notify 'inf' 'Fixing /var/mail permissions'
-    chown 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
+  if [ $ENABLE_LDAP = 1 ] && ([ ${mail_owner_user} -ne 5000 ] || [ ${mail_owner_group} -ne 5000 ]); then
+    _notify 'inf' 'Fixing /var/mail permissions to fit LDAP-enabled needs'
+    chown 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions to fit LDAP needs'
+  elif find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r; then
+    _notify 'inf' 'Fixing /var/mail permissions to fit LDAP-disabled needs'
+    chown -R 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions to fit LDAP needs'
   else
     _notify 'inf' 'Permissions of /var/mail look OK'
   fi
