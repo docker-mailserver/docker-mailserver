@@ -104,14 +104,6 @@ function remove_lock
   fi
 }
 
-# Outputs the DNS label count (delimited by `.`) for the given input string
-# Useful for determining an FQDN like `mail.example.com` (3 labels) vs `example.com` (2 labels).
-function _get_label_length
-{
-  local INPUT="${1}"
-  awk -F. '{ print NF - 1 }' <<< "${INPUT}"
-}
-
 # ? --------------------------------------------- IP & CIDR
 
 function _mask_ip_digit
@@ -304,32 +296,62 @@ export -f _monitored_files_checksums
 
 # ? --------------------------------------------- General
 
+# Outputs the DNS label count (delimited by `.`) for the given input string.
+# Useful for determining an FQDN like `mail.example.com` (3), vs `example.com` (2).
+function _get_label_length
+{
+  local INPUT=${1}
+  awk -F '.' '{ print NF }' <<< "${INPUT}"
+}
+
 function _obtain_hostname_and_domainname
 {
-  # Collect HOSTNAME to use throughout the various setup scripts and commands (setup-stack.sh/postconf, etc)
+  # This is where we modify it for all our scripts and subprocesses called that intereact with it.
+  # Normally this value would match the output of `hostname` that mirrors `/proc/sys/kernel/hostname`,
+  # However for legacy reasons, the system ENV `HOSTNAME` was overrided here with `hostname -f` instead.
+  #
+  # TODO: Consider changing to `DMS_FQDN`, a more accurate name, and removing the `export`, assuming no
+  # subprocess like postconf would be called that would access the hostname via `HOSTNAME`.
+  # TODO: `OVERRIDE_HOSTNAME` was introduced for non-Docker runtimes that could not configure an explicit hostname.
+  # k8s was the particular runtime in 2017. This does not update `/etc/hosts` or other locations, thus risking
+  # inconsistency with expected behaviour. Investigate if it's safe to remove support.
   export HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
-  if [[ -z "${HOSTNAME}" ]]
+
+  # If misconfigured, `hostname -f` which derives it's value from `/etc/hosts` or DNS query,
+  # will result in an error that returns an empty value. This warrants a panic.
+  if [[ -z ${HOSTNAME} ]]
   then
-    dms_panic__fail_init '_obtain_hostname_and_domainname' \
-    'Internally used hostname obtained from hostname -f or OVERRIDE_HOSTNAME'
+    dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
   fi
 
-  # Attempt to derive the domain name from HOSTNAME (if it's a subdomain)
-  if [[ -n "${OVERRIDE_HOSTNAME}" ]]
+  # If the `HOSTNAME` is more than 2 labels long (eg: mail.example.com),
+  # We take the FQDN from it minus the 1st label (aka short hostname, `hostname -s`).
+  #
+  # TODO: For some reason we're explicitly separating out a domain name from our FQDN,
+  # `hostname -d` was probably not the correct command for this intention either.
+  # Needs further investigation for relevance, and if `/etc/hosts` is important for consumers
+  # of this variable or if a more deterministic approach with `cut` should be relied on.
+  if [[ $(_get_label_length "${HOSTNAME}") -gt 2 ]]
   then
-    if [[ $(_get_label_length "${HOSTNAME}") -gt 1 ]]
+    if [[ -n ${OVERRIDE_HOSTNAME} ]]
     then
-      DMS_HOSTNAME_DOMAIN="$(echo "${HOSTNAME}" | cut -d. -f2-99)"
-    fi
-  else
-    if [[ $(_get_label_length "${HOSTNAME}") -gt 1 ]]
-    then
+      # Emulates the intended behaviour of `hostname -d`
+      DMS_HOSTNAME_DOMAIN="$(echo "${HOSTNAME}" | cut -d '.' -f2-99)"
+    else
+      # Operates on FQDN returned from `/etc/hosts` or DNS query,
+      # Note if you want the `domainname`, use a command of the same name,
+      # Or cat /proc/sys/kernel/domainname
+      # Our usage of `domainname` is under consideration as legacy, and
+      # discouraged going forward. In future docs should drop any mention of it.
+
       #shellcheck disable=SC2034
       DMS_HOSTNAME_DOMAIN="$(hostname -d)"
     fi
   fi
 
-  export DMS_HOSTNAME_DOMAIN="${DMS_HOSTNAME_DOMAIN:-"${HOSTNAME}"}"
+  # Otherwise we assign the same value (eg: example.com).
+  # Not an else condition, in the event that `hostname -d` fails.
+  DMS_HOSTNAME_DOMAIN="${DMS_HOSTNAME_DOMAIN:-"${HOSTNAME}"}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
