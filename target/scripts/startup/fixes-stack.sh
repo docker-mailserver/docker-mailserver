@@ -21,7 +21,7 @@ function _fix_var_mail_permissions
   mail_owner_user=$(stat -c '%u' /var/mail)
   mail_owner_group=$(stat -c '%g' /var/mail)
 
-  if  [[ $mail_owner_user -ne 5000 || $mail_owner_group -ne 5000 ]]; then
+  if  [[ ${mail_owner_user} -ne 5000 || ${mail_owner_group} -ne 5000 ]]; then
     _notify 'inf' 'Fixing /var/mail permissions'
     chown 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
   else
