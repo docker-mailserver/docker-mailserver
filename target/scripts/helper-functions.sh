@@ -150,7 +150,13 @@ export -f _sanitize_ipv4_to_subnet_cidr
 
 function _extract_certs_from_acme
 {
-  local CERT_DOMAIN="${1}"
+  local CERT_DOMAIN=${1}
+  if [[ -z "${CERT_DOMAIN}" ]]
+  then
+    _notify 'err' "_extract_certs_from_acme | CERT_DOMAIN is empty"
+    return 1
+  fi
+
   local KEY
   # shellcheck disable=SC2002
   KEY=$(cat /etc/letsencrypt/acme.json | python -c "
@@ -180,25 +186,39 @@ for key, value in acme.items():
                     break
 ")
 
-  if [[ -n "${KEY}" ]]
+  # Fail if KEY or CERT are empty:
+  if [[ -z "${KEY}" ]]
   then
-    if [[ -n "${CERT}" ]]
-    then
-      mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
-      echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/key.pem || exit 1
-      echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${CERT_DOMAIN}"/fullchain.pem || exit 1
-      _notify 'inf' "_extract_certs_from_acme | Cert found in /etc/letsencrypt/acme.json for ${CERT_DOMAIN}"
-      return 0
-    else
-      _notify 'warn' "Unable to find cert in /etc/letsencrypt/acme.json."
-      return 1
-    fi
-  else
-    _notify 'warn' "Unable to find key in /etc/letsencrypt/acme.json."
+    _notify 'warn' "_extract_certs_from_acme | Unable to find key for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
   fi
+  if [[ -z "${CERT}" ]]
+  then
+    _notify 'warn' "_extract_certs_from_acme | Unable to find cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+    return 1
+  fi
+
+  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]
+  then
+    CERT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+  fi
+  mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
+  echo "${KEY}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
+  echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
+
+  _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 export -f _extract_certs_from_acme
+
+# Remove the `*.` prefix if it exists
+function _strip_wildcard_prefix {
+  local FQDN=${1}
+    if [[ ${FQDN} =~ \*\. ]]
+    then
+      FQDN=$(echo "${1}" | cut -d '.' -f2-99)
+    fi
+  echo "${FQDN}"
+}
 
 # ? --------------------------------------------- Notifications
 
