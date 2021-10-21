@@ -1,155 +1,439 @@
 load 'test_helper/common'
+# Globals referenced from `test_helper/common`:
+# TEST_NAME TEST_FQDN TEST_TMP_CONFIG
 
+# Requires maintenance (TODO): Yes
+# Can run tests in parallel?: No
+
+# Not parallelize friendly when TEST_NAME is static,
+# presently name of test file: `mail_ssl_letsencrypt`.
+#
+# Also shares a common TEST_TMP_CONFIG local folder,
+# Instead of individual PRIVATE_CONFIG copies.
+# For this test that is a non-issue, unless run in parallel.
+
+
+# Applies to all tests:
+function setup_file() {
+  init_with_defaults
+
+  # Override default to match the hostname we want to test against instead:
+  export TEST_FQDN='mail.example.test'
+
+  # Prepare certificates in the letsencrypt supported file structure:
+  # Note Certbot uses `privkey.pem`.
+  # `fullchain.pem` is currently what's detected, but we're actually providing the equivalent of `cert.pem` here.
+  # TODO: Verify format/structure is supported for nginx-proxy + acme-companion (uses `acme.sh` to provision).
+
+  # `mail.example.test` (presently contains both FQDNs):
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.ecdsa.pem' 'mail.example.test/fullchain.pem'
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.ecdsa.pem' "mail.example.test/privkey.pem"
+
+  # `example.test` (presently contains both FQDNs):
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.rsa.pem' 'example.test/fullchain.pem'
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.rsa.pem' 'example.test/privkey.pem'
+}
+
+# Not used
+# function teardown_file() {
+# }
+
+# Applies per test:
 function setup() {
   run_setup_file_if_necessary
 }
 
 function teardown() {
+  docker rm -f "${TEST_NAME}"
   run_teardown_file_if_necessary
 }
 
-function setup_file() {
-  local PRIVATE_CONFIG
-
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_domain)"
-  docker run -d --name mail_lets_domain \
-  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-  -v "${PRIVATE_CONFIG}/letsencrypt/my-domain.com":/etc/letsencrypt/live/my-domain.com \
-  -e DMS_DEBUG=0 \
-  -e SSL_TYPE=letsencrypt \
-  -h mail.my-domain.com -t "${NAME}"
-  wait_for_finished_setup_in_container mail_lets_domain
-
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_hostname)"
-  docker run -d --name mail_lets_hostname \
-  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-  -v "${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com":/etc/letsencrypt/live/mail.my-domain.com \
-  -e DMS_DEBUG=0 \
-  -e SSL_TYPE=letsencrypt \
-  -h mail.my-domain.com -t "${NAME}"
-  wait_for_finished_setup_in_container mail_lets_hostname
-
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json)"
-  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/acme.json" "$(private_config_path mail_lets_acme_json)/acme.json"
-  docker run -d --name mail_lets_acme_json \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DMS_DEBUG=1 \
-    -e SSL_TYPE=letsencrypt \
-    -e "SSL_DOMAIN=*.example.com" \
-    -h mail.my-domain.com -t "${NAME}"
-  wait_for_finished_setup_in_container mail_lets_acme_json
-
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_lets_acme_json_example_wildcard)"
-  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/wildcard.example.com/acme.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
-  docker run -d --name mail_lets_acme_json_example_wildcard \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "${PRIVATE_CONFIG}/acme.json":/etc/letsencrypt/acme.json:ro \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DMS_DEBUG=1 \
-    -e SSL_TYPE=letsencrypt \
-    -h example.com -t "${NAME}"
-  wait_for_finished_setup_in_container mail_lets_acme_json_example_wildcard
-}
-
-function teardown_file() {
-  docker rm -f mail_lets_domain
-  docker rm -f mail_lets_hostname
-  docker rm -f mail_lets_acme_json
-  docker rm -f mail_lets_acme_json_example_wildcard
-}
 
 # this test must come first to reliably identify when to run setup_file
 @test "first" {
   skip 'Starting testing of letsencrypt SSL'
 }
 
-@test "checking ssl: letsencrypt configuration is correct" {
-  #test domain has certificate files
-  run docker exec mail_lets_domain /bin/sh -c 'postconf | grep "smtpd_tls_chain_files = /etc/letsencrypt/live/my-domain.com/key.pem /etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_domain /bin/sh -c 'doveconf | grep "ssl_cert = </etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_domain /bin/sh -c 'doveconf -P | grep "ssl_key = </etc/letsencrypt/live/my-domain.com/key.pem" | wc -l'
-  assert_success
-  assert_output 1
-  #test hostname has certificate files
-  run docker exec mail_lets_hostname /bin/sh -c 'postconf | grep "smtpd_tls_chain_files = /etc/letsencrypt/live/mail.my-domain.com/privkey.pem /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_hostname /bin/sh -c 'doveconf | grep "ssl_cert = </etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_hostname /bin/sh -c 'doveconf -P | grep "ssl_key = </etc/letsencrypt/live/mail.my-domain.com/privkey.pem" | wc -l'
-  assert_success
-  assert_output 1
+
+# Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
+@test "ssl(letsencrypt): Should default to HOSTNAME (mail.example.test)" {
+  local TARGET_DOMAIN='mail.example.test'
+
+  local TEST_DOCKER_ARGS=(
+    --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
+    --env SSL_TYPE='letsencrypt'
+  )
+
+  common_container_setup TEST_DOCKER_ARGS
+
+  _should_have_valid_config 'mail.example.test' 'privkey.pem' 'fullchain.pem'
+  _should_succesfully_negotiate_tls 'mail.example.test'
+
+  # TODO: This should fail...but requires recreating certificate to only support `mail.example.test`:
+  # _should_not_have_fqdn_in_cert 'example.test'
 }
 
-@test "checking ssl: letsencrypt cert works correctly" {
-  run docker exec mail_lets_domain /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec mail_lets_domain /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec mail_lets_hostname /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec mail_lets_hostname /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
+
+# Should detect and choose cert for FQDN `example.test` (DMS_HOSTNAME_DOMAIN),
+# as fallback when no cert for FQDN `mail.example.test` (HOSTNAME) exists:
+@test "ssl(letsencrypt): Should fallback to DMS_HOSTNAME_DOMAIN (example.test)" {
+  local TARGET_DOMAIN='example.test'
+
+  local TEST_DOCKER_ARGS=(
+    --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
+    --env SSL_TYPE='letsencrypt'
+  )
+
+  common_container_setup TEST_DOCKER_ARGS
+
+  _should_have_valid_config 'example.test' 'privkey.pem' 'fullchain.pem'
+  _should_succesfully_negotiate_tls 'example.test'
+
+  # TODO: This should fail...but requires recreating certificate to only support `example.test`:
+  # _should_not_have_fqdn_in_cert 'mail.example.test'
 }
 
+
+# When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
+# should be extracted and be chosen over an existing FQDN `mail.example.test` (HOSTNAME):
+# Test should verify `mail.example.test` is negotiated, not `example.test`.
 #
-# acme.json updates
-#
+# NOTE: Extracted cert has `main='example.test'` (subject CN) and `san=['*.example.test']`.
+# This is unrelated to the related fields in `acme.json`, which only serve a purpose for extraction lookup.
+@test "ssl(letsencrypt): Traefik 'acme.json' (*.example.test)" {
+  local ACME_JSON_FILES="${PWD}/test/test-files/ssl/traefik"
+  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/ecdsa"
 
-@test "checking changedetector: server is ready" {
-  run docker exec mail_lets_acme_json /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
+  function _prepare() {
+    # Default `acme.json` for _acme_ecdsa test:
+    cp "${ACME_JSON_FILES}/ecdsa/acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
+
+    # TODO: Provision wildcard certs via Traefik to inspect if `example.test` non-wildcard is also added to the cert.
+    # `DMS_DEBUG=1` required for catching logged `inf` output.
+    # shellcheck disable=SC2034
+    local TEST_DOCKER_ARGS=(
+      --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json"
+      --env SSL_TYPE='letsencrypt'
+      --env SSL_DOMAIN='*.example.test'
+      --env DMS_DEBUG=1
+    )
+
+    common_container_setup TEST_DOCKER_ARGS
+  }
+
+  # Test `acme.json` extraction works at container startup:
+  # It should have already extracted `mail.example.test` from the original mounted `acme.json`.
+  function _acme_ecdsa() {
+    _should_have_succeeded_at_extraction 'mail.example.test'
+
+    # SSL_DOMAIN set as ENV, but startup should not have match in `acme.json`:
+    _should_have_failed_at_extraction '*.example.test' 'mailserver'
+    _should_have_valid_config 'mail.example.test' 'key.pem' 'fullchain.pem'
+
+    local ECDSA_KEY_PATH="${LOCAL_BASE_PATH}/key.ecdsa.pem"
+    local ECDSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.ecdsa.pem"
+    _should_have_expected_files 'mail.example.test' "${ECDSA_KEY_PATH}" "${ECDSA_CERT_PATH}"
+  }
+
+  # Test `acme.json` extraction is triggered via change detection:
+  # The updated `acme.json` roughly emulates a renewal, but changes from an ECDSA cert to an RSA one.
+  # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
+  function _acme_rsa() {
+    _should_extract_on_changes 'mail.example.test' "${ACME_JSON_FILES}/rsa/acme.json"
+    _should_have_service_restart_count '1'
+
+    local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
+    local RSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.rsa.pem"
+    _should_have_expected_files 'mail.example.test' "${RSA_KEY_PATH}" "${RSA_CERT_PATH}"
+  }
+
+  # Test that `acme.json` also works with wildcard certificates:
+  # Additionally tests that SSL_DOMAIN is prioritized when `letsencrypt/live/` already has a HOSTNAME dir available.
+  # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
+  function _acme_wildcard() {
+    _should_extract_on_changes 'example.test' "${ACME_JSON_FILES}/ecdsa/wildcard/acme.json"
+    _should_have_service_restart_count '2'
+    _should_have_failed_at_extraction 'mail.example.test' 'changedetector'
+
+    # TODO: Make this pass.
+    # As the FQDN has changed since startup, the configs need to be updated accordingly.
+    # This requires the `changedetector` service event to invoke the same function for TLS configuration
+    # that is used during container startup to work correctly. A follow up PR will refactor `setup-stack.sh` for supporting this.
+    # _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
+
+    local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.ecdsa.pem"
+    local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.ecdsa.pem"
+    _should_have_expected_files 'example.test' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
+
+    # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
+    _should_succesfully_negotiate_tls 'mail.example.test' "${TEST_NAME}"
+    # WARNING: This should fail...but requires resolving the above TODO.
+    # _should_not_have_fqdn_in_cert 'example.test'
+  }
+
+  _prepare
+
+  # Verify the `changedetector` service is running:
+  run docker exec "${TEST_NAME}" /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
   assert_success
+
+  # Wait until the changedetector startup delay has passed:
+  repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
+
+  # Unleash the `acme.json` tests!
+  # NOTE: Test failures aren't as helpful here as bats will only identify function calls at this top-level,
+  # rather than the actual failing nested function call..
+  # TODO: Extract methods to separate test cases.
+  _acme_ecdsa
+  _acme_rsa
+  _acme_wildcard
 }
 
-@test "can extract certs from acme.json" {
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/privkey.pem")"
-  assert_success
-
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/fullchain.pem")"
-  assert_success
-}
-
-@test "can detect changes" {
-  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/changed/acme.json" "$(private_config_path mail_lets_acme_json)/acme.json"
-  sleep 15
-  run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "Change detected"
-  assert_output --partial "postfix: stopped"
-  assert_output --partial "postfix: started"
-
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/changed/fullchain.pem")"
-  assert_success
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/changed/key.pem")"
-  assert_success
-}
-
-@test "can detect changes (wildcard example.com)" {
-  cp "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/wildcard.example.com/changed/acme.json" "$(private_config_path mail_lets_acme_json_example_wildcard)/acme.json"
-  sleep 15
-  run docker exec mail_lets_acme_json_example_wildcard /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "Change detected"
-  assert_output --partial "postfix: stopped"
-  assert_output --partial "postfix: started"
-
-  run docker exec mail_lets_acme_json_example_wildcard /bin/bash -c "cat /etc/letsencrypt/live/example.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json_example_wildcard)/letsencrypt/wildcard.example.com/changed/fullchain.pem")"
-  assert_success
-}
 
 # this test is only there to reliably mark the end for the teardown_file
 @test "last" {
   skip 'Finished testing of letsencrypt SSL'
+}
+
+
+#
+# Test Methods
+#
+
+
+function _should_have_valid_config() {
+  local EXPECTED_FQDN=${1}
+  local LE_KEY_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${2}"
+  local LE_CERT_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${3}"
+
+  _has_matching_line "postconf | grep 'smtpd_tls_chain_files = ${LE_KEY_PATH} ${LE_CERT_PATH}'"
+  _has_matching_line "doveconf | grep 'ssl_cert = <${LE_CERT_PATH}'"
+  # `-P` is required to prevent redacting secrets
+  _has_matching_line "doveconf -P | grep 'ssl_key = <${LE_KEY_PATH}'"
+}
+
+function _has_matching_line() {
+  run docker exec "${TEST_NAME}" /bin/sh -c "${1} | wc -l"
+  assert_success
+  assert_output 1
+}
+
+
+#
+# Traefik `acme.json` specific
+#
+
+
+# It should log success of extraction for the expected domain and restart Postfix.
+function _should_have_succeeded_at_extraction() {
+  local EXPECTED_DOMAIN=${1}
+  local SERVICE=${2}
+
+  run $(_get_service_logs "${SERVICE}")
+  assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
+}
+
+function _should_have_failed_at_extraction() {
+  local EXPECTED_DOMAIN=${1}
+  local SERVICE=${2}
+
+  run $(_get_service_logs "${SERVICE}")
+  assert_output --partial "Unable to find key for '${EXPECTED_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+}
+
+# Replace the mounted `acme.json` and wait to see if changes were detected.
+function _should_extract_on_changes() {
+  local EXPECTED_DOMAIN=${1}
+  local ACME_JSON=${2}
+
+  cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
+  # Change detection takes a little over 5 seconds to complete (restart services)
+  sleep 10
+
+  # Expected log lines from the changedetector service:
+  run $(_get_service_logs 'changedetector')
+  assert_output --partial 'Change detected'
+  assert_output --partial "'/etc/letsencrypt/acme.json' has changed, extracting certs"
+  assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
+  assert_output --partial 'Restarting services due to detected changes'
+  assert_output --partial 'postfix: stopped'
+  assert_output --partial 'postfix: started'
+  assert_output --partial 'dovecot: stopped'
+  assert_output --partial 'dovecot: started'
+}
+
+# Ensure change detection is not mistakenly validating against previous change events:
+function _should_have_service_restart_count() {
+  local NUM_RESTARTS=${1}
+
+  run docker exec "${TEST_NAME}" /bin/sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
+  assert_output "${NUM_RESTARTS}"
+}
+
+# Extracted cert files from `acme.json` have content matching the expected reference files:
+function _should_have_expected_files() {
+  local LE_BASE_PATH="/etc/letsencrypt/live/${1}"
+  local LE_KEY_PATH="${LE_BASE_PATH}/key.pem"
+  local LE_CERT_PATH="${LE_BASE_PATH}/fullchain.pem"
+  local EXPECTED_KEY_PATH=${2}
+  local EXPECTED_CERT_PATH=${3}
+
+  _should_be_equal_in_content "${LE_KEY_PATH}" "${EXPECTED_KEY_PATH}"
+  _should_be_equal_in_content "${LE_CERT_PATH}" "${EXPECTED_CERT_PATH}"
+}
+
+
+#
+# TLS
+#
+
+
+# For certs actually provisioned from LetsEncrypt the Root CA cert should not need to be provided,
+# as it would already be available by default in `/etc/ssl/certs`, requiring only the cert chain (fullchain.pem).
+function _should_succesfully_negotiate_tls() {
+  local FQDN=${1}
+  local CONTAINER_NAME=${2:-${TEST_NAME}}
+  local CA_CERT=${3:-${TEST_CA_CERT}}
+
+  # Postfix and Dovecot are ready:
+  wait_for_smtp_port_in_container_to_respond "${CONTAINER_NAME}"
+  wait_for_tcp_port_in_container 993 "${CONTAINER_NAME}"
+
+  # Root CA cert should be present in the container:
+  assert docker exec "${CONTAINER_NAME}" [ -f "${CA_CERT}" ]
+
+  for PORT in 25 587 465 143 993
+  do
+    _negotiate_tls "${FQDN}" "${PORT}"
+  done
+}
+
+function _negotiate_tls() {
+  local FQDN=${1}
+  local PORT=${2}
+  local CONTAINER_NAME=${3:-${TEST_NAME}}
+  local CA_CERT=${4:-${TEST_CA_CERT}}
+
+  # `assert_output --partial` is used as the openssl command outputs stderr that gets caught
+  # in the output caputured as well. To use grep output would require storing the result,
+  # and comparing it with `assert_equal` instead.
+  local CMD_OPENSSL_VERIFY
+  CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}")
+
+  # Should fail as a chain of trust is required to verify successfully:
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "${CMD_OPENSSL_VERIFY}"
+  assert_output --partial 'Verification error: unable to verify the first certificate'
+
+  # Provide the Root CA cert for successful verification:
+  CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}" "-CAfile ${CA_CERT}")
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "${CMD_OPENSSL_VERIFY}"
+  assert_output --partial 'Verification: OK'
+
+  _should_have_fqdn_in_cert "${FQDN}" "${PORT}"
+}
+
+# TODO: Probably should be more explicit with the match boundaries for the FQDN
+# Partial matching will fail on: `*.example.test` !== `example.test`, `mail.example.test` !== `example.test`
+function _should_have_fqdn_in_cert() {
+  local FQDN=${1}
+
+  _get_fqdns_for_cert "$@"
+  assert_output --partial "${FQDN}"
+}
+
+function _should_not_have_fqdn_in_cert() {
+  local FQDN=${1}
+
+  _get_fqdns_for_cert "$@"
+  refute_output --partial "${FQDN}"
+}
+
+function _get_fqdns_for_cert() {
+  local FQDN=${1}
+  local PORT=${2:-'25'}
+  local CONTAINER_NAME=${3:-${TEST_NAME}}
+  local CA_CERT=${4:-${TEST_CA_CERT}}
+
+  # `-servername` is for SNI, where the port may be for a service that serves multiple certs,
+  # and needs a specific FQDN to return the correct cert. Such as a reverse-proxy.
+  local EXTRA_ARGS="-servername ${FQDN} -CAfile ${CA_CERT}"
+  local CMD_OPENSSL_VERIFY
+  # eg: "timeout 1 openssl s_client -connect localhost:25 -starttls smtp ${EXTRA_ARGS}"
+  CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}" "${EXTRA_ARGS}")
+
+  # Takes the result of the openssl output to return the x509 certificate,
+  # We then check that for any matching FQDN entries:
+  # main == `Subject CN = <FQDN>`, sans == `DNS:<FQDN>`
+  local CMD_FILTER_FQDN="openssl x509 -noout -text | egrep 'Subject: CN = |DNS:'"
+
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "${CMD_OPENSSL_VERIFY} | ${CMD_FILTER_FQDN}"
+}
+
+function _generate_openssl_cmd() {
+  # Using a HOST of `localhost` will not have issues with `/etc/hosts` matching,
+  # since hostname may not be match correctly in `/etc/hosts` during tests when checking cert validity.
+  local HOST='localhost'
+  local PORT=${1}
+  local EXTRA_ARGS=${2}
+
+  # `echo '' | openssl ...` is a common approach for providing input to `openssl` command which waits on input to exit.
+  # While the command is still successful it does result with `500 5.5.2 Error: bad syntax` being included in the response.
+  # `timeout 1` instead of the empty echo pipe approach seems to work better instead.
+  local CMD_OPENSSL="timeout 1 openssl s_client -connect ${HOST}:${PORT}"
+
+  # STARTTLS ports need to add a hint:
+  if [[ ${PORT} =~ ^(25|587)$ ]]
+  then
+    CMD_OPENSSL="${CMD_OPENSSL} -starttls smtp"
+  elif [[ ${PORT} == 143 ]]
+  then
+    CMD_OPENSSL="${CMD_OPENSSL} -starttls imap"
+  elif [[ ${PORT} == 110 ]]
+  then
+    CMD_OPENSSL="${CMD_OPENSSL} -starttls pop3"
+  fi
+
+  echo "${CMD_OPENSSL} ${EXTRA_ARGS}"
+}
+
+
+#
+# Misc
+#
+
+
+# Rename test certificate files to match the expected file structure for letsencrypt:
+function _copy_to_letsencrypt_storage() {
+  local SRC=${1}
+  local DEST=${2}
+
+  local FQDN_DIR
+  FQDN_DIR=$(echo "${DEST}" | cut -d '/' -f1)
+  mkdir -p "${TEST_TMP_CONFIG}/letsencrypt/${FQDN_DIR}"
+
+  cp "${PWD}/test/test-files/ssl/${SRC}" "${TEST_TMP_CONFIG}/letsencrypt/${DEST}"
+}
+
+function _should_be_equal_in_content() {
+  local CONTAINER_PATH=${1}
+  local LOCAL_PATH=${2}
+
+  run docker exec "${TEST_NAME}" sh -c "cat ${CONTAINER_PATH}"
+  assert_output "$(cat "${LOCAL_PATH}")"
+  assert_success
+}
+
+function _get_service_logs() {
+  local SERVICE=${1:-'mailserver'}
+
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
+
+  # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
+  # The `supervisorctl tail` command won't work; must instead query via `docker logs`:
+  if [[ ${SERVICE} == 'mailserver' ]]
+  then
+    CMD_LOGS=(docker logs "${TEST_NAME}")
+  fi
+
+  echo "${CMD_LOGS[@]}"
 }
