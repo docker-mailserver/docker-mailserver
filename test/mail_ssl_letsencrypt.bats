@@ -174,8 +174,8 @@ function teardown() {
   _prepare
 
   # Verify the `changedetector` service is running:
-  run docker exec "${TEST_NAME}" /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
-  assert_success
+  run $(_get_service_logs 'changedetector')
+  assert_output --partial 'Start check-for-changes script'
 
   # Wait until the changedetector startup delay has passed:
   repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
@@ -206,16 +206,15 @@ function _should_have_valid_config() {
   local LE_KEY_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${2}"
   local LE_CERT_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${3}"
 
-  _has_matching_line "postconf | grep 'smtpd_tls_chain_files = ${LE_KEY_PATH} ${LE_CERT_PATH}'"
-  _has_matching_line "doveconf | grep 'ssl_cert = <${LE_CERT_PATH}'"
+  _has_matching_line 'postconf' "smtpd_tls_chain_files = ${LE_KEY_PATH} ${LE_CERT_PATH}"
+  _has_matching_line 'doveconf' "ssl_cert = <${LE_CERT_PATH}"
   # `-P` is required to prevent redacting secrets
-  _has_matching_line "doveconf -P | grep 'ssl_key = <${LE_KEY_PATH}'"
+  _has_matching_line 'doveconf -P' "ssl_key = <${LE_KEY_PATH}"
 }
 
 function _has_matching_line() {
-  run docker exec "${TEST_NAME}" /bin/sh -c "${1} | wc -l"
-  assert_success
-  assert_output 1
+  run docker exec "${TEST_NAME}" sh -c "${1} | grep '${2}'"
+  assert_output "${2}"
 }
 
 
@@ -302,7 +301,8 @@ function _should_succesfully_negotiate_tls() {
   # Root CA cert should be present in the container:
   assert docker exec "${CONTAINER_NAME}" [ -f "${CA_CERT}" ]
 
-  for PORT in 25 587 465 143 993
+  local PORTS=(25 587 465 143 993)
+  for PORT in "${PORTS[@]}"
   do
     _negotiate_tls "${FQDN}" "${PORT}"
   done
@@ -314,9 +314,6 @@ function _negotiate_tls() {
   local CONTAINER_NAME=${3:-${TEST_NAME}}
   local CA_CERT=${4:-${TEST_CA_CERT}}
 
-  # `assert_output --partial` is used as the openssl command outputs stderr that gets caught
-  # in the output caputured as well. To use grep output would require storing the result,
-  # and comparing it with `assert_equal` instead.
   local CMD_OPENSSL_VERIFY
   CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}")
 
@@ -358,7 +355,7 @@ function _get_fqdns_for_cert() {
   # and needs a specific FQDN to return the correct cert. Such as a reverse-proxy.
   local EXTRA_ARGS="-servername ${FQDN} -CAfile ${CA_CERT}"
   local CMD_OPENSSL_VERIFY
-  # eg: "timeout 1 openssl s_client -connect localhost:25 -starttls smtp ${EXTRA_ARGS}"
+  # eg: "timeout 1 openssl s_client -connect localhost:25 -starttls smtp ${EXTRA_ARGS} 2>/dev/null"
   CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}" "${EXTRA_ARGS}")
 
   # Takes the result of the openssl output to return the x509 certificate,
@@ -393,7 +390,7 @@ function _generate_openssl_cmd() {
     CMD_OPENSSL="${CMD_OPENSSL} -starttls pop3"
   fi
 
-  echo "${CMD_OPENSSL} ${EXTRA_ARGS}"
+  echo "${CMD_OPENSSL} ${EXTRA_ARGS} 2>/dev/null"
 }
 
 
