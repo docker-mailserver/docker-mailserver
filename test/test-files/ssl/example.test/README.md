@@ -6,6 +6,8 @@ These certificates for usage with TLS have been generated via the [Smallstep `st
 
 `Certificate Details` sections are the output of: `step certificate inspect cert.<key type>.pem`.
 
+Each certificate except for the wildcard one, have the SANs(Subject Alternative Name) `example.test` and `mail.example.test`.
+
 ---
 
 **RSA (2048-bit) - self-signed:**
@@ -275,6 +277,23 @@ Certificate:
 
 </details>
 <!-- markdownlint-enable MD033 MD040 -->
+
+**ECDSA (P-256) - wildcard:**
+
+This one is for testing the wildcard san `*.example.test`:
+
+```sh
+# Run at `example.test/with_ca/ecdsa/`:
+step certificate create "Smallstep Leaf" wildcard/cert.ecdsa.pem wildcard/key.ecdsa.pem \
+  --no-password --insecure \
+  --profile leaf \
+  --ca ca-cert.ecdsa.pem \
+  --ca-key ca-key.ecdsa.pem \
+  --not-before "2021-01-01T00:00:00+00:00" \
+  --not-after "2031-01-01T00:00:00+00:00" \
+  --san "*.example.test" \
+  --kty EC --crv P-256
+```
 
 ---
 
