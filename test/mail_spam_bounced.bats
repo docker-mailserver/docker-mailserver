@@ -1,12 +1,15 @@
 load 'test_helper/common'
+# Globals referenced from `test_helper/common`:
+# TEST_NAME
+
+# Can run tests in parallel?: No
+# Shared static container name: TEST_NAME
 
 # Test case
 # ---------
 # When SPAMASSASSIN_SPAM_TO_INBOX=0, spam messages must be bounced (rejected).
 # SPAMASSASSIN_SPAM_TO_INBOX=1 is covered in `mail_spam_junk_folder.bats`.
 # Original test PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
-
-# TODO: ENV setup will move to actual ENV files in future.
 
 function setup() {
   run_setup_file_if_necessary
@@ -30,11 +33,12 @@ function setup_file() {
 }
 
 @test "checking amavis: spam message is bounced (rejected)" {
-  local TEST_ENV_FILE="${PRIVATE_CONFIG}/defined.env"
-  echo 'ENABLE_SPAMASSASSIN=1' > "${TEST_ENV_FILE}"
-  echo 'SPAMASSASSIN_SPAM_TO_INBOX=0' >> "${TEST_ENV_FILE}"
+  local TEST_DOCKER_ARGS=(
+    --env ENABLE_SPAMASSASSIN=1
+    --env SPAMASSASSIN_SPAM_TO_INBOX=0
+  )
 
-  common_container_setup "${TEST_ENV_FILE}"
+  common_container_setup TEST_DOCKER_ARGS
 
   run _should_emit_warning
   assert_failure
@@ -44,10 +48,13 @@ function setup_file() {
 
 @test "checking amavis: spam message is bounced (rejected), undefined SPAMASSASSIN_SPAM_TO_INBOX should raise a warning" {
   # SPAMASSASSIN_SPAM_TO_INBOX=0 is the default. If no explicit ENV value is set, it should log a warning at startup.
-  local TEST_ENV_FILE="${PRIVATE_CONFIG}/undefined.env"
-  echo 'ENABLE_SPAMASSASSIN=1' > "${TEST_ENV_FILE}"
 
-  common_container_setup "${TEST_ENV_FILE}"
+  # shellcheck disable=SC2034
+  local TEST_DOCKER_ARGS=(
+    --env ENABLE_SPAMASSASSIN=1
+  )
+
+  common_container_setup TEST_DOCKER_ARGS
 
   run _should_emit_warning
   assert_success
