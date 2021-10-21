@@ -137,6 +137,8 @@ function _setup_amavis
   else
     _notify 'task' 'Remove Amavis from postfix configuration'
     sed -i 's|content_filter =.*|content_filter =|' /etc/postfix/main.cf
+    [[ ${ENABLE_CLAMAV} -eq 1 ]] && _notify 'warn' 'ClamAV will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && _notify 'warn' 'Spamassassin will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
   fi
 }
 

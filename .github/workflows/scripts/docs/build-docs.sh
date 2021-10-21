@@ -8,7 +8,7 @@ docker run \
   --user "$(id -u):$(id -g)" \
   -v "${PWD}:/docs" \
   --name "prepare-docs" \
-  squidfunk/mkdocs-material:7.3.0 build --strict
+  squidfunk/mkdocs-material:7.3.3 build --strict
 
 # Remove unnecessary build artifacts: https://github.com/squidfunk/mkdocs-material/issues/2519
 cd site
