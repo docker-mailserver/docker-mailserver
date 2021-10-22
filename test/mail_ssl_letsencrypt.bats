@@ -25,11 +25,11 @@ function setup_file() {
   # `fullchain.pem` is currently what's detected, but we're actually providing the equivalent of `cert.pem` here.
   # TODO: Verify format/structure is supported for nginx-proxy + acme-companion (uses `acme.sh` to provision).
 
-  # `mail.example.test` (presently contains both FQDNs):
+  # `mail.example.test` (Only FQDN supported by this certificate):
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.ecdsa.pem' 'mail.example.test/fullchain.pem'
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.ecdsa.pem' "mail.example.test/privkey.pem"
 
-  # `example.test` (presently contains both FQDNs):
+  # `example.test` (Only FQDN supported by this certificate):
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.rsa.pem' 'example.test/fullchain.pem'
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.rsa.pem' 'example.test/privkey.pem'
 }
@@ -68,9 +68,7 @@ function teardown() {
 
   _should_have_valid_config 'mail.example.test' 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls 'mail.example.test'
-
-  # TODO: This should fail...but requires recreating certificate to only support `mail.example.test`:
-  # _should_not_have_fqdn_in_cert 'example.test'
+  _should_not_have_fqdn_in_cert 'example.test'
 }
 
 
@@ -88,9 +86,7 @@ function teardown() {
 
   _should_have_valid_config 'example.test' 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls 'example.test'
-
-  # TODO: This should fail...but requires recreating certificate to only support `example.test`:
-  # _should_not_have_fqdn_in_cert 'mail.example.test'
+  _should_not_have_fqdn_in_cert 'mail.example.test'
 }
 
 
