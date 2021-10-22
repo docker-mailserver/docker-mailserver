@@ -162,8 +162,6 @@ step certificate create "Smallstep Root CA" ca-cert.ecdsa.pem ca-key.ecdsa.pem \
   --profile root-ca \
   --not-before "2021-01-01T00:00:00+00:00" \
   --not-after "2031-01-01T00:00:00+00:00" \
-  --san "example.test" \
-  --san "mail.example.test" \
   --kty EC --crv P-256
 ```
 
@@ -177,16 +175,17 @@ step certificate create "Smallstep Leaf" cert.ecdsa.pem key.ecdsa.pem \
   --ca-key ca-key.ecdsa.pem \
   --not-before "2021-01-01T00:00:00+00:00" \
   --not-after "2031-01-01T00:00:00+00:00" \
-  --san "example.test" \
   --san "mail.example.test" \
   --kty EC --crv P-256
 ```
 
 The Root CA certificate does not need to have the same key type as the Leaf certificate, you can mix and match if necessary (eg: an ECDSA and an RSA leaf certs with shared ECDSA Root CA cert).
 
+Both FQDN continue to be assigned as SAN to certs in `with_ca/rsa/`, while certs in `with_ca/ecdsa/` are limited to `mail.example.test` for ECDSA, and `example.test` for RSA. This is to provide a bit more flexibility in test cases where specific FQDN support is required.
+
 <!-- markdownlint-disable MD033 MD040 -->
 <details>
-<summary>Certificate Details (signed by Root CA key):</summary>
+<summary>Certificate Details (signed by Root CA ECDSA key):</summary>
 
 `step certificate inspect with_ca/ecdsa/cert.ecdsa.pem`:
 
@@ -194,7 +193,7 @@ The Root CA certificate does not need to have the same key type as the Leaf cert
 Certificate:
     Data:
         Version: 3 (0x2)
-        Serial Number: 28540880372304824564361820670143583738 (0x1578c60b9eedca127fe041712f9d55fa)
+        Serial Number: 39948191589315458296429918694374173514 (0x1e0dbde943f3ab4144909744cd58eb4a)
     Signature Algorithm: ECDSA-SHA256
         Issuer: CN=Smallstep Root CA
         Validity
@@ -205,13 +204,13 @@ Certificate:
             Public Key Algorithm: ECDSA
                 Public-Key: (256 bit)
                 X:
-                    b6:64:18:5f:f6:3f:b6:b1:da:09:00:27:e9:70:4e:
-                    8e:11:c4:58:8d:02:a2:46:f6:5b:d5:12:9b:ea:6a:
-                    e4:39
+                    f4:5b:00:6a:6a:ca:1d:b8:15:80:81:d0:82:72:be:
+                    af:3a:3c:5e:a7:9b:64:21:16:19:27:f3:75:0b:eb:
+                    e0:fe
                 Y:
-                    87:56:d8:43:6b:4d:5d:4a:44:73:d2:81:34:1d:cd:
-                    de:53:ed:62:c4:61:76:c6:bf:96:0a:0a:8e:10:fa:
-                    c2:63
+                    47:6a:6c:9e:d7:da:80:0e:1b:09:76:45:fe:8b:fd:
+                    79:09:f7:08:22:1a:93:20:21:74:5e:78:91:53:45:
+                    9e:71
                 Curve: P-256
         X509v3 extensions:
             X509v3 Key Usage: critical
@@ -219,16 +218,16 @@ Certificate:
             X509v3 Extended Key Usage:
                 Server Authentication, Client Authentication
             X509v3 Subject Key Identifier:
-                48:C4:A2:B2:31:9B:9C:3D:4D:BD:58:45:60:F0:C6:16:EB:74:C0:3B
+                D8:BE:56:52:27:E7:90:B0:21:5B:5F:79:D8:F8:D4:85:57:F0:2B:BC
             X509v3 Authority Key Identifier:
-                keyid:3F:3D:65:1A:72:82:16:C6:20:E8:B6:FC:1B:2E:6D:A4:9C:2C:92:78
+                keyid:DE:90:B3:B9:4D:C1:B3:EE:77:00:88:8B:69:EC:71:C4:30:F9:F6:7F
             X509v3 Subject Alternative Name:
-                DNS:example.test, DNS:mail.example.test
+                DNS:mail.example.test
     Signature Algorithm: ECDSA-SHA256
-         30:46:02:21:00:b6:dc:7d:ba:f6:d9:b1:3f:28:4d:6d:4c:a4:
-         e9:c5:24:80:d4:6c:a5:fc:9f:74:4e:9a:bb:5b:ca:8a:5e:dd:
-         32:02:21:00:e2:c8:8b:1b:be:a2:f9:5f:cd:41:8c:0a:75:71:
-         ca:e9:be:65:d1:ca:5e:50:77:f7:8a:c0:f8:03:77:1b:53:0a
+         30:46:02:21:00:ad:08:7b:f0:82:41:2e:0e:cd:2b:f7:95:fd:
+         ee:73:d9:93:8d:74:7c:ef:29:4d:d5:da:33:04:f0:b6:b1:6b:
+         13:02:21:00:d7:f1:95:db:be:18:b8:db:77:b9:57:07:e6:b9:
+         5a:3d:00:34:d3:f5:eb:18:67:9b:ba:bf:88:62:72:e9:c9:99
 ```
 
 </details>
@@ -242,7 +241,7 @@ Certificate:
 Certificate:
     Data:
         Version: 3 (0x2)
-        Serial Number: 83158808788179848488617675347018882219 (0x3e8fcdd2d80ab546924c05b4d9339cab)
+        Serial Number: 91810308658606804773211369549707991484 (0x451205b3271cead885a8ea9c5c21d9bc)
     Signature Algorithm: ECDSA-SHA256
         Issuer: CN=Smallstep Root CA
         Validity
@@ -253,13 +252,13 @@ Certificate:
             Public Key Algorithm: ECDSA
                 Public-Key: (256 bit)
                 X:
-                    76:30:c0:21:d2:6c:6b:ca:de:be:1d:c3:5c:67:08:
-                    93:bf:73:53:2a:23:5d:d8:06:2a:8b:09:bc:39:fd:
-                    0b:0d
+                    cf:62:31:60:19:3d:72:78:60:59:1e:27:13:dd:cf:
+                    d9:11:36:28:32:af:fa:28:e4:0e:6e:ab:4b:ad:a2:
+                    49:00
                 Y:
-                    a7:74:1f:7c:b9:95:73:6c:ba:00:00:d7:52:06:0c:
-                    e9:00:c8:aa:bb:e1:50:e7:ec:ff:bf:e5:30:bb:9b:
-                    18:07
+                    dc:6c:89:09:98:fa:f7:f2:8d:ed:50:53:db:cf:6d:
+                    4f:ce:9d:1a:61:97:c5:80:72:5e:26:34:4a:bb:cb:
+                    81:8c
                 Curve: P-256
         X509v3 extensions:
             X509v3 Key Usage: critical
@@ -267,20 +266,22 @@ Certificate:
             X509v3 Basic Constraints: critical
                 CA:TRUE, pathlen:1
             X509v3 Subject Key Identifier:
-                3F:3D:65:1A:72:82:16:C6:20:E8:B6:FC:1B:2E:6D:A4:9C:2C:92:78
+                DE:90:B3:B9:4D:C1:B3:EE:77:00:88:8B:69:EC:71:C4:30:F9:F6:7F
     Signature Algorithm: ECDSA-SHA256
-         30:45:02:21:00:bf:d7:51:c7:7b:67:41:90:ac:c5:89:cd:04:
-         60:7d:6b:da:8d:75:c2:c6:1c:18:93:82:79:96:35:19:a4:ea:
-         2f:02:20:5a:bc:95:3b:de:f6:8b:00:fd:1a:69:81:57:b5:b6:
-         91:0f:10:ef:2b:b2:39:83:c0:3c:a0:26:21:51:4b:40:3c
+         30:44:02:20:3f:3b:90:e7:ca:82:70:8e:3f:2e:72:2a:b9:27:
+         46:ac:e9:e2:4a:db:56:02:bc:a2:b2:99:e4:8d:10:7a:d5:73:
+         02:20:72:25:64:b6:1c:aa:a6:c3:14:e1:66:35:bf:a1:db:90:
+         ea:49:59:f9:44:e8:63:de:a8:c0:bb:9b:21:08:59:87
 ```
 
 </details>
 <!-- markdownlint-enable MD033 MD040 -->
 
-**ECDSA (P-256) - wildcard:**
+**Wildcard Certificates:**
 
-This one is for testing the wildcard san `*.example.test`:
+This is for testing the wildcard SAN `*.example.test`.
+
+Both `with_ca/{ecdsa,rsa}/` directories contain a wildcard cert. The only difference is the Root CA cert used, and the entire chain being purely ECDSA or RSA type.
 
 ```sh
 # Run at `example.test/with_ca/ecdsa/`:
@@ -294,6 +295,56 @@ step certificate create "Smallstep Leaf" wildcard/cert.ecdsa.pem wildcard/key.ec
   --san "*.example.test" \
   --kty EC --crv P-256
 ```
+
+<!-- markdownlint-disable MD033 MD040 -->
+<details>
+<summary>Certificate Details (signed by Root CA ECDSA key):</summary>
+
+`step certificate inspect with_ca/ecdsa/wildcard/cert.ecdsa.pem`:
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 15398717504679308720407721522825999382 (0xb95af63ae03a90f3bd5a6a740133416)
+    Signature Algorithm: ECDSA-SHA256
+        Issuer: CN=Smallstep Root CA
+        Validity
+            Not Before: Jan 1 00:00:00 2021 UTC
+            Not After : Jan 1 00:00:00 2031 UTC
+        Subject: CN=Smallstep Leaf
+        Subject Public Key Info:
+            Public Key Algorithm: ECDSA
+                Public-Key: (256 bit)
+                X:
+                    2f:44:73:14:e4:e8:9a:88:a1:96:82:be:f3:e5:8b:
+                    94:a4:8a:ec:18:c1:73:86:cf:15:8a:e8:05:bd:46:
+                    71:cf
+                Y:
+                    a1:bd:36:84:d0:b8:b3:15:f4:73:e2:53:87:0d:cd:
+                    e8:a5:42:9a:94:91:d8:a3:d4:e1:d1:77:5a:cb:da:
+                    89:ea
+                Curve: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage:
+                Server Authentication, Client Authentication
+            X509v3 Subject Key Identifier:
+                CA:A0:95:BE:58:73:6C:1D:EA:50:B8:BF:34:FF:D3:F1:63:33:1F:6F
+            X509v3 Authority Key Identifier:
+                keyid:DE:90:B3:B9:4D:C1:B3:EE:77:00:88:8B:69:EC:71:C4:30:F9:F6:7F
+            X509v3 Subject Alternative Name:
+                DNS:*.example.test
+    Signature Algorithm: ECDSA-SHA256
+         30:46:02:21:00:f2:50:c0:b5:c9:24:e5:e9:36:a6:7b:35:5d:
+         38:a7:7d:81:af:02:fc:9d:fd:79:f4:2d:4c:8a:04:55:44:a8:
+         3a:02:21:00:b1:2d:d2:25:18:2d:35:19:20:97:78:f1:d5:18:
+         9f:11:d5:97:a9:dc:64:95:2a:6c:9d:4e:78:69:c1:92:23:23
+```
+
+</details>
+<!-- markdownlint-enable MD033 MD040 -->
 
 ---
 
