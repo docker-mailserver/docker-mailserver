@@ -101,7 +101,6 @@ function teardown() {
   # This test group changes to certs signed with an RSA Root CA key,
   # These certs all support both FQDN `mail.example.test` and `example.test`,
   # Except for the wildcard `*.example.test`, which should not support `example.test`.
-  local ACME_JSON_FILES="${PWD}/test/test-files/ssl/traefik/with_ca/rsa"
   local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
   # Change default Root CA cert used for verifying chain of trust with openssl:
@@ -110,7 +109,7 @@ function teardown() {
 
   function _prepare() {
     # Default `acme.json` for _acme_ecdsa test:
-    cp "${ACME_JSON_FILES}/ecdsa/acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
+    cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
 
     # TODO: Provision wildcard certs via Traefik to inspect if `example.test` non-wildcard is also added to the cert.
     # `DMS_DEBUG=1` required for catching logged `inf` output.
@@ -143,7 +142,7 @@ function teardown() {
   # The updated `acme.json` roughly emulates a renewal, but changes from an ECDSA cert to an RSA one.
   # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
   function _acme_rsa() {
-    _should_extract_on_changes 'mail.example.test' "${ACME_JSON_FILES}/rsa/acme.json"
+    _should_extract_on_changes 'mail.example.test' "${LOCAL_BASE_PATH}/rsa.acme.json"
     _should_have_service_restart_count '1'
 
     local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
@@ -155,7 +154,7 @@ function teardown() {
   # Additionally tests that SSL_DOMAIN is prioritized when `letsencrypt/live/` already has a HOSTNAME dir available.
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
-    _should_extract_on_changes 'example.test' "${ACME_JSON_FILES}/rsa/wildcard/acme.json"
+    _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
     _should_have_service_restart_count '2'
 
     # TODO: Make this pass.

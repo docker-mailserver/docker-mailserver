@@ -1,8 +1,10 @@
 # Traefik `acme.json` test files
 
-Each `acme.json` test file has base64 encoded cert and key files from the sibling folder `example.test/`. Traefik encodes it's provisioned certificates into `acme.json` instead of separate files, but there is nothing special about the storage or content.
+Traefik encodes it's provisioned certificates into `acme.json` instead of separate files, but there is nothing special about the storage or content.
 
-In the `acme.json` files, the only relevant content being tested is in `le.Certificates`, everything else is only placeholder.
+Each `*.acme.json` file provides base64 encoded representations of their equivalent cert and key files at the same relative location.
+
+The only relevant content being tested from these `acme.json` files is in `le.Certificates`, everything else is only placeholder values.
 
 ---
 
