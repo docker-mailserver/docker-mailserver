@@ -328,20 +328,26 @@ function _negotiate_tls() {
   _should_have_fqdn_in_cert "${FQDN}" "${PORT}"
 }
 
-# TODO: Probably should be more explicit with the match boundaries for the FQDN
-# Partial matching will fail on: `*.example.test` !== `example.test`, `mail.example.test` !== `example.test`
 function _should_have_fqdn_in_cert() {
-  local FQDN=${1}
+  local FQDN
+  FQDN=$(escape_fqdn "${1}")
 
   _get_fqdns_for_cert "$@"
-  assert_output --partial "${FQDN}"
+  assert_output --regexp "Subject: CN = ${FQDN}|DNS:${FQDN}"
 }
 
 function _should_not_have_fqdn_in_cert() {
-  local FQDN=${1}
+  local FQDN
+  FQDN=$(escape_fqdn "${1}")
 
   _get_fqdns_for_cert "$@"
-  refute_output --partial "${FQDN}"
+  refute_output --regexp "Subject: CN = ${FQDN}|DNS:${FQDN}"
+}
+
+# Escapes `*` and `.` so the FQDN literal can be used in regex queries
+function escape_fqdn() {
+  # shellcheck disable=SC2001
+  sed 's|[\*\.]|\\&|g' <<< "${1}"
 }
 
 function _get_fqdns_for_cert() {
