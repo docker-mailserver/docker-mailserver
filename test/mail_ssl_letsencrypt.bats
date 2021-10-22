@@ -92,13 +92,21 @@ function teardown() {
 
 # When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
 # should be extracted and be chosen over an existing FQDN `mail.example.test` (HOSTNAME):
-# Test should verify `mail.example.test` is negotiated, not `example.test`.
+# _acme_wildcard should verify the FQDN `mail.example.test` is negotiated, not `example.test`.
 #
-# NOTE: Extracted cert has `main='example.test'` (subject CN) and `san=['*.example.test']`.
-# This is unrelated to the related fields in `acme.json`, which only serve a purpose for extraction lookup.
+# NOTE: Currently all of the `acme.json` configs have the FQDN match a SAN value,
+# all Subject CN (`main` in acme.json) are `Smallstep Leaf` which is not an FQDN.
+# While valid for that field, it does mean there is no test coverage against `main`.
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.test)" {
-  local ACME_JSON_FILES="${PWD}/test/test-files/ssl/traefik"
-  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/ecdsa"
+  # This test group changes to certs signed with an RSA Root CA key,
+  # These certs all support both FQDN `mail.example.test` and `example.test`,
+  # Except for the wildcard `*.example.test`, which should not support `example.test`.
+  local ACME_JSON_FILES="${PWD}/test/test-files/ssl/traefik/with_ca/rsa"
+  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
+
+  # Change default Root CA cert used for verifying chain of trust with openssl:
+  # shellcheck disable=SC2030
+  local TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/rsa/ca-cert.rsa.pem"
 
   function _prepare() {
     # Default `acme.json` for _acme_ecdsa test:
@@ -147,7 +155,7 @@ function teardown() {
   # Additionally tests that SSL_DOMAIN is prioritized when `letsencrypt/live/` already has a HOSTNAME dir available.
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
-    _should_extract_on_changes 'example.test' "${ACME_JSON_FILES}/ecdsa/wildcard/acme.json"
+    _should_extract_on_changes 'example.test' "${ACME_JSON_FILES}/rsa/wildcard/acme.json"
     _should_have_service_restart_count '2'
 
     # TODO: Make this pass.
@@ -156,12 +164,12 @@ function teardown() {
     # that is used during container startup to work correctly. A follow up PR will refactor `setup-stack.sh` for supporting this.
     # _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
 
-    local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.ecdsa.pem"
-    local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.ecdsa.pem"
+    local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
+    local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.rsa.pem"
     _should_have_expected_files 'example.test' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
 
     # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
-    _should_succesfully_negotiate_tls 'mail.example.test' "${TEST_NAME}"
+    _should_succesfully_negotiate_tls 'mail.example.test'
     # WARNING: This should fail...but requires resolving the above TODO.
     # _should_not_have_fqdn_in_cert 'example.test'
   }
