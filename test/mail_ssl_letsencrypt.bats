@@ -153,7 +153,6 @@ function teardown() {
   function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${ACME_JSON_FILES}/ecdsa/wildcard/acme.json"
     _should_have_service_restart_count '2'
-    _should_have_failed_at_extraction 'mail.example.test' 'changedetector'
 
     # TODO: Make this pass.
     # As the FQDN has changed since startup, the configs need to be updated accordingly.
