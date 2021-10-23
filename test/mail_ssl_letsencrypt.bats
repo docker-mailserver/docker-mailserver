@@ -294,6 +294,7 @@ function _should_have_expected_files() {
 function _should_succesfully_negotiate_tls() {
   local FQDN=${1}
   local CONTAINER_NAME=${2:-${TEST_NAME}}
+  # shellcheck disable=SC2031
   local CA_CERT=${3:-${TEST_CA_CERT}}
 
   # Postfix and Dovecot are ready:
@@ -314,6 +315,7 @@ function _negotiate_tls() {
   local FQDN=${1}
   local PORT=${2}
   local CONTAINER_NAME=${3:-${TEST_NAME}}
+  # shellcheck disable=SC2031
   local CA_CERT=${4:-${TEST_CA_CERT}}
 
   local CMD_OPENSSL_VERIFY
@@ -357,6 +359,7 @@ function _get_fqdns_for_cert() {
   local FQDN=${1}
   local PORT=${2:-'25'}
   local CONTAINER_NAME=${3:-${TEST_NAME}}
+  # shellcheck disable=SC2031
   local CA_CERT=${4:-${TEST_CA_CERT}}
 
   # `-servername` is for SNI, where the port may be for a service that serves multiple certs,
