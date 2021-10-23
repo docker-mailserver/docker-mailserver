@@ -312,15 +312,13 @@ function _obtain_hostname_and_domainname
 function _fix_varmail_user_ownership
 {
   local VARMAIL_DIR=${1}
-  _notify 'task' "Checking ${VARMAIL_DIR} permissions"
 
-  # fix permissions, but skip this if 1 level deep the user id is already set
+  # Fix permissions for Dovecot by ensuring UID/GID is 5000:
+  # Skips if 1 level deep the UID or GID is already 5000.
   if find "${VARMAIL_DIR}" -maxdepth 1 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
   then
     _notify 'inf' "Fixing ${VARMAIL_DIR} permissions"
     chown -R 5000:5000 "${VARMAIL_DIR}" || _shutdown "Failed to fix ${VARMAIL_DIR} permissions"
-  else
-    _notify 'inf' "Permissions in ${VARMAIL_DIR} look OK"
   fi
 }
 
