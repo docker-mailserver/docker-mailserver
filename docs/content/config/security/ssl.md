@@ -33,13 +33,13 @@ Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencr
 
 !!! example "Docker CLI options `--hostname` and optionally `--domainname`"
 
-    ```bash
+    ```sh
     docker run --hostname mail --domainname example.com
     # `--domainname` is not required:
     docker run --hostname mail.example.com
     ```
 
-!!! example `docker-compose.yml` config"
+!!! example "`docker-compose.yml` config"
 
     ```yml
     services:
@@ -54,7 +54,7 @@ Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencr
 
 !!! example "_Bare domains_ (eg: `example.com`) should only use the hostname option"
 
-    ```bash
+    ```sh
     docker run --hostname example.com
     ```
 
