@@ -157,8 +157,7 @@ do
         # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
         echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >>/etc/dovecot/userdb
         mkdir -p "/var/mail/${DOMAIN}/${USER}"
-        # Assign `docker:docker` UID & GID ownership:
-        chown -R 5000:5000 "/var/mail/${DOMAIN}/${USER}"
+        _fix_varmail_user_ownership "/var/mail/${DOMAIN}/${USER}"
 
         if [[ -e /tmp/docker-mailserver/${LOGIN}.dovecot.sieve ]]
         then

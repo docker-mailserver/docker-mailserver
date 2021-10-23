@@ -308,6 +308,22 @@ function _obtain_hostname_and_domainname
   fi
 }
 
+# Assign `docker:docker` UID & GID ownership to accomodate Dovecot
+function _fix_varmail_user_ownership
+{
+  local VARMAIL_DIR=${1}
+  _notify 'task' "Checking ${VARMAIL_DIR} permissions"
+
+  # fix permissions, but skip this if 1 level deep the user id is already set
+  if find "${VARMAIL_DIR}" -maxdepth 1 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
+  then
+    _notify 'inf' "Fixing ${VARMAIL_DIR} permissions"
+    chown -R 5000:5000 "${VARMAIL_DIR}" || _shutdown "Failed to fix ${VARMAIL_DIR} permissions"
+  else
+    _notify 'inf' "Permissions in ${VARMAIL_DIR} look OK"
+  fi
+}
+
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
