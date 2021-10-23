@@ -100,7 +100,7 @@ You don't have to do anything else. Enjoy!
           - /etc/letsencrypt:/etc/letsencrypt
     ```
 
-#### Example using Docker for _Let's Encrypt_ { data-toc-label='Certbot' }
+#### Example using Docker for _Let's Encrypt_ { data-toc-label='Certbot with Docker' }
 
 - Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store these, so that they can later be accessed by `docker-mailserver` container.
 - You may also want to persist Certbot [logs][certbot::log-rotation], just in case you need to troubleshoot.
@@ -142,7 +142,7 @@ You don't have to do anything else. Enjoy!
 
     Certbot does support [alternative certificate providers via the `--server`][certbot::custom-ca] option. In most cases you'll want to use the default _Let's Encrypt_.
 
-### Example using `nginx-proxy` and `acme-companion` with Docker { data-toc-label='nginx-proxy with Docker' }
+#### Example using `nginx-proxy` and `acme-companion` with Docker { data-toc-label='nginx-proxy with Docker' }
 
 If you are running a web server already, port 80 will be in use which Certbot requires. You could use the [Certbot `--webroot`][certbot::webroot] feature, but it is more common to leverage a _reverse proxy_ that manages the provisioning and renewal of certificates for your services automatically.
 
