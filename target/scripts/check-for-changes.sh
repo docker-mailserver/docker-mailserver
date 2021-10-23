@@ -157,6 +157,8 @@ do
         # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
         echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >>/etc/dovecot/userdb
         mkdir -p "/var/mail/${DOMAIN}/${USER}"
+        # Assign `docker:docker` UID & GID ownership:
+        chown -R 5000:5000 "/var/mail/${DOMAIN}/${USER}"
 
         if [[ -e /tmp/docker-mailserver/${LOGIN}.dovecot.sieve ]]
         then
@@ -212,11 +214,6 @@ s/$/ regexp:\/etc\/postfix\/regexp/
     then
       sort < /tmp/vhost.tmp | uniq >/etc/postfix/vhost
       rm /tmp/vhost.tmp
-    fi
-
-    if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
-    then
-      chown -R 5000:5000 /var/mail
     fi
 
     supervisorctl restart postfix

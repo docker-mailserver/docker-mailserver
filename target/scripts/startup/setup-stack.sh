@@ -358,6 +358,8 @@ function _setup_dovecot_local_user
       # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
       echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >> /etc/dovecot/userdb
       mkdir -p "/var/mail/${DOMAIN}/${USER}"
+      # Assign `docker:docker` UID & GID ownership:
+      chown -R 5000:5000 "/var/mail/${DOMAIN}/${USER}"
 
       # Copy user provided sieve file, if present
       if [[ -e "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" ]]

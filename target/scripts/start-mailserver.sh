@@ -151,7 +151,6 @@ function register_functions
 
   # ? >> Fixes
 
-  _register_fix_function '_fix_var_mail_permissions'
   [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_fix_function '_fix_var_amavis_permissions'
 
   [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
