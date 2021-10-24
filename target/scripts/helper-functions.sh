@@ -221,44 +221,6 @@ function _notify
 }
 export -f _notify
 
-# ? --------------------------------------------- Relay Host Map
-
-# setup /etc/postfix/relayhost_map
-# --
-# @domain1.com        [smtp.mailgun.org]:587
-# @domain2.com        [smtp.mailgun.org]:587
-# @domain3.com        [smtp.mailgun.org]:587
-function _populate_relayhost_map
-{
-  : >/etc/postfix/relayhost_map
-  chown root:root /etc/postfix/relayhost_map
-  chmod 0600 /etc/postfix/relayhost_map
-
-  if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]
-  then
-    _notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
-    # keep lines which are not a comment *and* have a destination.
-    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
-  fi
-
-  {
-    # note: won't detect domains when lhs has spaces (but who does that?!)
-    sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
-
-    [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r DOMAIN
-  do
-    # DOMAIN not already present *and* not ignored
-    if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
-    then
-      _notify 'inf' "Adding relay mapping for ${DOMAIN}"
-      # shellcheck disable=SC2153
-      echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
-    fi
-  done
-}
-export -f _populate_relayhost_map
-
 # ? --------------------------------------------- File Checksums
 
 # file storing the checksums of the monitored files.

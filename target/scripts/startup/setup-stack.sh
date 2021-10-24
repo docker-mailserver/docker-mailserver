@@ -1316,56 +1316,14 @@ function _setup_postfix_relay_hosts
 {
   _notify 'task' 'Setting up Postfix Relay Hosts'
 
-  [[ -z ${RELAY_PORT} ]] && RELAY_PORT=25
+  _relayhost_default_port_fallback
 
   # shellcheck disable=SC2153
   _notify 'inf' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
 
-  # setup /etc/postfix/sasl_passwd
-  # --
-  # @domain1.com        postmaster@domain1.com:your-password-1
-  # @domain2.com        postmaster@domain2.com:your-password-2
-  # @domain3.com        postmaster@domain3.com:your-password-3
-  #
-  # [smtp.mailgun.org]:587  postmaster@domain2.com:your-password-2
-
-  if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
-  then
-    _notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
-
-    while read -r LINE
-    do
-      if ! echo "${LINE}" | grep -q -e "^\s*#"
-      then
-        echo "${LINE}" >> /etc/postfix/sasl_passwd
-      fi
-    done < /tmp/docker-mailserver/postfix-sasl-password.cf
-  fi
-
-  # add default relay
-  if [[ -n ${RELAY_USER} ]] && [[ -n ${RELAY_PASSWORD} ]]
-  then
-    # 2 tabs of white-space used between value pairs for visual alignment, not a requirement:
-    echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
-  fi
-
-  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] && [[ -z ${RELAY_USER} ]] && [[ -z ${RELAY_PASSWORD} ]]
-  then
-    _notify 'warn' "No relay auth file found and no default set"
-  fi
-  # end /etc/postfix/sasl_passwd
-
+  _relayhost_sasl
   _populate_relayhost_map
-
-  postconf -e \
-    "smtp_sasl_auth_enable = yes" \
-    "smtp_sasl_security_options = noanonymous" \
-    "smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
-    "smtp_tls_security_level = encrypt" \
-    "smtp_tls_note_starttls_offer = yes" \
-    "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
-    "sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map" \
-    "smtp_sender_dependent_authentication = yes"
+  _relayhost_configure_postfix
 }
 
 function _setup_postfix_dhparam
