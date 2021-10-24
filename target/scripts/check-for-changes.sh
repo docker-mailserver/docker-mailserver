@@ -78,50 +78,13 @@ do
       esac
     done
 
-    # regenerate postix aliases
-    echo "root: ${PM_ADDRESS}" >/etc/aliases
-    if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-    then
-      cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-    fi
-    postalias /etc/aliases
-
     # regenerate postfix accounts
     _create_accounts
 
     _rebuild_relayhost
 
-    if [[ -f postfix-virtual.cf ]]
-    then
-      # regenerate postfix aliases
-      : >/etc/postfix/virtual
-      : >/etc/postfix/regexp
-
-      if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
-      then
-        cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-
-        # the `to` seems to be important; don't delete it
-        # shellcheck disable=SC2034
-        while read -r FROM TO
-        do
-          UNAME=$(echo "${FROM}" | cut -d @ -f1)
-          DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
-
-          # if they are equal it means the line looks like: "user1	 other@domain.tld"
-          [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-        done  < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
-      fi
-
-      if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
-      then
-        cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-        sed -i -e '/^virtual_alias_maps/{
-s/ regexp:.*//
-s/$/ regexp:\/etc\/postfix\/regexp/
-}' /etc/postfix/main.cf
-      fi
-    fi
+    # regenerate postix aliases
+    _create_aliases
 
     if [[ -f /tmp/vhost.tmp ]]
     then
