@@ -1055,15 +1055,7 @@ function _setup_ssl
 function _setup_postfix_vhost
 {
   _notify 'task' "Setting up Postfix vhost"
-
-  if [[ -f /tmp/vhost.tmp ]]
-  then
-    sort < /tmp/vhost.tmp | uniq > /etc/postfix/vhost
-    rm /tmp/vhost.tmp
-  elif [[ ! -f /etc/postfix/vhost ]]
-  then
-    touch /etc/postfix/vhost
-  fi
+  _create_postfix_vhost
 }
 
 function _setup_inet_protocols

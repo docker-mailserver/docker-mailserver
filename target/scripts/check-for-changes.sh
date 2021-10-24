@@ -86,11 +86,7 @@ do
     # regenerate postix aliases
     _create_aliases
 
-    if [[ -f /tmp/vhost.tmp ]]
-    then
-      sort < /tmp/vhost.tmp | uniq >/etc/postfix/vhost
-      rm /tmp/vhost.tmp
-    fi
+    _create_postfix_vhost
 
     if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
     then
