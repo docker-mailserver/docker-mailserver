@@ -1297,8 +1297,6 @@ function _setup_postfix_sasl_password
   then
     # create SASL password
     echo "${SASL_PASSWD}" > /etc/postfix/sasl_passwd
-    chown root:root /etc/postfix/sasl_passwd
-    chmod 0600 /etc/postfix/sasl_passwd
     _notify 'inf' "Loaded SASL_PASSWD"
   else
     rm -f /etc/postfix/sasl_passwd
@@ -1347,18 +1345,13 @@ function _setup_postfix_relay_hosts
   # add default relay
   if [[ -n ${RELAY_USER} ]] && [[ -n ${RELAY_PASSWORD} ]]
   then
+    # 2 tabs of white-space used between value pairs for visual alignment, not a requirement:
     echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
-  else
-    if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
-    then
-      _notify 'warn' "No relay auth file found and no default set"
-    fi
   fi
 
-  if [[ -f /etc/postfix/sasl_passwd ]]
+  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] && [[ -z ${RELAY_USER} ]] && [[ -z ${RELAY_PASSWORD} ]]
   then
-    chown root:root /etc/postfix/sasl_passwd
-    chmod 0600 /etc/postfix/sasl_passwd
+    _notify 'warn' "No relay auth file found and no default set"
   fi
   # end /etc/postfix/sasl_passwd
 

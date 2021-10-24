@@ -48,3 +48,12 @@ function _fix_cleanup_spamassassin
   _notify 'task' 'Cleaning up disabled SpamAssassin'
   rm /etc/cron.daily/spamassassin || _notify 'err' 'Failed to remove SpamAssassin configuration'
 }
+
+function _fix_postfix_sasl_passwd
+{
+  if [[ -f /etc/postfix/sasl_passwd ]]
+  then
+    chown root:root /etc/postfix/sasl_passwd
+    chmod 0600 /etc/postfix/sasl_passwd
+  fi
+}
