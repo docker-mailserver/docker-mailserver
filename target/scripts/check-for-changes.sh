@@ -87,56 +87,7 @@ do
     postalias /etc/aliases
 
     # regenerate postfix accounts
-    : >/etc/postfix/vmailbox
-    : >/etc/dovecot/userdb
-
-    if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
-    then
-      sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
-      echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." >/etc/postfix/vmailbox
-
-      # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
-      # shellcheck disable=SC1003
-      sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
-      chown dovecot:dovecot /etc/dovecot/userdb
-      chmod 640 /etc/dovecot/userdb
-      sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
-      sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
-
-      # creating users ; 'pass' is encrypted
-      # comments and empty lines are ignored
-      while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
-      do
-        USER=$(echo "${LOGIN}" | cut -d @ -f1)
-        DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
-
-        # test if user has a defined quota
-        if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-        then
-          declare -a USER_QUOTA
-          IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-          unset IFS
-
-          [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
-        fi
-
-        echo "${LOGIN} ${DOMAIN}/${USER}/" >>/etc/postfix/vmailbox
-
-        # user database for dovecot has the following format:
-        # user:password:uid:gid:(gecos):home:(shell):extra_fields
-        # example :
-        # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
-        echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >>/etc/dovecot/userdb
-        mkdir -p "/var/mail/${DOMAIN}/${USER}"
-
-        if [[ -e /tmp/docker-mailserver/${LOGIN}.dovecot.sieve ]]
-        then
-          cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
-        fi
-
-        echo "${DOMAIN}" >>/tmp/vhost.tmp
-      done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
-    fi
+    _create_accounts
 
     _rebuild_relayhost
 
