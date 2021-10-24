@@ -155,7 +155,6 @@ function register_functions
 
   [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
   [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function '_fix_cleanup_spamassassin'
-  _register_fix_function '_fix_postfix_sasl_passwd'
 
   # ? >> Miscellaneous
 

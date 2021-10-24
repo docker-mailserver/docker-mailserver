@@ -39,6 +39,8 @@ function _relayhost_sasl
   then
     _notify 'warn' "No relay auth file found and no default set"
   fi
+
+  _sasl_passwd_chown_chmod
 }
 
 # setup /etc/postfix/relayhost_map

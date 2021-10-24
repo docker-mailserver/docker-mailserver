@@ -1293,14 +1293,13 @@ function _setup_postfix_sasl_password
   _notify 'task' 'Setting up Postfix SASL Password'
 
   # support general SASL password
-  if [[ -n ${SASL_PASSWD} ]]
+  _sasl_passwd_create
+
+  if [[ -f /etc/postfix/sasl_passwd ]]
   then
-    # create SASL password
-    echo "${SASL_PASSWD}" > /etc/postfix/sasl_passwd
     _notify 'inf' "Loaded SASL_PASSWD"
   else
-    rm -f /etc/postfix/sasl_passwd
-    _notify 'inf' "Warning: 'SASL_PASSWD' is not provided. /etc/postfix/sasl_passwd not created."
+    _notify 'inf' "Warning: 'SASL_PASSWD' was not provided. /etc/postfix/sasl_passwd not created."
   fi
 }
 
