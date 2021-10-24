@@ -122,6 +122,10 @@ function teardown() {
     )
 
     common_container_setup TEST_DOCKER_ARGS
+    wait_for_service "${TEST_NAME}" 'changedetector'
+
+    # Wait until the changedetector service startup delay is over:
+    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
   }
 
   # Test `acme.json` extraction works at container startup:
@@ -174,13 +178,6 @@ function teardown() {
   }
 
   _prepare
-
-  # Verify the `changedetector` service is running:
-  run $(_get_service_logs 'changedetector')
-  assert_output --partial 'Start check-for-changes script'
-
-  # Wait until the changedetector startup delay has passed:
-  repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
 
   # Unleash the `acme.json` tests!
   # NOTE: Test failures aren't as helpful here as bats will only identify function calls at this top-level,
