@@ -15,13 +15,20 @@ function _relayhost_default_port_fallback
 # [smtp.mailgun.org]:587  postmaster@domain2.com:your-password-2
 function _relayhost_sasl
 {
+  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
+  then
+    _notify 'warn' "No relay auth file found and no default set"
+    return 1
+  fi
+
   if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
   then
     _notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
 
+    # add domain-specific auth from config file:
     while read -r LINE
     do
-      if ! echo "${LINE}" | grep -q -e "^\s*#"
+      if ! _strip_comments "${LINE}"
       then
         echo "${LINE}" >> /etc/postfix/sasl_passwd
       fi
@@ -33,11 +40,6 @@ function _relayhost_sasl
   then
     # 2 tabs of white-space used between value pairs for visual alignment, not a requirement:
     echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
-  fi
-
-  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
-  then
-    _notify 'warn' "No relay auth file found and no default set"
   fi
 
   _sasl_passwd_chown_chmod
@@ -90,4 +92,41 @@ function _relayhost_configure_postfix
     "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
     "sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map" \
     "smtp_sender_dependent_authentication = yes"
+}
+
+# ? --------------------------------------------- Callers
+
+# setip-stach.sh:
+function _setup_relayhost
+{
+  _notify 'task' 'Setting up Postfix Relay Hosts'
+
+  if [[ -n ${DEFAULT_RELAY_HOST} ]]
+  then
+    _notify 'inf' "Setting default relay host ${DEFAULT_RELAY_HOST} to /etc/postfix/main.cf"
+    postconf -e "relayhost = ${DEFAULT_RELAY_HOST}"
+  fi
+
+  if [[ -n ${RELAY_HOST} ]]
+  then
+    _relayhost_default_port_fallback
+    _notify 'inf' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
+
+    _relayhost_sasl
+    _populate_relayhost_map
+
+    _relayhost_configure_postfix
+  fi
+}
+
+# check-for-changes.sh:
+function _rebuild_relayhost
+{
+  if [[ -n ${RELAY_HOST} ]]
+  then
+    _relayhost_default_port_fallback
+
+    _relayhost_sasl
+    _populate_relayhost_map
+  fi
 }

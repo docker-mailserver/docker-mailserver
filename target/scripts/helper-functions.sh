@@ -270,6 +270,12 @@ function _obtain_hostname_and_domainname
   fi
 }
 
+# Remove string input with only whitespace or `#` as the first non-whitespace character.
+function _strip_comments
+{
+  grep -q -E "^\s*$|^\s*#" <<< "${1}"
+}
+
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown

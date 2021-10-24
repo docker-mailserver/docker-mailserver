@@ -1305,25 +1305,7 @@ function _setup_postfix_sasl_password
 
 function _setup_postfix_relay_hosts
 {
-  _notify 'task' 'Setting up Postfix Relay Hosts'
-
-  if [[ -n ${DEFAULT_RELAY_HOST} ]]
-  then
-    _notify 'inf' "Setting default relay host ${DEFAULT_RELAY_HOST} to /etc/postfix/main.cf"
-    postconf -e "relayhost = ${DEFAULT_RELAY_HOST}"
-  fi
-
-  if [[ -n ${RELAY_HOST} ]]
-  then
-    _relayhost_default_port_fallback
-    # shellcheck disable=SC2153
-    _notify 'inf' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
-
-    _relayhost_sasl
-    _populate_relayhost_map
-
-    _relayhost_configure_postfix
-  fi
+  _setup_relayhost
 }
 
 function _setup_postfix_dhparam

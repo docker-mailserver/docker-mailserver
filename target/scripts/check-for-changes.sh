@@ -103,35 +103,6 @@ do
       sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
       sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
 
-      # rebuild relay host
-      if [[ -n ${RELAY_HOST} ]]
-      then
-        # keep old config
-        : >/etc/postfix/sasl_passwd
-        if [[ -n ${SASL_PASSWD} ]]
-        then
-          echo "${SASL_PASSWD}" >>/etc/postfix/sasl_passwd
-        fi
-
-        # add domain-specific auth from config file
-        if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
-        then
-          while read -r LINE
-          do
-            if ! grep -q -e "\s*#" <<< "${LINE}"
-            then
-              echo "${LINE}" >>/etc/postfix/sasl_passwd
-            fi
-          done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true)
-        fi
-
-        # add default relay
-        if [[ -n "${RELAY_USER}" ]] && [[ -n "${RELAY_PASSWORD}" ]]
-        then
-          echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >>/etc/postfix/sasl_passwd
-        fi
-      fi
-
       # creating users ; 'pass' is encrypted
       # comments and empty lines are ignored
       while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
@@ -167,14 +138,7 @@ do
       done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
     fi
 
-    [[ -n ${RELAY_HOST} ]] && _populate_relayhost_map
-
-
-    if [[ -f /etc/postfix/sasl_passwd ]]
-    then
-      chown root:root /etc/postfix/sasl_passwd
-      chmod 0600 /etc/postfix/sasl_passwd
-    fi
+    _rebuild_relayhost
 
     if [[ -f postfix-virtual.cf ]]
     then
