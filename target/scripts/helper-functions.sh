@@ -1,5 +1,12 @@
 #! /bin/bash
 
+# These are all used by `setup-stack.sh` and `check-for-changes.sh`, not this file itself:
+. /usr/local/bin/helpers/postfix.sh
+. /usr/local/bin/helpers/accounts.sh
+. /usr/local/bin/helpers/aliases.sh
+. /usr/local/bin/helpers/relay.sh
+. /usr/local/bin/helpers/sasl.sh
+
 DMS_DEBUG="${DMS_DEBUG:=0}"
 SCRIPT_NAME="$(basename "$0")" # This becomes the sourcing script name (Example: check-for-changes.sh)
 LOCK_ID="$(uuid)" # Used inside of lock files to identify them and prevent removal by other instances of docker-mailserver

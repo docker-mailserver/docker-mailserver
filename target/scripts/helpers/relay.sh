@@ -38,13 +38,14 @@ function _relayhost_sasl
   # add default relay
   if [[ -n ${RELAY_USER} ]] && [[ -n ${RELAY_PASSWORD} ]]
   then
-    # 2 tabs of white-space used between value pairs for visual alignment, not a requirement:
-    echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
+    # white-space separates value pairs (any length is valid)
+    echo "[${RELAY_HOST}]:${RELAY_PORT} ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
   fi
 
   _sasl_passwd_chown_chmod
 }
 
+# Introduced by: https://github.com/docker-mailserver/docker-mailserver/pull/1596
 # setup /etc/postfix/relayhost_map
 # --
 # @domain1.com        [smtp.mailgun.org]:587
@@ -75,7 +76,6 @@ function _populate_relayhost_map
     if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
       _notify 'inf' "Adding relay mapping for ${DOMAIN}"
-      # shellcheck disable=SC2153
       echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done

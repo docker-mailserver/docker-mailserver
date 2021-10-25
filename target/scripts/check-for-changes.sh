@@ -1,4 +1,6 @@
 #! /bin/bash
+# TODO: Adapt for compatibility with LDAP
+# Only the cert renewal change detection may be relevant for LDAP?
 
 # shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
@@ -79,13 +81,16 @@ do
     done
 
     # regenerate postfix accounts
-    _create_accounts
+    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
 
     _rebuild_relayhost
 
     # regenerate postix aliases
     _create_aliases
 
+    # regenerate /etc/postfix/vhost
+    # NOTE: If later adding support for LDAP with change detection and this method is called,
+    # be sure to mimic `setup-stack.sh:_setup_ldap` which appends to `/tmp/vhost.tmp`.
     _create_postfix_vhost
 
     if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r

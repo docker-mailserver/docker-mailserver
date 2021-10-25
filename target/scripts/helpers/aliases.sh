@@ -1,7 +1,14 @@
 #! /bin/bash
 # Support for Postfix aliases
 
-function _create_aliases
+# NOTE: LDAP doesn't appear to use this, but the docs page: "Use Cases | Forward-Only Mail-Server with LDAP"
+# does have an example where /etc/postfix/virtual is referenced in addition to ldap config for Postfix `main.cf:virtual_alias_maps`.
+# `setup-stack.sh:_setup_ldap` does not seem to configure for `/etc/postfix/virtual however.`
+
+# NOTE: `relay.sh:_populate_relayhost_map` also operates on `postfix-virtual.cf`.
+# NOTE: `accounts.sh` will inherit logic that reads `postfix-virtual.cf` for Dovecot userdb:
+# https://github.com/docker-mailserver/docker-mailserver/pull/2248
+function _handle_postfix_virtual_config
 {
   : >/etc/postfix/virtual
   : >/etc/postfix/regexp
@@ -29,7 +36,10 @@ function _create_aliases
   else
     _notify 'inf' "Warning '/tmp/docker-mailserver/postfix-virtual.cf' is not provided. No mail alias/forward created."
   fi
+}
 
+function _handle_postfix_regexp_config
+{
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
   then
     _notify 'inf' "Adding regexp alias file postfix-regexp.cf"
@@ -39,7 +49,10 @@ function _create_aliases
       's|virtual_alias_maps(.*)|virtual_alias_maps\1 pcre:/etc/postfix/regexp|g' \
       /etc/postfix/main.cf
   fi
+}
 
+function _handle_postfix_aliases_config
+{
   _notify 'inf' 'Configuring root alias'
 
   echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
@@ -53,4 +66,12 @@ function _create_aliases
   fi
 
   postalias /etc/aliases
+}
+
+# Other scripts should call this method, rather than the ones above:
+function _create_aliases
+{
+  _handle_postfix_virtual_config
+  _handle_postfix_regexp_config
+  _handle_postfix_aliases_config
 }

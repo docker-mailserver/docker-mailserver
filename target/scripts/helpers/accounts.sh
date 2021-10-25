@@ -1,6 +1,13 @@
 #! /bin/bash
 # Support for Postfix accounts managed via Dovecot
 
+# TODO: Another active PR is refactoring this logic, changes will need to be synced upon merge:
+# https://github.com/docker-mailserver/docker-mailserver/pull/2248
+
+# It looks like the DOMAIN in below logic is being stored in /etc/postfix/vhost,
+# even if it's a value used for Postfix `main.cf:mydestination`, which apparently isn't good?
+# Only an issue when $myhostname is an exact match (eg: bare domain FQDN).
+
 function _create_accounts
 {
   : >/etc/postfix/vmailbox
