@@ -18,13 +18,18 @@
 #   The only other type in use by `docker-mailserver` is the hash type for /etc/aliases, which `postalias` handles.
 function _create_postfix_vhost
 {
+  # `main.cf` configures `virtual_mailbox_domains = /etc/postfix/vhost`
+  # NOTE: Amavis also consumes this file.
+  : >/etc/postfix/vhost
+
+  # Account and Alias generation will store values in `/tmp/vhost.tmp`.
+  # Filter unique values to the proper config.
+  # NOTE: LDAP stores the domain value set by `docker-mailserver`,
+  # and correctly removes it from `mydestination` in `main.cf` in `setup-stack.sh`.
   if [[ -f /tmp/vhost.tmp ]]
   then
-    sort < /tmp/vhost.tmp | uniq > /etc/postfix/vhost
+    sort < /tmp/vhost.tmp | uniq >> /etc/postfix/vhost
     rm /tmp/vhost.tmp
-  elif [[ ! -f /etc/postfix/vhost ]]
-  then
-    touch /etc/postfix/vhost
   fi
 }
 
