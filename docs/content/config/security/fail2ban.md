@@ -50,9 +50,29 @@ j f2b-postfix
 
 ## Running fail2ban in a rootless container
 
-It is necessary to use `slirp4netns` port forwarding backend because `RootlessKit`, which is the default forwarder for rootless mode in Podman and Docker, does not preserve source IPs.
+[`RootlessKit`](https://github.com/rootless-containers/rootlesskit), the default fakeroot engine for rootless mode in `Docker` and `Podman`, by default uses [built-in port forwarding driver](https://github.com/rootless-containers/rootlesskit/blob/master/docs/port.md#port-drivers), which does not preserve source IP addresses.
 
-`docker-compose` configuration:
+It is necessary for `fail2ban` to have access to correct source IP addresses in order to correctly identify clients. So you have to switch port forwarding backend to [`slirp4netns's`](https://github.com/rootless-containers/slirp4netns) implementation, which is slower than `RootlessKit's` one, but does preserve source IPs.
+
+### Switching to `slirp4netns` port handler in `Docker`
+
+While running `Docker` in [rootless mode](https://docs.docker.com/engine/security/rootless), create `~/.config/systemd/user/docker.service.d/override.conf` with the following content:
+
+```
+[Service]
+Environment="DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns"
+```
+
+And then restart the daemon:
+
+```console
+$ systemctl --user daemon-reload
+$ systemctl --user restart docker
+```
+
+### Switching to `slirp4netns` port handler in `Podman`
+
+In contrast to `Docker`, which changes have to be global for all user's containers, `Podman` [can achieve this](https://docs.podman.io/en/latest/markdown/podman-run.1.html#network-mode-net) by running a specific container with the `--network slirp4netns:port_handler=slirp4netns` option, or passing it via `docker-compose` configuration:
 
 ```yaml
 services:
@@ -60,7 +80,7 @@ services:
     network_mode: "slirp4netns:port_handler=slirp4netns"
 ```
 
-You also have to change `NETWORK_INTERFACE` environment variable to `tap0` because `slirp4netns` uses a TAP device injected inside the container's network namespace:
+You also have to change `NETWORK_INTERFACE` environment variable to `tap0` because `Podman` uses [hardcoded interface name](https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264) for`slirp4netns`:
 
 ```yaml
 services:
