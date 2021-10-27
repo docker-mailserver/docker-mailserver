@@ -5,10 +5,8 @@ updates:
     schedule:
       interval: "weekly"
     reviewers:
-      - "aendeavor"
+      - "georglauterbach"
       - "wernerfred"
     labels:
-      - "area/dependency"
       - "area/ci"
-      - "pr/needs review"
       - "priority/low"
