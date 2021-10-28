@@ -348,7 +348,7 @@ function _setup_dovecot_local_user
 
         if [[ ${#USER_QUOTA[@]} -eq 2 ]]
         then
-          USER_ATTRIBUTES="${USER_ATTRIBUTES:-}${USER_ATTRIBUTES+ }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+          USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
         fi
       fi
 
@@ -377,7 +377,9 @@ function _setup_dovecot_local_user
       echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
 
-    if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
+    # see https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852
+    # for more details on this section
+    if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
     then
       # adding aliases to Dovecot's userdb
       # ${REAL_FQUN} is a user's fully-qualified username
@@ -399,7 +401,13 @@ function _setup_dovecot_local_user
         REAL_USERNAME=$(cut -d @ -f1 <<< "${REAL_FQUN}")
         REAL_DOMAINNAME=$(cut -d @ -f2 <<< "${REAL_FQUN}")
 
-        _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot userdb"
+        if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
+        then
+          _notify 'inf' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
+          continue
+        fi
+
+        _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
 
         # REAL_ACC is an indexed array with
         #
@@ -421,7 +429,7 @@ function _setup_dovecot_local_user
           IFS=':' read -r -a USER_QUOTA < <(grep "${REAL_FQUN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
           if [[ ${#USER_QUOTA[@]} -eq 2 ]]
           then
-            REAL_ACC[2]="${REAL_ACC[2]:-}${REAL_ACC[2]+ }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+            REAL_ACC[2]="${REAL_ACC[2]:+${REAL_ACC[2]} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
           fi
         fi
 
