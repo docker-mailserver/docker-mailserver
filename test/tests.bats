@@ -660,6 +660,11 @@ EOF
   assert_success
 }
 
+@test "check ENABLE_QUOTAS" {
+  run docker exec mail /bin/bash -c 'echo $ENABLE_QUOTAS'
+  assert_output '1'
+}
+
 @test "checking accounts: listmailuser" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
   assert_success
