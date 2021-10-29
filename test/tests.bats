@@ -17,23 +17,24 @@ setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -v "$(pwd)/test/onedir":/var/mail-state \
+    -e AMAVIS_LOGLEVEL=2 \
+    -e DMS_DEBUG=0 \
     -e ENABLE_CLAMAV=1 \
-    -e SPOOF_PROTECTION=1 \
+    -e ENABLE_MANAGESIEVE=1 \
+    -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
+    -e ENABLE_SRS=1 \
+    -e PERMIT_DOCKER=host \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
     -e REPORT_SENDER=report1@mail.my-domain.com \
+    -e SA_KILL=3.0 \
+    -e SA_SPAM_SUBJECT="SPAM: " \
     -e SA_TAG=-5.0 \
     -e SA_TAG2=2.0 \
-    -e SA_KILL=3.0 \
-    -e AMAVIS_LOGLEVEL=2 \
-    -e SA_SPAM_SUBJECT="SPAM: " \
-    -e VIRUSMAILS_DELETE_DELAY=7 \
-    -e ENABLE_SRS=1 \
     -e SASL_PASSWD="external-domain.com username:password" \
-    -e ENABLE_MANAGESIEVE=1 \
-    -e PERMIT_DOCKER=host \
-    -e DMS_DEBUG=0 \
+    -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
+    -e VIRUSMAILS_DELETE_DELAY=7 \
     -h mail.my-domain.com \
     --cap-add=SYS_PTRACE \
     --tty \
@@ -660,13 +661,8 @@ EOF
   assert_success
 }
 
-@test "check ENABLE_QUOTAS" {
-  run docker exec mail /bin/bash -c 'cat /root/.bashrc'
-  assert_output '1'
-}
-
 @test "checking accounts: listmailuser" {
-  run docker exec mail /bin/sh -c "setup email list | head -n 1"
+  run docker exec mail /bin/sh -c "listmailuser | head -n 1"
   assert_success
   assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
 }
