@@ -661,7 +661,13 @@ EOF
   assert_success
 }
 
-@test "checking accounts: listmailuser" {
+@test "checking accounts: listmailuser (quotas disabled)" {
+  run docker exec mail /bin/sh -c "ENABLE_QUOTAS=0 listmailuser | head -n 1"
+  assert_success
+  assert_output '* user1@localhost.localdomain'
+}
+
+@test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "listmailuser | head -n 1"
   assert_success
   assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
