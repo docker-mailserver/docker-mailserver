@@ -78,24 +78,23 @@ $ systemctl --user restart docker
 
 ### Podman with `slirp4netns` port driver
 
-[Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `docker-compose.yml`:
+[Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `docker-compose.yml`.
 
-```yaml
-services:
-  mailserver:
-    network_mode: "slirp4netns:port_handler=slirp4netns"
-```
 
-You also have to set the `NETWORK_INTERFACE` environment variable to `tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`:
+You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`.
 
-```yaml
-services:
-  mailserver:
-    environment:
-      - ENABLE_FAIL2BAN=1
-      - NETWORK_INTERFACE=tap0
-      ...
-```
+
+!!! example
+
+    ```yaml
+    services:
+      mailserver:
+        network_mode: "slirp4netns:port_handler=slirp4netns"
+        environment:
+          - ENABLE_FAIL2BAN=1
+          - NETWORK_INTERFACE=tap0
+          ...
+    ```
 
 !!! note
 
