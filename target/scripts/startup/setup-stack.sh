@@ -67,20 +67,20 @@ function _setup_default_vars
   PFLOGSUMM_RECIPIENT="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
   LOGWATCH_RECIPIENT="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
 
+  VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT}"
+  VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT}"
+  VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER}"
+  VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER}"
+  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS}"
+  VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT}"
+  VARS[REPORT_SENDER]="${REPORT_SENDER}"
+
   local VAR
   for VAR in "${!VARS[@]}"
   do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
+    echo "export ${VAR}='${VARS[${VAR}]}'" >/root/.bashrc
+    echo "${VAR}='${VARS[${VAR}]}'"        >/etc/dms-settings
   done
-
-  {
-    echo "export PFLOGSUMM_SENDER='${PFLOGSUMM_SENDER}'"
-    echo "export PFLOGSUMM_TRIGGER='${PFLOGSUMM_TRIGGER}'"
-    echo "export PFLOGSUMM_RECIPIENT='${PFLOGSUMM_RECIPIENT}'"
-    echo "export POSTMASTER_ADDRESS='${POSTMASTER_ADDRESS}'"
-    echo "export REPORT_RECIPIENT='${REPORT_RECIPIENT}'"
-    echo "export REPORT_SENDER='${REPORT_SENDER}'"
-  } >>/root/.bashrc
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong

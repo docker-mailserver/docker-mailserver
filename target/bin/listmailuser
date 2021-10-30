@@ -2,6 +2,7 @@
 
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
+. /etc/dms-settings
 
 function dovecot_quota_to_hr()
 {
@@ -15,18 +16,6 @@ function dovecot_quota_to_hr()
 
 DATABASE="/tmp/docker-mailserver/postfix-accounts.cf"
 ALIASES="/tmp/docker-mailserver/postfix-virtual.cf"
-
-if [[ -z ${ENABLE_QUOTAS} ]]
-then
-  # container was started without the env ENABLE_QUOTAS set.
-  # get default value from .bashrc
-  if grep -qE "^export ENABLE_QUOTAS='0'$" /root/.bashrc
-  then
-    ENABLE_QUOTAS=0
-  else
-    ENABLE_QUOTAS=1
-  fi
-fi
 
 [[ -f ${DATABASE} ]] || errex "Error: No postfix-accounts.cf file"
 [[ -s ${DATABASE} ]] || errex "Error: Empty postfix-accounts.cf - no accounts have been added"
