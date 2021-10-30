@@ -75,11 +75,13 @@ function _setup_default_vars
   VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT}"
   VARS[REPORT_SENDER]="${REPORT_SENDER}"
 
+  : >/root/.bashrc
+  : >/etc/dms-settings
   local VAR
   for VAR in "${!VARS[@]}"
   do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >/root/.bashrc
-    echo "${VAR}='${VARS[${VAR}]}'"        >/etc/dms-settings
+    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
+    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
   done
 }
 
