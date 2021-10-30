@@ -344,7 +344,6 @@ function _setup_dovecot_local_user
       then
         declare -a USER_QUOTA
         IFS=':' read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-        unset IFS
 
         if [[ ${#USER_QUOTA[@]} -eq 2 ]]
         then
