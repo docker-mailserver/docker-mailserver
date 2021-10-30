@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#lets-encrypt-recommended" class="md-skip">
+        <a href="#the-fqdn" class="md-skip">
           Skip to content
         </a>
       
@@ -675,6 +675,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-fqdn" class="md-nav__link">
+    The FQDN
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-methods" class="md-nav__link">
+    Provisioning methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Provisioning methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#lets-encrypt-recommended" class="md-nav__link">
     Let's Encrypt (Recommended)
   </a>
@@ -684,28 +699,28 @@
         
           <li class="md-nav__item">
   <a href="#example-using-docker-for-lets-encrypt" class="md-nav__link">
-    Example using Docker for Let's Encrypt
+    Certbot with Docker
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-using-nginx-proxy-and-acme-companion-with-docker" class="md-nav__link">
-    Example using nginx-proxy and acme-companion with Docker
+    nginx-proxy with Docker
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose" class="md-nav__link">
-    Example using nginx-proxy and acme-companion with docker-compose
+    nginx-proxy with docker-compose
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-using-lets-encrypt-certificates-with-a-synology-nas" class="md-nav__link">
-    Example using Let's Encrypt Certificates with a Synology NAS
+    Synology NAS
   </a>
   
 </li>
@@ -714,22 +729,22 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#caddy" class="md-nav__link">
     Caddy
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#traefik-v2" class="md-nav__link">
     Traefik v2
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#self-signed-certificates" class="md-nav__link">
     Self-Signed Certificates
   </a>
@@ -748,11 +763,16 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#bring-your-own-certificates" class="md-nav__link">
     Bring Your Own Certificates
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1568,6 +1588,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-fqdn" class="md-nav__link">
+    The FQDN
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-methods" class="md-nav__link">
+    Provisioning methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Provisioning methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#lets-encrypt-recommended" class="md-nav__link">
     Let's Encrypt (Recommended)
   </a>
@@ -1577,28 +1612,28 @@
         
           <li class="md-nav__item">
   <a href="#example-using-docker-for-lets-encrypt" class="md-nav__link">
-    Example using Docker for Let's Encrypt
+    Certbot with Docker
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-using-nginx-proxy-and-acme-companion-with-docker" class="md-nav__link">
-    Example using nginx-proxy and acme-companion with Docker
+    nginx-proxy with Docker
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose" class="md-nav__link">
-    Example using nginx-proxy and acme-companion with docker-compose
+    nginx-proxy with docker-compose
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-using-lets-encrypt-certificates-with-a-synology-nas" class="md-nav__link">
-    Example using Let's Encrypt Certificates with a Synology NAS
+    Synology NAS
   </a>
   
 </li>
@@ -1607,22 +1642,22 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#caddy" class="md-nav__link">
     Caddy
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#traefik-v2" class="md-nav__link">
     Traefik v2
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#self-signed-certificates" class="md-nav__link">
     Self-Signed Certificates
   </a>
@@ -1641,11 +1676,16 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#bring-your-own-certificates" class="md-nav__link">
     Bring Your Own Certificates
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1715,22 +1755,56 @@
 <p>When using a public CA for certificates used in private networks, be aware that the associated DNS labels in the certificate are logged publicly and <a href="https://crt.sh/">easily searchable</a>. These logs are <em>append only</em>, you <strong>cannot</strong> redact this information.</p>
 <p>You could use a <a href="https://en.wikipedia.org/wiki/Wildcard_certificate#Examples">wildcard certificate</a>. This avoids accidentally leaking information to the internet, but keep in mind the <a href="https://gist.github.com/joepie91/7e5cad8c0726fd6a5e90360a754fc568">potential security risks</a> of wildcard certs.</p>
 </div>
-<h2 id="lets-encrypt-recommended"><a class="toclink" href="#lets-encrypt-recommended">Let's Encrypt (Recommended)</a></h2>
+<h2 id="the-fqdn"><a class="toclink" href="#the-fqdn">The FQDN</a></h2>
+<p>An <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a> (<em>Fully Qualified Domain Name</em>) such as <code>mail.example.com</code> is required for <code>docker-mailserver</code> to function correctly, especially for looking up the correct SSL certificate to use.</p>
+<p>Internally, <code>hostname -f</code> will be used to retrieve the FQDN as configured in the below examples.</p>
+<p>Wildcard certificates (eg: <code>*.example.com</code>) are supported for <code>SSL_TYPE=letsencrypt</code>. Your configured FQDN below may be <code>mail.example.com</code>, and your wildcard certificate provisioned to <code>/etc/letsencrypt/live/example.com</code> which will be checked as a fallback FQDN by <code>docker-mailserver</code>.</p>
+<div class="admonition example">
+<p class="admonition-title">Docker CLI options <code>--hostname</code> and optionally <code>--domainname</code></p>
+<div class="highlight"><pre><span></span><code>docker run --hostname mail --domainname example.com
+<span class="c1"># `--domainname` is not required:</span>
+docker run --hostname mail.example.com
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>docker-compose.yml</code> config</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
+    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<span class="c1"># `domainname` is not required:</span>
+<span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><em>Bare domains</em> (eg: <code>example.com</code>) should only use the hostname option</p>
+<div class="highlight"><pre><span></span><code>docker run --hostname example.com
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+</code></pre></div>
+</div>
+<h2 id="provisioning-methods"><a class="toclink" href="#provisioning-methods">Provisioning methods</a></h2>
+<h3 id="lets-encrypt-recommended"><a class="toclink" href="#lets-encrypt-recommended">Let's Encrypt (Recommended)</a></h3>
 <p>To enable <em>Let's Encrypt</em> for <code>docker-mailserver</code>, you have to:</p>
 <ol>
 <li>Get your certificate using the <em>Let's Encrypt</em> client <a href="https://github.com/certbot/certbot">Certbot</a>.</li>
 <li>
 <p>For your <code>docker-mailserver</code> container:</p>
-<ol>
+<ul>
 <li>Add the environment variable <code>SSL_TYPE=letsencrypt</code>.</li>
 <li>Mount <a href="https://certbot.eff.org/docs/using.html#where-are-my-certificates">your local <code>letsencrypt</code> folder</a> as a volume to <code>/etc/letsencrypt</code>.</li>
-</ol>
+</ul>
 </li>
 </ol>
 <p>You don't have to do anything else. Enjoy!</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>/etc/letsencrypt/live</code> stores provisioned certificates in individual folders named by their FQDN (<em>Fully Qualified Domain Name</em>). <code>docker-mailserver</code> looks for it's certificate folder via the <code>hostname</code> command. The FQDN inside the docker container is derived from the <code>--hostname</code> and <code>--domainname</code> options.</p>
+<p><code>/etc/letsencrypt/live</code> stores provisioned certificates in individual folders named by their FQDN.</p>
+<p>Make sure that the entire folder is mounted to <code>docker-mailserver</code> as there are typically symlinks from <code>/etc/letsencrypt/live/mail.example.com</code> to <code>/etc/letsencrypt/archive</code>.</p>
 </div>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
@@ -1746,7 +1820,7 @@
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/letsencrypt:/etc/letsencrypt</span>
 </code></pre></div>
 </div>
-<h3 id="example-using-docker-for-lets-encrypt"><a class="toclink" href="#example-using-docker-for-lets-encrypt">Example using Docker for <em>Let's Encrypt</em></a></h3>
+<h4 id="example-using-docker-for-lets-encrypt"><a class="toclink" href="#example-using-docker-for-lets-encrypt">Example using Docker for <em>Let's Encrypt</em></a></h4>
 <ul>
 <li>Certbot provisions certificates to <code>/etc/letsencrypt</code>. Add a volume to store these, so that they can later be accessed by <code>docker-mailserver</code> container.</li>
 <li>
@@ -1786,7 +1860,7 @@ docker run --rm -it <span class="se">\</span>
 <p class="admonition-title">Using a different ACME CA</p>
 <p>Certbot does support <a href="https://certbot.eff.org/docs/using.htmlchanging-the-acme-server">alternative certificate providers via the <code>--server</code></a> option. In most cases you'll want to use the default <em>Let's Encrypt</em>.</p>
 </div>
-<h3 id="example-using-nginx-proxy-and-acme-companion-with-docker"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with Docker</a></h3>
+<h4 id="example-using-nginx-proxy-and-acme-companion-with-docker"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with Docker</a></h4>
 <p>If you are running a web server already, port 80 will be in use which Certbot requires. You could use the <a href="https://certbot.eff.org/docs/using.html#webroot">Certbot <code>--webroot</code></a> feature, but it is more common to leverage a <em>reverse proxy</em> that manages the provisioning and renewal of certificates for your services automatically.</p>
 <p>In the following example, we show how <code>docker-mailserver</code> can be run alongside the docker containers <a href="https://github.com/nginx-proxy/nginx-proxy"><code>nginx-proxy</code></a> and <a href="https://github.com/nginx-proxy/acme-companion"><code>acme-companion</code></a> (<em>Referencing: <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs"><code>acme-companion</code> documentation</a></em>):</p>
 <ol>
@@ -1822,7 +1896,7 @@ docker run --detach <span class="se">\</span>
 <p>Start the rest of your web server containers as usual.</p>
 </li>
 <li>
-<p>Start a <em>dummy container</em> to provision certificatess for your FQDN (eg: <code>mail.example.com</code>). <code>acme-companion</code> will detect the container and generate a <em>Let's Encrypt</em> certificate for your domain, which can be used by <code>docker-mailserver</code>:</p>
+<p>Start a <em>dummy container</em> to provision certificates for your FQDN (eg: <code>mail.example.com</code>). <code>acme-companion</code> will detect the container and generate a <em>Let's Encrypt</em> certificate for your domain, which can be used by <code>docker-mailserver</code>:</p>
 <div class="highlight"><pre><span></span><code>docker run --detach <span class="se">\</span>
   --name webmail <span class="se">\</span>
   --env <span class="s1">&#39;VIRTUAL_HOST=mail.example.com&#39;</span> <span class="se">\</span>
@@ -1845,7 +1919,7 @@ docker run --detach <span class="se">\</span>
 <p>Then from the <code>docker-compose.yml</code> project directory, run: <code>docker-compose up -d mailserver</code>.</p>
 </li>
 </ol>
-<h3 id="example-using-nginx-proxy-and-acme-companion-with-docker-compose"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with <code>docker-compose</code></a></h3>
+<h4 id="example-using-nginx-proxy-and-acme-companion-with-docker-compose"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with <code>docker-compose</code></a></h4>
 <p>The following example is the <a href="https://github.com/nginx-proxy/acme-companion#basic-usage-with-the-nginx-proxy-container">basic setup</a> you need for using <code>nginx-proxy</code> and <code>acme-companion</code> with <code>docker-mailserver</code> (<em>Referencing: <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs"><code>acme-companion</code> documentation</a></em>):</p>
 <details class="example" open="open"><summary>Example: <code>docker-compose.yml</code></summary><p>You should have an existing <code>docker-compose.yml</code> with a <code>mailserver</code> service. Below are the modifications to add for integrating with <code>nginx-proxy</code> and <code>acme-companion</code> services:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
@@ -1959,7 +2033,7 @@ docker run --detach <span class="se">\</span>
 <p>Unlike with the equivalent ENV for containers, <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md#picking-up-changes-to-letsencrypt_user_data">changes to this file will <strong>not</strong> be detected automatically</a>. You would need to wait until the next renewal check by <code>acme-companion</code> (<em>every hour by default</em>), restart <code>acme-companion</code>, or <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-utilities.md">manually invoke the <em>service loop</em></a>:</p>
 <p><code class="highlight">docker <span class="nb">exec</span> nginx-proxy-acme /app/signal_le_service</code></p>
 </div>
-<h3 id="example-using-lets-encrypt-certificates-with-a-synology-nas"><a class="toclink" href="#example-using-lets-encrypt-certificates-with-a-synology-nas">Example using <em>Let's Encrypt</em> Certificates with a <em>Synology NAS</em></a></h3>
+<h4 id="example-using-lets-encrypt-certificates-with-a-synology-nas"><a class="toclink" href="#example-using-lets-encrypt-certificates-with-a-synology-nas">Example using <em>Let's Encrypt</em> Certificates with a <em>Synology NAS</em></a></h4>
 <p>Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.</p>
 <p>Amongst other things, you can use these to secure your mail-server. DSM locates the generated certificates in a folder below <code>/usr/syno/etc/certificate/_archive/</code>.</p>
 <p>Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your <code>docker-compose.yml</code> declaration file:</p>
@@ -1973,7 +2047,7 @@ docker run --detach <span class="se">\</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/dms/custom-certs/privkey.pem</span>
 </code></pre></div>
 <p>DSM-generated letsencrypt certificates get auto-renewed every three months.</p>
-<h2 id="caddy"><a class="toclink" href="#caddy">Caddy</a></h2>
+<h3 id="caddy"><a class="toclink" href="#caddy">Caddy</a></h3>
 <p>If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1440">#1440</a> for details. In short for Caddy v1 the <code>Caddyfile</code> should look something like:</p>
 <div class="highlight"><pre><span></span><code>https://mail.example.com {
   tls admin@example.com {
@@ -2067,15 +2141,17 @@ docker run --detach <span class="se">\</span>
 <span class="go">no peer certificate available</span>
 <span class="go">No client certificate CA names sent</span>
 </code></pre></div>
-<h2 id="traefik-v2"><a class="toclink" href="#traefik-v2">Traefik v2</a></h2>
+<h3 id="traefik-v2"><a class="toclink" href="#traefik-v2">Traefik v2</a></h3>
 <p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://datatracker.ietf.org/doc/html/rfc8555">ACME protocol</a>. <a href="https://github.com/containous/traefik">Traefik</a> can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use <a href="https://github.com/containous/traefik">Traefik</a>'s major version 2.</p>
-<p><a href="https://github.com/containous/traefik">Traefik</a>'s storage format is natively supported if the <code>acme.json</code> store is mounted into the container at <code>/etc/letsencrypt/acme.json</code>. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot). Wild card certificates issued for <code>*.example.com</code> are supported. You will then want to use <code class="highlight"><span class="nv">SSL_DOMAIN</span><span class="o">=</span>example.com</code>. Lookup of the certificate domain happens in the following order:</p>
+<p><a href="https://github.com/containous/traefik">Traefik</a>'s storage format is natively supported if the <code>acme.json</code> store is mounted into the container at <code>/etc/letsencrypt/acme.json</code>. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot).</p>
+<p>Wildcard certificates are supported. If your FQDN is <code>mail.example.com</code> and your wildcard certificate is <code>*.example.com</code>, add the ENV: <code class="highlight"><span class="nv">SSL_DOMAIN</span><span class="o">=</span>example.com</code>.</p>
+<p>The mail-server will select it's certificate from <code>acme.json</code> checking these ENV for a matching FQDN (<em>in order of priority</em>):</p>
 <ol>
 <li><code class="highlight"><span class="si">${</span><span class="nv">SSL_DOMAIN</span><span class="si">}</span></code></li>
 <li><code class="highlight"><span class="si">${</span><span class="nv">HOSTNAME</span><span class="si">}</span></code></li>
 <li><code class="highlight"><span class="si">${</span><span class="nv">DOMAINNAME</span><span class="si">}</span></code></li>
 </ol>
-<p>This setup only comes with one caveat: The domain has to be configured on another service for <a href="https://github.com/containous/traefik">Traefik</a> to actually request it from Let'sEncrypt, i.e. <a href="https://github.com/containous/traefik">Traefik</a> will not issue a certificate without a service / router demanding it.</p>
+<p>This setup only comes with one caveat: The domain has to be configured on another service for <a href="https://github.com/containous/traefik">Traefik</a> to actually request it from <em>Let's Encrypt</em>, i.e. <a href="https://github.com/containous/traefik">Traefik</a> will not issue a certificate without a service / router demanding it.</p>
 <details class="example" open="open"><summary>Example Code</summary><p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>docker-compose</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
 <span class="nt">services</span><span class="p">:</span>
@@ -2118,7 +2194,7 @@ docker run --detach <span class="se">\</span>
        <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.http.routers.whoami.rule=Host(`mail.example.com`)&quot;</span>
 </code></pre></div>
 </details>
-<h2 id="self-signed-certificates"><a class="toclink" href="#self-signed-certificates">Self-Signed Certificates</a></h2>
+<h3 id="self-signed-certificates"><a class="toclink" href="#self-signed-certificates">Self-Signed Certificates</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Use self-signed certificates only for testing purposes!</p>
@@ -2129,9 +2205,9 @@ docker run --detach <span class="se">\</span>
 <li><code>&lt;FQDN&gt;-cert.pem</code></li>
 <li><code>demoCA/cacert.pem</code></li>
 </ul>
-<p>Where <code>&lt;FQDN&gt;</code> is the <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a> assigned to <code>docker-mailserver</code> (<em>eg: <code>mail.example.com</code> (FQDN) =&gt; <code>mail</code> (hostname) + <code>example.com</code> (domainname)</em>) via <code>docker run</code> command or <code>docker-compose.yml</code> config.</p>
+<p>Where <code>&lt;FQDN&gt;</code> is the FQDN you've configured for your <code>docker-mailserver</code> container.</p>
 <p>Add <code>SSL_TYPE=self-signed</code> to your <code>docker-mailserver</code> environment variables. Postfix and Dovecot will be configured to use the provided certificate (<em><code>.pem</code> files above</em>) during container startup.</p>
-<h3 id="generating-a-self-signed-certificate"><a class="toclink" href="#generating-a-self-signed-certificate">Generating a self-signed certificate</a></h3>
+<h4 id="generating-a-self-signed-certificate"><a class="toclink" href="#generating-a-self-signed-certificate">Generating a self-signed certificate</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Since <code>docker-mailserver</code> v10, support in <code>setup.sh</code> for generating a <em>self-signed SSL certificate</em> internally was removed.</p>
@@ -2171,7 +2247,7 @@ docker run --rm -it <span class="se">\</span>
   --entrypoint <span class="s2">&quot;/tmp/step-ca/generate-certs.sh&quot;</span> <span class="se">\</span>
   smallstep/step-ca
 </code></pre></div>
-<h2 id="bring-your-own-certificates"><a class="toclink" href="#bring-your-own-certificates">Bring Your Own Certificates</a></h2>
+<h3 id="bring-your-own-certificates"><a class="toclink" href="#bring-your-own-certificates">Bring Your Own Certificates</a></h3>
 <p>You can also provide your own certificate files. Add these entries to your <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/custom-certs/:/tmp/dms/custom-certs/:ro</span>
