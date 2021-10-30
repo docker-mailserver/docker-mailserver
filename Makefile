@@ -4,8 +4,6 @@ NAME   ?= mailserver-testing:ci
 VCS_REF = $(shell git rev-parse --short HEAD)
 VCS_VER = $(shell git describe --tags --contains --always)
 
-export CDIR = $(shell pwd)
-
 # -----------------------------------------------
 # --- Generic Build Targets ---------------------
 # -----------------------------------------------
@@ -40,7 +38,7 @@ generate-accounts:
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
 tests:
-	@ NAME=$(NAME) ./test/bats/bin/bats test/*.bats
+	@ NAME=$(NAME) ./test/bats/bin/bats --timing test/*.bats
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
