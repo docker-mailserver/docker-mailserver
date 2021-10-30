@@ -23,6 +23,47 @@ After installation, you can test your setup with:
 
     You could use a [wildcard certificate][wildcard-cert]. This avoids accidentally leaking information to the internet, but keep in mind the [potential security risks][security::wildcard-cert] of wildcard certs.
 
+## The FQDN
+
+An [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (_Fully Qualified Domain Name_) such as `mail.example.com` is required for `docker-mailserver` to function correctly, especially for looking up the correct SSL certificate to use.
+
+Internally, `hostname -f` will be used to retrieve the FQDN as configured in the below examples.
+
+Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencrypt`. Your configured FQDN below may be `mail.example.com`, and your wildcard certificate provisioned to `/etc/letsencrypt/live/example.com` which will be checked as a fallback FQDN by `docker-mailserver`.
+
+!!! example "Docker CLI options `--hostname` and optionally `--domainname`"
+
+    ```sh
+    docker run --hostname mail --domainname example.com
+    # `--domainname` is not required:
+    docker run --hostname mail.example.com
+    ```
+
+!!! example "`docker-compose.yml` config"
+
+    ```yml
+    services:
+      mailserver:
+        hostname: mail
+        domainname: example.com
+    # `domainname` is not required:
+    services:
+      mailserver:
+        hostname: mail.example.com
+    ```
+
+!!! example "_Bare domains_ (eg: `example.com`) should only use the hostname option"
+
+    ```sh
+    docker run --hostname example.com
+    ```
+
+    ```yml
+    services:
+      mailserver:
+        hostname: example.com
+    ```
+
 ## Provisioning methods
 
 ### Let's Encrypt (Recommended)
@@ -39,7 +80,9 @@ You don't have to do anything else. Enjoy!
 
 !!! note
 
-    `/etc/letsencrypt/live` stores provisioned certificates in individual folders named by their FQDN (_Fully Qualified Domain Name_). `docker-mailserver` looks for it's certificate folder via the `hostname` command. The FQDN inside the docker container is derived from the `--hostname` and `--domainname` options.
+    `/etc/letsencrypt/live` stores provisioned certificates in individual folders named by their FQDN.
+
+    Make sure that the entire folder is mounted to `docker-mailserver` as there are typically symlinks from `/etc/letsencrypt/live/mail.example.com` to `/etc/letsencrypt/archive`.
 
 !!! example
 
@@ -494,7 +537,7 @@ This feature requires you to provide the following files into your [`docker-data
 - `<FQDN>-cert.pem`
 - `demoCA/cacert.pem`
 
-Where `<FQDN>` is the [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) assigned to `docker-mailserver` (_eg: `mail.example.com` (FQDN) => `mail` (hostname) + `example.com` (domainname)_) via `docker run` command or `docker-compose.yml` config.
+Where `<FQDN>` is the FQDN you've configured for your `docker-mailserver` container.
 
 Add `SSL_TYPE=self-signed` to your `docker-mailserver` environment variables. Postfix and Dovecot will be configured to use the provided certificate (_`.pem` files above_) during container startup.
 
