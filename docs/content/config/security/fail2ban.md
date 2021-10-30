@@ -50,13 +50,13 @@ j f2b-postfix
 
 ## Running fail2ban in a rootless container
 
-[`RootlessKit`](https://github.com/rootless-containers/rootlesskit), the default fakeroot engine for a rootless mode in Docker and Podman, by default uses a [built-in port forwarding driver](https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers), which does not preserve source IP addresses.
+[`RootlessKit`][rootless::rootless-kit] is the _fakeroot_ implementation for supporting _rootless mode_ in Docker and Podman. By default RootlessKit uses the [`builtin` port forwarding driver][rootless::port-drivers], which does not propagate source IP addresses.
 
-It is necessary for `fail2ban` to have access to correct source IP addresses in order to correctly identify clients. So you have to switch port forwarding backend to [`slirp4netns's`](https://github.com/rootless-containers/slirp4netns) implementation, which is slower than `RootlessKit's` one, but does preserve source IPs.
+It is necessary for `fail2ban` to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to [`slirp4netns`][rootless::slirp4netns], which is slower than `builtin` but does preserve the real source IPs.
 
-### Switching to `slirp4netns` port handler in Docker
+### Docker with `slirp4netns` port driver
 
-While running Docker in the [rootless mode](https://docs.docker.com/engine/security/rootless), create `~/.config/systemd/user/docker.service.d/override.conf` with the following content:
+For [rootless mode][rootless::docker] in Docker, create `~/.config/systemd/user/docker.service.d/override.conf` with the following content:
 
 ```
 [Service]
@@ -70,9 +70,15 @@ $ systemctl --user daemon-reload
 $ systemctl --user restart docker
 ```
 
-### Switching to `slirp4netns` port handler in Podman
+!!! note
 
-In contrast to Docker, which changes have to be global for all user's containers, Podman [can achieve this](https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net) by running a specific container with the `--network slirp4netns:port_handler=slirp4netns` option, or passing it via `docker-compose` configuration:
+    This changes the port driver for all rootless containers managed by Docker.
+
+    Per container configuration is not supported, if you need that consider Podman instead.
+
+### Podman with `slirp4netns` port driver
+
+[Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `docker-compose.yml`:
 
 ```yaml
 services:
@@ -80,7 +86,7 @@ services:
     network_mode: "slirp4netns:port_handler=slirp4netns"
 ```
 
-You also have to change `NETWORK_INTERFACE` environment variable to `tap0` because Podman uses a [hardcoded interface name](https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264) for `slirp4netns` configuration:
+You also have to set the `NETWORK_INTERFACE` environment variable to `tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`:
 
 ```yaml
 services:
@@ -90,6 +96,10 @@ services:
       - NETWORK_INTERFACE=tap0
       ...
 ```
+
+!!! note
+
+    `slirp4netns` is not compatible with user-defined networks.
 
 ## Manage bans
 
@@ -112,3 +122,9 @@ Here `192.168.1.15` is our banned IP.
 [docs-setupsh]: ../setup.sh.md
 [github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf
 [github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf
+[rootless::rootless-kit]: https://github.com/rootless-containers/rootlesskit
+[rootless::port-drivers]: https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers
+[rootless::slirp4netns]: https://github.com/rootless-containers/slirp4netns
+[rootless::docker]: https://docs.docker.com/engine/security/rootless
+[rootless:podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
+[rootless:podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
