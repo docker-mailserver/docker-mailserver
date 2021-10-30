@@ -32,8 +32,8 @@ To enable _Let's Encrypt_ for `docker-mailserver`, you have to:
 1. Get your certificate using the _Let's Encrypt_ client [Certbot][certbot::github].
 2. For your `docker-mailserver` container:
 
-    1. Add the environment variable `SSL_TYPE=letsencrypt`.
-    2. Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`.
+    - Add the environment variable `SSL_TYPE=letsencrypt`.
+    - Mount [your local `letsencrypt` folder][certbot::certs-storage] as a volume to `/etc/letsencrypt`.
 
 You don't have to do anything else. Enjoy!
 
@@ -137,7 +137,7 @@ In the following example, we show how `docker-mailserver` can be run alongside t
 
 3. Start the rest of your web server containers as usual.
 
-4. Start a _dummy container_ to provision certificatess for your FQDN (eg: `mail.example.com`). `acme-companion` will detect the container and generate a _Let's Encrypt_ certificate for your domain, which can be used by `docker-mailserver`:
+4. Start a _dummy container_ to provision certificates for your FQDN (eg: `mail.example.com`). `acme-companion` will detect the container and generate a _Let's Encrypt_ certificate for your domain, which can be used by `docker-mailserver`:
 
     ```sh
     docker run --detach \
@@ -431,7 +431,7 @@ No client certificate CA names sent
 2. `#!bash ${HOSTNAME}`
 3. `#!bash ${DOMAINNAME}`
 
-This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from Let'sEncrypt, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
+This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from _Let's Encrypt_, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
 
 ???+ example "Example Code"
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
