@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.3.3">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.5">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.5143246d.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cdeb8541.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -677,6 +677,8 @@
       </a>
       
         
+
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -699,6 +701,33 @@
           <li class="md-nav__item">
   <a href="#docker-compose-config" class="md-nav__link">
     Docker-compose config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-fail2ban-in-a-rootless-container" class="md-nav__link">
+    Running fail2ban in a rootless container
+  </a>
+  
+    <nav class="md-nav" aria-label="Running fail2ban in a rootless container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-with-slirp4netns-port-driver" class="md-nav__link">
+    Docker with slirp4netns port driver
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#podman-with-slirp4netns-port-driver" class="md-nav__link">
+    Podman with slirp4netns port driver
   </a>
   
 </li>
@@ -1493,6 +1522,8 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1515,6 +1546,33 @@
           <li class="md-nav__item">
   <a href="#docker-compose-config" class="md-nav__link">
     Docker-compose config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-fail2ban-in-a-rootless-container" class="md-nav__link">
+    Running fail2ban in a rootless container
+  </a>
+  
+    <nav class="md-nav" aria-label="Running fail2ban in a rootless container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-with-slirp4netns-port-driver" class="md-nav__link">
+    Docker with slirp4netns port driver
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#podman-with-slirp4netns-port-driver" class="md-nav__link">
+    Podman with slirp4netns port driver
   </a>
   
 </li>
@@ -1600,6 +1658,41 @@
 <span class="go">2016-06-01 00:53:51,284 fail2ban.action         [678]: ERROR   iptables -w -D INPUT -p tcp -m multiport --dports smtp,465,submission -</span>
 <span class="go">j f2b-postfix</span>
 </code></pre></div>
+<h2 id="running-fail2ban-in-a-rootless-container"><a class="toclink" href="#running-fail2ban-in-a-rootless-container">Running fail2ban in a rootless container</a></h2>
+<p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
+<p>It is necessary for <code>fail2ban</code> to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than <code>builtin</code> but does preserve the real source IPs.</p>
+<h3 id="docker-with-slirp4netns-port-driver"><a class="toclink" href="#docker-with-slirp4netns-port-driver">Docker with <code>slirp4netns</code> port driver</a></h3>
+<p>For <a href="https://docs.docker.com/engine/security/rootless">rootless mode</a> in Docker, create <code>~/.config/systemd/user/docker.service.d/override.conf</code> with the following content:</p>
+<div class="highlight"><pre><span></span><code>[Service]
+Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
+</code></pre></div>
+<p>And then restart the daemon:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>systemctl --user daemon-reload
+<span class="gp">$ </span>systemctl --user restart docker
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This changes the port driver for all rootless containers managed by Docker.</p>
+<p>Per container configuration is not supported, if you need that consider Podman instead.</p>
+</div>
+<h3 id="podman-with-slirp4netns-port-driver"><a class="toclink" href="#podman-with-slirp4netns-port-driver">Podman with <code>slirp4netns</code> port driver</a></h3>
+<p>[Rootless Podman][rootless::podman] requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
+<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a [hard-coded interface name][rootless::podman::interface] for <code>slirp4netns</code>.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mailserver</span><span class="p">:</span>
+    <span class="nt">network_mode</span><span class="p">:</span> <span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span>
+      <span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>slirp4netns</code> is not compatible with user-defined networks.</p>
+</div>
 <h2 id="manage-bans"><a class="toclink" href="#manage-bans">Manage bans</a></h2>
 <p>You can also manage and list the banned IPs with the <a href="../../setup.sh/"><code>setup.sh</code></a> script.</p>
 <h3 id="list-bans"><a class="toclink" href="#list-bans">List bans</a></h3>
@@ -1695,7 +1788,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.8397ff9e.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.f89c2efe.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.1e84347e.min.js"></script>
       
     
   </body>
