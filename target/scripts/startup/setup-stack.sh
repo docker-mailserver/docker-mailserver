@@ -343,7 +343,7 @@ function _setup_dovecot_local_user
       if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
         declare -a USER_QUOTA
-        IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
+        IFS=':' read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
         unset IFS
 
         if [[ ${#USER_QUOTA[@]} -eq 2 ]]
@@ -361,7 +361,7 @@ function _setup_dovecot_local_user
 
       echo "${LOGIN} ${DOMAIN}/${USER}/" >> /etc/postfix/vmailbox
       # Dovecot's userdb has the following format
-      #   user:password:uid:gid:(gecos):home:(shell):extra_fields
+      # user:password:uid:gid:(gecos):home:(shell):extra_fields
       echo \
         "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" \
         >>/etc/dovecot/userdb
@@ -394,12 +394,13 @@ function _setup_dovecot_local_user
         [[ ! ${ALIAS} == *@* ]] && continue
 
         # clear possibly already filled arrays
+        # do not remove the following line of code
         unset REAL_ACC USER_QUOTA
         declare -a REAL_ACC USER_QUOTA
 
         local REAL_USERNAME REAL_DOMAINNAME
-        REAL_USERNAME=$(cut -d @ -f1 <<< "${REAL_FQUN}")
-        REAL_DOMAINNAME=$(cut -d @ -f2 <<< "${REAL_FQUN}")
+        REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
+        REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
 
         if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
         then
@@ -409,18 +410,14 @@ function _setup_dovecot_local_user
 
         _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
 
-        # REAL_ACC is an indexed array with
-        #
-        # | position | content                                       |
-        # |        0 | real account name (e-mail address) == ${FQUN} |
-        # |        1 | password hash                                 |
-        # |        2 | optional user attributes                      |
+        # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
+        # ${REAL_ACC[1]} => password hash
+        # ${REAL_ACC[2]} => optional user attributes
         IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf)
 
         if [[ -z ${REAL_ACC[1]} ]]
         then
-          _notify 'err' "Could not acquire password hash of user '${REAL_FQUN}' while adding alias '${ALIAS}'"
-          continue
+          dms_panic__misconfigured 'postfix-accounts.cf' 'alias configuration'
         fi
 
         # test if user has a defined quota
