@@ -41,7 +41,7 @@ You will then be asked for a password, and be given back the data for a new acco
 
 - `imap-quota` is enabled and allow clients to query their mailbox usage.
 - When the mailbox is deleted, the quota directive is deleted as well.
-- Dovecot quotas support LDAP, **but it's not implemented** (_PR are welcome!_).
+- Dovecot quotas support LDAP, **but it's not implemented** (_PRs are welcome!_).
 
 [docs-setupsh]: ../setup.sh.md
 [github-issue-552]: https://github.com/docker-mailserver/docker-mailserver/issues/552
