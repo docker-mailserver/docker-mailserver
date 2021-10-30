@@ -1,6 +1,3 @@
-# `version` key here is optional and no longer required in modern docker-compose versions.
-# version: '3.8'
-
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
