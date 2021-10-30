@@ -1564,7 +1564,7 @@ ufw allow <span class="m">465</span>
 </div>
 </li>
 <li>
-<p>Configure your DNS service to use an MX record for the <em>hostname</em> (eg: <code>mail</code>) you configured in the previous step and add the <a href="../../config/best-practice/spf.md">SPF</a> TXT record.</p>
+<p>Configure your DNS service to use an MX record for the <em>hostname</em> (eg: <code>mail</code>) you configured in the previous step and add the <a href="../../../config/best-practices/spf/">SPF</a> TXT record.</p>
 <p>If you manually manage the DNS zone file for the domain, it would look something like this:</p>
 <div class="highlight"><pre><span></span><code>mail      IN  A   10.11.12.13
 
@@ -1577,7 +1577,7 @@ ufw allow <span class="m">465</span>
 <p>Then don't forget to change the serial number and to restart the service.</p>
 </li>
 <li>
-<p><a href="../../config/best-practice/dkim.md">Generate DKIM keys</a> for your domain via <code>./setup.sh config dkim</code>.</p>
+<p><a href="../../../config/best-practices/dkim/">Generate DKIM keys</a> for your domain via <code>./setup.sh config dkim</code>.</p>
 <p>Copy the content of the file <code>docker-data/dms/config/opendkim/keys/example.com/mail.txt</code> and add it to your DNS records as a TXT like SPF was handled above.</p>
 <p>I use <a href="https://github.com/docker-scripts/bind9">bind9</a> for managing my domains, so I just paste it on <code>example.com.db</code>:</p>
 <div class="highlight"><pre><span></span><code>mail._domainkey IN      TXT     ( &quot;v=DKIM1; h=sha256; k=rsa; &quot;

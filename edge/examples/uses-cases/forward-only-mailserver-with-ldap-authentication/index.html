@@ -1545,7 +1545,7 @@
 <span class="na">userPassword</span><span class="o">:</span> <span class="s">{SSHA}abcdefghi123456789</span>
 <span class="na">email</span><span class="o">:</span> <span class="s">external-account@gmail.com</span>
 </code></pre></div>
-<p>This structure is different from what is expected/assumed from the configuration scripts of <code>docker-mailserver</code>, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="./config/advanced/override-defaults/user-patches.md">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
+<p>This structure is different from what is expected/assumed from the configuration scripts of <code>docker-mailserver</code>, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 
 rm -f /etc/postfix/<span class="o">{</span>ldap-groups.cf,ldap-domains.cf<span class="o">}</span>
