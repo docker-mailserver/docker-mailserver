@@ -139,24 +139,24 @@ then
   exit 0
 fi
 
-while read -r DOMAINNAME
+while read -r DKIM_DOMAIN
 do
-  mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}"
+  mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
 
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/${SELECTOR}.private" ]]
+  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]
   then
-    echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}/${SELECTOR}.private"
+    echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
 
     opendkim-genkey \
       --bits="${KEYSIZE}" \
       --subdomains \
-      --DOMAIN="${DOMAINNAME}" \
+      --DOMAIN="${DKIM_DOMAIN}" \
       --selector="${SELECTOR}" \
-      -D "/tmp/docker-mailserver/opendkim/keys/${DOMAINNAME}"
+      -D "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
   fi
 
   # write to KeyTable if necessary
-  KEYTABLEENTRY="${SELECTOR}._domainkey.${DOMAINNAME} ${DOMAINNAME}:${SELECTOR}:/etc/opendkim/keys/${DOMAINNAME}/${SELECTOR}.private"
+  KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
   if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]
   then
     echo "Creating DKIM KeyTable"
@@ -169,11 +169,11 @@ do
   fi
 
   # write to SigningTable if necessary
-  SIGNINGTABLEENTRY="*@${DOMAINNAME} ${SELECTOR}._domainkey.${DOMAINNAME}"
+  SIGNINGTABLEENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
   if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]
   then
     echo "Creating DKIM SigningTable"
-    echo "*@${DOMAINNAME} ${SELECTOR}._domainkey.${DOMAINNAME}" >/tmp/docker-mailserver/opendkim/SigningTable
+    echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" >/tmp/docker-mailserver/opendkim/SigningTable
   else
     if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable
     then
