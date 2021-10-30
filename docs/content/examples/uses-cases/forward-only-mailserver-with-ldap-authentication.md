@@ -108,5 +108,5 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
     One user reports only having success if `ENABLE_LDAP=0` was set.
 
-[docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
+[docs-userpatches]: ../../config/advanced/override-defaults/user-patches.md
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247
