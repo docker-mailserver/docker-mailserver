@@ -150,6 +150,13 @@ export -f _sanitize_ipv4_to_subnet_cidr
 
 function _extract_certs_from_acme
 {
+  local CERT_DOMAIN=${1}
+  if [[ -z ${CERT_DOMAIN} ]]
+  then
+    _notify 'err' "_extract_certs_from_acme | CERT_DOMAIN is empty"
+    return 1
+  fi
+
   local KEY
   # shellcheck disable=SC2002
   KEY=$(cat /etc/letsencrypt/acme.json | python -c "
