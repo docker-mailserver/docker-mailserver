@@ -12,18 +12,28 @@ key_or_cert.add_argument('--cert', dest='requested', action='store_const', const
 
 args = parser.parse_args()
 
-# Checks the acme.json data for a 'Certificates' field, searches for an object for the FQDN and returns the requested key or cert value:
-def retrieve_data():
-  with open(args.filepath) as json_file:
-    acme_data = json.load(json_file)
-    for key, value in acme_data.items():
-      certs = value['Certificates']
-      if certs is not None:
-        for cert in certs:
-          if 'domain' in cert and args.requested in cert:
-            if 'main' in cert['domain'] and cert['domain']['main'] == args.fqdn or 'sans' in cert['domain'] and args.fqdn in cert['domain']['sans']:
-              return cert[args.requested]
+def has_fqdn(domains, fqdn):
+    main = domains.get('main', '')
+    sans = domains.get('sans', [])
+    return main == fqdn or fqdn in sans
 
-result=retrieve_data() or ''
-# No match == 'NONE', we convert to empty string for existing error handling by helper-functions.sh
+# Searches the acme.json data for the target FQDN,
+# upon a match returns the requested key or cert:
+def retrieve_data():
+    with open(args.filepath) as json_file:
+        acme_data = json.load(json_file)
+        for key, value in acme_data.items():
+            try:
+                certs = value['Certificates'] or []
+                for cert in certs:
+                    if has_fqdn(cert['domain'], args.fqdn):
+                        return cert[args.requested]
+            # One of the expected keys is missing.. return an empty result
+            # Certificates: [{domain: [main, sans], key, certificate]}
+            except KeyError:
+                return None
+
+# No match == 'None', we convert to empty string for
+# existing error handling by `helper-functions.sh`:
+result = retrieve_data() or ''
 print(result)
