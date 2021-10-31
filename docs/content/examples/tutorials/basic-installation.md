@@ -144,8 +144,8 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 [docs-ports]: ../../config/security/understanding-the-ports.md
 [docs-setup-script]: ../../config/setup.sh.md
 [docs-environment]: ../../config/environment.md
-[docs-spf]: ../../config/best-practice/spf.md
-[docs-dkim]: ../../config/best-practice/dkim.md
+[docs-spf]: ../../config/best-practices/spf.md
+[docs-dkim]: ../../config/best-practices/dkim.md
 [docs-ssl]: ../../config/security/ssl.md#lets-encrypt-recommended
 
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
