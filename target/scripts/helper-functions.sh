@@ -157,24 +157,21 @@ function _extract_certs_from_acme
     return 1
   fi
 
-  local KEY
+  local KEY CERT
   KEY=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
-
-  local CERT
   CERT=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
 
-  if [[ -n "${KEY}${CERT}" ]]
+  if [[ -z ${KEY} || -z ${CERT} ]]
   then
-    mkdir -p "/etc/letsencrypt/live/${HOSTNAME}/"
-
-    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/key.pem || exit 1
-    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/fullchain.pem || exit 1
-    _notify 'inf' "Cert found in /etc/letsencrypt/acme.json for ${1}"
-
-    return 0
-  else
+    _notify 'warn' "_extract_certs_from_acme | Unable to find key & cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
   fi
+
+  mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
+  echo "${KEY}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
+  echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
+
+  _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 export -f _extract_certs_from_acme
 
