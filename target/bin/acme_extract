@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse,json
 
-parser = argparse.ArgumentParser(description='Traefik acme.json key and cert extractor utility.', add_help=False)
+parser = argparse.ArgumentParser(description='Traefik acme.json key and cert extractor utility.')
 parser.add_argument('filepath', metavar='<filepath>', help='Path to acme.json')
 parser.add_argument('fqdn',     metavar='<FQDN>',     help="FQDN to match in a certificates 'main' or 'sans' field")
 
