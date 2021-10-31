@@ -75,8 +75,8 @@ function _setup_default_vars
   VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT}"
   VARS[REPORT_SENDER]="${REPORT_SENDER}"
 
-  : >/root/.bashrc
-  : >/etc/dms-settings
+  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
+  : >/etc/dms-settings # this file can be sourced by other scripts
   local VAR
   for VAR in "${!VARS[@]}"
   do
