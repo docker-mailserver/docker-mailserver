@@ -29,7 +29,7 @@ def retrieve_data():
                     if has_fqdn(cert['domain'], args.fqdn):
                         return cert[args.requested]
             # One of the expected keys is missing.. return an empty result
-            # Certificates: [{domain: [main, sans], key, certificate]}
+            # Certificates: [{domain: [main, sans], key, certificate}]
             except KeyError:
                 return None
 
