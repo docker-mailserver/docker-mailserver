@@ -668,7 +668,7 @@ EOF
 }
 
 @test "checking accounts: listmailuser (quotas enabled)" {
-  run docker exec mail /bin/sh -c "listmailuser | head -n 1"
+  run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
   assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
 }
