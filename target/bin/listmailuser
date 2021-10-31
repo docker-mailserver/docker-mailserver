@@ -2,7 +2,9 @@
 
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
-. /etc/dms-settings
+
+# suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
+. /etc/dms-settings 2> /dev/null
 
 function dovecot_quota_to_hr()
 {
