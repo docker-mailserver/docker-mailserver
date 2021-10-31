@@ -152,7 +152,7 @@ function _extract_certs_from_acme
 {
   local KEY
   # shellcheck disable=SC2002
-  KEY=$(cat /etc/letsencrypt/acme.json | python -c "
+  KEY=$(cat /etc/letsencrypt/acme.json | python3 -c "
 import sys,json
 acme = json.load(sys.stdin)
 for key, value in acme.items():
@@ -167,7 +167,7 @@ for key, value in acme.items():
 
   local CERT
   # shellcheck disable=SC2002
-  CERT=$(cat /etc/letsencrypt/acme.json | python -c "
+  CERT=$(cat /etc/letsencrypt/acme.json | python3 -c "
 import sys,json
 acme = json.load(sys.stdin)
 for key, value in acme.items():
