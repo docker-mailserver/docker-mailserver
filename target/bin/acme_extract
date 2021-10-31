@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import argparse,json
+
+parser = argparse.ArgumentParser(description='Traefik acme.json key and cert extractor utility.', add_help=False)
+parser.add_argument('filepath', metavar='<filepath>', help='Path to acme.json')
+parser.add_argument('fqdn',     metavar='<FQDN>',     help="FQDN to match in a certificates 'main' or 'sans' field")
+
+# Only one of these options can be used at a time, `const` is the key value that will be queried:
+key_or_cert = parser.add_mutually_exclusive_group(required=True)
+key_or_cert.add_argument('--key',  dest='requested', action='store_const', const='key',         help='Output the key data to stdout')
+key_or_cert.add_argument('--cert', dest='requested', action='store_const', const='certificate', help='Output the cert data to stdout')
+
+args = parser.parse_args()
+
+# Checks the acme.json data for a 'Certificates' field, searches for an object for the FQDN and returns the requested key or cert value:
+def retrieve_data():
+  with open(args.filepath) as json_file:
+    acme_data = json.load(json_file)
+    for key, value in acme_data.items():
+      certs = value['Certificates']
+      if certs is not None:
+        for cert in certs:
+          if 'domain' in cert and args.requested in cert:
+            if 'main' in cert['domain'] and cert['domain']['main'] == args.fqdn or 'sans' in cert['domain'] and args.fqdn in cert['domain']['sans']:
+              return cert[args.requested]
+
+result=retrieve_data() or ''
+# No match == 'NONE', we convert to empty string for existing error handling by helper-functions.sh
+print(result)

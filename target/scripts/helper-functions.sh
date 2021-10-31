@@ -158,34 +158,10 @@ function _extract_certs_from_acme
   fi
 
   local KEY
-  # shellcheck disable=SC2002
-  KEY=$(cat /etc/letsencrypt/acme.json | python -c "
-import sys,json
-acme = json.load(sys.stdin)
-for key, value in acme.items():
-    certs = value['Certificates']
-    if certs is not None:
-        for cert in certs:
-            if 'domain' in cert and 'key' in cert:
-                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
-                    print cert['key']
-                    break
-")
+  KEY=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
 
   local CERT
-  # shellcheck disable=SC2002
-  CERT=$(cat /etc/letsencrypt/acme.json | python -c "
-import sys,json
-acme = json.load(sys.stdin)
-for key, value in acme.items():
-    certs = value['Certificates']
-    if certs is not None:
-        for cert in certs:
-            if 'domain' in cert and 'certificate' in cert:
-                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
-                    print cert['certificate']
-                    break
-")
+  CERT=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
 
   if [[ -n "${KEY}${CERT}" ]]
   then
