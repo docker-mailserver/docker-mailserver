@@ -167,6 +167,13 @@ function _extract_certs_from_acme
     return 1
   fi
 
+  # Currently we advise SSL_DOMAIN for wildcard support using a `*.example.com` value,
+  # The filepath however should be `example.com`, avoiding the wildcard part:
+  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]
+  then
+    CERT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+  fi
+
   mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
   echo "${KEY}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
   echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
@@ -174,6 +181,16 @@ function _extract_certs_from_acme
   _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 export -f _extract_certs_from_acme
+
+# Remove the `*.` prefix if it exists
+function _strip_wildcard_prefix {
+  local FQDN=${1}
+    if [[ ${FQDN} =~ \*\. ]]
+    then
+      FQDN=$(echo "${1}" | cut -d '.' -f2-99)
+    fi
+  echo "${FQDN}"
+}
 
 # ? --------------------------------------------- Notifications
 
