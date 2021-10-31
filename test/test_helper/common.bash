@@ -210,29 +210,51 @@ function wait_for_empty_mail_queue_in_container() {
 # Common defaults appropriate for most tests, override vars in each test when necessary.
 # TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
 function init_with_defaults() {
-  # Ignore absolute dir path and file extension, only extract filename:
-  export TEST_NAME
-  TEST_NAME="$(basename "${BATS_TEST_FILENAME}" '.bats')"
+  export TEST_NAME TEST_TMP_CONFIG
 
-  export PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${TEST_NAME}")"
-  export TEST_FILES_VOLUME="${PWD}/test/test-files:/tmp/docker-mailserver-test:ro"
-  export TEST_CONFIG_VOLUME="${PRIVATE_CONFIG}:/tmp/docker-mailserver:ro"
+  # Ignore absolute dir path and file extension, only extract filename:
+  TEST_NAME="$(basename "${BATS_TEST_FILENAME}" '.bats')"
+  TEST_TMP_CONFIG="$(duplicate_config_for_container . "${TEST_NAME}")"
+
+  export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'
+  export TEST_FILES_VOLUME="${PWD}/test/test-files:${TEST_FILES_CONTAINER_PATH}:ro"
+
+  # The config volume cannot be read-only as some data needs to be written at container startup
+  # - two sed failures (unknown lines)
+  # - dovecot-quotas.cf (setup-stack.sh:_setup_dovecot_quotas)
+  # - postfix-aliases.cf (setup-stack.sh:_setup_postfix_aliases)
+  export TEST_CONFIG_VOLUME="${TEST_TMP_CONFIG}:/tmp/docker-mailserver"
 
   export TEST_FQDN='mail.my-domain.com'
+  export TEST_DOCKER_ARGS
+
+  export TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/ecdsa/ca-cert.ecdsa.pem"
 }
 
-# Common docker run command that should satisfy most tests which only modify ENV.
+# Using `create` and `start` instead of only `run` allows to modify
+# the container prior to starting it. Otherwise use this combined method.
 function common_container_setup() {
-  local TEST_ENV_FILE=$1
+  common_container_create "$@"
+  common_container_start
+}
 
-  run docker run -d --name "${TEST_NAME}" \
+# Common docker setup is centralized here,
+# can pass an array as a reference for adding extra config
+function common_container_create() {
+  local -n X_EXTRA_ARGS=${1}
+
+  run docker create --name "${TEST_NAME}" \
+    --hostname "${TEST_FQDN}" \
+    --tty \
     --volume "${TEST_FILES_VOLUME}" \
     --volume "${TEST_CONFIG_VOLUME}" \
-    --hostname "${TEST_FQDN}" \
-    --env-file "${TEST_ENV_FILE}" \
-    --tty \
+    "${X_EXTRA_ARGS[@]}" \
     "${NAME}"
+  assert_success
+}
+
+function common_container_start() {
+  run docker start "${TEST_NAME}"
   assert_success
 
   wait_for_finished_setup_in_container "${TEST_NAME}"
