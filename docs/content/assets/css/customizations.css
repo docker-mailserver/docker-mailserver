@@ -1,4 +1,7 @@
-/* This file adds our styling additions / fixes to maintain. */
+/*
+  This file adds our styling additions / fixes to maintain.
+  Some of which are overly specific and may break with future updates by upstream.
+*/
 
 /* ============================================================================================================= */
 
@@ -36,6 +39,19 @@ If you want to append instead, switch `::before` to `::after`.
   background-color: rgb(255,255,255,0.18); /* white with 18% opacity */
   padding: 5px;
   border-radius: 3px;
+}
+
+/* ============================================================================================================= */
+
+/*
+  UX Bugfix for left navbar visibility on top-level (tabbed) pages with no nested sub-pages.
+  Upstream will not fix: https://github.com/squidfunk/mkdocs-material/issues/3109
+*/
+
+@media screen and (min-width: 76.25em) {
+  .md-nav--lifted>.md-nav__list>.md-nav__item--active>.md-nav__link {
+    display: none;
+  }
 }
 
 /* ============================================================================================================= */
