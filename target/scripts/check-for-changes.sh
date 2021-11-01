@@ -74,15 +74,25 @@ do
     for FILE in ${CHANGED}
     do
       case "${FILE}" in
+        # This file is only relevant to Traefik, and is where it stores the certificates
+        # it manages. When a change is detected it's assumed to be a possible cert renewal
+        # that needs to be extracted for `docker-mailserver` to switch to.
         "/etc/letsencrypt/acme.json" )
-          for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+          _notify 'inf' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
+          # This breaks early as we only need the first successful extraction. For more details see `setup-stack.sh` `SSL_TYPE=letsencrypt` case handling.
+          # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+          # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
+          for CERT_DOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
           do
-            _extract_certs_from_acme "${CERTDOMAIN}" && break
+            _notify 'inf' "Attempting to extract for '${CERT_DOMAIN}'"
+            _extract_certs_from_acme "${CERT_DOMAIN}" && break
           done
           ;;
 
+        # This seems like an invalid warning, as if the whole loop and case statement
+        # are only intended for the `acme.json` file..?
         * )
-          _notify 'warn' 'File not found for certificate in check_for_changes.sh'
+          _notify 'warn' "No certificate found in '${FILE}'"
           ;;
 
       esac
