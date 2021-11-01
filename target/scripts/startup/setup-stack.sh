@@ -1505,8 +1505,6 @@ function _setup_security_stack
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
-    SA_SPAM_SUBJECT=${SA_SPAM_SUBJECT:="***SPAM*** "}
-
     if [[ ${SA_SPAM_SUBJECT} == "undef" ]]
     then
       # shellcheck disable=SC2016
