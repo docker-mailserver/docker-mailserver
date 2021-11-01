@@ -5,9 +5,7 @@
 
 function _log_date
 {
-  local DATE
-  DATE="$(date +"%Y-%m-%d %H:%M:%S ")"
-  echo "${DATE}"
+  date +"%Y-%m-%d %H:%M:%S"
 }
 
 LOG_DATE=$(_log_date)

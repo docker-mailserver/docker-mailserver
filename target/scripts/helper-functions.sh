@@ -161,7 +161,7 @@ function _extract_certs_from_acme
   KEY=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
   CERT=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
 
-  if [[ -z ${KEY} || -z ${CERT} ]]
+  if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
   then
     _notify 'warn' "_extract_certs_from_acme | Unable to find key & cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
@@ -184,12 +184,7 @@ export -f _extract_certs_from_acme
 
 # Remove the `*.` prefix if it exists
 function _strip_wildcard_prefix {
-  local FQDN=${1}
-    if [[ ${FQDN} =~ \*\. ]]
-    then
-      FQDN=$(echo "${1}" | cut -d '.' -f2-99)
-    fi
-  echo "${FQDN}"
+  [[ "${1}" == "*."* ]] && echo ${1:2}
 }
 
 # ? --------------------------------------------- Notifications
