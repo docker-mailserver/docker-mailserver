@@ -140,7 +140,6 @@ function register_functions
   [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT:-0} -eq 1 ]] && _register_setup_function '_setup_postfix_virtual_transport'
 
   _register_setup_function '_setup_postfix_override_configuration'
-  _register_setup_function '_setup_environment'
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
