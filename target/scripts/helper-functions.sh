@@ -288,27 +288,39 @@ export -f _monitored_files_checksums
 
 # ? --------------------------------------------- General
 
+# Outputs the DNS label count (delimited by `.`) for the given input string.
+# Useful for determining an FQDN like `mail.example.com` (3), vs `example.com` (2).
+function _get_label_length
+{
+  local INPUT=${1}
+  awk -F '.' '{ print NF }' <<< "${INPUT}"
+}
+
+# Sets HOSTNAME and DOMAINNAME globals used throughout the scripts,
+# and any subprocesses called that intereact with it.
 function _obtain_hostname_and_domainname
 {
-  if [[ -n "${OVERRIDE_HOSTNAME}" ]]
+  # Normally this value would match the output of `hostname` which mirrors `/proc/sys/kernel/hostname`,
+  # However for legacy reasons, the system ENV `HOSTNAME` was replaced here with `hostname -f` instead.
+  export HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
+
+  # If the `HOSTNAME` is more than 2 labels long (eg: mail.example.com),
+  # We take the FQDN from it, minus the 1st label (aka _short hostname_, `hostname -s`).
+  if [[ $(_get_label_length "${HOSTNAME}") -gt 2 ]]
   then
-    export HOSTNAME="${OVERRIDE_HOSTNAME}"
-    export DOMAINNAME="${DOMAINNAME:-${HOSTNAME#*.}}"
-    # Handle situations where the hostname is name.tld and hostname -d ends up just showing "tld"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
+    if [[ -n ${OVERRIDE_HOSTNAME} ]]
     then
-      DOMAINNAME="${HOSTNAME}"
-    fi
-  else
-    # These hostname commands will fail with "hostname: Name or service not known"
-    # if the hostname is not valid (important for tests)
-    HOSTNAME="$(hostname -f)"
-    DOMAINNAME="${DOMAINNAME:-$(hostname -d)}"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
-    then
-      DOMAINNAME="${HOSTNAME}"
+      # Emulates the intended behaviour of `hostname -d`
+      DOMAINNAME="$(echo "${HOSTNAME}" | cut -d '.' -f2-99)"
+    else
+      # Operates on the FQDN returned from querying `/etc/hosts` or fallback DNS
+      DOMAINNAME="$(hostname -d)"
     fi
   fi
+
+  # Otherwise we assign the same value (eg: example.com):
+  # Not an else statement in the previous conditional in the event that `hostname -d` fails.
+  DOMAINNAME="${DOMAINNAME:-"${HOSTNAME}"}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
