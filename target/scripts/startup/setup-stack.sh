@@ -869,6 +869,23 @@ function _setup_ssl
       "${DOVECOT_CONFIG_SSL}"
   }
 
+  # 2020 feature intended for Traefik v2 support only:
+  # https://github.com/docker-mailserver/docker-mailserver/pull/1553
+  # Uses `key.pem` and `fullchain.pem`
+  function _traefik_support
+  {
+    if [[ -f /etc/letsencrypt/acme.json ]]
+    then
+      if ! _extract_certs_from_acme "${SSL_DOMAIN}"
+      then
+        if ! _extract_certs_from_acme "${HOSTNAME}"
+        then
+          _extract_certs_from_acme "${DOMAINNAME}"
+        fi
+      fi
+    fi
+  }
+
   # TLS strength/level configuration
   case "${TLS_LEVEL}" in
     ( "modern" )
@@ -917,23 +934,11 @@ function _setup_ssl
     ( "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
 
+      _traefik_support
+
       # letsencrypt folders and files mounted in /etc/letsencrypt
       local LETSENCRYPT_DOMAIN=""
       local LETSENCRYPT_KEY=""
-
-      # 2020 feature intended for Traefik v2 support only:
-      # https://github.com/docker-mailserver/docker-mailserver/pull/1553
-      # Uses `key.pem` and `fullchain.pem`
-      if [[ -f /etc/letsencrypt/acme.json ]]
-      then
-        if ! _extract_certs_from_acme "${SSL_DOMAIN}"
-        then
-          if ! _extract_certs_from_acme "${HOSTNAME}"
-          then
-            _extract_certs_from_acme "${DOMAINNAME}"
-          fi
-        fi
-      fi
 
       # first determine the letsencrypt domain by checking both the full hostname or just the domainname if a SAN is used in the cert
       if [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
