@@ -878,13 +878,26 @@ function _setup_ssl
   {
     if [[ -f /etc/letsencrypt/acme.json ]]
     then
-      if ! _extract_certs_from_acme "${SSL_DOMAIN}"
+      # Variable only intended for troubleshooting via debug output
+      local EXTRACTED_DOMAIN
+
+      # Conditional handling depends on the success of `_extract_certs_from_acme`,
+      # Failure tries the next fallback FQDN to try extract a certificate from.
+      # Subshell not used in conditional to ensure extraction log output is still captured
+      if [[ -n ${SSL_DOMAIN} ]] && _extract_certs_from_acme "${SSL_DOMAIN}"
       then
-        if ! _extract_certs_from_acme "${HOSTNAME}"
-        then
-          _extract_certs_from_acme "${DOMAINNAME}"
-        fi
+        EXTRACTED_DOMAIN=('SSL_DOMAIN' "${SSL_DOMAIN}")
+      elif _extract_certs_from_acme "${HOSTNAME}"
+      then
+        EXTRACTED_DOMAIN=('HOSTNAME' "${HOSTNAME}")
+      elif _extract_certs_from_acme "${DOMAINNAME}"
+      then
+        EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
+      else
+        _notify 'err' "'setup-stack.sh' | letsencrypt (acme.json) failed to identify a certificate to extract"
       fi
+
+      _notify 'inf' "'setup-stack.sh' | letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
     fi
   }
 
