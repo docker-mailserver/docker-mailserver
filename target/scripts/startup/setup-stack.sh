@@ -970,7 +970,7 @@ function _setup_ssl
       # Identify a valid letsencrypt FQDN folder to use.
       if [[ -n ${SSL_DOMAIN} && -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
       then
-         LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+        LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
       elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${HOSTNAME}
