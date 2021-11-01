@@ -27,33 +27,33 @@ function dms_panic
 
   local SHUTDOWN_MESSAGE
 
-  case "${PANIC_TYPE}" in
+  case "${PANIC_TYPE:-}" in
     ( 'fail-init' ) # PANIC_INFO == <name of service or process that failed to start / initialize>
       SHUTDOWN_MESSAGE="Failed to start ${PANIC_INFO}!"
-    ;;
+      ;;
 
     ( 'no-env' ) # PANIC_INFO == <ENV VAR name>
       SHUTDOWN_MESSAGE="Environment Variable: ${PANIC_INFO} is not set!"
-    ;;
+      ;;
 
     ( 'no-file' ) # PANIC_INFO == <invalid filepath>
       SHUTDOWN_MESSAGE="File ${PANIC_INFO} does not exist!"
-    ;;
+      ;;
 
     ( 'misconfigured' ) # PANIC_INFO == <something possibly misconfigured, eg an ENV var>
       SHUTDOWN_MESSAGE="${PANIC_INFO} appears to be misconfigured, please verify."
-    ;;
+      ;;
 
     ( 'invalid-value' ) # PANIC_INFO == <an unsupported or invalid value, eg in a case match>
       SHUTDOWN_MESSAGE="Invalid value for ${PANIC_INFO}!"
-    ;;
+      ;;
 
     ( * ) # `dms_panic` was called directly without a valid PANIC_TYPE
       SHUTDOWN_MESSAGE='Something broke :('
-    ;;
+      ;;
   esac
 
-  if [[ -n ${PANIC_SCOPE} ]]
+  if [[ -n ${PANIC_SCOPE:-} ]]
   then
     _shutdown "${PANIC_SCOPE} | ${SHUTDOWN_MESSAGE}"
   else
