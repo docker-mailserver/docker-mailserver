@@ -3,6 +3,9 @@
 # shellcheck source=../scripts/helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
+# suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
+. /etc/dms-settings 2> /dev/null
+
 function dovecot_quota_to_hr()
 {
   if [ "${1}" == "-" ]
@@ -23,12 +26,16 @@ while read -r LINE
 do
   USER=$(echo "${LINE}" | cut -d'|' -f1)
 
-  # ${QUOTA[0]} => current size
-  # ${QUOTA[1]} => configured size limit
-  # ${QUOTA[2]} => usage in percent
-  IFS=' ' read -r -a QUOTA <<< "$(doveadm quota get -u "${USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
-
-  echo "* ${USER} ( $(dovecot_quota_to_hr "${QUOTA[0]}") / $(dovecot_quota_to_hr "${QUOTA[1]}") ) [${QUOTA[2]}%]"
+  if [[ "${ENABLE_QUOTAS}" -eq 1 ]]
+  then
+    # ${QUOTA[0]} => current size
+    # ${QUOTA[1]} => configured size limit
+    # ${QUOTA[2]} => usage in percent
+    IFS=' ' read -r -a QUOTA <<< "$(doveadm quota get -u "${USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
+    echo "* ${USER} ( $(dovecot_quota_to_hr "${QUOTA[0]}") / $(dovecot_quota_to_hr "${QUOTA[1]}") ) [${QUOTA[2]}%]"
+  else
+    echo "* ${USER}"
+  fi
 
   if [[ -f ${ALIASES} ]] && grep -q "${USER}" "${ALIASES}"
   then

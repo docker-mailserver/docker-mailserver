@@ -4,4 +4,4 @@
 . /usr/local/bin/helper-functions.sh
 
 _notify 'inf' 'Printing environment variables. Make sure no sensitive data is copied.'
-grep ^export /root/.bashrc | sed 's|export ||'
+cat /etc/dms-settings
