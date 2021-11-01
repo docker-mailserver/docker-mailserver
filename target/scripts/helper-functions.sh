@@ -274,7 +274,9 @@ function _monitored_files_checksums
 
   # React to any cert changes within the following letsencrypt locations:
   local DYNAMIC_FILES
-  for FILE in /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem /etc/letsencrypt/live/"${HOSTNAME}"/*.pem /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
+  for FILE in /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem \
+              /etc/letsencrypt/live/"${HOSTNAME}"/*.pem   \
+              /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
   do
     DYNAMIC_FILES="${DYNAMIC_FILES} ${FILE}"
   done
