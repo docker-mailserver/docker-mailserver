@@ -82,7 +82,8 @@ do
           # This breaks early as we only need the first successful extraction. For more details see `setup-stack.sh` `SSL_TYPE=letsencrypt` case handling.
           # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
           # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
-          for CERT_DOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+          FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
+          for CERT_DOMAIN in "${FQDN_LIST[@]}"
           do
             _notify 'inf' "Attempting to extract for '${CERT_DOMAIN}'"
             _extract_certs_from_acme "${CERT_DOMAIN}" && break
