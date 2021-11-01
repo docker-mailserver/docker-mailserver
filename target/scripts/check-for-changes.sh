@@ -3,7 +3,14 @@
 # shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
-LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
+function _log_date
+{
+  local DATE
+  DATE="$(date +"%Y-%m-%d %H:%M:%S ")"
+  echo "${DATE}"
+}
+
+LOG_DATE=$(_log_date)
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
 # ? --------------------------------------------- Checks
@@ -32,12 +39,14 @@ _obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
+
+# Change detection delayed during startup to avoid conflicting writes
 sleep 10
+
+_notify 'inf' "$(_log_date) check-for-changes is ready"
 
 while true
 do
-  LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
@@ -47,7 +56,7 @@ do
   # 2 – inaccessible or missing argument
   if [ $? -eq 1 ]
   then
-    _notify 'inf' "${LOG_DATE} Change detected"
+    _notify 'inf' "$(_log_date) Change detected"
     create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
@@ -61,6 +70,7 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
+    # TODO: Consider refactoring this:
     for FILE in ${CHANGED}
     do
       case "${FILE}" in
@@ -78,6 +88,10 @@ do
       esac
     done
 
+    # WARNING: This block of duplicate code is already out of sync
+    # It appears to unneccesarily run, even if the related entry in the CHKSUM_FILE
+    # has not changed?
+    #
     # regenerate postix aliases
     echo "root: ${PM_ADDRESS}" >/etc/aliases
     if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
@@ -219,12 +233,15 @@ s/$/ regexp:\/etc\/postfix\/regexp/
       chown -R 5000:5000 /var/mail
     fi
 
+    _notify 'inf' "Restarting services due to detected changes.."
+
     supervisorctl restart postfix
 
     # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
     remove_lock
+    _notify 'inf' "$(_log_date) Completed handling of detected change"
   fi
 
   # mark changes as applied
