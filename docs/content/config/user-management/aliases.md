@@ -7,7 +7,8 @@ Please read the [Postfix documentation on virtual aliases](http://www.postfix.or
 You can use [`setup.sh`][docs-setupsh] instead of creating and editing files manually. Aliases are managed in `/tmp/docker-mailserver/postfix-virtual.cf`. An alias is a _full_ email address that will either be:
 
 * delivered to an existing account registered in `/tmp/docker-mailserver/postfix-accounts.cf`
-* redirected to one or more other email addresses
+* redirected to another email address
+* redirected to multiple email addresses
 
 Alias and target are space separated. An example on a server with example.com as its domain:
 
@@ -16,7 +17,10 @@ Alias and target are space separated. An example on a server with example.com as
 alias1@example.com user1@example.com
 
 # Alias forwarded to an external email address
-alias2@example.com external-account@gmail.com
+alias2@example.com external-account1@gmail.com
+
+# Alias forwarded to multiple email addresses
+alias3@example.com user2@example.com,external-account2@gmail.com,user3@example.com
 ```
 
 ## Configuring RegExp Aliases
