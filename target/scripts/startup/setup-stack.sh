@@ -1497,13 +1497,13 @@ function _setup_security_stack
     _notify 'inf' "Enabling and configuring spamassassin"
 
     # shellcheck disable=SC2016
-    SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
+    sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
     # shellcheck disable=SC2016
-    SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's|^\$sa_tag2_level_deflt (.*);|\$sa_tag2_level_deflt = '"${SA_TAG2}"';|g' /etc/amavis/conf.d/20-debian_defaults
+    sed -i -r 's|^\$sa_tag2_level_deflt (.*);|\$sa_tag2_level_deflt = '"${SA_TAG2}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
     # shellcheck disable=SC2016
-    SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
+    sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
     SA_SPAM_SUBJECT=${SA_SPAM_SUBJECT:="***SPAM*** "}
 
