@@ -871,7 +871,9 @@ function _setup_ssl
 
   # 2020 feature intended for Traefik v2 support only:
   # https://github.com/docker-mailserver/docker-mailserver/pull/1553
-  # Uses `key.pem` and `fullchain.pem`
+  # Extracts files `key.pem` and `fullchain.pem`.
+  # `_extract_certs_from_acme` is located in `helper-functions.sh`
+  # NOTE: See the `SSL_TYPE=letsencrypt` case below for more details.
   function _traefik_support
   {
     if [[ -f /etc/letsencrypt/acme.json ]]
@@ -933,6 +935,15 @@ function _setup_ssl
   case "${SSL_TYPE}" in
     ( "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
+
+      # `docker-mailserver` will only use one certificate from an FQDN folder in `/etc/letsencrypt/live/`.
+      # We iterate the sequence [SSL_DOMAIN, HOSTNAME, DOMAINNAME] to find a matching FQDN folder.
+      # This same sequence is used for the Traefik `acme.json` certificate extraction process, which outputs the FQDN folder.
+      #
+      # eg: If HOSTNAME (mail.example.test) doesn't exist, try DOMAINNAME (example.test).
+      #
+      # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+      # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
 
       _traefik_support
 
