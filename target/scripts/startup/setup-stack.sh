@@ -954,6 +954,9 @@ function _setup_ssl
       # This same sequence is used for the Traefik `acme.json` certificate extraction process, which outputs the FQDN folder.
       #
       # eg: If HOSTNAME (mail.example.test) doesn't exist, try DOMAINNAME (example.test).
+      # SSL_DOMAIN if set will take priority and is generally expected to have a wildcard prefix.
+      # SSL_DOMAIN will have any wildcard prefix stripped for the output FQDN folder it is stored in.
+      # TODO: A wildcard cert needs to be provisioned via Traefik to validate if acme.json contains any other value for `main` or `sans` beyond the wildcard.
       #
       # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
@@ -961,53 +964,51 @@ function _setup_ssl
       _traefik_support
 
       # letsencrypt folders and files mounted in /etc/letsencrypt
-      local LETSENCRYPT_DOMAIN=""
-      local LETSENCRYPT_KEY=""
+      local LETSENCRYPT_DOMAIN
+      local LETSENCRYPT_KEY
 
-      # first determine the letsencrypt domain by checking both the full hostname or just the domainname if a SAN is used in the cert
-      if [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
+      # Identify a valid letsencrypt FQDN folder to use.
+      if [[ -n ${SSL_DOMAIN} && -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
+      then
+         LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+      elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${HOSTNAME}
       elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${DOMAINNAME}
       else
-        _notify 'err' "Cannot access '/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem' or '/etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem'"
+        _notify 'err' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
+        dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' "${SCOPE_SSL_TYPE}"
         return 1
       fi
 
-      # then determine the keyfile to use
-      if [[ -n ${LETSENCRYPT_DOMAIN} ]]
+      # Verify the FQDN folder also includes a valid private key (`privkey.pem` for Certbot, `key.pem` for extraction by Traefik)
+      if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
       then
-        if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
-        then
-          LETSENCRYPT_KEY="privkey"
-        elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
-        then
-          LETSENCRYPT_KEY="key"
-        else
-          _notify 'err' "Cannot access '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem' nor 'key.pem'"
-          return 1
-        fi
+        LETSENCRYPT_KEY='privkey'
+      elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
+      then
+        LETSENCRYPT_KEY='key'
+      else
+        _notify 'err' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
+        dms_panic__misconfigured 'LETSENCRYPT_KEY' "${SCOPE_SSL_TYPE}"
+        return 1
       fi
 
-      # finally, make the changes to the postfix and dovecot configurations
-      if [[ -n ${LETSENCRYPT_KEY} ]]
-      then
-        _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
+      # Update relevant config for Postfix and Dovecot
+      _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
 
-        # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
-        # https://certbot.eff.org/docs/using.html#where-are-my-certificates
-        # `key.pem` was added for `simp_le` support (2016): https://github.com/docker-mailserver/docker-mailserver/pull/288
-        # `key.pem` is also a filename used by the `_extract_certs_from_acme` method (implemented for Traefik v2 only)
-        local PRIVATE_KEY="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/${LETSENCRYPT_KEY}.pem"
-        local CERT_CHAIN="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem"
+      # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
+      # https://certbot.eff.org/docs/using.html#where-are-my-certificates
+      # `key.pem` was added for `simp_le` support (2016): https://github.com/docker-mailserver/docker-mailserver/pull/288
+      # `key.pem` is also a filename used by the `_extract_certs_from_acme` method (implemented for Traefik v2 only)
+      local PRIVATE_KEY="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/${LETSENCRYPT_KEY}.pem"
+      local CERT_CHAIN="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem"
 
-        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
+      _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
-        _notify 'inf' "SSL configured with 'letsencrypt' certificates"
-      fi
-      return 0
+      _notify 'inf' "SSL configured with 'letsencrypt' certificates"
       ;;
 
     ( "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.
