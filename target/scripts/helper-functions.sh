@@ -304,6 +304,13 @@ function _obtain_hostname_and_domainname
   # However for legacy reasons, the system ENV `HOSTNAME` was replaced here with `hostname -f` instead.
   export HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
 
+  # If the container is misconfigured.. `hostname -f` (which derives it's return value from `/etc/hosts` or DNS query),
+  # will result in an error that returns an empty value. This warrants a panic.
+  if [[ -z ${HOSTNAME} ]]
+  then
+    dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
+  fi
+
   # If the `HOSTNAME` is more than 2 labels long (eg: mail.example.com),
   # We take the FQDN from it, minus the 1st label (aka _short hostname_, `hostname -s`).
   if [[ $(_get_label_length "${HOSTNAME}") -gt 2 ]]
