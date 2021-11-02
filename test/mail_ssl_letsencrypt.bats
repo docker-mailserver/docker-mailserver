@@ -77,36 +77,14 @@ function teardown_file() {
 
 @test "checking ssl: letsencrypt configuration is correct" {
   #test domain has certificate files
-  run docker exec mail_lets_domain /bin/sh -c 'postconf | grep "smtpd_tls_chain_files = /etc/letsencrypt/live/my-domain.com/key.pem /etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_domain /bin/sh -c 'doveconf | grep "ssl_cert = </etc/letsencrypt/live/my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_domain /bin/sh -c 'doveconf -P | grep "ssl_key = </etc/letsencrypt/live/my-domain.com/key.pem" | wc -l'
-  assert_success
-  assert_output 1
+  _should_have_valid_config 'my-domain.com' 'key.pem' 'fullchain.pem' 'mail_lets_domain'
   #test hostname has certificate files
-  run docker exec mail_lets_hostname /bin/sh -c 'postconf | grep "smtpd_tls_chain_files = /etc/letsencrypt/live/mail.my-domain.com/privkey.pem /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_hostname /bin/sh -c 'doveconf | grep "ssl_cert = </etc/letsencrypt/live/mail.my-domain.com/fullchain.pem" | wc -l'
-  assert_success
-  assert_output 1
-  run docker exec mail_lets_hostname /bin/sh -c 'doveconf -P | grep "ssl_key = </etc/letsencrypt/live/mail.my-domain.com/privkey.pem" | wc -l'
-  assert_success
-  assert_output 1
+  _should_have_valid_config 'mail.my-domain.com' 'privkey.pem' 'fullchain.pem' 'mail_lets_hostname'
 }
 
 @test "checking ssl: letsencrypt cert works correctly" {
-  run docker exec mail_lets_domain /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec mail_lets_domain /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec mail_lets_hostname /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec mail_lets_hostname /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
+  _should_succesfully_negotiate_tls 'mail_lets_domain'
+  _should_succesfully_negotiate_tls 'mail_lets_hostname'
 }
 
 #
@@ -119,34 +97,76 @@ function teardown_file() {
 }
 
 @test "can extract certs from acme.json" {
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/key.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/privkey.pem")"
-  assert_success
+  local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
+  local LOCAL_BASE_PATH
+  LOCAL_BASE_PATH="$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com"
 
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/mail.my-domain.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com/fullchain.pem")"
-  assert_success
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/privkey.pem" 'mail_lets_acme_json'
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" 'mail_lets_acme_json'
 }
 
 @test "can detect changes" {
   cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed.json" "$(private_config_path mail_lets_acme_json)/acme.json"
   sleep 11
+
   run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
   assert_output --partial "Change detected"
 
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/example.com/key.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/key.pem")"
-  assert_success
+  local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
+  local LOCAL_BASE_PATH
+  LOCAL_BASE_PATH="$(private_config_path mail_lets_acme_json)/letsencrypt/changed"
 
-  run docker exec mail_lets_acme_json /bin/bash -c "cat /etc/letsencrypt/live/example.com/fullchain.pem"
-  assert_output "$(cat "$(private_config_path mail_lets_acme_json)/letsencrypt/changed/fullchain.pem")"
-  assert_success
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/key.pem" 'mail_lets_acme_json'
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" 'mail_lets_acme_json'
 }
 
 
  # this test is only there to reliably mark the end for the teardown_file
 @test "last" {
   skip 'Finished testing of letsencrypt SSL'
+}
+
+
+#
+# Test Methods
+#
+
+
+function _should_have_valid_config() {
+  local EXPECTED_FQDN=${1}
+  local LE_KEY_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${2}"
+  local LE_CERT_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${3}"
+  local CONTAINER_NAME=${4}
+
+  _has_matching_line "postconf | grep 'smtpd_tls_chain_files = ${LE_KEY_PATH} ${LE_CERT_PATH}'"
+  _has_matching_line "doveconf | grep 'ssl_cert = <${LE_CERT_PATH}'"
+  # `-P` is required to prevent redacting secrets
+  _has_matching_line "doveconf -P | grep 'ssl_key = <${LE_KEY_PATH}'"
+}
+
+function _has_matching_line() {
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "${1} | wc -l"
+  assert_success
+  assert_output 1
+}
+
+function _should_succesfully_negotiate_tls() {
+  local CONTAINER_NAME=${1}
+
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
+  assert_success
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
+  assert_success
+}
+
+function _should_be_equal_in_content() {
+  local CONTAINER_PATH=${1}
+  local LOCAL_PATH=${2}
+  local CONTAINER_NAME=${3}
+
+  run docker exec "${CONTAINER_NAME}" sh -c "cat ${CONTAINER_PATH}"
+  assert_output "$(cat "${LOCAL_PATH}")"
+  assert_success
 }
