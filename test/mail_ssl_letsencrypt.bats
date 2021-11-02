@@ -3,6 +3,21 @@ load 'test_helper/common'
 # Applies to all tests:
 function setup_file() {
   init_with_defaults
+
+  # Override default to match the hostname we want to test against instead:
+  export TEST_FQDN='mail.example.test'
+
+  # Prepare certificates in the letsencrypt supported file structure:
+  # Note Certbot uses `privkey.pem`.
+  # `fullchain.pem` is currently what's detected, but we're actually providing the equivalent of `cert.pem` here.
+
+  # `mail.example.test` (Only this FQDN is supported by this certificate):
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.ecdsa.pem' 'mail.example.test/fullchain.pem'
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.ecdsa.pem' "mail.example.test/privkey.pem"
+
+  # `example.test` (Only this FQDN is supported by this certificate):
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.rsa.pem' 'example.test/fullchain.pem'
+  _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.rsa.pem' 'example.test/privkey.pem'
 }
 
 # Not used
@@ -26,9 +41,9 @@ function teardown() {
 }
 
 
-# Should detect and choose the cert for FQDN `mail.my-domain.com` (HOSTNAME):
-@test "ssl(letsencrypt): Should default to HOSTNAME (mail.my-domain.com)" {
-  local TARGET_DOMAIN='mail.my-domain.com'
+# Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
+@test "ssl(letsencrypt): Should default to HOSTNAME (mail.example.test)" {
+  local TARGET_DOMAIN='mail.example.test'
 
   local TEST_DOCKER_ARGS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
@@ -43,10 +58,10 @@ function teardown() {
 }
 
 
-# Should detect and choose cert for FQDN `my-domain.com` (DOMAINNAME),
-# as fallback when no cert for FQDN `mail.my-domain.com` (HOSTNAME) exists:
-@test "ssl(letsencrypt): Should fallback to DOMAINNAME (my-domain.com)" {
-  local TARGET_DOMAIN='my-domain.com'
+# Should detect and choose cert for FQDN `example.test` (DOMAINNAME),
+# as fallback when no cert for FQDN `mail.example.test` (HOSTNAME) exists:
+@test "ssl(letsencrypt): Should fallback to DOMAINNAME (example.test)" {
+  local TARGET_DOMAIN='example.test'
 
   local TEST_DOCKER_ARGS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
@@ -56,22 +71,25 @@ function teardown() {
   common_container_setup TEST_DOCKER_ARGS
 
   #test domain has certificate files
-  _should_have_valid_config "${TARGET_DOMAIN}" 'key.pem' 'fullchain.pem'
+  _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls
 }
 
 
 # acme.json updates
-@test "ssl(letsencrypt): Traefik 'acme.json' (*.example.com)" {
-  local LOCAL_BASE_PATH="${TEST_TMP_CONFIG}/letsencrypt"
+@test "ssl(letsencrypt): Traefik 'acme.json' (*.example.test)" {
+  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
   function _prepare() {
+    # Default `acme.json` for _extract_at_startup test:
+    cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
+
     # `DMS_DEBUG=1` required for catching logged `inf` output.
     # shellcheck disable=SC2034
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
       --env SSL_TYPE='letsencrypt'
-      --env SSL_DOMAIN='*.example.com'
+      --env SSL_DOMAIN='*.example.test'
       --env DMS_DEBUG=1
     )
 
@@ -84,18 +102,18 @@ function teardown() {
 
   # "can extract certs from acme.json"
   function _extract_at_startup() {
-    local ORIGINAL_KEY_PATH="${LOCAL_BASE_PATH}/mail.my-domain.com/privkey.pem"
-    local ORIGINAL_CERT_PATH="${LOCAL_BASE_PATH}/mail.my-domain.com/fullchain.pem"
-    _should_have_expected_files 'mail.my-domain.com' "${ORIGINAL_KEY_PATH}" "${ORIGINAL_CERT_PATH}"
+    local ECDSA_KEY_PATH="${LOCAL_BASE_PATH}/key.ecdsa.pem"
+    local ECDSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.ecdsa.pem"
+    _should_have_expected_files 'mail.example.test' "${ECDSA_KEY_PATH}" "${ECDSA_CERT_PATH}"
   }
 
   # "can detect changes"
   function _extract_at_change_detection() {
-    _should_extract_on_changes 'example.com' "${LOCAL_BASE_PATH}/acme-changed.json"
+    _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
 
-    local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/changed/key.pem"
-    local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/changed/fullchain.pem"
-    _should_have_expected_files 'example.com' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
+    local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
+    local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.rsa.pem"
+    _should_have_expected_files 'example.test' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
   }
 
   _prepare
@@ -189,6 +207,18 @@ function _should_have_expected_files() {
 # Misc
 #
 
+
+# Rename test certificate files to match the expected file structure for letsencrypt:
+function _copy_to_letsencrypt_storage() {
+  local SRC=${1}
+  local DEST=${2}
+
+  local FQDN_DIR
+  FQDN_DIR=$(echo "${DEST}" | cut -d '/' -f1)
+  mkdir -p "${TEST_TMP_CONFIG}/letsencrypt/${FQDN_DIR}"
+
+  cp "${PWD}/test/test-files/ssl/${SRC}" "${TEST_TMP_CONFIG}/letsencrypt/${DEST}"
+}
 
 function _should_be_equal_in_content() {
   local CONTAINER_PATH=${1}
