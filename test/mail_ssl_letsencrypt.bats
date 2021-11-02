@@ -1,5 +1,19 @@
 load 'test_helper/common'
 
+# Globals referenced from `test_helper/common`:
+# TEST_NAME TEST_FQDN TEST_TMP_CONFIG
+
+# Requires maintenance (TODO): Yes
+# Can run tests in parallel?: No
+
+# Not parallelize friendly when TEST_NAME is static,
+# presently name of test file: `mail_ssl_letsencrypt`.
+#
+# Also shares a common TEST_TMP_CONFIG local folder,
+# Instead of individual PRIVATE_CONFIG copies.
+# For this test that is a non-issue, unless run in parallel.
+
+
 # Applies to all tests:
 function setup_file() {
   init_with_defaults
@@ -10,6 +24,7 @@ function setup_file() {
   # Prepare certificates in the letsencrypt supported file structure:
   # Note Certbot uses `privkey.pem`.
   # `fullchain.pem` is currently what's detected, but we're actually providing the equivalent of `cert.pem` here.
+  # TODO: Verify format/structure is supported for nginx-proxy + acme-companion (uses `acme.sh` to provision).
 
   # `mail.example.test` (Only this FQDN is supported by this certificate):
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.ecdsa.pem' 'mail.example.test/fullchain.pem'
@@ -78,12 +93,16 @@ function teardown() {
 
 # acme.json updates
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.test)" {
+  # This test group changes to certs signed with an RSA Root CA key,
+  # These certs all support both FQDNs: `mail.example.test` and `example.test`,
+  # Except for the wildcard cert `*.example.test`, which should not support `example.test`.
   local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
   function _prepare() {
-    # Default `acme.json` for _extract_at_startup test:
+    # Default `acme.json` for _acme_ecdsa test:
     cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
 
+    # TODO: Provision wildcard certs via Traefik to inspect if `example.test` non-wildcard is also added to the cert.
     # `DMS_DEBUG=1` required for catching logged `inf` output.
     # shellcheck disable=SC2034
     local TEST_DOCKER_ARGS=(
@@ -100,15 +119,18 @@ function teardown() {
     repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
   }
 
-  # "can extract certs from acme.json"
-  function _extract_at_startup() {
+  # Test `acme.json` extraction works at container startup:
+  # It should have already extracted `mail.example.test` from the original mounted `acme.json`.
+  function _acme_ecdsa() {
     local ECDSA_KEY_PATH="${LOCAL_BASE_PATH}/key.ecdsa.pem"
     local ECDSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.ecdsa.pem"
     _should_have_expected_files 'mail.example.test' "${ECDSA_KEY_PATH}" "${ECDSA_CERT_PATH}"
   }
 
-  # "can detect changes"
-  function _extract_at_change_detection() {
+  # Test that `acme.json` also works with wildcard certificates:
+  # Additionally tests that SSL_DOMAIN is prioritized when `letsencrypt/live/` already has a HOSTNAME dir available.
+  # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
+  function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
 
     local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
@@ -122,8 +144,8 @@ function teardown() {
   # NOTE: Test failures aren't as helpful here as bats will only identify function calls at this top-level,
   # rather than the actual failing nested function call..
   # TODO: Extract methods to separate test cases.
-  _extract_at_startup
-  _extract_at_change_detection
+  _acme_ecdsa
+  _acme_wildcard
 }
 
 
