@@ -1720,17 +1720,6 @@ function _setup_user_patches
   fi
 }
 
-function _setup_environment
-{
-  _notify 'task' 'Setting up /etc/environment'
-
-  if ! grep -q "# Docker Mail Server" /etc/environment
-  then
-    echo "# Docker Mail Server" >>/etc/environment
-    echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}" >>/etc/environment
-  fi
-}
-
 function _setup_fail2ban
 {
   _notify 'task' 'Setting up fail2ban'
