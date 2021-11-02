@@ -122,9 +122,27 @@ function teardown() {
   # Test `acme.json` extraction works at container startup:
   # It should have already extracted `mail.example.test` from the original mounted `acme.json`.
   function _acme_ecdsa() {
+    _should_have_succeeded_at_extraction 'mail.example.test'
+
+    # SSL_DOMAIN set as ENV, but startup should not have match in `acme.json`:
+    _should_have_failed_at_extraction '*.example.test' 'mailserver'
+    _should_have_valid_config 'mail.example.test' 'key.pem' 'fullchain.pem'
+
     local ECDSA_KEY_PATH="${LOCAL_BASE_PATH}/key.ecdsa.pem"
     local ECDSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.ecdsa.pem"
     _should_have_expected_files 'mail.example.test' "${ECDSA_KEY_PATH}" "${ECDSA_CERT_PATH}"
+  }
+
+  # Test `acme.json` extraction is triggered via change detection:
+  # The updated `acme.json` roughly emulates a renewal, but changes from an ECDSA cert to an RSA one.
+  # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
+  function _acme_rsa() {
+    _should_extract_on_changes 'mail.example.test' "${LOCAL_BASE_PATH}/rsa.acme.json"
+    _should_have_service_restart_count '1'
+
+    local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
+    local RSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.rsa.pem"
+    _should_have_expected_files 'mail.example.test' "${RSA_KEY_PATH}" "${RSA_CERT_PATH}"
   }
 
   # Test that `acme.json` also works with wildcard certificates:
@@ -132,6 +150,13 @@ function teardown() {
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
+    _should_have_service_restart_count '2'
+
+    # TODO: Make this pass.
+    # As the FQDN has changed since startup, the configs need to be updated accordingly.
+    # This requires the `changedetector` service event to invoke the same function for TLS configuration
+    # that is used during container startup to work correctly. A follow up PR will refactor `setup-stack.sh` for supporting this.
+    # _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
 
     local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
     local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.rsa.pem"
@@ -145,6 +170,7 @@ function teardown() {
   # rather than the actual failing nested function call..
   # TODO: Extract methods to separate test cases.
   _acme_ecdsa
+  _acme_rsa
   _acme_wildcard
 }
 
@@ -191,6 +217,23 @@ function _should_succesfully_negotiate_tls() {
 #
 
 
+# It should log success of extraction for the expected domain and restart Postfix.
+function _should_have_succeeded_at_extraction() {
+  local EXPECTED_DOMAIN=${1}
+  local SERVICE=${2}
+
+  run $(_get_service_logs "${SERVICE}")
+  assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
+}
+
+function _should_have_failed_at_extraction() {
+  local EXPECTED_DOMAIN=${1}
+  local SERVICE=${2}
+
+  run $(_get_service_logs "${SERVICE}")
+  assert_output --partial "Unable to find key for '${EXPECTED_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+}
+
 # Replace the mounted `acme.json` and wait to see if changes were detected.
 function _should_extract_on_changes() {
   local EXPECTED_DOMAIN=${1}
@@ -210,6 +253,15 @@ function _should_extract_on_changes() {
   assert_output --partial 'postfix: started'
   assert_output --partial 'dovecot: stopped'
   assert_output --partial 'dovecot: started'
+}
+
+# Ensure change detection is not mistakenly validating against previous change events:
+function _should_have_service_restart_count() {
+  local NUM_RESTARTS=${1}
+
+  # Count how many times postfix was restarted by the `changedetector` service:
+  run docker exec "${TEST_NAME}" /bin/sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
+  assert_output "${NUM_RESTARTS}"
 }
 
 # Extracted cert files from `acme.json` have content matching the expected reference files:
