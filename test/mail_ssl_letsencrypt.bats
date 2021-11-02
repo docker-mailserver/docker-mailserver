@@ -13,38 +13,6 @@ function setup_file() {
   VOLUME_TEST_FILES="$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro"
 
 
-  CONTAINER_NAME='mail_lets_hostname'
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
-  VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
-  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com:/etc/letsencrypt/live/mail.my-domain.com"
-
-  docker run -d --name "${CONTAINER_NAME}" \
-    -v "${VOLUME_CONFIG}" \
-    -v "${VOLUME_TEST_FILES}" \
-    -v "${VOLUME_LETSENCRYPT}" \
-    -e DMS_DEBUG=0 \
-    -e SSL_TYPE='letsencrypt' \
-    -h 'mail.my-domain.com' \
-    -t "${NAME}"
-  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
-
-
-  CONTAINER_NAME='mail_lets_domain'
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
-  VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
-  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/my-domain.com:/etc/letsencrypt/live/my-domain.com"
-
-  docker run -d --name "${CONTAINER_NAME}" \
-    -v "${VOLUME_CONFIG}" \
-    -v "${VOLUME_TEST_FILES}" \
-    -v "${VOLUME_LETSENCRYPT}" \
-    -e DMS_DEBUG=0 \
-    -e SSL_TYPE='letsencrypt' \
-    -h 'mail.my-domain.com' \
-    -t "${NAME}"
-  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
-
-
   CONTAINER_NAME='mail_lets_acme_json'
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
   VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
@@ -79,19 +47,48 @@ function teardown_file() {
 }
 
 @test "ssl(letsencrypt): Should default to HOSTNAME (mail.my-domain.com)" {
+  CONTAINER_NAME='mail_lets_hostname'
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
+  VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
+  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com:/etc/letsencrypt/live/mail.my-domain.com"
+
+  docker run -d --name "${CONTAINER_NAME}" \
+    -v "${VOLUME_CONFIG}" \
+    -v "${VOLUME_TEST_FILES}" \
+    -v "${VOLUME_LETSENCRYPT}" \
+    -e DMS_DEBUG=0 \
+    -e SSL_TYPE='letsencrypt' \
+    -h 'mail.my-domain.com' \
+    -t "${NAME}"
+  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+
   #test hostname has certificate files
-  _should_have_valid_config 'mail.my-domain.com' 'privkey.pem' 'fullchain.pem' 'mail_lets_hostname'
-  _should_succesfully_negotiate_tls 'mail_lets_hostname'
+  _should_have_valid_config 'mail.my-domain.com' 'privkey.pem' 'fullchain.pem' "${CONTAINER_NAME}"
+  _should_succesfully_negotiate_tls "${CONTAINER_NAME}"
 }
 
 @test "checking ssl: letsencrypt cert works correctly" {
 }
 
 @test "ssl(letsencrypt): Should fallback to DOMAINNAME (my-domain.com)" {
-  #test domain has certificate files
-  _should_have_valid_config 'my-domain.com' 'key.pem' 'fullchain.pem' 'mail_lets_domain'
-  _should_succesfully_negotiate_tls 'mail_lets_domain'
+  CONTAINER_NAME='mail_lets_domain'
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
+  VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
+  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/my-domain.com:/etc/letsencrypt/live/my-domain.com"
 
+  docker run -d --name "${CONTAINER_NAME}" \
+    -v "${VOLUME_CONFIG}" \
+    -v "${VOLUME_TEST_FILES}" \
+    -v "${VOLUME_LETSENCRYPT}" \
+    -e DMS_DEBUG=0 \
+    -e SSL_TYPE='letsencrypt' \
+    -h 'mail.my-domain.com' \
+    -t "${NAME}"
+  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+
+  #test domain has certificate files
+  _should_have_valid_config 'my-domain.com' 'key.pem' 'fullchain.pem' "${CONTAINER_NAME}"
+  _should_succesfully_negotiate_tls "${CONTAINER_NAME}"
 }
 
 #
@@ -101,32 +98,31 @@ function teardown_file() {
 
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.com)" {
   # "checking changedetector: server is ready"
-  run docker exec mail_lets_acme_json /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
   assert_success
 
   # "can extract certs from acme.json"
   local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
   local LOCAL_BASE_PATH
-  LOCAL_BASE_PATH="$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com"
+  LOCAL_BASE_PATH="$(private_config_path "${CONTAINER_NAME}")/letsencrypt/mail.my-domain.com"
 
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/privkey.pem" 'mail_lets_acme_json'
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" 'mail_lets_acme_json'
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/privkey.pem" "${CONTAINER_NAME}"
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" "${CONTAINER_NAME}"
 
   # "can detect changes"
-  cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed.json" "$(private_config_path mail_lets_acme_json)/acme.json"
+  cp "$(private_config_path "${CONTAINER_NAME}")/letsencrypt/acme-changed.json" "$(private_config_path "${CONTAINER_NAME}")/acme.json"
   sleep 11
 
-  run docker exec mail_lets_acme_json /bin/bash -c "supervisorctl tail changedetector"
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
   assert_output --partial "Change detected"
 
   local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
   local LOCAL_BASE_PATH
-  LOCAL_BASE_PATH="$(private_config_path mail_lets_acme_json)/letsencrypt/changed"
-
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/key.pem" 'mail_lets_acme_json'
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" 'mail_lets_acme_json'
+  LOCAL_BASE_PATH="$(private_config_path "${CONTAINER_NAME}")/letsencrypt/changed"
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/key.pem" "${CONTAINER_NAME}"
+  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" "${CONTAINER_NAME}"
 }
 
 
