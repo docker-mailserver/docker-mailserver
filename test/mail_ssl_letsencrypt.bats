@@ -13,10 +13,10 @@ function setup_file() {
   VOLUME_TEST_FILES="$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro"
 
 
-  CONTAINER_NAME='mail_lets_domain'
+  CONTAINER_NAME='mail_lets_hostname'
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
   VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
-  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/my-domain.com:/etc/letsencrypt/live/my-domain.com"
+  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com:/etc/letsencrypt/live/mail.my-domain.com"
 
   docker run -d --name "${CONTAINER_NAME}" \
     -v "${VOLUME_CONFIG}" \
@@ -29,10 +29,10 @@ function setup_file() {
   wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 
 
-  CONTAINER_NAME='mail_lets_hostname'
+  CONTAINER_NAME='mail_lets_domain'
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
   VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
-  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/mail.my-domain.com:/etc/letsencrypt/live/mail.my-domain.com"
+  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/letsencrypt/my-domain.com:/etc/letsencrypt/live/my-domain.com"
 
   docker run -d --name "${CONTAINER_NAME}" \
     -v "${VOLUME_CONFIG}" \
@@ -76,36 +76,43 @@ function teardown_file() {
 }
 
 @test "checking ssl: letsencrypt configuration is correct" {
-  #test domain has certificate files
-  _should_have_valid_config 'my-domain.com' 'key.pem' 'fullchain.pem' 'mail_lets_domain'
+}
+
+@test "ssl(letsencrypt): Should default to HOSTNAME (mail.my-domain.com)" {
   #test hostname has certificate files
   _should_have_valid_config 'mail.my-domain.com' 'privkey.pem' 'fullchain.pem' 'mail_lets_hostname'
+  _should_succesfully_negotiate_tls 'mail_lets_hostname'
 }
 
 @test "checking ssl: letsencrypt cert works correctly" {
+}
+
+@test "ssl(letsencrypt): Should fallback to DOMAINNAME (my-domain.com)" {
+  #test domain has certificate files
+  _should_have_valid_config 'my-domain.com' 'key.pem' 'fullchain.pem' 'mail_lets_domain'
   _should_succesfully_negotiate_tls 'mail_lets_domain'
-  _should_succesfully_negotiate_tls 'mail_lets_hostname'
+
 }
 
 #
 # acme.json updates
 #
 
-@test "checking changedetector: server is ready" {
+
+@test "ssl(letsencrypt): Traefik 'acme.json' (*.example.com)" {
+  # "checking changedetector: server is ready"
   run docker exec mail_lets_acme_json /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
   assert_success
-}
 
-@test "can extract certs from acme.json" {
+  # "can extract certs from acme.json"
   local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
   local LOCAL_BASE_PATH
   LOCAL_BASE_PATH="$(private_config_path mail_lets_acme_json)/letsencrypt/mail.my-domain.com"
 
   _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/privkey.pem" 'mail_lets_acme_json'
   _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" 'mail_lets_acme_json'
-}
 
-@test "can detect changes" {
+  # "can detect changes"
   cp "$(private_config_path mail_lets_acme_json)/letsencrypt/acme-changed.json" "$(private_config_path mail_lets_acme_json)/acme.json"
   sleep 11
 
