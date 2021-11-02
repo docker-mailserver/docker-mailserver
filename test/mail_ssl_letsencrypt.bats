@@ -63,12 +63,8 @@ function setup_file() {
 
 # acme.json updates
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.com)" {
-  VOLUME_LETSENCRYPT="${TEST_TMP_CONFIG}/acme.json:/etc/letsencrypt/acme.json:ro"
-  # Copy will mounted as volume and overwritten with another `acme.json` during testing:
-  cp "${TEST_TMP_CONFIG}/letsencrypt/acme.json" "${TEST_TMP_CONFIG}/acme.json"
-
   local TEST_DOCKER_ARGS=(
-    --volume "${VOLUME_LETSENCRYPT}"
+    --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
     --env SSL_TYPE='letsencrypt'
     --env SSL_DOMAIN='*.example.com'
     --env DMS_DEBUG=1
@@ -81,25 +77,19 @@ function setup_file() {
   repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
 
   # "can extract certs from acme.json"
-  local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
   local LOCAL_BASE_PATH
-  LOCAL_BASE_PATH="${TEST_TMP_CONFIG}/letsencrypt/mail.my-domain.com"
+  LOCAL_BASE_PATH="${TEST_TMP_CONFIG}/letsencrypt"
 
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/privkey.pem"
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem"
+  local ORIGINAL_KEY_PATH="${LOCAL_BASE_PATH}/mail.my-domain.com/privkey.pem"
+  local ORIGINAL_CERT_PATH="${LOCAL_BASE_PATH}/mail.my-domain.com/fullchain.pem"
+  _should_have_expected_files 'mail.my-domain.com' "${ORIGINAL_KEY_PATH}" "${ORIGINAL_CERT_PATH}"
 
   # "can detect changes"
-  cp "${TEST_TMP_CONFIG}/letsencrypt/acme-changed.json" "${TEST_TMP_CONFIG}/acme.json"
-  sleep 10
+  _should_extract_on_changes 'example.com' "${LOCAL_BASE_PATH}/acme-changed.json"
 
-  run docker exec "${TEST_NAME}" /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "postfix: stopped"
-  assert_output --partial "postfix: started"
-  assert_output --partial "Change detected"
-
-  LOCAL_BASE_PATH="${TEST_TMP_CONFIG}/letsencrypt/changed"
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/key.pem"
-  _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem"
+  local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/changed/key.pem"
+  local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/changed/fullchain.pem"
+  _should_have_expected_files 'example.com' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
 }
 
 
@@ -137,6 +127,39 @@ function _should_succesfully_negotiate_tls() {
   assert_success
   run docker exec "${TEST_NAME}" sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
   assert_success
+}
+
+# Replace the mounted `acme.json` and wait to see if changes were detected.
+function _should_extract_on_changes() {
+  local EXPECTED_DOMAIN=${1}
+  local ACME_JSON=${2}
+
+  cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
+  # Change detection takes a little over 5 seconds to complete (restart services)
+  sleep 10
+
+  # Expected log lines from the changedetector service:
+  run $(_get_service_logs 'changedetector')
+  assert_output --partial 'Change detected'
+  assert_output --partial "'/etc/letsencrypt/acme.json' has changed, extracting certs"
+  assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
+  assert_output --partial 'Restarting services due to detected changes'
+  assert_output --partial 'postfix: stopped'
+  assert_output --partial 'postfix: started'
+  assert_output --partial 'dovecot: stopped'
+  assert_output --partial 'dovecot: started'
+}
+
+# Extracted cert files from `acme.json` have content matching the expected reference files:
+function _should_have_expected_files() {
+  local LE_BASE_PATH="/etc/letsencrypt/live/${1}"
+  local LE_KEY_PATH="${LE_BASE_PATH}/key.pem"
+  local LE_CERT_PATH="${LE_BASE_PATH}/fullchain.pem"
+  local EXPECTED_KEY_PATH=${2}
+  local EXPECTED_CERT_PATH=${3}
+
+  _should_be_equal_in_content "${LE_KEY_PATH}" "${EXPECTED_KEY_PATH}"
+  _should_be_equal_in_content "${LE_CERT_PATH}" "${EXPECTED_CERT_PATH}"
 }
 
 function _should_be_equal_in_content() {
