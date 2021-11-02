@@ -9,41 +9,16 @@ function teardown() {
 }
 
 function setup_file() {
-  local PRIVATE_CONFIG CONTAINER_NAME VOLUME_CONFIG VOLUME_TEST_FILES VOLUME_LETSENCRYPT
+  export PRIVATE_CONFIG CONTAINER_NAME VOLUME_CONFIG VOLUME_TEST_FILES VOLUME_LETSENCRYPT
   VOLUME_TEST_FILES="$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro"
-
-
-  CONTAINER_NAME='mail_lets_acme_json'
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
-  VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
-  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/acme.json:/etc/letsencrypt/acme.json:ro"
-  # Copy will mounted as volume and overwritten with another `acme.json` during testing:
-  cp "$(private_config_path "${CONTAINER_NAME}")/letsencrypt/acme.json" "$(private_config_path "${CONTAINER_NAME}")/acme.json"
-
-  docker run -d --name "${CONTAINER_NAME}" \
-    -v "${VOLUME_CONFIG}" \
-    -v "${VOLUME_TEST_FILES}" \
-    -v "${VOLUME_LETSENCRYPT}" \
-    -e DMS_DEBUG=1 \
-    -e SSL_TYPE='letsencrypt' \
-    -e SSL_DOMAIN='*.example.com' \
-    -h 'mail.my-domain.com' \
-    -t "${NAME}"
-  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 }
 
 function teardown_file() {
-  docker rm -f mail_lets_domain
-  docker rm -f mail_lets_hostname
-  docker rm -f mail_lets_acme_json
 }
 
 # this test must come first to reliably identify when to run setup_file
 @test "first" {
   skip 'Starting testing of letsencrypt SSL'
-}
-
-@test "checking ssl: letsencrypt configuration is correct" {
 }
 
 @test "ssl(letsencrypt): Should default to HOSTNAME (mail.my-domain.com)" {
@@ -65,9 +40,8 @@ function teardown_file() {
   #test hostname has certificate files
   _should_have_valid_config 'mail.my-domain.com' 'privkey.pem' 'fullchain.pem' "${CONTAINER_NAME}"
   _should_succesfully_negotiate_tls "${CONTAINER_NAME}"
-}
 
-@test "checking ssl: letsencrypt cert works correctly" {
+  docker rm -f "${CONTAINER_NAME}"
 }
 
 @test "ssl(letsencrypt): Should fallback to DOMAINNAME (my-domain.com)" {
@@ -89,14 +63,33 @@ function teardown_file() {
   #test domain has certificate files
   _should_have_valid_config 'my-domain.com' 'key.pem' 'fullchain.pem' "${CONTAINER_NAME}"
   _should_succesfully_negotiate_tls "${CONTAINER_NAME}"
+
+  docker rm -f "${CONTAINER_NAME}"
 }
 
 #
 # acme.json updates
 #
 
-
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.com)" {
+  CONTAINER_NAME='mail_lets_acme_json'
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
+  VOLUME_CONFIG="${PRIVATE_CONFIG}:/tmp/docker-mailserver"
+  VOLUME_LETSENCRYPT="${PRIVATE_CONFIG}/acme.json:/etc/letsencrypt/acme.json:ro"
+  # Copy will mounted as volume and overwritten with another `acme.json` during testing:
+  cp "$(private_config_path "${CONTAINER_NAME}")/letsencrypt/acme.json" "$(private_config_path "${CONTAINER_NAME}")/acme.json"
+
+  docker run -d --name "${CONTAINER_NAME}" \
+    -v "${VOLUME_CONFIG}" \
+    -v "${VOLUME_TEST_FILES}" \
+    -v "${VOLUME_LETSENCRYPT}" \
+    -e DMS_DEBUG=1 \
+    -e SSL_TYPE='letsencrypt' \
+    -e SSL_DOMAIN='*.example.com' \
+    -h 'mail.my-domain.com' \
+    -t "${NAME}"
+  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+
   # "checking changedetector: server is ready"
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "ps aux | grep '/bin/bash /usr/local/bin/check-for-changes.sh'"
   assert_success
@@ -118,11 +111,11 @@ function teardown_file() {
   assert_output --partial "postfix: started"
   assert_output --partial "Change detected"
 
-  local CONTAINER_BASE_PATH='/etc/letsencrypt/live/mail.my-domain.com'
-  local LOCAL_BASE_PATH
   LOCAL_BASE_PATH="$(private_config_path "${CONTAINER_NAME}")/letsencrypt/changed"
   _should_be_equal_in_content "${CONTAINER_BASE_PATH}/key.pem" "${LOCAL_BASE_PATH}/key.pem" "${CONTAINER_NAME}"
   _should_be_equal_in_content "${CONTAINER_BASE_PATH}/fullchain.pem" "${LOCAL_BASE_PATH}/fullchain.pem" "${CONTAINER_NAME}"
+
+  docker rm -f "${CONTAINER_NAME}"
 }
 
 
