@@ -70,6 +70,7 @@ function teardown() {
   #test hostname has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
+  _should_not_have_fqdn_in_cert 'example.test'
 }
 
 
@@ -88,6 +89,7 @@ function teardown() {
   #test domain has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
+  _should_not_have_fqdn_in_cert 'mail.example.test'
 }
 
 
@@ -174,6 +176,8 @@ function teardown() {
 
     # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
     _should_succesfully_negotiate_tls 'mail.example.test'
+    # WARNING: This should fail...but requires resolving the above TODO.
+    # _should_not_have_fqdn_in_cert 'example.test'
   }
 
   _prepare
@@ -265,6 +269,8 @@ function _negotiate_tls() {
   CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}" "-CAfile ${CA_CERT}")
   run docker exec "${CONTAINER_NAME}" sh -c "${CMD_OPENSSL_VERIFY}"
   assert_output --partial 'Verification: OK'
+
+  _should_have_fqdn_in_cert "${FQDN}" "${PORT}"
 }
 
 function _generate_openssl_cmd() {
@@ -293,6 +299,51 @@ function _generate_openssl_cmd() {
 
   # `2>/dev/null` prevents openssl interleaving output to stderr that shouldn't be captured:
   echo "${CMD_OPENSSL} ${EXTRA_ARGS} 2>/dev/null"
+}
+
+function _should_have_fqdn_in_cert() {
+  local FQDN
+  FQDN=$(escape_fqdn "${1}")
+
+  _get_fqdns_for_cert "$@"
+  assert_output --regexp "Subject: CN = ${FQDN}|DNS:${FQDN}"
+}
+
+function _should_not_have_fqdn_in_cert() {
+  local FQDN
+  FQDN=$(escape_fqdn "${1}")
+
+  _get_fqdns_for_cert "$@"
+  refute_output --regexp "Subject: CN = ${FQDN}|DNS:${FQDN}"
+}
+
+# Escapes `*` and `.` so the FQDN literal can be used in regex queries
+# `sed` will match those two chars and `\\&` says to prepend a `\` to the sed match (`&`)
+function escape_fqdn() {
+  # shellcheck disable=SC2001
+  sed 's|[\*\.]|\\&|g' <<< "${1}"
+}
+
+function _get_fqdns_for_cert() {
+  local FQDN=${1}
+  local PORT=${2:-'25'}
+  local CONTAINER_NAME=${3:-${TEST_NAME}}
+  # shellcheck disable=SC2031
+  local CA_CERT=${4:-${TEST_CA_CERT}}
+
+  # `-servername` is for SNI, where the port may be for a service that serves multiple certs,
+  # and needs a specific FQDN to return the correct cert. Such as a reverse-proxy.
+  local EXTRA_ARGS="-servername ${FQDN} -CAfile ${CA_CERT}"
+  local CMD_OPENSSL_VERIFY
+  # eg: "timeout 1 openssl s_client -connect localhost:25 -starttls smtp ${EXTRA_ARGS} 2>/dev/null"
+  CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}" "${EXTRA_ARGS}")
+
+  # Takes the result of the openssl output to return the x509 certificate,
+  # We then check that for any matching FQDN entries:
+  # main == `Subject CN = <FQDN>`, sans == `DNS:<FQDN>`
+  local CMD_FILTER_FQDN="openssl x509 -noout -text | egrep 'Subject: CN = |DNS:'"
+
+  run docker exec "${CONTAINER_NAME}" sh -c "${CMD_OPENSSL_VERIFY} | ${CMD_FILTER_FQDN}"
 }
 
 
