@@ -69,7 +69,7 @@ function teardown() {
 
   #test hostname has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
-  _should_succesfully_negotiate_tls
+  _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
 }
 
 
@@ -87,16 +87,26 @@ function teardown() {
 
   #test domain has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
-  _should_succesfully_negotiate_tls
+  _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
 }
 
 
-# acme.json updates
+# When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
+# should be extracted and be chosen over an existing FQDN `mail.example.test` (HOSTNAME):
+# _acme_wildcard should verify the FQDN `mail.example.test` is negotiated, not `example.test`.
+#
+# NOTE: Currently all of the `acme.json` configs have the FQDN match a SAN value,
+# all Subject CN (`main` in acme.json) are `Smallstep Leaf` which is not an FQDN.
+# While valid for that field, it does mean there is no test coverage against `main`.
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.test)" {
   # This test group changes to certs signed with an RSA Root CA key,
   # These certs all support both FQDNs: `mail.example.test` and `example.test`,
   # Except for the wildcard cert `*.example.test`, which should not support `example.test`.
   local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
+
+  # Change default Root CA cert used for verifying chain of trust with openssl:
+  # shellcheck disable=SC2034
+  local TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/rsa/ca-cert.rsa.pem"
 
   function _prepare() {
     # Default `acme.json` for _acme_ecdsa test:
@@ -161,6 +171,9 @@ function teardown() {
     local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
     local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.rsa.pem"
     _should_have_expected_files 'example.test' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
+
+    # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
+    _should_succesfully_negotiate_tls 'mail.example.test'
   }
 
   _prepare
@@ -204,11 +217,82 @@ function _has_matching_line() {
   assert_output "${2}"
 }
 
+
+#
+# TLS
+#
+
+
+# For certs actually provisioned from LetsEncrypt the Root CA cert should not need to be provided,
+# as it would already be available by default in `/etc/ssl/certs`, requiring only the cert chain (fullchain.pem).
 function _should_succesfully_negotiate_tls() {
-  run docker exec "${TEST_NAME}" sh -c "timeout 1 openssl s_client -connect 0.0.0.0:587 -starttls smtp -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
-  run docker exec "${TEST_NAME}" sh -c "timeout 1 openssl s_client -connect 0.0.0.0:465 -CApath /etc/ssl/certs/ | grep 'Verify return code: 10 (certificate has expired)'"
-  assert_success
+  local FQDN=${1}
+  local CONTAINER_NAME=${2:-${TEST_NAME}}
+  # shellcheck disable=SC2031
+  local CA_CERT=${3:-${TEST_CA_CERT}}
+
+  # Postfix and Dovecot are ready:
+  wait_for_smtp_port_in_container_to_respond "${CONTAINER_NAME}"
+  wait_for_tcp_port_in_container 993 "${CONTAINER_NAME}"
+
+  # Root CA cert should be present in the container:
+  assert docker exec "${CONTAINER_NAME}" [ -f "${CA_CERT}" ]
+
+  local PORTS=(25 587 465 143 993)
+  for PORT in "${PORTS[@]}"
+  do
+    _negotiate_tls "${FQDN}" "${PORT}"
+  done
+}
+
+# Basically runs commands like:
+# docker exec "${TEST_NAME}" sh -c "timeout 1 openssl s_client -connect localhost:587 -starttls smtp -CAfile ${CA_CERT} 2>/dev/null | grep 'Verification'"
+function _negotiate_tls() {
+  local FQDN=${1}
+  local PORT=${2}
+  local CONTAINER_NAME=${3:-${TEST_NAME}}
+  # shellcheck disable=SC2031
+  local CA_CERT=${4:-${TEST_CA_CERT}}
+
+  local CMD_OPENSSL_VERIFY
+  CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}")
+
+  # Should fail as a chain of trust is required to verify successfully:
+  run docker exec "${CONTAINER_NAME}" sh -c "${CMD_OPENSSL_VERIFY}"
+  assert_output --partial 'Verification error: unable to verify the first certificate'
+
+  # Provide the Root CA cert for successful verification:
+  CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}" "-CAfile ${CA_CERT}")
+  run docker exec "${CONTAINER_NAME}" sh -c "${CMD_OPENSSL_VERIFY}"
+  assert_output --partial 'Verification: OK'
+}
+
+function _generate_openssl_cmd() {
+  # Using a HOST of `localhost` will not have issues with `/etc/hosts` matching,
+  # since hostname may not be match correctly in `/etc/hosts` during tests when checking cert validity.
+  local HOST='localhost'
+  local PORT=${1}
+  local EXTRA_ARGS=${2}
+
+  # `echo '' | openssl ...` is a common approach for providing input to `openssl` command which waits on input to exit.
+  # While the command is still successful it does result with `500 5.5.2 Error: bad syntax` being included in the response.
+  # `timeout 1` instead of the empty echo pipe approach seems to work better instead.
+  local CMD_OPENSSL="timeout 1 openssl s_client -connect ${HOST}:${PORT}"
+
+  # STARTTLS ports need to add a hint:
+  if [[ ${PORT} =~ ^(25|587)$ ]]
+  then
+    CMD_OPENSSL="${CMD_OPENSSL} -starttls smtp"
+  elif [[ ${PORT} == 143 ]]
+  then
+    CMD_OPENSSL="${CMD_OPENSSL} -starttls imap"
+  elif [[ ${PORT} == 110 ]]
+  then
+    CMD_OPENSSL="${CMD_OPENSSL} -starttls pop3"
+  fi
+
+  # `2>/dev/null` prevents openssl interleaving output to stderr that shouldn't be captured:
+  echo "${CMD_OPENSSL} ${EXTRA_ARGS} 2>/dev/null"
 }
 
 
@@ -260,7 +344,7 @@ function _should_have_service_restart_count() {
   local NUM_RESTARTS=${1}
 
   # Count how many times postfix was restarted by the `changedetector` service:
-  run docker exec "${TEST_NAME}" /bin/sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
+  run docker exec "${TEST_NAME}" sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
   assert_output "${NUM_RESTARTS}"
 }
 
