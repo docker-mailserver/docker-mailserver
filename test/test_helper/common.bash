@@ -208,14 +208,22 @@ function wait_for_empty_mail_queue_in_container() {
 }
 
 # Common defaults appropriate for most tests, override vars in each test when necessary.
-# TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
+# For all tests override in `setup_file()` via an `export` var.
+# For individual test override the var via `local` var instead.
+#
+# For example, if you need an immutable config volume that can't be affected by other tests
+# in the file, then use `local TEST_TMP_CONFIG="$(duplicate_config_for_container . "${UNIQUE_ID_HERE}")"`
 function init_with_defaults() {
   export TEST_NAME TEST_TMP_CONFIG
 
-  # Ignore absolute dir path and file extension, only extract filename:
+  # In `setup_file()` the default name to use for the currently tested docker container
+  # is `${TEST_NAME}` global defined here. It derives the name from the test filename:
+  # `basename` to ignore absolute dir path and file extension, only extract filename.
   TEST_NAME="$(basename "${BATS_TEST_FILENAME}" '.bats')"
+  # In `setup_file()` creates a single copy of the test config folder to use for an entire test file:
   TEST_TMP_CONFIG="$(duplicate_config_for_container . "${TEST_NAME}")"
 
+  # Common complimentary test files, read-only safe to share across containers:
   export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'
   export TEST_FILES_VOLUME="${PWD}/test/test-files:${TEST_FILES_CONTAINER_PATH}:ro"
 
@@ -223,23 +231,31 @@ function init_with_defaults() {
   # - two sed failures (unknown lines)
   # - dovecot-quotas.cf (setup-stack.sh:_setup_dovecot_quotas)
   # - postfix-aliases.cf (setup-stack.sh:_setup_postfix_aliases)
+  # TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
   export TEST_CONFIG_VOLUME="${TEST_TMP_CONFIG}:/tmp/docker-mailserver"
 
+  # The common default FQDN assigned to the container `--hostname` option:
   export TEST_FQDN='mail.my-domain.com'
-  export TEST_DOCKER_ARGS
 
+  # Default Root CA cert used in TLS tests with `openssl` commands:
   export TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/ecdsa/ca-cert.ecdsa.pem"
 }
 
 # Using `create` and `start` instead of only `run` allows to modify
 # the container prior to starting it. Otherwise use this combined method.
+# NOTE: Forwards all args to the create method at present.
 function common_container_setup() {
   common_container_create "$@"
   common_container_start
 }
 
-# Common docker setup is centralized here,
-# can pass an array as a reference for adding extra config
+# Common docker setup is centralized here.
+#
+# `X_EXTRA_ARGS` - Optional: Pass an array by it's variable name as a string, it will
+# be used as a reference for appending extra config into the `docker create` below:
+#
+# NOTE: Using array reference for a single input parameter, as this method is still
+# under development while adapting tests to it and requirements it must serve (eg: support base config matrix in CI)
 function common_container_create() {
   local -n X_EXTRA_ARGS=${1}
 

@@ -38,7 +38,7 @@ function setup_file() {
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
   )
 
-  common_container_setup TEST_DOCKER_ARGS
+  common_container_setup 'TEST_DOCKER_ARGS'
 
   run _should_emit_warning
   assert_failure
@@ -54,7 +54,7 @@ function setup_file() {
     --env ENABLE_SPAMASSASSIN=1
   )
 
-  common_container_setup TEST_DOCKER_ARGS
+  common_container_setup 'TEST_DOCKER_ARGS'
 
   run _should_emit_warning
   assert_success
