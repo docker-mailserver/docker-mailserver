@@ -66,7 +66,7 @@ function teardown() {
     --env SSL_TYPE='letsencrypt'
   )
 
-  common_container_setup TEST_DOCKER_ARGS
+  common_container_setup 'TEST_DOCKER_ARGS'
 
   #test hostname has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
@@ -85,7 +85,7 @@ function teardown() {
     --env SSL_TYPE='letsencrypt'
   )
 
-  common_container_setup TEST_DOCKER_ARGS
+  common_container_setup 'TEST_DOCKER_ARGS'
 
   #test domain has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
@@ -105,6 +105,7 @@ function teardown() {
   # This test group changes to certs signed with an RSA Root CA key,
   # These certs all support both FQDNs: `mail.example.test` and `example.test`,
   # Except for the wildcard cert `*.example.test`, which should not support `example.test`.
+  # We want to maintain the same FQDN (mail.example.test) between the _acme_ecdsa and _acme_rsa tests.
   local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
   # Change default Root CA cert used for verifying chain of trust with openssl:
@@ -125,7 +126,7 @@ function teardown() {
       --env DMS_DEBUG=1
     )
 
-    common_container_setup TEST_DOCKER_ARGS
+    common_container_setup 'TEST_DOCKER_ARGS'
     wait_for_service "${TEST_NAME}" 'changedetector'
 
     # Wait until the changedetector service startup delay is over:
