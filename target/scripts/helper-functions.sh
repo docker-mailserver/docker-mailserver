@@ -150,50 +150,42 @@ export -f _sanitize_ipv4_to_subnet_cidr
 
 function _extract_certs_from_acme
 {
-  local KEY
-  # shellcheck disable=SC2002
-  KEY=$(cat /etc/letsencrypt/acme.json | python -c "
-import sys,json
-acme = json.load(sys.stdin)
-for key, value in acme.items():
-    certs = value['Certificates']
-    if certs is not None:
-        for cert in certs:
-            if 'domain' in cert and 'key' in cert:
-                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
-                    print cert['key']
-                    break
-")
-
-  local CERT
-  # shellcheck disable=SC2002
-  CERT=$(cat /etc/letsencrypt/acme.json | python -c "
-import sys,json
-acme = json.load(sys.stdin)
-for key, value in acme.items():
-    certs = value['Certificates']
-    if certs is not None:
-        for cert in certs:
-            if 'domain' in cert and 'certificate' in cert:
-                if 'main' in cert['domain'] and cert['domain']['main'] == '${1}' or 'sans' in cert['domain'] and '${1}' in cert['domain']['sans']:
-                    print cert['certificate']
-                    break
-")
-
-  if [[ -n "${KEY}${CERT}" ]]
+  local CERT_DOMAIN=${1}
+  if [[ -z ${CERT_DOMAIN} ]]
   then
-    mkdir -p "/etc/letsencrypt/live/${HOSTNAME}/"
-
-    echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/key.pem || exit 1
-    echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/fullchain.pem || exit 1
-    _notify 'inf' "Cert found in /etc/letsencrypt/acme.json for ${1}"
-
-    return 0
-  else
+    _notify 'err' "_extract_certs_from_acme | CERT_DOMAIN is empty"
     return 1
   fi
+
+  local KEY CERT
+  KEY=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
+  CERT=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
+
+  if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
+  then
+    _notify 'warn' "_extract_certs_from_acme | Unable to find key & cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+    return 1
+  fi
+
+  # Currently we advise SSL_DOMAIN for wildcard support using a `*.example.com` value,
+  # The filepath however should be `example.com`, avoiding the wildcard part:
+  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]
+  then
+    CERT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+  fi
+
+  mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
+  echo "${KEY}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
+  echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
+
+  _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 export -f _extract_certs_from_acme
+
+# Remove the `*.` prefix if it exists
+function _strip_wildcard_prefix {
+  [[ "${1}" == "*."* ]] && echo "${1:2}"
+}
 
 # ? --------------------------------------------- Notifications
 
@@ -268,6 +260,19 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 # Compute checksums of monitored files.
 function _monitored_files_checksums
 {
+  # If a wildcard path pattern (or an empty ENV) would yield an invalid path
+  # or no results, `shopt -s nullglob` prevents it from being added.
+  shopt -s nullglob
+
+  # React to any cert changes within the following letsencrypt locations:
+  local DYNAMIC_FILES
+  for FILE in /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem \
+              /etc/letsencrypt/live/"${HOSTNAME}"/*.pem   \
+              /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
+  do
+    DYNAMIC_FILES="${DYNAMIC_FILES} ${FILE}"
+  done
+
   (
     cd /tmp/docker-mailserver || exit 1
     exec sha512sum 2>/dev/null -- \
@@ -276,9 +281,7 @@ function _monitored_files_checksums
       postfix-aliases.cf \
       dovecot-quotas.cf \
       /etc/letsencrypt/acme.json \
-      "/etc/letsencrypt/live/${HOSTNAME}/key.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" \
-      "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
+      "${DYNAMIC_FILES}"
   )
 }
 export -f _monitored_files_checksums

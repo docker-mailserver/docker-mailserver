@@ -1,0 +1,29 @@
+{
+    "le": {
+      "Account": {
+        "Email": "acme@example.test",
+        "Registration": {
+          "body": {
+            "status": "valid",
+            "contact": [
+              "mailto:acme@example.test"
+            ]
+          },
+          "uri": "https://acme-v02.api.letsencrypt.org/acme/acct/0123456789"
+        },
+        "PrivateKey": "x",
+        "KeyType": "EC256"
+      },
+      "Certificates": [
+        {
+          "domain": {
+            "main": "Smallstep Leaf",
+            "sans": ["mail.example.test"]
+          },
+          "certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJ4VENDQVdxZ0F3SUJBZ0lRSGcyOTZVUHpxMEZFa0pkRXpWanJTakFLQmdncWhrak9QUVFEQWpBY01Sb3cKR0FZRFZRUURFeEZUYldGc2JITjBaWEFnVW05dmRDQkRRVEFlRncweU1UQXhNREV3TURBd01EQmFGdzB6TVRBeApNREV3TURBd01EQmFNQmt4RnpBVkJnTlZCQU1URGxOdFlXeHNjM1JsY0NCTVpXRm1NRmt3RXdZSEtvWkl6ajBDCkFRWUlLb1pJemowREFRY0RRZ0FFOUZzQWFtcktIYmdWZ0lIUWduSytyem84WHFlYlpDRVdHU2Z6ZFF2cjRQNUgKYW15ZTE5cUFEaHNKZGtYK2kvMTVDZmNJSWhxVElDRjBYbmlSVTBXZWNhT0JrRENCalRBT0JnTlZIUThCQWY4RQpCQU1DQjRBd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRkJ3TUNNQjBHQTFVZERnUVdCQlRZCnZsWlNKK2VRc0NGYlgzblkrTlNGVi9BcnZEQWZCZ05WSFNNRUdEQVdnQlRla0xPNVRjR3o3bmNBaUl0cDdISEUKTVBuMmZ6QWNCZ05WSFJFRUZUQVRnaEZ0WVdsc0xtVjRZVzF3YkdVdWRHVnpkREFLQmdncWhrak9QUVFEQWdOSgpBREJHQWlFQXJRaDc4SUpCTGc3TksvZVYvZTV6MlpPTmRIenZLVTNWMmpNRThMYXhheE1DSVFEWDhaWGJ2aGk0CjIzZTVWd2ZtdVZvOUFEVFQ5ZXNZWjV1NnY0aGljdW5KbVE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==",
+          "key": "LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSU1sOWx2c2lTV1VxQ1ErY3ZYZGlNQXBmVmhRL1hIOHp1aU5oRkQzSmJHdjlvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFOUZzQWFtcktIYmdWZ0lIUWduSytyem84WHFlYlpDRVdHU2Z6ZFF2cjRQNUhhbXllMTlxQQpEaHNKZGtYK2kvMTVDZmNJSWhxVElDRjBYbmlSVTBXZWNRPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=",
+          "Store": "default"
+        }
+      ]
+    }
+  }
