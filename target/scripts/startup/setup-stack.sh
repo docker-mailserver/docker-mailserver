@@ -148,8 +148,8 @@ function _setup_dmarc_hostname
 {
   _notify 'task' 'Setting up dmarc'
   sed -i -e \
-    "s|^AuthservID.*$|AuthservID          '${HOSTNAME}'|g" \
-    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  '${HOSTNAME}'|g" \
+    "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
+    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${HOSTNAME}|g" \
     /etc/opendmarc.conf
 }
 
