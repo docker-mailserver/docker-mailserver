@@ -7,8 +7,8 @@ Please read the [Postfix documentation on virtual aliases](http://www.postfix.or
 You can use [`setup.sh`][docs-setupsh] instead of creating and editing files manually. Aliases are managed in `/tmp/docker-mailserver/postfix-virtual.cf`. An alias is a _full_ email address that will either be:
 
 * delivered to an existing account registered in `/tmp/docker-mailserver/postfix-accounts.cf`
-* redirected to another email address
-* redirected to multiple email addresses
+* redirected to an external email address
+* redirected to multiple email addresses that can be real accounts and/or additional aliases 
 
 Alias and target are space separated. An example on a server with example.com as its domain:
 
