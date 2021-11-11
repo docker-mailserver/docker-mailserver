@@ -1,11 +1,9 @@
 #! /bin/bash
 
-# These are all used by `setup-stack.sh` and `check-for-changes.sh`, not this file itself:
-. /usr/local/bin/helpers/postfix.sh
-. /usr/local/bin/helpers/accounts.sh
-. /usr/local/bin/helpers/aliases.sh
-. /usr/local/bin/helpers/relay.sh
-. /usr/local/bin/helpers/sasl.sh
+# These helpers are used by `setup-stack.sh` and `check-for-changes.sh`,
+# not by anything within `helper-functions.sh` itself:
+# shellcheck source=./helpers/index.sh
+. /usr/local/bin/helpers/index.sh
 
 DMS_DEBUG="${DMS_DEBUG:=0}"
 SCRIPT_NAME="$(basename "$0")" # This becomes the sourcing script name (Example: check-for-changes.sh)
