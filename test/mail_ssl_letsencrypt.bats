@@ -243,7 +243,7 @@ function _should_have_failed_at_extraction() {
   local SERVICE=${2}
 
   run $(_get_service_logs "${SERVICE}")
-  assert_output --partial "Unable to find key for '${EXPECTED_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+  assert_output --partial "_extract_certs_from_acme | Unable to find key and/or cert for '${EXPECTED_DOMAIN}' in '/etc/letsencrypt/acme.json'"
 }
 
 # Replace the mounted `acme.json` and wait to see if changes were detected.
