@@ -5,7 +5,12 @@
 # shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
-LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
+function _log_date
+{
+  date +"%Y-%m-%d %H:%M:%S"
+}
+
+LOG_DATE=$(_log_date)
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
 # ? --------------------------------------------- Checks
@@ -34,12 +39,14 @@ _obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
+
+# Change detection delayed during startup to avoid conflicting writes
 sleep 10
+
+_notify 'inf' "$(_log_date) check-for-changes is ready"
 
 while true
 do
-  LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
-
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
@@ -49,7 +56,7 @@ do
   # 2 – inaccessible or missing argument
   if [ $? -eq 1 ]
   then
-    _notify 'inf' "${LOG_DATE} Change detected"
+    _notify 'inf' "$(_log_date) Change detected"
     create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
@@ -63,18 +70,30 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
+    # TODO: Consider refactoring this:
     for FILE in ${CHANGED}
     do
       case "${FILE}" in
+        # This file is only relevant to Traefik, and is where it stores the certificates
+        # it manages. When a change is detected it's assumed to be a possible cert renewal
+        # that needs to be extracted for `docker-mailserver` to switch to.
         "/etc/letsencrypt/acme.json" )
-          for CERTDOMAIN in ${SSL_DOMAIN} ${HOSTNAME} ${DOMAINNAME}
+          _notify 'inf' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
+          # This breaks early as we only need the first successful extraction. For more details see `setup-stack.sh` `SSL_TYPE=letsencrypt` case handling.
+          # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+          # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
+          FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
+          for CERT_DOMAIN in "${FQDN_LIST[@]}"
           do
-            _extract_certs_from_acme "${CERTDOMAIN}" && break
+            _notify 'inf' "Attempting to extract for '${CERT_DOMAIN}'"
+            _extract_certs_from_acme "${CERT_DOMAIN}" && break
           done
           ;;
 
+        # This seems like an invalid warning, as if the whole loop and case statement
+        # are only intended for the `acme.json` file..?
         * )
-          _notify 'warn' 'File not found for certificate in check_for_changes.sh'
+          _notify 'warn' "No certificate found in '${FILE}'"
           ;;
 
       esac
@@ -98,12 +117,15 @@ do
       chown -R 5000:5000 /var/mail
     fi
 
+    _notify 'inf' "Restarting services due to detected changes.."
+
     supervisorctl restart postfix
 
     # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
     remove_lock
+    _notify 'inf' "$(_log_date) Completed handling of detected change"
   fi
 
   # mark changes as applied

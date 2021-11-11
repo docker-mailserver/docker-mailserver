@@ -67,20 +67,22 @@ function _setup_default_vars
   PFLOGSUMM_RECIPIENT="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
   LOGWATCH_RECIPIENT="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
 
+  VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT}"
+  VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT}"
+  VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER}"
+  VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER}"
+  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS}"
+  VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT}"
+  VARS[REPORT_SENDER]="${REPORT_SENDER}"
+
+  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
+  : >/etc/dms-settings # this file can be sourced by other scripts
   local VAR
   for VAR in "${!VARS[@]}"
   do
     echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
+    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
   done
-
-  {
-    echo "export PFLOGSUMM_SENDER='${PFLOGSUMM_SENDER}'"
-    echo "export PFLOGSUMM_TRIGGER='${PFLOGSUMM_TRIGGER}'"
-    echo "export PFLOGSUMM_RECIPIENT='${PFLOGSUMM_RECIPIENT}'"
-    echo "export POSTMASTER_ADDRESS='${POSTMASTER_ADDRESS}'"
-    echo "export REPORT_RECIPIENT='${REPORT_RECIPIENT}'"
-    echo "export REPORT_SENDER='${REPORT_SENDER}'"
-  } >>/root/.bashrc
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong
@@ -146,8 +148,8 @@ function _setup_dmarc_hostname
 {
   _notify 'task' 'Setting up dmarc'
   sed -i -e \
-    "s|^AuthservID.*$|AuthservID          '${HOSTNAME}'|g" \
-    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  '${HOSTNAME}'|g" \
+    "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
+    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${HOSTNAME}|g" \
     /etc/opendmarc.conf
 }
 
@@ -332,6 +334,7 @@ function _setup_dovecot_local_user
 
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored
+    local LOGIN PASS USER_ATTRIBUTES
     while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
     do
       # Setting variables for better readability
@@ -342,24 +345,31 @@ function _setup_dovecot_local_user
       if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
         declare -a USER_QUOTA
-        IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-        unset IFS
+        IFS=':' read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
 
-        [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+        if [[ ${#USER_QUOTA[@]} -eq 2 ]]
+        then
+          USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+        fi
       fi
 
-      # Let's go!
-      _notify 'inf' "user '${USER}' for domain '${DOMAIN}' with password '********', attr=${USER_ATTRIBUTES}"
+      if [[ -z ${USER_ATTRIBUTES} ]]
+      then
+        _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}'"
+      else
+        _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
+      fi
 
       echo "${LOGIN} ${DOMAIN}/${USER}/" >> /etc/postfix/vmailbox
-      # User database for dovecot has the following format:
+      # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
-      # Example :
-      # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
-      echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >> /etc/dovecot/userdb
+      echo \
+        "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" \
+        >>/etc/dovecot/userdb
+
       mkdir -p "/var/mail/${DOMAIN}/${USER}"
 
-      # Copy user provided sieve file, if present
+      # copy user provided sieve file, if present
       if [[ -e "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" ]]
       then
         cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
@@ -367,6 +377,65 @@ function _setup_dovecot_local_user
 
       echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
+
+    # see https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852
+    # for more details on this section
+    if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
+    then
+      # adding aliases to Dovecot's userdb
+      # ${REAL_FQUN} is a user's fully-qualified username
+      local ALIAS REAL_FQUN
+      while read -r ALIAS REAL_FQUN
+      do
+        # ignore comments
+        [[ ${ALIAS} == \#* ]] && continue
+
+        # alias is assumed to not be a proper e-mail
+        # these aliases do not need to be added to Dovecot's userdb
+        [[ ! ${ALIAS} == *@* ]] && continue
+
+        # clear possibly already filled arrays
+        # do not remove the following line of code
+        unset REAL_ACC USER_QUOTA
+        declare -a REAL_ACC USER_QUOTA
+
+        local REAL_USERNAME REAL_DOMAINNAME
+        REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
+        REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
+
+        if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
+        then
+          _notify 'inf' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
+          continue
+        fi
+
+        _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
+
+        # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
+        # ${REAL_ACC[1]} => password hash
+        # ${REAL_ACC[2]} => optional user attributes
+        IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf)
+
+        if [[ -z ${REAL_ACC[1]} ]]
+        then
+          dms_panic__misconfigured 'postfix-accounts.cf' 'alias configuration'
+        fi
+
+        # test if user has a defined quota
+        if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
+        then
+          IFS=':' read -r -a USER_QUOTA < <(grep "${REAL_FQUN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
+          if [[ ${#USER_QUOTA[@]} -eq 2 ]]
+          then
+            REAL_ACC[2]="${REAL_ACC[2]:+${REAL_ACC[2]} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+          fi
+        fi
+
+        echo \
+          "${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}" \
+          >> /etc/dovecot/userdb
+      done < /tmp/docker-mailserver/postfix-virtual.cf
+    fi
   else
     _notify 'inf' "'/tmp/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
   fi
@@ -819,6 +888,38 @@ function _setup_ssl
       "${DOVECOT_CONFIG_SSL}"
   }
 
+  # 2020 feature intended for Traefik v2 support only:
+  # https://github.com/docker-mailserver/docker-mailserver/pull/1553
+  # Extracts files `key.pem` and `fullchain.pem`.
+  # `_extract_certs_from_acme` is located in `helper-functions.sh`
+  # NOTE: See the `SSL_TYPE=letsencrypt` case below for more details.
+  function _traefik_support
+  {
+    if [[ -f /etc/letsencrypt/acme.json ]]
+    then
+      # Variable only intended for troubleshooting via debug output
+      local EXTRACTED_DOMAIN
+
+      # Conditional handling depends on the success of `_extract_certs_from_acme`,
+      # Failure tries the next fallback FQDN to try extract a certificate from.
+      # Subshell not used in conditional to ensure extraction log output is still captured
+      if [[ -n ${SSL_DOMAIN} ]] && _extract_certs_from_acme "${SSL_DOMAIN}"
+      then
+        EXTRACTED_DOMAIN=('SSL_DOMAIN' "${SSL_DOMAIN}")
+      elif _extract_certs_from_acme "${HOSTNAME}"
+      then
+        EXTRACTED_DOMAIN=('HOSTNAME' "${HOSTNAME}")
+      elif _extract_certs_from_acme "${DOMAINNAME}"
+      then
+        EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
+      else
+        _notify 'err' "'setup-stack.sh' | letsencrypt (acme.json) failed to identify a certificate to extract"
+      fi
+
+      _notify 'inf' "'setup-stack.sh' | letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
+    fi
+  }
+
   # TLS strength/level configuration
   case "${TLS_LEVEL}" in
     ( "modern" )
@@ -867,68 +968,66 @@ function _setup_ssl
     ( "letsencrypt" )
       _notify 'inf' "Configuring SSL using 'letsencrypt'"
 
+      # `docker-mailserver` will only use one certificate from an FQDN folder in `/etc/letsencrypt/live/`.
+      # We iterate the sequence [SSL_DOMAIN, HOSTNAME, DOMAINNAME] to find a matching FQDN folder.
+      # This same sequence is used for the Traefik `acme.json` certificate extraction process, which outputs the FQDN folder.
+      #
+      # eg: If HOSTNAME (mail.example.test) doesn't exist, try DOMAINNAME (example.test).
+      # SSL_DOMAIN if set will take priority and is generally expected to have a wildcard prefix.
+      # SSL_DOMAIN will have any wildcard prefix stripped for the output FQDN folder it is stored in.
+      # TODO: A wildcard cert needs to be provisioned via Traefik to validate if acme.json contains any other value for `main` or `sans` beyond the wildcard.
+      #
+      # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+      # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
+
+      _traefik_support
+
       # letsencrypt folders and files mounted in /etc/letsencrypt
-      local LETSENCRYPT_DOMAIN=""
-      local LETSENCRYPT_KEY=""
+      local LETSENCRYPT_DOMAIN
+      local LETSENCRYPT_KEY
 
-      # 2020 feature intended for Traefik v2 support only:
-      # https://github.com/docker-mailserver/docker-mailserver/pull/1553
-      # Uses `key.pem` and `fullchain.pem`
-      if [[ -f /etc/letsencrypt/acme.json ]]
+      # Identify a valid letsencrypt FQDN folder to use.
+      if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
       then
-        if ! _extract_certs_from_acme "${SSL_DOMAIN}"
-        then
-          if ! _extract_certs_from_acme "${HOSTNAME}"
-          then
-            _extract_certs_from_acme "${DOMAINNAME}"
-          fi
-        fi
-      fi
-
-      # first determine the letsencrypt domain by checking both the full hostname or just the domainname if a SAN is used in the cert
-      if [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
+        LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+      elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${HOSTNAME}
       elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
       then
         LETSENCRYPT_DOMAIN=${DOMAINNAME}
       else
-        _notify 'err' "Cannot access '/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem' or '/etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem'"
+        _notify 'err' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
+        dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' "${SCOPE_SSL_TYPE}"
         return 1
       fi
 
-      # then determine the keyfile to use
-      if [[ -n ${LETSENCRYPT_DOMAIN} ]]
+      # Verify the FQDN folder also includes a valid private key (`privkey.pem` for Certbot, `key.pem` for extraction by Traefik)
+      if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
       then
-        if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
-        then
-          LETSENCRYPT_KEY="privkey"
-        elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
-        then
-          LETSENCRYPT_KEY="key"
-        else
-          _notify 'err' "Cannot access '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem' nor 'key.pem'"
-          return 1
-        fi
+        LETSENCRYPT_KEY='privkey'
+      elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
+      then
+        LETSENCRYPT_KEY='key'
+      else
+        _notify 'err' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
+        dms_panic__misconfigured 'LETSENCRYPT_KEY' "${SCOPE_SSL_TYPE}"
+        return 1
       fi
 
-      # finally, make the changes to the postfix and dovecot configurations
-      if [[ -n ${LETSENCRYPT_KEY} ]]
-      then
-        _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
+      # Update relevant config for Postfix and Dovecot
+      _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
 
-        # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
-        # https://certbot.eff.org/docs/using.html#where-are-my-certificates
-        # `key.pem` was added for `simp_le` support (2016): https://github.com/docker-mailserver/docker-mailserver/pull/288
-        # `key.pem` is also a filename used by the `_extract_certs_from_acme` method (implemented for Traefik v2 only)
-        local PRIVATE_KEY="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/${LETSENCRYPT_KEY}.pem"
-        local CERT_CHAIN="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem"
+      # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
+      # https://certbot.eff.org/docs/using.html#where-are-my-certificates
+      # `key.pem` was added for `simp_le` support (2016): https://github.com/docker-mailserver/docker-mailserver/pull/288
+      # `key.pem` is also a filename used by the `_extract_certs_from_acme` method (implemented for Traefik v2 only)
+      local PRIVATE_KEY="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/${LETSENCRYPT_KEY}.pem"
+      local CERT_CHAIN="/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem"
 
-        _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
+      _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
-        _notify 'inf' "SSL configured with 'letsencrypt' certificates"
-      fi
-      return 0
+      _notify 'inf' "SSL configured with 'letsencrypt' certificates"
       ;;
 
     ( "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.
@@ -1299,15 +1398,13 @@ function _setup_security_stack
     _notify 'inf' "Enabling and configuring spamassassin"
 
     # shellcheck disable=SC2016
-    SA_TAG=${SA_TAG:="2.0"} && sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
+    sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
     # shellcheck disable=SC2016
-    SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's|^\$sa_tag2_level_deflt (.*);|\$sa_tag2_level_deflt = '"${SA_TAG2}"';|g' /etc/amavis/conf.d/20-debian_defaults
+    sed -i -r 's|^\$sa_tag2_level_deflt (.*);|\$sa_tag2_level_deflt = '"${SA_TAG2}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
     # shellcheck disable=SC2016
-    SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
-
-    SA_SPAM_SUBJECT=${SA_SPAM_SUBJECT:="***SPAM*** "}
+    sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
     if [[ ${SA_SPAM_SUBJECT} == "undef" ]]
     then
@@ -1519,17 +1616,6 @@ function _setup_user_patches
     ${USER_PATCHES}
   else
     _notify 'inf' "No optional '/tmp/docker-mailserver/user-patches.sh' provided. Skipping."
-  fi
-}
-
-function _setup_environment
-{
-  _notify 'task' 'Setting up /etc/environment'
-
-  if ! grep -q "# Docker Mail Server" /etc/environment
-  then
-    echo "# Docker Mail Server" >>/etc/environment
-    echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}" >>/etc/environment
   fi
 }
 
