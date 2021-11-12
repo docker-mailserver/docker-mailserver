@@ -44,7 +44,7 @@ function _misc_save_states
         ln -s "${DEST}" "${FILE}"
       elif [[ -d ${FILE} ]]
       then
-        _notify 'inf' "Moving contents of ${FILE} to ${DEST}:" "$(ls "${FILE}")"
+        _notify 'inf' "Moving contents of ${FILE} to ${DEST}"
         mv "${FILE}" "${DEST}"
         ln -s "${DEST}" "${FILE}"
       else
