@@ -2,7 +2,7 @@
 
 # These helpers are used by `setup-stack.sh` and `check-for-changes.sh`,
 # not by anything within `helper-functions.sh` itself:
-# shellcheck source=./helpers/index.sh
+# shellcheck source=target/scripts/helpers/index.sh
 . /usr/local/bin/helpers/index.sh
 
 DMS_DEBUG="${DMS_DEBUG:=0}"
