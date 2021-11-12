@@ -115,12 +115,12 @@ do
 
     if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
     then
-      sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf &>/dev/null
+      sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
       echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." >/etc/postfix/vmailbox
 
       # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
       # shellcheck disable=SC1003
-      sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf &>/dev/null
+      sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
       chown dovecot:dovecot /etc/dovecot/userdb
       chmod 640 /etc/dovecot/userdb
       sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
