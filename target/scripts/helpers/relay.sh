@@ -112,6 +112,7 @@ function _setup_relayhost
     _relayhost_default_port_fallback
     _notify 'inf' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
 
+    # Expects `_sasl_passwd_create` was called prior in `setup-stack.sh`
     _relayhost_sasl
     _populate_relayhost_map
 
@@ -125,6 +126,9 @@ function _rebuild_relayhost
   if [[ -n ${RELAY_HOST} ]]
   then
     _relayhost_default_port_fallback
+
+    # Start from a new `/etc/postfix/sasl_passwd` state:
+    _sasl_passwd_create
 
     _relayhost_sasl
     _populate_relayhost_map
