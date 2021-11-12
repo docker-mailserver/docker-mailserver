@@ -5,9 +5,7 @@
 # does have an example where /etc/postfix/virtual is referenced in addition to ldap config for Postfix `main.cf:virtual_alias_maps`.
 # `setup-stack.sh:_setup_ldap` does not seem to configure for `/etc/postfix/virtual however.`
 
-# NOTE: `relay.sh:_populate_relayhost_map` also operates on `postfix-virtual.cf`.
-# NOTE: `accounts.sh` will inherit logic that reads `postfix-virtual.cf` for Dovecot userdb:
-# https://github.com/docker-mailserver/docker-mailserver/pull/2248
+# NOTE: `accounts.sh` and `relay.sh:_populate_relayhost_map` also process on `postfix-virtual.cf`.
 function _handle_postfix_virtual_config
 {
   : >/etc/postfix/virtual
