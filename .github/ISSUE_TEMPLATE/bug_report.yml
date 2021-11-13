@@ -140,7 +140,7 @@ body:
       label: Other relevant information
       description: If there is more, you can tell us here. Make sure to use Markdown formatting here.
       render: Markdown
-  - type: dropdown
+  - type: checkboxes
     id: experience
     attributes:
       label: What level of experience do you have with Docker and mail servers?
@@ -150,9 +150,9 @@ body:
         Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
         
       options:
-        - I am inexperienced with docker
-        - I am inexperienced with mail servers
-        - I am uncomfortable with the CLI
+        - label: I am inexperienced with docker
+        - label: I am inexperienced with mail servers
+        - label: I am uncomfortable with the CLI
     validations:
       required: false
   - type: checkboxes

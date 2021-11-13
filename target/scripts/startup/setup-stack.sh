@@ -152,8 +152,8 @@ function _setup_dmarc_hostname
 {
   _notify 'task' 'Setting up dmarc'
   sed -i -e \
-    "s|^AuthservID.*$|AuthservID          '${HOSTNAME}'|g" \
-    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  '${HOSTNAME}'|g" \
+    "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
+    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${HOSTNAME}|g" \
     /etc/opendmarc.conf
 }
 
@@ -1742,11 +1742,7 @@ function _setup_user_patches
   if [[ -f ${USER_PATCHES} ]]
   then
     _notify 'tasklog' 'Applying user patches'
-    if [[ ! -x ${USER_PATCHES} ]]; then
-      _notify 'inf' 'Making user patches script executable'
-      chmod +x "${USER_PATCHES}"
-    fi
-    ${USER_PATCHES}
+    bash "${USER_PATCHES}"
   else
     _notify 'inf' "No optional '/tmp/docker-mailserver/user-patches.sh' provided. Skipping."
   fi
