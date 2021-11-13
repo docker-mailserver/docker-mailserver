@@ -182,6 +182,11 @@ function _setup_dovecot
   sed -i -e 's|#ssl = yes|ssl = required|g' /etc/dovecot/conf.d/10-ssl.conf
   sed -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
 
+  if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf
+  then
+    printf '\nstats_writer_socket_path=\n' >>/etc/dovecot/dovecot.conf
+  fi
+
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
     "sdbox" | "mdbox" )
