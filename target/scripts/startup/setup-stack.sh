@@ -77,12 +77,16 @@ function _setup_default_vars
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
   : >/etc/dms-settings # this file can be sourced by other scripts
+
   local VAR
   for VAR in "${!VARS[@]}"
   do
     echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
     echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
   done
+
+  sort -o /root/.bashrc     /root/.bashrc
+  sort -o /etc/dms-settings /etc/dms-settings
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong
