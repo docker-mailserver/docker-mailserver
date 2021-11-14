@@ -290,10 +290,9 @@ export -f _monitored_files_checksums
 
 # Outputs the DNS label count (delimited by `.`) for the given input string.
 # Useful for determining an FQDN like `mail.example.com` (3), vs `example.com` (2).
-function _get_label_length
+function _get_label_count
 {
-  local INPUT=${1}
-  awk -F '.' '{ print NF }' <<< "${INPUT}"
+  awk -F '.' '{ print NF }' <<< "${1}"
 }
 
 # Sets HOSTNAME and DOMAINNAME globals used throughout the scripts,
@@ -309,7 +308,7 @@ function _obtain_hostname_and_domainname
   # TODO: `OVERRIDE_HOSTNAME` was introduced for non-Docker runtimes that could not configure an explicit hostname.
   # k8s was the particular runtime in 2017. This does not update `/etc/hosts` or other locations, thus risking
   # inconsistency with expected behaviour. Investigate if it's safe to remove support. (--net=host also uses this as a workaround)
-  export HOSTNAME="${OVERRIDE_HOSTNAME:-"$(hostname -f)"}"
+  export HOSTNAME="${OVERRIDE_HOSTNAME:-$(hostname -f)}"
 
   # If the container is misconfigured.. `hostname -f` (which derives it's return value from `/etc/hosts` or DNS query),
   # will result in an error that returns an empty value. This warrants a panic.
@@ -330,7 +329,7 @@ function _obtain_hostname_and_domainname
     if [[ -n ${OVERRIDE_HOSTNAME} ]]
     then
       # Emulates the intended behaviour of `hostname -d`:
-      DOMAINNAME="$(echo "${HOSTNAME}" | cut -d '.' -f2-99)"
+      DOMAINNAME="$(echo "${HOSTNAME}" | cut -d '.' -f2-)"
     else
       # Operates on the FQDN returned from querying `/etc/hosts` or fallback DNS:
       #
@@ -346,7 +345,7 @@ function _obtain_hostname_and_domainname
 
   # Otherwise we assign the same value (eg: example.com):
   # Not an else statement in the previous conditional in the event that `hostname -d` fails.
-  DOMAINNAME="${DOMAINNAME:-"${HOSTNAME}"}"
+  DOMAINNAME="${DOMAINNAME:-${HOSTNAME}}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
