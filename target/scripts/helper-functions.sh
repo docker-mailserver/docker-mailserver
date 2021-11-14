@@ -324,7 +324,7 @@ function _obtain_hostname_and_domainname
   # `hostname -d` was probably not the correct command for this intention either.
   # Needs further investigation for relevance, and if `/etc/hosts` is important for consumers
   # of this variable or if a more deterministic approach with `cut` should be relied on.
-  if [[ $(_get_label_length "${HOSTNAME}") -gt 2 ]]
+  if [[ $(_get_label_count "${HOSTNAME}") -gt 2 ]]
   then
     if [[ -n ${OVERRIDE_HOSTNAME} ]]
     then
