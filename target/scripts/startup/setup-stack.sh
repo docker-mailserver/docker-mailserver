@@ -77,12 +77,16 @@ function _setup_default_vars
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
   : >/etc/dms-settings # this file can be sourced by other scripts
+
   local VAR
   for VAR in "${!VARS[@]}"
   do
     echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
     echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
   done
+
+  sort -o /root/.bashrc     /root/.bashrc
+  sort -o /etc/dms-settings /etc/dms-settings
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong
@@ -1738,11 +1742,7 @@ function _setup_user_patches
   if [[ -f ${USER_PATCHES} ]]
   then
     _notify 'tasklog' 'Applying user patches'
-    if [[ ! -x ${USER_PATCHES} ]]; then
-      _notify 'inf' 'Making user patches script executable'
-      chmod +x "${USER_PATCHES}"
-    fi
-    ${USER_PATCHES}
+    bash "${USER_PATCHES}"
   else
     _notify 'inf' "No optional '/tmp/docker-mailserver/user-patches.sh' provided. Skipping."
   fi
