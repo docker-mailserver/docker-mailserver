@@ -329,7 +329,8 @@ function _obtain_hostname_and_domainname
     if [[ -n ${OVERRIDE_HOSTNAME} ]]
     then
       # Emulates the intended behaviour of `hostname -d`:
-      DOMAINNAME="$(echo "${HOSTNAME}" | cut -d '.' -f2-)"
+      # Assign the HOSTNAME value minus everything up to and including the first `.`
+      DOMAINNAME=${HOSTNAME#*.}
     else
       # Operates on the FQDN returned from querying `/etc/hosts` or fallback DNS:
       #
