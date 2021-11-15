@@ -35,9 +35,9 @@ function setup_file() {
     -e PERMIT_DOCKER=network \
     -e DMS_DEBUG=0 \
     -e ENABLE_SRS=1 \
-    -e SRS_DOMAINNAME=srs.my-domain.com \
-    -e DOMAINNAME=my-domain.com \
-    -h unknown.domain.tld \
+    -e SRS_DOMAINNAME='srs.my-domain.com' \
+    --domainname 'my-domain.com' \
+    --hostname 'mail' \
     -t "${NAME}"
 
   PRIVATE_CONFIG_FOUR="$(duplicate_config_for_container . mail_domainname)"
@@ -47,14 +47,14 @@ function setup_file() {
     -e PERMIT_DOCKER=network \
     -e DMS_DEBUG=0 \
     -e ENABLE_SRS=1 \
-    -e DOMAINNAME=my-domain.com \
-    -h unknown.domain.tld \
+    --domainname 'my-domain.com' \
+    --hostname 'mail' \
     -t "${NAME}"
 
   wait_for_smtp_port_in_container mail_override_hostname
-  
+
   wait_for_smtp_port_in_container mail_non_subdomain_hostname
-  
+
   wait_for_smtp_port_in_container mail_srs_domainname
 
   wait_for_smtp_port_in_container mail_domainname
