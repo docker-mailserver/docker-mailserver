@@ -13,6 +13,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           exempt-issue-labels: "issue/not-stale"
+          exempt-pr-labels: "pr/not-stale"
           days-before-stale: 20
           days-before-close: 10
           stale-issue-label: "meta/stale"
