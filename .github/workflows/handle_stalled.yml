@@ -28,7 +28,7 @@ jobs:
           stale-pr-label: "meta/stale"
           stale-pr-message: >
             This PR has become stale because it has been open for 20 days without
-            activity. Remove the label and comment or this issue will be closed in 10 days.
+            activity. Remove the label and comment or this PR will be closed in 10 days.
           close-pr-label: "meta/closed due to age or inactivity"
           closed-pr-message: >
             This PR was closed due to inactivity.
