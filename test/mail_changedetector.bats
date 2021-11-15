@@ -1,7 +1,8 @@
 load 'test_helper/common'
 
 # Note if tests fail asserting against `supervisorctl tail changedetector` output,
-# use `supervisorctl tail <num bytes> changedetector` instead to increase log output.
+# use `supervisorctl tail -<num bytes> changedetector` instead to increase log output.
+# Default `<num bytes>` appears to be around 1500.
 
 function setup() {
   run_setup_file_if_necessary
@@ -87,7 +88,7 @@ function teardown_file() {
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
   assert_output --partial "check-for-changes.sh.lock exists"
   sleep 65
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
+  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
   assert_output --partial "Removed stale lock"
 }
 
