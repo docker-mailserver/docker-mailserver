@@ -1,4 +1,4 @@
-name: "Close Stale Issues"
+name: "Handled Stalled Issues & PRs"
 
 on:
   schedule:
@@ -12,13 +12,23 @@ jobs:
         uses: actions/stale@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          exempt-issue-labels: "issue/not-stale"
           days-before-stale: 20
           days-before-close: 10
+
+          exempt-issue-labels: "bot/ignore"
           stale-issue-label: "meta/stale"
-          close-issue-label: "meta/closed due to age or inactivity"
           stale-issue-message: >
             This issue has become stale because it has been open for 20 days without
             activity. Remove the label and comment or this issue will be closed in 10 days.
+          close-issue-label: "meta/closed due to age or inactivity"
           close-issue-message: >
             This issue was closed due to inactivity.
+
+          exempt-pr-labels: "bot/ignore"
+          stale-pr-label: "meta/stale"
+          stale-pr-message: >
+            This PR has become stale because it has been open for 20 days without
+            activity. Remove the label and comment or this PR will be closed in 10 days.
+          close-pr-label: "meta/closed due to age or inactivity"
+          closed-pr-message: >
+            This PR was closed due to inactivity.
