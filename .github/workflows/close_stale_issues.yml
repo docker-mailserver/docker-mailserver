@@ -12,6 +12,7 @@ jobs:
         uses: actions/stale@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          exempt-issue-labels: "issue/not-stale"
           days-before-stale: 20
           days-before-close: 10
           stale-issue-label: "meta/stale"
