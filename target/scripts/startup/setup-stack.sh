@@ -1742,7 +1742,7 @@ function _setup_user_patches
   if [[ -f ${USER_PATCHES} ]]
   then
     _notify 'tasklog' 'Applying user patches'
-    bash "${USER_PATCHES}"
+    /bin/bash "${USER_PATCHES}"
   else
     _notify 'inf' "No optional '/tmp/docker-mailserver/user-patches.sh' provided. Skipping."
   fi

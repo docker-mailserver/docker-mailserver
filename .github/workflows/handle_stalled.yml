@@ -1,4 +1,4 @@
-name: "Handled Stalled Issues & PRs"
+name: "Handled Stalled Issues & Merge Requests"
 
 on:
   schedule:
@@ -15,20 +15,22 @@ jobs:
           days-before-stale: 20
           days-before-close: 10
 
-          exempt-issue-labels: "bot/ignore"
-          stale-issue-label: "meta/stale"
+          exempt-issue-labels: stale-bot/ignore
+          stale-issue-label: meta/stale
           stale-issue-message: >
             This issue has become stale because it has been open for 20 days without
-            activity. Remove the label and comment or this issue will be closed in 10 days.
+            activity. Remove the label (maintainer) or comment on this issue (assignee).
+            Otherwise, this issue will be closed in 10 days automatically.
           close-issue-label: "meta/closed due to age or inactivity"
           close-issue-message: >
             This issue was closed due to inactivity.
 
-          exempt-pr-labels: "bot/ignore"
-          stale-pr-label: "meta/stale"
+          exempt-pr-labels: stale-bot/ignore
+          stale-pr-label: meta/stale
           stale-pr-message: >
-            This PR has become stale because it has been open for 20 days without
-            activity. Remove the label and comment or this PR will be closed in 10 days.
+            This merge request has become stale because it has been open for 20 days without activity
+            Remove the label 'meta/stale' (if you're a maintainer) or comment on this merge request
+            (as an assignee). Otherwise, this merge request will be closed in 10 days automatically.
           close-pr-label: "meta/closed due to age or inactivity"
           closed-pr-message: >
             This PR was closed due to inactivity.
