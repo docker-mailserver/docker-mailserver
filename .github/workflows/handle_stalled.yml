@@ -18,9 +18,11 @@ jobs:
           exempt-issue-labels: stale-bot/ignore
           stale-issue-label: meta/stale
           stale-issue-message: >
-            This issue has become stale because it has been open for 20 days without
-            activity. Remove the label (maintainer) or comment on this issue (assignee).
-            Otherwise, this issue will be closed in 10 days automatically.
+            This issue has become stale because it has been open for 20 days
+            without activity. This issue will be closed in 10 days automatically unless:
+
+            - a maintainer removes the `meta/stale` label or adds the `stale-bot/ignore` label
+            - new activity occurs, such as a new comment
           close-issue-label: "meta/closed due to age or inactivity"
           close-issue-message: >
             This issue was closed due to inactivity.
@@ -28,9 +30,11 @@ jobs:
           exempt-pr-labels: stale-bot/ignore
           stale-pr-label: meta/stale
           stale-pr-message: >
-            This merge request has become stale because it has been open for 20 days without activity
-            Remove the label 'meta/stale' (if you're a maintainer) or comment on this merge request
-            (as an assignee). Otherwise, this merge request will be closed in 10 days automatically.
+            This pull request has become stale because it has been open for 20 days
+            without activity. This pull request will be closed in 10 days automatically unless:
+
+            - a maintainer removes the `meta/stale` label or adds the `stale-bot/ignore` label
+            - new activity occurs, such as a new comment
           close-pr-label: "meta/closed due to age or inactivity"
           closed-pr-message: >
             This PR was closed due to inactivity.
