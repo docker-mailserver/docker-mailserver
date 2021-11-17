@@ -3,7 +3,7 @@
 
 function _relayhost_default_port_fallback
 {
-  [[ -z ${RELAY_PORT} ]] && RELAY_PORT=25
+  RELAY_PORT=${RELAY_PORT:-25}
 }
 
 # setup /etc/postfix/sasl_passwd
@@ -96,7 +96,7 @@ function _relayhost_configure_postfix
 
 # ? --------------------------------------------- Callers
 
-# setip-stach.sh:
+# setup-stack.sh:
 function _setup_relayhost
 {
   _notify 'task' 'Setting up Postfix Relay Hosts'

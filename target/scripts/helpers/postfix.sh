@@ -48,5 +48,5 @@ function _create_postfix_vhost
 # - virtual_mailbox_maps and virtual_alias_maps use texthash
 # - `alias.sh` may append pcre:/etc/postfix/regexp to virtual_alias_maps in `main.cf`
 #
-# /etc/aliases is handled by `alias.sh` and uses `postalias` to update the Postfix alias database. No need for `postmap`
+# /etc/aliases is handled by `alias.sh` and uses `postalias` to update the Postfix alias database. No need for `postmap`.
 # http://www.postfix.org/postalias.1.html

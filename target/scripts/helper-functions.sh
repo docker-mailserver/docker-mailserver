@@ -316,7 +316,7 @@ function _obtain_hostname_and_domainname
   DOMAINNAME="${DOMAINNAME:-${HOSTNAME}}"
 }
 
-# Remove string input with only whitespace or `#` as the first non-whitespace character.
+# Remove string input with empty line, only whitespace or `#` as the first non-whitespace character.
 function _strip_comments
 {
   grep -q -E "^\s*$|^\s*#" <<< "${1}"
