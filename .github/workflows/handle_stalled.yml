@@ -1,4 +1,4 @@
-name: "Handled Stalled Issues & Merge Requests"
+name: "Handle Stale Issues & Pull Requests"
 
 on:
   schedule:
