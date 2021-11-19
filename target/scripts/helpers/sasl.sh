@@ -7,13 +7,13 @@ function _sasl_passwd_create
   then
     # create SASL password
     echo "${SASL_PASSWD}" > /etc/postfix/sasl_passwd
-    _sasl_passwd_chown_chmod
+    _sasl_set_passwd_permissions
   else
     rm -f /etc/postfix/sasl_passwd
   fi
 }
 
-function _sasl_passwd_chown_chmod
+function _sasl_set_passwd_permissions
 {
   if [[ -f /etc/postfix/sasl_passwd ]]
   then

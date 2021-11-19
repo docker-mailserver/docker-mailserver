@@ -42,7 +42,7 @@ function _relayhost_sasl
     echo "[${RELAY_HOST}]:${RELAY_PORT} ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
   fi
 
-  _sasl_passwd_chown_chmod
+  _sasl_set_passwd_permissions
 }
 
 # Introduced by: https://github.com/docker-mailserver/docker-mailserver/pull/1596
