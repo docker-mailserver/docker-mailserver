@@ -168,7 +168,7 @@ function _extract_certs_from_acme
 
   if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
   then
-    _notify 'warn' "_extract_certs_from_acme | Unable to find key & cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+    _notify 'warn' "_extract_certs_from_acme | Unable to find key and/or cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
   fi
 
