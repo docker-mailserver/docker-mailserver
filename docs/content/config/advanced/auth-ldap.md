@@ -126,7 +126,7 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 - SASLAUTHD_LDAP_START_TLS=yes
 ```
 
-### Active Directory Configurations (Tested with Samba4 AD Implementation)
+## Active Directory Configurations (Tested with Samba4 AD Implementation)
 
 In addition to LDAP explanation above, when Docker Mailserver is intended to be used with Active Directory (or the equivelant implementations like Samba4 AD DC) the following points should be taken into consideration:
 
