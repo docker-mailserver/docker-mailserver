@@ -22,7 +22,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
 - ...for incoming email, the inboxes which receive the email are chosen by the `USER`, `ALIAS` and `GROUP` filters.
     - The `USER` filter specifies personal mailboxes, for which only one should exist per address, for example `(mail=%s)` (also see [`virtual_mailbox_maps`](http://www.postfix.org/postconf.5.html#virtual_mailbox_maps))
     - The `ALIAS` filter specifies aliases for mailboxes, using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailAlias=%s)`
-    - The `GROUP` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`
+    - The `GROUP` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`.
     - Technically, there is no difference between `ALIAS` and `GROUP`, but ideally you should use `ALIAS` for personal aliases for a singular person (like `ceo@example.org`) and `GROUP` for multiple people (like `hr@example.org`).
 - ...for outgoing email, the sender address is put through the `SENDERS` filter, and only if the authenticated user is one of the returned entries, the email can be sent.
     - This only applies if `SPOOF_PROTECTION=1`.
@@ -124,6 +124,42 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 - LDAP_START_TLS=yes
 - DOVECOT_TLS=yes
 - SASLAUTHD_LDAP_START_TLS=yes
+```
+
+### Active Directory Configurations (Tested with Samba4 AD Implementation)
+
+In addition to LDAP explanation above, the following points should be taken into consideration:
+
+- Samba4 Active Directory requires a **secure connection** to the domain controller (DC), either via SSL/TLS (LDAPS) or via StartTLS.
+- The username equivenlant in Active Directory is `sAMAccountName`.
+- `proxyAddresses` can be used to store email aliases of single users. The convention is to prefix the email aliases with `smtp:` (e.g., smtp:some.name@DOMAIN.COM).
+- Active Directory is used typically not only as LDAP Directory storage, but also as a domain controller, i.e., it will do many things including authenticating users. Mixing Linux and Windows clients requires the usage of [RFC2307 attributes](https://wiki.samba.org/index.php/Administer_Unix_Attributes_in_AD_using_samba-tool_and_ldb-tools), namely `uidNumber`, `gidNumber` instead of the typical `uid`. Assigning different owner to email folders can also be done in this approach, nevertheless [there is a bug at the moment in Docker mailserver that overwrites all permissions](https://github.com/docker-mailserver/docker-mailserver/pull/2256?notification_referrer_id=NT_kwDOAOOOe7MyNTcxNjg5OTQxOjE0OTEzMTQ3#pullrequestreview-811816197) when starting the container. So either a manual fix is necessary now, or a temporary workaround to use a hardcoded `ldap:uidNumber` equals to 5000 until this issue is fixed.
+- To deliver the emails to different members of Active Directory **Distribution Group** (in other simple words, mailing lists), editing *ldap-groups.cf* using a manual user-patch is necessary (for more information please refer to [Modification via Script](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/)). This can be achieved as simple as this:
+
+```
+# user-pachtes.sh
+
+
+echo "leaf_result_attribute = mail" >> /etc/postfix/ldap-groups.cf
+echo "special_result_attribute = member" >> /etc/postfix/ldap-groups.cf
+```
+
+The changes on the configurations necessary to work with Active Directory:
+
+```
+- LDAP_START_TLS=yes
+- LDAP_QUERY_FILTER_USER=(&(objectclass=person)(mail=%s))
+- LDAP_QUERY_FILTER_GROUP=(&(objectClass=group)(mail=%s))
+- LDAP_QUERY_FILTER_ALIAS=(proxyAddresses=smtp:%s)
+- LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
+- SPOOF_PROTECTION=1
+- LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
+- DOVECOT_TLS=yes
+- DOVECOT_USER_FILTER=(&(objectclass=person)(sAMAccountName=%n))
+- DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
+- DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
+- SASLAUTHD_LDAP_START_TLS=yes
+- SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
 ```
 
 ## LDAP Setup Examples
