@@ -96,7 +96,7 @@ function _hadolint
 function _shellcheck
 {
   local SCRIPT='SHELLCHECK'
-  
+
   # File paths for shellcheck:
   F_SH="$(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
@@ -109,9 +109,12 @@ function _shellcheck
   F_BIN="$(find 'target/bin' ${FIND_EXEC} -type f)"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
-  # This command is a bit easier to grok as multi-line. There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
-  CMD_SHELLCHECK=(shellcheck 
-    --external-sources 
+  # This command is a bit easier to grok as multi-line.
+  # There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
+  # `SCRIPTDIR` is a special value that represents the path of the script being linted,
+  # all sourced scripts share the same SCRIPTDIR source-path of the original script being linted.
+  CMD_SHELLCHECK=(shellcheck
+    --external-sources
     --check-sourced
     --severity=style
     --color=auto
@@ -121,7 +124,16 @@ function _shellcheck
     --source-path=SCRIPTDIR
     "${F_SH} ${F_BIN} ${F_BATS}"
   )
-  
+
+  # The linter can reference additional source-path values declared in scripts,
+  # which in our case rarely benefit from extending from `SCRIPTDIR` and instead
+  # should use a relative path from the project root (mounted at `/ci`), eg `target/scripts/`.
+  # Note that `SCRIPTDIR` will strip a prefix variable for a source path, which can be useful
+  # if `SCRIPTDIR` would always be the same value, and combined with relative path via another
+  # `source-path=SCRIPTDIR/relative/path/to/scripts` in the .sh file.
+  # These source-path values can apply to the entire file (and sourced files) if not wrapped in a function scope.
+  # Otherwise it only applies to the line below it. You can declare multiple source-paths, they don't override the previous.
+  # `source=relative/path/to/file.sh` will check the source value in each source-path as well.
   # shellcheck disable=SC2068
   if docker run --rm --tty \
       --volume "${REPO_ROOT}:/ci:ro" \

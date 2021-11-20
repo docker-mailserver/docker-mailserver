@@ -9,7 +9,7 @@
 [documentation::badge]: https://img.shields.io/badge/DOCUMENTATION-GH%20PAGES-0078D4?style=for-the-badge&logo=git&logoColor=white
 [documentation::web]: https://docker-mailserver.github.io/docker-mailserver/edge/
 
-A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created](https://tvi.al/simple-mail-server-with-docker/).
+A production-ready fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to [deploy](#usage) and upgrade. [Documentation][documentation::web] via MkDocs. [Why this image was created](https://tvi.al/simple-mail-server-with-docker/).
 
 If you have issues, read the full `README` **and** the [documentation][documentation::web] **for your version** (default is `edge`) first **before opening an issue**. The issue tracker is for issues, not for personal support.
 
