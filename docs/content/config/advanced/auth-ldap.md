@@ -158,21 +158,27 @@ update-ca-certificates
 ...
 ```
 
-The changes on the configurations necessary to work with Active Directory:
+The changes on the configurations necessary to work with Active Directory (**only changes are listed, the rest of the LDAP configuration can be taken from the other examples** shown in this documentation):
 
 ```
+# Supposed that StartTLS is the chosen method to establish a secure connection with Active Directory.
 - LDAP_START_TLS=yes
+- SASLAUTHD_LDAP_START_TLS=yes
+- DOVECOT_TLS=yes
+
 - LDAP_QUERY_FILTER_USER=(&(objectclass=person)(mail=%s))
+- LDAP_QUERY_FILTER_ALIAS=(&(objectclass=person)(proxyAddresses=smtp:%s))
+# Filters Active Directory groups (mail lists). Additional changes on ldap-groups.cf are also required as shown above.
 - LDAP_QUERY_FILTER_GROUP=(&(objectClass=group)(mail=%s))
-- LDAP_QUERY_FILTER_ALIAS=(proxyAddresses=smtp:%s)
 - LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
+# Allows only Domain admins to send any sender email address, otherwise the sender address must match the LDAP attribute `mail`.
 - SPOOF_PROTECTION=1
 - LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
-- DOVECOT_TLS=yes
+
 - DOVECOT_USER_FILTER=(&(objectclass=person)(sAMAccountName=%n))
+# At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
 - DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
 - DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
-- SASLAUTHD_LDAP_START_TLS=yes
 - SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
 ```
 
