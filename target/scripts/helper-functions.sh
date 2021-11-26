@@ -1,5 +1,10 @@
 #! /bin/bash
 
+# These helpers are used by `setup-stack.sh` and `check-for-changes.sh`,
+# not by anything within `helper-functions.sh` itself:
+# shellcheck source=target/scripts/helpers/index.sh
+. /usr/local/bin/helpers/index.sh
+
 DMS_DEBUG="${DMS_DEBUG:=0}"
 SCRIPT_NAME="$(basename "$0")" # This becomes the sourcing script name (Example: check-for-changes.sh)
 LOCK_ID="$(uuid)" # Used inside of lock files to identify them and prevent removal by other instances of docker-mailserver
@@ -163,7 +168,7 @@ function _extract_certs_from_acme
 
   if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
   then
-    _notify 'warn' "_extract_certs_from_acme | Unable to find key & cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+    _notify 'warn' "_extract_certs_from_acme | Unable to find key and/or cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
   fi
 
@@ -213,44 +218,6 @@ function _notify
 }
 export -f _notify
 
-# ? --------------------------------------------- Relay Host Map
-
-# setup /etc/postfix/relayhost_map
-# --
-# @domain1.com        [smtp.mailgun.org]:587
-# @domain2.com        [smtp.mailgun.org]:587
-# @domain3.com        [smtp.mailgun.org]:587
-function _populate_relayhost_map
-{
-  : >/etc/postfix/relayhost_map
-  chown root:root /etc/postfix/relayhost_map
-  chmod 0600 /etc/postfix/relayhost_map
-
-  if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]
-  then
-    _notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
-    # keep lines which are not a comment *and* have a destination.
-    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
-  fi
-
-  {
-    # note: won't detect domains when lhs has spaces (but who does that?!)
-    sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
-
-    [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r DOMAIN
-  do
-    # DOMAIN not already present *and* not ignored
-    if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
-    then
-      _notify 'inf' "Adding relay mapping for ${DOMAIN}"
-      # shellcheck disable=SC2153
-      echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
-    fi
-  done
-}
-export -f _populate_relayhost_map
-
 # ? --------------------------------------------- File Checksums
 
 # file storing the checksums of the monitored files.
@@ -288,27 +255,71 @@ export -f _monitored_files_checksums
 
 # ? --------------------------------------------- General
 
+# Outputs the DNS label count (delimited by `.`) for the given input string.
+# Useful for determining an FQDN like `mail.example.com` (3), vs `example.com` (2).
+function _get_label_count
+{
+  awk -F '.' '{ print NF }' <<< "${1}"
+}
+
+# Sets HOSTNAME and DOMAINNAME globals used throughout the scripts,
+# and any subprocesses called that intereact with it.
 function _obtain_hostname_and_domainname
 {
-  if [[ -n "${OVERRIDE_HOSTNAME}" ]]
+  # Normally this value would match the output of `hostname` which mirrors `/proc/sys/kernel/hostname`,
+  # However for legacy reasons, the system ENV `HOSTNAME` was replaced here with `hostname -f` instead.
+  #
+  # TODO: Consider changing to `DMS_FQDN`; a more accurate name, and removing the `export`, assuming no
+  # subprocess like postconf would be called that would need access to the same value via `$HOSTNAME` ENV.
+  #
+  # TODO: `OVERRIDE_HOSTNAME` was introduced for non-Docker runtimes that could not configure an explicit hostname.
+  # k8s was the particular runtime in 2017. This does not update `/etc/hosts` or other locations, thus risking
+  # inconsistency with expected behaviour. Investigate if it's safe to remove support. (--net=host also uses this as a workaround)
+  export HOSTNAME="${OVERRIDE_HOSTNAME:-$(hostname -f)}"
+
+  # If the container is misconfigured.. `hostname -f` (which derives it's return value from `/etc/hosts` or DNS query),
+  # will result in an error that returns an empty value. This warrants a panic.
+  if [[ -z ${HOSTNAME} ]]
   then
-    export HOSTNAME="${OVERRIDE_HOSTNAME}"
-    export DOMAINNAME="${DOMAINNAME:-${HOSTNAME#*.}}"
-    # Handle situations where the hostname is name.tld and hostname -d ends up just showing "tld"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
+    dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
+  fi
+
+  # If the `HOSTNAME` is more than 2 labels long (eg: mail.example.com),
+  # We take the FQDN from it, minus the 1st label (aka _short hostname_, `hostname -s`).
+  #
+  # TODO: For some reason we're explicitly separating out a domain name from our FQDN,
+  # `hostname -d` was probably not the correct command for this intention either.
+  # Needs further investigation for relevance, and if `/etc/hosts` is important for consumers
+  # of this variable or if a more deterministic approach with `cut` should be relied on.
+  if [[ $(_get_label_count "${HOSTNAME}") -gt 2 ]]
+  then
+    if [[ -n ${OVERRIDE_HOSTNAME} ]]
     then
-      DOMAINNAME="${HOSTNAME}"
-    fi
-  else
-    # These hostname commands will fail with "hostname: Name or service not known"
-    # if the hostname is not valid (important for tests)
-    HOSTNAME="$(hostname -f)"
-    DOMAINNAME="${DOMAINNAME:-$(hostname -d)}"
-    if [[ ! "${DOMAINNAME}" =~ .*\..* ]]
-    then
-      DOMAINNAME="${HOSTNAME}"
+      # Emulates the intended behaviour of `hostname -d`:
+      # Assign the HOSTNAME value minus everything up to and including the first `.`
+      DOMAINNAME=${HOSTNAME#*.}
+    else
+      # Operates on the FQDN returned from querying `/etc/hosts` or fallback DNS:
+      #
+      # Note if you want the actual NIS `domainname`, use the `domainname` command,
+      # or `cat /proc/sys/kernel/domainname`.
+      # Our usage of `domainname` is under consideration as legacy, and not advised
+      # going forward. In future our docs should drop any mention of it.
+
+      #shellcheck disable=SC2034
+      DOMAINNAME="$(hostname -d)"
     fi
   fi
+
+  # Otherwise we assign the same value (eg: example.com):
+  # Not an else statement in the previous conditional in the event that `hostname -d` fails.
+  DOMAINNAME="${DOMAINNAME:-${HOSTNAME}}"
+}
+
+# Remove string input with empty line, only whitespace or `#` as the first non-whitespace character.
+function _strip_comments
+{
+  grep -q -E "^\s*$|^\s*#" <<< "${1}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).

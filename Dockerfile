@@ -280,6 +280,8 @@ COPY \
 
 RUN chmod +x /usr/local/bin/*
 
+COPY ./target/scripts/helpers /usr/local/bin/helpers
+
 WORKDIR /
 
 EXPOSE 25 587 143 465 993 110 995 4190
