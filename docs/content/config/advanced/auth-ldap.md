@@ -161,7 +161,7 @@ update-ca-certificates
 The changes on the configurations necessary to work with Active Directory (**only changes are listed, the rest of the LDAP configuration can be taken from the other examples** shown in this documentation):
 
 ```
-# Supposed that StartTLS is the chosen method to establish a secure connection with Active Directory.
+# If StartTLS is the chosen method to establish a secure connection with Active Directory.
 - LDAP_START_TLS=yes
 - SASLAUTHD_LDAP_START_TLS=yes
 - DOVECOT_TLS=yes
