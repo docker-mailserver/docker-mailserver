@@ -142,8 +142,8 @@ The configuration shown to get the Group to work is from [here](https://doc.zara
 # user-pachtes.sh
 
 ...
-echo "leaf_result_attribute = mail" >> /etc/postfix/ldap-groups.cf
-echo "special_result_attribute = member" >> /etc/postfix/ldap-groups.cf
+grep -q '^leaf_result_attribute = mail$' /etc/postfix/ldap-groups.cf || echo "leaf_result_attribute = mail" >> /etc/postfix/ldap-groups.cf
+grep -q '^special_result_attribute = member$' /etc/postfix/ldap-groups.cf || echo "special_result_attribute = member" >> /etc/postfix/ldap-groups.cf
 ...
 ```
 
