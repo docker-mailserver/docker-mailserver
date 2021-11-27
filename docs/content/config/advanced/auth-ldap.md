@@ -147,7 +147,7 @@ echo "special_result_attribute = member" >> /etc/postfix/ldap-groups.cf
 ...
 ```
 
-- In */etc/ldap/ldap.conf*, if the TLS_REQCERT is demand/hard (which is the default), the CA certificate used to sign the certificate of the LDAP server must be registered as a trusted CA. The easiest way to it is to mount the ca.crt file and register it in a user-patch script:
+- In `/etc/ldap/ldap.conf`, if the `TLS_REQCERT` is `demand` / `hard` (default), the CA certificate used to verify the LDAP server certificate must be recognized as a trusted CA. This can be done by volume mounting the `ca.crt` file and updating the trust store via a `user-patches.sh` script:
 
 ```
 # user-patches.sh
