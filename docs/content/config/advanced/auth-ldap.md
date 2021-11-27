@@ -139,7 +139,7 @@ In addition to LDAP explanation above, when Docker Mailserver is intended to be 
 The configuration shown to get the Group to work is from [here](https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html) and [here](https://kb.kopano.io/display/WIKI/Postfix).
 
 ```
-# user-pachtes.sh
+# user-patches.sh
 
 ...
 grep -q '^leaf_result_attribute = mail$' /etc/postfix/ldap-groups.cf || echo "leaf_result_attribute = mail" >> /etc/postfix/ldap-groups.cf
