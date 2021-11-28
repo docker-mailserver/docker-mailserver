@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/auth-ldap/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.5">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.6">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.cdeb8541.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.a57b2b03.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
@@ -1002,6 +1002,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#active-directory-configurations-tested-with-samba4-ad-implementation" class="md-nav__link">
+    Active Directory Configurations (Tested with Samba4 AD Implementation)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ldap-setup-examples" class="md-nav__link">
     LDAP Setup Examples
   </a>
@@ -1575,6 +1582,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#active-directory-configurations-tested-with-samba4-ad-implementation" class="md-nav__link">
+    Active Directory Configurations (Tested with Samba4 AD Implementation)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ldap-setup-examples" class="md-nav__link">
     LDAP Setup Examples
   </a>
@@ -1616,7 +1630,7 @@
 <li>...for incoming email, the inboxes which receive the email are chosen by the <code>USER</code>, <code>ALIAS</code> and <code>GROUP</code> filters.<ul>
 <li>The <code>USER</code> filter specifies personal mailboxes, for which only one should exist per address, for example <code>(mail=%s)</code> (also see <a href="http://www.postfix.org/postconf.5.html#virtual_mailbox_maps"><code>virtual_mailbox_maps</code></a>)</li>
 <li>The <code>ALIAS</code> filter specifies aliases for mailboxes, using <a href="http://www.postfix.org/postconf.5.html#virtual_alias_maps"><code>virtual_alias_maps</code></a>, for example <code>(mailAlias=%s)</code></li>
-<li>The <code>GROUP</code> filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using <a href="http://www.postfix.org/postconf.5.html#virtual_alias_maps"><code>virtual_alias_maps</code></a>, for example <code>(mailGroupMember=%s)</code></li>
+<li>The <code>GROUP</code> filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using <a href="http://www.postfix.org/postconf.5.html#virtual_alias_maps"><code>virtual_alias_maps</code></a>, for example <code>(mailGroupMember=%s)</code>.</li>
 <li>Technically, there is no difference between <code>ALIAS</code> and <code>GROUP</code>, but ideally you should use <code>ALIAS</code> for personal aliases for a singular person (like <code>ceo@example.org</code>) and <code>GROUP</code> for multiple people (like <code>hr@example.org</code>).</li>
 </ul>
 </li>
@@ -1691,6 +1705,54 @@
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span>
 <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_TLS=yes</span>
 <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_START_TLS=yes</span>
+</code></pre></div>
+<h2 id="active-directory-configurations-tested-with-samba4-ad-implementation"><a class="toclink" href="#active-directory-configurations-tested-with-samba4-ad-implementation">Active Directory Configurations (Tested with Samba4 AD Implementation)</a></h2>
+<p>In addition to LDAP explanation above, when Docker Mailserver is intended to be used with Active Directory (or the equivelant implementations like Samba4 AD DC) the following points should be taken into consideration:</p>
+<ul>
+<li>Samba4 Active Directory requires a <strong>secure connection</strong> to the domain controller (DC), either via SSL/TLS (LDAPS) or via StartTLS.</li>
+<li>The username equivalent in Active Directory is: <code>sAMAccountName</code>.</li>
+<li><code>proxyAddresses</code> can be used to store email aliases of single users. The convention is to prefix the email aliases with <code>smtp:</code> (e.g: <code>smtp:some.name@example.com</code>).</li>
+<li>Active Directory is used typically not only as LDAP Directory storage, but also as a <em>domain controller</em>, i.e., it will do many things including authenticating users. Mixing Linux and Windows clients requires the usage of <a href="https://wiki.samba.org/index.php/Administer_Unix_Attributes_in_AD_using_samba-tool_and_ldb-tools">RFC2307 attributes</a>, namely <code>uidNumber</code>, <code>gidNumber</code> instead of the typical <code>uid</code>. Assigning different owner to email folders can also be done in this approach, nevertheless <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2256">there is a bug at the moment in Docker Mailserver that overwrites all permissions</a> when starting the container. Either a manual fix is necessary now, or a temporary workaround to use a hard-coded <code>ldap:uidNumber</code> that equals to <code>5000</code> until this issue is fixed.</li>
+<li>To deliver the emails to different members of Active Directory <strong>Security Group</strong> or <strong>Distribution Group</strong> (similar to mailing lists), use a <a href="../override-defaults/user-patches/"><code>user-patches.sh</code> script</a> to modify <code>ldap-groups.cf</code> so that it includes <code>leaf_result_attribute = mail</code> and <code>special_result_attribute = member</code>. This can be achieved simply by:</li>
+</ul>
+<p>The configuration shown to get the Group to work is from <a href="https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html">here</a> and <a href="https://kb.kopano.io/display/WIKI/Postfix">here</a>.</p>
+<div class="highlight"><pre><span></span><code># user-patches.sh
+
+...
+grep -q &#39;^leaf_result_attribute = mail$&#39; /etc/postfix/ldap-groups.cf || echo &quot;leaf_result_attribute = mail&quot; &gt;&gt; /etc/postfix/ldap-groups.cf
+grep -q &#39;^special_result_attribute = member$&#39; /etc/postfix/ldap-groups.cf || echo &quot;special_result_attribute = member&quot; &gt;&gt; /etc/postfix/ldap-groups.cf
+...
+</code></pre></div>
+<ul>
+<li>In <code>/etc/ldap/ldap.conf</code>, if the <code>TLS_REQCERT</code> is <code>demand</code> / <code>hard</code> (default), the CA certificate used to verify the LDAP server certificate must be recognized as a trusted CA. This can be done by volume mounting the <code>ca.crt</code> file and updating the trust store via a <code>user-patches.sh</code> script:</li>
+</ul>
+<div class="highlight"><pre><span></span><code># user-patches.sh
+
+...
+cp /MOUNTED_FOLDER/ca.crt /usr/local/share/ca-certificates/
+update-ca-certificates
+...
+</code></pre></div>
+<p>The changes on the configurations necessary to work with Active Directory (<strong>only changes are listed, the rest of the LDAP configuration can be taken from the other examples</strong> shown in this documentation):</p>
+<div class="highlight"><pre><span></span><code># If StartTLS is the chosen method to establish a secure connection with Active Directory.
+- LDAP_START_TLS=yes
+- SASLAUTHD_LDAP_START_TLS=yes
+- DOVECOT_TLS=yes
+
+- LDAP_QUERY_FILTER_USER=(&amp;(objectclass=person)(mail=%s))
+- LDAP_QUERY_FILTER_ALIAS=(&amp;(objectclass=person)(proxyAddresses=smtp:%s))
+# Filters Active Directory groups (mail lists). Additional changes on ldap-groups.cf are also required as shown above.
+- LDAP_QUERY_FILTER_GROUP=(&amp;(objectClass=group)(mail=%s))
+- LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
+# Allows only Domain admins to send any sender email address, otherwise the sender address must match the LDAP attribute `mail`.
+- SPOOF_PROTECTION=1
+- LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
+
+- DOVECOT_USER_FILTER=(&amp;(objectclass=person)(sAMAccountName=%n))
+# At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
+- DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
+- DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
+- SASLAUTHD_LDAP_FILTER=(&amp;(sAMAccountName=%U)(objectClass=person))
 </code></pre></div>
 <h2 id="ldap-setup-examples"><a class="toclink" href="#ldap-setup-examples">LDAP Setup Examples</a></h2>
 <details class="example" open="open"><summary>Basic Setup</summary><div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
@@ -1899,10 +1961,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.8397ff9e.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.fcfe8b6d.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.1e84347e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.b1047164.min.js"></script>
       
     
   </body>
