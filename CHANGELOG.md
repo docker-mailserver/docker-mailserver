@@ -1,5 +1,28 @@
 # Changelog
 
+## `v10.3.0`
+
+- **[fix]** The Dovecot `userdb` will now additionally create "dummy" accounts for basic alias maps (_alias maps to a single real account managed by Dovecot, relaying to external providers aren't affected_) when `ENABLE_QUOTAS=1` (default) as a workaround for Postfix `quota-status` plugin querying Dovecot with inbound mail for a user, which Postfix uses to reject mail if quota has been exceeded (_to avoid risk of blacklisting from spammers abusing backscatter_) [#2248](https://github.com/docker-mailserver/docker-mailserver/pull/2248)
+    - **NOTE:** If using aliases that map to another alias or multiple addresses, _this remains a risk_.
+- **[fix]** `setup email list` command will no longer attempt to query Dovecot quota status when `ENABLE_QUOTAS` is disabled [#2264](https://github.com/docker-mailserver/docker-mailserver/pull/2264)
+- **[fix]** `SSL_DOMAIN` ENV should now work much more reliably [#2274](https://github.com/docker-mailserver/docker-mailserver/pull/2274), [#2278](https://github.com/docker-mailserver/docker-mailserver/pull/2278), [#2279](https://github.com/docker-mailserver/docker-mailserver/pull/2279)
+- **[fix]** DKIM - Removed `refile:` (_regex type_) from KeyTable entry in `opendkim.conf`, fixes validation error output from `opendkim-testkey` [#2249](https://github.com/docker-mailserver/docker-mailserver/pull/2249)
+- **[fix]** DMARC - Removed quotes around the hostname value in `opendmarc.conf`. This avoids an authentication failure where an OpenDKIM header was previously ignored [#2291](https://github.com/docker-mailserver/docker-mailserver/pull/2291)
+- **[fix]** When using `ONE_DIR=1` (default), the `spool-postfix` folder now has the correct permissions carried over. This resolves some failures notably with sieve filters [#2273](https://github.com/docker-mailserver/docker-mailserver/pull/2273)
+- **[improvement]** Warnings are now logged for ClamAV and SpamAssassin if they are enabled but Amavis is disabled (_which is required for them to work correctly_) [#2251](https://github.com/docker-mailserver/docker-mailserver/pull/2251)
+- **[improvement]** `user-patches.sh` is now invoked via `bash` to assist Kubernetes deployments with `ConfigMap` [#2295](https://github.com/docker-mailserver/docker-mailserver/pull/2295)
+
+### Internal
+
+These changes are primarily internal and are only likely relevant to users that maintain their own modifications related to the changed files.
+
+- **[chore]** Redundant config from Postfix `master.cf` has been removed, it should not affect any users as our images have not included any of the related processes [#2272](https://github.com/docker-mailserver/docker-mailserver/pull/2272)
+- **[refactor]** `check-for-changes.sh` was carrying some duplicate code from `setup-stack.sh` that was falling out of sync, they now share common code [#2260](https://github.com/docker-mailserver/docker-mailserver/pull/2260)
+- **[refactor]** `acme.json` extraction was refactored into a CLI utility and updated to Python 3 (_required for future upgrade to Debian 11 Bullseye base image_) [#2274](https://github.com/docker-mailserver/docker-mailserver/pull/2274)
+- **[refactor]** As part of the Traefik `acme.json` and `SSL_DOMAIN` work, logic for `SSL_TYPE=letsencrypt` was also revised [#2278](https://github.com/docker-mailserver/docker-mailserver/pull/2278)
+- **[improvement]** Some minor tweaks to how we derive the internal `HOSTNAME` and `DOMAINNAME` from user configured `hostname` and `domainname` settings [#2280](https://github.com/docker-mailserver/docker-mailserver/pull/2280)
+
+
 ## `v10.2.0`
 
 - You no longer need to maintain a copy of `setup.sh` matching your version release from v10.2 of `docker-mailserver` onwards. Version specific functionality of `setup.sh` has moved into the container itself, while `setup.sh` remains as a convenient wrapper to: `docker exec -it <container name> setup <command>`.
