@@ -64,7 +64,7 @@ If you have issues, read the full `README` **and** the [documentation][documenta
 
 [CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions) will automatically build, test and push new images to container registries. Currently, the following registries are supported:
 
-- [DockerHub](https://hub.docker.com/repository/docker/mailserver/docker-mailserver)
+- [DockerHub](https://hub.docker.com/r/mailserver/docker-mailserver)
 - [GitHub Container Registry](https://github.com/orgs/docker-mailserver/packages?repo_name=docker-mailserver)
 
 All workflows are using the tagging convention listed below. It is subsequently applied to all images.
