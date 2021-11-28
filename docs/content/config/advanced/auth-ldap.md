@@ -134,7 +134,7 @@ In addition to LDAP explanation above, when Docker Mailserver is intended to be 
 - The username equivalent in Active Directory is: `sAMAccountName`.
 - `proxyAddresses` can be used to store email aliases of single users. The convention is to prefix the email aliases with `smtp:` (e.g: `smtp:some.name@example.com`).
 - Active Directory is used typically not only as LDAP Directory storage, but also as a _domain controller_, i.e., it will do many things including authenticating users. Mixing Linux and Windows clients requires the usage of [RFC2307 attributes](https://wiki.samba.org/index.php/Administer_Unix_Attributes_in_AD_using_samba-tool_and_ldb-tools), namely `uidNumber`, `gidNumber` instead of the typical `uid`. Assigning different owner to email folders can also be done in this approach, nevertheless [there is a bug at the moment in Docker Mailserver that overwrites all permissions](https://github.com/docker-mailserver/docker-mailserver/pull/2256) when starting the container. Either a manual fix is necessary now, or a temporary workaround to use a hard-coded `ldap:uidNumber` that equals to `5000` until this issue is fixed.
-- To deliver the emails to different members of Active Directory **Security Group** or **Distribution Group** (similar to mailing lists), use a [`user-patches.sh` script](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/) to modify `ldap-groups.cf` so that it includes `leaf_result_attribute = mail` and `special_result_attribute = member`. This can be achieved simply by:
+- To deliver the emails to different members of Active Directory **Security Group** or **Distribution Group** (similar to mailing lists), use a [`user-patches.sh` script][docs-userpatches] to modify `ldap-groups.cf` so that it includes `leaf_result_attribute = mail` and `special_result_attribute = member`. This can be achieved simply by:
 
 The configuration shown to get the Group to work is from [here](https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html) and [here](https://kb.kopano.io/display/WIKI/Postfix).
 
@@ -314,3 +314,4 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```
 
 [docs-environment]: ../environment.md
+[docs-userpatches]: ./override-defaults/user-patches.md
