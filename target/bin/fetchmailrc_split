@@ -49,6 +49,7 @@ do
     # Just the server settings that need to be added to the specific rc.d file
     echo "${LINE}" >> "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
   fi
-done < "${FETCHMAILRC}"
+# delete commented lines before parsing
+done < <(sed '/^[[:space:]]*#/d' "${FETCHMAILRC}")
 
 rm "${DEFAULT_FILE}"
