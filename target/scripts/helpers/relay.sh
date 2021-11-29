@@ -28,7 +28,7 @@ function _relayhost_sasl
     # add domain-specific auth from config file:
     while read -r LINE
     do
-      if ! _strip_comments "${LINE}"
+      if ! _is_comment "${LINE}"
       then
         echo "${LINE}" >> /etc/postfix/sasl_passwd
       fi

@@ -22,7 +22,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
 - ...for incoming email, the inboxes which receive the email are chosen by the `USER`, `ALIAS` and `GROUP` filters.
     - The `USER` filter specifies personal mailboxes, for which only one should exist per address, for example `(mail=%s)` (also see [`virtual_mailbox_maps`](http://www.postfix.org/postconf.5.html#virtual_mailbox_maps))
     - The `ALIAS` filter specifies aliases for mailboxes, using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailAlias=%s)`
-    - The `GROUP` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`
+    - The `GROUP` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`.
     - Technically, there is no difference between `ALIAS` and `GROUP`, but ideally you should use `ALIAS` for personal aliases for a singular person (like `ceo@example.org`) and `GROUP` for multiple people (like `hr@example.org`).
 - ...for outgoing email, the sender address is put through the `SENDERS` filter, and only if the authenticated user is one of the returned entries, the email can be sent.
     - This only applies if `SPOOF_PROTECTION=1`.
@@ -124,6 +124,62 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 - LDAP_START_TLS=yes
 - DOVECOT_TLS=yes
 - SASLAUTHD_LDAP_START_TLS=yes
+```
+
+## Active Directory Configurations (Tested with Samba4 AD Implementation)
+
+In addition to LDAP explanation above, when Docker Mailserver is intended to be used with Active Directory (or the equivelant implementations like Samba4 AD DC) the following points should be taken into consideration:
+
+- Samba4 Active Directory requires a **secure connection** to the domain controller (DC), either via SSL/TLS (LDAPS) or via StartTLS.
+- The username equivalent in Active Directory is: `sAMAccountName`.
+- `proxyAddresses` can be used to store email aliases of single users. The convention is to prefix the email aliases with `smtp:` (e.g: `smtp:some.name@example.com`).
+- Active Directory is used typically not only as LDAP Directory storage, but also as a _domain controller_, i.e., it will do many things including authenticating users. Mixing Linux and Windows clients requires the usage of [RFC2307 attributes](https://wiki.samba.org/index.php/Administer_Unix_Attributes_in_AD_using_samba-tool_and_ldb-tools), namely `uidNumber`, `gidNumber` instead of the typical `uid`. Assigning different owner to email folders can also be done in this approach, nevertheless [there is a bug at the moment in Docker Mailserver that overwrites all permissions](https://github.com/docker-mailserver/docker-mailserver/pull/2256) when starting the container. Either a manual fix is necessary now, or a temporary workaround to use a hard-coded `ldap:uidNumber` that equals to `5000` until this issue is fixed.
+- To deliver the emails to different members of Active Directory **Security Group** or **Distribution Group** (similar to mailing lists), use a [`user-patches.sh` script][docs-userpatches] to modify `ldap-groups.cf` so that it includes `leaf_result_attribute = mail` and `special_result_attribute = member`. This can be achieved simply by:
+
+The configuration shown to get the Group to work is from [here](https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html) and [here](https://kb.kopano.io/display/WIKI/Postfix).
+
+```
+# user-patches.sh
+
+...
+grep -q '^leaf_result_attribute = mail$' /etc/postfix/ldap-groups.cf || echo "leaf_result_attribute = mail" >> /etc/postfix/ldap-groups.cf
+grep -q '^special_result_attribute = member$' /etc/postfix/ldap-groups.cf || echo "special_result_attribute = member" >> /etc/postfix/ldap-groups.cf
+...
+```
+
+- In `/etc/ldap/ldap.conf`, if the `TLS_REQCERT` is `demand` / `hard` (default), the CA certificate used to verify the LDAP server certificate must be recognized as a trusted CA. This can be done by volume mounting the `ca.crt` file and updating the trust store via a `user-patches.sh` script:
+
+```
+# user-patches.sh
+
+...
+cp /MOUNTED_FOLDER/ca.crt /usr/local/share/ca-certificates/
+update-ca-certificates
+...
+```
+
+The changes on the configurations necessary to work with Active Directory (**only changes are listed, the rest of the LDAP configuration can be taken from the other examples** shown in this documentation):
+
+```
+# If StartTLS is the chosen method to establish a secure connection with Active Directory.
+- LDAP_START_TLS=yes
+- SASLAUTHD_LDAP_START_TLS=yes
+- DOVECOT_TLS=yes
+
+- LDAP_QUERY_FILTER_USER=(&(objectclass=person)(mail=%s))
+- LDAP_QUERY_FILTER_ALIAS=(&(objectclass=person)(proxyAddresses=smtp:%s))
+# Filters Active Directory groups (mail lists). Additional changes on ldap-groups.cf are also required as shown above.
+- LDAP_QUERY_FILTER_GROUP=(&(objectClass=group)(mail=%s))
+- LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
+# Allows only Domain admins to send any sender email address, otherwise the sender address must match the LDAP attribute `mail`.
+- SPOOF_PROTECTION=1
+- LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
+
+- DOVECOT_USER_FILTER=(&(objectclass=person)(sAMAccountName=%n))
+# At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
+- DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
+- DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
+- SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
 ```
 
 ## LDAP Setup Examples
@@ -258,3 +314,4 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
     ```
 
 [docs-environment]: ../environment.md
+[docs-userpatches]: ./override-defaults/user-patches.md
