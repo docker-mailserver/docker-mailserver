@@ -10,7 +10,7 @@ docker run \
   --user "$(id -u):$(id -g)" \
   --volume "${PWD}:/docs" \
   --name "build-docs" \
-  squidfunk/mkdocs-material:8.0.2 build --strict
+  squidfunk/mkdocs-material:8.0.3 build --strict
 
 # Remove unnecessary build artifacts: https://github.com/squidfunk/mkdocs-material/issues/2519
 # site/ is the build output folder.
