@@ -10,3 +10,14 @@ updates:
     labels:
       - "area/ci"
       - "priority/low"
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "georglauterbach"
+      - "wernerfred"
+    labels:
+      - "docker"
+      - "priority/low"
