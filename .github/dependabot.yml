@@ -5,19 +5,19 @@ updates:
     schedule:
       interval: "weekly"
     reviewers:
-      - "georglauterbach"
-      - "wernerfred"
+      - "docker-mailserver/maintainers"
     labels:
       - "area/ci"
+      - "kind/update"
       - "priority/low"
 
-  - package-ecosystem: docker
+  - package-ecosystem: "docker"
     directory: /
     schedule:
       interval: "weekly"
     reviewers:
-      - "georglauterbach"
-      - "wernerfred"
+      - "docker-mailserver/maintainers"
     labels:
-      - "docker"
-      - "priority/low"
+      - "area/ci"
+      - "kind/update"
+      - "priority/medium"
