@@ -1,5 +1,10 @@
 #! /bin/bash
 
+# These helpers are used by `setup-stack.sh` and `check-for-changes.sh`,
+# not by anything within `helper-functions.sh` itself:
+# shellcheck source=target/scripts/helpers/index.sh
+. /usr/local/bin/helpers/index.sh
+
 DMS_DEBUG="${DMS_DEBUG:=0}"
 SCRIPT_NAME="$(basename "$0")" # This becomes the sourcing script name (Example: check-for-changes.sh)
 LOCK_ID="$(uuid)" # Used inside of lock files to identify them and prevent removal by other instances of docker-mailserver
@@ -213,44 +218,6 @@ function _notify
 }
 export -f _notify
 
-# ? --------------------------------------------- Relay Host Map
-
-# setup /etc/postfix/relayhost_map
-# --
-# @domain1.com        [smtp.mailgun.org]:587
-# @domain2.com        [smtp.mailgun.org]:587
-# @domain3.com        [smtp.mailgun.org]:587
-function _populate_relayhost_map
-{
-  : >/etc/postfix/relayhost_map
-  chown root:root /etc/postfix/relayhost_map
-  chmod 0600 /etc/postfix/relayhost_map
-
-  if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]
-  then
-    _notify 'inf' "Adding relay mappings from postfix-relaymap.cf"
-    # keep lines which are not a comment *and* have a destination.
-    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
-  fi
-
-  {
-    # note: won't detect domains when lhs has spaces (but who does that?!)
-    sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
-
-    [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r DOMAIN
-  do
-    # DOMAIN not already present *and* not ignored
-    if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
-    then
-      _notify 'inf' "Adding relay mapping for ${DOMAIN}"
-      # shellcheck disable=SC2153
-      echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
-    fi
-  done
-}
-export -f _populate_relayhost_map
-
 # ? --------------------------------------------- File Checksums
 
 # file storing the checksums of the monitored files.
@@ -347,6 +314,12 @@ function _obtain_hostname_and_domainname
   # Otherwise we assign the same value (eg: example.com):
   # Not an else statement in the previous conditional in the event that `hostname -d` fails.
   DOMAINNAME="${DOMAINNAME:-${HOSTNAME}}"
+}
+
+# Check if string input is an empty line, only whitespaces or `#` as the first non-whitespace character.
+function _is_comment
+{
+  grep -q -E "^\s*$|^\s*#" <<< "${1}"
 }
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).

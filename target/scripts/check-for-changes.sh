@@ -1,4 +1,6 @@
 #! /bin/bash
+# TODO: Adapt for compatibility with LDAP
+# Only the cert renewal change detection may be relevant for LDAP?
 
 # shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
@@ -97,145 +99,18 @@ do
       esac
     done
 
-    # WARNING: This block of duplicate code is already out of sync
-    # It appears to unneccesarily run, even if the related entry in the CHKSUM_FILE
-    # has not changed?
-    #
-    # regenerate postix aliases
-    echo "root: ${PM_ADDRESS}" >/etc/aliases
-    if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-    then
-      cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-    fi
-    postalias /etc/aliases
-
     # regenerate postfix accounts
-    : >/etc/postfix/vmailbox
-    : >/etc/dovecot/userdb
+    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
 
-    if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
-    then
-      sed -i 's/\r//g' /tmp/docker-mailserver/postfix-accounts.cf
-      echo "# WARNING: this file is auto-generated. Modify config/postfix-accounts.cf to edit user list." >/etc/postfix/vmailbox
+    _rebuild_relayhost
 
-      # Checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
-      # shellcheck disable=SC1003
-      sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
-      chown dovecot:dovecot /etc/dovecot/userdb
-      chmod 640 /etc/dovecot/userdb
-      sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
-      sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
+    # regenerate postix aliases
+    _create_aliases
 
-      # rebuild relay host
-      if [[ -n ${RELAY_HOST} ]]
-      then
-        # keep old config
-        : >/etc/postfix/sasl_passwd
-        if [[ -n ${SASL_PASSWD} ]]
-        then
-          echo "${SASL_PASSWD}" >>/etc/postfix/sasl_passwd
-        fi
-
-        # add domain-specific auth from config file
-        if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
-        then
-          while read -r LINE
-          do
-            if ! grep -q -e "\s*#" <<< "${LINE}"
-            then
-              echo "${LINE}" >>/etc/postfix/sasl_passwd
-            fi
-          done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-sasl-password.cf || true)
-        fi
-
-        # add default relay
-        if [[ -n "${RELAY_USER}" ]] && [[ -n "${RELAY_PASSWORD}" ]]
-        then
-          echo "[${RELAY_HOST}]:${RELAY_PORT}		${RELAY_USER}:${RELAY_PASSWORD}" >>/etc/postfix/sasl_passwd
-        fi
-      fi
-
-      # creating users ; 'pass' is encrypted
-      # comments and empty lines are ignored
-      while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
-      do
-        USER=$(echo "${LOGIN}" | cut -d @ -f1)
-        DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
-
-        # test if user has a defined quota
-        if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-        then
-          declare -a USER_QUOTA
-          IFS=':' ; read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-          unset IFS
-
-          [[ ${#USER_QUOTA[@]} -eq 2 ]] && USER_ATTRIBUTES="${USER_ATTRIBUTES} userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
-        fi
-
-        echo "${LOGIN} ${DOMAIN}/${USER}/" >>/etc/postfix/vmailbox
-
-        # user database for dovecot has the following format:
-        # user:password:uid:gid:(gecos):home:(shell):extra_fields
-        # example :
-        # ${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::userdb_mail=maildir:/var/mail/${DOMAIN}/${USER}
-        echo "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" >>/etc/dovecot/userdb
-        mkdir -p "/var/mail/${DOMAIN}/${USER}"
-
-        if [[ -e /tmp/docker-mailserver/${LOGIN}.dovecot.sieve ]]
-        then
-          cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
-        fi
-
-        echo "${DOMAIN}" >>/tmp/vhost.tmp
-      done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
-    fi
-
-    [[ -n ${RELAY_HOST} ]] && _populate_relayhost_map
-
-
-    if [[ -f /etc/postfix/sasl_passwd ]]
-    then
-      chown root:root /etc/postfix/sasl_passwd
-      chmod 0600 /etc/postfix/sasl_passwd
-    fi
-
-    if [[ -f postfix-virtual.cf ]]
-    then
-      # regenerate postfix aliases
-      : >/etc/postfix/virtual
-      : >/etc/postfix/regexp
-
-      if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
-      then
-        cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-
-        # the `to` seems to be important; don't delete it
-        # shellcheck disable=SC2034
-        while read -r FROM TO
-        do
-          UNAME=$(echo "${FROM}" | cut -d @ -f1)
-          DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
-
-          # if they are equal it means the line looks like: "user1	 other@domain.tld"
-          [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-        done  < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
-      fi
-
-      if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
-      then
-        cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-        sed -i -e '/^virtual_alias_maps/{
-s/ regexp:.*//
-s/$/ regexp:\/etc\/postfix\/regexp/
-}' /etc/postfix/main.cf
-      fi
-    fi
-
-    if [[ -f /tmp/vhost.tmp ]]
-    then
-      sort < /tmp/vhost.tmp | uniq >/etc/postfix/vhost
-      rm /tmp/vhost.tmp
-    fi
+    # regenerate /etc/postfix/vhost
+    # NOTE: If later adding support for LDAP with change detection and this method is called,
+    # be sure to mimic `setup-stack.sh:_setup_ldap` which appends to `/tmp/vhost.tmp`.
+    _create_postfix_vhost
 
     if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
     then

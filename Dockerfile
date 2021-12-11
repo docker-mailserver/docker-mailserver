@@ -1,4 +1,4 @@
-FROM docker.io/debian:buster-slim
+FROM docker.io/debian:11-slim
 
 ARG VCS_VER
 ARG VCS_REF
@@ -38,8 +38,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 RUN \
-  # Backport repo for dovecot-fts-xapian package. This can be removed once Debian 11 is used as base image.
-  echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
   apt-get -qq update && \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
@@ -281,6 +279,8 @@ COPY \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*
+
+COPY ./target/scripts/helpers /usr/local/bin/helpers
 
 WORKDIR /
 
