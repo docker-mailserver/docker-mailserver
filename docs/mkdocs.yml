@@ -35,6 +35,7 @@ theme:
     - navigation.top
     - navigation.expand
     - navigation.instant
+    - content.code.annotate
   palette:
     # Light mode
     - media: '(prefers-color-scheme: light)'
