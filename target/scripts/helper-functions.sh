@@ -239,6 +239,9 @@ function _monitored_files_checksums
     /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
   )
 
+  # CERT_FILES should expand to separate paths, not a single string;
+  # otherwise fails to generate checksums for these file paths.
+  #shellcheck disable=SC2068
   (
     cd /tmp/docker-mailserver || exit 1
     exec sha512sum 2>/dev/null -- \
