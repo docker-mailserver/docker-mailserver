@@ -187,9 +187,9 @@ function _extract_certs_from_acme
 }
 export -f _extract_certs_from_acme
 
-# Remove the `*.` prefix if it exists
+# Remove the `*.` prefix if it exists, else returns the input value
 function _strip_wildcard_prefix {
-  [[ "${1}" == "*."* ]] && echo "${1:2}"
+  [[ "${1}" == "*."* ]] && echo "${1:2}" || echo "${1}"
 }
 
 # ? --------------------------------------------- Notifications
@@ -224,7 +224,8 @@ export -f _notify
 # shellcheck disable=SC2034
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
-# Compute checksums of monitored files.
+# Compute checksums of monitored files,
+# returned output is lines of hashed content + filepath pairs.
 function _monitored_files_checksums
 {
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
@@ -232,14 +233,15 @@ function _monitored_files_checksums
   shopt -s nullglob
 
   # React to any cert changes within the following letsencrypt locations:
-  local DYNAMIC_FILES
-  for FILE in /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem \
-              /etc/letsencrypt/live/"${HOSTNAME}"/*.pem   \
-              /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
-  do
-    DYNAMIC_FILES="${DYNAMIC_FILES} ${FILE}"
-  done
+  local CERT_FILES=(
+    /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
+    /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
+    /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
+  )
 
+  # CERT_FILES should expand to separate paths, not a single string;
+  # otherwise fails to generate checksums for these file paths.
+  #shellcheck disable=SC2068
   (
     cd /tmp/docker-mailserver || exit 1
     exec sha512sum 2>/dev/null -- \
@@ -248,7 +250,7 @@ function _monitored_files_checksums
       postfix-aliases.cf \
       dovecot-quotas.cf \
       /etc/letsencrypt/acme.json \
-      "${DYNAMIC_FILES}"
+      ${CERT_FILES[@]}
   )
 }
 export -f _monitored_files_checksums
