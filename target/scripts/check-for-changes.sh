@@ -70,34 +70,40 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
-    # TODO: Consider refactoring this:
-    for FILE in ${CHANGED}
-    do
-      case "${FILE}" in
-        # This file is only relevant to Traefik, and is where it stores the certificates
-        # it manages. When a change is detected it's assumed to be a possible cert renewal
-        # that needs to be extracted for `docker-mailserver` to switch to.
-        "/etc/letsencrypt/acme.json" )
-          _notify 'inf' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
-          # This breaks early as we only need the first successful extraction. For more details see `setup-stack.sh` `SSL_TYPE=letsencrypt` case handling.
-          # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
-          # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
-          FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
-          for CERT_DOMAIN in "${FQDN_LIST[@]}"
-          do
-            _notify 'inf' "Attempting to extract for '${CERT_DOMAIN}'"
-            _extract_certs_from_acme "${CERT_DOMAIN}" && break
-          done
-          ;;
+    # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
+    # When a change is detected it's assumed to be a possible cert renewal that needs to be
+    # extracted for `docker-mailserver` services to adjust to.
+    if [[ ${CHANGED} =~ '/etc/letsencrypt/acme.json' ]]
+    then
+      _notify 'inf' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
 
-        # This seems like an invalid warning, as if the whole loop and case statement
-        # are only intended for the `acme.json` file..?
-        * )
-          _notify 'warn' "No certificate found in '${FILE}'"
-          ;;
+      # This breaks early as we only need the first successful extraction.
+      # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
+      # 
+      # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+      # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
+      FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
+      for CERT_DOMAIN in "${FQDN_LIST[@]}"
+      do
+        _notify 'inf' "Attempting to extract for '${CERT_DOMAIN}'"
 
-      esac
-    done
+        if _extract_certs_from_acme "${CERT_DOMAIN}"
+        then
+          # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
+          CERT_DOMAIN=$(_strip_wildcard_prefix "${CERT_DOMAIN}")
+          ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
+
+          sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
+          sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
+
+          break
+        fi
+      done
+    fi
+
+    # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
+    # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
+    # TODO: That should be all that's required, unless the cert file paths have also changed (Postfix/Dovecot configs then need to be updated).
 
     # regenerate postfix accounts
     [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
