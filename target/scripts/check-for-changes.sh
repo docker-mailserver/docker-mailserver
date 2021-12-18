@@ -79,7 +79,7 @@ do
 
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
-      # 
+      #
       # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
       FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
