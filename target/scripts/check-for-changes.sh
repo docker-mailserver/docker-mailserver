@@ -73,7 +73,7 @@ do
     # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
     # When a change is detected it's assumed to be a possible cert renewal that needs to be
     # extracted for `docker-mailserver` services to adjust to.
-    if [[ ${CHANGED} =~ '/etc/letsencrypt/acme.json' ]]
+    if [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
       _notify 'inf' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
 
