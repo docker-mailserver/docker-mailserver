@@ -187,9 +187,9 @@ function _extract_certs_from_acme
 }
 export -f _extract_certs_from_acme
 
-# Remove the `*.` prefix if it exists
+# Remove the `*.` prefix if it exists, else returns the input value
 function _strip_wildcard_prefix {
-  [[ "${1}" == "*."* ]] && echo "${1:2}"
+  [[ "${1}" == "*."* ]] && echo "${1:2}" || echo "${1}"
 }
 
 # ? --------------------------------------------- Notifications
