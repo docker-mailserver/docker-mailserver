@@ -26,7 +26,7 @@ jobs:
         run: |
           make shellcheck
         env:
-          SHELLCHECK_VERSION: 0.7.2
+          SHELLCHECK_VERSION: 0.8.0
 
       - name: ECLint
         run: |

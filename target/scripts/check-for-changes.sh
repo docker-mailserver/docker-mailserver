@@ -54,7 +54,7 @@ do
   # 0 – files are identical
   # 1 – files differ
   # 2 – inaccessible or missing argument
-  if [ $? -eq 1 ]
+  if [[ ${?} -eq 1 ]]
   then
     _notify 'inf' "$(_log_date) Change detected"
     create_lock # Shared config safety lock

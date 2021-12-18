@@ -26,6 +26,7 @@ LBLUE="\e[94m"
 RESET="\e[0m"
 
 set -euEo pipefail
+shopt -s inherit_errexit
 trap '__err "${BASH_SOURCE}" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
 
 function __err

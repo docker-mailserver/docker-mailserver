@@ -614,7 +614,7 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ -n "${output}" ]
+  [[ -n ${output} ]]
 }
 
 @test "checking accounts: auser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -622,7 +622,7 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ -n "${output}" ]
+  [[ -n ${output} ]]
 }
 
 @test "checking accounts: a.ser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -630,7 +630,7 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^a\.ser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ -n "${output}" ]
+  [[ -n ${output} ]]
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
@@ -638,11 +638,11 @@ EOF
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_failure
-  [ -z "${output}" ]
+  [[ -z ${output} ]]
 
   run docker exec mail /bin/sh -c "grep '^auser3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
   assert_success
-  [ -n "${output}" ]
+  [[ -n ${output} ]]
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -654,7 +654,7 @@ EOF
   sleep 2
   changepass=$(docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
 
-  [ "${initialpass}" != "${changepass}" ]
+  [[ ${initialpass} != "${changepass}" ]]
 
   docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
 
@@ -678,7 +678,7 @@ EOF
     -v "$(duplicate_config_for_container without-accounts/ without-accounts-deleting-user)":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'delmailuser -y user3@domain.tld'
   assert_success
-  [ -z "${output}" ]
+  [[ -n ${output} ]]
 }
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist" {
@@ -692,7 +692,7 @@ EOF
     -v "${PRIVATE_CONFIG}/without-accounts/":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
   assert_success
-  [ -n "${output}" ]
+  [[ -n ${output} ]]
 }
 
 
@@ -956,7 +956,7 @@ EOF
   assert_success
 
   value=$(grep setup_email_add@example.com "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $1}')
-  [ "${value}" = "setup_email_add@example.com" ]
+  [[ ${value} = "setup_email_add@example.com" ]]
   assert_success
 
   wait_for_changes_to_be_detected_in_container mail
@@ -979,15 +979,15 @@ EOF
   assert_success
 
   initialpass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [ "${initialpass}" != "" ]
+  [[ ${initialpass} != "" ]]
   assert_success
 
   run ./setup.sh -c mail email update lorem@impsum.org my password
   assert_success
 
   updatepass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [ "${updatepass}" != "" ]
-  [ "${initialpass}" != "${updatepass}" ]
+  [[ ${updatepass} != "" ]]
+  [[ ${initialpass} != "${updatepass}" ]]
 
   docker exec mail doveadm pw -t "${updatepass}" -p 'my password' | grep 'verified'
   assert_success
