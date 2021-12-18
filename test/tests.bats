@@ -678,7 +678,7 @@ EOF
     -v "$(duplicate_config_for_container without-accounts/ without-accounts-deleting-user)":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'delmailuser -y user3@domain.tld'
   assert_success
-  [[ -n ${output} ]]
+  [[ -z ${output} ]]
 }
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist" {
@@ -956,7 +956,7 @@ EOF
   assert_success
 
   value=$(grep setup_email_add@example.com "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $1}')
-  [[ ${value} = "setup_email_add@example.com" ]]
+  [[ ${value} == "setup_email_add@example.com" ]]
   assert_success
 
   wait_for_changes_to_be_detected_in_container mail
