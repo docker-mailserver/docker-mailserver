@@ -68,7 +68,7 @@ function teardown_file() {
   run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
   assert_success
   run docker exec mail_smtponly /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
-  [ "${status}" -ge 0 ]
+  [[ ${status} -ge 0 ]]
 }
 
 #

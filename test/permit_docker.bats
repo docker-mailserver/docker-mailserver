@@ -58,5 +58,5 @@ teardown() {
   assert_output --partial "250 2.0.0 Ok: queued as "
 
   repeat_until_success_or_timeout 60 run docker exec mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
-  [ "${status}" -ge 0 ]
+  [[ ${status} -ge 0 ]]
 }

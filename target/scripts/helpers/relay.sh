@@ -69,7 +69,7 @@ function _populate_relayhost_map
     # note: won't detect domains when lhs has spaces (but who does that?!)
     sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
 
-    [ -f /tmp/docker-mailserver/postfix-virtual.cf ] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
+    [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
   } | while read -r DOMAIN
   do
     # DOMAIN not already present *and* not ignored

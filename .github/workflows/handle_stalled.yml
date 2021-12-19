@@ -36,5 +36,5 @@ jobs:
             - a maintainer removes the `meta/stale` label or adds the `stale-bot/ignore` label
             - new activity occurs, such as a new comment
           close-pr-label: "meta/closed due to age or inactivity"
-          closed-pr-message: >
+          close-pr-message: >
             This PR was closed due to inactivity.
