@@ -40,7 +40,7 @@ shift
 PASSWD="${*}"
 
 [[ -z ${FULL_EMAIL} ]] && { __usage ; errex 'No username specified' ; }
-[[ "${FULL_EMAIL}" =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
+[[ ${FULL_EMAIL} =~ .*\@.* ]] || { __usage ; errex 'Username must include the domain' ; }
 
 touch "${DATABASE}"
 create_lock # Protect config file with lock to avoid race conditions

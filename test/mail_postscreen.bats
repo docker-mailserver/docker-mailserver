@@ -51,7 +51,7 @@ teardown_file() {
     'exec 3<>/dev/tcp/'"${MAIL_POSTSCREEN_IP}"'/25 && \
     while IFS= read -r cmd; do \
       head -1 <&3; \
-      [[ "${cmd}" == "EHLO"* ]] && sleep 6; \
+      [[ ${cmd} == "EHLO"* ]] && sleep 6; \
       echo ${cmd} >&3; \
     done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
   done

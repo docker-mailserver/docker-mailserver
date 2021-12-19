@@ -13,7 +13,7 @@ function __usage { echo "Usage: delquota <username@domain>" ; }
 USER="${1}"
 
 [[ -z ${USER} ]]  && { __usage ; errex "No username specified" ; }
-[[ "${USER}" =~ .*\@.* ]] || { __usage ; errex "Username must include the domain"; }
+[[ ${USER} =~ .*\@.* ]] || { __usage ; errex "Username must include the domain"; }
 
 if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
 then

@@ -383,7 +383,7 @@ function _setup_ldap
 
   # Add protocol to DOVECOT_URIS so that we can use dovecot's "uris" option:
   # https://doc.dovecot.org/configuration_manual/authentication/ldap/
-  if [[ "${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]}" != *'://'* ]]
+  if [[ ${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]} != *'://'* ]]
   then
     DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]="ldap://${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]}"
   fi
@@ -562,7 +562,7 @@ function _setup_saslauthd
   [[ -z ${SASLAUTHD_LDAP_PASSWORD} ]] && SASLAUTHD_LDAP_PASSWORD="${LDAP_BIND_PW}"
   [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_LDAP_SEARCH_BASE="${LDAP_SEARCH_BASE}"
 
-  if [[ "${SASLAUTHD_LDAP_SERVER}" != *'://'* ]]
+  if [[ ${SASLAUTHD_LDAP_SERVER} != *'://'* ]]
   then
     SASLAUTHD_LDAP_SERVER="ldap://${SASLAUTHD_LDAP_SERVER}"
   fi
