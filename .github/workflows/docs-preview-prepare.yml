@@ -55,12 +55,13 @@ jobs:
       - name: 'Prepare artifact for transfer'
         run: |
           # Save ENV for transfer
-          echo "PR_HEADSHA=${{ github.event.pull_request.head.sha }}" >> pr.env
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}"    >> pr.env
-          echo "PR_TITLE=${{ github.event.pull_request.title }}"      >> pr.env
-          echo "NETLIFY_SITE_PREFIX=${{ env.NETLIFY_SITE_PREFIX }}"   >> pr.env
-          echo "BUILD_DIR=${{ env.BUILD_DIR }}"                       >> pr.env
-
+          {
+            echo "PR_HEADSHA=${{ github.event.pull_request.head.sha }}"
+            echo "PR_NUMBER=${{ github.event.pull_request.number }}"
+            echo "PR_TITLE=${{ github.event.pull_request.title }}"
+            echo "NETLIFY_SITE_PREFIX=${{ env.NETLIFY_SITE_PREFIX }}"
+            echo "BUILD_DIR=${{ env.BUILD_DIR }}"
+          } >> pr.env
           tar --zstd -cf artifact.tar.zst pr.env ${{ env.BUILD_DIR }}
 
       - name: 'Upload artifact for workflow transfer'

@@ -15,11 +15,12 @@ fi
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
 
-HADOLINT_VERSION=2.4.1
+HADOLINT_VERSION=2.8.0
 ECLINT_VERSION=2.3.5
-SHELLCHECK_VERSION=0.7.2
+SHELLCHECK_VERSION=0.8.0
 
 set -eEuo pipefail
+shopt -s inherit_errexit
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
 function __log_err
@@ -121,6 +122,9 @@ function _shellcheck
     --wiki-link-count=50
     --enable=all
     --exclude=SC2154
+    --exclude=SC2310
+    --exclude=SC2311
+    --exclude=SC2312
     --source-path=SCRIPTDIR
     "${F_SH} ${F_BIN} ${F_BATS}"
   )
