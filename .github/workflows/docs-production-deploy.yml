@@ -26,7 +26,7 @@ jobs:
     name: 'Deploy Docs'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
 
       - name: 'Check if deploy is for a `v<major>.<minor>` tag version instead of `edge`'
         if: startsWith(github.ref, 'refs/tags/')
@@ -75,10 +75,10 @@ jobs:
     needs: deploy
     steps:
       - name: 'Checkout the tagged commit (shallow clone)'
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
 
       - name: 'Checkout the docs deployment branch to a subdirectory'
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
         with:
           ref: gh-pages
           path: gh-pages
