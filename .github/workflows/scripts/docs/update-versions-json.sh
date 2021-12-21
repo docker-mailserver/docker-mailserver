@@ -33,7 +33,7 @@ function _update_versions_json
   local VERSION_EXISTS
   VERSION_EXISTS=$(jq --arg version "${MAJOR_MINOR}" '[.[].version == $version] | any' "${VERSIONS_JSON}")
 
-  if [[ "${VERSION_EXISTS}" == "true" ]]
+  if [[ ${VERSION_EXISTS} == "true" ]]
   then
     echo "${MAJOR_MINOR} docs are already supported. Nothing to change, exiting.."
     exit 1

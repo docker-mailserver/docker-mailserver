@@ -18,7 +18,7 @@ QUOTA="${*}"
 function usage  { echo "Usage: setquota <user@domain> [<quota>]" ; }
 
 [[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
-[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain" ; }
+[[ ${USER} =~ .*\@.* ]] || { usage ; errex "username must include the domain" ; }
 
 if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
 then

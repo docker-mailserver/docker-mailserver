@@ -64,7 +64,7 @@ else
         do
           RESULT="$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)"
 
-          [[ "${RESULT}" != *"is not banned"* ]] && [[ "${RESULT}" != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
+          [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
         done
 
       else
