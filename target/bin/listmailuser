@@ -26,7 +26,7 @@ while read -r LINE
 do
   USER=$(echo "${LINE}" | cut -d'|' -f1)
 
-  if [[ "${ENABLE_QUOTAS}" -eq 1 ]]
+  if [[ ${ENABLE_QUOTAS} -eq 1 ]]
   then
     # ${QUOTA[0]} => current size
     # ${QUOTA[1]} => configured size limit
