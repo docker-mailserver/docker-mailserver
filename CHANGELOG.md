@@ -1,5 +1,17 @@
 # Changelog
 
+## `v10.4.0`
+
+This release upgrades our base image from Debian 10 to Debian 11.  
+There is also an important regression fixed for `SSL_TYPE=letsencrypt` users.
+
+- **[fix]** A regression with `check-for-changes.sh` introduced in `v10.3.0` affected `SSL_TYPE=letsencrypt`, preventing detection of cert renewals to restart services (_unless using `acme.json`_) [#2326](https://github.com/docker-mailserver/docker-mailserver/pull/2326)
+- **[improvement]** Base image upgraded from Debian 10 Buster to Debian 11 Bullseye [#2116](https://github.com/docker-mailserver/docker-mailserver/pull/2116)
+  - Postfix upgraded from `3.4` to `3.5`. Dovecot upgraded from `2.3.4` to `2.3.13`. Python 2 is no longer included in the image, Python 3 remains (_[more information](https://github.com/docker-mailserver/docker-mailserver/pull/2116#issuecomment-955615529)_).
+  - `yescrypt` is now supported upstream as a password hash algorithm, `docker-mailserver` continues to use `SHA512-CRYPT` (_[more information](https://github.com/docker-mailserver/docker-mailserver/pull/2116#issuecomment-955800544)_).
+- **[chore]** Dovecot statistics service disabled [#2292](https://github.com/docker-mailserver/docker-mailserver/pull/2292)
+
+
 ## `v10.3.0`
 
 **WARNING:** This release had a small regression affecting the detection of changes for certificates provisioned in `/etc/letsencrypt` with the config ENV `SSL_TYPE=letsencrypt`, unless you use Traefik's `acme.json`. If you rely on this functionality to restart Postfix and Dovecot when updating your cert files, this will not work and it is advised to upgrade to `v10.4.0` or newer prior to renewal of your certificates.
