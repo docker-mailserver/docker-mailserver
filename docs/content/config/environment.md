@@ -62,6 +62,15 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 - 1/2      => Show default informational output
 - 3/4/5    => log debug information (very verbose)
 
+##### ENABLE_DNSBL
+
+This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list.
+
+Note: Emails will be rejected, if they don't pass the spamhaus check!
+
+- **0** => DNS block list is disabled
+- 1     => DNS block list is enabled
+
 ##### ENABLE_CLAMAV
 
 - **0** => Clamav is disabled
@@ -352,7 +361,7 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 !!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
 
     By default, `docker-mailserver` is configured to quarantine spam emails.
-    
+
     If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
 
     If `ONE_DIR=1` (default) the location is `/var/mail-state/lib-amavis/virusmails/`, or if `ONE_DIR=0`: `/var/lib/amavis/virusmails/`. These paths are inside the docker container.

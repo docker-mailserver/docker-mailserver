@@ -1511,3 +1511,9 @@ function _setup_fail2ban
     echo -e "[Init]\nblocktype = DROP" > /etc/fail2ban/action.d/iptables-common.local
   fi
 }
+
+function _setup_dnsbl_disable
+{
+  _notify 'task' 'Disabling zen.spamhaus.org DNS block list'
+  sedfile -i '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' /etc/postfix/main.cf
+}
