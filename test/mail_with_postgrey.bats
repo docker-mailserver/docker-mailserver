@@ -19,6 +19,7 @@ function setup_file() {
               -e POSTGREY_MAX_AGE=35 \
               -e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
               -e POSTGREY_TEXT="Delayed by Postgrey" \
+              -e ENABLE_DNSBL=1 \
               -e DMS_DEBUG=0 \
               -h mail.my-domain.com -t "${NAME}"
     # using postfix availability as start indicator, this might be insufficient for postgrey
