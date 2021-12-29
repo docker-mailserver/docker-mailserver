@@ -20,6 +20,7 @@ function _setup_supervisor
           /etc/supervisor/supervisord.conf
 
         supervisorctl reload
+        exit
         ;;
 
       'warn' )
