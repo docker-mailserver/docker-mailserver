@@ -1517,4 +1517,8 @@ function _setup_dnsbl_disable
 {
   _notify 'task' 'Disabling zen.spamhaus.org DNS block list'
   sedfile -i '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' /etc/postfix/main.cf
+
+  _notify 'task' 'Disabling postscreen DNS block lists'
+  postconf -e "postscreen_dnsbl_action = ignore"
+  postconf -e "postscreen_dnsbl_sites = "
 }

@@ -64,9 +64,10 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 
 ##### ENABLE_DNSBL
 
-This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list.
+This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list in postfix
+and various [lists](https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66) in postscreen.
 
-Note: Emails will be rejected, if they don't pass the spamhaus check!
+Note: Emails will be rejected, if they don't pass the block list checks!
 
 - **0** => DNS block list is disabled
 - 1     => DNS block list is enabled
@@ -115,8 +116,8 @@ In the majority of cases, you want `letsencrypt` or `manual`.
 - **empty** => SSL disabled.
 - letsencrypt => Support for using certificates with _Let's Encrypt_ provisioners. (Docs: [_Let's Encrypt_ Setup][docs-tls-letsencrypt])
 - manual => Provide your own certificate via separate key and cert files. (Docs: [Bring Your Own Certificates][docs-tls-manual])
-    - Requires: `SSL_CERT_PATH` and `SSL_KEY_PATH` ENV vars to be set to the location of the files within the container.
-    - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. _Presently only `manual` mode supports this feature_.
+  - Requires: `SSL_CERT_PATH` and `SSL_KEY_PATH` ENV vars to be set to the location of the files within the container.
+  - Optional: `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH` allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. _Presently only `manual` mode supports this feature_.
 - custom => Provide your own certificate as a single file containing both the private key and full certificate chain. (Docs: `None`)
 - self-signed => Provide your own self-signed certificate files. Expects a self-signed CA cert for verification. **Use only for local testing of your setup**. (Docs: [Self-Signed Certificates][docs-tls-selfsigned])
 
@@ -492,6 +493,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - => Bind dn for LDAP connection. (e.g. `cn=admin,dc=domain,dc=com`)
 
 ##### DOVECOT_DNPASS
+
 - **empty** => same as `LDAP_BIND_PW`
 - => Password for LDAP dn sepecifified in `DOVECOT_DN`.
 
