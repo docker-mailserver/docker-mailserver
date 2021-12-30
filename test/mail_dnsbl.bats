@@ -5,9 +5,10 @@ function setup() {
 }
 
 function setup_file() {
-  local PRIVATE_CONFIG="$(duplicate_config_for_container . ${CONTAINER})"
-  local CONTAINER="mail_dnsbl_enabled"
-  local CONTAINER2="mail_dnsbl_disabled"
+  local PRIVATE_CONFIG CONTAINER CONTAINER2
+  PRIVATE_CONFIG="$(duplicate_config_for_container . ${CONTAINER})"
+  CONTAINER="mail_dnsbl_enabled"
+  CONTAINER2="mail_dnsbl_disabled"
 
 	docker run --rm -d --name ${CONTAINER} \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
@@ -21,8 +22,8 @@ function setup_file() {
 		-h mail.my-domain.com \
 		-t "${NAME}"
 
-    wait_for_smtp_port_in_container ${CONTAINER}
-    wait_for_smtp_port_in_container ${CONTAINER2}
+    wait_for_smtp_port_in_container "${CONTAINER}"
+    wait_for_smtp_port_in_container "${CONTAINER2}"
 }
 
 @test "first" {
