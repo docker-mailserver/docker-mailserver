@@ -26,10 +26,6 @@ function setup_file() {
     wait_for_smtp_port_in_container "${CONTAINER2}"
 }
 
-@test "first" {
-  skip 'only used to call setup_file from setup'
-}
-
 # ENABLE_DNSBL=1
 @test "checking enabled postfix DNS block list zen.spamhaus.org" {
   run docker exec mail_dnsbl_enabled postconf smtpd_recipient_restrictions
@@ -63,16 +59,6 @@ function setup_file() {
 }
 
 # cleanup
-@test "checking that the container stops cleanly: mail_dnsbl_enabled" {
-  run docker stop -t 0 mail_dnsbl_enabled
-  assert_success
-}
-
-@test "checking that the container stops cleanly: mail_dnsbl_disabled" {
-  run docker stop -t 0 mail_dnsbl_disabled
-  assert_success
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
+function teardown() {
+    docker rm -f mail_dnsbl_enabled mail_dnsbl_disabled
 }
