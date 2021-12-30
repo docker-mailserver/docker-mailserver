@@ -69,8 +69,8 @@ and various [lists](https://github.com/docker-mailserver/docker-mailserver/blob/
 
 Note: Emails will be rejected, if they don't pass the block list checks!
 
-- **0** => DNS block list is disabled
-- 1     => DNS block list is enabled
+- **0** => DNS block lists are disabled
+- 1     => DNS block lists are enabled
 
 ##### ENABLE_CLAMAV
 
