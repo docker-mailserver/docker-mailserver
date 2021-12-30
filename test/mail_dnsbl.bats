@@ -1,9 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
 function setup_file() {
   local PRIVATE_CONFIG CONTAINER CONTAINER2
   PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER}")"
@@ -59,6 +55,6 @@ function setup_file() {
 }
 
 # cleanup
-function teardown() {
+function teardown_file() {
     docker rm -f mail_dnsbl_enabled mail_dnsbl_disabled
 }
