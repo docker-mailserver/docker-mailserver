@@ -6,17 +6,17 @@ function setup() {
 
 function setup_file() {
   local PRIVATE_CONFIG CONTAINER CONTAINER2
-  PRIVATE_CONFIG="$(duplicate_config_for_container . ${CONTAINER})"
+  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER}")"
   CONTAINER="mail_dnsbl_enabled"
   CONTAINER2="mail_dnsbl_disabled"
 
-	docker run --rm -d --name ${CONTAINER} \
+	docker run --rm -d --name "${CONTAINER}" \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-e ENABLE_DNSBL=1 \
 		-h mail.my-domain.com \
 		-t "${NAME}"
 
-	docker run --rm -d --name ${CONTAINER2} \
+	docker run --rm -d --name "${CONTAINER2}" \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-e ENABLE_DNSBL=0 \
 		-h mail.my-domain.com \
