@@ -127,7 +127,7 @@ function collect_cipherlist_data() {
         "${NAME}" # Image name
     assert_success
 
-    wait_for_finished_setup_in_container tls_test_cipherlists
+    wait_for_tcp_port_in_container 25 tls_test_cipherlists
     # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
 
     # Make directory with test user ownership. Avoids Docker creating with root ownership.
