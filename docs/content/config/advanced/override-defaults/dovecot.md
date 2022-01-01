@@ -5,7 +5,7 @@ title: 'Override the Default Configs | Dovecot'
 ## Add Configuration
 
 The Dovecot default configuration can easily be extended providing a `docker-data/dms/config/dovecot.cf` file.
-[Dovecot documentation](https://wiki.dovecot.org) remains the best place to find configuration options.
+[Dovecot documentation](https://doc.dovecot.org/configuration_manual/) remains the best place to find configuration options.
 
 Your `docker-mailserver` folder should look like this example:
 
