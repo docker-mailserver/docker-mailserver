@@ -160,7 +160,7 @@ function compare_cipherlist() {
     local RESULTS_FILE=$2
     local EXPECTED_CIPHERLIST=$3
 
-    run jq '.scanResult[0].fs[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${TLS_RESULTS_DIR}/${RESULTS_FILE}"
+    run jq '.scanResult[0].serverPreferences[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${TLS_RESULTS_DIR}/${RESULTS_FILE}"
     assert_success
     assert_output "${EXPECTED_CIPHERLIST}"
 }
