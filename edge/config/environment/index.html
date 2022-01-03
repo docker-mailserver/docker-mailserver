@@ -526,6 +526,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_dnsbl" class="md-nav__link">
+    ENABLE_DNSBL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_clamav" class="md-nav__link">
     ENABLE_CLAMAV
   </a>
@@ -2383,6 +2390,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_dnsbl" class="md-nav__link">
+    ENABLE_DNSBL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_clamav" class="md-nav__link">
     ENABLE_CLAMAV
   </a>
@@ -3267,6 +3281,14 @@
 <li><strong>0</strong>    =&gt; Show warnings</li>
 <li>1/2      =&gt; Show default informational output</li>
 <li>3/4/5    =&gt; log debug information (very verbose)</li>
+</ul>
+<h5 id="enable_dnsbl"><a class="toclink" href="#enable_dnsbl">ENABLE_DNSBL</a></h5>
+<p>This enables the <a href="https://www.spamhaus.org/zen/">zen.spamhaus.org</a> DNS block list in postfix
+and various <a href="https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66">lists</a> in postscreen.</p>
+<p>Note: Emails will be rejected, if they don't pass the block list checks!</p>
+<ul>
+<li><strong>0</strong> =&gt; DNS block lists are disabled</li>
+<li>1     =&gt; DNS block lists are enabled</li>
 </ul>
 <h5 id="enable_clamav"><a class="toclink" href="#enable_clamav">ENABLE_CLAMAV</a></h5>
 <ul>
