@@ -62,6 +62,16 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 - 1/2      => Show default informational output
 - 3/4/5    => log debug information (very verbose)
 
+##### ENABLE_DNSBL
+
+This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list in postfix
+and various [lists](https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66) in postscreen.
+
+Note: Emails will be rejected, if they don't pass the block list checks!
+
+- **0** => DNS block lists are disabled
+- 1     => DNS block lists are enabled
+
 ##### ENABLE_CLAMAV
 
 - **0** => Clamav is disabled
@@ -352,7 +362,7 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 !!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
 
     By default, `docker-mailserver` is configured to quarantine spam emails.
-    
+
     If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
 
     If `ONE_DIR=1` (default) the location is `/var/mail-state/lib-amavis/virusmails/`, or if `ONE_DIR=0`: `/var/lib/amavis/virusmails/`. These paths are inside the docker container.
@@ -483,6 +493,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - => Bind dn for LDAP connection. (e.g. `cn=admin,dc=domain,dc=com`)
 
 ##### DOVECOT_DNPASS
+
 - **empty** => same as `LDAP_BIND_PW`
 - => Password for LDAP dn sepecifified in `DOVECOT_DN`.
 

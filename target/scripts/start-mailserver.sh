@@ -23,6 +23,7 @@ VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
 VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
 VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=1}"
 VARS[ENABLE_CLAMAV]="${ENABLE_CLAMAV:=0}"
+VARS[ENABLE_DNSBL]="${ENABLE_DNSBL:=0}"
 VARS[ENABLE_FAIL2BAN]="${ENABLE_FAIL2BAN:=0}"
 VARS[ENABLE_FETCHMAIL]="${ENABLE_FETCHMAIL:=0}"
 VARS[ENABLE_LDAP]="${ENABLE_LDAP:=0}"
@@ -109,6 +110,7 @@ function register_functions
   [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
   [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_inet_protocols'
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
+  [[ ${ENABLE_DNSBL} -eq 0 ]] && _register_setup_function '_setup_dnsbl_disable'
 
   _register_setup_function '_setup_dkim'
   _register_setup_function '_setup_ssl'
