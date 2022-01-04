@@ -263,6 +263,9 @@ fix
 start_misc
 start_daemons
 
+# marker for sedfile wrapper
+date > /FIRST_START
+
 _notify 'tasklog' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
