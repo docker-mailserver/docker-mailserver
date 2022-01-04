@@ -4,6 +4,11 @@
 # Error output is surpressed, when container is restarted to avoid harmless error messages.
 # Use "--strict" as first parameter, to fail regardless of the container state (fresh or restarted).
 
+# When to use sedfile?
+# Is a file change optional? --> use regular 'sed -i'
+# Is a file change expected? --> use 'sedfile --strict -i'
+# Is a file change only on the first container run expected? --> use 'sedfile -i'
+
 set -ueo pipefail
 
 HASHTOOL="sha1sum"
