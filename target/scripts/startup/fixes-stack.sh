@@ -41,7 +41,7 @@ function _fix_cleanup_clamav
 {
   _notify 'task' 'Cleaning up disabled ClamAV'
   rm /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam || {
-    # show error only first container start
+    # show error only on first container start
     [[ ! -f /FIRST_START ]] && _notify 'err' 'Failed to remove ClamAV configuration'
   }
 }
@@ -50,7 +50,7 @@ function _fix_cleanup_spamassassin
 {
   _notify 'task' 'Cleaning up disabled SpamAssassin'
   rm /etc/cron.daily/spamassassin || {
-    # show error only first container start
+    # show error only on first container start
     [[ ! -f /FIRST_START ]] && _notify 'err' 'Failed to remove SpamAssassin configuration'
   }
 }
