@@ -9,7 +9,7 @@ set -ueo pipefail
 HASHTOOL="sha1sum"
 SKIP_ERROR=0
 
-[[ -f /FIRST_START ]] && SKIP_ERROR=1 # Hide error, if container was restarted.
+[[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # Hide error, if container was restarted.
 if [[ "${1}" == "--strict" ]]         # Show error every time.
 then
   SKIP_ERROR=0
