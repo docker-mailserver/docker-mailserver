@@ -693,6 +693,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dovecot_inet_protocols" class="md-nav__link">
+    DOVECOT_INET_PROTOCOLS
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2557,6 +2564,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dovecot_inet_protocols" class="md-nav__link">
+    DOVECOT_INET_PROTOCOLS
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3431,11 +3445,18 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <p>This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to <a href="https://wiki2.dovecot.org/MailboxFormat">Dovecot Documentation</a>.</p>
 <h5 id="postfix_inet_protocols"><a class="toclink" href="#postfix_inet_protocols">POSTFIX_INET_PROTOCOLS</a></h5>
 <ul>
-<li><strong>all</strong> =&gt; All possible protocols.</li>
-<li>ipv4 =&gt; Use only IPv4 traffic. Most likely you want this behind Docker.</li>
-<li>ipv6 =&gt; Use only IPv6 traffic.</li>
+<li><strong>all</strong> =&gt; Listen on all interfaces.</li>
+<li>ipv4 =&gt; Listen only on IPv4 interfaces. Most likely you want this behind Docker.</li>
+<li>ipv6 =&gt; Listen only on IPv6 interfaces.</li>
 </ul>
-<p>Note: More details in <a href="http://www.postfix.org/postconf.5.html#inet_protocols">http://www.postfix.org/postconf.5.html#inet_protocols</a></p>
+<p>Note: More details at <a href="http://www.postfix.org/postconf.5.html#inet_protocols">http://www.postfix.org/postconf.5.html#inet_protocols</a></p>
+<h5 id="dovecot_inet_protocols"><a class="toclink" href="#dovecot_inet_protocols">DOVECOT_INET_PROTOCOLS</a></h5>
+<ul>
+<li><strong>all</strong> =&gt; Listen on all interfaces</li>
+<li>ipv4 =&gt; Listen only on IPv4 interfaces. Most likely you want this behind Docker.</li>
+<li>ipv6 =&gt; Listen only on IPv6 interfaces.</li>
+</ul>
+<p>Note: More information at <a href="https://dovecot.org/doc/dovecot-example.conf">https://dovecot.org/doc/dovecot-example.conf</a></p>
 <h4 id="reports"><a class="toclink" href="#reports">Reports</a></h4>
 <h5 id="pflogsumm_trigger"><a class="toclink" href="#pflogsumm_trigger">PFLOGSUMM_TRIGGER</a></h5>
 <p>Enables regular pflogsumm mail reports.</p>
