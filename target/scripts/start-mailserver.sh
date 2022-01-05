@@ -19,6 +19,7 @@ declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
 VARS[DMS_DEBUG]="${DMS_DEBUG:=0}"
+VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=}"
 VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
 VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
 VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=1}"
@@ -108,7 +109,8 @@ function register_functions
   [[ ${ENABLE_LDAP} -eq 1 ]] && _register_setup_function '_setup_ldap'
   [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function '_setup_postgrey'
   [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
-  [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_inet_protocols'
+  [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_postfix_inet_protocols'
+  [[ -n ${DOVECOT_INET_PROTOCOLS} ]] && _register_setup_function '_setup_dovecot_inet_protocols'
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
   [[ ${ENABLE_DNSBL} -eq 0 ]] && _register_setup_function '_setup_dnsbl_disable'
 

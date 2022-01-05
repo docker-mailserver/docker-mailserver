@@ -1100,10 +1100,31 @@ function _setup_postfix_vhost
   _create_postfix_vhost
 }
 
-function _setup_inet_protocols
+function _setup_postfix_inet_protocols
 {
   _notify 'task' 'Setting up POSTFIX_INET_PROTOCOLS option'
   postconf -e "inet_protocols = ${POSTFIX_INET_PROTOCOLS}"
+}
+
+function _setup_dovecot_inet_protocols
+{
+  local PROTOCOL
+
+  _notify 'task' 'Setting up DOVECOT_INET_PROTOCOLS option'
+
+  # https://dovecot.org/doc/dovecot-example.conf
+  if [[ ${DOVECOT_INET_PROTOCOLS} == "ipv4" ]]
+  then
+    PROTOCOL='*' # IPv4 only
+  elif [[ ${DOVECOT_INET_PROTOCOLS} == "ipv6" ]]
+  then
+    PROTOCOL='[::]' # IPv6 only
+  else
+    # Unknown value, panic.
+    dms_panic__invalid_value 'DOVECOT_INET_PROTOCOLS' "${DOVECOT_INET_PROTOCOLS}"
+  fi
+
+  sedfile -i "s|^#listen =.*|listen = ${PROTOCOL}|g" /etc/dovecot/dovecot.conf
 }
 
 function _setup_docker_permit

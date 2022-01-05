@@ -168,7 +168,7 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
 
 - **empty**: fail
 - `lmtp:unix:private/dovecot-lmtp` (use socket)
-- `lmtps:inet:<host>:<port>` (secure lmtp with starttls, take a look at <https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/>)
+- `lmtps:inet:<host>:<port>` (secure lmtp with starttls, take a look at https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/)
 - `lmtp:<kopano-host>:2003` (use kopano as mailstore)
 - etc.
 
@@ -230,11 +230,19 @@ This option has been added in November 2019. Using other format than Maildir is 
 
 ##### POSTFIX_INET_PROTOCOLS
 
-- **all** => All possible protocols.
-- ipv4 => Use only IPv4 traffic. Most likely you want this behind Docker.
-- ipv6 => Use only IPv6 traffic.
+- **all** => Listen on all interfaces.
+- ipv4 => Listen only on IPv4 interfaces. Most likely you want this behind Docker.
+- ipv6 => Listen only on IPv6 interfaces.
 
-Note: More details in <http://www.postfix.org/postconf.5.html#inet_protocols>
+Note: More details at http://www.postfix.org/postconf.5.html#inet_protocols
+
+##### DOVECOT_INET_PROTOCOLS
+
+- **not set** => Listen on all interfaces
+- ipv4 => Listen only on IPv4 interfaces. Most likely you want this behind Docker.
+- ipv6 => Listen only on IPv6 interfaces.
+
+Note: More information at https://dovecot.org/doc/dovecot-example.conf
 
 #### Reports
 
