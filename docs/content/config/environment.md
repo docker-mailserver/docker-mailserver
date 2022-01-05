@@ -230,11 +230,19 @@ This option has been added in November 2019. Using other format than Maildir is 
 
 ##### POSTFIX_INET_PROTOCOLS
 
-- **all** => All possible protocols.
-- ipv4 => Use only IPv4 traffic. Most likely you want this behind Docker.
-- ipv6 => Use only IPv6 traffic.
+- **all** => Listen on all interfaces.
+- ipv4 => Listen only on IPv4 interfaces. Most likely you want this behind Docker.
+- ipv6 => Listen only on IPv6 interfaces.
 
-Note: More details in <http://www.postfix.org/postconf.5.html#inet_protocols>
+Note: More details at <http://www.postfix.org/postconf.5.html#inet_protocols>
+
+##### DOVECOT_INET_PROTOCOLS
+
+- **all** => Listen on all interfaces
+- ipv4 => Listen only on IPv4 interfaces. Most likely you want this behind Docker.
+- ipv6 => Listen only on IPv6 interfaces.
+
+Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
 #### Reports
 
