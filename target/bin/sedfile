@@ -14,19 +14,20 @@ set -ueo pipefail
 HASHTOOL="sha1sum"
 SKIP_ERROR=0
 
+if [[ $# -lt 3 ]]
+then
+  echo "Error:  At least, three parameters must be given."
+  echo "Syntax: sedfile -i <replace/delete operation> <file>"
+  echo
+  exit 1
+fi >&2
+
 [[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # Hide error, if container was restarted.
 if [[ "${1}" == "--strict" ]]         # Show error every time.
 then
   SKIP_ERROR=0
   shift
 fi
-
-if [[ $# -lt 1 ]]
-then
-  echo "Error: No file given."
-  echo
-  exit 1
-fi >&2
 
 # get last argument
 FILE=${*: -1}
