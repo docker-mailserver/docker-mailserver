@@ -238,7 +238,7 @@ Note: More details at http://www.postfix.org/postconf.5.html#inet_protocols
 
 ##### DOVECOT_INET_PROTOCOLS
 
-- **not set** => Listen on all interfaces
+- **all** => Listen on all interfaces
 - ipv4 => Listen only on IPv4 interfaces. Most likely you want this behind Docker.
 - ipv6 => Listen only on IPv6 interfaces.
 
