@@ -341,8 +341,8 @@ Use `SPAMASSASSIN_SPAM_TO_INBOX=1` for receiving spam messages.
 
 ##### SPAMASSASSIN_SPAM_TO_INBOX
 
-- **0** => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
-- 1 => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
+- **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
+- 0 => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
 
 ##### MOVE_SPAM_TO_JUNK
 
