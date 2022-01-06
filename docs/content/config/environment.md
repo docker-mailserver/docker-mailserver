@@ -286,6 +286,13 @@ Recipient address for logwatch reports if they are enabled.
 - **not set** => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
 - => Specify the recipient address(es)
 
+##### LOGWATCH_SENDER
+
+From address for logwatch reports if they are enabled.
+
+- **not set** => Use REPORT_SENDER or POSTMASTER_ADDRESS
+- => Specify the sender address
+
 ##### REPORT_RECIPIENT (deprecated)
 
 Enables a report being sent (created by pflogsumm) on a regular basis.
