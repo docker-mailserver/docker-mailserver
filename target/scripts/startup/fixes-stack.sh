@@ -40,11 +40,17 @@ function _fix_var_amavis_permissions
 function _fix_cleanup_clamav
 {
   _notify 'task' 'Cleaning up disabled ClamAV'
-  rm /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam || _notify 'err' 'Failed to remove ClamAV configuration'
+  rm /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam 2>/dev/null || {
+    # show error only on first container start
+    [[ ! -f /CONTAINER_START ]] && _notify 'err' 'Failed to remove ClamAV configuration'
+  }
 }
 
 function _fix_cleanup_spamassassin
 {
   _notify 'task' 'Cleaning up disabled SpamAssassin'
-  rm /etc/cron.daily/spamassassin || _notify 'err' 'Failed to remove SpamAssassin configuration'
+  rm /etc/cron.daily/spamassassin 2>/dev/null || {
+    # show error only on first container start
+    [[ ! -f /CONTAINER_START ]] && _notify 'err' 'Failed to remove SpamAssassin configuration'
+  }
 }
