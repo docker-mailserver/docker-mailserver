@@ -22,7 +22,7 @@ function setup_file() {
 }
 
 @test "checking sedfile substitute success" {
-  # change 'bar' to 'foo'
+  # change 'bar' to 'baz'
   run ${SEDFILE} -i 's|bar|baz|' "${FILE}"
   assert_success
   assert_output ""
