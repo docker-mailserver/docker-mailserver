@@ -1,17 +1,33 @@
 #!/bin/bash
 
-# wrapper for 'sed -i': fail if file was not modified by sed
+# Wrapper for 'sed -i': fail if file was not modified by sed and container was not restarted.
+# Error output is surpressed, when container is restarted to avoid harmless error messages.
+# Use "--strict" as first parameter, to fail regardless of the container state (fresh or restarted).
+
+# When to use sedfile?
+# Is a file change optional? --> use regular 'sed -i'
+# Is a file change expected? --> use 'sedfile --strict -i'
+# Is a file change only on the first container run expected? --> use 'sedfile -i'
 
 set -ueo pipefail
 
 HASHTOOL="sha1sum"
+SKIP_ERROR=0
 
-if [[ $# -lt 1 ]]
+if [[ $# -lt 3 ]]
 then
-  echo "Error: No file given."
+  echo "Error:  At least, three parameters must be given."
+  echo "Syntax: sedfile -i <replace/delete operation> <file>"
   echo
   exit 1
 fi >&2
+
+[[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # Hide error, if container was restarted.
+if [[ "${1}" == "--strict" ]]         # Show error every time.
+then
+  SKIP_ERROR=0
+  shift
+fi
 
 # get last argument
 FILE=${*: -1}
@@ -21,9 +37,10 @@ sed "$@"
 NEW=$(${HASHTOOL} "${FILE}")
 
 # fail if file was not modified
-if [[ ${OLD} == "${NEW}" ]]
+if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]
 then
   echo "Error: sed $*"
   exit 1
 fi >&2
+
 exit 0
