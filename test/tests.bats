@@ -244,12 +244,13 @@ teardown_file() {
   assert_success
 }
 
+# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=0
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
   assert_success
   assert_output <<'EOF'
  1 <added@localhost.localdomain>
- 6 <user1@localhost.localdomain>
+ 7 <user1@localhost.localdomain>
  1 <user1@localhost.localdomain>, orig_to=<postmaster@my-domain.com>
  1 <user1@localhost.localdomain>, orig_to=<root>
  1 <user1~test@localhost.localdomain>
@@ -316,10 +317,11 @@ EOF
   assert_output 2
 }
 
+# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=0
 @test "checking smtp: rejects spam" {
   run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@my-domain.com | wc -l"
   assert_success
-  assert_output 1
+  assert_output 0
 }
 
 @test "checking smtp: rejects virus" {
@@ -670,7 +672,7 @@ EOF
 @test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
-  assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
+  assert_output '* user1@localhost.localdomain ( 13K / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {

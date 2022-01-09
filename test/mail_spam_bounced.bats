@@ -33,6 +33,7 @@ function setup_file() {
 }
 
 @test "checking amavis: spam message is bounced (rejected)" {
+  # shellcheck disable=SC2034
   local TEST_DOCKER_ARGS=(
     --env ENABLE_SPAMASSASSIN=1
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
@@ -40,35 +41,11 @@ function setup_file() {
 
   common_container_setup 'TEST_DOCKER_ARGS'
 
-  run _should_emit_warning
-  assert_failure
-
-  _should_bounce_spam
-}
-
-@test "checking amavis: spam message is bounced (rejected), undefined SPAMASSASSIN_SPAM_TO_INBOX should raise a warning" {
-  # SPAMASSASSIN_SPAM_TO_INBOX=0 is the default. If no explicit ENV value is set, it should log a warning at startup.
-
-  # shellcheck disable=SC2034
-  local TEST_DOCKER_ARGS=(
-    --env ENABLE_SPAMASSASSIN=1
-  )
-
-  common_container_setup 'TEST_DOCKER_ARGS'
-
-  run _should_emit_warning
-  assert_success
-
   _should_bounce_spam
 }
 
 @test "last" {
   skip 'this test is only there to reliably mark the end for the teardown_file'
-}
-
-# This warning should only be raised when the env SPAMASSASSIN_SPAM_TO_INBOX has no explicit value set
-function _should_emit_warning() {
-  sh -c "docker logs ${TEST_NAME} | grep 'Spam messages WILL NOT BE DELIVERED'"
 }
 
 function _should_bounce_spam() {
