@@ -266,9 +266,9 @@ Recipient address for pflogsumm reports.
 
 ##### PFLOGSUMM_SENDER
 
-From address for pflogsumm reports.
+Sender address (`FROM`) for pflogsumm reports if pflogsumm reports are enabled.
 
-- **not set** => Use REPORT_SENDER or POSTMASTER_ADDRESS
+- **not set** => Use REPORT_SENDER
 - => Specify the sender address
 
 ##### LOGWATCH_INTERVAL
@@ -285,6 +285,13 @@ Recipient address for logwatch reports if they are enabled.
 
 - **not set** => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
 - => Specify the recipient address(es)
+
+##### LOGWATCH_SENDER
+
+Sender address (`FROM`) for logwatch reports if logwatch reports are enabled.
+
+- **not set** => Use REPORT_SENDER
+- => Specify the sender address
 
 ##### REPORT_RECIPIENT (deprecated)
 
