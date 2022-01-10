@@ -749,6 +749,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#logwatch_sender" class="md-nav__link">
+    LOGWATCH_SENDER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#report_recipient-deprecated" class="md-nav__link">
     REPORT_RECIPIENT (deprecated)
   </a>
@@ -2620,6 +2627,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#logwatch_sender" class="md-nav__link">
+    LOGWATCH_SENDER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#report_recipient-deprecated" class="md-nav__link">
     REPORT_RECIPIENT (deprecated)
   </a>
@@ -3474,9 +3488,9 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <li>=&gt; Specify the recipient address(es)</li>
 </ul>
 <h5 id="pflogsumm_sender"><a class="toclink" href="#pflogsumm_sender">PFLOGSUMM_SENDER</a></h5>
-<p>From address for pflogsumm reports.</p>
+<p>Sender address (<code>FROM</code>) for pflogsumm reports if pflogsumm reports are enabled.</p>
 <ul>
-<li><strong>not set</strong> =&gt; Use REPORT_SENDER or POSTMASTER_ADDRESS</li>
+<li><strong>not set</strong> =&gt; Use REPORT_SENDER</li>
 <li>=&gt; Specify the sender address</li>
 </ul>
 <h5 id="logwatch_interval"><a class="toclink" href="#logwatch_interval">LOGWATCH_INTERVAL</a></h5>
@@ -3491,6 +3505,12 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <ul>
 <li><strong>not set</strong> =&gt; Use REPORT_RECIPIENT or POSTMASTER_ADDRESS</li>
 <li>=&gt; Specify the recipient address(es)</li>
+</ul>
+<h5 id="logwatch_sender"><a class="toclink" href="#logwatch_sender">LOGWATCH_SENDER</a></h5>
+<p>Sender address (<code>FROM</code>) for logwatch reports if logwatch reports are enabled.</p>
+<ul>
+<li><strong>not set</strong> =&gt; Use REPORT_SENDER</li>
+<li>=&gt; Specify the sender address</li>
 </ul>
 <h5 id="report_recipient-deprecated"><a class="toclink" href="#report_recipient-deprecated">REPORT_RECIPIENT (deprecated)</a></h5>
 <p>Enables a report being sent (created by pflogsumm) on a regular basis.</p>
