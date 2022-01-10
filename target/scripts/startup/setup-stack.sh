@@ -47,6 +47,7 @@ function _setup_default_vars
 
   # update REPORT_SENDER - must be done done after _check_hostname
   REPORT_SENDER="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
+  LOGWATCH_SENDER="${LOGWATCH_SENDER:=${REPORT_SENDER}}"
   PFLOGSUMM_SENDER="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
 
   # set PFLOGSUMM_TRIGGER here for backwards compatibility
@@ -69,6 +70,7 @@ function _setup_default_vars
   LOGWATCH_RECIPIENT="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
 
   VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT}"
+  VARS[LOGWATCH_SENDER]="${LOGWATCH_SENDER}"
   VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT}"
   VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER}"
   VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER}"
@@ -1478,6 +1480,8 @@ function _setup_logwatch
   _notify 'inf' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
 
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
+
+  echo "MailFrom = ${LOGWATCH_SENDER}" >> /etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
     'daily' )
