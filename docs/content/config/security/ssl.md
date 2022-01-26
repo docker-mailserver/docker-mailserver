@@ -97,7 +97,7 @@ You don't have to do anything else. Enjoy!
         environment:
           - SSL_TYPE=letsencrypt
         volumes:
-          - /etc/letsencrypt:/etc/letsencrypt
+          - ./docker-data/certbot/certs/:/etc/letsencrypt
     ```
 
 #### Example using Docker for _Let's Encrypt_ { data-toc-label='Certbot with Docker' }
