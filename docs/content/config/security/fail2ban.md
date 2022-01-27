@@ -125,5 +125,5 @@ Here `192.168.1.15` is our banned IP.
 [rootless::port-drivers]: https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers
 [rootless::slirp4netns]: https://github.com/rootless-containers/slirp4netns
 [rootless::docker]: https://docs.docker.com/engine/security/rootless
-[rootless:podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
-[rootless:podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
+[rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
+[rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
