@@ -4,15 +4,19 @@
 . /usr/local/bin/helper-functions.sh
 
 # suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
-. /etc/dms-settings 2> /dev/null
+# shellcheck source=/dev/null
+. /etc/dms-settings 2>/dev/null
 
 function dovecot_quota_to_hr()
 {
-  if [[ ${1} == "-" ]]
+  if [[ ${1:-} == "-" ]]
   then
     echo "~"
-  else
+  elif [[ ${1:-} =~ ^[0-9]+$ ]]
+  then
     echo $(( 1024 * ${1} )) | numfmt --to=iec
+  else
+    notify 'err' "Supplied non-number argument '${1:-}' to 'dovecot_quota_to_hr()' in script 'listmailuser'"
   fi
 }
 
