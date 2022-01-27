@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/spf/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1532,18 +1532,18 @@ example.com. IN TXT &quot;v=spf1 mx ~all&quot;
 <p>For whitelisting a IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
 <p><strong>Example:</strong></p>
 <p>Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">debugLevel</span> <span class="o">=</span> <span class="s">1</span>
-<span class="c1">#0(only errors)-4(complete data received)</span>
+<div class="highlight"><pre><span></span><code><span class="na">debugLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
+<span class="c1">#0(only errors)-4(complete data received)</span><span class="w"></span>
 
-<span class="na">skip_addresses</span> <span class="o">=</span> <span class="s">127.0.0.0/8,::ffff:127.0.0.0/104,::1</span>
+<span class="na">skip_addresses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.0/8,::ffff:127.0.0.0/104,::1</span><span class="w"></span>
 
-<span class="c1"># Preferably use IP-Addresses for whitelist lookups:</span>
-<span class="na">Whitelist</span> <span class="o">=</span> <span class="s">192.168.0.0/31,192.168.1.0/30</span>
-<span class="c1"># Domain_Whitelist = mx1.not-example.com,mx2.not-example.com</span>
+<span class="c1"># Preferably use IP-Addresses for whitelist lookups:</span><span class="w"></span>
+<span class="na">Whitelist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">192.168.0.0/31,192.168.1.0/30</span><span class="w"></span>
+<span class="c1"># Domain_Whitelist = mx1.not-example.com,mx2.not-example.com</span><span class="w"></span>
 </code></pre></div>
 <p>Then add this line to <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf</span>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf</span><span class="w"></span>
 </code></pre></div>
 
               
@@ -1619,10 +1619,10 @@ example.com. IN TXT &quot;v=spf1 mx ~all&quot;
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

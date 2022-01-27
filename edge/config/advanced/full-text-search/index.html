@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/full-text-search/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1640,32 +1640,32 @@ service indexer-worker {
 </li>
 <li>
 <p>Update <code>docker-compose.yml</code> to load the previously created dovecot plugin config file:</p>
-<div class="highlight"><pre><span></span><code>  <span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-  <span class="nt">services</span><span class="p">:</span>
-    <span class="nt">mailserver</span><span class="p">:</span>
-      <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-      <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-      <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-      <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-      <span class="nt">env_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver.env</span>
-      <span class="nt">ports</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>    <span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
-        <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>  <span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
-        <span class="p p-Indicator">-</span> <span class="s">&quot;465:465&quot;</span>  <span class="c1"># ESMTP (implicit TLS)</span>
-        <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>  <span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
-        <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>  <span class="c1"># IMAP4 (implicit TLS)</span>
-      <span class="nt">volumes</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
-      <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-      <span class="nt">stop_grace_period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1m</span>
-      <span class="nt">cap_add</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SYS_PTRACE</span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">      </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span><span class="w"></span>
+<span class="w">      </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">      </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
+<span class="w">      </span><span class="nt">env_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver.env</span><span class="w"></span>
+<span class="w">      </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;25:25&quot;</span><span class="w">    </span><span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;143:143&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;465:465&quot;</span><span class="w">  </span><span class="c1"># ESMTP (implicit TLS)</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;587:587&quot;</span><span class="w">  </span><span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;993:993&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (implicit TLS)</span><span class="w"></span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span><span class="w"></span>
+<span class="w">      </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span><span class="w"></span>
+<span class="w">      </span><span class="nt">stop_grace_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span><span class="w"></span>
+<span class="w">      </span><span class="nt">cap_add</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SYS_PTRACE</span><span class="w"></span>
 </code></pre></div>
 </li>
 <li>
@@ -1693,32 +1693,32 @@ docker-compose up -d
 <ol>
 <li>
 <p><code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code>  <span class="nt">solr</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">lmmdock/dovecot-solr:latest</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/solr-dovecot:/opt/solr/server/solr/dovecot</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">solr</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lmmdock/dovecot-solr:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/solr-dovecot:/opt/solr/server/solr/dovecot</span><span class="w"></span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span><span class="w"></span>
 
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">depends_on</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">solr</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="l l-Scalar l-Scalar-Plain">...</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="l l-Scalar l-Scalar-Plain">...</span>
-      <span class="l l-Scalar l-Scalar-Plain">- ./docker-data/dms/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
-    <span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">- ./docker-data/dms/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
 </code></pre></div>
 </li>
 <li>
 <p><code>./docker-data/dms/config/dovecot/10-plugin.conf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">mail_plugins</span> <span class="o">=</span> <span class="s">$mail_plugins fts fts_solr</span>
+<div class="highlight"><pre><span></span><code><span class="na">mail_plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$mail_plugins fts fts_solr</span><span class="w"></span>
 
-<span class="na">plugin {</span>
-  <span class="na">fts</span> <span class="o">=</span> <span class="s">solr</span>
-  <span class="na">fts_autoindex</span> <span class="o">=</span> <span class="s">yes</span>
-  <span class="na">fts_solr</span> <span class="o">=</span> <span class="s">url=http://solr:8983/solr/dovecot/</span>
-<span class="na">}</span>
+<span class="na">plugin {</span><span class="w"></span>
+<span class="w">  </span><span class="na">fts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">solr</span><span class="w"></span>
+<span class="w">  </span><span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span><span class="w"></span>
+<span class="w">  </span><span class="na">fts_solr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">url=http://solr:8983/solr/dovecot/</span><span class="w"></span>
+<span class="na">}</span><span class="w"></span>
 </code></pre></div>
 </li>
 <li>
@@ -1804,10 +1804,10 @@ docker-compose up -d
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

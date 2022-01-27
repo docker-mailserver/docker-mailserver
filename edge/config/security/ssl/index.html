@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/ssl/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1767,23 +1767,23 @@ docker run --hostname mail.example.com
 </div>
 <div class="admonition example">
 <p class="admonition-title"><code>docker-compose.yml</code> config</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-<span class="c1"># `domainname` is not required:</span>
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
+<span class="c1"># `domainname` is not required:</span><span class="w"></span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span><span class="w"></span>
 </code></pre></div>
 </div>
 <div class="admonition example">
 <p class="admonition-title"><em>Bare domains</em> (eg: <code>example.com</code>) should only use the hostname option</p>
 <div class="highlight"><pre><span></span><code>docker run --hostname example.com
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
 </code></pre></div>
 </div>
 <h2 id="provisioning-methods"><a class="toclink" href="#provisioning-methods">Provisioning methods</a></h2>
@@ -1808,15 +1808,15 @@ docker run --hostname mail.example.com
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="c1"># For the FQDN &#39;mail.example.com&#39;:</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/letsencrypt:/etc/letsencrypt</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># For the FQDN &#39;mail.example.com&#39;:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/letsencrypt:/etc/letsencrypt</span><span class="w"></span>
 </code></pre></div>
 </div>
 <h4 id="example-using-docker-for-lets-encrypt"><a class="toclink" href="#example-using-docker-for-lets-encrypt">Example using Docker for <em>Let's Encrypt</em></a></h4>
@@ -1907,11 +1907,11 @@ docker run --detach <span class="se">\</span>
 </li>
 <li>
 <p>Make sure your mount path to the <code>letsencrypt</code> certificates directory is correct. Edit your <code>docker-compose.yml</code> for the <code>mailserver</code> service to have volumes added like below:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro</span>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro</span><span class="w"></span>
 </code></pre></div>
 </li>
 <li>
@@ -1923,66 +1923,66 @@ docker run --detach <span class="se">\</span>
 <details class="example" open="open">
 <summary>Example: <code>docker-compose.yml</code></summary>
 <p>You should have an existing <code>docker-compose.yml</code> with a <code>mailserver</code> service. Below are the modifications to add for integrating with <code>nginx-proxy</code> and <code>acme-companion</code> services:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
-  <span class="c1"># Add the following `environment` and `volumes` to your existing `mailserver` service:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="c1"># SSL_TYPE:         Uses the `letsencrypt` method to find mounted certificates.</span>
-      <span class="c1"># VIRTUAL_HOST:     The FQDN that `nginx-proxy` will configure itself to handle for HTTP[S] connections.</span>
-      <span class="c1"># LETSENCRYPT_HOST: The FQDN for a certificate that `acme-companion` will provision and renew.</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">VIRTUAL_HOST=mail.example.com</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LETSENCRYPT_HOST=mail.example.com</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># Add the following `environment` and `volumes` to your existing `mailserver` service:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># SSL_TYPE:         Uses the `letsencrypt` method to find mounted certificates.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># VIRTUAL_HOST:     The FQDN that `nginx-proxy` will configure itself to handle for HTTP[S] connections.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># LETSENCRYPT_HOST: The FQDN for a certificate that `acme-companion` will provision and renew.</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VIRTUAL_HOST=mail.example.com</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LETSENCRYPT_HOST=mail.example.com</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro</span><span class="w"></span>
 
-  <span class="c1"># If you don&#39;t yet have your own `nginx-proxy` and `acme-companion` setup,</span>
-  <span class="c1"># here is an example you can use:</span>
-  <span class="nt">reverse-proxy</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginxproxy/nginx-proxy</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-proxy</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="c1"># Port  80: Required for HTTP-01 challenges to `acme-companion`.</span>
-      <span class="c1"># Port 443: Only required for containers that need access over HTTPS. TLS-ALPN-01 challenge not supported.</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;80:80&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;443:443&quot;</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="c1"># `certs/`:      Managed by the `acme-companion` container (_read-only_).</span>
-      <span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span>
-      <span class="c1"># `dhparam`:     A named data volume to prevent `nginx-proxy` creating an anonymous volume each time.</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:ro</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/tmp/docker.sock:ro</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dhparam:/etc/nginx/dhparam</span>
+<span class="w">  </span><span class="c1"># If you don&#39;t yet have your own `nginx-proxy` and `acme-companion` setup,</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># here is an example you can use:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginxproxy/nginx-proxy</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx-proxy</span><span class="w"></span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># Port  80: Required for HTTP-01 challenges to `acme-companion`.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># Port 443: Only required for containers that need access over HTTPS. TLS-ALPN-01 challenge not supported.</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;80:80&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;443:443&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `certs/`:      Managed by the `acme-companion` container (_read-only_).</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `dhparam`:     A named data volume to prevent `nginx-proxy` creating an anonymous volume each time.</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:ro</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/tmp/docker.sock:ro</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dhparam:/etc/nginx/dhparam</span><span class="w"></span>
 
-  <span class="nt">acme-companion</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginxproxy/acme-companion</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx-proxy-acme</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="c1"># Only docker-compose v2 supports: `volumes_from: [nginx-proxy]`,</span>
-      <span class="c1"># reference the _reverse-proxy_ `container_name` here:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NGINX_PROXY_CONTAINER=nginx-proxy</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="c1"># `html/`:       Write ACME HTTP-01 challenge files that `nginx-proxy` will serve.</span>
-      <span class="c1"># `vhost.d/`:    To enable web access via `nginx-proxy` to HTTP-01 challenge files.</span>
-      <span class="c1"># `certs/`:      To store certificates and private keys.</span>
-      <span class="c1"># `acme-state/`: To persist config and state for the ACME provisioner (`acme.sh`).</span>
-      <span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:rw</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/acme-state/:/etc/acme.sh/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span>
+<span class="w">  </span><span class="nt">acme-companion</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginxproxy/acme-companion</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx-proxy-acme</span><span class="w"></span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span><span class="w"></span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># Only docker-compose v2 supports: `volumes_from: [nginx-proxy]`,</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># reference the _reverse-proxy_ `container_name` here:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NGINX_PROXY_CONTAINER=nginx-proxy</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `html/`:       Write ACME HTTP-01 challenge files that `nginx-proxy` will serve.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `vhost.d/`:    To enable web access via `nginx-proxy` to HTTP-01 challenge files.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `certs/`:      To store certificates and private keys.</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `acme-state/`: To persist config and state for the ACME provisioner (`acme.sh`).</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:rw</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/acme-state/:/etc/acme.sh/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span><span class="w"></span>
 
-<span class="c1"># Once `nginx-proxy` fixes their Dockerfile, this named data volume can be removed from docs.</span>
-<span class="c1"># Users can opt for a local bind mount volume like all others if they prefer, but this volume</span>
-<span class="c1"># is only intended to be temporary.</span>
-<span class="nt">volumes</span><span class="p">:</span>
-  <span class="nt">dhparam</span><span class="p">:</span>
+<span class="c1"># Once `nginx-proxy` fixes their Dockerfile, this named data volume can be removed from docs.</span><span class="w"></span>
+<span class="c1"># Users can opt for a local bind mount volume like all others if they prefer, but this volume</span><span class="w"></span>
+<span class="c1"># is only intended to be temporary.</span><span class="w"></span>
+<span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">dhparam</span><span class="p">:</span><span class="w"></span>
 </code></pre></div>
 </details>
 <div class="admonition tip">
@@ -2007,15 +2007,15 @@ docker run --detach <span class="se">\</span>
 <p class="admonition-title">Alternative to required ENV on <code>mailserver</code> service</p>
 <p>While you will still need both <code>nginx-proxy</code> and <code>acme-companion</code> containers, you can manage certificates without adding ENV vars to containers. Instead the ENV is moved into a file and uses the <code>acme-companion</code> feature <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md">Standalone certificates</a>.</p>
 <p>This requires adding another shared volume between <code>nginx-proxy</code> and <code>acme-companion</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">reverse-proxy</span><span class="p">:</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/</span><span class="w"></span>
 
-  <span class="nt">acme-companion</span><span class="p">:</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/standalone.sh:/app/letsencrypt_user_data:ro</span>
+<span class="w">  </span><span class="nt">acme-companion</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/conf.d/:/etc/nginx/conf.d/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/standalone.sh:/app/letsencrypt_user_data:ro</span><span class="w"></span>
 </code></pre></div>
 <p><code>acme-companion</code> mounts a shell script (<code>standalone.sh</code>), which defines variables to customize certificate provisioning:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># A list IDs for certificates to provision:</span>
@@ -2038,14 +2038,14 @@ docker run --detach <span class="se">\</span>
 <p>Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.</p>
 <p>Amongst other things, you can use these to secure your mail-server. DSM locates the generated certificates in a folder below <code>/usr/syno/etc/certificate/_archive/</code>.</p>
 <p>Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your <code>docker-compose.yml</code> declaration file:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Note: If you have an existing setup that was working pre docker-mailserver v10.2,</span>
-<span class="c1"># &#39;/tmp/dms/custom-certs&#39; below has replaced the previous &#39;/tmp/ssl&#39; container path.</span>
-<span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/usr/syno/etc/certificate/_archive/&lt;your-folder&gt;/:/tmp/dms/custom-certs/</span>
-<span class="nt">environment</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH=/tmp/dms/custom-certs/fullchain.pem</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/dms/custom-certs/privkey.pem</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Note: If you have an existing setup that was working pre docker-mailserver v10.2,</span><span class="w"></span>
+<span class="c1"># &#39;/tmp/dms/custom-certs&#39; below has replaced the previous &#39;/tmp/ssl&#39; container path.</span><span class="w"></span>
+<span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/syno/etc/certificate/_archive/&lt;your-folder&gt;/:/tmp/dms/custom-certs/</span><span class="w"></span>
+<span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH=/tmp/dms/custom-certs/fullchain.pem</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/dms/custom-certs/privkey.pem</span><span class="w"></span>
 </code></pre></div>
 <p>DSM-generated letsencrypt certificates get auto-renewed every three months.</p>
 <h3 id="caddy"><a class="toclink" href="#caddy">Caddy</a></h3>
@@ -2069,74 +2069,74 @@ docker run --detach <span class="se">\</span>
 <p>If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:</p>
 <details class="example" open="open">
 <summary>Example Code</summary>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-  <span class="nt">&quot;apps&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;http&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;servers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;srv0&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;listen&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;:443&quot;</span>
-          <span class="p">],</span>
-          <span class="nt">&quot;routes&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-              <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                  <span class="nt">&quot;host&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;mail.example.com&quot;</span><span class="p">,</span>
-                  <span class="p">]</span>
-                <span class="p">}</span>
-              <span class="p">],</span>
-              <span class="nt">&quot;handle&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                  <span class="nt">&quot;handler&quot;</span><span class="p">:</span> <span class="s2">&quot;subroute&quot;</span><span class="p">,</span>
-                  <span class="nt">&quot;routes&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="p">{</span>
-                      <span class="nt">&quot;handle&quot;</span><span class="p">:</span> <span class="p">[</span>
-                        <span class="p">{</span>
-                          <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                          <span class="nt">&quot;handler&quot;</span><span class="p">:</span> <span class="s2">&quot;static_response&quot;</span>
-                        <span class="p">}</span>
-                      <span class="p">]</span>
-                    <span class="p">}</span>
-                  <span class="p">]</span>
-                <span class="p">}</span>
-              <span class="p">],</span>
-              <span class="nt">&quot;terminal&quot;</span><span class="p">:</span> <span class="kc">true</span>
-            <span class="p">},</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;tls&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;automation&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;policies&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
-            <span class="nt">&quot;subjects&quot;</span><span class="p">:</span> <span class="p">[</span>
-              <span class="s2">&quot;mail.example.com&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-            <span class="nt">&quot;key_type&quot;</span><span class="p">:</span> <span class="s2">&quot;rsa2048&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;admin@example.com&quot;</span><span class="p">,</span>
-              <span class="nt">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;acme&quot;</span>
-            <span class="p">}</span>
-          <span class="p">},</span>
-          <span class="p">{</span>
-            <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;admin@example.com&quot;</span><span class="p">,</span>
-              <span class="nt">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;acme&quot;</span>
-            <span class="p">}</span>
-          <span class="p">}</span>
-        <span class="p">]</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;apps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;http&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;servers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;srv0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="nt">&quot;listen&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;:443&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="p">],</span><span class="w"></span>
+<span class="w">          </span><span class="nt">&quot;routes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">            </span><span class="p">{</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;match&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                </span><span class="p">{</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                    </span><span class="s2">&quot;mail.example.com&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                  </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">              </span><span class="p">],</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;handle&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                </span><span class="p">{</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">&quot;handler&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subroute&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">&quot;routes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                    </span><span class="p">{</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">&quot;handle&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                          </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="nt">&quot;handler&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;static_response&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                      </span><span class="p">]</span><span class="w"></span>
+<span class="w">                    </span><span class="p">}</span><span class="w"></span>
+<span class="w">                  </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">              </span><span class="p">],</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;terminal&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">          </span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;tls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;automation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;policies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;subjects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">              </span><span class="s2">&quot;mail.example.com&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="p">],</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;key_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rsa2048&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;issuer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;admin@example.com&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acme&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">          </span><span class="p">},</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;issuer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;admin@example.com&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">              </span><span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acme&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">          </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </details>
 <p>The generated certificates can be mounted:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span><span class="w"></span>
 </code></pre></div>
 <p>EC certificates fail in the TLS handshake:</p>
 <div class="highlight"><pre><span></span><code><span class="go">CONNECTED(00000003)</span>
@@ -2158,45 +2158,45 @@ docker run --detach <span class="se">\</span>
 <details class="example" open="open">
 <summary>Example Code</summary>
 <p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>docker-compose</code></a>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro</span>
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="nt">SSL_TYPE</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">letsencrypt</span>
-      <span class="nt">SSL_DOMAIN</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
-      <span class="c1"># for a wildcard certificate, use</span>
-      <span class="c1"># SSL_DOMAIN: example.com</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro</span><span class="w"></span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">SSL_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">letsencrypt</span><span class="w"></span>
+<span class="w">      </span><span class="nt">SSL_DOMAIN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># for a wildcard certificate, use</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># SSL_DOMAIN: example.com</span><span class="w"></span>
 
-  <span class="nt">reverse-proxy</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik:latest</span> <span class="c1">#v2.5</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker-traefik</span>
-    <span class="nt">ports</span><span class="p">:</span>
-       <span class="p p-Indicator">-</span> <span class="s">&quot;80:80&quot;</span>
-       <span class="p p-Indicator">-</span> <span class="s">&quot;443:443&quot;</span>
-    <span class="nt">command</span><span class="p">:</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--providers.docker</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--entrypoints.http.address=:80</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--entrypoints.http.http.redirections.entryPoint.to=https</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--entrypoints.http.http.redirections.entryPoint.scheme=https</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--entrypoints.https.address=:443</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--entrypoints.https.http.tls.certResolver=letsencrypt</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--certificatesresolvers.letsencrypt.acme.email=admin@example.com</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--certificatesresolvers.letsencrypt.acme.storage=/acme.json</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/traefik/acme.json:/acme.json</span>
-       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span>
+<span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/traefik:latest</span><span class="w"> </span><span class="c1">#v2.5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker-traefik</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;80:80&quot;</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;443:443&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--providers.docker</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--entrypoints.http.address=:80</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--entrypoints.http.http.redirections.entryPoint.to=https</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--entrypoints.http.http.redirections.entryPoint.scheme=https</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--entrypoints.https.address=:443</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--entrypoints.https.http.tls.certResolver=letsencrypt</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--certificatesresolvers.letsencrypt.acme.email=admin@example.com</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--certificatesresolvers.letsencrypt.acme.storage=/acme.json</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/traefik/acme.json:/acme.json</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span><span class="w"></span>
 
-  <span class="nt">whoami</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik/whoami:latest</span>
-    <span class="nt">labels</span><span class="p">:</span>
-       <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.http.routers.whoami.rule=Host(`mail.example.com`)&quot;</span>
+<span class="w">  </span><span class="nt">whoami</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/traefik/whoami:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.http.routers.whoami.rule=Host(`mail.example.com`)&quot;</span><span class="w"></span>
 </code></pre></div>
 </details>
 <h3 id="self-signed-certificates"><a class="toclink" href="#self-signed-certificates">Self-Signed Certificates</a></h3>
@@ -2254,13 +2254,13 @@ docker run --rm -it <span class="se">\</span>
 </code></pre></div>
 <h3 id="bring-your-own-certificates"><a class="toclink" href="#bring-your-own-certificates">Bring Your Own Certificates</a></h3>
 <p>You can also provide your own certificate files. Add these entries to your <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/custom-certs/:/tmp/dms/custom-certs/:ro</span>
-<span class="nt">environment</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span>
-  <span class="c1"># Values should match the file paths inside the container:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH=/tmp/dms/custom-certs/public.crt</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/dms/custom-certs/private.key</span>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/custom-certs/:/tmp/dms/custom-certs/:ro</span><span class="w"></span>
+<span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># Values should match the file paths inside the container:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH=/tmp/dms/custom-certs/public.crt</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/dms/custom-certs/private.key</span><span class="w"></span>
 </code></pre></div>
 <p>This will mount the path where your certificate files reside locally into the <em>read-only</em> container folder: <code>/tmp/dms/custom-certs</code>.</p>
 <p>The local and internal paths may be whatever you prefer, so long as both <code>SSL_CERT_PATH</code> and <code>SSL_KEY_PATH</code> point to the correct internal file paths. The certificate files may also be named to your preference, but should be PEM encoded.</p>
@@ -2302,8 +2302,8 @@ docker run --rm -it <span class="se">\</span>
 <p>Not recommended for purposes other than testing.</p>
 </div>
 <p>Add this to <code>docker-data/dms/config/dovecot.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">ssl</span> <span class="o">=</span> <span class="s">yes</span>
-<span class="na">disable_plaintext_auth</span><span class="o">=</span><span class="s">no</span>
+<div class="highlight"><pre><span></span><code><span class="na">ssl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span><span class="w"></span>
+<span class="na">disable_plaintext_auth</span><span class="o">=</span><span class="s">no</span><span class="w"></span>
 </code></pre></div>
 <p>These options in conjunction mean:</p>
 <ul>
@@ -2481,10 +2481,10 @@ openssl s_client <span class="se">\</span>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

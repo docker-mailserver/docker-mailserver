@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/mailserver-behind-proxy/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1561,85 +1561,85 @@
 <details>
 <summary>Traefik v2</summary>
 <p>Truncated configuration of traefik itself:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">reverse-proxy</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/traefik:latest</span> <span class="c1"># v2.5</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker-traefik</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-    <span class="nt">command</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--providers.docker&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--providers.docker.exposedbydefault=false&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--providers.docker.network=proxy&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--entrypoints.web.address=:80&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--entryPoints.websecure.address=:443&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--entryPoints.smtp.address=:25&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--entryPoints.smtp-ssl.address=:465&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--entryPoints.imap-ssl.address=:993&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;--entryPoints.sieve.address=:4190&quot;</span>
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;465:465&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;4190:4190&quot;</span>
-<span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/traefik:latest</span><span class="w"> </span><span class="c1"># v2.5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker-traefik</span><span class="w"></span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span><span class="w"></span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--providers.docker&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--providers.docker.exposedbydefault=false&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--providers.docker.network=proxy&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--entrypoints.web.address=:80&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--entryPoints.websecure.address=:443&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--entryPoints.smtp.address=:25&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--entryPoints.smtp-ssl.address=:465&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--entryPoints.imap-ssl.address=:993&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--entryPoints.sieve.address=:4190&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;25:25&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;465:465&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;993:993&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4190:4190&quot;</span><span class="w"></span>
+<span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w"></span>
 </code></pre></div>
 <p>Truncated list of necessary labels on the <code>docker-mailserver</code> container:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-    <span class="nt">restart</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">always</span>
-    <span class="nt">networks</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">proxy</span>
-    <span class="nt">labels</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.enable=true&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp.rule=HostSNI(`*`)&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp.entrypoints=smtp&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp.service=smtp&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.server.port=25&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=1&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.rule=HostSNI(`*`)&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.tls=false&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.entrypoints=smtp-ssl&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.smtp-ssl.service=smtp-ssl&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.server.port=465&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.proxyProtocol.version=1&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.imap-ssl.rule=HostSNI(`*`)&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.imap-ssl.entrypoints=imap-ssl&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.imap-ssl.service=imap-ssl&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.imap-ssl.loadbalancer.server.port=10993&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.imap-ssl.loadbalancer.proxyProtocol.version=2&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.sieve.rule=HostSNI(`*`)&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.sieve.entrypoints=sieve&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.routers.sieve.service=sieve&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;traefik.tcp.services.sieve.loadbalancer.server.port=4190&quot;</span>
-<span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span><span class="w"></span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proxy</span><span class="w"></span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.enable=true&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp.rule=HostSNI(`*`)&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp.entrypoints=smtp&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp.service=smtp&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.server.port=25&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=1&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.rule=HostSNI(`*`)&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.tls=false&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.entrypoints=smtp-ssl&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.service=smtp-ssl&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.server.port=465&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.proxyProtocol.version=1&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.rule=HostSNI(`*`)&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.entrypoints=imap-ssl&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.service=imap-ssl&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.imap-ssl.loadbalancer.server.port=10993&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.imap-ssl.loadbalancer.proxyProtocol.version=2&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.sieve.rule=HostSNI(`*`)&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.sieve.entrypoints=sieve&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.sieve.service=sieve&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.sieve.loadbalancer.server.port=4190&quot;</span><span class="w"></span>
+<span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w"></span>
 </code></pre></div>
 <p>Keep in mind that it is necessary to use port <code>10993</code> here. More information below at <code>dovecot</code> configuration.</p>
 </details>
 <h3 id="configuration-of-the-backend-dovecot-and-postfix"><a class="toclink" href="#configuration-of-the-backend-dovecot-and-postfix">Configuration of the Backend (<code>dovecot</code> and <code>postfix</code>)</a></h3>
 <p>The following changes can be achieved completely by adding the content to the appropriate files by using the projects <a href="../../../config/advanced/optional-config/">function to overwrite config files</a>.</p>
 <p>Changes for <code>postfix</code> can be applied by adding the following content to <code>docker-data/dms/config/postfix-main.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">postscreen_upstream_proxy_protocol</span> <span class="o">=</span> <span class="s">haproxy</span>
+<div class="highlight"><pre><span></span><code><span class="na">postscreen_upstream_proxy_protocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">haproxy</span><span class="w"></span>
 </code></pre></div>
 <p>and to <code>docker-data/dms/config/postfix-master.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span>
-<span class="na">smtps/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span>
+<div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span><span class="w"></span>
+<span class="na">smtps/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span><span class="w"></span>
 </code></pre></div>
 <p>Changes for <code>dovecot</code> can be applied by adding the following content to <code>docker-data/dms/config/dovecot.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">haproxy_trusted_networks</span> <span class="o">=</span> <span class="s">&lt;your-proxy-ip&gt;, &lt;optional-cidr-notation&gt;</span>
-<span class="na">haproxy_timeout</span> <span class="o">=</span> <span class="s">3 secs</span>
-<span class="na">service imap-login {</span>
-  <span class="na">inet_listener imaps {</span>
-    <span class="na">haproxy</span> <span class="o">=</span> <span class="s">yes</span>
-    <span class="na">ssl</span> <span class="o">=</span> <span class="s">yes</span>
-    <span class="na">port</span> <span class="o">=</span> <span class="s">10993</span>
-  <span class="na">}</span>
-<span class="na">}</span>
+<div class="highlight"><pre><span></span><code><span class="na">haproxy_trusted_networks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;your-proxy-ip&gt;, &lt;optional-cidr-notation&gt;</span><span class="w"></span>
+<span class="na">haproxy_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3 secs</span><span class="w"></span>
+<span class="na">service imap-login {</span><span class="w"></span>
+<span class="w">  </span><span class="na">inet_listener imaps {</span><span class="w"></span>
+<span class="w">    </span><span class="na">haproxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span><span class="w"></span>
+<span class="w">    </span><span class="na">ssl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span><span class="w"></span>
+<span class="w">    </span><span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10993</span><span class="w"></span>
+<span class="w">  </span><span class="na">}</span><span class="w"></span>
+<span class="na">}</span><span class="w"></span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1719,10 +1719,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/">
       
       <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1531,17 +1531,17 @@
 └── README.md
 </code></pre></div>
 <p>One common option to change is the maximum number of connections per user:</p>
-<div class="highlight"><pre><span></span><code><span class="na">mail_max_userip_connections</span> <span class="o">=</span> <span class="s">100</span>
+<div class="highlight"><pre><span></span><code><span class="na">mail_max_userip_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span><span class="w"></span>
 </code></pre></div>
 <p>Another important option is the <code>default_process_limit</code> (defaults to <code>100</code>). If high-security mode is enabled you'll need to make sure this count is higher than the maximum number of users that can be logged in simultaneously.</p>
 <p>This limit is quickly reached if users connect to the <code>docker-mailserver</code> with multiple end devices.</p>
 <h2 id="override-configuration"><a class="toclink" href="#override-configuration">Override Configuration</a></h2>
 <p>For major configuration changes it’s best to override the dovecot configuration files. For each configuration file you want to override, add a list entry under the <code>volumes</code> key.</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf</span><span class="w"></span>
 </code></pre></div>
 <p>You will first need to obtain the configuration from the running container (<em>where <code>mailserver</code> is the container name</em>):</p>
 <div class="highlight"><pre><span></span><code>mkdir -p ./docker-data/dms/config/dovecot
@@ -1634,10 +1634,10 @@ docker cp mailserver:/etc/dovecot/conf.d/10-master.conf ./docker-data/dms/config
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

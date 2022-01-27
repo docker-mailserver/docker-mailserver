@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/forward-only-mailserver-with-ldap-authentication/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1506,12 +1506,12 @@
 <h2 id="building-a-forward-only-mail-server"><a class="toclink" href="#building-a-forward-only-mail-server">Building a Forward-Only Mail-Server</a></h2>
 <p>A <strong>forward-only</strong> mail-server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where <code>docker-mailserver</code> is installed), using as sender any of the alias addresses.</p>
 <p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
-<div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span>
-<span class="na">ENABLE_POP3</span><span class="o">=</span>
-<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">0</span>
-<span class="na">SMTP_ONLY</span><span class="o">=</span><span class="s">1</span>
-<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
-<span class="na">ENABLE_FETCHMAIL</span><span class="o">=</span><span class="s">0</span>
+<div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span><span class="w"></span>
+<span class="na">ENABLE_POP3</span><span class="o">=</span><span class="w"></span>
+<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">SMTP_ONLY</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">ENABLE_FETCHMAIL</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
 </code></pre></div>
 <p>Since there are no local mailboxes, we use <code>SMTP_ONLY=1</code> to disable <code>dovecot</code>. We disable as well the other services that are related to local mailboxes (<code>POP3</code>, <code>ClamAV</code>, <code>SpamAssassin</code>, etc.)</p>
 <p>We can create aliases with <code>./setup.sh</code>, like this:</p>
@@ -1519,30 +1519,30 @@
 </code></pre></div>
 <h2 id="authenticating-with-ldap"><a class="toclink" href="#authenticating-with-ldap">Authenticating with LDAP</a></h2>
 <p>If you want to send emails from outside the mail-server you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
-<div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1</span>
-<span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
-<span class="na">LDAP_SERVER_HOST</span><span class="o">=</span><span class="s">ldap.example.org</span>
-<span class="na">LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span>
-<span class="na">LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span>
-<span class="na">LDAP_BIND_PW</span><span class="o">=</span><span class="s">pass1234</span>
+<div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span><span class="w"></span>
+<span class="na">LDAP_SERVER_HOST</span><span class="o">=</span><span class="s">ldap.example.org</span><span class="w"></span>
+<span class="na">LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="na">LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span><span class="w"></span>
+<span class="na">LDAP_BIND_PW</span><span class="o">=</span><span class="s">pass1234</span><span class="w"></span>
 
-<span class="na">ENABLE_SASLAUTHD</span><span class="o">=</span><span class="s">1</span>
-<span class="na">SASLAUTHD_MECHANISMS</span><span class="o">=</span><span class="s">ldap</span>
-<span class="na">SASLAUTHD_LDAP_SERVER</span><span class="o">=</span><span class="s">ldap.example.org</span>
-<span class="na">SASLAUTHD_LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
-<span class="na">SASLAUTHD_LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span>
-<span class="na">SASLAUTHD_LDAP_PASSWORD</span><span class="o">=</span><span class="s">pass1234</span>
-<span class="na">SASLAUTHD_LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span>
-<span class="na">SASLAUTHD_LDAP_FILTER</span><span class="o">=</span><span class="s">(&amp;(uid=%U)(objectClass=inetOrgPerson))</span>
+<span class="na">ENABLE_SASLAUTHD</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">SASLAUTHD_MECHANISMS</span><span class="o">=</span><span class="s">ldap</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_SERVER</span><span class="o">=</span><span class="s">ldap.example.org</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_PASSWORD</span><span class="o">=</span><span class="s">pass1234</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_FILTER</span><span class="o">=</span><span class="s">(&amp;(uid=%U)(objectClass=inetOrgPerson))</span><span class="w"></span>
 </code></pre></div>
 <p>My LDAP data structure is very basic, containing only the username, password, and the external email address where to forward emails for this user. An entry looks like this:</p>
-<div class="highlight"><pre><span></span><code><span class="na">add uid</span><span class="o">=</span><span class="s">username,ou=users,dc=example,dc=org</span>
-<span class="na">uid</span><span class="o">:</span> <span class="s">username</span>
-<span class="na">objectClass</span><span class="o">:</span> <span class="s">inetOrgPerson</span>
-<span class="na">sn</span><span class="o">:</span> <span class="s">username</span>
-<span class="na">cn</span><span class="o">:</span> <span class="s">username</span>
-<span class="na">userPassword</span><span class="o">:</span> <span class="s">{SSHA}abcdefghi123456789</span>
-<span class="na">email</span><span class="o">:</span> <span class="s">external-account@gmail.com</span>
+<div class="highlight"><pre><span></span><code><span class="na">add uid</span><span class="o">=</span><span class="s">username,ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="na">uid</span><span class="o">:</span><span class="w"> </span><span class="s">username</span><span class="w"></span>
+<span class="na">objectClass</span><span class="o">:</span><span class="w"> </span><span class="s">inetOrgPerson</span><span class="w"></span>
+<span class="na">sn</span><span class="o">:</span><span class="w"> </span><span class="s">username</span><span class="w"></span>
+<span class="na">cn</span><span class="o">:</span><span class="w"> </span><span class="s">username</span><span class="w"></span>
+<span class="na">userPassword</span><span class="o">:</span><span class="w"> </span><span class="s">{SSHA}abcdefghi123456789</span><span class="w"></span>
+<span class="na">email</span><span class="o">:</span><span class="w"> </span><span class="s">external-account@gmail.com</span><span class="w"></span>
 </code></pre></div>
 <p>This structure is different from what is expected/assumed from the configuration scripts of <code>docker-mailserver</code>, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
@@ -1663,10 +1663,10 @@ postfix reload
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

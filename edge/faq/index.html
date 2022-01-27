@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/faq/">
       
       <link rel="icon" href="../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1907,13 +1907,13 @@ This image is based on config files that can be persisted using Docker volumes, 
 </div>
 <h3 id="how-can-i-sync-container-with-host-datetime-timezone"><a class="toclink" href="#how-can-i-sync-container-with-host-datetime-timezone">How can I sync container with host date/time? Timezone?</a></h3>
 <p>Share the host's <a href="https://www.freedesktop.org/software/systemd/man/localtime.html"><code>/etc/localtime</code></a> with the <code>docker-mailserver</code> container, using a Docker volume:  </p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span><span class="w"></span>
 </code></pre></div>
 <div class="admonition help">
 <p class="admonition-title">Optional</p>
 <p>Add one line to <code>.env</code> or <code>env-mailserver</code> to set timetzone for container, for example:</p>
-<div class="highlight"><pre><span></span><code><span class="na">TZ</span><span class="o">=</span><span class="s">Europe/Berlin</span>
+<div class="highlight"><pre><span></span><code><span class="na">TZ</span><span class="o">=</span><span class="s">Europe/Berlin</span><span class="w"></span>
 </code></pre></div>
 <p>Check here for the <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"><code>tz name list</code></a></p>
 </div>
@@ -1947,17 +1947,17 @@ find <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PW
 <p>Service data is <a href="https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33">relocated to the <code>mail-state</code> folder</a> for services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.</p>
 <h3 id="how-can-i-configure-my-email-client"><a class="toclink" href="#how-can-i-configure-my-email-client">How can I configure my email client?</a></h3>
 <p>Login is full email address (<code>&lt;user&gt;@&lt;domain&gt;</code>).</p>
-<div class="highlight"><pre><span></span><code><span class="c"># imap</span>
-<span class="na">username</span><span class="o">:</span>           <span class="s">&lt;user1@example.com&gt;</span>
-<span class="na">password</span><span class="o">:</span>           <span class="s">&lt;mypassword&gt;</span>
-<span class="na">server</span><span class="o">:</span>             <span class="s">&lt;mail.example.com&gt;</span>
-<span class="na">imap port</span><span class="o">:</span>          <span class="s">143 or 993 with ssl (recommended)</span>
-<span class="na">imap path prefix</span><span class="o">:</span>   <span class="s">INBOX</span>
+<div class="highlight"><pre><span></span><code><span class="c"># imap</span><span class="w"></span>
+<span class="na">username</span><span class="o">:</span><span class="w">           </span><span class="s">&lt;user1@example.com&gt;</span><span class="w"></span>
+<span class="na">password</span><span class="o">:</span><span class="w">           </span><span class="s">&lt;mypassword&gt;</span><span class="w"></span>
+<span class="na">server</span><span class="o">:</span><span class="w">             </span><span class="s">&lt;mail.example.com&gt;</span><span class="w"></span>
+<span class="na">imap port</span><span class="o">:</span><span class="w">          </span><span class="s">143 or 993 with ssl (recommended)</span><span class="w"></span>
+<span class="na">imap path prefix</span><span class="o">:</span><span class="w">   </span><span class="s">INBOX</span><span class="w"></span>
 
-<span class="c"># smtp</span>
-<span class="na">smtp port</span><span class="o">:</span>          <span class="s">25 or 587 with ssl (recommended)</span>
-<span class="na">username</span><span class="o">:</span>           <span class="s">&lt;user1@example.com&gt;</span>
-<span class="na">password</span><span class="o">:</span>           <span class="s">&lt;mypassword&gt;</span>
+<span class="c"># smtp</span><span class="w"></span>
+<span class="na">smtp port</span><span class="o">:</span><span class="w">          </span><span class="s">25 or 587 with ssl (recommended)</span><span class="w"></span>
+<span class="na">username</span><span class="o">:</span><span class="w">           </span><span class="s">&lt;user1@example.com&gt;</span><span class="w"></span>
+<span class="na">password</span><span class="o">:</span><span class="w">           </span><span class="s">&lt;mypassword&gt;</span><span class="w"></span>
 </code></pre></div>
 <p>Please use <code>STARTTLS</code>.</p>
 <h3 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom SpamAssassin rules?</a></h3>
@@ -1965,8 +1965,8 @@ find <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PW
 <h3 id="what-are-acceptable-sa_spam_subject-values"><a class="toclink" href="#what-are-acceptable-sa_spam_subject-values">What are acceptable <code>SA_SPAM_SUBJECT</code> values?</a></h3>
 <p>For no subject set <code>SA_SPAM_SUBJECT=undef</code>.</p>
 <p>For a trailing white-space subject one can define the whole variable with quotes in <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="s">&quot;SA_SPAM_SUBJECT=[SPAM]</span><span class="nv"> </span><span class="s">&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;SA_SPAM_SUBJECT=[SPAM]</span><span class="nv"> </span><span class="s">&quot;</span><span class="w"></span>
 </code></pre></div>
 <h3 id="can-i-use-nakedbare-domains-no-host-name"><a class="toclink" href="#can-i-use-nakedbare-domains-no-host-name">Can I use naked/bare domains (no host name)?</a></h3>
 <p>Yes, but not without some configuration changes. Normally it is assumed that <code>docker-mailserver</code> runs on a host with a name, so the fully qualified host name might be <code>mail.example.com</code> with the domain <code>example.com</code>. The MX records point to <code>mail.example.com</code>.</p>
@@ -1984,12 +1984,12 @@ find <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PW
 <p>The default setup <code>@local_domains_acl = ( ".$mydomain" );</code> does not match subdomains. To match subdomains, you can override the <code>@local_domains_acl</code> directive in the amavis user config file <code>50-user</code> with <code>@local_domains_maps = (".");</code> to match any sort of domain template.</p>
 <h3 id="how-can-i-make-spamassassin-better-recognize-spam"><a class="toclink" href="#how-can-i-make-spamassassin-better-recognize-spam">How can I make SpamAssassin better recognize spam?</a></h3>
 <p>Put received spams in <code>.Junk/</code> imap folder using <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> and <code>MOVE_SPAM_TO_JUNK=1</code> and add a <em>user</em> cron like the following:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the `mailserver.env`,</span>
-<span class="c1"># with a consolidated config in `/var/mail-state`</span>
-<span class="c1">#</span>
-<span class="c1"># m h dom mon dow command</span>
-<span class="c1"># Everyday 2:00AM, learn spam from a specific user</span>
-<span class="na">0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the `mailserver.env`,</span><span class="w"></span>
+<span class="c1"># with a consolidated config in `/var/mail-state`</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># m h dom mon dow command</span><span class="w"></span>
+<span class="c1"># Everyday 2:00AM, learn spam from a specific user</span><span class="w"></span>
+<span class="na">0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
 </code></pre></div>
 <p>With <code>docker-compose</code> you can more easily use the internal instance of <code>cron</code> within <code>docker-mailserver</code>. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which <code>docker-mailserver</code> is running, and avoids errors if the mail-server is not running.</p>
 <p>The following configuration works nicely:</p>
@@ -2003,68 +2003,68 @@ chown root:root ./docker-data/dms/cron/sa-learn
 chmod <span class="m">0644</span> ./docker-data/dms/cron/sa-learn
 </code></pre></div>
 <p>Edit the system cron file <code>nano ./docker-data/dms/cron/sa-learn</code>, and set an appropriate configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the env-mailserver,</span>
-<span class="c1"># with a consolidated config in `/var/mail-state`</span>
-<span class="c1">#</span>
-<span class="c1"># m h dom mon dow user command</span>
-<span class="c1">#</span>
-<span class="c1"># Everyday 2:00AM, learn spam from a specific user</span>
-<span class="c1"># spam: junk directory</span>
-<span class="na">0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
-<span class="c1"># ham: archive directories</span>
-<span class="na">15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
-<span class="c1"># ham: inbox subdirectories</span>
-<span class="na">30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
-<span class="c1">#</span>
-<span class="c1"># Everyday 3:00AM, learn spam from all users of a domain</span>
-<span class="c1"># spam: junk directory</span>
-<span class="na">0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
-<span class="c1"># ham: archive directories</span>
-<span class="na">15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
-<span class="c1"># ham: inbox subdirectories</span>
-<span class="na">30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the env-mailserver,</span><span class="w"></span>
+<span class="c1"># with a consolidated config in `/var/mail-state`</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># m h dom mon dow user command</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># Everyday 2:00AM, learn spam from a specific user</span><span class="w"></span>
+<span class="c1"># spam: junk directory</span><span class="w"></span>
+<span class="na">0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="c1"># ham: archive directories</span><span class="w"></span>
+<span class="na">15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="c1"># ham: inbox subdirectories</span><span class="w"></span>
+<span class="na">30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># Everyday 3:00AM, learn spam from all users of a domain</span><span class="w"></span>
+<span class="c1"># spam: junk directory</span><span class="w"></span>
+<span class="na">0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="c1"># ham: archive directories</span><span class="w"></span>
+<span class="na">15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="c1"># ham: inbox subdirectories</span><span class="w"></span>
+<span class="na">30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
 </code></pre></div>
 <p>Then with <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/sa-learn:/etc/cron.d/sa-learn</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/sa-learn:/etc/cron.d/sa-learn</span><span class="w"></span>
 </code></pre></div>
 <p>Or with <a href="https://docs.docker.com/engine/swarm/configs/">Docker Swarm</a>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
 
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="c1"># ...</span>
-    <span class="nt">configs</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my_sa_crontab</span>
-        <span class="nt">target</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/etc/cron.d/sa-learn</span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># ...</span><span class="w"></span>
+<span class="w">    </span><span class="nt">configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_sa_crontab</span><span class="w"></span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/cron.d/sa-learn</span><span class="w"></span>
 
-<span class="nt">configs</span><span class="p">:</span>
-  <span class="nt">my_sa_crontab</span><span class="p">:</span>
-    <span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/sa-learn</span>
+<span class="nt">configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">my_sa_crontab</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/sa-learn</span><span class="w"></span>
 </code></pre></div>
 </details>
 <p>With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using <code>--ham</code> and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the <a href="https://wiki.apache.org/spamassassin/BayesNotWorking">SpamAssassin Wiki</a>.</p>
 <h3 id="how-can-i-configure-a-catch-all"><a class="toclink" href="#how-can-i-configure-a-catch-all">How can I configure a catch-all?</a></h3>
 <p>Considering you want to redirect all incoming e-mails for the domain <code>example.com</code> to <code>user1@example.com</code>, add the following line to <code>docker-data/dms/config/postfix-virtual.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">@example.com user1@example.com</span>
+<div class="highlight"><pre><span></span><code><span class="na">@example.com user1@example.com</span><span class="w"></span>
 </code></pre></div>
 <h3 id="how-can-i-delete-all-the-emails-for-a-specific-user"><a class="toclink" href="#how-can-i-delete-all-the-emails-for-a-specific-user">How can I delete all the emails for a specific user?</a></h3>
 <p>First of all, create a special alias named <code>devnull</code> by editing <code>docker-data/dms/config/postfix-aliases.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">devnull: /dev/null</span>
+<div class="highlight"><pre><span></span><code><span class="na">devnull: /dev/null</span><span class="w"></span>
 </code></pre></div>
 <p>Considering you want to delete all the e-mails received for <code>baduser@example.com</code>, add the following line to <code>docker-data/dms/config/postfix-virtual.cf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">baduser@example.com devnull</span>
+<div class="highlight"><pre><span></span><code><span class="na">baduser@example.com devnull</span><span class="w"></span>
 </code></pre></div>
 <h3 id="how-do-i-have-more-control-about-what-spamassasin-is-filtering"><a class="toclink" href="#how-do-i-have-more-control-about-what-spamassasin-is-filtering">How do I have more control about what SPAMASSASIN is filtering?</a></h3>
 <p>By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:</p>
 <p>First, make sure you have the proper thresholds set:</p>
-<div class="highlight"><pre><span></span><code><span class="na">SA_TAG</span><span class="o">=</span><span class="s">-100000.0</span>
-<span class="na">SA_TAG2</span><span class="o">=</span><span class="s">3.75</span>
-<span class="na">SA_KILL</span><span class="o">=</span><span class="s">100000.0</span>
+<div class="highlight"><pre><span></span><code><span class="na">SA_TAG</span><span class="o">=</span><span class="s">-100000.0</span><span class="w"></span>
+<span class="na">SA_TAG2</span><span class="o">=</span><span class="s">3.75</span><span class="w"></span>
+<span class="na">SA_KILL</span><span class="o">=</span><span class="s">100000.0</span><span class="w"></span>
 </code></pre></div>
 <ul>
 <li>The very negative vaue in <code>SA_TAG</code> makes sure, that all emails have the SpamAssassin headers included.</li>
@@ -2072,7 +2072,7 @@ chmod <span class="m">0644</span> ./docker-data/dms/cron/sa-learn
 <li><code>SA_KILL</code> needs to be very high, to make sure nothing is bounced at all (<code>SA_KILL</code> superseeds <code>SPAMASSASSIN_SPAM_TO_INBOX</code>)</li>
 </ul>
 <p>Make sure everything (including SPAM) is delivered to the inbox and not quarantined:</p>
-<div class="highlight"><pre><span></span><code><span class="na">SPAMASSASSIN_SPAM_TO_INBOX</span><span class="o">=</span><span class="s">1</span>
+<div class="highlight"><pre><span></span><code><span class="na">SPAMASSASSIN_SPAM_TO_INBOX</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
 </code></pre></div>
 <p>Use <code>MOVE_SPAM_TO_JUNK=1</code> or create a sieve script which puts spam to the Junk folder:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;comparator-i;ascii-numeric&quot;</span><span class="p">,</span><span class="s">&quot;relational&quot;</span><span class="p">,</span><span class="s">&quot;fileinto&quot;</span><span class="p">];</span>
@@ -2086,11 +2086,11 @@ chmod <span class="m">0644</span> ./docker-data/dms/cron/sa-learn
 <span class="p">}</span>
 </code></pre></div>
 <p>Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into <code>docker-data/dms/config/amavis.cf</code></p>
-<div class="highlight"><pre><span></span><code><span class="na">$clean_quarantine_to</span>      <span class="o">=</span> <span class="s">&quot;amavis\@example.com&quot;;</span>
-<span class="na">$virus_quarantine_to</span>      <span class="o">=</span> <span class="s">&quot;amavis\@example.com&quot;;</span>
-<span class="na">$banned_quarantine_to</span>     <span class="o">=</span> <span class="s">&quot;amavis\@example.com&quot;;</span>
-<span class="na">$bad_header_quarantine_to</span> <span class="o">=</span> <span class="s">&quot;amavis\@example.com&quot;;</span>
-<span class="na">$spam_quarantine_to</span>       <span class="o">=</span> <span class="s">&quot;amavis\@example.com&quot;;</span>
+<div class="highlight"><pre><span></span><code><span class="na">$clean_quarantine_to</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;;</span><span class="w"></span>
+<span class="na">$virus_quarantine_to</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;;</span><span class="w"></span>
+<span class="na">$banned_quarantine_to</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;;</span><span class="w"></span>
+<span class="na">$bad_header_quarantine_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;;</span><span class="w"></span>
+<span class="na">$spam_quarantine_to</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;;</span><span class="w"></span>
 </code></pre></div>
 <h3 id="what-kind-of-ssl-certificates-can-i-use"><a class="toclink" href="#what-kind-of-ssl-certificates-can-i-use">What kind of SSL certificates can I use?</a></h3>
 <p>You can use the same certificates you would use with another mail-server.</p>
@@ -2139,7 +2139,7 @@ Otherwise, it could work with 512M of RAM.</p>
 </code></pre></div>
 <h3 id="how-to-use-when-behind-a-proxy"><a class="toclink" href="#how-to-use-when-behind-a-proxy">How to use when behind a Proxy</a></h3>
 <p><a href="../config/advanced/override-defaults/user-patches/">Using <code>user-patches.sh</code></a>, update the container file <code>/etc/postfix/main.cf</code> to include:</p>
-<div class="highlight"><pre><span></span><code><span class="na">proxy_interfaces</span> <span class="o">=</span> <span class="s">X.X.X.X (your public IP)</span>
+<div class="highlight"><pre><span></span><code><span class="na">proxy_interfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">X.X.X.X (your public IP)</span><span class="w"></span>
 </code></pre></div>
 <h3 id="what-about-updates"><a class="toclink" href="#what-about-updates">What About Updates</a></h3>
 <p>You can use your own scripts, or every now and then <code>pull &amp;&amp; stop &amp;&amp; rm &amp;&amp; start</code> the images but there are tools already available for this.</p>
@@ -2250,10 +2250,10 @@ supervisorctl update
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/auth-ldap/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1643,18 +1643,18 @@
 <details class="example" open="open">
 <summary>Example</summary>
 <p>A really simple <code>LDAP_QUERY_FILTER</code> configuration, using only the <em>user filter</em> and allowing only <code>admin@*</code> to spoof any sender addresses.</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org&quot;</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,dc=example,dc=org</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org&quot;</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,dc=example,dc=org</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span><span class="w"></span>
 
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(mail=%s)</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(|)</span> <span class="c1"># doesn&#39;t match anything</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(|)</span> <span class="c1"># doesn&#39;t match anything</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(mail=admin@*))</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(mail=%s)</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(|)</span><span class="w"> </span><span class="c1"># doesn&#39;t match anything</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(|)</span><span class="w"> </span><span class="c1"># doesn&#39;t match anything</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(mail=admin@*))</span><span class="w"></span>
 </code></pre></div>
 </details>
 <h3 id="dovecot__filter-dovecot__attrs"><a class="toclink" href="#dovecot__filter-dovecot__attrs"><code>DOVECOT_*_FILTER</code> &amp; <code>DOVECOT_*_ATTRS</code></a></h3>
@@ -1665,8 +1665,8 @@
 <li><code>DOVECOT_PASS_FILTER</code> is used to get the password information of the user, and is in pretty much all cases identical to <code>DOVECOT_USER_FILTER</code> (which is the default behaviour if left away).</li>
 </ul>
 <p>If your directory doesn't have the <a href="https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema">postfix-book schema</a> installed, then you must change the internal attribute handling for dovecot. For this you have to change the <code>pass_attr</code> and the <code>user_attr</code> mapping, as shown in the example below:</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=&lt;YOUR_USER_IDENTIFIER_ATTRIBUTE&gt;=user,&lt;YOUR_USER_PASSWORD_ATTRIBUTE&gt;=password</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=&lt;YOUR_USER_HOME_DIRECTORY_ATTRIBUTE&gt;=home,&lt;YOUR_USER_MAILSTORE_ATTRIBUTE&gt;=mail,&lt;YOUR_USER_MAIL_UID_ATTRIBUTE&gt;=uid,&lt;YOUR_USER_MAIL_GID_ATTRIBUTE&gt;=gid</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=&lt;YOUR_USER_IDENTIFIER_ATTRIBUTE&gt;=user,&lt;YOUR_USER_PASSWORD_ATTRIBUTE&gt;=password</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=&lt;YOUR_USER_HOME_DIRECTORY_ATTRIBUTE&gt;=home,&lt;YOUR_USER_MAILSTORE_ATTRIBUTE&gt;=mail,&lt;YOUR_USER_MAIL_UID_ATTRIBUTE&gt;=uid,&lt;YOUR_USER_MAIL_GID_ATTRIBUTE&gt;=gid</span><span class="w"></span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1675,17 +1675,17 @@
 </div>
 <details class="example" open="open">
 <summary>Defaults</summary>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</span><span class="w"></span>
 </code></pre></div>
 </details>
 <details class="example" open="open">
 <summary>Example</summary>
 <p>Setup for a directory that has the <a href="https://github.com/amery/qmail/blob/master/qmail.schema">qmail-schema</a> installed and uses <code>uid</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span><span class="w"></span>
 </code></pre></div>
 </details>
 <p>The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in <a href="../../environment/">the environment section in the docs</a>.</p>
@@ -1701,17 +1701,17 @@
 </div>
 <details class="example" open="open">
 <summary>Configure LDAP with <code>saslauthd</code></summary>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(mail=%U@example.org)</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(mail=%U@example.org)</span><span class="w"></span>
 </code></pre></div>
 </details>
 <h2 id="secure-connection-with-ldaps-or-starttls"><a class="toclink" href="#secure-connection-with-ldaps-or-starttls">Secure Connection with LDAPS or StartTLS</a></h2>
 <p>To enable LDAPS, all you need to do is to add the protocol to <code>LDAP_SERVER_HOST</code>, for example <code>ldaps://example.org:636</code>.</p>
 <p>To enable LDAP over StartTLS (on port 389), you need to set the following environment variables instead (the <strong>protocol must not be <code>ldaps://</code></strong> in this case!):</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_TLS=yes</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_START_TLS=yes</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_TLS=yes</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_START_TLS=yes</span><span class="w"></span>
 </code></pre></div>
 <h2 id="active-directory-configurations-tested-with-samba4-ad-implementation"><a class="toclink" href="#active-directory-configurations-tested-with-samba4-ad-implementation">Active Directory Configurations (Tested with Samba4 AD Implementation)</a></h2>
 <p>In addition to LDAP explanation above, when Docker Mailserver is intended to be used with Active Directory (or the equivelant implementations like Samba4 AD DC) the following points should be taken into consideration:</p>
@@ -1764,129 +1764,129 @@ update-ca-certificates
 <h2 id="ldap-setup-examples"><a class="toclink" href="#ldap-setup-examples">LDAP Setup Examples</a></h2>
 <details class="example" open="open">
 <summary>Basic Setup</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
 
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;25:25&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;143:143&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;587:587&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;993:993&quot;</span><span class="w"></span>
 
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span><span class="w"></span>
 
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SPAMASSASSIN=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_CLAMAV=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_SPAMASSASSIN=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_CLAMAV=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span><span class="w"></span>
 
-      <span class="c1"># &gt;&gt;&gt; Postfix LDAP Integration</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(|(mail=*@%s)(mailAlias=*@%s)(mailGroupMember=*@%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(&amp;(objectClass=inetOrgPerson)(mail=%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(&amp;(objectClass=inetOrgPerson)(mailAlias=%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(&amp;(objectClass=inetOrgPerson)(mailGroupMember=%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(&amp;(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)(mailGroupMember=%s)))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span>
-      <span class="c1"># &lt;&lt;&lt; Postfix LDAP Integration</span>
+<span class="w">      </span><span class="c1"># &gt;&gt;&gt; Postfix LDAP Integration</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(|(mail=*@%s)(mailAlias=*@%s)(mailGroupMember=*@%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(&amp;(objectClass=inetOrgPerson)(mail=%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(&amp;(objectClass=inetOrgPerson)(mailAlias=%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(&amp;(objectClass=inetOrgPerson)(mailGroupMember=%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(&amp;(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)(mailGroupMember=%s)))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># &lt;&lt;&lt; Postfix LDAP Integration</span><span class="w"></span>
 
-      <span class="c1"># &gt;&gt;&gt; Dovecot LDAP Integration</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=inetOrgPerson)(mail=%u))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid</span>
-      <span class="c1"># &lt;&lt;&lt; Dovecot LDAP Integration</span>
+<span class="w">      </span><span class="c1"># &gt;&gt;&gt; Dovecot LDAP Integration</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=inetOrgPerson)(mail=%u))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># &lt;&lt;&lt; Dovecot LDAP Integration</span><span class="w"></span>
 
-      <span class="c1"># &gt;&gt;&gt; SASL LDAP Authentication</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(mail=%U@example.org)(objectClass=inetOrgPerson))</span>
-      <span class="c1"># &lt;&lt;&lt; SASL LDAP Authentication</span>
+<span class="w">      </span><span class="c1"># &gt;&gt;&gt; SASL LDAP Authentication</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(mail=%U@example.org)(objectClass=inetOrgPerson))</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># &lt;&lt;&lt; SASL LDAP Authentication</span><span class="w"></span>
 
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ONE_DIR=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DMS_DEBUG=0</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PERMIT_DOCKER=host</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ONE_DIR=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DMS_DEBUG=0</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PERMIT_DOCKER=host</span><span class="w"></span>
 
-    <span class="nt">cap_add</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
+<span class="w">    </span><span class="nt">cap_add</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span><span class="w"></span>
 </code></pre></div>
 </details>
 <details class="example">
 <summary>Kopano / Zarafa</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;3.8&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span><span class="w"></span>
 
-<span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span>
-    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-    <span class="nt">hostname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mail</span>
-    <span class="nt">domainname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span><span class="w"></span>
+<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span><span class="w"></span>
 
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;25:25&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;143:143&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;587:587&quot;</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;993:993&quot;</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;25:25&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;143:143&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;587:587&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;993:993&quot;</span><span class="w"></span>
 
-    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span><span class="w"></span>
 
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="c1"># We are not using dovecot here</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SMTP_ONLY=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SPAMASSASSIN=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_CLAMAV=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_PASSWD=</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># We are not using dovecot here</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SMTP_ONLY=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_SPAMASSASSIN=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_CLAMAV=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_PASSWD=</span><span class="w"></span>
 
-      <span class="c1"># &gt;&gt;&gt; SASL Authentication</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(sAMAccountName=%U)(objectClass=person))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span>
-      <span class="c1"># &lt;&lt;&lt; SASL Authentication</span>
+<span class="w">      </span><span class="c1"># &gt;&gt;&gt; SASL Authentication</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_SASLAUTHD=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(sAMAccountName=%U)(objectClass=person))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_MECHANISMS=ldap</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># &lt;&lt;&lt; SASL Authentication</span><span class="w"></span>
 
-      <span class="c1"># &gt;&gt;&gt; Postfix Ldap Integration</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=&lt;yourLdapContainer/yourLdapServer&gt;</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=mydomain,dc=loc</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(&amp;(objectClass=user)(mail=%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(&amp;(objectclass=group)(mail=%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(&amp;(objectClass=user)(otherMailbox=%s))</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(&amp;(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))</span>
-      <span class="c1"># &lt;&lt;&lt; Postfix Ldap Integration</span>
+<span class="w">      </span><span class="c1"># &gt;&gt;&gt; Postfix Ldap Integration</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=&lt;yourLdapContainer/yourLdapServer&gt;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=mydomain,dc=loc</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(&amp;(objectClass=user)(mail=%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(&amp;(objectclass=group)(mail=%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(&amp;(objectClass=user)(otherMailbox=%s))</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(&amp;(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># &lt;&lt;&lt; Postfix Ldap Integration</span><span class="w"></span>
 
-      <span class="c1"># &gt;&gt;&gt; Kopano Integration</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">POSTFIX_DAGENT=lmtp:kopano:2003</span>
-      <span class="c1"># &lt;&lt;&lt; Kopano Integration</span>
+<span class="w">      </span><span class="c1"># &gt;&gt;&gt; Kopano Integration</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POSTFIX_DAGENT=lmtp:kopano:2003</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># &lt;&lt;&lt; Kopano Integration</span><span class="w"></span>
 
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ONE_DIR=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DMS_DEBUG=0</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">PERMIT_DOCKER=host</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ONE_DIR=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DMS_DEBUG=0</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PERMIT_DOCKER=host</span><span class="w"></span>
 
-    <span class="nt">cap_add</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
+<span class="w">    </span><span class="nt">cap_add</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span><span class="w"></span>
 </code></pre></div>
 </details>
 
@@ -1963,10 +1963,10 @@ update-ca-certificates
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

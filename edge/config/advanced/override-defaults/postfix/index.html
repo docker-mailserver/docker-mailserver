@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/postfix/">
       
       <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1429,8 +1429,8 @@
 <p>The Postfix default configuration can easily be extended by providing a <code>docker-data/dms/config/postfix-main.cf</code> in postfix format.
 This can also be used to add configuration that is not in our default configuration.</p>
 <p>For example, one common use of this file is for increasing the default maximum message size:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># increase maximum message size</span>
-<span class="na">message_size_limit</span> <span class="o">=</span> <span class="s">52428800</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># increase maximum message size</span><span class="w"></span>
+<span class="na">message_size_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">52428800</span><span class="w"></span>
 </code></pre></div>
 <p>That specific example is now supported and can be handled by setting <code>POSTFIX_MESSAGE_SIZE_LIMIT</code>.</p>
 <div class="admonition note">
@@ -1439,7 +1439,7 @@ This can also be used to add configuration that is not in our default configurat
 </div>
 <p>Each line in the provided file will be loaded into postfix.</p>
 <p>In the same way it is possible to add a custom <code>docker-data/dms/config/postfix-master.cf</code> file that will override the standard <code>master.cf</code>. Each line in the file will be passed to <code>postconf -P</code>. The expected format is <code>&lt;service_name&gt;/&lt;type&gt;/&lt;parameter&gt;</code>, for example:</p>
-<div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_reject_unlisted_recipient</span><span class="o">=</span><span class="s">no</span>
+<div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_reject_unlisted_recipient</span><span class="o">=</span><span class="s">no</span><span class="w"></span>
 </code></pre></div>
 <p>Run <code>postconf -P</code> in the container without arguments to see the active master options.</p>
 <div class="admonition note">
@@ -1521,10 +1521,10 @@ This can also be used to add configuration that is not in our default configurat
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

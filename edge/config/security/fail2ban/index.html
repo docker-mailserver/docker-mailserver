@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1639,15 +1639,15 @@
 </ul>
 <h3 id="docker-compose-config"><a class="toclink" href="#docker-compose-config">Docker-compose config</a></h3>
 <p>Example configuration volume bind:</p>
-<div class="highlight"><pre><span></span><code>    <span class="nt">volumes</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span><span class="w"></span>
 </code></pre></div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p><code>docker-mailserver</code> must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the iptable rules that actually ban IP addresses.</p>
 <p>Thus either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
+<div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>If you don't you will see errors the form of:</p>
@@ -1675,17 +1675,17 @@ Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
 <p>Per container configuration is not supported, if you need that consider Podman instead.</p>
 </div>
 <h3 id="podman-with-slirp4netns-port-driver"><a class="toclink" href="#podman-with-slirp4netns-port-driver">Podman with <code>slirp4netns</code> port driver</a></h3>
-<p>[Rootless Podman][rootless::podman] requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
-<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a [hard-coded interface name][rootless::podman::interface] for <code>slirp4netns</code>.</p>
+<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
+<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">network_mode</span><span class="p">:</span> <span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span>
-    <span class="nt">environment</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span>
-      <span class="l l-Scalar l-Scalar-Plain">...</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
 </code></pre></div>
 </div>
 <div class="admonition note">
@@ -1775,10 +1775,10 @@ Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

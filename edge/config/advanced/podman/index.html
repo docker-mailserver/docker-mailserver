@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1628,14 +1628,14 @@ systemctl <span class="nb">enable</span> --now mailserver.service
 <div class="highlight"><pre><span></span><code>systemctl <span class="nb">enable</span> --now --user podman.socket
 </code></pre></div>
 <p>The socket file should be located at <code>/var/run/user/$(id -u)/podman/podman.sock</code>. Then, modify <code>docker-compose.yml</code> to make sure all ports are bindings are on non-privileged ports.</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-  <span class="nt">mailserver</span><span class="p">:</span>
-    <span class="nt">ports</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;10025:25&quot;</span>   <span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;10143:143&quot;</span>  <span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;10465:465&quot;</span>  <span class="c1"># ESMTP (implicit TLS)</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;10587:587&quot;</span>  <span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
-      <span class="p p-Indicator">-</span> <span class="s">&quot;10993:993&quot;</span>  <span class="c1"># IMAP4 (implicit TLS)</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10025:25&quot;</span><span class="w">   </span><span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10143:143&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10465:465&quot;</span><span class="w">  </span><span class="c1"># ESMTP (implicit TLS)</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10587:587&quot;</span><span class="w">  </span><span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10993:993&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (implicit TLS)</span><span class="w"></span>
 </code></pre></div>
 <p>Then, setup your <code>mailserver.env</code> file follow the documentation and use docker-compose to start the container.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:/var/run/user/1000/podman/podman.sock&quot;</span>
@@ -1741,10 +1741,10 @@ firewall-cmd --reload
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>

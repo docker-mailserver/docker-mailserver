@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/ipv6/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.23b6d78a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -62,7 +62,7 @@
   
     
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -1521,34 +1521,34 @@
 <p>If your container host supports IPv6, then <code>docker-mailserver</code> will automatically accept IPv6 connections by way of the docker host's IPv6. However, incoming mail will fail SPF checks because they will appear to come from the IPv4 gateway that docker is using to proxy the IPv6 connection (<code>172.20.0.1</code> is the gateway).</p>
 <p>This can be solved by supporting IPv6 connections all the way to the <code>docker-mailserver</code> container.</p>
 <h2 id="setup-steps"><a class="toclink" href="#setup-steps">Setup steps</a></h2>
-<div class="highlight"><pre><span></span><code><span class="gi">+++ b/serv/docker-compose.yml</span>
-<span class="gu">@@ -1,4 +1,4 @@</span>
-<span class="gd">-version: &#39;2&#39;</span>
-<span class="gi">+version: &#39;2.1&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="gi">+++ b/serv/docker-compose.yml</span><span class="w"></span>
+<span class="gu">@@ -1,4 +1,4 @@</span><span class="w"></span>
+<span class="gd">-version: &#39;2&#39;</span><span class="w"></span>
+<span class="gi">+version: &#39;2.1&#39;</span><span class="w"></span>
 
-<span class="gu">@@ -32,6 +32,16 @@ services:</span>
+<span class="gu">@@ -32,6 +32,16 @@ services:</span><span class="w"></span>
 
-<span class="gi">+  ipv6nat:</span>
-<span class="gi">+    image: robbertkl/ipv6nat</span>
-<span class="gi">+    restart: always</span>
-<span class="gi">+    network_mode: &quot;host&quot;</span>
-<span class="gi">+    cap_add:</span>
-<span class="gi">+      - NET_ADMIN</span>
-<span class="gi">+      - SYS_MODULE</span>
-<span class="gi">+    volumes:</span>
-<span class="gi">+      - /var/run/docker.sock:/var/run/docker.sock:ro</span>
-<span class="gi">+      - /lib/modules:/lib/modules:ro</span>
+<span class="gi">+  ipv6nat:</span><span class="w"></span>
+<span class="gi">+    image: robbertkl/ipv6nat</span><span class="w"></span>
+<span class="gi">+    restart: always</span><span class="w"></span>
+<span class="gi">+    network_mode: &quot;host&quot;</span><span class="w"></span>
+<span class="gi">+    cap_add:</span><span class="w"></span>
+<span class="gi">+      - NET_ADMIN</span><span class="w"></span>
+<span class="gi">+      - SYS_MODULE</span><span class="w"></span>
+<span class="gi">+    volumes:</span><span class="w"></span>
+<span class="gi">+      - /var/run/docker.sock:/var/run/docker.sock:ro</span><span class="w"></span>
+<span class="gi">+      - /lib/modules:/lib/modules:ro</span><span class="w"></span>
 
-<span class="gu">@@ -306,4 +316,13 @@ networks:</span>
+<span class="gu">@@ -306,4 +316,13 @@ networks:</span><span class="w"></span>
 
-<span class="gi">+  default:</span>
-<span class="gi">+    driver: bridge</span>
-<span class="gi">+    enable_ipv6: true</span>
-<span class="gi">+    ipam:</span>
-<span class="gi">+      driver: default</span>
-<span class="gi">+      config:</span>
-<span class="gi">+        - subnet: fd00:0123:4567::/48</span>
-<span class="gi">+          gateway: fd00:0123:4567::1</span>
+<span class="gi">+  default:</span><span class="w"></span>
+<span class="gi">+    driver: bridge</span><span class="w"></span>
+<span class="gi">+    enable_ipv6: true</span><span class="w"></span>
+<span class="gi">+    ipam:</span><span class="w"></span>
+<span class="gi">+      driver: default</span><span class="w"></span>
+<span class="gi">+      config:</span><span class="w"></span>
+<span class="gi">+        - subnet: fd00:0123:4567::/48</span><span class="w"></span>
+<span class="gi">+          gateway: fd00:0123:4567::1</span><span class="w"></span>
 </code></pre></div>
 <h2 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h2>
 <p>See <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1438">#1438</a></p>
@@ -1626,10 +1626,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.c7dec7e7.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.da79ceb7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
       
     
   </body>
