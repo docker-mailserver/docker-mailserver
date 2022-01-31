@@ -134,7 +134,8 @@ You don't have to do anything else. Enjoy!
         volumes:
           - ./docker-data/certbot/certs/:/etc/letsencrypt
     ```
-4. The certificate setup is complete, but remember _it will expire_. Consider automating renewals.
+    
+3. The certificate setup is complete, but remember _it will expire_. Consider automating renewals.
 
 !!! tip "Renewing Certificates"
 
