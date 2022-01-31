@@ -176,7 +176,7 @@ spec:
       hostname: mail
       containers:
         - name: mailserver
-          image: docker.io/docker-mailserver/docker-mailserver:latest
+          image: docker.io/mailserver/docker-mailserver:latest
           imagePullPolicy: IfNotPresent
 
           securityContext:
