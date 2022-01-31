@@ -118,6 +118,23 @@ You don't have to do anything else. Enjoy!
     ```
 
 2. Add a volume for `docker-mailserver` that maps the _local `certbot/certs/` folder_ to the container path `/etc/letsencrypt/`.
+
+!!! example
+
+    Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
+
+    ```yaml
+    services:
+      mailserver:
+        # For the FQDN 'mail.example.com':
+        hostname: mail
+        domainname: example.com
+        environment:
+          - SSL_TYPE=letsencrypt
+        volumes:
+          - ./docker-data/certbot/certs/:/etc/letsencrypt
+    ```
+    
 3. The certificate setup is complete, but remember _it will expire_. Consider automating renewals.
 
 !!! tip "Renewing Certificates"
