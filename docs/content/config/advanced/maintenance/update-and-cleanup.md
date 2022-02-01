@@ -4,7 +4,7 @@ title: 'Maintenance | Update and Cleanup'
 
 ## Automatic Update
 
-Docker images are handy but it can get a a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.
+Docker images are handy but it can become a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.
 
 One could setup a complex action/hook-based workflow using probes, but there is a nice, easy to use docker image that solves this issue and could prove useful: [`watchtower`](https://hub.docker.com/r/containrrr/watchtower).
 
