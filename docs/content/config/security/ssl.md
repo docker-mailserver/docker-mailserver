@@ -119,7 +119,7 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
 2. Add a volume for `docker-mailserver` that maps the _local `certbot/certs/` folder_ to the container path `/etc/letsencrypt/`.
 
     !!! example
-    
+
         Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
     
         ```yaml
@@ -133,26 +133,26 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
             volumes:
               - ./docker-data/certbot/certs/:/etc/letsencrypt
         ```
-    
+
 3. The certificate setup is complete, but remember _it will expire_. Consider automating renewals.
 
-    !!! tip "Renewing Certificates"
-    
-        When running the above `certonly --standalone` snippet again, the existing certificate is renewed if it would expire within 30 days.
-    
-        Alternatively, Certbot can look at all the certificates it manages, and only renew those nearing their expiry via the [`renew` command][certbot::renew]:
-    
-        ```sh
-        # This will need access to port 443 from the internet, adjust your firewall if needed.
-        docker run --rm -it \
-          -v "${PWD}/docker-data/certbot/certs/:/etc/letsencrypt/" \
-          -v "${PWD}/docker-data/certbot/logs/:/var/log/letsencrypt/" \
-          -p 80:80 \
-          -p 443:443 \
-          certbot/certbot renew
-        ```
-    
-        This process can also be [automated via _cron_ or _systemd timers_][certbot::automated-renewal].
+!!! tip "Renewing Certificates"
+
+    When running the above `certonly --standalone` snippet again, the existing certificate is renewed if it would expire within 30 days.
+
+    Alternatively, Certbot can look at all the certificates it manages, and only renew those nearing their expiry via the [`renew` command][certbot::renew]:
+
+    ```sh
+    # This will need access to port 443 from the internet, adjust your firewall if needed.
+    docker run --rm -it \
+      -v "${PWD}/docker-data/certbot/certs/:/etc/letsencrypt/" \
+      -v "${PWD}/docker-data/certbot/logs/:/var/log/letsencrypt/" \
+      -p 80:80 \
+      -p 443:443 \
+      certbot/certbot renew
+    ```
+
+    This process can also be [automated via _cron_ or _systemd timers_][certbot::automated-renewal].
 
 !!! note "Using a different ACME CA"
 

@@ -78,12 +78,12 @@ All workflows are using the tagging convention listed below. It is subsequently 
 Since Docker Mailserver `v10.2.0`, **`setup.sh` functionality is included within the container image**. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead. **If you're new to `docker-mailserver`**, it is recommended to use the script `setup.sh` for convenience.
 
 
-``` CONSOLE 
-$ DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
-$ wget "${DMS_GITHUB_URL}/docker-compose.yml"
-$ wget "${DMS_GITHUB_URL}/mailserver.env"
-$ wget "${DMS_GITHUB_URL}/setup.sh"
-$ chmod a+x ./setup.sh
+``` BASH 
+DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
+wget "${DMS_GITHUB_URL}/docker-compose.yml"
+wget "${DMS_GITHUB_URL}/mailserver.env"
+wget "${DMS_GITHUB_URL}/setup.sh"
+chmod a+x ./setup.sh
 ```
 
 ### Create a docker-compose Environment
@@ -100,7 +100,9 @@ $ chmod a+x ./setup.sh
 
 #### First Things First
 
-**Use `docker-compose up / down`, not `docker-compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state. You are able to get a full overview of how the configuration works by either running:
+**Use `docker-compose up / down`, not `docker-compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state. 
+
+You are able to get a full overview of how the configuration works by either running:
 
 1. `./setup.sh help` which includes the options of `setup.sh`.
 2. `docker run --rm docker.io/mailserver/docker-mailserver:latest setup help` which provides you with all the information on configuration provided "inside" the container itself.
@@ -133,17 +135,16 @@ On first start, you will likely see an error stating that there are no mail acco
 
 You can then proceed by creating the postmaster alias and by creating DKIM keys.
 
-``` CONSOLE
-$ docker-compose up -d mailserver
+``` BASH
+docker-compose up -d mailserver
 
-$ # you may add some more users
-$ # for SELinux, use -Z
-$ ./setup.sh [-Z] email add <user@domain> [<password>]
+# you may add some more users
+# for SELinux, use -Z
+./setup.sh [-Z] email add <user@domain> [<password>]
 
-$ # and configure aliases, DKIM and more
-$ ./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
+# and configure aliases, DKIM and more
+./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
 ```
-
 
 ### Miscellaneous
 
@@ -151,18 +152,22 @@ $ ./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
 
 You can (and you should) generate DKIM keys by running
 
-``` CONSOLE
-$ ./setup.sh [-Z] config dkim
+``` BASH
+./setup.sh [-Z] config dkim
+```
 
-$ # If you want to see detailed usage information, run
-$ ./setup.sh config dkim help
+If you want to see detailed usage information, run
+
+``` BASH
+./setup.sh config dkim help
 ```
 
 In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
 
-``` CONSOLE
-$ ./setup.sh config dkim domain '<domain.tld>[,<domain2.tld>]'
+``` BASH
+./setup.sh config dkim domain '<domain.tld>[,<domain2.tld>]'
 ```
+
 When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim/) for more details.
 
 #### Custom User Changes & Patches
@@ -173,10 +178,10 @@ If you'd like to change, patch or alter files or behavior of `docker-mailserver`
 
 **Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md)** before updating to new versions, to be prepared for possible breaking changes.
 
-``` CONSOLE
-$ docker-compose pull
-$ docker-compose down
-$ docker-compose up -d mailserver
+``` BASH
+docker-compose pull
+docker-compose down
+docker-compose up -d mailserver
 ```
 
 You should see the new version number on startup, for example: `[ TASKLOG ]  Welcome to docker-mailserver 10.1.2`.
@@ -258,7 +263,7 @@ services:
 
 ### LDAP Setup
 
-**Note** There are currently no LDAP maintainers mainting LDAP related code. If you encounter issues, please rease them in the issue tracker, but be aware that the core maintainers team will most likely not be able to help you. **We would appreciate and we encourage people to actively participate in maintaining LDAP-related code by becoming a maintainer!**
+**Note** There are currently no LDAP maintainers. If you encounter issues, please raise them in the issue tracker, but be aware that the core maintainers team will most likely not be able to help you. **We would appreciate and we encourage everyone to actively participate in maintaining LDAP-related code by becoming a maintainer!**
 
 ``` YAML
 version: '3.8'
