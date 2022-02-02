@@ -77,8 +77,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
 Since Docker Mailserver `v10.2.0`, **`setup.sh` functionality is included within the container image**. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead. **If you're new to `docker-mailserver`**, it is recommended to use the script `setup.sh` for convenience.
 
-
-``` BASH 
+``` BASH
 DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
 wget "${DMS_GITHUB_URL}/docker-compose.yml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
@@ -100,7 +99,7 @@ chmod a+x ./setup.sh
 
 #### First Things First
 
-**Use `docker-compose up / down`, not `docker-compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state. 
+**Use `docker-compose up / down`, not `docker-compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state.
 
 You are able to get a full overview of how the configuration works by either running:
 
