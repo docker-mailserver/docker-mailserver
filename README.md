@@ -95,6 +95,8 @@ chmod a+x ./setup.sh
    - [_only_ basic `VAR=VAL`](https://docs.docker.com/compose/env-file/) is supported (**do not** quote your values!)
    - variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
 
+**Note:** If you're using podman, make sure to read the related [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/)
+
 ### Get up and running
 
 #### First Things First
