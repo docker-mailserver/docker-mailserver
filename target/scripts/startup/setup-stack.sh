@@ -1154,6 +1154,11 @@ function _setup_docker_permit
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
   case "${PERMIT_DOCKER}" in
+    "none" )
+      _notify 'inf' "Clearing my networks"
+      postconf -e "mynetworks ="
+      ;;
+
     "host" )
       _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to my networks"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
