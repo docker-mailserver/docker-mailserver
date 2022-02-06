@@ -1155,7 +1155,7 @@ function _setup_docker_permit
 
   case "${PERMIT_DOCKER}" in
     "none" )
-      _notify 'inf' "Clearing my networks"
+      _notify 'inf' "Clearing Postfix's 'mynetworks'"
       postconf -e "mynetworks ="
       ;;
 
