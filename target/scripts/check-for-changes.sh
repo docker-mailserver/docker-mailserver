@@ -60,12 +60,7 @@ do
     create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
-    # Bug alert! This overwrites the alias set by start-mailserver.sh
-    # Take care that changes in one script are propagated to the other
-
     # ! NEEDS FIX -----------------------------------------
-    # TODO FIX --------------------------------------------
-    # ! NEEDS EXTENSIONS ----------------------------------
     # TODO Perform updates below conditionally too --------
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
@@ -82,8 +77,7 @@ do
       #
       # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
-      FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
-      for CERT_DOMAIN in "${FQDN_LIST[@]}"
+      for CERT_DOMAIN in "${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}"
       do
         _notify 'inf' "Attempting to extract for '${CERT_DOMAIN}'"
 
@@ -137,7 +131,7 @@ do
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
-  sleep 1
+  sleep 10
 done
 
 exit 0
