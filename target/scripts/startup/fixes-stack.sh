@@ -54,3 +54,9 @@ function _fix_cleanup_spamassassin
     [[ ! -f /CONTAINER_START ]] && _notify 'err' 'Failed to remove SpamAssassin configuration'
   }
 }
+
+function _fix_restart_changedetector_daily
+{
+  _notify 'task' 'Making sure the changedetector is restarted daily'
+  echo 'supervisorctl restart changedetector' >/etc/cron.daily/restart_changedetector
+}
