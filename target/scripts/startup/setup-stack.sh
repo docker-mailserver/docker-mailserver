@@ -426,7 +426,7 @@ function _setup_ldap
   if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]
   then
     postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf" || \
-    _notify 'inf' "==> Warning: /etc/postfix/ldap-aliases.cf or /etc/postfix/ldap-groups.cf not found"
+    _notify 'war' "/etc/postfix/ldap-aliases.cf or /etc/postfix/ldap-groups.cf not found"
   fi
 
   # shellcheck disable=SC2016
