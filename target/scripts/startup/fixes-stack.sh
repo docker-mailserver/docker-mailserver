@@ -58,5 +58,8 @@ function _fix_cleanup_spamassassin
 function _fix_restart_changedetector_daily
 {
   _notify 'task' 'Making sure the changedetector is restarted daily'
-  echo 'supervisorctl restart changedetector' >/etc/cron.daily/restart_changedetector
+  local CRON_CHANGEDETECTOR_FILE=/etc/cron.daily/restart_changedetector
+
+  printf '#! /bin/bash\n\nsupervisorctl restart changedetector\n' >"${CRON_CHANGEDETECTOR_FILE}"
+  chmod +x "${CRON_CHANGEDETECTOR_FILE}"
 }
