@@ -342,7 +342,7 @@ function _setup_dovecot_local_user
 
 function _setup_ldap
 {
-  _notify 'task' 'Setting up Ldap'
+  _notify 'task' 'Setting up LDAP'
   _notify 'inf' 'Checking for custom configs'
 
   for i in 'users' 'groups' 'aliases' 'domains'
@@ -404,7 +404,7 @@ function _setup_ldap
   # add domainname to vhost
   echo "${DOMAINNAME}" >>/tmp/vhost.tmp
 
-  _notify 'inf' "Enabling dovecot LDAP authentification"
+  _notify 'inf' 'Enabling dovecot LDAP authentification'
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
@@ -413,20 +413,23 @@ function _setup_ldap
 
   if [[ -f /etc/postfix/ldap-users.cf ]]
   then
-    postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf" || \
-    _notify 'inf' "==> Warning: /etc/postfix/ldap-user.cf not found"
+    postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf"
+  else
+    _notify 'war' "'/etc/postfix/ldap-user.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-domains.cf ]]
   then
-    postconf -e "virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf" || \
-    _notify 'inf' "==> Warning: /etc/postfix/ldap-domains.cf not found"
+    postconf -e "virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf"
+  else
+    _notify 'war' "'/etc/postfix/ldap-domains.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]
   then
-    postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf" || \
-    _notify 'war' "/etc/postfix/ldap-aliases.cf or /etc/postfix/ldap-groups.cf not found"
+    postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf"
+  else
+    _notify 'war' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
   fi
 
   # shellcheck disable=SC2016
