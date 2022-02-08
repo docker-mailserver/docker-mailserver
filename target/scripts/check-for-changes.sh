@@ -132,7 +132,7 @@ do
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
-  sleep 1
+  sleep 2
 done
 
 exit 0

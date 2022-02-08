@@ -231,7 +231,7 @@ function _monitored_files_checksums
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
   # or no results, `shopt -s nullglob` prevents it from being added.
   shopt -s nullglob
-  local CERT_FILES
+  declare -a CERT_FILES
 
   # React to any cert changes within the following letsencrypt locations:
   CERT_FILES=(

@@ -48,7 +48,7 @@ function teardown_file() {
 
 @test "checking changedetector: can detect changes & between two containers using same config" {
   echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
-  sleep 15
+  sleep 25
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
