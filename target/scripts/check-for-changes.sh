@@ -50,6 +50,7 @@ do
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
+
   # cmp return codes
   # 0 – files are identical
   # 1 – files differ
@@ -60,13 +61,7 @@ do
     create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
-    # Bug alert! This overwrites the alias set by start-mailserver.sh
-    # Take care that changes in one script are propagated to the other
-
-    # ! NEEDS FIX -----------------------------------------
-    # TODO FIX --------------------------------------------
-    # ! NEEDS EXTENSIONS ----------------------------------
-    # TODO Perform updates below conditionally too --------
+    # TODO Perform updates below conditionally too
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
@@ -137,7 +132,7 @@ do
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
-  sleep 1
+  sleep 2
 done
 
 exit 0
