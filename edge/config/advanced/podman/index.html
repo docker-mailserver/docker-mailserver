@@ -1127,6 +1127,33 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#security-in-rootless-mode" class="md-nav__link">
+    Security in Rootless Mode
+  </a>
+  
+    <nav class="md-nav" aria-label="Security in Rootless Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enforce-authentication-from-localhost" class="md-nav__link">
+    Enforce authentication from localhost
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-the-slip4netns-network-driver" class="md-nav__link">
+    Use the slip4netns network driver
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#self-start-in-rootless-mode" class="md-nav__link">
     Self-start in Rootless Mode
   </a>
@@ -1546,6 +1573,33 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#security-in-rootless-mode" class="md-nav__link">
+    Security in Rootless Mode
+  </a>
+  
+    <nav class="md-nav" aria-label="Security in Rootless Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enforce-authentication-from-localhost" class="md-nav__link">
+    Enforce authentication from localhost
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-the-slip4netns-network-driver" class="md-nav__link">
+    Use the slip4netns network driver
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#self-start-in-rootless-mode" class="md-nav__link">
     Self-start in Rootless Mode
   </a>
@@ -1593,6 +1647,11 @@
 <p class="admonition-title">About this Guide</p>
 <p>This guide was tested with Fedora 34 using <code>systemd</code> and <code>firewalld</code>. Moreover, it requires Podman version &gt;= 3.2. You may be able to substitute <code>dnf</code> - Fedora's package maneger - with others such as <code>apt</code>.</p>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">About Security</p>
+<p>Running podman in rootless mode requires additional modifications in order to keep your mailserver secure.
+Make sure to read the related documentation.</p>
+</div>
 <h2 id="installation-in-rootfull-mode"><a class="toclink" href="#installation-in-rootfull-mode">Installation in Rootfull Mode</a></h2>
 <p>While using Podman, you can just manage docker-mailserver as what you did with Docker. Your best friend <code>setup.sh</code> includes the minimum code in order to support Podman since it's 100% compatible with the Docker CLI.</p>
 <p>The installation is basically the same. Podman v3.2 introduced a RESTful API that is 100% compatible with the Docker API, so you can use docker-compose with Podman easily. Install Podman and docker-compose with your package manager first.</p>
@@ -1618,6 +1677,7 @@ systemctl <span class="nb">enable</span> --now mailserver.service
 <ul>
 <li>a rootless container is running in a user namespace so you cannot bind ports lower than 1024</li>
 <li>a rootless container's systemd file can only be placed in folder under <code>~/.config</code></li>
+<li>a rootless container can result in an open relay, make sure to read the <a href="#security-in-rootless-mode">security section</a>.</li>
 </ul>
 <p>Also notice that Podman's rootless mode is not about running as a non-root user inside the container, but about the mapping of (normal, non-root) host users to root inside the container.</p>
 <div class="admonition warning">
@@ -1642,6 +1702,31 @@ systemctl <span class="nb">enable</span> --now mailserver.service
 docker-compose up -d mailserver
 docker-compose ps
 </code></pre></div>
+<h3 id="security-in-rootless-mode"><a class="toclink" href="#security-in-rootless-mode">Security in Rootless Mode</a></h3>
+<p>In rootless mode, podman resolves all incoming IPs as localhost, which results in an open gateway in the default configuration. There are two workarounds to fix this problem, both of which have their own drawbacks.</p>
+<h4 id="enforce-authentication-from-localhost"><a class="toclink" href="#enforce-authentication-from-localhost">Enforce authentication from localhost</a></h4>
+<p>The <code>PERMIT_DOCKER</code> variable in the <code>mailserver.env</code> file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting <code>PERMIT_DOCKER=none</code> enforces authentication also from localhost, which prevents sending unauthenticated emails.</p>
+<h4 id="use-the-slip4netns-network-driver"><a class="toclink" href="#use-the-slip4netns-network-driver">Use the slip4netns network driver</a></h4>
+<p>The second workaround is slightly more complicated because the <code>docker-compose.yml</code> has to be modified.
+As shown in the <a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/#podman-with-slirp4netns-port-driver">fail2ban section</a> the <code>slirp4netns</code> network driver has to be enabled.
+This network driver enables podman to correctly resolve IP addresses but it is not compatible with
+user defined networks which might be a problem depending on your setup.</p>
+<p>[Rootless Podman][rootless::podman] requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
+<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a [hard-coded interface name][rootless::podman::interface] for <code>slirp4netns</code>.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>podman-compose</code> is not compatible with configuration.</p>
+</div>
 <h3 id="self-start-in-rootless-mode"><a class="toclink" href="#self-start-in-rootless-mode">Self-start in Rootless Mode</a></h3>
 <p>Generate a systemd file with the Podman CLI.</p>
 <div class="highlight"><pre><span></span><code>podman generate systemd mailserver &gt; ~/.config/systemd/user/mailserver.service
