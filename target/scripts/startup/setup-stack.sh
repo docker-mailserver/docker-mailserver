@@ -415,7 +415,7 @@ function _setup_ldap
   then
     postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-user.cf' not found"
+    _notify 'war' "'/etc/postfix/ldap-users.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-domains.cf ]]
