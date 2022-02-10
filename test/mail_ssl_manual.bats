@@ -28,9 +28,10 @@ function setup_file() {
 
     docker run -d --name mail_manual_ssl \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
-        --volume "$(pwd)/test/test-files/ssl/${DOMAIN}/with_ca/ecdsa/:/config/ssl/:ro" \
+        --volume "$(pwd)/test/test-files/ssl/${DOMAIN}/with_ca/ecdsa/:/config/ssl/" \
         --env DMS_DEBUG=0 \
         --env SSL_TYPE='manual' \
+        --env TLS_LEVEL='modern' \
         --env SSL_KEY_PATH="${SSL_KEY_PATH}" \
         --env SSL_CERT_PATH="${SSL_CERT_PATH}" \
         --env SSL_ALT_KEY_PATH="${SSL_ALT_KEY_PATH}" \
@@ -107,6 +108,16 @@ function teardown_file() {
     assert docker exec mail_manual_ssl [ -f "${CA_CERT}" ]
     RESULT=$(docker exec mail_manual_ssl "${TEST_COMMAND[@]}" -CAfile "${CA_CERT}" | grep 'Verification: OK')
     assert_equal "${RESULT}" 'Verification: OK'
+}
+
+@test "checking ssl: manual cert changes are picked up by check-for-changes" {
+    docker exec mail_manual_ssl /bin/bash -c 'printf "changed" >>${SSL_KEY_PATH}'
+    sleep 10
+
+    run docker exec mail_manual_ssl /bin/bash -c "supervisorctl tail -3000 changedetector"
+    assert_output --partial 'postfix: stopped'
+    assert_output --partial 'postfix: started'
+    assert_output --partial 'Change detected'
 }
 
 @test "last" {

@@ -76,6 +76,7 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
+        _notify 'inf' "Manual certificates have changed, extracting certs.."
         # we need to run the SSL setup again, because the
         # certificates DMS is working with are copies of
         # the (now changed) files
