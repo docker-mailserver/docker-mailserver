@@ -93,7 +93,6 @@ function teardown() {
   _should_not_have_fqdn_in_cert 'mail.example.test'
 }
 
-
 # When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
 # should be extracted and be chosen over an existing FQDN `mail.example.test` (HOSTNAME):
 # _acme_wildcard should verify the FQDN `mail.example.test` is negotiated, not `example.test`.
@@ -253,7 +252,7 @@ function _should_extract_on_changes() {
 
   cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
   # Change detection takes a little over 5 seconds to complete (restart services)
-  sleep 15
+  sleep 10
 
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
@@ -318,7 +317,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -3000 ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:

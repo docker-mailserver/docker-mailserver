@@ -228,10 +228,19 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 # returned output on `stdout`: hash + filepath tuple on each line
 function _monitored_files_checksums
 {
+  local DMS_DIR=/tmp/docker-mailserver
+  [[ -d ${DMS_DIR} ]] || return 1
+
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
   # or no results, `shopt -s nullglob` prevents it from being added.
   shopt -s nullglob
-  declare -a CERT_FILES
+  declare -a CHANGED_FILES
+
+  for FILE in postfix-accounts.cf postfix-virtual.cf \
+              postfix-aliases.cf dovecot-quotas.cf
+  do
+    [[ -f "${DMS_DIR}/${FILE}" ]] && CHANGED_FILES+=("${DMS_DIR}/${FILE}")
+  done
 
   if [[ ${SSL_TYPE:-} == 'manual' ]]
   then
@@ -240,33 +249,21 @@ function _monitored_files_checksums
     for FILE in "${SSL_CERT_PATH:-}" "${SSL_KEY_PATH:-}" \
                 "${SSL_ALT_CERT_PATH:-}"  "${SSL_ALT_KEY_PATH:-}"
     do
-      if [[ -f ${FILE} ]]
-      then
-        CERT_FILES+=("${FILE}")
-      fi
+      [[ -f ${FILE} ]] && CHANGED_FILES+=("${FILE}")
     done
-  else
+  elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]
+  then
     # React to any cert changes within the
     # following Let'sEncrypt locations:
-    CERT_FILES=(
+    CHANGED_FILES=(
+      /etc/letsencrypt/acme.json
       /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
       /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
       /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
-      /etc/letsencrypt/acme.json
     )
   fi
 
-  if [[ ! -d /tmp/docker-mailserver ]]
-  then
-    return 1
-  fi
-
-  sha512sum 2>/dev/null --                     \
-    /tmp/docker-mailserver/postfix-accounts.cf \
-    /tmp/docker-mailserver/postfix-virtual.cf  \
-    /tmp/docker-mailserver/postfix-aliases.cf  \
-    /tmp/docker-mailserver/dovecot-quotas.cf   \
-    "${CERT_FILES[@]}"
+  sha512sum -- "${CHANGED_FILES[@]}" 2>/dev/null
 }
 export -f _monitored_files_checksums
 
