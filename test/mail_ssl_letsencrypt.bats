@@ -253,7 +253,7 @@ function _should_extract_on_changes() {
 
   cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
   # Change detection takes a little over 5 seconds to complete (restart services)
-  sleep 10
+  sleep 15
 
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
