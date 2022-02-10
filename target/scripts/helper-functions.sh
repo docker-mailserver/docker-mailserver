@@ -233,12 +233,28 @@ function _monitored_files_checksums
   shopt -s nullglob
   declare -a CERT_FILES
 
-  # React to any cert changes within the following letsencrypt locations:
-  CERT_FILES=(
-    /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
-    /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
-    /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
-  )
+  if [[ ${SSL_TYPE:-} == 'manual' ]]
+  then
+    # When using "manual" as the SSL type,
+    # the following variables may contain the certificate files
+    for FILE in "${SSL_CERT_PATH:-}" "${SSL_KEY_PATH:-}" \
+                "${SSL_ALT_CERT_PATH:-}"  "${SSL_ALT_KEY_PATH:-}"
+    do
+      if [[ -f ${FILE} ]]
+      then
+        CERT_FILES+=("${FILE}")
+      fi
+    done
+  else
+    # React to any cert changes within the
+    # following Let'sEncrypt locations:
+    CERT_FILES=(
+      /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
+      /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
+      /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
+      /etc/letsencrypt/acme.json
+    )
+  fi
 
   if [[ ! -d /tmp/docker-mailserver ]]
   then
@@ -250,7 +266,6 @@ function _monitored_files_checksums
     /tmp/docker-mailserver/postfix-virtual.cf  \
     /tmp/docker-mailserver/postfix-aliases.cf  \
     /tmp/docker-mailserver/dovecot-quotas.cf   \
-    /etc/letsencrypt/acme.json                 \
     "${CERT_FILES[@]}"
 }
 export -f _monitored_files_checksums
