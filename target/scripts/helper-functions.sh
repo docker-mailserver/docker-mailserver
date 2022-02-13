@@ -225,33 +225,33 @@ export -f _notify
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # Compute checksums of monitored files,
-# returned output is lines of hashed content + filepath pairs.
+# returned output on `stdout`: hash + filepath tuple on each line
 function _monitored_files_checksums
 {
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
   # or no results, `shopt -s nullglob` prevents it from being added.
   shopt -s nullglob
+  declare -a CERT_FILES
 
   # React to any cert changes within the following letsencrypt locations:
-  local CERT_FILES=(
+  CERT_FILES=(
     /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
     /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
     /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
   )
 
-  # CERT_FILES should expand to separate paths, not a single string;
-  # otherwise fails to generate checksums for these file paths.
-  #shellcheck disable=SC2068
-  (
-    cd /tmp/docker-mailserver || exit 1
-    exec sha512sum 2>/dev/null -- \
-      postfix-accounts.cf \
-      postfix-virtual.cf \
-      postfix-aliases.cf \
-      dovecot-quotas.cf \
-      /etc/letsencrypt/acme.json \
-      ${CERT_FILES[@]}
-  )
+  if [[ ! -d /tmp/docker-mailserver ]]
+  then
+    return 1
+  fi
+
+  sha512sum 2>/dev/null --                     \
+    /tmp/docker-mailserver/postfix-accounts.cf \
+    /tmp/docker-mailserver/postfix-virtual.cf  \
+    /tmp/docker-mailserver/postfix-aliases.cf  \
+    /tmp/docker-mailserver/dovecot-quotas.cf   \
+    /etc/letsencrypt/acme.json                 \
+    "${CERT_FILES[@]}"
 }
 export -f _monitored_files_checksums
 

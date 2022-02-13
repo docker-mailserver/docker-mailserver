@@ -102,8 +102,7 @@ You don't have to do anything else. Enjoy!
 
 #### Example using Docker for _Let's Encrypt_ { data-toc-label='Certbot with Docker' }
 
-- Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store these, so that they can later be accessed by `docker-mailserver` container.
-- You may also want to persist Certbot [logs][certbot::log-rotation], just in case you need to troubleshoot.
+Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store these, so that they can later be accessed by `docker-mailserver` container. You may also want to persist Certbot [logs][certbot::log-rotation], just in case you need to troubleshoot.
 
 1. Getting a certificate is this simple! (_Referencing: [Certbot docker instructions][certbot::docker] and [`certonly --standalone` mode][certbot::standalone]_):
 
@@ -118,6 +117,23 @@ You don't have to do anything else. Enjoy!
     ```
 
 2. Add a volume for `docker-mailserver` that maps the _local `certbot/certs/` folder_ to the container path `/etc/letsencrypt/`.
+
+    !!! example
+
+        Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
+    
+        ```yaml
+        services:
+          mailserver:
+            # For the FQDN 'mail.example.com':
+            hostname: mail
+            domainname: example.com
+            environment:
+              - SSL_TYPE=letsencrypt
+            volumes:
+              - ./docker-data/certbot/certs/:/etc/letsencrypt
+        ```
+
 3. The certificate setup is complete, but remember _it will expire_. Consider automating renewals.
 
 !!! tip "Renewing Certificates"
