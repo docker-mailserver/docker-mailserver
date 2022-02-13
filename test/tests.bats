@@ -673,8 +673,9 @@ EOF
 @test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
-  assert_output '* user1@localhost.localdomain ( 14K / ~ ) [0%]'
-  # assert_output --regexp '\* user1@localhost\.localdomain \( 1[3,4]{1}K \/ ~ \) \[0%\]'
+  assert_output --regexp '\* user1@localhost\.localdomain \( 1[3,4]{1}K \/ ~ \) \[0%\]'
+  # TODO find out why, during CI, sometimes it's 13K, and sometimes 14K
+  # assert_output '* user1@localhost.localdomain ( 14K / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
