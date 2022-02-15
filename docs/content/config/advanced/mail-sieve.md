@@ -70,7 +70,7 @@ require ["envelope", "fileinto", "mailbox", "subaddress", "variables"];
 
 if envelope :detail :matches "to" "*" {
 	set :lower :upperfirst "tag" "${1}";
-	if mailboxexists "INBOX/${1}" {
+	if mailboxexists "INBOX.${1}" {
 		fileinto "INBOX.${1}";
 	} else {
 		fileinto :create "INBOX.${tag}";
