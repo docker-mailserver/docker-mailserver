@@ -407,3 +407,87 @@ function _setup_ssl
 
   esac
 }
+export -f _setup_ssl
+
+function _extract_certs_from_acme
+{
+  local CERT_DOMAIN=${1}
+  if [[ -z ${CERT_DOMAIN} ]]
+  then
+    _notify 'err' "_extract_certs_from_acme | CERT_DOMAIN is empty"
+    return 1
+  fi
+
+  local KEY CERT
+  KEY=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
+  CERT=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
+
+  if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
+  then
+    _notify 'warn' "_extract_certs_from_acme | Unable to find key and/or cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+    return 1
+  fi
+
+  # Currently we advise SSL_DOMAIN for wildcard support using a `*.example.com` value,
+  # The filepath however should be `example.com`, avoiding the wildcard part:
+  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]
+  then
+    CERT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+  fi
+
+  mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
+  echo "${KEY}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
+  echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
+
+  _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
+}
+export -f _extract_certs_from_acme
+
+# Remove the `*.` prefix if it exists, else returns the input value
+function _strip_wildcard_prefix {
+  [[ ${1} == "*."* ]] && echo "${1:2}" || echo "${1}"
+}
+export -f _strip_wildcard_prefix
+
+# Compute checksums of monitored files,
+# returned output on `stdout`: hash + filepath tuple on each line
+function _monitored_files_checksums
+{
+  local DMS_DIR=/tmp/docker-mailserver
+  [[ -d ${DMS_DIR} ]] || return 1
+
+  # If a wildcard path pattern (or an empty ENV) would yield an invalid path
+  # or no results, `shopt -s nullglob` prevents it from being added.
+  shopt -s nullglob
+  declare -a CHANGED_FILES
+
+  for FILE in postfix-accounts.cf postfix-virtual.cf \
+              postfix-aliases.cf dovecot-quotas.cf
+  do
+    [[ -f "${DMS_DIR}/${FILE}" ]] && CHANGED_FILES+=("${DMS_DIR}/${FILE}")
+  done
+
+  if [[ ${SSL_TYPE:-} == 'manual' ]]
+  then
+    # When using "manual" as the SSL type,
+    # the following variables may contain the certificate files
+    for FILE in "${SSL_CERT_PATH:-}" "${SSL_KEY_PATH:-}" \
+                "${SSL_ALT_CERT_PATH:-}"  "${SSL_ALT_KEY_PATH:-}"
+    do
+      [[ -f ${FILE} ]] && CHANGED_FILES+=("${FILE}")
+    done
+  elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]
+  then
+    # React to any cert changes within the
+    # following Let'sEncrypt locations:
+    CHANGED_FILES=(
+      /etc/letsencrypt/acme.json
+      /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
+      /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
+      /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
+    )
+  fi
+
+  sha512sum -- "${CHANGED_FILES[@]}" 2>/dev/null
+}
+export -f _monitored_files_checksums
