@@ -96,7 +96,7 @@ Set this to `yes` to enable authentication binds ([more details in the dovecot d
 
 ### `SASLAUTHD_LDAP_FILTER`
 
-This filter is used for `saslauthd`, which is called by postfix when someone is authenticating through SMTP (assuming that `SASLAUTHD_MECHANISMS=ldap` is being used). Note that you'll need to set up the LDAP server for saslauthd seperately from postfix.
+This filter is used for `saslauthd`, which is called by postfix when someone is authenticating through SMTP (assuming that `SASLAUTHD_MECHANISMS=ldap` is being used). Note that you'll need to set up the LDAP server for saslauthd separately from postfix.
 
 The filter variables are explained in detail [in the `LDAP_SASLAUTHD` file](https://github.com/winlibs/cyrus-sasl/blob/master/saslauthd/LDAP_SASLAUTHD#L121), but unfortunately, this method doesn't really support domains right now - that means that `%U` is the only token that makes sense in this variable.
 

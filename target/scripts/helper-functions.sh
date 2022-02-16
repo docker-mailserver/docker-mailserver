@@ -1,5 +1,9 @@
 #! /bin/bash
 
+# TODO this file may be split up in the future
+#      into separate files under `target/scripts/helper/`
+#      which is a more fitting place
+
 # These helpers are used by `setup-stack.sh` and `check-for-changes.sh`,
 # not by anything within `helper-functions.sh` itself:
 # shellcheck source=target/scripts/helpers/index.sh
