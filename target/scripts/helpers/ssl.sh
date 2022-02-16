@@ -459,28 +459,29 @@ function _monitored_files_checksums
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
   # or no results, `shopt -s nullglob` prevents it from being added.
   shopt -s nullglob
-  declare -a CHANGED_FILES
+  declare -a STAGING_FILES CHANGED_FILES
 
-  for FILE in postfix-accounts.cf postfix-virtual.cf \
-              postfix-aliases.cf dovecot-quotas.cf
-  do
-    [[ -f "${DMS_DIR}/${FILE}" ]] && CHANGED_FILES+=("${DMS_DIR}/${FILE}")
-  done
+  STAGING_FILES=(
+    "${DMS_DIR}/postfix-accounts.cf"
+    "${DMS_DIR}/postfix-virtual.cf"
+    "${DMS_DIR}/postfix-aliases.cf"
+    "${DMS_DIR}/dovecot-quotas.cf"
+  )
 
   if [[ ${SSL_TYPE:-} == 'manual' ]]
   then
     # When using "manual" as the SSL type,
     # the following variables may contain the certificate files
-    for FILE in "${SSL_CERT_PATH:-}" "${SSL_KEY_PATH:-}" \
-                "${SSL_ALT_CERT_PATH:-}"  "${SSL_ALT_KEY_PATH:-}"
-    do
-      [[ -f ${FILE} ]] && CHANGED_FILES+=("${FILE}")
-    done
+    STAGING_FILES+=(
+      "${SSL_CERT_PATH:-}"
+      "${SSL_KEY_PATH:-}"
+      "${SSL_ALT_CERT_PATH:-}"
+      "${SSL_ALT_KEY_PATH:-}"
+    )
   elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]
   then
-    # React to any cert changes within the
-    # following Let'sEncrypt locations:
-    CHANGED_FILES=(
+    # React to any cert changes within the following Let'sEncrypt locations:
+    STAGING_FILES+=(
       /etc/letsencrypt/acme.json
       /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
       /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
@@ -488,6 +489,11 @@ function _monitored_files_checksums
     )
   fi
 
-  sha512sum -- "${CHANGED_FILES[@]}" 2>/dev/null
+  for FILE in "${STAGING_FILES[@]}"
+  do
+    [[ -f "${FILE}" ]] && CHANGED_FILES+=("${FILE}")
+  done
+
+  sha512sum -- "${CHANGED_FILES[@]}"
 }
 export -f _monitored_files_checksums
