@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# shellcheck source=./helper-functions.sh
-. /usr/local/bin/helper-functions.sh
+# shellcheck source=./helpers/index.sh
+. /usr/local/bin/helpers/index.sh
 
 unset FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC
 unset DAEMONS_START HOSTNAME DOMAINNAME CHKSUM_FILE
@@ -75,8 +75,6 @@ VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 export HOSTNAME DOMAINNAME CHKSUM_FILE
 
 _obtain_hostname_and_domainname
-
-CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # ------------------------------------------------------------
 # ? << Setup of default and global values / variables

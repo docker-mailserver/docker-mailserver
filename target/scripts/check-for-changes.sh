@@ -1,9 +1,10 @@
 #! /bin/bash
+
 # TODO: Adapt for compatibility with LDAP
 # Only the cert renewal change detection may be relevant for LDAP?
 
-# shellcheck source=./helper-functions.sh
-. /usr/local/bin/helper-functions.sh
+# shellcheck source=./helpers/index.sh
+. /usr/local/bin/helpers/index.sh
 
 function _log_date
 {
@@ -91,7 +92,7 @@ do
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
       #
-      # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+      # NOTE: HOSTNAME is set via helper functions, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
       FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
       for CERT_DOMAIN in "${FQDN_LIST[@]}"

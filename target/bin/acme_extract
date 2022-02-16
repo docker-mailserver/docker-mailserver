@@ -34,6 +34,6 @@ def retrieve_data():
                 return None
 
 # No match == 'None', we convert to empty string for
-# existing error handling by `helper-functions.sh`:
+# existing error handling:
 result = retrieve_data() or ''
 print(result)

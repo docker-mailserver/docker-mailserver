@@ -275,6 +275,7 @@ COPY \
   ./target/bin/* \
   ./target/scripts/*.sh \
   ./target/scripts/startup/*.sh \
+  ./target/scripts/wrapper/*.sh \
   ./target/docker-configomat/configomat.sh \
   /usr/local/bin/
 

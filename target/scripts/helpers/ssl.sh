@@ -94,7 +94,7 @@ function _setup_ssl
   # 2020 feature intended for Traefik v2 support only:
   # https://github.com/docker-mailserver/docker-mailserver/pull/1553
   # Extracts files `key.pem` and `fullchain.pem`.
-  # `_extract_certs_from_acme` is located in `helper-functions.sh`
+  # `_extract_certs_from_acme` is located in `helpers/ssl.sh`
   # NOTE: See the `SSL_TYPE=letsencrypt` case below for more details.
   function _traefik_support
   {
@@ -180,7 +180,7 @@ function _setup_ssl
       # SSL_DOMAIN will have any wildcard prefix stripped for the output FQDN folder it is stored in.
       # TODO: A wildcard cert needs to be provisioned via Traefik to validate if acme.json contains any other value for `main` or `sans` beyond the wildcard.
       #
-      # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+      # NOTE: HOSTNAME is set via helper functions, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
 
       _traefik_support
