@@ -9,17 +9,17 @@ function _import_scripts
 {
   local PATH_TO_SCRIPTS='/usr/local/bin/helpers'
 
-  . "${PATH_TO_SCRIPTS}/accounts.sh"
-  . "${PATH_TO_SCRIPTS}/aliases.sh"
-  . "${PATH_TO_SCRIPTS}/dns.sh"
-  . "${PATH_TO_SCRIPTS}/exit.sh"
-  . "${PATH_TO_SCRIPTS}/log.sh"
-  . "${PATH_TO_SCRIPTS}/miscellaneous.sh"
-  . "${PATH_TO_SCRIPTS}/postfix.sh"
-  . "${PATH_TO_SCRIPTS}/relay.sh"
-  . "${PATH_TO_SCRIPTS}/sasl.sh"
-  . "${PATH_TO_SCRIPTS}/ssl.sh"
-  . "${PATH_TO_SCRIPTS}/tcp_ip.sh"
+  source "${PATH_TO_SCRIPTS}/accounts.sh"
+  source "${PATH_TO_SCRIPTS}/aliases.sh"
+  source "${PATH_TO_SCRIPTS}/dns.sh"
+  source "${PATH_TO_SCRIPTS}/exit.sh"
+  source "${PATH_TO_SCRIPTS}/log.sh"
+  source "${PATH_TO_SCRIPTS}/miscellaneous.sh"
+  source "${PATH_TO_SCRIPTS}/postfix.sh"
+  source "${PATH_TO_SCRIPTS}/relay.sh"
+  source "${PATH_TO_SCRIPTS}/sasl.sh"
+  source "${PATH_TO_SCRIPTS}/ssl.sh"
+  source "${PATH_TO_SCRIPTS}/tcp_ip.sh"
 }
 
 _import_scripts

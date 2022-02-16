@@ -4,7 +4,7 @@
 # Only the cert renewal change detection may be relevant for LDAP?
 
 # shellcheck source=./helpers/index.sh
-. /usr/local/bin/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 function _log_date
 {

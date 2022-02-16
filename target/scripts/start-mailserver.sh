@@ -4,7 +4,7 @@
 . /usr/local/bin/helpers/index.sh
 
 unset FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC
-unset DAEMONS_START HOSTNAME DOMAINNAME CHKSUM_FILE
+unset DAEMONS_START HOSTNAME DOMAINNAME
 
 #shellcheck disable=SC2034
 declare -A VARS
