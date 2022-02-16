@@ -69,8 +69,7 @@ do
 
     if [[ ${SSL_TYPE} == 'manual' ]]
     then
-      # only run the SSL setup again if certificates
-      # have really changed.
+      # only run the SSL setup again if certificates have really changed.
       if [[ ${CHANGED} =~ ${SSL_CERT_PATH:-${REGEX_NEVER_MATCH}} ]]     \
       || [[ ${CHANGED} =~ ${SSL_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]      \
       || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \

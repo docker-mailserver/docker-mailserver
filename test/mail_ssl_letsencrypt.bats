@@ -165,6 +165,7 @@ function teardown() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
     _should_have_service_restart_count '2'
 
+    # note: https://github.com/docker-mailserver/docker-mailserver/pull/2404 solves this
     # TODO: Make this pass.
     # As the FQDN has changed since startup, the configs need to be updated accordingly.
     # This requires the `changedetector` service event to invoke the same function for TLS configuration
@@ -317,7 +318,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -3000 ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:
