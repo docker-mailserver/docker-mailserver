@@ -43,9 +43,13 @@ function _handle_postfix_regexp_config
     _notify 'inf' "Adding regexp alias file postfix-regexp.cf"
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-    sed -i -E \
-      's|virtual_alias_maps(.*)|virtual_alias_maps\1 pcre:/etc/postfix/regexp|g' \
-      /etc/postfix/main.cf
+
+    if ! grep 'virtual_alias_maps.*pcre:/etc/postfix/regexp' /etc/postfix/main.cf
+    then
+      sed -i -E \
+        's|virtual_alias_maps(.*)|virtual_alias_maps\1 pcre:/etc/postfix/regexp|g' \
+        /etc/postfix/main.cf
+    fi
   fi
 }
 
@@ -53,7 +57,7 @@ function _handle_postfix_aliases_config
 {
   _notify 'inf' 'Configuring root alias'
 
-  echo "root: ${POSTMASTER_ADDRESS}" > /etc/aliases
+  echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
 
   if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
   then
