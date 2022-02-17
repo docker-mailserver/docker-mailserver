@@ -968,6 +968,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#automatic-sorting-based-on-subaddresses" class="md-nav__link">
+    Automatic Sorting Based on Subaddresses
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#manage-sieve" class="md-nav__link">
     Manage Sieve
   </a>
@@ -1478,6 +1485,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#automatic-sorting-based-on-subaddresses" class="md-nav__link">
+    Automatic Sorting Based on Subaddresses
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#manage-sieve" class="md-nav__link">
     Manage Sieve
   </a>
@@ -1549,6 +1563,19 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
 <span class="err">pipe</span> <span class="s">&quot;external-program&quot;</span><span class="p">;</span>
 </code></pre></div>
 <p>For more examples or a detailed description of the Sieve language have a look at <a href="http://sieve.info/examplescripts">the official site</a>. Other resources are available on the internet where you can find several <a href="https://support.tigertech.net/sieve#sieve-example-rules-jmp">examples</a>.</p>
+<h2 id="automatic-sorting-based-on-subaddresses"><a class="toclink" href="#automatic-sorting-based-on-subaddresses">Automatic Sorting Based on Subaddresses</a></h2>
+<p>It is possible to sort subaddresses such as <code>user+mailing-lists@example.com</code> into a corresponding folder (here: <code>INBOX/Mailing-lists</code>) automatically.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;envelope&quot;</span><span class="p">,</span> <span class="s">&quot;fileinto&quot;</span><span class="p">,</span> <span class="s">&quot;mailbox&quot;</span><span class="p">,</span> <span class="s">&quot;subaddress&quot;</span><span class="p">,</span> <span class="s">&quot;variables&quot;</span><span class="p">];</span>
+
+<span class="nb">if</span> <span class="nb">envelope</span> <span class="nt">:detail</span> <span class="nt">:matches</span> <span class="s">&quot;to&quot;</span> <span class="s">&quot;*&quot;</span> <span class="p">{</span>
+    <span class="kd">set</span> <span class="nt">:lower</span> <span class="nt">:upperfirst</span> <span class="s">&quot;tag&quot;</span> <span class="s">&quot;${1}&quot;</span><span class="p">;</span>
+    <span class="nb">if</span> <span class="err">mailbox</span><span class="nb">exists</span> <span class="s">&quot;INBOX.${1}&quot;</span> <span class="p">{</span>
+        <span class="nb">fileinto</span> <span class="s">&quot;INBOX.${1}&quot;</span><span class="p">;</span>
+    <span class="p">}</span> <span class="nb">else</span> <span class="p">{</span>
+        <span class="nb">fileinto</span> <span class="nt">:create</span> <span class="s">&quot;INBOX.${tag}&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 <h2 id="manage-sieve"><a class="toclink" href="#manage-sieve">Manage Sieve</a></h2>
 <p>The <a href="https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_server/">Manage Sieve</a> extension allows users to modify their Sieve script by themselves. The authentication mechanisms are the same as for the main dovecot service. ManageSieve runs on port <code>4190</code> and needs to be enabled using the <code>ENABLE_MANAGESIEVE=1</code> environment variable.</p>
 <div class="admonition example">
