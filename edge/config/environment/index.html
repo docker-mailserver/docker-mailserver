@@ -3553,12 +3553,10 @@ If you want to control logrotation for the docker generated logfile, see: <a hre
 <li><strong>0</strong> =&gt; SpamAssassin is disabled</li>
 <li>1 =&gt; SpamAssassin is enabled</li>
 </ul>
-<p><strong>/!\ Spam delivery:</strong> when SpamAssassin is enabled, messages marked as spam WILL NOT BE DELIVERED.
-Use <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> for receiving spam messages.</p>
 <h5 id="spamassassin_spam_to_inbox"><a class="toclink" href="#spamassassin_spam_to_inbox">SPAMASSASSIN_SPAM_TO_INBOX</a></h5>
 <ul>
-<li><strong>0</strong> =&gt; Spam messages will be bounced (<em>rejected</em>) without any notification (<em>dangerous</em>).</li>
-<li>1 =&gt; Spam messages will be delivered to the inbox and tagged as spam using <code>SA_SPAM_SUBJECT</code>.</li>
+<li><strong>1</strong> =&gt; Spam messages will be delivered to the inbox and tagged as spam using <code>SA_SPAM_SUBJECT</code>.</li>
+<li>0 =&gt; Spam messages will be bounced (<em>rejected</em>) without any notification (<em>dangerous</em>).</li>
 </ul>
 <h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
 <ul>
