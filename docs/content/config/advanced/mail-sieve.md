@@ -61,7 +61,7 @@ pipe "external-program";
 
 For more examples or a detailed description of the Sieve language have a look at [the official site](http://sieve.info/examplescripts). Other resources are available on the internet where you can find several [examples](https://support.tigertech.net/sieve#sieve-example-rules-jmp).
 
-## Automatic sorting based on subaddresses
+## Automatic Sorting Based on Subaddresses
 
 It is possible to sort subaddresses such as `user+mailing-lists@example.com` into a corresponding folder (here: `INBOX/Mailing-lists`) automatically.
 
