@@ -23,7 +23,9 @@ setup_file() {
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
+    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e ENABLE_SRS=1 \
+    -e ENABLE_UPDATE_CHECK=0 \
     -e PERMIT_DOCKER=host \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
     -e REPORT_SENDER=report1@mail.my-domain.com \
@@ -244,6 +246,7 @@ teardown_file() {
   assert_success
 }
 
+# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
 @test "checking smtp: delivers mail to existing account" {
   run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
   assert_success
@@ -316,6 +319,7 @@ EOF
   assert_output 2
 }
 
+# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
 @test "checking smtp: rejects spam" {
   run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@my-domain.com | wc -l"
   assert_success
