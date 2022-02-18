@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # shellcheck source=./helpers/index.sh
-. /usr/local/bin/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 unset FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC
 unset DAEMONS_START HOSTNAME DOMAINNAME
@@ -233,19 +233,19 @@ function _register_misc_function
 # ------------------------------------------------------------
 
 # shellcheck source=./startup/check-stack.sh
-. /usr/local/bin/check-stack.sh
+source /usr/local/bin/check-stack.sh
 
 # shellcheck source=./startup/setup-stack.sh
-. /usr/local/bin/setup-stack.sh
+source ./usr/local/bin/setup-stack.sh
 
 # shellcheck source=./startup/fixes-stack.sh
-. /usr/local/bin/fixes-stack.sh
+source ./usr/local/bin/fixes-stack.sh
 
 # shellcheck source=./startup/misc-stack.sh
-. /usr/local/bin/misc-stack.sh
+source ./usr/local/bin/misc-stack.sh
 
 # shellcheck source=./startup/daemons-stack.sh
-. /usr/local/bin/daemons-stack.sh
+source ./usr/local/bin/daemons-stack.sh
 
 # ------------------------------------------------------------
 # ? << Sourcing all stacks

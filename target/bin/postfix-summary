@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
-. /usr/local/bin/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 HOSTNAME=${1}
 RECIPIENT=${2}

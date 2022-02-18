@@ -6,7 +6,7 @@
 # ? being used below. (This disables the message file-wide.)
 
 # shellcheck source=../scripts/helpers/index.sh
-. /usr/local/bin/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
