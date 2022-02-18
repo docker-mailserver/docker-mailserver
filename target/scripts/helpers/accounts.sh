@@ -56,12 +56,23 @@ function _create_accounts
         _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
       fi
 
-      echo "${LOGIN} ${DOMAIN}/${USER}/" >> /etc/postfix/vmailbox
+      local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
+
+      POSTFIX_VMAILBOX_LINE="${LOGIN} ${DOMAIN}/${USER}/"
+      if ! grep "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox &>/dev/null
+      then
+        echo "${POSTFIX_VMAILBOX_LINE}" >>/etc/postfix/vmailbox
+      fi
+
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
-      echo \
-        "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" \
-        >>/etc/dovecot/userdb
+      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}"
+      if ! grep "${DOVECOT_USERDB_LINE}" /etc/dovecot/userdb &>/dev/null
+      then
+        echo \
+          "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" \
+          >>/etc/dovecot/userdb
+      fi
 
       mkdir -p "/var/mail/${DOMAIN}/${USER}"
 
