@@ -345,15 +345,24 @@ Finally the logrotate interval **may** affect the period for generated reports. 
 
 ##### SPAMASSASSIN_SPAM_TO_INBOX
 
-- **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
 - 0 => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
+- **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
+
+##### ENABLE_SPAMASSASSIN_KAM=1
+
+If SpamAssassin is enabled, KAM can be individually enabled or disabled as well. If
+SpamAssassin is disabled, this environment variable will have no effect.
+
+- 0 => KAM will be disabled even when SpamAssassin is enabled
+- **1** => KAM will be enabled when SpamAssassin is enabled
 
 ##### MOVE_SPAM_TO_JUNK
 
-- **1** => Spam messages will be delivered in the `Junk` folder.
-- 0 => Spam messages will be delivered in the mailbox.
-
+Spam messages can be moved in the Junk folder.
 Note: this setting needs `SPAMASSASSIN_SPAM_TO_INBOX=1`
+
+- 0 => Spam messages will be delivered in the mailbox.
+- **1** => Spam messages will be delivered in the `Junk` folder.
 
 ##### SA_TAG
 
