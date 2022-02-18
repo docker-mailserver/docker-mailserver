@@ -350,11 +350,10 @@ Finally the logrotate interval **may** affect the period for generated reports. 
 
 ##### ENABLE_SPAMASSASSIN_KAM=1
 
-If SpamAssassin is enabled, KAM can be individually enabled or disabled as well. If
-SpamAssassin is disabled, this environment variable will have no effect.
+[KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
 
-- 0 => KAM will be disabled even when SpamAssassin is enabled
-- **1** => KAM will be enabled when SpamAssassin is enabled
+- **0** => KAM disabled
+- 1 => KAM enabled
 
 ##### MOVE_SPAM_TO_JUNK
 
