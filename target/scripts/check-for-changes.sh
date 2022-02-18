@@ -40,6 +40,8 @@ _obtain_hostname_and_domainname
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 
+REGEX_NEVER_MATCH="(?\!)"
+
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
@@ -65,10 +67,24 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
+    if [[ ${SSL_TYPE} == 'manual' ]]
+    then
+      # only run the SSL setup again if certificates have really changed.
+      if [[ ${CHANGED} =~ ${SSL_CERT_PATH:-${REGEX_NEVER_MATCH}} ]]     \
+      || [[ ${CHANGED} =~ ${SSL_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]      \
+      || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
+      || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
+      then
+        _notify 'inf' "Manual certificates have changed, extracting certs.."
+        # we need to run the SSL setup again, because the
+        # certificates DMS is working with are copies of
+        # the (now changed) files
+        _setup_ssl
+      fi
     # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
     # When a change is detected it's assumed to be a possible cert renewal that needs to be
     # extracted for `docker-mailserver` services to adjust to.
-    if [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
+    elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
       _notify 'inf' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
 

@@ -11,5 +11,6 @@ function _import_scripts
   . "${PATH_TO_SCRIPTS}/aliases.sh"
   . "${PATH_TO_SCRIPTS}/relay.sh"
   . "${PATH_TO_SCRIPTS}/sasl.sh"
+  . "${PATH_TO_SCRIPTS}/ssl.sh"
 }
 _import_scripts

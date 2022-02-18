@@ -93,7 +93,6 @@ function teardown() {
   _should_not_have_fqdn_in_cert 'mail.example.test'
 }
 
-
 # When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
 # should be extracted and be chosen over an existing FQDN `mail.example.test` (HOSTNAME):
 # _acme_wildcard should verify the FQDN `mail.example.test` is negotiated, not `example.test`.
@@ -166,6 +165,7 @@ function teardown() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
     _should_have_service_restart_count '2'
 
+    # note: https://github.com/docker-mailserver/docker-mailserver/pull/2404 solves this
     # TODO: Make this pass.
     # As the FQDN has changed since startup, the configs need to be updated accordingly.
     # This requires the `changedetector` service event to invoke the same function for TLS configuration
