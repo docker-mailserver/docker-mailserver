@@ -132,12 +132,12 @@ COPY \
 
 # hadolint ignore=SC2016
 RUN \
-  sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin &&    \
-  sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g'   \
-    /etc/spamassassin/sa-update-hooks.d/amavisd-new &&               \
-  mkdir -p /etc/spamassassin/kam/                                    \
-  curl https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key \
-    -o /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
+  sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin && \
+  sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' \
+    /etc/spamassassin/sa-update-hooks.d/amavisd-new && \
+  mkdir -p /etc/spamassassin/kam/ && \
+  curl -sSfLo /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key \
+    https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key
 
 # -----------------------------------------------
 # --- PostSRSD, Postgrey & Amavis ---------------
