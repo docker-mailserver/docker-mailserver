@@ -21,38 +21,32 @@ Prefer Implicit TLS ports, they're more secure and if you use a Reverse Proxy, s
 
 ### What Ports Should I Use? (SMTP)
 
-[![Best Practice - Ports (SMTP)][asset-external-mermaid-smtp]][ref-mermaid-live-smtp]
+```mermaid
+flowchart LR
+    subgraph your-server ["Your Server"]
+        in_25(25) --> server
+        in_465(465) --> server
+        server(("docker-mailserver<br/>hello@world.com"))
+        server --- out_25(25)
+        server --- out_465(465)
+    end
 
-??? "Flowchart - Mermaid.js source:"
+    third-party("Third-party<br/>(sending you email)") ---|"Receive email for<br/>hello@world.com"| in_25
 
-    View in the [Live Editor][ref-mermaid-live-smtp].
+    subgraph clients ["Clients (MUA)"]
+        mua-client(Thunderbird,<br/>Webmail,<br/>Mutt,<br/>etc)
+        mua-service(Backend software<br/>on another server)
+    end
+    clients ---|"Send email as<br/>hello@world.com"| in_465
 
-    ```mermaid
-    flowchart LR
-        subgraph your-server ["Your Server"]
-            in_25(25) --> server
-            in_465(465) --> server
-            server(("docker-mailserver<br/>hello@world.com"))
-            server --- out_25(25)
-            server --- out_465(465)
-        end
+    out_25(25) -->|"Direct<br/>Delivery"| tin_25
+    out_465(465) --> relay("MTA<br/>Relay Server") --> tin_25(25)
 
-        third-party("Third-party<br/>(sending you email)") ---|"Receive email for<br/>hello@world.com"| in_25
-
-        subgraph clients ["Clients (MUA)"]
-            mua-client(Thunderbird,<br/>Webmail,<br/>Mutt,<br/>etc)
-            mua-service(Backend software<br/>on another server)
-        end
-        clients ---|"Send email as<br/>hello@world.com"| in_465
-
-        out_25(25) -->|"Direct<br/>Delivery"| tin_25
-        out_465(465) --> relay("MTA<br/>Relay Server") --> tin_25(25)
-
-        subgraph third-party-server["Third-party Server"]
-            third-party-mta("MTA<br/>friend@example.com")
-            tin_25(25) --> third-party-mta
-        end
-    ```
+    subgraph third-party-server["Third-party Server"]
+        third-party-mta("MTA<br/>friend@example.com")
+        tin_25(25) --> third-party-mta
+    end
+```
 
 ---
 
@@ -100,9 +94,7 @@ Unlike with HTTP where a web browser client communicates directly with the serve
 
 Other machines that facilitate a connection that generally aren't taken into account can exist between a client and server, such as those where your connection passes through your ISP provider are capable of compromising a cleartext connection through interception.
 
-[asset-external-mermaid-smtp]: https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggeW91ci1zZXJ2ZXIgW1wiWW91ciBTZXJ2ZXJcIl1cbiAgICAgICAgaW5fMjUoMjUpIC0tPiBzZXJ2ZXJcbiAgICAgICAgaW5fNDY1KDQ2NSkgLS0-IHNlcnZlclxuICAgICAgICBzZXJ2ZXIoKFwiZG9ja2VyLW1haWxzZXJ2ZXI8YnIvPmhlbGxvQHdvcmxkLmNvbVwiKSlcbiAgICAgICAgc2VydmVyIC0tLSBvdXRfMjUoMjUpXG4gICAgICAgIHNlcnZlciAtLS0gb3V0XzQ2NSg0NjUpXG4gICAgZW5kXG5cbiAgICB0aGlyZC1wYXJ0eShcIlRoaXJkLXBhcnR5PGJyLz4oc2VuZGluZyB5b3UgZW1haWwpXCIpIC0tLXxcIlJlY2VpdmUgZW1haWwgZm9yPGJyLz5oZWxsb0B3b3JsZC5jb21cInwgaW5fMjVcblxuICAgIHN1YmdyYXBoIGNsaWVudHMgW1wiQ2xpZW50cyAoTVVBKVwiXVxuICAgICAgICBtdWEtY2xpZW50KFRodW5kZXJiaXJkLDxici8-V2VibWFpbCw8YnIvPk11dHQsPGJyLz5ldGMpXG4gICAgICAgIG11YS1zZXJ2aWNlKEJhY2tlbmQgc29mdHdhcmU8YnIvPm9uIGFub3RoZXIgc2VydmVyKVxuICAgIGVuZFxuICAgIGNsaWVudHMgLS0tfFwiU2VuZCBlbWFpbCBhczxici8-aGVsbG9Ad29ybGQuY29tXCJ8IGluXzQ2NVxuXG4gICAgb3V0XzI1KDI1KSAtLT58XCJEaXJlY3Q8YnIvPkRlbGl2ZXJ5XCJ8IHRpbl8yNVxuICAgIG91dF80NjUoNDY1KSAtLT4gcmVsYXkoXCJNVEE8YnIvPlJlbGF5IFNlcnZlclwiKSAtLT4gdGluXzI1KDI1KVxuXG4gICAgc3ViZ3JhcGggdGhpcmQtcGFydHktc2VydmVyW1wiVGhpcmQtcGFydHkgU2VydmVyXCJdXG4gICAgICAgIHRoaXJkLXBhcnR5LW10YShcIk1UQTxici8-ZnJpZW5kQGV4YW1wbGUuY29tXCIpXG4gICAgICAgIHRpbl8yNSgyNSkgLS0-IHRoaXJkLXBhcnR5LW10YVxuICAgIGVuZCIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9
 [ref-clear-vs-plain]: https://www.denimgroup.com/resources/blog/2007/10/cleartext-vs-pl
 [ref-port25-mandatory]: https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages
-[ref-mermaid-live-smtp]: https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggeW91ci1zZXJ2ZXIgW1wiWW91ciBTZXJ2ZXJcIl1cbiAgICAgICAgaW5fMjUoMjUpIC0tPiBzZXJ2ZXJcbiAgICAgICAgaW5fNDY1KDQ2NSkgLS0-IHNlcnZlclxuICAgICAgICBzZXJ2ZXIoKFwiZG9ja2VyLW1haWxzZXJ2ZXI8YnIvPmhlbGxvQHdvcmxkLmNvbVwiKSlcbiAgICAgICAgc2VydmVyIC0tLSBvdXRfMjUoMjUpXG4gICAgICAgIHNlcnZlciAtLS0gb3V0XzQ2NSg0NjUpXG4gICAgZW5kXG5cbiAgICB0aGlyZC1wYXJ0eShcIlRoaXJkLXBhcnR5PGJyLz4oc2VuZGluZyB5b3UgZW1haWwpXCIpIC0tLXxcIlJlY2VpdmUgZW1haWwgZm9yPGJyLz5oZWxsb0B3b3JsZC5jb21cInwgaW5fMjVcblxuICAgIHN1YmdyYXBoIGNsaWVudHMgW1wiQ2xpZW50cyAoTVVBKVwiXVxuICAgICAgICBtdWEtY2xpZW50KFRodW5kZXJiaXJkLDxici8-V2VibWFpbCw8YnIvPk11dHQsPGJyLz5ldGMpXG4gICAgICAgIG11YS1zZXJ2aWNlKEJhY2tlbmQgc29mdHdhcmU8YnIvPm9uIGFub3RoZXIgc2VydmVyKVxuICAgIGVuZFxuICAgIGNsaWVudHMgLS0tfFwiU2VuZCBlbWFpbCBhczxici8-aGVsbG9Ad29ybGQuY29tXCJ8IGluXzQ2NVxuXG4gICAgb3V0XzI1KDI1KSAtLT58XCJEaXJlY3Q8YnIvPkRlbGl2ZXJ5XCJ8IHRpbl8yNVxuICAgIG91dF80NjUoNDY1KSAtLT4gcmVsYXkoXCJNVEE8YnIvPlJlbGF5IFNlcnZlclwiKSAtLT4gdGluXzI1KDI1KVxuXG4gICAgc3ViZ3JhcGggdGhpcmQtcGFydHktc2VydmVyW1wiVGhpcmQtcGFydHkgU2VydmVyXCJdXG4gICAgICAgIHRoaXJkLXBhcnR5LW10YShcIk1UQTxici8-ZnJpZW5kQGV4YW1wbGUuY29tXCIpXG4gICAgICAgIHRpbl8yNSgyNSkgLS0-IHRoaXJkLXBhcnR5LW10YVxuICAgIGVuZCIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9
 [rfc-8314]: https://tools.ietf.org/html/rfc8314
 [rfc-8314-s41]: https://tools.ietf.org/html/rfc8314#section-4.1
