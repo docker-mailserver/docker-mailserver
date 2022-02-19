@@ -10,6 +10,8 @@
 # - ../start-mailserver.sh
 # - ../startup/setup-stack.sh
 # - ../../../test/test_helper/common.bash
+#
+# shellcheck disable=SC2034
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 function _import_scripts
