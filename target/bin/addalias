@@ -40,10 +40,10 @@ RECIPIENT="${2}"
 [[ -z ${RECIPIENT} ]] && { __usage ; errex 'No recipient specified' ; }
 
 grep \
-  -qi "^$(escape "${EMAIL}")[a-zA-Z@.\ ]*$(escape "${RECIPIENT}")" \
+  -qi "^$(_escape "${EMAIL}")[a-zA-Z@.\ ]*$(_escape "${RECIPIENT}")" \
   "${DATABASE}" 2>/dev/null && errex "Alias \"${EMAIL} ${RECIPIENT}\" already exists"
 
-if grep -qi "^$(escape "${EMAIL}")" "${DATABASE}" 2>/dev/null
+if grep -qi "^$(_escape "${EMAIL}")" "${DATABASE}" 2>/dev/null
 then
   sed -i "/${EMAIL}/s/$/,${RECIPIENT}/" "${DATABASE}"
 else

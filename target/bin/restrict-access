@@ -32,7 +32,7 @@ fi
 
 case ${MODE} in
   add)
-    grep -qi "^$(escape "${USER}")" "${DATABASE}" 2>/dev/null && errex "User \"${USER}\" already denied to ${2} mails"
+    grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && errex "User \"${USER}\" already denied to ${2} mails"
 
     if [[ ! -f ${DATABASE} ]]
     then
@@ -48,7 +48,7 @@ case ${MODE} in
   ;;
 
   del)
-    sed -ie "/^$(escape "${USER}")/d" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" not found."
+    sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" not found."
   ;;
 
   list)
