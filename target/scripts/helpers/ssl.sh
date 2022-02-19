@@ -180,7 +180,7 @@ function _setup_ssl
       # SSL_DOMAIN will have any wildcard prefix stripped for the output FQDN folder it is stored in.
       # TODO: A wildcard cert needs to be provisioned via Traefik to validate if acme.json contains any other value for `main` or `sans` beyond the wildcard.
       #
-      # NOTE: HOSTNAME is set via helper functions, it is not the original system HOSTNAME ENV anymore.
+      # NOTE: HOSTNAME is set via `helpers/dns.sh`, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
 
       _traefik_support

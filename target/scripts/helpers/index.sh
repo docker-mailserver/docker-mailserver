@@ -12,14 +12,15 @@ function _import_scripts
   source "${PATH_TO_SCRIPTS}/accounts.sh"
   source "${PATH_TO_SCRIPTS}/aliases.sh"
   source "${PATH_TO_SCRIPTS}/dns.sh"
-  source "${PATH_TO_SCRIPTS}/exit.sh"
+  source "${PATH_TO_SCRIPTS}/error.sh"
+  source "${PATH_TO_SCRIPTS}/lock.sh"
   source "${PATH_TO_SCRIPTS}/log.sh"
-  source "${PATH_TO_SCRIPTS}/miscellaneous.sh"
+  source "${PATH_TO_SCRIPTS}/network.sh"
   source "${PATH_TO_SCRIPTS}/postfix.sh"
   source "${PATH_TO_SCRIPTS}/relay.sh"
   source "${PATH_TO_SCRIPTS}/sasl.sh"
   source "${PATH_TO_SCRIPTS}/ssl.sh"
-  source "${PATH_TO_SCRIPTS}/tcp_ip.sh"
+  source "${PATH_TO_SCRIPTS}/utils.sh"
 }
 
 _import_scripts

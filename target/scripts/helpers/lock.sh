@@ -37,14 +37,3 @@ function remove_lock
     _notify 'inf' "Removed lock ${LOCK_FILE}."
   fi
 }
-
-function escape
-{
-  echo "${1//./\\.}"
-}
-
-# Check if string input is an empty line, only whitespaces or `#` as the first non-whitespace character.
-function _is_comment
-{
-  grep -q -E "^\s*$|^\s*#" <<< "${1}"
-}
