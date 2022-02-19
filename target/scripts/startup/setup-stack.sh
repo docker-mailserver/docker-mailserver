@@ -964,7 +964,7 @@ function _setup_security_stack
     if [[ ${ENABLE_SPAMASSASSIN_KAM} -eq 1 ]]
     then
       _notify 'inf' 'Configuring Spamassassin KAM'
-      local SPAMASSASSIN_KAM_CRON_FILE=/etc/cron.daily/10-spamassassin_kam
+      local SPAMASSASSIN_KAM_CRON_FILE=/etc/cron.daily/spamassassin_kam
 
       sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
