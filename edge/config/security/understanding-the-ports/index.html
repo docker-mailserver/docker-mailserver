@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.1">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.cd566b2a.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.e8d9bf0c.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -177,7 +177,7 @@
         <a href="https://github.com/docker-mailserver/docker-mailserver/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     docker-mailserver
@@ -349,7 +349,7 @@
       <a href="https://github.com/docker-mailserver/docker-mailserver/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     docker-mailserver
@@ -1661,6 +1661,7 @@
 </a>
 
 
+
   <h1>Understanding the Ports</h1>
 
 <h2 id="quick-reference"><a class="toclink" href="#quick-reference">Quick Reference</a></h2>
@@ -1708,36 +1709,30 @@
 <li>A <em>submission</em> port since 2018 (<a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>). Previously a secure variant of port 25.</li>
 </ol>
 <h3 id="what-ports-should-i-use-smtp"><a class="toclink" href="#what-ports-should-i-use-smtp">What Ports Should I Use? (SMTP)</a></h3>
-<p><a href="https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggeW91ci1zZXJ2ZXIgW1wiWW91ciBTZXJ2ZXJcIl1cbiAgICAgICAgaW5fMjUoMjUpIC0tPiBzZXJ2ZXJcbiAgICAgICAgaW5fNDY1KDQ2NSkgLS0-IHNlcnZlclxuICAgICAgICBzZXJ2ZXIoKFwiZG9ja2VyLW1haWxzZXJ2ZXI8YnIvPmhlbGxvQHdvcmxkLmNvbVwiKSlcbiAgICAgICAgc2VydmVyIC0tLSBvdXRfMjUoMjUpXG4gICAgICAgIHNlcnZlciAtLS0gb3V0XzQ2NSg0NjUpXG4gICAgZW5kXG5cbiAgICB0aGlyZC1wYXJ0eShcIlRoaXJkLXBhcnR5PGJyLz4oc2VuZGluZyB5b3UgZW1haWwpXCIpIC0tLXxcIlJlY2VpdmUgZW1haWwgZm9yPGJyLz5oZWxsb0B3b3JsZC5jb21cInwgaW5fMjVcblxuICAgIHN1YmdyYXBoIGNsaWVudHMgW1wiQ2xpZW50cyAoTVVBKVwiXVxuICAgICAgICBtdWEtY2xpZW50KFRodW5kZXJiaXJkLDxici8-V2VibWFpbCw8YnIvPk11dHQsPGJyLz5ldGMpXG4gICAgICAgIG11YS1zZXJ2aWNlKEJhY2tlbmQgc29mdHdhcmU8YnIvPm9uIGFub3RoZXIgc2VydmVyKVxuICAgIGVuZFxuICAgIGNsaWVudHMgLS0tfFwiU2VuZCBlbWFpbCBhczxici8-aGVsbG9Ad29ybGQuY29tXCJ8IGluXzQ2NVxuXG4gICAgb3V0XzI1KDI1KSAtLT58XCJEaXJlY3Q8YnIvPkRlbGl2ZXJ5XCJ8IHRpbl8yNVxuICAgIG91dF80NjUoNDY1KSAtLT4gcmVsYXkoXCJNVEE8YnIvPlJlbGF5IFNlcnZlclwiKSAtLT4gdGluXzI1KDI1KVxuXG4gICAgc3ViZ3JhcGggdGhpcmQtcGFydHktc2VydmVyW1wiVGhpcmQtcGFydHkgU2VydmVyXCJdXG4gICAgICAgIHRoaXJkLXBhcnR5LW10YShcIk1UQTxici8-ZnJpZW5kQGV4YW1wbGUuY29tXCIpXG4gICAgICAgIHRpbl8yNSgyNSkgLS0-IHRoaXJkLXBhcnR5LW10YVxuICAgIGVuZCIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9"><img alt="Best Practice - Ports (SMTP)" src="https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggeW91ci1zZXJ2ZXIgW1wiWW91ciBTZXJ2ZXJcIl1cbiAgICAgICAgaW5fMjUoMjUpIC0tPiBzZXJ2ZXJcbiAgICAgICAgaW5fNDY1KDQ2NSkgLS0-IHNlcnZlclxuICAgICAgICBzZXJ2ZXIoKFwiZG9ja2VyLW1haWxzZXJ2ZXI8YnIvPmhlbGxvQHdvcmxkLmNvbVwiKSlcbiAgICAgICAgc2VydmVyIC0tLSBvdXRfMjUoMjUpXG4gICAgICAgIHNlcnZlciAtLS0gb3V0XzQ2NSg0NjUpXG4gICAgZW5kXG5cbiAgICB0aGlyZC1wYXJ0eShcIlRoaXJkLXBhcnR5PGJyLz4oc2VuZGluZyB5b3UgZW1haWwpXCIpIC0tLXxcIlJlY2VpdmUgZW1haWwgZm9yPGJyLz5oZWxsb0B3b3JsZC5jb21cInwgaW5fMjVcblxuICAgIHN1YmdyYXBoIGNsaWVudHMgW1wiQ2xpZW50cyAoTVVBKVwiXVxuICAgICAgICBtdWEtY2xpZW50KFRodW5kZXJiaXJkLDxici8-V2VibWFpbCw8YnIvPk11dHQsPGJyLz5ldGMpXG4gICAgICAgIG11YS1zZXJ2aWNlKEJhY2tlbmQgc29mdHdhcmU8YnIvPm9uIGFub3RoZXIgc2VydmVyKVxuICAgIGVuZFxuICAgIGNsaWVudHMgLS0tfFwiU2VuZCBlbWFpbCBhczxici8-aGVsbG9Ad29ybGQuY29tXCJ8IGluXzQ2NVxuXG4gICAgb3V0XzI1KDI1KSAtLT58XCJEaXJlY3Q8YnIvPkRlbGl2ZXJ5XCJ8IHRpbl8yNVxuICAgIG91dF80NjUoNDY1KSAtLT4gcmVsYXkoXCJNVEE8YnIvPlJlbGF5IFNlcnZlclwiKSAtLT4gdGluXzI1KDI1KVxuXG4gICAgc3ViZ3JhcGggdGhpcmQtcGFydHktc2VydmVyW1wiVGhpcmQtcGFydHkgU2VydmVyXCJdXG4gICAgICAgIHRoaXJkLXBhcnR5LW10YShcIk1UQTxici8-ZnJpZW5kQGV4YW1wbGUuY29tXCIpXG4gICAgICAgIHRpbl8yNSgyNSkgLS0-IHRoaXJkLXBhcnR5LW10YVxuICAgIGVuZCIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9" /></a></p>
-<details>
-<summary>Flowchart - Mermaid.js source:</summary>
-<p>View in the <a href="https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggeW91ci1zZXJ2ZXIgW1wiWW91ciBTZXJ2ZXJcIl1cbiAgICAgICAgaW5fMjUoMjUpIC0tPiBzZXJ2ZXJcbiAgICAgICAgaW5fNDY1KDQ2NSkgLS0-IHNlcnZlclxuICAgICAgICBzZXJ2ZXIoKFwiZG9ja2VyLW1haWxzZXJ2ZXI8YnIvPmhlbGxvQHdvcmxkLmNvbVwiKSlcbiAgICAgICAgc2VydmVyIC0tLSBvdXRfMjUoMjUpXG4gICAgICAgIHNlcnZlciAtLS0gb3V0XzQ2NSg0NjUpXG4gICAgZW5kXG5cbiAgICB0aGlyZC1wYXJ0eShcIlRoaXJkLXBhcnR5PGJyLz4oc2VuZGluZyB5b3UgZW1haWwpXCIpIC0tLXxcIlJlY2VpdmUgZW1haWwgZm9yPGJyLz5oZWxsb0B3b3JsZC5jb21cInwgaW5fMjVcblxuICAgIHN1YmdyYXBoIGNsaWVudHMgW1wiQ2xpZW50cyAoTVVBKVwiXVxuICAgICAgICBtdWEtY2xpZW50KFRodW5kZXJiaXJkLDxici8-V2VibWFpbCw8YnIvPk11dHQsPGJyLz5ldGMpXG4gICAgICAgIG11YS1zZXJ2aWNlKEJhY2tlbmQgc29mdHdhcmU8YnIvPm9uIGFub3RoZXIgc2VydmVyKVxuICAgIGVuZFxuICAgIGNsaWVudHMgLS0tfFwiU2VuZCBlbWFpbCBhczxici8-aGVsbG9Ad29ybGQuY29tXCJ8IGluXzQ2NVxuXG4gICAgb3V0XzI1KDI1KSAtLT58XCJEaXJlY3Q8YnIvPkRlbGl2ZXJ5XCJ8IHRpbl8yNVxuICAgIG91dF80NjUoNDY1KSAtLT4gcmVsYXkoXCJNVEE8YnIvPlJlbGF5IFNlcnZlclwiKSAtLT4gdGluXzI1KDI1KVxuXG4gICAgc3ViZ3JhcGggdGhpcmQtcGFydHktc2VydmVyW1wiVGhpcmQtcGFydHkgU2VydmVyXCJdXG4gICAgICAgIHRoaXJkLXBhcnR5LW10YShcIk1UQTxici8-ZnJpZW5kQGV4YW1wbGUuY29tXCIpXG4gICAgICAgIHRpbl8yNSgyNSkgLS0-IHRoaXJkLXBhcnR5LW10YVxuICAgIGVuZCIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2V9">Live Editor</a>.</p>
-<div class="highlight"><pre><span></span><code>flowchart LR
-    subgraph your-server [&quot;Your Server&quot;]
+<pre class="mermaid"><code>flowchart LR
+    subgraph your-server ["Your Server"]
         in_25(25) --&gt; server
         in_465(465) --&gt; server
-        server((&quot;docker-mailserver&lt;br/&gt;hello@world.com&quot;))
+        server(("docker-mailserver&lt;br/&gt;hello@world.com"))
         server --- out_25(25)
         server --- out_465(465)
     end
 
-    third-party(&quot;Third-party&lt;br/&gt;(sending you email)&quot;) ---|&quot;Receive email for&lt;br/&gt;hello@world.com&quot;| in_25
+    third-party("Third-party&lt;br/&gt;(sending you email)") ---|"Receive email for&lt;br/&gt;hello@world.com"| in_25
 
-    subgraph clients [&quot;Clients (MUA)&quot;]
+    subgraph clients ["Clients (MUA)"]
         mua-client(Thunderbird,&lt;br/&gt;Webmail,&lt;br/&gt;Mutt,&lt;br/&gt;etc)
         mua-service(Backend software&lt;br/&gt;on another server)
     end
-    clients ---|&quot;Send email as&lt;br/&gt;hello@world.com&quot;| in_465
+    clients ---|"Send email as&lt;br/&gt;hello@world.com"| in_465
 
-    out_25(25) --&gt;|&quot;Direct&lt;br/&gt;Delivery&quot;| tin_25
-    out_465(465) --&gt; relay(&quot;MTA&lt;br/&gt;Relay Server&quot;) --&gt; tin_25(25)
+    out_25(25) --&gt;|"Direct&lt;br/&gt;Delivery"| tin_25
+    out_465(465) --&gt; relay("MTA&lt;br/&gt;Relay Server") --&gt; tin_25(25)
 
-    subgraph third-party-server[&quot;Third-party Server&quot;]
-        third-party-mta(&quot;MTA&lt;br/&gt;friend@example.com&quot;)
+    subgraph third-party-server["Third-party Server"]
+        third-party-mta("MTA&lt;br/&gt;friend@example.com")
         tin_25(25) --&gt; third-party-mta
-    end
-</code></pre></div>
-</details>
+    end</code></pre>
 <hr />
 <h4 id="inbound-traffic-on-the-left"><a class="toclink" href="#inbound-traffic-on-the-left">Inbound Traffic (On the left)</a></h4>
 <ul>
@@ -1845,10 +1840,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.bd0b6b67.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.01de222e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.8aa65030.min.js"></script>
       
     
   </body>
