@@ -6,7 +6,7 @@
 # even if it's a value used for Postfix `main.cf:mydestination`, which apparently isn't good?
 # Only an issue when $myhostname is an exact match (eg: bare domain FQDN).
 
-export DOVECOT_USERDB_FILE=/etc/dovecot/userdb
+DOVECOT_USERDB_FILE=/etc/dovecot/userdb
 
 function _create_accounts
 {
@@ -62,7 +62,7 @@ function _create_accounts
       local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
 
       POSTFIX_VMAILBOX_LINE="${LOGIN} ${DOMAIN}/${USER}/"
-      if grep "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox &>/dev/null
+      if grep -F "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox &>/dev/null
       then
         _notify 'war' "User '${USER}@${DOMAIN}' will not be added to '/etc/postfix/vmailbox' twice"
       else
@@ -157,7 +157,7 @@ function _create_dovecot_alias_dummy_accounts
       fi
 
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
-      if grep "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}" &>/dev/null
+      if grep -F "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}" &>/dev/null
       then
         _notify 'war' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
