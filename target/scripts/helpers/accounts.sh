@@ -62,7 +62,7 @@ function _create_accounts
       local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
 
       POSTFIX_VMAILBOX_LINE="${LOGIN} ${DOMAIN}/${USER}/"
-      if grep -F "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox &>/dev/null
+      if grep -qF "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox
       then
         _notify 'war' "User '${USER}@${DOMAIN}' will not be added to '/etc/postfix/vmailbox' twice"
       else
@@ -72,7 +72,7 @@ function _create_accounts
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
       DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}"
-      if grep "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}" &>/dev/null
+      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
       then
         _notify 'war' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
@@ -157,7 +157,7 @@ function _create_dovecot_alias_dummy_accounts
       fi
 
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
-      if grep -F "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}" &>/dev/null
+      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
       then
         _notify 'war' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
