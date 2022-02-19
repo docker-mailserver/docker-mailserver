@@ -348,7 +348,7 @@ Finally the logrotate interval **may** affect the period for generated reports. 
 - 0 => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
 - **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
 
-##### ENABLE_SPAMASSASSIN_KAM=1
+##### ENABLE_SPAMASSASSIN_KAM
 
 [KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
 

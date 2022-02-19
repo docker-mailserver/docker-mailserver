@@ -970,7 +970,7 @@ function _setup_security_stack
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com -v 2>&1
+sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1
 
 EOM
 
