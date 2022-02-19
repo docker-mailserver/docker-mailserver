@@ -71,8 +71,6 @@ VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 # shellcheck disable=SC2034
 VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
-export HOSTNAME DOMAINNAME CHKSUM_FILE
-
 _obtain_hostname_and_domainname
 
 # ------------------------------------------------------------

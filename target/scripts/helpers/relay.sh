@@ -116,7 +116,7 @@ function _setup_relayhost
     _relayhost_configure_postfix
   fi
 }
-export -f _setup_relayhost
+
 
 function _rebuild_relayhost
 {
@@ -131,4 +131,4 @@ function _rebuild_relayhost
     _populate_relayhost_map
   fi
 }
-export -f _rebuild_relayhost
+

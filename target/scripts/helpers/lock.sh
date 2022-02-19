@@ -26,7 +26,7 @@ function _create_lock
   trap _remove_lock EXIT
   echo "${LOCK_ID}" > "${LOCK_FILE}"
 }
-export -f _create_lock
+
 
 function _remove_lock
 {
@@ -38,4 +38,4 @@ function _remove_lock
     _notify 'inf' "Removed lock ${LOCK_FILE}."
   fi
 }
-export -f _remove_lock
+

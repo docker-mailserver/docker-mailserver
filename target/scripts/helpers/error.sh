@@ -5,7 +5,7 @@ function _errex
   echo -e "Error :: ${*}\nAborting." >&2
   exit 1
 }
-export -f _errex
+
 
 # `dms_panic` methods are appropriate when the type of error is a not recoverable,
 # or needs to be very clear to the user about misconfiguration.
@@ -63,11 +63,11 @@ function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }
 function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 
-export -f dms_panic__fail_init
-export -f dms_panic__no_env
-export -f dms_panic__no_file
-export -f dms_panic__misconfigured
-export -f dms_panic__invalid_value
+
+
+
+
+
 
 # Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
@@ -79,4 +79,4 @@ function _shutdown
   _notify 'err' "Shutting down.."
   kill 1
 }
-export -f _shutdown
+

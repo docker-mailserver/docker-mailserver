@@ -407,7 +407,7 @@ function _setup_ssl
 
   esac
 }
-export -f _setup_ssl
+
 
 function _extract_certs_from_acme
 {
@@ -441,13 +441,13 @@ function _extract_certs_from_acme
 
   _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
-export -f _extract_certs_from_acme
+
 
 # Remove the `*.` prefix if it exists, else returns the input value
 function _strip_wildcard_prefix {
   [[ ${1} == "*."* ]] && echo "${1:2}" || echo "${1}"
 }
-export -f _strip_wildcard_prefix
+
 
 # Compute checksums of monitored files,
 # returned output on `stdout`: hash + filepath tuple on each line
@@ -496,4 +496,4 @@ function _monitored_files_checksums
 
   sha512sum -- "${CHANGED_FILES[@]}"
 }
-export -f _monitored_files_checksums
+

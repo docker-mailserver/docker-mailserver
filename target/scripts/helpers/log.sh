@@ -22,4 +22,4 @@ function _notify
 
   return 0
 }
-export -f _notify
+
