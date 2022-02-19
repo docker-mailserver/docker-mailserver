@@ -27,7 +27,6 @@ function _create_lock
   echo "${LOCK_ID}" > "${LOCK_FILE}"
 }
 
-
 function _remove_lock
 {
   LOCK_FILE="${LOCK_FILE:-"/tmp/docker-mailserver/${SCRIPT_NAME}.lock"}"

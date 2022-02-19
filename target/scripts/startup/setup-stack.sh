@@ -947,7 +947,6 @@ function _setup_security_stack
       cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
     fi
 
-
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]
     then
       _notify 'inf' 'Configuring Spamassassin/Amavis to send SPAM to inbox'

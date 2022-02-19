@@ -6,7 +6,6 @@ function _errex
   exit 1
 }
 
-
 # `dms_panic` methods are appropriate when the type of error is a not recoverable,
 # or needs to be very clear to the user about misconfiguration.
 #
@@ -62,9 +61,6 @@ function dms_panic__no_env { dms_panic 'no-env' "${1}" "${2}"; }
 function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }
 function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
-
-
-
 
 
 

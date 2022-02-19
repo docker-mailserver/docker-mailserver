@@ -12,7 +12,6 @@ function _sasl_passwd_create
   fi
 }
 
-
 function _sasl_set_passwd_permissions
 {
   if [[ -f /etc/postfix/sasl_passwd ]]

@@ -408,7 +408,6 @@ function _setup_ssl
   esac
 }
 
-
 function _extract_certs_from_acme
 {
   local CERT_DOMAIN=${1}
@@ -442,12 +441,10 @@ function _extract_certs_from_acme
   _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 
-
 # Remove the `*.` prefix if it exists, else returns the input value
 function _strip_wildcard_prefix {
   [[ ${1} == "*."* ]] && echo "${1:2}" || echo "${1}"
 }
-
 
 # Compute checksums of monitored files,
 # returned output on `stdout`: hash + filepath tuple on each line

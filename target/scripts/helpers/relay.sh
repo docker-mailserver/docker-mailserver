@@ -117,7 +117,6 @@ function _setup_relayhost
   fi
 }
 
-
 function _rebuild_relayhost
 {
   if [[ -n ${RELAY_HOST} ]]

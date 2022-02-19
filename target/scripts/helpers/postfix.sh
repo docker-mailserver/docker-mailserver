@@ -33,7 +33,6 @@ function _create_postfix_vhost
   fi
 }
 
-
 # Docs - Postfix lookup table files:
 # http://www.postfix.org/DATABASE_README.html
 #

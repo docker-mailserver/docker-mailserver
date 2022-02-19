@@ -78,7 +78,6 @@ function _create_accounts
   fi
 }
 
-
 # Required when using Dovecot Quotas to avoid blacklisting risk from backscatter
 # Note: This is a workaround only suitable for basic aliases that map to single real addresses,
 # not multiple addresses (real accounts or additional aliases), those will not work with Postfix
