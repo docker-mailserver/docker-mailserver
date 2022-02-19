@@ -7,7 +7,7 @@ SCRIPT_NAME="$(basename "$0")"
 # prevent removal by other instances of docker-mailserver
 LOCK_ID="$(uuid)"
 
-function create_lock
+function _create_lock
 {
   LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
   while [[ -e "${LOCK_FILE}" ]]
@@ -23,17 +23,19 @@ function create_lock
     fi
     sleep 5
   done
-  trap remove_lock EXIT
+  trap _remove_lock EXIT
   echo "${LOCK_ID}" > "${LOCK_FILE}"
 }
+export -f _create_lock
 
-function remove_lock
+function _remove_lock
 {
   LOCK_FILE="${LOCK_FILE:-"/tmp/docker-mailserver/${SCRIPT_NAME}.lock"}"
-  [[ -z "${LOCK_ID}" ]] && errex "Cannot remove ${LOCK_FILE} as there is no LOCK_ID set"
+  [[ -z "${LOCK_ID}" ]] && _errex "Cannot remove ${LOCK_FILE} as there is no LOCK_ID set"
   if [[ -e "${LOCK_FILE}" ]] && grep -q "${LOCK_ID}" "${LOCK_FILE}" # Ensure we don't delete a lock that's not ours
   then
     rm -f "${LOCK_FILE}"
     _notify 'inf' "Removed lock ${LOCK_FILE}."
   fi
 }
+export -f _remove_lock

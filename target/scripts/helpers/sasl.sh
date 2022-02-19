@@ -1,5 +1,4 @@
 #! /bin/bash
-# Support for SASL
 
 function _sasl_passwd_create
 {
@@ -12,6 +11,7 @@ function _sasl_passwd_create
     rm -f /etc/postfix/sasl_passwd
   fi
 }
+export -f _sasl_passwd_create
 
 function _sasl_set_passwd_permissions
 {
@@ -21,3 +21,4 @@ function _sasl_set_passwd_permissions
     chmod 0600 /etc/postfix/sasl_passwd
   fi
 }
+export -f _sasl_set_passwd_permissions

@@ -77,6 +77,7 @@ function _create_accounts
     _create_dovecot_alias_dummy_accounts
   fi
 }
+export -f _create_accounts
 
 # Required when using Dovecot Quotas to avoid blacklisting risk from backscatter
 # Note: This is a workaround only suitable for basic aliases that map to single real addresses,
@@ -144,3 +145,4 @@ function _create_dovecot_alias_dummy_accounts
     done < /tmp/docker-mailserver/postfix-virtual.cf
   fi
 }
+export -f _create_dovecot_alias_dummy_accounts

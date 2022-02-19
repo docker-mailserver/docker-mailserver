@@ -32,6 +32,7 @@ function _create_postfix_vhost
     rm /tmp/vhost.tmp
   fi
 }
+export -f _create_postfix_vhost
 
 # Docs - Postfix lookup table files:
 # http://www.postfix.org/DATABASE_README.html
