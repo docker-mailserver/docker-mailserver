@@ -36,12 +36,12 @@ function __usage
 EMAIL="${1}"
 RECIPIENT="${2}"
 
-[[ -z ${EMAIL} ]] && { __usage ; errex 'No alias specified' ; }
-[[ -z ${RECIPIENT} ]] && { __usage ; errex 'No recipient specified' ; }
+[[ -z ${EMAIL} ]] && { __usage ; _errex 'No alias specified' ; }
+[[ -z ${RECIPIENT} ]] && { __usage ; _errex 'No recipient specified' ; }
 
 grep \
   -qi "^$(_escape "${EMAIL}")[a-zA-Z@.\ ]*$(_escape "${RECIPIENT}")" \
-  "${DATABASE}" 2>/dev/null && errex "Alias \"${EMAIL} ${RECIPIENT}\" already exists"
+  "${DATABASE}" 2>/dev/null && _errex "Alias \"${EMAIL} ${RECIPIENT}\" already exists"
 
 if grep -qi "^$(_escape "${EMAIL}")" "${DATABASE}" 2>/dev/null
 then

@@ -12,8 +12,8 @@ function __usage { echo "Usage: delalias <alias@domain> <recipient@other>" ; }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-[[ -z ${EMAIL} ]] && { __usage ; errex "Error: No alias specified" ; }
-[[ -z ${RECIPIENT} ]] && { __usage ; errex "Error: No recipient specified" ; }
+[[ -z ${EMAIL} ]] && { __usage ; _errex "Error: No alias specified" ; }
+[[ -z ${RECIPIENT} ]] && { __usage ; _errex "Error: No recipient specified" ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 sed -i \

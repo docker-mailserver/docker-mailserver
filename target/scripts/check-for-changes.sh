@@ -61,7 +61,7 @@ do
   if [[ ${?} -eq 1 ]]
   then
     _notify 'inf' "$(_log_date) Change detected"
-    create_lock # Shared config safety lock
+    _create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # TODO Perform updates below conditionally too
@@ -142,7 +142,7 @@ do
     # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
-    remove_lock
+    _remove_lock
     _notify 'inf' "$(_log_date) Completed handling of detected change"
   fi
 

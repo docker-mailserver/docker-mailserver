@@ -75,7 +75,7 @@ else
 
     *)
       usage
-      errex "unknown command: ${1}"
+      _errex "unknown command: ${1}"
       ;;
 
   esac

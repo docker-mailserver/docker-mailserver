@@ -9,7 +9,7 @@ DOMAIN="${1}"
 
 function usage { echo "Usage: excluderelayhost <domain>" ; }
 
-[[ -z ${DOMAIN} ]] && { usage ; errex "no domain specified" ; }
+[[ -z ${DOMAIN} ]] && { usage ; _errex "no domain specified" ; }
 
 if grep -qi "^@${DOMAIN}" "${DATABASE}" 2>/dev/null
 then

@@ -67,14 +67,14 @@ do
 
     * )
       __usage
-      errex "The option ${OPT} is unknown."
+      _errex "The option ${OPT} is unknown."
       ;;
 
   esac
 done
 shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { __usage ; errex "No user specifed" ; }
+[[ -z ${*} ]] && { __usage ; _errex "No user specifed" ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 if ! ${MAILDEL}
@@ -86,7 +86,7 @@ then
   fi
 fi
 
-create_lock # Protect config file with lock to avoid race conditions
+_create_lock # Protect config file with lock to avoid race conditions
 
 for EMAIL in "${@}"
 do
@@ -155,6 +155,6 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
     ERROR=true
   fi
 
-  ${ERROR} && errex 'See the messages above.'
+  ${ERROR} && _errex 'See the messages above.'
 done
 exit 0

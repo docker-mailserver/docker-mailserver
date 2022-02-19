@@ -32,8 +32,8 @@ DOMAIN="${1}"
 HOST="${2}"
 PORT="${3}"
 
-[[ -z ${DOMAIN} ]] && { __usage ; errex 'No domain specified' ; }
-[[ -z ${HOST} ]] && { __usage ; errex 'No relay host specified' ; }
+[[ -z ${DOMAIN} ]] && { __usage ; _errex 'No domain specified' ; }
+[[ -z ${HOST} ]] && { __usage ; _errex 'No relay host specified' ; }
 [[ -z ${PORT} ]] && PORT=25
 
 if grep -qi "^@${DOMAIN}" "${DATABASE}" 2>/dev/null

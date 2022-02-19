@@ -8,7 +8,7 @@ USER="${3}"
 
 function usage  {	echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
 
-[[ -z ${MODE} ]] && errex "missing parameters: <add|del|list> <send|receive> [<email@domain.com>]"
+[[ -z ${MODE} ]] && _errex "missing parameters: <add|del|list> <send|receive> [<email@domain.com>]"
 
 case ${2} in
   send)
@@ -19,7 +19,7 @@ case ${2} in
     ;;
   *)
     usage
-    errex "missing parameters. Specify \"send\" or \"receive\""
+    _errex "missing parameters. Specify \"send\" or \"receive\""
     ;;
 esac
 
@@ -27,12 +27,12 @@ if [[ -z ${USER} ]] && [[ ${MODE} != list ]]
 then
   read -r -p "User(user@domain.com): " USER
   echo
-  [[ -z ${USER} ]] && errex "User must not be empty"
+  [[ -z ${USER} ]] && _errex "User must not be empty"
 fi
 
 case ${MODE} in
   add)
-    grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && errex "User \"${USER}\" already denied to ${2} mails"
+    grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && _errex "User \"${USER}\" already denied to ${2} mails"
 
     if [[ ! -f ${DATABASE} ]]
     then
@@ -48,7 +48,7 @@ case ${MODE} in
   ;;
 
   del)
-    sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" not found."
+    sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || _errex "User \"${USER}\" not found."
   ;;
 
   list)
@@ -56,7 +56,7 @@ case ${MODE} in
     ;;
   *)
     usage
-    errex "missing mode. Specify \"add\", \"del\" or \"list\""
+    _errex "missing mode. Specify \"add\", \"del\" or \"list\""
   ;;
 
 esac

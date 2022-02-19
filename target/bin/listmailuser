@@ -23,8 +23,8 @@ function dovecot_quota_to_hr()
 DATABASE="/tmp/docker-mailserver/postfix-accounts.cf"
 ALIASES="/tmp/docker-mailserver/postfix-virtual.cf"
 
-[[ -f ${DATABASE} ]] || errex "Error: No postfix-accounts.cf file"
-[[ -s ${DATABASE} ]] || errex "Error: Empty postfix-accounts.cf - no accounts have been added"
+[[ -f ${DATABASE} ]] || _errex "Error: No postfix-accounts.cf file"
+[[ -s ${DATABASE} ]] || _errex "Error: Empty postfix-accounts.cf - no accounts have been added"
 
 while read -r LINE
 do
