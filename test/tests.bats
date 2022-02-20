@@ -23,9 +23,9 @@ setup_file() {
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
-    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
+    -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
     -e REPORT_SENDER=report1@mail.my-domain.com \
@@ -34,6 +34,7 @@ setup_file() {
     -e SA_TAG=-5.0 \
     -e SA_TAG2=2.0 \
     -e SASL_PASSWD="external-domain.com username:password" \
+    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \

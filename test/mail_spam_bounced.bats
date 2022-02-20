@@ -36,6 +36,7 @@ function setup_file() {
   # shellcheck disable=SC2034
   local TEST_DOCKER_ARGS=(
     --env ENABLE_SPAMASSASSIN=1
+    --env PERMIT_DOCKER=container
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
   )
 
