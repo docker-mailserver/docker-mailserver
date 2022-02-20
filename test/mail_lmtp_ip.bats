@@ -13,14 +13,14 @@ setup_file() {
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     PRIVATE_ETC="$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)"
     docker run -d --name mail_lmtp_ip \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "${PRIVATE_ETC}":/etc/dovecot \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e DMS_DEBUG=0 \
-		-e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
-		-e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "${PRIVATE_ETC}":/etc/dovecot \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e DMS_DEBUG=0 \
+    -e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
+    -e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
     -e PERMIT_DOCKER=container \
-		-h mail.my-domain.com -t "${NAME}"
+    -h mail.my-domain.com -t "${NAME}"
     wait_for_finished_setup_in_container mail_lmtp_ip
 }
 
