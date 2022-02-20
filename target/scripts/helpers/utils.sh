@@ -11,4 +11,3 @@ function _is_comment
 {
   grep -q -E "^\s*$|^\s*#" <<< "${1}"
 }
-

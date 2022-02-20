@@ -77,4 +77,3 @@ function _create_aliases
   _handle_postfix_regexp_config
   _handle_postfix_aliases_config
 }
-

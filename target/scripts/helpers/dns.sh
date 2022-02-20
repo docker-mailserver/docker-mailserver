@@ -60,4 +60,3 @@ function _obtain_hostname_and_domainname
   # Not an else statement in the previous conditional in the event that `hostname -d` fails.
   DOMAINNAME="${DOMAINNAME:-${HOSTNAME}}"
 }
-

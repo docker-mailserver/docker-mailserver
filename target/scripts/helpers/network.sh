@@ -38,4 +38,3 @@ function _sanitize_ipv4_to_subnet_cidr
 
   echo "${MASKED_DIGITS[0]}.${MASKED_DIGITS[1]}.${MASKED_DIGITS[2]}.${MASKED_DIGITS[3]}/${1#*/}"
 }
-

@@ -37,4 +37,3 @@ function _remove_lock
     _notify 'inf' "Removed lock ${LOCK_FILE}."
   fi
 }
-

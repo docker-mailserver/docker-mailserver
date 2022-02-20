@@ -22,4 +22,3 @@ function _notify
 
   return 0
 }
-

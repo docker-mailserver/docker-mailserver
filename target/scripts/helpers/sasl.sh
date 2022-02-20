@@ -20,4 +20,3 @@ function _sasl_set_passwd_permissions
     chmod 0600 /etc/postfix/sasl_passwd
   fi
 }
-

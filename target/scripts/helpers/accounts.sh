@@ -144,4 +144,3 @@ function _create_dovecot_alias_dummy_accounts
     done < /tmp/docker-mailserver/postfix-virtual.cf
   fi
 }
-

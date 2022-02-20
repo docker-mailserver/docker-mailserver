@@ -130,4 +130,3 @@ function _rebuild_relayhost
     _populate_relayhost_map
   fi
 }
-

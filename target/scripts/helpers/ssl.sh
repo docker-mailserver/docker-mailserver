@@ -493,4 +493,3 @@ function _monitored_files_checksums
 
   sha512sum -- "${CHANGED_FILES[@]}"
 }
-
