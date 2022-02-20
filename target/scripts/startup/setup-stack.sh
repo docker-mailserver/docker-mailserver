@@ -787,7 +787,7 @@ function _setup_docker_permit
       ;;
 
     * )
-      _notify 'warn' "Invalid value for DOCKER_PERMIT: ${PERMIT_DOCKER}"
+      _notify 'warn' "Invalid value for PERMIT_DOCKER: ${PERMIT_DOCKER}"
       _notify 'inf' "Clearing Postfix's 'mynetworks'"
       postconf -e "mynetworks ="
       ;;
