@@ -219,7 +219,7 @@ See the [documentation](https://docker-mailserver.github.io/docker-mailserver/ed
 
 `INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_][docs-examples-imapfolders] for more information.
 
-[docs-examples-imapfolders]: https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders
+[docs-examples-imapfolders]: https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/imap-folders
 
 ## Examples
 
