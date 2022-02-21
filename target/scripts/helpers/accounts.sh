@@ -1,14 +1,17 @@
 #! /bin/bash
+
 # Support for Postfix accounts managed via Dovecot
 
 # It looks like the DOMAIN in below logic is being stored in /etc/postfix/vhost,
 # even if it's a value used for Postfix `main.cf:mydestination`, which apparently isn't good?
 # Only an issue when $myhostname is an exact match (eg: bare domain FQDN).
 
+DOVECOT_USERDB_FILE=/etc/dovecot/userdb
+
 function _create_accounts
 {
   : >/etc/postfix/vmailbox
-  : >/etc/dovecot/userdb
+  : >"${DOVECOT_USERDB_FILE}"
 
   if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
   then
@@ -22,8 +25,8 @@ function _create_accounts
     # shellcheck disable=SC1003
     sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
 
-    chown dovecot:dovecot /etc/dovecot/userdb
-    chmod 640 /etc/dovecot/userdb
+    chown dovecot:dovecot "${DOVECOT_USERDB_FILE}"
+    chmod 640 "${DOVECOT_USERDB_FILE}"
 
     sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
     sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
@@ -56,12 +59,25 @@ function _create_accounts
         _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
       fi
 
-      echo "${LOGIN} ${DOMAIN}/${USER}/" >> /etc/postfix/vmailbox
+      local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
+
+      POSTFIX_VMAILBOX_LINE="${LOGIN} ${DOMAIN}/${USER}/"
+      if grep -qF "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox
+      then
+        _notify 'warn' "User '${USER}@${DOMAIN}' will not be added to '/etc/postfix/vmailbox' twice"
+      else
+        echo "${POSTFIX_VMAILBOX_LINE}" >>/etc/postfix/vmailbox
+      fi
+
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
-      echo \
-        "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" \
-        >>/etc/dovecot/userdb
+      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}"
+      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
+      then
+        _notify 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
+      else
+        echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
+      fi
 
       mkdir -p "/var/mail/${DOMAIN}/${USER}"
 
@@ -91,7 +107,7 @@ function _create_dovecot_alias_dummy_accounts
   then
     # adding aliases to Dovecot's userdb
     # ${REAL_FQUN} is a user's fully-qualified username
-    local ALIAS REAL_FQUN
+    local ALIAS REAL_FQUN DOVECOT_USERDB_LINE
     while read -r ALIAS REAL_FQUN
     do
       # ignore comments
@@ -138,9 +154,13 @@ function _create_dovecot_alias_dummy_accounts
         fi
       fi
 
-      echo \
-        "${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}" \
-        >> /etc/dovecot/userdb
+      DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
+      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
+      then
+        _notify 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
+      else
+        echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
+      fi
     done < /tmp/docker-mailserver/postfix-virtual.cf
   fi
 }
