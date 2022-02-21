@@ -1712,8 +1712,8 @@ docker-compose ps
 As shown in the <a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/#podman-with-slirp4netns-port-driver">fail2ban section</a> the <code>slirp4netns</code> network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.</p>
-<p>[Rootless Podman][rootless::podman] requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
-<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a [hard-coded interface name][rootless::podman::interface] for <code>slirp4netns</code>.</p>
+<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
+<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
@@ -1726,7 +1726,7 @@ user defined networks which might be a problem depending on your setup.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>podman-compose</code> is not compatible with configuration.</p>
+<p><code>podman-compose</code> is not compatible with this configuration.</p>
 </div>
 <h3 id="self-start-in-rootless-mode"><a class="toclink" href="#self-start-in-rootless-mode">Self-start in Rootless Mode</a></h3>
 <p>Generate a systemd file with the Podman CLI.</p>
