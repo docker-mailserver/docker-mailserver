@@ -415,21 +415,21 @@ function _setup_ldap
   then
     postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-users.cf' not found"
+    _notify 'warn' "'/etc/postfix/ldap-users.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-domains.cf ]]
   then
     postconf -e "virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-domains.cf' not found"
+    _notify 'warn' "'/etc/postfix/ldap-domains.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]
   then
     postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
+    _notify 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
   fi
 
   # shellcheck disable=SC2016
