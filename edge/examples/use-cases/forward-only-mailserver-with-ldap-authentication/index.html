@@ -12,14 +12,14 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/imap-folders/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/forward-only-mailserver-with-ldap-authentication/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.1">
     
     
       
-        <title>Use Cases | Customize Mailbox Folders - Docker Mailserver</title>
+        <title>Use Cases | Forward-Only Mail-Server with LDAP - Docker Mailserver</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mailboxes-aka-imap-folders" class="md-skip">
+        <a href="#building-a-forward-only-mail-server" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Use Cases | Customize Mailbox Folders
+              Use Cases | Forward-Only Mail-Server with LDAP
             
           </span>
         </div>
@@ -326,8 +326,6 @@
         <div class="md-main__inner md-grid">
           
             
-              
-                
               
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
@@ -1232,20 +1230,6 @@
               
   
   
-  
-    <li class="md-nav__item">
-      <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
-        Forward-Only Mail-Server with LDAP
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
     
   
   
@@ -1254,16 +1238,14 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
-        
-      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Customize IMAP Folders
+          Forward-Only Mail-Server with LDAP
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Customize IMAP Folders
+        Forward-Only Mail-Server with LDAP
       </a>
       
         
@@ -1271,8 +1253,6 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  
-    
   
   
     <label class="md-nav__title" for="__toc">
@@ -1282,50 +1262,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#adding-a-mailbox-folder" class="md-nav__link">
-    Adding a mailbox folder
+  <a href="#building-a-forward-only-mail-server" class="md-nav__link">
+    Building a Forward-Only Mail-Server
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#caution" class="md-nav__link">
-    Caution
+  <a href="#authenticating-with-ldap" class="md-nav__link">
+    Authenticating with LDAP
   </a>
-  
-    <nav class="md-nav" aria-label="Caution">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#adding-folders-to-an-existing-setup" class="md-nav__link">
-    Adding folders to an existing setup
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#support-for-special-use-attributes" class="md-nav__link">
-    Support for SPECIAL-USE attributes
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#internationalization-i18n" class="md-nav__link">
-    Internationalization (i18n)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#email-clients-support" class="md-nav__link">
-    Email Clients Support
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1333,6 +1279,20 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imap-folders/" class="md-nav__link">
+        Customize IMAP Folders
+      </a>
     </li>
   
 
@@ -1494,9 +1454,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1504,8 +1462,6 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  
-    
   
   
     <label class="md-nav__title" for="__toc">
@@ -1515,50 +1471,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#adding-a-mailbox-folder" class="md-nav__link">
-    Adding a mailbox folder
+  <a href="#building-a-forward-only-mail-server" class="md-nav__link">
+    Building a Forward-Only Mail-Server
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#caution" class="md-nav__link">
-    Caution
+  <a href="#authenticating-with-ldap" class="md-nav__link">
+    Authenticating with LDAP
   </a>
-  
-    <nav class="md-nav" aria-label="Caution">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#adding-folders-to-an-existing-setup" class="md-nav__link">
-    Adding folders to an existing setup
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#support-for-special-use-attributes" class="md-nav__link">
-    Support for SPECIAL-USE attributes
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#internationalization-i18n" class="md-nav__link">
-    Internationalization (i18n)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#email-clients-support" class="md-nav__link">
-    Email Clients Support
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1574,56 +1496,99 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/uses-cases/imap-folders.md" title="Edit this page" class="md-content__button md-icon">
+<a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/use-cases/forward-only-mailserver-with-ldap-authentication.md" title="Edit this page" class="md-content__button md-icon">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
 </a>
 
 
 
-<h1 id="mailboxes-aka-imap-folders"><a class="toclink" href="#mailboxes-aka-imap-folders">Mailboxes (<em>aka IMAP Folders</em>)</a></h1>
-<p><code>INBOX</code> is setup as the private <a href="https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox"><code>inbox</code> namespace</a>. By default <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> configures the special IMAP folders <code>Drafts</code>, <code>Sent</code>, <code>Junk</code> and <code>Trash</code> to be automatically created and subscribed. They are all assigned to the private <a href="https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox"><code>inbox</code> namespace</a> (<em>which implicitly provides the <code>INBOX</code> folder</em>).</p>
-<p>These IMAP folders are considered special because they add a <a href="https://datatracker.ietf.org/doc/html/rfc6154"><em>"SPECIAL-USE"</em> attribute</a>, which is a standardized way to communicate to mail clients that the folder serves a purpose like storing spam/junk mail (<code>\Junk</code>) or deleted mail (<code>\Trash</code>). This differentiates them from regular mail folders that you may use for organizing.</p>
-<h2 id="adding-a-mailbox-folder"><a class="toclink" href="#adding-a-mailbox-folder">Adding a mailbox folder</a></h2>
-<p>See <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the <a href="https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings">official Dovecot documentation</a>.</p>
-<p>The <code>Archive</code> special IMAP folder may be useful to enable. To do so, make a copy of <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> and uncomment the <code>Archive</code> mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the <a href="https://datatracker.ietf.org/doc/html/rfc6154"><code>\Archive</code> <em>"SPECIAL-USE"</em> attribute</a>.</p>
-<p>With the provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml">docker-compose.yml</a> example, a volume bind mounts the host directory <code>docker-data/dms/config/</code> to the container location <code>/tmp/docker-mailserver/</code>. Config file overrides should instead be mounted to a different location as described in <a href="../../../config/advanced/override-defaults/dovecot/#override-configuration">Overriding Configuration for Dovecot</a>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro</span><span class="w"></span>
+  <h1>Forward-Only Mail-Server with LDAP</h1>
+
+<h2 id="building-a-forward-only-mail-server"><a class="toclink" href="#building-a-forward-only-mail-server">Building a Forward-Only Mail-Server</a></h2>
+<p>A <strong>forward-only</strong> mail-server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where <code>docker-mailserver</code> is installed), using as sender any of the alias addresses.</p>
+<p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
+<div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span><span class="w"></span>
+<span class="na">ENABLE_POP3</span><span class="o">=</span><span class="w"></span>
+<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">SMTP_ONLY</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">ENABLE_FETCHMAIL</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
 </code></pre></div>
-<h2 id="caution"><a class="toclink" href="#caution">Caution</a></h2>
-<h3 id="adding-folders-to-an-existing-setup"><a class="toclink" href="#adding-folders-to-an-existing-setup">Adding folders to an existing setup</a></h3>
-<p>Handling of newly added mailbox folders can be inconsistent across mail clients:</p>
-<ul>
-<li>Users may experience issues such as archived emails only being available locally.</li>
-<li>Users may need to migrate emails manually between two folders.</li>
-</ul>
-<h3 id="support-for-special-use-attributes"><a class="toclink" href="#support-for-special-use-attributes">Support for <code>SPECIAL-USE</code> attributes</a></h3>
-<p>Not all mail clients support the <code>SPECIAL-USE</code> attribute for mailboxes (<em>defined in <a href="https://datatracker.ietf.org/doc/html/rfc6154">RFC 6154</a></em>). These clients will treat the mailbox folder as any other, using the name assigned to it instead.</p>
-<p>Some clients may still know to treat these folders for their intended purpose if the mailbox name matches the common names that the <code>SPECIAL-USE</code> attributes represent (<em>eg <code>Sent</code> as the mailbox name for <code>\Sent</code></em>).</p>
-<h3 id="internationalization-i18n"><a class="toclink" href="#internationalization-i18n">Internationalization (i18n)</a></h3>
-<p>Usually the mail client will know via context such as the <code>SPECIAL-USE</code> attribute or common English mailbox names, to provide a localized label for the users preferred language.</p>
-<p>Take care to test localized names work well as well.</p>
-<h3 id="email-clients-support"><a class="toclink" href="#email-clients-support">Email Clients Support</a></h3>
-<ul>
-<li>If a new mail account is added without the <code>SPECIAL-USE</code> attribute enabled for archives:<ul>
-<li><strong>Thunderbird</strong> suggests and may create an <code>Archives</code> folder on the server.</li>
-<li><strong>Outlook for Android</strong> archives to a local folder.</li>
-<li><strong>Spark for Android</strong> archives to server folder named <code>Archive</code>.</li>
-</ul>
-</li>
-<li>If a new mail account is added after the <code>SPECIAL-USE</code> attribute is enabled for archives:<ul>
-<li><strong>Thunderbird</strong>, <strong>Outlook for Android</strong> and <strong>Spark for Android</strong> will use the mailbox folder name assigned.</li>
-</ul>
-</li>
-</ul>
-<div class="admonition caution">
-<p class="admonition-title">Windows Mail</p>
-<p><strong>Windows Mail</strong> has been said to ignore <code>SPECIAL-USE</code> attribute and look only at the mailbox folder name assigned.</p>
+<p>Since there are no local mailboxes, we use <code>SMTP_ONLY=1</code> to disable <code>dovecot</code>. We disable as well the other services that are related to local mailboxes (<code>POP3</code>, <code>ClamAV</code>, <code>SpamAssassin</code>, etc.)</p>
+<p>We can create aliases with <code>./setup.sh</code>, like this:</p>
+<div class="highlight"><pre><span></span><code>./setup.sh <span class="nb">alias</span> add &lt;alias-address&gt; &lt;external-email-account&gt;
+</code></pre></div>
+<h2 id="authenticating-with-ldap"><a class="toclink" href="#authenticating-with-ldap">Authenticating with LDAP</a></h2>
+<p>If you want to send emails from outside the mail-server you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
+<div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span><span class="w"></span>
+<span class="na">LDAP_SERVER_HOST</span><span class="o">=</span><span class="s">ldap.example.org</span><span class="w"></span>
+<span class="na">LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="na">LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span><span class="w"></span>
+<span class="na">LDAP_BIND_PW</span><span class="o">=</span><span class="s">pass1234</span><span class="w"></span>
+
+<span class="na">ENABLE_SASLAUTHD</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">SASLAUTHD_MECHANISMS</span><span class="o">=</span><span class="s">ldap</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_SERVER</span><span class="o">=</span><span class="s">ldap.example.org</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_PASSWORD</span><span class="o">=</span><span class="s">pass1234</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="na">SASLAUTHD_LDAP_FILTER</span><span class="o">=</span><span class="s">(&amp;(uid=%U)(objectClass=inetOrgPerson))</span><span class="w"></span>
+</code></pre></div>
+<p>My LDAP data structure is very basic, containing only the username, password, and the external email address where to forward emails for this user. An entry looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="na">add uid</span><span class="o">=</span><span class="s">username,ou=users,dc=example,dc=org</span><span class="w"></span>
+<span class="na">uid</span><span class="o">:</span><span class="w"> </span><span class="s">username</span><span class="w"></span>
+<span class="na">objectClass</span><span class="o">:</span><span class="w"> </span><span class="s">inetOrgPerson</span><span class="w"></span>
+<span class="na">sn</span><span class="o">:</span><span class="w"> </span><span class="s">username</span><span class="w"></span>
+<span class="na">cn</span><span class="o">:</span><span class="w"> </span><span class="s">username</span><span class="w"></span>
+<span class="na">userPassword</span><span class="o">:</span><span class="w"> </span><span class="s">{SSHA}abcdefghi123456789</span><span class="w"></span>
+<span class="na">email</span><span class="o">:</span><span class="w"> </span><span class="s">external-account@gmail.com</span><span class="w"></span>
+</code></pre></div>
+<p>This structure is different from what is expected/assumed from the configuration scripts of <code>docker-mailserver</code>, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+rm -f /etc/postfix/<span class="o">{</span>ldap-groups.cf,ldap-domains.cf<span class="o">}</span>
+
+postconf <span class="se">\</span>
+    <span class="s2">&quot;virtual_mailbox_domains = /etc/postfix/vhost&quot;</span> <span class="se">\</span>
+    <span class="s2">&quot;virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf texthash:/etc/postfix/virtual&quot;</span> <span class="se">\</span>
+    <span class="s2">&quot;smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf&quot;</span>
+
+sed -i /etc/postfix/ldap-users.cf <span class="se">\</span>
+    -e <span class="s1">&#39;/query_filter/d&#39;</span> <span class="se">\</span>
+    -e <span class="s1">&#39;/result_attribute/d&#39;</span> <span class="se">\</span>
+    -e <span class="s1">&#39;/result_format/d&#39;</span>
+cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-users.cf</span>
+<span class="s">query_filter = (uid=%u)</span>
+<span class="s">result_attribute = uid</span>
+<span class="s">result_format = %s@example.org</span>
+<span class="s">EOF</span>
+
+sed -i /etc/postfix/ldap-aliases.cf <span class="se">\</span>
+    -e <span class="s1">&#39;/domain/d&#39;</span> <span class="se">\</span>
+    -e <span class="s1">&#39;/query_filter/d&#39;</span> <span class="se">\</span>
+    -e <span class="s1">&#39;/result_attribute/d&#39;</span>
+cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-aliases.cf</span>
+<span class="s">domain = example.org</span>
+<span class="s">query_filter = (uid=%u)</span>
+<span class="s">result_attribute = mail</span>
+<span class="s">EOF</span>
+
+postfix reload
+</code></pre></div>
+<p>You see that besides <code>query_filter</code>, I had to customize as well <code>result_attribute</code> and <code>result_format</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">See also</p>
+<p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail-server with Postfix and Dovecot for multiple domains</a></p>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Needs citation</p>
-<p>This information is provided by the community.</p>
-<p>It presently lacks references to confirm the behaviour. If any information is incorrect please let us know! <img alt="😄" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f604.svg" title=":smile:" /></p>
+<p class="admonition-title">Note</p>
+<p>Another solution that serves as a forward-only mail-server is <a href="https://gitlab.com/docker-scripts/postfix">this</a>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>One user reports only having success if <code>ENABLE_LDAP=0</code> was set.</p>
 </div>
 
               
@@ -1643,7 +1608,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Forward-Only Mail-Server with LDAP" rel="prev">
+        <a href="../../tutorials/blog-posts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Blog Posts" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1652,20 +1617,20 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Forward-Only Mail-Server with LDAP
+              Blog Posts
             </div>
           </div>
         </a>
       
       
         
-        <a href="../../../faq/" class="md-footer__link md-footer__link--next" aria-label="Next: FAQ" rel="next">
+        <a href="../imap-folders/" class="md-footer__link md-footer__link--next" aria-label="Next: Customize IMAP Folders" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              FAQ
+              Customize IMAP Folders
             </div>
           </div>
           <div class="md-footer__button md-icon">

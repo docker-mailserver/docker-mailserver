@@ -196,12 +196,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/forward-only-mailserver-with-ldap-authentication/</loc>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/forward-only-mailserver-with-ldap-authentication/</loc>
          <lastmod>2022-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/uses-cases/imap-folders/</loc>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders/</loc>
          <lastmod>2022-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
