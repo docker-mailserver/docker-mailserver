@@ -766,21 +766,21 @@ function _setup_docker_permit
       ;;
 
     "container" )
-      _notify 'inf' 'Adding container IP address to my networks'
+      _notify 'inf' "Adding container IP address to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
       echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
       ;;
 
     "host" )
-      _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to my networks"
+      _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
       ;;
 
     "network" )
-      _notify 'inf' "Adding docker network in my networks"
+      _notify 'inf' "Adding docker network to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
       echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
       echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
