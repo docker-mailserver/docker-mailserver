@@ -128,7 +128,7 @@ You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-
 
 !!! note
 
-    `podman-compose` is not compatible with configuration.
+    `podman-compose` is not compatible with this configuration.
 
 ### Self-start in Rootless Mode
 
