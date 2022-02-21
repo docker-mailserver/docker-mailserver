@@ -1,9 +1,10 @@
 #! /bin/bash
+
 # TODO: Adapt for compatibility with LDAP
 # Only the cert renewal change detection may be relevant for LDAP?
 
-# shellcheck source=./helper-functions.sh
-. /usr/local/bin/helper-functions.sh
+# shellcheck source=./helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 function _log_date
 {
@@ -60,7 +61,7 @@ do
   if [[ ${?} -eq 1 ]]
   then
     _notify 'inf' "$(_log_date) Change detected"
-    create_lock # Shared config safety lock
+    _create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # TODO Perform updates below conditionally too
@@ -91,7 +92,7 @@ do
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
       #
-      # NOTE: HOSTNAME is set via `helper-functions.sh`, it is not the original system HOSTNAME ENV anymore.
+      # NOTE: HOSTNAME is set via `helpers/dns.sh`, it is not the original system HOSTNAME ENV anymore.
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
       FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
       for CERT_DOMAIN in "${FQDN_LIST[@]}"
@@ -141,7 +142,7 @@ do
     # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
-    remove_lock
+    _remove_lock
     _notify 'inf' "$(_log_date) Completed handling of detected change"
   fi
 
