@@ -13,8 +13,9 @@ function setup_file() {
   docker build -f Dockerfile -t ldap --no-cache .
   popd || return 1
 
-  export FQDN_MAIL='mail.my-domain.com'
-  export FQDN_LDAP='ldap.my-domain.com'
+  export DOMAIN='my-domain.com'
+  export FQDN_MAIL="mail.${DOMAIN}"
+  export FQDN_LDAP="ldap.${DOMAIN}"
   export FQDN_LOCALHOST_A='localhost.localdomain'
   export FQDN_LOCALHOST_B='localhost.otherdomain'
   export DMS_TEST_NETWORK='test-network-ldap'
@@ -38,6 +39,7 @@ function setup_file() {
     -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
     -e SPOOF_PROTECTION=1 \
     -e ENABLE_LDAP=1 \
+    -e PFLOGSUMM_TRIGGER=logrotate \
     -e LDAP_SERVER_HOST=ldap \
     -e LDAP_START_TLS=no \
     -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
@@ -239,7 +241,7 @@ function teardown_file() {
 
 @test "checking pflogsum delivery" {
   # checking default sender is correctly set when env variable not defined
-  run docker exec mail_with_ldap grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "mailserver-report@${DOMAIN}" /etc/logrotate.d/maillog
   assert_success
 
   # checking default logrotation setup

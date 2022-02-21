@@ -25,6 +25,7 @@ setup_file() {
     -e ENABLE_SPAMASSASSIN=1 \
     -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e ENABLE_SRS=1 \
+    -e PFLOGSUMM_TRIGGER=logrotate \
     -e ENABLE_UPDATE_CHECK=0 \
     -e PERMIT_DOCKER=host \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \

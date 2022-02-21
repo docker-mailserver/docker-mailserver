@@ -248,7 +248,7 @@ Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
 ##### PFLOGSUMM_TRIGGER
 
-Enables regular pflogsumm mail reports.
+Enables regular Postfix log summary ("pflogsumm") mail reports.
 
 - **not set** => No report
 - daily_cron => Daily report for the previous day
@@ -259,14 +259,14 @@ If this is not set and reports are enabled with the old options, logrotate will 
 
 ##### PFLOGSUMM_RECIPIENT
 
-Recipient address for pflogsumm reports.
+Recipient address for Postfix log summary reports.
 
-- **not set** => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
+- **not set** => Use POSTMASTER_ADDRESS
 - => Specify the recipient address(es)
 
 ##### PFLOGSUMM_SENDER
 
-Sender address (`FROM`) for pflogsumm reports if pflogsumm reports are enabled.
+Sender address (`FROM`) for pflogsumm reports if Postfix log summary reports are enabled.
 
 - **not set** => Use REPORT_SENDER
 - => Specify the sender address
@@ -293,48 +293,31 @@ Sender address (`FROM`) for logwatch reports if logwatch reports are enabled.
 - **not set** => Use REPORT_SENDER
 - => Specify the sender address
 
-##### REPORT_RECIPIENT (deprecated)
+##### REPORT_RECIPIENT
 
-Enables a report being sent (created by pflogsumm) on a regular basis.
+Defines who receives reports if they are enabled.
 
-- **0** => Report emails are disabled unless enabled by other options
-- 1 => Using POSTMASTER_ADDRESS as the recipient
+- **empty** => Use POSTMASTER_ADDRESS
 - => Specify the recipient address
 
-##### REPORT_SENDER (deprecated)
+##### REPORT_SENDER
 
-Change the sending address for mail report
+Defines who sends reports if they are enabled.
 
-- **empty** => mailserver-report@hostname
-- => Specify the report sender (From) address
-
-##### REPORT_INTERVAL (deprecated)
-
-Changes the interval in which logs are rotated and a report is being sent (deprecated).
-
-- **daily** => Send a daily report
-- weekly => Send a report every week
-- monthly => Send a report every month
-
-Note: This variable used to control logrotate inside the container and sent the pflogsumm report when the logs were rotated.
-It is still supported for backwards compatibility, but the new option LOGROTATE_INTERVAL has been added that only rotates
-the logs.
+- **empty** => `mailserver-report@<YOUR DOMAIN>`
+- => Specify the sender address
 
 ##### LOGROTATE_INTERVAL
 
-Defines the interval in which the mail log is being rotated.
+Changes the interval in which a report is being sent.
 
 - **daily** => Rotate daily.
 - weekly => Rotate weekly.
 - monthly => Rotate monthly.
 
-Note that only the log inside the container is affected.
-The full log output is still available via `docker logs mailserver` (_or your respective container name_).
-If you want to control logrotation for the docker generated logfile, see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
+Note: This Variable actually controls logrotate inside the container and rotates the log depending on this setting. The main log output is still available in its entirety via `docker logs mail` (Or your respective container name). If you want to control logrotation for the Docker-generated logfile see: <https://docs.docker.com/config/containers/logging/configure/>.
 
 Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
-
-Finally the logrotate interval **may** affect the period for generated reports. That is the case when the reports are triggered by log rotation.
 
 #### SpamAssassin
 
