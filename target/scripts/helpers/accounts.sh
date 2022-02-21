@@ -76,9 +76,7 @@ function _create_accounts
       then
         _notify 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
-        echo \
-          "${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}" \
-          >>"${DOVECOT_USERDB_FILE}"
+        echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
 
       mkdir -p "/var/mail/${DOMAIN}/${USER}"
