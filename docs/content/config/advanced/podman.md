@@ -128,7 +128,7 @@ You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-
 
 !!! note
 
-    `podman-compose` is not compatible with configuration.
+    `podman-compose` is not compatible with this configuration.
 
 ### Self-start in Rootless Mode
 
@@ -170,3 +170,6 @@ firewall-cmd --reload
 ```
 
 Just map all the privilege port with non-privilege port you set in docker-compose.yml before as root user.
+
+[rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
+[rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
