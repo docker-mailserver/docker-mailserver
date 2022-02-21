@@ -155,8 +155,8 @@ nav:
       - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
     - 'Use Cases':
-      - 'Forward-Only Mail-Server with LDAP': examples/uses-cases/forward-only-mailserver-with-ldap-authentication.md
-      - 'Customize IMAP Folders': examples/uses-cases/imap-folders.md
+      - 'Forward-Only Mail-Server with LDAP': examples/use-cases/forward-only-mailserver-with-ldap-authentication.md
+      - 'Customize IMAP Folders': examples/use-cases/imap-folders.md
   - 'FAQ' : faq.md
   - 'Contributing':
     - 'Issues and Pull Requests': contributing/issues-and-pull-requests.md
