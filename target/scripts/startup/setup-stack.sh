@@ -758,7 +758,7 @@ function _setup_docker_permit
       for NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
         NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
-        _notify 'inf' "Adding docker network ${NETWORK} in my networks"
+        _notify 'inf' "Adding docker network ${NETWORK} to Postfix's 'mynetworks'"
         postconf -e "$(postconf | grep '^mynetworks =') ${NETWORK}"
         echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
         echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
