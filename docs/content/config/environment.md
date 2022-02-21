@@ -346,15 +346,23 @@ Finally the logrotate interval **may** affect the period for generated reports. 
 
 ##### SPAMASSASSIN_SPAM_TO_INBOX
 
-- **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
 - 0 => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
+- **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
+
+##### ENABLE_SPAMASSASSIN_KAM
+
+[KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
+
+- **0** => KAM disabled
+- 1 => KAM enabled
 
 ##### MOVE_SPAM_TO_JUNK
 
-- **1** => Spam messages will be delivered in the `Junk` folder.
-- 0 => Spam messages will be delivered in the mailbox.
-
+Spam messages can be moved in the Junk folder.
 Note: this setting needs `SPAMASSASSIN_SPAM_TO_INBOX=1`
+
+- 0 => Spam messages will be delivered in the mailbox.
+- **1** => Spam messages will be delivered in the `Junk` folder.
 
 ##### SA_TAG
 

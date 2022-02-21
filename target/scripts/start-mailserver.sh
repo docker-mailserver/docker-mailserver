@@ -1,10 +1,10 @@
 #! /bin/bash
 
-# shellcheck source=./helper-functions.sh
-. /usr/local/bin/helper-functions.sh
+# shellcheck source=./helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 unset FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC
-unset DAEMONS_START HOSTNAME DOMAINNAME CHKSUM_FILE
+unset DAEMONS_START HOSTNAME DOMAINNAME
 
 #shellcheck disable=SC2034
 declare -A VARS
@@ -34,6 +34,7 @@ VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
 VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
 VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
 VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
+VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
 VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
 VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
 VARS[FAIL2BAN_BLOCKTYPE]="${FAIL2BAN_BLOCKTYPE:=drop}"
@@ -72,11 +73,7 @@ VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 # shellcheck disable=SC2034
 VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
-export HOSTNAME DOMAINNAME CHKSUM_FILE
-
 _obtain_hostname_and_domainname
-
-CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # ------------------------------------------------------------
 # ? << Setup of default and global values / variables
@@ -236,19 +233,19 @@ function _register_misc_function
 # ------------------------------------------------------------
 
 # shellcheck source=./startup/check-stack.sh
-. /usr/local/bin/check-stack.sh
+source /usr/local/bin/check-stack.sh
 
 # shellcheck source=./startup/setup-stack.sh
-. /usr/local/bin/setup-stack.sh
+source /usr/local/bin/setup-stack.sh
 
 # shellcheck source=./startup/fixes-stack.sh
-. /usr/local/bin/fixes-stack.sh
+source /usr/local/bin/fixes-stack.sh
 
 # shellcheck source=./startup/misc-stack.sh
-. /usr/local/bin/misc-stack.sh
+source /usr/local/bin/misc-stack.sh
 
 # shellcheck source=./startup/daemons-stack.sh
-. /usr/local/bin/daemons-stack.sh
+source /usr/local/bin/daemons-stack.sh
 
 # ------------------------------------------------------------
 # ? << Sourcing all stacks
