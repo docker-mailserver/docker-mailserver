@@ -1,13 +1,13 @@
 #! /bin/bash
 
-# shellcheck source=../scripts/helper-functions.sh
-. /usr/local/bin/helper-functions.sh
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 HOSTNAME=${1}
 RECIPIENT=${2}
 SENDER=${3}
 
-[[ -x /usr/sbin/pflogsumm ]] || errex "Critical: /usr/sbin/pflogsumm not found"
+[[ -x /usr/sbin/pflogsumm ]] || _errex "Critical: /usr/sbin/pflogsumm not found"
 
 # The case that the mail.log.1 file isn't readable shouldn't
 # actually be possible with logrotate not rotating empty files..
