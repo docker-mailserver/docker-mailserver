@@ -811,6 +811,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_spamassassin_kam" class="md-nav__link">
+    ENABLE_SPAMASSASSIN_KAM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#move_spam_to_junk" class="md-nav__link">
     MOVE_SPAM_TO_JUNK
   </a>
@@ -2689,6 +2696,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_spamassassin_kam" class="md-nav__link">
+    ENABLE_SPAMASSASSIN_KAM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#move_spam_to_junk" class="md-nav__link">
     MOVE_SPAM_TO_JUNK
   </a>
@@ -3556,15 +3570,22 @@ If you want to control logrotation for the docker generated logfile, see: <a hre
 </ul>
 <h5 id="spamassassin_spam_to_inbox"><a class="toclink" href="#spamassassin_spam_to_inbox">SPAMASSASSIN_SPAM_TO_INBOX</a></h5>
 <ul>
-<li><strong>1</strong> =&gt; Spam messages will be delivered to the inbox and tagged as spam using <code>SA_SPAM_SUBJECT</code>.</li>
 <li>0 =&gt; Spam messages will be bounced (<em>rejected</em>) without any notification (<em>dangerous</em>).</li>
+<li><strong>1</strong> =&gt; Spam messages will be delivered to the inbox and tagged as spam using <code>SA_SPAM_SUBJECT</code>.</li>
+</ul>
+<h5 id="enable_spamassassin_kam"><a class="toclink" href="#enable_spamassassin_kam">ENABLE_SPAMASSASSIN_KAM</a></h5>
+<p><a href="https://mcgrail.com/template/projects#KAM1">KAM</a> is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.</p>
+<ul>
+<li><strong>0</strong> =&gt; KAM disabled</li>
+<li>1 =&gt; KAM enabled</li>
 </ul>
 <h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
+<p>Spam messages can be moved in the Junk folder.
+Note: this setting needs <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></p>
 <ul>
-<li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
 <li>0 =&gt; Spam messages will be delivered in the mailbox.</li>
+<li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
 </ul>
-<p>Note: this setting needs <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></p>
 <h5 id="sa_tag"><a class="toclink" href="#sa_tag">SA_TAG</a></h5>
 <ul>
 <li><strong>2.0</strong> =&gt; add spam info headers if at, or above that level</li>
