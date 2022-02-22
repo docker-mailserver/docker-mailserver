@@ -1,5 +1,4 @@
 #! /bin/bash
-# Support for SASL
 
 function _sasl_passwd_create
 {

@@ -94,9 +94,6 @@ function _relayhost_configure_postfix
     "smtp_sender_dependent_authentication = yes"
 }
 
-# ? --------------------------------------------- Callers
-
-# setup-stack.sh:
 function _setup_relayhost
 {
   _notify 'task' 'Setting up Postfix Relay Hosts'
@@ -120,7 +117,6 @@ function _setup_relayhost
   fi
 }
 
-# check-for-changes.sh:
 function _rebuild_relayhost
 {
   if [[ -n ${RELAY_HOST} ]]

@@ -5,8 +5,8 @@
 # ? being used below. (This disables the message file-wide.)
 # shellcheck disable=SC2094
 
-# shellcheck source=../scripts/helper-functions.sh
-. /usr/local/bin/helper-functions.sh
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
 
 DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
@@ -16,18 +16,18 @@ PASSWD="${*}"
 
 function usage  {	echo "Usage: updatemailuser <user@domain.tld> [password]" ; }
 
-[[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
+[[ -z ${USER} ]] && { usage ; _errex "no username specified" ; }
 
 if [[ -z ${PASSWD} ]]
 then
   read -r -s -p "Enter Password: " PASSWD
   echo
-  [[ -z ${PASSWD} ]] && errex "Password must not be empty"
+  [[ -z ${PASSWD} ]] && _errex "Password must not be empty"
 fi
 
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 touch "${DATABASE}"
-create_lock # Protect config file with lock to avoid race conditions
-grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
+_create_lock # Protect config file with lock to avoid race conditions
+grep -qi "^$(_escape "${USER}")|" "${DATABASE}" 2>/dev/null || _errex "User \"${USER}\" does not exist"
 sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"

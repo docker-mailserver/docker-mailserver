@@ -415,21 +415,21 @@ function _setup_ldap
   then
     postconf -e "virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-users.cf' not found"
+    _notify 'warn' "'/etc/postfix/ldap-users.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-domains.cf ]]
   then
     postconf -e "virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-domains.cf' not found"
+    _notify 'warn' "'/etc/postfix/ldap-domains.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]
   then
     postconf -e "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf"
   else
-    _notify 'war' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
+    _notify 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
   fi
 
   # shellcheck disable=SC2016
@@ -947,7 +947,6 @@ function _setup_security_stack
       cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
     fi
 
-
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]
     then
       _notify 'inf' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
@@ -959,6 +958,23 @@ function _setup_security_stack
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
+    fi
+
+    if [[ ${ENABLE_SPAMASSASSIN_KAM} -eq 1 ]]
+    then
+      _notify 'inf' 'Configuring Spamassassin KAM'
+      local SPAMASSASSIN_KAM_CRON_FILE=/etc/cron.daily/spamassassin_kam
+
+      sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
+      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
+#! /bin/bash
+
+sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com && \
+/etc/init.d/spamassassin reload
+
+EOM
+
+      chmod +x "${SPAMASSASSIN_KAM_CRON_FILE}"
     fi
   fi
 
