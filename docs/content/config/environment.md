@@ -266,7 +266,7 @@ Recipient address for Postfix log summary reports.
 
 ##### PFLOGSUMM_SENDER
 
-Sender address (`FROM`) for pflogsumm reports if Postfix log summary reports are enabled.
+Sender address (`FROM`) for pflogsumm reports (if Postfix log summary reports are enabled).
 
 - **not set** => Use REPORT_SENDER
 - => Specify the sender address
@@ -295,14 +295,14 @@ Sender address (`FROM`) for logwatch reports if logwatch reports are enabled.
 
 ##### REPORT_RECIPIENT
 
-Defines who receives reports if they are enabled.
+Defines who receives reports (if they are enabled).
 
 - **empty** => Use POSTMASTER_ADDRESS
 - => Specify the recipient address
 
 ##### REPORT_SENDER
 
-Defines who sends reports if they are enabled.
+Defines who sends reports (if they are enabled).
 
 - **empty** => `mailserver-report@<YOUR DOMAIN>`
 - => Specify the sender address
@@ -315,7 +315,13 @@ Changes the interval in which a report is being sent.
 - weekly => Rotate weekly.
 - monthly => Rotate monthly.
 
-Note: This Variable actually controls logrotate inside the container and rotates the log depending on this setting. The main log output is still available in its entirety via `docker logs mail` (Or your respective container name). If you want to control logrotation for the Docker-generated logfile see: <https://docs.docker.com/config/containers/logging/configure/>.
+!!! note
+
+    `LOGROTATE_INTERVAL` only manages `logrotate` within the container for services we manage internally.
+    
+    The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
+    
+    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume.
 
 Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
 
