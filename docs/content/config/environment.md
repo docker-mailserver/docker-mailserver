@@ -321,9 +321,11 @@ Changes the interval in which a report is being sent.
     
     The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
     
-    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume.
+    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
 
-Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
+!!! note
+
+    This variable can also determine the interval for Postfix's log summary reports, see [`PFLOGSUMM_TRIGGER`](#pflogsumm_trigger).
 
 #### SpamAssassin
 
