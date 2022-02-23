@@ -1522,7 +1522,7 @@
 <div class="highlight"><pre><span></span><code><span class="na">/^test[0-9][0-9]*@example.com/ qa@example.com</span><span class="w"></span>
 </code></pre></div>
 <h2 id="address-tags-extension-delimiters-an-alternative-to-aliases"><a class="toclink" href="#address-tags-extension-delimiters-an-alternative-to-aliases">Address Tags (Extension Delimiters) an Alternative to Aliases</a></h2>
-<p>Postfix supports so-called address tags, in the form of plus (+) tags - i.e. <code>address+tag@example.com</code> will end up at <code>address@example.com</code>. This is configured by default and the (configurable !) separator is set to <code>+</code>. For more info, see <a href="https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/">How to use Address Tagging (<code>user+tag@example.com</code>) with Postfix</a> and the <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">official documentation</a>.</p>
+<p>Postfix supports so-called address tags, in the form of plus (+) tags - i.e. <code>address+tag@example.com</code> will end up at <code>address@example.com</code>. This is configured by default and the (configurable !) separator is set to <code>+</code>. For more info, see the <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">official documentation</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you do decide to change the configurable separator, you must add the same line to <em>both</em> <code>docker-data/dms/config/postfix-main.cf</code> and <code>docker-data/dms/config/dovecot.cf</code>, because Dovecot is acting as the delivery agent. For example, to switch to <code>-</code>, add:</p>
