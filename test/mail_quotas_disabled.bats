@@ -30,10 +30,6 @@ function teardown_file() {
     docker rm -f mail_no_quotas
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking dovecot: (ENABLE_QUOTAS=0) quota plugin is disabled" {
  run docker exec mail_no_quotas /bin/sh -c "grep '\$mail_plugins quota' /etc/dovecot/conf.d/10-mail.conf"
  assert_failure

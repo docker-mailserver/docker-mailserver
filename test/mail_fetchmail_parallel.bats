@@ -26,10 +26,6 @@ function teardown_file() {
     docker rm -f mail_fetchmail_parallel
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 #
 # processes
 #

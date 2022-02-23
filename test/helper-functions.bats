@@ -25,10 +25,6 @@ function teardown_file() {
     docker rm -f mail_helper_functions
 }
 
-@test "first" {
-    skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "check helper functions (network.sh): _sanitize_ipv4_to_subnet_cidr" {
     run docker exec mail_helper_functions bash -c "source /usr/local/bin/helpers/index.sh; _sanitize_ipv4_to_subnet_cidr 255.255.255.255/0"
     assert_output "0.0.0.0/0"

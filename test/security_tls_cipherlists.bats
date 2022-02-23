@@ -39,10 +39,6 @@ function teardown_file() {
     docker network rm "${NETWORK}"
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking tls: cipher list - rsa intermediate" {
     check_ports 'rsa' 'intermediate'
 }

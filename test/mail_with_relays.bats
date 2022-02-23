@@ -33,10 +33,6 @@ function teardown_file() {
     rm -rf "${tmp_confdir}"
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking relay hosts: default mapping is added from env vars" {
   run docker exec mail_with_relays grep -e domainone.tld /etc/postfix/relayhost_map
   assert_output -e '^@domainone.tld[[:space:]]+\[default.relay.com\]:2525$'

@@ -34,10 +34,6 @@ function teardown_file() {
     docker rm -f mail_fail2ban fail-auth-mailer
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 #
 # processes
 #

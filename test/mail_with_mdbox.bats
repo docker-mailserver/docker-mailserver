@@ -29,11 +29,6 @@ teardown_file() {
   docker rm -f mail_with_mdbox_format
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
-
 @test "checking dovecot mailbox format: mdbox file created" {
   run docker exec mail_with_mdbox_format /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success

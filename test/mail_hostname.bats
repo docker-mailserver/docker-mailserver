@@ -64,10 +64,6 @@ function setup_file() {
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 }
 
-@test "first" {
-  skip 'only used to call setup_file from setup'
-}
-
 @test "checking SRS: SRS_DOMAINNAME is used correctly" {
   repeat_until_success_or_timeout 15 docker exec mail_srs_domainname grep "SRS_DOMAIN=srs.my-domain.com" /etc/default/postsrsd
 }

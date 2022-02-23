@@ -70,10 +70,6 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
-@test "first" {
-  skip 'only used to call setup_file from setup'
-}
-
 # processes
 
 @test "checking process: saslauthd (saslauthd server enabled)" {

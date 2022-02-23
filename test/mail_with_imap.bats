@@ -28,10 +28,6 @@ teardown_file() {
     docker rm -f mail_with_imap
 }
 
-@test "first" {
-    skip 'only used to call setup_file from setup'
-}
-
 #
 # RIMAP
 #

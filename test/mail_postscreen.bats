@@ -33,10 +33,6 @@ teardown_file() {
     docker rm -f mail_postscreen mail_postscreen_sender
 }
 
-@test "first" {
-    skip 'only used to call setup_file from setup'
-}
-
 @test "checking postscreen: talk too fast" {
   docker exec mail_postscreen_sender /bin/sh -c "nc ${MAIL_POSTSCREEN_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
 

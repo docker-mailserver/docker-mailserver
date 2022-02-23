@@ -28,10 +28,6 @@ function setup_file() {
 # function teardown_file() {
 # }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking amavis: spam message is bounced (rejected)" {
   # shellcheck disable=SC2034
   local TEST_DOCKER_ARGS=(

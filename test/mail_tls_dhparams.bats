@@ -50,10 +50,6 @@ function setup_file() {
 # function teardown_file() {
 # }
 
-@test "first" {
-    skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "testing tls: DH Parameters - Verify integrity of Default (ffdhe4096)" {
     # Reference used (22/04/2020):
     # https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls

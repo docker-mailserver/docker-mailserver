@@ -36,11 +36,6 @@ function teardown_file() {
   docker rm -f mail_changedetector_two
 }
 
-# this test must come first to reliably identify when to run setup_file
-@test "first" {
-  skip 'Starting testing of changedetector'
-}
-
 @test "checking changedetector: servers are ready" {
   wait_for_service mail_changedetector_one changedetector
   wait_for_service mail_changedetector_two changedetector

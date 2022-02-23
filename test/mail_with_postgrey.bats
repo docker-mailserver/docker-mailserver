@@ -30,10 +30,6 @@ function teardown_file() {
     docker rm -f mail_with_postgrey
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking postgrey: /etc/postfix/main.cf correctly edited" {
   run docker exec mail_with_postgrey /bin/bash -c "grep 'zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf | wc -l"
   assert_success

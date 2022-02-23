@@ -46,10 +46,6 @@ function teardown_file() {
     docker rm -f mail_manual_ssl
 }
 
-@test "first" {
-    skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking ssl: ENV vars provided are valid files" {
     assert docker exec mail_manual_ssl [ -f "${SSL_CERT_PATH}" ]
     assert docker exec mail_manual_ssl [ -f "${SSL_KEY_PATH}" ]

@@ -29,10 +29,6 @@ teardown_file() {
     docker rm -f mail_disabled_clamav_spamassassin
 }
 
-@test "first" {
-    skip 'only used to call setup_file from setup'
-}
-
 @test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
   run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_failure

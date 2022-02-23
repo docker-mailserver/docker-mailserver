@@ -50,13 +50,6 @@ function teardown() {
   run_teardown_file_if_necessary
 }
 
-
-# this test must come first to reliably identify when to run setup_file
-@test "first" {
-  skip 'Starting testing of letsencrypt SSL'
-}
-
-
 # Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
 @test "ssl(letsencrypt): Should default to HOSTNAME (mail.example.test)" {
   local TARGET_DOMAIN='mail.example.test'

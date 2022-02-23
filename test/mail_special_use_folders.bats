@@ -28,11 +28,6 @@ teardown_file() {
     docker rm -f mail_special_use_folders
 }
 
-@test "first" {
-    skip 'only used to call setup_file from setup'
-}
-
-
 @test "checking normal delivery" {
   run docker exec mail_special_use_folders /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success

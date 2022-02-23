@@ -89,11 +89,6 @@ teardown_file() {
   docker rm -f mail
 }
 
-# this test must come first to reliably identify when to run setup_file
-@test "first" {
-  skip 'Starting testing of letsencrypt SSL'
-}
-
 #
 # configuration checks
 #
