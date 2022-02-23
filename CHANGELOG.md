@@ -8,11 +8,11 @@
    on build-time. Moreover, a race-condition was eliminated ([#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)).
 2. A resource leak in `check-for-changes.sh` was fixed ([#2401](https://github.com/docker-mailserver/docker-mailserver/pull/2401))
 
-### Other Major Changes
+### Other Minor Changes
 
-1. `SPAMASSASSIN_SPAM_TO_INBOX`'s default changed to `1`.
-2. Changedetector functionality was added to `SSL_TYPE=manual`-setups.
-3. Three new environment variables were introduced: `LOGWATCH_SENDER`, `ENABLE_DNSBL` and `ENABLE_SPAMASSASSIN_KAM`.
+1. `SPAMASSASSIN_SPAM_TO_INBOX`'s default changed to `1`. ([#2361](https://github.com/docker-mailserver/docker-mailserver/pull/2361))
+2. Changedetector functionality was added to `SSL_TYPE=manual`-setups. ([#2404](https://github.com/docker-mailserver/docker-mailserver/pull/2404))
+3. Four new environment variables were introduced: `LOGWATCH_SENDER`, `ENABLE_DNSBL`, `DOVECOT_INET_PROTOCOLS` and `ENABLE_SPAMASSASSIN_KAM`. ([#2362](https://github.com/docker-mailserver/docker-mailserver/pull/2362), [#2342](https://github.com/docker-mailserver/docker-mailserver/pull/2342), [#2358](https://github.com/docker-mailserver/docker-mailserver/pull/2358), [#2418](https://github.com/docker-mailserver/docker-mailserver/pull/2418))
 4. There are plenty of bug fixes and documentation enhancements with this release.
 
 ### Merged Pull Requests
