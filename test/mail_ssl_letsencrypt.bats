@@ -186,13 +186,6 @@ function teardown() {
   _acme_wildcard
 }
 
-
-# this test is only there to reliably mark the end for the teardown_file
-@test "last" {
-  skip 'Finished testing of letsencrypt SSL'
-}
-
-
 #
 # Test Methods
 #

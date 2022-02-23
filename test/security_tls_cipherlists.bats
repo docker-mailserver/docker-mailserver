@@ -242,7 +242,3 @@ function get_cipherlist() {
         echo "${CIPHER_LIST[${TARGET_QUERY}]}"
     fi
 }
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}

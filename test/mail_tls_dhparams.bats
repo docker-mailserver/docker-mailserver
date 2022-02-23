@@ -101,10 +101,6 @@ function setup_file() {
     should_emit_warning
 }
 
-@test "last" {
-    skip 'this test is only there to reliably mark the end for the teardown_file'
-}
-
 function common_container_setup() {
     # shellcheck disable=SC2031
     docker run -d --name mail_dhparams \

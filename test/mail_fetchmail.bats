@@ -56,7 +56,3 @@ function teardown_file() {
   run docker exec mail_fetchmail /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
   assert_success
 }
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}

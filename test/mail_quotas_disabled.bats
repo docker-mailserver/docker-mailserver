@@ -46,7 +46,3 @@ function teardown_file() {
   assert_failure
 }
 
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}

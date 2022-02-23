@@ -86,8 +86,3 @@ function teardown_file() {
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
   assert_output --partial "Removed stale lock"
 }
-
-# this test is only there to reliably mark the end for the teardown_file
-@test "last" {
-  skip 'Finished testing of changedetector'
-}

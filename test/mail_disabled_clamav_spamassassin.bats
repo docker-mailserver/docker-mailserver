@@ -53,7 +53,3 @@ teardown_file() {
   run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "pkill -f clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_failure
 }
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
-}

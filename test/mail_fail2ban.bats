@@ -159,7 +159,3 @@ function teardown_file() {
   run docker exec mail_fail2ban /bin/bash -c "pkill fail2ban && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
   assert_success
 }
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}

@@ -77,7 +77,3 @@ function teardown_file() {
   run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
   assert_success
 }
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}

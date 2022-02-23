@@ -1248,7 +1248,3 @@ EOF
   run docker exec mail grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
 }
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file (test.bats finished)'
-}

@@ -47,8 +47,3 @@ teardown_file() {
   assert_success
   assert_output 4
 }
-
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
-}

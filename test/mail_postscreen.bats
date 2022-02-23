@@ -55,7 +55,3 @@ teardown_file() {
   repeat_until_success_or_timeout 10 run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
   assert_success
 }
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
-}

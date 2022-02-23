@@ -40,10 +40,6 @@ function setup_file() {
   _should_bounce_spam
 }
 
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}
-
 function _should_bounce_spam() {
   wait_for_smtp_port_in_container_to_respond "${TEST_NAME}"
 

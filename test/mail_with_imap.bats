@@ -48,7 +48,3 @@ teardown_file() {
   run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   assert_success
 }
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
-}

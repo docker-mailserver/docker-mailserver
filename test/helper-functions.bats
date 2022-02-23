@@ -33,7 +33,3 @@ function teardown_file() {
     run docker exec mail_helper_functions bash -c "source /usr/local/bin/helpers/index.sh; _sanitize_ipv4_to_subnet_cidr 192.168.255.14/32"
     assert_output "192.168.255.14/32"
 }
-
-@test "last" {
-    skip 'this test is only there to reliably mark the end for the teardown_file'
-}

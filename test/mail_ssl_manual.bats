@@ -117,7 +117,3 @@ function teardown_file() {
 
     sed -i '/someThingsChangedHere/d' "$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"
 }
-
-@test "last" {
-    skip 'this test is only there to reliably mark the end for the teardown_file'
-}

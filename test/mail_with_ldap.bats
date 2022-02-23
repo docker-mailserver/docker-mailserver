@@ -251,7 +251,3 @@ function teardown_file() {
   run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   assert_success
 }
-
-@test "last" {
-  skip 'only used to call teardown_file from teardown'
-}

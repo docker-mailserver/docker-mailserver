@@ -36,8 +36,3 @@ teardown_file() {
   # shellcheck disable=SC2016
   repeat_until_success_or_timeout 30 docker exec mail_with_mdbox_format /bin/sh -c '[ $(ls /var/mail/localhost.localdomain/user1/storage/m.1 | wc -l) -eq 1 ]'
 }
-
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
-}

@@ -192,7 +192,3 @@ function setup_file() {
   run docker stop -t 60 mail_domainname
   assert_success
 }
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
-}
