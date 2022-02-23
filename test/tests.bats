@@ -77,10 +77,6 @@ setup_file() {
   wait_for_empty_mail_queue_in_container mail
 }
 
-teardown() {
-  run_teardown_file_if_necessary
-}
-
 teardown_file() {
   docker rm -f mail
 }

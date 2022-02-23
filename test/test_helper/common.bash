@@ -133,16 +133,6 @@ function native_setup_teardown_file_support() {
     return 1
 }
 
-# use in teardown() in conjunction with a `@test "last" {}` to trigger teardown_file reliably
-function run_teardown_file_if_necessary() {
-    native_setup_teardown_file_support && return 0
-    if [ "${BATS_TEST_NAME}" == 'test_last' ]; then
-        # cleanup setup file marker
-        rm -f "${SETUP_FILE_MARKER}"
-        teardown_file
-    fi
-}
-
 # get the private config path for the given container or test file, if no container name was given
 function private_config_path() {
     echo "${PWD}/test/duplicate_configs/${1:-$(basename "${BATS_TEST_FILENAME}")}"

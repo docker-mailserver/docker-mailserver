@@ -26,11 +26,6 @@ function setup_file
   wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 }
 
-function teardown
-{
-  run_teardown_file_if_necessary
-}
-
 function teardown_file
 {
   docker rm -f "${CONTAINER_NAME}"
