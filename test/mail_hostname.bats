@@ -1,8 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
 
 function setup_file() {
   local PRIVATE_CONFIG

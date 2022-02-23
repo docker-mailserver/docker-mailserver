@@ -40,14 +40,8 @@ function setup_file() {
 # function teardown_file() {
 # }
 
-# Applies per test:
-function setup() {
-  run_setup_file_if_necessary
-}
-
 function teardown() {
   docker rm -f "${TEST_NAME}"
-  run_teardown_file_if_necessary
 }
 
 # Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):

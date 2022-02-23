@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-setup() {
-    run_setup_file_if_necessary
-}
-
-teardown() {
-    run_teardown_file_if_necessary
-}
-
 setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"

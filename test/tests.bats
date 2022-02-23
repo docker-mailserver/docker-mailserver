@@ -5,10 +5,6 @@ load 'test_helper/common'
 export IMAGE_NAME
 IMAGE_NAME="${NAME}"
 
-setup() {
-  run_setup_file_if_necessary
-}
-
 setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail)"

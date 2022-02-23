@@ -1,14 +1,8 @@
 load 'test_helper/common'
 
 setup() {
-    run_setup_file_if_necessary
-
     # Getting mail container IP
     MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
-}
-
-teardown() {
-    run_teardown_file_if_necessary
 }
 
 setup_file() {

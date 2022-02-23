@@ -3,13 +3,8 @@ load 'test_helper/common'
 # Globals ${BATS_TMPDIR} and ${NAME}
 # `${NAME}` defaults to `mailserver-testing:ci`
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
 function teardown() {
     docker rm -f tls_test_cipherlists
-    run_teardown_file_if_necessary
 }
 
 function setup_file() {

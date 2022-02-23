@@ -13,13 +13,8 @@ load 'test_helper/common'
 #    - Verify Postfix and Dovecot use the custom `custom-dhe-params.pem` (contents is actually `ffdhe2048.pem`).
 #    - A warning is raised about usage of potentially insecure parameters.
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
 function teardown() {
     docker rm -f mail_dhparams
-    run_teardown_file_if_necessary
 }
 
 function setup_file() {

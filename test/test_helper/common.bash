@@ -133,24 +133,6 @@ function native_setup_teardown_file_support() {
     return 1
 }
 
-# use in setup() in conjunction with a `@test "first" {}` to trigger setup_file reliably
-function run_setup_file_if_necessary() {
-    native_setup_teardown_file_support && return 0
-    if [ "${BATS_TEST_NAME}" == 'test_first' ]; then
-        # prevent old markers from marking success or get an error if we cannot remove due to permissions
-        rm -f "${SETUP_FILE_MARKER}"
-
-        setup_file
-
-        touch "${SETUP_FILE_MARKER}"
-    else
-        if [ ! -f "${SETUP_FILE_MARKER}" ]; then
-            skip "setup_file failed"
-            return 1
-        fi
-    fi
-}
-
 # use in teardown() in conjunction with a `@test "last" {}` to trigger teardown_file reliably
 function run_teardown_file_if_necessary() {
     native_setup_teardown_file_support && return 0

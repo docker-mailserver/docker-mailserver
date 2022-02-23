@@ -11,13 +11,8 @@ load 'test_helper/common'
 # SPAMASSASSIN_SPAM_TO_INBOX=1 is covered in `mail_spam_junk_folder.bats`.
 # Original test PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
 function teardown() {
   docker rm -f "${TEST_NAME}"
-  run_teardown_file_if_necessary
 }
 
 function setup_file() {

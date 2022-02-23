@@ -1,14 +1,6 @@
 #!/usr/bin/env bats
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     # Internal copies made by `start-mailserver.sh`:
     export PRIMARY_KEY='/etc/dms/tls/key'

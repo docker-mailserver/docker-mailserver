@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
-function teardown() {
-  run_teardown_file_if_necessary
-}
-
 function setup_file() {
   pushd test/docker-openldap/ || return 1
   docker build -f Dockerfile -t ldap --no-cache .
