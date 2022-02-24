@@ -95,7 +95,7 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
 
 5. [Generate DKIM keys][docs-dkim] for your domain via `./setup.sh config dkim`.
 
-    Copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` and add it to your DNS records as a TXT like SPF was handled above.
+    Copy the content of the file `config/opendkim/keys/example.com/mail.txt` and add it to your DNS records as a TXT like SPF was handled above.
 
     I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
 
