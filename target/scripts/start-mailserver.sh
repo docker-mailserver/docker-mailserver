@@ -15,6 +15,7 @@ _obtain_hostname_and_domainname
 # ? >> Setup of default and global values / variables
 # ------------------------------------------------------------
 
+# These variables must be defined first; They are used as default values for other variables.
 VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
 VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${DOMAINNAME}}"
