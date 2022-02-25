@@ -311,8 +311,8 @@ Defines who sends reports (if they are enabled).
 
 Changes the interval in which a report is being sent.
 
-- **daily** => Rotate daily.
-- weekly => Rotate weekly.
+- **weekly** => Rotate weekly.
+- daily => Rotate daily.
 - monthly => Rotate monthly.
 
 !!! note
