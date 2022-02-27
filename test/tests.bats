@@ -406,6 +406,20 @@ EOF
 # dovecot
 #
 
+@test "checking dovecot: sieve directories permissions" {
+  run docker exec mail stat -c %A /usr/lib/dovecot/sieve-filter
+  assert_success
+  assert_output 'drwxr-xr-x'
+
+  run docker exec mail stat -c %A /usr/lib/dovecot/sieve-global
+  assert_success
+  assert_output 'drwxr-xr-x'
+
+  run docker exec mail stat -c %A /usr/lib/dovecot/sieve-pipe
+  assert_success
+  assert_output 'drwxr-xr-x'
+}
+
 @test "checking dovecot: config additions" {
   run docker exec mail grep -q 'mail_max_userip_connections = 69' /tmp/docker-mailserver/dovecot.cf
   assert_success
