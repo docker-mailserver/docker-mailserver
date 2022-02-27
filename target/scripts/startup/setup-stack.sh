@@ -259,7 +259,7 @@ function _setup_dovecot
   fi
 
   chown docker:docker -R /usr/lib/dovecot/sieve*
-  chmod 550 -R /usr/lib/dovecot/sieve*
+  chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
   chmod -f +x /usr/lib/dovecot/sieve-pipe/*
 }
 
