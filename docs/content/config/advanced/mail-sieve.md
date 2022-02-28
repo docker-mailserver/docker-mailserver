@@ -100,4 +100,4 @@ All user defined sieve scripts that are managed by ManageSieve are stored in the
 The extension is known to work with the following ManageSieve clients:
 
 - **[Sieve Editor](https://github.com/thsmi/sieve)**  a portable standalone application based on the former Thunderbird plugin.
-- **[Kmail](https://kontact.kde.org/components/kmail.html)**  the mail client of [KDE](https://kde.org/)'s Kontact Suite.
+- **[Kmail](https://kontact.kde.org/components/kmail/)**  the mail client of [KDE](https://kde.org/)'s Kontact Suite.
