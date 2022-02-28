@@ -169,7 +169,7 @@ do
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
   sleep 2
-  
+
 done
 
 exit 0
