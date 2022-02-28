@@ -52,12 +52,16 @@ function teardown_file() {
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
-  assert_output --partial "Change detected"
+  assert_output --partial 'Changes detected'
+  sleep 10
+  assert_output --partial 'Changes settled'
   assert_output --partial "Removed lock"
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail -3000 changedetector"
   assert_output --partial "postfix: stopped"
   assert_output --partial "postfix: started"
-  assert_output --partial "Change detected"
+  assert_output --partial 'Changes detected'
+  sleep 10
+  assert_output --partial 'Changes settled'
   assert_output --partial "Removed lock"
 }
 

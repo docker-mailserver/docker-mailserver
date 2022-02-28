@@ -116,7 +116,9 @@ function teardown_file() {
     sleep 10
 
     run docker exec mail_manual_ssl /bin/bash -c "supervisorctl tail -3000 changedetector"
-    assert_output --partial 'Change detected'
+    assert_output --partial 'Changes detected'
+    sleep 10
+    assert_output --partial 'Changes settled'
     assert_output --partial 'Manual certificates have changed'
 
     sed -i '/someThingsChangedHere/d' "$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"

@@ -145,7 +145,6 @@ do
       supervisorctl restart postfix
 
       # prevent restart of dovecot when smtp_only=1
-      echo "SMTP_ONLY: ${SMTP_ONLY}"
       [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
       _remove_lock
