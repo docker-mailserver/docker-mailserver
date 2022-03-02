@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /usr/bin/env bash
 
 # version   v0.2.0 unstable
 # executed  by Make during CI or manually
