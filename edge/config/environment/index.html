@@ -756,22 +756,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#report_recipient-deprecated" class="md-nav__link">
-    REPORT_RECIPIENT (deprecated)
+  <a href="#report_recipient" class="md-nav__link">
+    REPORT_RECIPIENT
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#report_sender-deprecated" class="md-nav__link">
-    REPORT_SENDER (deprecated)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#report_interval-deprecated" class="md-nav__link">
-    REPORT_INTERVAL (deprecated)
+  <a href="#report_sender" class="md-nav__link">
+    REPORT_SENDER
   </a>
   
 </li>
@@ -2641,22 +2634,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#report_recipient-deprecated" class="md-nav__link">
-    REPORT_RECIPIENT (deprecated)
+  <a href="#report_recipient" class="md-nav__link">
+    REPORT_RECIPIENT
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#report_sender-deprecated" class="md-nav__link">
-    REPORT_SENDER (deprecated)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#report_interval-deprecated" class="md-nav__link">
-    REPORT_INTERVAL (deprecated)
+  <a href="#report_sender" class="md-nav__link">
+    REPORT_SENDER
   </a>
   
 </li>
@@ -3489,7 +3475,7 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <p>Note: More information at <a href="https://dovecot.org/doc/dovecot-example.conf">https://dovecot.org/doc/dovecot-example.conf</a></p>
 <h4 id="reports"><a class="toclink" href="#reports">Reports</a></h4>
 <h5 id="pflogsumm_trigger"><a class="toclink" href="#pflogsumm_trigger">PFLOGSUMM_TRIGGER</a></h5>
-<p>Enables regular pflogsumm mail reports.</p>
+<p>Enables regular Postfix log summary ("pflogsumm") mail reports.</p>
 <ul>
 <li><strong>not set</strong> =&gt; No report</li>
 <li>daily_cron =&gt; Daily report for the previous day</li>
@@ -3498,13 +3484,13 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <p>This is a new option. The old REPORT options are still supported for backwards compatibility.
 If this is not set and reports are enabled with the old options, logrotate will be used.</p>
 <h5 id="pflogsumm_recipient"><a class="toclink" href="#pflogsumm_recipient">PFLOGSUMM_RECIPIENT</a></h5>
-<p>Recipient address for pflogsumm reports.</p>
+<p>Recipient address for Postfix log summary reports.</p>
 <ul>
-<li><strong>not set</strong> =&gt; Use REPORT_RECIPIENT or POSTMASTER_ADDRESS</li>
+<li><strong>not set</strong> =&gt; Use POSTMASTER_ADDRESS</li>
 <li>=&gt; Specify the recipient address(es)</li>
 </ul>
 <h5 id="pflogsumm_sender"><a class="toclink" href="#pflogsumm_sender">PFLOGSUMM_SENDER</a></h5>
-<p>Sender address (<code>FROM</code>) for pflogsumm reports if pflogsumm reports are enabled.</p>
+<p>Sender address (<code>FROM</code>) for pflogsumm reports (if Postfix log summary reports are enabled).</p>
 <ul>
 <li><strong>not set</strong> =&gt; Use REPORT_SENDER</li>
 <li>=&gt; Specify the sender address</li>
@@ -3528,41 +3514,35 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <li><strong>not set</strong> =&gt; Use REPORT_SENDER</li>
 <li>=&gt; Specify the sender address</li>
 </ul>
-<h5 id="report_recipient-deprecated"><a class="toclink" href="#report_recipient-deprecated">REPORT_RECIPIENT (deprecated)</a></h5>
-<p>Enables a report being sent (created by pflogsumm) on a regular basis.</p>
+<h5 id="report_recipient"><a class="toclink" href="#report_recipient">REPORT_RECIPIENT</a></h5>
+<p>Defines who receives reports (if they are enabled).</p>
 <ul>
-<li><strong>0</strong> =&gt; Report emails are disabled unless enabled by other options</li>
-<li>1 =&gt; Using POSTMASTER_ADDRESS as the recipient</li>
+<li><strong>empty</strong> =&gt; Use POSTMASTER_ADDRESS</li>
 <li>=&gt; Specify the recipient address</li>
 </ul>
-<h5 id="report_sender-deprecated"><a class="toclink" href="#report_sender-deprecated">REPORT_SENDER (deprecated)</a></h5>
-<p>Change the sending address for mail report</p>
+<h5 id="report_sender"><a class="toclink" href="#report_sender">REPORT_SENDER</a></h5>
+<p>Defines who sends reports (if they are enabled).</p>
 <ul>
-<li><strong>empty</strong> =&gt; mailserver-report@hostname</li>
-<li>=&gt; Specify the report sender (From) address</li>
+<li><strong>empty</strong> =&gt; <code>mailserver-report@&lt;YOUR DOMAIN&gt;</code></li>
+<li>=&gt; Specify the sender address</li>
 </ul>
-<h5 id="report_interval-deprecated"><a class="toclink" href="#report_interval-deprecated">REPORT_INTERVAL (deprecated)</a></h5>
-<p>Changes the interval in which logs are rotated and a report is being sent (deprecated).</p>
-<ul>
-<li><strong>daily</strong> =&gt; Send a daily report</li>
-<li>weekly =&gt; Send a report every week</li>
-<li>monthly =&gt; Send a report every month</li>
-</ul>
-<p>Note: This variable used to control logrotate inside the container and sent the pflogsumm report when the logs were rotated.
-It is still supported for backwards compatibility, but the new option LOGROTATE_INTERVAL has been added that only rotates
-the logs.</p>
 <h5 id="logrotate_interval"><a class="toclink" href="#logrotate_interval">LOGROTATE_INTERVAL</a></h5>
-<p>Defines the interval in which the mail log is being rotated.</p>
+<p>Changes the interval in which a report is being sent.</p>
 <ul>
-<li><strong>daily</strong> =&gt; Rotate daily.</li>
-<li>weekly =&gt; Rotate weekly.</li>
+<li><strong>weekly</strong> =&gt; Rotate weekly.</li>
+<li>daily =&gt; Rotate daily.</li>
 <li>monthly =&gt; Rotate monthly.</li>
 </ul>
-<p>Note that only the log inside the container is affected.
-The full log output is still available via <code>docker logs mailserver</code> (<em>or your respective container name</em>).
-If you want to control logrotation for the docker generated logfile, see: <a href="https://docs.docker.com/config/containers/logging/configure/">Docker Logging Drivers</a>.</p>
-<p>Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.</p>
-<p>Finally the logrotate interval <strong>may</strong> affect the period for generated reports. That is the case when the reports are triggered by log rotation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>LOGROTATE_INTERVAL</code> only manages <code>logrotate</code> within the container for services we manage internally.</p>
+<p>The entire log output for the container is still available via <code>docker logs mailserver</code> (or your respective container name). If you want to configure external log rotation for that container output as well, : <a href="https://docs.docker.com/config/containers/logging/configure/">Docker Logging Drivers</a>.</p>
+<p>By default, the logs are lost when the container is destroyed (eg: re-creating via <code>docker-compose down &amp;&amp; docker-compose up -d</code>). To keep the logs, mount a volume (to <code>/var/log/mail/</code>).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This variable can also determine the interval for Postfix's log summary reports, see <a href="#pflogsumm_trigger"><code>PFLOGSUMM_TRIGGER</code></a>.</p>
+</div>
 <h4 id="spamassassin"><a class="toclink" href="#spamassassin">SpamAssassin</a></h4>
 <h5 id="enable_spamassassin"><a class="toclink" href="#enable_spamassassin">ENABLE_SPAMASSASSIN</a></h5>
 <ul>
