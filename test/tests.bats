@@ -20,6 +20,7 @@ setup_file() {
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
+    -e PFLOGSUMM_TRIGGER=logrotate \
     -e ENABLE_UPDATE_CHECK=0 \
     -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \

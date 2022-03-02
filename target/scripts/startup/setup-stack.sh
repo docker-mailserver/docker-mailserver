@@ -42,42 +42,6 @@ function _setup_default_vars
 {
   _notify 'task' 'Setting up default variables'
 
-  # update POSTMASTER_ADDRESS - must be done done after _check_hostname
-  POSTMASTER_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-
-  # update REPORT_SENDER - must be done done after _check_hostname
-  REPORT_SENDER="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
-  LOGWATCH_SENDER="${LOGWATCH_SENDER:=${REPORT_SENDER}}"
-  PFLOGSUMM_SENDER="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
-
-  # set PFLOGSUMM_TRIGGER here for backwards compatibility
-  # when REPORT_RECIPIENT is on the old method should be used
-  # ! needs to be a string comparison
-  if [[ ${REPORT_RECIPIENT} == '0' ]]
-  then
-    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=none}"
-  else
-    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=logrotate}"
-  fi
-
-  # expand address to simplify the rest of the script
-  if [[ ${REPORT_RECIPIENT} == '0' ]] || [[ ${REPORT_RECIPIENT} == '1' ]]
-  then
-    REPORT_RECIPIENT="${POSTMASTER_ADDRESS}"
-  fi
-
-  PFLOGSUMM_RECIPIENT="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
-  LOGWATCH_RECIPIENT="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
-
-  VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT}"
-  VARS[LOGWATCH_SENDER]="${LOGWATCH_SENDER}"
-  VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT}"
-  VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER}"
-  VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER}"
-  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS}"
-  VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT}"
-  VARS[REPORT_SENDER]="${REPORT_SENDER}"
-
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
   : >/etc/dms-settings # this file can be sourced by other scripts
 
