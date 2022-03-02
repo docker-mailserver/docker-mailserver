@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-setup() {
-    run_setup_file_if_necessary
-}
-
-teardown() {
-    run_teardown_file_if_necessary
-}
-
 setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -28,11 +20,6 @@ teardown_file() {
     docker rm -f mail_special_use_folders
 }
 
-@test "first" {
-    skip 'only used to call setup_file from setup'
-}
-
-
 @test "checking normal delivery" {
   run docker exec mail_special_use_folders /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
@@ -51,9 +38,4 @@ teardown_file() {
   run docker exec mail_special_use_folders /bin/sh -c "nc -w 8 0.0.0.0 143 < /tmp/docker-mailserver-test/nc_templates/imap_special_use_folders.txt | grep -E 'Drafts|Junk|Trash|Sent' | wc -l"
   assert_success
   assert_output 4
-}
-
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }

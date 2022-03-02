@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -32,10 +24,6 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_fail2ban fail-auth-mailer
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 #
@@ -162,8 +150,4 @@ function teardown_file() {
 @test "checking restart of process: fail2ban (fail2ban server enabled)" {
   run docker exec mail_fail2ban /bin/bash -c "pkill fail2ban && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
   assert_success
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

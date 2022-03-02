@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
-function teardown() {
-  run_teardown_file_if_necessary
-}
-
 function setup_file() {
   pushd test/docker-openldap/ || return 1
   docker build -f Dockerfile -t ldap --no-cache .
@@ -68,10 +60,6 @@ function setup_file() {
 function teardown_file() {
   docker rm -f ldap_for_mail mail_with_ldap
   docker network rm "${DMS_TEST_NETWORK}"
-}
-
-@test "first" {
-  skip 'only used to call setup_file from setup'
 }
 
 # processes
@@ -254,8 +242,4 @@ function teardown_file() {
 @test "checking restart of process: saslauthd (saslauthd server enabled)" {
   run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   assert_success
-}
-
-@test "last" {
-  skip 'only used to call teardown_file from teardown'
 }
