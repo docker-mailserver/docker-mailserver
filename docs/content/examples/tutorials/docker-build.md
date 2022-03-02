@@ -8,7 +8,7 @@ You'll need to retrieve the git submodules prior to building your own Docker ima
 
 ```sh
 git submodule update --init --recursive
-docker build .
+docker build -t mailserver/docker-mailserver .
 ```
 
 Or, you can clone and retrieve the submodules in one command:

@@ -11,13 +11,8 @@ load 'test_helper/common'
 # SPAMASSASSIN_SPAM_TO_INBOX=1 is covered in `mail_spam_junk_folder.bats`.
 # Original test PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
 function teardown() {
   docker rm -f "${TEST_NAME}"
-  run_teardown_file_if_necessary
 }
 
 function setup_file() {
@@ -28,24 +23,17 @@ function setup_file() {
 # function teardown_file() {
 # }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 @test "checking amavis: spam message is bounced (rejected)" {
   # shellcheck disable=SC2034
   local TEST_DOCKER_ARGS=(
     --env ENABLE_SPAMASSASSIN=1
+    --env PERMIT_DOCKER=container
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
   )
 
   common_container_setup 'TEST_DOCKER_ARGS'
 
   _should_bounce_spam
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }
 
 function _should_bounce_spam() {

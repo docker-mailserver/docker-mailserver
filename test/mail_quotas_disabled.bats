@@ -5,14 +5,6 @@ load 'test_helper/common'
 # When ENABLE_QUOTAS is explicitly disabled (ENABLE_QUOTAS=0), dovecot quota must not be enabled.
 
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -28,10 +20,6 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_no_quotas
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 @test "checking dovecot: (ENABLE_QUOTAS=0) quota plugin is disabled" {
@@ -50,7 +38,3 @@ function teardown_file() {
   assert_failure
 }
 
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
-}
