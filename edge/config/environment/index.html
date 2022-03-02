@@ -3305,7 +3305,8 @@
 <h5 id="permit_docker"><a class="toclink" href="#permit_docker">PERMIT_DOCKER</a></h5>
 <p>Set different options for mynetworks option (can be overwrite in postfix-main.cf) <strong>WARNING</strong>: Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance if IPv6 is enabled on the host machine but not in Docker.</p>
 <ul>
-<li><strong>empty</strong> =&gt; localhost only.</li>
+<li><strong>none</strong> =&gt; Explicitly force authentication</li>
+<li>container =&gt; Container IP address only.</li>
 <li>host =&gt; Add docker host (ipv4 only).</li>
 <li>network =&gt; Add the docker default bridge network (172.16.0.0/12); <strong>WARNING</strong>: <code>docker-compose</code> might use others (e.g. 192.168.0.0/16) use <code>PERMIT_DOCKER=connected-networks</code> in this case.</li>
 <li>connected-networks =&gt; Add all connected docker networks (ipv4 only).</li>
