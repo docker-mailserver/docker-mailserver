@@ -453,6 +453,12 @@ function _setup_postfix_sizelimits
   postconf -e "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 }
 
+function _setup_clamav_sizelimit
+{
+  _notify 'inf' "Configuring clamav message scan size limit"
+  sedfile -i "s/^MaxFileSize.*/MaxFileSize ${CLAMAV_MESSAGE_SIZE_LIMIT}/" /etc/clamav/clamd.conf
+}
+
 function _setup_postfix_smtputf8
 {
   _notify 'inf' "Configuring postfix smtputf8 support (disable)"

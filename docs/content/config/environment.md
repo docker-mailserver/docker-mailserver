@@ -192,6 +192,12 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 
 - **empty** => 10240000 (~10 MB)
 
+##### CLAMAV_MESSAGE_SIZE_LIMIT
+
+Mails larger than this limit won't be scanned.
+
+- **empty** => 25M (25 MB)
+
 ##### ENABLE_MANAGESIEVE
 
 - **empty** => Managesieve service disabled
@@ -319,9 +325,9 @@ Changes the interval in which a report is being sent.
 !!! note
 
     `LOGROTATE_INTERVAL` only manages `logrotate` within the container for services we manage internally.
-    
+
     The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
-    
+
     By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
 
 !!! note
