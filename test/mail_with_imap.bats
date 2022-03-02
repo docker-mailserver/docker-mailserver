@@ -1,14 +1,6 @@
 
 load 'test_helper/common'
 
-setup() {
-    run_setup_file_if_necessary
-}
-
-teardown() {
-    run_teardown_file_if_necessary
-}
-
 setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -26,10 +18,6 @@ setup_file() {
 
 teardown_file() {
     docker rm -f mail_with_imap
-}
-
-@test "first" {
-    skip 'only used to call setup_file from setup'
 }
 
 #
@@ -51,8 +39,4 @@ teardown_file() {
 @test "checking saslauthd: rimap smtp authentication" {
   run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   assert_success
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }
