@@ -65,7 +65,7 @@ do
     if [[ "${CMP_RESULT}" == "${LAST_CMP_RESULT}" ]]
     then
 
-      _notify 'inf' "${LOG_DATE} Changes settled... Applying changes and restarting services..."
+      _notify 'inf' "$(_log_date) Changes settled... Applying changes and restarting services..."
       _create_lock # Shared config safety lock
       CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
@@ -154,7 +154,7 @@ do
       CMP_RESULT=
 
     else # The files differ...
-      _notify 'inf' "${LOG_DATE} Changes detected... Ensuring changes have settled before proceeding..."
+      _notify 'inf' "$(_log_date) Changes detected... Ensuring changes have settled before proceeding..."
       LAST_CMP_RESULT="${CMP_RESULT}"
       sleep 3 # The longer the sleep here, the more time there is for users to make changes before a full restart
       continue
