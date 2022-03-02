@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-setup() {
-    run_setup_file_if_necessary
-}
-
-teardown() {
-    run_teardown_file_if_necessary
-}
-
 setup_file() {
     local PRIVATE_CONFIG PRIVATE_ETC
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -27,10 +19,6 @@ setup_file() {
 
 teardown_file() {
     docker rm -f mail_lmtp_ip
-}
-
-@test "first" {
-    skip 'only used to call setup_file from setup'
 }
 
 #
@@ -53,8 +41,4 @@ teardown_file() {
   run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
   assert_success
   assert_output 1
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }

@@ -1,14 +1,8 @@
 load 'test_helper/common'
 
 setup() {
-    run_setup_file_if_necessary
-
     # Getting mail container IP
     MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
-}
-
-teardown() {
-    run_teardown_file_if_necessary
 }
 
 setup_file() {
@@ -33,10 +27,6 @@ teardown_file() {
     docker rm -f mail_postscreen mail_postscreen_sender
 }
 
-@test "first" {
-    skip 'only used to call setup_file from setup'
-}
-
 @test "checking postscreen: talk too fast" {
   docker exec mail_postscreen_sender /bin/sh -c "nc ${MAIL_POSTSCREEN_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
 
@@ -58,8 +48,4 @@ teardown_file() {
 
   repeat_until_success_or_timeout 10 run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
   assert_success
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }

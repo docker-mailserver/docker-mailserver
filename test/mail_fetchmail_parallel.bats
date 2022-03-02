@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -24,10 +16,6 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_fetchmail_parallel
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 #
@@ -90,8 +78,4 @@ function teardown_file() {
 @test "checking restart of process: fetchmail-2" {
   run docker exec mail_fetchmail_parallel /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail -f /etc/fetchmailrc.d/fetchmail-2.rc'"
   assert_success
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

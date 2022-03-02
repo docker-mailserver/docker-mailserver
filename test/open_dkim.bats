@@ -6,11 +6,6 @@ IMAGE_NAME="${NAME:?Image name must be set}"
 CONTAINER_NAME='open-dkim'
 TEST_FILE='OpenDKIM :: '
 
-function setup
-{
-  run_setup_file_if_necessary
-}
-
 # WHY IS THIS CONTAINER EVEN CREATED WHEN MOST TESTS DO NOT USE IT?
 function setup_file
 {
@@ -29,11 +24,6 @@ function setup_file
     -t "${IMAGE_NAME}"
 
   wait_for_finished_setup_in_container "${CONTAINER_NAME}"
-}
-
-function teardown
-{
-  run_teardown_file_if_necessary
 }
 
 function teardown_file

@@ -29,7 +29,7 @@ Additional regexp aliases can be configured by placing them into `docker-data/dm
 
 ## Address Tags (Extension Delimiters) an Alternative to Aliases
 
-Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`. This is configured by default and the (configurable !) separator is set to `+`. For more info, see [How to use Address Tagging (`user+tag@example.com`) with Postfix](https://www.stevejenkins.com/blog/2011/03/how-to-use-address-tagging-usertagexample-com-with-postfix/) and the [official documentation](http://www.postfix.org/postconf.5.html#recipient_delimiter).
+Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`. This is configured by default and the (configurable !) separator is set to `+`. For more info, see the [official documentation](http://www.postfix.org/postconf.5.html#recipient_delimiter).
 
 !!! note
 
