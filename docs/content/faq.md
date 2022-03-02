@@ -137,7 +137,7 @@ To use a bare domain (_where the host name is `example.com` and the domain is al
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to `docker-data/dms/config/postfix-main.cf`. That should work. Without that change there will be warnings in the logs like:
+Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that `OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file (see [#1731](https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425)). Without these changes there will be warnings in the logs like:
 
 ```log
 warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
