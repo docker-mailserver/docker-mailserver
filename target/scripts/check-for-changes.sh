@@ -49,8 +49,8 @@ sleep 10
 _notify 'inf' "$(_log_date) check-for-changes is ready"
 
 # used to check for if changes have settled
-CMP_RESULT=
-LAST_CMP_RESULT=
+unset LAST_CMP_RESULT
+unset CMP_RESULT
 
 while true
 do
@@ -150,8 +150,8 @@ do
       _remove_lock
       _notify 'inf' "$(_log_date) Completed handling of detected change"
 
-      LAST_CMP_RESULT=
-      CMP_RESULT=
+      unset LAST_CMP_RESULT
+      unset CMP_RESULT
 
     else # The files differ...
       _notify 'inf' "$(_log_date) Changes detected... Ensuring changes have settled before proceeding..."
@@ -161,7 +161,7 @@ do
     fi
 
   else # Checksum files don't differ
-    LAST_CMP_RESULT=
+    unset LAST_CMP_RESULT
     continue
   fi
 
