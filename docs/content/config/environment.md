@@ -39,7 +39,8 @@ The log-level will show everything in its class and above.
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
 
-- **empty** => localhost only.
+- **none** => Explicitly force authentication
+- container => Container IP address only.
 - host => Add docker host (ipv4 only).
 - network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case.
 - connected-networks => Add all connected docker networks (ipv4 only).

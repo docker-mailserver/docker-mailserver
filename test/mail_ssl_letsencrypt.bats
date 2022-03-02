@@ -50,6 +50,7 @@ function teardown() {
 
   local TEST_DOCKER_ARGS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
+    --env PERMIT_DOCKER='container'
     --env SSL_TYPE='letsencrypt'
   )
 
@@ -69,6 +70,7 @@ function teardown() {
 
   local TEST_DOCKER_ARGS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
+    --env PERMIT_DOCKER='container'
     --env SSL_TYPE='letsencrypt'
   )
 
@@ -107,9 +109,10 @@ function teardown() {
     # shellcheck disable=SC2034
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
-      --env SSL_TYPE='letsencrypt'
-      --env SSL_DOMAIN='*.example.test'
       --env DMS_DEBUG=1
+      --env PERMIT_DOCKER='container'
+      --env SSL_DOMAIN='*.example.test'
+      --env SSL_TYPE='letsencrypt'
     )
 
     common_container_setup 'TEST_DOCKER_ARGS'
