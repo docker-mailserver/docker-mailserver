@@ -1,5 +1,47 @@
 # Changelog
 
+## `v10.5.0`
+
+### Critical Changes
+
+1. This release fixes a critical issue for LDAP users, installing a needed package on Debian 11
+   on build-time. Moreover, a race-condition was eliminated ([#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)).
+2. A resource leak in `check-for-changes.sh` was fixed ([#2401](https://github.com/docker-mailserver/docker-mailserver/pull/2401))
+
+### Other Minor Changes
+
+1. `SPAMASSASSIN_SPAM_TO_INBOX`'s default changed to `1`. ([#2361](https://github.com/docker-mailserver/docker-mailserver/pull/2361))
+2. Changedetector functionality was added to `SSL_TYPE=manual`-setups. ([#2404](https://github.com/docker-mailserver/docker-mailserver/pull/2404))
+3. Four new environment variables were introduced: `LOGWATCH_SENDER`, `ENABLE_DNSBL`, `DOVECOT_INET_PROTOCOLS` and `ENABLE_SPAMASSASSIN_KAM`. ([#2362](https://github.com/docker-mailserver/docker-mailserver/pull/2362), [#2342](https://github.com/docker-mailserver/docker-mailserver/pull/2342), [#2358](https://github.com/docker-mailserver/docker-mailserver/pull/2358), [#2418](https://github.com/docker-mailserver/docker-mailserver/pull/2418))
+4. There are plenty of bug fixes and documentation enhancements with this release.
+
+### Merged Pull Requests
+
+- **[fix]** added `libldap-common` to packages in Dockerfile in [#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)
+- **[fix]** Prevent race condition on supervisorctl reload in [#2343](https://github.com/docker-mailserver/docker-mailserver/pull/2343)
+- **[docs]** Update links to dovecot docs in [#2351](https://github.com/docker-mailserver/docker-mailserver/pull/2351)
+- **[fix]** tests(fix): Align with upstream `testssl` field name change in [#2353](https://github.com/docker-mailserver/docker-mailserver/pull/2353)
+- **[improvement]** Make TLS tests more reliable in [#2354](https://github.com/docker-mailserver/docker-mailserver/pull/2354)
+- **[feature]** Introduce ENABLE_DNSBL env in [#2342](https://github.com/docker-mailserver/docker-mailserver/pull/2342)
+- **[feature]** Introduce DOVECOT_INET_PROTOCOLS env in [#2358](https://github.com/docker-mailserver/docker-mailserver/pull/2358)
+- **[fix]** Fix harmless startup errors in [#2357](https://github.com/docker-mailserver/docker-mailserver/pull/2357)
+- **[improvement]** Add tests for sedfile wrapper in [#2363](https://github.com/docker-mailserver/docker-mailserver/pull/2363)
+- **[feature]** add env var `LOGWATCH_SENDER` in [#2362](https://github.com/docker-mailserver/docker-mailserver/pull/2362)
+- **[fix]** Fixed non-number-argument in `listmailuser` in [#2382](https://github.com/docker-mailserver/docker-mailserver/pull/2382)
+- **[fix]** docs: Fail2Ban - Fix links for rootless podman in [#2384](https://github.com/docker-mailserver/docker-mailserver/pull/2384)
+- **[fix]** docs(kubernetes): fix image name in example in [#2385](https://github.com/docker-mailserver/docker-mailserver/pull/2385)
+- **[fix]** SSL documentation contains a small bug #2381 by @Twist235 in [#2383](https://github.com/docker-mailserver/docker-mailserver/pull/2383)
+- **[fix]** get rid of subshell + `exec` in `helper-functions.sh` in [#2401](https://github.com/docker-mailserver/docker-mailserver/pull/2401)
+- **[docs]** Rootless Podman security update by @p-fruck in [#2393](https://github.com/docker-mailserver/docker-mailserver/pull/2393)
+- **[fix]** fix: double occurence of `/etc/postfix/regexp` in [#2397](https://github.com/docker-mailserver/docker-mailserver/pull/2397)
+- **[improvement]** consistently make 1 the default value for `SPAMASSASSIN_SPAM_TO_INBOX` in [#2361](https://github.com/docker-mailserver/docker-mailserver/pull/2361)
+- **[docs]** added sieve example for subaddress sorting in [#2410](https://github.com/docker-mailserver/docker-mailserver/pull/2410)
+- **[feature]** Add changedetector functionality for `${SSL_TYPE} == manual` in [#2404](https://github.com/docker-mailserver/docker-mailserver/pull/2404)
+- **[docs]** docs(deps): bump mkdocs-material to v8.2.1 in [#2422](https://github.com/docker-mailserver/docker-mailserver/pull/2422)
+- **[feature]** Add SpamAssassin KAM in [#2418](https://github.com/docker-mailserver/docker-mailserver/pull/2418)
+- **[improvement]** refactoring: split helper functions into smaller scripts in [#2420](https://github.com/docker-mailserver/docker-mailserver/pull/2420)
+- **[fix]** fix: do not add accounts that already exists to account files in [#2419](https://github.com/docker-mailserver/docker-mailserver/pull/2419)
+
 ## `v10.4.0`
 
 This release upgrades our base image from Debian 10 to Debian 11.  
@@ -11,13 +53,12 @@ There is also an important regression fixed for `SSL_TYPE=letsencrypt` users.
   - `yescrypt` is now supported upstream as a password hash algorithm, `docker-mailserver` continues to use `SHA512-CRYPT` (_[more information](https://github.com/docker-mailserver/docker-mailserver/pull/2116#issuecomment-955800544)_).
 - **[chore]** Dovecot statistics service disabled [#2292](https://github.com/docker-mailserver/docker-mailserver/pull/2292)
 
-
 ## `v10.3.0`
 
 **WARNING:** This release had a small regression affecting the detection of changes for certificates provisioned in `/etc/letsencrypt` with the config ENV `SSL_TYPE=letsencrypt`, unless you use Traefik's `acme.json`. If you rely on this functionality to restart Postfix and Dovecot when updating your cert files, this will not work and it is advised to upgrade to `v10.4.0` or newer prior to renewal of your certificates.
 
 - **[fix]** The Dovecot `userdb` will now additionally create "dummy" accounts for basic alias maps (_alias maps to a single real account managed by Dovecot, relaying to external providers aren't affected_) when `ENABLE_QUOTAS=1` (default) as a workaround for Postfix `quota-status` plugin querying Dovecot with inbound mail for a user, which Postfix uses to reject mail if quota has been exceeded (_to avoid risk of blacklisting from spammers abusing backscatter_) [#2248](https://github.com/docker-mailserver/docker-mailserver/pull/2248)
-    - **NOTE:** If using aliases that map to another alias or multiple addresses, _this remains a risk_.
+  - **NOTE:** If using aliases that map to another alias or multiple addresses, _this remains a risk_.
 - **[fix]** `setup email list` command will no longer attempt to query Dovecot quota status when `ENABLE_QUOTAS` is disabled [#2264](https://github.com/docker-mailserver/docker-mailserver/pull/2264)
 - **[fix]** `SSL_DOMAIN` ENV should now work much more reliably [#2274](https://github.com/docker-mailserver/docker-mailserver/pull/2274), [#2278](https://github.com/docker-mailserver/docker-mailserver/pull/2278), [#2279](https://github.com/docker-mailserver/docker-mailserver/pull/2279)
 - **[fix]** DKIM - Removed `refile:` (_regex type_) from KeyTable entry in `opendkim.conf`, fixes validation error output from `opendkim-testkey` [#2249](https://github.com/docker-mailserver/docker-mailserver/pull/2249)
@@ -35,7 +76,6 @@ These changes are primarily internal and are only likely relevant to users that 
 - **[refactor]** `acme.json` extraction was refactored into a CLI utility and updated to Python 3 (_required for future upgrade to Debian 11 Bullseye base image_) [#2274](https://github.com/docker-mailserver/docker-mailserver/pull/2274)
 - **[refactor]** As part of the Traefik `acme.json` and `SSL_DOMAIN` work, logic for `SSL_TYPE=letsencrypt` was also revised [#2278](https://github.com/docker-mailserver/docker-mailserver/pull/2278)
 - **[improvement]** Some minor tweaks to how we derive the internal `HOSTNAME` and `DOMAINNAME` from user configured `hostname` and `domainname` settings [#2280](https://github.com/docker-mailserver/docker-mailserver/pull/2280)
-
 
 ## `v10.2.0`
 
@@ -92,17 +132,14 @@ This release mainly improves on `v10.1.0` with small bugfixes/improvements and d
 - **[dependency]** Update various dependencies through docs and base image
 - **[security]** This release contains also [security fixes for OpenSSL](https://www.openssl.org/news/secadv/20210824.txt)
 
-
 ## `v10.1.0`
 
-This release mainly improves on `v10.0.0` with many bugfixes. 
+This release mainly improves on `v10.0.0` with many bugfixes.
 
 - **[docs]** Various documentation updates ([#2105](https://github.com/docker-mailserver/docker-mailserver/pull/2105), [#2045](https://github.com/docker-mailserver/docker-mailserver/pull/2045), [#2043](https://github.com/docker-mailserver/docker-mailserver/pull/2043), [#2035](https://github.com/docker-mailserver/docker-mailserver/pull/2035), [#2001](https://github.com/docker-mailserver/docker-mailserver/pull/2001))
 - **[misc]** Fixed a lot of small bugs, updated dependencies and improved functionality ([#2095](https://github.com/docker-mailserver/docker-mailserver/pull/2095), [#2047](https://github.com/docker-mailserver/docker-mailserver/pull/2047), [#2046](https://github.com/docker-mailserver/docker-mailserver/pull/2046), [#2041](https://github.com/docker-mailserver/docker-mailserver/pull/2041), [#1980](https://github.com/docker-mailserver/docker-mailserver/pull/1980), [#2030](https://github.com/docker-mailserver/docker-mailserver/pull/2030), [#2024](https://github.com/docker-mailserver/docker-mailserver/pull/2024), [#2001](https://github.com/docker-mailserver/docker-mailserver/pull/2001), [#2000](https://github.com/docker-mailserver/docker-mailserver/pull/2000), [#2059](https://github.com/docker-mailserver/docker-mailserver/pull/2059))
 - **[feat]** Added dovecot-fts-xapian ([#2064](https://github.com/docker-mailserver/docker-mailserver/pull/2064))
 - **[security]** Switch GPG keyserver ([#2051](https://github.com/docker-mailserver/docker-mailserver/pull/2051))
-
-
 
 ## `v10.0.0`
 
@@ -115,7 +152,7 @@ This release improves on `9.1.0` in many aspect, including general fixes, Fail2B
 - **[general]** Added update check and notification ([#1976](https://github.com/docker-mailserver/docker-mailserver/pull/1976), [#1951](https://github.com/docker-mailserver/docker-mailserver/pull/1951))
 - **[general]** Moved environment variables to the documentation and improvements ([#1948](https://github.com/docker-mailserver/docker-mailserver/pull/1948), [#1947](https://github.com/docker-mailserver/docker-mailserver/pull/1947), [#1931](https://github.com/docker-mailserver/docker-mailserver/pull/1931))
 - **[security]** Major Fail2Ban improvements (cleanup, update and breaking changes, see below)
-- **[fix]** `./setup.sh email del ...` now works properly 
+- **[fix]** `./setup.sh email del ...` now works properly
 - **[code]** Added color variables to `setup.sh` and improved the script as a whole ([#1879](https://github.com/docker-mailserver/docker-mailserver/pull/1879), [#1886](https://github.com/docker-mailserver/docker-mailserver/pull/1886))
 - **[ldap]** Added `LDAP_QUERY_FILTER_SENDERS` ([#1902](https://github.com/docker-mailserver/docker-mailserver/pull/1902))
 - **[ldap]** Use dovecots LDAP `uris` connect option instead of `hosts` ([#1901](https://github.com/docker-mailserver/docker-mailserver/pull/1901))
