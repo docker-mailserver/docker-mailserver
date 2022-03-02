@@ -718,36 +718,42 @@ function _setup_docker_permit
       postconf -e "mynetworks ="
       ;;
 
-    "host" )
-      _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to my networks"
-      postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
-      echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
-      echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
-      ;;
-
-    "network" )
-      _notify 'inf' "Adding docker network in my networks"
-      postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
-      echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
-      echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
-      ;;
-
     "connected-networks" )
       for NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
         NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
-        _notify 'inf' "Adding docker network ${NETWORK} in my networks"
+        _notify 'inf' "Adding docker network ${NETWORK} to Postfix's 'mynetworks'"
         postconf -e "$(postconf | grep '^mynetworks =') ${NETWORK}"
         echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
         echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
       done
       ;;
 
-    * )
-      _notify 'inf' 'Adding container ip in my networks'
+    "container" )
+      _notify 'inf' "Adding container IP address to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
       echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
+      ;;
+
+    "host" )
+      _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to Postfix's 'mynetworks'"
+      postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
+      echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
+      echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
+      ;;
+
+    "network" )
+      _notify 'inf' "Adding docker network to Postfix's 'mynetworks'"
+      postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
+      echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
+      echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
+      ;;
+
+    * )
+      _notify 'warn' "Invalid value for PERMIT_DOCKER: ${PERMIT_DOCKER}"
+      _notify 'inf' "Clearing Postfix's 'mynetworks'"
+      postconf -e "mynetworks ="
       ;;
 
   esac
