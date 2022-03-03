@@ -1889,8 +1889,8 @@
   <h1>FAQ</h1>
 
 <h3 id="what-kind-of-database-are-you-using"><a class="toclink" href="#what-kind-of-database-are-you-using">What kind of database are you using?</a></h3>
-<p>None! No database is required. Filesystem is the database.<br />
-This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.  </p>
+<p>None! No database is required. Filesystem is the database.
+This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.</p>
 <h3 id="where-are-emails-stored"><a class="toclink" href="#where-are-emails-stored">Where are emails stored?</a></h3>
 <p>Mails are stored in <code>/var/mail/${domain}/${username}</code>. Since <code>v9.0.0</code> it is possible to add custom <code>user_attributes</code> for each accounts to have a different mailbox configuration (See <a href="https://github.com/docker-mailserver/docker-mailserver/pull/1792">#1792</a>).</p>
 <div class="admonition warning">
@@ -1907,7 +1907,7 @@ This image is based on config files that can be persisted using Docker volumes, 
 <p>For more information, see <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1639">#1639</a>.</p>
 </div>
 <h3 id="how-can-i-sync-container-with-host-datetime-timezone"><a class="toclink" href="#how-can-i-sync-container-with-host-datetime-timezone">How can I sync container with host date/time? Timezone?</a></h3>
-<p>Share the host's <a href="https://www.freedesktop.org/software/systemd/man/localtime.html"><code>/etc/localtime</code></a> with the <code>docker-mailserver</code> container, using a Docker volume:  </p>
+<p>Share the host's <a href="https://www.freedesktop.org/software/systemd/man/localtime.html"><code>/etc/localtime</code></a> with the <code>docker-mailserver</code> container, using a Docker volume:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span><span class="w"></span>
 </code></pre></div>
@@ -2103,12 +2103,12 @@ Few examples of symptoms can be found <a href="https://github.com/docker-mailser
 <p>If everything is OK regarding DNS, please provide <a href="https://guides.github.com/features/mastering-markdown/">formatted logs</a> and config files. This will allow us to help you.</p>
 <p>If we're blind, we won't be able to do anything.</p>
 <h3 id="what-system-requirements-are-required-to-run-docker-mailserver-effectively"><a class="toclink" href="#what-system-requirements-are-required-to-run-docker-mailserver-effectively">What system requirements are required to run <code>docker-mailserver</code> effectively?</a></h3>
-<p>1 core and 1GB of RAM + swap partition is recommended to run <code>docker-mailserver</code> with clamav.
+<p>1 core and 1GB of RAM + swap partition is recommended to run <code>docker-mailserver</code> with ClamAV.
 Otherwise, it could work with 512M of RAM.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Clamav can consume a lot of memory, as it reads the entire signature database into RAM.</p>
-<p>Current figure is about 850M and growing. If you get errors about clamav or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.</p>
+<p>ClamAV can consume a lot of memory, as it reads the entire signature database into RAM.</p>
+<p>Current figure is about 850M and growing. If you get errors about ClamAV or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.</p>
 </div>
 <h3 id="can-docker-mailserver-run-in-a-rancher-environment"><a class="toclink" href="#can-docker-mailserver-run-in-a-rancher-environment">Can <code>docker-mailserver</code> run in a Rancher Environment?</a></h3>
 <p>Yes, by adding the environment variable <code>PERMIT_DOCKER: network</code>.</p>
