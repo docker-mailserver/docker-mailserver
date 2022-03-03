@@ -1,20 +1,13 @@
 load 'test_helper/common'
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
-function teardown() {
-  run_teardown_file_if_necessary
-}
-
 function setup_file() {
   pushd test/docker-openldap/ || return 1
   docker build -f Dockerfile -t ldap --no-cache .
   popd || return 1
 
-  export FQDN_MAIL='mail.my-domain.com'
-  export FQDN_LDAP='ldap.my-domain.com'
+  export DOMAIN='my-domain.com'
+  export FQDN_MAIL="mail.${DOMAIN}"
+  export FQDN_LDAP="ldap.${DOMAIN}"
   export FQDN_LOCALHOST_A='localhost.localdomain'
   export FQDN_LOCALHOST_B='localhost.otherdomain'
   export DMS_TEST_NETWORK='test-network-ldap'
@@ -36,26 +29,28 @@ function setup_file() {
   docker run -d --name mail_with_ldap \
     -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
     -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
-    -e SPOOF_PROTECTION=1 \
+    -e DMS_DEBUG=0 \
+    -e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
+    -e DOVECOT_TLS=no \
+    -e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
     -e ENABLE_LDAP=1 \
-    -e LDAP_SERVER_HOST=ldap \
-    -e LDAP_START_TLS=no \
-    -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
+    -e PFLOGSUMM_TRIGGER=logrotate \
+    -e ENABLE_SASLAUTHD=1 \
     -e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \
     -e LDAP_BIND_PW=admin \
-    -e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
-    -e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
     -e LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))" \
     -e LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))" \
+    -e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
     -e LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))" \
-    -e DOVECOT_TLS=no \
-    -e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-    -e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-    -e REPORT_RECIPIENT=1 \
-    -e ENABLE_SASLAUTHD=1 \
-    -e SASLAUTHD_MECHANISMS=ldap \
+    -e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
+    -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
+    -e LDAP_SERVER_HOST=ldap \
+    -e LDAP_START_TLS=no \
+    -e PERMIT_DOCKER=container \
     -e POSTMASTER_ADDRESS="postmaster@${FQDN_LOCALHOST_A}" \
-    -e DMS_DEBUG=0 \
+    -e REPORT_RECIPIENT=1 \
+    -e SASLAUTHD_MECHANISMS=ldap \
+    -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     --network "${DMS_TEST_NETWORK}" \
     --hostname "${FQDN_MAIL}" \
@@ -68,10 +63,6 @@ function setup_file() {
 function teardown_file() {
   docker rm -f ldap_for_mail mail_with_ldap
   docker network rm "${DMS_TEST_NETWORK}"
-}
-
-@test "first" {
-  skip 'only used to call setup_file from setup'
 }
 
 # processes
@@ -202,14 +193,14 @@ function teardown_file() {
   assert_failure
 }
 
-@test "checking spoofing: rejects sender forging" {
+@test "checking spoofing (with LDAP): rejects sender forging" {
   wait_for_smtp_port_in_container_to_respond mail_with_ldap
   run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt | grep 'Sender address rejected: not owned by user'"
   assert_success
 }
 
 # ATTENTION: these tests must come after "checking dovecot: ldap mail delivery works" since they will deliver an email which skews the count in said test, leading to failure
-@test "checking spoofing: accepts sending as alias" {
+@test "checking spoofing: accepts sending as alias (with LDAP)" {
   run docker exec mail_with_ldap /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-alias.txt | grep 'End data with'"
   assert_success
 }
@@ -239,11 +230,11 @@ function teardown_file() {
 
 @test "checking pflogsum delivery" {
   # checking default sender is correctly set when env variable not defined
-  run docker exec mail_with_ldap grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "mailserver-report@${DOMAIN}" /etc/logrotate.d/maillog
   assert_success
 
   # checking default logrotation setup
-  run docker exec mail_with_ldap grep "daily" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "weekly" /etc/logrotate.d/maillog
   assert_success
 }
 
@@ -254,8 +245,4 @@ function teardown_file() {
 @test "checking restart of process: saslauthd (saslauthd server enabled)" {
   run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   assert_success
-}
-
-@test "last" {
-  skip 'only used to call teardown_file from teardown'
 }

@@ -1,14 +1,6 @@
 #!/usr/bin/env bats
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     # Internal copies made by `start-mailserver.sh`:
     export PRIMARY_KEY='/etc/dms/tls/key'
@@ -44,10 +36,6 @@ function setup_file() {
 
 function teardown_file() {
     docker rm -f mail_manual_ssl
-}
-
-@test "first" {
-    skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 @test "checking ssl: ENV vars provided are valid files" {
@@ -120,8 +108,4 @@ function teardown_file() {
     assert_output --partial 'Manual certificates have changed'
 
     sed -i '/someThingsChangedHere/d' "$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"
-}
-
-@test "last" {
-    skip 'this test is only there to reliably mark the end for the teardown_file'
 }

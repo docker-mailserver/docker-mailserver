@@ -5,10 +5,6 @@ load 'test_helper/common'
 export IMAGE_NAME
 IMAGE_NAME="${NAME}"
 
-setup() {
-  run_setup_file_if_necessary
-}
-
 setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail)"
@@ -23,9 +19,10 @@ setup_file() {
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
-    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e ENABLE_SRS=1 \
+    -e PFLOGSUMM_TRIGGER=logrotate \
     -e ENABLE_UPDATE_CHECK=0 \
+    -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
     -e REPORT_SENDER=report1@mail.my-domain.com \
@@ -34,6 +31,7 @@ setup_file() {
     -e SA_TAG=-5.0 \
     -e SA_TAG2=2.0 \
     -e SASL_PASSWD="external-domain.com username:password" \
+    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
@@ -81,17 +79,8 @@ setup_file() {
   wait_for_empty_mail_queue_in_container mail
 }
 
-teardown() {
-  run_teardown_file_if_necessary
-}
-
 teardown_file() {
   docker rm -f mail
-}
-
-# this test must come first to reliably identify when to run setup_file
-@test "first" {
-  skip 'Starting testing of letsencrypt SSL'
 }
 
 #
@@ -1252,8 +1241,4 @@ EOF
 @test "checking that mail for root was delivered" {
   run docker exec mail grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file (test.bats finished)'
 }

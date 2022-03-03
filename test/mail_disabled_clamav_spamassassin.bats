@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-setup() {
-    run_setup_file_if_necessary
-}
-
-teardown() {
-    run_teardown_file_if_necessary
-}
-
 setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -27,10 +19,6 @@ setup_file() {
 
 teardown_file() {
     docker rm -f mail_disabled_clamav_spamassassin
-}
-
-@test "first" {
-    skip 'only used to call setup_file from setup'
 }
 
 @test "checking process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
@@ -56,8 +44,4 @@ teardown_file() {
 @test "checking restart of process: clamav (clamav disabled by ENABLED_CLAMAV=0)" {
   run docker exec mail_disabled_clamav_spamassassin /bin/bash -c "pkill -f clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_failure
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }

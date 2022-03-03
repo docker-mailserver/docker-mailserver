@@ -13,13 +13,8 @@ load 'test_helper/common'
 #    - Verify Postfix and Dovecot use the custom `custom-dhe-params.pem` (contents is actually `ffdhe2048.pem`).
 #    - A warning is raised about usage of potentially insecure parameters.
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
 function teardown() {
     docker rm -f mail_dhparams
-    run_teardown_file_if_necessary
 }
 
 function setup_file() {
@@ -49,10 +44,6 @@ function setup_file() {
 # Not used
 # function teardown_file() {
 # }
-
-@test "first" {
-    skip 'this test must come first to reliably identify when to run setup_file'
-}
 
 @test "testing tls: DH Parameters - Verify integrity of Default (ffdhe4096)" {
     # Reference used (22/04/2020):
@@ -103,10 +94,6 @@ function setup_file() {
     common_container_setup
     should_have_valid_checksum "${DH_CUSTOM_CHECKSUM}"
     should_emit_warning
-}
-
-@test "last" {
-    skip 'this test is only there to reliably mark the end for the teardown_file'
 }
 
 function common_container_setup() {
