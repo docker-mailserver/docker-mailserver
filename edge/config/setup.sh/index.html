@@ -1549,16 +1549,15 @@ DESCRIPTION
         ./setup.sh config dkim [ ARGUMENTS... ]
 
     COMMAND relay :=
-        ./setup.sh relay add-domain &lt;DOMAIN&gt; &lt;HOST&gt; [&lt;PORT&gt;]
         ./setup.sh relay add-auth &lt;DOMAIN&gt; &lt;USERNAME&gt; [&lt;PASSWORD&gt;]
+        ./setup.sh relay add-domain &lt;DOMAIN&gt; &lt;HOST&gt; [&lt;PORT&gt;]
         ./setup.sh relay exclude-domain &lt;DOMAIN&gt;
 
     COMMAND debug :=
-        ./setup.sh debug fetchmail
         ./setup.sh debug fail2ban [unban &lt;IP&gt;]
-        ./setup.sh debug show-mail-logs
-        ./setup.sh debug inspect
+        ./setup.sh debug fetchmail
         ./setup.sh debug login &lt;COMMANDS&gt;
+        ./setup.sh debug show-mail-logs
 
 EXAMPLES
     ./setup.sh email add test@example.com
