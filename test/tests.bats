@@ -14,16 +14,17 @@ setup_file() {
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -v "$(pwd)/test/onedir":/var/mail-state \
     -e AMAVIS_LOGLEVEL=2 \
+    -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
     -e DMS_DEBUG=0 \
     -e ENABLE_CLAMAV=1 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
-    -e PFLOGSUMM_TRIGGER=logrotate \
     -e ENABLE_UPDATE_CHECK=0 \
     -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
+    -e PFLOGSUMM_TRIGGER=logrotate \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
     -e REPORT_SENDER=report1@mail.my-domain.com \
     -e SA_KILL=3.0 \
@@ -54,7 +55,7 @@ setup_file() {
 
   wait_for_smtp_port_in_container mail
 
-  # wait for clamav to be fully setup or we will get errors on the log
+  # wait for ClamAV to be fully setup or we will get errors on the log
   repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
 
   # sending test mails
@@ -421,11 +422,16 @@ EOF
 
 
 #
-# clamav
+# ClamAV
 #
 
-@test "checking clamav: should be listed in amavis when enabled" {
+@test "checking ClamAV: should be listed in amavis when enabled" {
   run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
+  assert_success
+}
+
+@test "checking ClamAV: CLAMAV_MESSAGE_SIZE_LIMIT" {
+  run docker exec mail grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
   assert_success
 }
 
