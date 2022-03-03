@@ -16,7 +16,7 @@ chmod a+x ./setup.sh
 !!! warning "`setup.sh` for `docker-mailserver` version `v10.1.x` and below"
 
     If you're using `docker-mailserver` version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the [tagged release version](https://github.com/docker-mailserver/docker-mailserver/tags) that you're using:
-    
+
     `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
 
 ## Usage
@@ -69,16 +69,15 @@ DESCRIPTION
         ./setup.sh config dkim [ ARGUMENTS... ]
 
     COMMAND relay :=
-        ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
         ./setup.sh relay add-auth <DOMAIN> <USERNAME> [<PASSWORD>]
+        ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
         ./setup.sh relay exclude-domain <DOMAIN>
 
     COMMAND debug :=
-        ./setup.sh debug fetchmail
         ./setup.sh debug fail2ban [unban <IP>]
-        ./setup.sh debug show-mail-logs
-        ./setup.sh debug inspect
+        ./setup.sh debug fetchmail
         ./setup.sh debug login <COMMANDS>
+        ./setup.sh debug show-mail-logs
 
 EXAMPLES
     ./setup.sh email add test@example.com
