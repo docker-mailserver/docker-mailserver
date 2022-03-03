@@ -455,7 +455,7 @@ function _setup_postfix_sizelimits
 
 function _setup_clamav_sizelimit
 {
-  _notify 'inf' "Configuring clamav message scan size limit to ${CLAMAV_MESSAGE_SIZE_LIMIT}"
+  _notify 'inf' "Configuring ClamAV message scan size limit to ${CLAMAV_MESSAGE_SIZE_LIMIT}"
   sedfile -i "s/^MaxFileSize.*/MaxFileSize ${CLAMAV_MESSAGE_SIZE_LIMIT}/" /etc/clamav/clamd.conf
 }
 
@@ -954,14 +954,14 @@ EOM
     fi
   fi
 
-  # Clamav
+  # ClamAV
   if [[ ${ENABLE_CLAMAV} -eq 0 ]]
   then
-    _notify 'warn' "Clamav is disabled. You can enable it with 'ENABLE_CLAMAV=1'"
+    _notify 'warn' "ClamAV is disabled. You can enable it with 'ENABLE_CLAMAV=1'"
     echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
-    _notify 'inf' 'Enabling clamav'
+    _notify 'inf' 'Enabling ClamAV'
   fi
 
   echo '1;  # ensure a defined return' >>"${DMS_AMAVIS_FILE}"

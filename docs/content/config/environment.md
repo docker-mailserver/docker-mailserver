@@ -75,8 +75,8 @@ Note: Emails will be rejected, if they don't pass the block list checks!
 
 ##### ENABLE_CLAMAV
 
-- **0** => Clamav is disabled
-- 1 => Clamav is enabled
+- **0** => ClamAV is disabled
+- 1 => ClamAV is enabled
 
 ##### ENABLE_POP3
 
@@ -195,6 +195,7 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 ##### CLAMAV_MESSAGE_SIZE_LIMIT
 
 Mails larger than this limit won't be scanned.
+ClamAV must be enabled (ENABLE_CLAMAV=1) for this.
 
 - **empty** => 25M (25 MB)
 
