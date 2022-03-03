@@ -117,7 +117,7 @@ function register_functions
   [[ ${DOVECOT_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_dovecot_inet_protocols'
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
   [[ ${ENABLE_DNSBL} -eq 0 ]] && _register_setup_function '_setup_dnsbl_disable'
-  [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]] && _register_setup_function '__setup_clamav_sizelimit'
+  [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]] && _register_setup_function '_setup_clamav_sizelimit'
 
   _register_setup_function '_setup_dkim'
   _register_setup_function '_setup_ssl'
