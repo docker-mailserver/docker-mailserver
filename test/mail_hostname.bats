@@ -1,8 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
 
 function setup_file() {
   local PRIVATE_CONFIG
@@ -62,10 +59,6 @@ function setup_file() {
   # postfix virtual transport lmtp
   docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-}
-
-@test "first" {
-  skip 'only used to call setup_file from setup'
 }
 
 @test "checking SRS: SRS_DOMAINNAME is used correctly" {
@@ -195,8 +188,4 @@ function setup_file() {
 @test "checking that the container stops cleanly: mail_domainname" {
   run docker stop -t 60 mail_domainname
   assert_success
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }

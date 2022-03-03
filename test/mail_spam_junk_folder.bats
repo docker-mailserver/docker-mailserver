@@ -11,9 +11,10 @@ load 'test_helper/common'
               -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
               -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
               -e ENABLE_SPAMASSASSIN=1 \
-              -e SPAMASSASSIN_SPAM_TO_INBOX=1 \
               -e MOVE_SPAM_TO_JUNK=1 \
+              -e PERMIT_DOCKER=container \
               -e SA_SPAM_SUBJECT="SPAM: " \
+              -e SPAMASSASSIN_SPAM_TO_INBOX=1 \
               -h mail.my-domain.com -t "${NAME}"
 
   teardown() { docker rm -f mail_spam_moved_junk; }
@@ -39,9 +40,10 @@ load 'test_helper/common'
             -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
             -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
             -e ENABLE_SPAMASSASSIN=1 \
-            -e SPAMASSASSIN_SPAM_TO_INBOX=1 \
             -e MOVE_SPAM_TO_JUNK=0 \
+            -e PERMIT_DOCKER=container \
             -e SA_SPAM_SUBJECT="SPAM: " \
+            -e SPAMASSASSIN_SPAM_TO_INBOX=1 \
             -h mail.my-domain.com -t "${NAME}"
 
   teardown() { docker rm -f mail_spam_moved_new; }

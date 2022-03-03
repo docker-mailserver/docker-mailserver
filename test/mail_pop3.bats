@@ -1,32 +1,21 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_pop3 \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_POP3=1 \
-		-e DMS_DEBUG=0 \
-		-h mail.my-domain.com -t "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e DMS_DEBUG=0 \
+    -e ENABLE_POP3=1 \
+    -e PERMIT_DOCKER=container \
+    -h mail.my-domain.com -t "${NAME}"
 
     wait_for_finished_setup_in_container mail_pop3
 }
 
 function teardown_file() {
     docker rm -f mail_pop3
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 #
@@ -89,8 +78,4 @@ function teardown_file() {
 @test "checking PERMIT_DOCKER: my network value" {
   run docker exec mail_pop3 /bin/sh -c "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}/32'"
   assert_success
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

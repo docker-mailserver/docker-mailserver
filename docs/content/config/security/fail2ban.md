@@ -119,8 +119,8 @@ Here `192.168.1.15` is our banned IP.
 ```
 
 [docs-setupsh]: ../setup.sh.md
-[github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf
-[github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf
+[github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
+[github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 [rootless::rootless-kit]: https://github.com/rootless-containers/rootlesskit
 [rootless::port-drivers]: https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers
 [rootless::slirp4netns]: https://github.com/rootless-containers/slirp4netns

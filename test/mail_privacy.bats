@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
-function teardown() {
-  run_teardown_file_if_necessary
-}
-
 function setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -32,10 +24,6 @@ function teardown_file() {
   docker rm -f mail_privacy
 }
 
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
-}
-
 # What this test should cover: https://github.com/docker-mailserver/docker-mailserver/issues/681
 @test "checking postfix: remove privacy details of the sender" {
   docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
@@ -48,8 +36,4 @@ function teardown_file() {
   run docker exec mail_privacy /bin/sh -c 'grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l'
   assert_success
   assert_output 0
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

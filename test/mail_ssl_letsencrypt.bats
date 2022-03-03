@@ -40,22 +40,9 @@ function setup_file() {
 # function teardown_file() {
 # }
 
-# Applies per test:
-function setup() {
-  run_setup_file_if_necessary
-}
-
 function teardown() {
   docker rm -f "${TEST_NAME}"
-  run_teardown_file_if_necessary
 }
-
-
-# this test must come first to reliably identify when to run setup_file
-@test "first" {
-  skip 'Starting testing of letsencrypt SSL'
-}
-
 
 # Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
 @test "ssl(letsencrypt): Should default to HOSTNAME (mail.example.test)" {
@@ -63,6 +50,7 @@ function teardown() {
 
   local TEST_DOCKER_ARGS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
+    --env PERMIT_DOCKER='container'
     --env SSL_TYPE='letsencrypt'
   )
 
@@ -82,6 +70,7 @@ function teardown() {
 
   local TEST_DOCKER_ARGS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
+    --env PERMIT_DOCKER='container'
     --env SSL_TYPE='letsencrypt'
   )
 
@@ -120,9 +109,10 @@ function teardown() {
     # shellcheck disable=SC2034
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
-      --env SSL_TYPE='letsencrypt'
-      --env SSL_DOMAIN='*.example.test'
       --env DMS_DEBUG=1
+      --env PERMIT_DOCKER='container'
+      --env SSL_DOMAIN='*.example.test'
+      --env SSL_TYPE='letsencrypt'
     )
 
     common_container_setup 'TEST_DOCKER_ARGS'
@@ -192,13 +182,6 @@ function teardown() {
   _acme_rsa
   _acme_wildcard
 }
-
-
-# this test is only there to reliably mark the end for the teardown_file
-@test "last" {
-  skip 'Finished testing of letsencrypt SSL'
-}
-
 
 #
 # Test Methods

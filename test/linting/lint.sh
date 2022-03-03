@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # version   v0.2.0 unstable
 # executed  by Make during CI or manually
@@ -105,7 +105,7 @@ function _shellcheck
     -not -path './target/docker-configomat/*'
   )"
   # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
-  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm +111 -type l -or" || FIND_EXEC="-executable"
+  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm -711" || FIND_EXEC="-executable"
   # shellcheck disable=SC2248
   F_BIN="$(find 'target/bin' ${FIND_EXEC} -type f)"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
