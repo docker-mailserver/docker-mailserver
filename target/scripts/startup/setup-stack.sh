@@ -443,19 +443,19 @@ function _setup_postfix_postscreen
 
 function _setup_postfix_sizelimits
 {
-  _notify 'inf' "Configuring postfix message size limit"
+  _notify 'inf' "Configuring postfix message size limit to ${POSTFIX_MESSAGE_SIZE_LIMIT}"
   postconf -e "message_size_limit = ${POSTFIX_MESSAGE_SIZE_LIMIT}"
 
-  _notify 'inf' "Configuring postfix mailbox size limit"
+  _notify 'inf' "Configuring postfix mailbox size limit to ${POSTFIX_MAILBOX_SIZE_LIMIT}"
   postconf -e "mailbox_size_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 
-  _notify 'inf' "Configuring postfix virtual mailbox size limit"
+  _notify 'inf' "Configuring postfix virtual mailbox size limit to ${POSTFIX_MAILBOX_SIZE_LIMIT}"
   postconf -e "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 }
 
 function _setup_clamav_sizelimit
 {
-  _notify 'inf' "Configuring clamav message scan size limit"
+  _notify 'inf' "Configuring clamav message scan size limit to ${CLAMAV_MESSAGE_SIZE_LIMIT}"
   sedfile -i "s/^MaxFileSize.*/MaxFileSize ${CLAMAV_MESSAGE_SIZE_LIMIT}/" /etc/clamav/clamd.conf
 }
 
