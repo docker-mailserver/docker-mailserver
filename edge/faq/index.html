@@ -1976,7 +1976,7 @@ find <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PW
 <li>From: <code>mydestination = $myhostname, localhost.$mydomain, localhost</code></li>
 <li>To: <code>mydestination = localhost.$mydomain, localhost</code></li>
 </ul>
-<p>Add the latter line to <code>docker-data/dms/config/postfix-main.cf</code>. That should work. Without that change there will be warnings in the logs like:</p>
+<p>Add the latter line to <code>docker-data/dms/config/postfix-main.cf</code>. If that doesn't work, make sure that <code>OVERRIDE_HOSTNAME</code> is blank in your <code>mailserver.env</code> file (see <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425">#1731</a>). Without these changes there will be warnings in the logs like:</p>
 <div class="highlight"><pre><span></span><code><span class="go">warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains</span>
 </code></pre></div>
 <p>Plus of course mail delivery fails.</p>
