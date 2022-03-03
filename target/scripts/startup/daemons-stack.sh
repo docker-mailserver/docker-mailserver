@@ -130,7 +130,7 @@ EOF
 
 function _start_daemons_clamav
 {
-  _notify 'task' 'Starting clamav'
+  _notify 'task' 'Starting ClamAV'
   supervisorctl start clamav || dms_panic__fail_init 'ClamAV'
 }
 
