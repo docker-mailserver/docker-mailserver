@@ -47,7 +47,7 @@ function teardown_file() {
   run docker exec mail_with_relays grep -e domain2.tld /etc/postfix/relayhost_map
   assert_output ''
   run ./setup.sh -c mail_with_relays alias add user2@domain2.tld user2@domaintwo.tld
-  run_until_success_or_timeout 10 docker exec mail_with_relays grep -e domain2.tld /etc/postfix/relayhost_map
+  run_until_success_or_timeout 11 docker exec mail_with_relays grep -e domain2.tld /etc/postfix/relayhost_map
   assert_output -e '^@domain2.tld[[:space:]]+\[default.relay.com\]:2525$'
 }
 
