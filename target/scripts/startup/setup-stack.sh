@@ -945,8 +945,7 @@ function _setup_security_stack
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com && \
-/etc/init.d/spamassassin reload
+sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com
 
 EOM
 
