@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # version   v1.0.0
 # executed  manually / via Make
