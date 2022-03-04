@@ -2,7 +2,7 @@ name: "Build Edge on Schedule"
 
 on:
   schedule:
-    - cron: "0 0 * * 5"
+    - cron: "0 0 * * *"
 
 jobs:
   publish:
