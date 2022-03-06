@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/bash
 
 # version   v0.2.0 unstable
 # executed  by Make during CI or manually
@@ -6,12 +6,6 @@
 
 SCRIPT="lint.sh"
 
-if [[ "$(uname)" == "Darwin" ]]
-then
-  readlink() {
-    greadlink "${@:+$@}" # Requires coreutils
-  }
-fi
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
 
@@ -104,10 +98,8 @@ function _shellcheck
     -not -path './test/test_helper/*' \
     -not -path './target/docker-configomat/*'
   )"
-  # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
-  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm -711" || FIND_EXEC="-executable"
   # shellcheck disable=SC2248
-  F_BIN="$(find 'target/bin' ${FIND_EXEC} -type f)"
+  F_BIN="$(find 'target/bin' -executable -type f)"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
   # This command is a bit easier to grok as multi-line.

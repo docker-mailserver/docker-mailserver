@@ -88,14 +88,6 @@ function _show_local_usage
 
 function _get_absolute_script_directory
 {
-  if [[ "$(uname)" == 'Darwin' ]]
-  then
-    readlink() {
-      # requires coreutils
-      greadlink "${@:+$@}"
-    }
-  fi
-
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
     DIR="$(dirname "$(readlink -f "${0}")")"
