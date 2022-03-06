@@ -41,7 +41,12 @@ RUN \
   apt-get -qq update && \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
+  echo "applying workaround for ubuntu/postfix bug described in https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403" && \
+  mv /bin/hostname{,.bak} && \
+  echo "echo docker-mailserver.invalid" > /bin/hostname && \
+  chmod +x /bin/hostname && \
   apt-get -qq install postfix && \
+  mv /bin/hostname{.bak,} && \
   apt-get -qq --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
