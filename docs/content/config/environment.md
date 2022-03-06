@@ -319,9 +319,9 @@ Defines who sends reports (if they are enabled).
 
 Changes the interval in which log files are rotated.
 
-**weekly** => Rotate log files weekly
-daily => Rotate log files daily
-monthly => Rotate log files monthly
+- **weekly** => Rotate log files weekly
+- daily => Rotate log files daily
+- monthly => Rotate log files monthly
 
 !!! note
 
