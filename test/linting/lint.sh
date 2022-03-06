@@ -104,10 +104,8 @@ function _shellcheck
     -not -path './test/test_helper/*' \
     -not -path './target/docker-configomat/*'
   )"
-  # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
-  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm -711" || FIND_EXEC="-executable"
   # shellcheck disable=SC2248
-  F_BIN="$(find 'target/bin' ${FIND_EXEC} -type f)"
+  F_BIN="$(find 'target/bin' -executable -type f)"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
   # This command is a bit easier to grok as multi-line.
