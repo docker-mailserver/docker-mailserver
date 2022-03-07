@@ -99,7 +99,7 @@ function _shellcheck
     -not -path './target/docker-configomat/*'
   )"
   # shellcheck disable=SC2248
-  F_BIN="$(grep -l /bin/bash target/bin/*)"
+  F_BIN="$(find 'target/bin' -type f -not -name '*.py')"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
   # This command is a bit easier to grok as multi-line.

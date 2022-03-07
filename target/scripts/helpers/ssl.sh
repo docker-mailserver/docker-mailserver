@@ -418,8 +418,8 @@ function _extract_certs_from_acme
   fi
 
   local KEY CERT
-  KEY=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
-  CERT=$(acme_extract /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
+  KEY=$(acme_extract.py /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
+  CERT=$(acme_extract.py /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
 
   if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
   then
