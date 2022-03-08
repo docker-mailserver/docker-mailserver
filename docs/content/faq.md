@@ -9,7 +9,7 @@ This image is based on config files that can be persisted using Docker volumes, 
 
 ### Where are emails stored?
 
-Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
+Mails are stored at `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
 
 !!! warning
 
