@@ -146,7 +146,7 @@ function _run_in_new_container
 
   ${CRI} run --rm "${USE_TTY}" \
     -v "${CONFIG_PATH}:${DMS_CONFIG}${USE_SELINUX}" \
-    "${IMAGE_NAME}" "${@:+$@}"
+    "${IMAGE_NAME}" "${@}"
 }
 
 function _main
@@ -226,9 +226,9 @@ function _main
 
   if [[ -n ${CONTAINER_NAME} ]]
   then
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" setup "${@:+$@}"
+    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" setup "${@}"
   else
-    _run_in_new_container setup "${@:+$@}"
+    _run_in_new_container setup "${@}"
   fi
 
   [[ ${1} == 'help' ]] && _show_local_usage
@@ -236,4 +236,4 @@ function _main
   return 0
 }
 
-_main "${@:+$@}"
+_main "${@}"

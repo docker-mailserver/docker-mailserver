@@ -52,7 +52,7 @@ function __log_success
 
 function __in_path
 {
-  command -v "${@:+$@}" &>/dev/null && return 0 ; return 1 ;
+  command -v "${@}" &>/dev/null && return 0 ; return 1 ;
 }
 
 function _eclint
@@ -156,4 +156,4 @@ function __main
   esac
 }
 
-__main "${@:+$@}" || exit ${?}
+__main "${@}" || exit ${?}
