@@ -1426,20 +1426,13 @@
 <ol>
 <li>Install docker</li>
 <li>Execute <code>git submodule update --init --recursive</code></li>
-<li>
-<p>Install jq</p>
-<div class="admonition info">
-<p class="admonition-title">MacOS Specific (needed for tests)</p>
-<div class="highlight"><pre><span></span><code>brew install coreutils
-<span class="c1"># bash &gt;= 4.0 for associative arrays</span>
-brew install bash
-</code></pre></div>
-</div>
-</li>
-<li>
-<p>Execute <code>make clean all</code></p>
-</li>
+<li>Install jq</li>
+<li>Execute <code>make clean all</code></li>
 </ol>
+<div class="admonition info">
+<p class="admonition-title">Can I use MacOS?</p>
+<p>We do not support running linting, tests, etc on macOS at this time. Please use a linux VM.</p>
+</div>
 
               
             </article>
