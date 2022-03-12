@@ -14,7 +14,7 @@ build:
 	docker build -t $(NAME) . --build-arg VCS_VER=$(VCS_VER) --build-arg VCS_REF=$(VCS_REF)
 
 backup:
-# if backup directories exist, clean hasn't been called, therefore
+# if backup directory exist, clean hasn't been called, therefore
 # we shouldn't overwrite it. It still contains the original content.
 	-@ [[ ! -d testconfig.bak ]] && cp -rp test/config testconfig.bak || :
 
