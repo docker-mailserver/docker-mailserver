@@ -986,7 +986,9 @@ EOM
   fi
 
   # fix cron.daily for spamassassin
-  sed -i -e 's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' /etc/cron.daily/spamassassin
+  sed -i -e                                                                \
+    's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
+    /etc/cron.daily/spamassassin
 
   # Amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
@@ -1042,8 +1044,15 @@ function _setup_mail_summary
     'daily_cron' )
       _notify 'inf' 'Creating daily cron job for pflogsumm report'
 
-      echo '#! /bin/bash' > /etc/cron.daily/postfix-summary
-      echo "/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}" >>/etc/cron.daily/postfix-summary
+      cat >/etc/cron.daily/postfix-summary << EOM
+#! /bin/bash
+
+/usr/local/bin/report-pflogsumm-yesterday \
+  ${HOSTNAME}                             \
+  ${PFLOGSUMM_RECIPIENT}                  \
+  ${PFLOGSUMM_SENDER}
+
+EOM
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
@@ -1068,27 +1077,32 @@ function _setup_mail_summary
 
 function _setup_logwatch
 {
-  _notify 'inf' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
-
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
-
-  echo "MailFrom = ${LOGWATCH_SENDER}" >> /etc/logwatch/conf/logwatch.conf
+  echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
-    'daily' )
-      _notify 'inf' "Creating daily cron job for logwatch reports"
-      echo "#! /bin/bash" > /etc/cron.daily/logwatch
-      echo "/usr/sbin/logwatch --range Yesterday --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
-        >>/etc/cron.daily/logwatch
-      chmod 744 /etc/cron.daily/logwatch
-      ;;
+    ( 'daily' | 'weekly' )
+      _notify 'inf' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
+      _notify 'inf' "Creating ${LOGWATCH_INTERVAL} cron job for logwatch reports"
 
-    'weekly' )
-      _notify 'inf' "Creating weekly cron job for logwatch reports"
-      echo "#! /bin/bash" > /etc/cron.weekly/logwatch
-      echo "/usr/sbin/logwatch --range 'between -7 days and -1 days' --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
-        >>/etc/cron.weekly/logwatch
-      chmod 744 /etc/cron.weekly/logwatch
+      local LOGWATCH_FILE WEEKLY_ADDITION
+      LOGWATCH_FILE="/etc/cron.${LOGWATCH_INTERVAL}/logwatch"
+
+      if [[ ${LOGWATCH_INTERVAL} == 'weekly' ]]
+      then
+        WEEKLY_ADDITION="--range 'between -7 days and -1 days'"
+      fi
+
+      cat >"${LOGWATCH_FILE}" << EOM
+#! /bin/bash
+
+/usr/sbin/logwatch ${WEEKLY_ADDITION} \
+  --range Yesterday                   \
+  --hostname ${HOSTNAME}              \
+  --mailto ${LOGWATCH_RECIPIENT}
+
+EOM
+      chmod 744 "${LOGWATCH_FILE}"
       ;;
 
     'none' )
