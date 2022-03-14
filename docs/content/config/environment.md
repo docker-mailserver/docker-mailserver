@@ -17,7 +17,7 @@ title: Environment Variables
 
 Set the DMS log level. This mostly applies to scripts that run during startup and to the change-detecting functionality.
 
-Valid values are `error`, `warn`, `info`, `debug` and `trace`.
+Valid values are `error`, `warn`, `info`, `debug` and `trace`. The default log level is `info`.
 
 ##### SUPERVISOR_LOGLEVEL
 

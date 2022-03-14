@@ -7,7 +7,7 @@ title: 'Troubleshooting | Debugging'
 
 ## Enable Verbose Debugging Output
 
-You may find it useful to set the `LOG_LEVEL`] environment variable to `debug` or `trace`.
+You may find it useful to set the [`LOG_LEVEL`][docs-environment-log-level] environment variable to `debug` or `trace`.
 
 ## Invalid Username or Password
 
@@ -61,3 +61,5 @@ Common hosting providers known to have this issue:
 
 - [Azure](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
 - [AWS EC2](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/)
+
+[docs-environment-log-level]: ../environment.md#log_level
