@@ -115,7 +115,7 @@ A positive example, which is taken from `setup-stack.sh`, would be
 ```bash
 function _setup_postfix_aliases
 {
-  _notify 'task' 'Setting up Postfix Aliases'
+  _notify 'debug' 'Setting up Postfix Aliases'
 
   : >/etc/postfix/virtual
   : >/etc/postfix/regexp
@@ -142,7 +142,7 @@ function _setup_postfix_aliases
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >> /tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
-    _notify 'inf' "Warning '/tmp/docker-mailserver/postfix-virtual.cf' is not provided. No mail alias/forward created."
+    _notify 'debug' "'/tmp/docker-mailserver/postfix-virtual.cf' is not provided - no mail alias/forward created."
   fi
 
   ...

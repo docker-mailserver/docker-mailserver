@@ -104,12 +104,12 @@ function teardown() {
     # Default `acme.json` for _acme_ecdsa test:
     cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
 
-    # TODO: Provision wildcard certs via Traefik to inspect if `example.test` non-wildcard is also added to the cert.
-    # `DMS_DEBUG=1` required for catching logged `inf` output.
+    # TODO: Provision wildcard certs via Traefik to inspect
+    # if `example.test` non-wildcard is also added to the cert.
     # shellcheck disable=SC2034
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
-      --env DMS_DEBUG=1
+      --env LOG_LEVEL='trace' \
       --env PERMIT_DOCKER='container'
       --env SSL_DOMAIN='*.example.test'
       --env SSL_TYPE='letsencrypt'

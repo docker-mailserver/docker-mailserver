@@ -101,7 +101,6 @@ function common_container_setup() {
     docker run -d --name mail_dhparams \
         -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
         -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
-        -e DMS_DEBUG=0 \
         -e ONE_DIR="${DMS_ONE_DIR}" \
         -h mail.my-domain.com \
         --tty \

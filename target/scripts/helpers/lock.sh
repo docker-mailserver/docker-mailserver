@@ -19,7 +19,7 @@ function _create_lock
     then
       _notify 'warn' "Lock file older than 1 minute. Removing stale lock file."
       rm -f "${LOCK_FILE}"
-      _notify 'inf' "Removed stale lock ${LOCK_FILE}."
+      _notify 'trace' "Removed stale lock ${LOCK_FILE}."
     fi
     sleep 5
   done
@@ -34,6 +34,6 @@ function _remove_lock
   if [[ -e "${LOCK_FILE}" ]] && grep -q "${LOCK_ID}" "${LOCK_FILE}" # Ensure we don't delete a lock that's not ours
   then
     rm -f "${LOCK_FILE}"
-    _notify 'inf' "Removed lock ${LOCK_FILE}."
+    _notify 'trace' "Removed lock ${LOCK_FILE}."
   fi
 }
