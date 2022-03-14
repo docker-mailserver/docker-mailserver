@@ -35,8 +35,9 @@ function _check_log_level
   else
     local DEFAULT_LOG_LEVEL='info'
 
+    # shellcheck disable=SC2034
+    VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
     LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
-    VARS[LOG_LEVEL]="${${DEFAULT_LOG_LEVEL}}"
 
     _notify 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
   fi

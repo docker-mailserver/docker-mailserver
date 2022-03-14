@@ -266,13 +266,13 @@ _notify 'always' "Welcome to docker-mailserver $(</VERSION)"
 register_functions
 check
 setup
-[[ ${LOG_LEVEL} =~ "(debug|trace)" ]] && print-environment
+[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 fix
 start_misc
 start_daemons
 
 # marker to check, if container was restarted
-date > /CONTAINER_START
+date >/CONTAINER_START
 
 _notify 'always' "${HOSTNAME} is up and running"
 

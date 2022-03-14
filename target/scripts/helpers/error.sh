@@ -2,7 +2,7 @@
 
 function _errex
 {
-  echo -e "Error :: ${*}\nAborting." >&2
+  printf '\e[0m[  \e[91mERROR  \e[0m]  |  %s\nAborting.\n' "${*}" >&2
   exit 1
 }
 
@@ -69,4 +69,6 @@ function _shutdown
   _notify 'error' "${1}"
   _notify 'error' 'Shutting down...'
 
+  kill -s SIGTERM 1
+  exit 1
 }

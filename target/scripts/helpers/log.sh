@@ -14,12 +14,12 @@ function _notify
   local MESSAGE LEVEL_AS_INT
   MESSAGE="${RESET}["
 
-  case "${LOG_LEVEL}" in
+  case "${LOG_LEVEL:-error}" in
     ( 'trace' ) LEVEL_AS_INT=4 ;;
     ( 'debug' ) LEVEL_AS_INT=3 ;;
-    ( 'info' )  LEVEL_AS_INT=2 ;;
-    ( 'warn' )  LEVEL_AS_INT=1 ;;
-    ( 'error' ) LEVEL_AS_INT=0 ;;
+    ( 'info'  ) LEVEL_AS_INT=2 ;;
+    ( 'warn'  ) LEVEL_AS_INT=1 ;;
+    ( *       ) LEVEL_AS_INT=0 ;;
   esac
 
   case "${1}" in

@@ -14,7 +14,7 @@ function _setup_supervisor
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case "${SUPERVISOR_LOGLEVEL}" in
-      'critical' | 'error' | 'info' | 'debug' )
+      ( 'critical' | 'error' | 'info' | 'debug' )
         sed -i -E \
           "s|(loglevel).*|\1 = ${SUPERVISOR_LOGLEVEL}|g" \
           /etc/supervisor/supervisord.conf
@@ -23,12 +23,11 @@ function _setup_supervisor
         exit
         ;;
 
-      'warn' )
+      ( 'warn' )
         return 0
         ;;
 
-      * )
-        _notify 'err' \
+      ( * )
         _notify 'warn' \
           "SUPERVISOR_LOGLEVEL '${SUPERVISOR_LOGLEVEL}' unknown. Using default 'warn'"
         ;;

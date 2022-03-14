@@ -19,7 +19,7 @@ function _create_accounts
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
 
     _notify 'trace' "Regenerating postfix user list"
-    echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
+    echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." >/etc/postfix/vmailbox
 
     # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
     # shellcheck disable=SC1003

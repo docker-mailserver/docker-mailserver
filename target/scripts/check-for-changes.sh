@@ -41,8 +41,6 @@ _obtain_hostname_and_domainname
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'trace' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 
-REGEX_NEVER_MATCH="(?\!)"
-
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
