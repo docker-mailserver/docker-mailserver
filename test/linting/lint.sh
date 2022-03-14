@@ -28,7 +28,7 @@ function _eclint
   then
     _notify 'info' '(ECLint) Success'
   else
-    _notify 'err' '(ECLint) Problems encountered'
+    _notify 'error' '(ECLint) Problems encountered'
     return 1
   fi
 }
@@ -43,7 +43,7 @@ function _hadolint
   then
     _notify 'info' '(Hadolint) Success'
   else
-    _notify 'err' '(Hadolint) Problems encountered'
+    _notify 'error' '(Hadolint) Problems encountered'
     return 1
   fi
 }
@@ -96,7 +96,7 @@ function _shellcheck
   then
     _notify 'info' '(ShellCheck) Success'
   else
-    _notify 'err' '(ShellCheck) Problems encountered'
+    _notify 'error' '(ShellCheck) Problems encountered'
     return 1
   fi
 }
