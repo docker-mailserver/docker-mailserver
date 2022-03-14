@@ -942,10 +942,31 @@ function _setup_security_stack
       local SPAMASSASSIN_KAM_CRON_FILE=/etc/cron.daily/spamassassin_kam
 
       sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
+
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com
+RESULT_FILE="$(mktemp --tmpdir)"
+
+trap 'rm -f "${RESULT_FILE}"' EXIT
+
+if ! sa-update                          \
+  --gpgkey 24C063D8                     \
+  --channel kam.sa-channels.mcgrail.com \
+  >"${RESULT_FILE}"
+then
+  if ! grep -q                                         \
+    "Update finished, no fresh updates were available" \
+    "${RESULT_FILE}"
+  then
+    printf                                      \
+      'Updating SpamAssassin KAM failed:\n%s\n' \
+      "$(<"${RESULT_FILE}")" >&2
+    exit 1
+  fi
+fi
+
+exit 0
 
 EOM
 
