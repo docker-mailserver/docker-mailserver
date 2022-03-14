@@ -955,9 +955,8 @@ if ! sa-update                          \
   --channel kam.sa-channels.mcgrail.com \
   >"${RESULT_FILE}"
 then
-  if ! grep -q                                         \
-    "Update finished, no fresh updates were available" \
-    "${RESULT_FILE}"
+  # see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
+  if [[ ${?} -ge 4 ]]
   then
     printf                                      \
       'Updating SpamAssassin KAM failed:\n%s\n' \
