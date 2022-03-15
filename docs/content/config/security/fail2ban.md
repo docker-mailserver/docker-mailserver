@@ -8,9 +8,9 @@ Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 fa
 
 ## Configuration files
 
-If you want to change this, you can easily edit our github example file: [`config/fail2ban-jail.cf`][github-file-f2bjail].
+If you want to change this, you can easily edit our github example file: [`config-examples/fail2ban-jail.cf`][github-file-f2bjail].
 
-You can do the same with the values from `fail2ban.conf`, e.g `dbpurgeage`. In that case you need to edit: [`config/fail2ban-fail2ban.cf`][github-file-f2bconfig].
+You can do the same with the values from `fail2ban.conf`, e.g `dbpurgeage`. In that case you need to edit: [`config-examples/fail2ban-fail2ban.cf`][github-file-f2bconfig].
 
 The configuration files need to be located at the root of the `/tmp/docker-mailserver/` volume bind (usually `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
