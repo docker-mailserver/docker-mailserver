@@ -1,5 +1,12 @@
 #! /bin/bash
 
+LOG_RESET='\e[0m'
+LOG_LGRAY='\e[37m'
+LOG_LBLUE='\e[94m'
+LOG_BLUE='\e[34m'
+LOG_LYELLOW='\e[93m'
+LOG_RED='\e[91m'
+
 # ### DMS Logging Functionality
 #
 # This function provides the logging for scripts used by DMS.
@@ -36,8 +43,8 @@ function _notify
     return 1
   fi
 
-  local MESSAGE LEVEL_AS_INT RESET='\e[0m'
-  MESSAGE="${RESET}["
+  local MESSAGE LEVEL_AS_INT
+  MESSAGE="${LOG_RESET}["
 
   case "${LOG_LEVEL}" in
     ( 'trace'  ) LEVEL_AS_INT=5 ;;
@@ -50,32 +57,27 @@ function _notify
   case "${1}" in
     ( 'trace' )
       [[ ${LEVEL_AS_INT} -ge 5 ]] || return 0
-      local LGRAY='\e[37m'
-      MESSAGE+="  ${LGRAY}TRACE  "
+      MESSAGE+="  ${LOG_LGRAY}TRACE  "
       ;;
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      local LBLUE='\e[94m'
-      MESSAGE+="  ${LBLUE}DEBUG  "
+      MESSAGE+="  ${LOG_LBLUE}DEBUG  "
       ;;
 
     ( 'info' )
       [[ ${LEVEL_AS_INT} -ge 3 ]] || return 0
-      local BLUE='\e[34m'
-      MESSAGE+="   ${BLUE}INF   "
+      MESSAGE+="   ${LOG_BLUE}INF   "
       ;;
 
     ( 'warn' )
       [[ ${LEVEL_AS_INT} -ge 2 ]] || return 0
-      local LYELLOW='\e[93m'
-      MESSAGE+=" ${LYELLOW}WARNING "
+      MESSAGE+=" ${LOG_LYELLOW}WARNING "
       ;;
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      local RED='\e[91m'
-      MESSAGE+="  ${RED}ERROR  " ;;
+      MESSAGE+="  ${LOG_RED}ERROR  " ;;
 
     ( 'always' )
       MESSAGE+="         "
@@ -90,7 +92,7 @@ function _notify
   esac
 
   shift 1
-  MESSAGE+="${RESET}]  |  ${*}"
+  MESSAGE+="${LOG_RESET}]  |  ${*}"
 
   echo -e "${MESSAGE}"
   return 0

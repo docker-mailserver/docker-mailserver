@@ -2,7 +2,7 @@
 
 function _errex
 {
-  printf '\e[0m[  \e[91mERROR  \e[0m]  |  %s\nAborting.\n' "${*}" >&2
+  echo -e "${LOG_RESET}[  ${LOG_RED}ERROR  ${LOG_RESET}]  |  ${*}\nAborting.\n" >&2
   exit 1
 }
 
