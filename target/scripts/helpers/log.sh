@@ -33,13 +33,13 @@ function _notify
 {
   if [[ -z ${1+set} ]]
   then
-    _notify 'error' "Call to '_notify' without log level happened, but is not valid"
+    echo "Call to '_notify' without log level happened, but is not valid" >&2
     return 1
   fi
 
   if [[ -z ${2+set} ]]
   then
-    _notify 'error' "Call to '_notify' without message happened, but is not valid"
+    echo "Call to '_notify' without message happened, but is not valid" >&2
     return 1
   fi
 
@@ -84,9 +84,8 @@ function _notify
       ;;
 
     ( * )
-      _notify 'error' \
-        "Call to '_notify' with invalid log level" \
-        "argument '${1}'"
+      echo "Call to '_notify' with invalid log level argument '${1}'" >&2
+      return 1
       ;;
 
   esac
