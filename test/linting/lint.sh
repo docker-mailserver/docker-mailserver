@@ -1,10 +1,7 @@
 #! /bin/bash
 
-# version   v0.2.0 unstable
-# executed  by Make during CI or manually
-# task      checks files against linting targets
-
-SCRIPT="lint.sh"
+# shellcheck disable=SC2034
+LOG_LEVEL='info'
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
@@ -13,85 +10,46 @@ HADOLINT_VERSION=2.8.0
 ECLINT_VERSION=2.3.5
 SHELLCHECK_VERSION=0.8.0
 
+# shellcheck source=/dev/null
+source "${REPO_ROOT}/target/scripts/helpers/log.sh"
+
 set -eEuo pipefail
 shopt -s inherit_errexit
-trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
-
-function __log_err
-{
-  printf "\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  - script    = ${SCRIPT:-${0}}" \
-    "  - function  = ${1} / ${2}" \
-    "  - line      = ${3}" \
-    "  - exit code = ${4}"
-}
-
-function __log_info
-{
-  printf "\n--- \e[34m%s\e[0m\n%s\n%s\n\n" \
-    "${SCRIPT:-${0}}" \
-    "  - type    = INFO" \
-    "  - version = ${*}"
-}
-
-function __log_failure
-{
-  printf "\n--- \e[91m%s\e[0m\n%s\n%s\n\n" \
-    "${SCRIPT:-${0}}" \
-    "  - type    = FAILURE" \
-    "  - message = ${*:-errors encountered}"
-}
-
-function __log_success
-{
-  printf "\n--- \e[32m%s\e[0m\n%s\n%s\n\n" \
-    "${SCRIPT}" \
-    "  - type    = SUCCESS" \
-    "  - message = no errors detected"
-}
-
-function __in_path
-{
-  command -v "${@}" &>/dev/null && return 0 ; return 1 ;
-}
+trap '_notify "error" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
 function _eclint
 {
-  local SCRIPT='EDITORCONFIG LINTER'
-
   if docker run --rm --tty \
       --volume "${REPO_ROOT}:/ci:ro" \
       --workdir "/ci" \
       --name eclint \
-      "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
+      "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec \
+        -config "/ci/test/linting/.ecrc.json"
   then
-    __log_success
+    _notify 'info' '(ECLint) Success'
   else
-    __log_failure
+    _notify 'error' '(ECLint) Problems encountered'
     return 1
   fi
 }
 
 function _hadolint
 {
-  local SCRIPT='HADOLINT'
-
   if docker run --rm --tty \
       --volume "${REPO_ROOT}:/ci:ro" \
       --workdir "/ci" \
-      "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
+      "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint \
+        --config "/ci/test/linting/.hadolint.yaml" Dockerfile
   then
-    __log_success
+    _notify 'info' '(Hadolint) Success'
   else
-    __log_failure
+    _notify 'error' '(Hadolint) Problems encountered'
     return 1
   fi
 }
 
 function _shellcheck
 {
-  local SCRIPT='SHELLCHECK'
-
   # File paths for shellcheck:
   F_SH="$(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
@@ -136,9 +94,9 @@ function _shellcheck
       --workdir "/ci" \
       "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
   then
-    __log_success
+    _notify 'info' '(ShellCheck) Success'
   else
-    __log_failure
+    _notify 'error' '(ShellCheck) Problems encountered'
     return 1
   fi
 }
