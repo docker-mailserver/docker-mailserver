@@ -1006,9 +1006,7 @@ EOM
   fi
 
   # fix cron.daily for spamassassin
-  sed -i -e                                                                \
-    's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
-    /etc/cron.daily/spamassassin
+  sed -i 's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' /etc/cron.daily/spamassassin
 
   # Amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
