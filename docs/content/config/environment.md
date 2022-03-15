@@ -317,11 +317,11 @@ Defines who sends reports (if they are enabled).
 
 ##### LOGROTATE_INTERVAL
 
-Changes the interval in which a report is being sent.
+Changes the interval in which log files are rotated.
 
-- **weekly** => Rotate weekly.
-- daily => Rotate daily.
-- monthly => Rotate monthly.
+- **weekly** => Rotate log files weekly
+- daily => Rotate log files daily
+- monthly => Rotate log files monthly
 
 !!! note
 
