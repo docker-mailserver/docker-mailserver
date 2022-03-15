@@ -1630,8 +1630,8 @@
 
 <p>Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default.</p>
 <h2 id="configuration-files"><a class="toclink" href="#configuration-files">Configuration files</a></h2>
-<p>If you want to change this, you can easily edit our github example file: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>config/fail2ban-jail.cf</code></a>.</p>
-<p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf"><code>config/fail2ban-fail2ban.cf</code></a>.</p>
+<p>If you want to change this, you can easily edit our github example file: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>config-examples/fail2ban-jail.cf</code></a>.</p>
+<p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf"><code>config-examples/fail2ban-fail2ban.cf</code></a>.</p>
 <p>The configuration files need to be located at the root of the <code>/tmp/docker-mailserver/</code> volume bind (usually <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
 <p>This following configuration files from <code>/tmp/docker-mailserver/</code> will be copied during container startup.</p>
 <ul>
