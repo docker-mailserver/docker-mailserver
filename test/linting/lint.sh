@@ -1,6 +1,5 @@
 #! /bin/bash
 
-# shellcheck disable=SC2034
 LOG_LEVEL='info'
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
@@ -10,7 +9,7 @@ HADOLINT_VERSION=2.8.0
 ECLINT_VERSION=2.3.5
 SHELLCHECK_VERSION=0.8.0
 
-# shellcheck source=/dev/null
+# shellcheck source=../../target/scripts/helpers/log.sh
 source "${REPO_ROOT}/target/scripts/helpers/log.sh"
 
 set -eEuo pipefail
