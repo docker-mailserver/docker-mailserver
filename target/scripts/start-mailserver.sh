@@ -18,7 +18,7 @@ _obtain_hostname_and_domainname
 # These variables must be defined first; They are used as default values for other variables.
 VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
-VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${DOMAINNAME}}"
+VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@$(hostname -f)}"
 
 VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[CLAMAV_MESSAGE_SIZE_LIMIT]="${CLAMAV_MESSAGE_SIZE_LIMIT:=25M}" # 25 MB
