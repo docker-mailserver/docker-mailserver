@@ -44,7 +44,7 @@ _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 REGEX_NEVER_MATCH="(?\!)"
 
 # Change detection delayed during startup to avoid conflicting writes
-sleep 15
+sleep 10
 
 _notify 'inf' "$(_log_date) check-for-changes is ready"
 
