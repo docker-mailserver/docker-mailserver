@@ -1006,7 +1006,9 @@ EOM
   fi
 
   # fix cron.daily for spamassassin
-  sed -i 's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' /etc/cron.daily/spamassassin
+  sed -i \
+    's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
+    /etc/cron.daily/spamassassin
 
   # Amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
@@ -1103,21 +1105,20 @@ function _setup_logwatch
       _notify 'inf' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
       _notify 'inf' "Creating ${LOGWATCH_INTERVAL} cron job for logwatch reports"
 
-      local LOGWATCH_FILE WEEKLY_ADDITION
+      local LOGWATCH_FILE INTERVAL
+
       LOGWATCH_FILE="/etc/cron.${LOGWATCH_INTERVAL}/logwatch"
+      INTERVAL='--range Yesterday'
 
       if [[ ${LOGWATCH_INTERVAL} == 'weekly' ]]
       then
-        WEEKLY_ADDITION="--range 'between -7 days and -1 days'"
+        INTERVAL="--range 'between -7 days and -1 days'"
       fi
 
       cat >"${LOGWATCH_FILE}" << EOM
 #! /bin/bash
 
-/usr/sbin/logwatch ${WEEKLY_ADDITION} \
-  --range Yesterday                   \
-  --hostname ${HOSTNAME}              \
-  --mailto ${LOGWATCH_RECIPIENT}
+/usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
 
 EOM
       chmod 744 "${LOGWATCH_FILE}"
@@ -1159,7 +1160,9 @@ function _setup_fail2ban
 function _setup_dnsbl_disable
 {
   _notify 'task' 'Disabling postfix DNS block list (zen.spamhaus.org)'
-  sedfile -i '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' /etc/postfix/main.cf
+  sedfile -i \
+    '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' \
+    /etc/postfix/main.cf
 
   _notify 'task' 'Disabling postscreen DNS block lists'
   postconf -e "postscreen_dnsbl_action = ignore"
