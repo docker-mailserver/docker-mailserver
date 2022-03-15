@@ -42,9 +42,9 @@ function _notify
   case "${LOG_LEVEL}" in
     ( 'trace'  ) LEVEL_AS_INT=5 ;;
     ( 'debug'  ) LEVEL_AS_INT=4 ;;
-    ( 'info'   ) LEVEL_AS_INT=3 ;;
     ( 'warn'   ) LEVEL_AS_INT=2 ;;
     ( 'error'  ) LEVEL_AS_INT=1 ;;
+    ( *        ) LEVEL_AS_INT=3 ;;
   esac
 
   case "${1}" in

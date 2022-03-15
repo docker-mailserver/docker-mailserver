@@ -202,7 +202,7 @@ function register_functions
 function _register_start_daemon
 {
   DAEMONS_START+=("${1}")
-  _notify 'trace' "${1}}() registered"
+  _notify 'trace' "${1}() registered"
 }
 
 function _register_setup_function
@@ -266,7 +266,7 @@ _notify 'always' "Welcome to docker-mailserver $(</VERSION)"
 register_functions
 check
 setup
-[[ ${LOG_LEVEL} =~ "(debug|trace)" ]] && print-environment
+[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 fix
 start_misc
 start_daemons
