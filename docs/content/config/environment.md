@@ -13,10 +13,11 @@ title: Environment Variables
 - **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
 - => Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will take priority over `docker run` options: `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents: `hostname:` and `domainname:`.
 
-##### DMS_DEBUG
+##### LOG_LEVEL
 
-- **0** => Debug disabled
-- 1     => Enables debug on startup
+Set the DMS log level. This mostly applies to scripts that run during startup and to the change-detecting functionality.
+
+Valid values are `error`, `warn`, `info`, `debug` and `trace`.
 
 ##### SUPERVISOR_LOGLEVEL
 

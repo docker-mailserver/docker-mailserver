@@ -4,14 +4,13 @@ setup_file() {
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     docker run -d --name mail_special_use_folders \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+		            -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+		            -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
                 -e SASL_PASSWD="external-domain.com username:password" \
                 -e ENABLE_CLAMAV=0 \
                 -e ENABLE_SPAMASSASSIN=0 \
                 --cap-add=SYS_PTRACE \
                 -e PERMIT_DOCKER=host \
-                -e DMS_DEBUG=0 \
                 -h mail.my-domain.com -t "${NAME}"
     wait_for_smtp_port_in_container mail_special_use_folders
 }

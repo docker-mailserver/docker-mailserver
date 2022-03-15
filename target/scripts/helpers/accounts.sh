@@ -15,10 +15,10 @@ function _create_accounts
 
   if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
   then
-    _notify 'inf' "Checking file line endings"
+    _notify 'trace' "Checking file line endings"
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
 
-    _notify 'inf' "Regenerating postfix user list"
+    _notify 'trace' "Regenerating postfix user list"
     echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
 
     # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
@@ -54,9 +54,9 @@ function _create_accounts
 
       if [[ -z ${USER_ATTRIBUTES} ]]
       then
-        _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}'"
+        _notify 'debug' "Creating user '${USER}' for domain '${DOMAIN}'"
       else
-        _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
+        _notify 'debug' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
       fi
 
       local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
@@ -87,7 +87,7 @@ function _create_accounts
         cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
       fi
 
-      echo "${DOMAIN}" >> /tmp/vhost.tmp
+      echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
 
     _create_dovecot_alias_dummy_accounts
@@ -128,11 +128,11 @@ function _create_dovecot_alias_dummy_accounts
 
       if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
       then
-        _notify 'inf' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
+        _notify 'debug' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
         continue
       fi
 
-      _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
+      _notify 'debug' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
 
       # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
       # ${REAL_ACC[1]} => password hash
