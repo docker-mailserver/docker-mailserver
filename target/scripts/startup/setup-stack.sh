@@ -946,23 +946,14 @@ function _setup_security_stack
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-RESULT_FILE="$(mktemp --tmpdir)"
+RESULT="$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com)"
+EXIT_CODE=${?}
 
-trap 'rm -f "${RESULT_FILE}"' EXIT
-
-if ! sa-update                          \
-  --gpgkey 24C063D8                     \
-  --channel kam.sa-channels.mcgrail.com \
-  >"${RESULT_FILE}"
+# see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
+if [[ ${EXIT_CODE} -ge 4 ]]
 then
-  # see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
-  if [[ ${?} -ge 4 ]]
-  then
-    printf                                      \
-      'Updating SpamAssassin KAM failed:\n%s\n' \
-      "$(<"${RESULT_FILE}")" >&2
-    exit 1
-  fi
+  echo -e "Updating SpamAssassin KAM failed:\n${RESULT}\n" >&2
+  exit 1
 fi
 
 exit 0

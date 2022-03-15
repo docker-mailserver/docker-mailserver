@@ -66,11 +66,8 @@ function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
 {
-  local FATAL_ERROR_MESSAGE=$1
-
-  _notify 'fatal' "${FATAL_ERROR_MESSAGE}"
+  _notify 'fatal' "${1}"
   _notify 'err' "Shutting down.."
-
 
   kill -s SIGTERM 1
   exit 1
