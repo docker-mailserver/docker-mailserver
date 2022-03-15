@@ -29,6 +29,7 @@ function setup_file() {
   docker run -d --name mail_with_ldap \
     -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
     -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
+    -e DMS_DEBUG=0 \
     -e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
     -e DOVECOT_TLS=no \
     -e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \

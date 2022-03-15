@@ -15,6 +15,7 @@ setup_file() {
     -v "$(pwd)/test/onedir":/var/mail-state \
     -e AMAVIS_LOGLEVEL=2 \
     -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
+    -e DMS_DEBUG=0 \
     -e ENABLE_CLAMAV=1 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \

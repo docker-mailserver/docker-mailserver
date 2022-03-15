@@ -2,7 +2,7 @@
 
 function check
 {
-  _notify 'info' 'Checking configuration'
+  _notify 'tasklog' 'Checking configuration'
   for FUNC in "${FUNCS_CHECK[@]}"
   do
     ${FUNC}
@@ -11,34 +11,14 @@ function check
 
 function _check_hostname
 {
-  _notify 'debug' 'Checking that hostname/domainname is provided or overridden'
+  _notify 'task' 'Checking that hostname/domainname is provided or overridden'
 
-  _notify 'debug' "Domain has been set to ${DOMAINNAME}"
-  _notify 'debug' "Hostname has been set to ${HOSTNAME}"
+  _notify 'inf' "Domain has been set to ${DOMAINNAME}"
+  _notify 'inf' "Hostname has been set to ${HOSTNAME}"
 
   # HOSTNAME should be an FQDN (eg: hostname.domain)
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
     _shutdown 'Setting hostname/domainname is required'
-  fi
-}
-
-function _check_log_level
-{
-  if [[ ${LOG_LEVEL} == 'trace' ]] \
-  || [[ ${LOG_LEVEL} == 'debug' ]] \
-  || [[ ${LOG_LEVEL} == 'info' ]]  \
-  || [[ ${LOG_LEVEL} == 'warn' ]]  \
-  || [[ ${LOG_LEVEL} == 'error' ]]
-  then
-    return 0
-  else
-    local DEFAULT_LOG_LEVEL='info'
-
-    # shellcheck disable=SC2034
-    VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
-    LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
-
-    _notify 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
   fi
 }

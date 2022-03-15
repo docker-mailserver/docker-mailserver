@@ -7,6 +7,7 @@ setup_file() {
     docker run -d --name mail_with_imap \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e DMS_DEBUG=0 \
     -e ENABLE_SASLAUTHD=1 \
     -e POSTMASTER_ADDRESS=postmaster@localhost.localdomain \
     -e SASLAUTHD_MECH_OPTIONS=127.0.0.1 \

@@ -11,14 +11,14 @@ function setup_file() {
   docker run -d --name mail_changedetector_one \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
   -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-  -e LOG_LEVEL='trace' \
+  -e DMS_DEBUG=1 \
   -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_changedetector_one
 
   docker run -d --name mail_changedetector_two \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
   -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-  -e LOG_LEVEL='trace' \
+  -e DMS_DEBUG=1 \
   -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_changedetector_two
 }

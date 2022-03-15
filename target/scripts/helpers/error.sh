@@ -62,13 +62,13 @@ function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }
 function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 
-# Call this method when you want to panic (emit an 'ERROR' log and exit uncleanly).
+# Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
 {
-  _notify 'error' "${1}"
-  _notify 'error' 'Shutting down...'
+  local FATAL_ERROR_MESSAGE=$1
 
-  kill -s SIGTERM 1
-  exit 1
+  _notify 'fatal' "${FATAL_ERROR_MESSAGE}"
+  _notify 'err' "Shutting down.."
+  kill 1
 }

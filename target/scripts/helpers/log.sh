@@ -2,57 +2,23 @@
 
 function _notify
 {
-  { [[ -z ${1:-} ]] || [[ -z ${2:-} ]] ; } && return 1
+  { [[ -z ${1:-} ]] || [[ -z ${2:-} ]] ; } && return 0
 
-  local RESET='\e[0m'
-  local LGRAY='\e[37m'
-  local LBLUE='\e[94m'
-  local BLUE='\e[34m'
-  local LYELLOW='\e[93m'
-  local RED='\e[91m'
+  local RESET LGREEN LYELLOW LRED RED LBLUE LGREY LMAGENTA
 
-  local MESSAGE LEVEL_AS_INT
-  MESSAGE="${RESET}["
-
-  case "${LOG_LEVEL:-error}" in
-    ( 'trace' ) LEVEL_AS_INT=4 ;;
-    ( 'debug' ) LEVEL_AS_INT=3 ;;
-    ( 'info'  ) LEVEL_AS_INT=2 ;;
-    ( 'warn'  ) LEVEL_AS_INT=1 ;;
-    ( *       ) LEVEL_AS_INT=0 ;;
-  esac
+  RESET='\e[0m' ; LGREEN='\e[92m' ; LYELLOW='\e[93m'
+  LRED='\e[31m' ; RED='\e[91m' ; LBLUE='\e[34m'
+  LGREY='\e[37m' ; LMAGENTA='\e[95m'
 
   case "${1}" in
-    ( 'trace' )
-      [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${LGRAY}TRACE  "
-      ;;
-
-    ( 'debug' )
-      [[ ${LEVEL_AS_INT} -ge 3 ]] || return 0
-      MESSAGE+="  ${LBLUE}DEBUG  "
-      ;;
-
-    ( 'info' )
-      [[ ${LEVEL_AS_INT} -ge 2 ]] || return 0
-      MESSAGE+="   ${BLUE}INF   "
-      ;;
-
-    ( 'warn' )
-      [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+=" ${LYELLOW}WARNING "
-      ;;
-
-    ( 'always' )
-      MESSAGE+="         "
-      ;;
-
-    ( * ) MESSAGE+="  ${RED}ERROR  " ;;
+    'tasklog'  ) echo "-e${3:-}" "[ ${LGREEN}TASKLOG${RESET} ]  ${2}"  ;;
+    'warn'     ) echo "-e${3:-}" "[ ${LYELLOW}WARNING${RESET} ]  ${2}" ;;
+    'err'      ) echo "-e${3:-}" "[  ${LRED}ERROR${RESET}  ]  ${2}"    ;;
+    'fatal'    ) echo "-e${3:-}" "[  ${RED}FATAL${RESET}  ]  ${2}"     ;;
+    'inf'      ) [[ ${DMS_DEBUG} -eq 1 ]] && echo "-e${3:-}" "[[  ${LBLUE}INF${RESET}  ]]  ${2}" ;;
+    'task'     ) [[ ${DMS_DEBUG} -eq 1 ]] && echo "-e${3:-}" "[[ ${LGREY}TASKS${RESET} ]]  ${2}" ;;
+    *          ) echo "-e${3:-}" "[  ${LMAGENTA}UNKNOWN${RESET}  ]  ${2}" ;;
   esac
 
-  shift 1
-  MESSAGE+="${RESET}]  |  ${*}"
-
-  echo -e "${MESSAGE}"
   return 0
 }

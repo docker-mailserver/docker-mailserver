@@ -257,7 +257,7 @@ services:
       - ENABLE_POSTGREY=1
       - ENABLE_SASLAUTHD=0
       - ONE_DIR=1
-      - LOG_LEVEL=info
+      - DMS_DEBUG=0
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
@@ -295,7 +295,7 @@ services:
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
       - ONE_DIR=1
-      - LOG_LEVEL=info
+      - DMS_DEBUG=0
       - ENABLE_LDAP=1
       - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
       - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain

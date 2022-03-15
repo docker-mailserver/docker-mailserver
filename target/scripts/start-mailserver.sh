@@ -23,6 +23,7 @@ VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${DOMAINNAME}}"
 VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[CLAMAV_MESSAGE_SIZE_LIMIT]="${CLAMAV_MESSAGE_SIZE_LIMIT:=25M}" # 25 MB
 VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
+VARS[DMS_DEBUG]="${DMS_DEBUG:=0}"
 VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
 VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
 VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
@@ -45,7 +46,6 @@ VARS[FAIL2BAN_BLOCKTYPE]="${FAIL2BAN_BLOCKTYPE:=drop}"
 VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
 VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
 VARS[LDAP_START_TLS]="${LDAP_START_TLS:=no}"
-VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
 VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=weekly}"
 VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
 VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
@@ -89,13 +89,12 @@ VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
 function register_functions
 {
-  _notify 'info' 'Initializing setup'
-  _notify 'debug' 'Registering functions'
+  _notify 'tasklog' 'Initializing setup'
+  _notify 'task' 'Registering functions'
 
   # ? >> Checks
 
   _register_check_function '_check_hostname'
-  _register_check_function '_check_log_level'
 
   # ? >> Setup
 
@@ -202,31 +201,31 @@ function register_functions
 function _register_start_daemon
 {
   DAEMONS_START+=("${1}")
-  _notify 'trace' "${1}}() registered"
+  _notify 'inf' "${1}() registered"
 }
 
 function _register_setup_function
 {
   FUNCS_SETUP+=("${1}")
-  _notify 'trace' "${1}() registered"
+  _notify 'inf' "${1}() registered"
 }
 
 function _register_fix_function
 {
   FUNCS_FIX+=("${1}")
-  _notify 'trace' "${1}() registered"
+  _notify 'inf' "${1}() registered"
 }
 
 function _register_check_function
 {
   FUNCS_CHECK+=("${1}")
-  _notify 'trace' "${1}() registered"
+  _notify 'inf' "${1}() registered"
 }
 
 function _register_misc_function
 {
   FUNCS_MISC+=("${1}")
-  _notify 'trace' "${1}() registered"
+  _notify 'inf' "${1}() registered"
 }
 
 # ------------------------------------------------------------
@@ -261,12 +260,12 @@ source /usr/local/bin/daemons-stack.sh
 # ? >> Executing all stacks
 # ------------------------------------------------------------
 
-_notify 'always' "Welcome to docker-mailserver $(</VERSION)"
+_notify 'tasklog' "Welcome to docker-mailserver $(</VERSION)"
 
 register_functions
 check
 setup
-[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
+[[ ${DMS_DEBUG} -eq 1 ]] && print-environment
 fix
 start_misc
 start_daemons
@@ -274,7 +273,7 @@ start_daemons
 # marker to check, if container was restarted
 date >/CONTAINER_START
 
-_notify 'always' "${HOSTNAME} is up and running"
+_notify 'tasklog' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
 tail -Fn 0 /var/log/mail/mail.log

@@ -15,6 +15,7 @@ function setup_file() {
             -e RELAY_PASSWORD=smtp_password \
             --cap-add=SYS_PTRACE \
             -e PERMIT_DOCKER=host \
+            -e DMS_DEBUG=0 \
             -h mail.my-domain.com -t "${NAME}"
         wait_for_finished_setup_in_container mail_with_relays
 }

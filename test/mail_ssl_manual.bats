@@ -21,7 +21,7 @@ function setup_file() {
     docker run -d --name mail_manual_ssl \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
         --volume "$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/:/config/ssl/:ro" \
-        --env LOG_LEVEL='trace' \
+        --env DMS_DEBUG=1 \
         --env SSL_TYPE='manual' \
         --env TLS_LEVEL='modern' \
         --env SSL_KEY_PATH="${SSL_KEY_PATH}" \

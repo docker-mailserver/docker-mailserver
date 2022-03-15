@@ -12,6 +12,7 @@ setup_file() {
                 -e DOVECOT_MAILBOX_FORMAT=sdbox \
                 --cap-add=SYS_PTRACE \
                 -e PERMIT_DOCKER=host \
+                -e DMS_DEBUG=0 \
                 -h mail.my-domain.com -t "${NAME}"
     wait_for_smtp_port_in_container mail_with_sdbox_format
 }

@@ -19,6 +19,7 @@ function setup_file
 		-v "${PWD}/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
 		-e PERMIT_DOCKER=host \
+		-e DMS_DEBUG=0 \
 		-h mail.my-domain.com \
     -t "${IMAGE_NAME}"
 

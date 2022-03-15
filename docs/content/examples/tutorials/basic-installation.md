@@ -52,7 +52,7 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
               # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#permit_docker
               - PERMIT_DOCKER=network
               # All env below are default settings:
-              - LOG_LEVEL=info
+              - DMS_DEBUG=0
               - ONE_DIR=1
               - ENABLE_POSTGREY=0
               - ENABLE_CLAMAV=0
