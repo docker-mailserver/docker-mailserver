@@ -41,8 +41,10 @@ _obtain_hostname_and_domainname
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
 _notify 'inf' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 
+REGEX_NEVER_MATCH="(?\!)"
+
 # Change detection delayed during startup to avoid conflicting writes
-sleep 10
+sleep 15
 
 _notify 'inf' "$(_log_date) check-for-changes is ready"
 

@@ -70,5 +70,8 @@ function _shutdown
 
   _notify 'fatal' "${FATAL_ERROR_MESSAGE}"
   _notify 'err' "Shutting down.."
-  kill 1
+
+
+  kill -s SIGTERM 1
+  exit 1
 }
