@@ -21,7 +21,7 @@ cd /tmp/docker-mailserver || exit 1
 # check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _notify 'info' "${LOG_DATE} postfix-accounts.cf is missing! This should not run! Exit!"
+  _notify 'info' "${LOG_DATE} postfix-accounts.cf is missing! 'check-for-changes.sh' will exit."
   exit 0
 fi
 
