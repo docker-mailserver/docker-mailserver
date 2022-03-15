@@ -104,13 +104,14 @@ function _shellcheck
 function __main
 {
   case "${1:-}" in
-    'eclint'      ) _eclint     ;;
-    'hadolint'    ) _hadolint   ;;
-    'shellcheck'  ) _shellcheck ;;
-    *)
-      __log_failure "'${1:-}' is not a command nor an option."
+    ( 'eclint'      ) _eclint     ;;
+    ( 'hadolint'    ) _hadolint   ;;
+    ( 'shellcheck'  ) _shellcheck ;;
+    ( * )
+      _notify 'error' "'${1:-}' is not a command nor an option."
       return 3
       ;;
+
   esac
 }
 

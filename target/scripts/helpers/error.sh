@@ -2,7 +2,7 @@
 
 function _errex
 {
-  echo -e "Error :: ${*}\nAborting." >&2
+  printf '\e[0m[  \e[91mERROR  \e[0m]  |  %s\nAborting.\n' "${*}" >&2
   exit 1
 }
 
