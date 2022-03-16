@@ -6,37 +6,34 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _log_date
-{
-  date +"%Y-%m-%d %H:%M:%S"
-}
-
 function _changedetector_notify
 {
-  local LOG_LEVEL_ARGUMENT="${1}"
+  local LEVEL="${1}"
   shift 1
 
-  _notify "${LOG_LEVEL_ARGUMENT}" '[ CHANGEDETECTOR ]' " $(_log_date) " "${*}"
+  _notify "${LEVEL}" '[ CHANGEDETECTOR ]' " $(date +"%Y-%m-%d %H:%M:%S") " "${*}"
 }
 
-LOG_DATE=$(_log_date)
-_changedetector_notify 'debug' "${LOG_DATE} Start check-for-changes script."
+_changedetector_notify 'debug' 'Starting changedetector'
 
 # ? --------------------------------------------- Checks
 
-cd /tmp/docker-mailserver || exit 1
+if ! cd /tmp/docker-mailserver &>/dev/null
+then
+  _changedetector_notify 'error' "Could not change into '/tmp/docker-mailserver' directory"
+  exit 1
+fi
 
-# check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _changedetector_notify 'info' "${LOG_DATE} postfix-accounts.cf is missing! 'check-for-changes.sh' will exit."
+  _changedetector_notify 'info' "postfix-accounts.cf is missing! 'check-for-changes.sh' will exit."
   exit 0
 fi
 
-# verify checksum file exists; must be prepared by start-mailserver.sh
+# checksum file must have been prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _changedetector_notify 'info' "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
+  _changedetector_notify 'info' "${CHKSUM_FILE} is missing! 'check-for-changes.sh' will exit."
   exit 0
 fi
 
@@ -47,7 +44,7 @@ fi
 _obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-_changedetector_notify 'trace' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
+_changedetector_notify 'trace' "Using postmaster address ${PM_ADDRESS}"
 
 REGEX_NEVER_MATCH="(?\!)"
 
@@ -143,7 +140,7 @@ do
       chown -R 5000:5000 /var/mail
     fi
 
-    _changedetector_notify 'debug' 'Restarting services due to detected changes..'
+    _changedetector_notify 'debug' 'Restarting services due to detected changes'
 
     supervisorctl restart postfix
 
