@@ -15,7 +15,7 @@ LOG_RED='\e[91m'
 # The default log level is `info`.
 #
 # An additional log level 'always' is equivalent to 'info' in
-# purpose but visible in the lower 'error' and 'warn' levels. 
+# purpose but visible in the lower 'error' and 'warn' levels.
 # This level should only be used in `start-mailserver.sh`.
 #
 # #### Arguments

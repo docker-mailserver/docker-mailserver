@@ -68,5 +68,5 @@ function _shutdown
 {
   _notify 'error' "${1}"
   _notify 'error' 'Shutting down...'
-  exit 1
+  kill 1
 }

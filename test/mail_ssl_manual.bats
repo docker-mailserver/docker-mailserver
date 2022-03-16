@@ -101,7 +101,7 @@ function teardown_file() {
 @test "checking ssl: manual cert changes are picked up by check-for-changes" {
     printf 'someThingsChangedHere' \
       >>"$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"
-    sleep 15
+    sleep 10
 
     run docker exec mail_manual_ssl /bin/bash -c "supervisorctl tail -3000 changedetector"
     assert_output --partial 'Change detected'

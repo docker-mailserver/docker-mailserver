@@ -1076,7 +1076,7 @@ function _setup_logwatch
   echo "MailFrom = ${LOGWATCH_SENDER}" >> /etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
-    ( 'daily' )
+    'daily' )
       _notify 'inf' "Creating daily cron job for logwatch reports"
       echo "#! /bin/bash" > /etc/cron.daily/logwatch
       echo "/usr/sbin/logwatch --range Yesterday --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
