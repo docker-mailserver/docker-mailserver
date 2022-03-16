@@ -1128,7 +1128,7 @@ function _setup_fail2ban
 function _setup_dnsbl_disable
 {
   _notify 'debug' 'Disabling postfix DNS block list (zen.spamhaus.org)'
-  sedfile -i                                                                      \
+  sedfile -i \
     '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' \
     /etc/postfix/main.cf
 
