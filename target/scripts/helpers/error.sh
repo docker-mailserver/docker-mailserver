@@ -2,7 +2,7 @@
 
 function _errex
 {
-  printf '\e[0m[  \e[91mERROR  \e[0m]  |  %s\nAborting.\n' "${*}" >&2
+  echo -e "Error :: ${*}\nAborting." >&2
   exit 1
 }
 
@@ -66,9 +66,9 @@ function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
 {
-  _notify 'fatal' "${1}"
-  _notify 'err' "Shutting down.."
+  local FATAL_ERROR_MESSAGE=$1
 
+  _notify 'fatal' "${FATAL_ERROR_MESSAGE}"
+  _notify 'err' "Shutting down.."
   kill 1
-  exit 1
 }

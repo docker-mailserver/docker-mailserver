@@ -127,13 +127,13 @@ body:
     attributes:
       label: docker-compose.yml
       description: Show us your docker-compose.yml file or your equivalent "docker run" command.
-      render: yml
+      render: yaml
   - type: textarea
     id: relevant-log-output
     attributes:
       label: Relevant log output
       description: Show us relevant log output here. You can enable debug output by setting the environment variable `DMS_DEBUG` to `1`.
-      render: bash
+      render: shell
   - type: textarea
     id: other-relevant-information
     attributes:
@@ -153,6 +153,8 @@ body:
         - label: I am inexperienced with docker
         - label: I am inexperienced with mail servers
         - label: I am uncomfortable with the CLI
+    validations:
+      required: false
   - type: checkboxes
     id: terms-code-of-conduct
     attributes:
