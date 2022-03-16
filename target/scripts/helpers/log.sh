@@ -16,10 +16,6 @@ LOG_RED='\e[91m'
 # `warn`, `info`, `debug` and `trace`. The default log level
 # is `info`.
 #
-# An additional log level 'always' is equivalent to 'info' in
-# purpose but visible in the lower 'error' and 'warn' levels.
-# This level should only be used in `start-mailserver.sh`.
-#
 # #### Arguments
 #
 # $1  :: the log level to log the message with
@@ -80,17 +76,10 @@ function _notify
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
       MESSAGE+="  ${LOG_RED}ERROR  " ;;
 
-    ( 'always' )
-      shift 1
-      echo -e "\n${LOG_BOLD}${*}${LOG_RESET}\n"
-      return 0
-      ;;
-
     ( * )
       echo "Call to '_notify' with invalid log level argument '${1}'" >&2
       return 1
       ;;
-
   esac
 
   shift 1
