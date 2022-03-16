@@ -27,7 +27,7 @@ function _setup_supervisor
         return 0
         ;;
 
-      * )
+      ( * )
         _notify 'err' \
           "SUPERVISOR_LOGLEVEL '${SUPERVISOR_LOGLEVEL}' unknown. Using default 'warn'"
         ;;
@@ -160,7 +160,7 @@ function _setup_dovecot
 
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
-    "sdbox" | "mdbox" )
+    ( "sdbox" | "mdbox" )
       _notify 'inf' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
       sed -i -e \
         "s|^mail_location = .*$|mail_location = ${DOVECOT_MAILBOX_FORMAT}:\/var\/mail\/%d\/%n|g" \
@@ -171,7 +171,7 @@ function _setup_dovecot
       chmod 644 /etc/cron.d/dovecot-purge
       ;;
 
-    * )
+    ( * )
       _notify 'inf' "Dovecot maildir format configured (default)"
       sed -i -e 's|^mail_location = .*$|mail_location = maildir:\/var\/mail\/%d\/%n|g' /etc/dovecot/conf.d/10-mail.conf
       ;;
@@ -719,12 +719,12 @@ function _setup_docker_permit
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
   case "${PERMIT_DOCKER}" in
-    "none" )
+    ( 'none' )
       _notify 'inf' "Clearing Postfix's 'mynetworks'"
       postconf -e "mynetworks ="
       ;;
 
-    "connected-networks" )
+    ( 'connected-networks' )
       for NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
         NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
@@ -735,28 +735,28 @@ function _setup_docker_permit
       done
       ;;
 
-    "container" )
+    ( 'container' )
       _notify 'inf' "Adding container IP address to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
       echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
       ;;
 
-    "host" )
+    ( 'host' )
       _notify 'inf' "Adding ${CONTAINER_NETWORK}/16 to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
       ;;
 
-    "network" )
+    ( 'network' )
       _notify 'inf' "Adding docker network to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
       echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
       echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
       ;;
 
-    * )
+    ( * )
       _notify 'warn' "Invalid value for PERMIT_DOCKER: ${PERMIT_DOCKER}"
       _notify 'inf' "Clearing Postfix's 'mynetworks'"
       postconf -e "mynetworks ="
@@ -1023,22 +1023,22 @@ function _setup_logrotate
   LOGROTATE='/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n'
 
   case "${LOGROTATE_INTERVAL}" in
-    'daily' )
+    ( 'daily' )
       _notify 'inf' 'Setting postfix logrotate interval to daily'
       LOGROTATE="${LOGROTATE}  rotate 4\n  daily\n"
       ;;
 
-    'weekly' )
+    ( 'weekly' )
       _notify 'inf' 'Setting postfix logrotate interval to weekly'
       LOGROTATE="${LOGROTATE}  rotate 4\n  weekly\n"
       ;;
 
-    'monthly' )
+    ( 'monthly' )
       _notify 'inf' 'Setting postfix logrotate interval to monthly'
       LOGROTATE="${LOGROTATE}  rotate 4\n  monthly\n"
       ;;
 
-    * )
+    ( * )
       _notify 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate'
       ;;
 
@@ -1052,7 +1052,7 @@ function _setup_mail_summary
   _notify 'inf' "Enable postfix summary with recipient ${PFLOGSUMM_RECIPIENT}"
 
   case "${PFLOGSUMM_TRIGGER}" in
-    'daily_cron' )
+    ( 'daily_cron' )
       _notify 'inf' 'Creating daily cron job for pflogsumm report'
 
       cat >/etc/cron.daily/postfix-summary << EOM
@@ -1068,18 +1068,18 @@ EOM
       chmod +x /etc/cron.daily/postfix-summary
       ;;
 
-    'logrotate' )
+    ( 'logrotate' )
       _notify 'inf' 'Add postrotate action for pflogsumm report'
       sed -i \
         "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" \
         /etc/logrotate.d/maillog
       ;;
 
-    'none' )
+    ( 'none' )
       _notify 'inf' 'Postfix log summary reports disabled.'
       ;;
 
-    * )
+    ( * )
       _notify 'err' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery'
       ;;
 
@@ -1115,11 +1115,11 @@ EOM
       chmod 744 "${LOGWATCH_FILE}"
       ;;
 
-    'none' )
+    ( 'none' )
       _notify 'inf' 'Logwatch reports disabled.'
       ;;
 
-    * )
+    ( * )
       _notify 'warn' 'LOGWATCH_INTERVAL not found in _setup_logwatch'
       ;;
 
