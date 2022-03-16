@@ -119,7 +119,7 @@ function teardown() {
     wait_for_service "${TEST_NAME}" 'changedetector'
 
     # Wait until the changedetector service startup delay is over:
-    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
+    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'Changedetector is ready'"
   }
 
   # Test `acme.json` extraction works at container startup:
