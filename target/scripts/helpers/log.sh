@@ -1,6 +1,7 @@
 #! /bin/bash
 
 LOG_RESET='\e[0m'
+LOG_BOLD='\e[1m'
 LOG_LGRAY='\e[37m'
 LOG_LBLUE='\e[94m'
 LOG_BLUE='\e[34m'
@@ -80,7 +81,9 @@ function _notify
       MESSAGE+="  ${LOG_RED}ERROR  " ;;
 
     ( 'always' )
-      MESSAGE+="         "
+      shift 1
+      echo -e "\n${LOG_BOLD}${*}${LOG_RESET}\n"
+      return 0
       ;;
 
     ( * )
@@ -91,7 +94,7 @@ function _notify
   esac
 
   shift 1
-  MESSAGE+="${LOG_RESET}]  |  ${*}"
+  MESSAGE+="${LOG_RESET}]  ${*}"
 
   echo -e "${MESSAGE}"
   return 0
