@@ -11,8 +11,9 @@ LOG_RED='\e[91m'
 #
 # This function provides the logging for scripts used by DMS.
 # It adheres to the convention for log levels.
-# Valid values (in order of increasing verbosity) are: `error`, `warn`, `info`, `debug` and `trace`.
-# The default log level is `info`.
+# Valid values (in order of increasing verbosity) are: `error`,
+# `warn`, `info`, `debug` and `trace`. The default log level
+# is `info`.
 #
 # An additional log level 'always' is equivalent to 'info' in
 # purpose but visible in the lower 'error' and 'warn' levels.
@@ -45,7 +46,7 @@ function _notify
   local MESSAGE LEVEL_AS_INT
   MESSAGE="${LOG_RESET}["
 
-  case "${LOG_LEVEL}" in
+  case "${LOG_LEVEL:-}" in
     ( 'trace'  ) LEVEL_AS_INT=5 ;;
     ( 'debug'  ) LEVEL_AS_INT=4 ;;
     ( 'warn'   ) LEVEL_AS_INT=2 ;;

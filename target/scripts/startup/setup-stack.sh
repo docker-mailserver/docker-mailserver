@@ -28,7 +28,6 @@ function _setup_supervisor
         ;;
 
       * )
-        _notify 'err' \
         _notify 'warn' \
           "SUPERVISOR_LOGLEVEL '${SUPERVISOR_LOGLEVEL}' unknown. Using default 'warn'"
         ;;
@@ -1069,7 +1068,7 @@ function _setup_mail_summary
 
 function _setup_logwatch
 {
-  _notify 'inf' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
+  _notify 'info' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
 
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
 
@@ -1077,7 +1076,7 @@ function _setup_logwatch
 
   case "${LOGWATCH_INTERVAL}" in
     'daily' )
-      _notify 'inf' "Creating daily cron job for logwatch reports"
+      _notify 'info' "Creating daily cron job for logwatch reports"
       echo "#! /bin/bash" > /etc/cron.daily/logwatch
       echo "/usr/sbin/logwatch --range Yesterday --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
         >>/etc/cron.daily/logwatch
@@ -1085,7 +1084,7 @@ function _setup_logwatch
       ;;
 
     'weekly' )
-      _notify 'inf' "Creating weekly cron job for logwatch reports"
+      _notify 'info' "Creating weekly cron job for logwatch reports"
       echo "#! /bin/bash" > /etc/cron.weekly/logwatch
       echo "/usr/sbin/logwatch --range 'between -7 days and -1 days' --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
         >>/etc/cron.weekly/logwatch

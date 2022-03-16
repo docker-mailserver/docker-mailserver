@@ -11,8 +11,16 @@ function _log_date
   date +"%Y-%m-%d %H:%M:%S"
 }
 
+function _changedetector_notify
+{
+  local LOG_LEVEL_ARGUMENT="${1}"
+  shift 1
+
+  _notify "${LOG_LEVEL_ARGUMENT}" '[ CHANGEDETECTOR ]' " $(_log_date) " "${*}"
+}
+
 LOG_DATE=$(_log_date)
-_notify 'debug' "${LOG_DATE} Start check-for-changes script."
+_changedetector_notify 'debug' "${LOG_DATE} Start check-for-changes script."
 
 # ? --------------------------------------------- Checks
 
@@ -21,14 +29,14 @@ cd /tmp/docker-mailserver || exit 1
 # check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _notify 'info' "${LOG_DATE} postfix-accounts.cf is missing! 'check-for-changes.sh' will exit."
+  _changedetector_notify 'info' "${LOG_DATE} postfix-accounts.cf is missing! 'check-for-changes.sh' will exit."
   exit 0
 fi
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _notify 'info' "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
+  _changedetector_notify 'info' "${LOG_DATE} ${CHKSUM_FILE} is missing! Start script failed? Exit!"
   exit 0
 fi
 
@@ -39,14 +47,14 @@ fi
 _obtain_hostname_and_domainname
 
 PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-_notify 'trace' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
+_changedetector_notify 'trace' "${LOG_DATE} Using postmaster address ${PM_ADDRESS}"
 
 REGEX_NEVER_MATCH="(?\!)"
 
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
-_notify 'trace' "$(_log_date) check-for-changes is ready"
+_changedetector_notify 'trace' "Changedetector is ready"
 
 while true
 do
@@ -60,7 +68,7 @@ do
   # 2 – inaccessible or missing argument
   if [[ ${?} -eq 1 ]]
   then
-    _notify 'trace' "$(_log_date) Change detected"
+    _changedetector_notify 'info' "Change detected"
     _create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
@@ -76,7 +84,7 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
-        _notify 'inf' "Manual certificates have changed, extracting certs.."
+        _changedetector_notify 'debug' "Manual certificates have changed, extracting certs.."
         # we need to run the SSL setup again, because the
         # certificates DMS is working with are copies of
         # the (now changed) files
@@ -87,7 +95,7 @@ do
     # extracted for `docker-mailserver` services to adjust to.
     elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
-      _notify 'trace' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
+      _changedetector_notify 'debug' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
 
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
@@ -97,7 +105,7 @@ do
       FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
       for CERT_DOMAIN in "${FQDN_LIST[@]}"
       do
-        _notify 'trace' "Attempting to extract for '${CERT_DOMAIN}'"
+        _changedetector_notify 'trace' "Attempting to extract for '${CERT_DOMAIN}'"
 
         if _extract_certs_from_acme "${CERT_DOMAIN}"
         then
@@ -135,7 +143,7 @@ do
       chown -R 5000:5000 /var/mail
     fi
 
-    _notify 'debug' "Restarting services due to detected changes.."
+    _changedetector_notify 'debug' 'Restarting services due to detected changes..'
 
     supervisorctl restart postfix
 
@@ -143,7 +151,7 @@ do
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
     _remove_lock
-    _notify 'trace' "$(_log_date) Completed handling of detected change"
+    _changedetector_notify 'trace' "Completed handling of detected change"
   fi
 
   # mark changes as applied
