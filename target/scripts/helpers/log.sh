@@ -10,13 +10,13 @@ LOG_RED='\e[91m'
 # ### DMS Logging Functionality
 #
 # This function provides the logging for scripts used by DMS.
-# It adheres to the convention for log levels (trace as the
-# highest level, then debug, info, warning and last but not
-# least, error, the lowest log level).
+# It adheres to the convention for log levels.
+# Valid values (in order of increasing verbosity) are: `error`, `warn`, `info`, `debug` and `trace`.
+# The default log level is `info`.
 #
-# Furthermore, calling `_notify 'always' ...` will log a
-# message independently of the log level. This should only
-# be used in `start-mailserver.sh`.
+# An additional log level 'always' is equivalent to 'info' in
+# purpose but visible in the lower 'error' and 'warn' levels. 
+# This level should only be used in `start-mailserver.sh`.
 #
 # #### Arguments
 #
@@ -25,21 +25,20 @@ LOG_RED='\e[91m'
 #
 # #### Panics
 #
-# If the first argument is not set or not valid, an error
-# message is logged. Moreover, of there is no second argument
-# an error message is also logged. The function will in all
-# of the above mentioned cases return with exit code 1.
+# If the first argument is not set or invalid, an error
+# message is logged. Likewise when the second argument
+# is missing. Both failures will return with exit code '1'.
 function _notify
 {
   if [[ -z ${1+set} ]]
   then
-    echo "Call to '_notify' without log level happened, but is not valid" >&2
+    echo "Call to '_notify' is missing a valid log level" >&2
     return 1
   fi
 
   if [[ -z ${2+set} ]]
   then
-    echo "Call to '_notify' without message happened, but is not valid" >&2
+    echo "Call to '_notify' is missing a message to log" >&2
     return 1
   fi
 
