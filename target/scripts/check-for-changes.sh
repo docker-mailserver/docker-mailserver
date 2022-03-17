@@ -6,51 +6,52 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+REGEX_NEVER_MATCH="(?\!)"
+
 function _changedetector_notify
 {
   local LEVEL="${1}"
   shift 1
 
-  _notify "${LEVEL}" '[ CHANGEDETECTOR ]' " $(date +"%Y-%m-%d %H:%M:%S") " "${*}"
+  _notify "${LEVEL}" "(CHANGEDETECTOR) $(date +"%Y-%m-%d %H:%M:%S") ${*}"
+}
+
+function _changedetector_exit_error
+{
+  _changedetector_notify "${@}"
+  _changedetector_notify 'Aborting'
+
+  exit 1
 }
 
 _changedetector_notify 'debug' 'Starting changedetector'
 
-# ? --------------------------------------------- Checks
-
 if ! cd /tmp/docker-mailserver &>/dev/null
 then
-  _changedetector_notify 'error' "Could not change into '/tmp/docker-mailserver' directory"
-  exit 1
+  _changedetector_exit_error "Could not change into '/tmp/docker-mailserver/' directory"
 fi
 
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _changedetector_notify 'info' "postfix-accounts.cf is missing! 'check-for-changes.sh' will exit."
-  exit 0
+  _changedetector_exit_error "'/tmp/docker-mailserver/postfix-accounts.cf' is missing"
 fi
 
 # checksum file must have been prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _changedetector_notify 'info' "${CHKSUM_FILE} is missing! 'check-for-changes.sh' will exit."
-  exit 0
+  _changedetector_exit_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
 fi
 
-# ? --------------------------------------------- Actual script begins
+until grep -qE "export POSTMASTER_ADDRESS='.+'" /root/.bashrc
+do
+  sleep 5
+done
 
-# determine postmaster address, duplicated from start-mailserver.sh
-# this script previously didn't work when POSTMASTER_ADDRESS was empty
-_obtain_hostname_and_domainname
-
-PM_ADDRESS="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-_changedetector_notify 'trace' "Using postmaster address ${PM_ADDRESS}"
-
-REGEX_NEVER_MATCH="(?\!)"
-
-# Change detection delayed during startup to avoid conflicting writes
+# sleep some more during startup to avoid conflicting writes
 sleep 10
+_get_dms_environment_variables
 
+_changedetector_notify 'trace' "Running with postmaster address '${POSTMASTER_ADDRESS}'"
 _changedetector_notify 'trace' "Changedetector is ready"
 
 while true
@@ -65,7 +66,7 @@ do
   # 2 – inaccessible or missing argument
   if [[ ${?} -eq 1 ]]
   then
-    _changedetector_notify 'info' "Change detected"
+    _changedetector_notify 'info' 'Change detected'
     _create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
@@ -81,7 +82,7 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
-        _changedetector_notify 'debug' "Manual certificates have changed, extracting certs.."
+        _changedetector_notify 'debug' 'Manual certificates have changed'
         # we need to run the SSL setup again, because the
         # certificates DMS is working with are copies of
         # the (now changed) files
@@ -92,7 +93,7 @@ do
     # extracted for `docker-mailserver` services to adjust to.
     elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
-      _changedetector_notify 'debug' "'/etc/letsencrypt/acme.json' has changed, extracting certs.."
+      _changedetector_notify 'debug' "'/etc/letsencrypt/acme.json' has changed"
 
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
@@ -148,7 +149,7 @@ do
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
     _remove_lock
-    _changedetector_notify 'trace' "Completed handling of detected change"
+    _changedetector_notify 'trace' 'Completed handling of detected change'
   fi
 
   # mark changes as applied
