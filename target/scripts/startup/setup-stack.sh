@@ -946,7 +946,7 @@ function _setup_security_stack
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-RESULT="$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com)"
+RESULT="$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)"
 EXIT_CODE=${?}
 
 # see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
@@ -1058,11 +1058,7 @@ function _setup_mail_summary
       cat >/etc/cron.daily/postfix-summary << EOM
 #! /bin/bash
 
-/usr/local/bin/report-pflogsumm-yesterday \
-  ${HOSTNAME}                             \
-  ${PFLOGSUMM_RECIPIENT}                  \
-  ${PFLOGSUMM_SENDER}
-
+/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
 EOM
 
       chmod +x /etc/cron.daily/postfix-summary
@@ -1110,7 +1106,6 @@ function _setup_logwatch
 #! /bin/bash
 
 /usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
-
 EOM
       chmod 744 "${LOGWATCH_FILE}"
       ;;
