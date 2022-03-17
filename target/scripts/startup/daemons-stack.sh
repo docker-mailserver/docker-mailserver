@@ -9,27 +9,29 @@ function start_daemons
   done
 }
 
+function _default_start_daemon
+{
+  _notify 'debug' "Starting ${1}"
+  supervisorctl start "${1}" &>/dev/null || dms_panic__fail_init "${1}"
+}
+
 function _start_daemons_cron
 {
-  _notify 'debug' 'Starting cron'
-  supervisorctl start cron || dms_panic__fail_init 'cron'
+  _default_start_daemon 'cron'
 }
 
 function _start_daemons_rsyslog
 {
-  _notify 'debug' 'Starting rsyslog'
-  supervisorctl start rsyslog || dms_panic__fail_init 'rsyslog'
+  _default_start_daemon 'rsyslog'
 }
 
 function _start_daemons_saslauthd
 {
-  _notify 'debug' 'Starting saslauthd'
-  supervisorctl start "saslauthd_${SASLAUTHD_MECHANISMS}" || dms_panic__fail_init 'saslauthd'
+  _default_start_daemon "saslauthd_${SASLAUTHD_MECHANISMS}"
 }
 
 function _start_daemons_fail2ban
 {
-  _notify 'debug' 'Starting Fail2ban'
   touch /var/log/auth.log
 
   # delete fail2ban.sock that probably was left here after container restart
@@ -38,42 +40,35 @@ function _start_daemons_fail2ban
     rm /var/run/fail2ban/fail2ban.sock
   fi
 
-  supervisorctl start fail2ban || dms_panic__fail_init 'Fail2ban'
+  _default_start_daemon 'fail2ban'
 }
 
 function _start_daemons_opendkim
 {
-  _notify 'debug' 'Starting opendkim'
-  supervisorctl start opendkim || dms_panic__fail_init 'opendkim'
+  _default_start_daemon 'opendkim'
 }
 
 function _start_daemons_opendmarc
 {
-  _notify 'debug' 'Starting opendmarc'
-  supervisorctl start opendmarc || dms_panic__fail_init 'opendmarc'
+  _default_start_daemon 'opendmarc'
 }
 
 function _start_daemons_postsrsd
 {
-  _notify 'debug' 'Starting postsrsd'
-  supervisorctl start postsrsd || dms_panic__fail_init 'postsrsd'
+  _default_start_daemon 'postsrsd'
 }
 
 function _start_daemons_postfix
 {
-  _notify 'debug' 'Starting postfix'
-  supervisorctl start postfix || dms_panic__fail_init 'postfix'
+  _default_start_daemon 'postfix'
 }
 
 function _start_daemons_dovecot
 {
-  _notify 'debug' 'Starting dovecot services'
-
   if [[ ${ENABLE_POP3} -eq 1 ]]
   then
     _notify 'debug' 'Starting pop3 services'
-    mv /etc/dovecot/protocols.d/pop3d.protocol.disab \
-      /etc/dovecot/protocols.d/pop3d.protocol
+    mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
   fi
 
   if [[ -f /tmp/docker-mailserver/dovecot.cf ]]
@@ -81,7 +76,7 @@ function _start_daemons_dovecot
     cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
   fi
 
-  supervisorctl start dovecot || dms_panic__fail_init 'dovecot'
+  _default_start_daemon 'dovecot'
 }
 
 function _start_daemons_fetchmail
@@ -123,38 +118,32 @@ EOF
       supervisorctl start "fetchmail-${COUNTER}" || _panic__fail_init "fetchmail-${COUNTER}"
     done
   else
-    _notify 'debug' 'Starting fetchmail'
-    supervisorctl start fetchmail || dms_panic__fail_init 'fetchmail'
+    _default_start_daemon 'fetchmail'
   fi
 }
 
 function _start_daemons_clamav
 {
-  _notify 'debug' 'Starting ClamAV'
-  supervisorctl start clamav || dms_panic__fail_init 'ClamAV'
+  _default_start_daemon 'clamav'
 }
 
 function _start_daemons_postgrey
 {
-  _notify 'debug' 'Starting postgrey'
   rm -f /var/run/postgrey/postgrey.pid
-  supervisorctl start postgrey || dms_panic__fail_init 'postgrey'
+  _default_start_daemon 'postgrey'
 }
 
 function _start_daemons_amavis
 {
-  _notify 'debug' 'Starting amavis'
-  supervisorctl start amavis || dms_panic__fail_init 'amavis'
+  _default_start_daemon 'amavis'
 }
 
 function _start_changedetector
 {
-  _notify 'debug' 'Starting changedetector'
-  supervisorctl start changedetector || dms_panic__fail_init 'changedetector'
+  _default_start_daemon 'changedetector'
 }
 
 function _start_daemons_update_check
 {
-  _notify 'debug' 'Starting update-check'
-  supervisorctl start update-check || dms_panic__fail_init 'update-check'
+  _default_start_daemon 'update-check'
 }
