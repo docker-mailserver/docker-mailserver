@@ -2,7 +2,8 @@
 
 function _errex
 {
-  echo -e "${LOG_RESET}[  ${LOG_RED}ERROR  ${LOG_RESET}]  |  ${*}\nAborting.\n" >&2
+  _notify 'error' "${*}"
+  _notify 'error' 'Aborting'
   exit 1
 }
 
@@ -62,12 +63,13 @@ function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }
 function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 
-# Call this method when you want to panic (emit an 'ERROR' log and exit uncleanly).
+# Call this method when you want to panic (i.e. emit an 'ERROR' log and exit DMS with a non-zero exit code).
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
 {
   _notify 'error' "${1}"
   _notify 'error' 'Shutting down'
+
   kill 1
   exit 1
 }

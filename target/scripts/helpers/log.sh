@@ -84,6 +84,12 @@ function _notify
   shift 1
   MESSAGE+="${LOG_RESET}]  ${*}"
 
-  echo -e "${MESSAGE}"
+  if [[ ${1} =~ ^(warn|error)$ ]]
+  then
+    echo -e "${MESSAGE}" >&2
+  else
+    echo -e "${MESSAGE}"
+  fi
+
   return 0
 }

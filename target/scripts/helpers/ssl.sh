@@ -132,7 +132,7 @@ function _setup_ssl
 
       _apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
 
-      _notify 'trace' "TLS configured with 'modern' ciphers"
+      _notify 'debug' "TLS configured with 'modern' ciphers"
       ;;
 
     ( "intermediate" )
@@ -154,7 +154,7 @@ function _setup_ssl
         -e 's|^(CipherString).*|\1 = DEFAULT@SECLEVEL=1|' \
         /usr/lib/ssl/openssl.cnf
 
-      _notify 'trace' "TLS configured with 'intermediate' ciphers"
+      _notify 'debug' "TLS configured with 'intermediate' ciphers"
       ;;
 
     ( * )
