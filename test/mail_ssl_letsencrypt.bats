@@ -241,7 +241,7 @@ function _should_extract_on_changes() {
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
   assert_output --partial 'Change detected'
-  assert_output --partial "'/etc/letsencrypt/acme.json' has changed, extracting certs"
+  assert_output --partial "'/etc/letsencrypt/acme.json' has changed - extracting certifcates now"
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
   assert_output --partial 'Restarting services due to detected changes'
   assert_output --partial 'postfix: stopped'
@@ -255,7 +255,7 @@ function _should_have_service_restart_count() {
   local NUM_RESTARTS=${1}
 
   # Count how many times postfix was restarted by the `changedetector` service:
-  run docker exec "${TEST_NAME}" sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
+  run docker exec "${TEST_NAME}" sh -c "supervisorctl tail -2000 changedetector | grep -c 'postfix: started'"
   assert_output "${NUM_RESTARTS}"
 }
 
@@ -301,7 +301,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -1900 ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:

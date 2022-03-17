@@ -42,17 +42,18 @@ then
   _changedetector_exit_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
 fi
 
-until grep -qE "export POSTMASTER_ADDRESS='.+'" /root/.bashrc
+# sleep some more during startup to avoid conflicting writes
+sleep 10
+
+until grep -qE "export POSTMASTER_ADDRESS=.+" /root/.bashrc
 do
   sleep 5
 done
 
-# sleep some more during startup to avoid conflicting writes
-sleep 10
 _get_dms_environment_variables
 
 _changedetector_notify 'trace' "Running with postmaster address '${POSTMASTER_ADDRESS}'"
-_changedetector_notify 'trace' "Changedetector is ready"
+_changedetector_notify 'trace' 'Changedetector is ready'
 
 while true
 do
@@ -82,7 +83,7 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
-        _changedetector_notify 'debug' 'Manual certificates have changed'
+        _changedetector_notify 'debug' 'Manual certificates have changed - extracting certifcates now'
         # we need to run the SSL setup again, because the
         # certificates DMS is working with are copies of
         # the (now changed) files
@@ -93,7 +94,7 @@ do
     # extracted for `docker-mailserver` services to adjust to.
     elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
-      _changedetector_notify 'debug' "'/etc/letsencrypt/acme.json' has changed"
+      _changedetector_notify 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certifcates now"
 
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
