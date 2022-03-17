@@ -14,7 +14,7 @@ function _setup_supervisor
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case "${SUPERVISOR_LOGLEVEL}" in
-      'critical' | 'error' | 'info' | 'debug' )
+      ( 'critical' | 'error' | 'info' | 'debug' )
         sed -i -E \
           "s|(loglevel).*|\1 = ${SUPERVISOR_LOGLEVEL}|g" \
           /etc/supervisor/supervisord.conf
@@ -23,11 +23,11 @@ function _setup_supervisor
         exit
         ;;
 
-      'warn' )
+      ( 'warn' )
         return 0
         ;;
 
-      * )
+      ( * )
         _notify 'warn' \
           "SUPERVISOR_LOGLEVEL '${SUPERVISOR_LOGLEVEL}' unknown. Using default 'warn'"
         ;;
@@ -160,7 +160,8 @@ function _setup_dovecot
 
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
-    "sdbox" | "mdbox" )
+
+    ( 'sdbox' | 'mdbox' )
       _notify 'trace' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
       sed -i -e \
         "s|^mail_location = .*$|mail_location = ${DOVECOT_MAILBOX_FORMAT}:\/var\/mail\/%d\/%n|g" \
@@ -171,7 +172,7 @@ function _setup_dovecot
       chmod 644 /etc/cron.d/dovecot-purge
       ;;
 
-    * )
+    ( * )
       _notify 'trace' "Dovecot maildir format configured (default)"
       sed -i -e 's|^mail_location = .*$|mail_location = maildir:\/var\/mail\/%d\/%n|g' /etc/dovecot/conf.d/10-mail.conf
       ;;
@@ -719,12 +720,12 @@ function _setup_docker_permit
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
   case "${PERMIT_DOCKER}" in
-    "none" )
+    ( 'none' )
       _notify 'trace' "Clearing Postfix's 'mynetworks'"
       postconf -e "mynetworks ="
       ;;
 
-    "connected-networks" )
+    ( 'connected-networks' )
       for NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
         NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
@@ -735,28 +736,28 @@ function _setup_docker_permit
       done
       ;;
 
-    "container" )
+    ( 'container' )
       _notify 'trace' "Adding container IP address to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
       echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
       ;;
 
-    "host" )
+    ( 'host' )
       _notify 'trace' "Adding ${CONTAINER_NETWORK}/16 to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
       ;;
 
-    "network" )
+    ( 'network' )
       _notify 'trace' "Adding docker network to Postfix's 'mynetworks'"
       postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
       echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
       echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
       ;;
 
-    * )
+    ( * )
       _notify 'warn' "Invalid value for PERMIT_DOCKER: ${PERMIT_DOCKER}"
       _notify 'trace' "Clearing Postfix's 'mynetworks'"
       postconf -e "mynetworks ="
@@ -942,10 +943,21 @@ function _setup_security_stack
       local SPAMASSASSIN_KAM_CRON_FILE=/etc/cron.daily/spamassassin_kam
 
       sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
+
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com
+RESULT="$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)"
+EXIT_CODE=${?}
+
+# see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
+if [[ ${EXIT_CODE} -ge 4 ]]
+then
+  echo -e "Updating SpamAssassin KAM failed:\n${RESULT}\n" >&2
+  exit 1
+fi
+
+exit 0
 
 EOM
 
@@ -986,7 +998,9 @@ EOM
   fi
 
   # fix cron.daily for spamassassin
-  sed -i -e 's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' /etc/cron.daily/spamassassin
+  sed -i \
+    's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
+    /etc/cron.daily/spamassassin
 
   # Amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
@@ -1010,22 +1024,22 @@ function _setup_logrotate
   LOGROTATE='/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n'
 
   case "${LOGROTATE_INTERVAL}" in
-    'daily' )
+    ( 'daily' )
       _notify 'trace' 'Setting postfix logrotate interval to daily'
       LOGROTATE="${LOGROTATE}  rotate 4\n  daily\n"
       ;;
 
-    'weekly' )
+    ( 'weekly' )
       _notify 'trace' 'Setting postfix logrotate interval to weekly'
       LOGROTATE="${LOGROTATE}  rotate 4\n  weekly\n"
       ;;
 
-    'monthly' )
+    ( 'monthly' )
       _notify 'trace' 'Setting postfix logrotate interval to monthly'
       LOGROTATE="${LOGROTATE}  rotate 4\n  monthly\n"
       ;;
 
-    * )
+    ( * )
       _notify 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate'
       ;;
 
@@ -1039,27 +1053,30 @@ function _setup_mail_summary
   _notify 'debug' "Enable postfix summary with recipient ${PFLOGSUMM_RECIPIENT}"
 
   case "${PFLOGSUMM_TRIGGER}" in
-    'daily_cron' )
+    ( 'daily_cron' )
       _notify 'trace' 'Creating daily cron job for pflogsumm report'
 
-      echo '#! /bin/bash' > /etc/cron.daily/postfix-summary
-      echo "/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}" >>/etc/cron.daily/postfix-summary
+      cat >/etc/cron.daily/postfix-summary << EOM
+#! /bin/bash
+
+/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
+EOM
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
 
-    'logrotate' )
+    ( 'logrotate' )
       _notify 'trace' 'Add postrotate action for pflogsumm report'
       sed -i \
         "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" \
         /etc/logrotate.d/maillog
       ;;
 
-    'none' )
+    ( 'none' )
       _notify 'trace' 'Postfix log summary reports disabled.'
       ;;
 
-    * )
+    ( * )
       _notify 'warn' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery'
       ;;
 
@@ -1068,34 +1085,37 @@ function _setup_mail_summary
 
 function _setup_logwatch
 {
-  _notify 'info' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
-
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
-
-  echo "MailFrom = ${LOGWATCH_SENDER}" >> /etc/logwatch/conf/logwatch.conf
+  echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
-    'daily' )
-      _notify 'info' "Creating daily cron job for logwatch reports"
-      echo "#! /bin/bash" > /etc/cron.daily/logwatch
-      echo "/usr/sbin/logwatch --range Yesterday --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
-        >>/etc/cron.daily/logwatch
-      chmod 744 /etc/cron.daily/logwatch
+    ( 'daily' | 'weekly' )
+      _notify 'trace' "Enable logwatch reports with recipient ${LOGWATCH_RECIPIENT}"
+      _notify 'trace' "Creating ${LOGWATCH_INTERVAL} cron job for logwatch reports"
+
+      local LOGWATCH_FILE INTERVAL
+
+      LOGWATCH_FILE="/etc/cron.${LOGWATCH_INTERVAL}/logwatch"
+      INTERVAL='--range Yesterday'
+
+      if [[ ${LOGWATCH_INTERVAL} == 'weekly' ]]
+      then
+        INTERVAL="--range 'between -7 days and -1 days'"
+      fi
+
+      cat >"${LOGWATCH_FILE}" << EOM
+#! /bin/bash
+
+/usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
+EOM
+      chmod 744 "${LOGWATCH_FILE}"
       ;;
 
-    'weekly' )
-      _notify 'info' "Creating weekly cron job for logwatch reports"
-      echo "#! /bin/bash" > /etc/cron.weekly/logwatch
-      echo "/usr/sbin/logwatch --range 'between -7 days and -1 days' --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}" \
-        >>/etc/cron.weekly/logwatch
-      chmod 744 /etc/cron.weekly/logwatch
-      ;;
-
-    'none' )
+    ( 'none' )
       _notify 'trace' 'Logwatch reports disabled.'
       ;;
 
-    * )
+    ( * )
       _notify 'warn' 'LOGWATCH_INTERVAL not found in _setup_logwatch'
       ;;
 
@@ -1127,6 +1147,7 @@ function _setup_fail2ban
 function _setup_dnsbl_disable
 {
   _notify 'debug' 'Disabling postfix DNS block list (zen.spamhaus.org)'
+
   sedfile -i \
     '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' \
     /etc/postfix/main.cf

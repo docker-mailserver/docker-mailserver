@@ -271,8 +271,8 @@ fix
 start_misc
 start_daemons
 
-# marker to check if container was restarted
-date > /CONTAINER_START
+# marker to check, if container was restarted
+date >/CONTAINER_START
 
 echo -e "\n${HOSTNAME} is up and running\n"
 
