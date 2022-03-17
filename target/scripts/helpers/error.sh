@@ -67,7 +67,7 @@ function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 function _shutdown
 {
   _notify 'error' "${1}"
-  _notify 'error' 'Shutting down...'
+  _notify 'error' 'Shutting down'
   kill 1
   exit 1
 }
