@@ -230,7 +230,7 @@ function teardown_file() {
 
 @test "checking pflogsum delivery" {
   # checking default sender is correctly set when env variable not defined
-  run docker exec mail_with_ldap grep "mailserver-report@${DOMAIN}" /etc/logrotate.d/maillog
+  run docker exec mail_with_ldap grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
   assert_success
 
   # checking default logrotation setup
