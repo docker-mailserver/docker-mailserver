@@ -63,7 +63,7 @@ function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }
 function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 
-# Call this method when you want to panic (i.e. emit an 'ERROR' log and exit DMS with a non-zero exit code).
+# Call this method when you want to panic (i.e. emit an 'ERROR' log, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
 {

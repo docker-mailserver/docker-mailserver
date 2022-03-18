@@ -109,7 +109,7 @@ function teardown() {
     # shellcheck disable=SC2034
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
-      --env LOG_LEVEL='trace' \
+      --env LOG_LEVEL='trace'
       --env PERMIT_DOCKER='container'
       --env SSL_DOMAIN='*.example.test'
       --env SSL_TYPE='letsencrypt'

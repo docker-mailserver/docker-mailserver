@@ -5,8 +5,8 @@
 
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
-
-REGEX_NEVER_MATCH="(?\!)"
+# shellcheck source=/dev/null
+source /etc/dms-settings
 
 function _changedetector_notify
 {
@@ -18,8 +18,8 @@ function _changedetector_notify
 
 function _changedetector_exit_error
 {
-  _changedetector_notify "${@}"
-  _changedetector_notify 'Aborting'
+  _changedetector_notify 'error' "${1}"
+  _changedetector_notify 'error' 'Aborting'
 
   exit 1
 }
@@ -45,12 +45,7 @@ fi
 # sleep some more during startup to avoid conflicting writes
 sleep 10
 
-until grep -qE "export POSTMASTER_ADDRESS=.+" /root/.bashrc
-do
-  sleep 5
-done
-
-_get_dms_environment_variables
+REGEX_NEVER_MATCH="(?\!)"
 
 _changedetector_notify 'trace' "Running with postmaster address '${POSTMASTER_ADDRESS}'"
 _changedetector_notify 'trace' 'Changedetector is ready'
@@ -129,7 +124,8 @@ do
 
     _rebuild_relayhost
 
-    # regenerate postix aliases
+    # regenerate postix aliases; this needs `POSTMASTER_ADDRESS` to be set
+    # and therefore requires to call to `source /etc/dms-settings`
     _create_aliases
 
     # regenerate /etc/postfix/vhost
