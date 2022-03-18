@@ -102,7 +102,7 @@ function teardown_file() {
     printf 'someThingsChangedHere' \
       >>"$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"
 
-    run timeout 15 docker exec mail_manual_ssl bash -c "tail -F /var/log/supervisor/changedetector.log | sed '/Change detected/ q'"
+    run timeout 15 docker exec mail_manual_ssl bash -c "tail -F /var/log/supervisor/changedetector.log | sed '/Manual certificates have changed/ q'"
     assert_success
 
     sed -i '/someThingsChangedHere/d' "$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"
