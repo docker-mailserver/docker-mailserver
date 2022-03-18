@@ -169,7 +169,7 @@ function _setup_ssl
   # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming.
   case "${SSL_TYPE}" in
     ( "letsencrypt" )
-      _notify 'trace' "Configuring SSL using 'letsencrypt'"
+      _notify 'debug' "Configuring SSL using 'letsencrypt'"
 
       # `docker-mailserver` will only use one certificate from an FQDN folder in `/etc/letsencrypt/live/`.
       # We iterate the sequence [SSL_DOMAIN, HOSTNAME, DOMAINNAME] to find a matching FQDN folder.
@@ -230,7 +230,7 @@ function _setup_ssl
 
       _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
-      _notify 'debug' "SSL configured with 'letsencrypt' certificates"
+      _notify 'trace' "SSL configured with 'letsencrypt' certificates"
       ;;
 
     ( "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.

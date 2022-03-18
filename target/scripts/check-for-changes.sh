@@ -1,7 +1,16 @@
 #! /bin/bash
 
-# TODO: Adapt for compatibility with LDAP
-# Only the cert renewal change detection may be relevant for LDAP?
+# About this Script
+#
+# This script checks certain files for updates and restarts services accordingly.
+# Take care when altering this script. The Bash unit tests check the log of this
+# script, and if the log messages are altered in size, you may need to adjust the
+# tests.
+#
+# TODOs
+#
+# 1. Adapt for compatibility with LDAP
+#    Only the cert renewal change detection may be relevant for LDAP?
 
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
@@ -52,7 +61,7 @@ _changedetector_notify 'trace' 'Changedetector is ready'
 
 while true
 do
-  # get chksum and check it, no need to lock config yet
+  # get checksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
 
@@ -62,9 +71,12 @@ do
   # 2 – inaccessible or missing argument
   if [[ ${?} -eq 1 ]]
   then
+    CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
+
     _changedetector_notify 'info' 'Change detected'
     _create_lock # Shared config safety lock
-    CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
+
+    [[ -z ${CHANGED} ]] && _changedetector_notify 'debug' 'Found new files'
 
     # TODO Perform updates below conditionally too
     # Also note that changes are performed in place and are not atomic
