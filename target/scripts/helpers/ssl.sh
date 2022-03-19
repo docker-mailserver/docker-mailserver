@@ -2,7 +2,7 @@
 
 function _setup_ssl
 {
-  _notify 'task' 'Setting up SSL'
+  _log 'debug' 'Setting up SSL'
 
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
   local POSTFIX_CONFIG_MASTER='/etc/postfix/master.cf'
@@ -116,10 +116,10 @@ function _setup_ssl
       then
         EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
       else
-        _notify 'err' "'setup-stack.sh' | letsencrypt (acme.json) failed to identify a certificate to extract"
+        _log 'warn' "letsencrypt (acme.json) failed to identify a certificate to extract"
       fi
 
-      _notify 'inf' "'setup-stack.sh' | letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
+      _log 'trace' "letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
     fi
   }
 
@@ -132,7 +132,7 @@ function _setup_ssl
 
       _apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
 
-      _notify 'inf' "TLS configured with 'modern' ciphers"
+      _log 'debug' "TLS configured with 'modern' ciphers"
       ;;
 
     ( "intermediate" )
@@ -154,11 +154,11 @@ function _setup_ssl
         -e 's|^(CipherString).*|\1 = DEFAULT@SECLEVEL=1|' \
         /usr/lib/ssl/openssl.cnf
 
-      _notify 'inf' "TLS configured with 'intermediate' ciphers"
+      _log 'debug' "TLS configured with 'intermediate' ciphers"
       ;;
 
     ( * )
-      _notify 'err' "TLS_LEVEL not found [ in ${FUNCNAME[0]} ]"
+      _log 'warn' "TLS_LEVEL '${TLS_LEVEL}' not valid"
       ;;
 
   esac
@@ -169,7 +169,7 @@ function _setup_ssl
   # NOTE: Some `SSL_TYPE` logic uses mounted certs/keys directly, some make an internal copy either retaining filename or renaming.
   case "${SSL_TYPE}" in
     ( "letsencrypt" )
-      _notify 'inf' "Configuring SSL using 'letsencrypt'"
+      _log 'debug' "Configuring SSL using 'letsencrypt'"
 
       # `docker-mailserver` will only use one certificate from an FQDN folder in `/etc/letsencrypt/live/`.
       # We iterate the sequence [SSL_DOMAIN, HOSTNAME, DOMAINNAME] to find a matching FQDN folder.
@@ -200,7 +200,7 @@ function _setup_ssl
       then
         LETSENCRYPT_DOMAIN=${DOMAINNAME}
       else
-        _notify 'err' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
+        _log 'warn' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
         dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' "${SCOPE_SSL_TYPE}"
         return 1
       fi
@@ -213,13 +213,13 @@ function _setup_ssl
       then
         LETSENCRYPT_KEY='key'
       else
-        _notify 'err' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
+        _log 'warn' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
         dms_panic__misconfigured 'LETSENCRYPT_KEY' "${SCOPE_SSL_TYPE}"
         return 1
       fi
 
       # Update relevant config for Postfix and Dovecot
-      _notify 'inf' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
+      _log 'trace' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
 
       # LetsEncrypt `fullchain.pem` and `privkey.pem` contents are detailed here from CertBot:
       # https://certbot.eff.org/docs/using.html#where-are-my-certificates
@@ -230,11 +230,11 @@ function _setup_ssl
 
       _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
-      _notify 'inf' "SSL configured with 'letsencrypt' certificates"
+      _log 'trace' "SSL configured with 'letsencrypt' certificates"
       ;;
 
     ( "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.
-      _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
+      _log 'debug' "Adding ${HOSTNAME} SSL certificate"
 
       # NOTE: Dovecot works fine still as both values are bundled into the keychain
       local COMBINED_PEM_NAME="${HOSTNAME}-full.pem"
@@ -248,14 +248,14 @@ function _setup_ssl
 
         _set_certificate "${KEY_WITH_FULLCHAIN}"
 
-        _notify 'inf' "SSL configured with 'CA signed/custom' certificates"
+        _log 'trace' "SSL configured with 'CA signed/custom' certificates"
       else
         dms_panic__no_file "${TMP_KEY_WITH_FULLCHAIN}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
     ( "manual" ) # (dynamic path via ENV) Use separate private key and cert/chain files (should be PEM encoded)
-      _notify 'inf' "Configuring certificates using key ${SSL_KEY_PATH} and cert ${SSL_CERT_PATH}"
+      _log 'debug' "Configuring certificates using key ${SSL_KEY_PATH} and cert ${SSL_CERT_PATH}"
 
       # Source files are copied internally to these destinations:
       local PRIVATE_KEY="${DMS_TLS_PATH}/key"
@@ -287,7 +287,7 @@ function _setup_ssl
         # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
         if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]
         then
-          _notify 'inf' "Configuring fallback certificates using key ${SSL_ALT_KEY_PATH} and cert ${SSL_ALT_CERT_PATH}"
+          _log 'trace' "Configuring fallback certificates using key ${SSL_ALT_KEY_PATH} and cert ${SSL_ALT_CERT_PATH}"
 
           _set_alt_certificate "${SSL_ALT_KEY_PATH}" "${SSL_ALT_CERT_PATH}"
         else
@@ -299,14 +299,14 @@ function _setup_ssl
             "${DOVECOT_CONFIG_SSL}"
         fi
 
-        _notify 'inf' "SSL configured with 'Manual' certificates"
+        _log 'trace' "SSL configured with 'Manual' certificates"
       else
         dms_panic__no_file "${SSL_KEY_PATH} or ${SSL_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
     ( "self-signed" ) # (hard-coded path) Use separate private key and cert/chain files (should be PEM encoded), expects self-signed CA
-      _notify 'inf' "Adding ${HOSTNAME} SSL certificate"
+      _log 'debug' "Adding ${HOSTNAME} SSL certificate"
 
       local KEY_NAME="${HOSTNAME}-key.pem"
       local CERT_NAME="${HOSTNAME}-cert.pem"
@@ -344,14 +344,14 @@ function _setup_ssl
         local PRIVATE_CA="/etc/ssl/certs/cacert-${HOSTNAME}.pem"
         ln -s "${CA_CERT}" "${PRIVATE_CA}"
 
-        _notify 'inf' "SSL configured with 'self-signed' certificates"
+        _log 'trace' "SSL configured with 'self-signed' certificates"
       else
         dms_panic__no_file "${SS_KEY} or ${SS_CERT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
     ( '' ) # No SSL/TLS certificate used/required, plaintext auth permitted over insecure connections
-      _notify 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
+      _log 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
       # Untested. Not officially supported.
 
       # Postfix configuration:
@@ -413,7 +413,7 @@ function _extract_certs_from_acme
   local CERT_DOMAIN=${1}
   if [[ -z ${CERT_DOMAIN} ]]
   then
-    _notify 'err' "_extract_certs_from_acme | CERT_DOMAIN is empty"
+    _log 'warn' "_extract_certs_from_acme | CERT_DOMAIN is empty"
     return 1
   fi
 
@@ -423,7 +423,7 @@ function _extract_certs_from_acme
 
   if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
   then
-    _notify 'warn' "_extract_certs_from_acme | Unable to find key and/or cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+    _log 'warn' "_extract_certs_from_acme | Unable to find key and/or cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
   fi
 
@@ -438,7 +438,7 @@ function _extract_certs_from_acme
   echo "${KEY}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
   echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
 
-  _notify 'inf' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
+  _log 'trace' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 
 # Remove the `*.` prefix if it exists, else returns the input value
