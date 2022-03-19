@@ -110,6 +110,7 @@ function teardown() {
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
       --env DMS_DEBUG=1
+      --env LOG_LEVEL=trace
       --env PERMIT_DOCKER='container'
       --env SSL_DOMAIN='*.example.test'
       --env SSL_TYPE='letsencrypt'

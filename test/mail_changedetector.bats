@@ -12,6 +12,7 @@ function setup_file() {
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
   -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
   -e DMS_DEBUG=1 \
+  -e LOG_LEVEL=trace \
   -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_changedetector_one
 
@@ -19,6 +20,7 @@ function setup_file() {
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
   -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
   -e DMS_DEBUG=1 \
+  -e LOG_LEVEL=trace \
   -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_changedetector_two
 }
@@ -76,5 +78,5 @@ function teardown_file() {
   assert_output --partial "check-for-changes.sh.lock exists"
   sleep 65
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
-  assert_output --partial "Removed stale lock"
+  assert_output --partial "removing stale lock file"
 }
