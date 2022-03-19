@@ -2,7 +2,7 @@
 
 function start_misc
 {
-  _notify 'inf' 'Starting miscellaneous tasks'
+  _log 'info' 'Starting miscellaneous tasks'
   for FUNC in "${FUNCS_MISC[@]}"
   do
     ${FUNC}
@@ -19,7 +19,7 @@ function _misc_save_states
 
   if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]
   then
-    _notify 'inf' "Consolidating all state onto ${STATEDIR}"
+    _log 'debug' "Consolidating all state onto ${STATEDIR}"
 
     FILES=(
       spool/postfix
@@ -39,22 +39,22 @@ function _misc_save_states
 
       if [[ -d ${DEST} ]]
       then
-        _notify 'inf' "Destination ${DEST} exists, linking ${FILE} to it"
+        _log 'trace' "Destination ${DEST} exists, linking ${FILE} to it"
         rm -rf "${FILE}"
         ln -s "${DEST}" "${FILE}"
       elif [[ -d ${FILE} ]]
       then
-        _notify 'inf' "Moving contents of ${FILE} to ${DEST}"
+        _log 'trace' "Moving contents of ${FILE} to ${DEST}"
         mv "${FILE}" "${DEST}"
         ln -s "${DEST}" "${FILE}"
       else
-        _notify 'inf' "Linking ${FILE} to ${DEST}"
+        _log 'trace' "Linking ${FILE} to ${DEST}"
         mkdir -p "${DEST}"
         ln -s "${DEST}" "${FILE}"
       fi
     done
 
-    _notify 'inf' 'Fixing /var/mail-state/* permissions'
+    _log 'trace' 'Fixing /var/mail-state/* permissions'
     chown -R clamav /var/mail-state/lib-clamav
     chown -R postfix /var/mail-state/lib-postfix
     chown -R postgrey /var/mail-state/lib-postgrey
