@@ -15,8 +15,16 @@ title: Environment Variables
 
 ##### DMS_DEBUG
 
+This environment variable is deprecated. Use `LOG_LEVEL` instead.
+
 - **0** => Debug disabled
 - 1     => Enables debug on startup
+
+##### LOG_LEVEL
+
+Set the log level for DMS. This is mostly relevant for container startup scripts and change detection event feedback.
+
+Valid values (in order of increasing verbosity) are: `error`, `warn`, `info`, `debug` and `trace`. The default log level is `info`.
 
 ##### SUPERVISOR_LOGLEVEL
 
