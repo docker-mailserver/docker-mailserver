@@ -272,7 +272,7 @@ function _setup_dovecot_quota
         "s|quota_rule = \*:storage=.*|quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
         /etc/dovecot/conf.d/90-quota.conf
 
-      if [[ -d /tmp/docker-mailserver ]] && [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
+      if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
         _log 'trace' "'/tmp/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
         : >/tmp/docker-mailserver/dovecot-quotas.cf

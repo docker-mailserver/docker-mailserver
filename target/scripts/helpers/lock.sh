@@ -12,9 +12,7 @@ function _create_lock
   LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
   while [[ -e "${LOCK_FILE}" ]]
   do
-    _log 'warn' \
-      "Lock file ${LOCK_FILE} exists. Another ${SCRIPT_NAME} execution is happening -" \
-      'trying again shortly'
+    _log 'warn' "Lock file '${LOCK_FILE}' exists. Another ${SCRIPT_NAME} execution is happening - trying again shortly"
     # Handle stale lock files left behind on crashes
     # or premature/non-graceful exits of containers while they're making changes
     if [[ -n "$(find "${LOCK_FILE}" -mmin +1 2>/dev/null)" ]]

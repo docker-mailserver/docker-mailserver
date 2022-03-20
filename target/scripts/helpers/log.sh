@@ -81,8 +81,7 @@ function _log
       ;;
   esac
 
-  shift 1
-  MESSAGE+="${LOG_RESET}]  ${*}"
+  MESSAGE+="${LOG_RESET}]  ${2}"
 
   if [[ ${1} =~ ^(warn|error)$ ]]
   then
