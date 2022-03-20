@@ -57,15 +57,15 @@ function teardown_file() {
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl start changedetector"
   sleep 15
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "check-for-changes.sh.lock exists"
+  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "check-for-changes.sh.lock exists"
+  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
   # Ensure starting a new check-for-changes.sh instance (restarting here) doesn't delete the lock
   docker exec mail_changedetector_two /bin/bash -c "rm -f /var/log/supervisor/changedetector.log"
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl restart changedetector"
   sleep 5
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  refute_output --partial "check-for-changes.sh.lock exists"
+  refute_output --partial "another execution of 'check-for-changes.sh' is happening"
   refute_output --partial "Removed lock"
 }
 
@@ -75,7 +75,7 @@ function teardown_file() {
   echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
   sleep 15
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "check-for-changes.sh.lock exists"
+  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
   sleep 65
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
   assert_output --partial "removing stale lock file"
