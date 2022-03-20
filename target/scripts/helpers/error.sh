@@ -2,7 +2,13 @@
 
 function _errex
 {
-  _log 'error' "${1:?}"
+  if [[ -n ${1+set} ]]
+  then
+    _log 'error' "${1}"
+  else
+    _log 'error' "Call to '_errex' is missing a message to log"
+  fi
+
   _log 'error' 'Aborting'
   exit 1
 }

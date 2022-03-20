@@ -89,8 +89,6 @@ function _log
   else
     echo -e "${MESSAGE}"
   fi
-
-  return 0
 }
 
 # Still used by `check-for-changes.sh` for legacy / test purposes. Adjusting

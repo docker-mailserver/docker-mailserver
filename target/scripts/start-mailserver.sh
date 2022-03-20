@@ -262,9 +262,7 @@ source /usr/local/bin/daemons-stack.sh
 # ? >> Executing all stacks
 # ------------------------------------------------------------
 
-# This message and the message below are the only exceptions
-# where we log with `echo`. For all other instances, use `_log`!
-echo -e "Welcome to docker-mailserver $(</VERSION)\n"
+_log 'info' "Welcome to docker-mailserver $(</VERSION)\n"
 
 register_functions
 check
@@ -277,9 +275,7 @@ start_daemons
 # marker to check, if container was restarted
 date >/CONTAINER_START
 
-# This message and the message above are the only exceptions
-# where we log with `echo`. For all other instances, use `_log`!
-echo -e "\n${HOSTNAME} is up and running\n"
+_log 'info' "\n${HOSTNAME} is up and running\n"
 
 touch /var/log/mail/mail.log
 tail -Fn 0 /var/log/mail/mail.log
