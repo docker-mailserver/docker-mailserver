@@ -262,7 +262,7 @@ source /usr/local/bin/daemons-stack.sh
 # ? >> Executing all stacks
 # ------------------------------------------------------------
 
-_log 'info' "Welcome to docker-mailserver $(</VERSION)\n"
+_log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
 register_functions
 check
@@ -275,7 +275,7 @@ start_daemons
 # marker to check, if container was restarted
 date >/CONTAINER_START
 
-_log 'info' "\n${HOSTNAME} is up and running\n"
+_log 'info' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
 tail -Fn 0 /var/log/mail/mail.log
