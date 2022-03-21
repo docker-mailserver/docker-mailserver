@@ -16,7 +16,7 @@ Possible causes for this error are
 3. Host is configured incorrectly
 
 Aborting...
-"
+" >&2
 
   exit 1
 fi
@@ -41,21 +41,21 @@ then
 
     if [[ -n ${BANNED_IP} ]]
     then
-      echo "Banned in ${JAIL}: ${BANNED_IP//$'\n'/, }"
+      echo -e "Banned in ${JAIL}: ${BANNED_IP//$'\n'/, }"
       IP_COUNT=$(( IP_COUNT + 1 ))
     fi
   done
 
   if [[ ${IP_COUNT} -eq 0 ]]
   then
-    echo "No IPs have been banned."
+    _log 'info' 'No IPs have been banned'
   fi
 
 else
 
-  case ${1} in
+  case "${1}" in
 
-    unban)
+    ( 'unban' )
       shift
       if [[ -n ${1} ]]
       then
@@ -68,14 +68,14 @@ else
         done
 
       else
-        echo "You need to specify an IP address. Run './setup.sh debug fail2ban' to get a list of banned IP addresses." >&2
+        log 'warn' "You need to specify an IP address. Run './setup.sh debug fail2ban' to get a list of banned IP addresses."
         exit 0
       fi
       ;;
 
-    *)
+    ( * )
       usage
-      _errex "unknown command: ${1}"
+      _errex "Unknown command: ${1}"
       ;;
 
   esac

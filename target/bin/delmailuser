@@ -67,7 +67,7 @@ do
 
     * )
       __usage
-      _errex "The option ${OPT} is unknown."
+      _errex "The option '${OPT}' is unknown"
       ;;
 
   esac
@@ -103,7 +103,7 @@ do
   then
     if ! sedfile --strict -i "/^${EMAIL}|/d" "${DATABASE}"
     then
-      echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
+      _log 'error' "'${UNESCAPED_EMAIL}' couldn't be deleted in '${DATABASE}'" >&2
       ERROR=true
     fi
   fi
@@ -116,9 +116,9 @@ do
       -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
       "${ALIAS_DATABASE}"
     then
-      echo "${UNESCAPED_EMAIL} and potential aliases deleted."
+      _log 'info' "'${UNESCAPED_EMAIL}' and potential aliases deleted"
     else
-      echo "Aliases for ${UNESCAPED_EMAIL} couldn't be deleted in ${ALIAS_DATABASE}." >&2
+      _log 'error' "Aliases for '${UNESCAPED_EMAIL}' couldn't be deleted in '${ALIAS_DATABASE}'" >&2
       ERROR=true
     fi
   fi
@@ -128,7 +128,7 @@ do
   then
     if ! sedfile --strict -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
     then
-      echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+      _log 'warn' "Quota for '${UNESCAPED_EMAIL}' couldn't be deleted in '${QUOTA_DATABASE}'" >&2
     fi
   fi
 
@@ -144,17 +144,18 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
   then
     if rm -R "/var/mail/${DOMAIN}/${USER}"
     then
-      echo "Mailbox deleted."
+      _log 'info' 'Mailbox deleted'
     else
-      echo "Mailbox couldn't be deleted." >&2
+      _log 'error' 'Mailbox could not be deleted' >&2
       ERROR=true
     fi
-    rmdir "/var/mail/${DOMAIN}" 2>/dev/null || true
+    rm -rf "/var/mail/${DOMAIN}"
   else
-    echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
+    log 'error' "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist" >&2
     ERROR=true
   fi
 
-  ${ERROR} && _errex 'See the messages above.'
+  ${ERROR} && _errex 'See the error message(s) above'
 done
+
 exit 0

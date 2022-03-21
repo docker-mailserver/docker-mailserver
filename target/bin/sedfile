@@ -14,11 +14,12 @@ set -ueo pipefail
 HASHTOOL="sha1sum"
 SKIP_ERROR=0
 
+function usage { echo "Usage: ${0} -i <replace/delete operation> <file>" ; }
+
 if [[ $# -lt 3 ]]
 then
-  echo "Error:  At least, three parameters must be given."
-  echo "Syntax: sedfile -i <replace/delete operation> <file>"
-  echo
+  usage
+  _log 'error' 'At least three parameters must be given'
   exit 1
 fi >&2
 
@@ -39,8 +40,8 @@ NEW=$(${HASHTOOL} "${FILE}")
 # fail if file was not modified
 if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]
 then
-  echo "Error: sed $*"
+  echo "Error: sed $*" >&2
   exit 1
-fi >&2
+fi
 
 exit 0
