@@ -70,46 +70,17 @@ function _start_daemon_dovecot
   _default_start_daemon 'dovecot'
 }
 
-function _start_daemons_fetchmail
+function _start_daemon_fetchmail
 {
-  _log 'debug' 'Preparing fetchmail config'
-  /usr/local/bin/setup-fetchmail
-
   if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
   then
-    mkdir /etc/fetchmailrc.d/
-    /usr/local/bin/fetchmailrc_split
-
-    local COUNTER=0
-    for RC in /etc/fetchmailrc.d/fetchmail-*.rc
-    do
-      COUNTER=$(( COUNTER + 1 ))
-      cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
-[program:fetchmail-${COUNTER}]
-startsecs=0
-autostart=false
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
-user=fetchmail
-command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
-EOF
-      chmod 700 "${RC}"
-      chown fetchmail:root "${RC}"
-    done
-
-    supervisorctl reread
-    supervisorctl update
-
     COUNTER=0
     for _ in /etc/fetchmailrc.d/fetchmail-*.rc
     do
       COUNTER=$(( COUNTER + 1 ))
-      _log 'debug' "Starting fetchmail instance ${COUNTER}"
-      supervisorctl start "fetchmail-${COUNTER}" || _panic__fail_init "fetchmail-${COUNTER}"
+      _default_start_daemon "fetchmail-${COUNTER}"
     done
   else
-    _log 'debug' 'Starting fetchmail'
-    supervisorctl start fetchmail || dms_panic__fail_init 'fetchmail'
+    _default_start_daemon 'fetchmail'
   fi
 }
