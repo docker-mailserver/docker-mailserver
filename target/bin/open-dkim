@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
 KEYSIZE=4096
 SELECTOR=mail
 DOMAINS=
@@ -92,7 +95,7 @@ do
 
     ( * )
       __usage
-      _log 'error' "Unknown options '${1}' '${2:+and ${2}}'"
+      _log 'error' "Unknown options '${1}' ${2:+and \'${2}\'}"
       exit 2
       ;;
 
@@ -127,7 +130,7 @@ then
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   fi
 else
-  tr ',' '\n' <<< "${DOMAINS}" > /tmp/vhost.dkim.tmp
+  tr ',' '\n' <<< "${DOMAINS}" >/tmp/vhost.dkim.tmp
 fi
 
 sort < /tmp/vhost.dkim.tmp | uniq >/tmp/vhost
@@ -135,7 +138,7 @@ rm /tmp/vhost.dkim.tmp
 
 if [[ ! -s /tmp/vhost ]]
 then
-  log 'warn' 'No entries found, no keys to make'
+  _log 'warn' 'No entries found, no keys to make'
   exit 0
 fi
 
@@ -145,7 +148,7 @@ do
 
   if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]
   then
-    log 'info' "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private'"
+    _log 'info' "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private'"
 
     opendkim-genkey \
       --bits="${KEYSIZE}" \
@@ -185,7 +188,7 @@ done < <(grep -vE '^(\s*$|#)' /tmp/vhost)
 # create TrustedHosts if missing
 if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]
 then
-  log 'debug' 'Creating DKIM TrustedHosts'
+  _log 'debug' 'Creating DKIM TrustedHosts'
   echo "127.0.0.1" >/tmp/docker-mailserver/opendkim/TrustedHosts
   echo "localhost" >>/tmp/docker-mailserver/opendkim/TrustedHosts
 fi
