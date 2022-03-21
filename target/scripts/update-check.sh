@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# shellcheck source=./helpers/index.sh
-source /usr/local/bin/helpers/index.sh
+# shellcheck source=./helpers/log.sh
+source /usr/local/bin/helpers/log.sh
 
 VERSION=$(</VERSION)
 VERSION_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION'
@@ -24,7 +24,7 @@ do
   # did we get a valid response?
   if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
   then
-    _log 'debug' "$(_print_date) Remote version information fetched"
+    _log_with_date 'debug' 'Remote version information fetched'
 
     # compare versions
     if dpkg --compare-versions "${VERSION}" lt "${LATEST}"
@@ -43,12 +43,12 @@ EOM
       echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && \
 
       # only notify once
-      _log 'info' "$(_print_date) Update available [ ${VERSION} --> ${LATEST} ]" && exit 0
+      _log_with_date 'info' "Update available [ ${VERSION} --> ${LATEST} ]" && exit 0
     else
-      _log 'debug' "$(_print_date) No update available"
+      _log_with_date 'debug' 'No update available'
     fi
   else
-    _log 'warn' "$(_print_date) Update check failed"
+    _log_with_date 'warn' 'Update check failed'
   fi
 
   # check again in 'UPDATE_CHECK_INTERVAL' time

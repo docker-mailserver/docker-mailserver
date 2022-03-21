@@ -91,6 +91,8 @@ function _log
   fi
 }
 
+function _log_with_date { _log "${1}" "$(date +"%Y-%m-%d %H:%M:%S")  ${2}" ; }
+
 # Still used by `check-for-changes.sh` for legacy / test purposes. Adjusting
 # `check-for-changes.sh` must be done with great care and requires some effort.
 # As a consequence, this function is kept to keep some of the original log for
