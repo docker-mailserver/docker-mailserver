@@ -16,18 +16,18 @@ PASSWD="${*}"
 
 function usage  {	echo "Usage: updatemailuser <user@domain.tld> [password]" ; }
 
-[[ -z ${USER} ]] && { usage ; _errex "no username specified" ; }
+[[ -z ${USER} ]] && { usage ; _exit_with_error "no username specified" ; }
 
 if [[ -z ${PASSWD} ]]
 then
   read -r -s -p "Enter Password: " PASSWD
   echo
-  [[ -z ${PASSWD} ]] && _errex "Password must not be empty"
+  [[ -z ${PASSWD} ]] && _exit_with_error "Password must not be empty"
 fi
 
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 touch "${DATABASE}"
 _create_lock # Protect config file with lock to avoid race conditions
-grep -qi "^$(_escape "${USER}")|" "${DATABASE}" 2>/dev/null || _errex "User \"${USER}\" does not exist"
+grep -qi "^$(_escape "${USER}")|" "${DATABASE}" 2>/dev/null || _exit_with_error "User \"${USER}\" does not exist"
 sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"

@@ -1,10 +1,40 @@
 #! /bin/bash
 
+# ? >> Sourcing helpers & stacks
+#      1. Helpers
+#      2. Checks
+#      3. Setup
+#      4. Fixes
+#      5. Miscellaneous
+#      6. Daemons
+# ------------------------------------------------------------
+
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-# shellcheck disable=SC2034
+# shellcheck source=./startup/check-stack.sh
+source /usr/local/bin/check-stack.sh
+
+# shellcheck source=./startup/setup-stack.sh
+source /usr/local/bin/setup-stack.sh
+
+# shellcheck source=./startup/fixes-stack.sh
+source /usr/local/bin/fixes-stack.sh
+
+# shellcheck source=./startup/misc-stack.sh
+source /usr/local/bin/misc-stack.sh
+
+# shellcheck source=./startup/daemons-stack.sh
+source /usr/local/bin/daemons-stack.sh
+
+# ------------------------------------------------------------
+
+# Setup supervisord as early as possible
 declare -A VARS
+VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
+_setup_supervisor
+
+# shellcheck disable=SC2034
 declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 
 _obtain_hostname_and_domainname
@@ -77,7 +107,6 @@ VARS[SPAMASSASSIN_SPAM_TO_INBOX]="${SPAMASSASSIN_SPAM_TO_INBOX:=1}"
 VARS[SPOOF_PROTECTION]="${SPOOF_PROTECTION:=0}"
 VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
 VARS[SSL_TYPE]="${SSL_TYPE:=}"
-VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
 VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
 VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
@@ -100,7 +129,6 @@ function register_functions
 
   # ? >> Setup
 
-  _register_setup_function '_setup_supervisor'
   _register_setup_function '_setup_default_vars'
   _register_setup_function '_setup_file_permissions'
 
@@ -232,29 +260,6 @@ function _register_misc_function
 
 # ------------------------------------------------------------
 # ? << Registering functions
-# --
-# ? >> Sourcing all stacks
-#      1. Checks
-#      2. Setup
-#      3. Fixes
-#      4. Miscellaneous
-#      5. Daemons
-# ------------------------------------------------------------
-
-# shellcheck source=./startup/check-stack.sh
-source /usr/local/bin/check-stack.sh
-
-# shellcheck source=./startup/setup-stack.sh
-source /usr/local/bin/setup-stack.sh
-
-# shellcheck source=./startup/fixes-stack.sh
-source /usr/local/bin/fixes-stack.sh
-
-# shellcheck source=./startup/misc-stack.sh
-source /usr/local/bin/misc-stack.sh
-
-# shellcheck source=./startup/daemons-stack.sh
-source /usr/local/bin/daemons-stack.sh
 
 # ------------------------------------------------------------
 # ? << Sourcing all stacks
