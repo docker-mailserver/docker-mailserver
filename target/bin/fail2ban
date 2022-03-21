@@ -68,7 +68,7 @@ else
         done
 
       else
-        log 'warn' "You need to specify an IP address. Run './setup.sh debug fail2ban' to get a list of banned IP addresses."
+        _log 'warn' "You need to specify an IP address: Run './setup.sh debug fail2ban' to get a list of banned IP addresses"
         exit 0
       fi
       ;;
