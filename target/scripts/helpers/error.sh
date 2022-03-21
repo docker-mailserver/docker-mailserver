@@ -76,6 +76,7 @@ function _shutdown
   _log 'error' "${1}"
   _log 'error' 'Shutting down'
 
+  sleep 1
   kill 1
   exit 1
 }

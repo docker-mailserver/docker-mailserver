@@ -4,8 +4,8 @@
 source /usr/local/bin/helpers/log.sh
 
 VERSION=$(</VERSION)
-VERSION_URL="https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION"
-CHANGELOG_URL="https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md"
+VERSION_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION'
+CHANGELOG_URL='https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md'
 
 # check for correct syntax
 # number + suffix. suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
