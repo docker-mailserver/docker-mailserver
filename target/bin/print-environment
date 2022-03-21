@@ -3,5 +3,5 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-_notify 'inf' 'Printing environment variables. Make sure no sensitive data is copied.'
+_log 'debug' 'Printing environment variables. Make sure no sensitive data is copied.'
 cat /etc/dms-settings
