@@ -1,87 +1,73 @@
 #! /bin/bash
 
-function start_daemons
+function _start_daemons
 {
-  _log 'info' 'Starting daemons & mail server'
-  for FUNC in "${DAEMONS_START[@]}"
+  _log 'info' 'Starting daemons'
+
+  for FUNCTION in "${DAEMONS_START[@]}"
   do
-    ${FUNC}
+    ${FUNCTION}
   done
 }
 
-function _start_daemons_cron
+function _default_start_daemon
 {
-  _log 'debug' 'Starting cron'
-  supervisorctl start cron || dms_panic__fail_init 'cron'
+  _log 'debug' "Starting ${1:?}"
+
+  local RESULT
+  RESULT="$(supervisorctl start "${1}" 2>&1)"
+
+  # shellcheck disable=SC2181
+  if [[ ${?} -ne 0 ]]
+  then
+    echo "${RESULT}" >&2
+    dms_panic__fail_init "${1}"
+  fi
 }
 
-function _start_daemons_rsyslog
+function _start_daemon_changedetector { _default_start_daemon 'changedetector' ; }
+function _start_daemon_amavis         { _default_start_daemon 'amavis'         ; }
+function _start_daemon_clamav         { _default_start_daemon 'clamav'         ; }
+function _start_daemon_cron           { _default_start_daemon 'cron'           ; }
+function _start_daemon_opendkim       { _default_start_daemon 'opendkim'       ; }
+function _start_daemon_opendmarc      { _default_start_daemon 'opendmarc'      ; }
+function _start_daemon_postsrsd       { _default_start_daemon 'postsrsd'       ; }
+function _start_daemon_postfix        { _default_start_daemon 'postfix'        ; }
+function _start_daemon_rsyslog        { _default_start_daemon 'rsyslog'        ; }
+function _start_daemon_update_check   { _default_start_daemon 'update-check'   ; }
+
+function _start_daemon_saslauthd
 {
-  _log 'debug' 'Starting rsyslog'
-  supervisorctl start rsyslog || dms_panic__fail_init 'rsyslog'
+  _default_start_daemon "saslauthd_${SASLAUTHD_MECHANISMS}"
 }
 
-function _start_daemons_saslauthd
+function _start_daemon_postgrey
 {
-  _log 'debug' 'Starting saslauthd'
-  supervisorctl start "saslauthd_${SASLAUTHD_MECHANISMS}" || dms_panic__fail_init 'saslauthd'
+  rm -f /var/run/postgrey/postgrey.pid
+  _default_start_daemon 'postgrey'
 }
 
-function _start_daemons_fail2ban
+function _start_daemon_fail2ban
 {
-  _log 'debug' 'Starting Fail2ban'
   touch /var/log/auth.log
 
   # delete fail2ban.sock that probably was left here after container restart
-  if [[ -e /var/run/fail2ban/fail2ban.sock ]]
-  then
-    rm /var/run/fail2ban/fail2ban.sock
-  fi
+  [[ -e /var/run/fail2ban/fail2ban.sock ]] && rm /var/run/fail2ban/fail2ban.sock
 
-  supervisorctl start fail2ban || dms_panic__fail_init 'Fail2ban'
+  _default_start_daemon 'fail2ban'
 }
 
-function _start_daemons_opendkim
+function _start_daemon_dovecot
 {
-  _log 'debug' 'Starting opendkim'
-  supervisorctl start opendkim || dms_panic__fail_init 'opendkim'
-}
-
-function _start_daemons_opendmarc
-{
-  _log 'debug' 'Starting opendmarc'
-  supervisorctl start opendmarc || dms_panic__fail_init 'opendmarc'
-}
-
-function _start_daemons_postsrsd
-{
-  _log 'debug' 'Starting postsrsd'
-  supervisorctl start postsrsd || dms_panic__fail_init 'postsrsd'
-}
-
-function _start_daemons_postfix
-{
-  _log 'debug' 'Starting postfix'
-  supervisorctl start postfix || dms_panic__fail_init 'postfix'
-}
-
-function _start_daemons_dovecot
-{
-  _log 'debug' 'Starting dovecot services'
-
   if [[ ${ENABLE_POP3} -eq 1 ]]
   then
-    _log 'debug' 'Starting pop3 services'
-    mv /etc/dovecot/protocols.d/pop3d.protocol.disab \
-      /etc/dovecot/protocols.d/pop3d.protocol
+    _log 'debug' 'Starting POP3 services'
+    mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
   fi
 
-  if [[ -f /tmp/docker-mailserver/dovecot.cf ]]
-  then
-    cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
-  fi
+  [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 
-  supervisorctl start dovecot || dms_panic__fail_init 'dovecot'
+  _default_start_daemon 'dovecot'
 }
 
 function _start_daemons_fetchmail
@@ -126,35 +112,4 @@ EOF
     _log 'debug' 'Starting fetchmail'
     supervisorctl start fetchmail || dms_panic__fail_init 'fetchmail'
   fi
-}
-
-function _start_daemons_clamav
-{
-  _log 'debug' 'Starting ClamAV'
-  supervisorctl start clamav || dms_panic__fail_init 'ClamAV'
-}
-
-function _start_daemons_postgrey
-{
-  _log 'debug' 'Starting postgrey'
-  rm -f /var/run/postgrey/postgrey.pid
-  supervisorctl start postgrey || dms_panic__fail_init 'postgrey'
-}
-
-function _start_daemons_amavis
-{
-  _log 'debug' 'Starting amavis'
-  supervisorctl start amavis || dms_panic__fail_init 'amavis'
-}
-
-function _start_changedetector
-{
-  _log 'debug' 'Starting changedetector'
-  supervisorctl start changedetector || dms_panic__fail_init 'changedetector'
-}
-
-function _start_daemons_update_check
-{
-  _log 'debug' 'Starting update-check'
-  supervisorctl start update-check || dms_panic__fail_init 'update-check'
 }

@@ -176,28 +176,28 @@ function register_functions
 
   # ? >> Daemons
 
-  _register_start_daemon '_start_daemons_cron'
-  _register_start_daemon '_start_daemons_rsyslog'
+  _register_start_daemon '_start_daemon_cron'
+  _register_start_daemon '_start_daemon_rsyslog'
 
-  [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemons_dovecot'
-  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemons_update_check'
+  [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
+  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
 
   # needs to be started before SASLauthd
-  _register_start_daemon '_start_daemons_opendkim'
-  _register_start_daemon '_start_daemons_opendmarc'
+  _register_start_daemon '_start_daemon_opendkim'
+  _register_start_daemon '_start_daemon_opendmarc'
 
   # needs to be started before postfix
-  [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon '_start_daemons_postgrey'
+  [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon '_start_daemon_postgrey'
 
-  _register_start_daemon '_start_daemons_postfix'
+  _register_start_daemon '_start_daemon_postfix'
 
   # needs to be started after postfix
-  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_start_daemon '_start_daemons_saslauthd'
-  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemons_fail2ban'
-  [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemons_fetchmail'
-  [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemons_clamav'
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_start_daemon '_start_daemon_saslauthd'
+  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemon_fail2ban'
+  [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemon_fetchmail'
+  [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
   [[ ${ENABLE_LDAP} -eq 0 ]] && _register_start_daemon '_start_changedetector'
-  [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_start_daemon '_start_daemons_amavis'
+  [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
 }
 
 function _register_start_daemon
@@ -270,7 +270,7 @@ setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 fix
 start_misc
-start_daemons
+_start_daemons
 
 # marker to check, if container was restarted
 date >/CONTAINER_START
