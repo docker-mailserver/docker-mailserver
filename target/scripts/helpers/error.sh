@@ -1,12 +1,12 @@
 #! /bin/bash
 
-function _errex
+function _exit_with_error
 {
   if [[ -n ${1+set} ]]
   then
     _log 'error' "${1}"
   else
-    _log 'error' "Call to '_errex' is missing a message to log"
+    _log 'error' "Call to '_exit_with_error' is missing a message to log"
   fi
 
   _log 'error' 'Aborting'
