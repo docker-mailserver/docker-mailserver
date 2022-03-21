@@ -39,8 +39,8 @@ FULL_EMAIL="${1}"
 shift
 PASSWD="${*}"
 
-[[ -z ${FULL_EMAIL} ]] && { __usage ; _errex 'No username specified' ; }
-[[ ${FULL_EMAIL} =~ .*\@.* ]] || { __usage ; _errex 'Username must include the domain' ; }
+[[ -z ${FULL_EMAIL} ]] && { __usage ; _exit_with_error 'No username specified' ; }
+[[ ${FULL_EMAIL} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
 
 touch "${DATABASE}"
 _create_lock # Protect config file with lock to avoid race conditions
@@ -54,7 +54,7 @@ if [[ -z ${PASSWD} ]]
 then
   read -r -s -p "Enter Password: " PASSWD
   echo
-  [[ -z ${PASSWD} ]] && _errex "Password must not be empty"
+  [[ -z ${PASSWD} ]] && _exit_with_error "Password must not be empty"
 fi
 
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")"
