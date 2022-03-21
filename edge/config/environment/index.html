@@ -491,6 +491,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#log_level" class="md-nav__link">
+    LOG_LEVEL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#supervisor_loglevel" class="md-nav__link">
     SUPERVISOR_LOGLEVEL
   </a>
@@ -2376,6 +2383,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#log_level" class="md-nav__link">
+    LOG_LEVEL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#supervisor_loglevel" class="md-nav__link">
     SUPERVISOR_LOGLEVEL
   </a>
@@ -3283,10 +3297,14 @@
 <li>=&gt; Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (<em>eg: you're in a container platform that doesn't let you</em>) specify it via this environment variable. It will take priority over <code>docker run</code> options: <code>--hostname</code> and <code>--domainname</code>, or <code>docker-compose.yml</code> config equivalents: <code>hostname:</code> and <code>domainname:</code>.</li>
 </ul>
 <h5 id="dms_debug"><a class="toclink" href="#dms_debug">DMS_DEBUG</a></h5>
+<p>This environment variable is deprecated. Use <code>LOG_LEVEL</code> instead.</p>
 <ul>
 <li><strong>0</strong> =&gt; Debug disabled</li>
 <li>1     =&gt; Enables debug on startup</li>
 </ul>
+<h5 id="log_level"><a class="toclink" href="#log_level">LOG_LEVEL</a></h5>
+<p>Set the log level for DMS. This is mostly relevant for container startup scripts and change detection event feedback.</p>
+<p>Valid values (in order of increasing verbosity) are: <code>error</code>, <code>warn</code>, <code>info</code>, <code>debug</code> and <code>trace</code>. The default log level is <code>info</code>.</p>
 <h5 id="supervisor_loglevel"><a class="toclink" href="#supervisor_loglevel">SUPERVISOR_LOGLEVEL</a></h5>
 <p>Here you can adjust the <a href="http://supervisord.org/logging.html#activity-log-levels">log-level for Supervisor</a>. Possible values are</p>
 <ul>

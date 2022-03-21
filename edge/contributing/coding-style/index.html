@@ -1700,7 +1700,7 @@
 <p>A positive example, which is taken from <code>setup-stack.sh</code>, would be</p>
 <div class="highlight"><pre><span></span><code><span class="k">function</span> _setup_postfix_aliases
 <span class="o">{</span>
-  _notify <span class="s1">&#39;task&#39;</span> <span class="s1">&#39;Setting up Postfix Aliases&#39;</span>
+  _log <span class="s1">&#39;debug&#39;</span> <span class="s1">&#39;Setting up Postfix aliases&#39;</span>
 
   : &gt;/etc/postfix/virtual
   : &gt;/etc/postfix/regexp
@@ -1724,10 +1724,10 @@
       <span class="nv">DOMAIN</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">FROM</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> cut -d @ -f2<span class="k">)</span>
 
       <span class="c1"># if they are equal it means the line looks like: &quot;user1     other@example.com&quot;</span>
-      <span class="o">[[</span> <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> !<span class="o">=</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOMAIN</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOMAIN</span><span class="si">}</span><span class="s2">&quot;</span> &gt;&gt; /tmp/vhost.tmp
+      <span class="o">[[</span> <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> !<span class="o">=</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOMAIN</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOMAIN</span><span class="si">}</span><span class="s2">&quot;</span> &gt;&gt;/tmp/vhost.tmp
     <span class="k">done</span> &lt; &lt;<span class="o">(</span>grep -v <span class="s2">&quot;^\s*</span>$<span class="s2">\|^\s*\#&quot;</span> /tmp/docker-mailserver/postfix-virtual.cf <span class="o">||</span> <span class="nb">true</span><span class="o">)</span>
   <span class="k">else</span>
-    _notify <span class="s1">&#39;inf&#39;</span> <span class="s2">&quot;Warning &#39;/tmp/docker-mailserver/postfix-virtual.cf&#39; is not provided. No mail alias/forward created.&quot;</span>
+    _log <span class="s1">&#39;debug&#39;</span> <span class="s2">&quot;&#39;/tmp/docker-mailserver/postfix-virtual.cf&#39; not provided - no mail alias/forward created&quot;</span>
   <span class="k">fi</span>
 
   ...
