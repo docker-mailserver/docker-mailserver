@@ -173,7 +173,7 @@ function _setup_dovecot
       ;;
 
     ( * )
-      _log 'trace' 'Dovecot default format (maildir ) configured'
+      _log 'trace' 'Dovecot default format (maildir) configured'
       sed -i -e 's|^mail_location = .*$|mail_location = maildir:\/var\/mail\/%d\/%n|g' /etc/dovecot/conf.d/10-mail.conf
       ;;
 
