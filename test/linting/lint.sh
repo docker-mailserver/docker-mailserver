@@ -14,7 +14,7 @@ ECLINT_VERSION=2.3.5
 SHELLCHECK_VERSION=0.8.0
 
 set -eEuo pipefail
-shopt -s inherit_errexit
+shopt -s inherit_exit_with_errorit
 trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' ERR
 
 function __log_err

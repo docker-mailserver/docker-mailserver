@@ -67,14 +67,14 @@ do
 
     * )
       __usage
-      _errex "The option '${OPT}' is unknown"
+      _exit_with_error "The option '${OPT}' is unknown."
       ;;
 
   esac
 done
 shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { __usage ; _errex "No user specifed" ; }
+[[ -z ${*} ]] && { __usage ; _exit_with_error "No user specifed" ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 if ! ${MAILDEL}
@@ -155,7 +155,7 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
     ERROR=true
   fi
 
-  ${ERROR} && _errex 'See the error message(s) above'
+  ${ERROR} && _exit_with_error 'See the messages above.'
 done
 
 exit 0

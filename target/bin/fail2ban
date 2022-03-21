@@ -75,7 +75,7 @@ else
 
     ( * )
       usage
-      _errex "Unknown command: ${1}"
+      _exit_with_error "Unknown command '${1}'"
       ;;
 
   esac

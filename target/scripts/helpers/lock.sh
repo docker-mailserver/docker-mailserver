@@ -31,7 +31,7 @@ function _create_lock
 function _remove_lock
 {
   LOCK_FILE="${LOCK_FILE:-"/tmp/docker-mailserver/${SCRIPT_NAME}.lock"}"
-  [[ -z "${LOCK_ID}" ]] && _errex "Cannot remove ${LOCK_FILE} as there is no LOCK_ID set"
+  [[ -z "${LOCK_ID}" ]] && _exit_with_error "Cannot remove ${LOCK_FILE} as there is no LOCK_ID set"
   if [[ -e "${LOCK_FILE}" ]] && grep -q "${LOCK_ID}" "${LOCK_FILE}" # Ensure we don't delete a lock that's not ours
   then
     rm -f "${LOCK_FILE}"
