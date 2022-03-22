@@ -17,7 +17,6 @@ function dovecot_quota_to_hr
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
     _exit_with_error "Supplied non-number argument '${1:-}' to 'dovecot_quota_to_hr()' in script 'listmailuser'"
-    exit 1
   fi
 }
 

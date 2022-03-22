@@ -12,7 +12,7 @@
 set -ueo pipefail
 
 HASHTOOL='sha1sum'
-SKIP_ERROR=false
+SKIP_ERROR=0
 
 if [[ $# -lt 3 ]]
 then
@@ -21,22 +21,22 @@ then
   exit 1
 fi >&2
 
-[[ -f /CONTAINER_START ]] && SKIP_ERROR=true # hide error if container was restarted
+[[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # hide error if container was restarted
 if [[ ${1} == '--strict' ]]                  # show error every time
 then
-  SKIP_ERROR=false
+  SKIP_ERROR=0
   shift
 fi
 
 # get last argument
 FILE=${*: -1}
 
-OLD="$(${HASHTOOL} "${FILE}")"
+OLD=$(${HASHTOOL} "${FILE}")
 sed "${@}"
-NEW="$(${HASHTOOL} "${FILE}")"
+NEW=$(${HASHTOOL} "${FILE}")
 
 # fail if file was not modified
-if [[ ${OLD} == "${NEW}" ]] && ! ${SKIP_ERROR}
+if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]
 then
   echo "Error: sed ${*}" >&2
   exit 1

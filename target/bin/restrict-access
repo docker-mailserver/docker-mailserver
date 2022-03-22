@@ -10,17 +10,20 @@ function usage  {	echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain
 
 [[ -z ${MODE} ]] && _exit_with_error 'Missing parameters: <add|del|list> <send|receive> [<email@domain.com>]'
 
-case ${2} in
-  send)
+case "${2}" in
+  ( 'send' )
     DATABASE="/tmp/docker-mailserver/postfix-send-access.cf"
     ;;
-  receive)
+
+  ( 'receive' )
     DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
     ;;
-  *)
+
+  ( * )
     usage
-    _exit_with_error "Missing parameters. Specify 'send' or 'receive'"
+    _exit_with_error "Missing parameters: specify 'send' or 'receive'"
     ;;
+
 esac
 
 if [[ -z ${USER} ]] && [[ ${MODE} != list ]]
@@ -30,7 +33,7 @@ then
   [[ -z ${USER} ]] && _exit_with_error 'User must not be empty'
 fi
 
-case ${MODE} in
+case "${MODE}" in
   ( 'add' )
     grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && _exit_with_error "User '${USER}' already denied to ${2} mails"
 
@@ -45,19 +48,19 @@ case ${MODE} in
     fi
 
     echo -e "${USER} \t\t REJECT" >>"${DATABASE}"
-  ;;
+    ;;
 
   ( 'del' )
     sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || _exit_with_error "User '${USER}' not found."
     ;;
 
   ( 'list' )
-    grep "REJECT" "${DATABASE}" 2>/dev/null || echo "Everyone is allowed to ${2} mails."
+    grep "REJECT" "${DATABASE}" 2>/dev/null || _log 'info' "Everyone is allowed to ${2} mails"
     ;;
 
   ( * )
     usage
-    _exit_with_error "missing mode: specify \"add\", \"del\" or \"list\""
-  ;;
+    _exit_with_error "Missing mode: specify 'add', 'del' or 'list'"
+    ;;
 
 esac

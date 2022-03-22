@@ -57,46 +57,42 @@ while [[ ${#} -gt 0 ]]
 do
   case "${1}" in
     ( 'keysize' )
-      if [[ -n ${2+'set'} ]]
+      if [[ -n ${2+set} ]]
       then
         KEYSIZE="${2}"
         shift
         shift
       else
-        _log 'error' "No keysize provided after 'keysize' argument"
-        exit 2
+        _exit_with_error "No keysize provided after 'keysize' argument"
       fi
       ;;
 
     ( 'selector' )
-      if [[ -n ${2+'set'} ]]
+      if [[ -n ${2+set} ]]
       then
         # shellcheck disable=SC2034
         SELECTOR="${2}"
         shift
         shift
       else
-        _log 'error' "No selector provided after 'selector' argument"
-        exit 2
+        _exit_with_error "No selector provided after 'selector' argument"
       fi
       ;;
 
     ( 'domain' )
-      if [[ -n ${2+'set'} ]]
+      if [[ -n ${2+set} ]]
       then
         DOMAINS="${2}"
         shift
         shift
       else
-        _log 'error' "No domain(s) provided after 'domain' argument"
-        exit 2
+        _exit_with_error "No domain(s) provided after 'domain' argument"
       fi
       ;;
 
     ( * )
       __usage
-      _log 'error' "Unknown options '${1}' ${2:+and \'${2}\'}"
-      exit 2
+      _exit_with_error "Unknown options '${1}' ${2:+and \'${2}\'}"
       ;;
 
   esac
