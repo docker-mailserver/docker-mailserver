@@ -475,7 +475,8 @@ function _setup_spoof_protection
 
   if [[ ${ENABLE_LDAP} -eq 1 ]]
   then
-    if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]; then
+    if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
+    then
       postconf -e 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf'
     else
       postconf -e 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf'
