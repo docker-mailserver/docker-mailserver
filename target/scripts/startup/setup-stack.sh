@@ -456,7 +456,7 @@ function _setup_postfix_sizelimits
 
 function _setup_clamav_sizelimit
 {
-  _log 'trace' "Configuring ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
+  _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
   sedfile -i "s/^MaxFileSize.*/MaxFileSize ${CLAMAV_MESSAGE_SIZE_LIMIT}/" /etc/clamav/clamd.conf
 }
 
@@ -476,16 +476,16 @@ function _setup_spoof_protection
   if [[ ${ENABLE_LDAP} -eq 1 ]]
   then
     if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]; then
-      postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf"
+      postconf -e 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf'
     else
-      postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf"
+      postconf -e 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf'
     fi
   else
     if [[ -f /etc/postfix/regexp ]]
     then
-      postconf -e "smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }"
+      postconf -e 'smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }'
     else
-      postconf -e "smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+      postconf -e 'smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre'
     fi
   fi
 }
@@ -626,10 +626,10 @@ function _setup_SRS
 {
   _log 'debug' 'Setting up SRS'
 
-  postconf -e "sender_canonical_maps = tcp:localhost:10001"
+  postconf -e 'sender_canonical_maps = tcp:localhost:10001'
   postconf -e "sender_canonical_classes = ${SRS_SENDER_CLASSES}"
-  postconf -e "recipient_canonical_maps = tcp:localhost:10002"
-  postconf -e "recipient_canonical_classes = envelope_recipient,header_recipient"
+  postconf -e 'recipient_canonical_maps = tcp:localhost:10002'
+  postconf -e 'recipient_canonical_classes = envelope_recipient,header_recipient'
 }
 
 function _setup_dkim
@@ -1050,9 +1050,12 @@ function _setup_logrotate
 
 function _setup_mail_summary
 {
+  local ENABLED_MESSAGE
+  ENABLED_MESSAGE="Enabling Postfix log summary reports with recipient '${PFLOGSUMM_RECIPIENT}'"
+
   case "${PFLOGSUMM_TRIGGER}" in
     ( 'daily_cron' )
-      _log 'debug' "Enable postfix summary with recipient '${PFLOGSUMM_RECIPIENT}'"
+      _log 'debug' "${ENABLED_MESSAGE}"
       _log 'trace' 'Creating daily cron job for pflogsumm report'
 
       cat >/etc/cron.daily/postfix-summary << EOM
@@ -1065,7 +1068,7 @@ EOM
       ;;
 
     ( 'logrotate' )
-      _log 'debug' "Enable postfix summary with recipient '${PFLOGSUMM_RECIPIENT}'"
+      _log 'debug' "${ENABLED_MESSAGE}"
       _log 'trace' 'Add postrotate action for pflogsumm report'
       sed -i \
         "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" \
@@ -1073,11 +1076,11 @@ EOM
       ;;
 
     ( 'none' )
-      _log 'trace' 'Postfix log summary reports disabled'
+      _log 'debug' 'Postfix log summary reports disabled'
       ;;
 
     ( * )
-      _log 'warn' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery'
+      _log 'warn' "Invalid value for PFLOGSUMM_TRIGGER: '${PFLOGSUMM_TRIGGER}'"
       ;;
 
   esac
@@ -1090,7 +1093,7 @@ function _setup_logwatch
 
   case "${LOGWATCH_INTERVAL}" in
     ( 'daily' | 'weekly' )
-      _log 'trace' "Enabling logwatch reports with recipient '${LOGWATCH_RECIPIENT}'"
+      _log 'debug' "Enabling logwatch reports with recipient '${LOGWATCH_RECIPIENT}'"
       _log 'trace' "Creating ${LOGWATCH_INTERVAL} cron job for logwatch reports"
 
       local LOGWATCH_FILE INTERVAL
@@ -1112,11 +1115,11 @@ EOM
       ;;
 
     ( 'none' )
-      _log 'trace' 'Logwatch reports disabled.'
+      _log 'debug' 'Logwatch reports disabled.'
       ;;
 
     ( * )
-      _log 'warn' 'LOGWATCH_INTERVAL not found in _setup_logwatch'
+      _log 'warn' "Invalid value for LOGWATCH_INTERVAL: '${LOGWATCH_INTERVAL}'"
       ;;
 
   esac
