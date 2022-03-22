@@ -154,7 +154,7 @@ function teardown() {
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
-    _should_have_service_restart_count '2'
+    _should_have_service_restart_count '3'
 
     # note: https://github.com/docker-mailserver/docker-mailserver/pull/2404 solves this
     # TODO: Make this pass.
@@ -237,7 +237,9 @@ function _should_extract_on_changes() {
 
   cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
   # Change detection takes a little over 5 seconds to complete (restart services)
-  sleep 10
+  # so we provide enough time for the changedetector to settle if runs twice after
+  # a change (e.g. a `cp` command)
+  sleep 15
 
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
@@ -255,7 +257,7 @@ function _should_have_service_restart_count() {
   local NUM_RESTARTS=${1}
 
   # Count how many times postfix was restarted by the `changedetector` service:
-  run docker exec "${TEST_NAME}" sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
+  run docker exec "${TEST_NAME}" sh -c "grep -c 'postfix: started' /var/log/supervisor/changedetector.log"
   assert_output "${NUM_RESTARTS}"
 }
 
@@ -301,7 +303,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -3000 ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:

@@ -35,6 +35,7 @@ REGEX_NEVER_MATCH="(?\!)"
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
+# TODO when #2499 is merged, use `_log_with_date`
 _log 'debug' "$(_log_date) Chagedetector is ready"
 
 while true
