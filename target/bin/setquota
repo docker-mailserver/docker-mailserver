@@ -15,14 +15,14 @@ USER="${1}"
 shift
 QUOTA="${*}"
 
-function usage { echo 'Usage: setquota <user@domain> [<quota>]' ; }
+function __usage { echo 'Usage: setquota <user@domain> [<quota>]' ; }
 
-[[ -z ${USER} ]] && { usage ; _exit_with_error "No username specified" ; }
-[[ ${USER} =~ .*\@.* ]] || { usage ; _exit_with_error "Username must include the domain" ; }
+[[ -z ${USER} ]] && { __usage ; _exit_with_error "No username specified" ; }
+[[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
 
 if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
 then
-  usage
+  __usage
   _exit_with_error "User '${USER}' does not exist"
 fi
 
@@ -36,7 +36,7 @@ fi
 # check quota
 if ! grep -qE "^([0-9]+(B|k|M|G|T)|0)\$" <<< "${QUOTA}"
 then
-  usage
+  __usage
   _exit_with_error 'Invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))'
 fi
 

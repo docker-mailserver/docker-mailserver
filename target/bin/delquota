@@ -18,7 +18,7 @@ USER="${1}"
 if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
 then
   __usage
-  _exit_with_error "user ${USER} does not exist"
+  _exit_with_error "User '${USER}' does not exist"
 fi
 
 [[ -s ${DATABASE} ]] || exit 0

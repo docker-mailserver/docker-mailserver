@@ -7,9 +7,9 @@ DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-relaymap.cf}
 
 DOMAIN="${1}"
 
-function usage { echo 'Usage: excluderelayhost <domain>' ; }
+function __usage { echo 'Usage: excluderelayhost <domain>' ; }
 
-[[ -z ${DOMAIN} ]] && { usage ; _exit_with_error "no domain specified" ; }
+[[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error "no domain specified" ; }
 
 if grep -qi "^@${DOMAIN}" "${DATABASE}" 2>/dev/null
 then

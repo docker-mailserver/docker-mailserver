@@ -19,7 +19,7 @@ Possible causes for this error are
 "
 fi
 
-function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
+function __usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
 unset JAILS
 declare -a JAILS
@@ -72,7 +72,7 @@ else
       ;;
 
     ( * )
-      usage
+      __usage
       _exit_with_error "Unknown command '${1}'"
       ;;
 

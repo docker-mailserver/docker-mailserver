@@ -14,9 +14,9 @@ USER="${1}"
 shift
 PASSWD="${*}"
 
-function usage { echo 'Usage: updatemailuser <user@domain.tld> [password]' ; }
+function __usage { echo 'Usage: updatemailuser <user@domain.tld> [password]' ; }
 
-[[ -z ${USER} ]] && { usage ; _exit_with_error 'No username specified' ; }
+[[ -z ${USER} ]] && { __usage ; _exit_with_error 'No username specified' ; }
 
 if [[ -z ${PASSWD} ]]
 then
