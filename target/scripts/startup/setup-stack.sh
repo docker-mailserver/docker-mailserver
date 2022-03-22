@@ -405,7 +405,7 @@ function _setup_ldap
 
 function _setup_postgrey
 {
-  _log 'debug' "Configuring Postgrey"
+  _log 'debug' 'Configuring Postgrey'
 
   sed -i -E \
     's|, reject_rbl_client zen.spamhaus.org$|, reject_rbl_client zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023|' \
@@ -435,7 +435,7 @@ function _setup_postgrey
 
 function _setup_postfix_postscreen
 {
-  _log 'debug' "Configuring Postscreen"
+  _log 'debug' 'Configuring Postscreen'
   sed -i \
     -e "s|postscreen_dnsbl_action = enforce|postscreen_dnsbl_action = ${POSTSCREEN_ACTION}|" \
     -e "s|postscreen_greet_action = enforce|postscreen_greet_action = ${POSTSCREEN_ACTION}|" \
@@ -468,7 +468,7 @@ function _setup_postfix_smtputf8
 
 function _setup_spoof_protection
 {
-  _log 'trace' "Configuring spoof protection"
+  _log 'trace' 'Configuring spoof protection'
   sed -i \
     's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
     /etc/postfix/main.cf
@@ -650,7 +650,7 @@ function _setup_dkim
     chmod -R 0700 /etc/opendkim/keys/
   else
     _log 'warn' 'No DKIM key(s) provided - check the documentation on how to get your keys'
-    [[ ! -f '/etc/opendkim/KeyTable' ]] && touch '/etc/opendkim/KeyTable'
+    [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
   fi
 
   # setup nameservers paramater from /etc/resolv.conf if not defined
@@ -797,7 +797,7 @@ function _setup_postfix_override_configuration
     done < /tmp/docker-mailserver/postfix-main.cf
     _log 'trace' "Loaded '/tmp/docker-mailserver/postfix-main.cf'"
   else
-    _log 'trace' "No extra postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' not provided"
+    _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-master.cf ]]
@@ -811,7 +811,7 @@ function _setup_postfix_override_configuration
     done < /tmp/docker-mailserver/postfix-master.cf
     _log 'trace' "Loaded '/tmp/docker-mailserver/postfix-master.cf'"
   else
-    _log 'trace' "No extra Üostfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' not provided"
+    _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' was not provided"
   fi
 
   _log 'trace' "Set Postfix's compatibility level to 2"
@@ -1090,7 +1090,7 @@ function _setup_logwatch
 
   case "${LOGWATCH_INTERVAL}" in
     ( 'daily' | 'weekly' )
-      _log 'trace' "Enable logwatch reports with recipient '${LOGWATCH_RECIPIENT}'"
+      _log 'trace' "Enabling logwatch reports with recipient '${LOGWATCH_RECIPIENT}'"
       _log 'trace' "Creating ${LOGWATCH_INTERVAL} cron job for logwatch reports"
 
       local LOGWATCH_FILE INTERVAL
