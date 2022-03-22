@@ -13,22 +13,19 @@ _log 'debug' "$(_log_date) Starting changedetector"
 
 if ! cd /tmp/docker-mailserver &>/dev/null
 then
-  _log "Could not change into '/tmp/docker-mailserver/' directory"
-  exit 1
+  _exit_with_error "Could not change into '/tmp/docker-mailserver/' directory"
 fi
 
 # check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _log 'error' "'/tmp/docker-mailserver/postfix-accounts.cf' is missing"
-  exit 1
+  _exit_with_error "'/tmp/docker-mailserver/postfix-accounts.cf' is missing"
 fi
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _log 'error' "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
-  exit 1
+  _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
 fi
 
 _log 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"

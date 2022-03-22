@@ -241,7 +241,7 @@ function _should_extract_on_changes() {
 
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
-  assert_output --partial "'/etc/letsencrypt/acme.json' has changed, extracting certs"
+  assert_output --partial "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
   assert_output --partial 'Restarting services due to detected changes'
   assert_output --partial 'postfix: stopped'
