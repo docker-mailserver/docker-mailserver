@@ -1,6 +1,9 @@
 #! /bin/bash
 
-/usr/local/bin/setup-fetchmail
+# shellcheck source=./startup/setup-stack.sh
+source /usr/local/bin/setup-stack.sh
+
+_setup_fetchmail
 
 su -s /bin/sh -c "/usr/bin/fetchmail \
   --verbose \
