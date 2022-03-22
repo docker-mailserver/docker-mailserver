@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# shellcheck source=./startup/setup-stack.sh
+# shellcheck source=../scripts/startup/setup-stack.sh
 source /usr/local/bin/setup-stack.sh
 
 _setup_fetchmail
