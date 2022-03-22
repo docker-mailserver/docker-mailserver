@@ -61,7 +61,7 @@ function _start_daemon_dovecot
 {
   if [[ ${ENABLE_POP3} -eq 1 ]]
   then
-    _log 'debug' 'Starting POP3 services'
+    _log 'debug' 'Enabling POP3 services'
     mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
   fi
 
@@ -74,7 +74,7 @@ function _start_daemon_fetchmail
 {
   if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
   then
-    COUNTER=0
+    local COUNTER=0
     for _ in /etc/fetchmailrc.d/fetchmail-*.rc
     do
       COUNTER=$(( COUNTER + 1 ))
