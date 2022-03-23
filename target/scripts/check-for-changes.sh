@@ -5,11 +5,14 @@
 
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
-# determine `POSTMASTER_ADDRESS` for alias (re-)generation
-# shellcheck source=/dev/null
-source /etc/dms-settings
 
+# TODO when #2499 is merged, use `_log_with_date` everywhere
 _log 'debug' "$(_log_date) Starting changedetector"
+
+# ATTENTION: Do not remove!
+#            This script requies HOSTNAME and DOMAINNAME
+#            to be properly set.
+_obtain_hostname_and_domainname
 
 if ! cd /tmp/docker-mailserver &>/dev/null
 then
@@ -28,14 +31,15 @@ then
   _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
 fi
 
-_log 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
-
+# determine `POSTMASTER_ADDRESS` for alias (re-)generation
+POSTMASTER_ADDRESS=$(grep 'POSTMASTER_ADDRESS' /etc/dms-settings | cut -d '=' -f 2 | tr -d "'")
 REGEX_NEVER_MATCH="(?\!)"
+
+_log 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
-# TODO when #2499 is merged, use `_log_with_date`
 _log 'debug' "$(_log_date) Chagedetector is ready"
 
 while true
