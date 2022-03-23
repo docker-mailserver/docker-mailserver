@@ -39,7 +39,7 @@ then
 
     if [[ -n ${BANNED_IP} ]]
     then
-      echo -e "Banned in ${JAIL}: ${BANNED_IP//$'\n'/, }"
+      echo "Banned in ${JAIL}: ${BANNED_IP//$'\n'/, }"
       IP_COUNT=$(( IP_COUNT + 1 ))
     fi
   done
