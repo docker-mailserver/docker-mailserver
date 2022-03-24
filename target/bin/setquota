@@ -20,11 +20,7 @@ function __usage { echo 'Usage: setquota <user@domain> [<quota>]' ; }
 [[ -z ${USER} ]] && { __usage ; _exit_with_error "No username specified" ; }
 [[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
 
-if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
-then
-  __usage
-  _exit_with_error "User '${USER}' does not exist"
-fi
+grep -qE "^${USER}\|" "${USER_DATABASE}" || _exit_with_error "User '${USER}' does not exist"
 
 if [[ -z ${QUOTA} ]]
 then

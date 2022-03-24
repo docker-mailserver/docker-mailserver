@@ -6,7 +6,7 @@ source /usr/local/bin/helpers/index.sh
 MODE="${1}"
 USER="${3}"
 
-function __usage  {	echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
+function __usage { echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
 
 [[ -z ${MODE} ]] && _exit_with_error 'Missing parameters: <add|del|list> <send|receive> [<email@domain.com>]'
 

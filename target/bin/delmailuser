@@ -74,7 +74,7 @@ do
 done
 shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { __usage ; _exit_with_error "No user specifed" ; }
+[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specifed' ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 if ! ${MAILDEL}
