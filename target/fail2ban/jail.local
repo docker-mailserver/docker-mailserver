@@ -19,8 +19,6 @@ ignoreip = 127.0.0.1/8
 # nftables-multiport: block IP only on affected port
 # nftables-allports:  block IP on all ports
 banaction = nftables-allports
-banaction_allports = nftables-allports
-chain = input
 
 [dovecot]
 enabled = true
