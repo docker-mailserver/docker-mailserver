@@ -40,10 +40,11 @@ Latest  version: ${LATEST}
 
 Changelog: ${CHANGELOG_URL}
 EOM
-      echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && \
+
+      _log_with_date 'info' "Update available [ ${VERSION} --> ${LATEST} ]"
 
       # only notify once
-      _log_with_date 'info' "Update available [ ${VERSION} --> ${LATEST} ]" && exit 0
+      echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && exit 0
     else
       _log_with_date 'info' 'No update available'
     fi
