@@ -74,12 +74,12 @@ do
 done
 shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specifed' ; }
+[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 if ! ${MAILDEL}
 then
-  read -r -p "Do you want to delete the mailbox as well (removing all mails) ? [Y/n] " MAILDEL_CHOSEN
+  read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
   if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
   then
     MAILDEL=true
