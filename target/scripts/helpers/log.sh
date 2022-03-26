@@ -41,7 +41,13 @@ function _log
 
   local MESSAGE LEVEL_AS_INT FALLBACK_LOG_LEVEL
   MESSAGE="${LOG_RESET}["
-  FALLBACK_LOG_LEVEL=$(grep "LOG_LEVEL" /etc/dms-settings | cut -d '=' -f 2 | tr -d "'")
+
+  if [[ -e /etc/dms-settings ]]
+  then
+    FALLBACK_LOG_LEVEL=$(grep "LOG_LEVEL" /etc/dms-settings | cut -d '=' -f 2 | tr -d "'")
+  else
+    FALLBACK_LOG_LEVEL='info'
+  fi
 
   case "${LOG_LEVEL:-${FALLBACK_LOG_LEVEL}}" in
     ( 'trace'  ) LEVEL_AS_INT=5 ;;
