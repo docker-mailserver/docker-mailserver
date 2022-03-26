@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# shellcheck source=../scripts/helpers/log.sh
+source /usr/local/bin/helpers/log.sh
 # shellcheck source=../scripts/startup/setup-stack.sh
 source /usr/local/bin/setup-stack.sh
 
