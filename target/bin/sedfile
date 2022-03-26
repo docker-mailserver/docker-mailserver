@@ -11,19 +11,21 @@
 
 set -ueo pipefail
 
-HASHTOOL="sha1sum"
+function __usage { echo "Usage: ${0} -i <replace/delete operation> <file>" ; }
+
+HASHTOOL='sha1sum'
 SKIP_ERROR=0
 
-if [[ $# -lt 3 ]]
+if [[ ${#} -lt 3 ]]
 then
-  echo "Error:  At least, three parameters must be given."
-  echo "Syntax: sedfile -i <replace/delete operation> <file>"
+  echo 'Error: At least three parameters must be given'
+  __usage
   echo
   exit 1
 fi >&2
 
-[[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # Hide error, if container was restarted.
-if [[ "${1}" == "--strict" ]]         # Show error every time.
+[[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # hide error if container was restarted
+if [[ ${1} == '--strict' ]]               # show error every time
 then
   SKIP_ERROR=0
   shift
@@ -33,14 +35,14 @@ fi
 FILE=${*: -1}
 
 OLD=$(${HASHTOOL} "${FILE}")
-sed "$@"
+sed "${@}"
 NEW=$(${HASHTOOL} "${FILE}")
 
 # fail if file was not modified
 if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]
 then
-  echo "Error: sed $*"
+  echo "Error: No difference after call to 'sed' in 'sedfile' (sed ${*})" >&2
   exit 1
-fi >&2
+fi
 
 exit 0

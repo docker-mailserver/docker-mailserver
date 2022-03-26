@@ -935,13 +935,13 @@ EOF
 # --- setup.sh ----------------------------------
 # -----------------------------------------------
 
-@test "setup.sh :: exit with error when no arguments provided" {
+@test "checking setup.sh: exit with error when no arguments provided" {
   run ./setup.sh
   assert_failure
   assert_line --index 0 --partial "The command '' is invalid."
 }
 
-@test "setup.sh :: exit with error when wrong arguments provided" {
+@test "checking setup.sh: exit with error when wrong arguments provided" {
   run ./setup.sh lol troll
   assert_failure
   assert_line --index 0 --partial "The command 'lol troll' is invalid."
@@ -1114,7 +1114,7 @@ EOF
   assert_failure
 }
 
-@test "setup.sh :: setup.sh config dkim help correctly displayed" {
+@test "checking setup.sh: setup.sh config dkim help correctly displayed" {
   run ./setup.sh -c mail config dkim help
   assert_success
   assert_line --index 3 --partial "    open-dkim - configure DomainKeys Identified Mail (DKIM)"

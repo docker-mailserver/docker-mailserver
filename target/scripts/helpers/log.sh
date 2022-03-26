@@ -90,3 +90,5 @@ function _log
     echo -e "${MESSAGE}"
   fi
 }
+
+function _log_with_date { _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}" ; }

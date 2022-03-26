@@ -14,15 +14,15 @@ USER="${1}"
 shift
 PASSWD="${*}"
 
-function usage  {	echo "Usage: updatemailuser <user@domain.tld> [password]" ; }
+function __usage { echo 'Usage: updatemailuser <user@domain.tld> [password]' ; }
 
-[[ -z ${USER} ]] && { usage ; _exit_with_error "no username specified" ; }
+[[ -z ${USER} ]] && { __usage ; _exit_with_error 'No username specified' ; }
 
 if [[ -z ${PASSWD} ]]
 then
-  read -r -s -p "Enter Password: " PASSWD
+  read -r -s -p 'Enter Password: ' PASSWD
   echo
-  [[ -z ${PASSWD} ]] && _exit_with_error "Password must not be empty"
+  [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
 fi
 
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"

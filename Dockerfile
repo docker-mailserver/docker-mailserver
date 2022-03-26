@@ -202,6 +202,10 @@ RUN \
 # --- Fetchmail, Postfix & Let'sEncrypt ---------
 # -----------------------------------------------
 
+# Remove invalid URL from SPF message
+# https://bugs.launchpad.net/spf-engine/+bug/1896912
+RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-policyd-spf-python/policyd-spf.conf
+
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
