@@ -18,7 +18,7 @@ function setup_file() {
 @test "checking sedfile parameter count" {
   run ${SEDFILE}
   assert_failure
-  assert_output --partial 'Error: At least three parameters must be given'
+  assert_output --partial 'At least three parameters must be given'
 }
 
 @test "checking sedfile substitute success" {
