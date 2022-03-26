@@ -6,20 +6,16 @@ source /usr/local/bin/helpers/index.sh
 DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-quotas.cf}
 USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
 
-function __usage { echo "Usage: delquota <username@domain>" ; }
+function __usage { echo 'Usage: delquota <username@domain>' ; }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
 USER="${1}"
 
-[[ -z ${USER} ]]  && { __usage ; _exit_with_error "No username specified" ; }
-[[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain"; }
+[[ -z ${USER} ]] && { __usage ; _exit_with_error 'No username specified' ; }
+[[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
 
-if ! grep -qE "^${USER}\|" "${USER_DATABASE}"
-then
-  __usage
-  _exit_with_error "user ${USER} does not exist"
-fi
+grep -qE "^${USER}\|" "${USER_DATABASE}" || _exit_with_error "User '${USER}' does not exist"
 
 [[ -s ${DATABASE} ]] || exit 0
 

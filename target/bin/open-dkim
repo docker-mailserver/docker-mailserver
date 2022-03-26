@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
 KEYSIZE=4096
 SELECTOR=mail
 DOMAINS=
@@ -52,48 +55,44 @@ function __usage
 
 while [[ ${#} -gt 0 ]]
 do
-  case ${1} in
-    keysize )
-      if [[ -n ${2+'set'} ]]
+  case "${1}" in
+    ( 'keysize' )
+      if [[ -n ${2+set} ]]
       then
         KEYSIZE="${2}"
         shift
         shift
       else
-        echo "No keysize provided after 'keysize' argument. Aborting." >&2
-        exit 2
+        _exit_with_error "No keysize provided after 'keysize' argument"
       fi
       ;;
 
-    selector )
-      if [[ -n ${2+'set'} ]]
+    ( 'selector' )
+      if [[ -n ${2+set} ]]
       then
         # shellcheck disable=SC2034
         SELECTOR="${2}"
         shift
         shift
       else
-        echo "No selector provided after 'selector' argument. Aborting." >&2
-        exit 2
+        _exit_with_error "No selector provided after 'selector' argument"
       fi
       ;;
 
-    domain )
-      if [[ -n ${2+'set'} ]]
+    ( 'domain' )
+      if [[ -n ${2+set} ]]
       then
         DOMAINS="${2}"
         shift
         shift
       else
-        echo "No domain(s) provided after 'domain' argument. Aborting." >&2
-        exit 2
+        _exit_with_error "No domain(s) provided after 'domain' argument"
       fi
       ;;
 
-    * )
+    ( * )
       __usage
-      echo -e "\nUnknown options ${1} ${2:-}. Aborting." >&2
-      exit 2
+      _exit_with_error "Unknown options '${1}' ${2:+and \'${2}\'}"
       ;;
 
   esac
@@ -127,7 +126,7 @@ then
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   fi
 else
-  tr ',' '\n' <<< "${DOMAINS}" > /tmp/vhost.dkim.tmp
+  tr ',' '\n' <<< "${DOMAINS}" >/tmp/vhost.dkim.tmp
 fi
 
 sort < /tmp/vhost.dkim.tmp | uniq >/tmp/vhost
@@ -135,7 +134,7 @@ rm /tmp/vhost.dkim.tmp
 
 if [[ ! -s /tmp/vhost ]]
 then
-  echo "No entries found, no keys to make."
+  _log 'warn' 'No entries found, no keys to make'
   exit 0
 fi
 
@@ -145,7 +144,7 @@ do
 
   if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]
   then
-    echo "Creating DKIM private key /tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
+    _log 'info' "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private'"
 
     opendkim-genkey \
       --bits="${KEYSIZE}" \
@@ -159,7 +158,7 @@ do
   KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
   if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]
   then
-    echo "Creating DKIM KeyTable"
+    _log 'debug' 'Creating DKIM KeyTable'
     echo "${KEYTABLEENTRY}" >/tmp/docker-mailserver/opendkim/KeyTable
   else
     if ! grep -q "${KEYTABLEENTRY}" "/tmp/docker-mailserver/opendkim/KeyTable"
@@ -172,7 +171,7 @@ do
   SIGNINGTABLEENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
   if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]
   then
-    echo "Creating DKIM SigningTable"
+    _log 'debug' 'Creating DKIM SigningTable'
     echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" >/tmp/docker-mailserver/opendkim/SigningTable
   else
     if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable
@@ -185,7 +184,7 @@ done < <(grep -vE '^(\s*$|#)' /tmp/vhost)
 # create TrustedHosts if missing
 if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]
 then
-  echo "Creating DKIM TrustedHosts"
+  _log 'debug' 'Creating DKIM TrustedHosts'
   echo "127.0.0.1" >/tmp/docker-mailserver/opendkim/TrustedHosts
   echo "localhost" >>/tmp/docker-mailserver/opendkim/TrustedHosts
 fi
