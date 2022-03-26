@@ -35,7 +35,7 @@ function setup_file() {
 @test "checking sedfile substitute failure" {
   run ${SEDFILE} -i 's|bar|baz|' "${FILE}"
   assert_failure
-  assert_output --partial "Error: No difference after call to 'sed' in 'sedfile' (sed -i s|bar|baz| /tmp/sedfile-test"
+  assert_output --partial "No difference after call to 'sed' in 'sedfile' (sed -i s|bar|baz| /tmp/sedfile-test"
 
   # file unchanged?
   run test "$(< "${FILE}")" == 'foo baz'
@@ -58,7 +58,7 @@ function setup_file() {
 @test "checking sedfile substitude failure (strict)" {
   run ${SEDFILE} --strict -i 's|bar|baz|' "${FILE}"
   assert_failure
-  assert_output --partial "Error: No difference after call to 'sed' in 'sedfile' (sed -i s|bar|baz| /tmp/sedfile-test"
+  assert_output --partial "No difference after call to 'sed' in 'sedfile' (sed -i s|bar|baz| /tmp/sedfile-test"
 
   # file unchanged?
   run test "$(< "${FILE}")" == 'foo baz'
