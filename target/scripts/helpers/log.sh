@@ -39,10 +39,11 @@ function _log
     return 1
   fi
 
-  local MESSAGE LEVEL_AS_INT
+  local MESSAGE LEVEL_AS_INT FALLBACK_LOG_LEVEL
   MESSAGE="${LOG_RESET}["
+  FALLBACK_LOG_LEVEL=$(grep "LOG_LEVEL" /etc/dms-settings | cut -d '=' -f 2 | tr -d "'")
 
-  case "${LOG_LEVEL:-}" in
+  case "${LOG_LEVEL:-${FALLBACK_LOG_LEVEL}}" in
     ( 'trace'  ) LEVEL_AS_INT=5 ;;
     ( 'debug'  ) LEVEL_AS_INT=4 ;;
     ( 'warn'   ) LEVEL_AS_INT=2 ;;
