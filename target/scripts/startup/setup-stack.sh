@@ -1167,8 +1167,8 @@ function _setup_fetchmail
 
   local CONFIGURATION FETCHMAILRC
 
-  CONFIGURATION=/tmp/docker-mailserver/fetchmail.cf
-  FETCHMAILRC=/etc/fetchmailrc
+  CONFIGURATION='/tmp/docker-mailserver/fetchmail.cf'
+  FETCHMAILRC='/etc/fetchmailrc'
 
   if [[ -f ${CONFIGURATION} ]]
   then
@@ -1194,11 +1194,11 @@ function _setup_fetchmail_parallel
   # as the Fetchmail IMAP idle issue.
   function _fetchmailrc_split
   {
-    local FETCHMAILRC="/etc/fetchmailrc"
-    local FETCHMAILRCD="/etc/fetchmailrc.d"
+    local FETCHMAILRC='/etc/fetchmailrc'
+    local FETCHMAILRCD='/etc/fetchmailrc.d'
     local DEFAULT_FILE="${FETCHMAILRCD}/defaults"
 
-    if [[ ! -r "${FETCHMAILRC}" ]]
+    if [[ ! -r ${FETCHMAILRC} ]]
     then
       _log 'warn' "File '${FETCHMAILRC}' not found"
       return 1
@@ -1221,18 +1221,18 @@ function _setup_fetchmail_parallel
         # If we read "poll" then we reached a new server definition
         # We need to create a new file with fetchmail defaults from
         # /etc/fetcmailrc
-        COUNTER=$((COUNTER+1))
+        COUNTER=$(( COUNTER + 1 ))
         SERVER=1
-        cat "${DEFAULT_FILE}" > "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
-        echo "${LINE}" >> "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
+        cat "${DEFAULT_FILE}" >"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
+        echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
       elif [[ ${SERVER} -eq 0 ]]
       then
         # We have not yet found "poll". Let's assume we are still reading
         # the default settings from /etc/fetchmailrc file
-        echo "${LINE}" >> "${DEFAULT_FILE}"
+        echo "${LINE}" >>"${DEFAULT_FILE}"
       else
         # Just the server settings that need to be added to the specific rc.d file
-        echo "${LINE}" >> "${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
+        echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
       fi
     # delete commented lines before parsing
     done < <(sed '/^[[:space:]]*#/d' "${FETCHMAILRC}")
