@@ -142,7 +142,7 @@ function teardown_file() {
   assert_output --partial "Unbanned IP from dovecot: 1"
 
   run ./setup.sh -c mail_fail2ban debug fail2ban unban
-  assert_output --partial "You need to specify an IP address. Run"
+  assert_output --partial "You need to specify an IP address: Run"
 }
 
 #

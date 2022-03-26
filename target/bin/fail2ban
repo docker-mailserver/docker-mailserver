@@ -3,7 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
+function __usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
 unset JAILS
 declare -a JAILS
@@ -16,7 +16,7 @@ done
 
 if [[ -z ${1} ]]
 then
-  NO_IPS_BANNED=1
+  IPS_BANNED=0
 
   for JAIL in "${JAILS[@]}"
   do
@@ -27,16 +27,16 @@ then
     if [[ -n ${BANNED_IPS} ]]
     then
       echo "Banned in ${JAIL}: ${BANNED_IPS//$'\n'/, }"
-      NO_IPS_BANNED=0
+      IPS_BANNED=1
     fi
   done
 
-  [[ ${NO_IPS_BANNED} -eq 1 ]] && echo "No IPs have been banned."
+  [[ ${IPS_BANNED} -eq 0 ]] && _log 'info' "No IPs have been banned"
 else
 
-  case ${1} in
+  case "${1}" in
 
-    unban)
+    ( 'unban' )
       shift
       if [[ -n ${1} ]]
       then
@@ -49,14 +49,14 @@ else
         done
 
       else
-        echo "You need to specify an IP address. Run './setup.sh debug fail2ban' to get a list of banned IP addresses." >&2
+        _log 'warn' "You need to specify an IP address: Run './setup.sh debug fail2ban' to get a list of banned IP addresses"
         exit 0
       fi
       ;;
 
-    *)
-      usage
-      _exit_with_error "unknown command: ${1}"
+    ( * )
+      __usage
+      _exit_with_error "Unknown command '${1}'"
       ;;
 
   esac

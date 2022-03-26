@@ -1,22 +1,19 @@
 #! /bin/bash
 
-VERSION=$(</VERSION)
-VERSION_URL="https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION"
-CHANGELOG="https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md"
+# shellcheck source=./helpers/log.sh
+source /usr/local/bin/helpers/log.sh
 
-function _log
-{
-  DATE=$(date '+%F %T')
-  echo "${DATE} ${1}"
-}
+VERSION=$(</VERSION)
+VERSION_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION'
+CHANGELOG_URL='https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md'
 
 # check for correct syntax
 # number + suffix. suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
 if [[ ! ${UPDATE_CHECK_INTERVAL} =~ ^[0-9]+[smhd]{1}$ ]]
 then
-  _log "Error: Invalid UPDATE_CHECK_INTERVAL value: ${UPDATE_CHECK_INTERVAL}"
-  _log "Info: Fallback to daily update checks"
-  UPDATE_CHECK_INTERVAL="1d"
+  _log_with_date 'warn' "Invalid 'UPDATE_CHECK_INTERVAL' value '${UPDATE_CHECK_INTERVAL}'"
+  _log_with_date 'warn' 'Falling back to daily update checks'
+  UPDATE_CHECK_INTERVAL='1d'
 fi
 
 while true
@@ -27,7 +24,7 @@ do
   # did we get a valid response?
   if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
   then
-    _log "Info: Remote version information fetched"
+    _log_with_date 'debug' 'Remote version information fetched'
 
     # compare versions
     if dpkg --compare-versions "${VERSION}" lt "${LATEST}"
@@ -41,20 +38,20 @@ There is a docker-mailserver update available on your host: $(hostname -f)
 Current version: ${VERSION}
 Latest  version: ${LATEST}
 
-Changelog: ${CHANGELOG}
+Changelog: ${CHANGELOG_URL}
 EOM
-      echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && \
 
-      _log "Info: Update available [ ${VERSION} --> ${LATEST} ]" && \
+      _log_with_date 'info' "Update available [ ${VERSION} --> ${LATEST} ]"
 
       # only notify once
-      exit 0
+      echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && exit 0
     else
-      _log "Info: No update available"
+      _log_with_date 'info' 'No update available'
     fi
   else
-    _log "Error: Update check failed."
+    _log_with_date 'warn' 'Update check failed'
   fi
-  # check again in one day
+
+  # check again in 'UPDATE_CHECK_INTERVAL' time
   sleep "${UPDATE_CHECK_INTERVAL}"
 done
