@@ -5,10 +5,16 @@
 
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
+# This script requires some environment variables to be properly set. This
+# includes POSTMASTER_ADDRESS (for alias (re-)generation), HOSTNAME and
+# DOMAINNAME (in ssl.sh).
+# shellcheck source=/dev/null
+source /etc/dms-settings
 
-# TODO when #2499 is merged, use `_log_with_date` everywhere
-_log 'debug' "$(_log_date) Starting changedetector"
+_log_with_date 'debug' 'Starting changedetector'
 
+# TODO in the future, when we do not use HOSTNAME but DMS_HOSTNAME everywhere,
+# TODO we can delete this call as we needn't calculate the names twice
 # ATTENTION: Do not remove!
 #            This script requies HOSTNAME and DOMAINNAME
 #            to be properly set.
@@ -31,16 +37,14 @@ then
   _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
 fi
 
-# determine `POSTMASTER_ADDRESS` for alias (re-)generation
-POSTMASTER_ADDRESS=$(grep 'POSTMASTER_ADDRESS' /etc/dms-settings | cut -d '=' -f 2 | tr -d "'")
 REGEX_NEVER_MATCH="(?\!)"
 
-_log 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
+_log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
-_log 'debug' "$(_log_date) Chagedetector is ready"
+_log_with_date 'debug' "Chagedetector is ready"
 
 while true
 do
@@ -54,7 +58,7 @@ do
   # 2 – inaccessible or missing argument
   if [[ ${?} -eq 1 ]]
   then
-    _log 'info' "$(_log_date) Change detected"
+    _log_with_date 'info' 'Change detected'
     _create_lock # Shared config safety lock
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
@@ -70,7 +74,7 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
-        _log 'debug' 'Manual certificates have changed - extracting certificates'
+        _log_with_date 'debug' 'Manual certificates have changed - extracting certificates'
         # we need to run the SSL setup again, because the
         # certificates DMS is working with are copies of
         # the (now changed) files
@@ -81,7 +85,7 @@ do
     # extracted for `docker-mailserver` services to adjust to.
     elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
-      _log 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
+      _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
 
       # This breaks early as we only need the first successful extraction.
       # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
@@ -91,7 +95,7 @@ do
       FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
       for CERT_DOMAIN in "${FQDN_LIST[@]}"
       do
-        _log 'trace' "Attempting to extract for '${CERT_DOMAIN}'"
+        _log_with_date 'trace' "Attempting to extract for '${CERT_DOMAIN}'"
 
         if _extract_certs_from_acme "${CERT_DOMAIN}"
         then
@@ -129,7 +133,7 @@ do
       chown -R 5000:5000 /var/mail
     fi
 
-    _log 'debug' 'Restarting services due to detected changes'
+    _log_with_date 'debug' 'Restarting services due to detected changes'
 
     supervisorctl restart postfix
 
@@ -137,7 +141,7 @@ do
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
     _remove_lock
-    _log 'debug' "$(_log_date) Completed handling of detected change"
+    _log_with_date 'debug' 'Completed handling of detected change'
   fi
 
   # mark changes as applied
