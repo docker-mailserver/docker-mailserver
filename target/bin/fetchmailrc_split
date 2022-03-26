@@ -14,7 +14,7 @@ DEFAULT_FILE="${FETCHMAILRCD}/defaults"
 
 if [[ ! -r "${FETCHMAILRC}" ]]
 then
-  echo "Error: File ${FETCHMAILRC} not found"
+  _log 'error' "File '${FETCHMAILRC}' not found"
   exit 1
 fi
 
@@ -22,7 +22,7 @@ if [[ ! -d ${FETCHMAILRCD} ]]
 then
   if ! mkdir "${FETCHMAILRCD}"
   then
-    echo "Error: Unable to create folder ${FETCHMAILRCD}"
+    _log 'error' "Unable to create folder '${FETCHMAILRCD}'"
     exit 1
   fi
 fi
