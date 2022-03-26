@@ -302,7 +302,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -2000 ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:
