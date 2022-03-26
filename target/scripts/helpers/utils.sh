@@ -11,8 +11,3 @@ function _is_comment
 {
   grep -q -E "^\s*$|^\s*#" <<< "${1}"
 }
-
-function _log_date
-{
-  date +"%Y-%m-%d %H:%M:%S"
-}
