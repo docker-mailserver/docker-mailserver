@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# shellcheck source=../scripts/helpers/log.sh
+source /usr/local/bin/helpers/log.sh
+# shellcheck source=../scripts/startup/setup-stack.sh
+source /usr/local/bin/setup-stack.sh
+
+_setup_getmail
+for file in /etc/getmailrc.d/getmailrc*; do
+    su -s /bin/sh -c /usr/bin/getmail --getmaildir /var/lib/getmail --rcfile "${file}" --dump
+done

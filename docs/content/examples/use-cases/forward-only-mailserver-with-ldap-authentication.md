@@ -15,6 +15,7 @@ ENABLE_CLAMAV=0
 SMTP_ONLY=1
 ENABLE_SPAMASSASSIN=0
 ENABLE_FETCHMAIL=0
+ENABLE_GETMAIL=0
 ```
 
 Since there are no local mailboxes, we use `SMTP_ONLY=1` to disable `dovecot`. We disable as well the other services that are related to local mailboxes (`POP3`, `ClamAV`, `SpamAssassin`, etc.)

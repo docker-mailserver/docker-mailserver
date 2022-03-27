@@ -57,6 +57,40 @@ function _early_supervisor_setup
   return 0
 }
 
+function _setup_getmail
+{
+  _log 'trace' 'Preparing Getmail configuration'
+
+  local CONFIGURATION GETMAILRC
+
+  CONFIGURATION='/tmp/docker-mailserver/getmail-*.cf'
+  GETMAILRC='/etc/getmailrc.d'
+
+  if [[ ! -d ${GETMAILRC} ]]
+  then
+    mkdir "${GETMAILRC}"
+  fi
+
+  for FILE in ${CONFIGURATION}; do
+    if [[ -f ${FILE} ]]
+    then
+      USER=$(echo "${FILE}" | cut -d'-' -f 3| cut -d'.' -f1)
+      sed "s/PLACEHOLDER/${USER}/g" /etc/getmailrc_general > "${GETMAILRC}/getmailrc-${USER}.tmp"
+      cat "${GETMAILRC}/getmailrc-${USER}.tmp" "${FILE}" > "${GETMAILRC}/getmailrc-${USER}"
+      rm "${GETMAILRC}/getmailrc-${USER}.tmp"
+      GETMAIL_POLL_MINS=$((GETMAIL_POLL/60))
+      cat >"/etc/cron.d/getmail-${USER}" << EOF
+*/${GETMAIL_POLL_MINS} * * * * root /usr/bin/getmail --getmaildir /var/lib/getmail --rcfile "${GETMAILRC}/getmailrc-${USER}"
+EOF
+    else
+      cat /etc/getmailrc_general > "${GETMAILRC}/getmailrc"
+    fi
+  done
+  chmod -R 600 "${GETMAILRC}"
+  chown -R root:root "${GETMAILRC}"
+}
+
+
 function _setup_timezone
 {
   [[ -n ${TZ} ]] || return 0

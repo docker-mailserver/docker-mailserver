@@ -60,3 +60,11 @@ function _check_log_level
     LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
   fi
 }
+
+function _check_fetch_get_mail
+{
+  if [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && [[ ${ENABLE_GETMAIL} -eq 1 ]]
+  then
+    _shutdown 'Enabling Fetchmail and Getmail at the same time is unsupported'
+  fi
+}

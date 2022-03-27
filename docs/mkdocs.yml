@@ -102,6 +102,8 @@ markdown_extensions:
           lang: shell-session
         - name: fetchmailrc
           lang: txt
+        - name: getmailrc
+          lang: txt
         - name: caddyfile
           lang: txt
 
@@ -140,6 +142,7 @@ nav:
         - 'LDAP Authentication': config/advanced/auth-ldap.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
+        - 'Email Gathering with Getmail': config/advanced/mail-getmail.md
         - 'Email Forwarding':
           - 'Relay Hosts': config/advanced/mail-forwarding/relay-hosts.md
           - 'AWS SES': config/advanced/mail-forwarding/aws-ses.md
