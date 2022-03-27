@@ -860,7 +860,7 @@ EOF
 }
 
 @test "checking quota: warn message received when quota exceeded" {
-  skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2508'
+  skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
   wait_for_changes_to_be_detected_in_container mail
 
