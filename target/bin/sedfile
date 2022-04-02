@@ -9,6 +9,17 @@
 # Is a file change expected? --> use 'sedfile --strict -i'
 # Is a file change only on the first container run expected? --> use 'sedfile -i'
 
+if [[ -e /usr/local/bin/helpers/log.sh ]]
+then
+  # shellcheck source=../scripts/helpers/log.sh
+  source /usr/local/bin/helpers/log.sh
+else
+  # when running BATS (unit tests), this file is not located
+  # inside a container; as a consequence, we need to source
+  # from a different location
+  source target/scripts/helpers/log.sh
+fi
+
 set -ueo pipefail
 
 function __usage { echo "Usage: ${0} -i <replace/delete operation> <file>" ; }
@@ -18,9 +29,8 @@ SKIP_ERROR=0
 
 if [[ ${#} -lt 3 ]]
 then
-  echo 'Error: At least three parameters must be given'
+  _log 'error' 'At least three parameters must be given'
   __usage
-  echo
   exit 1
 fi >&2
 
@@ -41,7 +51,7 @@ NEW=$(${HASHTOOL} "${FILE}")
 # fail if file was not modified
 if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]
 then
-  echo "Error: No difference after call to 'sed' in 'sedfile' (sed ${*})" >&2
+  _log 'error' "No difference after call to 'sed' in 'sedfile' (sed ${*})" >&2
   exit 1
 fi
 
