@@ -30,7 +30,6 @@ function setup() {
                           -e ENABLE_MANAGESIEVE=1 \
                           --cap-add=SYS_PTRACE \
                           -e PERMIT_DOCKER=host \
-                          -e DMS_DEBUG=0 \
                           -h mail.my-domain.com -t "${NAME}")
     wait_for_finished_setup_in_container mail_undef_spam_subject
     wait_for_finished_setup_in_container "${CONTAINER}"

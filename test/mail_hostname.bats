@@ -8,7 +8,6 @@ function setup_file() {
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
 		-e ENABLE_SRS=1 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h unknown.domain.tld \
@@ -20,7 +19,6 @@ function setup_file() {
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e ENABLE_SRS=1 \
-		-e DMS_DEBUG=0 \
 		--hostname domain.com \
     --domainname domain.com \
 		-t "${NAME}"
@@ -30,7 +28,6 @@ function setup_file() {
     -v "${PRIVATE_CONFIG_THREE}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e PERMIT_DOCKER=network \
-    -e DMS_DEBUG=0 \
     -e ENABLE_SRS=1 \
     -e SRS_DOMAINNAME='srs.my-domain.com' \
     --domainname 'my-domain.com' \
@@ -42,7 +39,6 @@ function setup_file() {
     -v "${PRIVATE_CONFIG_FOUR}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e PERMIT_DOCKER=network \
-    -e DMS_DEBUG=0 \
     -e ENABLE_SRS=1 \
     --domainname 'my-domain.com' \
     --hostname 'mail' \

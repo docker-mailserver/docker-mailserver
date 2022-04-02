@@ -10,7 +10,6 @@ function setup_file() {
     -e ENABLE_MANAGESIEVE=1 \
     --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
-    -e DMS_DEBUG=0 \
     -h mail.my-domain.com \
     -e SSL_TYPE='snakeoil' \
     --tty \
