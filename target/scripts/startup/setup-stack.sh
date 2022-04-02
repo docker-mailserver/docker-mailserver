@@ -654,7 +654,7 @@ function _setup_dkim
     [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
   fi
 
-  # setup nameservers paramater from /etc/resolv.conf if not defined
+  # setup nameservers parameter from /etc/resolv.conf if not defined
   if ! grep '^Nameservers' /etc/opendkim.conf
   then
     echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf

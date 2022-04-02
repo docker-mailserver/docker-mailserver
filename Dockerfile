@@ -85,6 +85,7 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   c_rehash 2>&1
 
+COPY ./target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 COPY ./target/bin/sedfile /usr/local/bin/sedfile
 
 RUN chmod +x /usr/local/bin/sedfile
