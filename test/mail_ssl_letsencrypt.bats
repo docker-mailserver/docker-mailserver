@@ -110,7 +110,7 @@ function teardown() {
     local TEST_DOCKER_ARGS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
       --env DMS_DEBUG=1
-      --env LOG_LEVEL=trace
+      --env LOG_LEVEL='trace'
       --env PERMIT_DOCKER='container'
       --env SSL_DOMAIN='*.example.test'
       --env SSL_TYPE='letsencrypt'
@@ -120,7 +120,7 @@ function teardown() {
     wait_for_service "${TEST_NAME}" 'changedetector'
 
     # Wait until the changedetector service startup delay is over:
-    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'check-for-changes is ready'"
+    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'Chagedetector is ready'"
   }
 
   # Test `acme.json` extraction works at container startup:
@@ -242,7 +242,7 @@ function _should_extract_on_changes() {
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
   assert_output --partial 'Change detected'
-  assert_output --partial "'/etc/letsencrypt/acme.json' has changed, extracting certs"
+  assert_output --partial "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
   assert_output --partial 'Restarting services due to detected changes'
   assert_output --partial 'postfix: stopped'
@@ -256,7 +256,7 @@ function _should_have_service_restart_count() {
   local NUM_RESTARTS=${1}
 
   # Count how many times postfix was restarted by the `changedetector` service:
-  run docker exec "${TEST_NAME}" sh -c "supervisorctl tail changedetector | grep -c 'postfix: started'"
+  run docker exec "${TEST_NAME}" sh -c "grep -c 'postfix: started' /var/log/supervisor/changedetector.log"
   assert_output "${NUM_RESTARTS}"
 }
 
@@ -302,7 +302,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -2000 ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:
