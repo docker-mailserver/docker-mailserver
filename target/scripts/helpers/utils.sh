@@ -16,5 +16,7 @@ function _is_comment
 # and it will return its value stored in /etc/dms-settings
 function _get_dms_env_value
 {
-  grep "${1}" /etc/dms-settings | cut -d '=' -f 2 | tr -d "'"
+  local VALUE
+  VALUE=$(grep "^${1}=" /etc/dms-settings | cut -d '=' -f 2)
+  printf '%s' "${VALUE:1:-1}"
 }
