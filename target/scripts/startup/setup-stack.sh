@@ -1144,10 +1144,7 @@ function _setup_fail2ban
   _log 'debug' 'Setting up Fail2Ban'
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
-    cat >/etc/fail2ban/action.d/nftables-common.local << "EOM"
-[Init]
-blocktype = drop
-EOM
+    echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
 }
 
