@@ -156,12 +156,10 @@ function teardown() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
     _should_have_service_restart_count '2'
 
-    # note: https://github.com/docker-mailserver/docker-mailserver/pull/2404 solves this
-    # TODO: Make this pass.
     # As the FQDN has changed since startup, the configs need to be updated accordingly.
     # This requires the `changedetector` service event to invoke the same function for TLS configuration
     # that is used during container startup to work correctly. A follow up PR will refactor `setup-stack.sh` for supporting this.
-    # _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
+    _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
 
     local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
     local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.rsa.pem"
@@ -169,8 +167,7 @@ function teardown() {
 
     # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
     _should_succesfully_negotiate_tls 'mail.example.test'
-    # WARNING: This should fail...but requires resolving the above TODO.
-    # _should_not_have_fqdn_in_cert 'example.test'
+    _should_not_have_fqdn_in_cert 'example.test'
   }
 
   _prepare
