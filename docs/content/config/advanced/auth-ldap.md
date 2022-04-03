@@ -241,7 +241,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< SASL LDAP Authentication
 
           - ONE_DIR=1
-          - DMS_DEBUG=0
           - SSL_TYPE=letsencrypt
           - PERMIT_DOCKER=host
 
@@ -305,7 +304,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< Kopano Integration
 
           - ONE_DIR=1
-          - DMS_DEBUG=0
           - SSL_TYPE=letsencrypt
           - PERMIT_DOCKER=host
 
