@@ -66,6 +66,10 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
+    # _setup_ssl is required for:
+    # manual - copy to internal DMS_TLS_PATH (/etc/dms/tls) that Postfix and Dovecot are configured to use.
+    # acme.json - presently uses /etc/letsencrypt/live/<FQDN> instead of DMS_TLS_PATH,
+    # path may change requiring Postfix/Dovecot config update.
     if [[ ${SSL_TYPE} == 'manual' ]]
     then
       # only run the SSL setup again if certificates have really changed.
@@ -75,9 +79,6 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
         _log_with_date 'debug' 'Manual certificates have changed - extracting certificates'
-        # we need to run the SSL setup again, because the
-        # certificates DMS is working with are copies of
-        # the (now changed) files
         _setup_ssl
       fi
     # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
@@ -113,7 +114,6 @@ do
 
     # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
     # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
-    # TODO: That should be all that's required, unless the cert file paths have also changed (Postfix/Dovecot configs then need to be updated).
 
     # regenerate postfix accounts
     [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
