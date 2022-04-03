@@ -135,13 +135,12 @@ function _check_for_changes
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
-
-  sleep 2
 }
 
 while true
 do
   _check_for_changes
+  sleep 2
 done
 
 exit 0

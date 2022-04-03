@@ -396,11 +396,11 @@ function _find_letsencrypt_domain
   then
     LETSENCRYPT_DOMAIN=${DOMAINNAME}
   else
-    _log 'warn' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
+    _log 'error' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
     dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_domain'
   fi
 
-  return "${LETSENCRYPT_DOMAIN}"
+  echo "${LETSENCRYPT_DOMAIN}"
 }
 
 # Verify the FQDN folder also includes a valid private key (`privkey.pem` for Certbot, `key.pem` for extraction by Traefik)
@@ -421,11 +421,11 @@ function _find_letsencrypt_key
   then
     LETSENCRYPT_KEY='key'
   else
-    _log 'warn' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
+    _log 'error' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
     dms_panic__misconfigured 'LETSENCRYPT_KEY' '_find_letsencrypt_key'
   fi
 
-  return "${LETSENCRYPT_KEY}"
+  echo "${LETSENCRYPT_KEY}"
 }
 
 function _extract_certs_from_acme
