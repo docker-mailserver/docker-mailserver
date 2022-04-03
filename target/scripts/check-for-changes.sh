@@ -87,29 +87,15 @@ do
     elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
       _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
+      _setup_ssl
 
-      # This breaks early as we only need the first successful extraction.
-      # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
-      #
-      # NOTE: HOSTNAME is set via `helpers/dns.sh`, it is not the original system HOSTNAME ENV anymore.
-      # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
-      FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
-      for CERT_DOMAIN in "${FQDN_LIST[@]}"
-      do
-        _log_with_date 'trace' "Attempting to extract for '${CERT_DOMAIN}'"
+      # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
+      local CERT_DOMAIN
+      CERT_DOMAIN="$(_find_letsencrypt_domain)"
+      ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
 
-        if _extract_certs_from_acme "${CERT_DOMAIN}"
-        then
-          # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
-          CERT_DOMAIN=$(_strip_wildcard_prefix "${CERT_DOMAIN}")
-          ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
-
-          sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
-          sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
-
-          break
-        fi
-      done
+      sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
+      sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
     fi
 
     # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
