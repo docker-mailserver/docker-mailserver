@@ -15,10 +15,7 @@ title: Environment Variables
 
 ##### DMS_DEBUG
 
-This environment variable is deprecated. Use `LOG_LEVEL` instead.
-
-- **0** => Debug disabled
-- 1     => Enables debug on startup
+**This environment variable was removed in `v11.0.0`!** Use `LOG_LEVEL` instead.
 
 ##### LOG_LEVEL
 

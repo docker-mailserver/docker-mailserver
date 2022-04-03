@@ -20,7 +20,6 @@ We assume basic knowledge about K8s from the reader. If you're not familiar with
 
 We want to provide the basic configuration in the form of environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
 
-
 ```yaml
 ---
 apiVersion: v1
@@ -40,7 +39,6 @@ data:
   UPDATE_CHECK_INTERVAL: 10d
   POSTFIX_INET_PROTOCOLS: ipv4
   ONE_DIR: '1'
-  DMS_DEBUG: '0'
   ENABLE_CLAMAV: '1'
   ENABLE_POSTGREY: '0'
   ENABLE_FAIL2BAN: '1'
