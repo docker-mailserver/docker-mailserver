@@ -188,7 +188,7 @@ function _setup_ssl
       # checks folders in /etc/letsencrypt/live to identify which one to implicitly use:
       local LETSENCRYPT_DOMAIN LETSENCRYPT_KEY
       LETSENCRYPT_DOMAIN="$(_find_letsencrypt_domain)"
-      LETSENCRYPT_KEY="$(_find_letsencrypt_key)"
+      LETSENCRYPT_KEY="$(_find_letsencrypt_key "${LETSENCRYPT_DOMAIN}")"
 
       # Update relevant config for Postfix and Dovecot
       _log 'trace' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
@@ -397,7 +397,7 @@ function _find_letsencrypt_domain
     LETSENCRYPT_DOMAIN=${DOMAINNAME}
   else
     _log 'warn' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
-    dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' "_find_letsencrypt_domain [SSL_TYPE=${SSL_TYPE}]"
+    dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_domain'
   fi
 
   return "${LETSENCRYPT_DOMAIN}"
@@ -408,7 +408,12 @@ function _find_letsencrypt_key
 {
   local LETSENCRYPT_KEY
 
-  local LETSENCRYPT_DOMAIN=${1:-"$(_find_letsencrypt_domain)"}
+  local LETSENCRYPT_DOMAIN=${1}
+  if [[ -z ${LETSENCRYPT_DOMAIN} ]]
+  then
+    dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_key'
+  fi
+
   if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
   then
     LETSENCRYPT_KEY='privkey'
@@ -417,7 +422,7 @@ function _find_letsencrypt_key
     LETSENCRYPT_KEY='key'
   else
     _log 'warn' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
-    dms_panic__misconfigured 'LETSENCRYPT_KEY' "_find_letsencrypt_key [SSL_TYPE=${SSL_TYPE}]"
+    dms_panic__misconfigured 'LETSENCRYPT_KEY' '_find_letsencrypt_key'
   fi
 
   return "${LETSENCRYPT_KEY}"

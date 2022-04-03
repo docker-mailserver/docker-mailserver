@@ -3,8 +3,10 @@
 # TODO: Adapt for compatibility with LDAP
 # Only the cert renewal change detection may be relevant for LDAP?
 
+# CHKSUM_FILE global is imported from this file:
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
+
 # This script requires some environment variables to be properly set. This
 # includes POSTMASTER_ADDRESS (for alias (re-)generation), HOSTNAME and
 # DOMAINNAME (in ssl.sh).
@@ -46,8 +48,8 @@ sleep 10
 
 _log_with_date 'debug' "Chagedetector is ready"
 
-while true
-do
+function _check_for_changes
+{
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
@@ -60,6 +62,7 @@ do
   then
     _log_with_date 'info' 'Change detected'
     _create_lock # Shared config safety lock
+    local CHANGED
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # TODO Perform updates below conditionally too
@@ -134,6 +137,11 @@ do
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 
   sleep 2
+}
+
+while true
+do
+  _check_for_changes
 done
 
 exit 0
