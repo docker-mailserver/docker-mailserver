@@ -185,38 +185,10 @@ function _setup_ssl
 
       _traefik_support
 
-      # letsencrypt folders and files mounted in /etc/letsencrypt
-      local LETSENCRYPT_DOMAIN
-      local LETSENCRYPT_KEY
-
-      # Identify a valid letsencrypt FQDN folder to use.
-      if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
-      then
-        LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
-      elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
-      then
-        LETSENCRYPT_DOMAIN=${HOSTNAME}
-      elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
-      then
-        LETSENCRYPT_DOMAIN=${DOMAINNAME}
-      else
-        _log 'warn' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
-        dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' "${SCOPE_SSL_TYPE}"
-        return 1
-      fi
-
-      # Verify the FQDN folder also includes a valid private key (`privkey.pem` for Certbot, `key.pem` for extraction by Traefik)
-      if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
-      then
-        LETSENCRYPT_KEY='privkey'
-      elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
-      then
-        LETSENCRYPT_KEY='key'
-      else
-        _log 'warn' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
-        dms_panic__misconfigured 'LETSENCRYPT_KEY' "${SCOPE_SSL_TYPE}"
-        return 1
-      fi
+      # checks folders in /etc/letsencrypt/live to identify which one to implicitly use:
+      local LETSENCRYPT_DOMAIN LETSENCRYPT_KEY
+      LETSENCRYPT_DOMAIN="$(_find_letsencrypt_domain)"
+      LETSENCRYPT_KEY="$(_find_letsencrypt_key)"
 
       # Update relevant config for Postfix and Dovecot
       _log 'trace' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"
@@ -406,6 +378,49 @@ function _setup_ssl
       ;;
 
   esac
+}
+
+
+# Identify a valid letsencrypt FQDN folder to use.
+function _find_letsencrypt_domain
+{
+  local LETSENCRYPT_DOMAIN
+
+  if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
+  then
+    LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+  elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
+  then
+    LETSENCRYPT_DOMAIN=${HOSTNAME}
+  elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
+  then
+    LETSENCRYPT_DOMAIN=${DOMAINNAME}
+  else
+    _log 'warn' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
+    dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' "_find_letsencrypt_domain [SSL_TYPE=${SSL_TYPE}]"
+  fi
+
+  return "${LETSENCRYPT_DOMAIN}"
+}
+
+# Verify the FQDN folder also includes a valid private key (`privkey.pem` for Certbot, `key.pem` for extraction by Traefik)
+function _find_letsencrypt_key
+{
+  local LETSENCRYPT_KEY
+
+  local LETSENCRYPT_DOMAIN=${1:-"$(_find_letsencrypt_domain)"}
+  if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
+  then
+    LETSENCRYPT_KEY='privkey'
+  elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
+  then
+    LETSENCRYPT_KEY='key'
+  else
+    _log 'warn' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
+    dms_panic__misconfigured 'LETSENCRYPT_KEY' "_find_letsencrypt_key [SSL_TYPE=${SSL_TYPE}]"
+  fi
+
+  return "${LETSENCRYPT_KEY}"
 }
 
 function _extract_certs_from_acme
