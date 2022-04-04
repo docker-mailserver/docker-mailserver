@@ -52,6 +52,10 @@ Set different options for mynetworks option (can be overwrite in postfix-main.cf
 
 Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
 
+##### TZ
+
+Set the timezone. If this variable is unset, the container runtime will try to detect the time using `/etc/localtime`, which you can alternatively mount into the container. The value of this variable must follow the pattern `AREA/ZONE`, i.e. of you want to use Germany's time zone, use `Europe/Berlin`.
+
 ##### ENABLE_AMAVIS
 
 Amavis content filter (used for ClamAV & SpamAssassin)

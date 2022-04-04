@@ -1263,3 +1263,22 @@ EOF
   supervisorctl reread
   supervisorctl update
 }
+
+function _setup_timezone
+{
+  _log 'debug' "Setting timezone to '${TZ}'"
+
+  export DEBCONF_NONINTERACTIVE_SEEN=true
+  local AREA ZONE DPKG_RECONFIGURE_PRESEED
+
+  AREA=$(cut -d '/' -f 1 <<< "${TZ}")
+  ZONE=$(cut -d '/' -f 2 <<< "${TZ}")
+  DPKG_RECONFIGURE_PRESEED="tzdata tzdata/Areas select ${AREA}\ntzdata tzdata/Zones/${AREA} select ${ZONE}"
+
+  echo "${TZ}" >/etc/timezone
+
+  if ! debconf-set-selections <<< "${DPKG_RECONFIGURE_PRESEED}"
+  then
+    _log 'warn' "Setting timezone to '${TZ}' did not succeed"
+  fi
+}
