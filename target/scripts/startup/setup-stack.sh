@@ -1271,8 +1271,8 @@ function _setup_timezone
   export DEBCONF_NONINTERACTIVE_SEEN=true
   local AREA ZONE DPKG_RECONFIGURE_PRESEED
 
-  AREA=$(cut -d '/' -f 1 <<< "${TZ}")
-  ZONE=$(cut -d '/' -f 2 <<< "${TZ}")
+  AREA=${TZ%%/*}
+  ZONE=${TZ##*/}
   DPKG_RECONFIGURE_PRESEED="tzdata tzdata/Areas select ${AREA}\ntzdata tzdata/Zones/${AREA} select ${ZONE}"
 
   echo "${TZ}" >/etc/timezone
