@@ -59,7 +59,7 @@ function teardown() {
   #test hostname has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
-  _should_not_have_fqdn_in_cert 'example.test'
+  _should_not_support_fqdn_in_cert 'example.test'
 }
 
 
@@ -79,7 +79,7 @@ function teardown() {
   #test domain has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
   _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
-  _should_not_have_fqdn_in_cert 'mail.example.test'
+  _should_not_support_fqdn_in_cert 'mail.example.test'
 }
 
 # When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
@@ -170,7 +170,7 @@ function teardown() {
     # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
     _should_succesfully_negotiate_tls 'mail.example.test'
     # WARNING: This should fail...but requires resolving the above TODO.
-    # _should_not_have_fqdn_in_cert 'example.test'
+    # _should_not_support_fqdn_in_cert 'example.test'
   }
 
   _prepare
