@@ -131,7 +131,7 @@ NAME
 
 #### Starting for the first time
 
-On first start, you will likely see an error stating that there are no mail accounts and the container will exit. You must now do one of two things:
+On first start, you will need to add email accounts (unless you're using LDAP). You have two minutes time before DMS will shut down if there are no accounts. You can add accounts with the following two methods:
 
 1. Use `setup.sh` to help you: `./setup.sh email add <user@domain> <password>`. You may need  the `-c` option to provide the local path for persisting configuration (_a directory that mounts to `/tmp/docker-mailserver` inside the container_). This will spin up a new container, mount your configuration volume, and create your first account.
 2. Execute the complete command yourself: `docker run --rm -v "${PWD}/docker-data/dms/config/:/tmp/docker-mailserver/" docker.io/mailserver/docker-mailserver setup email add <user@domain> <password>`. Make sure to mount the correct configuration directory.
