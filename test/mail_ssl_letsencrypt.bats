@@ -84,7 +84,6 @@ function teardown() {
 
 # When using `acme.json` (Traefik) - a wildcard cert `*.example.test` (SSL_DOMAIN)
 # should be extracted and be chosen over an existing FQDN `mail.example.test` (HOSTNAME):
-# _acme_wildcard should verify the FQDN `mail.example.test` is negotiated, not `example.test`.
 #
 # NOTE: Currently all of the `acme.json` configs have the FQDN match a SAN value,
 # all Subject CN (`main` in acme.json) are `Smallstep Leaf` which is not an FQDN.
@@ -92,7 +91,7 @@ function teardown() {
 @test "ssl(letsencrypt): Traefik 'acme.json' (*.example.test)" {
   # This test group changes to certs signed with an RSA Root CA key,
   # These certs all support both FQDNs: `mail.example.test` and `example.test`,
-  # Except for the wildcard cert `*.example.test`, which should not support `example.test`.
+  # Except for the wildcard cert `*.example.test`, which intentionally excluded `example.test` when created.
   # We want to maintain the same FQDN (mail.example.test) between the _acme_ecdsa and _acme_rsa tests.
   local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
@@ -156,28 +155,27 @@ function teardown() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
     _should_have_service_restart_count '2'
 
-    # note: https://github.com/docker-mailserver/docker-mailserver/pull/2404 solves this
-    # TODO: Make this pass.
-    # As the FQDN has changed since startup, the configs need to be updated accordingly.
-    # This requires the `changedetector` service event to invoke the same function for TLS configuration
-    # that is used during container startup to work correctly. A follow up PR will refactor `setup-stack.sh` for supporting this.
-    # _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
+    # As the FQDN has changed since startup, the Postfix + Dovecot configs should be updated:
+    _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
 
     local WILDCARD_KEY_PATH="${LOCAL_BASE_PATH}/wildcard/key.rsa.pem"
     local WILDCARD_CERT_PATH="${LOCAL_BASE_PATH}/wildcard/cert.rsa.pem"
     _should_have_expected_files 'example.test' "${WILDCARD_KEY_PATH}" "${WILDCARD_CERT_PATH}"
 
-    # Verify this works for wildcard certs, it should use `*.example.test` for `mail.example.test` (NOT `example.test`):
+    # These two tests will confirm wildcard support is working, the supported SANs changed:
+    # Before (_acme_rsa cert):      `DNS:example.test, DNS:mail.example.test`
+    # After  (_acme_wildcard cert): `DNS:*.example.test`
+    # The difference in support is:
+    # - `example.test` should no longer be valid.
+    # - `mail.example.test` should remain valid, but also allow any other subdomain/hostname.
     _should_succesfully_negotiate_tls 'mail.example.test'
-    # WARNING: This should fail...but requires resolving the above TODO.
-    # _should_not_support_fqdn_in_cert 'example.test'
+    _should_support_fqdn_in_cert 'fake.example.test'
+    _should_not_support_fqdn_in_cert 'example.test'
   }
 
   _prepare
 
   # Unleash the `acme.json` tests!
-  # NOTE: Test failures aren't as helpful here as bats will only identify function calls at this top-level,
-  # rather than the actual failing nested function call..
   # TODO: Extract methods to separate test cases.
   _acme_ecdsa
   _acme_rsa
