@@ -7,7 +7,7 @@ title: 'Troubleshooting | Debugging'
 
 ## Enable Verbose Debugging Output
 
-You may find it useful to enable the [`DMS_DEBUG`][docs-environment-dmsdebug] environment variable.
+You may find it useful to set [`LOG_LEVEL`][docs-environment-log-level] environment variable.
 
 ## Invalid Username or Password
 
@@ -62,4 +62,4 @@ Common hosting providers known to have this issue:
 - [Azure](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
 - [AWS EC2](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/)
 
-[docs-environment-dmsdebug]: ../environment.md#dms_debug
+[docs-environment-log-level]: ../environment.md#log_level
