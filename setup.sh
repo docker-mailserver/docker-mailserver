@@ -26,7 +26,7 @@ LBLUE="\e[94m"
 RESET="\e[0m"
 
 set -euEo pipefail
-shopt -s inherit_errexit
+shopt -s inherit_errexit 2>/dev/null || true
 trap '__err "${BASH_SOURCE}" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
 
 function __err
@@ -88,14 +88,6 @@ function _show_local_usage
 
 function _get_absolute_script_directory
 {
-  if [[ "$(uname)" == 'Darwin' ]]
-  then
-    readlink() {
-      # requires coreutils
-      greadlink "${@:+$@}"
-    }
-  fi
-
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
     DIR="$(dirname "$(readlink -f "${0}")")"
@@ -154,7 +146,7 @@ function _run_in_new_container
 
   ${CRI} run --rm "${USE_TTY}" \
     -v "${CONFIG_PATH}:${DMS_CONFIG}${USE_SELINUX}" \
-    "${IMAGE_NAME}" "${@:+$@}"
+    "${IMAGE_NAME}" "${@}"
 }
 
 function _main
@@ -234,9 +226,9 @@ function _main
 
   if [[ -n ${CONTAINER_NAME} ]]
   then
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" setup "${@:+$@}"
+    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" setup "${@}"
   else
-    _run_in_new_container setup "${@:+$@}"
+    _run_in_new_container setup "${@}"
   fi
 
   [[ ${1} == 'help' ]] && _show_local_usage
@@ -244,4 +236,4 @@ function _main
   return 0
 }
 
-_main "${@:+$@}"
+_main "${@}"

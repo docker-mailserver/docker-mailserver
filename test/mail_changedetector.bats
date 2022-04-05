@@ -4,14 +4,6 @@ load 'test_helper/common'
 # use `supervisorctl tail -<num bytes> changedetector` instead to increase log output.
 # Default `<num bytes>` appears to be around 1500.
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
-function teardown() {
-  run_teardown_file_if_necessary
-}
-
 function setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container . mail_changedetector_one)"
@@ -19,14 +11,14 @@ function setup_file() {
   docker run -d --name mail_changedetector_one \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
   -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-  -e DMS_DEBUG=1 \
+  -e LOG_LEVEL=trace \
   -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_changedetector_one
 
   docker run -d --name mail_changedetector_two \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
   -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-  -e DMS_DEBUG=1 \
+  -e LOG_LEVEL=trace \
   -h mail.my-domain.com -t "${NAME}"
   wait_for_finished_setup_in_container mail_changedetector_two
 }
@@ -34,11 +26,6 @@ function setup_file() {
 function teardown_file() {
   docker rm -f mail_changedetector_one
   docker rm -f mail_changedetector_two
-}
-
-# this test must come first to reliably identify when to run setup_file
-@test "first" {
-  skip 'Starting testing of changedetector'
 }
 
 @test "checking changedetector: servers are ready" {
@@ -68,15 +55,15 @@ function teardown_file() {
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl start changedetector"
   sleep 15
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "check-for-changes.sh.lock exists"
+  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "check-for-changes.sh.lock exists"
+  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
   # Ensure starting a new check-for-changes.sh instance (restarting here) doesn't delete the lock
   docker exec mail_changedetector_two /bin/bash -c "rm -f /var/log/supervisor/changedetector.log"
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl restart changedetector"
   sleep 5
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  refute_output --partial "check-for-changes.sh.lock exists"
+  refute_output --partial "another execution of 'check-for-changes.sh' is happening"
   refute_output --partial "Removed lock"
 }
 
@@ -86,13 +73,8 @@ function teardown_file() {
   echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
   sleep 15
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "check-for-changes.sh.lock exists"
+  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
   sleep 65
   run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
-  assert_output --partial "Removed stale lock"
-}
-
-# this test is only there to reliably mark the end for the teardown_file
-@test "last" {
-  skip 'Finished testing of changedetector'
+  assert_output --partial "removing stale lock file"
 }

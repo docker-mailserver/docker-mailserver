@@ -15,10 +15,10 @@ function _create_accounts
 
   if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
   then
-    _notify 'inf' "Checking file line endings"
+    _log 'trace' "Checking file line endings"
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
 
-    _notify 'inf' "Regenerating postfix user list"
+    _log 'trace' "Regenerating postfix user list"
     echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
 
     # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
@@ -54,9 +54,9 @@ function _create_accounts
 
       if [[ -z ${USER_ATTRIBUTES} ]]
       then
-        _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}'"
+        _log 'debug' "Creating user '${USER}' for domain '${DOMAIN}'"
       else
-        _notify 'inf' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
+        _log 'debug' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
       fi
 
       local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
@@ -64,7 +64,7 @@ function _create_accounts
       POSTFIX_VMAILBOX_LINE="${LOGIN} ${DOMAIN}/${USER}/"
       if grep -qF "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox
       then
-        _notify 'warn' "User '${USER}@${DOMAIN}' will not be added to '/etc/postfix/vmailbox' twice"
+        _log 'warn' "User '${USER}@${DOMAIN}' will not be added to '/etc/postfix/vmailbox' twice"
       else
         echo "${POSTFIX_VMAILBOX_LINE}" >>/etc/postfix/vmailbox
       fi
@@ -74,7 +74,7 @@ function _create_accounts
       DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}"
       if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
       then
-        _notify 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
+        _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
@@ -87,7 +87,7 @@ function _create_accounts
         cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
       fi
 
-      echo "${DOMAIN}" >> /tmp/vhost.tmp
+      echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
 
     _create_dovecot_alias_dummy_accounts
@@ -128,11 +128,11 @@ function _create_dovecot_alias_dummy_accounts
 
       if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
       then
-        _notify 'inf' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
+        _log 'debug' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
         continue
       fi
 
-      _notify 'inf' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
+      _log 'debug' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
 
       # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
       # ${REAL_ACC[1]} => password hash
@@ -157,7 +157,7 @@ function _create_dovecot_alias_dummy_accounts
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
       if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
       then
-        _notify 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
+        _log 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi

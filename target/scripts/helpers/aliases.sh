@@ -32,7 +32,7 @@ function _handle_postfix_virtual_config
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
-    _notify 'inf' "Warning '/tmp/docker-mailserver/postfix-virtual.cf' is not provided. No mail alias/forward created."
+    _log 'debug' "'/tmp/docker-mailserver/postfix-virtual.cf' not provided - no mail alias/forward created"
   fi
 }
 
@@ -40,7 +40,7 @@ function _handle_postfix_regexp_config
 {
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
   then
-    _notify 'inf' "Adding regexp alias file postfix-regexp.cf"
+    _log 'trace' "Adding regexp alias file postfix-regexp.cf"
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
 
@@ -55,7 +55,7 @@ function _handle_postfix_regexp_config
 
 function _handle_postfix_aliases_config
 {
-  _notify 'inf' 'Configuring root alias'
+  _log 'trace' 'Configuring root alias'
 
   echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
 
@@ -63,7 +63,7 @@ function _handle_postfix_aliases_config
   then
     cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
   else
-    _notify 'inf' "'/tmp/docker-mailserver/postfix-aliases.cf' is not provided, it will be auto created."
+    _log 'trace' "'/tmp/docker-mailserver/postfix-aliases.cf' is not provided, it will be auto created."
     : >/tmp/docker-mailserver/postfix-aliases.cf
   fi
 

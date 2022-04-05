@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: delete-old-branch
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Create contributors-update branch
-        uses: peterjgrainger/action-create-branch@v2.1.0
+        uses: peterjgrainger/action-create-branch@v2.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

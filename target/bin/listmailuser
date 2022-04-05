@@ -7,7 +7,7 @@ source /usr/local/bin/helpers/index.sh
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
-function dovecot_quota_to_hr()
+function dovecot_quota_to_hr
 {
   if [[ ${1:-} == "-" ]]
   then
@@ -16,15 +16,15 @@ function dovecot_quota_to_hr()
   then
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
-    notify 'err' "Supplied non-number argument '${1:-}' to 'dovecot_quota_to_hr()' in script 'listmailuser'"
+    _exit_with_error "Supplied non-number argument '${1:-}' to 'dovecot_quota_to_hr()' in script 'listmailuser'"
   fi
 }
 
-DATABASE="/tmp/docker-mailserver/postfix-accounts.cf"
-ALIASES="/tmp/docker-mailserver/postfix-virtual.cf"
+DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
+ALIASES='/tmp/docker-mailserver/postfix-virtual.cf'
 
-[[ -f ${DATABASE} ]] || _errex "Error: No postfix-accounts.cf file"
-[[ -s ${DATABASE} ]] || _errex "Error: Empty postfix-accounts.cf - no accounts have been added"
+[[ -f ${DATABASE} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
+[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
 
 while read -r LINE
 do

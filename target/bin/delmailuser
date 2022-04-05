@@ -55,31 +55,31 @@ fi
 
 while getopts ":yYh" OPT
 do
-  case ${OPT} in
-    y | Y )
+  case "${OPT}" in
+    ( 'y' | 'Y' )
       MAILDEL=true
       ;;
 
-    h )
+    ( 'h' )
       __usage
       exit 0
       ;;
 
-    * )
+    ( * )
       __usage
-      _errex "The option ${OPT} is unknown."
+      _exit_with_error "The option '${OPT}' is unknown"
       ;;
 
   esac
 done
 shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { __usage ; _errex "No user specifed" ; }
+[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
 [[ -s ${DATABASE} ]] || exit 0
 
 if ! ${MAILDEL}
 then
-  read -r -p "Do you want to delete the mailbox as well (removing all mails) ? [Y/n] " MAILDEL_CHOSEN
+  read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
   if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
   then
     MAILDEL=true
@@ -103,7 +103,7 @@ do
   then
     if ! sedfile --strict -i "/^${EMAIL}|/d" "${DATABASE}"
     then
-      echo "${UNESCAPED_EMAIL} couldn't be deleted in ${DATABASE}." >&2
+      _log 'error' "'${UNESCAPED_EMAIL}' couldn't be deleted in '${DATABASE}'"
       ERROR=true
     fi
   fi
@@ -116,9 +116,9 @@ do
       -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
       "${ALIAS_DATABASE}"
     then
-      echo "${UNESCAPED_EMAIL} and potential aliases deleted."
+      _log 'info' "'${UNESCAPED_EMAIL}' and potential aliases deleted"
     else
-      echo "Aliases for ${UNESCAPED_EMAIL} couldn't be deleted in ${ALIAS_DATABASE}." >&2
+      _log 'error' "Aliases for '${UNESCAPED_EMAIL}' couldn't be deleted in '${ALIAS_DATABASE}'"
       ERROR=true
     fi
   fi
@@ -128,7 +128,7 @@ do
   then
     if ! sedfile --strict -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
     then
-      echo "Quota for ${UNESCAPED_EMAIL} couldn't be deleted in ${QUOTA_DATABASE}." >&2
+      _log 'warn' "Quota for '${UNESCAPED_EMAIL}' couldn't be deleted in '${QUOTA_DATABASE}'"
     fi
   fi
 
@@ -144,17 +144,18 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
   then
     if rm -R "/var/mail/${DOMAIN}/${USER}"
     then
-      echo "Mailbox deleted."
+      _log 'info' 'Mailbox deleted'
     else
-      echo "Mailbox couldn't be deleted." >&2
+      _log 'error' 'Mailbox could not be deleted'
       ERROR=true
     fi
-    rmdir "/var/mail/${DOMAIN}" 2>/dev/null || true
+    rmdir "/var/mail/${DOMAIN}" &>/dev/null
   else
-    echo "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist." >&2
+    log 'error' "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist"
     ERROR=true
   fi
 
-  ${ERROR} && _errex 'See the messages above.'
+  ${ERROR} && _exit_with_error 'See the messages above.'
 done
+
 exit 0

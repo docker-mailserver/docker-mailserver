@@ -1,8 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
 
 function setup_file() {
   local PRIVATE_CONFIG
@@ -11,7 +8,6 @@ function setup_file() {
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
-		-e DMS_DEBUG=0 \
 		-e ENABLE_SRS=1 \
 		-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 		-h unknown.domain.tld \
@@ -23,7 +19,6 @@ function setup_file() {
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 		-e PERMIT_DOCKER=network \
 		-e ENABLE_SRS=1 \
-		-e DMS_DEBUG=0 \
 		--hostname domain.com \
     --domainname domain.com \
 		-t "${NAME}"
@@ -33,7 +28,6 @@ function setup_file() {
     -v "${PRIVATE_CONFIG_THREE}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e PERMIT_DOCKER=network \
-    -e DMS_DEBUG=0 \
     -e ENABLE_SRS=1 \
     -e SRS_DOMAINNAME='srs.my-domain.com' \
     --domainname 'my-domain.com' \
@@ -45,7 +39,6 @@ function setup_file() {
     -v "${PRIVATE_CONFIG_FOUR}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e PERMIT_DOCKER=network \
-    -e DMS_DEBUG=0 \
     -e ENABLE_SRS=1 \
     --domainname 'my-domain.com' \
     --hostname 'mail' \
@@ -62,10 +55,6 @@ function setup_file() {
   # postfix virtual transport lmtp
   docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-}
-
-@test "first" {
-  skip 'only used to call setup_file from setup'
 }
 
 @test "checking SRS: SRS_DOMAINNAME is used correctly" {
@@ -195,8 +184,4 @@ function setup_file() {
 @test "checking that the container stops cleanly: mail_domainname" {
   run docker stop -t 60 mail_domainname
   assert_success
-}
-
-@test "last" {
-    skip 'only used to call teardown_file from teardown'
 }

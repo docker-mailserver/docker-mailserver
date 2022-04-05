@@ -10,7 +10,7 @@ This project is Open Source. That means that you can contribute on enhancements,
 
     **Before opening an issue**, read the [`README`][github-file-readme] carefully, study the [documentation][docs], the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! 
 
-When opening an issue, please provide details use case to let the community reproduce your problem. Please start `docker-mailserver` with ENV `DMS_DEBUG=1` and paste the output into the issue.
+When opening an issue, please provide details use case to let the community reproduce your problem. Please start `docker-mailserver` with the environment variable `LOG_LEVEL` set to `debug` or `trace` and paste the output into the issue.
 
 !!! attention
 

@@ -5,7 +5,9 @@ source /usr/local/bin/helpers/index.sh
 
 if ! IPTABLES_OUTPUT=$(iptables -L -n 2>&1)
 then
-  echo "IPTables is not functioning correctly. The output of \`iptables -L\` was:
+  _exit_with_error "IPTables is not functioning correctly
+
+The output of \`iptables -L\` was:
 
 ${IPTABLES_OUTPUT}
 
@@ -14,14 +16,10 @@ Possible causes for this error are
 1. Missing capabilities (you need CAP_NET_RAW & CAP_NET_ADMIN, see \`capsh --print\`)
 2. Modifications caused by user-patches.sh
 3. Host is configured incorrectly
-
-Aborting...
 "
-
-  exit 1
 fi
 
-function usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
+function __usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
 unset JAILS
 declare -a JAILS
@@ -48,14 +46,14 @@ then
 
   if [[ ${IP_COUNT} -eq 0 ]]
   then
-    echo "No IPs have been banned."
+    _log 'info' 'No IPs have been banned'
   fi
 
 else
 
-  case ${1} in
+  case "${1}" in
 
-    unban)
+    ( 'unban' )
       shift
       if [[ -n ${1} ]]
       then
@@ -68,14 +66,14 @@ else
         done
 
       else
-        echo "You need to specify an IP address. Run './setup.sh debug fail2ban' to get a list of banned IP addresses." >&2
+        _log 'warn' "You need to specify an IP address: Run './setup.sh debug fail2ban' to get a list of banned IP addresses"
         exit 0
       fi
       ;;
 
-    *)
-      usage
-      _errex "unknown command: ${1}"
+    ( * )
+      __usage
+      _exit_with_error "Unknown command '${1}'"
       ;;
 
   esac

@@ -204,7 +204,7 @@ load 'test_helper/common'
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     # variable not local to make visible to teardown
-    # enable clamav to make message delivery slower, so we can detect it
+    # enable ClamAV to make message delivery slower, so we can detect it
     CONTAINER_NAME="$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -235,7 +235,7 @@ load 'test_helper/common'
     local PRIVATE_CONFIG
     PRIVATE_CONFIG="$(duplicate_config_for_container .)"
     # variable not local to make visible to teardown
-    # enable clamav to make message delivery slower, so we can detect it
+    # enable ClamAV to make message delivery slower, so we can detect it
     CONTAINER_NAME="$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \

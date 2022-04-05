@@ -1,8 +1,15 @@
 #! /bin/bash
 
-function _errex
+function _exit_with_error
 {
-  echo -e "Error :: ${*}\nAborting." >&2
+  if [[ -n ${1+set} ]]
+  then
+    _log 'error' "${1}"
+  else
+    _log 'error' "Call to '_exit_with_error' is missing a message to log"
+  fi
+
+  _log 'error' 'Aborting'
   exit 1
 }
 
@@ -62,13 +69,14 @@ function dms_panic__no_file { dms_panic 'no-file' "${1}" "${2}"; }
 function dms_panic__misconfigured { dms_panic 'misconfigured' "${1}" "${2}"; }
 function dms_panic__invalid_value { dms_panic 'invalid-value' "${1}" "${2}"; }
 
-# Call this method when you want to panic (emit a 'FATAL' log level error, and exit uncleanly).
+# Call this method when you want to panic (i.e. emit an 'ERROR' log, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
 function _shutdown
 {
-  local FATAL_ERROR_MESSAGE=$1
+  _log 'error' "${1}"
+  _log 'error' 'Shutting down'
 
-  _notify 'fatal' "${FATAL_ERROR_MESSAGE}"
-  _notify 'err' "Shutting down.."
+  sleep 1
   kill 1
+  exit 1
 }

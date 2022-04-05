@@ -8,9 +8,9 @@ Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 fa
 
 ## Configuration files
 
-If you want to change this, you can easily edit our github example file: [`config/fail2ban-jail.cf`][github-file-f2bjail].
+If you want to change this, you can easily edit our github example file: [`config-examples/fail2ban-jail.cf`][github-file-f2bjail].
 
-You can do the same with the values from `fail2ban.conf`, e.g `dbpurgeage`. In that case you need to edit: [`config/fail2ban-fail2ban.cf`][github-file-f2bconfig].
+You can do the same with the values from `fail2ban.conf`, e.g `dbpurgeage`. In that case you need to edit: [`config-examples/fail2ban-fail2ban.cf`][github-file-f2bconfig].
 
 The configuration files need to be located at the root of the `/tmp/docker-mailserver/` volume bind (usually `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
@@ -119,8 +119,8 @@ Here `192.168.1.15` is our banned IP.
 ```
 
 [docs-setupsh]: ../setup.sh.md
-[github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-jail.cf
-[github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config/fail2ban-fail2ban.cf
+[github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
+[github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 [rootless::rootless-kit]: https://github.com/rootless-containers/rootlesskit
 [rootless::port-drivers]: https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers
 [rootless::slirp4netns]: https://github.com/rootless-containers/slirp4netns

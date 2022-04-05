@@ -3,13 +3,8 @@ load 'test_helper/common'
 # Globals ${BATS_TMPDIR} and ${NAME}
 # `${NAME}` defaults to `mailserver-testing:ci`
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
 function teardown() {
     docker rm -f tls_test_cipherlists
-    run_teardown_file_if_necessary
 }
 
 function setup_file() {
@@ -37,10 +32,6 @@ function setup_file() {
 
 function teardown_file() {
     docker network rm "${NETWORK}"
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 @test "checking tls: cipher list - rsa intermediate" {
@@ -112,7 +103,6 @@ function collect_cipherlist_data() {
     run docker run -d --name tls_test_cipherlists \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
         --volume "${TLS_CONFIG_VOLUME}" \
-        --env DMS_DEBUG=0 \
         --env ENABLE_POP3=1 \
         --env SSL_TYPE="manual" \
         --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem" \
@@ -245,8 +235,4 @@ function get_cipherlist() {
         local TARGET_QUERY="${KEY_TYPE_LABEL}_${TLS_LEVEL}_${TLS_VERSION}"
         echo "${CIPHER_LIST[${TARGET_QUERY}]}"
     fi
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

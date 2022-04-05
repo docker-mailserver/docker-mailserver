@@ -4,8 +4,8 @@ title: 'FAQ'
 
 ### What kind of database are you using?
 
-None! No database is required. Filesystem is the database.  
-This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.  
+None! No database is required. Filesystem is the database.
+This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.
 
 ### Where are emails stored?
 
@@ -30,7 +30,7 @@ See [supervisorctl's documentation](http://supervisord.org/running.html#running-
 
 ### How can I sync container with host date/time? Timezone?
 
-Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) with the `docker-mailserver` container, using a Docker volume:  
+Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) with the `docker-mailserver` container, using a Docker volume:
 
 ```yaml
 volumes:
@@ -137,7 +137,7 @@ To use a bare domain (_where the host name is `example.com` and the domain is al
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to `docker-data/dms/config/postfix-main.cf`. That should work. Without that change there will be warnings in the logs like:
+Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that `OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file (see [#1731](https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425)). Without these changes there will be warnings in the logs like:
 
 ```log
 warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
@@ -322,13 +322,13 @@ If we're blind, we won't be able to do anything.
 
 ### What system requirements are required to run `docker-mailserver` effectively?
 
-1 core and 1GB of RAM + swap partition is recommended to run `docker-mailserver` with clamav.
+1 core and 1GB of RAM + swap partition is recommended to run `docker-mailserver` with ClamAV.
 Otherwise, it could work with 512M of RAM.
 
 !!! warning
-    Clamav can consume a lot of memory, as it reads the entire signature database into RAM.
+    ClamAV can consume a lot of memory, as it reads the entire signature database into RAM.
 
-    Current figure is about 850M and growing. If you get errors about clamav or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
+    Current figure is about 850M and growing. If you get errors about ClamAV or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
 
 ### Can `docker-mailserver` run in a Rancher Environment?
 

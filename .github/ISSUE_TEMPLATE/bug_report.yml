@@ -54,7 +54,7 @@ body:
     attributes:
       label:  What happened and when does this occur?
       description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
-      placeholder: Although `DMS_DEBUG=1` is set, I see no debug output.
+      placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
       render: Markdown
     validations:
       required: true
@@ -127,13 +127,13 @@ body:
     attributes:
       label: docker-compose.yml
       description: Show us your docker-compose.yml file or your equivalent "docker run" command.
-      render: yaml
+      render: yml
   - type: textarea
     id: relevant-log-output
     attributes:
       label: Relevant log output
-      description: Show us relevant log output here. You can enable debug output by setting the environment variable `DMS_DEBUG` to `1`.
-      render: shell
+      description: Show us relevant log output here. You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`.
+      render: bash
   - type: textarea
     id: other-relevant-information
     attributes:
@@ -148,13 +148,11 @@ body:
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
         Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
-        
+
       options:
         - label: I am inexperienced with docker
         - label: I am inexperienced with mail servers
         - label: I am uncomfortable with the CLI
-    validations:
-      required: false
   - type: checkboxes
     id: terms-code-of-conduct
     attributes:

@@ -41,7 +41,12 @@ RUN \
   apt-get -qq update && \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
+  echo "applying workaround for ubuntu/postfix bug described in https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403" && \
+  mv /bin/hostname{,.bak} && \
+  echo "echo docker-mailserver.invalid" > /bin/hostname && \
+  chmod +x /bin/hostname && \
   apt-get -qq install postfix && \
+  mv /bin/hostname{.bak,} && \
   apt-get -qq --no-install-recommends install \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
@@ -80,6 +85,7 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   c_rehash 2>&1
 
+COPY ./target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 COPY ./target/bin/sedfile /usr/local/bin/sedfile
 
 RUN chmod +x /usr/local/bin/sedfile
@@ -196,6 +202,10 @@ RUN \
 # -----------------------------------------------
 # --- Fetchmail, Postfix & Let'sEncrypt ---------
 # -----------------------------------------------
+
+# Remove invalid URL from SPF message
+# https://bugs.launchpad.net/spf-engine/+bug/1896912
+RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-policyd-spf-python/policyd-spf.conf
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/

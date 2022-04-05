@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-    run_setup_file_if_necessary
-}
-
-function teardown() {
-    run_teardown_file_if_necessary
-}
-
 function setup_file() {
     # We use a temporary config directory since we'll be dynamically editing
     # it with setup.sh.
@@ -23,7 +15,6 @@ function setup_file() {
             -e RELAY_PASSWORD=smtp_password \
             --cap-add=SYS_PTRACE \
             -e PERMIT_DOCKER=host \
-            -e DMS_DEBUG=0 \
             -h mail.my-domain.com -t "${NAME}"
         wait_for_finished_setup_in_container mail_with_relays
 }
@@ -31,10 +22,6 @@ function setup_file() {
 function teardown_file() {
     docker rm -f mail_with_relays
     rm -rf "${tmp_confdir}"
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 @test "checking relay hosts: default mapping is added from env vars" {
@@ -84,8 +71,4 @@ function teardown_file() {
   run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^\[default.relay.com\]:2525\s\+smtp_user:smtp_password" | wc -l'
   assert_success
   assert_output 1
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }

@@ -118,49 +118,6 @@ function wait_for_finished_setup_in_container() {
 
 SETUP_FILE_MARKER="${BATS_TMPDIR}/$(basename "${BATS_TEST_FILENAME}").setup_file"
 
-function native_setup_teardown_file_support() {
-    local VERSION_REGEX='([0-9]+)\.([0-9]+)\.([0-9]+)'
-    # bats versions that support setup_file out of the box don't need this
-    if [[ "${BATS_VERSION}" =~ ${VERSION_REGEX} ]]; then
-        numeric_version=$(( (BASH_REMATCH[1] * 100 + BASH_REMATCH[2]) * 100 + BASH_REMATCH[3] ))
-        if [[ ${numeric_version} -ge 10201 ]]; then
-            if [ "${BATS_TEST_NAME}" == 'test_first' ]; then
-                skip 'This version natively supports setup/teardown_file'
-            fi
-            return 0
-        fi
-    fi
-    return 1
-}
-
-# use in setup() in conjunction with a `@test "first" {}` to trigger setup_file reliably
-function run_setup_file_if_necessary() {
-    native_setup_teardown_file_support && return 0
-    if [ "${BATS_TEST_NAME}" == 'test_first' ]; then
-        # prevent old markers from marking success or get an error if we cannot remove due to permissions
-        rm -f "${SETUP_FILE_MARKER}"
-
-        setup_file
-
-        touch "${SETUP_FILE_MARKER}"
-    else
-        if [ ! -f "${SETUP_FILE_MARKER}" ]; then
-            skip "setup_file failed"
-            return 1
-        fi
-    fi
-}
-
-# use in teardown() in conjunction with a `@test "last" {}` to trigger teardown_file reliably
-function run_teardown_file_if_necessary() {
-    native_setup_teardown_file_support && return 0
-    if [ "${BATS_TEST_NAME}" == 'test_last' ]; then
-        # cleanup setup file marker
-        rm -f "${SETUP_FILE_MARKER}"
-        teardown_file
-    fi
-}
-
 # get the private config path for the given container or test file, if no container name was given
 function private_config_path() {
     echo "${PWD}/test/duplicate_configs/${1:-$(basename "${BATS_TEST_FILENAME}")}"

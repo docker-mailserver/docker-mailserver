@@ -6,33 +6,36 @@ source /usr/local/bin/helpers/index.sh
 MODE="${1}"
 USER="${3}"
 
-function usage  {	echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
+function __usage { echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
 
-[[ -z ${MODE} ]] && _errex "missing parameters: <add|del|list> <send|receive> [<email@domain.com>]"
+[[ -z ${MODE} ]] && _exit_with_error 'Missing parameters: <add|del|list> <send|receive> [<email@domain.com>]'
 
-case ${2} in
-  send)
+case "${2}" in
+  ( 'send' )
     DATABASE="/tmp/docker-mailserver/postfix-send-access.cf"
     ;;
-  receive)
+
+  ( 'receive' )
     DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
     ;;
-  *)
-    usage
-    _errex "missing parameters. Specify \"send\" or \"receive\""
+
+  ( * )
+    __usage
+    _exit_with_error "Missing parameters: specify 'send' or 'receive'"
     ;;
+
 esac
 
 if [[ -z ${USER} ]] && [[ ${MODE} != list ]]
 then
-  read -r -p "User(user@domain.com): " USER
+  read -r -p 'User(user@domain.com): ' USER
   echo
-  [[ -z ${USER} ]] && _errex "User must not be empty"
+  [[ -z ${USER} ]] && _exit_with_error 'User must not be empty'
 fi
 
-case ${MODE} in
-  add)
-    grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && _errex "User \"${USER}\" already denied to ${2} mails"
+case "${MODE}" in
+  ( 'add' )
+    grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && _exit_with_error "User '${USER}' already denied to ${2} mails"
 
     if [[ ! -f ${DATABASE} ]]
     then
@@ -45,18 +48,19 @@ case ${MODE} in
     fi
 
     echo -e "${USER} \t\t REJECT" >>"${DATABASE}"
-  ;;
-
-  del)
-    sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || _errex "User \"${USER}\" not found."
-  ;;
-
-  list)
-    grep "REJECT" "${DATABASE}" 2>/dev/null || echo "Everyone is allowed to ${2} mails."
     ;;
-  *)
-    usage
-    _errex "missing mode. Specify \"add\", \"del\" or \"list\""
-  ;;
+
+  ( 'del' )
+    sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || _exit_with_error "User '${USER}' not found."
+    ;;
+
+  ( 'list' )
+    grep "REJECT" "${DATABASE}" 2>/dev/null || _log 'info' "Everyone is allowed to ${2} mails"
+    ;;
+
+  ( * )
+    __usage
+    _exit_with_error "Missing mode: specify 'add', 'del' or 'list'"
+    ;;
 
 esac

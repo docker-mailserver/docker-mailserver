@@ -15,8 +15,13 @@ title: Environment Variables
 
 ##### DMS_DEBUG
 
-- **0** => Debug disabled
-- 1     => Enables debug on startup
+**This environment variable was removed in `v11.0.0`!** Use `LOG_LEVEL` instead.
+
+##### LOG_LEVEL
+
+Set the log level for DMS. This is mostly relevant for container startup scripts and change detection event feedback.
+
+Valid values (in order of increasing verbosity) are: `error`, `warn`, `info`, `debug` and `trace`. The default log level is `info`.
 
 ##### SUPERVISOR_LOGLEVEL
 
@@ -39,7 +44,8 @@ The log-level will show everything in its class and above.
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
 
-- **empty** => localhost only.
+- **none** => Explicitly force authentication
+- container => Container IP address only.
 - host => Add docker host (ipv4 only).
 - network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case.
 - connected-networks => Add all connected docker networks (ipv4 only).
@@ -74,8 +80,8 @@ Note: Emails will be rejected, if they don't pass the block list checks!
 
 ##### ENABLE_CLAMAV
 
-- **0** => Clamav is disabled
-- 1 => Clamav is enabled
+- **0** => ClamAV is disabled
+- 1 => ClamAV is enabled
 
 ##### ENABLE_POP3
 
@@ -191,6 +197,13 @@ Set the message size limit for all users. If set to zero, the size will be unlim
 
 - **empty** => 10240000 (~10 MB)
 
+##### CLAMAV_MESSAGE_SIZE_LIMIT
+
+Mails larger than this limit won't be scanned.
+ClamAV must be enabled (ENABLE_CLAMAV=1) for this.
+
+- **empty** => 25M (25 MB)
+
 ##### ENABLE_MANAGESIEVE
 
 - **empty** => Managesieve service disabled
@@ -248,7 +261,7 @@ Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
 ##### PFLOGSUMM_TRIGGER
 
-Enables regular pflogsumm mail reports.
+Enables regular Postfix log summary ("pflogsumm") mail reports.
 
 - **not set** => No report
 - daily_cron => Daily report for the previous day
@@ -259,14 +272,14 @@ If this is not set and reports are enabled with the old options, logrotate will 
 
 ##### PFLOGSUMM_RECIPIENT
 
-Recipient address for pflogsumm reports.
+Recipient address for Postfix log summary reports.
 
-- **not set** => Use REPORT_RECIPIENT or POSTMASTER_ADDRESS
+- **not set** => Use POSTMASTER_ADDRESS
 - => Specify the recipient address(es)
 
 ##### PFLOGSUMM_SENDER
 
-Sender address (`FROM`) for pflogsumm reports if pflogsumm reports are enabled.
+Sender address (`FROM`) for pflogsumm reports (if Postfix log summary reports are enabled).
 
 - **not set** => Use REPORT_SENDER
 - => Specify the sender address
@@ -293,48 +306,39 @@ Sender address (`FROM`) for logwatch reports if logwatch reports are enabled.
 - **not set** => Use REPORT_SENDER
 - => Specify the sender address
 
-##### REPORT_RECIPIENT (deprecated)
+##### REPORT_RECIPIENT
 
-Enables a report being sent (created by pflogsumm) on a regular basis.
+Defines who receives reports (if they are enabled).
 
-- **0** => Report emails are disabled unless enabled by other options
-- 1 => Using POSTMASTER_ADDRESS as the recipient
+- **empty** => Use POSTMASTER_ADDRESS
 - => Specify the recipient address
 
-##### REPORT_SENDER (deprecated)
+##### REPORT_SENDER
 
-Change the sending address for mail report
+Defines who sends reports (if they are enabled).
 
-- **empty** => mailserver-report@hostname
-- => Specify the report sender (From) address
-
-##### REPORT_INTERVAL (deprecated)
-
-Changes the interval in which logs are rotated and a report is being sent (deprecated).
-
-- **daily** => Send a daily report
-- weekly => Send a report every week
-- monthly => Send a report every month
-
-Note: This variable used to control logrotate inside the container and sent the pflogsumm report when the logs were rotated.
-It is still supported for backwards compatibility, but the new option LOGROTATE_INTERVAL has been added that only rotates
-the logs.
+- **empty** => `mailserver-report@<YOUR DOMAIN>`
+- => Specify the sender address
 
 ##### LOGROTATE_INTERVAL
 
-Defines the interval in which the mail log is being rotated.
+Changes the interval in which log files are rotated.
 
-- **daily** => Rotate daily.
-- weekly => Rotate weekly.
-- monthly => Rotate monthly.
+- **weekly** => Rotate log files weekly
+- daily => Rotate log files daily
+- monthly => Rotate log files monthly
 
-Note that only the log inside the container is affected.
-The full log output is still available via `docker logs mailserver` (_or your respective container name_).
-If you want to control logrotation for the docker generated logfile, see: [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
+!!! note
 
-Also note that by default the logs are lost when the container is recycled. To keep the logs, mount a volume.
+    `LOGROTATE_INTERVAL` only manages `logrotate` within the container for services we manage internally.
 
-Finally the logrotate interval **may** affect the period for generated reports. That is the case when the reports are triggered by log rotation.
+    The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
+
+    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
+
+!!! note
+
+    This variable can also determine the interval for Postfix's log summary reports, see [`PFLOGSUMM_TRIGGER`](#pflogsumm_trigger).
 
 #### SpamAssassin
 

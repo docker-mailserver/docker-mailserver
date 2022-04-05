@@ -1,13 +1,5 @@
 load 'test_helper/common'
 
-function setup() {
-  run_setup_file_if_necessary
-}
-
-function teardown() {
-  run_teardown_file_if_necessary
-}
-
 function setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG="$(duplicate_config_for_container .)"
@@ -18,7 +10,6 @@ function setup_file() {
     -e ENABLE_MANAGESIEVE=1 \
     --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
-    -e DMS_DEBUG=0 \
     -h mail.my-domain.com \
     -e SSL_TYPE='snakeoil' \
     --tty \
@@ -30,10 +21,6 @@ function setup_file() {
 
 function teardown_file() {
   docker rm -f mail_privacy
-}
-
-@test "first" {
-  skip 'this test must come first to reliably identify when to run setup_file'
 }
 
 # What this test should cover: https://github.com/docker-mailserver/docker-mailserver/issues/681
@@ -48,8 +35,4 @@ function teardown_file() {
   run docker exec mail_privacy /bin/sh -c 'grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l'
   assert_success
   assert_output 0
-}
-
-@test "last" {
-  skip 'this test is only there to reliably mark the end for the teardown_file'
 }
