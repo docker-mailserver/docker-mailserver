@@ -29,7 +29,7 @@ Example configuration volume bind:
 ```
 
 !!! attention
-    `docker-mailserver` must be launched with the `NET_ADMIN` capability in order to be able to install the iptable rules that actually ban IP addresses.
+    `docker-mailserver` must be launched with the `NET_ADMIN` capability in order to be able to install the nftables rules that actually ban IP addresses.
 
     Thus either include `--cap-add=NET_ADMIN` in the `docker run` command, or the equivalent in `docker-compose.yml`:
 
@@ -37,16 +37,6 @@ Example configuration volume bind:
     cap_add:
       - NET_ADMIN
     ```
-
-If you don't you will see errors the form of:
-
-```log
-iptables -w -X f2b-postfix -- stderr: "getsockopt failed strangely: Operation not permitted\niptables v1.4.21: can't initialize iptabl
-es table `filter': Permission denied (you must be root)\nPerhaps iptables or your kernel needs to be upgraded.\niptables v1.4.21: can'
-t initialize iptables table `filter': Permission denied (you must be root)\nPerhaps iptables or your kernel needs to be upgraded.\n"
-2016-06-01 00:53:51,284 fail2ban.action         [678]: ERROR   iptables -w -D INPUT -p tcp -m multiport --dports smtp,465,submission -
-j f2b-postfix
-```
 
 ## Running fail2ban in a rootless container
 
