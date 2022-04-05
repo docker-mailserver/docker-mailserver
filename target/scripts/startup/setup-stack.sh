@@ -1144,7 +1144,7 @@ function _setup_fail2ban
   _log 'debug' 'Setting up Fail2Ban'
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
-    echo -e '[Init]\nblocktype = DROP' >/etc/fail2ban/action.d/iptables-common.local
+    echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
 }
 

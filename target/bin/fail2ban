@@ -3,26 +3,12 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-if ! IPTABLES_OUTPUT=$(iptables -L -n 2>&1)
-then
-  _exit_with_error "IPTables is not functioning correctly
-
-The output of \`iptables -L\` was:
-
-${IPTABLES_OUTPUT}
-
-Possible causes for this error are
-
-1. Missing capabilities (you need CAP_NET_RAW & CAP_NET_ADMIN, see \`capsh --print\`)
-2. Modifications caused by user-patches.sh
-3. Host is configured incorrectly
-"
-fi
-
 function __usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
 
 unset JAILS
 declare -a JAILS
+IP_REGEXP='((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
+
 for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g')
 do
   JAILS+=("${LIST}")
@@ -30,25 +16,22 @@ done
 
 if [[ -z ${1} ]]
 then
-
-  IP_COUNT=0
+  IPS_BANNED=0
 
   for JAIL in "${JAILS[@]}"
   do
-    BANNED_IP="$(iptables -L "f2b-${JAIL}" -n 2>/dev/null | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -v '0.0.0.0')"
+    BANNED_IPS=$(fail2ban-client status "${JAIL}" \
+      | grep 'Banned IP list' \
+      | grep -oE "${IP_REGEXP}")
 
-    if [[ -n ${BANNED_IP} ]]
+    if [[ -n ${BANNED_IPS} ]]
     then
-      echo "Banned in ${JAIL}: ${BANNED_IP//$'\n'/, }"
-      IP_COUNT=$(( IP_COUNT + 1 ))
+      echo "Banned in ${JAIL}: ${BANNED_IPS//$'\n'/, }"
+      IPS_BANNED=1
     fi
   done
 
-  if [[ ${IP_COUNT} -eq 0 ]]
-  then
-    _log 'info' 'No IPs have been banned'
-  fi
-
+  [[ ${IPS_BANNED} -eq 0 ]] && _log 'info' "No IPs have been banned"
 else
 
   case "${1}" in
