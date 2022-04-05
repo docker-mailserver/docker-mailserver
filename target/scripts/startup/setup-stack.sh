@@ -1268,17 +1268,19 @@ function _setup_timezone
 {
   _log 'debug' "Setting timezone to '${TZ}'"
 
-  export DEBCONF_NONINTERACTIVE_SEEN=true
-  local AREA ZONE DPKG_RECONFIGURE_PRESEED
+  local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
 
-  AREA=$(cut -d '/' -f 1 <<< "${TZ}")
-  ZONE=$(cut -d '/' -f 2 <<< "${TZ}")
-  DPKG_RECONFIGURE_PRESEED="tzdata tzdata/Areas select ${AREA}\ntzdata tzdata/Zones/${AREA} select ${ZONE}"
-
-  echo "${TZ}" >/etc/timezone
-
-  if ! debconf-set-selections <<< "${DPKG_RECONFIGURE_PRESEED}"
+  if [[ ! -e ${ZONEINFO_FILE} ]]
   then
-    _log 'warn' "Setting timezone to '${TZ}' did not succeed"
+    _log 'warn' "Cannot find timezone '${TZ}'"
+    return 1
+  fi
+
+  if ln -fs "${ZONEINFO_FILE}" /etc/localtime && dpkg-reconfigure tzdata &>/dev/null
+  then
+    _log 'trace' "Set time zone to '${TZ}'"
+  else
+    _log 'warn' "Setting timezone to '${TZ}' failed"
+    return 1
   fi
 }
