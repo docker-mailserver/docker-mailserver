@@ -1276,7 +1276,8 @@ function _setup_timezone
     return 1
   fi
 
-  if ln -fs "${ZONEINFO_FILE}" /etc/localtime && dpkg-reconfigure tzdata &>/dev/null
+  if ln -fs "${ZONEINFO_FILE}" /etc/localtime \
+  && dpkg-reconfigure -f noninteractive tzdata &>/dev/null
   then
     _log 'trace' "Set time zone to '${TZ}'"
   else
