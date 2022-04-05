@@ -2,7 +2,6 @@ FROM docker.io/debian:11-slim
 
 ARG VCS_VER
 ARG VCS_REF
-ARG DEBIAN_FRONTEND=noninteractive
 
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
 ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
@@ -20,6 +19,9 @@ LABEL org.opencontainers.image.description="A fullstack but simple mail server (
 LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBCONF_NONINTERACTIVE_SEEN=true
 
 ENV ENABLE_POSTGREY=0
 ENV FETCHMAIL_POLL=300
