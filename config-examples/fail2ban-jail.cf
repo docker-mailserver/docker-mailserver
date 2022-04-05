@@ -16,6 +16,6 @@
 #ignoreip = 127.0.0.1/8
 
 # Default ban action
-# iptables-multiport:	block IP only on affected port
-# iptables-allports:	block IP on all ports
-#banaction = iptables-allports
+# nftables-multiport:	block IP only on affected port
+# nftables-allports:	block IP on all ports
+#banaction = nftables-allports

@@ -11,6 +11,6 @@ findtime  = 321
 maxretry = 2
 
 # Default ban action
-# iptables-multiport:   block IP only on affected port
-# iptables-allports:    block IP on all ports
-banaction = iptables-multiport
+# nftables-multiport:   block IP only on affected port
+# nftables-allports:    block IP on all ports
+banaction = nftables-multiport

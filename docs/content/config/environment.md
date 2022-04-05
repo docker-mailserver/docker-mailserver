@@ -104,7 +104,7 @@ cap_add:
   - NET_ADMIN
 ```
 
-Otherwise, `iptables` won't be able to ban IPs.
+Otherwise, `nftables` won't be able to ban IPs.
 
 ##### FAIL2BAN_BLOCKTYPE
 
