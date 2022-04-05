@@ -1646,19 +1646,12 @@
 </code></pre></div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p><code>docker-mailserver</code> must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the iptable rules that actually ban IP addresses.</p>
+<p><code>docker-mailserver</code> must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the nftables rules that actually ban IP addresses.</p>
 <p>Thus either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p>If you don't you will see errors the form of:</p>
-<div class="highlight"><pre><span></span><code><span class="go">iptables -w -X f2b-postfix -- stderr: &quot;getsockopt failed strangely: Operation not permitted\niptables v1.4.21: can&#39;t initialize iptabl</span>
-<span class="go">es table `filter&#39;: Permission denied (you must be root)\nPerhaps iptables or your kernel needs to be upgraded.\niptables v1.4.21: can&#39;</span>
-<span class="go">t initialize iptables table `filter&#39;: Permission denied (you must be root)\nPerhaps iptables or your kernel needs to be upgraded.\n&quot;</span>
-<span class="go">2016-06-01 00:53:51,284 fail2ban.action         [678]: ERROR   iptables -w -D INPUT -p tcp -m multiport --dports smtp,465,submission -</span>
-<span class="go">j f2b-postfix</span>
-</code></pre></div>
 <h2 id="running-fail2ban-in-a-rootless-container"><a class="toclink" href="#running-fail2ban-in-a-rootless-container">Running fail2ban in a rootless container</a></h2>
 <p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
 <p>It is necessary for <code>fail2ban</code> to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than <code>builtin</code> but does preserve the real source IPs.</p>
