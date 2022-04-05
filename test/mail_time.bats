@@ -23,7 +23,7 @@ teardown_file() {
   assert_success
   assert_output 'Asia/Jakarta'
 
-  run docker exec mail_time date +'%Z'
+  run docker exec mail_time date '+%Z'
   assert_success
   assert_output 'WIB'
 }
