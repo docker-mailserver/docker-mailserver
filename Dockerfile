@@ -55,10 +55,10 @@ RUN \
   dovecot-ldap dovecot-lmtpd dovecot-managesieved dovecot-pop3d \
   dovecot-sieve dovecot-solr dumb-init \
   # E - O
-  ed fetchmail file gamin gnupg gzip iproute2 iptables \
+  ed fetchmail file gamin gnupg gzip iproute2 \
   locales logwatch lhasa libdate-manip-perl libldap-common liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
-  netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
+  netcat-openbsd nftables nomarch opendkim opendkim-tools opendmarc \
   # P - Z
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
@@ -193,11 +193,6 @@ COPY target/opendkim/default-opendkim /etc/default/opendkim
 COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
-
-RUN \
-  # switch iptables and ip6tables to legacy for Fail2Ban
-  update-alternatives --set iptables /usr/sbin/iptables-legacy && \
-  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
 # -----------------------------------------------
 # --- Fetchmail, Postfix & Let'sEncrypt ---------
