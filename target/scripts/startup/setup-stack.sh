@@ -885,7 +885,7 @@ function _setup_security_stack
     echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _log 'debug' "Enabling and configuring SpamAssassin"
+    _log 'debug' 'Enabling and configuring SpamAssassin'
 
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
@@ -969,7 +969,7 @@ EOM
   # ClamAV
   if [[ ${ENABLE_CLAMAV} -eq 0 ]]
   then
-    _log 'debug' "ClamAV is disabled"
+    _log 'debug' 'ClamAV is disabled'
     echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
