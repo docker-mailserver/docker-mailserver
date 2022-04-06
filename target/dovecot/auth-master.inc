@@ -5,3 +5,4 @@ passdb {
   master = yes
   result_success = continue
 }
+
