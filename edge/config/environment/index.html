@@ -520,6 +520,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tz" class="md-nav__link">
+    TZ
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -2412,6 +2419,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tz" class="md-nav__link">
+    TZ
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -3327,6 +3341,8 @@
 <li>connected-networks =&gt; Add all connected docker networks (ipv4 only).</li>
 </ul>
 <p>Note: you probably want to <a href="#postfix_inet_protocols">set <code>POSTFIX_INET_PROTOCOLS=ipv4</code></a> to make it work fine with Docker.</p>
+<h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
+<p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
 <h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
 <p>Amavis content filter (used for ClamAV &amp; SpamAssassin)</p>
 <ul>
