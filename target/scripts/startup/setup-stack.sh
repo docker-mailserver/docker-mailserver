@@ -303,6 +303,10 @@ function _setup_dovecot_local_user
       _shutdown 'Unless using LDAP, you need at least 1 email account to start Dovecot'
     fi
   fi
+
+  _log 'debug' 'Setting up Dovecot Master User'
+
+  _create_masters
 }
 
 function _setup_ldap
