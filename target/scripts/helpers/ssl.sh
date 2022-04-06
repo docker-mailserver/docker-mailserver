@@ -463,6 +463,7 @@ function _monitored_files_checksums
     "${DMS_DIR}/postfix-virtual.cf"
     "${DMS_DIR}/postfix-aliases.cf"
     "${DMS_DIR}/dovecot-quotas.cf"
+    "${DMS_DIR}/dovecot-masters.cf"
   )
 
   if [[ ${SSL_TYPE:-} == 'manual' ]]

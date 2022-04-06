@@ -115,8 +115,8 @@ do
     # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
     # TODO: That should be all that's required, unless the cert file paths have also changed (Postfix/Dovecot configs then need to be updated).
 
-    # regenerate postfix accounts
-    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
+    # regenerate postfix accounts & dovecot masters
+    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts && _create_masters
 
     _rebuild_relayhost
 

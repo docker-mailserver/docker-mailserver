@@ -25,7 +25,7 @@ ${ORANGE}NAME${RESET}
 ${ORANGE}SYNOPSIS${RESET}
     ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
 
-    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
+    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} master ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
 
 ${ORANGE}DESCRIPTION${RESET}
     This is the main administration script that you use for all your interactions with
@@ -58,6 +58,12 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
     ${LBLUE}COMMAND${RESET} quota ${RED}:=${RESET}
         ${0} quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
         ${0} quota ${CYAN}del${RESET} <EMAIL ADDRESS>
+
+    ${LBLUE}COMMAND${RESET} master ${RED}:=${RESET}
+        ${0} master ${CYAN}add${RESET} <USERNAME> [<PASSWORD>]
+        ${0} master ${CYAN}update${RESET} <USERNAME> [<PASSWORD>]
+        ${0} master ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <USERNAME> [ <USERNAME>${RED}...${RESET} ]
+        ${0} master ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
         ${0} config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
@@ -124,6 +130,16 @@ function _main
       case ${2:-} in
         ( set      ) shift 2 ; setquota "${@}" ;;
         ( del      ) shift 2 ; delquota "${@}" ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( master )
+      case ${2:-} in
+        ( add      ) shift 2 ; addmasteruser "${@}" ;;
+        ( update   ) shift 2 ; updatemasteruser "${@}" ;;
+        ( del      ) shift 2 ; delmasteruser "${@}" ;;
+        ( list     ) listmasteruser ;;
         ( *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;
