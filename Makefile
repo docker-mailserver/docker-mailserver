@@ -8,7 +8,7 @@ VCS_VER = $(shell git describe --tags --contains --always)
 # --- Generic Build Targets ---------------------
 # -----------------------------------------------
 
-all: lint build backup generate-accounts tests clean
+all: lint build backup generate-accounts generate-masters tests clean
 
 build:
 	docker build -t $(NAME) . --build-arg VCS_VER=$(VCS_VER) --build-arg VCS_REF=$(VCS_REF)
@@ -34,6 +34,11 @@ generate-accounts:
 	@ docker run --rm -e MAIL_USER=user3@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)|userdb_mail=mbox:~/mail:INBOX=~/inbox"' >> test/config/postfix-accounts.cf
 	@ echo "# this is a test comment, please don't delete me :'(" >> test/config/postfix-accounts.cf
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
+
+generate-masters:
+	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
+	@ echo "# this is a test comment, please don't delete me :'(" >> test/config/dovecot-masters.cf
+	@ echo "           # this is also a test comment, :O" >> test/config/dovecot-masters.cf
 
 tests:
 	@ NAME=$(NAME) ./test/bats/bin/bats --timing test/*.bats
