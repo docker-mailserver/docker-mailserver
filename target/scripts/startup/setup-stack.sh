@@ -888,11 +888,11 @@ function _setup_security_stack
   # SpamAssassin
   if [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]]
   then
-    _log 'warn' "Spamassassin is disabled. You can enable it with 'ENABLE_SPAMASSASSIN=1'"
+    _log 'debug' 'SpamAssassin is disabled'
     echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _log 'debug' "Enabling and configuring spamassassin"
+    _log 'debug' 'Enabling and configuring SpamAssassin'
 
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
@@ -976,7 +976,7 @@ EOM
   # ClamAV
   if [[ ${ENABLE_CLAMAV} -eq 0 ]]
   then
-    _log 'info' "ClamAV is disabled"
+    _log 'debug' 'ClamAV is disabled'
     echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
@@ -1151,7 +1151,7 @@ function _setup_fail2ban
   _log 'debug' 'Setting up Fail2Ban'
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
-    echo -e '[Init]\nblocktype = DROP' >/etc/fail2ban/action.d/iptables-common.local
+    echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
 }
 
@@ -1269,4 +1269,26 @@ EOF
 
   supervisorctl reread
   supervisorctl update
+}
+
+function _setup_timezone
+{
+  _log 'debug' "Setting timezone to '${TZ}'"
+
+  local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
+
+  if [[ ! -e ${ZONEINFO_FILE} ]]
+  then
+    _log 'warn' "Cannot find timezone '${TZ}'"
+    return 1
+  fi
+
+  if ln -fs "${ZONEINFO_FILE}" /etc/localtime \
+  && dpkg-reconfigure -f noninteractive tzdata &>/dev/null
+  then
+    _log 'trace' "Set time zone to '${TZ}'"
+  else
+    _log 'warn' "Setting timezone to '${TZ}' failed"
+    return 1
+  fi
 }
