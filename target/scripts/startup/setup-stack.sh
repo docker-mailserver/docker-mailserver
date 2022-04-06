@@ -1263,3 +1263,25 @@ EOF
   supervisorctl reread
   supervisorctl update
 }
+
+function _setup_timezone
+{
+  _log 'debug' "Setting timezone to '${TZ}'"
+
+  local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
+
+  if [[ ! -e ${ZONEINFO_FILE} ]]
+  then
+    _log 'warn' "Cannot find timezone '${TZ}'"
+    return 1
+  fi
+
+  if ln -fs "${ZONEINFO_FILE}" /etc/localtime \
+  && dpkg-reconfigure -f noninteractive tzdata &>/dev/null
+  then
+    _log 'trace' "Set time zone to '${TZ}'"
+  else
+    _log 'warn' "Setting timezone to '${TZ}' failed"
+    return 1
+  fi
+}
