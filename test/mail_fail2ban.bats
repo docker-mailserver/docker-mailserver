@@ -123,7 +123,7 @@ function teardown_file() {
 
   run docker exec mail_fail2ban fail2ban
   assert_success
-  assert_output --regexp "^Banned in custom:.*192\.0\.66\.7$"
+  assert_output --regexp "Banned in custom:.*192\.0\.66\.7"
 
   run docker exec mail_fail2ban fail2ban unban 192.0.66.7
   assert_success
