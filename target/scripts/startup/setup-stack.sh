@@ -1148,8 +1148,7 @@ function _setup_fail2ban
     echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
 
-  echo -e '[custom]\nenabled = true' >/etc/fail2ban/jail.d/custom.conf
-  echo -e '[Definition]'             >/etc/fail2ban/filter.d/custom.conf
+  echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
 }
 
 function _setup_dnsbl_disable
