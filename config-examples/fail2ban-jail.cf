@@ -31,3 +31,4 @@ enabled = true
 
 [custom]
 enabled = true
+bantime = 180d
