@@ -1142,10 +1142,14 @@ function _setup_user_patches
 function _setup_fail2ban
 {
   _log 'debug' 'Setting up Fail2Ban'
+
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
     echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
+
+  echo -e '[custom]\nenabled = true' >/etc/fail2ban/jail.d/custom.conf
+  echo -e '[Definition]'             >/etc/fail2ban/filter.d/custom.conf
 }
 
 function _setup_dnsbl_disable
