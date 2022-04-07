@@ -42,7 +42,7 @@ teardown_file() {
 }
 
 # master account
-@test "checking dovecot: master account" {
+@test "checking dovecot: master account can login" {
   run docker exec mail_with_imap bash -c "testsaslauthd -u user1@localhost.localdomain*masterusername -p masterpassword"
   assert_success
 }
