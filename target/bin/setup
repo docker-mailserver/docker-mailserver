@@ -68,7 +68,7 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} relay ${CYAN}exclude-domain${RESET} <DOMAIN>
 
     ${LBLUE}COMMAND${RESET} fail2ban ${RED}:=${RESET}
-        ${0} fail2ban ${CYAN}${RESET}
+        ${0} fail2ban ${RESET}
         ${0} fail2ban ${CYAN}ban${RESET} <IP>
         ${0} fail2ban ${CYAN}unban${RESET} <IP>
 

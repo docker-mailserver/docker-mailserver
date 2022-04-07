@@ -45,7 +45,7 @@ else
       if [[ -n ${1} ]]
       then
         RESULT=$(fail2ban-client set custom banip "${@}")
-        if [[ $RESULT -lt 1 ]]
+        if [[ ${RESULT} -lt 1 ]]
         then
           _log 'error' "Banning '${*}' failed. Already banned?"
         fi
