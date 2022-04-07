@@ -3,7 +3,11 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function __usage { echo "Usage: ${0} [<unban> <ip-address|network|hostname>]" ; }
+function __usage {
+  echo "Usage: ${0}" ;
+  echo "       ${0} ban <IP>" ;
+  echo "       ${0} unban <IP>" ;
+}
 
 unset JAILS
 declare -a JAILS
@@ -40,14 +44,14 @@ else
       shift
       if [[ -n ${1} ]]
       then
-        RESULT=$(fail2ban-client set custom banip ${*})
+        RESULT=$(fail2ban-client set custom banip "${@}")
         if [[ $RESULT -lt 1 ]]
         then
           _log 'error' "Banning '${*}' failed. Already banned?"
         fi
 
       else
-        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban ban <ip-address|network|hostname>'"
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban ban <IP>'"
         exit 0
       fi
       ;;
@@ -59,7 +63,7 @@ else
 
         for JAIL in "${JAILS[@]}"
         do
-          RESULT=$(fail2ban-client set "${JAIL}" unbanip ${*} 2>&1)
+          RESULT=$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)
 
           [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
         done
