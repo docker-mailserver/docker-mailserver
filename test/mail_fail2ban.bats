@@ -120,7 +120,7 @@ function teardown_file() {
 # debug
 #
 
-@test "checking setup.sh: setup.sh debug fail2ban" {
+@test "checking setup.sh: setup.sh fail2ban" {
 
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"

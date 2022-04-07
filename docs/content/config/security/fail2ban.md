@@ -97,7 +97,7 @@ You can also manage and list the banned IPs with the [`setup.sh`][docs-setupsh] 
 ### List bans
 
 ```sh
-./setup.sh debug fail2ban
+./setup.sh fail2ban
 ```
 
 ### Un-ban
@@ -105,7 +105,7 @@ You can also manage and list the banned IPs with the [`setup.sh`][docs-setupsh] 
 Here `192.168.1.15` is our banned IP.
 
 ```sh
-./setup.sh debug fail2ban unban 192.168.1.15
+./setup.sh fail2ban unban 192.168.1.15
 ```
 
 [docs-setupsh]: ../setup.sh.md
