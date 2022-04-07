@@ -148,13 +148,7 @@ function _main
       esac
       ;;
 
-    ( fail2ban )
-      case ${2:-} in
-        ( ban            ) shift 2; fail2ban ban "${@}" ;;
-        ( unban          ) shift 2; fail2ban unban "${@}" ;;
-        ( *              ) fail2ban ;;
-      esac
-      ;;
+    ( fail2ban ) shift 1 ; fail2ban "${@}" ;;
 
     ( debug )
       case ${2:-} in
