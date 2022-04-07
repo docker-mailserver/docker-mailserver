@@ -427,6 +427,17 @@ sed -i 's/rimap -r/rimap/' /etc/supervisor/conf.d/saslauth.conf
 supervisorctl update
 ```
 
+### How to ban custom IP addresses with Fail2ban
+
+Use the following command:
+
+```bash
+./setup.sh fail2ban ban <IP>
+```
+
+The default bantime is 180 days. This value can be [customized][fail2ban-customize].
+
+[fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
