@@ -45,8 +45,10 @@ else
       if [[ -n ${1} ]]
       then
         RESULT=$(fail2ban-client set custom banip "${@}")
-        if [[ ${RESULT} -lt 1 ]]
+        if [[ ${RESULT} -gt 0 ]]
         then
+          echo "Banned custom IP: ${RESULT}"
+        else
           _log 'error' "Banning '${*}' failed. Already banned?"
         fi
 
@@ -65,7 +67,7 @@ else
         do
           RESULT=$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)
 
-          [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
+          [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo "Unbanned IP from ${JAIL}: ${RESULT}"
         done
 
       else
