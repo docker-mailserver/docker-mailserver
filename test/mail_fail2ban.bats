@@ -116,9 +116,19 @@ function teardown_file() {
   refute_output "${FAIL_AUTH_MAILER_IP}"
 }
 
-#
-# debug
-#
+@test "checking fail2ban ban" {
+  run docker exec mail_fail2ban fail2ban ban 192.0.66.7
+  assert_success
+  assert_output "Banned custom IP: 1"
+
+  run docker exec mail_fail2ban fail2ban
+  assert_success
+  assert_output --regexp "^Banned in custom:.*192\.0\.66\.7$"
+
+  run docker exec mail_fail2ban fail2ban unban 192.0.66.7
+  assert_success
+  assert_output --partial "Unbanned IP from custom: 1"
+}
 
 @test "checking setup.sh: setup.sh fail2ban" {
 
@@ -127,21 +137,20 @@ function teardown_file() {
 
   sleep 10
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban
-  assert_output --partial 'Banned in dovecot:'
-  assert_output --partial '192.0.66.5'
-  assert_output --partial '192.0.66.4'
+  run ./setup.sh -c mail_fail2ban fail2ban
+  assert_output --regexp '^Banned in dovecot:.*192\.0\.66\.4'
+  assert_output --regexp '^Banned in dovecot:.*192\.0\.66\.5'
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.4
+  run ./setup.sh -c mail_fail2ban fail2ban unban 192.0.66.4
   assert_output --partial "Unbanned IP from dovecot: 1"
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban
-  assert_output --regexp "^Banned in dovecot:.*192.0.66.5.*"
+  run ./setup.sh -c mail_fail2ban fail2ban
+  assert_output --regexp "^Banned in dovecot:.*192\.0\.66\.5"
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.5
+  run ./setup.sh -c mail_fail2ban fail2ban unban 192.0.66.5
   assert_output --partial "Unbanned IP from dovecot: 1"
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban unban
+  run ./setup.sh -c mail_fail2ban fail2ban unban
   assert_output --partial "You need to specify an IP address: Run"
 }
 
