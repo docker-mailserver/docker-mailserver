@@ -300,11 +300,11 @@ function _setup_dovecot_local_user
   local SLEEP_PERIOD='10'
   for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
   do
-    if grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
+    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf) -ge 1 ]]
     then
       return 0
     else
-      _log 'warn' "You need at least 1 email account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
+      _log 'warn' "You need at least one email account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
       sleep "${SLEEP_PERIOD}"
     fi
   done

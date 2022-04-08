@@ -131,10 +131,10 @@ NAME
 
 #### Starting for the first time
 
-On first start, you will need to add email accounts (unless you're using LDAP). You have two minutes time before DMS will shut down if there are no accounts. You can add accounts with the following two methods:
+On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts with the following two methods:
 
-1. Use `setup.sh` to help you: `./setup.sh email add <user@domain> <password>`
-2. Execute the complete command yourself: `docker exec -ti <CONTAINER NAME> setup email add <user@domain> <password>`
+1. Use `setup.sh`: `./setup.sh email add <user@domain>`
+2. Run the command directly in the container: `docker exec -ti <CONTAINER NAME> setup email add <user@domain>`
 
 You can then proceed by creating the postmaster alias and by creating DKIM keys.
 
