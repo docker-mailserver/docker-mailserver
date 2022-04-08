@@ -34,3 +34,4 @@ enabled = true
 [custom]
 enabled = true
 bantime = 180d
+port = smtp,pop3,pop3s,imap,imaps,submission,465,sieve
