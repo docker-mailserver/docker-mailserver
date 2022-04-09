@@ -116,7 +116,11 @@ do
     # TODO: That should be all that's required, unless the cert file paths have also changed (Postfix/Dovecot configs then need to be updated).
 
     # regenerate postfix accounts & dovecot masters
-    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts && _create_masters
+    if [[ ${SMTP_ONLY} -ne 1 ]]
+    then
+      _create_accounts
+      _create_masters
+    fi
 
     _rebuild_relayhost
 

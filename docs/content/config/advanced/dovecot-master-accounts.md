@@ -4,7 +4,7 @@ title: 'Advanced | Dovecot master accounts'
 
 ## Introduction
 
-A dovecot master account is able to see the mailbox of any configured user - often useful for administration purposes.
+A dovecot master account is able to login as any configured user. This is useful for administrative tasks like hot backups.
 
 ## Configuration
 
@@ -12,7 +12,7 @@ It is possible to create, update, delete and list dovecot master accounts using 
 
 ## Logging in
 
-Once a master account is configured, it is possible to connect to any users mailbox using this account. Log in over IMAP using the following credential scheme:
+Once a master account is configured, it is possible to connect to any users mailbox using this account. Log in over POP3/IMAP using the following credential scheme:
 
 Username: `<EMAIL ADDRESS>*<MASTER ACCOUNT NAME>`
 
