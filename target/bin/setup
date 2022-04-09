@@ -167,7 +167,7 @@ function _main
   esac
 }
 
-if [[ $# -eq 0 ]]
+if [[ -z ${1:-} ]]
 then
   _usage
 else
