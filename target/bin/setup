@@ -167,4 +167,9 @@ function _main
   esac
 }
 
-_main "${@}"
+if [[ $# -eq 0 ]]
+then
+  _usage
+else
+  _main "${@}"
+fi
