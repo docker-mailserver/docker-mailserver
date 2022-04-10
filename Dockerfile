@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/dock
 
 # These ENVs are referenced in target/supervisor/conf.d/saslauth.conf
 # and must be present when supervisord starts.
-# If necessary, the values are adjusted by target/scripts/start-mailserver.sh on startup.
+# If necessary, their values are adjusted by target/scripts/start-mailserver.sh on startup.
 ENV FETCHMAIL_POLL=300
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300
