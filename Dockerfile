@@ -21,14 +21,14 @@ LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
 
-ENV ENABLE_POSTGREY=0
+# These ENVs are referenced in target/supervisor/conf.d/saslauth.conf
+# and must be present when supervisord starts.
+# If necessary, the values are adjusted by target/scripts/start-mailserver.sh on startup.
 ENV FETCHMAIL_POLL=300
-ENV ONE_DIR=1
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300
 ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by Postgrey"
-ENV SASLAUTHD_MECHANISMS=pam
 ENV SASLAUTHD_MECH_OPTIONS=""
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
