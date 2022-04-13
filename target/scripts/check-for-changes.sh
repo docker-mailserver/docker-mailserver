@@ -22,19 +22,19 @@ _obtain_hostname_and_domainname
 
 if ! cd /tmp/docker-mailserver &>/dev/null
 then
-  _exit_with_error "Could not change into '/tmp/docker-mailserver/' directory"
+  _exit_with_error "Could not change into '/tmp/docker-mailserver/' directory" 0
 fi
 
 # check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _exit_with_error "'/tmp/docker-mailserver/postfix-accounts.cf' is missing"
+  _exit_with_error "'/tmp/docker-mailserver/postfix-accounts.cf' is missing" 0
 fi
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
+  _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing" 0
 fi
 
 REGEX_NEVER_MATCH="(?\!)"
