@@ -10,7 +10,7 @@ function _exit_with_error
   fi
 
   _log 'error' 'Aborting'
-  exit ${2:-1}
+  exit "${2:-1}"
 }
 
 # `dms_panic` methods are appropriate when the type of error is a not recoverable,
