@@ -8,7 +8,6 @@ function setup_file() {
               -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
               -e SMTP_ONLY=1 \
               -e PERMIT_DOCKER=network \
-              -e DMS_DEBUG=0 \
               -e OVERRIDE_HOSTNAME=mail.my-domain.com \
               -t "${NAME}"
 

@@ -53,7 +53,6 @@ VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
 VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
 VARS[CLAMAV_MESSAGE_SIZE_LIMIT]="${CLAMAV_MESSAGE_SIZE_LIMIT:=25M}" # 25 MB
 VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
-VARS[DMS_DEBUG]="${DMS_DEBUG:=0}"
 VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
 VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
 VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
@@ -108,6 +107,7 @@ VARS[SPOOF_PROTECTION]="${SPOOF_PROTECTION:=0}"
 VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
 VARS[SSL_TYPE]="${SSL_TYPE:=}"
 VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
+VARS[TZ]="${TZ:=}"
 VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 
@@ -131,6 +131,8 @@ function register_functions
 
   _register_setup_function '_setup_default_vars'
   _register_setup_function '_setup_file_permissions'
+
+  [[ -n ${TZ} ]] && _register_setup_function '_setup_timezone'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]
   then

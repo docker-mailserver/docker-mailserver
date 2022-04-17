@@ -103,7 +103,6 @@ function collect_cipherlist_data() {
     run docker run -d --name tls_test_cipherlists \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
         --volume "${TLS_CONFIG_VOLUME}" \
-        --env DMS_DEBUG=0 \
         --env ENABLE_POP3=1 \
         --env SSL_TYPE="manual" \
         --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem" \

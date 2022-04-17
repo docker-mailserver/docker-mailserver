@@ -323,7 +323,7 @@ function _setup_ssl
       ;;
 
     ( '' ) # No SSL/TLS certificate used/required, plaintext auth permitted over insecure connections
-      _log 'warn' "(INSECURE!) SSL configured with plain text access. DO NOT USE FOR PRODUCTION DEPLOYMENT."
+      _log 'warn' '!! INSECURE !! SSL configured with plain text access - DO NOT USE FOR PRODUCTION DEPLOYMENT'
       # Untested. Not officially supported.
 
       # Postfix configuration:

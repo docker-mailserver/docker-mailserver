@@ -14,7 +14,6 @@ setup_file() {
 					-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 					-e SMTP_ONLY=1 \
 					-e PERMIT_DOCKER=connected-networks \
-					-e DMS_DEBUG=0 \
 					-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 					--network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" \
 					-t "${NAME}"
@@ -26,7 +25,6 @@ setup_file() {
 				-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 				-e SMTP_ONLY=1 \
 				-e PERMIT_DOCKER=connected-networks \
-				-e DMS_DEBUG=0 \
 				-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 				--network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" \
 				-t "${NAME}"
@@ -40,7 +38,6 @@ setup_file() {
 				-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
 				-e SMTP_ONLY=1 \
 				-e PERMIT_DOCKER=none \
-				-e DMS_DEBUG=0 \
 				-e OVERRIDE_HOSTNAME=mail.my-domain.com \
 				-t "${NAME}"
 
