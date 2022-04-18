@@ -290,19 +290,26 @@ function _setup_dovecot_local_user
   _log 'debug' 'Setting up Dovecot Local User'
 
   _create_accounts
+  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
-    _log 'trace' "'/tmp/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
+    _log 'trace' "'/tmp/docker-mailserver/postfix-accounts.cf' not provided, no mail account created"
   fi
 
-  if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
-  then
-    if [[ ${ENABLE_LDAP} -eq 0 ]]
+  local SLEEP_PERIOD='10'
+  for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
+  do
+    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf) -ge 1 ]]
     then
-      _shutdown 'Unless using LDAP, you need at least 1 email account to start Dovecot'
+      return 0
+    else
+      _log 'warn' "You need at least one email account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
+      sleep "${SLEEP_PERIOD}"
     fi
-  fi
+  done
+
+  _shutdown 'No accounts provided - Dovecot could not be started'
 }
 
 function _setup_ldap

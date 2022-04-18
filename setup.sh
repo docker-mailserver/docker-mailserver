@@ -236,4 +236,5 @@ function _main
   return 0
 }
 
+[[ -z ${1:-} ]] && set 'help'
 _main "${@}"
