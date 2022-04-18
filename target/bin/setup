@@ -167,4 +167,9 @@ function _main
   esac
 }
 
-_main "${@}"
+if [[ -z ${1:-} ]]
+then
+  _usage
+else
+  _main "${@}"
+fi
