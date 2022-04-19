@@ -9,9 +9,9 @@
 source /usr/local/bin/helpers/index.sh
 
 DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
-ALIAS_DATABASE="/tmp/docker-mailserver/postfix-virtual.cf"
-QUOTA_DATABASE="/tmp/docker-mailserver/dovecot-quotas.cf"
-MAILDEL=false
+ALIAS_DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
+QUOTA_DATABASE='/tmp/docker-mailserver/dovecot-quotas.cf'
+MAILDEL='false'
 
 function __usage
 {
