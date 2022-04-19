@@ -376,7 +376,7 @@ function _setup_ldap
   # add domainname to vhost
   echo "${DOMAINNAME}" >>/tmp/vhost.tmp
 
-  _log 'trace' 'Enabling Dovecot LDAP authentification'
+  _log 'trace' 'Enabling Dovecot LDAP authentication'
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
