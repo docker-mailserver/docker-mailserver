@@ -9,7 +9,7 @@
 source /usr/local/bin/helpers/index.sh
 
 DATABASE='/tmp/docker-mailserver/dovecot-quotas.cf'
-USER_DATABASE=${USER_DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+USER_DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
 
 USER="${1}"
 shift
