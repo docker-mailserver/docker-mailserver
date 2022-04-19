@@ -376,7 +376,7 @@ function _setup_ldap
   # add domainname to vhost
   echo "${DOMAINNAME}" >>/tmp/vhost.tmp
 
-  _log 'trace' 'Enabling Dovecot LDAP authentification'
+  _log 'trace' 'Enabling Dovecot LDAP authentication'
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
@@ -1149,10 +1149,13 @@ function _setup_user_patches
 function _setup_fail2ban
 {
   _log 'debug' 'Setting up Fail2Ban'
+
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
     echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
+
+  echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
 }
 
 function _setup_dnsbl_disable

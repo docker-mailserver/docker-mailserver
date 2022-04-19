@@ -3,7 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function __usage { echo "Usage: ${0} [<unban> <ip-address>]" ; }
+function __usage { echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]" ; }
 
 unset JAILS
 declare -a JAILS
@@ -36,6 +36,26 @@ else
 
   case "${1}" in
 
+    ( 'help' ) __usage ; exit ;;
+
+    ( 'ban' )
+      shift
+      if [[ -n ${1} ]]
+      then
+        RESULT=$(fail2ban-client set custom banip "${@}")
+        if [[ ${RESULT} -gt 0 ]]
+        then
+          echo "Banned custom IP: ${RESULT}"
+        else
+          _log 'error' "Banning '${*}' failed. Already banned?"
+        fi
+
+      else
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban ban <IP>'"
+        exit 0
+      fi
+      ;;
+
     ( 'unban' )
       shift
       if [[ -n ${1} ]]
@@ -43,13 +63,13 @@ else
 
         for JAIL in "${JAILS[@]}"
         do
-          RESULT="$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)"
+          RESULT=$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)
 
-          [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo -e "Unbanned IP from ${JAIL}: ${RESULT}"
+          [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo "Unbanned IP from ${JAIL}: ${RESULT}"
         done
 
       else
-        _log 'warn' "You need to specify an IP address: Run './setup.sh debug fail2ban' to get a list of banned IP addresses"
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban' to get a list of banned IP addresses"
         exit 0
       fi
       ;;

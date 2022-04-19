@@ -73,8 +73,12 @@ DESCRIPTION
         ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
         ./setup.sh relay exclude-domain <DOMAIN>
 
+    COMMAND fail2ban =
+        ./setup.sh fail2ban
+        ./setup.sh fail2ban ban <IP>
+        ./setup.sh fail2ban unban <IP>
+
     COMMAND debug :=
-        ./setup.sh debug fail2ban [unban <IP>]
         ./setup.sh debug fetchmail
         ./setup.sh debug login <COMMANDS>
         ./setup.sh debug show-mail-logs
