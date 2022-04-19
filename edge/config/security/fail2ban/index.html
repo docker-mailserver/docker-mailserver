@@ -1690,11 +1690,11 @@ Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
 <h2 id="manage-bans"><a class="toclink" href="#manage-bans">Manage bans</a></h2>
 <p>You can also manage and list the banned IPs with the <a href="../../setup.sh/"><code>setup.sh</code></a> script.</p>
 <h3 id="list-bans"><a class="toclink" href="#list-bans">List bans</a></h3>
-<div class="highlight"><pre><span></span><code>./setup.sh debug fail2ban
+<div class="highlight"><pre><span></span><code>./setup.sh fail2ban
 </code></pre></div>
 <h3 id="un-ban"><a class="toclink" href="#un-ban">Un-ban</a></h3>
 <p>Here <code>192.168.1.15</code> is our banned IP.</p>
-<div class="highlight"><pre><span></span><code>./setup.sh debug fail2ban unban <span class="m">192</span>.168.1.15
+<div class="highlight"><pre><span></span><code>./setup.sh fail2ban unban <span class="m">192</span>.168.1.15
 </code></pre></div>
 
               

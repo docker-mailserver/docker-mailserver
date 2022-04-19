@@ -1554,8 +1554,12 @@ DESCRIPTION
         ./setup.sh relay add-domain &lt;DOMAIN&gt; &lt;HOST&gt; [&lt;PORT&gt;]
         ./setup.sh relay exclude-domain &lt;DOMAIN&gt;
 
+    COMMAND fail2ban =
+        ./setup.sh fail2ban
+        ./setup.sh fail2ban ban &lt;IP&gt;
+        ./setup.sh fail2ban unban &lt;IP&gt;
+
     COMMAND debug :=
-        ./setup.sh debug fail2ban [unban &lt;IP&gt;]
         ./setup.sh debug fetchmail
         ./setup.sh debug login &lt;COMMANDS&gt;
         ./setup.sh debug show-mail-logs

@@ -1509,6 +1509,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-to-ban-custom-ip-addresses-with-fail2ban" class="md-nav__link">
+    How to ban custom IP addresses with Fail2ban
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1869,6 +1876,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-to-ban-custom-ip-addresses-with-fail2ban" class="md-nav__link">
+    How to ban custom IP addresses with Fail2ban
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2178,6 +2192,11 @@ cat /tmp/docker-mailserver/user-patches.sh
 sed -i <span class="s1">&#39;s/rimap -r/rimap/&#39;</span> /etc/supervisor/conf.d/saslauth.conf
 supervisorctl update
 </code></pre></div>
+<h3 id="how-to-ban-custom-ip-addresses-with-fail2ban"><a class="toclink" href="#how-to-ban-custom-ip-addresses-with-fail2ban">How to ban custom IP addresses with Fail2ban</a></h3>
+<p>Use the following command:</p>
+<div class="highlight"><pre><span></span><code>./setup.sh fail2ban ban &lt;IP&gt;
+</code></pre></div>
+<p>The default bantime is 180 days. This value can be <a href="../config/security/fail2ban/">customized</a>.</p>
 
               
             </article>
