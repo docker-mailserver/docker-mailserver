@@ -67,8 +67,12 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
         ${0} relay ${CYAN}exclude-domain${RESET} <DOMAIN>
 
+    ${LBLUE}COMMAND${RESET} fail2ban ${RED}:=${RESET}
+        ${0} fail2ban ${RESET}
+        ${0} fail2ban ${CYAN}ban${RESET} <IP>
+        ${0} fail2ban ${CYAN}unban${RESET} <IP>
+
     ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
-        ${0} debug ${CYAN}fail2ban${RESET} [unban <IP>]
         ${0} debug ${CYAN}fetchmail${RESET}
         ${0} debug ${CYAN}login${RESET} <COMMANDS>
         ${0} debug ${CYAN}show-mail-logs${RESET}
@@ -144,10 +148,11 @@ function _main
       esac
       ;;
 
+    ( fail2ban ) shift 1 ; fail2ban "${@}" ;;
+
     ( debug )
       case ${2:-} in
         ( fetchmail      ) debug-fetchmail ;;
-        ( fail2ban       ) shift 2 ; fail2ban "${@}" ;;
         ( show-mail-logs ) cat /var/log/mail/mail.log ;;
         ( login          )
           shift 2
@@ -167,4 +172,9 @@ function _main
   esac
 }
 
-_main "${@}"
+if [[ -z ${1:-} ]]
+then
+  _usage
+else
+  _main "${@}"
+fi

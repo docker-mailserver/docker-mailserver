@@ -936,10 +936,10 @@ EOF
 # --- setup.sh ----------------------------------
 # -----------------------------------------------
 
-@test "checking setup.sh: exit with error when no arguments provided" {
+@test "checking setup.sh: show usage when no arguments provided" {
   run ./setup.sh
-  assert_failure
-  assert_line --index 0 --partial "The command '' is invalid."
+  assert_success
+  assert_output --partial "This is the main administration script that you use for all your interactions with"
 }
 
 @test "checking setup.sh: exit with error when wrong arguments provided" {
