@@ -5,15 +5,11 @@ title: 'FAQ'
 ### What kind of database are you using?
 
 None! No database is required. Filesystem is the database.
-This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.
+This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.
 
 ### Where are emails stored?
 
 Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
-
-!!! warning
-
-    You should use a [data volume container](https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu) for `/var/mail` to persist data. Otherwise, your data may be lost.
 
 ### How to alter the running `docker-mailserver` instance _without_ relaunching the container?
 
@@ -79,7 +75,7 @@ docker run --rm -it \
   -v "${PWD}/docker-data/dms-backups/:/backup/" \
   --volumes-from mailserver \
   alpine:latest \
-  tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
+  tar czf "/backup/mail-$(date +%F).tar.gz" /var/mail /var/mail-state /var/log/mail /tmp/docker-mailserver
 
 # delete backups older than 30 days
 find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
