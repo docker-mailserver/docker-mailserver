@@ -1905,13 +1905,9 @@
 
 <h3 id="what-kind-of-database-are-you-using"><a class="toclink" href="#what-kind-of-database-are-you-using">What kind of database are you using?</a></h3>
 <p>None! No database is required. Filesystem is the database.
-This image is based on config files that can be persisted using Docker volumes, and as such versioned, backed up and so forth.</p>
+This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.</p>
 <h3 id="where-are-emails-stored"><a class="toclink" href="#where-are-emails-stored">Where are emails stored?</a></h3>
 <p>Mails are stored in <code>/var/mail/${domain}/${username}</code>. Since <code>v9.0.0</code> it is possible to add custom <code>user_attributes</code> for each accounts to have a different mailbox configuration (See <a href="https://github.com/docker-mailserver/docker-mailserver/pull/1792">#1792</a>).</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>You should use a <a href="https://medium.com/@ramangupta/why-docker-data-containers-are-good-589b3c6c749e#.uxyrp7xpu">data volume container</a> for <code>/var/mail</code> to persist data. Otherwise, your data may be lost.</p>
-</div>
 <h3 id="how-to-alter-the-running-docker-mailserver-instance-without-relaunching-the-container"><a class="toclink" href="#how-to-alter-the-running-docker-mailserver-instance-without-relaunching-the-container">How to alter the running <code>docker-mailserver</code> instance <em>without</em> relaunching the container?</a></h3>
 <p><code>docker-mailserver</code> aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.</p>
 <p>In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>), then restart the sub-service to apply your changes, using <code>supervisorctl</code>. For instance, after editing fail2ban's config: <code>supervisorctl restart fail2ban</code>.</p>
@@ -1952,7 +1948,7 @@ docker run --rm -it <span class="se">\</span>
   -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/dms-backups/:/backup/&quot;</span> <span class="se">\</span>
   --volumes-from mailserver <span class="se">\</span>
   alpine:latest <span class="se">\</span>
-  tar czf <span class="s2">&quot;/backup/mail-</span><span class="k">$(</span>date +%F<span class="k">)</span><span class="s2">.tar.gz&quot;</span> /var/mail /var/mail-state /var/logs/mail /tmp/docker-mailserver
+  tar czf <span class="s2">&quot;/backup/mail-</span><span class="k">$(</span>date +%F<span class="k">)</span><span class="s2">.tar.gz&quot;</span> /var/mail /var/mail-state /var/log/mail /tmp/docker-mailserver
 
 <span class="c1"># delete backups older than 30 days</span>
 find <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/dms-backups/&quot;</span> -type f -mtime +30 -delete
