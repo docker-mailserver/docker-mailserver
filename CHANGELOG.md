@@ -4,7 +4,7 @@
 
 ### Major Changes
 
-1. [**Internal logging has been refactored**](https://github.com/docker-mailserver/docker-mailserver/pull/2493). The environment variable `DMS_DEBUG` has been replaced by [`LOG_LEVEL`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#log_level) to better control the verbosity of logs we output. The new logger is more structured and follows standard log conventions. `LOG_LEVEL` can be set to: `critical`, `error`, `warn`, `info` (default) and `debug`.
+1. [**Internal logging has been refactored**](https://github.com/docker-mailserver/docker-mailserver/pull/2493). The environment variable `DMS_DEBUG` has been replaced by [`LOG_LEVEL`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#log_level) to better control the verbosity of logs we output. The new logger is more structured and follows standard log conventions. `LOG_LEVEL` can be set to: `error`, `warn`, `info` (default), `debug` and `trace`.
 2. [**`iptables` has been replaced by `nftables`**](https://github.com/docker-mailserver/docker-mailserver/pull/2505). The Fail2Ban configuration was adjusted accordingly. If you use `iptables` youself (e.g. in `user-patches.sh`), make sure to update the scripts.
 3. **[`PERMIT_DOCKER`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#permit_docker) has a new default value of `none`**. This change [better secures Podman](https://github.com/docker-mailserver/docker-mailserver/pull/2424); to keep the old behaviour (_adding the container IP address to Postfix's `mynetworks`_), use `PERMIT_DOCKER=container`.
 
