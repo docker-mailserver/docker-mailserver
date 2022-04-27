@@ -7,7 +7,7 @@ DATABASE='/tmp/docker-mailserver/postfix-relaymap.cf'
 
 function __usage
 {
-  printf "\e[35mADDRELAYHOST\e[31m(\e[93m8\e[31m)
+  printf '%s' "\e[35mADDRELAYHOST\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
     addrelayhost - add an relay host

@@ -155,7 +155,7 @@ function _setup_dovecot
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf
   then
-    printf '\nstats_writer_socket_path=\n' >>/etc/dovecot/dovecot.conf
+    printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
   fi
 
   # set mail_location according to mailbox format

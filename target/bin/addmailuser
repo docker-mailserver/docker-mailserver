@@ -9,7 +9,7 @@ DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
 
 function __usage
 {
-  printf "\e[35mADDMAILUSER\e[31m(\e[93m8\e[31m)
+  printf '%s' "\e[35mADDMAILUSER\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
     addmailuser - add an email address (i.e. a user)

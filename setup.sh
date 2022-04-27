@@ -47,7 +47,7 @@ function __err
 function _show_local_usage
 {
   # shellcheck disable=SC2059
-  printf "${ORANGE}OPTIONS${RESET}
+  printf '%s' "${ORANGE}OPTIONS${RESET}
     ${LBLUE}Config path, container or image adjustments${RESET}
         -i IMAGE_NAME
             Provides the name of the 'docker-mailserver' image. The default value is
@@ -78,7 +78,7 @@ function _show_local_usage
   [[ ${1:-} == 'no-exit' ]] && return 0
 
   # shellcheck disable=SC2059
-  printf "${ORANGE}EXIT STATUS${RESET}
+  printf '%s' "${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if the command was successful. If there was an unexpected error, an error
     message is shown describing the error. In case of an error, the script will exit with exit
     status 1.
