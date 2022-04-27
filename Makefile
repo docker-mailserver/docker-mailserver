@@ -38,8 +38,6 @@ generate-accounts:
 
 # Dovecot master accounts
 	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
-	@ echo "# this is a test comment, please don't delete me :'(" >> test/config/dovecot-masters.cf
-	@ echo "           # this is also a test comment, :O" >> test/config/dovecot-masters.cf
 
 tests:
 	@ NAME=$(NAME) ./test/bats/bin/bats --timing test/*.bats

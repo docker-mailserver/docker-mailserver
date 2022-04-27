@@ -10,7 +10,7 @@ source /etc/dms-settings 2>/dev/null
 DATABASE='/tmp/docker-mailserver/dovecot-masters.cf'
 
 [[ -f ${DATABASE} ]] || _exit_with_error "No 'dovecot-masters.cf' file"
-[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'dovecot-masters.cf' - no master accounts have been added"
+[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'dovecot-masters.cf' - no dovecot master accounts have been added"
 
 while read -r LINE
 do

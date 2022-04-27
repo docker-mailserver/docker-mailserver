@@ -8,31 +8,31 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE=${DATABASE:-/tmp/docker-mailserver/dovecot-masters.cf}
+DATABASE=/tmp/docker-mailserver/dovecot-masters.cf
 
 function __usage
 {
-  echo -e "\e[35mDELMASTERUSER\e[31m(\e[93m8\e[31m)
+  echo -e "\e[35mDELDOVECOTMASTERUSER\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
-    delmasteruser - delete a master user
+    deldovecotmasteruser - delete a dovecot master user
 
 \e[38;5;214mSYNOPSIS\e[39m
-    ./setup.sh master del { <USERNAME> [<USERNAME>\e[31m...\e[39m] \e[31m|\e[39m help }
+    ./setup.sh dovecot-master del { <USERNAME> [<USERNAME>\e[31m...\e[39m] \e[31m|\e[39m help }
 
 \e[38;5;214mDESCRIPTION\e[39m
-    Delete a master user.
+    Delete a dovecot master user.
 
 \e[38;5;214mOPTIONS\e[39m
     -h
         Show this help dialogue.
 
 \e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh master del administrator\e[39m
-        Delete the master user called 'administrator'.
+    \e[37m./setup.sh dovecot-master del administrator\e[39m
+        Delete the dovecot master user called 'administrator'.
 
-    \e[37m./setup.sh master del administrator admin\e[39m
-        Delete master users 'administrator' and 'admin'.
+    \e[37m./setup.sh dovecot-master del administrator admin\e[39m
+        Delete dovecot master users 'administrator' and 'admin'.
 
 \e[38;5;214mEXIT STATUS\e[39m
     Exit status is 0 if command was successful, and 1 if there was an error.
