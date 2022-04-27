@@ -9,24 +9,24 @@ DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
 
 function __usage
 {
-  printf "\e[35mADDMAILUSER\e[31m(\e[93m8\e[31m)
+  printf '%s' "${PURPLE}ADDMAILUSER${RED}(${YELLOW}8${RED})
 
-\e[38;5;214mNAME\e[39m
+${ORANGE}NAME${RESET}
     addmailuser - add an email address (i.e. a user)
 
-\e[38;5;214mSYNOPSIS\e[39m
+${ORANGE}SYNOPSIS${RESET}
     ./setup.sh email add <EMAIL ADDRESS> [<PASSWORD>]
 
-\e[38;5;214mOPTIONS\e[39m
-    \e[94mGeneric Program Information\e[39m
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
-\e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh email add test@domain.tld\e[39m
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh email add test@domain.tld${RESET}
         Add the email account test@domain.tld. You will be prompted
         to input a password afterwards since no password was supplied.
 
-\e[38;5;214mEXIT STATUS\e[39m
+${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided
     or arguments contain errors, the script will exit early with exit status 1.
 

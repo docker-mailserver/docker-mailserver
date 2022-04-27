@@ -9,42 +9,42 @@ DOMAINS=
 
 function __usage
 {
-  printf "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
+  printf '%s' "${PURPLE}OPEN-DKIM${RED}(${YELLOW}8${RED})
 
-\e[38;5;214mNAME\e[39m
+${ORANGE}NAME${RESET}
     open-dkim - configure DomainKeys Identified Mail (DKIM)
 
-\e[38;5;214mSYNOPSIS\e[39m
-    ./setup.sh config dkim [ OPTIONS\e[31m...\e[39m ]
+${ORANGE}SYNOPSIS${RESET}
+    ./setup.sh config dkim [ OPTIONS${RED}...${RESET} ]
 
-\e[38;5;214mDESCRIPTION\e[39m
+${ORANGE}DESCRIPTION${RESET}
     Configures DKIM keys. OPTIONS can be used to configure a more complex setup.
     LDAP setups require these options.
 
-\e[38;5;214mOPTIONS\e[39m
-    \e[94mGeneric Program Information\e[39m
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
-    \e[94mConfiguration adjustments\e[39m
+    ${BLUE}Configuration adjustments${RESET}
         keysize    Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
-        selector   Set a manual selector (default is 'mail') for the key. (\e[96mATTENTION\e[39m: NOT IMPLEMENTED YET!)
+        selector   Set a manual selector (default is 'mail') for the key. (${LCYAN}ATTENTION${RESET}: NOT IMPLEMENTED YET!)
         domain     Provide the domain(s) for which keys are to be generated.
 
-\e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh config dkim keysize 2048\e[39m
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh config dkim keysize 2048${RESET}
         Creates keys of length 2048 bit in a default setup where domains are obtained from
         your accounts.
 
-    \e[37m./setup.sh config dkim keysize 2048 selector 2021-dkim\e[39m
+    ${LWHITE}./setup.sh config dkim keysize 2048 selector 2021-dkim${RESET}
         Creates keys of length 2048 bit in a default setup where domains are obtained from
         your accounts. The DKIM selector used is '2021-dkim'.
 
-    \e[37m./setup.sh config dkim keysize 2048 selector 2021-dkim domain 'whoami.com,whoareyou.org'\e[39m
+    ${LWHITE}./setup.sh config dkim keysize 2048 selector 2021-dkim domain 'whoami.com,whoareyou.org'${RESET}
         Appropriate for an LDAP setup. Creates keys of length 2048 bit in a default setup
         where domains are obtained from your accounts. The DKIM selector used is '2021-dkim'.
         The domains for which DKIM keys are generated are 'whoami.com' and 'whoareyou.org'.
 
-\e[38;5;214mEXIT STATUS\e[39m
+${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
     errors, the script will exit early with exit status 2.
 
