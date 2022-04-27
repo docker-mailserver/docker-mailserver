@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# shellcheck disable=SC2291 # Quote repeated spaces to avoid them collapsing into one.
+# shellcheck disable=SC2034 # VAR appears unused.
+
 # Color variables for global usage
 RED=$(echo -ne     '\e[0;31m')
 GREEN=$(echo -ne   '\e[0;32m')
@@ -18,8 +21,8 @@ LPURPLE=$(echo -ne '\e[1;35m')
 LCYAN=$(echo -ne   '\e[1;36m')
 LWHITE=$(echo -ne  '\e[1;37m')
 
-ORANGE=$(echo -ne '[38;5;214m')
-RESET=$(echo -ne  '\e[0m')
+ORANGE=$(echo -ne  '\e[38;5;214m')
+RESET=$(echo -ne   '\e[0m')
 
 # ### DMS Logging Functionality
 #
