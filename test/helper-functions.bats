@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 function setup_file() {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     docker run -d --name mail_helper_functions \
         --cap-add=NET_ADMIN \
         -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \

@@ -187,8 +187,8 @@ function _setup_ssl
 
       # checks folders in /etc/letsencrypt/live to identify which one to implicitly use:
       local LETSENCRYPT_DOMAIN LETSENCRYPT_KEY
-      LETSENCRYPT_DOMAIN="$(_find_letsencrypt_domain)"
-      LETSENCRYPT_KEY="$(_find_letsencrypt_key "${LETSENCRYPT_DOMAIN}")"
+      LETSENCRYPT_DOMAIN=$(_find_letsencrypt_domain)
+      LETSENCRYPT_KEY=$(_find_letsencrypt_key "${LETSENCRYPT_DOMAIN}")
 
       # Update relevant config for Postfix and Dovecot
       _log 'trace' "Adding ${LETSENCRYPT_DOMAIN} SSL certificate to the postfix and dovecot configuration"

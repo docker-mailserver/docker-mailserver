@@ -2,8 +2,8 @@ load 'test_helper/common'
 
 setup_file() {
     local PRIVATE_CONFIG PRIVATE_ETC
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
-    PRIVATE_ETC="$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
+    PRIVATE_ETC=$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)
     docker run -d --name mail_lmtp_ip \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PRIVATE_ETC}":/etc/dovecot \

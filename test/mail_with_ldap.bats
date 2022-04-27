@@ -25,7 +25,7 @@ function setup_file() {
 
   # _setup_ldap uses configomat with .ext files and ENV vars like DOVECOT_TLS with a prefix (eg DOVECOT_ or LDAP_)
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
   docker run -d --name mail_with_ldap \
     -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
     -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \

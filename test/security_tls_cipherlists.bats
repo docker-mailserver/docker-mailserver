@@ -23,7 +23,7 @@ function setup_file() {
     # Copies all of `./test/config/` to specific directory for testing
     # `${PRIVATE_CONFIG}` becomes `$(pwd)/test/duplicate_configs/<bats test filename>`
     export PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
 
     # Pull `testssl.sh` image in advance to avoid it interfering with the `run` captured output.
     # Only interferes (potential test failure) with `assert_output` not `assert_success`?

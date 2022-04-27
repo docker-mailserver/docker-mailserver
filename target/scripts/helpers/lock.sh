@@ -2,10 +2,10 @@
 
 # This becomes the sourcing script name
 # (example: check-for-changes.sh)
-SCRIPT_NAME="$(basename "$0")"
+SCRIPT_NAME=$(basename "$0")
 # Used inside of lock files to identify them and
 # prevent removal by other instances of docker-mailserver
-LOCK_ID="$(uuid)"
+LOCK_ID=$(uuid)
 
 function _create_lock
 {
