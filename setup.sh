@@ -19,11 +19,11 @@ USE_SELINUX=
 USE_TTY=
 VOLUME=
 
-RED="\e[31m\e[1m"
-WHITE="\e[37m"
-ORANGE="\e[38;5;214m"
-LBLUE="\e[94m"
-RESET="\e[0m"
+RED=$(echo -ne '\e[31m\e[1m')
+WHITE=$(echo -ne '\e[37m')
+ORANGE=$(echo -ne '\e[38;5;214m')
+LBLUE=$(echo -ne '\e[94m')
+RESET=$(echo -ne '\e[0m')
 
 set -euEo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
@@ -231,7 +231,7 @@ function _main
     _run_in_new_container setup "${@}"
   fi
 
-  [[ ${1} == 'help' ]] && _show_local_usage
+  [[ ${1:-} == 'help' ]] && _show_local_usage
 
   return 0
 }
