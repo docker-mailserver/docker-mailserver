@@ -76,7 +76,7 @@ To run multiple fetchmail instances parallel, you should set ENV variable `FETCH
       - FETCHMAIL_PARALLEL=1
 ```
 
-And you can set fetchmail `--daemon` parameter separately with comment line `__DAEMON_INTERVAL__` in each section, sections without `__DAEMON_INTERVAL__` comment will take the `FETCHMAIL_POL` ENV variable:
+And you can set fetchmail `--daemon` parameter separately with comment line `__DAEMON_INTERVAL__` in each section, sections without `__DAEMON_INTERVAL__` comment will take the `FETCHMAIL_POLL` ENV variable:
 
 ```fetchmailrc
 poll 'imap.gmail.com' proto imap
