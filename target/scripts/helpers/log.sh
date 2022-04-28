@@ -57,7 +57,7 @@ function _log
   fi
 
   local MESSAGE LEVEL_AS_INT LOG_LEVEL_FALLBACK
-  MESSAGE="${LOG_RESET}["
+  MESSAGE="${RESET}["
 
   if [[ -e /etc/dms-settings ]]
   then
