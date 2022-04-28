@@ -7,7 +7,7 @@ DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
 
 function __usage
 {
-  printf '%s' "\e[35mADDALIAS\e[31m(\e[93m8\e[31m)
+  printf "\e[35mADDALIAS\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
     addalias - add an email alias for an existing user

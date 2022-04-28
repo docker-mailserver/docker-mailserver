@@ -17,7 +17,7 @@ function _usage
   local RESET="\e[0m"
 
   # shellcheck disable=SC2059
-  printf '%s' "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
+  printf "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
 
 ${ORANGE}NAME${RESET}
     ${SCRIPT:-${0}} - 'docker-mailserver' Administration & Configuration script

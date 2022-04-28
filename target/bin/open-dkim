@@ -9,7 +9,7 @@ DOMAINS=
 
 function __usage
 {
-  printf '%s' "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
+  printf "\e[35mOPEN-DKIM\e[31m(\e[93m8\e[31m)
 
 \e[38;5;214mNAME\e[39m
     open-dkim - configure DomainKeys Identified Mail (DKIM)
