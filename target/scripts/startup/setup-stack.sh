@@ -1244,8 +1244,7 @@ function _setup_fetchmail_parallel
         # Just the server settings that need to be added to the specific rc.d file
         echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
       fi
-    # delete commented lines before parsing
-    done < <(sed '/^[[:space:]]*#/d' "${FETCHMAILRC}")
+    done < <(cat "${FETCHMAILRC}")
 
     rm "${DEFAULT_FILE}"
   }
@@ -1255,6 +1254,12 @@ function _setup_fetchmail_parallel
   local COUNTER=0
   for RC in /etc/fetchmailrc.d/fetchmail-*.rc
   do
+    local _daemon_interval="${ENV_FETCHMAIL_POLL}"
+    _log 'debug' "${RC} fetchmail env daemon interval: ${ENV_FETCHMAIL_POLL}"
+    local _configfile_interval
+    _configfile_interval=$(sed 's/\t/ /g' "${RC}" | grep -P "^\s*#\s*__DAEMON_INTERVAL__\s+\d+\s*$" | grep -P -o "__DAEMON_INTERVAL__\s+\d+\s*$" | tr -s " " | cut -d " " -f 2)
+    [[ ${_configfile_interval} =~ ^[0-9]+$ ]] && _daemon_interval="${_configfile_interval}" && _log 'debug' "${RC} fetchmail configfile daemon interval: ${_configfile_interval}"
+    _log 'info' "${RC} daemon interval: ${_daemon_interval}"
     COUNTER=$(( COUNTER + 1 ))
     cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
@@ -1264,7 +1269,7 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 user=fetchmail
-command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon ${_daemon_interval} -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
 EOF
     chmod 700 "${RC}"
     chown fetchmail:root "${RC}"

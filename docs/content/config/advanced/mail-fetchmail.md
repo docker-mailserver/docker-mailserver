@@ -67,6 +67,33 @@ environment:
 
 You must specify a numeric argument which is a polling interval in seconds. The example above polls every minute for new mails.
 
+### Parallel
+
+To run multiple fetchmail instances parallel, you should set ENV variable `FETCHMAIL_PARALLEL`:
+
+```yaml
+ environment:
+      - FETCHMAIL_PARALLEL=1
+```
+
+And you can set fetchmail `--daemon` parameter separately with comment line `__DAEMON_INTERVAL__` in each section, sections without `__DAEMON_INTERVAL__` comment will take the `FETCHMAIL_POL` ENV variable:
+
+```fetchmailrc
+poll 'imap.gmail.com' proto imap
+  user 'username'
+  pass 'secret'
+  is 'user1@example.com'
+  ssl
+# __DAEMON_INTERVAL__ 1
+
+poll 'pop3.gmail.com' proto pop3
+  user 'username'
+  pass 'secret'
+  is 'user2@example.com'
+  ssl
+# __DAEMON_INTERVAL__ 120
+```
+
 ## Debugging
 
 To debug your `fetchmail.cf` configuration run this command:
