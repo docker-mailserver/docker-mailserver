@@ -1255,6 +1255,21 @@ function _setup_fetchmail_parallel
   local COUNTER=0
   for RC in /etc/fetchmailrc.d/fetchmail-*.rc
   do
+    _log 'debug' "${RC}  fetchmail env daemon interval: ${ENV_FETCHMAIL_POLL}"
+    local _daemon_interval _configfile_interval
+    _daemon_interval="${ENV_FETCHMAIL_POLL}"
+    # Obtain value from __DAEMON_INTERVAL__ comment.
+    _configfile_interval=$(sed 's/\t/ /g' "${RC}" \
+        | grep -E '^[[:blank:]]*#[#[:blank:]]*__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' \
+        | grep -E -o '__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' \
+        | tr -s ' ' \
+        | cut -d ' ' -f 2 \
+        | tail -n 1)
+    # Test obtained value and reassign _daemon_interval.
+    [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] \
+        && _daemon_interval="${_configfile_interval}" \
+        && _log 'debug' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
+    _log 'info' "${RC} daemon interval: ${_daemon_interval}"
     COUNTER=$(( COUNTER + 1 ))
     cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
@@ -1264,7 +1279,7 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 user=fetchmail
-command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon ${_daemon_interval} -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
 EOF
     chmod 700 "${RC}"
     chown fetchmail:root "${RC}"
