@@ -4,6 +4,7 @@
 #	password 'secret'
 #	is 'user1@domain.tld'
 #	here ssl
+##__DAEMON_INTERVAL__ 1 
 
 ## Example configuration: POP3
 #poll pop3.example.com with proto POP3
