@@ -1267,7 +1267,10 @@ function _setup_fetchmail_parallel
     _configfile_interval=$(echo "${_configfile_interval}" | cut -d ' ' -f 2)
     _configfile_interval=$(echo "${_configfile_interval}" | tail -n 1)
     # Test obtained value and reassign _daemon_interval.
-    [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] && _daemon_interval="${_configfile_interval}" && _log 'debug' "${RC} fetchmail configfile daemon interval: ${_configfile_interval}"
+    if [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] ; then
+        _daemon_interval="${_configfile_interval}"
+        _log 'debug' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
+    fi
     _log 'info' "${RC} daemon interval: ${_daemon_interval}"
     COUNTER=$(( COUNTER + 1 ))
     cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
