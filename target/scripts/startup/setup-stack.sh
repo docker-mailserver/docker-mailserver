@@ -1245,7 +1245,7 @@ function _setup_fetchmail_parallel
         echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
       fi
     # delete commented lines before parsing
-    done < <(sed '/^[[:space:]]*#/d' "${FETCHMAILRC}")
+    done < <(cat "${FETCHMAILRC}")
 
     rm "${DEFAULT_FILE}"
   }
@@ -1258,17 +1258,17 @@ function _setup_fetchmail_parallel
     _log 'debug' "${RC}  fetchmail env daemon interval: ${ENV_FETCHMAIL_POLL}"
     local _daemon_interval _configfile_interval
     _daemon_interval="${ENV_FETCHMAIL_POLL}"
-    # Obtain value from __DAEMON_INTERVAL__ comment.
-    _configfile_interval=$(sed 's/\t/ /g' "${RC}" \
-        | grep -E '^[[:blank:]]*#[#[:blank:]]*__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' \
-        | grep -E -o '__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' \
-        | tr -s ' ' \
-        | cut -d ' ' -f 2 \
-        | tail -n 1)
+    # Replace table character with space.
+    _configfile_interval=$(sed 's/\t/ /g' "${RC}")
+    # Match the interval value.
+    _configfile_interval=$(echo "$_configfile_interval" | grep -E '^[[:blank:]]*#[#[:blank:]]*__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+')
+    # Extract the interval value。
+    _configfile_interval=$(echo "$_configfile_interval" | grep -E -o '__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+')
+    _configfile_interval=$(echo "$_configfile_interval" | tr -s ' ')
+    _configfile_interval=$(echo "$_configfile_interval" | cut -d ' ' -f 2)
+    _configfile_interval=$(echo "$_configfile_interval" | tail -n 1)
     # Test obtained value and reassign _daemon_interval.
-    [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] \
-        && _daemon_interval="${_configfile_interval}" \
-        && _log 'debug' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
+    [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] && _daemon_interval="${_configfile_interval}" && _log 'debug' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
     _log 'info' "${RC} daemon interval: ${_daemon_interval}"
     COUNTER=$(( COUNTER + 1 ))
     cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
