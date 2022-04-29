@@ -657,7 +657,7 @@ function _setup_dkim
     chown -R opendkim:opendkim /etc/opendkim/
     chmod -R 0700 /etc/opendkim/keys/
   else
-    _log 'warn' 'No DKIM key(s) provided - check the documentation on how to get your keys'
+    _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
     [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
   fi
 
