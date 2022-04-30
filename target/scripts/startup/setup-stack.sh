@@ -1254,25 +1254,22 @@ function _setup_fetchmail_parallel
   local COUNTER=0
   for RC in /etc/fetchmailrc.d/fetchmail-*.rc
   do
-    _log 'debug' "${RC}  fetchmail env daemon interval: ${ENV_FETCHMAIL_POLL}"
-    local _daemon_interval _configfile_interval
-    _daemon_interval="${ENV_FETCHMAIL_POLL}"
-    # Replace table character with space.
-    _configfile_interval=$(sed 's/\t/ /g' "${RC}")
-    # Match the interval value.
-    _configfile_interval=$(echo "${_configfile_interval}" | grep -E '^[[:blank:]]*#[#[:blank:]]*__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+')
-    # Extract the interval value。
-    _configfile_interval=$(echo "${_configfile_interval}" | grep -E -o '__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+')
-    _configfile_interval=$(echo "${_configfile_interval}" | tr -s ' ')
-    _configfile_interval=$(echo "${_configfile_interval}" | cut -d ' ' -f 2)
-    _configfile_interval=$(echo "${_configfile_interval}" | tail -n 1)
-    # Test obtained value and reassign _daemon_interval.
-    if [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] ; then
-        _daemon_interval="${_configfile_interval}"
-        _log 'debug' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
-    fi
-    _log 'info' "${RC} daemon interval: ${_daemon_interval}"
     COUNTER=$(( COUNTER + 1 ))
+    local _command_str _configfile_interval
+    # If no __DAEMON_INTERVAL__ value, use FETCHMAIL_POLL as default.
+    _command_str="/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid"
+    # Obtain __DAEMON_INTERVAL__ value from split config file.
+    _configfile_interval=$(sed 's/\t/ /g' "${RC}" | \
+        grep -E '^[[:blank:]]*#[#[:blank:]]*__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' | \
+        grep -E -o '__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' | \
+        tr -s ' ' | \
+        cut -d ' ' -f 2 | \
+        tail -n 1)
+    # Test obtained value and reassign _command_str.
+    if [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] ; then
+        _log 'info' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
+        _command_str="/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon ${_configfile_interval} -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid"
+    fi
     cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
 startsecs=0
@@ -1281,7 +1278,7 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 user=fetchmail
-command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon ${_daemon_interval} -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+command=${_command_str}
 EOF
     chmod 700 "${RC}"
     chown fetchmail:root "${RC}"
