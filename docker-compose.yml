@@ -1,3 +1,5 @@
+version: 
+
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
