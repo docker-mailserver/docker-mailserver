@@ -241,13 +241,13 @@ function _setup_ssl
 
       if [[ -n ${SSL_ALT_KEY_PATH} ]] \
       && [[ -n ${SSL_ALT_CERT_PATH} ]] \
-      && [[ ! -f ${SSL_ALT_KEY_PATH} ]] \
-      && [[ ! -f ${SSL_ALT_CERT_PATH} ]]
+      && [[ ! -e ${SSL_ALT_KEY_PATH} ]] \
+      && [[ ! -e ${SSL_ALT_CERT_PATH} ]]
       then
         dms_panic__no_file "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
 
-      if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]
+      if [[ -e ${SSL_KEY_PATH} ]] && [[ -e ${SSL_CERT_PATH} ]]
       then
         cp "${SSL_KEY_PATH}" "${PRIVATE_KEY}"
         cp "${SSL_CERT_PATH}" "${CERT_CHAIN}"
