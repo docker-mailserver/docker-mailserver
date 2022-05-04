@@ -4,5 +4,6 @@ passdb {
   args = scheme=SHA512-CRYPT username_format=%u /etc/dovecot/masterdb
   master = yes
   result_success = continue
+  #auth_bind = yes
 }
 
