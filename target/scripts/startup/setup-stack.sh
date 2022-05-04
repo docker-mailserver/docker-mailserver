@@ -292,7 +292,7 @@ function _setup_dovecot_local_user
 
 
   _log 'debug' 'Setting up Dovecot Local User'
-  
+
   _create_accounts
   [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
