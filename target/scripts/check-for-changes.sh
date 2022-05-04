@@ -3,8 +3,10 @@
 # TODO: Adapt for compatibility with LDAP
 # Only the cert renewal change detection may be relevant for LDAP?
 
+# CHKSUM_FILE global is imported from this file:
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
+
 # This script requires some environment variables to be properly set. This
 # includes POSTMASTER_ADDRESS (for alias (re-)generation), HOSTNAME and
 # DOMAINNAME (in ssl.sh).
@@ -22,19 +24,19 @@ _obtain_hostname_and_domainname
 
 if ! cd /tmp/docker-mailserver &>/dev/null
 then
-  _exit_with_error "Could not change into '/tmp/docker-mailserver/' directory"
+  _exit_with_error "Could not change into '/tmp/docker-mailserver/' directory" 0
 fi
 
 # check postfix-accounts.cf exist else break
 if [[ ! -f postfix-accounts.cf ]]
 then
-  _exit_with_error "'/tmp/docker-mailserver/postfix-accounts.cf' is missing"
+  _exit_with_error "'/tmp/docker-mailserver/postfix-accounts.cf' is missing" 0
 fi
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing"
+  _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing" 0
 fi
 
 REGEX_NEVER_MATCH="(?\!)"
@@ -46,8 +48,8 @@ sleep 10
 
 _log_with_date 'debug' "Chagedetector is ready"
 
-while true
-do
+function _check_for_changes
+{
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
@@ -60,12 +62,17 @@ do
   then
     _log_with_date 'info' 'Change detected'
     _create_lock # Shared config safety lock
+    local CHANGED
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
 
     # TODO Perform updates below conditionally too
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
+    # _setup_ssl is required for:
+    # manual - copy to internal DMS_TLS_PATH (/etc/dms/tls) that Postfix and Dovecot are configured to use.
+    # acme.json - presently uses /etc/letsencrypt/live/<FQDN> instead of DMS_TLS_PATH,
+    # path may change requiring Postfix/Dovecot config update.
     if [[ ${SSL_TYPE} == 'manual' ]]
     then
       # only run the SSL setup again if certificates have really changed.
@@ -75,9 +82,6 @@ do
       || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
       then
         _log_with_date 'debug' 'Manual certificates have changed - extracting certificates'
-        # we need to run the SSL setup again, because the
-        # certificates DMS is working with are copies of
-        # the (now changed) files
         _setup_ssl
       fi
     # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
@@ -86,34 +90,19 @@ do
     elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
     then
       _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
+      _setup_ssl
 
-      # This breaks early as we only need the first successful extraction.
-      # For more details see the `SSL_TYPE=letsencrypt` case handling in `setup-stack.sh`.
-      #
-      # NOTE: HOSTNAME is set via `helpers/dns.sh`, it is not the original system HOSTNAME ENV anymore.
-      # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
-      FQDN_LIST=("${SSL_DOMAIN}" "${HOSTNAME}" "${DOMAINNAME}")
-      for CERT_DOMAIN in "${FQDN_LIST[@]}"
-      do
-        _log_with_date 'trace' "Attempting to extract for '${CERT_DOMAIN}'"
+      # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
+      local CERT_DOMAIN
+      CERT_DOMAIN="$(_find_letsencrypt_domain)"
+      ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
 
-        if _extract_certs_from_acme "${CERT_DOMAIN}"
-        then
-          # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
-          CERT_DOMAIN=$(_strip_wildcard_prefix "${CERT_DOMAIN}")
-          ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
-
-          sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
-          sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
-
-          break
-        fi
-      done
+      sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
+      sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
     fi
 
     # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
     # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
-    # TODO: That should be all that's required, unless the cert file paths have also changed (Postfix/Dovecot configs then need to be updated).
 
     # regenerate postfix accounts & dovecot masters
     if [[ ${SMTP_ONLY} -ne 1 ]]
@@ -150,7 +139,11 @@ do
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+}
 
+while true
+do
+  _check_for_changes
   sleep 2
 done
 

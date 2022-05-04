@@ -52,7 +52,7 @@ function _negotiate_tls() {
   run docker exec "${CONTAINER_NAME}" sh -c "${CMD_OPENSSL_VERIFY}"
   assert_output --partial 'Verification: OK'
 
-  _should_have_fqdn_in_cert "${FQDN}" "${PORT}"
+  _should_support_fqdn_in_cert "${FQDN}" "${PORT}"
 }
 
 function _generate_openssl_cmd() {
@@ -86,21 +86,23 @@ function _generate_openssl_cmd() {
 
 # ? --------------------------------------------- Verify FQDN
 
-
-function _should_have_fqdn_in_cert() {
+function _get_fqdn_match_query() {
   local FQDN
   FQDN=$(escape_fqdn "${1}")
 
-  _get_fqdns_for_cert "$@"
-  assert_output --regexp "Subject: CN = ${FQDN}|DNS:${FQDN}"
+  # 3rd check is for wildcard support by replacing the 1st DNS label of the FQDN with a `*`,
+  # eg: `mail.example.test` will become `*.example.test` matching `DNS:*.example.test`.
+  echo "Subject: CN = ${FQDN}|DNS:${FQDN}|DNS:\*\.${FQDN#*.}"
 }
 
-function _should_not_have_fqdn_in_cert() {
-  local FQDN
-  FQDN=$(escape_fqdn "${1}")
-
+function _should_support_fqdn_in_cert() {
   _get_fqdns_for_cert "$@"
-  refute_output --regexp "Subject: CN = ${FQDN}|DNS:${FQDN}"
+  assert_output --regexp "$(_get_fqdn_match_query "${1}")"
+}
+
+function _should_not_support_fqdn_in_cert() {
+  _get_fqdns_for_cert "$@"
+  refute_output --regexp "$(_get_fqdn_match_query "${1}")"
 }
 
 # Escapes `*` and `.` so the FQDN literal can be used in regex queries

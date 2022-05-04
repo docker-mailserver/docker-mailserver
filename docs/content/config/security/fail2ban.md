@@ -29,7 +29,7 @@ Example configuration volume bind:
 ```
 
 !!! attention
-    `docker-mailserver` must be launched with the `NET_ADMIN` capability in order to be able to install the iptable rules that actually ban IP addresses.
+    `docker-mailserver` must be launched with the `NET_ADMIN` capability in order to be able to install the nftables rules that actually ban IP addresses.
 
     Thus either include `--cap-add=NET_ADMIN` in the `docker run` command, or the equivalent in `docker-compose.yml`:
 
@@ -37,16 +37,6 @@ Example configuration volume bind:
     cap_add:
       - NET_ADMIN
     ```
-
-If you don't you will see errors the form of:
-
-```log
-iptables -w -X f2b-postfix -- stderr: "getsockopt failed strangely: Operation not permitted\niptables v1.4.21: can't initialize iptabl
-es table `filter': Permission denied (you must be root)\nPerhaps iptables or your kernel needs to be upgraded.\niptables v1.4.21: can'
-t initialize iptables table `filter': Permission denied (you must be root)\nPerhaps iptables or your kernel needs to be upgraded.\n"
-2016-06-01 00:53:51,284 fail2ban.action         [678]: ERROR   iptables -w -D INPUT -p tcp -m multiport --dports smtp,465,submission -
-j f2b-postfix
-```
 
 ## Running fail2ban in a rootless container
 
@@ -107,7 +97,7 @@ You can also manage and list the banned IPs with the [`setup.sh`][docs-setupsh] 
 ### List bans
 
 ```sh
-./setup.sh debug fail2ban
+./setup.sh fail2ban
 ```
 
 ### Un-ban
@@ -115,7 +105,7 @@ You can also manage and list the banned IPs with the [`setup.sh`][docs-setupsh] 
 Here `192.168.1.15` is our banned IP.
 
 ```sh
-./setup.sh debug fail2ban unban 192.168.1.15
+./setup.sh fail2ban unban 192.168.1.15
 ```
 
 [docs-setupsh]: ../setup.sh.md

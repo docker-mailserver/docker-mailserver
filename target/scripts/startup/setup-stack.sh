@@ -287,26 +287,33 @@ function _setup_dovecot_quota
 
 function _setup_dovecot_local_user
 {
-  _log 'debug' 'Setting up Dovecot Local User'
+  _log 'debug' 'Setting up Dovecot Master User'
+  _create_masters
 
+
+  _log 'debug' 'Setting up Dovecot Local User'
+  
   _create_accounts
+  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
-    _log 'trace' "'/tmp/docker-mailserver/postfix-accounts.cf' is not provided. No mail account created."
+    _log 'trace' "'/tmp/docker-mailserver/postfix-accounts.cf' not provided, no mail account created"
   fi
 
-  if ! grep '@' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null | grep -q '|'
-  then
-    if [[ ${ENABLE_LDAP} -eq 0 ]]
+  local SLEEP_PERIOD='10'
+  for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
+  do
+    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf) -ge 1 ]]
     then
-      _shutdown 'Unless using LDAP, you need at least 1 email account to start Dovecot'
+      return 0
+    else
+      _log 'warn' "You need at least one email account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
+      sleep "${SLEEP_PERIOD}"
     fi
-  fi
+  done
 
-  _log 'debug' 'Setting up Dovecot Master User'
-
-  _create_masters
+  _shutdown 'No accounts provided - Dovecot could not be started'
 }
 
 function _setup_ldap
@@ -373,7 +380,7 @@ function _setup_ldap
   # add domainname to vhost
   echo "${DOMAINNAME}" >>/tmp/vhost.tmp
 
-  _log 'trace' 'Enabling Dovecot LDAP authentification'
+  _log 'trace' 'Enabling Dovecot LDAP authentication'
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
@@ -661,7 +668,7 @@ function _setup_dkim
     chown -R opendkim:opendkim /etc/opendkim/
     chmod -R 0700 /etc/opendkim/keys/
   else
-    _log 'warn' 'No DKIM key(s) provided - check the documentation on how to get your keys'
+    _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
     [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
   fi
 
@@ -892,11 +899,11 @@ function _setup_security_stack
   # SpamAssassin
   if [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]]
   then
-    _log 'warn' "Spamassassin is disabled. You can enable it with 'ENABLE_SPAMASSASSIN=1'"
+    _log 'debug' 'SpamAssassin is disabled'
     echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _log 'debug' "Enabling and configuring spamassassin"
+    _log 'debug' 'Enabling and configuring SpamAssassin'
 
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
@@ -980,7 +987,7 @@ EOM
   # ClamAV
   if [[ ${ENABLE_CLAMAV} -eq 0 ]]
   then
-    _log 'info' "ClamAV is disabled"
+    _log 'debug' 'ClamAV is disabled'
     echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
   elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
@@ -1153,10 +1160,13 @@ function _setup_user_patches
 function _setup_fail2ban
 {
   _log 'debug' 'Setting up Fail2Ban'
+
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
-    echo -e '[Init]\nblocktype = DROP' >/etc/fail2ban/action.d/iptables-common.local
+    echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
+
+  echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
 }
 
 function _setup_dnsbl_disable
@@ -1273,4 +1283,26 @@ EOF
 
   supervisorctl reread
   supervisorctl update
+}
+
+function _setup_timezone
+{
+  _log 'debug' "Setting timezone to '${TZ}'"
+
+  local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
+
+  if [[ ! -e ${ZONEINFO_FILE} ]]
+  then
+    _log 'warn' "Cannot find timezone '${TZ}'"
+    return 1
+  fi
+
+  if ln -fs "${ZONEINFO_FILE}" /etc/localtime \
+  && dpkg-reconfigure -f noninteractive tzdata &>/dev/null
+  then
+    _log 'trace' "Set time zone to '${TZ}'"
+  else
+    _log 'warn' "Setting timezone to '${TZ}' failed"
+    return 1
+  fi
 }

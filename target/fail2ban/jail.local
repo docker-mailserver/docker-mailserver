@@ -15,10 +15,10 @@ maxretry = 3
 # can be defined using space (and/or comma) separator.
 ignoreip = 127.0.0.1/8
 
-# Default ban action
-# iptables-multiport:	block IP only on affected port
-# iptables-allports:	block IP on all ports
-banaction = iptables-allports
+# default ban action
+# nftables-multiport: block IP only on affected port
+# nftables-allports:  block IP on all ports
+banaction = nftables-allports
 
 [dovecot]
 enabled = true
@@ -28,3 +28,10 @@ enabled = true
 
 [postfix-sasl]
 enabled = true
+
+# This jail is used for manual bans.
+# To ban an IP address use: setup.sh fail2ban ban <IP>
+[custom]
+enabled = true
+bantime = 180d
+port = smtp,pop3,pop3s,imap,imaps,submission,submissions,sieve

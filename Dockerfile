@@ -21,14 +21,14 @@ LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
 
-ENV ENABLE_POSTGREY=0
+# These ENVs are referenced in target/supervisor/conf.d/saslauth.conf
+# and must be present when supervisord starts.
+# If necessary, their values are adjusted by target/scripts/start-mailserver.sh on startup.
 ENV FETCHMAIL_POLL=300
-ENV ONE_DIR=1
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300
 ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by Postgrey"
-ENV SASLAUTHD_MECHANISMS=pam
 ENV SASLAUTHD_MECH_OPTIONS=""
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -55,10 +55,10 @@ RUN \
   dovecot-ldap dovecot-lmtpd dovecot-managesieved dovecot-pop3d \
   dovecot-sieve dovecot-solr dumb-init \
   # E - O
-  ed fetchmail file gamin gnupg gzip iproute2 iptables \
+  ed fetchmail file gamin gnupg gzip iproute2 \
   locales logwatch lhasa libdate-manip-perl libldap-common liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
-  netcat-openbsd nomarch opendkim opendkim-tools opendmarc \
+  netcat-openbsd nftables nomarch opendkim opendkim-tools opendmarc \
   # P - Z
   pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
   postfix-policyd-spf-python postsrsd pyzor \
@@ -193,11 +193,6 @@ COPY target/opendkim/default-opendkim /etc/default/opendkim
 COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
-
-RUN \
-  # switch iptables and ip6tables to legacy for Fail2Ban
-  update-alternatives --set iptables /usr/sbin/iptables-legacy && \
-  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
 # -----------------------------------------------
 # --- Fetchmail, Postfix & Let'sEncrypt ---------
