@@ -16,7 +16,7 @@ function setup_file() {
 
     local PRIVATE_CONFIG
     export DOMAIN_SSL_MANUAL='example.test'
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
 
     docker run -d --name mail_manual_ssl \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \

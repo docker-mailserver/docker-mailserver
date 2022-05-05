@@ -9,7 +9,7 @@ CONTAINER_NAME=
 CRI=
 DEFAULT_CONFIG_PATH=
 DESIRED_CONFIG_PATH=
-DIR="$(pwd)"
+DIR=$(pwd)
 DMS_CONFIG='/tmp/docker-mailserver'
 IMAGE_NAME=
 DEFAULT_IMAGE_NAME='docker.io/mailserver/docker-mailserver:latest'
@@ -90,10 +90,10 @@ function _get_absolute_script_directory
 {
   if dirname "$(readlink -f "${0}")" &>/dev/null
   then
-    DIR="$(dirname "$(readlink -f "${0}")")"
+    DIR=$(dirname "$(readlink -f "${0}")")
   elif realpath -e -L "${0}" &>/dev/null
   then
-    DIR="$(realpath -e -L "${0}")"
+    DIR=$(realpath -e -L "${0}")
     DIR="${DIR%/setup.sh}"
   fi
 }
