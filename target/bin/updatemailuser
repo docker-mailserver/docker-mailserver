@@ -25,7 +25,7 @@ then
   [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
 fi
 
-HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
+HASH=$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")
 
 touch "${DATABASE}"
 _create_lock # Protect config file with lock to avoid race conditions

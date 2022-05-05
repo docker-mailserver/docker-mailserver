@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 function setup() {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     CONTAINER=$(docker run -d \
                           -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                           -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
