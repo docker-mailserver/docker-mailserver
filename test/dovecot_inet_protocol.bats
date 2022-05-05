@@ -4,7 +4,7 @@ function setup_file() {
   local PRIVATE_CONFIG
   export ALL IPV4 IPV6
 
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${IPV4}")"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${IPV4}")
   ALL="mail_dovecot_all_protocols"
   IPV4="mail_dovecot_ipv4"
   IPV6="mail_dovecot_ipv6"

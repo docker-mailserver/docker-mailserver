@@ -52,7 +52,7 @@ function _obtain_hostname_and_domainname
       # going forward. In future our docs should drop any mention of it.
 
       #shellcheck disable=SC2034
-      DOMAINNAME="$(hostname -d)"
+      DOMAINNAME=$(hostname -d)
     fi
   fi
 

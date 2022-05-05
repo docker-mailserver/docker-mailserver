@@ -6,7 +6,7 @@ load 'test_helper/common'
 
 function setup_file() {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_changedetector_one)"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_changedetector_one)
 
   docker run -d --name mail_changedetector_one \
   -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \

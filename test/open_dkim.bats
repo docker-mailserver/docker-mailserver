@@ -10,7 +10,7 @@ TEST_FILE='checking OpenDKIM: '
 function setup_file
 {
 	local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER_NAME}")"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
   docker run -d \
     --name "${CONTAINER_NAME}" \
@@ -62,7 +62,7 @@ function teardown_file
 # TODO Needs complete re-write
 @test "${TEST_FILE}generator creates default keys size" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_default_key_size)"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_default_key_size)
 
   # Prepare default key size 4096
   rm -rf "${PRIVATE_CONFIG}/keyDefault"
@@ -93,7 +93,7 @@ function teardown_file
 # TODO Needs complete re-write
 @test "${TEST_FILE}generator creates key size 4096" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_4096)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_4096)
 
     rm -rf "${PRIVATE_CONFIG}/key4096"
     mkdir -p "${PRIVATE_CONFIG}/config/key4096"
@@ -122,7 +122,7 @@ function teardown_file
 # TODO Needs complete re-write
 @test "${TEST_FILE}generator creates key size 2048" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_2048)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_2048)
 
     rm -rf "${PRIVATE_CONFIG}/key2048"
     mkdir -p "${PRIVATE_CONFIG}/config/key2048"
@@ -151,7 +151,7 @@ function teardown_file
 # TODO Needs complete re-write
 @test "${TEST_FILE}generator creates key size 1024" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_key_size_1024)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_1024)
 
     rm -rf "${PRIVATE_CONFIG}/key1024"
     mkdir -p "${PRIVATE_CONFIG}/key1024"
@@ -176,7 +176,7 @@ function teardown_file
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts)"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts)
   rm -rf "${PRIVATE_CONFIG}/empty"
   mkdir -p "${PRIVATE_CONFIG}/empty"
   run docker run --rm \
@@ -212,7 +212,7 @@ function teardown_file
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . )
   rm -rf "${PRIVATE_CONFIG}/without-accounts"
   mkdir -p "${PRIVATE_CONFIG}/without-accounts"
   run docker run --rm \
@@ -248,7 +248,7 @@ function teardown_file
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
   rm -rf "${PRIVATE_CONFIG}/without-virtual"
   mkdir -p "${PRIVATE_CONFIG}/without-virtual"
   run docker run --rm \
@@ -286,7 +286,7 @@ function teardown_file
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided domain name" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
   rm -rf "${PRIVATE_CONFIG}/with-domain" && mkdir -p "${PRIVATE_CONFIG}/with-domain"
 
   # generate first key
@@ -374,7 +374,7 @@ function teardown_file
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${BATS_TEST_NAME}")"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
   rm -rf "${PRIVATE_CONFIG}/with-selector" && mkdir -p "${PRIVATE_CONFIG}/with-selector"
 
   # Generate first key
