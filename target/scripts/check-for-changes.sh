@@ -94,7 +94,7 @@ function _check_for_changes
 
       # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
       local CERT_DOMAIN
-      CERT_DOMAIN="$(_find_letsencrypt_domain)"
+      CERT_DOMAIN=$(_find_letsencrypt_domain)
       ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
 
       sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"

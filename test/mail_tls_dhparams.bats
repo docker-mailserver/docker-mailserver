@@ -35,10 +35,10 @@ function setup_file() {
 
 
   DH_DEFAULT_PARAMS="$(pwd)/target/shared/ffdhe4096.pem"
-  DH_DEFAULT_CHECKSUM="$(sha512sum "${DH_DEFAULT_PARAMS}" | awk '{print $1}')"
+  DH_DEFAULT_CHECKSUM=$(sha512sum "${DH_DEFAULT_PARAMS}" | awk '{print $1}')
 
   DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
-  DH_CUSTOM_CHECKSUM="$(sha512sum "${DH_CUSTOM_PARAMS}" | awk '{print $1}')"
+  DH_CUSTOM_CHECKSUM=$(sha512sum "${DH_CUSTOM_PARAMS}" | awk '{print $1}')
 }
 
 # Not used
@@ -54,12 +54,12 @@ function setup_file() {
 
     # Verify the FFDHE params file has not been modified (equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
     local DH_MOZILLA_CHECKSUM
-    DH_MOZILLA_CHECKSUM="$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')"
+    DH_MOZILLA_CHECKSUM=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
     assert_equal "${DH_DEFAULT_CHECKSUM}" "${DH_MOZILLA_CHECKSUM}"
 }
 
 @test "testing tls: DH Parameters - Default [ONE_DIR=0]" {
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_default_0)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_default_0)
     DMS_ONE_DIR=0
 
     common_container_setup
@@ -67,14 +67,14 @@ function setup_file() {
 }
 
 @test "testing tls: DH Parameters - Default [ONE_DIR=1]" {
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_default_1)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_default_1)
 
     common_container_setup
     should_have_valid_checksum "${DH_DEFAULT_CHECKSUM}"
 }
 
 @test "testing tls: DH Parameters - Custom [ONE_DIR=0]" {
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_0)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_custom_0)
     # shellcheck disable=SC2030
     DMS_ONE_DIR=0
 
@@ -87,7 +87,7 @@ function setup_file() {
 
 @test "testing tls: DH Parameters - Custom [ONE_DIR=1]" {
     # shellcheck disable=SC2030
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_dhparams_custom_1)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_custom_1)
 
     cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
 
