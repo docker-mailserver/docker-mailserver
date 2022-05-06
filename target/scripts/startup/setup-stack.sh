@@ -287,10 +287,6 @@ function _setup_dovecot_quota
 
 function _setup_dovecot_local_user
 {
-  _log 'debug' 'Setting up Dovecot Master User'
-  _create_masters
-
-
   _log 'debug' 'Setting up Dovecot Local User'
 
   _create_accounts
@@ -406,13 +402,6 @@ function _setup_ldap
     postconf -e 'virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
-  fi
-
-  if [[ -f /etc/dovecot/conf.d/auth-master.inc ]]
-  then
-    # Support Dovecot master user: https://doc.dovecot.org/configuration_manual/authentication/master_users/
-    # > `result_success=continue` doesn’t work with PAM or LDAP without `auth_bind=yes`, because both of them require knowing the user’s password.
-    sed -i -r '/auth_bind = yes/s/^(\s*)#/\1/' /etc/dovecot/conf.d/auth-master.inc
   fi
 
   # shellcheck disable=SC2016

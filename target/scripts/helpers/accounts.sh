@@ -14,7 +14,10 @@ function _create_accounts
   : >/etc/postfix/vmailbox
   : >"${DOVECOT_USERDB_FILE}"
 
-  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
+  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
+
+  _create_masters
+  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
     _log 'trace' "Checking file line endings"
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
@@ -166,6 +169,8 @@ function _create_dovecot_alias_dummy_accounts
   fi
 }
 
+# Support Dovecot master user: https://doc.dovecot.org/configuration_manual/authentication/master_users/
+# Supporting LDAP users requires `auth_bind = yes` in `dovecot-ldap.conf.ext`, see docker-mailserver/docker-mailserver/pull/2535 for details
 function _create_masters
 {
   : >"${DOVECOT_MASTERDB_FILE}"

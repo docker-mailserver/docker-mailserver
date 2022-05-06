@@ -104,12 +104,8 @@ function _check_for_changes
     # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
     # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
 
-    # regenerate postfix accounts & dovecot masters
-    if [[ ${SMTP_ONLY} -ne 1 ]]
-    then
-      _create_accounts
-      _create_masters
-    fi
+    # regenerate postfix accounts
+    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
 
     _rebuild_relayhost
 
