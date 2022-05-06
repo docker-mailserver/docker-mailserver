@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 setup_file() {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     docker run --rm -d --name mail_disabled_clamav_spamassassin \
 		  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		  -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \

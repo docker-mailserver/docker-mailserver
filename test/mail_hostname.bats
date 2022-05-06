@@ -3,7 +3,7 @@ load 'test_helper/common'
 
 function setup_file() {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_override_hostname)"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_override_hostname)
 	docker run --rm -d --name mail_override_hostname \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -13,7 +13,7 @@ function setup_file() {
 		-h unknown.domain.tld \
 		-t "${NAME}"
 
-  PRIVATE_CONFIG_TWO="$(duplicate_config_for_container . mail_non_subdomain_hostname)"
+  PRIVATE_CONFIG_TWO=$(duplicate_config_for_container . mail_non_subdomain_hostname)
 	docker run --rm -d --name mail_non_subdomain_hostname \
 		-v "${PRIVATE_CONFIG_TWO}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -23,7 +23,7 @@ function setup_file() {
     --domainname domain.com \
 		-t "${NAME}"
 
-  PRIVATE_CONFIG_THREE="$(duplicate_config_for_container . mail_srs_domainname)"
+  PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . mail_srs_domainname)
   docker run --rm -d --name mail_srs_domainname \
     -v "${PRIVATE_CONFIG_THREE}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -34,7 +34,7 @@ function setup_file() {
     --hostname 'mail' \
     -t "${NAME}"
 
-  PRIVATE_CONFIG_FOUR="$(duplicate_config_for_container . mail_domainname)"
+  PRIVATE_CONFIG_FOUR=$(duplicate_config_for_container . mail_domainname)
   docker run --rm -d --name mail_domainname \
     -v "${PRIVATE_CONFIG_FOUR}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
