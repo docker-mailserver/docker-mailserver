@@ -1255,21 +1255,22 @@ function _setup_fetchmail_parallel
   for RC in /etc/fetchmailrc.d/fetchmail-*.rc
   do
     COUNTER=$(( COUNTER + 1 ))
-    local _command_str _configfile_interval
+    local COMMAND_STR CONFFILE_INTERVAL TMP_INTERVAL_VAL
     # If no __DAEMON_INTERVAL__ value, use FETCHMAIL_POLL as default.
-    _command_str="/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid"
+    TMP_INTERVAL_VAL="%(ENV_FETCHMAIL_POLL)s"
     # Obtain __DAEMON_INTERVAL__ value from split config file.
-    _configfile_interval=$(sed 's/\t/ /g' "${RC}" | \
+    CONFFILE_INTERVAL=$(sed 's/\t/ /g' "${RC}" | \
         grep -E '^[[:blank:]]*#[#[:blank:]]*__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' | \
         grep -E -o '__DAEMON_INTERVAL__[[:blank:]]+[[:digit:]]+' | \
         tr -s ' ' | \
         cut -d ' ' -f 2 | \
         tail -n 1)
-    # Test obtained value and reassign _command_str.
-    if [[ ${_configfile_interval} =~ ^[[:digit:]]+$ ]] ; then
-        _log 'info' "${RC}  fetchmail configfile daemon interval: ${_configfile_interval}"
-        _command_str="/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon ${_configfile_interval} -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid"
+    # Test obtained value and reassign COMMAND_STR.
+    if [[ ${CONFFILE_INTERVAL} =~ ^[[:digit:]]+$ ]] ; then
+        _log 'info' "${RC}  fetchmail configfile daemon interval: ${CONFFILE_INTERVAL}"
+        TMP_INTERVAL_VAL="${CONFFILE_INTERVAL}"
     fi
+    COMMAND_STR="/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon ${TMP_INTERVAL_VAL} -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid"
     cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
 startsecs=0
@@ -1278,7 +1279,7 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 user=fetchmail
-command=${_command_str}
+command=${COMMAND_STR}
 EOF
     chmod 700 "${RC}"
     chown fetchmail:root "${RC}"
