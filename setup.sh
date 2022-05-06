@@ -19,11 +19,11 @@ USE_SELINUX=
 USE_TTY=
 VOLUME=
 
-RED="\e[31m\e[1m"
-WHITE="\e[37m"
-ORANGE="\e[38;5;214m"
-LBLUE="\e[94m"
-RESET="\e[0m"
+RED=$(echo -ne '\e[31m\e[1m')
+WHITE=$(echo -ne '\e[37m')
+ORANGE=$(echo -ne '\e[38;5;214m')
+LBLUE=$(echo -ne '\e[94m')
+RESET=$(echo -ne '\e[0m')
 
 set -euEo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
@@ -47,7 +47,7 @@ function __err
 function _show_local_usage
 {
   # shellcheck disable=SC2059
-  printf "${ORANGE}OPTIONS${RESET}
+  printf '%s' "${ORANGE}OPTIONS${RESET}
     ${LBLUE}Config path, container or image adjustments${RESET}
         -i IMAGE_NAME
             Provides the name of the 'docker-mailserver' image. The default value is
@@ -78,7 +78,7 @@ function _show_local_usage
   [[ ${1:-} == 'no-exit' ]] && return 0
 
   # shellcheck disable=SC2059
-  printf "${ORANGE}EXIT STATUS${RESET}
+  printf '%s' "${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if the command was successful. If there was an unexpected error, an error
     message is shown describing the error. In case of an error, the script will exit with exit
     status 1.
@@ -231,7 +231,7 @@ function _main
     _run_in_new_container setup "${@}"
   fi
 
-  [[ ${1} == 'help' ]] && _show_local_usage
+  [[ ${1:-} == 'help' ]] && _show_local_usage
 
   return 0
 }
