@@ -69,9 +69,9 @@ RUN \
     --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} 2>&1 && \
   curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
   curl -Lkso fail2ban.deb.asc ${FAIL2BAN_DEB_ASC_URL} && \
-  FINGERPRINT="$(LANG=C gpg --verify \
+  FINGERPRINT=$(LANG=C gpg --verify \
   fail2ban.deb.asc fail2ban.deb 2>&1 \
-    | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')" && \
+    | sed -n 's#Primary key fingerprint: \(.*\)#\1#p') && \
   if [[ -z ${FINGERPRINT} ]]; then \
     echo "ERROR: Invalid GPG signature!" >&2; exit 1; fi && \
   if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \

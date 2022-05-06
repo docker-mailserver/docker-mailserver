@@ -6,7 +6,7 @@ load 'test_helper/common'
 
 @test "checking amavis: spam message is delivered and moved to the Junk folder (MOVE_SPAM_TO_JUNK=1)" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container . mail_spam_moved_junk)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container . mail_spam_moved_junk)
     docker run -d --name mail_spam_moved_junk \
               -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
               -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -35,7 +35,7 @@ load 'test_helper/common'
 
 @test "checking amavis: spam message is delivered to INBOX (MOVE_SPAM_TO_JUNK=0)" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . mail_spam_moved_new)"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_spam_moved_new)
   docker run -d --name mail_spam_moved_new \
             -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
             -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
