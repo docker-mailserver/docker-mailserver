@@ -40,3 +40,9 @@ teardown_file() {
   run docker exec mail_with_imap /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
   assert_success
 }
+
+# master account
+@test "checking dovecot: master account can login" {
+  run docker exec mail_with_imap bash -c "testsaslauthd -u user1@localhost.localdomain*masterusername -p masterpassword"
+  assert_success
+}

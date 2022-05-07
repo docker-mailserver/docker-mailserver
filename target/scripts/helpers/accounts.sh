@@ -7,13 +7,17 @@
 # Only an issue when $myhostname is an exact match (eg: bare domain FQDN).
 
 DOVECOT_USERDB_FILE=/etc/dovecot/userdb
+DOVECOT_MASTERDB_FILE=/etc/dovecot/masterdb
 
 function _create_accounts
 {
   : >/etc/postfix/vmailbox
   : >"${DOVECOT_USERDB_FILE}"
 
-  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]] && [[ ${ENABLE_LDAP} -ne 1 ]]
+  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
+
+  _create_masters
+  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
     _log 'trace' "Checking file line endings"
     sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
@@ -162,5 +166,50 @@ function _create_dovecot_alias_dummy_accounts
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
     done < /tmp/docker-mailserver/postfix-virtual.cf
+  fi
+}
+
+# Support Dovecot master user: https://doc.dovecot.org/configuration_manual/authentication/master_users/
+# Supporting LDAP users requires `auth_bind = yes` in `dovecot-ldap.conf.ext`, see docker-mailserver/docker-mailserver/pull/2535 for details
+function _create_masters
+{
+  : >"${DOVECOT_MASTERDB_FILE}"
+
+  if [[ -f /tmp/docker-mailserver/dovecot-masters.cf ]]
+  then
+    _log 'trace' "Checking file line endings"
+    sed -i 's|\r||g' /tmp/docker-mailserver/dovecot-masters.cf
+
+    _log 'trace' "Regenerating dovecot masters list"
+
+    # checking that /tmp/docker-mailserver/dovecot-masters.cf ends with a newline
+    # shellcheck disable=SC1003
+    sed -i -e '$a\' /tmp/docker-mailserver/dovecot-masters.cf
+
+    chown dovecot:dovecot "${DOVECOT_MASTERDB_FILE}"
+    chmod 640 "${DOVECOT_MASTERDB_FILE}"
+
+    sed -i -e '/\!include auth-master\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
+
+    # creating users ; 'pass' is encrypted
+    # comments and empty lines are ignored
+    local LOGIN PASS
+    while IFS=$'|' read -r LOGIN PASS
+    do
+      _log 'debug' "Creating master user '${LOGIN}'"
+
+      local DOVECOT_MASTERDB_LINE
+
+      # Dovecot's masterdb has the following format
+      # user:password
+      DOVECOT_MASTERDB_LINE="${LOGIN}:${PASS}"
+      if grep -qF "${DOVECOT_MASTERDB_LINE}" "${DOVECOT_MASTERDB_FILE}"
+      then
+        _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_MASTERDB_FILE}' twice"
+      else
+        echo "${DOVECOT_MASTERDB_LINE}" >>"${DOVECOT_MASTERDB_FILE}"
+      fi
+
+    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/dovecot-masters.cf)
   fi
 }
