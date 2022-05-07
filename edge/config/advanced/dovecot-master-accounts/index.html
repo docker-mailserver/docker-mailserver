@@ -12,14 +12,14 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/dovecot-master-accounts/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
     
     
       
-        <title>Security | Fail2Ban - Docker Mailserver</title>
+        <title>Advanced | Dovecot master accounts - Docker Mailserver</title>
       
     
     
@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration-files" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Security | Fail2Ban
+              Advanced | Dovecot master accounts
             
           </span>
         </div>
@@ -327,8 +327,6 @@
         <div class="md-main__inner md-grid">
           
             
-              
-                
               
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
@@ -604,14 +602,12 @@
               
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" data-md-state="indeterminate" type="checkbox" id="__nav_3_5" checked>
       
       
       
@@ -634,7 +630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../understanding-the-ports/" class="md-nav__link">
+      <a href="../../security/understanding-the-ports/" class="md-nav__link">
         Understanding the Ports
       </a>
     </li>
@@ -648,7 +644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ssl/" class="md-nav__link">
+      <a href="../../security/ssl/" class="md-nav__link">
         SSL/TLS
       </a>
     </li>
@@ -660,115 +656,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Fail2Ban
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../security/fail2ban/" class="md-nav__link">
         Fail2Ban
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configuration-files" class="md-nav__link">
-    Configuration files
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration files">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-compose-config" class="md-nav__link">
-    Docker-compose config
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-fail2ban-in-a-rootless-container" class="md-nav__link">
-    Running fail2ban in a rootless container
-  </a>
-  
-    <nav class="md-nav" aria-label="Running fail2ban in a rootless container">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-with-slirp4netns-port-driver" class="md-nav__link">
-    Docker with slirp4netns port driver
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#podman-with-slirp4netns-port-driver" class="md-nav__link">
-    Podman with slirp4netns port driver
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manage-bans" class="md-nav__link">
-    Manage bans
-  </a>
-  
-    <nav class="md-nav" aria-label="Manage bans">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#list-bans" class="md-nav__link">
-    List bans
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#un-ban" class="md-nav__link">
-    Un-ban
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -780,7 +672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail_crypt/" class="md-nav__link">
+      <a href="../../security/mail_crypt/" class="md-nav__link">
         Mail Encryption
       </a>
     </li>
@@ -860,12 +752,14 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8" data-md-state="indeterminate" type="checkbox" id="__nav_3_8" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_8" type="checkbox" id="__nav_3_8" checked>
       
       
       
@@ -888,7 +782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/optional-config/" class="md-nav__link">
+      <a href="../optional-config/" class="md-nav__link">
         Optional Configuration
       </a>
     </li>
@@ -928,7 +822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../maintenance/update-and-cleanup/" class="md-nav__link">
         Update and Cleanup
       </a>
     </li>
@@ -975,7 +869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/override-defaults/dovecot/" class="md-nav__link">
+      <a href="../override-defaults/dovecot/" class="md-nav__link">
         Dovecot
       </a>
     </li>
@@ -989,7 +883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/override-defaults/postfix/" class="md-nav__link">
+      <a href="../override-defaults/postfix/" class="md-nav__link">
         Postfix
       </a>
     </li>
@@ -1003,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/override-defaults/user-patches/" class="md-nav__link">
+      <a href="../override-defaults/user-patches/" class="md-nav__link">
         Modifications via Script
       </a>
     </li>
@@ -1024,7 +918,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/auth-ldap/" class="md-nav__link">
+      <a href="../auth-ldap/" class="md-nav__link">
         LDAP Authentication
       </a>
     </li>
@@ -1038,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/mail-sieve/" class="md-nav__link">
+      <a href="../mail-sieve/" class="md-nav__link">
         Email Filtering with Sieve
       </a>
     </li>
@@ -1052,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/mail-fetchmail/" class="md-nav__link">
+      <a href="../mail-fetchmail/" class="md-nav__link">
         Email Gathering with Fetchmail
       </a>
     </li>
@@ -1092,7 +986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../mail-forwarding/relay-hosts/" class="md-nav__link">
         Relay Hosts
       </a>
     </li>
@@ -1106,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../mail-forwarding/aws-ses/" class="md-nav__link">
         AWS SES
       </a>
     </li>
@@ -1127,7 +1021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/full-text-search/" class="md-nav__link">
+      <a href="../full-text-search/" class="md-nav__link">
         Full-Text Search
       </a>
     </li>
@@ -1141,7 +1035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/kubernetes/" class="md-nav__link">
+      <a href="../kubernetes/" class="md-nav__link">
         Kubernetes
       </a>
     </li>
@@ -1155,7 +1049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/ipv6/" class="md-nav__link">
+      <a href="../ipv6/" class="md-nav__link">
         IPv6
       </a>
     </li>
@@ -1169,7 +1063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/podman/" class="md-nav__link">
+      <a href="../podman/" class="md-nav__link">
         Podman
       </a>
     </li>
@@ -1181,11 +1075,62 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../advanced/dovecot-master-accounts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Dovecot Master Accounts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Dovecot Master Accounts
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-in" class="md-nav__link">
+    Logging in
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1531,9 +1476,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1550,76 +1493,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-files" class="md-nav__link">
-    Configuration files
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
-  
-    <nav class="md-nav" aria-label="Configuration files">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-compose-config" class="md-nav__link">
-    Docker-compose config
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-fail2ban-in-a-rootless-container" class="md-nav__link">
-    Running fail2ban in a rootless container
+  <a href="#configuration" class="md-nav__link">
+    Configuration
   </a>
-  
-    <nav class="md-nav" aria-label="Running fail2ban in a rootless container">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-with-slirp4netns-port-driver" class="md-nav__link">
-    Docker with slirp4netns port driver
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#podman-with-slirp4netns-port-driver" class="md-nav__link">
-    Podman with slirp4netns port driver
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#manage-bans" class="md-nav__link">
-    Manage bans
+  <a href="#logging-in" class="md-nav__link">
+    Logging in
   </a>
-  
-    <nav class="md-nav" aria-label="Manage bans">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#list-bans" class="md-nav__link">
-    List bans
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#un-ban" class="md-nav__link">
-    Un-ban
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1635,81 +1525,23 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/security/fail2ban.md" title="Edit this page" class="md-content__button md-icon">
+<a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/dovecot-master-accounts.md" title="Edit this page" class="md-content__button md-icon">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
 </a>
 
 
 
-  <h1>Fail2Ban</h1>
+  <h1>Dovecot Master Accounts</h1>
 
-<p>Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default.</p>
-<h2 id="configuration-files"><a class="toclink" href="#configuration-files">Configuration files</a></h2>
-<p>If you want to change this, you can easily edit our github example file: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>config-examples/fail2ban-jail.cf</code></a>.</p>
-<p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf"><code>config-examples/fail2ban-fail2ban.cf</code></a>.</p>
-<p>The configuration files need to be located at the root of the <code>/tmp/docker-mailserver/</code> volume bind (usually <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
-<p>This following configuration files from <code>/tmp/docker-mailserver/</code> will be copied during container startup.</p>
-<ul>
-<li><code>fail2ban-jail.cf</code> -&gt; <code>/etc/fail2ban/jail.d/user-jail.local</code></li>
-<li><code>fail2ban-fail2ban.cf</code> -&gt; <code>/etc/fail2ban/fail2ban.local</code></li>
-</ul>
-<h3 id="docker-compose-config"><a class="toclink" href="#docker-compose-config">Docker-compose config</a></h3>
-<p>Example configuration volume bind:</p>
-<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span><span class="w"></span>
-</code></pre></div>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p><code>docker-mailserver</code> must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the nftables rules that actually ban IP addresses.</p>
-<p>Thus either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span><span class="w"></span>
-</code></pre></div>
-</div>
-<h2 id="running-fail2ban-in-a-rootless-container"><a class="toclink" href="#running-fail2ban-in-a-rootless-container">Running fail2ban in a rootless container</a></h2>
-<p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
-<p>It is necessary for <code>fail2ban</code> to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than <code>builtin</code> but does preserve the real source IPs.</p>
-<h3 id="docker-with-slirp4netns-port-driver"><a class="toclink" href="#docker-with-slirp4netns-port-driver">Docker with <code>slirp4netns</code> port driver</a></h3>
-<p>For <a href="https://docs.docker.com/engine/security/rootless">rootless mode</a> in Docker, create <code>~/.config/systemd/user/docker.service.d/override.conf</code> with the following content:</p>
-<div class="highlight"><pre><span></span><code>[Service]
-Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
-</code></pre></div>
-<p>And then restart the daemon:</p>
-<div class="highlight"><pre><span></span><code><span class="gp">$ </span>systemctl --user daemon-reload
-<span class="gp">$ </span>systemctl --user restart docker
-</code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This changes the port driver for all rootless containers managed by Docker.</p>
-<p>Per container configuration is not supported, if you need that consider Podman instead.</p>
-</div>
-<h3 id="podman-with-slirp4netns-port-driver"><a class="toclink" href="#podman-with-slirp4netns-port-driver">Podman with <code>slirp4netns</code> port driver</a></h3>
-<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
-<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>.</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span><span class="w"></span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
-</code></pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code>slirp4netns</code> is not compatible with user-defined networks.</p>
-</div>
-<h2 id="manage-bans"><a class="toclink" href="#manage-bans">Manage bans</a></h2>
-<p>You can also manage and list the banned IPs with the <a href="../../setup.sh/"><code>setup.sh</code></a> script.</p>
-<h3 id="list-bans"><a class="toclink" href="#list-bans">List bans</a></h3>
-<div class="highlight"><pre><span></span><code>./setup.sh fail2ban
-</code></pre></div>
-<h3 id="un-ban"><a class="toclink" href="#un-ban">Un-ban</a></h3>
-<p>Here <code>192.168.1.15</code> is our banned IP.</p>
-<div class="highlight"><pre><span></span><code>./setup.sh fail2ban unban <span class="m">192</span>.168.1.15
-</code></pre></div>
+<h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
+<p>A dovecot master account is able to login as any configured user. This is useful for administrative tasks like hot backups.</p>
+<h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
+<p>It is possible to create, update, delete and list dovecot master accounts using <code>setup.sh</code>. See <code>setup.sh help</code> for usage.</p>
+<p>This feature is presently <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2535">not supported with LDAP</a>.</p>
+<h2 id="logging-in"><a class="toclink" href="#logging-in">Logging in</a></h2>
+<p>Once a master account is configured, it is possible to connect to any users mailbox using this account. Log in over POP3/IMAP using the following credential scheme:</p>
+<p>Username: <code>&lt;EMAIL ADDRESS&gt;*&lt;MASTER ACCOUNT NAME&gt;</code></p>
+<p>Password: <code>&lt;MASTER ACCOUNT PASSWORD&gt;</code></p>
 
               
             </article>
@@ -1728,7 +1560,7 @@ Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../ssl/" class="md-footer__link md-footer__link--prev" aria-label="Previous: SSL/TLS" rel="prev">
+        <a href="../podman/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Podman" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1737,20 +1569,20 @@ Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
               <span class="md-footer__direction">
                 Previous
               </span>
-              SSL/TLS
+              Podman
             </div>
           </div>
         </a>
       
       
         
-        <a href="../mail_crypt/" class="md-footer__link md-footer__link--next" aria-label="Next: Mail Encryption" rel="next">
+        <a href="../../../examples/tutorials/basic-installation/" class="md-footer__link md-footer__link--next" aria-label="Next: Basic Installation" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Mail Encryption
+              Basic Installation
             </div>
           </div>
           <div class="md-footer__button md-icon">
