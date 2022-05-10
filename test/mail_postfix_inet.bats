@@ -6,7 +6,7 @@ load 'test_helper/common'
 
 @test "checking postfix: inet default" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . )
   docker run -d --name mail_postfix_inet_default \
             -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
             -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -23,7 +23,7 @@ load 'test_helper/common'
 
 @test "checking postfix: inet all" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . )
   docker run -d --name mail_postfix_inet_all \
             -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
             -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -41,7 +41,7 @@ load 'test_helper/common'
 
 @test "checking postfix: inet ipv4" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . )
   docker run -d --name mail_postfix_inet_ipv4 \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -59,7 +59,7 @@ load 'test_helper/common'
 
 @test "checking postfix: inet ipv6" {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . )"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . )
   docker run -d --name mail_postfix_inet_ipv6 \
             -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
             -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \

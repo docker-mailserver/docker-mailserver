@@ -155,7 +155,7 @@ function _setup_dovecot
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf
   then
-    printf '\nstats_writer_socket_path=\n' >>/etc/dovecot/dovecot.conf
+    printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
   fi
 
   # set mail_location according to mailbox format
@@ -376,7 +376,7 @@ function _setup_ldap
   # add domainname to vhost
   echo "${DOMAINNAME}" >>/tmp/vhost.tmp
 
-  _log 'trace' 'Enabling Dovecot LDAP authentification'
+  _log 'trace' 'Enabling Dovecot LDAP authentication'
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
@@ -657,7 +657,7 @@ function _setup_dkim
     chown -R opendkim:opendkim /etc/opendkim/
     chmod -R 0700 /etc/opendkim/keys/
   else
-    _log 'warn' 'No DKIM key(s) provided - check the documentation on how to get your keys'
+    _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
     [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
   fi
 
@@ -714,7 +714,7 @@ function _setup_docker_permit
 
   CONTAINER_IP=$(ip addr show "${NETWORK_INTERFACE}" | \
     grep 'inet ' | sed 's|[^0-9\.\/]*||g' | cut -d '/' -f 1)
-  CONTAINER_NETWORK="$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0"
+  CONTAINER_NETWORK=$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0
 
   if [[ -z ${CONTAINER_IP} ]]
   then
@@ -955,7 +955,7 @@ function _setup_security_stack
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-RESULT="$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)"
+RESULT=$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)
 EXIT_CODE=${?}
 
 # see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
@@ -1149,10 +1149,13 @@ function _setup_user_patches
 function _setup_fail2ban
 {
   _log 'debug' 'Setting up Fail2Ban'
+
   if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
   then
     echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
+
+  echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
 }
 
 function _setup_dnsbl_disable

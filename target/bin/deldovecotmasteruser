@@ -1,0 +1,75 @@
+#! /bin/bash
+
+# shellcheck disable=SC2094
+# ? This is done to ignore the message "Make sure not to read and write
+# ? the same file in the same pipeline", which is a result of ${DATABASE}
+# ? being used below. (This disables the message file-wide.)
+
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
+DATABASE=/tmp/docker-mailserver/dovecot-masters.cf
+
+function __usage
+{
+  echo -e "\e[35mDELDOVECOTMASTERUSER\e[31m(\e[93m8\e[31m)
+
+\e[38;5;214mNAME\e[39m
+    deldovecotmasteruser - delete a dovecot master user
+
+\e[38;5;214mSYNOPSIS\e[39m
+    ./setup.sh dovecot-master del { <USERNAME> [<USERNAME>\e[31m...\e[39m] \e[31m|\e[39m help }
+
+\e[38;5;214mDESCRIPTION\e[39m
+    Delete a dovecot master user.
+
+\e[38;5;214mOPTIONS\e[39m
+    -h
+        Show this help dialogue.
+
+\e[38;5;214mEXAMPLES\e[39m
+    \e[37m./setup.sh dovecot-master del administrator\e[39m
+        Delete the dovecot master user called 'administrator'.
+
+    \e[37m./setup.sh dovecot-master del administrator admin\e[39m
+        Delete dovecot master users 'administrator' and 'admin'.
+
+\e[38;5;214mEXIT STATUS\e[39m
+    Exit status is 0 if command was successful, and 1 if there was an error.
+"
+}
+
+if [[ ${1} == 'help' ]]
+then
+  __usage
+  exit 0
+fi
+
+shift $((OPTIND-1))
+
+[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
+[[ -s ${DATABASE} ]] || exit 0
+
+_create_lock # Protect config file with lock to avoid race conditions
+
+for USER in "${@}"
+do
+  ERROR=false
+
+  # ${USER} must not contain /s and other syntactic characters
+  UNESCAPED_USER="${USER}"
+  USER=$(_escape "${USER}")
+
+  if [[ -f ${DATABASE} ]]
+  then
+    if ! sedfile --strict -i "/^${USER}|/d" "${DATABASE}"
+    then
+      _log 'error' "'${UNESCAPED_USER}' couldn't be deleted in '${DATABASE}'"
+      ERROR=true
+    fi
+  fi
+
+  ${ERROR} && _exit_with_error 'See the messages above.'
+done
+
+exit 0

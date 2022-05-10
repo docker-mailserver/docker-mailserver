@@ -2,7 +2,7 @@ load 'test_helper/common'
 
 function setup_file() {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     docker run --rm -d --name mail_fail2ban \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
 		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -116,32 +116,41 @@ function teardown_file() {
   refute_output "${FAIL_AUTH_MAILER_IP}"
 }
 
-#
-# debug
-#
+@test "checking fail2ban ban" {
+  run docker exec mail_fail2ban fail2ban ban 192.0.66.7
+  assert_success
+  assert_output "Banned custom IP: 1"
 
-@test "checking setup.sh: setup.sh debug fail2ban" {
+  run docker exec mail_fail2ban fail2ban
+  assert_success
+  assert_output --regexp "Banned in custom:.*192\.0\.66\.7"
+
+  run docker exec mail_fail2ban fail2ban unban 192.0.66.7
+  assert_success
+  assert_output --partial "Unbanned IP from custom: 1"
+}
+
+@test "checking setup.sh: setup.sh fail2ban" {
 
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
 
   sleep 10
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban
-  assert_output --partial 'Banned in dovecot:'
-  assert_output --partial '192.0.66.5'
-  assert_output --partial '192.0.66.4'
+  run ./setup.sh -c mail_fail2ban fail2ban
+  assert_output --regexp '^Banned in dovecot:.*192\.0\.66\.4'
+  assert_output --regexp '^Banned in dovecot:.*192\.0\.66\.5'
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.4
+  run ./setup.sh -c mail_fail2ban fail2ban unban 192.0.66.4
   assert_output --partial "Unbanned IP from dovecot: 1"
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban
-  assert_output --regexp "^Banned in dovecot:.*192.0.66.5.*"
+  run ./setup.sh -c mail_fail2ban fail2ban
+  assert_output --regexp "^Banned in dovecot:.*192\.0\.66\.5"
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban unban 192.0.66.5
+  run ./setup.sh -c mail_fail2ban fail2ban unban 192.0.66.5
   assert_output --partial "Unbanned IP from dovecot: 1"
 
-  run ./setup.sh -c mail_fail2ban debug fail2ban unban
+  run ./setup.sh -c mail_fail2ban fail2ban unban
   assert_output --partial "You need to specify an IP address: Run"
 }
 

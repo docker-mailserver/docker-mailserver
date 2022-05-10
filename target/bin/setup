@@ -25,7 +25,7 @@ ${ORANGE}NAME${RESET}
 ${ORANGE}SYNOPSIS${RESET}
     ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
 
-    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
+    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} dovecot-master ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
 
 ${ORANGE}DESCRIPTION${RESET}
     This is the main administration script that you use for all your interactions with
@@ -59,6 +59,12 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
         ${0} quota ${CYAN}del${RESET} <EMAIL ADDRESS>
 
+    ${LBLUE}COMMAND${RESET} dovecot-master ${RED}:=${RESET}
+        ${0} dovecot-master ${CYAN}add${RESET} <USERNAME> [<PASSWORD>]
+        ${0} dovecot-master ${CYAN}update${RESET} <USERNAME> [<PASSWORD>]
+        ${0} dovecot-master ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <USERNAME> [ <USERNAME>${RED}...${RESET} ]
+        ${0} dovecot-master ${CYAN}list${RESET}
+
     ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
         ${0} config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
 
@@ -67,8 +73,12 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
         ${0} relay ${CYAN}exclude-domain${RESET} <DOMAIN>
 
+    ${LBLUE}COMMAND${RESET} fail2ban ${RED}:=${RESET}
+        ${0} fail2ban ${RESET}
+        ${0} fail2ban ${CYAN}ban${RESET} <IP>
+        ${0} fail2ban ${CYAN}unban${RESET} <IP>
+
     ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
-        ${0} debug ${CYAN}fail2ban${RESET} [unban <IP>]
         ${0} debug ${CYAN}fetchmail${RESET}
         ${0} debug ${CYAN}login${RESET} <COMMANDS>
         ${0} debug ${CYAN}show-mail-logs${RESET}
@@ -128,6 +138,16 @@ function _main
       esac
       ;;
 
+    ( dovecot-master )
+      case ${2:-} in
+        ( add      ) shift 2 ; adddovecotmasteruser "${@}" ;;
+        ( update   ) shift 2 ; updatedovecotmasteruser "${@}" ;;
+        ( del      ) shift 2 ; deldovecotmasteruser "${@}" ;;
+        ( list     ) listdovecotmasteruser ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
     ( config )
       case ${2:-} in
         ( dkim     ) shift 2 ; open-dkim "${@}" ;;
@@ -144,10 +164,11 @@ function _main
       esac
       ;;
 
+    ( fail2ban ) shift 1 ; fail2ban "${@}" ;;
+
     ( debug )
       case ${2:-} in
         ( fetchmail      ) debug-fetchmail ;;
-        ( fail2ban       ) shift 2 ; fail2ban "${@}" ;;
         ( show-mail-logs ) cat /var/log/mail/mail.log ;;
         ( login          )
           shift 2
