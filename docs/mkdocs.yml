@@ -148,6 +148,7 @@ nav:
         - 'Kubernetes': config/advanced/kubernetes.md
         - 'IPv6': config/advanced/ipv6.md
         - 'Podman': config/advanced/podman.md
+        - 'Dovecot Master Accounts': config/advanced/dovecot-master-accounts.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md

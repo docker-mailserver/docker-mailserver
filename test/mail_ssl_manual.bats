@@ -16,7 +16,7 @@ function setup_file() {
 
     local PRIVATE_CONFIG
     export DOMAIN_SSL_MANUAL='example.test'
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
 
     docker run -d --name mail_manual_ssl \
         --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
@@ -99,7 +99,7 @@ function teardown_file() {
 }
 
 @test "checking ssl: manual cert changes are picked up by check-for-changes" {
-    printf 'someThingsChangedHere' \
+    printf '%s' 'someThingsChangedHere' \
       >>"$(pwd)/test/test-files/ssl/${DOMAIN_SSL_MANUAL}/with_ca/ecdsa/key.ecdsa.pem"
 
     run timeout 15 docker exec mail_manual_ssl bash -c "tail -F /var/log/supervisor/changedetector.log | sed '/Manual certificates have changed/ q'"

@@ -56,7 +56,7 @@ then
   [[ -z ${PASSWD} ]] && _exit_with_error "Password must not be empty"
 fi
 
-HASH="$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")"
+HASH=$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")
 echo "${FULL_EMAIL}|${HASH}" >> "${DATABASE}"
 
 USER="${FULL_EMAIL%@*}"

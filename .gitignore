@@ -26,6 +26,7 @@ tools/
 
 test/config/empty/
 test/config/postfix-accounts.cf
+test/config/dovecot-masters.cf
 test/config/letsencrypt/mail.my-domain.com/combined.pem
 test/config/dovecot-lmtp/userdb
 test/config/key*
