@@ -1,11 +1,28 @@
 #! /bin/bash
 
-LOG_RESET='\e[0m'
-LOG_LGRAY='\e[37m'
-LOG_LBLUE='\e[94m'
-LOG_BLUE='\e[34m'
-LOG_LYELLOW='\e[93m'
-LOG_RED='\e[91m'
+# shellcheck disable=SC2291 # Quote repeated spaces to avoid them collapsing into one.
+# shellcheck disable=SC2034 # VAR appears unused.
+
+# Color variables for global usage
+RED=$(echo -ne     '\e[0;31m')
+GREEN=$(echo -ne   '\e[0;32m')
+YELLOW=$(echo -ne  '\e[0;33m')
+BLUE=$(echo -ne    '\e[0;34m')
+PURPLE=$(echo -ne  '\e[0;35m')
+CYAN=$(echo -ne    '\e[0;36m')
+WHITE=$(echo -ne   '\e[0;37m')
+
+# Light/bold variants
+LRED=$(echo -ne    '\e[1;31m')
+LGREEN=$(echo -ne  '\e[1;32m')
+LYELLOW=$(echo -ne '\e[1;33m')
+LBLUE=$(echo -ne   '\e[1;34m')
+LPURPLE=$(echo -ne '\e[1;35m')
+LCYAN=$(echo -ne   '\e[1;36m')
+LWHITE=$(echo -ne  '\e[1;37m')
+
+ORANGE=$(echo -ne  '\e[38;5;214m')
+RESET=$(echo -ne   '\e[0m')
 
 # ### DMS Logging Functionality
 #
@@ -40,7 +57,7 @@ function _log
   fi
 
   local MESSAGE LEVEL_AS_INT LOG_LEVEL_FALLBACK
-  MESSAGE="${LOG_RESET}["
+  MESSAGE="${RESET}["
 
   if [[ -e /etc/dms-settings ]]
   then
@@ -61,27 +78,27 @@ function _log
   case "${1}" in
     ( 'trace' )
       [[ ${LEVEL_AS_INT} -ge 5 ]] || return 0
-      MESSAGE+="  ${LOG_LGRAY}TRACE  "
+      MESSAGE+="  ${LGRAY}TRACE  "
       ;;
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${LOG_LBLUE}DEBUG  "
+      MESSAGE+="  ${LBLUE}DEBUG  "
       ;;
 
     ( 'info' )
       [[ ${LEVEL_AS_INT} -ge 3 ]] || return 0
-      MESSAGE+="   ${LOG_BLUE}INF   "
+      MESSAGE+="   ${BLUE}INF   "
       ;;
 
     ( 'warn' )
       [[ ${LEVEL_AS_INT} -ge 2 ]] || return 0
-      MESSAGE+=" ${LOG_LYELLOW}WARNING "
+      MESSAGE+=" ${LYELLOW}WARNING "
       ;;
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+="  ${LOG_RED}ERROR  " ;;
+      MESSAGE+="  ${RED}ERROR  " ;;
 
     ( * )
       echo "Call to '_log' with invalid log level argument '${1}'" >&2
@@ -89,7 +106,7 @@ function _log
       ;;
   esac
 
-  MESSAGE+="${LOG_RESET}]  ${2}"
+  MESSAGE+="${RESET}]  ${2}"
 
   if [[ ${1} =~ ^(warn|error)$ ]]
   then
