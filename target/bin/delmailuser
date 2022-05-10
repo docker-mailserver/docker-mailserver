@@ -15,34 +15,34 @@ MAILDEL='false'
 
 function __usage
 {
-  echo -e "\e[35mDELMAILUSER\e[31m(\e[93m8\e[31m)
+  printf '%s' "${PURPLE}DELMAILUSER${RED}(${YELLOW}8${RED})
 
-\e[38;5;214mNAME\e[39m
+${ORANGE}NAME${RESET}
     delmailuser - delete a user and related data
 
-\e[38;5;214mSYNOPSIS\e[39m
-    ./setup.sh email del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>\e[31m...\e[39m] \e[31m|\e[39m help }
+${ORANGE}SYNOPSIS${RESET}
+    ./setup.sh email del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>${RED}...${RESET}] ${RED}|${RESET} help }
 
-\e[38;5;214mDESCRIPTION\e[39m
+${ORANGE}DESCRIPTION${RESET}
     Delete a mail user, aliases, quotas and mail data.
 
-\e[38;5;214mOPTIONS\e[39m
+${ORANGE}OPTIONS${RESET}
     -y
-        Indicate that \e[1mall mail data\e[22m is to be deleted without another prompt.
+        Indicate that ${LWHITE}all mail data${RESET} is to be deleted without another prompt.
 
     -h
         Show this help dialogue.
 
-\e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh email del woohoo@some-domain.org\e[39m
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh email del woohoo@some-domain.org${RESET}
         Delete the mail user, quotas and aliases, but ask
         again whether mailbox data should be deleted.
 
-    \e[37m./setup.sh email del -y test@domain.com test@domain.com\e[39m
+    ${LWHITE}./setup.sh email del -y test@domain.com test@domain.com${RESET}
         Delete all mail data for the users 'test' and do not
         prompt to ask if all mail data should be deleted.
 
-\e[38;5;214mEXIT STATUS\e[39m
+${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful, and 1 if there was an error.
 "
 }

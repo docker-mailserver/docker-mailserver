@@ -7,19 +7,19 @@ DATABASE='/tmp/docker-mailserver/postfix-relaymap.cf'
 
 function __usage
 {
-  printf "\e[35mADDRELAYHOST\e[31m(\e[93m8\e[31m)
+  printf '%s' "${PURPLE}ADDRELAYHOST${RED}(${YELLOW}8${RED})
 
-\e[38;5;214mNAME\e[39m
+${ORANGE}NAME${RESET}
     addrelayhost - add an relay host
 
-\e[38;5;214mSYNOPSIS\e[39m
+${ORANGE}SYNOPSIS${RESET}
     ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
 
-\e[38;5;214mOPTIONS\e[39m
-    \e[94mGeneric Program Information\e[39m
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
-\e[38;5;214mEXIT STATUS\e[39m
+${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided
     or arguments contain errors, the script will exit early with exit status 1.
 
