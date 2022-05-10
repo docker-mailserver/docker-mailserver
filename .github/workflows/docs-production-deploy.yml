@@ -23,6 +23,8 @@ env:
 
 jobs:
   deploy:
+    permissions:
+      contents: write
     name: 'Deploy Docs'
     runs-on: ubuntu-20.04
     steps:
