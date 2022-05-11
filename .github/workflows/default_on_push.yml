@@ -14,6 +14,10 @@ on:
     tags:
       - '*.*.*'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-test-image:
     runs-on: ubuntu-20.04

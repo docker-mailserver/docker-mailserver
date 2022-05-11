@@ -23,6 +23,8 @@ env:
 
 jobs:
   deploy:
+    permissions:
+      contents: write
     name: 'Deploy Docs'
     runs-on: ubuntu-20.04
     steps:
@@ -68,6 +70,8 @@ jobs:
           user_email: ${{ env.GIT_EMAIL }}
 
   add-version-to-docs:
+    permissions:
+      contents: write
     name: 'Update `versions.json` if necessary'
     runs-on: ubuntu-20.04
     if: startsWith(github.ref, 'refs/tags/')

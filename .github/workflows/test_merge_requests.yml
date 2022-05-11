@@ -11,6 +11,9 @@ on:
       - 'Dockerfile'
       - 'setup.sh'
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-20.04

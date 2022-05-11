@@ -17,6 +17,9 @@ concurrency:
 # `pull_request` workflow is unreliable alone: Non-collaborator contributions lack access to secrets for security reasons.
 # A separate workflow (docs-preview-deploy.yml) handles the deploy after the potentially untrusted code is first run in this workflow.
 # See: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+permissions:
+  contents: read
+
 jobs:
   prepare-preview:
     name: 'Build Preview'
