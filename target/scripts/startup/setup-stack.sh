@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function setup
+function _setup
 {
   _log 'info' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"

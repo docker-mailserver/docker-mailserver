@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function check
+function _check
 {
   _log 'info' 'Checking configuration'
   for FUNC in "${FUNCS_CHECK[@]}"

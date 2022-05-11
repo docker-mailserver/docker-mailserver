@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function start_misc
+function _start_misc
 {
   _log 'info' 'Starting miscellaneous tasks'
   for FUNC in "${FUNCS_MISC[@]}"

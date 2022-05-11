@@ -277,12 +277,12 @@ function _register_misc_function
 
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
-register_functions
-check
-setup
+_register_functions
+_check
+_setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-fix
-start_misc
+_apply_fixes
+_start_misc
 _start_daemons
 
 # marker to check, if container was restarted
