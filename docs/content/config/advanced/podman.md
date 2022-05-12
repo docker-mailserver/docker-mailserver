@@ -91,7 +91,7 @@ services:
 Then, setup your `mailserver.env` file follow the documentation and use docker-compose to start the container.
 
 ```bash
-export DOCKER_HOST="unix:/var/run/user/1000/podman/podman.sock"
+export DOCKER_HOST="unix:///var/run/user/$(id -u)/podman/podman.sock"
 docker-compose up -d mailserver
 docker-compose ps
 ```
