@@ -1714,7 +1714,7 @@ systemctl <span class="nb">enable</span> --now mailserver.service
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10993:993&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (implicit TLS)</span><span class="w"></span>
 </code></pre></div>
 <p>Then, setup your <code>mailserver.env</code> file follow the documentation and use docker-compose to start the container.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:/var/run/user/1000/podman/podman.sock&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:///var/run/user/</span><span class="k">$(</span>id -u<span class="k">)</span><span class="s2">/podman/podman.sock&quot;</span>
 docker-compose up -d mailserver
 docker-compose ps
 </code></pre></div>
