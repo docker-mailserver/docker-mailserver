@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks
 #      1. Helpers
 #      2. Checks
@@ -28,22 +29,26 @@ source /usr/local/bin/misc-stack.sh
 source /usr/local/bin/daemons-stack.sh
 
 # ------------------------------------------------------------
+# ? << Sourcing helpers & stacks
+# --
+# ? >> Setup Supervisor & DNS names
+# ------------------------------------------------------------
 
 # Setup supervisord as early as possible
 declare -A VARS
 VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
+
 _setup_supervisor
-
-# shellcheck disable=SC2034
-declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
-
 _obtain_hostname_and_domainname
 
 # ------------------------------------------------------------
-# ? <<
+# ? << Setup Supervisor & DNS names
 # --
 # ? >> Setup of default and global values / variables
 # ------------------------------------------------------------
+
+# shellcheck disable=SC2034
+declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 
 # These variables must be defined first; They are used as default values for other variables.
 VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
@@ -117,7 +122,7 @@ VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
 # ? >> Registering functions
 # ------------------------------------------------------------
 
-function register_functions
+function _register_functions
 {
   _log 'info' 'Initializing setup'
   _log 'debug' 'Registering functions'
@@ -268,24 +273,21 @@ function _register_misc_function
 
 # ------------------------------------------------------------
 # ? << Registering functions
-
-# ------------------------------------------------------------
-# ? << Sourcing all stacks
 # --
-# ? >> Executing all stacks
+# ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
-register_functions
-check
-setup
+_register_functions
+_check
+_setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-fix
-start_misc
+_apply_fixes
+_start_misc
 _start_daemons
 
-# marker to check, if container was restarted
+# marker to check if container was restarted
 date >/CONTAINER_START
 
 _log 'info' "${HOSTNAME} is up and running"
