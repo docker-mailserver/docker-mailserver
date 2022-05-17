@@ -821,9 +821,6 @@ function _setup_postfix_override_configuration
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' was not provided"
   fi
-
-  _log 'trace' "Set Postfix's compatibility level to 2"
-  postconf compatibility_level=2
 }
 
 function _setup_postfix_sasl_password
