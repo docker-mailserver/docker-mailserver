@@ -790,20 +790,15 @@ function _setup_postfix_virtual_transport
 
 function _setup_postfix_override_configuration
 {
-  _log 'trace' 'Setting up Postfix Override configuration'
+  _log 'debug' 'Overriding / adjusting Postfix configuration with user-supplied values'
 
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
-    while read -r LINE
-    do
-      # all valid postfix options start with a lower case letter
-      # http://www.postfix.org/postconf.5.html
-      if [[ ${LINE} =~ ^[a-z] ]]
-      then
-        postconf -e "${LINE}"
-      fi
-    done < /tmp/docker-mailserver/postfix-main.cf
-    _log 'trace' "Loaded '/tmp/docker-mailserver/postfix-main.cf'"
+    cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
+    # do not directly output to `main.cf` as this causes a read-write-conflict
+    postconf -nf >/etc/postfix/main.cf.new
+    mv /etc/postfix/main.cf.new /etc/postfix/main.cf
+    _log 'trace' "Adjusted `/etc/postfix/main.cf` according to '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"
   fi
@@ -817,7 +812,7 @@ function _setup_postfix_override_configuration
         postconf -P "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-master.cf
-    _log 'trace' "Loaded '/tmp/docker-mailserver/postfix-master.cf'"
+    _log 'trace' "Adjusted `/etc/postfix/master.cf` according to '/tmp/docker-mailserver/postfix-master.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' was not provided"
   fi
