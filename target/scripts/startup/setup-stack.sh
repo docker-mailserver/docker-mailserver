@@ -796,8 +796,8 @@ function _setup_postfix_override_configuration
   then
     cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
     # do not directly output to `main.cf` as this causes a read-write-conflict
-    postconf -nf >/etc/postfix/main.cf.new
-    mv /etc/postfix/main.cf.new /etc/postfix/main.cf
+    postconf -nf >/tmp/postfix-main-new.cf
+    mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
     _log 'trace' "Adjusted `/etc/postfix/main.cf` according to '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"
