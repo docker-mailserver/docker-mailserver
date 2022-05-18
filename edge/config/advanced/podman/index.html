@@ -1677,7 +1677,7 @@ Make sure to read the related documentation.</p>
 <div class="highlight"><pre><span></span><code>systemctl <span class="nb">enable</span> --now podman.socket
 </code></pre></div>
 <p>This will create a unix socket locate under <code>/run/podman/podman.sock</code>, which is the entrypoint of Podman's API. Now, configure docker-mailserver and start it.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:/run/podman/podman.sock&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:///run/podman/podman.sock&quot;</span>
 docker-compose up -d mailserver
 docker-compose ps
 </code></pre></div>
