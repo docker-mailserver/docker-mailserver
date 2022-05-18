@@ -4,6 +4,7 @@ smtpd_banner = $myhostname ESMTP
 biff = no
 append_dot_mydomain = no
 readme_directory = no
+compatibility_level = 2
 
 # Basic configuration
 # myhostname =
