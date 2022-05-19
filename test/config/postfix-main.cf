@@ -3,3 +3,6 @@ max_idle = 600s
 # this is a comment
      # this is also a comment
 readme_directory = /tmp
+
+# Compatibility set to default '0' to detect any implicit defaults that should be changed to explicit
+compatibility_level = 0

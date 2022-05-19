@@ -103,3 +103,5 @@ header_checks = pcre:/etc/postfix/maps/header_checks.pcre
 
 # Remove unwanted headers that reveal our privacy
 smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
+
+compatibility_level = 2
