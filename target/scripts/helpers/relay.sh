@@ -101,8 +101,6 @@ function _relayhost_configure_postfix
     "smtp_sasl_security_options = noanonymous" \
     "smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
     "smtp_tls_security_level = encrypt" \
-    "smtp_tls_note_starttls_offer = yes" \
-    "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt" \
     "sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map" \
     "smtp_sender_dependent_authentication = yes"
 }
