@@ -33,6 +33,9 @@ function _relayhost_sasl
         echo "${LINE}" >> /etc/postfix/sasl_passwd
       fi
     done < /tmp/docker-mailserver/postfix-sasl-password.cf
+
+    # Only relevant when providing this user config (unless users append elsewhere too)
+    postconf 'smtp_sender_dependent_authentication = yes'
   fi
 
   # add default relay
@@ -43,6 +46,7 @@ function _relayhost_sasl
   fi
 
   _sasl_set_passwd_permissions
+  postconf 'smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd'
 }
 
 # Introduced by: https://github.com/docker-mailserver/docker-mailserver/pull/1596
@@ -92,6 +96,8 @@ function _populate_relayhost_map
       echo "@${DOMAIN_PART}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done
+
+  postconf 'sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map'
 }
 
 function _relayhost_configure_postfix
@@ -99,10 +105,7 @@ function _relayhost_configure_postfix
   postconf -e \
     "smtp_sasl_auth_enable = yes" \
     "smtp_sasl_security_options = noanonymous" \
-    "smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd" \
-    "smtp_tls_security_level = encrypt" \
-    "sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map" \
-    "smtp_sender_dependent_authentication = yes"
+    "smtp_tls_security_level = encrypt"
 }
 
 function _setup_relayhost
