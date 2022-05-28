@@ -58,25 +58,38 @@ function _populate_relayhost_map
   chown root:root /etc/postfix/relayhost_map
   chmod 0600 /etc/postfix/relayhost_map
 
+  # Matches lines that are not comments or only white-space:
+  local MATCH_VALID='^\s*[^#[:space:]]'
+
   if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]
   then
     _log 'trace' "Adding relay mappings from postfix-relaymap.cf"
-    # keep lines which are not a comment *and* have a destination.
-    sed -n '/^\s*[^#[:space:]]\S*\s\+\S/p' /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
+
+    # Match two values with some white-space between them (eg: `@example.test [relay.service.test]:465`):
+    local MATCH_VALUE_PAIR='\S*\s+\S'
+
+    # Copy over lines which are not a comment *and* have a destination.
+    sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
   fi
 
-  {
-    # note: won't detect domains when lhs has spaces (but who does that?!)
-    sed -n '/^\s*[^#[:space:]]/ s/^[^@|]*@\([^|]\+\)|.*$/\1/p' /tmp/docker-mailserver/postfix-accounts.cf
+  # Matches and outputs (capture group via `/\1/p`) the domain part (value of address after `@`) in the config file.
+  local PRINT_DOMAIN_PART_ACCOUNTS='s/^[^@|]*@([^\|]+)\|.*$/\1/p'
+  local PRINT_DOMAIN_PART_VIRTUAL='s/^\s*[^@[:space:]]*@(\S+)\s.*/\1/p'
+  # Args: <PRINT_DOMAIN_PART_> <config filepath>
+  function _list_domain_parts { [[ -f $2 ]] && sed -n -r "/${MATCH_VALID}/ ${1}" "${2}" }
 
-    [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]] && sed -n '/^\s*[^#[:space:]]/ s/^\s*[^@[:space:]]*@\(\S\+\)\s.*/\1/p' /tmp/docker-mailserver/postfix-virtual.cf
-  } | while read -r DOMAIN
+  {
+    _list_domain_parts "${PRINT_DOMAIN_PART_ACCOUNTS}" /tmp/docker-mailserver/postfix-accounts.cf
+    _list_domain_parts "${PRINT_DOMAIN_PART_VIRTUAL}" /tmp/docker-mailserver/postfix-virtual.cf
+  } | sort -u | while read -r DOMAIN_PART
   do
-    # DOMAIN not already present *and* not ignored
-    if ! grep -q -e "^@${DOMAIN}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
+    # DOMAIN_PART not already present *and* not ignored
+    # `^@${DOMAIN_PART}\b` - To check for existing entry, the `\b` avoids accidental partial matches on similar domain parts.
+    # `^\s*@${DOMAIN_PART}\s*$` - Matches line with only a domain part (eg: @example.test). These lines exclude the envelope sender domain from a default relay.
+    if ! grep -q -e "^@${DOMAIN_PART}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN_PART}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
-      _log 'trace' "Adding relay mapping for ${DOMAIN}"
-      echo "@${DOMAIN}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
+      _log 'trace' "Adding relay mapping for ${DOMAIN_PART}"
+      echo "@${DOMAIN_PART}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
     fi
   done
 }
