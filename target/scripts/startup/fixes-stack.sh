@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function fix
+function _apply_fixes
 {
   _log 'info' 'Post-configuration checks'
   for FUNC in "${FUNCS_FIX[@]}"

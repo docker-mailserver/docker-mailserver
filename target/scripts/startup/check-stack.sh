@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function check
+function _check
 {
   _log 'info' 'Checking configuration'
   for FUNC in "${FUNCS_CHECK[@]}"
@@ -34,11 +34,10 @@ function _check_log_level
     return 0
   else
     local DEFAULT_LOG_LEVEL='info'
+    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
 
     # shellcheck disable=SC2034
     VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
     LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
-
-    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
   fi
 }

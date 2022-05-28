@@ -128,7 +128,7 @@ function private_config_path() {
 # @return path to the folder where the config is duplicated
 function duplicate_config_for_container() {
     local OUTPUT_FOLDER
-    OUTPUT_FOLDER="$(private_config_path "${2}")"  || return $?
+    OUTPUT_FOLDER=$(private_config_path "${2}")  || return $?
     rm -rf "${OUTPUT_FOLDER:?}/" || return $? # cleanup
     mkdir -p "${OUTPUT_FOLDER}" || return $?
     cp -r "${PWD}/test/config/${1:?}/." "${OUTPUT_FOLDER}" || return $?
@@ -169,16 +169,16 @@ function wait_for_empty_mail_queue_in_container() {
 # For individual test override the var via `local` var instead.
 #
 # For example, if you need an immutable config volume that can't be affected by other tests
-# in the file, then use `local TEST_TMP_CONFIG="$(duplicate_config_for_container . "${UNIQUE_ID_HERE}")"`
+# in the file, then use `local TEST_TMP_CONFIG=$(duplicate_config_for_container . "${UNIQUE_ID_HERE}")`
 function init_with_defaults() {
   export TEST_NAME TEST_TMP_CONFIG
 
   # In `setup_file()` the default name to use for the currently tested docker container
   # is `${TEST_NAME}` global defined here. It derives the name from the test filename:
   # `basename` to ignore absolute dir path and file extension, only extract filename.
-  TEST_NAME="$(basename "${BATS_TEST_FILENAME}" '.bats')"
+  TEST_NAME=$(basename "${BATS_TEST_FILENAME}" '.bats')
   # In `setup_file()` creates a single copy of the test config folder to use for an entire test file:
-  TEST_TMP_CONFIG="$(duplicate_config_for_container . "${TEST_NAME}")"
+  TEST_TMP_CONFIG=$(duplicate_config_for_container . "${TEST_NAME}")
 
   # Common complimentary test files, read-only safe to share across containers:
   export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'

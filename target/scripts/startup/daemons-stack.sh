@@ -15,7 +15,7 @@ function _default_start_daemon
   _log 'debug' "Starting ${1:?}"
 
   local RESULT
-  RESULT="$(supervisorctl start "${1}" 2>&1)"
+  RESULT=$(supervisorctl start "${1}" 2>&1)
 
   # shellcheck disable=SC2181
   if [[ ${?} -ne 0 ]]

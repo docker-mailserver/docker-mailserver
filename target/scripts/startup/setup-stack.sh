@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function setup
+function _setup
 {
   _log 'info' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"
@@ -155,7 +155,7 @@ function _setup_dovecot
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf
   then
-    printf '\nstats_writer_socket_path=\n' >>/etc/dovecot/dovecot.conf
+    printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
   fi
 
   # set mail_location according to mailbox format
@@ -300,7 +300,7 @@ function _setup_dovecot_local_user
   local SLEEP_PERIOD='10'
   for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
   do
-    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf) -ge 1 ]]
+    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]
     then
       return 0
     else
@@ -668,7 +668,7 @@ function _setup_docker_permit
 
   CONTAINER_IP=$(ip addr show "${NETWORK_INTERFACE}" | \
     grep 'inet ' | sed 's|[^0-9\.\/]*||g' | cut -d '/' -f 1)
-  CONTAINER_NETWORK="$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0"
+  CONTAINER_NETWORK=$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0
 
   if [[ -z ${CONTAINER_IP} ]]
   then
@@ -909,7 +909,7 @@ function _setup_security_stack
       cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
 #! /bin/bash
 
-RESULT="$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)"
+RESULT=$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)
 EXIT_CODE=${?}
 
 # see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes

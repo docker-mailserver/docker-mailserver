@@ -4,20 +4,13 @@ SCRIPT='setup'
 
 set -euE -o pipefail
 
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
 function _usage
 {
-  local WHITE="\e[37m"
-  local RED="\e[31m"
-  local PURPLE="\e[35m"
-  local YELLOW="\e[93m"
-  local ORANGE="\e[38;5;214m"
-  local CYAN="\e[96m"
-  local BLUE="\e[34m"
-  local LBLUE="\e[94m"
-  local RESET="\e[0m"
-
   # shellcheck disable=SC2059
-  printf "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
+  printf '%s' "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
 
 ${ORANGE}NAME${RESET}
     ${SCRIPT:-${0}} - 'docker-mailserver' Administration & Configuration script
@@ -25,7 +18,7 @@ ${ORANGE}NAME${RESET}
 ${ORANGE}SYNOPSIS${RESET}
     ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
 
-    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
+    COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} dovecot-master ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
 
 ${ORANGE}DESCRIPTION${RESET}
     This is the main administration script that you use for all your interactions with
@@ -35,12 +28,12 @@ ${ORANGE}DESCRIPTION${RESET}
     If it cannot find a running 'docker-mailserver' container, it will attempt to run one using
     any available tags which include 'label=org.opencontainers.image.title=\"docker-mailserver\"'
     and then run the necessary commands. If the tag for the container is not found, this script
-    will pull the '${WHITE}:latest${RESET}' tag of '${WHITE}docker.io/mailserver/docker-mailserver${RESET}'.
+    will pull the '${LWHITE}:latest${RESET}' tag of '${LWHITE}docker.io/mailserver/docker-mailserver${RESET}'.
     This tag refers to the latest release, see the tagging convention in the README under:
     ${BLUE}https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md${RESET}
 
     You will be able to see detailed information about the script you're invoking and their
-    arguments by appending '${WHITE}help${RESET}' after your command. Currently, this does not work with all scripts.
+    arguments by appending '${LWHITE}help${RESET}' after your command. Currently, this does not work with all scripts.
 
 ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
     ${LBLUE}COMMAND${RESET} email ${RED}:=${RESET}
@@ -58,6 +51,12 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
     ${LBLUE}COMMAND${RESET} quota ${RED}:=${RESET}
         ${0} quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
         ${0} quota ${CYAN}del${RESET} <EMAIL ADDRESS>
+
+    ${LBLUE}COMMAND${RESET} dovecot-master ${RED}:=${RESET}
+        ${0} dovecot-master ${CYAN}add${RESET} <USERNAME> [<PASSWORD>]
+        ${0} dovecot-master ${CYAN}update${RESET} <USERNAME> [<PASSWORD>]
+        ${0} dovecot-master ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <USERNAME> [ <USERNAME>${RED}...${RESET} ]
+        ${0} dovecot-master ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
         ${0} config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
@@ -78,16 +77,16 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         ${0} debug ${CYAN}show-mail-logs${RESET}
 
 ${ORANGE}EXAMPLES${RESET}
-    ${WHITE}./setup.sh email add test@example.com${RESET}
-        Add the email account ${WHITE}test@example.com${RESET}. You will be prompted
+    ${LWHITE}./setup.sh email add test@example.com${RESET}
+        Add the email account ${LWHITE}test@example.com${RESET}. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ${WHITE}./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
+    ${LWHITE}./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
         Postfix by default, so you need to provide them yourself in a comma-separated list.
 
-    ${WHITE}./setup.sh config dkim help${RESET}
-        This will provide you with a detailed explanation on how to use the ${WHITE}
+    ${LWHITE}./setup.sh config dkim help${RESET}
+        This will provide you with a detailed explanation on how to use the ${LWHITE}
         config dkim${RESET} command, showing what arguments can be passed and what they do.
 
 "
@@ -128,6 +127,16 @@ function _main
       case ${2:-} in
         ( set      ) shift 2 ; setquota "${@}" ;;
         ( del      ) shift 2 ; delquota "${@}" ;;
+        ( *        ) _invalid_command "${1}" "${2}" ;;
+      esac
+      ;;
+
+    ( dovecot-master )
+      case ${2:-} in
+        ( add      ) shift 2 ; adddovecotmasteruser "${@}" ;;
+        ( update   ) shift 2 ; updatedovecotmasteruser "${@}" ;;
+        ( del      ) shift 2 ; deldovecotmasteruser "${@}" ;;
+        ( list     ) listdovecotmasteruser ;;
         ( *        ) _invalid_command "${1}" "${2}" ;;
       esac
       ;;

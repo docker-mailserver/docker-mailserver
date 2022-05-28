@@ -5,7 +5,7 @@ CONTAINER2="mail_dnsbl_disabled"
 
 function setup_file() {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG="$(duplicate_config_for_container . "${CONTAINER}")"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER}")
 
 	docker run --rm -d --name "${CONTAINER}" \
 		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \

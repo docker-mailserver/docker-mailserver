@@ -99,11 +99,11 @@ load 'test_helper/common'
 @test "wait_for_finished_setup_in_container" {
     # variable not local to make visible to teardown
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
-    CONTAINER_NAME="$(docker run -d --rm \
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
+    CONTAINER_NAME=$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -h mail.my-domain.com \
-                                -t "${NAME}")"
+                                -t "${NAME}")
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
     # the setup should not be finished immediately after starting
@@ -117,7 +117,7 @@ load 'test_helper/common'
 
 @test "duplicate_config_for_container" {
     local path
-    path="$(duplicate_config_for_container duplicate_config_test)"
+    path=$(duplicate_config_for_container duplicate_config_test)
 
     run cat "${path}/marker"
     assert_line "This marker file is there to identify the correct config being copied"
@@ -128,12 +128,12 @@ load 'test_helper/common'
 
 @test "container_has_service_running/wait_for_service" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     # variable not local to make visible to teardown
-    CONTAINER_NAME="$(docker run -d --rm \
+    CONTAINER_NAME=$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -h mail.my-domain.com \
-                                -t "${NAME}")"
+                                -t "${NAME}")
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
     # pick a service that was not started
@@ -154,12 +154,12 @@ load 'test_helper/common'
 
 @test "wait_for_changes_to_be_detected_in_container fails when timeout is reached" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     # variable not local to make visible to teardown
-    CONTAINER_NAME="$(docker run -d --rm \
+    CONTAINER_NAME=$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -h mail.my-domain.com \
-                                -t "${NAME}")"
+                                -t "${NAME}")
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
     # wait for the initial checksum detection to complete
@@ -177,12 +177,12 @@ load 'test_helper/common'
 
 @test "wait_for_changes_to_be_detected_in_container succeeds within timeout" {
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     # variable not local to make visible to teardown
-    CONTAINER_NAME="$(docker run -d --rm \
+    CONTAINER_NAME=$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -h mail.my-domain.com \
-                                -t "${NAME}")"
+                                -t "${NAME}")
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
     # wait for the initial checksum detection to complete
@@ -202,15 +202,15 @@ load 'test_helper/common'
     skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2177'
 
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     # variable not local to make visible to teardown
     # enable ClamAV to make message delivery slower, so we can detect it
-    CONTAINER_NAME="$(docker run -d --rm \
+    CONTAINER_NAME=$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
                                 -e ENABLE_CLAMAV=1 \
                                 -h mail.my-domain.com \
-                                -t "${NAME}")"
+                                -t "${NAME}")
 
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
@@ -233,15 +233,15 @@ load 'test_helper/common'
     skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2177'
 
     local PRIVATE_CONFIG
-    PRIVATE_CONFIG="$(duplicate_config_for_container .)"
+    PRIVATE_CONFIG=$(duplicate_config_for_container .)
     # variable not local to make visible to teardown
     # enable ClamAV to make message delivery slower, so we can detect it
-    CONTAINER_NAME="$(docker run -d --rm \
+    CONTAINER_NAME=$(docker run -d --rm \
                                 -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
                                 -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
                                 -e ENABLE_CLAMAV=1 \
                                 -h mail.my-domain.com \
-                                -t "${NAME}")"
+                                -t "${NAME}")
 
     teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
