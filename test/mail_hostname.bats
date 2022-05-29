@@ -20,7 +20,6 @@ function setup_file() {
 		-e PERMIT_DOCKER=network \
 		-e ENABLE_SRS=1 \
 		--hostname domain.com \
-    --domainname domain.com \
 		-t "${NAME}"
 
   PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . mail_srs_domainname)
@@ -55,6 +54,10 @@ function setup_file() {
   # postfix virtual transport lmtp
   docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+}
+
+function teardown_file() {
+    docker rm -f mail_override_hostname mail_non_subdomain_hostname mail_srs_domainname mail_domainname
 }
 
 @test "checking SRS: SRS_DOMAINNAME is used correctly" {
