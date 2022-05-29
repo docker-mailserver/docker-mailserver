@@ -25,7 +25,8 @@ load 'test_helper/common'
   run docker exec mail_spam_moved_junk /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success
 
-  run repeat_until_success_or_timeout 20 sh -c "docker logs mail_spam_moved_junk | grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}'"
+  # message will be added to a queue with varying delay until amavis receives it
+  run repeat_until_success_or_timeout 60 sh -c "docker logs mail_spam_moved_junk | grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}'"
   assert_success
 
   # spam moved to Junk folder
@@ -54,7 +55,8 @@ load 'test_helper/common'
   run docker exec mail_spam_moved_new /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success
 
-  run repeat_until_success_or_timeout 20 sh -c "docker logs mail_spam_moved_new | grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}'"
+  # message will be added to a queue with varying delay until amavis receives it
+  run repeat_until_success_or_timeout 60 sh -c "docker logs mail_spam_moved_new | grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}'"
   assert_success
 
   # spam moved to INBOX
