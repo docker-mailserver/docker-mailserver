@@ -1,6 +1,29 @@
 #! /bin/bash
 # Support for Relay Hosts
 
+# Description:
+# This helper is responsible for configuring outbound SMTP (delivery) through relay-hosts.
+#
+# When mail is sent from Postfix, it is considered relaying to that destination (or the next hop).
+# By default delivery external of the container would be direct to the MTA of the recipient address (destination).
+# Alternatively mail can be indirectly delivered to the destination by routing through a different MTA (relay-host service).
+#
+# This helper is only concerned with relaying mail from authenticated submission (ports 587 + 465).
+# Thus it does not deal with `relay_domains` (which routes through `relay_transport` transport, default: `master.cf:relay`),
+# that is intended for forwarding inbound mail (including from port 25) for any permitted domains.
+
+# User Docs:
+# https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/relay-hosts/
+
+# Supported `setup` commands:
+# setup.sh relay add-auth <domain> <username> [<password>]
+# https://github.com/docker-mailserver/docker-mailserver/blob/master/target/bin/addsaslpassword
+#
+# setup.sh relay add-domain <domain> <host> [<port>]
+# https://github.com/docker-mailserver/docker-mailserver/blob/master/target/bin/addrelayhost
+#
+# setup.sh relay exclude-domain <domain>
+# https://github.com/docker-mailserver/docker-mailserver/blob/master/target/bin/excluderelaydomain
 
 # Responsible for these files:
 # postfix-sasl-password.cf
