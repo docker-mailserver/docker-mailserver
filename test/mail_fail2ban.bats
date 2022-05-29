@@ -1,29 +1,28 @@
 load 'test_helper/common'
 
 function setup_file() {
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    docker run --rm -d --name mail_fail2ban \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e ENABLE_FAIL2BAN=1 \
-		-e POSTSCREEN_ACTION=ignore \
-		--cap-add=NET_ADMIN \
-		-h mail.my-domain.com -t "${NAME}"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+  docker run --rm -d --name mail_fail2ban \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e ENABLE_FAIL2BAN=1 \
+    -e POSTSCREEN_ACTION=ignore \
+    --cap-add=NET_ADMIN \
+    -h mail.my-domain.com -t "${NAME}"
 
-    # Create a container which will send wrong authentications and should get banned
-    docker run --name fail-auth-mailer \
-        -e MAIL_FAIL2BAN_IP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)" \
-        -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test \
-        -d "${NAME}" \
-        tail -f /var/log/faillog
+  # Create a container which will send wrong authentications and should get banned
+  docker run --name fail-auth-mailer \
+    -e MAIL_FAIL2BAN_IP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_fail2ban)" \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test \
+    -d "${NAME}" \
+    tail -f /var/log/faillog
 
-    wait_for_finished_setup_in_container mail_fail2ban
-
+  wait_for_finished_setup_in_container mail_fail2ban
 }
 
 function teardown_file() {
-    docker rm -f mail_fail2ban fail-auth-mailer
+  docker rm -f mail_fail2ban fail-auth-mailer
 }
 
 #
@@ -102,7 +101,6 @@ function teardown_file() {
 }
 
 @test "checking fail2ban: unban ip works" {
-
   FAIL_AUTH_MAILER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' fail-auth-mailer)
   docker exec mail_fail2ban fail2ban-client set postfix-sasl unbanip "${FAIL_AUTH_MAILER_IP}"
 
@@ -131,7 +129,6 @@ function teardown_file() {
 }
 
 @test "checking setup.sh: setup.sh fail2ban" {
-
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
 
