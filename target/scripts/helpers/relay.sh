@@ -21,9 +21,20 @@
 # Either way, plaintext copy is likely accessible if using our supported configs for providing them to the container.
 
 
-function _relayhost_default_port_fallback
+# NOTE: Present support has enforced wrapping the relay host with `[]` (prevents DNS MX record lookup),
+# which restricts what is supported by RELAY_HOST, although you usually do want to provide MX host directly.
+# NOTE: Present support expects to always append a port with an implicit default of `25`.
+# NOTE: DEFAULT_RELAY_HOST imposes neither restriction, but would only be compatible with SASL_PASSWD then when
+# auth is needed. However that seems tied to RELAY_HOST to enable the /etc/postfix/sasl_passwd table lookup,
+# which introduces issues if you would want DEFAULT_RELAY_HOST to use credentials..
+#
+# TODO: RELAY_PORT should be optional, it will use the transport default port (`postconf smtp_tcp_port`),
+# That shouldn't be a breaking change, as long as the mapping is maintained correctly.
+# TODO: RELAY_HOST should consider dropping `[]` and require the user to include that?
+# Future refactor for _populate_relayhost_map may warrant dropping these two ENV in favor of DEFAULT_RELAY_HOST?
+function _env_relay_host
 {
-  RELAY_PORT=${RELAY_PORT:-25}
+  echo "[${RELAY_HOST}]:${RELAY_PORT:-25}"
 }
 
 # setup /etc/postfix/sasl_passwd
@@ -61,7 +72,7 @@ function _relayhost_sasl
   # Add an authenticated relay host defined via ENV config:
   if [[ -n ${RELAY_USER} ]] && [[ -n ${RELAY_PASSWORD} ]]
   then
-    echo "[${RELAY_HOST}]:${RELAY_PORT} ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
+    echo "$(_env_relay_host)    ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
   fi
 
   _sasl_set_passwd_permissions
@@ -131,7 +142,7 @@ function _populate_relayhost_map
     if ! grep -q -e "^@${DOMAIN_PART}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN_PART}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf
     then
       _log 'trace' "Adding relay mapping for ${DOMAIN_PART}"
-      echo "@${DOMAIN_PART}    [${RELAY_HOST}]:${RELAY_PORT}" >> /etc/postfix/relayhost_map
+      echo "@${DOMAIN_PART}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
     fi
   done
 
@@ -158,8 +169,7 @@ function _setup_relayhost
 
   if [[ -n ${RELAY_HOST} ]]
   then
-    _relayhost_default_port_fallback
-    _log 'trace' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
+    _log 'trace' "Setting up relay hosts (default: ${RELAY_HOST})"
 
     # Expects `_sasl_passwd_create` was called prior in `setup-stack.sh`
     _relayhost_sasl
@@ -173,8 +183,6 @@ function _rebuild_relayhost
 {
   if [[ -n ${RELAY_HOST} ]]
   then
-    _relayhost_default_port_fallback
-
     # Start from a new `/etc/postfix/sasl_passwd` state:
     _sasl_passwd_create
 
