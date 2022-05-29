@@ -83,6 +83,13 @@ function _relayhost_sasl
 # Present support uses a table lookup for sender address or domain mapping to relay-hosts,
 # Populated via `postfix-relaymap.cf `, which also features a non-standard way to exclude implicitly added internal domains from the feature.
 # It also maps all known sender domains (from configs postfix-accounts + postfix-virtual.cf) to the same ENV configured relay-host.
+#
+# TODO: The account + virtual config parsing and appending to /etc/postfix/relayhost_map seems to be an excessive `main.cf:relayhost`
+# implementation, rather than leveraging that for the same purpose and selectively overriding only when needed with `/etc/postfix/relayhost_map`.
+# If the issue was to opt-out select domains, if avoiding a default relay-host was not an option, then mapping those sender domains or addresses
+# to a separate transport (which can drop the `relayhost` setting) would be more appropriate.
+# TODO: With `sender_dependent_default_transport_maps`, we can extract out the excluded domains and route them through a separate transport.
+# while deprecating that support in favor of a transport config, similar to what is offered currently via sasl_passwd and relayhost_map.
 function _populate_relayhost_map
 {
   # Create the relayhost_map config file:
