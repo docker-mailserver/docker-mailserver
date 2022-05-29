@@ -37,13 +37,8 @@ function _env_relay_host
   echo "[${RELAY_HOST}]:${RELAY_PORT:-25}"
 }
 
-# setup /etc/postfix/sasl_passwd
-# --
-# @domain1.com        postmaster@domain1.com:your-password-1
-# @domain2.com        postmaster@domain2.com:your-password-2
-# @domain3.com        postmaster@domain3.com:your-password-3
-#
-# [smtp.mailgun.org]:587  postmaster@domain2.com:your-password-2
+# Responsible for `postfix-sasl-password.cf` support:
+# `/etc/postfix/sasl_passwd` example at end of file.
 function _relayhost_sasl
 {
   if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
@@ -82,12 +77,12 @@ function _relayhost_sasl
   postconf 'smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd'
 }
 
-# Introduced by: https://github.com/docker-mailserver/docker-mailserver/pull/1596
-# setup /etc/postfix/relayhost_map
-# --
-# @domain1.com        [smtp.mailgun.org]:587
-# @domain2.com        [smtp.mailgun.org]:587
-# @domain3.com        [smtp.mailgun.org]:587
+# Responsible for `postfix-relaymap.cf` support:
+# `/etc/postfix/relayhost_map` example at end of file.
+#
+# Present support uses a table lookup for sender address or domain mapping to relay-hosts,
+# Populated via `postfix-relaymap.cf `, which also features a non-standard way to exclude implicitly added internal domains from the feature.
+# It also maps all known sender domains (from configs postfix-accounts + postfix-virtual.cf) to the same ENV configured relay-host.
 function _populate_relayhost_map
 {
   # Create the relayhost_map config file:
@@ -190,3 +185,152 @@ function _rebuild_relayhost
     _populate_relayhost_map
   fi
 }
+
+
+#
+# Config examples for reference
+#
+
+# main.cf:smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd
+# https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
+#
+# /etc/postfix/sasl_passwd
+# --
+# # Popular relay service examples (ports used are only to demonstrate variety):
+# [smtp.sendgrid.net]:2525                     apikey:actual-generated-api-key
+# [in.mailjet.com]:587                         apikey:secretkey
+# [smtp.mailgun.org]:465                       postmaster@mydomain.com:password
+# [email-smtp.us-west-2.amazonaws.com]:2465    SMTPUSERNAME:SMTPPASSWORD
+#
+# # No explicit port provided is valid. It will use the default port of the active transport:
+# [mx.relay-service.test]                      relay-account:relay-pass
+# # Without [], a DNS lookup for MX record will be performed:
+# relay-service.test                           relay-account:relay-pass
+#
+#
+# # Sender dependent credentials have priority over relay host credentials.
+# # They will use a matching sender dependent relay-host,
+# # or fallback to a default if configured.
+#
+# # You can provide a full sender address to use different credentials:
+# user@domain1.test                            relay-account:relay-pass
+#
+# # Or for all users in a sender domain, with different relay-host each,
+# # or sharing the same relay-host with different credentials:
+# @domain1.test                                domain1-account:domain1-pass
+# @domain2.test                                domain2-account:domain2-pass
+
+
+# main.cf:sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map
+# https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
+# TODO: Official Postfix SASL_README docs page names the file `/etc/postfix/sender_relay` instead.
+#
+# setup /etc/postfix/relayhost_map
+# --
+# @domain1.test        [smtp.mailgun.org]:465
+# @domain2.test        [smtp.mailgun.org]:465
+# @domain3.test        [smtp.sendgrid.net]:2525
+#
+# # Can also use specific user or FQDN to lookup relay-host MX record:
+# user@domain1.test    relay-service.test
+
+
+
+#
+# Relevant Postfix docs
+#
+
+# Enabling SASL authentication in the Postfix SMTP/LMTP client:
+# https://www.postfix.org/SASL_README.html#client_sasl_enable
+#
+# Explains required settings for SASL client auth with relay support:
+# smtp_sasl_auth_enable = yes
+# smtp_tls_security_level = encrypt
+# smtp_tls_security_options = noanonymous
+#
+# Details that configured relay-hosts must have an exact match for
+# successful credentials lookup in `smtp_sasl_password_maps`.
+#
+# Advises that `/etc/postfix/sasl_passwd` is read+write only (600) for root,
+# Along with an example using `hash` lookup table instead of `texthash`.
+
+# Configuring sender-dependent SASL authentication:
+# https://www.postfix.org/SASL_README.html#client_sasl_sender
+#
+# Explains that `/etc/postfix/sasl_passwd` table may map lookups by
+# sender address or relay-host as keys to `user:password` values.
+# Sender address has priority over relay-host and only supported when
+# enabled with: `smtp_sender_dependent_authentication = yes`.
+#
+# Likewise those senders can be matched to different relay-hosts in the:
+# `sender_dependent_relayhost_maps` table, otherwise they will fallback
+# to the default relay-host (`main.cf:relayhost` setting).
+
+
+
+#
+# Advice to maintainers
+#
+
+# WARNING: Maintainers be wary of relay service docs/blogs, especially their advice for configuring Postfix.
+#
+# Not necessary:
+# - `smtp_tls_note_starttls_offer = yes` - Only adds a log to know when an unencrypted
+#   connection was made, but STARTTLS was offered:
+#   https://www.postfix.org/postconf.5.html#smtp_tls_note_starttls_offer
+# - `smtp_use_tls = yes` - Implied when using `smtp_tls_security_level = encrypt`:
+#   https://www.postfix.org/postconf.5.html#smtp_tls_security_level
+#
+#
+#
+# MailJet:
+# https://dev.mailjet.com/smtp-relay/configuration/
+# https://www.mailjet.com/blog/news/which-smtp-port-mailjet/#port-465
+# They describes port 465 support akin to it's prior purpose before RFC 8314 (2018).
+# Every other supported port is considered "TLS" which is presumably explicit TLS (STARTTLS),
+# while 465 is considered "SSL" (but unlike legacy purpose mandates authorization), presumably implicit TLS?
+#
+# Supported SMTP ports: https://dev.mailjet.com/smtp-relay/configuration/
+# Explicit TLS: 25, 2525, 80, 587, 588 | Implicit TLS: 465
+# States explicit TLS ports do not mandate TLS to connect successfully (bad).
+#
+#
+#
+# SendGrid:
+# https://docs.sendgrid.com/for-developers/sending-email/integrating-with-the-smtp-api
+# https://docs.sendgrid.com/for-developers/sending-email/getting-started-smtp
+# Appears to make a similar distinction of port 465 as "SSL" and others "TLS".
+# They at least seem aware of explicit (587) and implicit (465) TLS differences in their own blog.
+# Although it's not clear if they restrict 465 to SSLv3 and earlier.. Doubtful.
+#
+# https://sendgrid.com/blog/whats-the-difference-between-ports-465-and-587/
+# However they confusingly cite 465 is used for StartTLS (never was),
+# and incorrectly describe how they deliver mail:
+# https://sendgrid.com/blog/what-is-starttls/
+#
+# Supported SMTP ports: https://docs.sendgrid.com/for-developers/sending-email/integrating-with-the-smtp-api#smtp-ports
+# Explicit TLS: 25, 2525, 587 | Implicit TLS: 465
+# States explicit TLS ports do not mandate TLS to connect successfully (bad).
+#
+#
+#
+# MailGun:
+# https://documentation.mailgun.com/en/latest/user_manual.html#smtp-relay
+# Bad: Advises `smtp_tls_security_level = may` without enforcing TLS, allowing for unencrypted auth to relay.
+# Bad: Advises setting `smtpd_tls` parameters (including legacy ones for key/cert).
+# `smtpd_` is only for inbound mail, not relevant to sending / relaying mail from your MTA.
+#
+# Supported SMTP ports: https://documentation.mailgun.com/en/latest/user_manual.html#sending-via-smtp
+# Explicit TLS: 25, 2525, 587 | Implicit TLS: 465
+# All ports make TLS mandatory to connect successfully.
+#
+#
+#
+# Amazon SES:
+# https://docs.aws.amazon.com/ses/latest/dg/postfix.html
+# Decent docs, only lists a few unnecessary config parameters.
+#
+# Supported SMTP Ports: https://docs.aws.amazon.com/ses/latest/dg/smtp-connect.html
+# Explicit TLS: 25, 587, 2587 | Implicit TLS: 465, 2465
+# All ports make TLS mandatory to connect successfully. Port 25 may be throttled.
+# Service can be configured to receive mail without requiring authentication.
