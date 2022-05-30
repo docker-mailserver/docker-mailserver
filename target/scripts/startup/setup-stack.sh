@@ -795,8 +795,9 @@ function _setup_postfix_override_configuration
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
     cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
+    sleep 1
     # do not directly output to 'main.cf' as this causes a read-write-conflict
-    postconf -nf >/tmp/postfix-main-new.cf
+    postconf -nf >/tmp/postfix-main-new.cf 2>/dev/null
     mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
     _log 'trace' "Adjusted '/etc/postfix/main.cf' according to '/tmp/docker-mailserver/postfix-main.cf'"
   else
