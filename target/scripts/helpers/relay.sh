@@ -133,7 +133,7 @@ function _populate_relayhost_map
     local MATCH_VALUE_PAIR='\S*\s+\S'
 
     # Copy over lines which are not a comment *and* have a destination.
-    sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" /tmp/docker-mailserver/postfix-relaymap.cf >> /etc/postfix/relayhost_map
+    sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" /tmp/docker-mailserver/postfix-relaymap.cf >>/etc/postfix/relayhost_map
   fi
 
   # Everything below here is to parse `postfix-accounts.cf` and `postfix-virtual.cf`,
