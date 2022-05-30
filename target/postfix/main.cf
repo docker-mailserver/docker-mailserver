@@ -104,4 +104,11 @@ header_checks = pcre:/etc/postfix/maps/header_checks.pcre
 # Remove unwanted headers that reveal our privacy
 smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
 
+# The default compatibility_level is 0 - which retains legacy settings defaults:
+# http://www.postfix.org/COMPATIBILITY_README.html
+# If backwards-compaitibilty log messages appear, fix them by explicitly adding
+# the legacy or new default value (alternatively raise the compatibility_level)
+#
+# TODO: The next compatibility_level is 3.6, when Postfix 3.6 is available consider
+# bumping this value after taking the compaitibilty changes into account.
 compatibility_level = 2
