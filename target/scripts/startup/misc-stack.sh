@@ -24,7 +24,6 @@ function _misc_save_states
     FILES=(
       spool/postfix
       lib/postfix
-      lib/dovecot
     )
 
     # Only consolidate state for services that are enabled
@@ -34,6 +33,7 @@ function _misc_save_states
     [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && FILES+=('lib/fail2ban')
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
     [[ ${ENABLE_POSTGREY} -eq 1 ]] && FILES+=('lib/postgrey')
+    [[ ${SMTP_ONLY} -ne 1 ]] && FILES+=('lib/dovecot')
 
     for FILE in "${FILES[@]}"
     do
