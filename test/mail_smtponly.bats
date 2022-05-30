@@ -1,21 +1,22 @@
 load 'test_helper/common'
 
 function setup_file() {
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    docker run --rm -d --name mail_smtponly \
-              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-              -e SMTP_ONLY=1 \
-              -e PERMIT_DOCKER=network \
-              -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-              -t "${NAME}"
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
 
-    wait_for_finished_setup_in_container mail_smtponly
+  docker run --rm -d --name mail_smtponly \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e SMTP_ONLY=1 \
+    -e PERMIT_DOCKER=network \
+    -e OVERRIDE_HOSTNAME=mail.my-domain.com \
+    -t "${NAME}"
+
+  wait_for_finished_setup_in_container mail_smtponly
 }
 
 function teardown_file() {
-    docker rm -f mail_smtponly
+  docker rm -f mail_smtponly
 }
 
 #
@@ -65,6 +66,7 @@ function teardown_file() {
 @test "checking PERMIT_DOCKER=network: opendmarc/opendkim config" {
   run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
   assert_success
+
   run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
   assert_success
 }

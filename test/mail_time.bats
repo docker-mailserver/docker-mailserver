@@ -15,7 +15,7 @@ setup_file() {
 }
 
 teardown_file() {
-    docker rm -f mail_time
+  docker rm -f mail_time
 }
 
 @test "checking time: setting the time with TZ works correctly" {

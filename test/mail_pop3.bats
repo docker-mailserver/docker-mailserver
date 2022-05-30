@@ -1,16 +1,17 @@
 load 'test_helper/common'
 
 function setup_file() {
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    docker run -d --name mail_pop3 \
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+
+  docker run -d --name mail_pop3 \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e ENABLE_POP3=1 \
     -e PERMIT_DOCKER=container \
     -h mail.my-domain.com -t "${NAME}"
 
-    wait_for_finished_setup_in_container mail_pop3
+  wait_for_finished_setup_in_container mail_pop3
 }
 
 function teardown_file() {
@@ -43,10 +44,13 @@ function teardown_file() {
 @test "checking spamassassin: docker env variables are set correctly (default)" {
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   assert_success
+
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   assert_success
+
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 6.31'"
   assert_success
+
   run docker exec mail_pop3 /bin/sh -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .\*\*\*SPAM\*\*\* .'"
   assert_success
 }
@@ -58,6 +62,7 @@ function teardown_file() {
 @test "checking system: /var/log/mail/mail.log is error free" {
   run docker exec mail_pop3 grep 'non-null host address bits in' /var/log/mail/mail.log
   assert_failure
+
   run docker exec mail_pop3 grep ': error:' /var/log/mail/mail.log
   assert_failure
 }

@@ -9,8 +9,8 @@ function setup_file() {
   PRIVATE_CONFIG="$(duplicate_config_for_container . )"
 
   docker run -d --name "${CONTAINER}" \
-  -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-  -h mail.my-domain.com "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -h mail.my-domain.com "${NAME}"
 
   wait_for_finished_setup_in_container "${CONTAINER}"
 }

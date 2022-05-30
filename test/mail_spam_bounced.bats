@@ -43,6 +43,7 @@ function _should_bounce_spam() {
   run docker exec "${TEST_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success
 
-  run repeat_until_success_or_timeout 20 sh -c "docker logs ${TEST_NAME} | grep 'Blocked SPAM {NoBounceInbound,Quarantined}'"
+  # message will be added to a queue with varying delay until amavis receives it
+  run repeat_until_success_or_timeout 60 sh -c "docker logs ${TEST_NAME} | grep 'Blocked SPAM {NoBounceInbound,Quarantined}'"
   assert_success
 }
