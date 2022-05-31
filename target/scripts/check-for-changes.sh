@@ -125,6 +125,22 @@ function _check_for_changes
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
 }
 
+function _get_changed_files
+{
+
+}
+
+
+function _postfix_dovecot_changes
+{
+
+}
+
+function _ssl_changes
+{
+
+}
+
 while true
 do
   _check_for_changes
