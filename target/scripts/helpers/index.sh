@@ -20,6 +20,7 @@ function _import_scripts
 
   source "${PATH_TO_SCRIPTS}/accounts.sh"
   source "${PATH_TO_SCRIPTS}/aliases.sh"
+  source "${PATH_TO_SCRIPTS}/change-detection.sh"
   source "${PATH_TO_SCRIPTS}/dns.sh"
   source "${PATH_TO_SCRIPTS}/error.sh"
   source "${PATH_TO_SCRIPTS}/lock.sh"
