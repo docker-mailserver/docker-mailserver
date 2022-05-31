@@ -1,5 +1,11 @@
 #! /bin/bash
 
+# Global checksum file needed for the changedetector service. Used by:
+# - check-for-changes.sh
+# - test/test_helper/common.bash:wait_for_changes_to_be_detected_in_container()
+# shellcheck disable=SC2034
+CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
+
 # Once container startup scripts complete, take a snapshot of
 # the config state via storing a list of files content hashes.
 # NOTE: start-mailserver.sh --> setup-stack.sh is the only consumer.

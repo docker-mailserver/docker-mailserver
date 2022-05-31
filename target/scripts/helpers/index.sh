@@ -3,17 +3,6 @@
 # shellcheck source-path=target/scripts/helpers
 # This file serves as a single import for all helpers
 
-# Global checksum file mainly needed for the changedetector.
-# Used in the folling scripts:
-#
-# - ../check-for-changes.sh
-# - ../start-mailserver.sh
-# - ../startup/setup-stack.sh
-# - ../../../test/test_helper/common.bash
-#
-# shellcheck disable=SC2034
-CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
-
 function _import_scripts
 {
   local PATH_TO_SCRIPTS='/usr/local/bin/helpers'
