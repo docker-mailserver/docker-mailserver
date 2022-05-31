@@ -1,5 +1,24 @@
 #! /bin/bash
 
+# Once container startup scripts complete, take a snapshot of
+# the config state via storing a list of files content hashes.
+# NOTE: start-mailserver.sh --> setup-stack.sh is the only consumer.
+function _prepare_for_change_detection
+{
+  _log 'debug' 'Setting up configuration checksum file'
+
+  if [[ -d /tmp/docker-mailserver ]]
+  then
+    _log 'trace' "Creating '${CHKSUM_FILE}'"
+    _monitored_files_checksums >"${CHKSUM_FILE}"
+  else
+    # We could just skip the file, but perhaps config can be added later?
+    # If so it must be processed by the check for changes script
+    _log 'trace' "Creating empty '${CHKSUM_FILE}' (no config)"
+    touch "${CHKSUM_FILE}"
+  fi
+}
+
 # Returns a list of changed files, each line is a value pair of:
 # <SHA-512 content hash> <changed file path>
 # NOTE: check-for-changes.sh is the only consumer.
