@@ -171,8 +171,7 @@ load 'test_helper/common'
   teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
   # wait for the initial checksum file to be created
-  local CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e "${CHKSUM_FILE}"
+  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; test -e "${CHKSUM_FILE}"'
 
   # there should be no changes in the beginning
   TEST_TIMEOUT_IN_SECONDS=0 wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
@@ -197,8 +196,7 @@ load 'test_helper/common'
   teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
   # wait for the initial checksum file to be created
-  local CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e "${CHKSUM_FILE}"
+  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; test -e "${CHKSUM_FILE}"'
 
   # trigger some change
   docker exec "${CONTAINER_NAME}" /bin/sh -c "addmailuser auser3@mail.my-domain.com mypassword"
