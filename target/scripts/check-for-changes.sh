@@ -51,8 +51,9 @@ function _check_for_changes
   then
     _log_with_date 'info' 'Change detected'
     _create_lock # Shared config safety lock
+
     local CHANGED
-    CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
+    CHANGED=$(_get_changed_files "${CHKSUM_FILE}" "${CHKSUM_FILE}.new")
 
     # TODO Perform updates below conditionally too
     # Also note that changes are performed in place and are not atomic
@@ -127,7 +128,18 @@ function _check_for_changes
 
 function _get_changed_files
 {
+  local CHKSUM_CURRENT=${1}
+  local CHKSUM_NEW=${2}
 
+  # Diff the two files for lines that don't match or differ from lines in CHKSUM_FILE
+  # grep -Fxvf
+  #   -f use CHKSUM_FILE lines as input patterns to match for
+  #   -F The patterns to match are treated as strings only, not treated as regex syntax
+  #   -x (match whole lines only)
+  #   -v invert the matching so only non-matches are output
+  # Extract file paths by truncating the matched content hash and white-space from lines:
+  # sed -r 's/^\S+[[:space:]]+//'
+  grep -Fxvf "${CHKSUM_CURRENT}" "${CHKSUM_NEW}" | sed -r 's/^\S+[[:space:]]+//'
 }
 
 
