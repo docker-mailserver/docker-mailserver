@@ -171,6 +171,7 @@ load 'test_helper/common'
   teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
   # wait for the initial checksum file to be created
+  # shellcheck disable=SC2016
   repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; test -e "${CHKSUM_FILE}"'
 
   # there should be no changes in the beginning
@@ -196,6 +197,7 @@ load 'test_helper/common'
   teardown() { docker rm -f "${CONTAINER_NAME}"; }
 
   # wait for the initial checksum file to be created
+  # shellcheck disable=SC2016
   repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; test -e "${CHKSUM_FILE}"'
 
   # trigger some change
