@@ -3,7 +3,8 @@
 # This helper supports the changedetector service. Used by:
 # - check-for-changes.sh
 # - test/test_helper/common.bash:wait_for_changes_to_be_detected_in_container()
-# - start-mailserver.sh --> setup-stack.sh (to initialize the initial CHKSUM_FILE state)
+# - test/test_helper.bats
+# - start-mailserver.sh --> setup-stack.sh (to initialize the CHKSUM_FILE state)
 
 # Global checksum file used to track when monitored files have changed in content:
 # shellcheck disable=SC2034
