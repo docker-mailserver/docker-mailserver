@@ -28,8 +28,6 @@ then
   _exit_with_error "'${CHKSUM_FILE}' is missing" 0
 fi
 
-REGEX_NEVER_MATCH="(?\!)"
-
 _log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
 # Change detection delayed during startup to avoid conflicting writes
@@ -59,40 +57,7 @@ function _check_for_changes
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
 
-    # _setup_ssl is required for:
-    # manual - copy to internal DMS_TLS_PATH (/etc/dms/tls) that Postfix and Dovecot are configured to use.
-    # acme.json - presently uses /etc/letsencrypt/live/<FQDN> instead of DMS_TLS_PATH,
-    # path may change requiring Postfix/Dovecot config update.
-    if [[ ${SSL_TYPE} == 'manual' ]]
-    then
-      # only run the SSL setup again if certificates have really changed.
-      if [[ ${CHANGED} =~ ${SSL_CERT_PATH:-${REGEX_NEVER_MATCH}} ]]     \
-      || [[ ${CHANGED} =~ ${SSL_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]      \
-      || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
-      || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
-      then
-        _log_with_date 'debug' 'Manual certificates have changed - extracting certificates'
-        _setup_ssl
-      fi
-    # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
-    # When a change is detected it's assumed to be a possible cert renewal that needs to be
-    # extracted for `docker-mailserver` services to adjust to.
-    elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
-    then
-      _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
-      _setup_ssl
-
-      # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
-      local CERT_DOMAIN
-      CERT_DOMAIN=$(_find_letsencrypt_domain)
-      ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
-
-      sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
-      sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
-    fi
-
-    # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
-    # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
+    _ssl_changes
 
     # regenerate postfix accounts
     [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
@@ -150,7 +115,42 @@ function _postfix_dovecot_changes
 
 function _ssl_changes
 {
+  local REGEX_NEVER_MATCH='(?\!)'
 
+  # _setup_ssl is required for:
+  # manual - copy to internal DMS_TLS_PATH (/etc/dms/tls) that Postfix and Dovecot are configured to use.
+  # acme.json - presently uses /etc/letsencrypt/live/<FQDN> instead of DMS_TLS_PATH,
+  # path may change requiring Postfix/Dovecot config update.
+  if [[ ${SSL_TYPE} == 'manual' ]]
+  then
+    # only run the SSL setup again if certificates have really changed.
+    if [[ ${CHANGED} =~ ${SSL_CERT_PATH:-${REGEX_NEVER_MATCH}} ]]     \
+    || [[ ${CHANGED} =~ ${SSL_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]      \
+    || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
+    || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
+    then
+      _log_with_date 'debug' 'Manual certificates have changed - extracting certificates'
+      _setup_ssl
+    fi
+  # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
+  # When a change is detected it's assumed to be a possible cert renewal that needs to be
+  # extracted for `docker-mailserver` services to adjust to.
+  elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
+  then
+    _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
+    _setup_ssl
+
+    # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
+    local CERT_DOMAIN ACME_CERT_DIR
+    CERT_DOMAIN=$(_find_letsencrypt_domain)
+    ACME_CERT_DIR="/etc/letsencrypt/live/${CERT_DOMAIN}"
+
+    sed -i "\|${ACME_CERT_DIR}|d" "${CHKSUM_FILE}.new"
+    sha512sum "${ACME_CERT_DIR}"/*.pem >> "${CHKSUM_FILE}.new"
+  fi
+
+  # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
+  # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
 }
 
 while true
