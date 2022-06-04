@@ -59,6 +59,8 @@ function _check_for_changes
     # While some config changes may be properly applied by Postfix or Dovecot
     # via their 'reload' commands; some may require restarting?:
     _log_with_date 'debug' 'Restarting services due to detected changes'
+
+    _reload_amavis
     supervisorctl restart postfix
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
@@ -84,6 +86,16 @@ function _get_changed_files
   # Extract file paths by truncating the matched content hash and white-space from lines:
   # sed -r 's/^\S+[[:space:]]+//'
   grep -Fxvf "${CHKSUM_CURRENT}" "${CHKSUM_NEW}" | sed -r 's/^\S+[[:space:]]+//'
+}
+
+function _reload_amavis
+{
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]
+  then
+    # /etc/postfix/vhost was updated, amavis must refresh it's config by
+    # reading this file again in case of new domains, otherwise they will be ignored.
+    amavisd-new reload
+  fi
 }
 
 # Also note that changes are performed in place and are not atomic
