@@ -16,18 +16,19 @@ function _create_accounts
 
   [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   _create_masters
-  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
+  if [[ -f ${DATABASE_ACCOUNTS} ]]
   then
     _log 'trace' "Checking file line endings"
-    sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
+    sed -i 's|\r||g' "${DATABASE_ACCOUNTS}"
 
     _log 'trace' "Regenerating postfix user list"
-    echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
+    echo "# WARNING: this file is auto-generated. Modify ${DATABASE_ACCOUNTS} to edit the user list." > /etc/postfix/vmailbox
 
-    # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
+    # checking that ${DATABASE_ACCOUNTS} ends with a newline
     # shellcheck disable=SC1003
-    sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
+    sed -i -e '$a\' "${DATABASE_ACCOUNTS}"
 
     chown dovecot:dovecot "${DOVECOT_USERDB_FILE}"
     chmod 640 "${DOVECOT_USERDB_FILE}"
@@ -92,7 +93,7 @@ function _create_accounts
       fi
 
       echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
+    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_ACCOUNTS}")
 
     _create_dovecot_alias_dummy_accounts
   fi
@@ -130,7 +131,7 @@ function _create_dovecot_alias_dummy_accounts
       REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
       REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
 
-      if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
+      if ! grep -q "${REAL_FQUN}" "${DATABASE_ACCOUNTS}"
       then
         _log 'debug' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
         continue
@@ -141,7 +142,7 @@ function _create_dovecot_alias_dummy_accounts
       # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
       # ${REAL_ACC[1]} => password hash
       # ${REAL_ACC[2]} => optional user attributes
-      IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf)
+      IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" "${DATABASE_ACCOUNTS}")
 
       if [[ -z ${REAL_ACC[1]} ]]
       then
