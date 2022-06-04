@@ -11,15 +11,17 @@ function _handle_postfix_virtual_config
   : >/etc/postfix/virtual
   : >/etc/postfix/regexp
 
-  if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
+  local DATABASE_VIRTUAL=/tmp/docker-mailserver/postfix-virtual.cf
+
+  if [[ -f ${DATABASE_VIRTUAL} ]]
   then
     # fixing old virtual user file
-    if grep -q ",$" /tmp/docker-mailserver/postfix-virtual.cf
+    if grep -q ",$" "${DATABASE_VIRTUAL}"
     then
-      sed -i -e "s|, |,|g" -e "s|,$||g" /tmp/docker-mailserver/postfix-virtual.cf
+      sed -i -e "s|, |,|g" -e "s|,$||g" "${DATABASE_VIRTUAL}"
     fi
 
-    cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
+    cp -f "${DATABASE_VIRTUAL}" /etc/postfix/virtual
 
     # the `to` is important, don't delete it
     # shellcheck disable=SC2034
@@ -30,9 +32,9 @@ function _handle_postfix_virtual_config
 
       # if they are equal it means the line looks like: "user1     other@domain.tld"
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
+    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_VIRTUAL}" || true)
   else
-    _log 'debug' "'/tmp/docker-mailserver/postfix-virtual.cf' not provided - no mail alias/forward created"
+    _log 'debug' "'${DATABASE_VIRTUAL}' not provided - no mail alias/forward created"
   fi
 }
 
