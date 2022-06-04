@@ -98,23 +98,26 @@ do
   esac
 done
 
-touch /tmp/vhost.dkim.tmp
-
+DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+DATABASE_VHOST='/tmp/vhost'
+TMP_VHOST='/tmp/vhost.dkim.tmp'
+touch "${TMP_VHOST}"
 if [[ -z ${DOMAINS} ]]
 then
   # getting domains FROM mail accounts
-  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
+  if [[ -f ${DATABASE_ACCOUNTS} ]]
   then
     # shellcheck disable=SC2034
     while IFS=$'|' read -r LOGIN PASS
     do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
-      echo "${DOMAIN}" >>/tmp/vhost.dkim.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf || true)
+      echo "${DOMAIN}" >>"${TMP_VHOST}"
+    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_ACCOUNTS}" || true)
   fi
 
   # getting domains FROM mail aliases
-  if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
+  if [[ -f ${DATABASE_VIRTUAL} ]]
   then
     # shellcheck disable=SC2034
     while read -r FROM TO
@@ -122,17 +125,17 @@ then
       UNAME=$(echo "${FROM}" | cut -d @ -f1)
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
-      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.dkim.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
+      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>"${TMP_VHOST}"
+    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_VIRTUAL}" || true)
   fi
 else
-  tr ',' '\n' <<< "${DOMAINS}" >/tmp/vhost.dkim.tmp
+  tr ',' '\n' <<< "${DOMAINS}" >"${TMP_VHOST}"
 fi
 
-sort < /tmp/vhost.dkim.tmp | uniq >/tmp/vhost
-rm /tmp/vhost.dkim.tmp
+sort < "${TMP_VHOST}" | uniq >"${DATABASE_VHOST}"
+rm "${TMP_VHOST}"
 
-if [[ ! -s /tmp/vhost ]]
+if [[ ! -s ${DATABASE_VHOST} ]]
 then
   _log 'warn' 'No entries found, no keys to make'
   exit 0
@@ -179,7 +182,7 @@ do
       echo "${SIGNINGTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/SigningTable
     fi
   fi
-done < <(grep -vE '^(\s*$|#)' /tmp/vhost)
+done < <(grep -vE '^(\s*$|#)' "${DATABASE_VHOST}")
 
 # create TrustedHosts if missing
 if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]
