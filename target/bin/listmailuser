@@ -22,7 +22,7 @@ function dovecot_quota_to_hr
 
 function _config_without_comments
 {
-  sed -n -r '/^\s*[^#[:space:]]/p' "${1}"
+  sed '/^[[:space:]]*#/d' "${1}"
 }
 
 DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
@@ -52,7 +52,7 @@ do
   else
     echo
   fi
-done <<< "$(_config_without_comments "${DATABASE}")"
+done < <(_config_without_comments "${DATABASE}")
 
 
 exit 0
