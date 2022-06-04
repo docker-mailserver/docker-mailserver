@@ -108,7 +108,9 @@ function _create_accounts
 # for more details on this method
 function _create_dovecot_alias_dummy_accounts
 {
-  if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+
+  if [[ -f ${DATABASE_VIRTUAL} ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
   then
     # adding aliases to Dovecot's userdb
     # ${REAL_FQUN} is a user's fully-qualified username
@@ -166,7 +168,7 @@ function _create_dovecot_alias_dummy_accounts
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
-    done < /tmp/docker-mailserver/postfix-virtual.cf
+    done < "${DATABASE_VIRTUAL}"
   fi
 }
 
