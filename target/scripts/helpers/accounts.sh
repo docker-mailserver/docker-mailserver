@@ -178,16 +178,17 @@ function _create_masters
 {
   : >"${DOVECOT_MASTERDB_FILE}"
 
-  if [[ -f /tmp/docker-mailserver/dovecot-masters.cf ]]
+  local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
+  if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]
   then
     _log 'trace' "Checking file line endings"
-    sed -i 's|\r||g' /tmp/docker-mailserver/dovecot-masters.cf
+    sed -i 's|\r||g' "${DATABASE_DOVECOT_MASTERS}"
 
     _log 'trace' "Regenerating dovecot masters list"
 
-    # checking that /tmp/docker-mailserver/dovecot-masters.cf ends with a newline
+    # checking that ${DATABASE_DOVECOT_MASTERS} ends with a newline
     # shellcheck disable=SC1003
-    sed -i -e '$a\' /tmp/docker-mailserver/dovecot-masters.cf
+    sed -i -e '$a\' "${DATABASE_DOVECOT_MASTERS}"
 
     chown dovecot:dovecot "${DOVECOT_MASTERDB_FILE}"
     chmod 640 "${DOVECOT_MASTERDB_FILE}"
@@ -213,6 +214,6 @@ function _create_masters
         echo "${DOVECOT_MASTERDB_LINE}" >>"${DOVECOT_MASTERDB_FILE}"
       fi
 
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/dovecot-masters.cf)
+    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_DOVECOT_MASTERS}")
   fi
 }
