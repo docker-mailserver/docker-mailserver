@@ -20,6 +20,11 @@ function dovecot_quota_to_hr
   fi
 }
 
+function _config_without_comments
+{
+  sed -n -r '/^\s*[^#[:space:]]/p' "${1}"
+}
+
 DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
 ALIASES='/tmp/docker-mailserver/postfix-virtual.cf'
 
@@ -47,6 +52,7 @@ do
   else
     echo
   fi
-done < "${DATABASE}"
+done <<< "$(_config_without_comments "${DATABASE}")"
+
 
 exit 0
