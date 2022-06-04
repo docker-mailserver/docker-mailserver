@@ -96,13 +96,7 @@ function _relayhost_sasl
   if [[ -f ${DATABASE_SASL_PASSWD} ]]
   then
     # Add domain-specific auth from config file:
-    while read -r LINE
-    do
-      if ! _is_comment "${LINE}"
-      then
-        echo "${LINE}" >> /etc/postfix/sasl_passwd
-      fi
-    done < "${DATABASE_SASL_PASSWD}"
+    _get_valid_lines_from_file "${DATABASE_SASL_PASSWD}" >> /etc/postfix/sasl_passwd
 
     # Only relevant when providing this user config (unless users append elsewhere too)
     postconf 'smtp_sender_dependent_authentication = yes'

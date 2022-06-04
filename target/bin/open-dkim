@@ -113,7 +113,7 @@ then
     do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
       echo "${DOMAIN}" >>"${TMP_VHOST}"
-    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_ACCOUNTS}" || true)
+    done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
   fi
 
   # getting domains FROM mail aliases
@@ -126,7 +126,7 @@ then
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>"${TMP_VHOST}"
-    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_VIRTUAL}" || true)
+    done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   fi
 else
   tr ',' '\n' <<< "${DOMAINS}" >"${TMP_VHOST}"
@@ -182,7 +182,7 @@ do
       echo "${SIGNINGTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/SigningTable
     fi
   fi
-done < <(grep -vE '^(\s*$|#)' "${DATABASE_VHOST}")
+done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
 
 # create TrustedHosts if missing
 if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]

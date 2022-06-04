@@ -93,7 +93,7 @@ function _create_accounts
       fi
 
       echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_ACCOUNTS}")
+    done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 
     _create_dovecot_alias_dummy_accounts
   fi
@@ -117,9 +117,6 @@ function _create_dovecot_alias_dummy_accounts
     local ALIAS REAL_FQUN DOVECOT_USERDB_LINE
     while read -r ALIAS REAL_FQUN
     do
-      # ignore comments
-      [[ ${ALIAS} == \#* ]] && continue
-
       # alias is assumed to not be a proper e-mail
       # these aliases do not need to be added to Dovecot's userdb
       [[ ! ${ALIAS} == *@* ]] && continue
@@ -168,7 +165,7 @@ function _create_dovecot_alias_dummy_accounts
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
-    done < "${DATABASE_VIRTUAL}"
+    done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   fi
 }
 
@@ -213,7 +210,6 @@ function _create_masters
       else
         echo "${DOVECOT_MASTERDB_LINE}" >>"${DOVECOT_MASTERDB_FILE}"
       fi
-
-    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_DOVECOT_MASTERS}")
+    done < <(_get_valid_lines_from_file "${DATABASE_DOVECOT_MASTERS}")
   fi
 }

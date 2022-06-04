@@ -32,7 +32,7 @@ function _handle_postfix_virtual_config
 
       # if they are equal it means the line looks like: "user1     other@domain.tld"
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" "${DATABASE_VIRTUAL}" || true)
+    done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   else
     _log 'debug' "'${DATABASE_VIRTUAL}' not provided - no mail alias/forward created"
   fi
