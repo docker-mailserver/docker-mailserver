@@ -300,7 +300,7 @@ function _setup_dovecot_local_user
   local SLEEP_PERIOD='10'
   for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
   do
-    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf) -ge 1 ]]
+    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]
     then
       return 0
     else
@@ -537,52 +537,6 @@ EOF
 function _setup_saslauthd
 {
   _log 'debug' 'Setting up SASLAUTHD'
-
-  # checking env vars and setting defaults
-  [[ -z ${SASLAUTHD_MECHANISMS:-} ]] && SASLAUTHD_MECHANISMS=pam
-  [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER="${LDAP_SERVER_HOST}"
-  [[ -z ${SASLAUTHD_LDAP_FILTER} ]] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
-
-  [[ -z ${SASLAUTHD_LDAP_BIND_DN} ]] && SASLAUTHD_LDAP_BIND_DN="${LDAP_BIND_DN}"
-  [[ -z ${SASLAUTHD_LDAP_PASSWORD} ]] && SASLAUTHD_LDAP_PASSWORD="${LDAP_BIND_PW}"
-  [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_LDAP_SEARCH_BASE="${LDAP_SEARCH_BASE}"
-
-  if [[ ${SASLAUTHD_LDAP_SERVER} != *'://'* ]]
-  then
-    SASLAUTHD_LDAP_SERVER="ldap://${SASLAUTHD_LDAP_SERVER}"
-  fi
-
-  [[ -z ${SASLAUTHD_LDAP_START_TLS} ]] && SASLAUTHD_LDAP_START_TLS=no
-  [[ -z ${SASLAUTHD_LDAP_TLS_CHECK_PEER} ]] && SASLAUTHD_LDAP_TLS_CHECK_PEER=no
-  [[ -z ${SASLAUTHD_LDAP_AUTH_METHOD} ]] && SASLAUTHD_LDAP_AUTH_METHOD=bind
-
-  if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]
-  then
-    SASLAUTHD_LDAP_TLS_CACERT_FILE=''
-  else
-    SASLAUTHD_LDAP_TLS_CACERT_FILE="ldap_tls_cacert_file: ${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
-  fi
-
-  if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_DIR} ]]
-  then
-    SASLAUTHD_LDAP_TLS_CACERT_DIR=''
-  else
-    SASLAUTHD_LDAP_TLS_CACERT_DIR="ldap_tls_cacert_dir: ${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
-  fi
-
-  if [[ -z ${SASLAUTHD_LDAP_PASSWORD_ATTR} ]]
-  then
-    SASLAUTHD_LDAP_PASSWORD_ATTR=''
-  else
-    SASLAUTHD_LDAP_PASSWORD_ATTR="ldap_password_attr: ${SASLAUTHD_LDAP_PASSWORD_ATTR}"
-  fi
-
-  if [[ -z ${SASLAUTHD_LDAP_MECH} ]]
-  then
-    SASLAUTHD_LDAP_MECH=''
-  else
-    SASLAUTHD_LDAP_MECH="ldap_mech: ${SASLAUTHD_LDAP_MECH}"
-  fi
 
   if [[ ! -f /etc/saslauthd.conf ]]
   then
