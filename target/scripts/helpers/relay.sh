@@ -92,7 +92,8 @@ function _relayhost_sasl
     echo "${SASL_PASSWD}" >> /etc/postfix/sasl_passwd
   fi
 
-  if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
+  local DATABASE_SASL_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
+  if [[ -f ${DATABASE_SASL_PASSWD} ]]
   then
     # Add domain-specific auth from config file:
     while read -r LINE
@@ -101,7 +102,7 @@ function _relayhost_sasl
       then
         echo "${LINE}" >> /etc/postfix/sasl_passwd
       fi
-    done < /tmp/docker-mailserver/postfix-sasl-password.cf
+    done < "${DATABASE_SASL_PASSWD}"
 
     # Only relevant when providing this user config (unless users append elsewhere too)
     postconf 'smtp_sender_dependent_authentication = yes'
