@@ -1,23 +1,25 @@
 load 'test_helper/common'
 
 setup_file() {
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    docker run -d --name mail_with_sdbox_format \
-                -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-                -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-                -e SASL_PASSWD="external-domain.com username:password" \
-                -e ENABLE_CLAMAV=0 \
-                -e ENABLE_SPAMASSASSIN=0 \
-                -e DOVECOT_MAILBOX_FORMAT=sdbox \
-                --cap-add=SYS_PTRACE \
-                -e PERMIT_DOCKER=host \
-                -h mail.my-domain.com -t "${NAME}"
-    wait_for_smtp_port_in_container mail_with_sdbox_format
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+
+  docker run -d --name mail_with_sdbox_format \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e SASL_PASSWD="external-domain.com username:password" \
+    -e ENABLE_CLAMAV=0 \
+    -e ENABLE_SPAMASSASSIN=0 \
+    -e DOVECOT_MAILBOX_FORMAT=sdbox \
+    --cap-add=SYS_PTRACE \
+    -e PERMIT_DOCKER=host \
+    -h mail.my-domain.com -t "${NAME}"
+
+  wait_for_smtp_port_in_container mail_with_sdbox_format
 }
 
 teardown_file() {
-    docker rm -f mail_with_sdbox_format
+  docker rm -f mail_with_sdbox_format
 }
 
 @test "checking dovecot mailbox format: sdbox file created" {

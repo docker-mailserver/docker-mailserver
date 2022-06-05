@@ -7,10 +7,11 @@ load 'test_helper/common'
 @test "checking postfix: inet default" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . )
+
   docker run -d --name mail_postfix_inet_default \
-            -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-            -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-            -h mail.my-domain.com -t "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -h mail.my-domain.com -t "${NAME}"
 
   teardown() { docker rm -f mail_postfix_inet_default; }
 
@@ -24,11 +25,12 @@ load 'test_helper/common'
 @test "checking postfix: inet all" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . )
+
   docker run -d --name mail_postfix_inet_all \
-            -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-            -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-            -e POSTFIX_INET_PROTOCOLS=all \
-            -h mail.my-domain.com -t "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e POSTFIX_INET_PROTOCOLS=all \
+    -h mail.my-domain.com -t "${NAME}"
 
   teardown() { docker rm -f mail_postfix_inet_all; }
 
@@ -42,11 +44,12 @@ load 'test_helper/common'
 @test "checking postfix: inet ipv4" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . )
+
   docker run -d --name mail_postfix_inet_ipv4 \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-		-e POSTFIX_INET_PROTOCOLS=ipv4 \
-		-h mail.my-domain.com -t "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e POSTFIX_INET_PROTOCOLS=ipv4 \
+    -h mail.my-domain.com -t "${NAME}"
 
   teardown() { docker rm -f mail_postfix_inet_ipv4; }
 
@@ -60,11 +63,12 @@ load 'test_helper/common'
 @test "checking postfix: inet ipv6" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . )
+
   docker run -d --name mail_postfix_inet_ipv6 \
-            -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-            -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-            -e POSTFIX_INET_PROTOCOLS=ipv6 \
-            -h mail.my-domain.com -t "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e POSTFIX_INET_PROTOCOLS=ipv6 \
+    -h mail.my-domain.com -t "${NAME}"
 
   teardown() { docker rm -f mail_postfix_inet_ipv6; }
 

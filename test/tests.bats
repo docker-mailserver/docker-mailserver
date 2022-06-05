@@ -9,6 +9,7 @@ setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
+
   docker run --rm -d --name mail \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -1033,60 +1034,60 @@ EOF
 
 # alias
 @test "checking setup.sh: setup.sh alias list" {
-  run ./setup.sh alias list
+  run ./setup.sh -c mail alias list
   assert_success
   assert_output --partial "alias1@localhost.localdomain user1@localhost.localdomain"
   assert_output --partial "@localdomain2.com user1@localhost.localdomain"
 }
 
 @test "checking setup.sh: setup.sh alias add" {
-  ./setup.sh alias add alias@example.com target1@forward.com
-  ./setup.sh alias add alias@example.com target2@forward.com
-  ./setup.sh alias add alias2@example.org target3@forward.com
+  ./setup.sh -c mail alias add alias@example.com target1@forward.com
+  ./setup.sh -c mail alias add alias@example.com target2@forward.com
+  ./setup.sh -c mail alias add alias2@example.org target3@forward.com
   sleep 5
   run grep "alias@example.com target1@forward.com,target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
   assert_success
 }
 
 @test "checking setup.sh: setup.sh alias del" {
-  ./setup.sh alias del alias@example.com target1@forward.com
+  ./setup.sh -c mail alias del alias@example.com target1@forward.com
   run grep "target1@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
   assert_failure
 
   run grep "target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
   assert_output "alias@example.com target2@forward.com"
 
-  ./setup.sh alias del alias@example.org target2@forward.com
+  ./setup.sh -c mail alias del alias@example.org target2@forward.com
   run grep "alias@example.org" "$(private_config_path mail)/postfix-virtual.cf"
   assert_failure
 
   run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
   assert_success
 
-  ./setup.sh alias del alias2@example.org target3@forward.com
+  ./setup.sh -c mail alias del alias2@example.org target3@forward.com
   run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
   assert_failure
 }
 
 # quota
 @test "checking setup.sh: setup.sh setquota" {
-  run ./setup.sh email add quota_user@example.com test_password
-  run ./setup.sh email add quota_user2@example.com test_password
+  run ./setup.sh -c mail email add quota_user@example.com test_password
+  run ./setup.sh -c mail email add quota_user2@example.com test_password
 
-  run ./setup.sh quota set quota_user@example.com 12M
+  run ./setup.sh -c mail quota set quota_user@example.com 12M
   assert_success
-  run ./setup.sh quota set 51M quota_user@example.com
+  run ./setup.sh -c mail quota set 51M quota_user@example.com
   assert_failure
-  run ./setup.sh quota set unknown@domain.com 150M
+  run ./setup.sh -c mail quota set unknown@domain.com 150M
   assert_failure
 
-  run ./setup.sh quota set quota_user2 51M
+  run ./setup.sh -c mail quota set quota_user2 51M
   assert_failure
 
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
   assert_success
 
-  run ./setup.sh quota set quota_user@example.com 26M
+  run ./setup.sh -c mail quota set quota_user@example.com 26M
   assert_success
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:26M\$" | wc -l | grep 1'
   assert_success
@@ -1096,20 +1097,20 @@ EOF
 }
 
 @test "checking setup.sh: setup.sh delquota" {
-  run ./setup.sh email add quota_user@example.com test_password
-  run ./setup.sh email add quota_user2@example.com test_password
+  run ./setup.sh -c mail email add quota_user@example.com test_password
+  run ./setup.sh -c mail email add quota_user2@example.com test_password
 
-  run ./setup.sh quota set quota_user@example.com 12M
+  run ./setup.sh -c mail quota set quota_user@example.com 12M
   assert_success
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
   assert_success
 
-  run ./setup.sh quota del unknown@domain.com
+  run ./setup.sh -c mail quota del unknown@domain.com
   assert_failure
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
   assert_success
 
-  run ./setup.sh quota del quota_user@example.com
+  run ./setup.sh -c mail quota del quota_user@example.com
   assert_success
   run grep "quota_user@example.com" ./test/duplicate_configs/mail/dovecot-quotas.cf
   assert_failure
@@ -1135,10 +1136,10 @@ EOF
 }
 
 @test "checking setup.sh: setup.sh relay add-domain" {
-  ./setup.sh relay add-domain example1.org smtp.relay1.com 2525
-  ./setup.sh relay add-domain example2.org smtp.relay2.com
-  ./setup.sh relay add-domain example3.org smtp.relay3.com 2525
-  ./setup.sh relay add-domain example3.org smtp.relay.com 587
+  ./setup.sh -c mail relay add-domain example1.org smtp.relay1.com 2525
+  ./setup.sh -c mail relay add-domain example2.org smtp.relay2.com
+  ./setup.sh -c mail relay add-domain example3.org smtp.relay3.com 2525
+  ./setup.sh -c mail relay add-domain example3.org smtp.relay.com 587
 
   # check adding
   run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example1.org\s\+\[smtp.relay1.com\]:2525\" | wc -l | grep 1"
@@ -1152,9 +1153,9 @@ EOF
 }
 
 @test "checking setup.sh: setup.sh relay add-auth" {
-  ./setup.sh relay add-auth example.org smtp_user smtp_pass
-  ./setup.sh relay add-auth example2.org smtp_user2 smtp_pass2
-  ./setup.sh relay add-auth example2.org smtp_user2 smtp_pass_new
+  ./setup.sh -c mail relay add-auth example.org smtp_user smtp_pass
+  ./setup.sh -c mail relay add-auth example2.org smtp_user2 smtp_pass2
+  ./setup.sh -c mail relay add-auth example2.org smtp_user2 smtp_pass_new
 
   # test adding
   run /bin/sh -c "cat $(private_config_path mail)/postfix-sasl-password.cf | grep -e \"^@example.org\s\+smtp_user:smtp_pass\" | wc -l | grep 1"
@@ -1165,7 +1166,7 @@ EOF
 }
 
 @test "checking setup.sh: setup.sh relay exclude-domain" {
-  ./setup.sh relay exclude-domain example.org
+  ./setup.sh -c mail relay exclude-domain example.org
 
   run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example.org\s*$\" | wc -l | grep 1"
   assert_success
