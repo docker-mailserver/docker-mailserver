@@ -9,23 +9,23 @@ function setup_file() {
   IPV4="mail_dovecot_ipv4"
   IPV6="mail_dovecot_ipv6"
 
-	docker run --rm -d --name "${ALL}" \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-e DOVECOT_INET_PROTOCOLS= \
-		-h mail.my-domain.com \
-		-t "${NAME}"
+  docker run --rm -d --name "${ALL}" \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -e DOVECOT_INET_PROTOCOLS= \
+    -h mail.my-domain.com \
+    -t "${NAME}"
 
   docker run --rm -d --name "${IPV4}" \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-e DOVECOT_INET_PROTOCOLS=ipv4 \
-		-h mail.my-domain.com \
-		-t "${NAME}"
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -e DOVECOT_INET_PROTOCOLS=ipv4 \
+    -h mail.my-domain.com \
+    -t "${NAME}"
 
-	docker run --rm -d --name "${IPV6}" \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-e DOVECOT_INET_PROTOCOLS=ipv6 \
-		-h mail.my-domain.com \
-		-t "${NAME}"
+  docker run --rm -d --name "${IPV6}" \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -e DOVECOT_INET_PROTOCOLS=ipv6 \
+    -h mail.my-domain.com \
+    -t "${NAME}"
 }
 
 @test 'checking dovecot IP configuration' {

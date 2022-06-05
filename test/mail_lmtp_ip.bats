@@ -1,10 +1,11 @@
 load 'test_helper/common'
 
 setup_file() {
-    local PRIVATE_CONFIG PRIVATE_ETC
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    PRIVATE_ETC=$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)
-    docker run -d --name mail_lmtp_ip \
+  local PRIVATE_CONFIG PRIVATE_ETC
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+  PRIVATE_ETC=$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)
+
+  docker run -d --name mail_lmtp_ip \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PRIVATE_ETC}":/etc/dovecot \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -12,12 +13,12 @@ setup_file() {
     -e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
     -e PERMIT_DOCKER=container \
     -h mail.my-domain.com -t "${NAME}"
-    wait_for_finished_setup_in_container mail_lmtp_ip
+
+  wait_for_finished_setup_in_container mail_lmtp_ip
 }
 
-
 teardown_file() {
-    docker rm -f mail_lmtp_ip
+  docker rm -f mail_lmtp_ip
 }
 
 #

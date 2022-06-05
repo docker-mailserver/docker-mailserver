@@ -3,6 +3,7 @@ load 'test_helper/common'
 function setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container .)
+
   docker run -d --name mail_privacy \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -29,9 +30,11 @@ function teardown_file() {
   # shellcheck disable=SC2016
   repeat_until_success_or_timeout 120 docker exec mail_privacy /bin/bash -c '[[ $(ls /var/mail/localhost.localdomain/user1/new | wc -l) -eq 1 ]]'
   docker logs mail_privacy
+
   run docker exec mail_privacy /bin/sh -c "ls /var/mail/localhost.localdomain/user1/new | wc -l"
   assert_success
   assert_output 1
+
   run docker exec mail_privacy /bin/sh -c 'grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l'
   assert_success
   assert_output 0
