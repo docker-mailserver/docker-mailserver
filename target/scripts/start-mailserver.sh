@@ -215,7 +215,6 @@ function _register_functions
   _register_setup_function '_setup_dovecot_hostname'
   _register_setup_function '_setup_postfix_smtputf8'
   _register_setup_function '_setup_postfix_sasl'
-  _register_setup_function '_setup_postfix_sasl_password'
   _register_setup_function '_setup_security_stack'
   _register_setup_function '_setup_postfix_aliases'
   _register_setup_function '_setup_postfix_vhost'
