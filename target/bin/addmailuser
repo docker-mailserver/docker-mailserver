@@ -63,7 +63,8 @@ USER="${FULL_EMAIL%@*}"
 DOMAIN="${FULL_EMAIL#*@}"
 
 # Tests fail if the creation of /var/mail/${DOMAIN}/${USER} doesn't happen fast enough after addmailuser executes (check-for-changes.sh race-condition)
-if [[ -e /tmp/docker-mailserver-config-chksum ]] # Prevent infinite loop in tests like "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist"
+# Prevent infinite loop in tests like "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist"
+if [[ -e ${CHKSUM_FILE} ]]
 then
   while [[ ! -d "/var/mail/${DOMAIN}/${USER}" ]]
   do
