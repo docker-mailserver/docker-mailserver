@@ -36,7 +36,7 @@ fi
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
-  _exit_with_error "'/tmp/docker-mailserver/${CHKSUM_FILE}' is missing" 0
+  _exit_with_error "'${CHKSUM_FILE}' is missing" 0
 fi
 
 REGEX_NEVER_MATCH="(?\!)"
