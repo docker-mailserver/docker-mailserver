@@ -20,16 +20,25 @@ function _create_postfix_vhost
 {
   # `main.cf` configures `virtual_mailbox_domains = /etc/postfix/vhost`
   # NOTE: Amavis also consumes this file.
-  : >/etc/postfix/vhost
+  local DATABASE_VHOST='/etc/postfix/vhost'
+  local TMP_VHOST='/tmp/vhost.tmp'
+
+  _create_vhost
+}
+
+# Processes TMP_VHOST into final DATABASE_VHOST
+function _create_vhost
+{
+  : >"${DATABASE_VHOST}"
 
   # Account and Alias generation will store values in `/tmp/vhost.tmp`.
   # Filter unique values to the proper config.
   # NOTE: LDAP stores the domain value set by `docker-mailserver`,
   # and correctly removes it from `mydestination` in `main.cf` in `setup-stack.sh`.
-  if [[ -f /tmp/vhost.tmp ]]
+  if [[ -f ${TMP_VHOST} ]]
   then
-    sort < /tmp/vhost.tmp | uniq >> /etc/postfix/vhost
-    rm /tmp/vhost.tmp
+    sort < "${TMP_VHOST}" | uniq >>"${DATABASE_VHOST}"
+    rm "${TMP_VHOST}"
   fi
 }
 
