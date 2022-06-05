@@ -12,29 +12,29 @@ DATABASE=/tmp/docker-mailserver/dovecot-masters.cf
 
 function __usage
 {
-  echo -e "\e[35mDELDOVECOTMASTERUSER\e[31m(\e[93m8\e[31m)
+  printf '%s' "${PURPLE}DELDOVECOTMASTERUSER${RED}(${YELLOW}8${RED})
 
-\e[38;5;214mNAME\e[39m
+${ORANGE}NAME${RESET}
     deldovecotmasteruser - delete a dovecot master user
 
-\e[38;5;214mSYNOPSIS\e[39m
-    ./setup.sh dovecot-master del { <USERNAME> [<USERNAME>\e[31m...\e[39m] \e[31m|\e[39m help }
+${ORANGE}SYNOPSIS${RESET}
+    ./setup.sh dovecot-master del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>${RED}...${RESET}] ${RED}|${RESET} help }
 
-\e[38;5;214mDESCRIPTION\e[39m
+${ORANGE}DESCRIPTION${RESET}
     Delete a dovecot master user.
 
-\e[38;5;214mOPTIONS\e[39m
+${ORANGE}OPTIONS${RESET}
     -h
         Show this help dialogue.
 
-\e[38;5;214mEXAMPLES\e[39m
-    \e[37m./setup.sh dovecot-master del administrator\e[39m
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh dovecot-master del administrator${RESET}
         Delete the dovecot master user called 'administrator'.
 
-    \e[37m./setup.sh dovecot-master del administrator admin\e[39m
+    ${LWHITE}./setup.sh dovecot-master del administrator admin${RESET}
         Delete dovecot master users 'administrator' and 'admin'.
 
-\e[38;5;214mEXIT STATUS\e[39m
+${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful, and 1 if there was an error.
 "
 }

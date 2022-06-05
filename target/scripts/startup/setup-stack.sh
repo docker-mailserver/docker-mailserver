@@ -7,6 +7,9 @@ function _setup
   do
     ${FUNC}
   done
+
+  # All startup modifications to configs should have taken place before calling this:
+  _prepare_for_change_detection
 }
 
 function _setup_supervisor
@@ -75,22 +78,6 @@ function _setup_file_permissions
   touch /var/log/mail/freshclam.log
   chown clamav:adm /var/log/mail/freshclam.log
   chmod 640 /var/log/mail/freshclam.log
-}
-
-function _setup_chksum_file
-{
-  _log 'debug' 'Setting up configuration checksum file'
-
-  if [[ -d /tmp/docker-mailserver ]]
-  then
-    _log 'trace' "Creating '${CHKSUM_FILE}'"
-    _monitored_files_checksums >"${CHKSUM_FILE}"
-  else
-    # We could just skip the file, but perhaps config can be added later?
-    # If so it must be processed by the check for changes script
-    _log 'trace' "Creating empty '${CHKSUM_FILE}' (no config)"
-    touch "${CHKSUM_FILE}"
-  fi
 }
 
 function _setup_mailname
@@ -775,9 +762,6 @@ function _setup_postfix_override_configuration
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' was not provided"
   fi
-
-  _log 'trace' "Set Postfix's compatibility level to 2"
-  postconf compatibility_level=2
 }
 
 function _setup_postfix_sasl_password

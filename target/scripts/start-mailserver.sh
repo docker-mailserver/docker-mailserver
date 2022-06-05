@@ -249,9 +249,6 @@ function _register_functions
   _register_setup_function '_setup_logwatch'
   _register_setup_function '_setup_user_patches'
 
-  # needs to come last as configuration files are modified in-place
-  _register_setup_function '_setup_chksum_file'
-
   # ? >> Fixes
 
   _register_fix_function '_fix_var_mail_permissions'
