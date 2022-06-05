@@ -108,6 +108,7 @@ function _generate_domains_config
   # unless CLI arg DOMAINS provided an alternative list to use instead:
   if [[ -z ${DOMAINS} ]]
   then
+    _obtain_hostname_and_domainname
     # uses TMP_VHOST:
     _vhost_collect_postfix_domains
   else
