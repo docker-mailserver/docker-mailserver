@@ -9,7 +9,6 @@
 function _handle_postfix_virtual_config
 {
   : >/etc/postfix/virtual
-  : >/etc/postfix/regexp
 
   local DATABASE_VIRTUAL=/tmp/docker-mailserver/postfix-virtual.cf
 
@@ -29,6 +28,8 @@ function _handle_postfix_virtual_config
 
 function _handle_postfix_regexp_config
 {
+  : >/etc/postfix/regexp
+
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
   then
     _log 'trace' "Adding regexp alias file postfix-regexp.cf"
