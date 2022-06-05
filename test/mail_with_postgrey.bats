@@ -1,25 +1,27 @@
 load 'test_helper/common'
 
 function setup_file() {
-    local PRIVATE_CONFIG
-    PRIVATE_CONFIG=$(duplicate_config_for_container .)
-    docker run -d --name mail_with_postgrey \
-              -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-              -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-              -e ENABLE_DNSBL=1 \
-              -e ENABLE_POSTGREY=1 \
-              -e PERMIT_DOCKER=container \
-              -e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
-              -e POSTGREY_DELAY=15 \
-              -e POSTGREY_MAX_AGE=35 \
-              -e POSTGREY_TEXT="Delayed by Postgrey" \
-              -h mail.my-domain.com -t "${NAME}"
-    # using postfix availability as start indicator, this might be insufficient for postgrey
-    wait_for_smtp_port_in_container mail_with_postgrey
+  local PRIVATE_CONFIG
+  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+
+  docker run -d --name mail_with_postgrey \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -e ENABLE_DNSBL=1 \
+    -e ENABLE_POSTGREY=1 \
+    -e PERMIT_DOCKER=container \
+    -e POSTGREY_AUTO_WHITELIST_CLIENTS=5 \
+    -e POSTGREY_DELAY=15 \
+    -e POSTGREY_MAX_AGE=35 \
+    -e POSTGREY_TEXT="Delayed by Postgrey" \
+    -h mail.my-domain.com -t "${NAME}"
+
+  # using postfix availability as start indicator, this might be insufficient for postgrey
+  wait_for_smtp_port_in_container mail_with_postgrey
 }
 
 function teardown_file() {
-    docker rm -f mail_with_postgrey
+  docker rm -f mail_with_postgrey
 }
 
 @test "checking postgrey: /etc/postfix/main.cf correctly edited" {
@@ -32,6 +34,7 @@ function teardown_file() {
   run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_OPTS=\"--inet=127.0.0.1:10023 --delay=15 --max-age=35 --auto-whitelist-clients=5\"$' /etc/default/postgrey | wc -l"
   assert_success
   assert_output 1
+
   run docker exec mail_with_postgrey /bin/bash -c "grep '^POSTGREY_TEXT=\"Delayed by Postgrey\"$' /etc/default/postgrey | wc -l"
   assert_success
   assert_output 1
@@ -61,6 +64,7 @@ function teardown_file() {
   sleep 20 #wait 20 seconds so that postgrey would accept the message
   run docker exec mail_with_postgrey /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
   sleep 8
+
   run docker exec mail_with_postgrey /bin/sh -c "grep -i 'action=pass, reason=triplet found.*user@external\.tld' /var/log/mail/mail.log | wc -l"
   assert_success
   assert_output 1

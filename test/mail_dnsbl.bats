@@ -7,20 +7,20 @@ function setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER}")
 
-	docker run --rm -d --name "${CONTAINER}" \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-e ENABLE_DNSBL=1 \
-		-h mail.my-domain.com \
-		-t "${NAME}"
+  docker run --rm -d --name "${CONTAINER}" \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -e ENABLE_DNSBL=1 \
+    -h mail.my-domain.com \
+    -t "${NAME}"
 
-	docker run --rm -d --name "${CONTAINER2}" \
-		-v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-		-e ENABLE_DNSBL=0 \
-		-h mail.my-domain.com \
-		-t "${NAME}"
+  docker run --rm -d --name "${CONTAINER2}" \
+    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    -e ENABLE_DNSBL=0 \
+    -h mail.my-domain.com \
+    -t "${NAME}"
 
-    wait_for_smtp_port_in_container "${CONTAINER}"
-    wait_for_smtp_port_in_container "${CONTAINER2}"
+  wait_for_smtp_port_in_container "${CONTAINER}"
+  wait_for_smtp_port_in_container "${CONTAINER2}"
 }
 
 # ENABLE_DNSBL=1
