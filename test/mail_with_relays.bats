@@ -64,6 +64,11 @@ function teardown_file() {
   assert_output ''
 }
 
+@test "checking relay hosts: sasl_passwd exists" {
+  run docker exec mail_with_relays [ -f /etc/postfix/sasl_passwd ]
+  assert_success
+}
+
 @test "checking relay hosts: auth entry is added" {
   run docker exec mail_with_relays /bin/sh -c 'cat /etc/postfix/sasl_passwd | grep -e "^@domaintwo.tld\s\+smtp_user_2:smtp_password_2" | wc -l'
   assert_success

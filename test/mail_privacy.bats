@@ -7,7 +7,6 @@ function setup_file() {
   docker run -d --name mail_privacy \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_MANAGESIEVE=1 \
     --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \

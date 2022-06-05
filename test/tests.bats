@@ -31,7 +31,6 @@ setup_file() {
     -e SA_SPAM_SUBJECT="SPAM: " \
     -e SA_TAG=-5.0 \
     -e SA_TAG2=2.0 \
-    -e SASL_PASSWD="external-domain.com username:password" \
     -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
@@ -172,11 +171,6 @@ teardown_file() {
 
 @test "checking sasl: doveadm auth test fails with bad password" {
   run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld BADPASSWORD | grep 'auth failed'"
-  assert_success
-}
-
-@test "checking sasl: sasl_passwd exists" {
-  run docker exec mail [ -f /etc/postfix/sasl_passwd ]
   assert_success
 }
 
