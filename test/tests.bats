@@ -38,6 +38,7 @@ setup_file() {
     -h mail.my-domain.com \
     --cap-add=SYS_PTRACE \
     --tty \
+    --health-cmd "ss -l | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 
   wait_for_finished_setup_in_container mail
@@ -1205,6 +1206,16 @@ EOF
   # check sender is not the default one.
   run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
+}
+
+#
+# healthcheck
+#
+
+@test "checking container healthcheck" {
+  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
+  assert_output "healthy"
+  assert_success
 }
 
 #
