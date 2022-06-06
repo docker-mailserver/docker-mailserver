@@ -29,7 +29,6 @@ function setup() {
     -e ENABLE_SRS=1 \
     -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_MANAGESIEVE=1 \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -h mail.my-domain.com -t "${NAME}")
 

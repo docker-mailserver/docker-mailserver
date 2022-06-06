@@ -8,7 +8,6 @@ function setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e ENABLE_MANAGESIEVE=1 \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -h mail.my-domain.com \
     -e SSL_TYPE='snakeoil' \

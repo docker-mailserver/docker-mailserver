@@ -10,7 +10,6 @@ setup_file() {
     -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_CLAMAV=0 \
     -e ENABLE_SPAMASSASSIN=0 \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -h mail.my-domain.com -t "${NAME}"
 
