@@ -5,8 +5,16 @@ function _escape
   echo "${1//./\\.}"
 }
 
-# Check if string input is an empty line, only whitespaces
-# or `#` as the first non-whitespace character.
+# Returns input after filtering out lines that are:
+# empty, white-space, comments (`#` as the first non-whitespace character)
+function _filter_to_valid_lines
+{
+  grep --extended-regexp --invert-match "^\s*$|^\s*#" "${1}" || true
+}
+
+# TODO: Only used by `relay.sh`, will be removed in future.
+# Similar to _filter_to_valid_lines, but only returns a status code
+# to indicate invalid line(s):
 function _is_comment
 {
   grep -q -E "^\s*$|^\s*#" <<< "${1}"

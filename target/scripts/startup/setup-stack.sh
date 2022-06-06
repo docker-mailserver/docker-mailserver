@@ -759,21 +759,6 @@ function _setup_postfix_override_configuration
   fi
 }
 
-function _setup_postfix_sasl_password
-{
-  _log 'debug' 'Setting up Postfix SASL Password'
-
-  # support general SASL password
-  _sasl_passwd_create
-
-  if [[ -f /etc/postfix/sasl_passwd ]]
-  then
-    _log 'trace' 'Loaded SASL_PASSWD'
-  else
-    _log 'debug' "SASL_PASSWD was not provided - '/etc/postfix/sasl_passwd' not created"
-  fi
-}
-
 function _setup_postfix_relay_hosts
 {
   _setup_relayhost

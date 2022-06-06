@@ -64,16 +64,36 @@ function _env_relay_host
 # `/etc/postfix/sasl_passwd` example at end of file.
 function _relayhost_sasl
 {
-  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
+  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] \
+    && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]] \
+    && [[ -z ${SASL_PASSWD} ]]
   then
-    _log 'warn' "No relay auth file found and no default set"
+    _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from postfix-sasl-password.cf"
     return 1
+  fi
+
+  _log 'trace' "Adding relay-host credential mappings to Postfix"
+
+  # Start from a new `/etc/postfix/sasl_passwd`:
+  : >/etc/postfix/sasl_passwd
+  chown root:root /etc/postfix/sasl_passwd
+  chmod 0600 /etc/postfix/sasl_passwd
+
+  # SASL_PASSWD is a legacy ENV, not likely in use by any users.
+  #
+  # Single ENV for specifying `<DEFAULT_RELAY_HOST>    <RELAY_USER>:<RELAY_PASSWORD>`,
+  # Where `<DEFAULT_RELAY_HOST>` must match the equivalent ENV,
+  # while the other two have no dependency to their equivalent ENV.
+  # SASL_PASSWD requires `smtp_sasl_password_maps` to be enabled - but that has only
+  # ever been via this function which relies upon RELAY_HOST. Hence redundant.
+  # TODO: Deprecate. Remove on next major version?
+  if [[ -n ${SASL_PASSWD} ]]
+  then
+    echo "${SASL_PASSWD}" >> /etc/postfix/sasl_passwd
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-sasl-password.cf ]]
   then
-    _log 'trace' "Adding relay authentication from postfix-sasl-password.cf"
-
     # Add domain-specific auth from config file:
     while read -r LINE
     do
@@ -92,8 +112,6 @@ function _relayhost_sasl
   then
     echo "$(_env_relay_host)    ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
   fi
-
-  _sasl_set_passwd_permissions
 
   # Technically if only a single relay host is configured, a `static` lookup table could be used instead?:
   # postconf "smtp_sasl_password_maps = static:${RELAY_USER}:${RELAY_PASSWORD}"
@@ -196,7 +214,6 @@ function _setup_relayhost
   then
     _log 'trace' "Setting up relay hosts (default: ${RELAY_HOST})"
 
-    # Expects `_sasl_passwd_create` was called prior in `setup-stack.sh`
     _relayhost_sasl
     _populate_relayhost_map
 
@@ -208,9 +225,6 @@ function _rebuild_relayhost
 {
   if [[ -n ${RELAY_HOST} ]]
   then
-    # Start from a new `/etc/postfix/sasl_passwd` state:
-    _sasl_passwd_create
-
     _relayhost_sasl
     _populate_relayhost_map
   fi
