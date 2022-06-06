@@ -36,7 +36,10 @@ function _monitored_files_checksums
     STAGING_FILES+=(
       "${DMS_DIR}/postfix-accounts.cf"
       "${DMS_DIR}/postfix-virtual.cf"
+      "${DMS_DIR}/postfix-regexp.cf"
       "${DMS_DIR}/postfix-aliases.cf"
+      "${DMS_DIR}/postfix-relaymap.cf"
+      "${DMS_DIR}/postfix-sasl-password.cf"
       "${DMS_DIR}/dovecot-quotas.cf"
       "${DMS_DIR}/dovecot-masters.cf"
     )
