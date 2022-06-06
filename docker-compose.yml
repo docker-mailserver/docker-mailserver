@@ -27,4 +27,7 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
-
+    healthcheck:
+      test: "ss -l | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
