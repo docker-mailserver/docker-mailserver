@@ -16,6 +16,6 @@ while read -r LINE
 do
   USER=$(echo "${LINE}" | cut -d'|' -f1)
   echo "* ${USER}"
-done < "${DATABASE}"
+done < <(_get_valid_lines_from_file "${DATABASE}")
 
 exit 0

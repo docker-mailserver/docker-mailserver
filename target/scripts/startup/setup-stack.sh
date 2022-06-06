@@ -1162,8 +1162,7 @@ function _setup_fetchmail_parallel
         # Just the server settings that need to be added to the specific rc.d file
         echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
       fi
-    # delete commented lines before parsing
-    done < <(sed '/^[[:space:]]*#/d' "${FETCHMAILRC}")
+    done < <(_get_valid_lines_from_file "${FETCHMAILRC}")
 
     rm "${DEFAULT_FILE}"
   }

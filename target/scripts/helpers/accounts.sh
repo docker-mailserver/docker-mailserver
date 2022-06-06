@@ -16,18 +16,19 @@ function _create_accounts
 
   [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   _create_masters
-  if [[ -f /tmp/docker-mailserver/postfix-accounts.cf ]]
+  if [[ -f ${DATABASE_ACCOUNTS} ]]
   then
     _log 'trace' "Checking file line endings"
-    sed -i 's|\r||g' /tmp/docker-mailserver/postfix-accounts.cf
+    sed -i 's|\r||g' "${DATABASE_ACCOUNTS}"
 
     _log 'trace' "Regenerating postfix user list"
-    echo "# WARNING: this file is auto-generated. Modify /tmp/docker-mailserver/postfix-accounts.cf to edit the user list." > /etc/postfix/vmailbox
+    echo "# WARNING: this file is auto-generated. Modify ${DATABASE_ACCOUNTS} to edit the user list." > /etc/postfix/vmailbox
 
-    # checking that /tmp/docker-mailserver/postfix-accounts.cf ends with a newline
+    # checking that ${DATABASE_ACCOUNTS} ends with a newline
     # shellcheck disable=SC1003
-    sed -i -e '$a\' /tmp/docker-mailserver/postfix-accounts.cf
+    sed -i -e '$a\' "${DATABASE_ACCOUNTS}"
 
     chown dovecot:dovecot "${DOVECOT_USERDB_FILE}"
     chmod 640 "${DOVECOT_USERDB_FILE}"
@@ -92,7 +93,7 @@ function _create_accounts
       fi
 
       echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-accounts.cf)
+    done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 
     _create_dovecot_alias_dummy_accounts
   fi
@@ -107,16 +108,15 @@ function _create_accounts
 # for more details on this method
 function _create_dovecot_alias_dummy_accounts
 {
-  if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+
+  if [[ -f ${DATABASE_VIRTUAL} ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
   then
     # adding aliases to Dovecot's userdb
     # ${REAL_FQUN} is a user's fully-qualified username
     local ALIAS REAL_FQUN DOVECOT_USERDB_LINE
     while read -r ALIAS REAL_FQUN
     do
-      # ignore comments
-      [[ ${ALIAS} == \#* ]] && continue
-
       # alias is assumed to not be a proper e-mail
       # these aliases do not need to be added to Dovecot's userdb
       [[ ! ${ALIAS} == *@* ]] && continue
@@ -130,7 +130,7 @@ function _create_dovecot_alias_dummy_accounts
       REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
       REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
 
-      if ! grep -q "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf
+      if ! grep -q "${REAL_FQUN}" "${DATABASE_ACCOUNTS}"
       then
         _log 'debug' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
         continue
@@ -141,7 +141,7 @@ function _create_dovecot_alias_dummy_accounts
       # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
       # ${REAL_ACC[1]} => password hash
       # ${REAL_ACC[2]} => optional user attributes
-      IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" /tmp/docker-mailserver/postfix-accounts.cf)
+      IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" "${DATABASE_ACCOUNTS}")
 
       if [[ -z ${REAL_ACC[1]} ]]
       then
@@ -165,7 +165,7 @@ function _create_dovecot_alias_dummy_accounts
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
-    done < /tmp/docker-mailserver/postfix-virtual.cf
+    done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   fi
 }
 
@@ -175,16 +175,17 @@ function _create_masters
 {
   : >"${DOVECOT_MASTERDB_FILE}"
 
-  if [[ -f /tmp/docker-mailserver/dovecot-masters.cf ]]
+  local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
+  if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]
   then
     _log 'trace' "Checking file line endings"
-    sed -i 's|\r||g' /tmp/docker-mailserver/dovecot-masters.cf
+    sed -i 's|\r||g' "${DATABASE_DOVECOT_MASTERS}"
 
     _log 'trace' "Regenerating dovecot masters list"
 
-    # checking that /tmp/docker-mailserver/dovecot-masters.cf ends with a newline
+    # checking that ${DATABASE_DOVECOT_MASTERS} ends with a newline
     # shellcheck disable=SC1003
-    sed -i -e '$a\' /tmp/docker-mailserver/dovecot-masters.cf
+    sed -i -e '$a\' "${DATABASE_DOVECOT_MASTERS}"
 
     chown dovecot:dovecot "${DOVECOT_MASTERDB_FILE}"
     chmod 640 "${DOVECOT_MASTERDB_FILE}"
@@ -209,7 +210,6 @@ function _create_masters
       else
         echo "${DOVECOT_MASTERDB_LINE}" >>"${DOVECOT_MASTERDB_FILE}"
       fi
-
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/dovecot-masters.cf)
+    done < <(_get_valid_lines_from_file "${DATABASE_DOVECOT_MASTERS}")
   fi
 }
