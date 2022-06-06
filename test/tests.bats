@@ -38,7 +38,7 @@ setup_file() {
     -h mail.my-domain.com \
     --cap-add=SYS_PTRACE \
     --tty \
-    --health-cmd "ss -l | grep -P 'LISTEN.+:smtp' || exit 1" \
+    --health-cmd "ss --listening | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 
   wait_for_finished_setup_in_container mail
