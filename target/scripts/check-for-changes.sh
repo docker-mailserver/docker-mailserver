@@ -22,11 +22,6 @@ _log_with_date 'debug' 'Starting changedetector'
 #            to be properly set.
 _obtain_hostname_and_domainname
 
-if ! cd /tmp/docker-mailserver &>/dev/null
-then
-  _exit_with_error "Could not change into '/tmp/docker-mailserver/' directory" 0
-fi
-
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]
 then
