@@ -1442,27 +1442,30 @@
 
   <h1>Postfix</h1>
 
-<p>The Postfix default configuration can easily be extended by providing a <code>docker-data/dms/config/postfix-main.cf</code> in postfix format.
-This can also be used to add configuration that is not in our default configuration.</p>
-<p>For example, one common use of this file is for increasing the default maximum message size:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># increase maximum message size</span><span class="w"></span>
-<span class="na">message_size_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">52428800</span><span class="w"></span>
+<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf">Our default Postfix configuration</a> can easily be extended to add parameters or modify existing ones by providing a <code>docker-data/dms/config/postfix-main.cf</code>. This file uses the same format as Postfix <code>main.cf</code> does (<a href="http://www.postfix.org/postconf.5.html">See official docs</a> for all parameters and syntax rules).</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>One can easily increase the <a href="http://www.postfix.org/postconf.5.html#compatibility_level">backwards-compatibility level</a> and set new Postscreen options:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># increase the compatibility level from 2 (default) to 3</span><span class="w"></span>
+<span class="na">compatibility_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span><span class="w"></span>
+<span class="c1"># set a threshold value for Spam detection</span><span class="w"></span>
+<span class="na">postscreen_dnsbl_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span><span class="w"></span>
 </code></pre></div>
-<p>That specific example is now supported and can be handled by setting <code>POSTFIX_MESSAGE_SIZE_LIMIT</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><a href="http://www.postfix.org/documentation.html">Postfix documentation</a> remains the best place to find configuration options.</p>
 </div>
-<p>Each line in the provided file will be loaded into postfix.</p>
-<p>In the same way it is possible to add a custom <code>docker-data/dms/config/postfix-master.cf</code> file that will override the standard <code>master.cf</code>. Each line in the file will be passed to <code>postconf -P</code>. The expected format is <code>&lt;service_name&gt;/&lt;type&gt;/&lt;parameter&gt;</code>, for example:</p>
-<div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_reject_unlisted_recipient</span><span class="o">=</span><span class="s">no</span><span class="w"></span>
+<div class="admonition help">
+<p class="admonition-title">How are your changes applied?</p>
+<p>The custom configuration you supply is appended to the default configuration located at <code>/etc/postfix/main.cf</code>, and then <code>postconf -nf</code> is run to remove earlier duplicate entries that have since been replaced. This happens early during container startup before Postfix is started.</p>
+</div>
+<hr />
+<p>Similarly, it is possible to add a custom <code>docker-data/dms/config/postfix-master.cf</code> file that will override the standard <code>master.cf</code>. <strong>Note</strong>: Each line in this file will be passed to <code>postconf -P</code>, i.e. <strong>the file is not appended as a whole</strong> to <code>/etc/postfix/master.cf</code> like <code>docker-data/dms/config/postfix-main.cf</code>! The expected format is <code>&lt;service_name&gt;/&lt;type&gt;/&lt;parameter&gt;</code>, for example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># adjust the submission &quot;reject_unlisted_recipient&quot; option</span><span class="w"></span>
+<span class="na">submission/inet/smtpd_reject_unlisted_recipient</span><span class="o">=</span><span class="s">no</span><span class="w"></span>
 </code></pre></div>
-<p>Run <code>postconf -P</code> in the container without arguments to see the active master options.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
 <p>There should be no space between the parameter and the value.</p>
 </div>
-<p>Have a look at the code for more information.</p>
+<p>Run <code>postconf -Mf</code> in the container without arguments to see the active master options.</p>
 
               
             </article>
