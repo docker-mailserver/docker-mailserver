@@ -11,7 +11,6 @@ setup_file() {
     -e ENABLE_CLAMAV=0 \
     -e ENABLE_SPAMASSASSIN=0 \
     -e DOVECOT_MAILBOX_FORMAT=sdbox \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -h mail.my-domain.com -t "${NAME}"
 
