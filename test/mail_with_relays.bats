@@ -13,7 +13,6 @@ function setup_file() {
     -e RELAY_PORT=2525 \
     -e RELAY_USER=smtp_user \
     -e RELAY_PASSWORD=smtp_password \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -h mail.my-domain.com -t "${NAME}"
 

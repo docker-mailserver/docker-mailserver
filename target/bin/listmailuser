@@ -47,7 +47,7 @@ do
   else
     echo
   fi
-done < <(_filter_to_valid_lines "${DATABASE}")
+done < <(_get_valid_lines_from_file "${DATABASE}")
 
 
 exit 0

@@ -259,7 +259,6 @@ services:
       - ONE_DIR=1
     cap_add:
       - NET_ADMIN
-      - SYS_PTRACE
     restart: always
 ```
 
@@ -316,6 +315,5 @@ services:
       - POSTFIX_MESSAGE_SIZE_LIMIT=100000000
     cap_add:
       - NET_ADMIN
-      - SYS_PTRACE
     restart: always
 ```

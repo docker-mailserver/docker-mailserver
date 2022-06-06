@@ -36,7 +36,6 @@ setup_file() {
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
     -h mail.my-domain.com \
-    --cap-add=SYS_PTRACE \
     --tty \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"

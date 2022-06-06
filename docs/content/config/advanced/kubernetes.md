@@ -199,7 +199,6 @@ spec:
                 - NET_BIND_SERVICE
                 # miscellaneous  capabilities
                 - SYS_CHROOT
-                - SYS_PTRACE
                 - KILL
               drop: [ALL]
             seccompProfile:

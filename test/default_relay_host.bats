@@ -8,7 +8,6 @@ function setup() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
-    --cap-add=SYS_PTRACE \
     -e PERMIT_DOCKER=host \
     -h mail.my-domain.com -t "${NAME}"
 

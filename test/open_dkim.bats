@@ -14,7 +14,6 @@ function setup_file
 
   docker run -d \
     --name "${CONTAINER_NAME}" \
-    --cap-add=SYS_PTRACE \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "${PWD}/test/test-files":/tmp/docker-mailserver-test:ro \
     -e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
