@@ -83,7 +83,6 @@ While indexing is memory intensive, you can configure the plugin to limit the am
           stop_grace_period: 1m
           cap_add:
             - NET_ADMIN
-            - SYS_PTRACE
     ```
 
 3. Recreate containers:
