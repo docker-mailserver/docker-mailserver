@@ -36,7 +36,7 @@ function teardown_file() {
   run ./setup.sh -c "${TEST_NAME}" email add setup_email_add@example.com test_password
   assert_success
 
-  value=$(grep setup_email_add@example.com "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $1}')
+  value=$(grep setup_email_add@example.com "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $1}')
   [[ ${value} == "setup_email_add@example.com" ]]
   assert_success
 
@@ -59,14 +59,14 @@ function teardown_file() {
   run ./setup.sh -c "${TEST_NAME}" email add lorem@impsum.org test_test
   assert_success
 
-  initialpass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
+  initialpass=$(grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $2}')
   [[ ${initialpass} != "" ]]
   assert_success
 
   run ./setup.sh -c "${TEST_NAME}" email update lorem@impsum.org my password
   assert_success
 
-  updatepass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
+  updatepass=$(grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $2}')
   [[ ${updatepass} != "" ]]
   [[ ${initialpass} != "${updatepass}" ]]
 
@@ -87,7 +87,7 @@ function teardown_file() {
 
   #  run docker exec "${TEST_NAME}" ls /var/mail/impsum.org/lorem
   #  assert_failure
-  run grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf"
+  run grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf"
   assert_failure
 }
 
@@ -125,27 +125,27 @@ function teardown_file() {
   ./setup.sh -c "${TEST_NAME}" alias add alias@example.com target2@forward.com
   ./setup.sh -c "${TEST_NAME}" alias add alias2@example.org target3@forward.com
   sleep 5
-  run grep "alias@example.com target1@forward.com,target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
+  run grep "alias@example.com target1@forward.com,target2@forward.com" "${TEST_TMP_CONFIG}/postfix-virtual.cf"
   assert_success
 }
 
 @test "checking setup.sh: setup.sh alias del" {
   ./setup.sh -c "${TEST_NAME}" alias del alias@example.com target1@forward.com
-  run grep "target1@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
+  run grep "target1@forward.com" "${TEST_TMP_CONFIG}/postfix-virtual.cf"
   assert_failure
 
-  run grep "target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
+  run grep "target2@forward.com" "${TEST_TMP_CONFIG}/postfix-virtual.cf"
   assert_output "alias@example.com target2@forward.com"
 
   ./setup.sh -c "${TEST_NAME}" alias del alias@example.org target2@forward.com
-  run grep "alias@example.org" "$(private_config_path mail)/postfix-virtual.cf"
+  run grep "alias@example.org" "${TEST_TMP_CONFIG}/postfix-virtual.cf"
   assert_failure
 
-  run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
+  run grep "alias2@example.org" "${TEST_TMP_CONFIG}/postfix-virtual.cf"
   assert_success
 
   ./setup.sh -c "${TEST_NAME}" alias del alias2@example.org target3@forward.com
-  run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
+  run grep "alias2@example.org" "${TEST_TMP_CONFIG}/postfix-virtual.cf"
   assert_failure
 }
 
@@ -164,15 +164,15 @@ function teardown_file() {
   run ./setup.sh -c "${TEST_NAME}" quota set quota_user2 51M
   assert_failure
 
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
   assert_success
 
   run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 26M
   assert_success
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:26M\$" | wc -l | grep 1'
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:26M\$' | wc -l | grep 1"
   assert_success
 
-  run grep "quota_user2@example.com" ./test/duplicate_configs/mail/dovecot-quotas.cf
+  run grep "quota_user2@example.com" "${TEST_TMP_CONFIG}/dovecot-quotas.cf"
   assert_failure
 }
 
@@ -182,17 +182,17 @@ function teardown_file() {
 
   run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 12M
   assert_success
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
   assert_success
 
   run ./setup.sh -c "${TEST_NAME}" quota del unknown@domain.com
   assert_failure
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
   assert_success
 
   run ./setup.sh -c "${TEST_NAME}" quota del quota_user@example.com
   assert_success
-  run grep "quota_user@example.com" ./test/duplicate_configs/mail/dovecot-quotas.cf
+  run grep "quota_user@example.com" "${TEST_TMP_CONFIG}/dovecot-quotas.cf"
   assert_failure
 }
 
@@ -222,13 +222,13 @@ function teardown_file() {
   ./setup.sh -c "${TEST_NAME}" relay add-domain example3.org smtp.relay.com 587
 
   # check adding
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example1.org\s\+\[smtp.relay1.com\]:2525\" | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example1.org\s\+\[smtp.relay1.com\]:2525' | wc -l | grep 1"
   assert_success
   # test default port
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example2.org\s\+\[smtp.relay2.com\]:25\" | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example2.org\s\+\[smtp.relay2.com\]:25' | wc -l | grep 1"
   assert_success
   # test modifying
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example3.org\s\+\[smtp.relay.com\]:587\" | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example3.org\s\+\[smtp.relay.com\]:587' | wc -l | grep 1"
   assert_success
 }
 
@@ -238,16 +238,16 @@ function teardown_file() {
   ./setup.sh -c "${TEST_NAME}" relay add-auth example2.org smtp_user2 smtp_pass_new
 
   # test adding
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-sasl-password.cf | grep -e \"^@example.org\s\+smtp_user:smtp_pass\" | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-sasl-password.cf | grep -e '^@example.org\s\+smtp_user:smtp_pass' | wc -l | grep 1"
   assert_success
   # test updating
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-sasl-password.cf | grep -e \"^@example2.org\s\+smtp_user2:smtp_pass_new\" | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-sasl-password.cf | grep -e '^@example2.org\s\+smtp_user2:smtp_pass_new' | wc -l | grep 1"
   assert_success
 }
 
 @test "checking setup.sh: setup.sh relay exclude-domain" {
   ./setup.sh -c "${TEST_NAME}" relay exclude-domain example.org
 
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example.org\s*$\" | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example.org\s*$' | wc -l | grep 1"
   assert_success
 }
