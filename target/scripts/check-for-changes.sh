@@ -58,23 +58,7 @@ function _check_for_changes
     # We should fix that and write to temporary files, stop, swap and start
 
     _ssl_changes
-
-    # regenerate postfix accounts
-    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
-
-    _rebuild_relayhost
-
-    # regenerate postix aliases
-    _create_aliases
-
-    # regenerate /etc/postfix/vhost
-    # NOTE: If later adding support for LDAP with change detection and this method is called,
-    # be sure to mimic `setup-stack.sh:_setup_ldap` which appends to `/tmp/vhost.tmp`.
-    _create_postfix_vhost
-
-    # Legacy workaround handled here, only seems necessary for _create_accounts:
-    # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
-    _chown_var_mail_if_necessary
+    _postfix_dovecot_changes
 
     _log_with_date 'debug' 'Restarting services due to detected changes'
 
@@ -110,7 +94,22 @@ function _get_changed_files
 
 function _postfix_dovecot_changes
 {
+  # regenerate postfix accounts
+  [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
 
+  _rebuild_relayhost
+
+  # regenerate postix aliases
+  _create_aliases
+
+  # regenerate /etc/postfix/vhost
+  # NOTE: If later adding support for LDAP with change detection and this method is called,
+  # be sure to mimic `setup-stack.sh:_setup_ldap` which appends to `/tmp/vhost.tmp`.
+  _create_postfix_vhost
+
+  # Legacy workaround handled here, only seems necessary for _create_accounts:
+  # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
+  _chown_var_mail_if_necessary
 }
 
 function _ssl_changes
