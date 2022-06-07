@@ -86,23 +86,48 @@ function _get_changed_files
   grep -Fxvf "${CHKSUM_CURRENT}" "${CHKSUM_NEW}" | sed -r 's/^\S+[[:space:]]+//'
 }
 
-# TODO Perform updates with more granuality (via conditionals) if possible.
 # Also note that changes are performed in place and are not atomic
 # We should fix that and write to temporary files, stop, swap and start
 function _postfix_dovecot_changes
 {
-  # regenerate postfix accounts
-  [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
+  local DMS_DIR=/tmp/docker-mailserver
 
-  _rebuild_relayhost
+  # Regenerate accounts via `helpers/accounts.sh`:
+  # - dovecot-quotas.cf used by _create_accounts + _create_dovecot_alias_dummy_accounts
+  # - postfix-virtual.cf used by _create_dovecot_alias_dummy_accounts (only when ENABLE_QUOTAS=1)
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf  ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-aliases.cf  ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-quotas.cf   ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-masters.cf  ]]
+  then
+    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
+  fi
 
-  # regenerate postix aliases
-  _create_aliases
+  # Regenerate relay config via `helpers/relay.sh`:
+  # - postfix-sasl-password.cf used by _relayhost_sasl
+  # - _populate_relayhost_map relies on:
+  #   - postfix-relaymap.cf
+  #   - postfix-accounts.cf + postfix-virtual.cf (both will be dropped in future)
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf      ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf       ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-relaymap.cf      ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-sasl-password.cf ]]
+  then
+    _rebuild_relayhost
+  fi
 
-  # regenerate /etc/postfix/vhost
-  # NOTE: If later adding support for LDAP with change detection and this method is called,
-  # be sure to mimic `setup-stack.sh:_setup_ldap` which appends to `/tmp/vhost.tmp`.
-  _create_postfix_vhost
+  # Regenerate system + virtual account aliases via `helpers/aliases.sh`:
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]] && _handle_postfix_virtual_config
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-regexp.cf  ]] && _handle_postfix_regexp_config
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-aliases.cf ]] && _handle_postfix_aliases_config
+
+  # Regenerate `/etc/postfix/vhost` (managed mail domains) via `helpers/postfix.sh`:
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] \
+  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf  ]]
+  then
+    _create_postfix_vhost
+  fi
 
   # Legacy workaround handled here, only seems necessary for _create_accounts:
   # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
