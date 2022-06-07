@@ -7,19 +7,18 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-# This script requires some environment variables to be properly set. This
-# includes POSTMASTER_ADDRESS (for alias (re-)generation), HOSTNAME and
-# DOMAINNAME (in ssl.sh).
+_log_with_date 'debug' 'Starting changedetector'
+
+# ATTENTION: Do not remove!
+# This script requires some environment variables to be properly set.
+# POSTMASTER_ADDRESS (for helpers/alias.sh) is read from /etc/dms-settings
 # shellcheck source=/dev/null
 source /etc/dms-settings
 
-_log_with_date 'debug' 'Starting changedetector'
-
-# TODO in the future, when we do not use HOSTNAME but DMS_HOSTNAME everywhere,
-# TODO we can delete this call as we needn't calculate the names twice
-# ATTENTION: Do not remove!
-#            This script requies HOSTNAME and DOMAINNAME
-#            to be properly set.
+# HOSTNAME and DOMAINNAME are used by helpers/ssl.sh and _monitored_files_checksums
+# These are not stored in /etc/dms-settings
+# TODO: It is planned to stop overriding HOSTNAME and replace that
+# usage with DMS_HOSTNAME, which should remove the need to call this:
 _obtain_hostname_and_domainname
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
@@ -53,18 +52,14 @@ function _check_for_changes
     local CHANGED
     CHANGED=$(_get_changed_files "${CHKSUM_FILE}" "${CHKSUM_FILE}.new")
 
-    # TODO Perform updates below conditionally too
-    # Also note that changes are performed in place and are not atomic
-    # We should fix that and write to temporary files, stop, swap and start
-
+    # Handle any changes
     _ssl_changes
     _postfix_dovecot_changes
 
+    # While some config changes may be properly applied by Postfix or Dovecot
+    # via their 'reload' commands; some may require restarting?:
     _log_with_date 'debug' 'Restarting services due to detected changes'
-
     supervisorctl restart postfix
-
-    # prevent restart of dovecot when smtp_only=1
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
     _remove_lock
@@ -91,7 +86,9 @@ function _get_changed_files
   grep -Fxvf "${CHKSUM_CURRENT}" "${CHKSUM_NEW}" | sed -r 's/^\S+[[:space:]]+//'
 }
 
-
+# TODO Perform updates with more granuality (via conditionals) if possible.
+# Also note that changes are performed in place and are not atomic
+# We should fix that and write to temporary files, stop, swap and start
 function _postfix_dovecot_changes
 {
   # regenerate postfix accounts
