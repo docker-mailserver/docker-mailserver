@@ -106,10 +106,9 @@ function _check_for_changes
     # be sure to mimic `setup-stack.sh:_setup_ldap` which appends to `/tmp/vhost.tmp`.
     _create_postfix_vhost
 
-    if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
-    then
-      chown -R 5000:5000 /var/mail
-    fi
+    # Legacy workaround handled here, only seems necessary for _create_accounts:
+    # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
+    _chown_var_mail_if_necessary
 
     _log_with_date 'debug' 'Restarting services due to detected changes'
 
