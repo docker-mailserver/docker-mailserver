@@ -50,7 +50,6 @@ function _vhost_collect_postfix_domains
   # getting domains FROM mail accounts
   if [[ -f ${DATABASE_ACCOUNTS} ]]
   then
-    # shellcheck disable=SC2034
     while IFS=$'|' read -r LOGIN _
     do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
@@ -61,7 +60,6 @@ function _vhost_collect_postfix_domains
   # getting domains FROM mail aliases
   if [[ -f ${DATABASE_VIRTUAL} ]]
   then
-    # shellcheck disable=SC2034
     while read -r FROM _
     do
       UNAME=$(echo "${FROM}" | cut -d @ -f1)
