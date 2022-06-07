@@ -231,7 +231,7 @@ function common_container_setup() {
 # NOTE: Using array reference for a single input parameter, as this method is still
 # under development while adapting tests to it and requirements it must serve (eg: support base config matrix in CI)
 function common_container_create() {
-  local -n X_EXTRA_ARGS=${1}
+  [[ -n ${1} ]] && local -n X_EXTRA_ARGS=${1}
 
   run docker create --name "${TEST_NAME}" \
     --hostname "${TEST_FQDN}" \
