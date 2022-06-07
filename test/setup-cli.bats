@@ -30,52 +30,52 @@ function teardown_file() {
 }
 
 @test "checking setup.sh: setup.sh email add and login" {
-  wait_for_service mail changedetector
+  wait_for_service "${TEST_NAME}" changedetector
   assert_success
 
-  run ./setup.sh -c mail email add setup_email_add@example.com test_password
+  run ./setup.sh -c "${TEST_NAME}" email add setup_email_add@example.com test_password
   assert_success
 
   value=$(grep setup_email_add@example.com "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $1}')
   [[ ${value} == "setup_email_add@example.com" ]]
   assert_success
 
-  wait_for_changes_to_be_detected_in_container mail
+  wait_for_changes_to_be_detected_in_container "${TEST_NAME}"
 
-  wait_for_service mail postfix
-  wait_for_service mail dovecot
+  wait_for_service "${TEST_NAME}" postfix
+  wait_for_service "${TEST_NAME}" dovecot
   sleep 5
 
-  run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
+  run docker exec "${TEST_NAME}" /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
   assert_output "passdb: setup_email_add@example.com auth succeeded"
 }
 
 @test "checking setup.sh: setup.sh email list" {
-  run ./setup.sh -c mail email list
+  run ./setup.sh -c "${TEST_NAME}" email list
   assert_success
 }
 
 @test "checking setup.sh: setup.sh email update" {
-  run ./setup.sh -c mail email add lorem@impsum.org test_test
+  run ./setup.sh -c "${TEST_NAME}" email add lorem@impsum.org test_test
   assert_success
 
   initialpass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
   [[ ${initialpass} != "" ]]
   assert_success
 
-  run ./setup.sh -c mail email update lorem@impsum.org my password
+  run ./setup.sh -c "${TEST_NAME}" email update lorem@impsum.org my password
   assert_success
 
   updatepass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
   [[ ${updatepass} != "" ]]
   [[ ${initialpass} != "${updatepass}" ]]
 
-  docker exec mail doveadm pw -t "${updatepass}" -p 'my password' | grep 'verified'
+  docker exec "${TEST_NAME}" doveadm pw -t "${updatepass}" -p 'my password' | grep 'verified'
   assert_success
 }
 
 @test "checking setup.sh: setup.sh email del" {
-  run ./setup.sh -c mail email del -y lorem@impsum.org
+  run ./setup.sh -c "${TEST_NAME}" email del -y lorem@impsum.org
   assert_success
 
   # TODO
@@ -85,89 +85,89 @@ function teardown_file() {
   # and not mounting the mail folders (persistance is broken).
   # The add script is only adding the user to account file.
 
-  #  run docker exec mail ls /var/mail/impsum.org/lorem
+  #  run docker exec "${TEST_NAME}" ls /var/mail/impsum.org/lorem
   #  assert_failure
   run grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf"
   assert_failure
 }
 
 @test "checking setup.sh: setup.sh email restrict" {
-  run ./setup.sh -c mail email restrict
+  run ./setup.sh -c "${TEST_NAME}" email restrict
   assert_failure
-  run ./setup.sh -c mail email restrict add
+  run ./setup.sh -c "${TEST_NAME}" email restrict add
   assert_failure
-  ./setup.sh -c mail email restrict add send lorem@impsum.org
-  run ./setup.sh -c mail email restrict list send
+  ./setup.sh -c "${TEST_NAME}" email restrict add send lorem@impsum.org
+  run ./setup.sh -c "${TEST_NAME}" email restrict list send
   assert_output --regexp "^lorem@impsum.org.*REJECT"
 
-  run ./setup.sh -c mail email restrict del send lorem@impsum.org
+  run ./setup.sh -c "${TEST_NAME}" email restrict del send lorem@impsum.org
   assert_success
-  run ./setup.sh -c mail email restrict list send
+  run ./setup.sh -c "${TEST_NAME}" email restrict list send
   assert_output --partial "Everyone is allowed"
 
-  ./setup.sh -c mail email restrict add receive rec_lorem@impsum.org
-  run ./setup.sh -c mail email restrict list receive
+  ./setup.sh -c "${TEST_NAME}" email restrict add receive rec_lorem@impsum.org
+  run ./setup.sh -c "${TEST_NAME}" email restrict list receive
   assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
-  run ./setup.sh -c mail email restrict del receive rec_lorem@impsum.org
+  run ./setup.sh -c "${TEST_NAME}" email restrict del receive rec_lorem@impsum.org
   assert_success
 }
 
 # alias
 @test "checking setup.sh: setup.sh alias list" {
-  run ./setup.sh -c mail alias list
+  run ./setup.sh -c "${TEST_NAME}" alias list
   assert_success
   assert_output --partial "alias1@localhost.localdomain user1@localhost.localdomain"
   assert_output --partial "@localdomain2.com user1@localhost.localdomain"
 }
 
 @test "checking setup.sh: setup.sh alias add" {
-  ./setup.sh -c mail alias add alias@example.com target1@forward.com
-  ./setup.sh -c mail alias add alias@example.com target2@forward.com
-  ./setup.sh -c mail alias add alias2@example.org target3@forward.com
+  ./setup.sh -c "${TEST_NAME}" alias add alias@example.com target1@forward.com
+  ./setup.sh -c "${TEST_NAME}" alias add alias@example.com target2@forward.com
+  ./setup.sh -c "${TEST_NAME}" alias add alias2@example.org target3@forward.com
   sleep 5
   run grep "alias@example.com target1@forward.com,target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
   assert_success
 }
 
 @test "checking setup.sh: setup.sh alias del" {
-  ./setup.sh -c mail alias del alias@example.com target1@forward.com
+  ./setup.sh -c "${TEST_NAME}" alias del alias@example.com target1@forward.com
   run grep "target1@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
   assert_failure
 
   run grep "target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
   assert_output "alias@example.com target2@forward.com"
 
-  ./setup.sh -c mail alias del alias@example.org target2@forward.com
+  ./setup.sh -c "${TEST_NAME}" alias del alias@example.org target2@forward.com
   run grep "alias@example.org" "$(private_config_path mail)/postfix-virtual.cf"
   assert_failure
 
   run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
   assert_success
 
-  ./setup.sh -c mail alias del alias2@example.org target3@forward.com
+  ./setup.sh -c "${TEST_NAME}" alias del alias2@example.org target3@forward.com
   run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
   assert_failure
 }
 
 # quota
 @test "checking setup.sh: setup.sh setquota" {
-  run ./setup.sh -c mail email add quota_user@example.com test_password
-  run ./setup.sh -c mail email add quota_user2@example.com test_password
+  run ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
+  run ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
 
-  run ./setup.sh -c mail quota set quota_user@example.com 12M
+  run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 12M
   assert_success
-  run ./setup.sh -c mail quota set 51M quota_user@example.com
+  run ./setup.sh -c "${TEST_NAME}" quota set 51M quota_user@example.com
   assert_failure
-  run ./setup.sh -c mail quota set unknown@domain.com 150M
+  run ./setup.sh -c "${TEST_NAME}" quota set unknown@domain.com 150M
   assert_failure
 
-  run ./setup.sh -c mail quota set quota_user2 51M
+  run ./setup.sh -c "${TEST_NAME}" quota set quota_user2 51M
   assert_failure
 
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
   assert_success
 
-  run ./setup.sh -c mail quota set quota_user@example.com 26M
+  run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 26M
   assert_success
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:26M\$" | wc -l | grep 1'
   assert_success
@@ -177,27 +177,27 @@ function teardown_file() {
 }
 
 @test "checking setup.sh: setup.sh delquota" {
-  run ./setup.sh -c mail email add quota_user@example.com test_password
-  run ./setup.sh -c mail email add quota_user2@example.com test_password
+  run ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
+  run ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
 
-  run ./setup.sh -c mail quota set quota_user@example.com 12M
+  run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 12M
   assert_success
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
   assert_success
 
-  run ./setup.sh -c mail quota del unknown@domain.com
+  run ./setup.sh -c "${TEST_NAME}" quota del unknown@domain.com
   assert_failure
   run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
   assert_success
 
-  run ./setup.sh -c mail quota del quota_user@example.com
+  run ./setup.sh -c "${TEST_NAME}" quota del quota_user@example.com
   assert_success
   run grep "quota_user@example.com" ./test/duplicate_configs/mail/dovecot-quotas.cf
   assert_failure
 }
 
 @test "checking setup.sh: setup.sh config dkim help correctly displayed" {
-  run ./setup.sh -c mail config dkim help
+  run ./setup.sh -c "${TEST_NAME}" config dkim help
   assert_success
   assert_line --index 3 --partial "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
 }
@@ -205,21 +205,21 @@ function teardown_file() {
 # debug
 
 @test "checking setup.sh: setup.sh debug fetchmail" {
-  run ./setup.sh -c mail debug fetchmail
+  run ./setup.sh -c "${TEST_NAME}" debug fetchmail
   assert_failure
   assert_output --partial "fetchmail: normal termination, status 11"
 }
 
 @test "checking setup.sh: setup.sh debug login ls" {
-  run ./setup.sh -c mail debug login ls
+  run ./setup.sh -c "${TEST_NAME}" debug login ls
   assert_success
 }
 
 @test "checking setup.sh: setup.sh relay add-domain" {
-  ./setup.sh -c mail relay add-domain example1.org smtp.relay1.com 2525
-  ./setup.sh -c mail relay add-domain example2.org smtp.relay2.com
-  ./setup.sh -c mail relay add-domain example3.org smtp.relay3.com 2525
-  ./setup.sh -c mail relay add-domain example3.org smtp.relay.com 587
+  ./setup.sh -c "${TEST_NAME}" relay add-domain example1.org smtp.relay1.com 2525
+  ./setup.sh -c "${TEST_NAME}" relay add-domain example2.org smtp.relay2.com
+  ./setup.sh -c "${TEST_NAME}" relay add-domain example3.org smtp.relay3.com 2525
+  ./setup.sh -c "${TEST_NAME}" relay add-domain example3.org smtp.relay.com 587
 
   # check adding
   run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example1.org\s\+\[smtp.relay1.com\]:2525\" | wc -l | grep 1"
@@ -233,9 +233,9 @@ function teardown_file() {
 }
 
 @test "checking setup.sh: setup.sh relay add-auth" {
-  ./setup.sh -c mail relay add-auth example.org smtp_user smtp_pass
-  ./setup.sh -c mail relay add-auth example2.org smtp_user2 smtp_pass2
-  ./setup.sh -c mail relay add-auth example2.org smtp_user2 smtp_pass_new
+  ./setup.sh -c "${TEST_NAME}" relay add-auth example.org smtp_user smtp_pass
+  ./setup.sh -c "${TEST_NAME}" relay add-auth example2.org smtp_user2 smtp_pass2
+  ./setup.sh -c "${TEST_NAME}" relay add-auth example2.org smtp_user2 smtp_pass_new
 
   # test adding
   run /bin/sh -c "cat $(private_config_path mail)/postfix-sasl-password.cf | grep -e \"^@example.org\s\+smtp_user:smtp_pass\" | wc -l | grep 1"
@@ -246,7 +246,7 @@ function teardown_file() {
 }
 
 @test "checking setup.sh: setup.sh relay exclude-domain" {
-  ./setup.sh -c mail relay exclude-domain example.org
+  ./setup.sh -c "${TEST_NAME}" relay exclude-domain example.org
 
   run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example.org\s*$\" | wc -l | grep 1"
   assert_success
