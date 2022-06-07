@@ -16,29 +16,63 @@
 # - `postmap` only seems relevant when the lookup type is one of these `file_type` values: http://www.postfix.org/postmap.1.html
 #   Should not be a concern for most types used by `docker-mailserver`: texthash, ldap, pcre, tcp, unionmap, unix.
 #   The only other type in use by `docker-mailserver` is the hash type for /etc/aliases, which `postalias` handles.
+
 function _create_postfix_vhost
 {
   # `main.cf` configures `virtual_mailbox_domains = /etc/postfix/vhost`
   # NOTE: Amavis also consumes this file.
   local DATABASE_VHOST='/etc/postfix/vhost'
-  local TMP_VHOST='/tmp/vhost.tmp'
+  local TMP_VHOST='/tmp/vhost.postfix.tmp'
 
+  _vhost_collect_postfix_domains
   _create_vhost
 }
 
-# Processes TMP_VHOST into final DATABASE_VHOST
+# Filter unique values into a proper DATABASE_VHOST config:
 function _create_vhost
 {
   : >"${DATABASE_VHOST}"
 
-  # Account and Alias generation will store values in `/tmp/vhost.tmp`.
-  # Filter unique values to the proper config.
   # NOTE: LDAP stores the domain value set by `docker-mailserver`,
   # and correctly removes it from `mydestination` in `main.cf` in `setup-stack.sh`.
   if [[ -f ${TMP_VHOST} ]]
   then
     sort < "${TMP_VHOST}" | uniq >>"${DATABASE_VHOST}"
     rm "${TMP_VHOST}"
+  fi
+}
+
+# Collects domains from configs (DATABASE_) into TMP_VHOST
+function _vhost_collect_postfix_domains
+{
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+  local DOMAIN UNAME
+
+  # getting domains FROM mail accounts
+  if [[ -f ${DATABASE_ACCOUNTS} ]]
+  then
+    # shellcheck disable=SC2034
+    while IFS=$'|' read -r LOGIN PASS
+    do
+      DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
+      echo "${DOMAIN}" >>"${TMP_VHOST}"
+    done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
+  fi
+
+  # getting domains FROM mail aliases
+  if [[ -f ${DATABASE_VIRTUAL} ]]
+  then
+    # the `to` is important, don't delete it
+    # shellcheck disable=SC2034
+    while read -r FROM TO
+    do
+      UNAME=$(echo "${FROM}" | cut -d @ -f1)
+      DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
+
+      # if they are equal it means the line looks like: "user1     other@domain.tld"
+      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>"${TMP_VHOST}"
+    done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   fi
 }
 

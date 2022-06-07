@@ -91,8 +91,6 @@ function _create_accounts
       then
         cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
       fi
-
-      echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 
     _create_dovecot_alias_dummy_accounts

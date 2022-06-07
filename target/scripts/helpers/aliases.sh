@@ -22,17 +22,6 @@ function _handle_postfix_virtual_config
     fi
 
     cp -f "${DATABASE_VIRTUAL}" /etc/postfix/virtual
-
-    # the `to` is important, don't delete it
-    # shellcheck disable=SC2034
-    while read -r FROM TO
-    do
-      UNAME=$(echo "${FROM}" | cut -d @ -f1)
-      DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
-
-      # if they are equal it means the line looks like: "user1     other@domain.tld"
-      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   else
     _log 'debug' "'${DATABASE_VIRTUAL}' not provided - no mail alias/forward created"
   fi
