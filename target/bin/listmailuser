@@ -7,47 +7,85 @@ source /usr/local/bin/helpers/index.sh
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
-function dovecot_quota_to_hr
+function _bytes_to_human_readable_size
 {
-  if [[ ${1:-} == "-" ]]
+  # '-' is a non-applicable value,
+  # such as SIZE_LIMIT not being configured:
+  if [[ ${1:-} == '-' ]]
   then
-    echo "~"
+    echo '~'
+  # Otherwise a value of bytes is expected:
   elif [[ ${1:-} =~ ^[0-9]+$ ]]
   then
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
-    _exit_with_error "Supplied non-number argument '${1:-}' to 'dovecot_quota_to_hr()' in script 'listmailuser'"
+    _exit_with_error "Supplied non-number argument '${1:-}' to '_bytes_to_human_readable_size()'"
   fi
 }
 
-DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
-ALIASES='/tmp/docker-mailserver/postfix-virtual.cf'
+function _format_dovecot_quota
+{
+  local ARG_USER=${1}
 
-[[ -f ${DATABASE} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
-[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
+  local QUOTA_INFO
+  # Match line with 3rd column of type='STORAGE', and retrieves the next three column values:
+  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${ARG_USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
 
-while read -r LINE
-do
-  USER=$(echo "${LINE}" | cut -d'|' -f1)
+  # Extracted quota storage columns:
+  local CURRENT_SIZE="$(_bytes_to_human_readable_size "${QUOTA_INFO[0]}")"
+  local SIZE_LIMIT="$(_bytes_to_human_readable_size "${QUOTA_INFO[1]}")"
+  local PERCENT_USED="${QUOTA_INFO[2]}%"
 
-  if [[ ${ENABLE_QUOTAS} -eq 1 ]]
+  echo "( ${CURRENT_SIZE} / ${SIZE_LIMIT} ) [${PERCENT_USED}]"
+}
+
+function _display_account_aliases
+{
+  local ARG_USER=${1}
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+
+  function _account_has_an_existing_alias
+  {
+    grep -qi "${ARG_USER}" "${DATABASE_VIRTUAL}" 2>/dev/null
+  }
+
+  function _list_aliases_for_account
+  {
+    grep "${ARG_USER}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
+  }
+
+  if [[ -f ${DATABASE_VIRTUAL} ]] && _account_has_an_existing_alias
   then
-    # ${QUOTA[0]} => current size
-    # ${QUOTA[1]} => configured size limit
-    # ${QUOTA[2]} => usage in percent
-    IFS=' ' read -r -a QUOTA <<< "$(doveadm quota get -u "${USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
-    echo "* ${USER} ( $(dovecot_quota_to_hr "${QUOTA[0]}") / $(dovecot_quota_to_hr "${QUOTA[1]}") ) [${QUOTA[2]}%]"
-  else
-    echo "* ${USER}"
+    echo "    [ aliases -> $(_list_aliases_for_account) ]"
   fi
+}
 
-  if [[ -f ${ALIASES} ]] && grep -q "${USER}" "${ALIASES}"
-  then
-    echo -e "    [ aliases -> $(grep "${USER}" "${ALIASES}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g')]\n"
-  else
+function _list_accounts
+{
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+
+  [[ -f ${DATABASE_ACCOUNTS} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
+  [[ -s ${DATABASE_ACCOUNTS} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
+
+  while read -r LINE
+  do
+    local USER=$(echo "${LINE}" | cut -d'|' -f1)
+
+    local WITH_QUOTA
+    if [[ ${ENABLE_QUOTAS} -eq 1 ]]
+    then
+      WITH_QUOTA=" $(_format_dovecot_quota "${USER}")"
+    fi
+
+    echo "* ${USER}${WITH_QUOTA}"
+
+    _display_account_aliases "${USER}"
+
+    # Add a blank line
     echo
-  fi
-done < <(_get_valid_lines_from_file "${DATABASE}")
+  done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
+}
 
+_list_accounts
 
 exit 0
