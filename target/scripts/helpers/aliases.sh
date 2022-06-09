@@ -50,13 +50,8 @@ function _handle_postfix_aliases_config
 
   echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
 
-  if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-  then
-    cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-  else
-    _log 'trace' "'/tmp/docker-mailserver/postfix-aliases.cf' is not provided, it will be auto created."
-    : >/tmp/docker-mailserver/postfix-aliases.cf
-  fi
+  local DATABASE_ALIASES='/tmp/docker-mailserver/postfix-aliases.cf'
+  [[ -f ${DATABASE_ALIASES} ]] && cat "${DATABASE_ALIASES}" >>/etc/aliases
 
   postalias /etc/aliases
 }
