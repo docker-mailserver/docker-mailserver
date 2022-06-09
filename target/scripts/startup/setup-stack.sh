@@ -360,9 +360,6 @@ function _setup_ldap
 
   configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
 
-  # add domainname to vhost
-  echo "${DOMAINNAME}" >>/tmp/vhost.tmp
-
   _log 'trace' 'Enabling Dovecot LDAP authentication'
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
