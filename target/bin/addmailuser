@@ -13,7 +13,7 @@ ${ORANGE}NAME${RESET}
     addmailuser - add an email address (i.e. a user)
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh email add <EMAIL ADDRESS> [<PASSWORD>]
+    ./setup.sh email add <MAIL ACCOUNT> [<PASSWORD>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
@@ -33,8 +33,8 @@ ${ORANGE}EXIT STATUS${RESET}
 
 function _validate_parameters
 {
-  [[ -z ${FULL_EMAIL} ]] && { __usage ; _exit_with_error 'No username specified' ; }
-  [[ ${FULL_EMAIL} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No username specified' ; }
+  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
 }
 
 function _add_account
@@ -44,12 +44,12 @@ function _add_account
   _create_lock # Protect config file with lock to avoid race conditions
 
   # Escaped values for use in regex patterns:
-  local _EMAIL_=$(_escape "${FULL_EMAIL}")
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
   function _account_already_exists
   {
-    # `|` is a delimter between the account identity (_EMAIL_) and the hashed password
-    grep -qi "^${_EMAIL_}|" "${DATABASE}" 2>/dev/null
+    # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
+    grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
   }
 
   function _hash_password
@@ -63,13 +63,13 @@ function _add_account
     fi
 
     # Create the hashed password, then add an account entry into the DATABASE:
-    local HASH=$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")
-    echo "${FULL_EMAIL}|${HASH}" >> "${DATABASE}"
+    local HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
+    echo "${MAIL_ACCOUNT}|${HASH}" >> "${DATABASE}"
   }
 
   if _account_already_exists
   then
-    _exit_with_error "User '${FULL_EMAIL}' already exists"
+    _exit_with_error "User '${MAIL_ACCOUNT}' already exists"
   fi
 
   _hash_password
@@ -81,8 +81,8 @@ function _wait_until_account_maildir_exists
 {
   if [[ -e ${CHKSUM_FILE} ]]
   then
-    local USER="${FULL_EMAIL%@*}"
-    local DOMAIN="${FULL_EMAIL#*@}"
+    local USER="${MAIL_ACCOUNT%@*}"
+    local DOMAIN="${MAIL_ACCOUNT#*@}"
 
     while [[ ! -d "/var/mail/${DOMAIN}/${USER}" ]]
     do
@@ -94,7 +94,7 @@ function _wait_until_account_maildir_exists
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-FULL_EMAIL="${1}"
+MAIL_ACCOUNT="${1}"
 shift
 PASSWD="${*}"
 

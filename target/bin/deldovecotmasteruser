@@ -16,7 +16,7 @@ ${ORANGE}NAME${RESET}
     deldovecotmasteruser - delete a dovecot master user
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh dovecot-master del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>${RED}...${RESET}] ${RED}|${RESET} help }
+    ./setup.sh dovecot-master del [ OPTIONS ] { <MAIL ACCOUNT> [<MAIL ACCOUNT>${RED}...${RESET}] ${RED}|${RESET} help }
 
 ${ORANGE}DESCRIPTION${RESET}
     Delete a dovecot master user.
@@ -48,18 +48,18 @@ function _delete_dovecot_master_accounts
   [[ -s ${DATABASE_DOVECOT_MASTERS} ]] || exit 0
   _create_lock # Protect config file with lock to avoid race conditions
 
-  for USER in "${@}"
+  for MAIL_ACCOUNT in "${@}"
   do
     ERROR=false
 
-    # ${_USER_} must not contain /s and other syntactic characters
-    local _USER_=$(_escape "${USER}")
+    # ${_MAIL_ACCOUNT_} must not contain /s and other syntactic characters
+    local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
     if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]
     then
-      if ! sedfile --strict -i "/^${_USER_}|/d" "${DATABASE_DOVECOT_MASTERS}"
+      if ! sedfile --strict -i "/^${_MAIL_ACCOUNT_}|/d" "${DATABASE_DOVECOT_MASTERS}"
       then
-        _log 'error' "'${USER}' couldn't be deleted in '${DATABASE_DOVECOT_MASTERS}'"
+        _log 'error' "'${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_DOVECOT_MASTERS}'"
         ERROR=true
       fi
     fi

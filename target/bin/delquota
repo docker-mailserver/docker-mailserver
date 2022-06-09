@@ -9,10 +9,10 @@ function _validate_parameter_user
 {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
 
-  [[ -z ${USER} ]] && { __usage ; _exit_with_error "No username specified" ; }
-  [[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error "No username specified" ; }
+  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
 
-  grep -qE "^${USER}\|" "${DATABASE_ACCOUNTS}" || _exit_with_error "User '${USER}' does not exist"
+  grep -qE "^${MAIL_ACCOUNT}\|" "${DATABASE_ACCOUNTS}" || _exit_with_error "User '${MAIL_ACCOUNT}' does not exist"
 }
 
 function _remove_quota_for_user
@@ -21,12 +21,12 @@ function _remove_quota_for_user
 
   [[ -s ${DATABASE_QUOTA} ]] || exit 0
 
-  sed -i -e "/^${USER}:.*$/d" "${DATABASE_QUOTA}"
+  sed -i -e "/^${MAIL_ACCOUNT}:.*$/d" "${DATABASE_QUOTA}"
 }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-USER="${1}"
+MAIL_ACCOUNT="${1}"
 
 _validate_parameter_user
 _remove_quota_for_user

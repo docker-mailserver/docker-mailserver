@@ -14,10 +14,10 @@ function _validate_parameter_user
 {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
 
-  [[ -z ${USER} ]] && { __usage ; _exit_with_error "No username specified" ; }
-  [[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error "No username specified" ; }
+  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
 
-  grep -qE "^${USER}\|" "${DATABASE_ACCOUNTS}" || _exit_with_error "User '${USER}' does not exist"
+  grep -qE "^${MAIL_ACCOUNT}\|" "${DATABASE_ACCOUNTS}" || _exit_with_error "User '${MAIL_ACCOUNT}' does not exist"
 }
 
 function _validate_parameter_quota
@@ -45,11 +45,11 @@ function _set_quota_for_user
   touch "${DATABASE_QUOTA}"
 
   # Replace any existing quota applied by removing it first, then adding it back:
-  delquota "${USER}"
-  echo "${USER}:${QUOTA}" >>"${DATABASE_QUOTA}"
+  delquota "${MAIL_ACCOUNT}"
+  echo "${MAIL_ACCOUNT}:${QUOTA}" >>"${DATABASE_QUOTA}"
 }
 
-USER="${1}"
+MAIL_ACCOUNT="${1}"
 shift
 QUOTA="${*}"
 

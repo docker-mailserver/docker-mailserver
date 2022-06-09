@@ -11,7 +11,7 @@ ${ORANGE}NAME${RESET}
     addalias - add an email alias for an existing user
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh alias add <EMAIL ADDRESS> <RECIPIENT>
+    ./setup.sh alias add <MAIL ACCOUNT> <RECIPIENT>
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
@@ -31,7 +31,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 function _validate_parameters
 {
-  [[ -z ${EMAIL} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
   [[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
 }
 
@@ -40,7 +40,7 @@ function _add_alias
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
   # Escaped values for use in regex patterns:
-  _EMAIL_=$(_escape "${EMAIL}")
+  _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
   _RECIPIENT_=$(_escape "${RECIPIENT}")
 
   function _alias_already_exists
@@ -48,30 +48,30 @@ function _add_alias
     # Presumably intended to account for white-space or other aliases inbetween?
     # Why are only these values are considered valid?
     local VALID_CONTENT='[a-zA-Z@.\ ]*'
-    local MATCH_PATTERN="^${_EMAIL_}${VALID_CONTENT}${_RECIPIENT_}"
+    local MATCH_PATTERN="^${_MAIL_ACCOUNT_}${VALID_CONTENT}${_RECIPIENT_}"
 
     grep -qi "${MATCH_PATTERN}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
   function _account_has_an_existing_alias
   {
-    grep -qi "^${_EMAIL_}" "${DATABASE_VIRTUAL}" 2>/dev/null
+    grep -qi "^${_MAIL_ACCOUNT_}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
-  _alias_already_exists && _exit_with_error "Alias '${EMAIL} ${RECIPIENT}' already exists"
+  _alias_already_exists && _exit_with_error "Alias '${MAIL_ACCOUNT} ${RECIPIENT}' already exists"
 
   if _account_has_an_existing_alias
   then
     # Append alias to existing entry:
-    sed -i "/${EMAIL}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
+    sed -i "/${MAIL_ACCOUNT}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
   else
-    echo "${EMAIL} ${RECIPIENT}" >> "${DATABASE_VIRTUAL}"
+    echo "${MAIL_ACCOUNT} ${RECIPIENT}" >> "${DATABASE_VIRTUAL}"
   fi
 }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-EMAIL="${1}"
+MAIL_ACCOUNT="${1}"
 RECIPIENT="${2}"
 
 _validate_parameters

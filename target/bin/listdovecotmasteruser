@@ -16,8 +16,9 @@ function _list_dovecot_master_accounts
 
   while read -r LINE
   do
-    USER=$(echo "${LINE}" | cut -d'|' -f1)
-    echo "* ${USER}"
+    local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
+
+    echo "* ${MAIL_ACCOUNT}"
   done < <(_get_valid_lines_from_file "${DATABASE_DOVECOT_MASTERS}")
 }
 

@@ -25,11 +25,11 @@ function _bytes_to_human_readable_size
 
 function _format_dovecot_quota
 {
-  local ARG_USER=${1}
+  local ARG_MAIL_ACCOUNT=${1}
 
   local QUOTA_INFO
   # Match line with 3rd column of type='STORAGE', and retrieves the next three column values:
-  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${ARG_USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
+  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${ARG_MAIL_ACCOUNT}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
 
   # Extracted quota storage columns:
   local CURRENT_SIZE="$(_bytes_to_human_readable_size "${QUOTA_INFO[0]}")"
@@ -41,17 +41,17 @@ function _format_dovecot_quota
 
 function _display_account_aliases
 {
-  local ARG_USER=${1}
+  local ARG_MAIL_ACCOUNT=${1}
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
   function _account_has_an_existing_alias
   {
-    grep -qi "${ARG_USER}" "${DATABASE_VIRTUAL}" 2>/dev/null
+    grep -qi "${ARG_MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
   function _list_aliases_for_account
   {
-    grep "${ARG_USER}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
+    grep "${ARG_MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   }
 
   if [[ -f ${DATABASE_VIRTUAL} ]] && _account_has_an_existing_alias
@@ -69,17 +69,17 @@ function _list_accounts
 
   while read -r LINE
   do
-    local USER=$(echo "${LINE}" | cut -d'|' -f1)
+    local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
 
     local WITH_QUOTA
     if [[ ${ENABLE_QUOTAS} -eq 1 ]]
     then
-      WITH_QUOTA=" $(_format_dovecot_quota "${USER}")"
+      WITH_QUOTA=" $(_format_dovecot_quota "${MAIL_ACCOUNT}")"
     fi
 
-    echo "* ${USER}${WITH_QUOTA}"
+    echo "* ${MAIL_ACCOUNT}${WITH_QUOTA}"
 
-    _display_account_aliases "${USER}"
+    _display_account_aliases "${MAIL_ACCOUNT}"
 
     # Add a blank line
     echo

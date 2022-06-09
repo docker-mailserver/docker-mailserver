@@ -13,7 +13,7 @@ ${ORANGE}NAME${RESET}
     addmasteruser - add a dovecot master user (for POP3/IMAP administration)
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh dovecot-master add <USERNAME> [<PASSWORD>]
+    ./setup.sh dovecot-master add <MAIL ACCOUNT> [<PASSWORD>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
@@ -33,7 +33,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 function _validate_parameters
 {
-  [[ -z ${USERNAME} ]] && { __usage ; _exit_with_error 'No username specified' ; }
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No username specified' ; }
 }
 
 # TODO: Variable names can be adjusted synced to `bin/addmailuser`, only other
@@ -45,12 +45,12 @@ function _add_dovecot_master_account
   _create_lock # Protect config file with lock to avoid race conditions
 
   # Escaped values for use in regex patterns:
-  local _USERNAME_=$(_escape "${USERNAME}")
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
   function _account_already_exists
   {
-    # `|` is a delimter between the account identity (_USERNAME_) and the hashed password
-    grep -qi "^${_USERNAME_}|" "${DATABASE}" 2>/dev/null
+    # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
+    grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
   }
 
   function _hash_password
@@ -64,13 +64,13 @@ function _add_dovecot_master_account
     fi
 
     # Create the hashed password, then add an account entry into the DATABASE:
-    local HASH=$(doveadm pw -s SHA512-CRYPT -u "${USERNAME}" -p "${PASSWD}")
-    echo "${USERNAME}|${HASH}" >> "${DATABASE}"
+    local HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
+    echo "${MAIL_ACCOUNT}|${HASH}" >> "${DATABASE}"
   }
 
   if _account_already_exists
   then
-    _exit_with_error "User '${USERNAME}' already exists"
+    _exit_with_error "User '${MAIL_ACCOUNT}' already exists"
   fi
 
   _hash_password
@@ -78,7 +78,7 @@ function _add_dovecot_master_account
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-USERNAME="${1}"
+MAIL_ACCOUNT="${1}"
 shift
 PASSWD="${*}"
 

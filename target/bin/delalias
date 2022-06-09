@@ -7,7 +7,7 @@ function __usage { echo "Usage: delalias <alias@domain> <recipient@other>" ; }
 
 function _validate_parameters
 {
-  [[ -z ${EMAIL} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
   [[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
 }
 
@@ -17,15 +17,15 @@ function _remove_alias
   [[ -s ${DATABASE_VIRTUAL} ]] || exit 0
 
   sed -i \
-    -e "/^${EMAIL} *${RECIPIENT}$/d" \
-    -e "/^${EMAIL}/s/,${RECIPIENT}//g" \
-    -e "/^${EMAIL}/s/${RECIPIENT},//g" \
+    -e "/^${MAIL_ACCOUNT} *${RECIPIENT}$/d" \
+    -e "/^${MAIL_ACCOUNT}/s/,${RECIPIENT}//g" \
+    -e "/^${MAIL_ACCOUNT}/s/${RECIPIENT},//g" \
     "${DATABASE_VIRTUAL}"
 }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-EMAIL="${1}"
+MAIL_ACCOUNT="${1}"
 RECIPIENT="${2}"
 
 _validate_parameters

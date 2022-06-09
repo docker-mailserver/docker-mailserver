@@ -16,7 +16,7 @@ ${ORANGE}NAME${RESET}
     delmailuser - delete a user and related data
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh email del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>${RED}...${RESET}] ${RED}|${RESET} help }
+    ./setup.sh email del [ OPTIONS ] { <MAIL ACCOUNT> [<MAIL ACCOUNT>${RED}...${RESET}] ${RED}|${RESET} help }
 
 ${ORANGE}DESCRIPTION${RESET}
     Delete a mail user, aliases, quotas and mail data.
@@ -79,29 +79,29 @@ function _validate_parameters
 
 function _remove_entry_from_databases
 {
-  # ${_EMAIL_} must not contain /s and other syntactic characters
-  local _EMAIL_=$(_escape "${EMAIL}")
+  # ${_MAIL_ACCOUNT_} must not contain /s and other syntactic characters
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
   if [[ -f ${DATABASE_ACCOUNTS} ]]
   then
-    if ! sedfile --strict -i "/^${_EMAIL_}|/d" "${DATABASE_ACCOUNTS}"
+    if ! sedfile --strict -i "/^${_MAIL_ACCOUNT_}|/d" "${DATABASE_ACCOUNTS}"
     then
-      _log 'error' "'${EMAIL}' couldn't be deleted in '${DATABASE_ACCOUNTS}'"
+      _log 'error' "'${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_ACCOUNTS}'"
       ERROR=true
     fi
   fi
 
   if [[ -f ${DATABASE_VIRTUAL} ]]
   then
-    # delete all aliases where the user is the only recipient( " ${_EMAIL_}" )
-    # delete user only for all aliases that deliver to multiple recipients ( ",${_EMAIL_}" "${_EMAIL_,}" )
+    # delete all aliases where the user is the only recipient( " ${_MAIL_ACCOUNT_}" )
+    # delete user only for all aliases that deliver to multiple recipients ( ",${_MAIL_ACCOUNT_}" "${_MAIL_ACCOUNT_,}" )
     if sed -i \
-      -e "/ ${_EMAIL_}$/d" -e "s/,${_EMAIL_}//g" -e "s/${_EMAIL_},//g" \
+      -e "/ ${_MAIL_ACCOUNT_}$/d" -e "s/,${_MAIL_ACCOUNT_}//g" -e "s/${_MAIL_ACCOUNT_},//g" \
       "${DATABASE_VIRTUAL}"
     then
-      _log 'info' "'${EMAIL}' and potential aliases deleted"
+      _log 'info' "'${MAIL_ACCOUNT}' and potential aliases deleted"
     else
-      _log 'error' "Aliases for '${EMAIL}' couldn't be deleted in '${DATABASE_VIRTUAL}'"
+      _log 'error' "Aliases for '${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_VIRTUAL}'"
       ERROR=true
     fi
   fi
@@ -109,17 +109,17 @@ function _remove_entry_from_databases
   # remove quota directives
   if [[ -f ${DATABASE_QUOTA} ]]
   then
-    if ! sedfile --strict -i -e "/^${_EMAIL_}:.*$/d" "${DATABASE_QUOTA}"
+    if ! sedfile --strict -i -e "/^${_MAIL_ACCOUNT_}:.*$/d" "${DATABASE_QUOTA}"
     then
-      _log 'warn' "Quota for '${EMAIL}' couldn't be deleted in '${DATABASE_QUOTA}'"
+      _log 'warn' "Quota for '${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_QUOTA}'"
     fi
   fi
 }
 
 function _remove_maildir
 {
-  local USER="${EMAIL%@*}"
-  local DOMAIN="${EMAIL#*@}"
+  local USER="${MAIL_ACCOUNT%@*}"
+  local DOMAIN="${MAIL_ACCOUNT#*@}"
 
   if ! ${MAILDEL}
   then
@@ -154,7 +154,7 @@ function _delete_accounts
 
   _create_lock # Protect config file with lock to avoid race conditions
 
-  for EMAIL in "${@}"
+  for MAIL_ACCOUNT in "${@}"
   do
     ERROR=false
 
