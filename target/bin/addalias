@@ -3,8 +3,6 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
-
 function __usage
 {
   printf '%s' "${PURPLE}ADDALIAS${RED}(${YELLOW}8${RED})
@@ -31,21 +29,50 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
+function _validate_parameters
+{
+  [[ -z ${EMAIL} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
+  [[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
+}
+
+function _add_alias
+{
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+
+  # Escaped values for use in regex patterns:
+  _EMAIL_=$(_escape "${EMAIL}")
+  _RECIPIENT_=$(_escape "${RECIPIENT}")
+
+  function _alias_already_exists
+  {
+    # Presumably intended to account for white-space or other aliases inbetween?
+    # Why are only these values are considered valid?
+    local VALID_CONTENT='[a-zA-Z@.\ ]*'
+    local MATCH_PATTERN="^${_EMAIL_}${VALID_CONTENT}${_RECIPIENT_}"
+
+    grep -qi "${MATCH_PATTERN}" "${DATABASE_VIRTUAL}" 2>/dev/null
+  }
+
+  function _account_has_an_existing_alias
+  {
+    grep -qi "^${_EMAIL_}" "${DATABASE_VIRTUAL}" 2>/dev/null
+  }
+
+  _alias_already_exists && _exit_with_error "Alias '${EMAIL} ${RECIPIENT}' already exists"
+
+  if _account_has_an_existing_alias
+  then
+    # Append alias to existing entry:
+    sed -i "/${EMAIL}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
+  else
+    echo "${EMAIL} ${RECIPIENT}" >> "${DATABASE_VIRTUAL}"
+  fi
+}
+
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
 EMAIL="${1}"
 RECIPIENT="${2}"
 
-[[ -z ${EMAIL} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
-[[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
-
-grep \
-  -qi "^$(_escape "${EMAIL}")[a-zA-Z@.\ ]*$(_escape "${RECIPIENT}")" \
-  "${DATABASE}" 2>/dev/null && _exit_with_error "Alias \"${EMAIL} ${RECIPIENT}\" already exists"
-
-if grep -qi "^$(_escape "${EMAIL}")" "${DATABASE}" 2>/dev/null
-then
-  sed -i "/${EMAIL}/s/$/,${RECIPIENT}/" "${DATABASE}"
-else
-  echo "${EMAIL} ${RECIPIENT}" >> "${DATABASE}"
-fi
+_validate_parameters
+_add_alias
