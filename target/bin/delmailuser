@@ -8,11 +8,6 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
-ALIAS_DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
-QUOTA_DATABASE='/tmp/docker-mailserver/dovecot-quotas.cf'
-MAILDEL='false'
-
 function __usage
 {
   printf '%s' "${PURPLE}DELMAILUSER${RED}(${YELLOW}8${RED})
@@ -47,96 +42,89 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-if [[ ${1} == 'help' ]]
-then
-  __usage
-  exit 0
-fi
+function _validate_parameters
+{
+  [[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
 
-while getopts ":yYh" OPT
-do
-  case "${OPT}" in
-    ( 'y' | 'Y' )
-      MAILDEL=true
-      ;;
+  while getopts ":yYh" OPT
+  do
+    case "${OPT}" in
+      ( 'y' | 'Y' )
+        MAILDEL=true
+        ;;
 
-    ( 'h' )
-      __usage
-      exit 0
-      ;;
+      ( 'h' )
+        __usage
+        exit 0
+        ;;
 
-    ( * )
-      __usage
-      _exit_with_error "The option '${OPT}' is unknown"
-      ;;
+      ( * )
+        __usage
+        _exit_with_error "The option '${OPT}' is unknown"
+        ;;
 
-  esac
-done
-shift $((OPTIND-1))
+    esac
+  done
+  shift $((OPTIND-1))
 
-[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
-[[ -s ${DATABASE} ]] || exit 0
-
-if ! ${MAILDEL}
-then
-  read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
-  if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
+  if ! ${MAILDEL}
   then
-    MAILDEL=true
-  fi
-fi
-
-_create_lock # Protect config file with lock to avoid race conditions
-
-for EMAIL in "${@}"
-do
-  ERROR=false
-
-  USER="${EMAIL%@*}"
-  DOMAIN="${EMAIL#*@}"
-
-  # ${EMAIL} must not contain /s and other syntactic characters
-  UNESCAPED_EMAIL="${EMAIL}"
-  EMAIL=$(_escape "${EMAIL}")
-
-  if [[ -f ${DATABASE} ]]
-  then
-    if ! sedfile --strict -i "/^${EMAIL}|/d" "${DATABASE}"
+    read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
+    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
     then
-      _log 'error' "'${UNESCAPED_EMAIL}' couldn't be deleted in '${DATABASE}'"
+      MAILDEL=true
+    fi
+  fi
+}
+
+function _remove_entry_from_databases
+{
+  # ${_EMAIL_} must not contain /s and other syntactic characters
+  local _EMAIL_=$(_escape "${EMAIL}")
+
+  if [[ -f ${DATABASE_ACCOUNTS} ]]
+  then
+    if ! sedfile --strict -i "/^${_EMAIL_}|/d" "${DATABASE_ACCOUNTS}"
+    then
+      _log 'error' "'${EMAIL}' couldn't be deleted in '${DATABASE_ACCOUNTS}'"
       ERROR=true
     fi
   fi
 
-  if [[ -f ${ALIAS_DATABASE} ]]
+  if [[ -f ${DATABASE_VIRTUAL} ]]
   then
-    # delete all aliases where the user is the only recipient( " ${EMAIL}" )
-    # delete user only for all aliases that deliver to multiple recipients ( ",${EMAIL}" "${EMAIL,}" )
+    # delete all aliases where the user is the only recipient( " ${_EMAIL_}" )
+    # delete user only for all aliases that deliver to multiple recipients ( ",${_EMAIL_}" "${_EMAIL_,}" )
     if sed -i \
-      -e "/ ${EMAIL}$/d" -e "s/,${EMAIL}//g" -e "s/${EMAIL},//g" \
-      "${ALIAS_DATABASE}"
+      -e "/ ${_EMAIL_}$/d" -e "s/,${_EMAIL_}//g" -e "s/${_EMAIL_},//g" \
+      "${DATABASE_VIRTUAL}"
     then
-      _log 'info' "'${UNESCAPED_EMAIL}' and potential aliases deleted"
+      _log 'info' "'${EMAIL}' and potential aliases deleted"
     else
-      _log 'error' "Aliases for '${UNESCAPED_EMAIL}' couldn't be deleted in '${ALIAS_DATABASE}'"
+      _log 'error' "Aliases for '${EMAIL}' couldn't be deleted in '${DATABASE_VIRTUAL}'"
       ERROR=true
     fi
   fi
 
   # remove quota directives
-  if [[ -f ${QUOTA_DATABASE} ]]
+  if [[ -f ${DATABASE_QUOTA} ]]
   then
-    if ! sedfile --strict -i -e "/^${EMAIL}:.*$/d" "${QUOTA_DATABASE}"
+    if ! sedfile --strict -i -e "/^${_EMAIL_}:.*$/d" "${DATABASE_QUOTA}"
     then
-      _log 'warn' "Quota for '${UNESCAPED_EMAIL}' couldn't be deleted in '${QUOTA_DATABASE}'"
+      _log 'warn' "Quota for '${EMAIL}' couldn't be deleted in '${DATABASE_QUOTA}'"
     fi
   fi
+}
+
+function _remove_maildir
+{
+  local USER="${EMAIL%@*}"
+  local DOMAIN="${EMAIL#*@}"
 
   if ! ${MAILDEL}
   then
-    echo "Leaving the mailbox untouched.
-If you want to delete it at a later point,
-use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
+    echo 'Leaving the mailbox untouched.'
+    echo "If you want to delete it at a later point use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
     exit 0
   fi
 
@@ -154,8 +142,33 @@ use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
     log 'error' "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist"
     ERROR=true
   fi
+}
 
-  ${ERROR} && _exit_with_error 'See the messages above.'
-done
+function _delete_accounts
+{
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+  local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
+
+  [[ -s ${DATABASE_ACCOUNTS} ]] || exit 0
+
+  _create_lock # Protect config file with lock to avoid race conditions
+
+  for EMAIL in "${@}"
+  do
+    ERROR=false
+
+    _remove_entry_from_databases
+    _remove_maildir
+
+    ${ERROR} && _exit_with_error 'See the messages above.'
+  done
+}
+
+[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
+MAILDEL='false'
+
+_delete_accounts "${@}"
 
 exit 0
