@@ -8,36 +8,51 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/dovecot-quotas.cf'
-USER_DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
+function __usage { echo 'Usage: setquota <user@domain> [<quota>]' ; }
+
+function _validate_parameter_user
+{
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+
+  [[ -z ${USER} ]] && { __usage ; _exit_with_error "No username specified" ; }
+  [[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
+
+  grep -qE "^${USER}\|" "${DATABASE_ACCOUNTS}" || _exit_with_error "User '${USER}' does not exist"
+}
+
+function _validate_parameter_quota
+{
+  if [[ -z ${QUOTA} ]]
+  then
+    read -r -s 'Enter quota (e.g. 10M): ' QUOTA
+    echo
+    [[ -z "${QUOTA}" ]] && _exit_with_error 'Quota must not be empty (use 0 for unlimited quota)'
+  fi
+
+  # check quota
+  if ! grep -qE "^([0-9]+(B|k|M|G|T)|0)\$" <<< "${QUOTA}"
+  then
+    __usage
+    _exit_with_error 'Invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))'
+  fi
+}
+
+function _set_quota_for_user
+{
+  local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
+
+  _create_lock # Protect config file with lock to avoid race conditions
+  touch "${DATABASE_QUOTA}"
+
+  # Replace any existing quota applied by removing it first, then adding it back:
+  delquota "${USER}"
+  echo "${USER}:${QUOTA}" >>"${DATABASE_QUOTA}"
+}
 
 USER="${1}"
 shift
 QUOTA="${*}"
 
-function __usage { echo 'Usage: setquota <user@domain> [<quota>]' ; }
-
-[[ -z ${USER} ]] && { __usage ; _exit_with_error "No username specified" ; }
-[[ ${USER} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
-
-grep -qE "^${USER}\|" "${USER_DATABASE}" || _exit_with_error "User '${USER}' does not exist"
-
-if [[ -z ${QUOTA} ]]
-then
-  read -r -s 'Enter quota (e.g. 10M): ' QUOTA
-  echo
-  [[ -z "${QUOTA}" ]] && _exit_with_error 'Quota must not be empty (use 0 for unlimited quota)'
-fi
-
-# check quota
-if ! grep -qE "^([0-9]+(B|k|M|G|T)|0)\$" <<< "${QUOTA}"
-then
-  __usage
-  _exit_with_error 'Invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))'
-fi
-
-_create_lock # Protect config file with lock to avoid race conditions
-touch "${DATABASE}"
-
-delquota "${USER}"
-echo "${USER}:${QUOTA}" >>"${DATABASE}"
+_validate_parameter_user
+_validate_parameter_quota
+_set_quota_for_user
