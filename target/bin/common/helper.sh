@@ -11,3 +11,8 @@ function _if_missing_request_password
     [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
   fi
 }
+
+function _hash_password
+{
+  echo $(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
+}

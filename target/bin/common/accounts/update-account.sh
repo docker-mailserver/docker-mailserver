@@ -28,7 +28,8 @@ function _update_account_password_in_db
   fi
 
   _if_missing_request_password
-  # Create the hashed password, then update an account password in the DATABASE:
-  local HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
-  sed -i "s/^${MAIL_ACCOUNT}|.*/${MAIL_ACCOUNT}|${HASH}/" "${DATABASE}"
+
+  local PASSWD_HASH=$(_hash_password)
+  # Update password for an account in the DATABASE:
+  sed -i "s/^${MAIL_ACCOUNT}|.*/${MAIL_ACCOUNT}|${PASSWD_HASH}/" "${DATABASE}"
 }

@@ -23,9 +23,10 @@ function _add_account_to_db
   fi
 
   _if_missing_request_password
-  # Create the hashed password, then add an account entry into the DATABASE:
-  local HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
-  echo "${MAIL_ACCOUNT}|${HASH}" >> "${DATABASE}"
+
+  local PASSWD_HASH=$(_hash_password)
+  # Add an account entry with hashed password into the DATABASE:
+  echo "${MAIL_ACCOUNT}|${PASSWD_HASH}" >>"${DATABASE}"
 }
 
 # Tests fail if the creation of /var/mail/${DOMAIN}/${USER} doesn't happen fast enough after addmailuser executes (check-for-changes.sh race-condition)
