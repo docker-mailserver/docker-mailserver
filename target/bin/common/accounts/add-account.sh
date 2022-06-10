@@ -1,14 +1,6 @@
 #! /bin/bash
 
-function _if_missing_request_password
-{
-  if [[ -z ${PASSWD} ]]
-  then
-    read -r -s -p 'Enter Password: ' PASSWD
-    echo
-    [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
-  fi
-}
+source ../helper.sh
 
 function _account_already_exists
 {
