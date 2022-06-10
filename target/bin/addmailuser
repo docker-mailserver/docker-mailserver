@@ -3,6 +3,8 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+source ./common/accounts/add-account.sh
+
 function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
@@ -12,7 +14,7 @@ function _main
   local PASSWD="${*}"
 
   _validate_parameters
-  _add_account
+  _add_account_to_db '/tmp/docker-mailserver/postfix-accounts.cf'
   # Change Detection will be triggered from DATABASE update via _add_account,
   # block until processed (actual account creation handled there):
   _wait_until_account_maildir_exists
@@ -48,61 +50,6 @@ function _validate_parameters
 {
   [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No username specified' ; }
   [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
-}
-
-function _add_account
-{
-  local DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
-  touch "${DATABASE}"
-  _create_lock # Protect config file with lock to avoid race conditions
-
-  # Escaped values for use in regex patterns:
-  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
-
-  function _account_already_exists
-  {
-    # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
-    grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
-  }
-
-  function _hash_password
-  {
-    # If no password was provided, request one interactively:
-    if [[ -z ${PASSWD} ]]
-    then
-      read -r -s -p 'Enter Password: ' PASSWD
-      echo
-      [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
-    fi
-
-    # Create the hashed password, then add an account entry into the DATABASE:
-    local HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
-    echo "${MAIL_ACCOUNT}|${HASH}" >> "${DATABASE}"
-  }
-
-  if _account_already_exists
-  then
-    _exit_with_error "User '${MAIL_ACCOUNT}' already exists"
-  fi
-
-  _hash_password
-}
-
-# Tests fail if the creation of /var/mail/${DOMAIN}/${USER} doesn't happen fast enough after addmailuser executes (check-for-changes.sh race-condition)
-# Prevent infinite loop in tests like "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist"
-function _wait_until_account_maildir_exists
-{
-  if [[ -e ${CHKSUM_FILE} ]]
-  then
-    local USER="${MAIL_ACCOUNT%@*}"
-    local DOMAIN="${MAIL_ACCOUNT#*@}"
-
-    while [[ ! -d "/var/mail/${DOMAIN}/${USER}" ]]
-    do
-      _log 'info' "Waiting for dovecot to create '/var/mail/${DOMAIN}/${USER}/'"
-      sleep 1
-    done
-  fi
 }
 
 _main "${@}"
