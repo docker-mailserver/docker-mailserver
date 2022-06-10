@@ -16,3 +16,12 @@ function _hash_password
 {
   echo $(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
 }
+
+function _account_already_exists
+{
+  # Escaped value for use in regex pattern:
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
+
+  # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
+  grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
+}

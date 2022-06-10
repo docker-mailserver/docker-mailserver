@@ -2,26 +2,13 @@
 
 source ../helper.sh
 
-function _account_already_exists
-{
-  # Escaped values for use in regex patterns:
-  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
-
-  # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
-  grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
-}
-
 function _add_account_to_db
 {
   local DATABASE=${1}
   touch "${DATABASE}"
   _create_lock # Protect config file with lock to avoid race conditions
 
-  if _account_already_exists
-  then
-    _exit_with_error "User '${MAIL_ACCOUNT}' already exists"
-  fi
-
+  [[ _account_already_exists ]] && _exit_with_error "User '${MAIL_ACCOUNT}' already exists"
   _if_missing_request_password
 
   local PASSWD_HASH=$(_hash_password)

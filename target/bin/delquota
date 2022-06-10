@@ -17,12 +17,12 @@ function __usage { echo 'Usage: delquota <username@domain>' ; }
 
 function _validate_parameter_user
 {
-  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
-
   [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error "No username specified" ; }
   [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
 
-  grep -qE "^${MAIL_ACCOUNT}\|" "${DATABASE_ACCOUNTS}" || _exit_with_error "User '${MAIL_ACCOUNT}' does not exist"
+  local DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
+  source ./common/helper.sh
+  [[ ! _account_already_exists ]] && _exit_with_error "User '${MAIL_ACCOUNT}' does not exist"
 }
 
 function _remove_quota_for_user
