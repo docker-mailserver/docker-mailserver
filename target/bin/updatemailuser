@@ -41,7 +41,7 @@ function _update_account_password
 
     # Create the hashed password, then update an account password in the DATABASE:
     local HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
-    sed -i "s ^""${MAIL_ACCOUNT}""|.* ""${MAIL_ACCOUNT}""|""${HASH}"" " "${DATABASE}"
+    sed -i "s/^${MAIL_ACCOUNT}|.*/${MAIL_ACCOUNT}|${HASH}/" "${DATABASE}"
   }
 
   if ! _account_already_exists
