@@ -3,10 +3,15 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
+function _list_alias
+{
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
-[[ -f ${DATABASE} ]] || _exit_with_error "No 'postfix-virtual.cf' file"
-[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'postfix-virtual.cf' - no aliases have been added"
+  [[ -f ${DATABASE_VIRTUAL} ]] || _exit_with_error "No 'postfix-virtual.cf' file"
+  [[ -s ${DATABASE_VIRTUAL} ]] || _exit_with_error "Empty 'postfix-virtual.cf' - no aliases have been added"
 
-_get_valid_lines_from_file "${DATABASE}"
+  _get_valid_lines_from_file "${DATABASE_VIRTUAL}"
+}
+
+_list_alias
 exit 0
