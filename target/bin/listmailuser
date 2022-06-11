@@ -3,6 +3,8 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+source ./common/quota.sh
+
 # suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
@@ -15,38 +17,6 @@ function _main
   [[ -s ${DATABASE_ACCOUNTS} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
 
   _list_accounts
-}
-
-function _bytes_to_human_readable_size
-{
-  # '-' is a non-applicable value,
-  # such as SIZE_LIMIT not being configured:
-  if [[ ${1:-} == '-' ]]
-  then
-    echo '~'
-  # Otherwise a value of bytes is expected:
-  elif [[ ${1:-} =~ ^[0-9]+$ ]]
-  then
-    echo $(( 1024 * ${1} )) | numfmt --to=iec
-  else
-    _exit_with_error "Supplied non-number argument '${1:-}' to '_bytes_to_human_readable_size()'"
-  fi
-}
-
-function _format_dovecot_quota
-{
-  local ARG_MAIL_ACCOUNT=${1}
-
-  local QUOTA_INFO
-  # Match line with 3rd column of type='STORAGE', and retrieves the next three column values:
-  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${ARG_MAIL_ACCOUNT}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
-
-  # Extracted quota storage columns:
-  local CURRENT_SIZE="$(_bytes_to_human_readable_size "${QUOTA_INFO[0]}")"
-  local SIZE_LIMIT="$(_bytes_to_human_readable_size "${QUOTA_INFO[1]}")"
-  local PERCENT_USED="${QUOTA_INFO[2]}%"
-
-  echo "( ${CURRENT_SIZE} / ${SIZE_LIMIT} ) [${PERCENT_USED}]"
 }
 
 function _display_account_aliases
@@ -75,15 +45,9 @@ function _list_accounts
   while read -r LINE
   do
     local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
-
-    local WITH_QUOTA
-    if [[ ${ENABLE_QUOTAS} -eq 1 ]]
-    then
-      WITH_QUOTA=" $(_format_dovecot_quota "${MAIL_ACCOUNT}")"
-    fi
+    local WITH_QUOTA=" $(_quota_show_for "${MAIL_ACCOUNT}")"
 
     echo "* ${MAIL_ACCOUNT}${WITH_QUOTA}"
-
     _display_account_aliases "${MAIL_ACCOUNT}"
 
     # Add a blank line

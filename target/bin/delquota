@@ -3,6 +3,8 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+source ./common/quota.sh
+
 function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
@@ -10,7 +12,7 @@ function _main
   local MAIL_ACCOUNT="${1}"
 
   _validate_parameter_user
-  _remove_quota_for_user
+  _quota_remove_for_mail_account
 }
 
 function __usage { echo 'Usage: delquota <username@domain>' ; }
@@ -22,15 +24,6 @@ function _validate_parameter_user
   local DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
   source ./common/helper.sh
   _account_should_already_exist
-}
-
-function _remove_quota_for_user
-{
-  local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
-
-  [[ -s ${DATABASE_QUOTA} ]] || exit 0
-
-  sed -i -e "/^${MAIL_ACCOUNT}:.*$/d" "${DATABASE_QUOTA}"
 }
 
 _main "${@}"
