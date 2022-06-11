@@ -13,7 +13,7 @@ function _main
   shift
   local PASSWD="${*}"
 
-  _validate_parameters
+  _provided_mail_account_with_local_and_domain_parts
   _add_account_to_db '/tmp/docker-mailserver/postfix-accounts.cf'
   # Change Detection will be triggered from DATABASE update via _add_account,
   # block until processed (actual account creation handled there):
@@ -44,12 +44,6 @@ ${ORANGE}EXIT STATUS${RESET}
     or arguments contain errors, the script will exit early with exit status 1.
 
 "
-}
-
-function _validate_parameters
-{
-  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No username specified' ; }
-  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
 }
 
 _main "${@}"

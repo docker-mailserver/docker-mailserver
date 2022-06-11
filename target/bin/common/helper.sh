@@ -35,3 +35,14 @@ function _account_should_not_exist_yet
 {
   _account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
 }
+
+function _provided_mail_account
+{
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error "No username specified" ; }
+}
+
+function _provided_mail_account_with_local_and_domain_parts
+{
+  _provided_mail_account
+  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
+}

@@ -4,7 +4,7 @@ source ../helper.sh
 
 function _validate_parameters
 {
-  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No username specified' ; }
+  _provided_mail_account
 }
 
 function _update_account_password_in_db
