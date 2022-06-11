@@ -43,17 +43,22 @@ function _validate_parameters
   [[ -z ${PORT} ]] && PORT=25
 }
 
+# Config is for sender dependent relay-host mapping,
+# current support restricts senders to domain scope (port is also enforced).
 function _add_relayhost
 {
-  local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
+  local SENDER="@${DOMAIN}"
+  local RELAY_HOST_ENTRY="${SENDER}\t\t[${HOST}]:${PORT}"
 
-  if grep -qi "^@${DOMAIN}" "${DATABASE_RELAY}" 2>/dev/null
+  local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
+  # Replace entry for an existing sender, or add new one:
+  if grep -qi "^${SENDER}" "${DATABASE_RELAY}" 2>/dev/null
   then
     sed -i \
-      "s|^@${DOMAIN}.*|@${DOMAIN}\t\t[${HOST}]:${PORT}|" \
+      "s|^${SENDER}.*|${RELAY_HOST_ENTRY}|" \
       "${DATABASE_RELAY}"
   else
-    echo -e "@${DOMAIN}\t\t[${HOST}]:${PORT}" >>"${DATABASE_RELAY}"
+    echo -e "${RELAY_HOST_ENTRY}" >>"${DATABASE_RELAY}"
   fi
 }
 
