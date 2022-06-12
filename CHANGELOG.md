@@ -1,5 +1,29 @@
 # Changelog
 
+## `v11.1.0`
+
+In this release the relay-host support saw [significant internal refactoring](https://github.com/docker-mailserver/docker-mailserver/pull/2604) in preparation for a future breaking change. Similar extensive restructuring through the codebase also occurred, where [each PR provides more details](https://github.com/docker-mailserver/docker-mailserver/milestone/17?closed=1). Care was taken to avoid breakage, but there may be some risk affecting unsupported third-party customizations which our test suite is unaware of.
+
+### Fixes
+
+- Using Port 465 to authenticate with a relay-host no longer breaks the Amavis transport for Postfix ([#2607](https://github.com/docker-mailserver/docker-mailserver/pull/2607))
+- When mounting `/var/mail-state`, disabled services will no longer copy over data redundantly ([#2608](https://github.com/docker-mailserver/docker-mailserver/pull/2608))
+- Amavis is now aware of new domains detected during Change Detection, no longer skipping virus and spam filtering ([#2616](https://github.com/docker-mailserver/docker-mailserver/pull/2616))
+- `setup.sh -c <container name>` no longer ignores `<container name>` when more than 1 `docker-mailserver` container is running ([#2622](https://github.com/docker-mailserver/docker-mailserver/pull/2622))
+
+### Improvements
+
+- The Change Detector service will now only process relevant changes ([#2615](https://github.com/docker-mailserver/docker-mailserver/pull/2615)), in addition to now monitoring `postfix-sasl-password.cf`, `postfix-relaymap.cf`, and `postfix-regexp.cf` ([#2623](https://github.com/docker-mailserver/docker-mailserver/pull/2623))
+- For LDAP users that only need to support a single mail domain, `setup config dkim` should now detect the domain implicitly ([#2620](https://github.com/docker-mailserver/docker-mailserver/pull/2620))
+- The container capability `SYS_PTRACE` is no longer necessary ([#2624](https://github.com/docker-mailserver/docker-mailserver/pull/2624))
+- Added an example for configuring a basic container `healthcheck` command ([#2625](https://github.com/docker-mailserver/docker-mailserver/pull/2625))
+- Postfix `main.cf` setting `compatibility_level` was set to `2` during our startup scripts. This is now part of our default shipped `main.cf` config ([#2597](https://github.com/docker-mailserver/docker-mailserver/pull/2597))
+- The Postfix `main.cf` override/extension support via `postfix-main.cf` has been improved to support multi-line values, instead of the previous single-line only support ([#2598](https://github.com/docker-mailserver/docker-mailserver/pull/2598))
+
+### Deprecation Notice - `SASL_PASSWD` ENV
+
+An old ENV `SASL_PASSWD` has been around for supporting relay-host authentication, but since superceded by the `postfix-sasl-password.cf` config file. It will be removed in a future major release as detailed [here](https://github.com/docker-mailserver/docker-mailserver/pull/2605).
+
 ## `v11.0.0`
 
 ### Major Changes
