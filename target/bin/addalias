@@ -11,7 +11,7 @@ ${ORANGE}NAME${RESET}
     addalias - add an email alias for an existing user
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh alias add <MAIL ACCOUNT> <RECIPIENT>
+    ./setup.sh alias add <MAIL ALIAS> <RECIPIENT>
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
@@ -31,7 +31,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 function _validate_parameters
 {
-  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
+  [[ -z ${MAIL_ALIAS} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
   [[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
 }
 
@@ -40,38 +40,38 @@ function _add_alias
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
   # Escaped values for use in regex patterns:
-  _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
+  _MAIL_ALIAS_=$(_escape "${MAIL_ALIAS}")
   _RECIPIENT_=$(_escape "${RECIPIENT}")
 
-  function _alias_already_exists
+  function _recipient_already_mapped_to_alias
   {
     # Presumably intended to account for white-space or other aliases inbetween?
     # Why are only these values are considered valid?
     local VALID_CONTENT='[a-zA-Z@.\ ]*'
-    local MATCH_PATTERN="^${_MAIL_ACCOUNT_}${VALID_CONTENT}${_RECIPIENT_}"
+    local MATCH_PATTERN="^${_MAIL_ALIAS_}${VALID_CONTENT}${_RECIPIENT_}"
 
     grep -qi "${MATCH_PATTERN}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
-  function _account_has_an_existing_alias
+  function _alias_already_exists
   {
-    grep -qi "^${_MAIL_ACCOUNT_}" "${DATABASE_VIRTUAL}" 2>/dev/null
+    grep -qi "^${_MAIL_ALIAS_}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
-  _alias_already_exists && _exit_with_error "Alias '${MAIL_ACCOUNT} ${RECIPIENT}' already exists"
+  _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
 
-  if _account_has_an_existing_alias
+  if _alias_already_exists
   then
-    # Append alias to existing entry:
-    sed -i "/${MAIL_ACCOUNT}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
+    # Append recipient to existing alias entry:
+    sed -i "/${MAIL_ALIAS}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
   else
-    echo "${MAIL_ACCOUNT} ${RECIPIENT}" >> "${DATABASE_VIRTUAL}"
+    echo "${MAIL_ALIAS} ${RECIPIENT}" >>"${DATABASE_VIRTUAL}"
   fi
 }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-MAIL_ACCOUNT="${1}"
+MAIL_ALIAS="${1}"
 RECIPIENT="${2}"
 
 _validate_parameters

@@ -7,26 +7,26 @@ function __usage { echo "Usage: delalias <alias@domain> <recipient@other>" ; }
 
 function _validate_parameters
 {
-  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
+  [[ -z ${MAIL_ALIAS} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
   [[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
 }
 
-function _remove_alias
+function _remove_recipient_from_alias
 {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   [[ -s ${DATABASE_VIRTUAL} ]] || exit 0
 
   sed -i \
-    -e "/^${MAIL_ACCOUNT} *${RECIPIENT}$/d" \
-    -e "/^${MAIL_ACCOUNT}/s/,${RECIPIENT}//g" \
-    -e "/^${MAIL_ACCOUNT}/s/${RECIPIENT},//g" \
+    -e "/^${MAIL_ALIAS} *${RECIPIENT}$/d" \
+    -e "/^${MAIL_ALIAS}/s/,${RECIPIENT}//g" \
+    -e "/^${MAIL_ALIAS}/s/${RECIPIENT},//g" \
     "${DATABASE_VIRTUAL}"
 }
 
 [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-MAIL_ACCOUNT="${1}"
+MAIL_ALIAS="${1}"
 RECIPIENT="${2}"
 
 _validate_parameters
-_remove_alias
+_remove_recipient_from_alias
