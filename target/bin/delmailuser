@@ -51,6 +51,12 @@ function _validate_parameters
 {
   [[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
 
+  _parse_options
+  _maildel_request_if_missing
+}
+
+function _parse_options
+{
   while getopts ":yYh" OPT
   do
     case "${OPT}" in
@@ -71,9 +77,13 @@ function _validate_parameters
     esac
   done
   shift $((OPTIND-1))
+}
 
+function _maildel_request_if_missing
+{
   if ! ${MAILDEL}
   then
+    local MAILDEL_CHOSEN
     read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
     if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
     then
@@ -121,27 +131,29 @@ function _remove_entry_from_databases
 
 function _remove_maildir
 {
-  local USER="${MAIL_ACCOUNT%@*}"
-  local DOMAIN="${MAIL_ACCOUNT#*@}"
+  local LOCAL_PART="${MAIL_ACCOUNT%@*}"
+  local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
+  local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN_PART}/${LOCAL_PART}"
 
+  # WARNING: This will break support for removing multiple accounts due to use of exit?
+  # Introduced by commit:
+  # https://github.com/docker-mailserver/docker-mailserver/pull/1809/commits/227719ee0d81203a17bafedb1170ab1d23f351ca#diff-937e459ec593cd25f8e3d8d532d8ffb0e6d0d6d4e5240abd548b54f50f4d2c9aR93
   if ! ${MAILDEL}
   then
     echo 'Leaving the mailbox untouched.'
-    echo "If you want to delete it at a later point use 'sudo docker exec mailserver rm -R /var/mail/${DOMAIN}/${USER}'"
+    echo "If you want to delete it at a later point use 'sudo docker exec mailserver rm -R ${MAIL_ACCOUNT_STORAGE_DIR}'"
     exit 0
   fi
 
-  if [[ -e "/var/mail/${DOMAIN}/${USER}" ]]
+  if [[ ! -d ${MAIL_ACCOUNT_STORAGE_DIR} ]]
   then
-    if rm -R "/var/mail/${DOMAIN}/${USER}"
-    then
-      _log 'info' 'Mailbox deleted'
-    else
-      _exit_with_error 'Mailbox could not be deleted'
-    fi
-    rmdir "/var/mail/${DOMAIN}" &>/dev/null
+    _exit_with_error "Mailbox directory '${MAIL_ACCOUNT_STORAGE_DIR}' does not exist"
   else
-    _exit_with_error "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist"
+    _log 'info' "Deleting Mailbox: '${MAIL_ACCOUNT_STORAGE_DIR}'"
+    rm -R "${MAIL_ACCOUNT_STORAGE_DIR}" || _exit_with_error 'Mailbox could not be deleted'
+
+    # Remove parent directory too if it's empty:
+    rmdir "/var/mail/${DOMAIN_PART}" &>/dev/null
   fi
 }
 
