@@ -38,7 +38,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 function _validate_parameters
 {
-  [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified' ; }
+  _arg_expect_domain
   [[ -z ${HOST} ]] && { __usage ; _exit_with_error 'No relay host specified' ; }
   [[ -z ${PORT} ]] && PORT=25
 }
@@ -49,17 +49,9 @@ function _add_relayhost
 {
   local SENDER="@${DOMAIN}"
   local RELAY_HOST_ENTRY="${SENDER}\t\t[${HOST}]:${PORT}"
-
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
-  # Replace entry for an existing sender, or add new one:
-  if grep -qi "^${SENDER}" "${DATABASE_RELAY}" 2>/dev/null
-  then
-    sed -i \
-      "s|^${SENDER}.*|${RELAY_HOST_ENTRY}|" \
-      "${DATABASE_RELAY}"
-  else
-    echo -e "${RELAY_HOST_ENTRY}" >>"${DATABASE_RELAY}"
-  fi
+
+  _db_add_or_replace_entry "${SENDER}" "${RELAY_HOST_ENTRY}" "${DATABASE_RELAY}"
 }
 
 _main "${@}"

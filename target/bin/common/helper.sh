@@ -7,6 +7,21 @@
 # - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
 # - Calling external method '__usage' as part of error handling.
 
+function _db_add_or_replace_entry
+{
+  local KEY=${1}
+  local VALUE=${2}
+  local DATABASE=${3}
+
+  # Replace value for an existing key, or add new key->value entry:
+  if grep -qi "^${KEY}" "${DATABASE}" 2>/dev/null
+  then
+    sed -i "s|^${KEY}.*|${VALUE}|" "${DATABASE}"
+  else
+    echo -e "${VALUE}" >>"${DATABASE}"
+  fi
+}
+
 ### Password Methods ###
 
 function _password_request_if_missing
@@ -58,4 +73,9 @@ function _arg_expect_mail_account_has_local_and_domain_parts
 {
   _arg_expect_mail_account
   [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
+}
+
+function _arg_expected_domain
+{
+  [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified' ; }
 }

@@ -15,7 +15,7 @@ function __usage { echo 'Usage: excluderelayhost <domain>' ; }
 
 function _validate_parameters
 {
-  [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error "no domain specified" ; }
+  _arg_expect_domain
 }
 
 # Config is for sender dependent relay-host mapping,
@@ -23,17 +23,9 @@ function _validate_parameters
 function _exclude_domain_from_relayhosts
 {
   local SENDER="@${DOMAIN}"
-
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
-  # Replace entry for an existing sender, or add new one:
-  if grep -qi "^${SENDER}" "${DATABASE_RELAY}" 2>/dev/null
-  then
-    sed -i \
-      "s|^${SENDER}.*|${SENDER}|" \
-      "${DATABASE_RELAY}"
-  else
-    echo -e "${SENDER}" >>"${DATABASE_RELAY}"
-  fi
+
+  _db_add_or_replace_entry "${SENDER}" "${SENDER}" "${DATABASE_RELAY}"
 }
 
 _main "${@}"
