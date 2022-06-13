@@ -3,7 +3,8 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-source ./common/accounts/update-account.sh
+source ./common/helper.sh
+source ./common/account.sh
 
 function _main
 {
@@ -12,7 +13,9 @@ function _main
   local PASSWD="${*}"
 
   _validate_parameters
-  _update_account_password_in_db '/tmp/docker-mailserver/dovecot-masters.cf'
+
+  local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
+  _account_update_password_in_db "${MAIL_ACCOUNT}" "${PASSWD}" "${DATABASE_DOVECOT_MASTERS}"
 }
 
 function __usage { echo 'Usage: updatedovecotmasteruser <MAIL ACCOUNT> [PASSWORD]' ; }

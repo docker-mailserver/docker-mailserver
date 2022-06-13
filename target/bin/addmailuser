@@ -3,7 +3,8 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-source ./common/accounts/add-account.sh
+source ./common/helper.sh
+source ./common/account.sh
 
 function _main
 {
@@ -14,7 +15,9 @@ function _main
   local PASSWD="${*}"
 
   _validate_parameters
-  _add_account_to_db '/tmp/docker-mailserver/postfix-accounts.cf'
+
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+  _account_add_to_db "${MAIL_ACCOUNT}" "${PASSWD}" "${DATABASE_ACCOUNTS}"
 
   # Change Detection will be triggered from DATABASE update via _add_account,
   # block until processed (actual account creation handled there):

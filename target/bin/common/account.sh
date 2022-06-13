@@ -1,13 +1,31 @@
 #! /bin/bash
 
 # Used from /usr/local/bin/helpers/index.sh:
-# _create_lock, _log
+# _create_lock, _log, CHKSUM_FILE
 
-source ../helper.sh
-
-function _add_account_to_db
+function _account_update_password_in_db
 {
-  local DATABASE=${1}
+  local MAIL_ACCOUNT=${1}
+  local PASSWD=${2}
+  local DATABASE=${3}
+
+  touch "${DATABASE}"
+  _create_lock # Protect config file with lock to avoid race conditions
+
+  _account_should_already_exist
+  _password_request_if_missing
+
+  local PASSWD_HASH=$(_password_hash "${MAIL_ACCOUNT}" "${PASSWD}")
+  # Update password for an account in the DATABASE:
+  sed -i "s/^${MAIL_ACCOUNT}|.*/${MAIL_ACCOUNT}|${PASSWD_HASH}/" "${DATABASE}"
+}
+
+function _account_add_to_db
+{
+  local MAIL_ACCOUNT=${1}
+  local PASSWD=${2}
+  local DATABASE=${3}
+
   touch "${DATABASE}"
   _create_lock # Protect config file with lock to avoid race conditions
 
