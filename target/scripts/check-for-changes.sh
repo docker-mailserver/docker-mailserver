@@ -60,7 +60,7 @@ function _check_for_changes
     # via their 'reload' commands; some may require restarting?:
     _log_with_date 'debug' 'Restarting services due to detected changes'
 
-    _reload_amavis
+    [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
     supervisorctl restart postfix
     [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
 
