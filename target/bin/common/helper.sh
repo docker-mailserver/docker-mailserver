@@ -31,6 +31,7 @@ function _password_hash
 
 function _account_already_exists
 {
+  local DATABASE=${DATABASE:-'/tmp/docker-mailserver/postfix-accounts.cf'}
   # Escaped value for use in regex pattern:
   local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
@@ -48,13 +49,13 @@ function _account_should_not_exist_yet
   _account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
 }
 
-function _provided_mail_account
+function _arg_expect_mail_account
 {
   [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error "No username specified" ; }
 }
 
-function _provided_mail_account_with_local_and_domain_parts
+function _arg_expect_mail_account_has_local_and_domain_parts
 {
-  _provided_mail_account
+  _arg_expect_mail_account
   [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
 }

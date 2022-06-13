@@ -5,7 +5,7 @@
 
 # Collection of methods to manage Dovecot Quota support
 
-# Set:
+# Set - Used by setquota:
 function _quota_set_for_mail_account
 {
   local ARG_MAIL_ACCOUNT=${1}
@@ -20,7 +20,7 @@ function _quota_set_for_mail_account
   echo "${ARG_MAIL_ACCOUNT}:${ARG_QUOTA}" >>"${DATABASE_QUOTA}"
 }
 
-# Delete:
+# Delete - Used by delquota:
 function _quota_remove_for_mail_account
 {
   local ARG_MAIL_ACCOUNT=${1}
@@ -31,7 +31,7 @@ function _quota_remove_for_mail_account
   sed -i -e "/^${ARG_MAIL_ACCOUNT}:.*$/d" "${DATABASE_QUOTA}"
 }
 
-# List:
+# List - Used by listmailuser:
 function _quota_show_for
 {
   [[ ${ENABLE_QUOTAS} -ne 1 ]] && return 0
@@ -39,10 +39,10 @@ function _quota_show_for
   local ARG_MAIL_ACCOUNT=${1}
 
   local QUOTA_INFO
-  # Match line with 3rd column of type='STORAGE', and retrieves the next three column values:
+  # Matches a line where the 3rd column is `type='STORAGE'` - returning the next three column values:
   IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${ARG_MAIL_ACCOUNT}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
 
-  # Extracted quota storage columns:
+  # Format the extracted quota storage columns:
   local CURRENT_SIZE="$(_bytes_to_human_readable_size "${QUOTA_INFO[0]}")"
   local SIZE_LIMIT="$(_bytes_to_human_readable_size "${QUOTA_INFO[1]}")"
   local PERCENT_USED="${QUOTA_INFO[2]}%"
@@ -52,8 +52,7 @@ function _quota_show_for
 
 function _bytes_to_human_readable_size
 {
-  # '-' is a non-applicable value,
-  # such as SIZE_LIMIT not being configured:
+  # `-` represents a non-applicable value (eg: Like when `SIZE_LIMIT` is not set):
   if [[ ${1:-} == '-' ]]
   then
     echo '~'
@@ -66,10 +65,10 @@ function _bytes_to_human_readable_size
   fi
 }
 
-# Input validation:
+# Input validation relies on the following to be defined before calling:
 # - External var: QUOTA
 # - External method: __usage
-function _validate_parameter_quota
+function _arg_expect_quota_valid_unit
 {
   _quota_request_if_missing
   _quota_unit_is_valid

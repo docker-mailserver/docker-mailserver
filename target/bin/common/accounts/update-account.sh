@@ -5,11 +5,6 @@
 
 source ../helper.sh
 
-function _validate_parameters
-{
-  _provided_mail_account
-}
-
 function _update_account_password_in_db
 {
   local DATABASE=${1}

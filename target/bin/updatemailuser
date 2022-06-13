@@ -17,4 +17,9 @@ function _main
 
 function __usage { echo 'Usage: updatemailuser <user@domain.tld> [password]' ; }
 
+function _validate_parameters
+{
+  _arg_expect_mail_account
+}
+
 _main "${@}"
