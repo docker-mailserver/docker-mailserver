@@ -157,7 +157,7 @@ function _create_dovecot_alias_dummy_accounts
       fi
 
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
-      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
+      if grep -q "^${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
       then
         _log 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
