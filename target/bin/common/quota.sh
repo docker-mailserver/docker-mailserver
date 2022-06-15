@@ -5,6 +5,18 @@
 
 # Collection of methods to manage Dovecot Quota support
 
+function _quota_exists_for_account
+{
+  local MAIL_ACCOUNT=${1}
+  # Escaped value for use in regex pattern:
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
+
+  local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
+  [[ -s ${DATABASE_QUOTA} ]] || return 1
+
+  _key_exists_in_db "${_MAIL_ACCOUNT_}" ':' "${DATABASE_QUOTA}"
+}
+
 # Set - Used by setquota:
 function _quota_set_for_mail_account
 {
@@ -23,12 +35,14 @@ function _quota_set_for_mail_account
 # Delete - Used by delquota:
 function _quota_remove_for_mail_account
 {
-  local ARG_MAIL_ACCOUNT=${1}
+  local MAIL_ACCOUNT=${1}
+  # Escaped value for use in regex pattern:
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
-  local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
-  [[ -s ${DATABASE_QUOTA} ]] || exit 0
-
-  sed -i -e "/^${ARG_MAIL_ACCOUNT}:.*$/d" "${DATABASE_QUOTA}"
+  # If the account doesn't have a quota, don't return a failure status:
+  _quota_exists_for_account "${MAIL_ACCOUNT}" || return 0
+  # Delete the entry for an account, return failure status if unsuccessful:
+  sedfile --strict -i -e "/^${_MAIL_ACCOUNT_}:.*$/d" "${DATABASE_QUOTA}"
 }
 
 # List - Used by listmailuser:

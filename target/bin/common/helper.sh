@@ -30,16 +30,30 @@ function _check_database_has_content
   [[ -s ${DATABASE} ]] || _exit_with_error "'${DATABASE}' is empty, nothing to list"
 }
 
+# NOTE: Lookup is case-insensitive (which should be appropriate)
+# Delimiter is to ensure an exact match for the key to avoid false-positives.
+function _key_exists_in_db
+{
+  local KEY=${1}
+  local DELIMITER=${2}
+  local DATABASE=${3}
+
+  grep -qi "^${KEY}${DELIMITER}" "${DATABASE}" 2>/dev/null
+}
+
+# Used by addrelayhost, addsaslpassword, excluderelaydomain
+# NOTE: Presently assumes the delimiter for matching is white-space.
+# VALUE presently represents an entire entry, including the key.
 function _db_add_or_replace_entry
 {
   local KEY=${1}
   local VALUE=${2}
   local DATABASE=${3}
 
-  # Replace value for an existing key, or add new key->value entry:
-  if grep -qi "^${KEY}" "${DATABASE}" 2>/dev/null
+  # Replace value for an existing key, or add a new key->value entry:
+  if _key_exists_in_db "${KEY}" '\s' "${DATABASE}"
   then
-    sed -i "s|^${KEY}.*|${VALUE}|" "${DATABASE}"
+    sed -i "s/^${KEY}.*/${VALUE}/" "${DATABASE}"
   else
     echo -e "${VALUE}" >>"${DATABASE}"
   fi
@@ -73,8 +87,7 @@ function _account_already_exists
   # Escaped value for use in regex pattern:
   local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
 
-  # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
-  grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
+  _key_exists_in_db "${_MAIL_ACCOUNT_}" '|' "${DATABASE}"
 }
 
 function _account_should_already_exist

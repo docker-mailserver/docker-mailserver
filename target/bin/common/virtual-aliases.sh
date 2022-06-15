@@ -38,7 +38,7 @@ function _alias_add_for_recipient
 
   function _alias_already_exists
   {
-    grep -qi "^${_MAIL_ALIAS_}" "${DATABASE_VIRTUAL}" 2>/dev/null
+    _key_exists_in_db "${_MAIL_ALIAS_}" '\s' "${DATABASE_VIRTUAL}"
   }
 
   _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
@@ -52,16 +52,25 @@ function _alias_add_for_recipient
   fi
 }
 
-# Removes a recipient from an alias:
+# Used by delalias + delmailuser
+# Removes a recipient from a specific alias (`MAIL_ALIAS`) or all aliases:
+# - If the matched alias has no more recipients after, it is removed also.
 function _alias_remove_for_recipient
 {
+  local RECIPIENT=${1}
+  local MAIL_ALIAS=${2}
+
+  # Escaped value for use in regex pattern:
+  local _MAIL_ALIAS_=$(_escape "${MAIL_ALIAS}")
+  local _RECIPIENT_=$(_escape "${RECIPIENT}")
+
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   [[ -s ${DATABASE_VIRTUAL} ]] || exit 0
 
-  sed -i \
-    -e "/^${MAIL_ALIAS} *${RECIPIENT}$/d"   \
-    -e "/^${MAIL_ALIAS}/s/,${RECIPIENT}//g" \
-    -e "/^${MAIL_ALIAS}/s/${RECIPIENT},//g" \
+  sed -i -r \
+    -e "/^${_MAIL_ALIAS_}\s+${_RECIPIENT_}$/d"  \
+    -e "/^${_MAIL_ALIAS_}/s/,${_RECIPIENT_}//g" \
+    -e "/^${_MAIL_ALIAS_}/s/${_RECIPIENT_},//g" \
     "${DATABASE_VIRTUAL}"
 }
 

@@ -13,7 +13,7 @@ function _main
   local RECIPIENT="${2}"
 
   _validate_parameters
-  _alias_remove_for_recipient
+  _alias_remove_for_recipient "${RECIPIENT}" "${MAIL_ALIAS}"
 }
 
 function __usage { echo "Usage: delalias <alias@domain> <recipient@other>" ; }

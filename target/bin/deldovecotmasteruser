@@ -10,7 +10,7 @@ function _main
   shift $((OPTIND-1))
 
   _validate_parameters ${*}
-  _delete_dovecot_master_accounts "${@}"
+  _delete_accounts_dovecot_master "${@}"
 }
 
 function __usage
@@ -47,7 +47,7 @@ function _validate_parameters
   [[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
 }
 
-function _delete_dovecot_master_accounts
+function _delete_accounts_dovecot_master
 {
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
   [[ -s ${DATABASE_DOVECOT_MASTERS} ]] || exit 0
@@ -55,16 +55,10 @@ function _delete_dovecot_master_accounts
 
   for MAIL_ACCOUNT in "${@}"
   do
-    # ${_MAIL_ACCOUNT_} must not contain /s and other syntactic characters
-    local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
+    _account_should_already_exist "${MAIL_ACCOUNT}" "${DATABASE_DOVECOT_MASTERS}"
 
-    if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]
-    then
-      if ! sedfile --strict -i "/^${_MAIL_ACCOUNT_}|/d" "${DATABASE_DOVECOT_MASTERS}"
-      then
-        _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_DOVECOT_MASTERS}'"
-      fi
-    fi
+    _account_remove_from_db "${MAIL_ACCOUNT}" "${DATABASE_DOVECOT_MASTERS}" \
+      || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_DOVECOT_MASTERS}'"
   done
 }
 

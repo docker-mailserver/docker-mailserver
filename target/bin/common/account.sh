@@ -3,6 +3,8 @@
 # Used from /usr/local/bin/helpers/index.sh:
 # _create_lock, _log, CHKSUM_FILE
 
+### updatemailuser, updatedovecotmasteruser ###
+
 function _account_update_password_in_db
 {
   local MAIL_ACCOUNT=${1}
@@ -19,6 +21,8 @@ function _account_update_password_in_db
   # Update password for an account in the DATABASE:
   sed -i "s/^${MAIL_ACCOUNT}|.*/${MAIL_ACCOUNT}|${PASSWD_HASH}/" "${DATABASE}"
 }
+
+### addmailuser, adddovecotmasteruser ###
 
 function _account_add_to_db
 {
@@ -66,4 +70,17 @@ function _wait_until_account_maildir_exists
       sleep 1
     done
   fi
+}
+
+### delmailuser, deldovecotmasteruser ###
+
+function _account_remove_from_db
+{
+  local MAIL_ACCOUNT=${1}
+  local DATABASE=${2}
+
+  # Escaped value for use in regex pattern:
+  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
+
+  sedfile --strict -i "/^${_MAIL_ACCOUNT_}|/d" "${DATABASE}"
 }
