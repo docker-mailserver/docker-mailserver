@@ -20,9 +20,15 @@ In this release the relay-host support saw [significant internal refactoring](ht
 - Postfix `main.cf` setting `compatibility_level` was set to `2` during our startup scripts. This is now part of our default shipped `main.cf` config ([#2597](https://github.com/docker-mailserver/docker-mailserver/pull/2597))
 - The Postfix `main.cf` override/extension support via `postfix-main.cf` has been improved to support multi-line values, instead of the previous single-line only support ([#2598](https://github.com/docker-mailserver/docker-mailserver/pull/2598))
 
-### Deprecation Notice - `SASL_PASSWD` ENV
+### Deprecation Notice
 
-An old ENV `SASL_PASSWD` has been around for supporting relay-host authentication, but since superceded by the `postfix-sasl-password.cf` config file. It will be removed in a future major release as detailed [here](https://github.com/docker-mailserver/docker-mailserver/pull/2605).
+- **`SASL_PASSWD` ENV**
+  An old ENV `SASL_PASSWD` has been around for supporting relay-host authentication, but since superceded by the `postfix-sasl-password.cf` config file. It will be removed in a future major release as detailed [here](https://github.com/docker-mailserver/docker-mailserver/pull/2605).
+- **Platform Support - ARMv7**
+  This is a very old platform, superceded by ARMv8 and newer with broad product availability around 2016 onwards.
+  Support was introduced primarily for users the older generations of Raspberry Pi. ARM64 is the modern target for ARM devices.
+  
+  If you require ARMv7 support, [please let us know](https://github.com/docker-mailserver/docker-mailserver/issues/2642).
 
 ## `v11.0.0`
 
