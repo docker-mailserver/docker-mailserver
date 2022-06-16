@@ -55,7 +55,15 @@ function _exclude_domain_from_relayhosts
   local SENDER="@${DOMAIN}"
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
 
-  _db_add_or_replace_entry "${SENDER}" "${SENDER}" "${DATABASE_RELAY}"
+  # NOTE: A bit hacky, no entry value (third arg) is needed, but we still
+  # want to match on existing entry to replace, either way we insert
+  # the delimiter.
+  # This won't cause any problems, and infact ensures we match the
+  # same value due to the delimiter being present instead of end of line.
+  #
+  # `helpers/relay.sh` is also fine with this, and will eventually drop
+  # the need for this command entirely once that helper is refactored.
+  _db_add_or_replace_entry "${SENDER}" '\s' '' "${DATABASE_RELAY}"
 }
 
 _main "${@}"

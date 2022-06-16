@@ -59,10 +59,10 @@ function _validate_parameters
 function _add_relayhost
 {
   local SENDER="@${DOMAIN}"
-  local RELAY_HOST_ENTRY="${SENDER}\t\t[${HOST}]:${PORT}"
+  local RELAY_HOST_ENTRY="[${HOST}]:${PORT}"
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
 
-  _db_add_or_replace_entry "${SENDER}" "${RELAY_HOST_ENTRY}" "${DATABASE_RELAY}"
+  _db_add_or_replace_entry "${SENDER}" '\s' "${RELAY_HOST_ENTRY}" "${DATABASE_RELAY}"
 }
 
 _main "${@}"

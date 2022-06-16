@@ -30,32 +30,50 @@ function _check_database_has_content
   [[ -s ${DATABASE} ]] || _exit_with_error "'${DATABASE}' is empty, nothing to list"
 }
 
-# NOTE: Lookup is case-insensitive (which should be appropriate)
-# Delimiter is to ensure an exact match for the key to avoid false-positives.
+# NOTE: This would not be required if not using extended regexp?
+# Presently used to escape delimiter value '|' only.
+# If the delimiter is the expected character, it will be prefixed with `\`:
+function _escape_delimiter {
+  sed -E 's/^[|]$/\\&/' <<< "${1}"
+}
+
+# NOTE:
+# - Due to usage in regex pattern, key needs to be escaped.
+# - DELIMITER avoids false-positives by ensuring an exact match for the key.
 function _key_exists_in_db
 {
-  local KEY=${1}
-  local DELIMITER=${2}
+  local KEY=$(_escape "${1}")
+  local DELIMITER=$(_escape_delimiter "${2}")
   local DATABASE=${3}
 
-  grep -qi "^${KEY}${DELIMITER}" "${DATABASE}" 2>/dev/null
+  # If the database file exists but has no content fail early:
+  [[ -s ${DATABASE} ]] || return 1
+
+  # NOTE:
+  # - Quiet to not output matches, only return a status code of success/failure.
+  # - Case-insensitive as we don't want duplicate keys that vary by case.
+  # - Extended Regexp syntax is more consistent to handle.
+  grep --quiet --ignore-case --extended-regexp \
+    "^${KEY}${DELIMITER}" "${DATABASE}" 2>/dev/null
 }
 
 # Used by addrelayhost, addsaslpassword, excluderelaydomain
-# NOTE: Presently assumes the delimiter for matching is white-space.
-# VALUE presently represents an entire entry, including the key.
 function _db_add_or_replace_entry
 {
   local KEY=${1}
-  local VALUE=${2}
-  local DATABASE=${3}
+  local DELIMITER=${2}
+  local VALUE=${3}
+  local DATABASE=${4}
 
+  local ENTRY="${KEY}${DELIMITER}${VALUE}"
   # Replace value for an existing key, or add a new key->value entry:
-  if _key_exists_in_db "${KEY}" '\s' "${DATABASE}"
+  if _key_exists_in_db "${KEY}" "${DELIMITER}" "${DATABASE}"
   then
-    sed -i "s/^${KEY}.*/${VALUE}/" "${DATABASE}"
+    KEY=$(_escape "${KEY}")
+    DELIMITER=$(_escape_delimiter "${DELIMITER}")
+    sed -i -E "s/^${KEY}${DELIMITER}.*/${ENTRY}/" "${DATABASE}"
   else
-    echo -e "${VALUE}" >>"${DATABASE}"
+    echo "${ENTRY}" >>"${DATABASE}"
   fi
 }
 
@@ -84,10 +102,7 @@ function _password_hash
 function _account_already_exists
 {
   local DATABASE=${DATABASE:-'/tmp/docker-mailserver/postfix-accounts.cf'}
-  # Escaped value for use in regex pattern:
-  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
-
-  _key_exists_in_db "${_MAIL_ACCOUNT_}" '|' "${DATABASE}"
+  _key_exists_in_db "${MAIL_ACCOUNT}" '|' "${DATABASE}"
 }
 
 function _account_should_already_exist

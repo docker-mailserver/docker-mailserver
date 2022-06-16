@@ -38,7 +38,7 @@ function _alias_add_for_recipient
 
   function _alias_already_exists
   {
-    _key_exists_in_db "${_MAIL_ALIAS_}" '\s' "${DATABASE_VIRTUAL}"
+    _key_exists_in_db "${MAIL_ALIAS}" '\s' "${DATABASE_VIRTUAL}"
   }
 
   _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
