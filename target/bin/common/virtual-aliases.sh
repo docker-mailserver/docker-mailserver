@@ -53,8 +53,8 @@ function _alias_add_for_recipient
 }
 
 # Used by delalias + delmailuser
-# Removes a recipient from a specific alias (`MAIL_ALIAS`) or all aliases:
-# - If the matched alias has no more recipients after, it is removed also.
+# Removes a recipient from a specific alias (`MAIL_ALIAS`), otherwise all aliases:
+# NOTE: If a matched alias has no additional recipients, it is also removed.
 function _alias_remove_for_recipient
 {
   local RECIPIENT=${1}
@@ -63,6 +63,9 @@ function _alias_remove_for_recipient
   # Escaped value for use in regex pattern:
   local _MAIL_ALIAS_=$(_escape "${MAIL_ALIAS}")
   local _RECIPIENT_=$(_escape "${RECIPIENT}")
+
+  # If no specific alias was provided, match any alias key:
+  [[ -z _MAIL_ALIAS_ ]] _MAIL_ALIAS_='\S+'
 
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   [[ -s ${DATABASE_VIRTUAL} ]] || exit 0

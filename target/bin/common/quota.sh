@@ -70,9 +70,10 @@ function _bytes_to_human_readable_size
   if [[ ${1:-} == '-' ]]
   then
     echo '~'
-  # Otherwise a value of bytes is expected:
+  # Otherwise a value in KibiBytes (1024 bytes == 1k) is expected (Dovecots internal representation):
   elif [[ ${1:-} =~ ^[0-9]+$ ]]
   then
+    # kibibytes to bytes, converted to approproate IEC unit (eg: MiB):
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
     _exit_with_error "Supplied non-number argument '${1:-}' to '_bytes_to_human_readable_size()'"
@@ -92,7 +93,7 @@ function _quota_request_if_missing
 {
   if [[ -z ${QUOTA} ]]
   then
-    read -r -s 'Enter quota (e.g. 10M): ' QUOTA
+    read -r -p 'Enter quota (e.g. 10M): ' QUOTA
     echo
     [[ -z "${QUOTA}" ]] && _exit_with_error 'Quota must not be empty (use 0 for unlimited quota)'
   fi
