@@ -3,6 +3,8 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+source ./common/virtual-aliases.sh
+
 function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
@@ -11,7 +13,7 @@ function _main
   local RECIPIENT="${2}"
 
   _validate_parameters
-  _add_alias
+  _alias_add_for_recipient "${MAIL_ALIAS}" "${RECIPIENT}"
 }
 
 function __usage
@@ -42,42 +44,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 function _validate_parameters
 {
-  [[ -z ${MAIL_ALIAS} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
-  [[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
-}
-
-function _add_alias
-{
-  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
-
-  # Escaped values for use in regex patterns:
-  _MAIL_ALIAS_=$(_escape "${MAIL_ALIAS}")
-  _RECIPIENT_=$(_escape "${RECIPIENT}")
-
-  function _recipient_already_mapped_to_alias
-  {
-    # Presumably intended to account for white-space or other aliases inbetween?
-    # Why are only these values are considered valid?
-    local VALID_CONTENT='[a-zA-Z@.\ ]*'
-    local MATCH_PATTERN="^${_MAIL_ALIAS_}${VALID_CONTENT}${_RECIPIENT_}"
-
-    grep -qi "${MATCH_PATTERN}" "${DATABASE_VIRTUAL}" 2>/dev/null
-  }
-
-  function _alias_already_exists
-  {
-    grep -qi "^${_MAIL_ALIAS_}" "${DATABASE_VIRTUAL}" 2>/dev/null
-  }
-
-  _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
-
-  if _alias_already_exists
-  then
-    # Append recipient to existing alias entry:
-    sed -i "/${MAIL_ALIAS}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
-  else
-    echo "${MAIL_ALIAS} ${RECIPIENT}" >>"${DATABASE_VIRTUAL}"
-  fi
+  _arg_expect_alias_and_recipient
 }
 
 _main "${@}"

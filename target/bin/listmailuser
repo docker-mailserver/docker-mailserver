@@ -4,6 +4,7 @@
 source /usr/local/bin/helpers/index.sh
 
 source ./common/quota.sh
+source ./common/virtual-aliases.sh
 
 # suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
 # shellcheck source=/dev/null
@@ -19,39 +20,20 @@ function _main
   _list_accounts
 }
 
-function _display_account_aliases
-{
-  local ARG_MAIL_ACCOUNT=${1}
-  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
-
-  function _account_has_an_existing_alias
-  {
-    grep -qi "${ARG_MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" 2>/dev/null
-  }
-
-  function _list_aliases_for_account
-  {
-    grep "${ARG_MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
-  }
-
-  if [[ -f ${DATABASE_VIRTUAL} ]] && _account_has_an_existing_alias
-  then
-    echo "    [ aliases -> $(_list_aliases_for_account) ]"
-  fi
-}
-
 function _list_accounts
 {
   while read -r LINE
   do
     local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
-    local WITH_QUOTA=" $(_quota_show_for "${MAIL_ACCOUNT}")"
+    local ACCOUNT_ENTRY="${MAIL_ACCOUNT}"
 
-    echo "* ${MAIL_ACCOUNT}${WITH_QUOTA}"
-    _display_account_aliases "${MAIL_ACCOUNT}"
+    local WITH_QUOTA=$(_quota_show_for "${MAIL_ACCOUNT}")
+    [[ -n ${WITH_QUOTA} ]] && ACCOUNT_ENTRY+=" ${WITH_QUOTA}"
 
-    # Add a blank line
-    echo
+    local WITH_ALIASES=$(_alias_list_for_account "${MAIL_ACCOUNT}")
+    [[ -n ${WITH_ALIASES} ]] && ACCOUNT_ENTRY+="\n    [ aliases -> ${WITH_ALIASES} ]"
+
+    echo -e "* ${ACCOUNT_ENTRY}\n"
   done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 }
 

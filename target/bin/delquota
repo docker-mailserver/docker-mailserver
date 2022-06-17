@@ -12,7 +12,7 @@ function _main
   local MAIL_ACCOUNT="${1}"
 
   _validate_parameters
-  _quota_remove_for_mail_account
+  _quota_remove_for_mail_account "${MAIL_ACCOUNT}"
 }
 
 function __usage { echo 'Usage: delquota <username@domain>' ; }
