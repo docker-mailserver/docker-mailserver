@@ -36,20 +36,8 @@ function _alias_add_for_recipient
     grep -qi "${MATCH_PATTERN}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
-  function _alias_already_exists
-  {
-    _key_exists_in_db "${MAIL_ALIAS}" '\s' "${DATABASE_VIRTUAL}"
-  }
-
   _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
-
-  if _alias_already_exists
-  then
-    # Append recipient to existing alias entry:
-    sed -i "/${MAIL_ALIAS}/s/$/,${RECIPIENT}/" "${DATABASE_VIRTUAL}"
-  else
-    echo "${MAIL_ALIAS} ${RECIPIENT}" >>"${DATABASE_VIRTUAL}"
-  fi
+  _db_entry_add_or_append_to_for_key "${MAIL_ALIAS} ${RECIPIENT}" "${DATABASE_VIRTUAL}"
 }
 
 # Used by delalias + delmailuser

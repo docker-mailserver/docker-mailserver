@@ -15,22 +15,16 @@ function _quota_set_for_mail_account
   _create_lock # Protect config file with lock to avoid race conditions
   touch "${DATABASE_QUOTA}"
 
-  _db_add_or_replace_entry "${MAIL_ACCOUNT}" ':' "${QUOTA}" "${DATABASE_QUOTA}"
+  _db_entry_add_or_replace_for_key "${MAIL_ACCOUNT}:${QUOTA}" "${DATABASE_QUOTA}"
 }
 
 # Delete - Used by delquota:
 function _quota_remove_for_mail_account
 {
   local MAIL_ACCOUNT=${1}
-  # Escaped value for use in regex pattern:
-  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
-
   local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
-  # If the account doesn't have a quota, don't return a failure status:
-  _key_exists_in_db "${MAIL_ACCOUNT}" ':' "${DATABASE_QUOTA}" || return 0
 
-  # Delete the entry for an account, return failure status if unsuccessful:
-  sedfile --strict -i -e "/^${_MAIL_ACCOUNT_}:.*$/d" "${DATABASE_QUOTA}"
+  _db_entry_remove_for_key "${MAIL_ACCOUNT}" "${DATABASE_QUOTA}"
 }
 
 # List - Used by listmailuser:

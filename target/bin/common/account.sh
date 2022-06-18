@@ -18,8 +18,8 @@ function _account_update_password_in_db
   _password_request_if_missing
 
   local PASSWD_HASH=$(_password_hash "${MAIL_ACCOUNT}" "${PASSWD}")
-  # Update password for an account in the DATABASE:
-  sed -i "s/^${MAIL_ACCOUNT}|.*/${MAIL_ACCOUNT}|${PASSWD_HASH}/" "${DATABASE}"
+  # Should only replace (due to earlier check that account exists):
+  _db_entry_add_or_replace_for_key "${MAIL_ACCOUNT}|${PASSWD_HASH}" "${DATABASE}"
 }
 
 ### addmailuser, adddovecotmasteruser ###
@@ -37,8 +37,8 @@ function _account_add_to_db
   _password_request_if_missing
 
   local PASSWD_HASH=$(_password_hash "${MAIL_ACCOUNT}" "${PASSWD}")
-  # Add an account entry with hashed password into the DATABASE:
-  echo "${MAIL_ACCOUNT}|${PASSWD_HASH}" >>"${DATABASE}"
+  # Should only add (due to earlier check that account does not exist):
+  _db_entry_add_or_replace_for_key "${MAIL_ACCOUNT}|${PASSWD_HASH}" "${DATABASE}"
 }
 
 # TODO: Remove this method or at least it's usage in `addmailuser`. If tests are failing, correct the tests.
@@ -79,8 +79,5 @@ function _account_remove_from_db
   local MAIL_ACCOUNT=${1}
   local DATABASE=${2}
 
-  # Escaped value for use in regex pattern:
-  local _MAIL_ACCOUNT_=$(_escape "${MAIL_ACCOUNT}")
-
-  sedfile --strict -i "/^${_MAIL_ACCOUNT_}|/d" "${DATABASE}"
+  _db_remove_entry_for_key "${MAIL_ACCOUNT}" "${DATABASE}"
 }

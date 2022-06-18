@@ -63,7 +63,7 @@ function _exclude_domain_from_relayhosts
   #
   # `helpers/relay.sh` is also fine with this, and will eventually drop
   # the need for this command entirely once that helper is refactored.
-  _db_add_or_replace_entry "${SENDER}" '\s' '' "${DATABASE_RELAY}"
+  _db_entry_add_or_replace_for_key "${SENDER} " "${DATABASE_RELAY}"
 }
 
 _main "${@}"

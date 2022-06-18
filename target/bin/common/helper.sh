@@ -30,11 +30,57 @@ function _check_database_has_content
   [[ -s ${DATABASE} ]] || _exit_with_error "'${DATABASE}' is empty, nothing to list"
 }
 
-# NOTE: This would not be required if not using extended regexp?
-# Presently used to escape delimiter value '|' only.
-# If the delimiter is the expected character, it will be prefixed with `\`:
-function _escape_delimiter {
-  sed -E 's/^[|]$/\\&/' <<< "${1}"
+# Accounts and Aliases (Virtual kind):
+DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
+DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+# Dovecot Quota support:
+DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
+# Relay-Host support:
+DATABASE_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
+DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
+
+function _db_get_delimiter_for
+{
+  local DATABASE=${1}
+
+  case "${DATABASE}" in
+    ( "${DATABASE_ACCOUNTS}" | "${DATABASE_DOVECOT_MASTERS}" )
+      echo "|"
+      ;;
+
+    # NOTE: These files support white-space delimiters, we have not
+    # historically enforced a specific value; as a workaround
+    # `_db_operation` will convert to ` ` (space) for writing.
+    ( "${DATABASE_PASSWD}" | "${DATABASE_RELAY}" | "${DATABASE_VIRTUAL}" )
+      echo "\s"
+      ;;
+
+    ( "${DATABASE_QUOTA}" )
+      echo ":"
+      ;;
+
+    ( * )
+      _exit_with_error "Unsupported DB '${DATABASE}'"
+      ;;
+
+    esac
+}
+
+# NOTE: sed was chosen as it works for a regex white-space delimiter `\s`
+function _take_left_of_delimiter_for_entry
+{
+  sed "s/${1}.*//" <<< "${2}"
+}
+
+# NOTE: grep was chosen as it works for a regex white-space delimiter `\s`
+function _take_right_of_delimiter_for_entry
+{
+  local MATCH
+  MATCH=$(grep -o "${1}.*" <<< ${2})
+
+  # Truncates first character (the delimiter)
+  echo "${MATCH:1}"
 }
 
 # NOTE:
@@ -43,37 +89,77 @@ function _escape_delimiter {
 function _key_exists_in_db
 {
   local KEY=$(_escape "${1}")
-  local DELIMITER=$(_escape_delimiter "${2}")
-  local DATABASE=${3}
+  local DATABASE=${2}
 
   # If the database file exists but has no content fail early:
   [[ -s ${DATABASE} ]] || return 1
 
+  local DELIMITER
+  DELIMITER=$(_db_get_delimiter_for "${DATABASE}")
+
   # NOTE:
-  # - Quiet to not output matches, only return a status code of success/failure.
-  # - Case-insensitive as we don't want duplicate keys that vary by case.
-  # - Extended Regexp syntax is more consistent to handle.
-  grep --quiet --ignore-case --extended-regexp \
-    "^${KEY}${DELIMITER}" "${DATABASE}" 2>/dev/null
+  # --quiet --no-messages, only return a status code of success/failure.
+  # --ignore-case as we don't want duplicate keys that vary by case.
+  # --extended-regexp not used, most regex escaping should be forbidden.
+  grep --quiet --no-messages --ignore-case "^${KEY}${DELIMITER}" "${DATABASE}"
 }
 
-# Used by addrelayhost, addsaslpassword, excluderelaydomain
-function _db_add_or_replace_entry
-{
-  local KEY=${1}
-  local DELIMITER=${2}
-  local VALUE=${3}
-  local DATABASE=${4}
+function _db_entry_add_or_append_to_for_key { _db_operation 'append'  ${*} }
+function _db_entry_add_or_replace_for_key   { _db_operation 'replace' ${*} }
+function _db_entry_remove_for_key           { _db_operation 'remove'  ${*} }
 
-  local ENTRY="${KEY}${DELIMITER}${VALUE}"
-  # Replace value for an existing key, or add a new key->value entry:
-  if _key_exists_in_db "${KEY}" "${DELIMITER}" "${DATABASE}"
-  then
+function _db_operation
+{
+  local DB_ACTION=${1}
+  local ENTRY=${2}
+  local DATABASE=${3}
+
+  # Extract lookup KEY from ENTRY by truncating at DELIMITER for DATABASE:
+  local DELIMITER KEY
+  DELIMITER=$(_db_get_delimiter_for "${DATABASE}")
+  KEY=$(_take_left_of_delimiter_for_entry "${DELIMITER}" "${ENTRY}")
+
+  if _key_exists_in_db "${KEY}" "${DATABASE}"
+  then # Operate on existing entry for key
     KEY=$(_escape "${KEY}")
-    DELIMITER=$(_escape_delimiter "${DELIMITER}")
-    sed -i -E "s/^${KEY}${DELIMITER}.*/${ENTRY}/" "${DATABASE}"
-  else
-    echo "${ENTRY}" >>"${DATABASE}"
+
+    # Return failure status if operation unsuccessful:
+    case "${DB_ACTION}" in
+      ( 'append' )
+        local VALUE
+        VALUE=$(_take_right_of_delimiter_for_entry "${DELIMITER}" "${ENTRY}")
+
+        sedfile --strict -i "/^${KEY}${DELIMITER}/s/$/${VALUE}/" "${DATABASE}"
+        ;;
+
+      ( 'replace' )
+        sedfile --strict -i "s/^${KEY}${DELIMITER}.*/${ENTRY}/" "${DATABASE}"
+        ;;
+
+      ( 'remove' )
+        sedfile --strict -i "/^${KEY}${DELIMITER}/d" "${DATABASE}"
+        ;;
+
+      ( * ) # Developer failure:
+        _exit_with_error "Unsupported DB operation: '${DB_ACTION}'"
+        ;;
+
+    esac
+  else # Entry for key does not exist, DATABASE may be empty or does not exist
+    case "${DB_ACTION}" in
+      ( 'append' | 'replace' ) # Fallback action 'Add new entry':
+        echo "${ENTRY}" >>"${DATABASE}"
+        ;;
+
+      ( 'remove' ) # Nothing to remove, return success status
+        return 0
+        ;;
+
+      ( * ) # Developer failure:
+        _exit_with_error "Unsupported DB operation: '${DB_ACTION}'"
+        ;;
+
+    esac
   fi
 }
 
@@ -102,7 +188,7 @@ function _password_hash
 function _account_already_exists
 {
   local DATABASE=${DATABASE:-'/tmp/docker-mailserver/postfix-accounts.cf'}
-  _key_exists_in_db "${MAIL_ACCOUNT}" '|' "${DATABASE}"
+  _key_exists_in_db "${MAIL_ACCOUNT}" "${DATABASE}"
 }
 
 function _account_should_already_exist
