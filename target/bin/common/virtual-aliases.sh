@@ -21,64 +21,39 @@ function _alias_add_for_recipient
   local RECIPIENT=${2}
 
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
-
-  # Escaped values for use in regex patterns:
-  _MAIL_ALIAS_=$(_escape "${MAIL_ALIAS}")
-  _RECIPIENT_=$(_escape "${RECIPIENT}")
-
-  function _recipient_already_mapped_to_alias
-  {
-    # Presumably intended to account for white-space or other aliases inbetween?
-    # Why are only these values considered valid?
-    local VALID_CONTENT='[a-zA-Z@.\ ]*'
-    local MATCH_PATTERN="^${_MAIL_ALIAS_}${VALID_CONTENT}${_RECIPIENT_}"
-
-    grep -qi "${MATCH_PATTERN}" "${DATABASE_VIRTUAL}" 2>/dev/null
-  }
-
-  _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
-  _db_entry_add_or_append "${DATABASE_VIRTUAL}" "${MAIL_ALIAS}" "${RECIPIENT}"
+  _db_entry_add_or_append "${DATABASE_VIRTUAL}" "${MAIL_ALIAS}" "${RECIPIENT}" \
+    || _exit_with_error "'${MAIL_ALIAS}' is already an alias for recipient: '${RECIPIENT}'"
 }
 
 # Used by delalias + delmailuser
-# Removes a recipient from a specific alias (`MAIL_ALIAS`), otherwise all aliases:
+# Removes RECIPIENT from all aliases unless provided a target with MAIL_ALIAS:
 # NOTE: If a matched alias has no additional recipients, it is also removed.
 function _alias_remove_for_recipient
 {
   local RECIPIENT=${1}
   local MAIL_ALIAS=${2}
 
-  # Escaped value for use in regex pattern:
-  local _MAIL_ALIAS_=$(_escape "${MAIL_ALIAS}")
-  local _RECIPIENT_=$(_escape "${RECIPIENT}")
-
   # If no specific alias was provided, match any alias key:
-  [[ -z _MAIL_ALIAS_ ]] _MAIL_ALIAS_='\S+'
+  [[ -z ${MAIL_ALIAS} ]] && MAIL_ALIAS='\S\+'
 
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
-  [[ -s ${DATABASE_VIRTUAL} ]] || exit 0
-
-  sed -i -r \
-    -e "/^${_MAIL_ALIAS_}\s+${_RECIPIENT_}$/d"  \
-    -e "/^${_MAIL_ALIAS_}/s/,${_RECIPIENT_}//g" \
-    -e "/^${_MAIL_ALIAS_}/s/${_RECIPIENT_},//g" \
-    "${DATABASE_VIRTUAL}"
+  _db_entry_remove "${DATABASE_VIRTUAL}" "${MAIL_ALIAS}" "${RECIPIENT}"
 }
 
 # Returns a comma delimited list of aliases associated to a recipient (ideally the recipient is a mail account):
 function _alias_list_for_account
 {
-  local ARG_MAIL_ACCOUNT=${1}
+  local MAIL_ACCOUNT=${1}
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
   function _account_has_an_existing_alias
   {
-    grep -qi "${ARG_MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" 2>/dev/null
+    grep -qi "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" 2>/dev/null
   }
 
   if [[ -f ${DATABASE_VIRTUAL} ]] && _account_has_an_existing_alias
   then
-    grep "${ARG_MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
+    grep "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi
 }
 

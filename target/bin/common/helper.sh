@@ -72,8 +72,9 @@ function _db_get_delimiter_for
 # - DELIMITER avoids false-positives by ensuring an exact match for the key.
 function _key_exists_in_db
 {
-  local KEY=$(_escape "${1}")
+  local KEY=${1}
   local DATABASE=${2}
+  KEY=$(_escape "${KEY}")
 
   # If the database file exists but has no content fail early:
   [[ -s ${DATABASE} ]] || return 1
@@ -102,28 +103,54 @@ function _db_operation
   local DELIMITER
   DELIMITER=$(_db_get_delimiter_for "${DATABASE}")
 
+  # DELIMITER provides a match boundary to avoid substring matches:
+  local KEY_LOOKUP
+  KEY_LOOKUP="$(_escape "${KEY}")${DELIMITER}"
+
+  # Supports adding or replacing an entire entry:
+  # White-space delimiter should be written into DATABASE as 'space' character:
+  [[ ${DELIMITER} == '\s' ]] && DELIMITER=' '
   local ENTRY="${KEY}${DELIMITER}${VALUE}"
-  # For this delimiter (only directly after key), convert to 'space' character:
-  [[ ${DELIMITER} == '\s' ]] && ENTRY=$(sed 's/\\s/ /' <<< "${ENTRY}"
 
+  # Supports 'append' + 'remove' operations on value lists:
+  # NOTE: Presently only required for `postfix-virtual.cf`.
+  local _VALUE_
+  _VALUE_=$(_escape "${VALUE}")
+  # `postfix-virtual.cf` is using `,` for delimiting a list of recipients:
+  [[ ${DATABASE} == "${DATABASE_VIRTUAL}" ]] && DELIMITER=','
+
+  # Perform requested operation:
   if _key_exists_in_db "${KEY}" "${DATABASE}"
-  then # Operate on existing entry for key
-    KEY=$(_escape "${KEY}")
-
-    # Find entry for key, perform operation and return status code:
+  then
+    # Find entry for key and return status code:
     case "${DB_ACTION}" in
       ( 'append' )
-        # Presently only supports appending recipient values for `postfix-virtual.cf`:
-        [[ ${DATABASE} == ${DATABASE_VIRTUAL} ]] && VALUE=",${VALUE}"
-        sedfile --strict -i "/^${KEY}${DELIMITER}/s/$/${VALUE}/" "${DATABASE}"
+        __db_list_already_contains_value && return 1
+
+        sedfile --strict -i "/^${KEY_LOOKUP}/s/$/${DELIMITER}${VALUE}/" "${DATABASE}"
         ;;
 
       ( 'replace' )
-        sedfile --strict -i "s/^${KEY}${DELIMITER}.*/${ENTRY}/" "${DATABASE}"
+        sedfile --strict -i "s/^${KEY_LOOKUP}.*/${ENTRY}/" "${DATABASE}"
         ;;
 
       ( 'remove' )
-        sedfile --strict -i "/^${KEY}${DELIMITER}/d" "${DATABASE}"
+        if [[ -z ${VALUE} ]]
+        then
+          sedfile --strict -i "/^${KEY_LOOKUP}/d" "${DATABASE}"
+        else
+          __db_list_already_contains_value || return 0
+
+          # If an exact match for VALUE exists for KEY,
+          # - If VALUE is the only value => Remove entry
+          # - If VALUE is the last value => Remove VALUE
+          # - Otherwise => Collapse value to DELIMITER
+          sedfile --strict -i \
+            -e "/^${KEY_LOOKUP}\+${_VALUE_}$/d" \
+            -e "/^${KEY_LOOKUP}/s/${DELIMITER}${_VALUE_}$//g" \
+            -e "/^${KEY_LOOKUP}/s/${DELIMITER}${_VALUE_}${DELIMITER}/${DELIMITER}/g" \
+            "${DATABASE}"
+          fi
         ;;
 
       ( * ) # Should only fail for developer using this API:
@@ -131,13 +158,16 @@ function _db_operation
         ;;
 
     esac
-  else # Entry for key does not exist, DATABASE may be empty or does not exist
+  else
+    # Entry for key does not exist, DATABASE may be empty, or DATABASE does not exist
     case "${DB_ACTION}" in
-      ( 'append' | 'replace' ) # Fallback action 'Add new entry':
+      # Fallback action 'Add new entry':
+      ( 'append' | 'replace' )
         echo "${ENTRY}" >>"${DATABASE}"
         ;;
 
-      ( 'remove' ) # Nothing to remove, return success status
+      # Nothing to remove, return success status
+      ( 'remove' )
         return 0
         ;;
 
@@ -147,6 +177,18 @@ function _db_operation
 
     esac
   fi
+}
+
+# Internal method for `_db_operation`:
+function __db_list_already_contains_value
+{
+  # Extract the entries current value (`\1`), and split into lines (`\n`) at DELIMITER,
+  # then check if the target VALUE has an exact match (not a substring):
+  # NOTE: `-n` + `p` ensures `grep` only receives the 2nd sed expression output.
+  sed -n \
+    -e "s/^${KEY_LOOKUP}\(.*\)/\1/" \
+    -e "s/${DELIMITER}/\n/gp"       \
+    "${DATABASE}" | grep -qi "^${_VALUE_}$"
 }
 
 ### Password Methods ###
