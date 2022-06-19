@@ -11,9 +11,6 @@ function _manage_dovecot_quota
   local QUOTA=${3}
 
   local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
-  _create_lock # Protect config file with lock to avoid race conditions
-  touch "${DATABASE_QUOTA}"
-
   case "${ACTION}" in
     ( 'update' )
       _db_entry_add_or_replace "${DATABASE_QUOTA}" "${MAIL_ACCOUNT}" "${QUOTA}"

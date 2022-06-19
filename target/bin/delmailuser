@@ -14,7 +14,10 @@ function _main
   _parse_options
   _maildel_request_if_missing
 
-  # TODO: May want to lock files prior to loop?: DATABASE_ACCOUNTS DATABASE_QUOTA DATABASE_VIRTUAL
+  # TODO: May want to lock all database files prior to loop? (DATABASE_ACCOUNTS DATABASE_QUOTA DATABASE_VIRTUAL)
+  # NOTE: Present lock method locks the original sourcing script itself.
+  _create_lock
+
   # Actual command to perform:
   for MAIL_ACCOUNT in "${@}"
   do

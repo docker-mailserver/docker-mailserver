@@ -1,8 +1,5 @@
 #! /bin/bash
 
-# Used from /usr/local/bin/helpers/index.sh:
-# _create_lock
-
 function _manage_accounts
 {
   local ACTION=${1}
@@ -10,9 +7,6 @@ function _manage_accounts
   local MAIL_ACCOUNT=${3}
   # Only for ACTION 'create' or 'update':
   local PASSWD=${4}
-
-  touch "${DATABASE}"
-  _create_lock # Protect config file with lock to avoid race conditions
 
   case "${ACTION}" in
     ( 'create' | 'update' )
