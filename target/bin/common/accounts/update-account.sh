@@ -13,7 +13,7 @@ function _update_account_password_in_db
   touch "${DATABASE}"
   _create_lock # Protect config file with lock to avoid race conditions
 
-  [[ ! _account_already_exists ]] && _exit_with_error "User '${MAIL_ACCOUNT}' does not exist"
+  _account_should_already_exist
   _if_missing_request_password
 
   local PASSWD_HASH=$(_hash_password)

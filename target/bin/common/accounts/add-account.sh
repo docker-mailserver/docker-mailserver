@@ -8,7 +8,7 @@ function _add_account_to_db
   touch "${DATABASE}"
   _create_lock # Protect config file with lock to avoid race conditions
 
-  [[ _account_already_exists ]] && _exit_with_error "User '${MAIL_ACCOUNT}' already exists"
+  _account_should_not_exist_yet
   _if_missing_request_password
 
   local PASSWD_HASH=$(_hash_password)

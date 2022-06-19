@@ -22,7 +22,7 @@ function _validate_parameter_user
 
   local DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
   source ./common/helper.sh
-  [[ ! _account_already_exists ]] && _exit_with_error "User '${MAIL_ACCOUNT}' does not exist"
+  _account_should_already_exist
 }
 
 function _remove_quota_for_user

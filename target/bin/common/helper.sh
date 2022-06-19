@@ -25,3 +25,13 @@ function _account_already_exists
   # `|` is a delimter between the account identity (_MAIL_ACCOUNT_) and the hashed password
   grep -qi "^${_MAIL_ACCOUNT_}|" "${DATABASE}" 2>/dev/null
 }
+
+function _account_should_already_exist
+{
+  ! _account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' does not exist"
+}
+
+function _account_should_not_exist_yet
+{
+  _account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
+}
