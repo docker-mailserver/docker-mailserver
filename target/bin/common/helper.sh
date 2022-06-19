@@ -7,6 +7,29 @@
 # - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
 # - Calling external method '__usage' as part of error handling.
 
+# NOTE: Caller should have defined a `_list_format_entry` method prior:
+function _list_entries
+{
+  local DATABASE=${1}
+  _check_database_has_content "${DATABASE}"
+
+  local ENTRY_TO_DISPLAY
+  while read -r LINE
+  do
+    ENTRY_TO_DISPLAY=$(_list_format_entry "${LINE}")
+
+    echo -e "* ${ENTRY_TO_DISPLAY}\n"
+  done < <(_get_valid_lines_from_file "${DATABASE}")
+}
+
+function _check_database_has_content
+{
+  local DATABASE=${1}
+
+  [[ -f ${DATABASE} ]] || _exit_with_error "'${DATABASE}' does not exist"
+  [[ -s ${DATABASE} ]] || _exit_with_error "'${DATABASE}' is empty, nothing to list"
+}
+
 function _db_add_or_replace_entry
 {
   local KEY=${1}

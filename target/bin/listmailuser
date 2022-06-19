@@ -2,9 +2,7 @@
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
-
-source ./common/quota.sh
-source ./common/virtual-aliases.sh
+source ./common/helper.sh
 
 # suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
 # shellcheck source=/dev/null
@@ -13,28 +11,30 @@ source /etc/dms-settings 2>/dev/null
 function _main
 {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
-
-  [[ -f ${DATABASE_ACCOUNTS} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
-  [[ -s ${DATABASE_ACCOUNTS} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
-
-  _list_accounts
+  _list_entries "${DATABASE_ACCOUNTS}"
 }
 
-function _list_accounts
+# Used by `_list_entries`:
+source ./common/quota.sh
+source ./common/virtual-aliases.sh
+function _list_format_entry
 {
-  while read -r LINE
-  do
-    local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
-    local ACCOUNT_ENTRY="${MAIL_ACCOUNT}"
+  local LINE=${1}
 
-    local WITH_QUOTA=$(_quota_show_for "${MAIL_ACCOUNT}")
-    [[ -n ${WITH_QUOTA} ]] && ACCOUNT_ENTRY+=" ${WITH_QUOTA}"
+  local MAIL_ACCOUNT
+  MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
 
-    local WITH_ALIASES=$(_alias_list_for_account "${MAIL_ACCOUNT}")
-    [[ -n ${WITH_ALIASES} ]] && ACCOUNT_ENTRY+="\n    [ aliases -> ${WITH_ALIASES} ]"
+  local WITH_QUOTA
+  WITH_QUOTA=$(_quota_show_for "${MAIL_ACCOUNT}")
 
-    echo -e "* ${ACCOUNT_ENTRY}\n"
-  done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
+  local WITH_ALIASES
+  WITH_ALIASES=$(_alias_list_for_account "${MAIL_ACCOUNT}")
+
+  local ACCOUNT_ENTRY="${MAIL_ACCOUNT}"
+  [[ -n ${WITH_QUOTA}   ]] && ACCOUNT_ENTRY+=" ${WITH_QUOTA}"
+  [[ -n ${WITH_ALIASES} ]] && ACCOUNT_ENTRY+="\n    [ aliases -> ${WITH_ALIASES} ]"
+
+  echo "${ACCOUNT_ENTRY}"
 }
 
 _main
