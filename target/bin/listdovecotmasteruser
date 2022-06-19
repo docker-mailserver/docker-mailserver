@@ -4,21 +4,24 @@
 source /usr/local/bin/helpers/index.sh
 source ./common/helper.sh
 
-# suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
-# shellcheck source=/dev/null
-source /etc/dms-settings 2>/dev/null
-
 function _main
 {
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
   _list_entries "${DATABASE_DOVECOT_MASTERS}"
 }
 
-# Used by `_list_entries`:
-# Returns the mail account (value of input line, before the `|` delimiter)
-function _list_format_entry
+function _list_entries
 {
-  echo "${1}" | cut -d'|' -f1
+  local DATABASE=${1}
+  _check_database_has_content "${DATABASE}"
+
+  local MASTER_ACCOUNT
+  while read -r LINE
+  do
+    MASTER_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
+
+    echo -e "* ${MASTER_ACCOUNT}\n"
+  done < <(_get_valid_lines_from_file "${DATABASE}")
 }
 
 _main

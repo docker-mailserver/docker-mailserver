@@ -4,7 +4,7 @@
 source /usr/local/bin/helpers/index.sh
 source ./common/helper.sh
 
-# suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
+# Workaround to support ENABLE_QUOTAS toggling during tests:
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
@@ -16,8 +16,21 @@ function _main
   _list_entries "${DATABASE_ACCOUNTS}"
 }
 
-# Used by `_list_entries`:
-function _list_format_entry
+function _list_entries
+{
+  local DATABASE=${1}
+  _check_database_has_content "${DATABASE}"
+
+  local ENTRY_TO_DISPLAY
+  while read -r LINE
+  do
+    ENTRY_TO_DISPLAY=$(_format_list_item "${LINE}")
+
+    echo -e "* ${ENTRY_TO_DISPLAY}\n"
+  done < <(_get_valid_lines_from_file "${DATABASE}")
+}
+
+function _format_list_item
 {
   local LINE=${1}
 
@@ -77,12 +90,14 @@ function _alias_list_for_account
 {
   local MAIL_ACCOUNT=${1}
 
-  function _account_has_an_existing_alias
+  # `__db_list_already_contains_value` would be a more reliable check:
+  function _account_has_an_alias
   {
-    grep -qi "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" 2>/dev/null
+    local ANY_ALIAS='\S\+\s'
+    grep -qis "^${ANY_ALIAS}.*${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
   }
 
-  if [[ -f ${DATABASE_VIRTUAL} ]] && _account_has_an_existing_alias
+  if _account_has_an_alias
   then
     grep "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi

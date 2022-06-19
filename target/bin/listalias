@@ -10,11 +10,15 @@ function _main
   _list_entries "${DATABASE_VIRTUAL}"
 }
 
-# Used by `_list_entries`:
-# Nothing to format
-function _list_format_entry
+function _list_entries
 {
-  echo "${1}"
+  local DATABASE=${1}
+  _check_database_has_content "${DATABASE}"
+
+  while read -r LINE
+  do
+    echo -e "* ${LINE}\n"
+  done < <(_get_valid_lines_from_file "${DATABASE}")
 }
 
 _main
