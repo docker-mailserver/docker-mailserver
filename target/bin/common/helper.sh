@@ -1,8 +1,15 @@
 #! /bin/bash
 
-# These helpers expect vars referenced to be declared prior to calling them.
+# Used from /usr/local/bin/helpers/index.sh:
+# _exit_with_error
 
-function _if_missing_request_password
+# Some of these helpers rely on:
+# - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
+# - Calling external method '__usage' as part of error handling.
+
+### Password Methods ###
+
+function _password_request_if_missing
 {
   if [[ -z ${PASSWD} ]]
   then
@@ -12,10 +19,15 @@ function _if_missing_request_password
   fi
 }
 
-function _hash_password
+function _password_hash
 {
-  echo $(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
+  local MAIL_ACCOUNT=${1}
+  local PASSWD=${2}
+
+  doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}"
 }
+
+### Validation Methods ###
 
 function _account_already_exists
 {
