@@ -14,10 +14,9 @@ function _main
   shift
   local PASSWD="${*}"
 
-  _validate_parameters
+  _arg_expect_mail_account
 
-  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
-  _account_update_password_in_db "${MAIL_ACCOUNT}" "${PASSWD}" "${DATABASE_ACCOUNTS}"
+  _manage_accounts_update "${MAIL_ACCOUNT}" "${PASSWD}"
 }
 
 function __usage
@@ -46,11 +45,6 @@ ${ORANGE}EXIT STATUS${RESET}
     or arguments contain errors, the script will exit early with exit status 1.
 
 "
-}
-
-function _validate_parameters
-{
-  _arg_expect_mail_account
 }
 
 _main "${@}"

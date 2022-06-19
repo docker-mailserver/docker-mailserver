@@ -7,10 +7,33 @@ function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
+  # Validate Parameters:
+  [[ -z ${*} ]] && { __usage ; _exit_with_error 'No account specified' ; }
+  # Support for optional maildir removal:
   local MAILDEL='false'
+  _parse_options
+  _maildel_request_if_missing
 
-  _validate_parameters ${*}
-  _delete_accounts "${@}"
+  # TODO: May want to lock files prior to loop?: DATABASE_ACCOUNTS DATABASE_QUOTA DATABASE_VIRTUAL
+  # Actual command to perform:
+  for MAIL_ACCOUNT in "${@}"
+  do
+    _account_should_already_exist
+
+    _remove_maildir "${MAIL_ACCOUNT}"
+
+    _alias_remove_for_recipient "${MAIL_ACCOUNT}" \
+      || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted"
+
+    _quota_remove_for_mail_account "${MAIL_ACCOUNT}" \
+      || _exit_with_error "Quota for '${MAIL_ACCOUNT}' could not be deleted"
+
+    # Performed last, avoids breaking command if a prior failure occurred
+    _manage_accounts_delete "${MAIL_ACCOUNT}" \
+      || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted"
+
+    _log 'info' "'${MAIL_ACCOUNT}' and associated data deleted"
+  done
 }
 
 function __usage
@@ -47,14 +70,6 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-function _validate_parameters
-{
-  [[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
-
-  _parse_options
-  _maildel_request_if_missing
-}
-
 function _parse_options
 {
   while getopts ":yY" OPT
@@ -81,39 +96,12 @@ function _maildel_request_if_missing
     local MAILDEL_CHOSEN
     read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
 
+    # TODO: Why would MAILDEL be set to true if MAILDEL_CHOSEN is empty?
     if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
     then
       MAILDEL=true
     fi
   fi
-}
-
-# Provided the account exists,
-# - If an account entry exists for virtual aliases or quota, remove account from DB or fail early.
-# - Optionally remove the maildir storage folder
-# - Finally, if no failure up to this point (better supports handling early fails), remove the mail account
-function _remove_entry_from_databases
-{
-  local MAIL_ACCOUNT=${1}
-
-  # NOTE: Current approach exits early if any of these methods fail.
-  # Account checking could alternatively skip if continuing to support deleting multiple accounts..
-  _account_should_already_exist "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}"
-
-  # NOTE: Uses sed instead of sedfile (like original), will never fail?
-  _alias_remove_for_recipient "${MAIL_ACCOUNT}" \
-    || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_VIRTUAL}'"
-
-  _quota_remove_for_mail_account "${MAIL_ACCOUNT}" \
-    || _exit_with_error "Quota for '${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_QUOTA}'"
-
-  _account_remove_from_db "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" \
-    || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_ACCOUNTS}'"
-
-  _remove_maildir "${MAIL_ACCOUNT}"
-
-  # NOTE: Unlike other commands, we report success for delmailuser? (originally, only if postfix-virtual.cf existed)
-  _log 'info' "'${MAIL_ACCOUNT}' and potential aliases deleted"
 }
 
 function _remove_maildir
@@ -141,22 +129,6 @@ function _remove_maildir
     # Remove parent directory too if it's empty:
     rmdir "/var/mail/${DOMAIN_PART}" &>/dev/null
   fi
-}
-
-function _delete_accounts
-{
-  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
-  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
-  local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
-
-  [[ -s ${DATABASE_ACCOUNTS} ]] || exit 0
-
-  _create_lock # Protect config file with lock to avoid race conditions
-
-  for MAIL_ACCOUNT in "${@}"
-  do
-    _remove_entry_from_databases "${MAIL_ACCOUNT}"
-  done
 }
 
 _main "${@}"

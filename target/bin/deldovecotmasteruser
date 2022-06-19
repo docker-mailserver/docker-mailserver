@@ -7,8 +7,15 @@ function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-  _validate_parameters ${*}
-  _delete_accounts_dovecot_master "${@}"
+  # Validate Parameters:
+  [[ -z ${*} ]] && { __usage ; _exit_with_error 'No account specified' ; }
+
+  # Actual command to perform:
+  for MAIL_ACCOUNT in "${@}"
+  do
+    _manage_accounts_dovecotmaster_delete "${MAIL_ACCOUNT}" \
+      || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted"
+  done
 }
 
 function __usage
@@ -37,26 +44,6 @@ ${ORANGE}EXIT STATUS${RESET}
     or arguments contain errors, the script will exit early with exit status 1.
 
 "
-}
-
-function _validate_parameters
-{
-  [[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
-}
-
-function _delete_accounts_dovecot_master
-{
-  local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
-  [[ -s ${DATABASE_DOVECOT_MASTERS} ]] || exit 0
-  _create_lock # Protect config file with lock to avoid race conditions
-
-  for MAIL_ACCOUNT in "${@}"
-  do
-    _account_should_already_exist "${MAIL_ACCOUNT}" "${DATABASE_DOVECOT_MASTERS}"
-
-    _account_remove_from_db "${MAIL_ACCOUNT}" "${DATABASE_DOVECOT_MASTERS}" \
-      || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_DOVECOT_MASTERS}'"
-  done
 }
 
 _main "${@}"

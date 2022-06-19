@@ -14,10 +14,11 @@ function _main
   shift
   local PASSWD="${*}"
 
-  _validate_parameters
+  # Validate Parameters:
+  _arg_expect_mail_account
 
-  local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
-  _account_add_to_db "${MAIL_ACCOUNT}" "${PASSWD}" "${DATABASE_DOVECOT_MASTERS}"
+  # Actual command to perform:
+  _manage_accounts_dovecotmaster_create "${MAIL_ACCOUNT}" "${PASSWD}"
 }
 
 function __usage
@@ -48,11 +49,6 @@ ${ORANGE}EXIT STATUS${RESET}
     or arguments contain errors, the script will exit early with exit status 1.
 
 "
-}
-
-function _validate_parameters
-{
-  _arg_expect_mail_account
 }
 
 _main "${@}"
