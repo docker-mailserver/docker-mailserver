@@ -195,10 +195,3 @@ function _password_hash
 
   doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}"
 }
-
-### Validation Methods ###
-
-function _arg_expected_domain
-{
-  [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified' ; }
-}
