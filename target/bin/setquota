@@ -8,6 +8,17 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+function _main
+{
+  local MAIL_ACCOUNT="${1}"
+  shift
+  local QUOTA="${*}"
+
+  _validate_parameter_user
+  _validate_parameter_quota
+  _set_quota_for_user
+}
+
 function __usage { echo 'Usage: setquota <user@domain> [<quota>]' ; }
 
 function _validate_parameter_user
@@ -49,10 +60,4 @@ function _set_quota_for_user
   echo "${MAIL_ACCOUNT}:${QUOTA}" >>"${DATABASE_QUOTA}"
 }
 
-MAIL_ACCOUNT="${1}"
-shift
-QUOTA="${*}"
-
-_validate_parameter_user
-_validate_parameter_quota
-_set_quota_for_user
+_main "${@}"

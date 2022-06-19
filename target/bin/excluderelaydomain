@@ -3,6 +3,14 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+function _main
+{
+  local DOMAIN="${1}"
+
+  _validate_parameters
+  _exclude_domain_from_relayhosts
+}
+
 function __usage { echo 'Usage: excluderelayhost <domain>' ; }
 
 function _validate_parameters
@@ -22,7 +30,4 @@ function _exclude_domain_from_relayhosts
   fi
 }
 
-DOMAIN="${1}"
-
-_validate_parameters
-_exclude_domain_from_relayhosts
+_main "${@}"

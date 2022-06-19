@@ -8,6 +8,16 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+function _main
+{
+  [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
+  local MAILDEL='false'
+
+  _validate_parameters ${*}
+  _delete_accounts "${@}"
+}
+
 function __usage
 {
   printf '%s' "${PURPLE}DELMAILUSER${RED}(${YELLOW}8${RED})
@@ -86,8 +96,7 @@ function _remove_entry_from_databases
   then
     if ! sedfile --strict -i "/^${_MAIL_ACCOUNT_}|/d" "${DATABASE_ACCOUNTS}"
     then
-      _log 'error' "'${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_ACCOUNTS}'"
-      ERROR=true
+      _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_ACCOUNTS}'"
     fi
   fi
 
@@ -101,8 +110,7 @@ function _remove_entry_from_databases
     then
       _log 'info' "'${MAIL_ACCOUNT}' and potential aliases deleted"
     else
-      _log 'error' "Aliases for '${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_VIRTUAL}'"
-      ERROR=true
+      _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_VIRTUAL}'"
     fi
   fi
 
@@ -111,7 +119,7 @@ function _remove_entry_from_databases
   then
     if ! sedfile --strict -i -e "/^${_MAIL_ACCOUNT_}:.*$/d" "${DATABASE_QUOTA}"
     then
-      _log 'warn' "Quota for '${MAIL_ACCOUNT}' couldn't be deleted in '${DATABASE_QUOTA}'"
+      _log 'warn' "Quota for '${MAIL_ACCOUNT}' could not be deleted in '${DATABASE_QUOTA}'"
     fi
   fi
 }
@@ -134,13 +142,11 @@ function _remove_maildir
     then
       _log 'info' 'Mailbox deleted'
     else
-      _log 'error' 'Mailbox could not be deleted'
-      ERROR=true
+      _exit_with_error 'Mailbox could not be deleted'
     fi
     rmdir "/var/mail/${DOMAIN}" &>/dev/null
   else
-    log 'error' "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist"
-    ERROR=true
+    _exit_with_error "Mailbox directory '/var/mail/${DOMAIN}/${USER}' did not exist"
   fi
 }
 
@@ -156,19 +162,9 @@ function _delete_accounts
 
   for MAIL_ACCOUNT in "${@}"
   do
-    ERROR=false
-
     _remove_entry_from_databases
     _remove_maildir
-
-    ${ERROR} && _exit_with_error 'See the messages above.'
   done
 }
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
-
-MAILDEL='false'
-
-_delete_accounts "${@}"
-
-exit 0
+_main "${@}"

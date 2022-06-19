@@ -8,6 +8,16 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+function _main
+{
+  local MAIL_ACCOUNT="${1}"
+  shift
+  local PASSWD="${*}"
+
+  _validate_parameters
+  _update_dovecot_master_account_password
+}
+
 function __usage { echo 'Usage: updatedovecotmasteruser <MAIL ACCOUNT> [PASSWORD]' ; }
 
 function _validate_parameters
@@ -52,9 +62,4 @@ function _update_dovecot_master_account_password
   _hash_password
 }
 
-MAIL_ACCOUNT="${1}"
-shift
-PASSWD="${*}"
-
-_validate_parameters
-_update_dovecot_master_account_password
+_main "${@}"

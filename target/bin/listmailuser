@@ -7,6 +7,16 @@ source /usr/local/bin/helpers/index.sh
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
+function _main
+{
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+
+  [[ -f ${DATABASE_ACCOUNTS} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
+  [[ -s ${DATABASE_ACCOUNTS} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
+
+  _list_accounts
+}
+
 function _bytes_to_human_readable_size
 {
   # '-' is a non-applicable value,
@@ -62,11 +72,6 @@ function _display_account_aliases
 
 function _list_accounts
 {
-  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
-
-  [[ -f ${DATABASE_ACCOUNTS} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
-  [[ -s ${DATABASE_ACCOUNTS} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
-
   while read -r LINE
   do
     local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
@@ -86,6 +91,4 @@ function _list_accounts
   done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 }
 
-_list_accounts
-
-exit 0
+_main

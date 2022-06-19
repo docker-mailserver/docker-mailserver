@@ -5,6 +5,21 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+function _main
+{
+  [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
+  local MAIL_ACCOUNT="${1}"
+  shift
+  local PASSWD="${*}"
+
+  _validate_parameters
+  _add_account
+  # Change Detection will be triggered from DATABASE update via _add_account,
+  # block until processed (actual account creation handled there):
+  _wait_until_account_maildir_exists
+}
+
 function __usage
 {
   printf '%s' "${PURPLE}ADDMAILUSER${RED}(${YELLOW}8${RED})
@@ -92,14 +107,4 @@ function _wait_until_account_maildir_exists
   fi
 }
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
-
-MAIL_ACCOUNT="${1}"
-shift
-PASSWD="${*}"
-
-_validate_parameters
-_add_account
-# Change Detection will be triggered from DATABASE update via _add_account,
-# block until processed (actual account creation handled there):
-_wait_until_account_maildir_exists
+_main "${@}"

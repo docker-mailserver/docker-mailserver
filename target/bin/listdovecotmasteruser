@@ -7,13 +7,18 @@ source /usr/local/bin/helpers/index.sh
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
-function _list_dovecot_master_accounts
+function _main
 {
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
 
   [[ -f ${DATABASE_DOVECOT_MASTERS} ]] || _exit_with_error "No 'dovecot-masters.cf' file"
   [[ -s ${DATABASE_DOVECOT_MASTERS} ]] || _exit_with_error "Empty 'dovecot-masters.cf' - no dovecot master accounts have been added"
 
+  _list_dovecot_master_accounts
+}
+
+function _list_dovecot_master_accounts
+{
   while read -r LINE
   do
     local MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
@@ -22,5 +27,4 @@ function _list_dovecot_master_accounts
   done < <(_get_valid_lines_from_file "${DATABASE_DOVECOT_MASTERS}")
 }
 
-_list_dovecot_master_accounts
-exit 0
+_main
