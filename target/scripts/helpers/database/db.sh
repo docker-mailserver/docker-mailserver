@@ -3,6 +3,10 @@
 # Used from /usr/local/bin/helpers/index.sh:
 # _exit_with_error
 
+source ./manage/dovecot-quotas.sh
+source ./manage/postfix-accounts.sh
+source ./manage/postfix-virtual.sh
+
 # Some of these helpers rely on:
 # - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
 # - Calling external method '__usage' as part of error handling.

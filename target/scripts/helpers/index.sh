@@ -19,6 +19,9 @@ function _import_scripts
   source "${PATH_TO_SCRIPTS}/relay.sh"
   source "${PATH_TO_SCRIPTS}/ssl.sh"
   source "${PATH_TO_SCRIPTS}/utils.sh"
+
+  # shellcheck source-path=target/scripts/helpers/database
+  source "${PATH_TO_SCRIPTS}/database/db.sh"
 }
 
 _import_scripts
