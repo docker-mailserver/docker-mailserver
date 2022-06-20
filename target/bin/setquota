@@ -49,7 +49,7 @@ ${ORANGE}EXIT STATUS${RESET}
 function _validate_parameters
 {
   # MAIL_ACCOUNT
-  _arg_expect_mail_account_has_local_and_domain_parts
+  _arg_expect_mail_account
   _account_should_already_exist
 
   # QUOTA

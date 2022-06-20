@@ -14,10 +14,6 @@ function _main
   shift
   local PASSWD="${*}"
 
-  # Validate Parameters:
-  _arg_expect_mail_account
-
-  # Actual command to perform:
   _manage_accounts_dovecotmaster_create "${MAIL_ACCOUNT}" "${PASSWD}"
 }
 

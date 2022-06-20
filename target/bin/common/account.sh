@@ -1,5 +1,10 @@
 #! /bin/bash
 
+# Manage DB writes for:
+# - DATABASE_ACCOUNTS
+# - DATABASE_DOVECOT_MASTERS
+
+# Logic to perform for requested operations handled here:
 function _manage_accounts
 {
   local ACTION=${1}
@@ -7,6 +12,8 @@ function _manage_accounts
   local MAIL_ACCOUNT=${3}
   # Only for ACTION 'create' or 'update':
   local PASSWD=${4}
+
+  _arg_expect_mail_account
 
   case "${ACTION}" in
     ( 'create' | 'update' )
@@ -43,3 +50,34 @@ DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
 function _manage_accounts_dovecotmaster_create { _manage_accounts 'create' "${DATABASE_DOVECOT_MASTERS}" "${@}" ; }
 function _manage_accounts_dovecotmaster_update { _manage_accounts 'update' "${DATABASE_DOVECOT_MASTERS}" "${@}" ; }
 function _manage_accounts_dovecotmaster_delete { _manage_accounts 'delete' "${DATABASE_DOVECOT_MASTERS}" "${@}" ; }
+
+#
+# Validation Methods
+#
+
+function _arg_expect_mail_account
+{
+  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No account specified' ; }
+
+  # Dovecot Master accounts are validated (they are not email addresses):
+  [[ ${DATABASE} == "${DATABASE_DOVECOT_MASTERS}" ]] && return 0
+
+  # Account has both local and domain parts:
+  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "'${MAIL_ACCOUNT}' should include the domain (eg: user@example.com)" ; }
+}
+
+function _account_should_not_exist_yet
+{
+  __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
+}
+
+function _account_should_already_exist
+{
+  ! __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' does not exist"
+}
+
+function __account_already_exists
+{
+  local DATABASE=${DATABASE:-"${DATABASE_ACCOUNTS}"}
+  _key_exists_in_db "${MAIL_ACCOUNT}" "${DATABASE}"
+}

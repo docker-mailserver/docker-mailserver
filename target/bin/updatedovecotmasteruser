@@ -14,8 +14,6 @@ function _main
   shift
   local PASSWD="${*}"
 
-  _arg_expect_mail_account
-
   _manage_accounts_dovecotmaster_update "${MAIL_ACCOUNT}" "${PASSWD}"
 }
 

@@ -213,33 +213,6 @@ function _password_hash
 
 ### Validation Methods ###
 
-function _account_already_exists
-{
-  local DATABASE=${DATABASE:-'/tmp/docker-mailserver/postfix-accounts.cf'}
-  _key_exists_in_db "${MAIL_ACCOUNT}" "${DATABASE}"
-}
-
-function _account_should_already_exist
-{
-  ! _account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' does not exist"
-}
-
-function _account_should_not_exist_yet
-{
-  _account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
-}
-
-function _arg_expect_mail_account
-{
-  [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error "No username specified" ; }
-}
-
-function _arg_expect_mail_account_has_local_and_domain_parts
-{
-  _arg_expect_mail_account
-  [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "Username must include the domain" ; }
-}
-
 function _arg_expected_domain
 {
   [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified' ; }
