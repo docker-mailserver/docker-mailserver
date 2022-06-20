@@ -15,7 +15,6 @@ function _main
 }
 
 # Used by `_list_entries`:
-source ./common/quota.sh
 source ./common/virtual-aliases.sh
 function _list_format_entry
 {
@@ -35,6 +34,41 @@ function _list_format_entry
   [[ -n ${WITH_ALIASES} ]] && ACCOUNT_ENTRY+="\n    [ aliases -> ${WITH_ALIASES} ]"
 
   echo "${ACCOUNT_ENTRY}"
+}
+
+function _quota_show_for
+{
+  local MAIL_ACCOUNT=${1}
+
+  [[ ${ENABLE_QUOTAS} -ne 1 ]] && return 0
+
+  local QUOTA_INFO
+  # Matches a line where the 3rd column is `type='STORAGE'` - returning the next three column values:
+  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${MAIL_ACCOUNT}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
+
+  local CURRENT_SIZE SIZE_LIMIT PERCENT_USED
+  # Format the extracted quota storage columns:
+  CURRENT_SIZE="$(_bytes_to_human_readable_size "${QUOTA_INFO[0]}")"
+  SIZE_LIMIT="$(_bytes_to_human_readable_size "${QUOTA_INFO[1]}")"
+  PERCENT_USED="${QUOTA_INFO[2]}%"
+
+  echo "( ${CURRENT_SIZE} / ${SIZE_LIMIT} ) [${PERCENT_USED}]"
+}
+
+function _bytes_to_human_readable_size
+{
+  # `-` represents a non-applicable value (eg: Like when `SIZE_LIMIT` is not set):
+  if [[ ${1:-} == '-' ]]
+  then
+    echo '~'
+  # Otherwise a value in KibiBytes (1024 bytes == 1k) is expected (Dovecots internal representation):
+  elif [[ ${1:-} =~ ^[0-9]+$ ]]
+  then
+    # kibibytes to bytes, converted to approproate IEC unit (eg: MiB):
+    echo $(( 1024 * ${1} )) | numfmt --to=iec
+  else
+    _exit_with_error "Supplied non-number argument '${1:-}' to '_bytes_to_human_readable_size()'"
+  fi
 }
 
 _main

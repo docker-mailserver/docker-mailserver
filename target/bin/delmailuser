@@ -25,7 +25,7 @@ function _main
     _alias_remove_for_recipient "${MAIL_ACCOUNT}" \
       || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted"
 
-    _quota_remove_for_mail_account "${MAIL_ACCOUNT}" \
+    _manage_dovecot_quota_delete "${MAIL_ACCOUNT}" \
       || _exit_with_error "Quota for '${MAIL_ACCOUNT}' could not be deleted"
 
     # Performed last, avoids breaking command if a prior failure occurred
