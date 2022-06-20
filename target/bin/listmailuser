@@ -11,11 +11,12 @@ source /etc/dms-settings 2>/dev/null
 function _main
 {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+
   _list_entries "${DATABASE_ACCOUNTS}"
 }
 
 # Used by `_list_entries`:
-source ./common/virtual-aliases.sh
 function _list_format_entry
 {
   local LINE=${1}
@@ -68,6 +69,22 @@ function _bytes_to_human_readable_size
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
     _exit_with_error "Supplied non-number argument '${1:-}' to '_bytes_to_human_readable_size()'"
+  fi
+}
+
+# Returns a comma delimited list of aliases associated to a recipient (ideally the recipient is a mail account):
+function _alias_list_for_account
+{
+  local MAIL_ACCOUNT=${1}
+
+  function _account_has_an_existing_alias
+  {
+    grep -qi "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" 2>/dev/null
+  }
+
+  if [[ -f ${DATABASE_VIRTUAL} ]] && _account_has_an_existing_alias
+  then
+    grep "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi
 }
 

@@ -22,7 +22,7 @@ function _main
 
     _remove_maildir "${MAIL_ACCOUNT}"
 
-    _alias_remove_for_recipient "${MAIL_ACCOUNT}" \
+    _manage_virtual_aliases_delete '_' "${MAIL_ACCOUNT}" \
       || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted"
 
     _manage_dovecot_quota_delete "${MAIL_ACCOUNT}" \

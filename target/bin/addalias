@@ -12,8 +12,8 @@ function _main
   local MAIL_ALIAS="${1}"
   local RECIPIENT="${2}"
 
-  _validate_parameters
-  _alias_add_for_recipient "${MAIL_ALIAS}" "${RECIPIENT}"
+  _manage_virtual_aliases_update "${MAIL_ALIAS}" "${RECIPIENT}" \
+    || _exit_with_error "'${MAIL_ALIAS}' is already an alias for recipient: '${RECIPIENT}'"
 }
 
 function __usage
@@ -42,11 +42,6 @@ ${ORANGE}EXIT STATUS${RESET}
     or arguments contain errors, the script will exit early with exit status 1.
 
 "
-}
-
-function _validate_parameters
-{
-  _arg_expect_alias_and_recipient
 }
 
 _main "${@}"
