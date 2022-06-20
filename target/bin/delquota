@@ -15,7 +15,29 @@ function _main
   _quota_remove_for_mail_account "${MAIL_ACCOUNT}"
 }
 
-function __usage { echo 'Usage: delquota <username@domain>' ; }
+function __usage
+{
+  printf '%s' "${PURPLE}delquota${RED}(${YELLOW}8${RED})
+
+${ORANGE}USAGE${RESET}
+    ./setup.sh quota del <MAIL ACCOUNT>
+
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Remove any quota set for an existing mail account.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh quota del user@example.com${RESET}
+
+${ORANGE}EXIT STATUS${RESET}
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
 
 function _validate_parameters
 {

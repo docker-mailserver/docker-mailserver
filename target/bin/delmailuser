@@ -15,35 +15,35 @@ function _main
 
 function __usage
 {
-  printf '%s' "${PURPLE}DELMAILUSER${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}delmailuser${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    delmailuser - delete a user and related data
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh email del [ OPTIONS ] { <MAIL ACCOUNT> [<MAIL ACCOUNT>${RED}...${RESET}] ${RED}|${RESET} help }
-
-${ORANGE}DESCRIPTION${RESET}
-    Delete a mail user, aliases, quotas and mail data.
+${ORANGE}USAGE${RESET}
+    ./setup.sh email del [ OPTIONS ] <MAIL ACCOUNT> [<EXTRA MAIL ACCOUNTS> ${RED}...${RESET} ]
 
 ${ORANGE}OPTIONS${RESET}
     -y
-        Indicate that ${LWHITE}all mail data${RESET} is to be deleted without another prompt.
+        Skip prompt by approving to ${LWHITE}delete all mail storage${RESET} for the account(s).
 
-    -h
-        Show this help dialogue.
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Delete a mail account, including associated data (aliases, quotas) and
+    optionally the mailbox storage for that account.
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh email del woohoo@some-domain.org${RESET}
-        Delete the mail user, quotas and aliases, but ask
-        again whether mailbox data should be deleted.
+    ${LWHITE}./setup.sh email del user@example.com${RESET}
+        Delete the mail account 'user@example.com' and associated data,
+        but ask if mailbox data should also be deleted.
 
-    ${LWHITE}./setup.sh email del -y test@domain.com test@domain.com${RESET}
-        Delete all mail data for the users 'test' and do not
-        prompt to ask if all mail data should be deleted.
+    ${LWHITE}./setup.sh email del -y user@example.com extra-user@example.com${RESET}
+        Delete the two mail accounts requested, their associated data and
+        delete the mailbox data for both accounts without asking.
 
 ${ORANGE}EXIT STATUS${RESET}
-    Exit status is 0 if command was successful, and 1 if there was an error.
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
 "
 }
 
@@ -57,16 +57,11 @@ function _validate_parameters
 
 function _parse_options
 {
-  while getopts ":yYh" OPT
+  while getopts ":yY" OPT
   do
     case "${OPT}" in
       ( 'y' | 'Y' )
         MAILDEL=true
-        ;;
-
-      ( 'h' )
-        __usage
-        exit 0
         ;;
 
       ( * )

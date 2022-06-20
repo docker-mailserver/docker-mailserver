@@ -17,17 +17,28 @@ function _main
 
 function __usage
 {
-  printf '%s' "${PURPLE}ADDRELAYHOST${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}addrelayhost${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    addrelayhost - add an relay host
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
+${ORANGE}USAGE${RESET}
+    ./setup.sh relay add-domain <SENDER DOMAIN> <RELAY HOST> [<RELAY PORT>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Add a relay-host where mail sent from mail accounts of the provided
+    domain will be relayed through to their destination.
+
+    If a port is not provided it will default to 25.
+
+    If the relay-host requires authentication, use the 'setup relay add-auth'
+    command after adding the relay-host.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh relay add-domain example.com relay.service.test 587${RESET}
+        Any mail submitted from your '@example.com' accounts will be sent via
+        relay using the relay-host service at 'relay.service.test:587'.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided

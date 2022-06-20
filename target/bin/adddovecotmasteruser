@@ -22,22 +22,26 @@ function _main
 
 function __usage
 {
-  printf '%s' "${PURPLE}ADDDOVECOTMASTERUSER${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}adddovecotmasteruser${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    addmasteruser - add a dovecot master user (for POP3/IMAP administration)
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh dovecot-master add <MAIL ACCOUNT> [<PASSWORD>]
+${ORANGE}USAGE${RESET}
+    ./setup.sh dovecot-master add <MASTER ACCOUNT> [<PASSWORD>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
+${ORANGE}DESCRIPTION${RESET}
+    Add a new dovecot-master account (for POP3/IMAP administration).
+
+    To avoid a password being logged in the command history of your shell,
+    you may omit it, you'll be prompted to input the password instead.
+
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh dovecot-master add test-user${RESET}
-        Add the dovecot master account 'test-user'. You will be prompted
-        to input a password afterwards since no password was supplied.
+    ${LWHITE}./setup.sh dovecot-master add example-account${RESET}
+        Create the dovecot-master account 'example-account'.
+
+        You will be prompted to input a password afterwards since no password was supplied.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided

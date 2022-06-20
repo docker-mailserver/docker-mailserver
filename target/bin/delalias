@@ -16,7 +16,31 @@ function _main
   _alias_remove_for_recipient "${RECIPIENT}" "${MAIL_ALIAS}"
 }
 
-function __usage { echo "Usage: delalias <alias@domain> <recipient@other>" ; }
+function __usage
+{
+  printf '%s' "${PURPLE}delalias${RED}(${YELLOW}8${RED})
+
+${ORANGE}USAGE${RESET}
+    ./setup.sh alias del <MAIL ALIAS> <RECIPIENT>
+
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Remove a mail account (the recipient) from an existing alias.
+    If the alias has no more recipients, the alias will also be removed.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh alias del alias@example.com recipient@example.com${RESET}
+        Remove the account 'recipient@example.com' from the alias 'alias@example.com'.
+
+${ORANGE}EXIT STATUS${RESET}
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
 
 function _validate_parameters
 {

@@ -26,22 +26,26 @@ function _main
 
 function __usage
 {
-  printf '%s' "${PURPLE}ADDMAILUSER${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}addmailuser${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    addmailuser - add an email address (i.e. a user)
-
-${ORANGE}SYNOPSIS${RESET}
+${ORANGE}USAGE${RESET}
     ./setup.sh email add <MAIL ACCOUNT> [<PASSWORD>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
+${ORANGE}DESCRIPTION${RESET}
+    Add a new mail account (email address).
+
+    To avoid a password being logged in the command history of your shell,
+    you may omit it, you'll be prompted to input the password instead.
+
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh email add test@domain.tld${RESET}
-        Add the email account test@domain.tld. You will be prompted
-        to input a password afterwards since no password was supplied.
+    ${LWHITE}./setup.sh email add user@example.com${RESET}
+        Create the email account 'user@example.com'.
+
+        You will be prompted to input a password afterwards since no password was supplied.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided

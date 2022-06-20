@@ -7,38 +7,35 @@ function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-  shift $((OPTIND-1))
-
   _validate_parameters ${*}
   _delete_accounts_dovecot_master "${@}"
 }
 
 function __usage
 {
-  printf '%s' "${PURPLE}DELDOVECOTMASTERUSER${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}deldovecotmasteruser${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    deldovecotmasteruser - delete a dovecot master user
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh dovecot-master del [ OPTIONS ] { <MAIL ACCOUNT> [<MAIL ACCOUNT>${RED}...${RESET}] ${RED}|${RESET} help }
-
-${ORANGE}DESCRIPTION${RESET}
-    Delete a dovecot master user.
+${ORANGE}USAGE${RESET}
+    ./setup.sh dovecot-master del <MASTER ACCOUNT> [<EXTRA MASTER ACCOUNTS> ${RED}...${RESET} ]
 
 ${ORANGE}OPTIONS${RESET}
-    -h
-        Show this help dialogue.
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Delete a dovecot-master account.
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh dovecot-master del administrator${RESET}
-        Delete the dovecot master user called 'administrator'.
+    ${LWHITE}./setup.sh dovecot-master del admin${RESET}
+        Delete the dovecot-master account 'admin'.
 
-    ${LWHITE}./setup.sh dovecot-master del administrator admin${RESET}
-        Delete dovecot master users 'administrator' and 'admin'.
+    ${LWHITE}./setup.sh dovecot-master del admin extra-admin${RESET}
+        Delete the two dovecot-master accounts requested.
 
 ${ORANGE}EXIT STATUS${RESET}
-    Exit status is 0 if command was successful, and 1 if there was an error.
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
 "
 }
 
