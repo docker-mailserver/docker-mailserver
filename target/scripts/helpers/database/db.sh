@@ -1,25 +1,8 @@
 #! /bin/bash
 
-# Used from /usr/local/bin/helpers/index.sh:
-# _exit_with_error
-
-source ./manage/dovecot-quotas.sh
-source ./manage/postfix-accounts.sh
-source ./manage/postfix-virtual.sh
-
-# Some of these helpers rely on:
-# - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
-# - Calling external method '__usage' as part of error handling.
-
-function _check_database_has_content
-{
-  local DATABASE=${1}
-
-  [[ -f ${DATABASE} ]] || _exit_with_error "'${DATABASE}' does not exist"
-  [[ -s ${DATABASE} ]] || _exit_with_error "'${DATABASE}' is empty, nothing to list"
-}
-
-# Accounts and Aliases (Virtual kind):
+# Modifications are supported for the following databases:
+#
+# Accounts and Aliases (The 'virtual' kind):
 DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
 DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
 DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
@@ -29,54 +12,17 @@ DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
 DATABASE_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
 DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
 
-function _db_get_delimiter_for
+# Individual scripts with convenience methods to manage operations easier:
+function _db_import_scripts
 {
-  local DATABASE=${1}
+  # shellcheck source-path=target/scripts/helpers/database/manage
+  local PATH_TO_SCRIPTS='/usr/local/bin/helpers/database/manage'
 
-  case "${DATABASE}" in
-    ( "${DATABASE_ACCOUNTS}" | "${DATABASE_DOVECOT_MASTERS}" )
-      echo "|"
-      ;;
-
-    # NOTE: These files support white-space delimiters, we have not
-    # historically enforced a specific value; as a workaround
-    # `_db_operation` will convert to ` ` (space) for writing.
-    ( "${DATABASE_PASSWD}" | "${DATABASE_RELAY}" | "${DATABASE_VIRTUAL}" )
-      echo "\s"
-      ;;
-
-    ( "${DATABASE_QUOTA}" )
-      echo ":"
-      ;;
-
-    ( * )
-      _exit_with_error "Unsupported DB '${DATABASE}'"
-      ;;
-
-    esac
+  source "${PATH_TO_SCRIPTS}/dovecot-quotas.sh"
+  source "${PATH_TO_SCRIPTS}/postfix-accounts.sh"
+  source "${PATH_TO_SCRIPTS}/postfix-virtual.sh"
 }
-
-# NOTE:
-# - Due to usage in regex pattern, key needs to be escaped.
-# - DELIMITER avoids false-positives by ensuring an exact match for the key.
-function _key_exists_in_db
-{
-  local KEY=${1}
-  local DATABASE=${2}
-  KEY=$(_escape "${KEY}")
-
-  # If the database file exists but has no content fail early:
-  [[ -s ${DATABASE} ]] || return 1
-
-  local DELIMITER
-  DELIMITER=$(_db_get_delimiter_for "${DATABASE}")
-
-  # NOTE:
-  # --quiet --no-messages, only return a status code of success/failure.
-  # --ignore-case as we don't want duplicate keys that vary by case.
-  # --extended-regexp not used, most regex escaping should be forbidden.
-  grep --quiet --no-messages --ignore-case "^${KEY}${DELIMITER}" "${DATABASE}"
-}
+_db_import_scripts
 
 function _db_entry_add_or_append  { _db_operation 'append'  "${@}" ; } # Only used by addalias
 function _db_entry_add_or_replace { _db_operation 'replace' "${@}" ; }
@@ -86,11 +32,12 @@ function _db_operation
 {
   local DB_ACTION=${1}
   local DATABASE=${2}
-  local KEY=${2}
-  local VALUE=${3}
+  local KEY=${3}
+  # Optional arg:
+  local VALUE=${4}
 
   local DELIMITER
-  DELIMITER=$(_db_get_delimiter_for "${DATABASE}")
+  DELIMITER=$(__db_get_delimiter_for "${DATABASE}")
 
   # DELIMITER provides a match boundary to avoid substring matches:
   local KEY_LOOKUP
@@ -109,7 +56,7 @@ function _db_operation
   [[ ${DATABASE} == "${DATABASE_VIRTUAL}" ]] && DELIMITER=','
 
   # Perform requested operation:
-  if _key_exists_in_db "${KEY}" "${DATABASE}"
+  if _db_has_entry_with_key "${KEY}" "${DATABASE}"
   then
     # Find entry for key and return status code:
     case "${DB_ACTION}" in
@@ -160,7 +107,7 @@ function _db_operation
         return 0
         ;;
 
-      ( * ) # Should only fail for developer using this API:
+      ( * ) # This should not happen if using convenience wrapper methods:
         _exit_with_error "Unsupported DB operation: '${DB_ACTION}'"
         ;;
 
@@ -168,7 +115,7 @@ function _db_operation
   fi
 }
 
-# Internal method for `_db_operation`:
+# Internal method for: _db_operation
 function __db_list_already_contains_value
 {
   # Extract the entries current value (`\1`), and split into lines (`\n`) at DELIMITER,
@@ -180,22 +127,65 @@ function __db_list_already_contains_value
     "${DATABASE}" | grep -qi "^${_VALUE_}$"
 }
 
-### Password Methods ###
 
-function _password_request_if_missing
+# Internal method for: _db_operation + _db_has_entry_with_key
+# References global vars `DATABASE_*`:
+function __db_get_delimiter_for
 {
-  if [[ -z ${PASSWD} ]]
-  then
-    read -r -s -p 'Enter Password: ' PASSWD
-    echo
-    [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
-  fi
+  local DATABASE=${1}
+
+  case "${DATABASE}" in
+    ( "${DATABASE_ACCOUNTS}" | "${DATABASE_DOVECOT_MASTERS}" )
+      echo "|"
+      ;;
+
+    # NOTE: These files support white-space delimiters, we have not
+    # historically enforced a specific value; as a workaround
+    # `_db_operation` will convert to ` ` (space) for writing.
+    ( "${DATABASE_PASSWD}" | "${DATABASE_RELAY}" | "${DATABASE_VIRTUAL}" )
+      echo "\s"
+      ;;
+
+    ( "${DATABASE_QUOTA}" )
+      echo ":"
+      ;;
+
+    ( * )
+      _exit_with_error "Unsupported DB '${DATABASE}'"
+      ;;
+
+    esac
 }
 
-function _password_hash
-{
-  local MAIL_ACCOUNT=${1}
-  local PASSWD=${2}
+#
+# Validation Methods
+#
 
-  doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}"
+function _db_has_entry_with_key
+{
+  local KEY=${1}
+  local DATABASE=${2}
+
+  # Fail early if the database file exists but has no content:
+  [[ -s ${DATABASE} ]] || return 1
+
+  # Due to usage in regex pattern, key needs to be escaped
+  KEY=$(_escape "${KEY}")
+  # DELIMITER avoids false-positives by ensuring an exact match for the key
+  local DELIMITER
+  DELIMITER=$(__db_get_delimiter_for "${DATABASE}")
+
+  # NOTE:
+  # --quiet --no-messages, only return a status code of success/failure.
+  # --ignore-case as we don't want duplicate keys that vary by case.
+  # --extended-regexp not used, most regex escaping should be forbidden.
+  grep --quiet --no-messages --ignore-case "^${KEY}${DELIMITER}" "${DATABASE}"
+}
+
+function _db_should_exist_with_content
+{
+  local DATABASE=${1}
+
+  [[ -f ${DATABASE} ]] || _exit_with_error "'${DATABASE}' does not exist"
+  [[ -s ${DATABASE} ]] || _exit_with_error "'${DATABASE}' is empty, nothing to list"
 }

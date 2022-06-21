@@ -12,7 +12,7 @@ function _main
 function _list_entries
 {
   local DATABASE=${1}
-  _check_database_has_content "${DATABASE}"
+  _db_should_exist_with_content "${DATABASE}"
 
   local MASTER_ACCOUNT
   while read -r LINE

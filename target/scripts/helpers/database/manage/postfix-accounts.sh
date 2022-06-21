@@ -23,7 +23,7 @@ function _manage_accounts
       _password_request_if_missing
 
       local PASSWD_HASH
-      PASSWD_HASH=$(_password_hash "${MAIL_ACCOUNT}" "${PASSWD}")
+      PASSWD_HASH=$(doveadm pw -s SHA512-CRYPT -u "${MAIL_ACCOUNT}" -p "${PASSWD}")
       # Early failure above ensures correct operation => Add (create) or Replace (update):
       _db_entry_add_or_replace "${DATABASE}" "${MAIL_ACCOUNT}" "${PASSWD_HASH}"
       ;;
@@ -55,6 +55,11 @@ function _manage_accounts_dovecotmaster_delete { _manage_accounts 'delete' "${DA
 # Validation Methods
 #
 
+# These validation helpers rely on:
+# - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
+# - Calling external method '__usage' as part of error handling.
+
+# Also used by setquota, delquota
 function _arg_expect_mail_account
 {
   [[ -z ${MAIL_ACCOUNT} ]] && { __usage ; _exit_with_error 'No account specified' ; }
@@ -71,6 +76,7 @@ function _account_should_not_exist_yet
   __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
 }
 
+# Also used by delmailuser, setquota, delquota
 function _account_should_already_exist
 {
   ! __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' does not exist"
@@ -79,5 +85,16 @@ function _account_should_already_exist
 function __account_already_exists
 {
   local DATABASE=${DATABASE:-"${DATABASE_ACCOUNTS}"}
-  _key_exists_in_db "${MAIL_ACCOUNT}" "${DATABASE}"
+  _db_has_entry_with_key "${MAIL_ACCOUNT}" "${DATABASE}"
+}
+
+# Also used by addsaslpassword
+function _password_request_if_missing
+{
+  if [[ -z ${PASSWD} ]]
+  then
+    read -r -s -p 'Enter Password: ' PASSWD
+    echo
+    [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
+  fi
 }
