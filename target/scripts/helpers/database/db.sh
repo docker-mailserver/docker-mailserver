@@ -36,24 +36,24 @@ function _db_operation
   # Optional arg:
   local VALUE=${4}
 
-  local DELIMITER
-  DELIMITER=$(__db_get_delimiter_for "${DATABASE}")
+  # K_DELIMITER provides a match boundary to avoid accidentally matching substrings:
+  local K_DELIMITER KEY_LOOKUP
+  K_DELIMITER=$(__db_get_delimiter_for "${DATABASE}")
+  # Due to usage in regex pattern, KEY needs to be escaped:
+  KEY_LOOKUP="$(_escape "${KEY}")${K_DELIMITER}"
 
-  # DELIMITER provides a match boundary to avoid substring matches:
-  local KEY_LOOKUP
-  KEY_LOOKUP="$(_escape "${KEY}")${DELIMITER}"
-
-  # Supports adding or replacing an entire entry:
+  # Support for adding or replacing an entire entry (line):
   # White-space delimiter should be written into DATABASE as 'space' character:
-  [[ ${DELIMITER} == '\s' ]] && DELIMITER=' '
-  local ENTRY="${KEY}${DELIMITER}${VALUE}"
+  local V_DELIMITER="${K_DELIMITER}"
+  [[ ${V_DELIMITER} == '\s' ]] && V_DELIMITER=' '
+  local ENTRY="${KEY}${V_DELIMITER}${VALUE}"
 
-  # Supports 'append' + 'remove' operations on value lists:
+  # Support for 'append' + 'remove' operations on value lists:
   # NOTE: Presently only required for `postfix-virtual.cf`.
   local _VALUE_
   _VALUE_=$(_escape "${VALUE}")
   # `postfix-virtual.cf` is using `,` for delimiting a list of recipients:
-  [[ ${DATABASE} == "${DATABASE_VIRTUAL}" ]] && DELIMITER=','
+  [[ ${DATABASE} == "${DATABASE_VIRTUAL}" ]] && V_DELIMITER=','
 
   # Perform requested operation:
   if _db_has_entry_with_key "${KEY}" "${DATABASE}"
@@ -63,28 +63,32 @@ function _db_operation
       ( 'append' )
         __db_list_already_contains_value && return 1
 
-        sedfile --strict -i "/^${KEY_LOOKUP}/s/$/${DELIMITER}${VALUE}/" "${DATABASE}"
+        sedfile --strict -i "/^${KEY_LOOKUP}/s/$/${V_DELIMITER}${VALUE}/" "${DATABASE}"
         ;;
 
       ( 'replace' )
+        ENTRY=$(__escape_sed_replacement "${ENTRY}")
         sedfile --strict -i "s/^${KEY_LOOKUP}.*/${ENTRY}/" "${DATABASE}"
         ;;
 
       ( 'remove' )
         if [[ -z ${VALUE} ]]
-        then
+        then # Remove entry for KEY:
           sedfile --strict -i "/^${KEY_LOOKUP}/d" "${DATABASE}"
-        else
+        else # Remove target VALUE from entry:
           __db_list_already_contains_value || return 0
 
-          # If an exact match for VALUE exists for KEY,
-          # - If VALUE is the only value => Remove entry
+          # The delimiter between key and first value may differ from
+          # the delimiter between multiple values (value list):
+          local LEFT_DELIMITER="\(${K_DELIMITER}\|${V_DELIMITER}\)"
+          # If an entry for KEY contains an exact match for VALUE:
+          # - If VALUE is the only value => Remove entry (line)
           # - If VALUE is the last value => Remove VALUE
-          # - Otherwise => Collapse value to DELIMITER
+          # - Otherwise => Collapse value to LEFT_DELIMITER (\1)
           sedfile --strict -i \
             -e "/^${KEY_LOOKUP}\+${_VALUE_}$/d" \
-            -e "/^${KEY_LOOKUP}/s/${DELIMITER}${_VALUE_}$//g" \
-            -e "/^${KEY_LOOKUP}/s/${DELIMITER}${_VALUE_}${DELIMITER}/${DELIMITER}/g" \
+            -e "/^${KEY_LOOKUP}/s/${V_DELIMITER}${_VALUE_}$//g" \
+            -e "/^${KEY_LOOKUP}/s/${LEFT_DELIMITER}${_VALUE_}${V_DELIMITER}/\1/g" \
             "${DATABASE}"
           fi
         ;;
@@ -118,13 +122,13 @@ function _db_operation
 # Internal method for: _db_operation
 function __db_list_already_contains_value
 {
-  # Extract the entries current value (`\1`), and split into lines (`\n`) at DELIMITER,
-  # then check if the target VALUE has an exact match (not a substring):
-  # NOTE: `-n` + `p` ensures `grep` only receives the 2nd sed expression output.
-  sed -n \
-    -e "s/^${KEY_LOOKUP}\(.*\)/\1/" \
-    -e "s/${DELIMITER}/\n/gp"       \
-    "${DATABASE}" | grep -qi "^${_VALUE_}$"
+  # Avoids accidentally matching a substring (case-insensitive acceptable):
+  # 1. Extract the current value of the entry (`\1`),
+  # 2. If a value list, split into separate lines (`\n`+`g`) at V_DELIMITER,
+  # 3. Check each line for an exact match of the target VALUE
+  sed -e "s/^${KEY_LOOKUP}\(.*\)/\1/" \
+      -e "s/${V_DELIMITER}/\n/g"      \
+      "${DATABASE}" | grep -qi "^${_VALUE_}$"
 }
 
 
@@ -157,6 +161,16 @@ function __db_get_delimiter_for
     esac
 }
 
+# sed replacement feature needs to be careful of content containing `/` and `&`,
+# `\` can escape these (`/` exists in postfix-account.cf base64 encoded pw hash),
+# But otherwise care should be taken with `\`, which should be forbidden for input here?
+# NOTE: Presently only `.` is escaped with `\` via `_escape`.
+function __escape_sed_replacement
+{
+  # Matches any `/` or `&`, and escapes them with `\` (`\\\1`):
+  sed 's/\([/&]\)/\\\1/g' <<< "${ENTRY}"
+}
+
 #
 # Validation Methods
 #
@@ -169,17 +183,17 @@ function _db_has_entry_with_key
   # Fail early if the database file exists but has no content:
   [[ -s ${DATABASE} ]] || return 1
 
-  # Due to usage in regex pattern, key needs to be escaped
-  KEY=$(_escape "${KEY}")
-  # DELIMITER avoids false-positives by ensuring an exact match for the key
-  local DELIMITER
-  DELIMITER=$(__db_get_delimiter_for "${DATABASE}")
+  # K_DELIMITER provides a match boundary to avoid accidentally matching substrings:
+  local K_DELIMITER KEY_LOOKUP
+  K_DELIMITER=$(__db_get_delimiter_for "${DATABASE}")
+  # Due to usage in regex pattern, KEY needs to be escaped:
+  KEY_LOOKUP="$(_escape "${KEY}")${K_DELIMITER}"
 
   # NOTE:
   # --quiet --no-messages, only return a status code of success/failure.
   # --ignore-case as we don't want duplicate keys that vary by case.
   # --extended-regexp not used, most regex escaping should be forbidden.
-  grep --quiet --no-messages --ignore-case "^${KEY}${DELIMITER}" "${DATABASE}"
+  grep --quiet --no-messages --ignore-case "^${KEY_LOOKUP}" "${DATABASE}"
 }
 
 function _db_should_exist_with_content
