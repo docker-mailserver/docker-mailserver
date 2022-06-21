@@ -19,7 +19,7 @@ function _account_update_password_in_db
 
   local PASSWD_HASH=$(_password_hash "${MAIL_ACCOUNT}" "${PASSWD}")
   # Should only replace (due to earlier check that account exists):
-  _db_entry_add_or_replace_for_key "${MAIL_ACCOUNT}|${PASSWD_HASH}" "${DATABASE}"
+  _db_entry_add_or_replace "${DATABASE}" "${MAIL_ACCOUNT}" "${PASSWD_HASH}"
 }
 
 ### addmailuser, adddovecotmasteruser ###
@@ -38,7 +38,7 @@ function _account_add_to_db
 
   local PASSWD_HASH=$(_password_hash "${MAIL_ACCOUNT}" "${PASSWD}")
   # Should only add (due to earlier check that account does not exist):
-  _db_entry_add_or_replace_for_key "${MAIL_ACCOUNT}|${PASSWD_HASH}" "${DATABASE}"
+  _db_entry_add_or_replace "${DATABASE}" "${MAIL_ACCOUNT}" "${PASSWD_HASH}"
 }
 
 # TODO: Remove this method or at least it's usage in `addmailuser`. If tests are failing, correct the tests.
@@ -79,5 +79,5 @@ function _account_remove_from_db
   local MAIL_ACCOUNT=${1}
   local DATABASE=${2}
 
-  _db_remove_entry_for_key "${MAIL_ACCOUNT}" "${DATABASE}"
+  _db_entry_remove "${DATABASE}" "${MAIL_ACCOUNT}"
 }

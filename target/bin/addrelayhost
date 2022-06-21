@@ -62,7 +62,7 @@ function _add_relayhost
   local RELAY_HOST_ENTRY="[${HOST}]:${PORT}"
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
 
-  _db_entry_add_or_replace_for_key "${SENDER} ${RELAY_HOST_ENTRY}" "${DATABASE_RELAY}"
+  _db_entry_add_or_replace "${DATABASE_RELAY}" "${SENDER}" "${RELAY_HOST_ENTRY}"
 }
 
 _main "${@}"

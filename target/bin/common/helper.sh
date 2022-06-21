@@ -67,22 +67,6 @@ function _db_get_delimiter_for
     esac
 }
 
-# NOTE: sed was chosen as it works for a regex white-space delimiter `\s`
-function _take_left_of_delimiter_for_entry
-{
-  sed "s/${1}.*//" <<< "${2}"
-}
-
-# NOTE: grep was chosen as it works for a regex white-space delimiter `\s`
-function _take_right_of_delimiter_for_entry
-{
-  local MATCH
-  MATCH=$(grep -o "${1}.*" <<< ${2})
-
-  # Truncates first character (the delimiter)
-  echo "${MATCH:1}"
-}
-
 # NOTE:
 # - Due to usage in regex pattern, key needs to be escaped.
 # - DELIMITER avoids false-positives by ensuring an exact match for the key.
@@ -104,31 +88,33 @@ function _key_exists_in_db
   grep --quiet --no-messages --ignore-case "^${KEY}${DELIMITER}" "${DATABASE}"
 }
 
-function _db_entry_add_or_append_to_for_key { _db_operation 'append'  ${*} }
-function _db_entry_add_or_replace_for_key   { _db_operation 'replace' ${*} }
-function _db_entry_remove_for_key           { _db_operation 'remove'  ${*} }
+function _db_entry_add_or_append  { _db_operation 'append'  "${@}" ; } # Only used by addalias
+function _db_entry_add_or_replace { _db_operation 'replace' "${@}" ; }
+function _db_entry_remove         { _db_operation 'remove'  "${@}" ; }
 
 function _db_operation
 {
   local DB_ACTION=${1}
-  local ENTRY=${2}
-  local DATABASE=${3}
+  local DATABASE=${2}
+  local KEY=${2}
+  local VALUE=${3}
 
-  # Extract lookup KEY from ENTRY by truncating at DELIMITER for DATABASE:
-  local DELIMITER KEY
+  local DELIMITER
   DELIMITER=$(_db_get_delimiter_for "${DATABASE}")
-  KEY=$(_take_left_of_delimiter_for_entry "${DELIMITER}" "${ENTRY}")
+
+  local ENTRY="${KEY}${DELIMITER}${VALUE}"
+  # For this delimiter (only directly after key), convert to 'space' character:
+  [[ ${DELIMITER} == '\s' ]] && ENTRY=$(sed 's/\\s/ /' <<< "${ENTRY}"
 
   if _key_exists_in_db "${KEY}" "${DATABASE}"
   then # Operate on existing entry for key
     KEY=$(_escape "${KEY}")
 
-    # Return failure status if operation unsuccessful:
+    # Find entry for key, perform operation and return status code:
     case "${DB_ACTION}" in
       ( 'append' )
-        local VALUE
-        VALUE=$(_take_right_of_delimiter_for_entry "${DELIMITER}" "${ENTRY}")
-
+        # Presently only supports appending recipient values for `postfix-virtual.cf`:
+        [[ ${DATABASE} == ${DATABASE_VIRTUAL} ]] && VALUE=",${VALUE}"
         sedfile --strict -i "/^${KEY}${DELIMITER}/s/$/${VALUE}/" "${DATABASE}"
         ;;
 
@@ -140,7 +126,7 @@ function _db_operation
         sedfile --strict -i "/^${KEY}${DELIMITER}/d" "${DATABASE}"
         ;;
 
-      ( * ) # Developer failure:
+      ( * ) # Should only fail for developer using this API:
         _exit_with_error "Unsupported DB operation: '${DB_ACTION}'"
         ;;
 
@@ -155,7 +141,7 @@ function _db_operation
         return 0
         ;;
 
-      ( * ) # Developer failure:
+      ( * ) # Should only fail for developer using this API:
         _exit_with_error "Unsupported DB operation: '${DB_ACTION}'"
         ;;
 

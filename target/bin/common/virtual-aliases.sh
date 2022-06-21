@@ -37,7 +37,7 @@ function _alias_add_for_recipient
   }
 
   _recipient_already_mapped_to_alias && _exit_with_error "'${MAIL_ALIAS}' is already an alias for ${RECIPIENT}'"
-  _db_entry_add_or_append_to_for_key "${MAIL_ALIAS} ${RECIPIENT}" "${DATABASE_VIRTUAL}"
+  _db_entry_add_or_append "${DATABASE_VIRTUAL}" "${MAIL_ALIAS}" "${RECIPIENT}"
 }
 
 # Used by delalias + delmailuser

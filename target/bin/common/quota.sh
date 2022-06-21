@@ -15,7 +15,7 @@ function _quota_set_for_mail_account
   _create_lock # Protect config file with lock to avoid race conditions
   touch "${DATABASE_QUOTA}"
 
-  _db_entry_add_or_replace_for_key "${MAIL_ACCOUNT}:${QUOTA}" "${DATABASE_QUOTA}"
+  _db_entry_add_or_replace "${DATABASE_QUOTA}" "${MAIL_ACCOUNT}" "${QUOTA}"
 }
 
 # Delete - Used by delquota:
@@ -24,7 +24,7 @@ function _quota_remove_for_mail_account
   local MAIL_ACCOUNT=${1}
   local DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
 
-  _db_entry_remove_for_key "${MAIL_ACCOUNT}" "${DATABASE_QUOTA}"
+  _db_entry_remove "${DATABASE_QUOTA}" "${MAIL_ACCOUNT}"
 }
 
 # List - Used by listmailuser:
