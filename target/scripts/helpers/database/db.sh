@@ -1,16 +1,17 @@
 #! /bin/bash
 
+DMS_CONFIG='/tmp/docker-mailserver'
 # Modifications are supported for the following databases:
 #
 # Accounts and Aliases (The 'virtual' kind):
-DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
-DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
-DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+DATABASE_ACCOUNTS="${DMS_CONFIG}/postfix-accounts.cf"
+DATABASE_DOVECOT_MASTERS="${DMS_CONFIG}/dovecot-masters.cf"
+DATABASE_VIRTUAL="${DMS_CONFIG}/postfix-virtual.cf"
 # Dovecot Quota support:
-DATABASE_QUOTA='/tmp/docker-mailserver/dovecot-quotas.cf'
+DATABASE_QUOTA="${DMS_CONFIG}/dovecot-quotas.cf"
 # Relay-Host support:
-DATABASE_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
-DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
+DATABASE_PASSWD="${DMS_CONFIG}/postfix-sasl-password.cf"
+DATABASE_RELAY="${DMS_CONFIG}/postfix-relaymap.cf"
 
 # Individual scripts with convenience methods to manage operations easier:
 function _db_import_scripts
@@ -103,6 +104,7 @@ function _db_operation
     case "${DB_ACTION}" in
       # Fallback action 'Add new entry':
       ( 'append' | 'replace' )
+        [[ ! -d ${DMS_CONFIG} ]] && mkdir -p "${DMS_CONFIG}"
         echo "${ENTRY}" >>"${DATABASE}"
         ;;
 
