@@ -9,9 +9,6 @@ function _main
 
   # Validate Parameters:
   [[ -z ${*} ]] && { __usage ; _exit_with_error 'No account specified' ; }
-  # Support for optional maildir removal:
-  local MAILDEL='false'
-  _parse_options
   _maildel_request_if_missing
 
   # TODO: May want to lock all database files prior to loop? (DATABASE_ACCOUNTS DATABASE_QUOTA DATABASE_VIRTUAL)
@@ -23,7 +20,7 @@ function _main
   do
     _account_should_already_exist
 
-    _remove_maildir "${MAIL_ACCOUNT}"
+    [[ ${MAILDEL} -eq 1 ]] && _remove_maildir "${MAIL_ACCOUNT}"
 
     _manage_virtual_aliases_delete '_' "${MAIL_ACCOUNT}" \
       || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted"
@@ -79,7 +76,7 @@ function _parse_options
   do
     case "${OPT}" in
       ( 'y' | 'Y' )
-        MAILDEL=true
+        MAILDEL=1
         ;;
 
       ( * )
@@ -89,12 +86,11 @@ function _parse_options
 
     esac
   done
-  shift $((OPTIND-1))
 }
 
 function _maildel_request_if_missing
 {
-  if ! ${MAILDEL}
+  if [[ ${MAILDEL} -eq 0 ]]
   then
     local MAILDEL_CHOSEN
     read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
@@ -102,7 +98,7 @@ function _maildel_request_if_missing
     # TODO: Why would MAILDEL be set to true if MAILDEL_CHOSEN is empty?
     if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
     then
-      MAILDEL=true
+      MAILDEL=1
     fi
   fi
 }
@@ -115,23 +111,18 @@ function _remove_maildir
   local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
   local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN_PART}/${LOCAL_PART}"
 
-  if ! ${MAILDEL}
-  then
-    echo 'Leaving the mailbox untouched.'
-    echo "If you want to delete it at a later point use 'sudo docker exec mailserver rm -R ${MAIL_ACCOUNT_STORAGE_DIR}'"
-    return 0
-  fi
+  [[ ! -d ${MAIL_ACCOUNT_STORAGE_DIR} ]] && _exit_with_error "Mailbox directory '${MAIL_ACCOUNT_STORAGE_DIR}' does not exist"
 
-  if [[ ! -d ${MAIL_ACCOUNT_STORAGE_DIR} ]]
-  then
-    _exit_with_error "Mailbox directory '${MAIL_ACCOUNT_STORAGE_DIR}' does not exist"
-  else
-    _log 'info' "Deleting Mailbox: '${MAIL_ACCOUNT_STORAGE_DIR}'"
-    rm -R "${MAIL_ACCOUNT_STORAGE_DIR}" || _exit_with_error 'Mailbox could not be deleted'
-
-    # Remove parent directory too if it's empty:
-    rmdir "/var/mail/${DOMAIN_PART}" &>/dev/null
-  fi
+  _log 'info' "Deleting Mailbox: '${MAIL_ACCOUNT_STORAGE_DIR}'"
+  rm -R "${MAIL_ACCOUNT_STORAGE_DIR}" || _exit_with_error 'Mailbox could not be deleted'
+  # Remove parent directory too if it's empty:
+  rmdir "/var/mail/${DOMAIN_PART}" &>/dev/null
 }
+
+# Support for optional maildir removal:
+MAILDEL=0
+_parse_options "${@}"
+# Remove options before passing over parameters to _main:
+shift $((OPTIND-1))
 
 _main "${@}"
