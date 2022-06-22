@@ -1,5 +1,9 @@
 #! /bin/bash
 
+# Matches relative path to this scripts parent directory,
+# Must be defined above any function that would source relative to it:
+# shellcheck source-path=target/scripts/helpers/database
+
 DMS_CONFIG='/tmp/docker-mailserver'
 # Modifications are supported for the following databases:
 #
@@ -16,12 +20,14 @@ DATABASE_RELAY="${DMS_CONFIG}/postfix-relaymap.cf"
 # Individual scripts with convenience methods to manage operations easier:
 function _db_import_scripts
 {
-  # shellcheck source-path=target/scripts/helpers/database/manage
-  local PATH_TO_SCRIPTS='/usr/local/bin/helpers/database/manage'
+  # This var is stripped by shellcheck from source paths below,
+  # like the shellcheck source-path above, it shouold match this scripts
+  # parent directory, with the rest of the relative path in the source lines:
+  local PATH_TO_SCRIPTS='/usr/local/bin/helpers/database'
 
-  source "${PATH_TO_SCRIPTS}/dovecot-quotas.sh"
-  source "${PATH_TO_SCRIPTS}/postfix-accounts.sh"
-  source "${PATH_TO_SCRIPTS}/postfix-virtual.sh"
+  source "${PATH_TO_SCRIPTS}/manage/dovecot-quotas.sh"
+  source "${PATH_TO_SCRIPTS}/manage/postfix-accounts.sh"
+  source "${PATH_TO_SCRIPTS}/manage/postfix-virtual.sh"
 }
 _db_import_scripts
 
