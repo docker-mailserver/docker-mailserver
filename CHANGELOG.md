@@ -4,6 +4,10 @@
 
 In this release the relay-host support saw [significant internal refactoring](https://github.com/docker-mailserver/docker-mailserver/pull/2604) in preparation for a future breaking change. Similar extensive restructuring through the codebase also occurred, where [each PR provides more details](https://github.com/docker-mailserver/docker-mailserver/milestone/17?closed=1). Care was taken to avoid breakage, but there may be some risk affecting unsupported third-party customizations which our test suite is unaware of.
 
+### Features
+
+- There is now support for [Dovecot-Master accounts](https://docker-mailserver.github.io/docker-mailserver/v11.1/config/advanced/dovecot-master-accounts/) that provide admin access to all mail accounts ([#2535](https://github.com/docker-mailserver/docker-mailserver/pull/2535))
+
 ### Fixes
 
 - Using Port 465 to authenticate with a relay-host no longer breaks the Amavis transport for Postfix ([#2607](https://github.com/docker-mailserver/docker-mailserver/pull/2607))
