@@ -112,6 +112,14 @@ Otherwise, `nftables` won't be able to ban IPs.
 - reject => reject packet (send ICMP unreachable)
 FAIL2BAN_BLOCKTYPE=drop
 
+##### FAIL2BAN_LEGACY_IPTABLES
+
+Enable legacy iptables firewall. Useful when docker is running on some type of appliance (e.g. QNAP NAS)
+
+- **0**   => use nftables
+- 1 => use iptables-legacy
+FAIL2BAN_LEGACY_IPTABLES=0
+
 ##### SMTP_ONLY
 
 - **empty** => all daemons start

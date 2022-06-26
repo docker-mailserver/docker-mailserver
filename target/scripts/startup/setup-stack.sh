@@ -1070,6 +1070,11 @@ function _setup_fail2ban
     echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
   fi
 
+  if [[ ${FAIL2BAN_LEGACY_IPTABLES} -eq 1 ]]
+  then
+    sed -i 's/banaction = nftables-allports/banaction = iptables-allports/' /etc/fail2ban/jail.local
+  fi
+
   echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
 }
 

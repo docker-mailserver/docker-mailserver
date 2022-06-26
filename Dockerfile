@@ -55,7 +55,7 @@ RUN \
   dovecot-ldap dovecot-lmtpd dovecot-managesieved dovecot-pop3d \
   dovecot-sieve dovecot-solr dumb-init \
   # E - O
-  ed fetchmail file gamin gnupg gzip iproute2 \
+  ed fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl libldap-common liblz4-tool \
   libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
   netcat-openbsd nftables nomarch opendkim opendkim-tools opendmarc \
@@ -78,6 +78,9 @@ RUN \
     echo "ERROR: Wrong GPG fingerprint!" >&2; exit 1; fi && \
   dpkg -i fail2ban.deb 2>&1 && \
   rm fail2ban.deb fail2ban.deb.asc && \
+  # allow legacy iptables to be configured via FAIL2BAN_LEGACY_IPTABLES
+  update-alternatives --set iptables /usr/sbin/iptables-legacy && \
+  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy && \
   # cleanup
   apt-get -qq autoremove && \
   apt-get -qq autoclean && \
