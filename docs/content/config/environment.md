@@ -178,7 +178,7 @@ Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postf
 
 - **empty**: fail
 - `lmtp:unix:private/dovecot-lmtp` (use socket)
-- `lmtps:inet:<host>:<port>` (secure lmtp with starttls, take a look at <https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/>)
+- `lmtps:inet:<host>:<port>` (secure lmtp with starttls)
 - `lmtp:<kopano-host>:2003` (use kopano as mailstore)
 - etc.
 
@@ -443,7 +443,6 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 - 1 => LDAP authentification is enabled
 - NOTE:
   - A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
-  - For preparing the ldap server to use in combination with this container [this](http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/) article may be helpful
 
 ##### LDAP_START_TLS
 
