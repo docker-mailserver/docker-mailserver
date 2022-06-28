@@ -21,7 +21,7 @@ function repeat_until_success_or_timeout {
   fi
 
   if ! [[ "${1}" =~ ^[0-9]+$ ]]; then
-    echo "First parameter for timeout must be an integer, recieved \"${1}\""
+    echo "First parameter for timeout must be an integer, received \"${1}\""
     return 1
   fi
 
@@ -50,7 +50,7 @@ function repeat_until_success_or_timeout {
 # @param ... test command to run
 function run_until_success_or_timeout {
   if ! [[ ${1} =~ ^[0-9]+$ ]]; then
-    echo "First parameter for timeout must be an integer, recieved \"${1}\""
+    echo "First parameter for timeout must be an integer, received \"${1}\""
     return 1
   fi
 
