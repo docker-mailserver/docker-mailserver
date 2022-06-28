@@ -32,7 +32,7 @@ _log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 # Change detection delayed during startup to avoid conflicting writes
 sleep 10
 
-_log_with_date 'debug' "Chagedetector is ready"
+_log_with_date 'debug' "Changedetector is ready"
 
 function _check_for_changes
 {
