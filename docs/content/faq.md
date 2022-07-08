@@ -141,6 +141,8 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
+Also you need to define `hostname: example.com` in your docker-compose.yml and don't sepecify the `domainname:` at all.
+
 ### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
 In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (`05-domain_id` in the amavis defaults).
