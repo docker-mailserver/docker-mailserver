@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build images locally
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v3.1.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -52,7 +52,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Build image for test suit
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v3.1.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
