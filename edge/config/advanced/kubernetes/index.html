@@ -1109,6 +1109,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#certificates-an-example" class="md-nav__link">
+    Certificates - An Example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sensitive-data" class="md-nav__link">
     Sensitive Data
   </a>
@@ -1632,6 +1639,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#certificates-an-example" class="md-nav__link">
+    Certificates - An Example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sensitive-data" class="md-nav__link">
     Sensitive Data
   </a>
@@ -1725,10 +1739,13 @@
   <h1>Kubernetes</h1>
 
 <h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
-<p>Kubernetes (also known by its abbreviation K8s) is a production-grade orchestrating tool for containers. This article describes how to deploy <code>docker-mailserver</code> to K8s. K8s differs from Docker especially when it comes to separation of concerns: Whereas with Docker Compose, you can fit everything in one file, with K8s, the information is split. This may seem (too) verbose, but actually provides a clear structure with more features and scalability. We are going to have a look at how to deploy one instance of <code>docker-mailserver</code> to your cluster.</p>
-<p>We assume basic knowledge about K8s from the reader. If you're not familiar with K8s, we highly recommend starting with something less complex, like Docker Compose.</p>
+<p>This article describes how to deploy <code>docker-mailserver</code> to Kubernetes. Please note that there is also a <a href="https://github.com/docker-mailserver/docker-mailserver-helm">Helm chart</a> available.</p>
+<div class="admonition attention">
+<p class="admonition-title">Requirements</p>
+<p>We assume basic knowledge about Kubernetes from the reader. Moreover, we assume the reader to have a basic understanding of mail servers. Ideally, the reader has deployed <code>docker-mailserver</code> before in an easier setup with Docker (Compose).</p>
+</div>
 <div class="admonition warning">
-<p class="admonition-title">About Support for K8s</p>
+<p class="admonition-title">About Support for Kubernetes</p>
 <p>Please note that Kubernetes <strong>is not</strong> officially supported and we do not build images specifically designed for it. When opening an issue, please remember that only Docker &amp; Docker Compose are officially supported.</p>
 <p>This content is entirely community-supported. If you find errors, please open an issue and provide a PR.</p>
 </div>
@@ -1742,7 +1759,7 @@
 <span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver.environment</span><span class="w"></span>
 
-<span class="nt">immutable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># turn off during development</span><span class="w"></span>
+<span class="nt">immutable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
 
 <span class="nt">data</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">TLS_LEVEL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modern</span><span class="w"></span>
@@ -1763,6 +1780,11 @@
 <span class="w">  </span><span class="nt">ENABLE_SPAMASSASSIN</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">SUPERVISOR_LOGLEVEL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warn</span><span class="w"></span>
 <span class="w">  </span><span class="nt">SPAMASSASSIN_SPAM_TO_INBOX</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1"># here, we provide an example for the SSL configuration</span><span class="w"></span>
+<span class="w">  </span><span class="nt">SSL_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span><span class="w"></span>
+<span class="w">  </span><span class="nt">SSL_CERT_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/secrets/ssl/rsa/tls.crt</span><span class="w"></span>
+<span class="w">  </span><span class="nt">SSL_KEY_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/secrets/ssl/rsa/tls.key</span><span class="w"></span>
 </code></pre></div>
 <p>We can also make use of user-provided configuration files, e.g. <code>user-patches.sh</code>, <code>postfix-accounts.cf</code> and more, to adjust <code>docker-mailserver</code> to our likings. We encourage you to have a look at <a href="https://kustomize.io/">Kustomize</a> for creating <code>ConfigMap</code>s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
@@ -1777,8 +1799,13 @@
 <span class="w">    </span><span class="no">test@example.com|{SHA512-CRYPT}$6$someHashValueHere</span><span class="w"></span>
 <span class="w">    </span><span class="no">other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere</span><span class="w"></span>
 </code></pre></div>
+<div class="admonition attention">
+<p class="admonition-title">Static Configuration</p>
+<p>With the configuration shown above, you can <strong>not</strong> dynamically add accounts as the configuration file mounted into the mail server can not be written to.</p>
+<p>Use persistent volumes for production deployments.</p>
+</div>
 <h3 id="persistence"><a class="toclink" href="#persistence">Persistence</a></h3>
-<p>Thereafter, we need persistence for our data.</p>
+<p>Thereafter, we need persistence for our data. Make sure you have a storage provisioner and that you choose the correct <code>storageClassName</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolumeClaim</span><span class="w"></span>
@@ -1796,7 +1823,7 @@
 </code></pre></div>
 <h3 id="service"><a class="toclink" href="#service">Service</a></h3>
 <p>A <code>Service</code> is required for getting the traffic to the pod itself. The service is somewhat crucial. Its configuration determines whether the original IP from the sender will be kept. <a href="#exposing-your-mail-server-to-the-outside-world">More about this further down below</a>.</p>
-<p>The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most K8s users will only want to have one instance anyway, and users that need high availability know how to do it anyways.</p>
+<p>The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most Kubernetes users will only want to have one instance.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span><span class="w"></span>
@@ -1808,7 +1835,6 @@
 
 <span class="nt">spec</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LoadBalancer</span><span class="w"></span>
-<span class="w">  </span><span class="nt">externalTrafficPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Local</span><span class="w"></span>
 
 <span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span><span class="w"></span>
@@ -1836,7 +1862,7 @@
 <span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span><span class="w"></span>
 </code></pre></div>
 <h3 id="deployments"><a class="toclink" href="#deployments">Deployments</a></h3>
-<p>Last but not least, the <code>Deployment</code> becomes the most complex component. It instructs Kubernetes how to run the docker-mailserver container and how to apply your ConfigMaps and persisted storage. Additionally, we can set options to enforce runtime security here.</p>
+<p>Last but not least, the <code>Deployment</code> becomes the most complex component. It instructs Kubernetes how to run the <code>docker-mailserver</code> container and how to apply your <code>ConfigMaps</code>, persisted storage, etc. Additionally, we can set options to enforce runtime security here.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span><span class="w"></span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span><span class="w"></span>
@@ -1933,6 +1959,11 @@
 <span class="w">              </span><span class="nt">subPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">log</span><span class="w"></span>
 <span class="w">              </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
 
+<span class="w">            </span><span class="c1"># certificates</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">certificates-rsa</span><span class="w"></span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/secrets/ssl/rsa/</span><span class="w"></span>
+<span class="w">              </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+
 <span class="w">            </span><span class="c1"># other</span><span class="w"></span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tmp-files</span><span class="w"></span>
 <span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp</span><span class="w"></span>
@@ -1968,18 +1999,53 @@
 <span class="w">          </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data</span><span class="w"></span>
 
+<span class="w">        </span><span class="c1"># certificates</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">certificates-rsa</span><span class="w"></span>
+<span class="w">          </span><span class="nt">secret</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail-tls-certificate-rsa</span><span class="w"></span>
+<span class="w">            </span><span class="nt">items</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls.key</span><span class="w"></span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls.key</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls.crt</span><span class="w"></span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls.crt</span><span class="w"></span>
+
 <span class="w">        </span><span class="c1"># other</span><span class="w"></span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tmp-files</span><span class="w"></span>
 <span class="w">          </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
 </code></pre></div>
+<h3 id="certificates-an-example"><a class="toclink" href="#certificates-an-example">Certificates - An Example</a></h3>
+<p>In this example, we use <a href="https://cert-manager.io/docs/"><code>cert-manager</code></a> to supply RSA certificates. You can also supply RSA certificates as fallback certificates, which <code>docker-mailserver</code> supports out of the box with <code>SSL_ALT_CERT_PATH</code> and <code>SSL_ALT_KEY_PATH</code>, and provide ECDSA as the proper certificates.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cert-manager.io/v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Certificate</span><span class="w"></span>
+
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail-tls-certificate-rsa</span><span class="w"></span>
+
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail-tls-certificate-rsa</span><span class="w"></span>
+<span class="w">  </span><span class="nt">isCA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">  </span><span class="nt">privateKey</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RSA</span><span class="w"></span>
+<span class="w">    </span><span class="nt">encoding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PKCS1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span><span class="w"></span>
+<span class="w">  </span><span class="nt">dnsNames</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">mail.example.com</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">issuerRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail-issuer</span><span class="w"></span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Issuer</span><span class="w"></span>
+</code></pre></div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>You will need to have <a href="https://cert-manager.io/docs/"><code>cert-manager</code></a> configured. Especially the issue will need to be configured. Since we do not know how you want or need your certificates to be supplied, we do not provide more configuration here. The documentation for <a href="https://cert-manager.io/docs/"><code>cert-manager</code></a> is excellent.</p>
+</div>
 <h3 id="sensitive-data"><a class="toclink" href="#sensitive-data">Sensitive Data</a></h3>
-<p>By now, <code>docker-mailserver</code> starts, but does not really work for long (or at all), because we're lacking certificates. The <a href="../../security/ssl/">TLS docs page</a> provides guidance for various approaches.</p>
 <div class="admonition attention">
 <p class="admonition-title">Sensitive Data</p>
 <p>For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using <code>Secret</code>s. You can mount secrets like <code>ConfigMap</code>s and use them the same way.</p>
 </div>
+<p>The <a href="../../security/ssl/">TLS docs page</a> provides guidance when it comes to certificates and transport layer security. Always provide sensitive information vai <code>Secrets</code>.</p>
 <h2 id="exposing-your-mail-server-to-the-outside-world"><a class="toclink" href="#exposing-your-mail-server-to-the-outside-world">Exposing your Mail-Server to the Outside World</a></h2>
-<p>The more difficult part with K8s is to expose a deployed <code>docker-mailserver</code> to the outside world. K8s provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing <code>docker-mailserver</code> to outside world in K8s is to <a href="https://kubernetes.io/docs/tutorials/services/source-ip">preserve the real client IP</a>. The real client IP is required by <code>docker-mailserver</code> for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your <a href="../override-defaults/postfix/">Postfix configuration</a> by dropping the line that states: <code>check_policy_service unix:private/policyd-spf</code>.</p>
+<p>The more difficult part with Kubernetes is to expose a deployed <code>docker-mailserver</code> to the outside world. Kubernetes provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing <code>docker-mailserver</code> to outside world in Kubernetes is to <a href="https://kubernetes.io/docs/tutorials/services/source-ip">preserve the real client IP</a>. The real client IP is required by <code>docker-mailserver</code> for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your <a href="../override-defaults/postfix/">Postfix configuration</a> by dropping the line that states: <code>check_policy_service unix:private/policyd-spf</code>.</p>
 <p>The easiest approach was covered above, using <code class="highlight"><span class="nt">externalTrafficPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Local</span><span class="w"></span></code>, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. <strong>But</strong> we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail-server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.</p>
 <h3 id="external-ips-service"><a class="toclink" href="#external-ips-service">External IPs Service</a></h3>
 <p>The simplest way is to expose <code>docker-mailserver</code> as a <a href="https://kubernetes.io/docs/concepts/services-networking/service">Service</a> with <a href="https://kubernetes.io/docs/concepts/services-networking/service/#external-ips">external IPs</a>. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.</p>
