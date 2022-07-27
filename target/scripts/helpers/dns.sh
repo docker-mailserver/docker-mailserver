@@ -18,7 +18,7 @@ function _obtain_hostname_and_domainname
   # subprocess like postconf would be called that would need access to the same value via `$HOSTNAME` ENV.
   #
   # TODO: `OVERRIDE_HOSTNAME` was introduced for non-Docker runtimes that could not configure an explicit hostname.
-  # k8s was the particular runtime in 2017. This does not update `/etc/hosts` or other locations, thus risking
+  # Kubernetes was the particular runtime in 2017. This does not update `/etc/hosts` or other locations, thus risking
   # inconsistency with expected behaviour. Investigate if it's safe to remove support. (--net=host also uses this as a workaround)
   export HOSTNAME="${OVERRIDE_HOSTNAME:-$(hostname -f)}"
 
