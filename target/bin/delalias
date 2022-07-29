@@ -3,21 +3,40 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
+function _main
+{
+  [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-EMAIL="${1}"
-RECIPIENT="${2}"
+  local MAIL_ALIAS="${1}"
+  local RECIPIENT="${2}"
 
-function __usage { echo "Usage: delalias <alias@domain> <recipient@other>" ; }
+  _manage_virtual_aliases_delete "${MAIL_ALIAS}" "${RECIPIENT}"
+}
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+function __usage
+{
+  printf '%s' "${PURPLE}delalias${RED}(${YELLOW}8${RED})
 
-[[ -z ${EMAIL} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
-[[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
-[[ -s ${DATABASE} ]] || exit 0
+${ORANGE}USAGE${RESET}
+    ./setup.sh alias del <MAIL ALIAS> <RECIPIENT>
 
-sed -i \
-  -e "/^${EMAIL} *${RECIPIENT}$/d" \
-  -e "/^${EMAIL}/s/,${RECIPIENT}//g" \
-  -e "/^${EMAIL}/s/${RECIPIENT},//g" \
-  "${DATABASE}"
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Remove a mail account (the recipient) from an existing alias.
+    If the alias has no more recipients, the alias will also be removed.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh alias del alias@example.com recipient@example.com${RESET}
+        Remove the account 'recipient@example.com' from the alias 'alias@example.com'.
+
+${ORANGE}EXIT STATUS${RESET}
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
+
+_main "${@}"

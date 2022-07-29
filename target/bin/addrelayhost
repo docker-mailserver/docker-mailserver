@@ -3,21 +3,42 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-relaymap.cf'
+function _main
+{
+  [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+
+  local DOMAIN="${1}"
+  local HOST="${2}"
+  local PORT="${3}"
+
+  _validate_parameters
+  _add_relayhost
+}
 
 function __usage
 {
-  printf '%s' "${PURPLE}ADDRELAYHOST${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}addrelayhost${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    addrelayhost - add an relay host
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh relay add-domain <DOMAIN> <HOST> [<PORT>]
+${ORANGE}USAGE${RESET}
+    ./setup.sh relay add-domain <SENDER DOMAIN> <RELAY HOST> [<RELAY PORT>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Add a relay-host where mail sent from mail accounts of the provided
+    domain will be relayed through to their destination.
+
+    If a port is not provided it will default to 25.
+
+    If the relay-host requires authentication, use the 'setup relay add-auth'
+    command after adding the relay-host.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh relay add-domain example.com relay.service.test 587${RESET}
+        Any mail submitted from your '@example.com' accounts will be sent via
+        relay using the relay-host service at 'relay.service.test:587'.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided
@@ -26,21 +47,22 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+function _validate_parameters
+{
+  [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified'     ; }
+  [[ -z ${HOST}   ]] && { __usage ; _exit_with_error 'No relay host specified' ; }
+  [[ -z ${PORT}   ]] && PORT=25
+}
 
-DOMAIN="${1}"
-HOST="${2}"
-PORT="${3}"
+# Config is for sender dependent relay-host mapping,
+# current support restricts senders to domain scope (port is also enforced).
+function _add_relayhost
+{
+  local SENDER="@${DOMAIN}"
+  local RELAY_HOST_ENTRY="[${HOST}]:${PORT}"
+  local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
 
-[[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified' ; }
-[[ -z ${HOST} ]] && { __usage ; _exit_with_error 'No relay host specified' ; }
-[[ -z ${PORT} ]] && PORT=25
+  _db_entry_add_or_replace "${DATABASE_RELAY}" "${SENDER}" "${RELAY_HOST_ENTRY}"
+}
 
-if grep -qi "^@${DOMAIN}" "${DATABASE}" 2>/dev/null
-then
-  sed -i \
-    "s|^@${DOMAIN}.*|@${DOMAIN}\t\t[${HOST}]:${PORT}|" \
-    "${DATABASE}"
-else
-  echo -e "@${DOMAIN}\t\t[${HOST}]:${PORT}" >>"${DATABASE}"
-fi
+_main "${@}"

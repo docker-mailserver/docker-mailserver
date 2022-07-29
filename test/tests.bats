@@ -599,7 +599,7 @@ EOF
 @test "checking accounts: user_without_domain creation should be rejected since user@domain format is required" {
   run docker exec mail /bin/sh -c "addmailuser user_without_domain mypassword"
   assert_failure
-  assert_output --partial "Username must include the domain"
+  assert_output --partial 'should include the domain (eg: user@example.com)'
 }
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
