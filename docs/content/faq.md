@@ -184,6 +184,10 @@ The following configuration works nicely:
     # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
     # with a consolidated config in `/var/mail-state`
     #
+    # Adding `MAILTO=""` prevents sending messages
+    # to email after completing cron task
+    MAILTO=""
+    #
     # m h dom mon dow user command
     #
     # Everyday 2:00AM, learn spam from a specific user

@@ -103,6 +103,60 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```
     docker-compose exec mailserver doveadm fts optimize -A
     ```
+    Or as well as with [Spamassassin example][docs-faq-sa-learn-cron] you can use the internal instance of `cron` within `docker-mailserver` to avoid possible errors if the mail-server is not running:
+
+??? example
+
+    Create a _system_ cron file:
+
+    ```sh
+    # in the docker-compose.yml root directory
+    mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
+    touch ./docker-data/dms/cron/fts_xapian
+    chown root:root ./docker-data/dms/cron/fts_xapian
+    chmod 0644 ./docker-data/dms/cron/fts_xapian
+    ```
+
+    Edit the system cron file `nano ./docker-data/dms/cron/fts_xapian`, and set an appropriate configuration:
+
+    ```conf
+    # Adding `MAILTO=""` prevents sending messages
+    # to emailafter completing cron task
+    MAILTO=""
+    #
+    # m h dom mon dow user command
+    #
+    # Everyday 4:00AM, optimize index files
+    0  4 * * * root  doveadm fts optimize -A
+    ```
+
+    Then with `docker-compose.yml`:
+
+    ```yaml
+    services:
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
+        volumes:
+          - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
+    ```
+
+    Or with [Docker Swarm](https://docs.docker.com/engine/swarm/configs/):
+
+    ```yaml
+    version: '3.8'
+
+    services:
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
+        # ...
+        configs:
+          - source: my_xapian_crontab
+            target: /etc/cron.d/fts_xapian
+
+    configs:
+      my_xapian_crontab:
+        file: ./docker-data/dms/cron/fts_xapian
+    ```
 
 ### Solr
 
@@ -153,3 +207,5 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
 #### Further Discussion
 
 See [#905](https://github.com/docker-mailserver/docker-mailserver/issues/905)
+
+[docs-faq-sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam
