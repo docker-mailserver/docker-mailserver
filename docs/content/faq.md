@@ -184,8 +184,7 @@ The following configuration works nicely:
     # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
     # with a consolidated config in `/var/mail-state`
     #
-    # Adding `MAILTO=""` prevents sending messages
-    # to email after completing cron task
+    # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
     MAILTO=""
     #
     # m h dom mon dow user command

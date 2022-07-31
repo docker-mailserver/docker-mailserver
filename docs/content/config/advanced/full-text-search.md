@@ -103,7 +103,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```
     docker-compose exec mailserver doveadm fts optimize -A
     ```
-    Or as well as with [Spamassassin example][docs-faq-sa-learn-cron] you can use the internal instance of `cron` within `docker-mailserver` to avoid possible errors if the mail-server is not running:
+    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail-server is not running:
 
 ??? example
 
@@ -120,8 +120,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     Edit the system cron file `nano ./docker-data/dms/cron/fts_xapian`, and set an appropriate configuration:
 
     ```conf
-    # Adding `MAILTO=""` prevents sending messages
-    # to emailafter completing cron task
+    # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
     MAILTO=""
     #
     # m h dom mon dow user command
@@ -140,23 +139,6 @@ While indexing is memory intensive, you can configure the plugin to limit the am
           - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
     ```
 
-    Or with [Docker Swarm](https://docs.docker.com/engine/swarm/configs/):
-
-    ```yaml
-    version: '3.8'
-
-    services:
-      mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
-        # ...
-        configs:
-          - source: my_xapian_crontab
-            target: /etc/cron.d/fts_xapian
-
-    configs:
-      my_xapian_crontab:
-        file: ./docker-data/dms/cron/fts_xapian
-    ```
 
 ### Solr
 
