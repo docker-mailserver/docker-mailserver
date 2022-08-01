@@ -184,26 +184,23 @@ The following configuration works nicely:
     # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
     # with a consolidated config in `/var/mail-state`
     #
-    # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
-    MAILTO=""
-    #
     # m h dom mon dow user command
     #
     # Everyday 2:00AM, learn spam from a specific user
     # spam: junk directory
-    0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     # ham: archive directories
-    15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     # ham: inbox subdirectories
-    30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     #
     # Everyday 3:00AM, learn spam from all users of a domain
     # spam: junk directory
-    0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     # ham: archive directories
-    15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     # ham: inbox subdirectories
-    30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin
+    30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     ```
 
     Then with `docker-compose.yml`:
