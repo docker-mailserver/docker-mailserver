@@ -1697,10 +1697,37 @@ docker-compose up -d
 </li>
 <li>
 <p>Run the following command in a daily cron job:</p>
-<div class="highlight"><pre><span></span><code>docker-compose exec mailserver doveadm fts optimize -A
+<p><div class="highlight"><pre><span></span><code>docker-compose exec mailserver doveadm fts optimize -A
 </code></pre></div>
+Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within <code>docker-mailserver</code> to avoid potential errors if the mail-server is not running:</p>
 </li>
 </ol>
+<details class="example">
+<summary>Example</summary>
+<p>Create a <em>system</em> cron file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># in the docker-compose.yml root directory</span>
+mkdir -p ./docker-data/dms/cron <span class="c1"># if you didn&#39;t have this folder before</span>
+touch ./docker-data/dms/cron/fts_xapian
+chown root:root ./docker-data/dms/cron/fts_xapian
+chmod <span class="m">0644</span> ./docker-data/dms/cron/fts_xapian
+</code></pre></div>
+<p>Edit the system cron file <code>nano ./docker-data/dms/cron/fts_xapian</code>, and set an appropriate configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Adding `MAILTO=&quot;&quot;` prevents cron emailing notifications of the task outcome each run</span><span class="w"></span>
+<span class="na">MAILTO</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># m h dom mon dow user command</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># Everyday 4:00AM, optimize index files</span><span class="w"></span>
+<span class="na">0  4 * * * root  doveadm fts optimize -A</span><span class="w"></span>
+</code></pre></div>
+<p>Then with <code>docker-compose.yml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/mailserver/docker-mailserver:latest</span><span class="w"></span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian</span><span class="w"></span>
+</code></pre></div>
+</details>
 <h3 id="solr"><a class="toclink" href="#solr">Solr</a></h3>
 <p>The <a href="https://wiki2.dovecot.org/Plugins/FTS/Solr">dovecot-solr Plugin</a> is used in conjunction with <a href="https://lucene.apache.org/solr/">Apache Solr</a> running in a separate container. This is quite straightforward to setup using the following instructions.</p>
 <p>Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email. </p>

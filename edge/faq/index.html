@@ -2034,23 +2034,25 @@ chmod <span class="m">0644</span> ./docker-data/dms/cron/sa-learn
 <div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the env-mailserver,</span><span class="w"></span>
 <span class="c1"># with a consolidated config in `/var/mail-state`</span><span class="w"></span>
 <span class="c1">#</span><span class="w"></span>
+<span class="c1"># &#39;&gt; /dev/null&#39; to send error notifications from &#39;stderr&#39; to &#39;postmaster@example.com&#39;</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
 <span class="c1"># m h dom mon dow user command</span><span class="w"></span>
 <span class="c1">#</span><span class="w"></span>
 <span class="c1"># Everyday 2:00AM, learn spam from a specific user</span><span class="w"></span>
 <span class="c1"># spam: junk directory</span><span class="w"></span>
-<span class="na">0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="na">0  2 * * * root  sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span><span class="w"></span>
 <span class="c1"># ham: archive directories</span><span class="w"></span>
-<span class="na">15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="na">15 2 * * * root  sa-learn --ham /var/mail/example.com/username/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span><span class="w"></span>
 <span class="c1"># ham: inbox subdirectories</span><span class="w"></span>
-<span class="na">30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="na">30 2 * * * root  sa-learn --ham /var/mail/example.com/username/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span><span class="w"></span>
 <span class="c1">#</span><span class="w"></span>
 <span class="c1"># Everyday 3:00AM, learn spam from all users of a domain</span><span class="w"></span>
 <span class="c1"># spam: junk directory</span><span class="w"></span>
-<span class="na">0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="na">0  3 * * * root  sa-learn --spam /var/mail/not-example.com/*/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span><span class="w"></span>
 <span class="c1"># ham: archive directories</span><span class="w"></span>
-<span class="na">15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="na">15 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/.Archive* --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span><span class="w"></span>
 <span class="c1"># ham: inbox subdirectories</span><span class="w"></span>
-<span class="na">30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin</span><span class="w"></span>
+<span class="na">30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span><span class="w"></span>
 </code></pre></div>
 <p>Then with <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span><span class="w"></span>

@@ -3344,7 +3344,7 @@
 <h5 id="one_dir"><a class="toclink" href="#one_dir">ONE_DIR</a></h5>
 <ul>
 <li>0 =&gt; state in default directories.</li>
-<li><strong>1</strong> =&gt; consolidate all states into a single directory (<code>/var/mail-state</code>) to allow persistence using docker volumes. See the <a href="../../faq/#what-is-the-mail-state-folder-for">related FAQ entry</a> for more information.</li>
+<li><strong>1</strong> =&gt; consolidate all states into a single directory (<code>/var/mail-state</code>) to allow persistence using docker volumes. See the <a href="../../faq/#what-about-docker-datadmsmail-state-folder-varmail-state-internally">related FAQ entry</a> for more information.</li>
 </ul>
 <h5 id="permit_docker"><a class="toclink" href="#permit_docker">PERMIT_DOCKER</a></h5>
 <p>Set different options for mynetworks option (can be overwrite in postfix-main.cf) <strong>WARNING</strong>: Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance if IPv6 is enabled on the host machine but not in Docker.</p>
