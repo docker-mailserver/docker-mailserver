@@ -184,6 +184,8 @@ The following configuration works nicely:
     # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
     # with a consolidated config in `/var/mail-state`
     #
+    # '> /dev/null' to send error notifications from 'stderr' to 'postmaster@example.com'
+    #
     # m h dom mon dow user command
     #
     # Everyday 2:00AM, learn spam from a specific user
