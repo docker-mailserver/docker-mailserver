@@ -759,7 +759,7 @@ you to replace both instead of just the envelope sender.
 - **empty** => no default
 - password for default relay user
 
-[docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for
+[docs-faq-onedir]: ../faq.md#what-about-docker-datadmsmail-state-folder-varmail-state-internally
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
