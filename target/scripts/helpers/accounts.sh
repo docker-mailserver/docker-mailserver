@@ -14,7 +14,7 @@ function _create_accounts
   : >/etc/postfix/vmailbox
   : >"${DOVECOT_USERDB_FILE}"
 
-  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
+  [[ ${USER_PROVISIONING} != 'PAM' ]] && return 0
 
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   _create_masters

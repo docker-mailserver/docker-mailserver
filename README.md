@@ -293,7 +293,7 @@ services:
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
       - ONE_DIR=1
-      - ENABLE_LDAP=1
+      - USER_PROVISIONING=LDAP
       - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
       - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
       - LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain

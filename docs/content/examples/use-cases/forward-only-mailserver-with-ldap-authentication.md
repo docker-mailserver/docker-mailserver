@@ -30,7 +30,7 @@ We can create aliases with `./setup.sh`, like this:
 If you want to send emails from outside the mail-server you have to authenticate somehow (with a username and password). One way of doing it is described in [this discussion][github-issue-1247]. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on `mailserver.env` are:
 
 ```env
-ENABLE_LDAP=1
+USER_PROVISIONING=LDAP
 LDAP_START_TLS=yes
 LDAP_SERVER_HOST=ldap.example.org
 LDAP_SEARCH_BASE=ou=users,dc=example,dc=org
@@ -106,7 +106,7 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
 !!! tip
 
-    One user reports only having success if `ENABLE_LDAP=0` was set.
+    One user reports only having success if `USER_PROVISIONING=LDAP` was set.
 
 [docs-userpatches]: ../../config/advanced/override-defaults/user-patches.md
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

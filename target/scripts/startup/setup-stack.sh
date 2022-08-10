@@ -41,24 +41,6 @@ function _setup_supervisor
   return 0
 }
 
-function _setup_default_vars
-{
-  _log 'debug' 'Setting up default variables'
-
-  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
-  : >/etc/dms-settings # this file can be sourced by other scripts
-
-  local VAR
-  for VAR in "${!VARS[@]}"
-  do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
-    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
-  done
-
-  sort -o /root/.bashrc     /root/.bashrc
-  sort -o /etc/dms-settings /etc/dms-settings
-}
-
 # File/folder permissions are fine when using docker volumes, but may be wrong
 # when file system folders are mounted into the container.
 # Set the expected values and create missing folders/files just in case.
@@ -220,7 +202,7 @@ function _setup_dovecot_quota
     _log 'debug' 'Setting up Dovecot quota'
 
     # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
-    if [[ ${ENABLE_LDAP} -eq 1 ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
+    if [[ ${USER_PROVISIONING} == 'LDAP' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
     then
       # disable dovecot quota in docevot confs
       if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
@@ -274,10 +256,11 @@ function _setup_dovecot_quota
 
 function _setup_dovecot_local_user
 {
-  _log 'debug' 'Setting up Dovecot Local User'
+  [[ ${SMTP_ONLY} -eq 1 ]] && return 0
+  [[ ${USER_PROVISIONING} == 'PAM' ]] || return 0
 
+  _log 'debug' 'Setting up Dovecot Local User'
   _create_accounts
-  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
@@ -394,6 +377,11 @@ function _setup_ldap
   return 0
 }
 
+function _setup_oidc
+{
+  _log 'warning' 'OIDC user account provisioning is not yet implemented'
+}
+
 function _setup_postgrey
 {
   _log 'debug' 'Configuring Postgrey'
@@ -464,7 +452,7 @@ function _setup_spoof_protection
     's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
     /etc/postfix/main.cf
 
-  if [[ ${ENABLE_LDAP} -eq 1 ]]
+  if [[ ${USER_PROVISIONING} == 'LDAP' ]]
   then
     if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
     then
@@ -1190,6 +1178,7 @@ EOF
 
 function _setup_timezone
 {
+  [[ -n ${TZ} ]] || return 0
   _log 'debug' "Setting timezone to '${TZ}'"
 
   local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
