@@ -40,6 +40,7 @@ function _environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
   then
+    _log 'warn' "'ENABLE_LDAP=1' is deprecated - use 'USER_PROVISIONING=LDAP' instead"
     USER_PROVISIONING='LDAP'
   fi
 }
