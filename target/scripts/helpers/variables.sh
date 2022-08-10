@@ -12,21 +12,22 @@ function _environment_variables_early_setup
 
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
 
-  if [[ $(type -t _setup_supervisor) != 'function' ]]
+  if [[ $(type -t _setup_supervisor) == 'function' ]]
   then
+    _setup_supervisor
+  else
     _log 'error' "Early variable setup missing function '_setup_supervisor', was probably not sourced correctly beforehand"
   fi
 
-  _setup_supervisor
 
   # handle DNS names
 
-  if [[ $(type -t _obtain_hostname_and_domainname) != 'function' ]]
+  if [[ $(type -t _obtain_hostname_and_domainname) == 'function' ]]
   then
+    _obtain_hostname_and_domainname
+  else
     _log 'error' "Early variable setup missing function '_obtain_hostname_and_domainname', was probably not sourced correctly beforehand"
   fi
-
-  _obtain_hostname_and_domainname
 
   # these variables must be defined first
   # they are used as default values for other variables

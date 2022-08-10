@@ -379,7 +379,7 @@ function _setup_ldap
 
 function _setup_oidc
 {
-  _log 'warning' 'OIDC user account provisioning is not yet implemented'
+  _shutdown 'OIDC user account provisioning is not yet implemented'
 }
 
 function _setup_postgrey

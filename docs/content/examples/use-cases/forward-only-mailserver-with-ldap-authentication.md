@@ -106,7 +106,7 @@ You see that besides `query_filter`, I had to customize as well `result_attribut
 
 !!! tip
 
-    One user reports only having success if `USER_PROVISIONING=LDAP` was set.
+    One user reports only having success if `USER_PROVISIONING=LDAP` was not set.
 
 [docs-userpatches]: ../../config/advanced/override-defaults/user-patches.md
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247
