@@ -148,8 +148,8 @@ function teardown_file() {
 
 # quota
 @test "checking setup.sh: setup.sh setquota" {
-  run ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
-  run ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
+  ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
+  ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
 
   run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 12M
   assert_success
@@ -174,8 +174,8 @@ function teardown_file() {
 }
 
 @test "checking setup.sh: setup.sh delquota" {
-  run ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
-  run ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
+  ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
+  ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
 
   run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 12M
   assert_success
