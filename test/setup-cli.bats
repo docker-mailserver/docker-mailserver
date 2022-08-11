@@ -31,14 +31,12 @@ function teardown_file() {
 
 @test "checking setup.sh: setup.sh email add and login" {
   wait_for_service "${TEST_NAME}" changedetector
-  assert_success
 
   run ./setup.sh -c "${TEST_NAME}" email add setup_email_add@example.com test_password
   assert_success
 
   value=$(grep setup_email_add@example.com "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $1}')
-  [[ ${value} == "setup_email_add@example.com" ]]
-  assert_success
+  assert_equal "${value}" 'setup_email_add@example.com'
 
   wait_for_changes_to_be_detected_in_container "${TEST_NAME}"
 
@@ -60,8 +58,7 @@ function teardown_file() {
   assert_success
 
   initialpass=$(grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [[ ${initialpass} != "" ]]
-  assert_success
+  [[ -n ${initialpass} ]]
 
   run ./setup.sh -c "${TEST_NAME}" email update lorem@impsum.org my password
   assert_success
@@ -70,8 +67,8 @@ function teardown_file() {
   [[ ${updatepass} != "" ]]
   [[ ${initialpass} != "${updatepass}" ]]
 
-  docker exec "${TEST_NAME}" doveadm pw -t "${updatepass}" -p 'my password' | grep 'verified'
-  assert_success
+  run docker exec "${TEST_NAME}" doveadm pw -t "${updatepass}" -p 'my password'
+  assert_output --partial 'verified'
 }
 
 @test "checking setup.sh: setup.sh email del" {

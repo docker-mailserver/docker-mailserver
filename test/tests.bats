@@ -649,8 +649,7 @@ EOF
 
   [[ ${initialpass} != "${changepass}" ]]
 
-  docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
-
+  run docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
   assert_success
 }
 
