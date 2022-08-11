@@ -24,6 +24,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     - The `ALIAS` filter specifies aliases for mailboxes, using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailAlias=%s)`
     - The `GROUP` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`.
     - Technically, there is no difference between `ALIAS` and `GROUP`, but ideally you should use `ALIAS` for personal aliases for a singular person (like `ceo@example.org`) and `GROUP` for multiple people (like `hr@example.org`).
+    - Adding users to a group is done in the users LDAP entry by adding the 'mailGroupMember' attribute. Adding a 'mailGroupMember' attribute to your group LDAP entry will confuse dovecot with a virtual_alias loop. 
 - ...for outgoing email, the sender address is put through the `SENDERS` filter, and only if the authenticated user is one of the returned entries, the email can be sent.
     - This only applies if `SPOOF_PROTECTION=1`.
     - If the `SENDERS` filter is missing, the `USER`, `ALIAS` and `GROUP` filters will be used in in a disjunction (OR).
