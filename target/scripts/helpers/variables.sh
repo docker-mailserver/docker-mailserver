@@ -124,6 +124,7 @@ function _environment_variables_ldap
   VARS[LDAP_BIND_PW]="${LDAP_BIND_PW:=}"
   VARS[LDAP_SEARCH_BASE]="${LDAP_SEARCH_BASE:=}"
   VARS[LDAP_SERVER_HOST]="${LDAP_SERVER_HOST:=}"
+  VARS[LDAP_START_TLS]="${LDAP_START_TLS:=no}"
 
   [[ ${ENABLE_SASLAUTHD} -eq 1 ]] || return 0
 

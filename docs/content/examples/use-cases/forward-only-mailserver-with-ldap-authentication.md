@@ -31,6 +31,7 @@ If you want to send emails from outside the mail-server you have to authenticate
 
 ```env
 ACCOUNT_PROVISIONER=LDAP
+LDAP_START_TLS=yes
 LDAP_SERVER_HOST=ldap.example.org
 LDAP_SEARCH_BASE=ou=users,dc=example,dc=org
 LDAP_BIND_DN=cn=mailserver,dc=example,dc=org

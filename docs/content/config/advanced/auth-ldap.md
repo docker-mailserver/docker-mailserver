@@ -35,6 +35,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
 
     ```yaml
     - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
+    - LDAP_START_TLS=yes
     - ACCOUNT_PROVISIONER=LDAP
     - LDAP_SERVER_HOST=ldap.example.org
     - LDAP_SEARCH_BASE=dc=example,dc=org"

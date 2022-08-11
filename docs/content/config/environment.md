@@ -452,6 +452,11 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
+##### LDAP_START_TLS
+
+- **empty** => no
+- yes => LDAP over TLS enabled for Postfix
+
 ##### LDAP_SERVER_HOST
 
 - **empty** => mail.example.com

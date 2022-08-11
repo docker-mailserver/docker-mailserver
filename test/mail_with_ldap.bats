@@ -42,6 +42,7 @@ function setup_file() {
     -e LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))" \
     -e LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))" \
     -e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
+    -e LDAP_START_TLS=no \
     -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
     -e LDAP_SERVER_HOST=ldap \
     -e PERMIT_DOCKER=container \
