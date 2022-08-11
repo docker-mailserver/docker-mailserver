@@ -173,10 +173,8 @@ function teardown_file() {
   assert_failure
 }
 
+# `quota_user@example.com` created in previous `setquota` test
 @test "checking setup.sh: setup.sh delquota" {
-  ./setup.sh -c "${TEST_NAME}" email add quota_user@example.com test_password
-  ./setup.sh -c "${TEST_NAME}" email add quota_user2@example.com test_password
-
   run ./setup.sh -c "${TEST_NAME}" quota set quota_user@example.com 12M
   assert_success
   run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
