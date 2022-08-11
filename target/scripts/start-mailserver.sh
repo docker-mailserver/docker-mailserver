@@ -90,13 +90,8 @@ function _register_functions
       ;;
   esac
 
-  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]
-  then
-    _environment_variables_saslauthd
-    _register_setup_function '_setup_saslauthd'
-  fi
-
   [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function '_setup_postgrey'
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
   [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_postfix_inet_protocols'
   [[ ${DOVECOT_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_dovecot_inet_protocols'
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
