@@ -40,16 +40,16 @@ The log-level will show everything in its class and above.
 - 0 => state in default directories.
 - **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
 
-##### USER_PROVISIONING
+##### ACCOUNT_PROVISIONER
 
-Defines the methods / protocol used to supply the mail server with users. The default uses local files and PAM. You may also provide accounts via LDAP, for which you will need an external LDAP server.
+Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
 
 User provisioning via OIDC is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
 
-- **empty** => use PAM
+- **empty** => use FILE
 - LDAP => use LDAP authentication
 - OIDC => use OIDC authentication (**not yet implemented**)
-- PAM => use local files (this is used as the default)
+- FILE => use local files (this is used as the default)
 
 ##### PERMIT_DOCKER
 
@@ -450,12 +450,11 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 ##### ENABLE_LDAP
 
-Deprecated. See [`USER_PROVISIONING`](#userprovisioning)
-
 ##### LDAP_START_TLS
 
 - **empty** => no
 - yes => LDAP over TLS enabled for Postfix
+Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 ##### LDAP_SERVER_HOST
 

@@ -32,7 +32,7 @@ function setup_file() {
     -e DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
     -e DOVECOT_TLS=no \
     -e DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))" \
-    -e USER_PROVISIONING=LDAP \
+    -e ACCOUNT_PROVISIONER=LDAP \
     -e PFLOGSUMM_TRIGGER=logrotate \
     -e ENABLE_SASLAUTHD=1 \
     -e LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain \

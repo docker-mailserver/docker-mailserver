@@ -202,7 +202,7 @@ function _setup_dovecot_quota
     _log 'debug' 'Setting up Dovecot quota'
 
     # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
-    if [[ ${USER_PROVISIONING} == 'LDAP' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
+    if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
     then
       # disable dovecot quota in docevot confs
       if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
@@ -257,7 +257,7 @@ function _setup_dovecot_quota
 function _setup_dovecot_local_user
 {
   [[ ${SMTP_ONLY} -eq 1 ]] && return 0
-  [[ ${USER_PROVISIONING} == 'PAM' ]] || return 0
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] || return 0
 
   _log 'debug' 'Setting up Dovecot Local User'
   _create_accounts
@@ -452,7 +452,7 @@ function _setup_spoof_protection
     's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
     /etc/postfix/main.cf
 
-  if [[ ${USER_PROVISIONING} == 'LDAP' ]]
+  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]
   then
     if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
     then

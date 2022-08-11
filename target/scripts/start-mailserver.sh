@@ -70,16 +70,22 @@ function _register_functions
     _register_setup_function '_setup_dovecot_quota'
   fi
 
-  case "${USER_PROVISIONING}" in
-    ( 'PAM'  ) _register_setup_function '_setup_dovecot_local_user' ;;
+  case "${ACCOUNT_PROVISIONER}" in
+    ( 'FILE'  )
+      _register_setup_function '_setup_dovecot_local_user'
+      ;;
+
     ( 'LDAP' )
       _environment_variables_ldap
       _register_setup_function '_setup_ldap'
       ;;
 
-    ( 'OIDC' ) _register_setup_function '_setup_oidc' ;;
+    ( 'OIDC' )
+      _register_setup_function '_setup_oidc'
+      ;;
+
     ( * )
-      _shutdown "'${USER_PROVISIONING}' is not a valid value for USER_PROVISIONING"
+      _shutdown "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
       ;;
   esac
 
@@ -174,7 +180,7 @@ function _register_functions
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemon_fail2ban'
   [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemon_fetchmail'
   [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
-  [[ ${USER_PROVISIONING} == 'PAM' ]] && _register_start_daemon '_start_daemon_changedetector'
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
   [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
 }
 
