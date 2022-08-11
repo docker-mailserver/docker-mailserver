@@ -37,7 +37,8 @@ source /usr/local/bin/daemons-stack.sh
 # shellcheck source=./helpers/variables.sh
 source /usr/local/bin/helpers/variables.sh
 
-_environment_variables_early_setup
+_setup_supervisor
+_obtain_hostname_and_domainname
 _environment_variables_backwards_compatibility
 _environment_variables_general_setup
 

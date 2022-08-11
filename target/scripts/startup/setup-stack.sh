@@ -14,6 +14,8 @@ function _setup
 
 function _setup_supervisor
 {
+  SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:-warn}"
+
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case "${SUPERVISOR_LOGLEVEL}" in
@@ -26,9 +28,7 @@ function _setup_supervisor
         exit
         ;;
 
-      ( 'warn' )
-        return 0
-        ;;
+      ( 'warn' ) ;;
 
       ( * )
         _log 'warn' \

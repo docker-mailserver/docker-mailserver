@@ -6,49 +6,18 @@ declare -A VARS
 # shellcheck disable=SC2034
 declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 
-function _environment_variables_early_setup
-{
-  # setup supervisord as early as possible
-
-  VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
-
-  if [[ $(type -t _setup_supervisor) == 'function' ]]
-  then
-    _setup_supervisor
-  else
-    _log 'error' "Early variable setup missing function '_setup_supervisor', was probably not sourced correctly beforehand"
-  fi
-
-
-  # handle DNS names
-
-  if [[ $(type -t _obtain_hostname_and_domainname) == 'function' ]]
-  then
-    _obtain_hostname_and_domainname
-  else
-    _log 'error' "Early variable setup missing function '_obtain_hostname_and_domainname', was probably not sourced correctly beforehand"
-  fi
-
-  # these variables must be defined first
-  # they are used as default values for other variables
-
-  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-  VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
-  VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
-}
-
 function _environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
   then
-    _log 'warn' "'ENABLE_LDAP=1' is deprecated - use 'USER_PROVISIONING=LDAP' instead"
-    USER_PROVISIONING='LDAP'
+    _log 'warn' "'ENABLE_LDAP=1' is deprecated - use 'ACCOUNT_PROVISIONER=LDAP' instead"
+    ACCOUNT_PROVISIONER='LDAP'
   fi
 }
 
 function _environment_variables_export
 {
-  _log 'debug' 'Setting up default variables'
+  _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
   : >/etc/dms-settings # this file can be sourced by other scripts
@@ -95,7 +64,7 @@ function _environment_variables_general_setup
 
   function _handle_variables_general
   {
-    VARS[USER_PROVISIONING]="${USER_PROVISIONING:=PAM}"
+    VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
     VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
     VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
     VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
@@ -128,10 +97,20 @@ function _environment_variables_general_setup
     VARS[SMTP_ONLY]="${SMTP_ONLY:=0}"
     VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
     VARS[SSL_TYPE]="${SSL_TYPE:=}"
+    VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
     VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
     VARS[TZ]="${TZ:=}"
     VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
   }
+
+  # these variables must be defined first
+  # they are used as default values for other variables
+
+  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+  VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
+  VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
+
+  # set all other variables now
 
   _handle_variables_anti_spam
   _handle_variables_general
