@@ -44,7 +44,6 @@ function setup_file() {
     -e LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))" \
     -e LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain \
     -e LDAP_SERVER_HOST=ldap \
-    -e LDAP_START_TLS=no \
     -e PERMIT_DOCKER=container \
     -e POSTMASTER_ADDRESS="postmaster@${FQDN_LOCALHOST_A}" \
     -e REPORT_RECIPIENT=1 \
