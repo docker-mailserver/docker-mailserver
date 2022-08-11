@@ -123,6 +123,7 @@ To enable LDAPS, all you need to do is to add the protocol to `LDAP_SERVER_HOST`
 To enable LDAP over StartTLS (on port 389), you need to set the following environment variables instead (the **protocol must not be `ldaps://`** in this case!):
 
 ```yaml
+- LDAP_START_TLS=yes
 - DOVECOT_TLS=yes
 - SASLAUTHD_LDAP_START_TLS=yes
 ```

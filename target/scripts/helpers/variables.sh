@@ -6,6 +6,9 @@ declare -A VARS
 # shellcheck disable=SC2034
 declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 
+# This function handles variables that are deprecated. This allows a
+# smooth transition period, without the need of removing a variable
+# completely with a single version.
 function _environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
@@ -15,6 +18,9 @@ function _environment_variables_backwards_compatibility
   fi
 }
 
+# This function Writes the contents of the `VARS` map (associative array)
+# to locations where they can be sourced from (e.g. `/etc/dms-settings`)
+# or where they can be used by Bash directly (e.g. `/root/.bashrc`).
 function _environment_variables_export
 {
   _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
@@ -33,10 +39,15 @@ function _environment_variables_export
   sort -o /etc/dms-settings /etc/dms-settings
 }
 
+# This function sets almost all environment variables. This involves setting
+# a default if no value was provided and writing the variable and its value
+# to the VARS map.
 function _environment_variables_general_setup
 {
   function _handle_variables_anti_spam
   {
+    _log 'trace' 'Setting anti-spam environment variables now'
+
     VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
     VARS[CLAMAV_MESSAGE_SIZE_LIMIT]="${CLAMAV_MESSAGE_SIZE_LIMIT:=25M}" # 25 MB
     VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=1}"
@@ -62,8 +73,10 @@ function _environment_variables_general_setup
     VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
   }
 
-  function _handle_variables_general
+  function _handle_variables_miscellaneous
   {
+    _log 'trace' 'Setting miscellaneous environment variables now'
+
     VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
     VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
     VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
@@ -94,7 +107,7 @@ function _environment_variables_general_setup
     VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
     VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
     VARS[RELAY_HOST]="${RELAY_HOST:=}"
-    VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
+    [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
     VARS[SMTP_ONLY]="${SMTP_ONLY:=0}"
     VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
     VARS[SSL_TYPE]="${SSL_TYPE:=}"
@@ -103,6 +116,8 @@ function _environment_variables_general_setup
     VARS[TZ]="${TZ:=}"
     VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
   }
+
+  _log 'debug' 'Handling general environment variable setup now'
 
   # these variables must be defined first
   # they are used as default values for other variables
@@ -114,11 +129,15 @@ function _environment_variables_general_setup
   # set all other variables now
 
   _handle_variables_anti_spam
-  _handle_variables_general
+  _handle_variables_miscellaneous
 }
 
+# This function handles environment variables related to LDAP and,
+# if activated, SASLAUTHD_LDAP_* variables.
 function _environment_variables_ldap
 {
+  _log 'debug' 'Setting LDAP-related environment variables now'
+
   # SASL specific variables
   VARS[LDAP_BIND_DN]="${LDAP_BIND_DN:=}"
   VARS[LDAP_BIND_PW]="${LDAP_BIND_PW:=}"
