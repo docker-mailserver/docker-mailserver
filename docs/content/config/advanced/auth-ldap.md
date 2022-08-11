@@ -164,6 +164,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
 
 ```txt
 # If StartTLS is the chosen method to establish a secure connection with Active Directory.
+- LDAP_START_TLS=yes
 - SASLAUTHD_LDAP_START_TLS=yes
 - DOVECOT_TLS=yes
 
