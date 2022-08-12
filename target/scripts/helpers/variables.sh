@@ -13,9 +13,17 @@ function _environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
   then
-    _log 'warn' "'ENABLE_LDAP=1' is deprecated - use 'ACCOUNT_PROVISIONER=LDAP' instead"
+    _log 'warn' "'ENABLE_LDAP=1' is deprecated (and will be removed in v13.0.0) => use 'ACCOUNT_PROVISIONER=LDAP' instead"
     ACCOUNT_PROVISIONER='LDAP'
   fi
+
+  # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
+  # TODO see check_for_changes.sh and dns.sh
+  # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
+  # then
+  #   _log 'warn' "'OVERRIDE_HOSTNAME' is deprecated (and will be removed in v13.0.0) => use 'DMS_FQDN' instead"
+  #   [[ -z ${DMS_FQDN} ]] && DMS_FQDN=${OVERRIDE_HOSTNAME}
+  # fi
 }
 
 # This function Writes the contents of the `VARS` map (associative array)
@@ -73,22 +81,52 @@ function _environment_variables_general_setup
     VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
   }
 
-  function _handle_variables_miscellaneous
+  function _handle_variables_enable
   {
-    _log 'trace' 'Setting miscellaneous environment variables now'
+    _log 'trace' 'Setting service-enabling environment variables now'
 
-    VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
-    VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
-    VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
-    VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
     VARS[ENABLE_FETCHMAIL]="${ENABLE_FETCHMAIL:=0}"
-    VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
     VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
     VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
     VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
     VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
     VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
     VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
+  }
+
+  function _handle_variables_ip_dns_ssl
+  {
+    _log 'trace' 'Setting IP, DNS and SSL environment variables now'
+
+    VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
+    # VARS[DMS_FQDN]="${DMS_FQDN:=}"
+    # VARS[DMS_DOMAINNAME]="${DMS_DOMAINNAME:=}"
+    # VARS[DMS_HOSTNAME]="${DMS_HOSTNAME:=}"
+    VARS[NETWORK_INTERFACE]="${NETWORK_INTERFACE:=eth0}"
+    VARS[OVERRIDE_HOSTNAME]="${OVERRIDE_HOSTNAME:-}"
+    VARS[RELAY_HOST]="${RELAY_HOST:=}"
+    VARS[SSL_TYPE]="${SSL_TYPE:=}"
+    VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
+  }
+
+  function _handle_variables_dovecot_postfix
+  {
+    _log 'trace' 'Setting Dovecot- and Postfix-specific environment variables now'
+
+    VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
+    VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
+    VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
+
+    VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
+    VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
+    VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
+  }
+
+  function _handle_variables_miscellaneous
+  {
+    _log 'trace' 'Setting miscellaneous environment variables now'
+
+    VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
     VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
     VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
     VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
@@ -96,22 +134,14 @@ function _environment_variables_general_setup
     VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
     VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
     VARS[LOGWATCH_SENDER]="${LOGWATCH_SENDER:=${REPORT_SENDER}}"
-    VARS[NETWORK_INTERFACE]="${NETWORK_INTERFACE:=eth0}"
     VARS[ONE_DIR]="${ONE_DIR:=1}"
-    VARS[OVERRIDE_HOSTNAME]="${OVERRIDE_HOSTNAME:-}"
     VARS[PERMIT_DOCKER]="${PERMIT_DOCKER:=none}"
     VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
     VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
     VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER:=none}"
-    VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
-    VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
-    VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
-    VARS[RELAY_HOST]="${RELAY_HOST:=}"
     VARS[SMTP_ONLY]="${SMTP_ONLY:=0}"
     VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
-    VARS[SSL_TYPE]="${SSL_TYPE:=}"
     VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
-    VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
     VARS[TZ]="${TZ:=}"
     VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
   }
@@ -128,6 +158,9 @@ function _environment_variables_general_setup
   # set all other variables now
 
   _handle_variables_anti_spam
+  _handle_variables_enable
+  _handle_variables_ip_dns_ssl
+  _handle_variables_dovecot_postfix
   _handle_variables_miscellaneous
 }
 
