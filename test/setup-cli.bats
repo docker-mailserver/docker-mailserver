@@ -29,23 +29,30 @@ function teardown_file() {
   assert_line --index 0 --partial "The command 'lol troll' is invalid."
 }
 
+# Create a new account for subsequent tests to depend upon
 @test "checking setup.sh: setup.sh email add and login" {
-  wait_for_service "${TEST_NAME}" changedetector
+  local MAIL_ACCOUNT='user@example.com'
+  local MAIL_PASS='test_password'
 
-  run ./setup.sh -c "${TEST_NAME}" email add setup_email_add@example.com test_password
+  # Create an account
+  run ./setup.sh -c "${TEST_NAME}" email add "${MAIL_ACCOUNT}" "${MAIL_PASS}"
   assert_success
 
-  value=$(grep setup_email_add@example.com "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $1}')
-  assert_equal "${value}" 'setup_email_add@example.com'
+  # Verify account was added to `postfix-accounts.cf`:
+  local DATABASE_ACCOUNTS="${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  local ACCOUNT=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $1}')
+  assert_equal "${ACCOUNT}" "${MAIL_ACCOUNT}"
 
-  wait_until_account_maildir_exists "${TEST_NAME}" setup_email_add@example.com
-
-  wait_for_service "${TEST_NAME}" postfix
+  # Wait for change detection event to complete (create maildir and add account to Dovecot UserDB+PassDB)
+  wait_until_account_maildir_exists "${TEST_NAME}" "${MAIL_ACCOUNT}"
+  # Dovecot is stopped briefly at the end of processing a change event (should change to reload in future),
+  # to more accurately use `wait_for_service` ensure you wait until `changedetector` is done.
+  wait_until_change_detection_event_completes
   wait_for_service "${TEST_NAME}" dovecot
-  sleep 5
 
-  run docker exec "${TEST_NAME}" /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
-  assert_output "passdb: setup_email_add@example.com auth succeeded"
+  # Verify account authentication is successful:
+  local RESPONSE=$(docker exec "${TEST_NAME}" doveadm auth test "${MAIL_ACCOUNT}" "${MAIL_PASS}" | grep 'passdb')
+  assert_equal "${RESPONSE}" "passdb: ${MAIL_ACCOUNT} auth succeeded"
 }
 
 @test "checking setup.sh: setup.sh email list" {
@@ -53,39 +60,57 @@ function teardown_file() {
   assert_success
 }
 
+# Update an existing account
 @test "checking setup.sh: setup.sh email update" {
-  run ./setup.sh -c "${TEST_NAME}" email add lorem@impsum.org test_test
+  local MAIL_ACCOUNT='user@example.com'
+  local MAIL_PASS='test_password'
+
+  # `postfix-accounts.cf` should already have an account with a non-empty hashed password:
+  local DATABASE_ACCOUNTS="${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  local MAIL_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
+  assert_not_equal "${MAIL_PASS_HASH}" ""
+
+  # Update the password should be successful:
+  local NEW_PASS='new_password'
+  run ./setup.sh -c "${TEST_NAME}" email update "${MAIL_ACCOUNT}" "${NEW_PASS}"
+  refute_output --partial 'Password must not be empty'
   assert_success
 
-  initialpass=$(grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [[ -n ${initialpass} ]]
+  # `postfix-accounts.cf` should have an updated password hash stored:
+  local NEW_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
+  assert_not_equal "${NEW_PASS_HASH}" ""
+  assert_not_equal "${NEW_PASS_HASH}" "${MAIL_PASS_HASH}"
 
-  run ./setup.sh -c "${TEST_NAME}" email update lorem@impsum.org my password
-  assert_success
-
-  updatepass=$(grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [[ ${updatepass} != "" ]]
-  [[ ${initialpass} != "${updatepass}" ]]
-
-  run docker exec "${TEST_NAME}" doveadm pw -t "${updatepass}" -p 'my password'
-  assert_output --partial 'verified'
+  # Verify Dovecot derives NEW_PASS_HASH from NEW_PASS:
+  run docker exec "${TEST_NAME}" doveadm pw -t "${NEW_PASS_HASH}" -p "${NEW_PASS}"
+  refute_output 'Fatal: reverse password verification check failed: Password mismatch'
+  assert_output "${NEW_PASS_HASH} (verified)"
 }
 
+# Delete an existing account
+# WARNING: While this feature works via the internal `setup` command, the external `setup.sh`
+# has no support to mount a volume to `/var/mail` (only via `-c` to use a running container),
+# thus the `-y` option to delete the account maildir has no effect nor informs the user.
+# https://github.com/docker-mailserver/docker-mailserver/issues/949
 @test "checking setup.sh: setup.sh email del" {
-  run ./setup.sh -c "${TEST_NAME}" email del -y lorem@impsum.org
+  local MAIL_ACCOUNT='user@example.com'
+  local MAIL_PASS='test_password'
+
+  # Account deletion is successful:
+  run ./setup.sh -c "${TEST_NAME}" email del -y "${MAIL_ACCOUNT}"
   assert_success
 
-  # TODO
-  # delmailuser does not work as expected.
-  # Its implementation is not functional, you cannot delete a user data
-  # directory in the running container by running a new docker container
-  # and not mounting the mail folders (persistance is broken).
-  # The add script is only adding the user to account file.
-
-  #  run docker exec "${TEST_NAME}" ls /var/mail/impsum.org/lorem
-  #  assert_failure
-  run grep lorem@impsum.org "${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  # Mail storage for account was actually removed by `-y`:
+  run docker exec "${TEST_NAME}" ls /var/mail/example.com/user
   assert_failure
+
+  # Account is not present in `postfix-accounts.cf`:
+  run grep "${MAIL_ACCOUNT}" "${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  assert_failure
+
+  # NOTE: Actual account will still exist briefly in Dovecot UserDB+PassDB
+  # until `changedetector` service is triggered by `postfix-accounts.cf`
+  # which will rebuild Dovecots accounts from scratch.
 }
 
 @test "checking setup.sh: setup.sh email restrict" {
