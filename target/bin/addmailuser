@@ -13,9 +13,9 @@ function _main
 
   _manage_accounts_create "${MAIL_ACCOUNT}" "${PASSWD}"
 
-  # Change Detection will be triggered from `postfix-accounts.cf` update,
-  # block until event processed (actual account creation handled there):
-  _wait_until_account_maildir_exists "${MAIL_ACCOUNT}"
+  # NOTE: An account has only been added to `postfix-accounts.cf`.
+  # The `changedetector` service will be triggered from this update
+  # where the actual account is created in Dovecot. Expect a delay.
 }
 
 function __usage
@@ -46,39 +46,6 @@ ${ORANGE}EXIT STATUS${RESET}
     or arguments contain errors, the script will exit early with exit status 1.
 
 "
-}
-
-# TODO: Remove this method or at least it's usage in `addmailuser`. If tests are failing, correct the tests.
-#
-# This method was added to delay command completion until a change detection event had processed the newly added user,
-# confirmed once maildir was created. It was a workaround to accomodate the test suite apparently, but otherwise
-# prevents batch adding users (each one would have to go through their own change detection event).
-#
-# Originally introduced in PR 1980 (afterwards two futher PRs deleted, and then reverted that deletion):
-# https://github.com/docker-mailserver/docker-mailserver/pull/1980
-# Not much details/discussion in the PR, these are the specific commits:
-# - Initial commit: https://github.com/docker-mailserver/docker-mailserver/pull/1980/commits/2ed402a12cedd412abcf577e8079137ea05204fe#diff-92d2047e4a9a7965f6ef2f029dd781e09265b0ce171b5322a76e35b66ab4cbf4R67
-# - Follow-up commit: https://github.com/docker-mailserver/docker-mailserver/pull/1980/commits/27542867b20c617b63bbec6fdcba421b65a44fbb#diff-92d2047e4a9a7965f6ef2f029dd781e09265b0ce171b5322a76e35b66ab4cbf4R67
-#
-# Original reasoning for this method (sounds like a network storage I/O issue):
-# Tests fail if the creation of /var/mail/${DOMAIN}/${USER} doesn't happen fast enough after addmailuser executes (check-for-changes.sh race-condition)
-# Prevent infinite loop in tests like "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist"
-function _wait_until_account_maildir_exists
-{
-  local MAIL_ACCOUNT=${1}
-
-  if [[ -f ${CHKSUM_FILE} ]]
-  then
-    local USER="${MAIL_ACCOUNT%@*}"
-    local DOMAIN="${MAIL_ACCOUNT#*@}"
-
-    local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN}/${USER}"
-    while [[ ! -d ${MAIL_ACCOUNT_STORAGE_DIR} ]]
-    do
-      _log 'info' "Waiting for dovecot to create '${MAIL_ACCOUNT_STORAGE_DIR}'"
-      sleep 1
-    done
-  fi
 }
 
 _main "${@}"
