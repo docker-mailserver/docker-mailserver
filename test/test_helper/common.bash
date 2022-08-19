@@ -181,6 +181,40 @@ function wait_for_empty_mail_queue_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
 }
 
+function wait_until_change_detection_event_completes() {
+  local CONTAINER_NAME="${1}"
+
+  local CHANGE_EVENT_START='Change detected'
+  local CHANGE_EVENT_END='Completed handling of detected change'
+
+  function __change_event_status() {
+    docker exec "${CONTAINER_NAME}" \
+      grep -oE "${CHANGE_EVENT_START}|${CHANGE_EVENT_END}" /var/log/supervisor/changedetector.log \
+      | tail -1
+  }
+
+  function __is_changedetector_processing() {
+    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]] && return 1 || return 0
+  }
+
+  function __is_changedetector_finished() {
+    [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]] && return 1 || return 0
+  }
+
+  if [[ ! $(__is_changedetector_processing) ]]
+  then
+    # A new change event is expected, wait for it:
+    repeat_until_success_or_timeout 60 __is_changedetector_processing
+  fi
+
+  # Change event is in progress, wait until it finishes:
+  repeat_until_success_or_timeout 60 __is_changedetector_finished
+
+  # NOTE: Although the change event has completed, services like Postfix and Dovecot
+  # may still be in the process of restarting.
+  # You may still want to wait longer if depending on those to be ready.
+}
+
 # An account added to `postfix-accounts.cf` must wait for the `changedetector` service
 # to process the update before Dovecot creates the mail account and associated storage dir:
 function wait_until_account_maildir_exists() {

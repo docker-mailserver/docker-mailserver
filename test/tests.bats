@@ -50,7 +50,7 @@ setup_file() {
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
   # this relies on the checksum file beeing updated after all changes have been applied
-  wait_for_changes_to_be_detected_in_container mail
+  wait_until_change_detection_event_completes mail
 
   wait_for_smtp_port_in_container mail
 
@@ -828,15 +828,11 @@ EOF
 }
 
 @test "checking quota: dovecot applies user quota" {
-  wait_for_changes_to_be_detected_in_container mail
-
   run docker exec mail /bin/sh -c "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
   assert_output --partial "-                         0"
 
   run docker exec mail /bin/sh -c "setquota user1@localhost.localdomain 50M"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)51200(.*)\"'"
@@ -844,8 +840,6 @@ EOF
 
   run docker exec mail /bin/sh -c "delquota user1@localhost.localdomain"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)-(.*)\"'"
@@ -855,13 +849,9 @@ EOF
 @test "checking quota: warn message received when quota exceeded" {
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
-  wait_for_changes_to_be_detected_in_container mail
-
   # create user
   run docker exec mail /bin/sh -c "addmailuser quotauser@otherdomain.tld mypassword && setquota quotauser@otherdomain.tld 10k"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'"

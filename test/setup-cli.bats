@@ -38,7 +38,7 @@ function teardown_file() {
   value=$(grep setup_email_add@example.com "${TEST_TMP_CONFIG}/postfix-accounts.cf" | awk -F '|' '{print $1}')
   assert_equal "${value}" 'setup_email_add@example.com'
 
-  wait_for_changes_to_be_detected_in_container "${TEST_NAME}"
+  wait_until_change_detection_event_completes "${TEST_NAME}"
 
   wait_for_service "${TEST_NAME}" postfix
   wait_for_service "${TEST_NAME}" dovecot
