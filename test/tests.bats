@@ -10,6 +10,7 @@ setup_file() {
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
 
+  # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
   docker run --rm -d --name mail \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -22,6 +23,7 @@ setup_file() {
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
+    -e LOG_LEVEL='debug' \
     -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \

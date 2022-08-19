@@ -9,8 +9,15 @@ load 'test_helper/common'
 function setup_file() {
   # Initializes common default vars to prepare a DMS container with:
   init_with_defaults
-  # Creates and starts the container:
-  common_container_setup
+
+  # Creates and starts the container with additional ENV needed:
+  # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
+  # shellcheck disable=SC2034
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env LOG_LEVEL='debug'
+  )
+
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 }
 
 function teardown_file() {
@@ -48,7 +55,7 @@ function teardown_file() {
   wait_until_account_maildir_exists "${TEST_NAME}" "${MAIL_ACCOUNT}"
   # Dovecot is stopped briefly at the end of processing a change event (should change to reload in future),
   # to more accurately use `wait_for_service` ensure you wait until `changedetector` is done.
-  wait_until_change_detection_event_completes
+  wait_until_change_detection_event_completes "${TEST_NAME}"
   wait_for_service "${TEST_NAME}" dovecot
 
   # Verify account authentication is successful:

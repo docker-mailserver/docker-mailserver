@@ -173,11 +173,17 @@ function wait_for_changes_to_be_detected_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
 
+# Relies on ENV `LOG_LEVEL=debug` or higher
 function wait_until_change_detection_event_completes() {
   local CONTAINER_NAME="${1}"
+  # Ensure failure from lack of providing a container is apparent:
+  assert_not_equal "${CONTAINER_NAME}" ""
+  # Ensure required LOG_LEVEL ENV is applied:
+  run docker exec "${CONTAINER_NAME}" grep -E '^LOG_LEVEL=(debug|trace)$' /etc/dms-settings
+  assert_success
 
   local CHANGE_EVENT_START='Change detected'
-  local CHANGE_EVENT_END='Completed handling of detected change'
+  local CHANGE_EVENT_END='Completed handling of detected change' # debug log
 
   function __change_event_status() {
     docker exec "${CONTAINER_NAME}" \
