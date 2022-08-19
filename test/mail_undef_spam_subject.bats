@@ -9,10 +9,13 @@ function setup() {
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e ENABLE_SPAMASSASSIN=1 \
     -e SA_SPAM_SUBJECT="undef" \
-    -h mail.my-domain.com -t "${NAME}"
+    --hostname mail.my-domain.com \
+    --tty \
+    "${NAME}"
 
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_undef_spam_subject_2)
-  CONTAINER=$(docker run -d \
+  CONTAINER='mail_undef_spam_subject_2'
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER}")
+  docker run -d \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -v "$(pwd)/test/onedir":/var/mail-state \
@@ -30,7 +33,10 @@ function setup() {
     -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_MANAGESIEVE=1 \
     -e PERMIT_DOCKER=host \
-    -h mail.my-domain.com -t "${NAME}")
+    --hostname mail.my-domain.com \
+    --tty \
+    --ulimit 'nofile=1024:4096' \
+    "${NAME}"
 
   wait_for_finished_setup_in_container mail_undef_spam_subject
   wait_for_finished_setup_in_container "${CONTAINER}"

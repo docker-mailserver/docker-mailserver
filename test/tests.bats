@@ -35,8 +35,9 @@ setup_file() {
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
-    -h mail.my-domain.com \
+    --hostname mail.my-domain.com \
     --tty \
+    --ulimit 'nofile=1024:4096' \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 

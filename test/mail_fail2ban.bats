@@ -9,7 +9,10 @@ function setup_file() {
     -e ENABLE_FAIL2BAN=1 \
     -e POSTSCREEN_ACTION=ignore \
     --cap-add=NET_ADMIN \
-    -h mail.my-domain.com -t "${NAME}"
+    --hostname mail.my-domain.com \
+    --tty \
+    --ulimit 'nofile=1024:4096' \
+    "${NAME}"
 
   # Create a container which will send wrong authentications and should get banned
   docker run --name fail-auth-mailer \
