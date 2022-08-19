@@ -173,14 +173,6 @@ function wait_for_changes_to_be_detected_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
 
-function wait_for_empty_mail_queue_in_container() {
-  local CONTAINER_NAME="${1}"
-  local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
-
-  # shellcheck disable=SC2016
-  repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
-}
-
 function wait_until_change_detection_event_completes() {
   local CONTAINER_NAME="${1}"
 
@@ -238,6 +230,14 @@ function add_mail_account_then_wait_until_ready() {
   assert_success
 
   wait_until_account_maildir_exists "${CONTAINER_NAME}" "${MAIL_ACCOUNT}"
+}
+
+function wait_for_empty_mail_queue_in_container() {
+  local CONTAINER_NAME="${1}"
+  local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
+
+  # shellcheck disable=SC2016
+  repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
 }
 
 # Common defaults appropriate for most tests, override vars in each test when necessary.
