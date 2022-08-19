@@ -33,6 +33,7 @@ function setup() {
     -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_MANAGESIEVE=1 \
     -e PERMIT_DOCKER=host \
+    --name "${CONTAINER}" \
     --hostname mail.my-domain.com \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
