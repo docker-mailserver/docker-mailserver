@@ -181,6 +181,31 @@ function wait_for_empty_mail_queue_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
 }
 
+# An account added to `postfix-accounts.cf` must wait for the `changedetector` service
+# to process the update before Dovecot creates the mail account and associated storage dir:
+function wait_until_account_maildir_exists() {
+  local CONTAINER_NAME=$1
+  local MAIL_ACCOUNT=$2
+
+  local LOCAL_PART="${MAIL_ACCOUNT%@*}"
+  local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
+  local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN_PART}/${LOCAL_PART}"
+
+  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c "[[ -d ${MAIL_ACCOUNT_STORAGE_DIR} ]]"
+}
+
+function add_mail_account_then_wait_until_ready() {
+  local CONTAINER_NAME=$1
+  local MAIL_ACCOUNT=$2
+  # Password is optional (omit when the password is not needed during the test)
+  local MAIL_PASS="${3:-password_not_relevant_to_test}"
+
+  run docker exec "${CONTAINER_NAME}" setup email add "${MAIL_ACCOUNT}" "${MAIL_PASS}"
+  assert_success
+
+  wait_until_account_maildir_exists "${CONTAINER_NAME}" "${MAIL_ACCOUNT}"
+}
+
 # Common defaults appropriate for most tests, override vars in each test when necessary.
 # For all tests override in `setup_file()` via an `export` var.
 # For individual test override the var via `local` var instead.
