@@ -627,6 +627,8 @@ EOF
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
+  wait_until_account_maildir_exists mail 'user3@domain.tld'
+
   docker exec mail /bin/sh -c "delmailuser -y user3@domain.tld"
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
@@ -703,6 +705,7 @@ EOF
   run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
   assert_success
 }
+
 @test "checking quota: setquota <quota> must be well formatted" {
   run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
   assert_success
@@ -733,7 +736,6 @@ EOF
   assert_success
 }
 
-
 @test "checking quota: delquota user must be existing" {
   run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
   assert_success
@@ -755,6 +757,7 @@ EOF
   run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
   assert_success
 }
+
 @test "checking quota: delquota allow when no quota for existing user" {
   run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
   assert_success
