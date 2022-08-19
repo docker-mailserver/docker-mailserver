@@ -641,7 +641,7 @@ EOF
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
-  docker exec mail /bin/sh -c "addmailuser user4@domain.tld mypassword"
+  add_mail_account_then_wait_until_ready mail 'user4@domain.tld'
 
   initialpass=$(docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
   sleep 2
@@ -691,8 +691,7 @@ EOF
 
 
 @test "checking quota: setquota user must be existing" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quota_user 50M"
   assert_failure
@@ -707,8 +706,7 @@ EOF
 }
 
 @test "checking quota: setquota <quota> must be well formatted" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 26GIGOTS"
   assert_failure
@@ -737,8 +735,7 @@ EOF
 }
 
 @test "checking quota: delquota user must be existing" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "delquota uota_user@domain.tld"
   assert_failure
@@ -759,8 +756,7 @@ EOF
 }
 
 @test "checking quota: delquota allow when no quota for existing user" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
   assert_failure
@@ -814,8 +810,7 @@ EOF
 }
 
 @test "checking quota: quota directive is removed when mailbox is removed" {
-  run docker exec mail /bin/sh -c "addmailuser quserremoved@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quserremoved@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quserremoved@domain.tld 12M"
   assert_success
@@ -853,7 +848,8 @@ EOF
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
   # create user
-  run docker exec mail /bin/sh -c "addmailuser quotauser@otherdomain.tld mypassword && setquota quotauser@otherdomain.tld 10k"
+  add_mail_account_then_wait_until_ready mail 'quotauser@otherdomain.tld'
+  run docker exec mail /bin/sh -c 'setquota quotauser@otherdomain.tld 10k'
   assert_success
 
   # wait until quota has been updated
