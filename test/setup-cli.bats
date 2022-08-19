@@ -33,14 +33,15 @@ function teardown_file() {
 @test "checking setup.sh: setup.sh email add and login" {
   local MAIL_ACCOUNT='user@example.com'
   local MAIL_PASS='test_password'
+  local DATABASE_ACCOUNTS="${TEST_TMP_CONFIG}/postfix-accounts.cf"
 
   # Create an account
   run ./setup.sh -c "${TEST_NAME}" email add "${MAIL_ACCOUNT}" "${MAIL_PASS}"
   assert_success
 
   # Verify account was added to `postfix-accounts.cf`:
-  local DATABASE_ACCOUNTS="${TEST_TMP_CONFIG}/postfix-accounts.cf"
-  local ACCOUNT=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $1}')
+  local ACCOUNT
+  ACCOUNT=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $1}')
   assert_equal "${ACCOUNT}" "${MAIL_ACCOUNT}"
 
   # Wait for change detection event to complete (create maildir and add account to Dovecot UserDB+PassDB)
@@ -51,7 +52,8 @@ function teardown_file() {
   wait_for_service "${TEST_NAME}" dovecot
 
   # Verify account authentication is successful:
-  local RESPONSE=$(docker exec "${TEST_NAME}" doveadm auth test "${MAIL_ACCOUNT}" "${MAIL_PASS}" | grep 'passdb')
+  local RESPONSE
+  RESPONSE=$(docker exec "${TEST_NAME}" doveadm auth test "${MAIL_ACCOUNT}" "${MAIL_PASS}" | grep 'passdb')
   assert_equal "${RESPONSE}" "passdb: ${MAIL_ACCOUNT} auth succeeded"
 }
 
@@ -64,10 +66,11 @@ function teardown_file() {
 @test "checking setup.sh: setup.sh email update" {
   local MAIL_ACCOUNT='user@example.com'
   local MAIL_PASS='test_password'
+  local DATABASE_ACCOUNTS="${TEST_TMP_CONFIG}/postfix-accounts.cf"
 
   # `postfix-accounts.cf` should already have an account with a non-empty hashed password:
-  local DATABASE_ACCOUNTS="${TEST_TMP_CONFIG}/postfix-accounts.cf"
-  local MAIL_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
+  local MAIL_PASS_HASH
+  MAIL_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
   assert_not_equal "${MAIL_PASS_HASH}" ""
 
   # Update the password should be successful:
@@ -77,7 +80,8 @@ function teardown_file() {
   assert_success
 
   # `postfix-accounts.cf` should have an updated password hash stored:
-  local NEW_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
+  local NEW_PASS_HASH
+  NEW_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
   assert_not_equal "${NEW_PASS_HASH}" ""
   assert_not_equal "${NEW_PASS_HASH}" "${MAIL_PASS_HASH}"
 
