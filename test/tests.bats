@@ -37,7 +37,7 @@ setup_file() {
     -e VIRUSMAILS_DELETE_DELAY=7 \
     --hostname mail.my-domain.com \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 

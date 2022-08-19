@@ -11,7 +11,7 @@ function setup_file() {
     --cap-add=NET_ADMIN \
     --hostname mail.my-domain.com \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
   # Create a container which will send wrong authentications and should get banned

@@ -13,7 +13,7 @@ function setup_file() {
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     --hostname unknown.domain.tld \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
   PRIVATE_CONFIG_TWO=$(duplicate_config_for_container . mail_non_subdomain_hostname)
@@ -24,7 +24,7 @@ function setup_file() {
     -e ENABLE_SRS=1 \
     --hostname domain.com \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
   PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . mail_srs_domainname)
@@ -37,7 +37,7 @@ function setup_file() {
     --domainname 'my-domain.com' \
     --hostname 'mail' \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
   PRIVATE_CONFIG_FOUR=$(duplicate_config_for_container . mail_domainname)
@@ -49,7 +49,7 @@ function setup_file() {
     --domainname 'my-domain.com' \
     --hostname 'mail' \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
   wait_for_smtp_port_in_container mail_override_hostname

@@ -35,7 +35,7 @@ function setup() {
     -e PERMIT_DOCKER=host \
     --hostname mail.my-domain.com \
     --tty \
-    --ulimit 'nofile=1024:4096' \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
   wait_for_finished_setup_in_container mail_undef_spam_subject
