@@ -176,11 +176,13 @@ function wait_for_changes_to_be_detected_in_container() {
 # Relies on ENV `LOG_LEVEL=debug` or higher
 function wait_until_change_detection_event_completes() {
   local CONTAINER_NAME="${1}"
-  # Ensure failure from lack of providing a container is apparent:
+  # Ensure early failure if arg is missing:
   assert_not_equal "${CONTAINER_NAME}" ""
-  # Ensure required LOG_LEVEL ENV is applied:
-  run docker exec "${CONTAINER_NAME}" grep -E '^LOG_LEVEL=(debug|trace)$' /etc/dms-settings
-  assert_success
+
+  # Ensure the container is configured with the required `LOG_LEVEL` ENV:
+  assert_regex \
+    $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
+    '=(debug|trace)$'
 
   local CHANGE_EVENT_START='Change detected'
   local CHANGE_EVENT_END='Completed handling of detected change' # debug log
@@ -192,11 +194,11 @@ function wait_until_change_detection_event_completes() {
   }
 
   function __is_changedetector_processing() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]] && return 1 || return 0
+    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]]
   }
 
   function __is_changedetector_finished() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]] && return 1 || return 0
+    [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]]
   }
 
   if [[ ! $(__is_changedetector_processing) ]]
