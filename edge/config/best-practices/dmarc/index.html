@@ -1513,7 +1513,7 @@
 <p>More information at <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md">DMARC Guide</a>.</p>
 <h2 id="enabling-dmarc"><a class="toclink" href="#enabling-dmarc">Enabling DMARC</a></h2>
 <p>In <code>docker-mailserver</code>, DMARC is pre-configured out of the box. The only thing you need to do in order to enable it, is to add new <code>TXT</code> entry to your DNS.</p>
-<p>In contrast with <a href="../dkim/">DKIM</a>, the DMARC DNS entry does not require any keys, but merely setting the [configuration values][dmarc-howto-configtags]. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org">this one</a>).</p>
+<p>In contrast with <a href="../dkim/">DKIM</a>, the DMARC DNS entry does not require any keys, but merely setting the <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags">configuration values</a>. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org">this one</a>).</p>
 <p>Typically something like this should be good to start with (<em>don't forget to replace <code>@example.com</code> to your actual domain</em>):</p>
 <div class="highlight"><pre><span></span><code>_dmarc.example.com. IN TXT &quot;v=DMARC1; p=none; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com; sp=none; ri=86400&quot;
 </code></pre></div>
