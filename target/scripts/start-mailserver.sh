@@ -60,7 +60,6 @@ function _register_functions
 
   # ? >> Setup
 
-  _register_setup_function '_environment_variables_export'
   _register_setup_function '_setup_file_permissions'
   _register_setup_function '_setup_timezone'
 
