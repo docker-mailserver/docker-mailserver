@@ -1,11 +1,10 @@
-name: "Lint"
+name: Lint
 
 on:
   pull_request:
-    branches: [ "*" ]
+    branches: [ '**' ]
   push:
-    branches:
-      - master
+    branches: [ master ]
 
 permissions:
   contents: read
@@ -16,23 +15,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - name: Hadolint
-        run: |
-          make hadolint
-        env:
-          HADOLINT_VERSION: 2.4.1
+        run: make hadolint
 
       - name: ShellCheck
-        run: |
-          make shellcheck
-        env:
-          SHELLCHECK_VERSION: 0.8.0
+        run: make shellcheck
 
       - name: ECLint
-        run: |
-          make eclint
-        env:
-          ECLINT_VERSION: 2.3.5
+        run: make eclint
