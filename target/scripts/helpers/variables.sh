@@ -61,7 +61,7 @@ function _environment_variables_general_setup
   VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
   VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
 
-  _log 'trace' 'Setting anti-spam environment variables'
+  _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 
   VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
   VARS[CLAMAV_MESSAGE_SIZE_LIMIT]="${CLAMAV_MESSAGE_SIZE_LIMIT:=25M}"
