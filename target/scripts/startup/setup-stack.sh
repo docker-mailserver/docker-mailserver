@@ -276,27 +276,34 @@ function _setup_dovecot_local_user
 {
   _log 'debug' 'Setting up Dovecot Local User'
 
-  _create_accounts
   [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
-    _log 'trace' "'/tmp/docker-mailserver/postfix-accounts.cf' not provided, no mail account created"
+    _log 'trace' "No mail accounts to create - '/tmp/docker-mailserver/postfix-accounts.cf' is missing"
   fi
 
-  local SLEEP_PERIOD='10'
-  for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
-  do
-    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]
-    then
-      return 0
-    else
-      _log 'warn' "You need at least one email account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
-      sleep "${SLEEP_PERIOD}"
-    fi
-  done
+  function __wait_until_an_account_is_added_or_shutdown
+  {
+    local SLEEP_PERIOD='10'
 
-  _shutdown 'No accounts provided - Dovecot could not be started'
+    for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
+    do
+      if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]
+      then
+        return 0
+      else
+        _log 'warn' "You need at least one mail account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
+        sleep "${SLEEP_PERIOD}"
+      fi
+    done
+
+    _shutdown 'No accounts provided - Dovecot could not be started'
+  }
+
+  __wait_until_an_account_is_added_or_shutdown
+
+  _create_accounts
 }
 
 function _setup_ldap
