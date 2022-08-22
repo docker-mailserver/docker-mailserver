@@ -105,6 +105,11 @@ teardown_file() {
 # healthcheck
 #
 
+# NOTE: Healthcheck defaults an interval of 30 seconds
+# If Postfix is temporarily down (eg: restart triggered by `check-for-changes.sh`),
+# it may result in a false-positive `unhealthy` state.
+# Be careful with re-locating this test if earlier tests could potentially fail it by
+# triggering the `changedetector` service.
 @test "checking container healthcheck" {
   run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
   assert_output "healthy"

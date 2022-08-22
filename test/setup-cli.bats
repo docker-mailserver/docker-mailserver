@@ -112,8 +112,13 @@ function teardown_file() {
   assert_success
 
   # Mail storage for account was actually removed by `-y`:
-  run docker exec "${TEST_NAME}" ls /var/mail/example.com/user
-  assert_failure
+  # NOTE: Sometimes the directory still exists, possibly from change detection
+  # of the previous test (`email udpate`) triggering. If this does not fix it,
+  # use `wait_until_change_detection_event_completes()` in that test to ensure
+  # consistency, or create another user to delete.
+  repeat_in_container_until_success_or_timeout 60 "${TEST_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'
+  #run docker exec "${TEST_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'
+  #assert_success
 
   # Account is not present in `postfix-accounts.cf`:
   run grep "${MAIL_ACCOUNT}" "${TEST_TMP_CONFIG}/postfix-accounts.cf"
