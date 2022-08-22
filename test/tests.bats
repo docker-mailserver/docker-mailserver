@@ -1,5 +1,3 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
 load 'test_helper/common'
 
 export IMAGE_NAME
@@ -37,8 +35,9 @@ setup_file() {
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
-    -h mail.my-domain.com \
+    --hostname mail.my-domain.com \
     --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 
