@@ -102,6 +102,16 @@ teardown_file() {
 }
 
 #
+# healthcheck
+#
+
+@test "checking container healthcheck" {
+  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
+  assert_output "healthy"
+  assert_success
+}
+
+#
 # processes
 #
 
@@ -958,16 +968,6 @@ EOF
   # check sender is not the default one.
   run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
-}
-
-#
-# healthcheck
-#
-
-@test "checking container healthcheck" {
-  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
-  assert_output "healthy"
-  assert_success
 }
 
 #
