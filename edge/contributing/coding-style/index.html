@@ -1731,9 +1731,7 @@
 
     cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
 
-    <span class="c1"># the `to` is important, don&#39;t delete it</span>
-    <span class="c1"># shellcheck disable=SC2034</span>
-    <span class="k">while</span> <span class="nb">read</span> -r FROM TO
+    <span class="k">while</span> <span class="nb">read</span> -r FROM _
     <span class="k">do</span>
       <span class="c1"># Setting variables for better readability</span>
       <span class="nv">UNAME</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">FROM</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> cut -d @ -f1<span class="k">)</span>

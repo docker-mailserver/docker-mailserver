@@ -514,6 +514,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#account_provisioner" class="md-nav__link">
+    ACCOUNT_PROVISIONER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#permit_docker" class="md-nav__link">
     PERMIT_DOCKER
   </a>
@@ -2427,6 +2434,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#account_provisioner" class="md-nav__link">
+    ACCOUNT_PROVISIONER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#permit_docker" class="md-nav__link">
     PERMIT_DOCKER
   </a>
@@ -3346,6 +3360,15 @@
 <li>0 =&gt; state in default directories.</li>
 <li><strong>1</strong> =&gt; consolidate all states into a single directory (<code>/var/mail-state</code>) to allow persistence using docker volumes. See the <a href="../../faq/#what-about-docker-datadmsmail-state-folder-varmail-state-internally">related FAQ entry</a> for more information.</li>
 </ul>
+<h5 id="account_provisioner"><a class="toclink" href="#account_provisioner">ACCOUNT_PROVISIONER</a></h5>
+<p>Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (<em>Postfix and Dovecot</em>).</p>
+<p>User provisioning via OIDC is planned for the future, see <a href="https://github.com/docker-mailserver/docker-mailserver/issues/2713">this tracking issue</a>.</p>
+<ul>
+<li><strong>empty</strong> =&gt; use FILE</li>
+<li>LDAP =&gt; use LDAP authentication</li>
+<li>OIDC =&gt; use OIDC authentication (<strong>not yet implemented</strong>)</li>
+<li>FILE =&gt; use local files (this is used as the default)</li>
+</ul>
 <h5 id="permit_docker"><a class="toclink" href="#permit_docker">PERMIT_DOCKER</a></h5>
 <p>Set different options for mynetworks option (can be overwrite in postfix-main.cf) <strong>WARNING</strong>: Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance if IPv6 is enabled on the host machine but not in Docker.</p>
 <ul>
@@ -3686,13 +3709,7 @@ Note: this setting needs <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></p>
 <p>Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate <code>fetchmail</code> instances.</p>
 <h4 id="ldap"><a class="toclink" href="#ldap">LDAP</a></h4>
 <h5 id="enable_ldap"><a class="toclink" href="#enable_ldap">ENABLE_LDAP</a></h5>
-<ul>
-<li><strong>empty</strong> =&gt; LDAP authentification is disabled</li>
-<li>1 =&gt; LDAP authentification is enabled</li>
-<li>NOTE:</li>
-<li>A second container for the ldap service is necessary (e.g. <a href="https://github.com/osixia/docker-openldap">docker-openldap</a>)</li>
-<li>For preparing the ldap server to use in combination with this container <a href="http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/">this</a> article may be helpful</li>
-</ul>
+<p>Deprecated. See <a href="#account_provisioner"><code>ACCOUNT_PROVISIONER</code></a>.</p>
 <h5 id="ldap_start_tls"><a class="toclink" href="#ldap_start_tls">LDAP_START_TLS</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; no</li>

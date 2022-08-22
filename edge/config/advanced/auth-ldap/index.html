@@ -1660,7 +1660,9 @@
 <details class="example" open="open">
 <summary>Example</summary>
 <p>A really simple <code>LDAP_QUERY_FILTER</code> configuration, using only the <em>user filter</em> and allowing only <code>admin@*</code> to spoof any sender addresses.</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"> </span><span class="c1"># with the :edge tag, use ACCOUNT_PROVISIONER</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACCOUNT_PROVISIONER=LDAP</span><span class="w"></span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span><span class="w"></span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org&quot;</span><span class="w"></span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,dc=example,dc=org</span><span class="w"></span>
@@ -1740,17 +1742,17 @@
 <li>To deliver the emails to different members of Active Directory <strong>Security Group</strong> or <strong>Distribution Group</strong> (similar to mailing lists), use a <a href="../override-defaults/user-patches/"><code>user-patches.sh</code> script</a> to modify <code>ldap-groups.cf</code> so that it includes <code>leaf_result_attribute = mail</code> and <code>special_result_attribute = member</code>. This can be achieved simply by:</li>
 </ul>
 <p>The configuration shown to get the Group to work is from <a href="https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html">here</a> and <a href="https://kb.kopano.io/display/WIKI/Postfix">here</a>.</p>
-<div class="highlight"><pre><span></span><code># user-patches.sh
+<div class="highlight"><pre><span></span><code><span class="c1"># user-patches.sh</span>
 
 ...
-grep -q &#39;^leaf_result_attribute = mail$&#39; /etc/postfix/ldap-groups.cf || echo &quot;leaf_result_attribute = mail&quot; &gt;&gt; /etc/postfix/ldap-groups.cf
-grep -q &#39;^special_result_attribute = member$&#39; /etc/postfix/ldap-groups.cf || echo &quot;special_result_attribute = member&quot; &gt;&gt; /etc/postfix/ldap-groups.cf
+grep -q <span class="s1">&#39;^leaf_result_attribute = mail$&#39;</span> /etc/postfix/ldap-groups.cf <span class="o">||</span> <span class="nb">echo</span> <span class="s2">&quot;leaf_result_attribute = mail&quot;</span> &gt;&gt; /etc/postfix/ldap-groups.cf
+grep -q <span class="s1">&#39;^special_result_attribute = member$&#39;</span> /etc/postfix/ldap-groups.cf <span class="o">||</span> <span class="nb">echo</span> <span class="s2">&quot;special_result_attribute = member&quot;</span> &gt;&gt; /etc/postfix/ldap-groups.cf
 ...
 </code></pre></div>
 <ul>
 <li>In <code>/etc/ldap/ldap.conf</code>, if the <code>TLS_REQCERT</code> is <code>demand</code> / <code>hard</code> (default), the CA certificate used to verify the LDAP server certificate must be recognized as a trusted CA. This can be done by volume mounting the <code>ca.crt</code> file and updating the trust store via a <code>user-patches.sh</code> script:</li>
 </ul>
-<div class="highlight"><pre><span></span><code># user-patches.sh
+<div class="highlight"><pre><span></span><code><span class="c1"># user-patches.sh</span>
 
 ...
 cp /MOUNTED_FOLDER/ca.crt /usr/local/share/ca-certificates/
@@ -1758,25 +1760,25 @@ update-ca-certificates
 ...
 </code></pre></div>
 <p>The changes on the configurations necessary to work with Active Directory (<strong>only changes are listed, the rest of the LDAP configuration can be taken from the other examples</strong> shown in this documentation):</p>
-<div class="highlight"><pre><span></span><code># If StartTLS is the chosen method to establish a secure connection with Active Directory.
-- LDAP_START_TLS=yes
-- SASLAUTHD_LDAP_START_TLS=yes
-- DOVECOT_TLS=yes
+<div class="highlight"><pre><span></span><code><span class="c1"># If StartTLS is the chosen method to establish a secure connection with Active Directory.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_START_TLS=yes</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_TLS=yes</span><span class="w"></span>
 
-- LDAP_QUERY_FILTER_USER=(&amp;(objectclass=person)(mail=%s))
-- LDAP_QUERY_FILTER_ALIAS=(&amp;(objectclass=person)(proxyAddresses=smtp:%s))
-# Filters Active Directory groups (mail lists). Additional changes on ldap-groups.cf are also required as shown above.
-- LDAP_QUERY_FILTER_GROUP=(&amp;(objectClass=group)(mail=%s))
-- LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
-# Allows only Domain admins to send any sender email address, otherwise the sender address must match the LDAP attribute `mail`.
-- SPOOF_PROTECTION=1
-- LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_USER=(&amp;(objectclass=person)(mail=%s))</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_ALIAS=(&amp;(objectclass=person)(proxyAddresses=smtp:%s))</span><span class="w"></span>
+<span class="c1"># Filters Active Directory groups (mail lists). Additional changes on ldap-groups.cf are also required as shown above.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_GROUP=(&amp;(objectClass=group)(mail=%s))</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)</span><span class="w"></span>
+<span class="c1"># Allows only Domain admins to send any sender email address, otherwise the sender address must match the LDAP attribute `mail`.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))</span><span class="w"></span>
 
-- DOVECOT_USER_FILTER=(&amp;(objectclass=person)(sAMAccountName=%n))
-# At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
-- DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
-- DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
-- SASLAUTHD_LDAP_FILTER=(&amp;(sAMAccountName=%U)(objectClass=person))
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectclass=person)(sAMAccountName=%n))</span><span class="w"></span>
+<span class="c1"># At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(sAMAccountName=%U)(objectClass=person))</span><span class="w"></span>
 </code></pre></div>
 <h2 id="ldap-setup-examples"><a class="toclink" href="#ldap-setup-examples">LDAP Setup Examples</a></h2>
 <details class="example" open="open">
@@ -1809,7 +1811,8 @@ update-ca-certificates
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span><span class="w"></span>
 
 <span class="w">      </span><span class="c1"># &gt;&gt;&gt; Postfix LDAP Integration</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"> </span><span class="c1"># with the :edge tag, use ACCOUNT_PROVISIONER</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACCOUNT_PROVISIONER=LDAP</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_PW=mypassword</span><span class="w"></span>
@@ -1880,7 +1883,8 @@ update-ca-certificates
 <span class="w">      </span><span class="c1"># &lt;&lt;&lt; SASL Authentication</span><span class="w"></span>
 
 <span class="w">      </span><span class="c1"># &gt;&gt;&gt; Postfix Ldap Integration</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"> </span><span class="c1"># with the :edge tag, use ACCOUNT_PROVISIONER</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACCOUNT_PROVISIONER=LDAP</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=&lt;yourLdapContainer/yourLdapServer&gt;</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=mydomain,dc=loc</span><span class="w"></span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc</span><span class="w"></span>

@@ -1536,7 +1536,8 @@
 </code></pre></div>
 <h2 id="authenticating-with-ldap"><a class="toclink" href="#authenticating-with-ldap">Authenticating with LDAP</a></h2>
 <p>If you want to send emails from outside the mail-server you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
-<div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1 # with the :edge tag, use ACCOUNT_PROVISIONER</span><span class="w"></span>
+<span class="na">ACCOUNT_PROVISIONER</span><span class="o">=</span><span class="s">LDAP</span><span class="w"></span>
 <span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span><span class="w"></span>
 <span class="na">LDAP_SERVER_HOST</span><span class="o">=</span><span class="s">ldap.example.org</span><span class="w"></span>
 <span class="na">LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span><span class="w"></span>
@@ -1601,10 +1602,6 @@ postfix reload
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Another solution that serves as a forward-only mail-server is <a href="https://gitlab.com/docker-scripts/postfix">this</a>.</p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>One user reports only having success if <code>ENABLE_LDAP=0</code> was set.</p>
 </div>
 
               
