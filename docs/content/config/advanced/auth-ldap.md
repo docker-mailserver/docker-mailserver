@@ -34,7 +34,9 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     A really simple `LDAP_QUERY_FILTER` configuration, using only the _user filter_ and allowing only `admin@*` to spoof any sender addresses.
 
     ```yaml
-    - ENABLE_LDAP=1
+    - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
+    - LDAP_START_TLS=yes
+    - ACCOUNT_PROVISIONER=LDAP
     - LDAP_SERVER_HOST=ldap.example.org
     - LDAP_SEARCH_BASE=dc=example,dc=org"
     - LDAP_BIND_DN=cn=admin,dc=example,dc=org
@@ -138,7 +140,7 @@ In addition to LDAP explanation above, when Docker Mailserver is intended to be 
 
 The configuration shown to get the Group to work is from [here](https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html) and [here](https://kb.kopano.io/display/WIKI/Postfix).
 
-```
+```bash
 # user-patches.sh
 
 ...
@@ -149,7 +151,7 @@ grep -q '^special_result_attribute = member$' /etc/postfix/ldap-groups.cf || ech
 
 - In `/etc/ldap/ldap.conf`, if the `TLS_REQCERT` is `demand` / `hard` (default), the CA certificate used to verify the LDAP server certificate must be recognized as a trusted CA. This can be done by volume mounting the `ca.crt` file and updating the trust store via a `user-patches.sh` script:
 
-```
+```bash
 # user-patches.sh
 
 ...
@@ -160,7 +162,7 @@ update-ca-certificates
 
 The changes on the configurations necessary to work with Active Directory (**only changes are listed, the rest of the LDAP configuration can be taken from the other examples** shown in this documentation):
 
-```
+```yaml
 # If StartTLS is the chosen method to establish a secure connection with Active Directory.
 - LDAP_START_TLS=yes
 - SASLAUTHD_LDAP_START_TLS=yes
@@ -215,7 +217,8 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - ENABLE_POSTGREY=1
 
           # >>> Postfix LDAP Integration
-          - ENABLE_LDAP=1
+          - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
+          - ACCOUNT_PROVISIONER=LDAP
           - LDAP_SERVER_HOST=ldap.example.org
           - LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org
           - LDAP_BIND_PW=mypassword
@@ -287,7 +290,8 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< SASL Authentication
 
           # >>> Postfix Ldap Integration
-          - ENABLE_LDAP=1
+          - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
+          - ACCOUNT_PROVISIONER=LDAP
           - LDAP_SERVER_HOST=<yourLdapContainer/yourLdapServer>
           - LDAP_SEARCH_BASE=dc=mydomain,dc=loc
           - LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
