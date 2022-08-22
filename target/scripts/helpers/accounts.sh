@@ -14,10 +14,11 @@ function _create_accounts
   : >/etc/postfix/vmailbox
   : >"${DOVECOT_USERDB_FILE}"
 
-  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] || return 0
 
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   _create_masters
+
   if [[ -f ${DATABASE_ACCOUNTS} ]]
   then
     _log 'trace' "Checking file line endings"

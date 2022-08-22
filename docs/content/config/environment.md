@@ -40,6 +40,17 @@ The log-level will show everything in its class and above.
 - 0 => state in default directories.
 - **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
 
+##### ACCOUNT_PROVISIONER
+
+Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
+
+User provisioning via OIDC is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
+
+- **empty** => use FILE
+- LDAP => use LDAP authentication
+- OIDC => use OIDC authentication (**not yet implemented**)
+- FILE => use local files (this is used as the default)
+
 ##### PERMIT_DOCKER
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
@@ -439,11 +450,7 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 ##### ENABLE_LDAP
 
-- **empty** => LDAP authentification is disabled
-- 1 => LDAP authentification is enabled
-- NOTE:
-  - A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
-  - For preparing the ldap server to use in combination with this container [this](http://acidx.net/wordpress/2014/06/installing-a-mailserver-with-postfix-dovecot-sasl-ldap-roundcube/) article may be helpful
+Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 ##### LDAP_START_TLS
 

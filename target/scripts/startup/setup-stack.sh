@@ -14,6 +14,8 @@ function _setup
 
 function _setup_supervisor
 {
+  SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:-warn}"
+
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case "${SUPERVISOR_LOGLEVEL}" in
@@ -26,9 +28,7 @@ function _setup_supervisor
         exit
         ;;
 
-      ( 'warn' )
-        return 0
-        ;;
+      ( 'warn' ) ;;
 
       ( * )
         _log 'warn' \
@@ -39,24 +39,6 @@ function _setup_supervisor
   fi
 
   return 0
-}
-
-function _setup_default_vars
-{
-  _log 'debug' 'Setting up default variables'
-
-  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
-  : >/etc/dms-settings # this file can be sourced by other scripts
-
-  local VAR
-  for VAR in "${!VARS[@]}"
-  do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
-    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
-  done
-
-  sort -o /root/.bashrc     /root/.bashrc
-  sort -o /etc/dms-settings /etc/dms-settings
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong
@@ -220,7 +202,7 @@ function _setup_dovecot_quota
     _log 'debug' 'Setting up Dovecot quota'
 
     # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
-    if [[ ${ENABLE_LDAP} -eq 1 ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
+    if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
     then
       # disable dovecot quota in docevot confs
       if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
@@ -274,9 +256,10 @@ function _setup_dovecot_quota
 
 function _setup_dovecot_local_user
 {
-  _log 'debug' 'Setting up Dovecot Local User'
+  [[ ${SMTP_ONLY} -eq 1 ]] && return 0
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] || return 0
 
-  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
+  _log 'debug' 'Setting up Dovecot Local User'
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
@@ -401,6 +384,11 @@ function _setup_ldap
   return 0
 }
 
+function _setup_oidc
+{
+  _shutdown 'OIDC user account provisioning is not yet implemented'
+}
+
 function _setup_postgrey
 {
   _log 'debug' 'Configuring Postgrey'
@@ -471,7 +459,7 @@ function _setup_spoof_protection
     's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
     /etc/postfix/main.cf
 
-  if [[ ${ENABLE_LDAP} -eq 1 ]]
+  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]
   then
     if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
     then
@@ -1197,6 +1185,7 @@ EOF
 
 function _setup_timezone
 {
+  [[ -n ${TZ} ]] || return 0
   _log 'debug' "Setting timezone to '${TZ}'"
 
   local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
