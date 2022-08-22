@@ -80,7 +80,7 @@ function _vhost_collect_postfix_domains
 #   conditionally include a 2nd table (ldap:/etc/postfix/ldap-domains.cf).
 function _vhost_ldap_support
 {
-  [[ ${ENABLE_LDAP} -eq 1 ]] && echo "${DOMAINNAME}" >>"${TMP_VHOST}"
+  [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]] && echo "${DOMAINNAME}" >>"${TMP_VHOST}"
 }
 
 # Docs - Postfix lookup table files:

@@ -130,9 +130,7 @@ function _setup_postfix_aliases
 
     cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
 
-    # the `to` is important, don't delete it
-    # shellcheck disable=SC2034
-    while read -r FROM TO
+    while read -r FROM _
     do
       # Setting variables for better readability
       UNAME=$(echo "${FROM}" | cut -d @ -f1)
