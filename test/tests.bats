@@ -51,16 +51,18 @@ setup_file() {
   # setup sieve
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
-  # this relies on the checksum file beeing updated after all changes have been applied
+  # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
-
-  wait_for_smtp_port_in_container mail
 
   # wait for ClamAV to be fully setup or we will get errors on the log
   repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
 
-  # sending test mails
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  wait_for_smtp_port_in_container mail
+
+  # The first mail sent leverages an assert for better error output if a failure occurs:
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  assert_success
+
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
