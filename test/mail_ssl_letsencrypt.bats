@@ -117,7 +117,7 @@ function teardown() {
     wait_for_service "${TEST_NAME}" 'changedetector'
 
     # Wait until the changedetector service startup delay is over:
-    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'Chagedetector is ready'"
+    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'Changedetector is ready'"
   }
 
   # Test `acme.json` extraction works at container startup:
@@ -298,7 +298,7 @@ function _should_be_equal_in_content() {
 function _get_service_logs() {
   local SERVICE=${1:-'mailserver'}
 
-  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -2000 ${SERVICE}")
+  local CMD_LOGS=(docker exec "${TEST_NAME}" "supervisorctl tail -2200 ${SERVICE}")
 
   # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
   # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:

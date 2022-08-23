@@ -4,8 +4,14 @@ on:
   schedule:
     - cron: "0 1 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   stale:
+    permissions:
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-20.04
     steps:
       - name: Close stale issues

@@ -83,7 +83,6 @@ While indexing is memory intensive, you can configure the plugin to limit the am
           stop_grace_period: 1m
           cap_add:
             - NET_ADMIN
-            - SYS_PTRACE
     ```
 
 3. Recreate containers:
@@ -104,6 +103,42 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```
     docker-compose exec mailserver doveadm fts optimize -A
     ```
+    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail-server is not running:
+
+??? example
+
+    Create a _system_ cron file:
+
+    ```sh
+    # in the docker-compose.yml root directory
+    mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
+    touch ./docker-data/dms/cron/fts_xapian
+    chown root:root ./docker-data/dms/cron/fts_xapian
+    chmod 0644 ./docker-data/dms/cron/fts_xapian
+    ```
+
+    Edit the system cron file `nano ./docker-data/dms/cron/fts_xapian`, and set an appropriate configuration:
+
+    ```conf
+    # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
+    MAILTO=""
+    #
+    # m h dom mon dow user command
+    #
+    # Everyday 4:00AM, optimize index files
+    0  4 * * * root  doveadm fts optimize -A
+    ```
+
+    Then with `docker-compose.yml`:
+
+    ```yaml
+    services:
+      mailserver:
+        image: docker.io/mailserver/docker-mailserver:latest
+        volumes:
+          - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
+    ```
+
 
 ### Solr
 
@@ -154,3 +189,5 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
 #### Further Discussion
 
 See [#905](https://github.com/docker-mailserver/docker-mailserver/issues/905)
+
+[docs-faq-sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam

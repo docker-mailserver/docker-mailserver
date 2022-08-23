@@ -38,7 +38,7 @@ systemctl enable --now podman.socket
 This will create a unix socket locate under `/run/podman/podman.sock`, which is the entrypoint of Podman's API. Now, configure docker-mailserver and start it.
 
 ```bash
-export DOCKER_HOST="unix:/run/podman/podman.sock"
+export DOCKER_HOST="unix:///run/podman/podman.sock"
 docker-compose up -d mailserver
 docker-compose ps
 ```
@@ -91,7 +91,7 @@ services:
 Then, setup your `mailserver.env` file follow the documentation and use docker-compose to start the container.
 
 ```bash
-export DOCKER_HOST="unix:/var/run/user/1000/podman/podman.sock"
+export DOCKER_HOST="unix:///var/run/user/$(id -u)/podman/podman.sock"
 docker-compose up -d mailserver
 docker-compose ps
 ```

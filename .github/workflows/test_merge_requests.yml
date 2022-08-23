@@ -11,6 +11,9 @@ on:
       - 'Dockerfile'
       - 'setup.sh'
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-20.04
@@ -21,10 +24,10 @@ jobs:
           submodules: recursive
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1.2.0
+        uses: docker/setup-qemu-action@v2.0.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1.7.0
+        uses: docker/setup-buildx-action@v2.0.0
         id: buildx
 
       - name: Cache Docker layers
@@ -36,7 +39,7 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build images locally
-        uses: docker/build-push-action@v2.10.0
+        uses: docker/build-push-action@v3.1.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -49,7 +52,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Build image for test suit
-        uses: docker/build-push-action@v2.10.0
+        uses: docker/build-push-action@v3.1.1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .

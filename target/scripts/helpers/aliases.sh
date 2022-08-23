@@ -9,35 +9,27 @@
 function _handle_postfix_virtual_config
 {
   : >/etc/postfix/virtual
-  : >/etc/postfix/regexp
 
-  if [[ -f /tmp/docker-mailserver/postfix-virtual.cf ]]
+  local DATABASE_VIRTUAL=/tmp/docker-mailserver/postfix-virtual.cf
+
+  if [[ -f ${DATABASE_VIRTUAL} ]]
   then
     # fixing old virtual user file
-    if grep -q ",$" /tmp/docker-mailserver/postfix-virtual.cf
+    if grep -q ",$" "${DATABASE_VIRTUAL}"
     then
-      sed -i -e "s|, |,|g" -e "s|,$||g" /tmp/docker-mailserver/postfix-virtual.cf
+      sed -i -e "s|, |,|g" -e "s|,$||g" "${DATABASE_VIRTUAL}"
     fi
 
-    cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-
-    # the `to` is important, don't delete it
-    # shellcheck disable=SC2034
-    while read -r FROM TO
-    do
-      UNAME=$(echo "${FROM}" | cut -d @ -f1)
-      DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
-
-      # if they are equal it means the line looks like: "user1     other@domain.tld"
-      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
-    done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
+    cp -f "${DATABASE_VIRTUAL}" /etc/postfix/virtual
   else
-    _log 'debug' "'/tmp/docker-mailserver/postfix-virtual.cf' not provided - no mail alias/forward created"
+    _log 'debug' "'${DATABASE_VIRTUAL}' not provided - no mail alias/forward created"
   fi
 }
 
 function _handle_postfix_regexp_config
 {
+  : >/etc/postfix/regexp
+
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
   then
     _log 'trace' "Adding regexp alias file postfix-regexp.cf"
@@ -59,13 +51,8 @@ function _handle_postfix_aliases_config
 
   echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
 
-  if [[ -f /tmp/docker-mailserver/postfix-aliases.cf ]]
-  then
-    cat /tmp/docker-mailserver/postfix-aliases.cf >>/etc/aliases
-  else
-    _log 'trace' "'/tmp/docker-mailserver/postfix-aliases.cf' is not provided, it will be auto created."
-    : >/tmp/docker-mailserver/postfix-aliases.cf
-  fi
+  local DATABASE_ALIASES='/tmp/docker-mailserver/postfix-aliases.cf'
+  [[ -f ${DATABASE_ALIASES} ]] && cat "${DATABASE_ALIASES}" >>/etc/aliases
 
   postalias /etc/aliases
 }

@@ -1,5 +1,3 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
 load 'test_helper/common'
 
 export IMAGE_NAME
@@ -9,6 +7,8 @@ setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
+
+  # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
   docker run --rm -d --name mail \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -21,6 +21,7 @@ setup_file() {
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
+    -e LOG_LEVEL='debug' \
     -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \
@@ -30,14 +31,14 @@ setup_file() {
     -e SA_SPAM_SUBJECT="SPAM: " \
     -e SA_TAG=-5.0 \
     -e SA_TAG2=2.0 \
-    -e SASL_PASSWD="external-domain.com username:password" \
     -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
-    -h mail.my-domain.com \
-    --cap-add=SYS_PTRACE \
+    --hostname mail.my-domain.com \
     --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
+    --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 
   wait_for_finished_setup_in_container mail
@@ -49,16 +50,18 @@ setup_file() {
   # setup sieve
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
-  # this relies on the checksum file beeing updated after all changes have been applied
-  wait_for_changes_to_be_detected_in_container mail
-
-  wait_for_smtp_port_in_container mail
+  # this relies on the checksum file being updated after all changes have been applied
+  wait_until_change_detection_event_completes mail
 
   # wait for ClamAV to be fully setup or we will get errors on the log
   repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
 
-  # sending test mails
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  wait_for_smtp_port_in_container mail
+
+  # The first mail sent leverages an assert for better error output if a failure occurs:
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  assert_success
+
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
@@ -94,6 +97,21 @@ teardown_file() {
 
 @test "checking configuration: hostname/domainname" {
   run docker run "${IMAGE_NAME:?}"
+  assert_success
+}
+
+#
+# healthcheck
+#
+
+# NOTE: Healthcheck defaults an interval of 30 seconds
+# If Postfix is temporarily down (eg: restart triggered by `check-for-changes.sh`),
+# it may result in a false-positive `unhealthy` state.
+# Be careful with re-locating this test if earlier tests could potentially fail it by
+# triggering the `changedetector` service.
+@test "checking container healthcheck" {
+  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
+  assert_output "healthy"
   assert_success
 }
 
@@ -171,11 +189,6 @@ teardown_file() {
 
 @test "checking sasl: doveadm auth test fails with bad password" {
   run docker exec mail /bin/sh -c "doveadm auth test -x service=smtp user2@otherdomain.tld BADPASSWORD | grep 'auth failed'"
-  assert_success
-}
-
-@test "checking sasl: sasl_passwd exists" {
-  run docker exec mail [ -f /etc/postfix/sasl_passwd ]
   assert_success
 }
 
@@ -509,7 +522,7 @@ EOF
   assert_failure
   run docker exec mail grep -i '(!)connect' /var/log/mail/mail.log
   assert_failure
-  run docker exec mail grep -i 'backwards-compatible default setting chroot=y' /var/log/mail/mail.log
+  run docker exec mail grep -i 'using backwards-compatible default setting' /var/log/mail/mail.log
   assert_failure
   run docker exec mail grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
   assert_failure
@@ -604,7 +617,7 @@ EOF
 @test "checking accounts: user_without_domain creation should be rejected since user@domain format is required" {
   run docker exec mail /bin/sh -c "addmailuser user_without_domain mypassword"
   assert_failure
-  assert_output --partial "Username must include the domain"
+  assert_output --partial 'should include the domain (eg: user@example.com)'
 }
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -632,6 +645,8 @@ EOF
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
+  wait_until_account_maildir_exists mail 'user3@domain.tld'
+
   docker exec mail /bin/sh -c "delmailuser -y user3@domain.tld"
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
@@ -644,7 +659,7 @@ EOF
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
-  docker exec mail /bin/sh -c "addmailuser user4@domain.tld mypassword"
+  add_mail_account_then_wait_until_ready mail 'user4@domain.tld'
 
   initialpass=$(docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
   sleep 2
@@ -654,8 +669,7 @@ EOF
 
   [[ ${initialpass} != "${changepass}" ]]
 
-  docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
-
+  run docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
   assert_success
 }
 
@@ -695,8 +709,7 @@ EOF
 
 
 @test "checking quota: setquota user must be existing" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quota_user 50M"
   assert_failure
@@ -709,9 +722,9 @@ EOF
   run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
   assert_success
 }
+
 @test "checking quota: setquota <quota> must be well formatted" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 26GIGOTS"
   assert_failure
@@ -739,10 +752,8 @@ EOF
   assert_success
 }
 
-
 @test "checking quota: delquota user must be existing" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "delquota uota_user@domain.tld"
   assert_failure
@@ -761,9 +772,9 @@ EOF
   run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
   assert_success
 }
+
 @test "checking quota: delquota allow when no quota for existing user" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
   assert_failure
@@ -817,8 +828,7 @@ EOF
 }
 
 @test "checking quota: quota directive is removed when mailbox is removed" {
-  run docker exec mail /bin/sh -c "addmailuser quserremoved@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quserremoved@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quserremoved@domain.tld 12M"
   assert_success
@@ -834,15 +844,11 @@ EOF
 }
 
 @test "checking quota: dovecot applies user quota" {
-  wait_for_changes_to_be_detected_in_container mail
-
   run docker exec mail /bin/sh -c "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
   assert_output --partial "-                         0"
 
   run docker exec mail /bin/sh -c "setquota user1@localhost.localdomain 50M"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)51200(.*)\"'"
@@ -850,8 +856,6 @@ EOF
 
   run docker exec mail /bin/sh -c "delquota user1@localhost.localdomain"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)-(.*)\"'"
@@ -861,13 +865,10 @@ EOF
 @test "checking quota: warn message received when quota exceeded" {
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
-  wait_for_changes_to_be_detected_in_container mail
-
   # create user
-  run docker exec mail /bin/sh -c "addmailuser quotauser@otherdomain.tld mypassword && setquota quotauser@otherdomain.tld 10k"
+  add_mail_account_then_wait_until_ready mail 'quotauser@otherdomain.tld'
+  run docker exec mail /bin/sh -c 'setquota quotauser@otherdomain.tld 10k'
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'"
@@ -930,245 +931,6 @@ EOF
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2177'
   run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp pass@localhost.localdomain 'may be \\a \`p^a.*ssword' | grep 'passdb'"
   assert_output "passdb: pass@localhost.localdomain auth succeeded"
-}
-
-# -----------------------------------------------
-# --- setup.sh ----------------------------------
-# -----------------------------------------------
-
-@test "checking setup.sh: show usage when no arguments provided" {
-  run ./setup.sh
-  assert_success
-  assert_output --partial "This is the main administration script that you use for all your interactions with"
-}
-
-@test "checking setup.sh: exit with error when wrong arguments provided" {
-  run ./setup.sh lol troll
-  assert_failure
-  assert_line --index 0 --partial "The command 'lol troll' is invalid."
-}
-
-@test "checking setup.sh: setup.sh email add and login" {
-  wait_for_service mail changedetector
-  assert_success
-
-  run ./setup.sh -c mail email add setup_email_add@example.com test_password
-  assert_success
-
-  value=$(grep setup_email_add@example.com "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $1}')
-  [[ ${value} == "setup_email_add@example.com" ]]
-  assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
-
-  wait_for_service mail postfix
-  wait_for_service mail dovecot
-  sleep 5
-
-  run docker exec mail /bin/bash -c "doveadm auth test -x service=smtp setup_email_add@example.com 'test_password' | grep 'passdb'"
-  assert_output "passdb: setup_email_add@example.com auth succeeded"
-}
-
-@test "checking setup.sh: setup.sh email list" {
-  run ./setup.sh -c mail email list
-  assert_success
-}
-
-@test "checking setup.sh: setup.sh email update" {
-  run ./setup.sh -c mail email add lorem@impsum.org test_test
-  assert_success
-
-  initialpass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [[ ${initialpass} != "" ]]
-  assert_success
-
-  run ./setup.sh -c mail email update lorem@impsum.org my password
-  assert_success
-
-  updatepass=$(grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf" | awk -F '|' '{print $2}')
-  [[ ${updatepass} != "" ]]
-  [[ ${initialpass} != "${updatepass}" ]]
-
-  docker exec mail doveadm pw -t "${updatepass}" -p 'my password' | grep 'verified'
-  assert_success
-}
-
-@test "checking setup.sh: setup.sh email del" {
-  run ./setup.sh -c mail email del -y lorem@impsum.org
-  assert_success
-
-  # TODO
-  # delmailuser does not work as expected.
-  # Its implementation is not functional, you cannot delete a user data
-  # directory in the running container by running a new docker container
-  # and not mounting the mail folders (persistance is broken).
-  # The add script is only adding the user to account file.
-
-  #  run docker exec mail ls /var/mail/impsum.org/lorem
-  #  assert_failure
-  run grep lorem@impsum.org "$(private_config_path mail)/postfix-accounts.cf"
-  assert_failure
-}
-
-@test "checking setup.sh: setup.sh email restrict" {
-  run ./setup.sh -c mail email restrict
-  assert_failure
-  run ./setup.sh -c mail email restrict add
-  assert_failure
-  ./setup.sh -c mail email restrict add send lorem@impsum.org
-  run ./setup.sh -c mail email restrict list send
-  assert_output --regexp "^lorem@impsum.org.*REJECT"
-
-  run ./setup.sh -c mail email restrict del send lorem@impsum.org
-  assert_success
-  run ./setup.sh -c mail email restrict list send
-  assert_output --partial "Everyone is allowed"
-
-  ./setup.sh -c mail email restrict add receive rec_lorem@impsum.org
-  run ./setup.sh -c mail email restrict list receive
-  assert_output --regexp "^rec_lorem@impsum.org.*REJECT"
-  run ./setup.sh -c mail email restrict del receive rec_lorem@impsum.org
-  assert_success
-}
-
-# alias
-@test "checking setup.sh: setup.sh alias list" {
-  run ./setup.sh alias list
-  assert_success
-  assert_output --partial "alias1@localhost.localdomain user1@localhost.localdomain"
-  assert_output --partial "@localdomain2.com user1@localhost.localdomain"
-}
-
-@test "checking setup.sh: setup.sh alias add" {
-  ./setup.sh alias add alias@example.com target1@forward.com
-  ./setup.sh alias add alias@example.com target2@forward.com
-  ./setup.sh alias add alias2@example.org target3@forward.com
-  sleep 5
-  run grep "alias@example.com target1@forward.com,target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
-  assert_success
-}
-
-@test "checking setup.sh: setup.sh alias del" {
-  ./setup.sh alias del alias@example.com target1@forward.com
-  run grep "target1@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
-  assert_failure
-
-  run grep "target2@forward.com" "$(private_config_path mail)/postfix-virtual.cf"
-  assert_output "alias@example.com target2@forward.com"
-
-  ./setup.sh alias del alias@example.org target2@forward.com
-  run grep "alias@example.org" "$(private_config_path mail)/postfix-virtual.cf"
-  assert_failure
-
-  run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
-  assert_success
-
-  ./setup.sh alias del alias2@example.org target3@forward.com
-  run grep "alias2@example.org" "$(private_config_path mail)/postfix-virtual.cf"
-  assert_failure
-}
-
-# quota
-@test "checking setup.sh: setup.sh setquota" {
-  run ./setup.sh email add quota_user@example.com test_password
-  run ./setup.sh email add quota_user2@example.com test_password
-
-  run ./setup.sh quota set quota_user@example.com 12M
-  assert_success
-  run ./setup.sh quota set 51M quota_user@example.com
-  assert_failure
-  run ./setup.sh quota set unknown@domain.com 150M
-  assert_failure
-
-  run ./setup.sh quota set quota_user2 51M
-  assert_failure
-
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
-  assert_success
-
-  run ./setup.sh quota set quota_user@example.com 26M
-  assert_success
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:26M\$" | wc -l | grep 1'
-  assert_success
-
-  run grep "quota_user2@example.com" ./test/duplicate_configs/mail/dovecot-quotas.cf
-  assert_failure
-}
-
-@test "checking setup.sh: setup.sh delquota" {
-  run ./setup.sh email add quota_user@example.com test_password
-  run ./setup.sh email add quota_user2@example.com test_password
-
-  run ./setup.sh quota set quota_user@example.com 12M
-  assert_success
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
-  assert_success
-
-  run ./setup.sh quota del unknown@domain.com
-  assert_failure
-  run /bin/sh -c 'cat ./test/duplicate_configs/mail/dovecot-quotas.cf | grep -E "^quota_user@example.com\:12M\$" | wc -l | grep 1'
-  assert_success
-
-  run ./setup.sh quota del quota_user@example.com
-  assert_success
-  run grep "quota_user@example.com" ./test/duplicate_configs/mail/dovecot-quotas.cf
-  assert_failure
-}
-
-@test "checking setup.sh: setup.sh config dkim help correctly displayed" {
-  run ./setup.sh -c mail config dkim help
-  assert_success
-  assert_line --index 3 --partial "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
-}
-
-# debug
-
-@test "checking setup.sh: setup.sh debug fetchmail" {
-  run ./setup.sh -c mail debug fetchmail
-  assert_failure
-  assert_output --partial "fetchmail: normal termination, status 11"
-}
-
-@test "checking setup.sh: setup.sh debug login ls" {
-  run ./setup.sh -c mail debug login ls
-  assert_success
-}
-
-@test "checking setup.sh: setup.sh relay add-domain" {
-  ./setup.sh relay add-domain example1.org smtp.relay1.com 2525
-  ./setup.sh relay add-domain example2.org smtp.relay2.com
-  ./setup.sh relay add-domain example3.org smtp.relay3.com 2525
-  ./setup.sh relay add-domain example3.org smtp.relay.com 587
-
-  # check adding
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example1.org\s\+\[smtp.relay1.com\]:2525\" | wc -l | grep 1"
-  assert_success
-  # test default port
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example2.org\s\+\[smtp.relay2.com\]:25\" | wc -l | grep 1"
-  assert_success
-  # test modifying
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example3.org\s\+\[smtp.relay.com\]:587\" | wc -l | grep 1"
-  assert_success
-}
-
-@test "checking setup.sh: setup.sh relay add-auth" {
-  ./setup.sh relay add-auth example.org smtp_user smtp_pass
-  ./setup.sh relay add-auth example2.org smtp_user2 smtp_pass2
-  ./setup.sh relay add-auth example2.org smtp_user2 smtp_pass_new
-
-  # test adding
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-sasl-password.cf | grep -e \"^@example.org\s\+smtp_user:smtp_pass\" | wc -l | grep 1"
-  assert_success
-  # test updating
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-sasl-password.cf | grep -e \"^@example2.org\s\+smtp_user2:smtp_pass_new\" | wc -l | grep 1"
-  assert_success
-}
-
-@test "checking setup.sh: setup.sh relay exclude-domain" {
-  ./setup.sh relay exclude-domain example.org
-
-  run /bin/sh -c "cat $(private_config_path mail)/postfix-relaymap.cf | grep -e \"^@example.org\s*$\" | wc -l | grep 1"
-  assert_success
 }
 
 #

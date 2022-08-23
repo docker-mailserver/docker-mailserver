@@ -3,50 +3,103 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-# suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
+# Workaround to support ENABLE_QUOTAS toggling during tests:
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
-function dovecot_quota_to_hr
+function _main
 {
-  if [[ ${1:-} == "-" ]]
+  local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
+  local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+
+  _list_entries "${DATABASE_ACCOUNTS}"
+}
+
+function _list_entries
+{
+  local DATABASE=${1}
+  _db_should_exist_with_content "${DATABASE}"
+
+  local ENTRY_TO_DISPLAY
+  while read -r LINE
+  do
+    ENTRY_TO_DISPLAY=$(_format_list_item "${LINE}")
+
+    echo -e "* ${ENTRY_TO_DISPLAY}\n"
+  done < <(_get_valid_lines_from_file "${DATABASE}")
+}
+
+function _format_list_item
+{
+  local LINE=${1}
+
+  local MAIL_ACCOUNT
+  MAIL_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
+
+  local WITH_QUOTA
+  WITH_QUOTA=$(_quota_show_for "${MAIL_ACCOUNT}")
+
+  local WITH_ALIASES
+  WITH_ALIASES=$(_alias_list_for_account "${MAIL_ACCOUNT}")
+
+  local ACCOUNT_ENTRY="${MAIL_ACCOUNT}"
+  [[ -n ${WITH_QUOTA}   ]] && ACCOUNT_ENTRY+=" ${WITH_QUOTA}"
+  [[ -n ${WITH_ALIASES} ]] && ACCOUNT_ENTRY+="\n    [ aliases -> ${WITH_ALIASES} ]"
+
+  echo "${ACCOUNT_ENTRY}"
+}
+
+function _quota_show_for
+{
+  local MAIL_ACCOUNT=${1}
+
+  [[ ${ENABLE_QUOTAS} -ne 1 ]] && return 0
+
+  local QUOTA_INFO
+  # Matches a line where the 3rd column is `type='STORAGE'` - returning the next three column values:
+  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${MAIL_ACCOUNT}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
+
+  local CURRENT_SIZE SIZE_LIMIT PERCENT_USED
+  # Format the extracted quota storage columns:
+  CURRENT_SIZE="$(_bytes_to_human_readable_size "${QUOTA_INFO[0]}")"
+  SIZE_LIMIT="$(_bytes_to_human_readable_size "${QUOTA_INFO[1]}")"
+  PERCENT_USED="${QUOTA_INFO[2]}%"
+
+  echo "( ${CURRENT_SIZE} / ${SIZE_LIMIT} ) [${PERCENT_USED}]"
+}
+
+function _bytes_to_human_readable_size
+{
+  # `-` represents a non-applicable value (eg: Like when `SIZE_LIMIT` is not set):
+  if [[ ${1:-} == '-' ]]
   then
-    echo "~"
+    echo '~'
+  # Otherwise a value in KibiBytes (1024 bytes == 1k) is expected (Dovecots internal representation):
   elif [[ ${1:-} =~ ^[0-9]+$ ]]
   then
+    # kibibytes to bytes, converted to approproate IEC unit (eg: MiB):
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
-    _exit_with_error "Supplied non-number argument '${1:-}' to 'dovecot_quota_to_hr()' in script 'listmailuser'"
+    _exit_with_error "Supplied non-number argument '${1:-}' to '_bytes_to_human_readable_size()'"
   fi
 }
 
-DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
-ALIASES='/tmp/docker-mailserver/postfix-virtual.cf'
+# Returns a comma delimited list of aliases associated to a recipient (ideally the recipient is a mail account):
+function _alias_list_for_account
+{
+  local MAIL_ACCOUNT=${1}
 
-[[ -f ${DATABASE} ]] || _exit_with_error "No 'postfix-accounts.cf' file"
-[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'postfix-accounts.cf' - no accounts have been added"
+  # `__db_list_already_contains_value` would be a more reliable check:
+  function _account_has_an_alias
+  {
+    local ANY_ALIAS='\S\+\s'
+    grep -qis "^${ANY_ALIAS}.*${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
+  }
 
-while read -r LINE
-do
-  USER=$(echo "${LINE}" | cut -d'|' -f1)
-
-  if [[ ${ENABLE_QUOTAS} -eq 1 ]]
+  if _account_has_an_alias
   then
-    # ${QUOTA[0]} => current size
-    # ${QUOTA[1]} => configured size limit
-    # ${QUOTA[2]} => usage in percent
-    IFS=' ' read -r -a QUOTA <<< "$(doveadm quota get -u "${USER}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
-    echo "* ${USER} ( $(dovecot_quota_to_hr "${QUOTA[0]}") / $(dovecot_quota_to_hr "${QUOTA[1]}") ) [${QUOTA[2]}%]"
-  else
-    echo "* ${USER}"
+    grep "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi
+}
 
-  if [[ -f ${ALIASES} ]] && grep -q "${USER}" "${ALIASES}"
-  then
-    echo -e "    [ aliases -> $(grep "${USER}" "${ALIASES}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g')]\n"
-  else
-    echo
-  fi
-done < "${DATABASE}"
-
-exit 0
+_main

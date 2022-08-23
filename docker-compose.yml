@@ -26,5 +26,7 @@ services:
     stop_grace_period: 1m
     cap_add:
       - NET_ADMIN
-      - SYS_PTRACE
-
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0

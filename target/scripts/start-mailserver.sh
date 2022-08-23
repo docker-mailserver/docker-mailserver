@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks
 #      1. Helpers
 #      2. Checks
@@ -28,96 +29,26 @@ source /usr/local/bin/misc-stack.sh
 source /usr/local/bin/daemons-stack.sh
 
 # ------------------------------------------------------------
-
-# Setup supervisord as early as possible
-declare -A VARS
-VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
-_setup_supervisor
-
-# shellcheck disable=SC2034
-declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
-
-_obtain_hostname_and_domainname
-
-# ------------------------------------------------------------
-# ? <<
+# ? << Sourcing helpers & stacks
 # --
-# ? >> Setup of default and global values / variables
+# ? >> Early setup & environment variables setup
 # ------------------------------------------------------------
 
-# These variables must be defined first; They are used as default values for other variables.
-VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
-VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
-VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
+# shellcheck source=./helpers/variables.sh
+source /usr/local/bin/helpers/variables.sh
 
-VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
-VARS[CLAMAV_MESSAGE_SIZE_LIMIT]="${CLAMAV_MESSAGE_SIZE_LIMIT:=25M}" # 25 MB
-VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
-VARS[DOVECOT_INET_PROTOCOLS]="${DOVECOT_INET_PROTOCOLS:=all}"
-VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
-VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
-VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=1}"
-VARS[ENABLE_CLAMAV]="${ENABLE_CLAMAV:=0}"
-VARS[ENABLE_DNSBL]="${ENABLE_DNSBL:=0}"
-VARS[ENABLE_FAIL2BAN]="${ENABLE_FAIL2BAN:=0}"
-VARS[ENABLE_FETCHMAIL]="${ENABLE_FETCHMAIL:=0}"
-VARS[ENABLE_LDAP]="${ENABLE_LDAP:=0}"
-VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
-VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
-VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
-VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
-VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
-VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
-VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
-VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
-VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
-VARS[FAIL2BAN_BLOCKTYPE]="${FAIL2BAN_BLOCKTYPE:=drop}"
-VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
-VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
-VARS[LDAP_START_TLS]="${LDAP_START_TLS:=no}"
-VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
-VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=weekly}"
-VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
-VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
-VARS[LOGWATCH_SENDER]="${LOGWATCH_SENDER:=${REPORT_SENDER}}"
-VARS[MOVE_SPAM_TO_JUNK]="${MOVE_SPAM_TO_JUNK:=1}"
-VARS[NETWORK_INTERFACE]="${NETWORK_INTERFACE:=eth0}"
-VARS[ONE_DIR]="${ONE_DIR:=1}"
-VARS[OVERRIDE_HOSTNAME]="${OVERRIDE_HOSTNAME:-}"
-VARS[PERMIT_DOCKER]="${PERMIT_DOCKER:=none}"
-VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
-VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
-VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER:=none}"
-VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
-VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
-VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
-VARS[POSTGREY_AUTO_WHITELIST_CLIENTS]="${POSTGREY_AUTO_WHITELIST_CLIENTS:=5}"
-VARS[POSTGREY_DELAY]="${POSTGREY_DELAY:=300}"
-VARS[POSTGREY_MAX_AGE]="${POSTGREY_MAX_AGE:=35}"
-VARS[POSTGREY_TEXT]="${POSTGREY_TEXT:=Delayed by Postgrey}"
-VARS[POSTSCREEN_ACTION]="${POSTSCREEN_ACTION:=enforce}"
-VARS[RELAY_HOST]="${RELAY_HOST:=}"
-VARS[SA_KILL]=${SA_KILL:="6.31"}
-VARS[SA_SPAM_SUBJECT]=${SA_SPAM_SUBJECT:="***SPAM*** "}
-VARS[SA_TAG]=${SA_TAG:="2.0"}
-VARS[SA_TAG2]=${SA_TAG2:="6.31"}
-VARS[SMTP_ONLY]="${SMTP_ONLY:=0}"
-VARS[SPAMASSASSIN_SPAM_TO_INBOX]="${SPAMASSASSIN_SPAM_TO_INBOX:=1}"
-VARS[SPOOF_PROTECTION]="${SPOOF_PROTECTION:=0}"
-VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
-VARS[SSL_TYPE]="${SSL_TYPE:=}"
-VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
-VARS[TZ]="${TZ:=}"
-VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
-VARS[VIRUSMAILS_DELETE_DELAY]="${VIRUSMAILS_DELETE_DELAY:=7}"
+_setup_supervisor
+_obtain_hostname_and_domainname
+_environment_variables_backwards_compatibility
+_environment_variables_general_setup
 
 # ------------------------------------------------------------
-# ? << Setup of default and global values / variables
+# ? << Early setup & environment variables setup
 # --
 # ? >> Registering functions
 # ------------------------------------------------------------
 
-function register_functions
+function _register_functions
 {
   _log 'info' 'Initializing setup'
   _log 'debug' 'Registering functions'
@@ -129,22 +60,42 @@ function register_functions
 
   # ? >> Setup
 
-  _register_setup_function '_setup_default_vars'
   _register_setup_function '_setup_file_permissions'
-
-  [[ -n ${TZ} ]] && _register_setup_function '_setup_timezone'
+  _register_setup_function '_setup_timezone'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]
   then
     _register_setup_function '_setup_dovecot'
     _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
-    _register_setup_function '_setup_dovecot_local_user'
   fi
 
-  [[ ${ENABLE_LDAP} -eq 1 ]] && _register_setup_function '_setup_ldap'
+  case "${ACCOUNT_PROVISIONER}" in
+    ( 'FILE'  )
+      _register_setup_function '_setup_dovecot_local_user'
+      ;;
+
+    ( 'LDAP' )
+      _environment_variables_ldap
+      _register_setup_function '_setup_ldap'
+      ;;
+
+    ( 'OIDC' )
+      _register_setup_function '_setup_oidc'
+      ;;
+
+    ( * )
+      _shutdown "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
+      ;;
+  esac
+
+  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]
+  then
+    _environment_variables_saslauthd
+    _register_setup_function '_setup_saslauthd'
+  fi
+
   [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function '_setup_postgrey'
-  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
   [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_postfix_inet_protocols'
   [[ ${DOVECOT_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_dovecot_inet_protocols'
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
@@ -161,7 +112,6 @@ function register_functions
   _register_setup_function '_setup_dovecot_hostname'
   _register_setup_function '_setup_postfix_smtputf8'
   _register_setup_function '_setup_postfix_sasl'
-  _register_setup_function '_setup_postfix_sasl_password'
   _register_setup_function '_setup_security_stack'
   _register_setup_function '_setup_postfix_aliases'
   _register_setup_function '_setup_postfix_vhost'
@@ -195,9 +145,6 @@ function register_functions
   _register_setup_function '_setup_logwatch'
   _register_setup_function '_setup_user_patches'
 
-  # needs to come last as configuration files are modified in-place
-  _register_setup_function '_setup_chksum_file'
-
   # ? >> Fixes
 
   _register_fix_function '_fix_var_mail_permissions'
@@ -209,6 +156,7 @@ function register_functions
   # ? >> Miscellaneous
 
   _register_misc_function '_misc_save_states'
+  _register_setup_function '_environment_variables_export'
 
   # ? >> Daemons
 
@@ -232,7 +180,7 @@ function register_functions
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemon_fail2ban'
   [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemon_fetchmail'
   [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
-  [[ ${ENABLE_LDAP} -eq 0 ]] && _register_start_daemon '_start_daemon_changedetector'
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
   [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
 }
 
@@ -268,24 +216,21 @@ function _register_misc_function
 
 # ------------------------------------------------------------
 # ? << Registering functions
-
-# ------------------------------------------------------------
-# ? << Sourcing all stacks
 # --
-# ? >> Executing all stacks
+# ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
-register_functions
-check
-setup
+_register_functions
+_check
+_setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-fix
-start_misc
+_apply_fixes
+_start_misc
 _start_daemons
 
-# marker to check, if container was restarted
+# marker to check if container was restarted
 date >/CONTAINER_START
 
 _log 'info' "${HOSTNAME} is up and running"

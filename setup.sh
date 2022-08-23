@@ -205,7 +205,7 @@ function _main
   INFO=$(${CRI} ps --no-trunc --format "{{.Image}};{{.Names}}" --filter \
     label=org.opencontainers.image.title="docker-mailserver" | tail -1)
 
-  CONTAINER_NAME=${INFO#*;}
+  [[ -z ${CONTAINER_NAME} ]] && CONTAINER_NAME=${INFO#*;}
   [[ -z ${IMAGE_NAME} ]] && IMAGE_NAME=${INFO%;*}
   if [[ -z ${IMAGE_NAME} ]]
   then

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function start_misc
+function _start_misc
 {
   _log 'info' 'Starting miscellaneous tasks'
   for FUNC in "${FUNCS_MISC[@]}"
@@ -24,13 +24,16 @@ function _misc_save_states
     FILES=(
       spool/postfix
       lib/postfix
-      lib/amavis
-      lib/clamav
-      lib/spamassassin
-      lib/fail2ban
-      lib/postgrey
-      lib/dovecot
     )
+
+    # Only consolidate state for services that are enabled
+    # Notably avoids copying over 200MB for the ClamAV database
+    [[ ${ENABLE_AMAVIS} -eq 1 ]] && FILES+=('lib/amavis')
+    [[ ${ENABLE_CLAMAV} -eq 1 ]] && FILES+=('lib/clamav')
+    [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && FILES+=('lib/fail2ban')
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
+    [[ ${ENABLE_POSTGREY} -eq 1 ]] && FILES+=('lib/postgrey')
+    [[ ${SMTP_ONLY} -ne 1 ]] && FILES+=('lib/dovecot')
 
     for FILE in "${FILES[@]}"
     do
@@ -55,10 +58,11 @@ function _misc_save_states
     done
 
     _log 'trace' 'Fixing /var/mail-state/* permissions'
-    chown -R clamav /var/mail-state/lib-clamav
+    [[ ${ENABLE_CLAMAV} -eq 1 ]] && chown -R clamav /var/mail-state/lib-clamav
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd /var/mail-state/lib-spamassassin
+    [[ ${ENABLE_POSTGREY} -eq 1 ]] && chown -R postgrey /var/mail-state/lib-postgrey
+
     chown -R postfix /var/mail-state/lib-postfix
-    chown -R postgrey /var/mail-state/lib-postgrey
-    chown -R debian-spamd /var/mail-state/lib-spamassassin
 
     # UID = postfix(101): active, bounce, corrupt, defer, deferred, flush, hold, incoming, maildrop, private, public, saved, trace
     # UID = root(0): dev, etc, lib, pid, usr

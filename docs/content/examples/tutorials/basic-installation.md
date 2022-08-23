@@ -61,7 +61,6 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
               - SPOOF_PROTECTION=0
             cap_add:
               - NET_ADMIN # For Fail2Ban to work
-              - SYS_PTRACE
         ```
 
     - The docs have a detailed page on [Environment Variables][docs-environment] for reference.

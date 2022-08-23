@@ -1,6 +1,6 @@
 #! /bin/bash
 
-function fix
+function _apply_fixes
 {
   _log 'info' 'Post-configuration checks'
   for FUNC in "${FUNCS_FIX[@]}"
@@ -17,14 +17,8 @@ function _fix_var_mail_permissions
 {
   _log 'debug' 'Checking /var/mail permissions'
 
-  # fix permissions, but skip this if 3 levels deep the user id is already set
-  if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
-  then
-    _log 'trace' 'Fixing /var/mail permissions'
-    chown -R 5000:5000 /var/mail || _shutdown 'Failed to fix /var/mail permissions'
-  else
-    _log 'trace' 'Permissions in /var/mail look OK'
-  fi
+  _chown_var_mail_if_necessary || _shutdown 'Failed to fix /var/mail permissions'
+  _log 'trace' 'Permissions in /var/mail look OK'
 }
 
 function _fix_var_amavis_permissions

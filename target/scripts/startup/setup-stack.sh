@@ -1,16 +1,21 @@
 #! /bin/bash
 
-function setup
+function _setup
 {
   _log 'info' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"
   do
     ${FUNC}
   done
+
+  # All startup modifications to configs should have taken place before calling this:
+  _prepare_for_change_detection
 }
 
 function _setup_supervisor
 {
+  SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:-warn}"
+
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
   then
     case "${SUPERVISOR_LOGLEVEL}" in
@@ -23,9 +28,7 @@ function _setup_supervisor
         exit
         ;;
 
-      ( 'warn' )
-        return 0
-        ;;
+      ( 'warn' ) ;;
 
       ( * )
         _log 'warn' \
@@ -36,24 +39,6 @@ function _setup_supervisor
   fi
 
   return 0
-}
-
-function _setup_default_vars
-{
-  _log 'debug' 'Setting up default variables'
-
-  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
-  : >/etc/dms-settings # this file can be sourced by other scripts
-
-  local VAR
-  for VAR in "${!VARS[@]}"
-  do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
-    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
-  done
-
-  sort -o /root/.bashrc     /root/.bashrc
-  sort -o /etc/dms-settings /etc/dms-settings
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong
@@ -75,22 +60,6 @@ function _setup_file_permissions
   touch /var/log/mail/freshclam.log
   chown clamav:adm /var/log/mail/freshclam.log
   chmod 640 /var/log/mail/freshclam.log
-}
-
-function _setup_chksum_file
-{
-  _log 'debug' 'Setting up configuration checksum file'
-
-  if [[ -d /tmp/docker-mailserver ]]
-  then
-    _log 'trace' "Creating '${CHKSUM_FILE}'"
-    _monitored_files_checksums >"${CHKSUM_FILE}"
-  else
-    # We could just skip the file, but perhaps config can be added later?
-    # If so it must be processed by the check for changes script
-    _log 'trace' "Creating empty '${CHKSUM_FILE}' (no config)"
-    touch "${CHKSUM_FILE}"
-  fi
 }
 
 function _setup_mailname
@@ -233,7 +202,7 @@ function _setup_dovecot_quota
     _log 'debug' 'Setting up Dovecot quota'
 
     # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
-    if [[ ${ENABLE_LDAP} -eq 1 ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
+    if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
     then
       # disable dovecot quota in docevot confs
       if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
@@ -287,29 +256,37 @@ function _setup_dovecot_quota
 
 function _setup_dovecot_local_user
 {
-  _log 'debug' 'Setting up Dovecot Local User'
+  [[ ${SMTP_ONLY} -eq 1 ]] && return 0
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] || return 0
 
-  _create_accounts
-  [[ ${ENABLE_LDAP} -eq 1 ]] && return 0
+  _log 'debug' 'Setting up Dovecot Local User'
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
   then
-    _log 'trace' "'/tmp/docker-mailserver/postfix-accounts.cf' not provided, no mail account created"
+    _log 'trace' "No mail accounts to create - '/tmp/docker-mailserver/postfix-accounts.cf' is missing"
   fi
 
-  local SLEEP_PERIOD='10'
-  for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
-  do
-    if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf) -ge 1 ]]
-    then
-      return 0
-    else
-      _log 'warn' "You need at least one email account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
-      sleep "${SLEEP_PERIOD}"
-    fi
-  done
+  function __wait_until_an_account_is_added_or_shutdown
+  {
+    local SLEEP_PERIOD='10'
 
-  _shutdown 'No accounts provided - Dovecot could not be started'
+    for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
+    do
+      if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]
+      then
+        return 0
+      else
+        _log 'warn' "You need at least one mail account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
+        sleep "${SLEEP_PERIOD}"
+      fi
+    done
+
+    _shutdown 'No accounts provided - Dovecot could not be started'
+  }
+
+  __wait_until_an_account_is_added_or_shutdown
+
+  _create_accounts
 }
 
 function _setup_ldap
@@ -344,7 +321,7 @@ function _setup_ldap
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
     [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
     [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
-    configomat.sh "LDAP_" "${FILE}"
+    _log debug "$(configomat.sh "LDAP_" "${FILE}" 2>&1)"
   done
 
   _log 'trace' "Configuring Dovecot LDAP"
@@ -371,10 +348,7 @@ function _setup_ldap
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
-  configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext"
-
-  # add domainname to vhost
-  echo "${DOMAINNAME}" >>/tmp/vhost.tmp
+  _log debug "$(configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext" 2>&1)"
 
   _log 'trace' 'Enabling Dovecot LDAP authentication'
 
@@ -408,6 +382,11 @@ function _setup_ldap
   sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf
 
   return 0
+}
+
+function _setup_oidc
+{
+  _shutdown 'OIDC user account provisioning is not yet implemented'
 }
 
 function _setup_postgrey
@@ -480,7 +459,7 @@ function _setup_spoof_protection
     's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
     /etc/postfix/main.cf
 
-  if [[ ${ENABLE_LDAP} -eq 1 ]]
+  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]
   then
     if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
     then
@@ -537,52 +516,6 @@ EOF
 function _setup_saslauthd
 {
   _log 'debug' 'Setting up SASLAUTHD'
-
-  # checking env vars and setting defaults
-  [[ -z ${SASLAUTHD_MECHANISMS:-} ]] && SASLAUTHD_MECHANISMS=pam
-  [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER="${LDAP_SERVER_HOST}"
-  [[ -z ${SASLAUTHD_LDAP_FILTER} ]] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
-
-  [[ -z ${SASLAUTHD_LDAP_BIND_DN} ]] && SASLAUTHD_LDAP_BIND_DN="${LDAP_BIND_DN}"
-  [[ -z ${SASLAUTHD_LDAP_PASSWORD} ]] && SASLAUTHD_LDAP_PASSWORD="${LDAP_BIND_PW}"
-  [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_LDAP_SEARCH_BASE="${LDAP_SEARCH_BASE}"
-
-  if [[ ${SASLAUTHD_LDAP_SERVER} != *'://'* ]]
-  then
-    SASLAUTHD_LDAP_SERVER="ldap://${SASLAUTHD_LDAP_SERVER}"
-  fi
-
-  [[ -z ${SASLAUTHD_LDAP_START_TLS} ]] && SASLAUTHD_LDAP_START_TLS=no
-  [[ -z ${SASLAUTHD_LDAP_TLS_CHECK_PEER} ]] && SASLAUTHD_LDAP_TLS_CHECK_PEER=no
-  [[ -z ${SASLAUTHD_LDAP_AUTH_METHOD} ]] && SASLAUTHD_LDAP_AUTH_METHOD=bind
-
-  if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]
-  then
-    SASLAUTHD_LDAP_TLS_CACERT_FILE=''
-  else
-    SASLAUTHD_LDAP_TLS_CACERT_FILE="ldap_tls_cacert_file: ${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
-  fi
-
-  if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_DIR} ]]
-  then
-    SASLAUTHD_LDAP_TLS_CACERT_DIR=''
-  else
-    SASLAUTHD_LDAP_TLS_CACERT_DIR="ldap_tls_cacert_dir: ${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
-  fi
-
-  if [[ -z ${SASLAUTHD_LDAP_PASSWORD_ATTR} ]]
-  then
-    SASLAUTHD_LDAP_PASSWORD_ATTR=''
-  else
-    SASLAUTHD_LDAP_PASSWORD_ATTR="ldap_password_attr: ${SASLAUTHD_LDAP_PASSWORD_ATTR}"
-  fi
-
-  if [[ -z ${SASLAUTHD_LDAP_MECH} ]]
-  then
-    SASLAUTHD_LDAP_MECH=''
-  else
-    SASLAUTHD_LDAP_MECH="ldap_mech: ${SASLAUTHD_LDAP_MECH}"
-  fi
 
   if [[ ! -f /etc/saslauthd.conf ]]
   then
@@ -790,20 +723,15 @@ function _setup_postfix_virtual_transport
 
 function _setup_postfix_override_configuration
 {
-  _log 'trace' 'Setting up Postfix Override configuration'
+  _log 'debug' 'Overriding / adjusting Postfix configuration with user-supplied values'
 
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
-    while read -r LINE
-    do
-      # all valid postfix options start with a lower case letter
-      # http://www.postfix.org/postconf.5.html
-      if [[ ${LINE} =~ ^[a-z] ]]
-      then
-        postconf -e "${LINE}"
-      fi
-    done < /tmp/docker-mailserver/postfix-main.cf
-    _log 'trace' "Loaded '/tmp/docker-mailserver/postfix-main.cf'"
+    cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
+    # do not directly output to 'main.cf' as this causes a read-write-conflict
+    postconf -n >/tmp/postfix-main-new.cf 2>/dev/null
+    mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
+    _log 'trace' "Adjusted '/etc/postfix/main.cf' according to '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"
   fi
@@ -817,27 +745,9 @@ function _setup_postfix_override_configuration
         postconf -P "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-master.cf
-    _log 'trace' "Loaded '/tmp/docker-mailserver/postfix-master.cf'"
+    _log 'trace' "Adjusted '/etc/postfix/master.cf' according to '/tmp/docker-mailserver/postfix-master.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' was not provided"
-  fi
-
-  _log 'trace' "Set Postfix's compatibility level to 2"
-  postconf compatibility_level=2
-}
-
-function _setup_postfix_sasl_password
-{
-  _log 'debug' 'Setting up Postfix SASL Password'
-
-  # support general SASL password
-  _sasl_passwd_create
-
-  if [[ -f /etc/postfix/sasl_passwd ]]
-  then
-    _log 'trace' 'Loaded SASL_PASSWD'
-  else
-    _log 'debug' "SASL_PASSWD was not provided - '/etc/postfix/sasl_passwd' not created"
   fi
 }
 
@@ -1244,7 +1154,7 @@ function _setup_fetchmail_parallel
         # Just the server settings that need to be added to the specific rc.d file
         echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
       fi
-    done < <(cat "${FETCHMAILRC}")
+    done < <(_get_valid_lines_from_file "${FETCHMAILRC}")
 
     rm "${DEFAULT_FILE}"
   }
@@ -1291,6 +1201,7 @@ EOF
 
 function _setup_timezone
 {
+  [[ -n ${TZ} ]] || return 0
   _log 'debug' "Setting timezone to '${TZ}'"
 
   local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
