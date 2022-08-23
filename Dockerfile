@@ -1,7 +1,12 @@
-FROM docker.io/debian:11-slim
+# This Dockerfile provides two stages: stage-base and stage-final
+# This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
 
-ARG VCS_VER
-ARG VCS_REF
+#
+# Base stage provides all packages, config, and adds scripts
+#
+
+FROM docker.io/debian:11-slim AS stage-base
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
@@ -9,27 +14,6 @@ ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
 ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
 ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=hkps://keyserver.ubuntu.com
 ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
-
-LABEL org.opencontainers.image.version=${VCS_VER}
-LABEL org.opencontainers.image.revision=${VCS_REF}
-LABEL org.opencontainers.image.title="docker-mailserver"
-LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
-LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database."
-LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
-LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
-LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
-
-# These ENVs are referenced in target/supervisor/conf.d/saslauth.conf
-# and must be present when supervisord starts.
-# If necessary, their values are adjusted by target/scripts/start-mailserver.sh on startup.
-ENV FETCHMAIL_POLL=300
-ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
-ENV POSTGREY_DELAY=300
-ENV POSTGREY_MAX_AGE=35
-ENV POSTGREY_TEXT="Delayed by Postgrey"
-ENV SASLAUTHD_MECH_OPTIONS=""
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -292,10 +276,41 @@ RUN chmod +x /usr/local/bin/*
 
 COPY ./target/scripts/helpers /usr/local/bin/helpers
 
+#
+# Final stage focuses only on image config
+#
+
+FROM stage-base AS stage-final
+ARG VCS_REF
+ARG VCS_VER
+
 WORKDIR /
-
 EXPOSE 25 587 143 465 993 110 995 4190
-
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+
+# These ENVs are referenced in target/supervisor/conf.d/saslauth.conf
+# and must be present when supervisord starts. Introduced by PR:
+# https://github.com/docker-mailserver/docker-mailserver/pull/676
+# These ENV are also configured with the same defaults at:
+# https://github.com/docker-mailserver/docker-mailserver/blob/672e9cf19a3bb1da309e8cea6ee728e58f905366/target/scripts/helpers/variables.sh
+ENV FETCHMAIL_POLL=300
+ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
+ENV POSTGREY_DELAY=300
+ENV POSTGREY_MAX_AGE=35
+ENV POSTGREY_TEXT="Delayed by Postgrey"
+ENV SASLAUTHD_MECH_OPTIONS=""
+
+# Add metadata to image:
+LABEL org.opencontainers.image.title="docker-mailserver"
+LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
+LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database."
+LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
+LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
+LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
+# ARG invalidates cache when it is used by a layer (implicitly affects RUN)
+# Thus to maximize cache, keep these lines last:
+LABEL org.opencontainers.image.revision=${VCS_REF}
+LABEL org.opencontainers.image.version=${VCS_VER}
