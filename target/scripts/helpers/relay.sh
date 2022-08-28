@@ -189,7 +189,7 @@ function _populate_relayhost_map
 
 function _relayhost_configure_postfix
 {
-  postconf  \
+  postconf \
     'smtp_sasl_auth_enable = yes' \
     'smtp_sasl_security_options = noanonymous' \
     'smtp_tls_security_level = encrypt'
