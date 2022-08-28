@@ -47,7 +47,7 @@ function teardown_file() {
 #
 
 @test "checking smtp_only: mail send should work" {
-  run docker exec mail_smtponly /bin/sh -c "postconf -e smtp_host_lookup=no"
+  run docker exec mail_smtponly /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
   run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
   assert_success
