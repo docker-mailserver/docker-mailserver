@@ -20,6 +20,7 @@ permissions:
 # is not changed by new commits.
 jobs:
   job-build-image:
+    name: Build Test Image
     runs-on: ubuntu-20.04
     outputs:
       image-build-key: ${{ steps.derive-image-cache-key.outputs.digest }}
@@ -158,7 +159,7 @@ jobs:
           CI: true
 
   job-build-arm:
-    name: Build ARM image
+    name: Build ARM Image
     needs: job-build-image
     uses: ./github/workflows/generic_build.yml
     with:

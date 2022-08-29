@@ -23,7 +23,8 @@ permissions:
   packages: write
 
 jobs:
-  publish:
+  generic-build:
+    name: Build (and Publish) an Image
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -62,7 +63,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image locally without cache
+      - name: Build image(s) locally without cache
         if: input.cache-layers-to == false
         uses: docker/build-push-action@v3.1.1
         with:
@@ -75,7 +76,7 @@ jobs:
           push: ${{ inputs.publish }}
           tags: ${{ steps.prep.outputs.tags }}
 
-      - name: Build image locally with cache
+      - name: Build image(s) locally and cache it
         if: input.cache-layers-to == true
         uses: docker/build-push-action@v3.1.1
         with:
@@ -90,7 +91,7 @@ jobs:
           push: ${{ inputs.publish }}
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-      - name: Build images locally
+      - name: Build image(s) locally from cache
         if: input.cache-layers-from == true
         uses: docker/build-push-action@v3.1.1
         with:
