@@ -1,0 +1,105 @@
+name: Build the DMS container image
+
+on:
+  workflow_call:
+    inputs:
+      platforms:
+        required: true
+        type: string
+      publish:
+        required: true
+        type: boolean
+      cache-layers-to:
+        required: false
+        type: boolean
+        default: false
+      cache-layers-from:
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.0.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
+        id: buildx
+
+      - name: Cache Docker layers
+        if: input.cache-layers-to == true
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to DockerHub
+        if: input.publish == true
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login to GitHub Container Registry
+        if: input.publish == true
+        uses: docker/login-action@v2.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image locally without cache
+        if: input.cache-layers-to == false
+        uses: docker/build-push-action@v3.1.1
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          build-args: |
+            VCS_REF=${{ github.sha }}
+            VCS_VER=${{ github.ref }}
+          platforms: ${{ inputs.platforms }}
+          push: ${{ inputs.publish }}
+          tags: ${{ steps.prep.outputs.tags }}
+
+      - name: Build image locally with cache
+        if: input.cache-layers-to == true
+        uses: docker/build-push-action@v3.1.1
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          build-args: |
+            VCS_REF=${{ github.sha }}
+            VCS_VER=${{ github.ref }}
+          platforms: ${{ inputs.platforms }}
+          load: true
+          tags: mailserver-testing:ci
+          push: ${{ inputs.publish }}
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Build images locally
+        if: input.cache-layers-from == true
+        uses: docker/build-push-action@v3.1.1
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          build-args: |
+            VCS_REF=${{ github.sha }}
+            VCS_VER=${{ github.ref }}
+          platforms: ${{ inputs.platforms }}
+          push: ${{ inputs.publish }}
+          tags: ${{ steps.prep.outputs.tags }}
+          cache-from: type=local,src=/tmp/.buildx-cache

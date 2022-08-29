@@ -1,15 +1,15 @@
-name: "Test Merge Requests"
+name: Test Merge Requests
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'target/**'
-      - 'test/**'
-      - '.dockerignore'
-      - '.gitmodules'
-      - 'Dockerfile'
-      - 'setup.sh'
+      - target/**
+      - test/**
+      - .dockerignore
+      - .gitmodules
+      - Dockerfile
+      - setup.sh
 
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
     outputs:
       image-build-key: ${{ steps.derive-image-cache-key.outputs.digest }}
     steps:
-      - name: 'Checkout'
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           # Required for image to include `configomat.sh`:
@@ -34,7 +34,7 @@ jobs:
       # Must not be affected by file metadata changes and have a consistent sort order:
       # https://docs.github.com/en/actions/learn-github-actions/expressions#hashfiles
       # Keying by the relevant build context is more re-usable than a commit SHA.
-      - name: 'Derive Docker image cache key from content'
+      - name: Derive Docker image cache key from content
         id: derive-image-cache-key
         shell: bash
         run: |
@@ -61,7 +61,7 @@ jobs:
       # Cache storage has a limit of 10GB, and uploads expire after 7 days.
       # When full, the least accessed cache upload is evicted to free up storage.
       # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
-      - name: 'Handle Docker build layer cache'
+      - name: Handle Docker build layer cache
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
@@ -72,19 +72,19 @@ jobs:
             cache-buildx-
 
       # Support ARM64 builds on AMD64 host:
-      - name: 'Set up QEMU'
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v2.0.0
         with:
           platforms: arm64
 
       # Enables `buildx` support within `build-push-action`, improving cache and platform support:
-      - name: 'Set up Docker Buildx'
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
 
       # NOTE: AMD64 can build within 2 minutes, ARM adds 13 minutes. 330MB each
       # ARMv7 can build in parallel, adding no extra time (but does add 150MB cache size).
       # Moving ARM build to a separate job would cut down time to start running tests.
-      - name: 'Build images'
+      - name: Build images
         uses: docker/build-push-action@v3.1.1
         with:
           context: .
@@ -93,7 +93,7 @@ jobs:
             VCS_VER=${{ github.ref }}
           tags: mailserver-testing:ci
           # Build for AMD64 (runs against test suite) and ARM64 (only to verify building works):
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           # Paired with steps `actions/cache` and `Replace cache` (replace src with dest):
           # NOTE: `mode=max` is only for `cache-to`, it configures exporting all image layers.
           # https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-from
@@ -108,17 +108,17 @@ jobs:
       # original restored cache after build, reducing frequency of eviction due to cache storage limit (10GB).
       # https://github.com/docker/build-push-action/blob/965c6a410d446a30e95d35052c67d6eded60dad6/docs/advanced/cache.md?plain=1#L193-L199
       # NOTE: This does not affect `cache-hit == 'true'` (which skips upload on direct cache key hit)
-      - name: 'Replace cache'
+      - name: Replace cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   job-run-tests:
-    name: 'Run Test Suite'
+    name: Run Test Suite
     needs: job-build-image
     runs-on: ubuntu-20.04
     steps:
-      - name: 'Checkout'
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           # Required to retrieve bats (core + extras):
@@ -126,7 +126,7 @@ jobs:
 
       # Get the cached build layers from the build job:
       # This should always be a cache-hit, no new uploads should happen when this job finishes:
-      - name: 'Retrieve image build from build cache'
+      - name: Retrieve image build from build cache
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
@@ -136,7 +136,7 @@ jobs:
 
       # Importing from the cache should create the image within approx 30 seconds:
       # buildx not needed as no exporting and only single AMD64 platform is loaded:
-      - name: 'Build AMD64 image from cache'
+      - name: Build AMD64 image from cache
         uses: docker/build-push-action@v3.1.1
         with:
           context: .
@@ -150,9 +150,18 @@ jobs:
           platforms: linux/amd64
           cache-from: type=local,src=/tmp/.buildx-cache
 
-      - name: 'Run tests'
-        env:
-          CI: true
-        run: |
+      - name: Run tests
+        run: >
           NAME=mailserver-testing:ci
           make generate-accounts tests
+        env:
+          CI: true
+
+  job-build-arm:
+    name: Build ARM image
+    needs: job-build-image
+    uses: ./github/workflows/generic_build.yml
+    with:
+      platforms: linux/arm/v7,linux/arm64
+      publish: false
+      cache-layers-to: false
