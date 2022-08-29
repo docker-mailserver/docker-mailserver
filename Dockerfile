@@ -26,7 +26,8 @@ RUN freshclam && rm -rf /var/log/clamav/
 #
 
 FROM ${BASE_IMAGE} AS stage-base
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # -----------------------------------------------
 # --- Install Basic Software --------------------
 # -----------------------------------------------
@@ -101,11 +102,15 @@ RUN \
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
-COPY target/dovecot/auth-passwdfile.inc target/dovecot/auth-master.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
+COPY \
+  target/dovecot/auth-passwdfile.inc \
+  target/dovecot/auth-master.inc \
+  target/dovecot/??-*.conf \
+  /etc/dovecot/conf.d/
+
 COPY target/dovecot/sieve/ /etc/dovecot/sieve/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
-WORKDIR /usr/share/dovecot
 
 # hadolint ignore=SC2016,SC2086,SC2069
 RUN \
@@ -275,24 +280,22 @@ RUN \
 COPY ./VERSION /
 
 COPY \
-  ./target/bin/* \
-  ./target/scripts/*.sh \
-  ./target/scripts/startup/*.sh \
-  ./target/scripts/wrapper/*.sh \
-  ./target/docker-configomat/configomat.sh \
+  target/bin/* \
+  target/scripts/*.sh \
+  target/scripts/startup/*.sh \
+  target/scripts/wrapper/*.sh \
+  target/docker-configomat/configomat.sh \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*
 
-COPY ./target/scripts/helpers /usr/local/bin/helpers
+COPY target/scripts/helpers /usr/local/bin/helpers
 
 #
 # Final stage focuses only on image config
 #
 
 FROM stage-base AS stage-final
-ARG VCS_REF
-ARG VCS_VER
 
 WORKDIR /
 EXPOSE 25 587 143 465 993 110 995 4190
@@ -311,7 +314,6 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by Postgrey"
 ENV SASLAUTHD_MECH_OPTIONS=""
 
-# Add metadata to image:
 LABEL org.opencontainers.image.title="docker-mailserver"
 LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
 LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
@@ -320,7 +322,10 @@ LABEL org.opencontainers.image.description="A fullstack but simple mail server (
 LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
+
 # ARG invalidates cache when it is used by a layer (implicitly affects RUN)
 # Thus to maximize cache, keep these lines last:
-LABEL org.opencontainers.image.revision=${VCS_REF}
-LABEL org.opencontainers.image.version=${VCS_VER}
+ARG VCS_REVISION
+ARG VCS_VERSION
+LABEL org.opencontainers.image.revision=${VCS_REVISION}
+LABEL org.opencontainers.image.version=${VCS_VERSION}

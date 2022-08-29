@@ -46,8 +46,8 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
+            VSC_REVISION=${{ github.sha }}
+            VSC_VERSION=${{ github.ref }}
           platforms: linux/amd64
           load: true
           tags: mailserver-testing:ci
@@ -120,8 +120,8 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
+            VSC_REVISION=${{ github.sha }}
+            VSC_VERSION=${{ github.ref }}
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
           tags: ${{ steps.prep.outputs.tags }}
