@@ -1,7 +1,5 @@
 # syntax=docker.io/docker/dockerfile:1
 
-ARG LOG_LEVEL=trace
-ARG DEBIAN_FRONTEND=noninteractive
 ARG BASE_IMAGE=docker.io/debian:11-slim
 
 #
@@ -22,6 +20,9 @@ RUN freshclam && rm -rf /var/log/clamav/
 
 FROM ${BASE_IMAGE} AS stage-base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ENV LOG_LEVEL=trace
+ENV DEBIAN_FRONTEND=noninteractive
 
 # -----------------------------------------------
 # --- Install Basic Software --------------------
