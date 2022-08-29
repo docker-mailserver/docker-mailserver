@@ -53,8 +53,8 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
-            VSC_REVISION=${{ github.sha }}
-            VSC_VERSION=${{ github.ref }}
+            VCS_REVISION=${{ github.sha }}
+            VCS_VERSION=${{ github.ref }}
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
           tags: ${{ steps.prep.outputs.tags }}

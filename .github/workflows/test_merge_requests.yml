@@ -89,8 +89,8 @@ jobs:
         with:
           context: .
           build-args: |
-            VSC_REVISION=${{ github.sha }}
-            VSC_VERSION=${{ github.ref }}
+            VCS_REVISION=${{ github.sha }}
+            VCS_VERSION=${{ github.ref }}
           tags: mailserver-testing:ci
           # Build for AMD64 (runs against test suite) and ARM64 (only to verify building works):
           platforms: linux/amd64,linux/arm64
@@ -141,8 +141,8 @@ jobs:
         with:
           context: .
           build-args: |
-            VSC_REVISION=${{ github.sha }}
-            VSC_VERSION=${{ github.ref }}
+            VCS_REVISION=${{ github.sha }}
+            VCS_VERSION=${{ github.ref }}
           tags: mailserver-testing:ci
           # Export the built image for the Docker host to use:
           load: true
