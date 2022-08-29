@@ -1,6 +1,12 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
 load 'test_helper/common'
+
+function setup_file() {
+  # Fail early if the test image is already running:
+  assert_not_equal "$(docker ps | grep -o "${NAME}")" "${NAME}"
+  # Test may fail if an existing DMS container is running,
+  # Which can occur from a prior test failing before reaching `no_container.bats`
+  # and that failure not properly handling teardown.
+}
 
 @test "[No Existing Container] checking setup.sh: setup.sh alias list" {
   mkdir -p ./test/alias/config && echo "test@example.org test@forward.com" > ./test/alias/config/postfix-virtual.cf

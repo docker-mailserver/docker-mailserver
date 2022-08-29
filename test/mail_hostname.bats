@@ -11,8 +11,10 @@ function setup_file() {
     -e PERMIT_DOCKER=network \
     -e ENABLE_SRS=1 \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-    -h unknown.domain.tld \
-    -t "${NAME}"
+    --hostname unknown.domain.tld \
+    --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
+    "${NAME}"
 
   PRIVATE_CONFIG_TWO=$(duplicate_config_for_container . mail_non_subdomain_hostname)
   docker run --rm -d --name mail_non_subdomain_hostname \
@@ -21,7 +23,9 @@ function setup_file() {
     -e PERMIT_DOCKER=network \
     -e ENABLE_SRS=1 \
     --hostname domain.com \
-    -t "${NAME}"
+    --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
+    "${NAME}"
 
   PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . mail_srs_domainname)
   docker run --rm -d --name mail_srs_domainname \
@@ -32,7 +36,9 @@ function setup_file() {
     -e SRS_DOMAINNAME='srs.my-domain.com' \
     --domainname 'my-domain.com' \
     --hostname 'mail' \
-    -t "${NAME}"
+    --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
+    "${NAME}"
 
   PRIVATE_CONFIG_FOUR=$(duplicate_config_for_container . mail_domainname)
   docker run --rm -d --name mail_domainname \
@@ -42,7 +48,9 @@ function setup_file() {
     -e ENABLE_SRS=1 \
     --domainname 'my-domain.com' \
     --hostname 'mail' \
-    -t "${NAME}"
+    --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
+    "${NAME}"
 
   wait_for_smtp_port_in_container mail_override_hostname
   wait_for_smtp_port_in_container mail_non_subdomain_hostname
@@ -55,6 +63,10 @@ function setup_file() {
 }
 
 function teardown_file() {
+  # Running `docker rm -f` too soon after `docker stop` can result in failure during teardown with:
+  # "Error response from daemon: removal of container mail_domainname is already in progress"
+  sleep 1
+
   docker rm -f mail_override_hostname mail_non_subdomain_hostname mail_srs_domainname mail_domainname
 }
 

@@ -173,6 +173,73 @@ function wait_for_changes_to_be_detected_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
 
+# Relies on ENV `LOG_LEVEL=debug` or higher
+function wait_until_change_detection_event_completes() {
+  local CONTAINER_NAME="${1}"
+  # Ensure early failure if arg is missing:
+  assert_not_equal "${CONTAINER_NAME}" ""
+
+  # Ensure the container is configured with the required `LOG_LEVEL` ENV:
+  assert_regex \
+    $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
+    '=(debug|trace)$'
+
+  local CHANGE_EVENT_START='Change detected'
+  local CHANGE_EVENT_END='Completed handling of detected change' # debug log
+
+  function __change_event_status() {
+    docker exec "${CONTAINER_NAME}" \
+      grep -oE "${CHANGE_EVENT_START}|${CHANGE_EVENT_END}" /var/log/supervisor/changedetector.log \
+      | tail -1
+  }
+
+  function __is_changedetector_processing() {
+    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]]
+  }
+
+  function __is_changedetector_finished() {
+    [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]]
+  }
+
+  if [[ ! $(__is_changedetector_processing) ]]
+  then
+    # A new change event is expected, wait for it:
+    repeat_until_success_or_timeout 60 __is_changedetector_processing
+  fi
+
+  # Change event is in progress, wait until it finishes:
+  repeat_until_success_or_timeout 60 __is_changedetector_finished
+
+  # NOTE: Although the change event has completed, services like Postfix and Dovecot
+  # may still be in the process of restarting.
+  # You may still want to wait longer if depending on those to be ready.
+}
+
+# An account added to `postfix-accounts.cf` must wait for the `changedetector` service
+# to process the update before Dovecot creates the mail account and associated storage dir:
+function wait_until_account_maildir_exists() {
+  local CONTAINER_NAME=$1
+  local MAIL_ACCOUNT=$2
+
+  local LOCAL_PART="${MAIL_ACCOUNT%@*}"
+  local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
+  local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN_PART}/${LOCAL_PART}"
+
+  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c "[[ -d ${MAIL_ACCOUNT_STORAGE_DIR} ]]"
+}
+
+function add_mail_account_then_wait_until_ready() {
+  local CONTAINER_NAME=$1
+  local MAIL_ACCOUNT=$2
+  # Password is optional (omit when the password is not needed during the test)
+  local MAIL_PASS="${3:-password_not_relevant_to_test}"
+
+  run docker exec "${CONTAINER_NAME}" setup email add "${MAIL_ACCOUNT}" "${MAIL_PASS}"
+  assert_success
+
+  wait_until_account_maildir_exists "${CONTAINER_NAME}" "${MAIL_ACCOUNT}"
+}
+
 function wait_for_empty_mail_queue_in_container() {
   local CONTAINER_NAME="${1}"
   local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}

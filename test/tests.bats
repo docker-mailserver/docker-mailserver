@@ -1,5 +1,3 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
 load 'test_helper/common'
 
 export IMAGE_NAME
@@ -10,6 +8,7 @@ setup_file() {
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
 
+  # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
   docker run --rm -d --name mail \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
@@ -22,6 +21,7 @@ setup_file() {
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
+    -e LOG_LEVEL='debug' \
     -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \
@@ -35,8 +35,9 @@ setup_file() {
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
-    -h mail.my-domain.com \
+    --hostname mail.my-domain.com \
     --tty \
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 
@@ -49,16 +50,18 @@ setup_file() {
   # setup sieve
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
-  # this relies on the checksum file beeing updated after all changes have been applied
-  wait_for_changes_to_be_detected_in_container mail
-
-  wait_for_smtp_port_in_container mail
+  # this relies on the checksum file being updated after all changes have been applied
+  wait_until_change_detection_event_completes mail
 
   # wait for ClamAV to be fully setup or we will get errors on the log
   repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
 
-  # sending test mails
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  wait_for_smtp_port_in_container mail
+
+  # The first mail sent leverages an assert for better error output if a failure occurs:
+  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  assert_success
+
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
@@ -94,6 +97,21 @@ teardown_file() {
 
 @test "checking configuration: hostname/domainname" {
   run docker run "${IMAGE_NAME:?}"
+  assert_success
+}
+
+#
+# healthcheck
+#
+
+# NOTE: Healthcheck defaults an interval of 30 seconds
+# If Postfix is temporarily down (eg: restart triggered by `check-for-changes.sh`),
+# it may result in a false-positive `unhealthy` state.
+# Be careful with re-locating this test if earlier tests could potentially fail it by
+# triggering the `changedetector` service.
+@test "checking container healthcheck" {
+  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
+  assert_output "healthy"
   assert_success
 }
 
@@ -599,7 +617,7 @@ EOF
 @test "checking accounts: user_without_domain creation should be rejected since user@domain format is required" {
   run docker exec mail /bin/sh -c "addmailuser user_without_domain mypassword"
   assert_failure
-  assert_output --partial "Username must include the domain"
+  assert_output --partial 'should include the domain (eg: user@example.com)'
 }
 
 @test "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
@@ -627,6 +645,8 @@ EOF
 }
 
 @test "checking accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
+  wait_until_account_maildir_exists mail 'user3@domain.tld'
+
   docker exec mail /bin/sh -c "delmailuser -y user3@domain.tld"
 
   run docker exec mail /bin/sh -c "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
@@ -639,7 +659,7 @@ EOF
 }
 
 @test "checking user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
-  docker exec mail /bin/sh -c "addmailuser user4@domain.tld mypassword"
+  add_mail_account_then_wait_until_ready mail 'user4@domain.tld'
 
   initialpass=$(docker exec mail /bin/sh -c "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
   sleep 2
@@ -649,8 +669,7 @@ EOF
 
   [[ ${initialpass} != "${changepass}" ]]
 
-  docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
-
+  run docker exec mail /bin/sh -c "delmailuser -y auser3@domain.tld"
   assert_success
 }
 
@@ -690,8 +709,7 @@ EOF
 
 
 @test "checking quota: setquota user must be existing" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quota_user 50M"
   assert_failure
@@ -704,9 +722,9 @@ EOF
   run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
   assert_success
 }
+
 @test "checking quota: setquota <quota> must be well formatted" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quota_user@domain.tld 26GIGOTS"
   assert_failure
@@ -734,10 +752,8 @@ EOF
   assert_success
 }
 
-
 @test "checking quota: delquota user must be existing" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "delquota uota_user@domain.tld"
   assert_failure
@@ -756,9 +772,9 @@ EOF
   run docker exec mail /bin/sh -c "delmailuser -y quota_user@domain.tld"
   assert_success
 }
+
 @test "checking quota: delquota allow when no quota for existing user" {
-  run docker exec mail /bin/sh -c "addmailuser quota_user@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quota_user@domain.tld'
 
   run docker exec mail /bin/sh -c "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
   assert_failure
@@ -812,8 +828,7 @@ EOF
 }
 
 @test "checking quota: quota directive is removed when mailbox is removed" {
-  run docker exec mail /bin/sh -c "addmailuser quserremoved@domain.tld mypassword"
-  assert_success
+  add_mail_account_then_wait_until_ready mail 'quserremoved@domain.tld'
 
   run docker exec mail /bin/sh -c "setquota quserremoved@domain.tld 12M"
   assert_success
@@ -829,15 +844,11 @@ EOF
 }
 
 @test "checking quota: dovecot applies user quota" {
-  wait_for_changes_to_be_detected_in_container mail
-
   run docker exec mail /bin/sh -c "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
   assert_output --partial "-                         0"
 
   run docker exec mail /bin/sh -c "setquota user1@localhost.localdomain 50M"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)51200(.*)\"'"
@@ -845,8 +856,6 @@ EOF
 
   run docker exec mail /bin/sh -c "delquota user1@localhost.localdomain"
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u user1@localhost.localdomain | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)-(.*)\"'"
@@ -856,13 +865,10 @@ EOF
 @test "checking quota: warn message received when quota exceeded" {
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
-  wait_for_changes_to_be_detected_in_container mail
-
   # create user
-  run docker exec mail /bin/sh -c "addmailuser quotauser@otherdomain.tld mypassword && setquota quotauser@otherdomain.tld 10k"
+  add_mail_account_then_wait_until_ready mail 'quotauser@otherdomain.tld'
+  run docker exec mail /bin/sh -c 'setquota quotauser@otherdomain.tld 10k'
   assert_success
-
-  wait_for_changes_to_be_detected_in_container mail
 
   # wait until quota has been updated
   run repeat_until_success_or_timeout 20 sh -c "docker exec mail sh -c 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'"
@@ -966,16 +972,6 @@ EOF
   # check sender is not the default one.
   run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
-}
-
-#
-# healthcheck
-#
-
-@test "checking container healthcheck" {
-  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
-  assert_output "healthy"
-  assert_success
 }
 
 #
