@@ -75,7 +75,7 @@ function _install_packages() {
     clamav clamav-daemon \
     "${DOVECOT_PACKAGES[@]}" dumb-init \
     fetchmail fail2ban gzip htop iproute2 \
-    locales logwatch libldap-common netcat-openbsd nftables \
+    locales logwatch libldap-common libsasl2-modules netcat-openbsd nftables \
     opendkim opendkim-tools opendmarc \
     pflogsumm postgrey p7zip-full \
     postfix-ldap postfix-pcre postfix-policyd-spf-python \
