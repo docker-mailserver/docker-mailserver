@@ -62,7 +62,7 @@ teardown_file() {
   assert_output --partial "${IPNET1}"
   assert_output --partial "${IPNET2}"
 
-  run docker exec mail_smtponly_second_network /bin/sh -c "postconf -e smtp_host_lookup=no"
+  run docker exec mail_smtponly_second_network /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
   run docker exec mail_smtponly_second_network /bin/sh -c "/etc/init.d/postfix reload"
@@ -76,7 +76,7 @@ teardown_file() {
 }
 
 @test "checking PERMIT_DOCKER: none" {
-  run docker exec mail_smtponly_force_authentication /bin/sh -c "postconf -e smtp_host_lookup=no"
+  run docker exec mail_smtponly_force_authentication /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
   run docker exec mail_smtponly_force_authentication /bin/sh -c "/etc/init.d/postfix reload"

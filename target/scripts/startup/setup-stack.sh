@@ -96,8 +96,8 @@ function _setup_dmarc_hostname
 function _setup_postfix_hostname
 {
   _log 'debug' 'Applying hostname and domainname to Postfix'
-  postconf -e "myhostname = ${HOSTNAME}"
-  postconf -e "mydomain = ${DOMAINNAME}"
+  postconf "myhostname = ${HOSTNAME}"
+  postconf "mydomain = ${DOMAINNAME}"
 }
 
 function _setup_dovecot_hostname
@@ -359,21 +359,21 @@ function _setup_ldap
 
   if [[ -f /etc/postfix/ldap-users.cf ]]
   then
-    postconf -e 'virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf'
+    postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-users.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-domains.cf ]]
   then
-    postconf -e 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf'
+    postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-domains.cf' not found"
   fi
 
   if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]
   then
-    postconf -e 'virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf'
+    postconf 'virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
   fi
@@ -431,13 +431,13 @@ function _setup_postfix_postscreen
 function _setup_postfix_sizelimits
 {
   _log 'trace' "Configuring Postfix message size limit to '${POSTFIX_MESSAGE_SIZE_LIMIT}'"
-  postconf -e "message_size_limit = ${POSTFIX_MESSAGE_SIZE_LIMIT}"
+  postconf "message_size_limit = ${POSTFIX_MESSAGE_SIZE_LIMIT}"
 
   _log 'trace' "Configuring Postfix mailbox size limit to '${POSTFIX_MAILBOX_SIZE_LIMIT}'"
-  postconf -e "mailbox_size_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
+  postconf "mailbox_size_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 
   _log 'trace' "Configuring Postfix virtual mailbox size limit to '${POSTFIX_MAILBOX_SIZE_LIMIT}'"
-  postconf -e "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
+  postconf "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 }
 
 function _setup_clamav_sizelimit
@@ -449,7 +449,7 @@ function _setup_clamav_sizelimit
 function _setup_postfix_smtputf8
 {
   _log 'trace' "Disabling Postfix's smtputf8 support"
-  postconf -e "smtputf8_enable = no"
+  postconf 'smtputf8_enable = no'
 }
 
 function _setup_spoof_protection
@@ -463,16 +463,16 @@ function _setup_spoof_protection
   then
     if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
     then
-      postconf -e 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf'
+      postconf 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf'
     else
-      postconf -e 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf'
+      postconf 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf'
     fi
   else
     if [[ -f /etc/postfix/regexp ]]
     then
-      postconf -e 'smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }'
+      postconf 'smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }'
     else
-      postconf -e 'smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre'
+      postconf 'smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre'
     fi
   fi
 }
@@ -567,10 +567,10 @@ function _setup_SRS
 {
   _log 'debug' 'Setting up SRS'
 
-  postconf -e 'sender_canonical_maps = tcp:localhost:10001'
-  postconf -e "sender_canonical_classes = ${SRS_SENDER_CLASSES}"
-  postconf -e 'recipient_canonical_maps = tcp:localhost:10002'
-  postconf -e 'recipient_canonical_classes = envelope_recipient,header_recipient'
+  postconf 'sender_canonical_maps = tcp:localhost:10001'
+  postconf "sender_canonical_classes = ${SRS_SENDER_CLASSES}"
+  postconf 'recipient_canonical_maps = tcp:localhost:10002'
+  postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
 }
 
 function _setup_dkim
@@ -612,7 +612,7 @@ function _setup_postfix_vhost
 function _setup_postfix_inet_protocols
 {
   _log 'trace' 'Setting up POSTFIX_INET_PROTOCOLS option'
-  postconf -e "inet_protocols = ${POSTFIX_INET_PROTOCOLS}"
+  postconf "inet_protocols = ${POSTFIX_INET_PROTOCOLS}"
 }
 
 function _setup_dovecot_inet_protocols
@@ -663,7 +663,7 @@ function _setup_docker_permit
   case "${PERMIT_DOCKER}" in
     ( 'none' )
       _log 'trace' "Clearing Postfix's 'mynetworks'"
-      postconf -e "mynetworks ="
+      postconf "mynetworks ="
       ;;
 
     ( 'connected-networks' )
@@ -671,7 +671,7 @@ function _setup_docker_permit
       do
         NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
         _log 'trace' "Adding Docker network '${NETWORK}' to Postfix's 'mynetworks'"
-        postconf -e "$(postconf | grep '^mynetworks =') ${NETWORK}"
+        postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
         echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
         echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
       done
@@ -679,21 +679,21 @@ function _setup_docker_permit
 
     ( 'container' )
       _log 'trace' "Adding container IP address to Postfix's 'mynetworks'"
-      postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
+      postconf "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
       echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
       ;;
 
     ( 'host' )
       _log 'trace' "Adding '${CONTAINER_NETWORK}/16' to Postfix's 'mynetworks'"
-      postconf -e "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
+      postconf "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
       echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
       ;;
 
     ( 'network' )
       _log 'trace' "Adding Docker network to Postfix's 'mynetworks'"
-      postconf -e "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
+      postconf "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
       echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
       echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
       ;;
@@ -701,7 +701,7 @@ function _setup_docker_permit
     ( * )
       _log 'warn' "Invalid value for PERMIT_DOCKER: '${PERMIT_DOCKER}'"
       _log 'warn' "Clearing Postfix's 'mynetworks'"
-      postconf -e "mynetworks ="
+      postconf "mynetworks ="
       ;;
 
   esac
@@ -718,7 +718,7 @@ function _setup_postfix_virtual_transport
     return 1
   fi
 
-  postconf -e "virtual_transport = ${POSTFIX_DAGENT}"
+  postconf "virtual_transport = ${POSTFIX_DAGENT}"
 }
 
 function _setup_postfix_override_configuration
@@ -1077,8 +1077,8 @@ function _setup_dnsbl_disable
     /etc/postfix/main.cf
 
   _log 'debug' 'Disabling postscreen DNS block lists'
-  postconf -e "postscreen_dnsbl_action = ignore"
-  postconf -e "postscreen_dnsbl_sites = "
+  postconf 'postscreen_dnsbl_action = ignore'
+  postconf 'postscreen_dnsbl_sites = '
 }
 
 function _setup_fetchmail
