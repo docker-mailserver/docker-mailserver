@@ -160,6 +160,7 @@ function _environment_variables_saslauthd
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
   VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
+  VARS[SASLAUTHD_MECH_OPTIONS]="${SASLAUTHD_MECH_OPTIONS:=}"
 
   # SASL ENV for configuring an LDAP specific
   # `saslauthd.conf` via `setup-stack.sh:_setup_sasulauthd()`

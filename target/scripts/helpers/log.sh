@@ -42,32 +42,22 @@ RESET=$(echo -ne   '\e[0m')
 # If the first argument is not set or invalid, an error
 # message is logged. Likewise when the second argument
 # is missing. Both failures will return with exit code '1'.
-function _log
-{
+function _log() {
   if [[ -z ${1+set} ]]
   then
-    echo "Call to '_log' is missing a valid log level" >&2
+    _log 'error' "Call to '_log' is missing a valid log level"
     return 1
   fi
 
   if [[ -z ${2+set} ]]
   then
-    echo "Call to '_log' is missing a message to log" >&2
+    _log 'error' "Call to '_log' is missing a message to log"
     return 1
   fi
 
-  local MESSAGE LEVEL_AS_INT LOG_LEVEL_FALLBACK
-  MESSAGE="${RESET}["
+  local LEVEL_AS_INT MESSAGE="${RESET}["
 
-  if [[ -e /etc/dms-settings ]]
-  then
-    LOG_LEVEL_FALLBACK=$(grep "^LOG_LEVEL=" /etc/dms-settings | cut -d '=' -f 2)
-    LOG_LEVEL_FALLBACK="${LOG_LEVEL_FALLBACK:1:-1}"
-  else
-    LOG_LEVEL_FALLBACK='info'
-  fi
-
-  case "${LOG_LEVEL:-${LOG_LEVEL_FALLBACK}}" in
+  case "$(_get_log_level_or_default)" in
     ( 'trace' ) LEVEL_AS_INT=5 ;;
     ( 'debug' ) LEVEL_AS_INT=4 ;;
     ( 'warn'  ) LEVEL_AS_INT=2 ;;
@@ -78,12 +68,12 @@ function _log
   case "${1}" in
     ( 'trace' )
       [[ ${LEVEL_AS_INT} -ge 5 ]] || return 0
-      MESSAGE+="  ${LGRAY}TRACE  "
+      MESSAGE+="  ${CYAN}TRACE  "
       ;;
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${LBLUE}DEBUG  "
+      MESSAGE+="  ${PURPLE}DEBUG  "
       ;;
 
     ( 'info' )
@@ -98,7 +88,7 @@ function _log
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+="  ${RED}ERROR  " ;;
+      MESSAGE+="  ${LRED}ERROR  " ;;
 
     ( * )
       echo "Call to '_log' with invalid log level argument '${1}'" >&2
@@ -116,4 +106,24 @@ function _log
   fi
 }
 
-function _log_with_date { _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}" ; }
+function _log_with_date() {
+  _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}"
+}
+
+function _get_log_level_or_default() {
+  if [[ -n ${LOG_LEVEL+set} ]]
+  then
+    printf '%s' "${LOG_LEVEL}"
+  elif [[ -e /etc/dms-settings ]]
+  then
+    local LOG_LEVEL
+    LOG_LEVEL=$(grep "^LOG_LEVEL=" /etc/dms-settings | cut -d '=' -f 2)
+    printf '%s' "${LOG_LEVEL:1:-1}"
+  else
+    printf 'info'
+  fi
+}
+
+function _log_level_is_trace() {
+  [[ $(_get_log_level_or_default) =~ ^trace$ ]]
+}
