@@ -11,7 +11,9 @@ VCS_VER = $(shell git describe --tags --contains --always)
 all: lint build backup generate-accounts tests clean
 
 build:
-	docker build -t $(NAME) . --build-arg VCS_VER=$(VCS_VER) --build-arg VCS_REF=$(VCS_REF)
+	DOCKER_BUILDKIT=1 docker build -t $(NAME) . \
+		--build-arg VCS_VER=$(VCS_VER) \
+		--build-arg VCS_REF=$(VCS_REF)
 
 backup:
 # if backup directory exist, clean hasn't been called, therefore

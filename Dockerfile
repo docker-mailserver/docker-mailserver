@@ -1,22 +1,32 @@
-# This Dockerfile provides two stages: stage-base and stage-final
-# This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
+# syntax=docker.io/docker/dockerfile:1
 
-#
-# Base stage provides all packages, config, and adds scripts
-#
-
-FROM docker.io/debian:11-slim AS stage-base
-
+ARG LOG_LEVEL=trace
 ARG DEBIAN_FRONTEND=noninteractive
+ARG BASE_IMAGE=docker.io/debian:11-slim
+
+#
+# ClamAV stage provides cached anti-malware bytecode
+#
+
+FROM ${BASE_IMAGE} AS stage-clamav
+
+RUN \
+  apt-get -qq update && \
+  apt-get -qq install clamav clamav-daemon
 
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
 ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
 ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
 ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=hkps://keyserver.ubuntu.com
 ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
+RUN freshclam && rm -rf /var/log/clamav/
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+#
+# Base stage provides all packages, config, and adds scripts
+#
 
+FROM ${BASE_IMAGE} AS stage-base
+SHELL ["/bin/bash", "-c"]
 # -----------------------------------------------
 # --- Install Basic Software --------------------
 # -----------------------------------------------
@@ -78,10 +88,10 @@ RUN chmod +x /usr/local/bin/sedfile
 # --- ClamAV & FeshClam -------------------------
 # -----------------------------------------------
 
+COPY --link --from=stage-clamav /var/lib/clamav /var/lib/clamav
 RUN \
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
-  freshclam && \
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
   mkdir /var/run/clamav && \
   chown -R clamav:root /var/run/clamav && \
