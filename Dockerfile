@@ -69,8 +69,8 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   c_rehash 2>&1
 
-COPY ./target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
-COPY ./target/bin/sedfile /usr/local/bin/sedfile
+COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
+COPY target/bin/sedfile /usr/local/bin/sedfile
 
 RUN chmod +x /usr/local/bin/sedfile
 
@@ -262,19 +262,19 @@ RUN \
   rm /etc/postsrsd.secret && \
   rm /etc/cron.daily/00logwatch
 
-COPY ./VERSION /
+COPY VERSION /
 
 COPY \
-  ./target/bin/* \
-  ./target/scripts/*.sh \
-  ./target/scripts/startup/*.sh \
-  ./target/scripts/wrapper/*.sh \
-  ./target/docker-configomat/configomat.sh \
+  target/bin/* \
+  target/scripts/*.sh \
+  target/scripts/startup/*.sh \
+  target/scripts/wrapper/*.sh \
+  target/docker-configomat/configomat.sh \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*
 
-COPY ./target/scripts/helpers /usr/local/bin/helpers
+COPY target/scripts/helpers /usr/local/bin/helpers
 
 #
 # Final stage focuses only on image config
