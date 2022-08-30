@@ -16,19 +16,18 @@ permissions:
 
 jobs:
   build-AMD64-image:
-    name: Build the container images
-    uses: ./github/workflows/generic_build.yml
+    name: Build AMD64 Image
+    uses: ./.github/workflows/generic_build.yml
 
   run-tests:
-    name: Build the container images
+    name: Test AMD64 Image
     needs: build-AMD64-image
-    uses: ./github/workflows/generic_test.yml
+    uses: ./.github/workflows/generic_test.yml
     with:
       cache-key: ${{ needs.build-AMD64-image.outputs.build-cache-key }}
 
   job-build-arm:
     name: Build ARM64 Image
-    needs: build-AMD64-image
-    uses: ./github/workflows/generic_build.yml
+    uses: ./.github/workflows/generic_build.yml
     with:
       extra-platforms: ',linux/arm64'

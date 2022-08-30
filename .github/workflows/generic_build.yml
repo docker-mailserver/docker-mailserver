@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   build-image:
-    name: Build an Image
+    name: Build
     runs-on: ubuntu-20.04
     outputs:
       build-cache-key: ${{ steps.derive-image-cache-key.outputs.digest }}
@@ -73,7 +73,7 @@ jobs:
             cache-buildx-
 
       - name: Set up QEMU
-        if: input.extra-platforms != ''
+        if: inputs.extra-platforms != ''
         uses: docker/setup-qemu-action@v2.0.0
         with:
           platforms: arm64
@@ -94,7 +94,7 @@ jobs:
             VCS_VER=${{ github.ref }}
           tags: mailserver-testing:ci
           # Build for AMD64 runs against test suite:
-          platforms: linux/amd64${{ input.extra-platforms }}
+          platforms: linux/amd64${{ inputs.extra-platforms }}
           # Paired with steps `actions/cache` and `Replace cache` (replace src with dest):
           # NOTE: `mode=max` is only for `cache-to`, it configures exporting all image layers.
           # https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-from

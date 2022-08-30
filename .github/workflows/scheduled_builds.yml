@@ -1,4 +1,4 @@
-name: Build Edge on Schedule
+name: 'Deploy :edge on Schedule'
 
 on:
   schedule:
@@ -10,14 +10,14 @@ permissions:
 
 jobs:
   build-images:
-    name: Build the container images
-    uses: ./github/workflows/generic_build.yml
+    name: Build Images
+    uses: ./.github/workflows/generic_build.yml
     with:
       extra-platforms: ',linux/arm/v7,linux/arm64'
 
   publish-images:
-    name: Publish the container images
+    name: Publish Images
     needs: build-images
-    uses: ./github/workflows/generic_publish.yml
+    uses: ./.github/workflows/generic_publish.yml
     with:
       cache-key: ${{ needs.build-images.outputs.build-cache-key }}

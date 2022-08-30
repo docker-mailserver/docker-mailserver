@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   publish-images:
-    name: Publish Images
+    name: Publish
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: cache-buildx-${{ input.cache-key }}
+          key: cache-buildx-${{ inputs.cache-key }}
           restore-keys: |
             cache-buildx-
 
