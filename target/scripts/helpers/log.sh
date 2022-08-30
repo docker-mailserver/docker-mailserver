@@ -56,7 +56,8 @@ function _log
     return 1
   fi
 
-  local LEVEL_AS_INT MESSAGE="${RESET}["
+  local LEVEL_AS_INT
+  local MESSAGE="${RESET}["
 
   case "$(_get_log_level_or_default)" in
     ( 'trace' ) LEVEL_AS_INT=5 ;;
