@@ -24,7 +24,7 @@ jobs:
       # Get the cached build layers from a build job:
       # This should always be a cache-hit, no new uploads
       # should happen when this job finishes:
-      - name: Retrieve image build from build cache
+      - name: Retrieve image built from build cache
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
