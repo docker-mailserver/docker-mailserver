@@ -9,6 +9,7 @@
 
 FROM docker.io/debian:11-slim AS stage-base
 
+ARG LOG_LEVEL=trace
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
@@ -23,6 +24,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
+COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 RUN /bin/bash /build/packages.sh
 
