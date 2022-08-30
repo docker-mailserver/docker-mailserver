@@ -3,104 +3,113 @@ name: Build the DMS container image
 on:
   workflow_call:
     inputs:
-      platforms:
-        required: true
+      extra-platforms:
+        required: false
         type: string
-      publish:
-        required: true
-        type: boolean
-      cache-layers-to:
-        required: false
-        type: boolean
-        default: false
-      cache-layers-from:
-        required: false
-        type: boolean
-        default: false
+        default: ''
 
 permissions:
   contents: read
-  packages: write
+
+# `actions/cache` does not upload a new cache until
+# completing a job successfully.
+#   To better cache image builds, tests are handled in
+# a dependent job afterwards.
+#   This way failing tests will not prevent caching of
+# an image. Useful when the build context is not
+# changed by new commits.
 
 jobs:
-  generic-build:
-    name: Build (and Publish) an Image
+  build-image:
+    name: Build an Image
     runs-on: ubuntu-20.04
+    outputs:
+      build-cache-key: ${{ steps.derive-image-cache-key.outputs.digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
+      # Can potentially be replaced by: `${{ hashFiles('target/**', 'Dockerfile', 'VERSION') }}`
+      # Must not be affected by file metadata changes and have a consistent sort order:
+      # https://docs.github.com/en/actions/learn-github-actions/expressions#hashfiles
+      # Keying by the relevant build context is more re-usable than a commit SHA.
+      - name: Derive Docker image cache key from content
+        id: derive-image-cache-key
+        shell: bash
+        run: |
+          ADDITIONAL_FILES=(
+            'Dockerfile'
+            'VERSION'
+          )
+
+          # Recursively collect file paths from `target/` and pipe a list of
+          # checksums to be sorted (by hash value) and finally generate a checksum
+          # of that list, using `awk` to only return the hash value (digest):
+          IMAGE_CHECKSUM=$(\
+            find ./target -type f -exec sha256sum "${ADDITIONAL_FILES[@]}" {} + \
+              | sort \
+              | sha256sum \
+              | awk '{ print $1 }' \
+          )
+
+          echo "::set-output name=digest::${IMAGE_CHECKSUM}"
+
+      # Attempts to restore the build cache from a prior build run.
+      # If the exact key is not restored, then upon a successful job run
+      # the new cache is uploaded for this key containing the contents at `path`.
+      # Cache storage has a limit of 10GB, and uploads expire after 7 days.
+      # When full, the least accessed cache upload is evicted to free up storage.
+      # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
+      - name: Handle Docker build layer cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: cache-buildx-${{ steps.derive-image-cache-key.outputs.digest }}
+          # If no exact cache-hit for key found, lookup caches with a `cache-buildx-` key prefix:
+          # This is safe due to cache layer invalidation via the image build context.
+          restore-keys: |
+            cache-buildx-
+
       - name: Set up QEMU
+        if: input.extra-platforms != ''
         uses: docker/setup-qemu-action@v2.0.0
+        with:
+          platforms: arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
         id: buildx
 
-      - name: Cache Docker layers
-        if: input.cache-layers-to == true
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Login to DockerHub
-        if: input.publish == true
-        uses: docker/login-action@v2.0.0
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Login to GitHub Container Registry
-        if: input.publish == true
-        uses: docker/login-action@v2.0.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build image(s) locally without cache
-        if: input.cache-layers-to == false
+      # NOTE: AMD64 can build within 2 minutes, ARM adds 13 minutes. 330MB each
+      # ARMv7 can build in parallel, adding no extra time (but does add 150MB cache size).
+      # Moving ARM build to a separate job would cut down time to start running tests.
+      - name: Build images
         uses: docker/build-push-action@v3.1.1
         with:
-          builder: ${{ steps.buildx.outputs.name }}
           context: .
           build-args: |
             VCS_REF=${{ github.sha }}
             VCS_VER=${{ github.ref }}
-          platforms: ${{ inputs.platforms }}
-          push: ${{ inputs.publish }}
-          tags: ${{ steps.prep.outputs.tags }}
-
-      - name: Build image(s) locally and cache it
-        if: input.cache-layers-to == true
-        uses: docker/build-push-action@v3.1.1
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
-          platforms: ${{ inputs.platforms }}
-          load: true
           tags: mailserver-testing:ci
-          push: ${{ inputs.publish }}
-          cache-to: type=local,dest=/tmp/.buildx-cache
-
-      - name: Build image(s) locally from cache
-        if: input.cache-layers-from == true
-        uses: docker/build-push-action@v3.1.1
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
-          platforms: ${{ inputs.platforms }}
-          push: ${{ inputs.publish }}
-          tags: ${{ steps.prep.outputs.tags }}
+          # Build for AMD64 runs against test suite:
+          platforms: linux/amd64${{ input.extra-platforms }}
+          # Paired with steps `actions/cache` and `Replace cache` (replace src with dest):
+          # NOTE: `mode=max` is only for `cache-to`, it configures exporting all image layers.
+          # https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-from
           cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          # This job just builds the image and stores to cache, no other exporting required:
+          # https://github.com/docker/build-push-action/issues/546#issuecomment-1122631106
+          outputs: type=cacheonly
+
+      # WORKAROUND: The `cache-to: type=local` input for `build-push-action` persists old-unused cache.
+      # The workaround is to write the new build cache to a different location that replaces the
+      # original restored cache after build, reducing frequency of eviction due to cache storage limit (10GB).
+      # https://github.com/docker/build-push-action/blob/965c6a410d446a30e95d35052c67d6eded60dad6/docs/advanced/cache.md?plain=1#L193-L199
+      # NOTE: This does not affect `cache-hit == 'true'` (which skips upload on direct cache key hit)
+      - name: Replace cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
