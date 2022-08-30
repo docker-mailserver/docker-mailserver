@@ -78,12 +78,12 @@ function _log
   case "${1}" in
     ( 'trace' )
       [[ ${LEVEL_AS_INT} -ge 5 ]] || return 0
-      MESSAGE+="  ${LGRAY}TRACE  "
+      MESSAGE+="  ${CYAN}TRACE  "
       ;;
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${LBLUE}DEBUG  "
+      MESSAGE+="  ${PURPLE}DEBUG  "
       ;;
 
     ( 'info' )
@@ -98,7 +98,7 @@ function _log
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+="  ${RED}ERROR  " ;;
+      MESSAGE+="  ${LRED}ERROR  " ;;
 
     ( * )
       echo "Call to '_log' with invalid log level argument '${1}'" >&2
