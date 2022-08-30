@@ -1,4 +1,4 @@
-name: Build the DMS container image
+name: Build the DMS Container Image
 
 on:
   workflow_call:
