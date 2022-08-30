@@ -5,14 +5,14 @@ on:
   push:
     branches:
       - master
-    # paths:
-    #   - target/**
-    #   - .dockerignore
-    #   - .gitmodules
-    #   - Dockerfile
-    #   - setup.sh
-    # tags:
-    #   - '*.*.*'
+    paths:
+      - target/**
+      - .dockerignore
+      - .gitmodules
+      - Dockerfile
+      - setup.sh
+    tags:
+      - '*.*.*'
 
 permissions:
   contents: read

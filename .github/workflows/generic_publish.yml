@@ -69,7 +69,6 @@ jobs:
       - name: Build and publish images
         uses: docker/build-push-action@v3.1
         with:
-          builder: ${{ steps.buildx.outputs.name }}
           context: .
           build-args: |
             VCS_REF=${{ github.sha }}
