@@ -83,7 +83,7 @@ function _log
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${PURPLE}DEBUG  "
+      MESSAGE+="  ${LBLUE}DEBUG  "
       ;;
 
     ( 'info' )
@@ -98,7 +98,7 @@ function _log
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+="  ${LRED}ERROR  " ;;
+      MESSAGE+="  ${RED}ERROR  " ;;
 
     ( * )
       echo "Call to '_log' with invalid log level argument '${1}'" >&2

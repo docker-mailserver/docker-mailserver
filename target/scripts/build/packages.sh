@@ -1,7 +1,6 @@
-
 #! /bin/bash
 
-# -eE :: exit on error (do this in function as well)
+# -eE :: exit on error (do this in functions as well)
 # -u  :: show (and exit) when using unset variables
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
