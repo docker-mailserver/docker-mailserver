@@ -9,8 +9,15 @@ permissions:
   packages: write
 
 jobs:
-  publish:
+  build-images:
+    name: Build the container images
     uses: ./github/workflows/generic_build.yml
     with:
-      platforms: linux/amd64,linux/arm/v7,linux/arm64
-      publish: true
+      extra-platforms: ',linux/arm/v7,linux/arm64'
+
+  publish-images:
+    name: Publish the container images
+    needs: build-images
+    uses: ./github/workflows/generic_publish.yml
+    with:
+      cache-key: ${{ needs.build-images.outputs.build-cache-key }}

@@ -1,4 +1,4 @@
-name: "Build, Test & Deploy"
+name: Build, Test & Deploy
 
 on:
   workflow_dispatch:
@@ -6,11 +6,11 @@ on:
     branches:
       - master
     paths:
-      - 'target/**'
-      - '.dockerignore'
-      - '.gitmodules'
-      - 'Dockerfile'
-      - 'setup.sh'
+      - target/**
+      - .dockerignore
+      - .gitmodules
+      - Dockerfile
+      - setup.sh
     tags:
       - '*.*.*'
 
@@ -19,55 +19,20 @@ permissions:
   packages: write
 
 jobs:
-  build-and-test-image:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Prepare tags
-        id: prep
-        uses: docker/metadata-action@v4.0.1
-        with:
-          images: |
-            ${{ secrets.DOCKER_REPOSITORY }}
-            ${{ secrets.GHCR_REPOSITORY }}
-          tags: |
-            type=raw,value=edge
+  build-image:
+    name: Build the container images
+    uses: ./github/workflows/generic_build.yml
 
-      - name: Build image
-        uses: ./github/workflows/generic_build.yml
-        with:
-          platforms: linux/amd64
-          publish: false
-          cache-layers-to: true
+  run-tests:
+    name: Build the container images
+    needs: build-image
+    uses: ./github/workflows/generic_test.yml
+    with:
+      cache-key: ${{ needs.build-image.outputs.build-cache-key }}
 
-      - name: Run test suite
-        run: >
-          NAME=mailserver-testing:ci
-          bash -c 'make generate-accounts tests'
-        env:
-          CI: true
-
-  build-multiarch-and-publish:
-    needs: build-and-test-image
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Prepare tags
-        id: prep
-        uses: docker/metadata-action@v4.0.1
-        with:
-          images: |
-            ${{ secrets.DOCKER_REPOSITORY }}
-            ${{ secrets.GHCR_REPOSITORY }}
-          tags: |
-            type=edge,branch=master
-            type=semver,pattern={{major}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}.{{minor}}.{{patch}}
-          flavor: |
-            latest=auto
-
-      - name: Build image
-        uses: ./github/workflows/generic_build.yml
-        with:
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
-          publish: true
-          cache-layers-from: true
+  publish-images:
+    name: Publish the container images
+    needs: [build-image, run-tests]
+    uses: ./github/workflows/generic_publish.yml
+    with:
+      cache-key: ${{ needs.build-image.outputs.build-cache-key }}
