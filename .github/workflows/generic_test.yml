@@ -21,21 +21,16 @@ jobs:
           # Required to retrieve bats (core + extras):
           submodules: recursive
 
-      # Get the cached build layers from a build job:
-      # This should always be a cache-hit, no new uploads
-      # should happen when this job finishes:
+      # Get the cached build layers from the build job:
+      # This should always be a cache-hit, no new uploads should happen when this job finishes:
       - name: 'Retrieve image built from build cache'
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: cache-buildx-${{ inputs.cache-key }}
-          restore-keys: |
-            cache-buildx-
 
-      # Importing from the cache should create the image
-      # within approx 30 seconds:
-      # buildx not needed as no exporting and only single
-      # AMD64 platform is loaded:
+      # Importing from the cache should create the image within approx 30 seconds:
+      # buildx not needed as no exporting and only single AMD64 platform is loaded:
       - name: 'Build AMD64 image from cache'
         uses: docker/build-push-action@v3.1.1
         with:

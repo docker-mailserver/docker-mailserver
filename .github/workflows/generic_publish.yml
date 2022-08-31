@@ -37,14 +37,12 @@ jobs:
       - name: 'Set up QEMU'
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: arm64
+          platforms: arm64, arm
 
       - name: 'Set up Docker Buildx'
         uses: docker/setup-buildx-action@v2
-        id: buildx
 
-      # Get the cached build layers from a build job
-      # that built an AMD64 image:
+      # Get the cached build layers from an earlier build job that built an AMD64 image:
       - name: 'Retrieve image build from build cache'
         uses: actions/cache@v3
         with:
