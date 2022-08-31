@@ -37,12 +37,14 @@ jobs:
       - name: 'Set up QEMU'
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: arm64, arm
+          platforms: arm64,arm
 
       - name: 'Set up Docker Buildx'
         uses: docker/setup-buildx-action@v2
 
-      # Get the cached build layers from an earlier build job that built an AMD64 image:
+      # Try get the cached build layers from a prior `generic_build.yml` job.
+      # NOTE: Until adopting `type=gha` scoped cache exporter (in `docker/build-push-action`),
+      # only AMD64 image is expected to be cached, ARM images will build from scratch.
       - name: 'Retrieve image build from build cache'
         uses: actions/cache@v3
         with:

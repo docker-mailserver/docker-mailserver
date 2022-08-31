@@ -22,7 +22,8 @@ jobs:
           submodules: recursive
 
       # Get the cached build layers from the build job:
-      # This should always be a cache-hit, no new uploads should happen when this job finishes:
+      # This should always be a cache-hit, thus `restore-keys` fallback is not used.
+      # No new cache uploads should ever happen for this job.
       - name: 'Retrieve image built from build cache'
         uses: actions/cache@v3
         with:
@@ -30,7 +31,8 @@ jobs:
           key: cache-buildx-${{ inputs.cache-key }}
 
       # Importing from the cache should create the image within approx 30 seconds:
-      # buildx not needed as no exporting and only single AMD64 platform is loaded:
+      # Earlier `buildx` + `qemu` steps are not needed as no cache is exported,
+      # and only a single platform (AMD64) is loaded:
       - name: 'Build AMD64 image from cache'
         uses: docker/build-push-action@v3.1.1
         with:
@@ -39,7 +41,7 @@ jobs:
             VCS_REF=${{ github.sha }}
             VCS_VER=${{ github.ref }}
           tags: mailserver-testing:ci
-          # Export the built image for the Docker host to use:
+          # Export the built image to the Docker host for use with BATS:
           load: true
           # Rebuilds the AMD64 image from the cache:
           platforms: linux/amd64
