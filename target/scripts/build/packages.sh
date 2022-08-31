@@ -25,9 +25,6 @@ function _pre_installation_steps
 
   _log 'trace' 'Upgrading packages'
   apt-get "${QUIET}" upgrade
-
-  _log 'trace' 'Updating CA certificates'
-  update-ca-certificates
 }
 
 function _install_postfix
@@ -104,11 +101,8 @@ function _install_packages
 function _post_installation_steps
 {
   _log 'debug' 'Running post-installation steps (cleanup)'
-  apt-get "${QUIET}" autoremove
-  apt-get "${QUIET}" autoclean
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
-  c_rehash &>/dev/null
 
   _log 'info' 'Finished installing packages'
 }
