@@ -28,6 +28,9 @@ jobs:
 
   job-build-arm:
     name: 'Build ARM64 Image'
+    # Dependency ensures the cache-key is only created for AMD64 builds.
+    # ARM64 will not be able to use this cache, building from scratch each time.
+    # Expect about 13 minutes build time until adopting `type=gha` with scopes for cache.
     needs: build-image-amd64
     uses: ./.github/workflows/generic_build.yml
     with:
