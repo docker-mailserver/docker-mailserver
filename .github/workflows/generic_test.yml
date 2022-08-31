@@ -50,9 +50,8 @@ jobs:
           platforms: linux/amd64
           cache-from: type=local,src=/tmp/.buildx-cache
 
-      - name: Run tests
-        run: >
-          NAME=mailserver-testing:ci
-          make generate-accounts tests
+      - name: 'Run tests'
+        run: make generate-accounts tests
         env:
           CI: true
+          NAME: mailserver-testing:ci
