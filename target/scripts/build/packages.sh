@@ -34,8 +34,9 @@ function _install_postfix
 {
   _log 'debug' 'Installing Postfix'
 
-  _log 'warn' "Applying workaround for Postfix bug (see https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403)"
+  _log 'warn' 'Applying workaround for Postfix bug (see https://github.com//issues/2023#issuecomment-855326403)'
 
+  # Debians postfix package has a post-install script that expects a valid FQDN hostname to work:
   mv /bin/hostname /bin/hostname.bak
   echo "echo 'docker-mailserver.invalid'" >/bin/hostname
   chmod +x /bin/hostname
