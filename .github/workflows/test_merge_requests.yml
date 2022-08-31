@@ -34,4 +34,4 @@ jobs:
     needs: build-image-amd64
     uses: ./.github/workflows/generic_build.yml
     with:
-      extra-platforms: ',linux/arm64'
+      platforms: linux/arm/v7,linux/arm64

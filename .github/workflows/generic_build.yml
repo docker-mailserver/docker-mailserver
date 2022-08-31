@@ -3,10 +3,10 @@ name: 'Build the DMS Container Image'
 on:
   workflow_call:
     inputs:
-      extra-platforms:
+      platforms:
         required: false
         type: string
-        default: ''
+        default: linux/amd64
 
 permissions:
   contents: read
@@ -88,11 +88,7 @@ jobs:
             VCS_VER=${{ github.ref }}
           tags: mailserver-testing:ci
           # Build at least the AMD64 image (which runs against the test suite).
-          # With the `extra-platforms` input, we may build all platforms we need.
-          # ATTENTION: Due to the current way `inputs.extra-platforms` is placed,
-          # one will need to start the string that contains extra platforms with
-          # a comma (`,`)!
-          platforms: linux/amd64${{ inputs.extra-platforms }}
+          platforms: ${{ inputs.platforms }}
           # Paired with steps `actions/cache` and `Replace cache` (replace src with dest):
           # NOTE: `mode=max` is only for `cache-to`, it configures exporting all image layers.
           # https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-from
