@@ -1,4 +1,4 @@
-name: Test Merge Requests
+name: 'Test Merge Requests'
 
 on:
   workflow_dispatch:
@@ -16,18 +16,18 @@ permissions:
 
 jobs:
   build-AMD64-image:
-    name: Build AMD64 Image
+    name: 'Build AMD64 Image'
     uses: ./.github/workflows/generic_build.yml
 
   run-tests:
-    name: Test AMD64 Image
+    name: 'Test AMD64 Image'
     needs: build-AMD64-image
     uses: ./.github/workflows/generic_test.yml
     with:
       cache-key: ${{ needs.build-AMD64-image.outputs.build-cache-key }}
 
   job-build-arm:
-    name: Build ARM64 Image
+    name: 'Build ARM64 Image'
     uses: ./.github/workflows/generic_build.yml
     with:
       extra-platforms: ',linux/arm64'

@@ -1,4 +1,4 @@
-name: Test the DMS Container Image
+name: 'Test the DMS Container Image'
 
 on:
   workflow_call:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   run-tests:
-    name: Test
+    name: 'Test'
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
       # Get the cached build layers from a build job:
       # This should always be a cache-hit, no new uploads
       # should happen when this job finishes:
-      - name: Retrieve image built from build cache
+      - name: 'Retrieve image built from build cache'
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
@@ -36,7 +36,7 @@ jobs:
       # within approx 30 seconds:
       # buildx not needed as no exporting and only single
       # AMD64 platform is loaded:
-      - name: Build AMD64 image from cache
+      - name: 'Build AMD64 image from cache'
         uses: docker/build-push-action@v3.1.1
         with:
           context: .
