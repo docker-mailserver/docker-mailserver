@@ -17,12 +17,12 @@ permissions:
 jobs:
   build-image-amd64:
     name: 'Build AMD64 Image'
-    uses: ./.github/workflows/generic_build.yml
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
 
   run-tests:
     name: 'Test AMD64 Image'
     needs: build-image-amd64
-    uses: ./.github/workflows/generic_test.yml
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_test.yml@master
     with:
       cache-key: ${{ needs.build-image-amd64.outputs.build-cache-key }}
 
@@ -32,6 +32,6 @@ jobs:
     # ARM64 will not be able to use this cache, building from scratch each time.
     # Expect about 13 minutes build time until adopting `type=gha` with scopes for cache.
     needs: build-image-amd64
-    uses: ./.github/workflows/generic_build.yml
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
     with:
       platforms: linux/arm/v7,linux/arm64

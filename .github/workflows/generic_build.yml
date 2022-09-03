@@ -86,7 +86,6 @@ jobs:
           build-args: |
             VCS_REF=${{ github.sha }}
             VCS_VER=${{ github.ref }}
-          tags: mailserver-testing:ci
           # Build at least the AMD64 image (which runs against the test suite).
           platforms: ${{ inputs.platforms }}
           # Paired with steps `actions/cache` and `Replace cache` (replace src with dest):
