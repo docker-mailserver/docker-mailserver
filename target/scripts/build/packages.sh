@@ -19,9 +19,7 @@ function _pre_installation_steps
   apt-get "${QUIET}" update
 
   _log 'trace' 'Installing packages that are needed early'
-  apt-get "${QUIET}" install --no-install-recommends \
-    apt-transport-https apt-utils ca-certificates \
-    curl gnupg2 ssl-cert 2>/dev/null
+  apt-get "${QUIET}" install --no-install-recommends apt-utils 2>/dev/null
 
   _log 'trace' 'Upgrading packages'
   apt-get "${QUIET}" upgrade
@@ -70,12 +68,13 @@ function _install_packages
   )
 
   MISCELLANEOUS_PACKAGES=(
-    binutils bsd-mailx dbconfig-no-thanks
-    dumb-init ed gamin gnupg iproute2
+    apt-transport-https binutils bsd-mailx
+    ca-certificates curl dbconfig-no-thanks
+    dumb-init ed gamin gnupg2 gnupg iproute2
     libdate-manip-perl libldap-common
     libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd
-    nftables rsyslog supervisor
+    nftables rsyslog ssl-cert supervisor
     uuid whois
   )
 
