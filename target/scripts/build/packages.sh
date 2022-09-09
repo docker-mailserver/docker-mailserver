@@ -8,7 +8,7 @@ set -eE -u -o pipefail
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
 
-QUIET='-qq' ; [[ ${LOG_LEVEL} =~ ^trace$ ]] && QUIET='-y'
+_log_level_is 'trace' && QUIET='-y' || QUIET='-qq'
 
 function _pre_installation_steps
 {
@@ -70,11 +70,11 @@ function _install_packages
   MISCELLANEOUS_PACKAGES=(
     apt-transport-https binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init ed gamin gnupg2 gnupg iproute2
+    dumb-init ed gamin gnupg iproute2
     libdate-manip-perl libldap-common
     libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd
-    nftables rsyslog ssl-cert supervisor
+    nftables rsyslog supervisor
     uuid whois
   )
 
