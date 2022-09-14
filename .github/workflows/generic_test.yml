@@ -37,9 +37,6 @@ jobs:
         uses: docker/build-push-action@v3.1.1
         with:
           context: .
-          build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
           tags: mailserver-testing:ci
           # Export the built image to the Docker host for use with BATS:
           load: true
