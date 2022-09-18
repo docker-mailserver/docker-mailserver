@@ -112,7 +112,8 @@ teardown_file() {
 # Be careful with re-locating this test if earlier tests could potentially fail it by
 # triggering the `changedetector` service.
 @test "checking container healthcheck" {
-  local NOW=$(date +%s)
+  local NOW
+  NOW=$(date +%s)
   # ensure, that at least 30 seconds have passed since container start
   while (( NOW - START_TIME < 31 )); do
     sleep 1
