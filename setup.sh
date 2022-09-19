@@ -7,9 +7,9 @@
 CONFIG_PATH=
 CONTAINER_NAME=
 CRI=
+DIR=$(pwd)
 DEFAULT_CONFIG_PATH=
 DESIRED_CONFIG_PATH=
-DIR=$(pwd)
 DMS_CONFIG='/tmp/docker-mailserver'
 IMAGE_NAME=
 DEFAULT_IMAGE_NAME='docker.io/mailserver/docker-mailserver:latest'
