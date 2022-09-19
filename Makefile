@@ -1,8 +1,8 @@
 SHELL = /bin/bash
 
-NAME   ?= mailserver-testing:ci
-VCS_REF = $(shell git rev-parse --short HEAD)
-VCS_VER = $(shell git describe --tags --contains --always)
+NAME        ?= mailserver-testing:ci
+VCS_REVISION = $(shell git rev-parse --short HEAD)
+VCS_VERSION  = $(shell cat VERSION)
 
 # -----------------------------------------------
 # --- Generic Build Targets ---------------------
@@ -12,8 +12,8 @@ all: lint build backup generate-accounts tests clean
 
 build:
 	@ DOCKER_BUILDKIT=1 docker build --tag $(NAME) \
-		--build-arg VCS_VER=$(VCS_VER) \
-		--build-arg VCS_REF=$(VCS_REF) \
+		--build-arg VCS_VERSION=$(VCS_VERSION) \
+		--build-arg VCS_REVISION=$(VCS_REVISION) \
 		.
 
 backup:

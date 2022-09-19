@@ -236,8 +236,8 @@ COPY target/scripts/helpers /usr/local/bin/helpers
 #
 
 FROM stage-base AS stage-final
-ARG VCS_REF
-ARG VCS_VER
+ARG VCS_REVISION=unknown
+ARG VCS_VERSION=edge
 
 WORKDIR /
 EXPOSE 25 587 143 465 993 110 995 4190
@@ -267,5 +267,5 @@ LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserv
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
 # ARG invalidates cache when it is used by a layer (implicitly affects RUN)
 # Thus to maximize cache, keep these lines last:
-LABEL org.opencontainers.image.revision=${VCS_REF}
-LABEL org.opencontainers.image.version=${VCS_VER}
+LABEL org.opencontainers.image.revision=${VCS_REVISION}
+LABEL org.opencontainers.image.version=${VCS_VERSION}
