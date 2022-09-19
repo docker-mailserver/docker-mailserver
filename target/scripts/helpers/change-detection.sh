@@ -73,5 +73,9 @@ function _monitored_files_checksums
   do
     [[ -f "${FILE}" ]] && CHANGED_FILES+=("${FILE}")
   done
-  sha512sum -- "${CHANGED_FILES[@]}"
+
+  if [[ -n ${CHANGED_FILES:-} ]]
+  then
+    sha512sum -- "${CHANGED_FILES[@]}"
+  fi
 }
