@@ -12,7 +12,7 @@ Podman is a daemonless container engine for developing, managing, and running OC
 
 !!! warning "About this Guide"
 
-    This guide was tested with Fedora 34 using `systemd` and `firewalld`. Moreover, it requires Podman version >= 3.2. You may be able to substitute `dnf` - Fedora's package maneger - with others such as `apt`.
+    This guide was tested with Fedora 34 using `systemd` and `firewalld`. Moreover, it requires Podman version >= 3.2. You may be able to substitute `dnf` - Fedora's package manager - with others such as `apt`.
 
 !!! warning "About Security"
 

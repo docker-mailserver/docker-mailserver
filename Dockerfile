@@ -1,3 +1,5 @@
+# syntax=docker.io/docker/dockerfile:1
+
 # This Dockerfile provides two stages: stage-base and stage-final
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
 
@@ -7,13 +9,8 @@
 
 FROM docker.io/debian:11-slim AS stage-base
 
+ARG LOG_LEVEL=trace
 ARG DEBIAN_FRONTEND=noninteractive
-
-ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
-ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
-ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
-ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=hkps://keyserver.ubuntu.com
-ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -21,58 +18,13 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
-RUN \
-  apt-get -qq update && \
-  apt-get -qq install apt-utils 2>/dev/null && \
-  apt-get -qq dist-upgrade && \
-  echo "applying workaround for ubuntu/postfix bug described in https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403" && \
-  mv /bin/hostname{,.bak} && \
-  echo "echo docker-mailserver.invalid" > /bin/hostname && \
-  chmod +x /bin/hostname && \
-  apt-get -qq install postfix && \
-  mv /bin/hostname{.bak,} && \
-  apt-get -qq --no-install-recommends install \
-  # A - D
-  altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
-  ca-certificates cabextract clamav clamav-daemon cpio curl \
-  dbconfig-no-thanks dovecot-core dovecot-fts-xapian dovecot-imapd \
-  dovecot-ldap dovecot-lmtpd dovecot-managesieved dovecot-pop3d \
-  dovecot-sieve dovecot-solr dumb-init \
-  # E - O
-  ed fetchmail file gamin gnupg gzip iproute2 \
-  locales logwatch lhasa libdate-manip-perl libldap-common liblz4-tool \
-  libmail-spf-perl libnet-dns-perl libsasl2-modules lrzip lzop \
-  netcat-openbsd nftables nomarch opendkim opendkim-tools opendmarc \
-  # P - Z
-  pax pflogsumm postgrey p7zip-full postfix-ldap postfix-pcre \
-  postfix-policyd-spf-python postsrsd pyzor \
-  razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
-  unrar-free unzip uuid whois xz-utils && \
-  # Fail2Ban
-  gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} \
-    --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} 2>&1 && \
-  curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL} && \
-  curl -Lkso fail2ban.deb.asc ${FAIL2BAN_DEB_ASC_URL} && \
-  FINGERPRINT=$(LANG=C gpg --verify \
-  fail2ban.deb.asc fail2ban.deb 2>&1 \
-    | sed -n 's#Primary key fingerprint: \(.*\)#\1#p') && \
-  if [[ -z ${FINGERPRINT} ]]; then \
-    echo "ERROR: Invalid GPG signature!" >&2; exit 1; fi && \
-  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then \
-    echo "ERROR: Wrong GPG fingerprint!" >&2; exit 1; fi && \
-  dpkg -i fail2ban.deb 2>&1 && \
-  rm fail2ban.deb fail2ban.deb.asc && \
-  # cleanup
-  apt-get -qq autoremove && \
-  apt-get -qq autoclean && \
-  apt-get -qq clean && \
-  rm -rf /var/lib/apt/lists/* && \
-  c_rehash 2>&1
-
+COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
-COPY target/bin/sedfile /usr/local/bin/sedfile
+RUN /bin/bash /build/packages.sh
 
+COPY target/bin/sedfile /usr/local/bin/sedfile
 RUN chmod +x /usr/local/bin/sedfile
+
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -81,11 +33,14 @@ RUN chmod +x /usr/local/bin/sedfile
 RUN \
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam && \
   chmod 644 /etc/clamav/freshclam.conf && \
-  freshclam && \
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf && \
   mkdir /var/run/clamav && \
   chown -R clamav:root /var/run/clamav && \
   rm -rf /var/log/clamav/
+
+# Copy over latest DB updates from official ClamAV image. Better than running `freshclam` (which requires extra RAM during build)
+# hadolint ignore=DL3021
+COPY --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
