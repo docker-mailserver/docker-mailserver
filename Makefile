@@ -11,7 +11,10 @@ VCS_VERSION  = $(shell cat VERSION)
 all: lint build backup generate-accounts tests clean
 
 build:
-	docker build -t $(NAME) . --build-arg VCS_VERSION=$(VCS_VERSION) --build-arg VCS_REVISION=$(VCS_REVISION)
+	@ DOCKER_BUILDKIT=1 docker build --tag $(NAME) \
+		--build-arg VCS_VERSION=$(VCS_VERSION) \
+		--build-arg VCS_REVISION=$(VCS_REVISION) \
+		.
 
 backup:
 # if backup directory exist, clean hasn't been called, therefore

@@ -1,9 +1,4 @@
-ignored:
-  - DL3005
-  - DL3008
-  - DL3015
-  - DL3005
-
+ignored: [DL3008]
 trustedRegistries:
   - docker.io
   - quay.io
