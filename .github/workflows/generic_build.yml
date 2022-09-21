@@ -12,7 +12,6 @@ on:
         description: The cache key to use when restoring an image later
         value: ${{ jobs.build-image.outputs.build-cache-key }}
 
-
 permissions:
   contents: read
 
