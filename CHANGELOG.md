@@ -1,5 +1,66 @@
 # Changelog
 
+All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.2.0...HEAD)
+
+> **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [11.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.2.0)
+
+### Summary
+
+This release features a lot of small and medium-sized changes, many related to how the image is build and tested during CI. The build now requires Docker Buildkit as the ClamAV Signatures are added via `COPY --link ...` during build-time. Moreover, the build is now multi-stage. `ENABLE_LDAP` is now deprecated.
+
+### Added
+
+- **documentation**: improve cron tasks documentation and fix link in documentation
+- **documentation**: added link to brakkee.org for setup of docker-mailserver on Kubernetes
+- **CI**: better build caching for CI
+- **CI**: improve GitHub Action CI with re-usable workflows
+- **tests**: ensure excessive FD limits are avoided
+- **configuration**: added `reject_unknown_client_hostname` to main.cf
+
+### Changed
+
+- **documentation**: update and improve K8s documentation
+- **scripts**: set configomat output to loglevel debug
+- **scripts**: refactor CLI commands for database management
+- **scripts**: simplify Fail2Ban output
+- **tests**: update submodules for BATS
+- **scripts**: rework environment variables setup
+- **scripts**: revised linting script
+- **scripts**: `addmailuser` - remove delaying completion until `/var/mail` is ready
+- **configuration**: remove unnecessary postconf switch '-e' and use single quotes where possible
+- **build**: streamline COPY statements in Dockerfile
+- **scripts**: improve `helpers/log.sh`
+- **build**: adjust build arguments
+- **build**: enhance build process
+
+### Deprecated
+
+- The environment variable `ENABLE_LDAP` is deprecated and will be removed in [13.0.0]. Use `ACCOUNT_PROVISIONER=LDAP` now.
+
+### Removed
+
+- **configuration**: remove unnecessary configuration files
+
+### Fixed
+
+- **documentation**: update documentation to fix regression causing broken links
+- **scripts**: `_create_accounts()` should run after waiting
+- **scripts**: only calculate checksums, when there are files to monitor.
+- **tests**: wait at least 30 seconds before checking the health state of the container
+- **CI**: add `outputs` to `workflow_call` on `generic_build`
+
+### Security
+
+There are no security-related changes in this release.
+
+---
+
+> **Note**: This part of the changelog was created before switching to the "Keep a Changelog"-format.
+
 ## `v11.1.0`
 
 In this release the relay-host support saw [significant internal refactoring](https://github.com/docker-mailserver/docker-mailserver/pull/2604) in preparation for a future breaking change. Similar extensive restructuring through the codebase also occurred, where [each PR provides more details](https://github.com/docker-mailserver/docker-mailserver/milestone/17?closed=1). Care was taken to avoid breakage, but there may be some risk affecting unsupported third-party customizations which our test suite is unaware of.
