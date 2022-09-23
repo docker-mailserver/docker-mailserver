@@ -12,14 +12,14 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/contributing/coding-style/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/contributing/general/">
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
     
     
       
-        <title>Contributing | Coding Style - Docker Mailserver</title>
+        <title>Contributing | General Information - Docker Mailserver</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#bash-and-shell" class="md-skip">
+        <a href="#coding-style" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Contributing | Coding Style
+              Contributing | General Information
             
           </span>
         </div>
@@ -287,7 +287,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../issues-and-pull-requests/" class="md-tabs__link md-tabs__link--active">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
         Contributing
       </a>
     </li>
@@ -1328,20 +1328,6 @@
               
   
   
-  
-    <li class="md-nav__item">
-      <a href="../issues-and-pull-requests/" class="md-nav__link">
-        Issues and Pull Requests
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
     
   
   
@@ -1352,12 +1338,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Coding Style
+          General Information
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Coding Style
+        General Information
       </a>
       
         
@@ -1374,70 +1360,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bash-and-shell" class="md-nav__link">
-    Bash and Shell
+  <a href="#coding-style" class="md-nav__link">
+    Coding Style
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#styling-rules" class="md-nav__link">
-    Styling rules
+  <a href="#tests" class="md-nav__link">
+    Tests
   </a>
-  
-    <nav class="md-nav" aria-label="Styling rules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#if-else-statements" class="md-nav__link">
-    If-Else-Statements
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#variables-braces" class="md-nav__link">
-    Variables &amp; Braces
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loops" class="md-nav__link">
-    Loops
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
-    Functions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#error-tracing" class="md-nav__link">
-    Error Tracing
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#comments-descriptiveness-an-example" class="md-nav__link">
-    Comments, Descriptiveness &amp; An Example
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#yaml" class="md-nav__link">
-    YAML
+  <a href="#documentation" class="md-nav__link">
+    Documentation
   </a>
   
 </li>
@@ -1457,22 +1395,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../tests/" class="md-nav__link">
-        Tests
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../documentation/" class="md-nav__link">
-        Documentation
+      <a href="../issues-and-pull-requests/" class="md-nav__link">
+        Issues and Pull Requests
       </a>
     </li>
   
@@ -1540,70 +1464,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bash-and-shell" class="md-nav__link">
-    Bash and Shell
+  <a href="#coding-style" class="md-nav__link">
+    Coding Style
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#styling-rules" class="md-nav__link">
-    Styling rules
+  <a href="#tests" class="md-nav__link">
+    Tests
   </a>
-  
-    <nav class="md-nav" aria-label="Styling rules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#if-else-statements" class="md-nav__link">
-    If-Else-Statements
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#variables-braces" class="md-nav__link">
-    Variables &amp; Braces
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loops" class="md-nav__link">
-    Loops
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
-    Functions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#error-tracing" class="md-nav__link">
-    Error Tracing
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#comments-descriptiveness-an-example" class="md-nav__link">
-    Comments, Descriptiveness &amp; An Example
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#yaml" class="md-nav__link">
-    YAML
+  <a href="#documentation" class="md-nav__link">
+    Documentation
   </a>
   
 </li>
@@ -1620,135 +1496,39 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/contributing/coding-style.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/contributing/general.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-  <h1>Coding Style</h1>
+  <h1>General Information</h1>
 
-<h2 id="bash-and-shell"><a class="toclink" href="#bash-and-shell">Bash and Shell</a></h2>
-<p>When refactoring, writing or altering scripts, that is Shell and bash scripts, in any way, adhere to these rules:</p>
+<h2 id="coding-style"><a class="toclink" href="#coding-style">Coding Style</a></h2>
+<p>When refactoring, writing or altering scripts or other files, adhere to these rules:</p>
 <ol>
 <li><strong>Adjust your style of coding to the style that is already present</strong>! Even if you do not like it, this is due to consistency. There was a lot of work involved in making all scripts consistent.</li>
 <li><strong>Use <code>shellcheck</code> to check your scripts</strong>! Your contributions are checked by GitHub Actions too, so you will need to do this. You can <strong>lint your work with <code>make lint</code></strong> to check against all targets.</li>
 <li><strong>Use the provided <code>.editorconfig</code></strong> file.</li>
-<li>Use <code>/bin/bash</code> instead of <code>/bin/sh</code>. Adjust the style accordingly.</li>
-<li><code>setup.sh</code> provides a good starting point to look for.</li>
-<li>When appropriate, use the <code>set</code> builtin. We recommend <code>set -euEo pipefail</code> or <code>set -uE</code>.</li>
+<li>Use <code>/bin/bash</code> instead of <code>/bin/sh</code> in scripts</li>
 </ol>
-<h2 id="styling-rules"><a class="toclink" href="#styling-rules">Styling rules</a></h2>
-<h3 id="if-else-statements"><a class="toclink" href="#if-else-statements">If-Else-Statements</a></h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># when using braces, use double braces</span>
-<span class="c1"># remember you do not need &quot;&quot; when using [[ ]]</span>
-<span class="k">if</span> <span class="o">[[</span> &lt;CONDITION1&gt; <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">[[</span> -f <span class="si">${</span><span class="nv">FILE</span><span class="si">}</span> <span class="o">]]</span>
-<span class="k">then</span>
-  &lt;CODE TO RUN&gt;
-<span class="c1"># when running commands, you don&#39;t need braces</span>
-<span class="k">elif</span> &lt;COMMAND TO RUN&gt;
-  &lt;CODE TO TUN&gt;
-<span class="k">else</span>
-  &lt;CODE TO TUN&gt;
-<span class="k">fi</span>
-
-<span class="c1"># equality checks with numbers are done</span>
-<span class="c1"># with -eq/-ne/-lt/-ge, not != or ==</span>
-<span class="k">if</span> <span class="o">[[</span> <span class="si">${</span><span class="nv">VAR</span><span class="si">}</span> -ne <span class="m">42</span> <span class="o">]]</span> <span class="o">||</span> <span class="o">[[</span> <span class="si">${</span><span class="nv">SOME_VAR</span><span class="si">}</span> -eq <span class="m">6</span> <span class="o">]]</span>
-<span class="k">then</span>
-  &lt;CODE TO RUN&gt;
-<span class="k">fi</span>
-</code></pre></div>
-<h3 id="variables-braces"><a class="toclink" href="#variables-braces">Variables &amp; Braces</a></h3>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>Variables are always uppercase. We always use braces.</p>
+<h2 id="tests"><a class="toclink" href="#tests">Tests</a></h2>
+<p>To run the test suite, you will need to</p>
+<ol>
+<li><a href="https://docs.docker.com/get-docker/">Install Docker</a></li>
+<li>Install <code>jq</code> (under Ubuntu, use <code>sudo apt-get -y install jq</code>)</li>
+<li>Execute <code>git submodule update --init --recursive</code> if you haven't already initialized the git submodules</li>
+<li>Execute <code>make clean all</code></li>
+</ol>
+<div class="admonition info">
+<p class="admonition-title">Can I use MacOS?</p>
+<p>We do not support running linting, tests, etc on macOS at this time. Please use a linux VM.</p>
 </div>
-<p>If you forgot this and want to change it later, you can use <a href="https://regex101.com/r/ikzJpF/7">this link</a>. The used regex is <code>\$([^{("\\'\/])([a-zA-Z0-9_]*)([^}\/ \t'"\n.\]:(=\\-]*)</code>, where you should in practice be able to replace all variable occurrences without braces with occurrences with braces.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># good</span>
-<span class="nb">local</span> <span class="nv">VAR</span><span class="o">=</span><span class="s2">&quot;good&quot;</span>
-<span class="nb">local</span> <span class="nv">NEW</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">VAR</span><span class="si">}</span><span class="s2">&quot;</span>
-
-<span class="c1"># bad -&gt; CI will fail</span>
-<span class="nv">var</span><span class="o">=</span><span class="s2">&quot;bad&quot;</span>
-<span class="nv">new</span><span class="o">=</span><span class="nv">$var</span>
+<h2 id="documentation"><a class="toclink" href="#documentation">Documentation</a></h2>
+<p>You will need to have Docker installed. Navigate into the <code>docs/</code> directory. Then run:</p>
+<div class="highlight"><pre><span></span><code>docker run --rm -it -p <span class="m">8000</span>:8000 -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">:/docs&quot;</span> squidfunk/mkdocs-material
 </code></pre></div>
-<h3 id="loops"><a class="toclink" href="#loops">Loops</a></h3>
-<p>Like <code>if-else</code>, loops look like this</p>
-<div class="highlight"><pre><span></span><code><span class="k">for</span> / <span class="k">while</span> &lt;LOOP CONDITION&gt;
-<span class="k">do</span>
-  &lt;CODE TO RUN&gt;
-<span class="k">done</span>
-</code></pre></div>
-<h3 id="functions"><a class="toclink" href="#functions">Functions</a></h3>
-<p>It's always nice to see the use of functions as it also provides a clear structure. If scripts are small, this is unnecessary, but if they become larger, please consider using functions. When doing so, provide <code>function _main</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="k">function</span> _&lt;name_underscored_and_lowercase&gt;
-<span class="o">{</span>
-  &lt;CODE TO RUN&gt;
-
-  <span class="c1"># variables that can be local should be local</span>
-  <span class="nb">local</span> &lt;LOCAL_VARIABLE_NAME&gt;
-<span class="o">}</span>
-</code></pre></div>
-<h3 id="error-tracing"><a class="toclink" href="#error-tracing">Error Tracing</a></h3>
-<p>A construct to trace error in your scripts looks like this. Remember: Remove <code>set -x</code> in the end. This is for debugging purposes only.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">set</span> -xeuEo pipefail
-<span class="nb">trap</span> <span class="s1">&#39;__err &quot;${BASH_SOURCE}&quot; &quot;${FUNCNAME[0]:-?}&quot; &quot;${BASH_COMMAND:-?}&quot; &quot;${LINENO:-?}&quot; &quot;${?:-?}&quot;&#39;</span> ERR
-
-<span class="k">function</span> __err
-<span class="o">{</span>
-  <span class="nb">local</span> <span class="nv">RED</span><span class="o">=</span><span class="s2">&quot;\e[31m\e[1m&quot;</span>
-  <span class="nb">local</span> <span class="nv">RESET</span><span class="o">=</span><span class="s2">&quot;\e[0m&quot;</span>
-  <span class="nb">local</span> <span class="nv">ERR_MSG</span><span class="o">=</span><span class="s2">&quot;\n--- </span><span class="si">${</span><span class="nv">RED</span><span class="si">}</span><span class="s2">UNCHECKED ERROR</span><span class="si">${</span><span class="nv">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
-  <span class="nv">ERR_MSG</span><span class="o">+=</span><span class="s2">&quot;\n  - script    = </span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2">&quot;</span>
-  <span class="nv">ERR_MSG</span><span class="o">+=</span><span class="s2">&quot;\n  - function  = </span><span class="si">${</span><span class="nv">2</span><span class="si">}</span><span class="s2">&quot;</span>
-  <span class="nv">ERR_MSG</span><span class="o">+=</span><span class="s2">&quot;\n  - command   = </span><span class="si">${</span><span class="nv">3</span><span class="si">}</span><span class="s2">&quot;</span>
-  <span class="nv">ERR_MSG</span><span class="o">+=</span><span class="s2">&quot;\n  - line      = </span><span class="si">${</span><span class="nv">4</span><span class="si">}</span><span class="s2">&quot;</span>
-  <span class="nv">ERR_MSG</span><span class="o">+=</span><span class="s2">&quot;\n  - exit code = </span><span class="si">${</span><span class="nv">5</span><span class="si">}</span><span class="s2">&quot;</span>
-
-  <span class="nb">echo</span> -e <span class="s2">&quot;</span><span class="si">${</span><span class="nv">ERR_MSG</span><span class="si">}</span><span class="s2">&quot;</span>
-
-  &lt;CODE TO RUN AFTERWARDS&gt;
-<span class="o">}</span>
-</code></pre></div>
-<h3 id="comments-descriptiveness-an-example"><a class="toclink" href="#comments-descriptiveness-an-example">Comments, Descriptiveness &amp; An Example</a></h3>
-<p>Comments should only describe non-obvious matters. Comments should start lowercase when they aren't sentences. Make the code <strong>self-descriptive</strong> by using meaningful names! Make comments not longer than approximately 80 columns, then wrap the line.</p>
-<p>A positive example, which is taken from <code>setup-stack.sh</code>, would be</p>
-<div class="highlight"><pre><span></span><code><span class="k">function</span> _setup_postfix_aliases
-<span class="o">{</span>
-  _log <span class="s1">&#39;debug&#39;</span> <span class="s1">&#39;Setting up Postfix aliases&#39;</span>
-
-  : &gt;/etc/postfix/virtual
-  : &gt;/etc/postfix/regexp
-
-  <span class="k">if</span> <span class="o">[[</span> -f /tmp/docker-mailserver/postfix-virtual.cf <span class="o">]]</span>
-  <span class="k">then</span>
-    <span class="c1"># fixing old virtual user file</span>
-    <span class="k">if</span> grep -q <span class="s2">&quot;,</span>$<span class="s2">&quot;</span> /tmp/docker-mailserver/postfix-virtual.cf
-    <span class="k">then</span>
-      sed -i -e <span class="s2">&quot;s/, /,/g&quot;</span> -e <span class="s2">&quot;s/,</span>$<span class="s2">//g&quot;</span> /tmp/docker-mailserver/postfix-virtual.cf
-    <span class="k">fi</span>
-
-    cp -f /tmp/docker-mailserver/postfix-virtual.cf /etc/postfix/virtual
-
-    <span class="k">while</span> <span class="nb">read</span> -r FROM _
-    <span class="k">do</span>
-      <span class="c1"># Setting variables for better readability</span>
-      <span class="nv">UNAME</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">FROM</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> cut -d @ -f1<span class="k">)</span>
-      <span class="nv">DOMAIN</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">FROM</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> cut -d @ -f2<span class="k">)</span>
-
-      <span class="c1"># if they are equal it means the line looks like: &quot;user1     other@example.com&quot;</span>
-      <span class="o">[[</span> <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> !<span class="o">=</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOMAIN</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DOMAIN</span><span class="si">}</span><span class="s2">&quot;</span> &gt;&gt;/tmp/vhost.tmp
-    <span class="k">done</span> &lt; &lt;<span class="o">(</span>grep -v <span class="s2">&quot;^\s*</span>$<span class="s2">\|^\s*\#&quot;</span> /tmp/docker-mailserver/postfix-virtual.cf <span class="o">||</span> <span class="nb">true</span><span class="o">)</span>
-  <span class="k">else</span>
-    _log <span class="s1">&#39;debug&#39;</span> <span class="s2">&quot;&#39;/tmp/docker-mailserver/postfix-virtual.cf&#39; not provided - no mail alias/forward created&quot;</span>
-  <span class="k">fi</span>
-
-  ...
-<span class="o">}</span>
-</code></pre></div>
-<h2 id="yaml"><a class="toclink" href="#yaml">YAML</a></h2>
-<p>When formatting YAML files, use <a href="https://prettier.io">Prettier</a>, an opinionated formatter. There are many plugins for IDEs around.</p>
+<p>This serves the documentation on your local machine on port <code>8000</code>. Each change will be hot-reloaded onto the page you view, just edit, save and look at the result.</p>
 
               
             </article>
@@ -1769,7 +1549,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../issues-and-pull-requests/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Issues and Pull Requests" rel="prev">
+        <a href="../../faq/" class="md-footer__link md-footer__link--prev" aria-label="Previous: FAQ" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1778,20 +1558,20 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Issues and Pull Requests
+              FAQ
             </div>
           </div>
         </a>
       
       
         
-        <a href="../tests/" class="md-footer__link md-footer__link--next" aria-label="Next: Tests" rel="next">
+        <a href="../issues-and-pull-requests/" class="md-footer__link md-footer__link--next" aria-label="Next: Issues and Pull Requests" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Tests
+              Issues and Pull Requests
             </div>
           </div>
           <div class="md-footer__button md-icon">
