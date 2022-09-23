@@ -20,6 +20,11 @@ trap "/usr/bin/fail2ban-client stop" SIGINT
 trap "/usr/bin/fail2ban-client stop" SIGTERM
 trap "/usr/bin/fail2ban-client reload" SIGHUP
 
+# fail2ban calls close_range(0, $OPEN_MAX, ..) which causes it to hang on startup
+# in some containers.
+# fixed in 535a982dcc of fail2ban - delete once debian has the fix:
+ulimit -n 1024
+
 /usr/bin/fail2ban-client start
 sleep 5
 
