@@ -105,6 +105,8 @@ function _install_fail2ban
   local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
   local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
 
+  _log 'debug' 'Installing Fail2ban'
+
   gpg --keyserver ${FAIL2BAN_GPG_PUBLIC_KEY_SERVER} --recv-keys ${FAIL2BAN_GPG_PUBLIC_KEY_ID} 2>&1
 
   curl -Lkso fail2ban.deb ${FAIL2BAN_DEB_URL}
