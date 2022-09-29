@@ -55,7 +55,7 @@ function _install_packages
 
   ANTI_VIRUS_SPAM_PACKAGES=(
     amavisd-new clamav clamav-daemon
-    fail2ban pyzor razor spamassassin
+    pyzor razor spamassassin
   )
 
   CODECS_PACKAGES=(
@@ -97,6 +97,39 @@ function _install_packages
     "${MAIL_PROGRAMS_PACKAGES[@]}"
 }
 
+function _install_fail2ban
+{
+  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb'
+  local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
+  local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
+  local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
+  local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
+
+  _log 'debug' 'Installing Fail2ban'
+
+  gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
+
+  curl -Lkso fail2ban.deb "${FAIL2BAN_DEB_URL}"
+  curl -Lkso fail2ban.deb.asc "${FAIL2BAN_DEB_ASC_URL}"
+
+  FINGERPRINT=$(LANG=C gpg --verify fail2ban.deb.asc fail2ban.deb 2>&1 | sed -n 's#Primary key fingerprint: \(.*\)#\1#p')
+
+  if [[ -z ${FINGERPRINT} ]]
+  then
+    echo 'ERROR: Invalid GPG signature!' >&2
+    exit 1
+  fi
+
+  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]
+  then
+    echo "ERROR: Wrong GPG fingerprint!" >&2
+    exit 1
+  fi
+
+  dpkg -i fail2ban.deb 2>&1
+  rm fail2ban.deb fail2ban.deb.asc
+}
+
 function _post_installation_steps
 {
   _log 'debug' 'Running post-installation steps (cleanup)'
@@ -109,4 +142,5 @@ function _post_installation_steps
 _pre_installation_steps
 _install_postfix
 _install_packages
+_install_fail2ban
 _post_installation_steps
