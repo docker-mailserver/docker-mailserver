@@ -43,15 +43,9 @@ function _install_packages
 {
   _log 'debug' 'Installing all packages now'
 
-  declare -a DOVECOT_PACKAGES ANTI_VIRUS_SPAM_PACKAGES
+  declare -a ANTI_VIRUS_SPAM_PACKAGES
   declare -a CODECS_PACKAGES MISCELLANEOUS_PACKAGES
   declare -a POSTFIX_PACKAGES MAIL_PROGRAMS_PACKAGES
-
-  DOVECOT_PACKAGES=(
-    dovecot-core dovecot-fts-xapian dovecot-imapd
-    dovecot-ldap dovecot-lmtpd dovecot-managesieved
-    dovecot-pop3d dovecot-sieve dovecot-solr
-  )
 
   ANTI_VIRUS_SPAM_PACKAGES=(
     amavisd-new clamav clamav-daemon
@@ -89,12 +83,36 @@ function _install_packages
   )
 
   apt-get "${QUIET}" --no-install-recommends install \
-    "${DOVECOT_PACKAGES[@]}" \
     "${ANTI_VIRUS_SPAM_PACKAGES[@]}" \
     "${CODECS_PACKAGES[@]}" \
     "${MISCELLANEOUS_PACKAGES[@]}" \
     "${POSTFIX_PACKAGES[@]}" \
     "${MAIL_PROGRAMS_PACKAGES[@]}"
+}
+
+function _install_dovecot
+{
+  declare -a DOVECOT_PACKAGES
+
+  DOVECOT_PACKAGES=(
+    dovecot-core dovecot-fts-xapian dovecot-imapd
+    dovecot-ldap dovecot-lmtpd dovecot-managesieved
+    dovecot-pop3d dovecot-sieve dovecot-solr
+  )
+
+  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]
+  then
+    _log 'trace' 'Using Dovecot community repository'
+    curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
+    gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
+    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/bullseye bullseye main" > /etc/apt/sources.list.d/dovecot.list
+
+    _log 'trace' 'Updating Dovecot package signatures'
+    apt-get "${QUIET}" update
+  fi
+
+  _log 'debug' 'Installing Dovecot'
+  apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
 }
 
 function _install_fail2ban
@@ -142,5 +160,6 @@ function _post_installation_steps
 _pre_installation_steps
 _install_postfix
 _install_packages
+_install_dovecot
 _install_fail2ban
 _post_installation_steps
