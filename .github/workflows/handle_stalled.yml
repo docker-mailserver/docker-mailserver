@@ -27,7 +27,7 @@ jobs:
           stale-issue-message: |
             This issue has become stale because it has been open for 20 days without activity.
             This issue will be closed in 10 days automatically unless:
-            
+
             - a maintainer removes the `meta/stale` label or adds the `stale-bot/ignore` label
             - new activity occurs, such as a new comment
           close-issue-label: "meta/closed due to age or inactivity"
