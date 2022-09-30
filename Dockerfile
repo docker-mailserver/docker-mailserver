@@ -26,7 +26,6 @@ RUN /bin/bash /build/packages.sh
 COPY target/bin/sedfile /usr/local/bin/sedfile
 RUN chmod +x /usr/local/bin/sedfile
 
-
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
 # -----------------------------------------------
