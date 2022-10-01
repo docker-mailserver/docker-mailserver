@@ -114,7 +114,7 @@ function teardown_file() {
 
   # Checking that FAIL_AUTH_MAILER_IP is unbanned by nftables
   run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl 2>/dev/null"
-  refute_output "${FAIL_AUTH_MAILER_IP}"
+  refute_output --partial "${FAIL_AUTH_MAILER_IP}"
 }
 
 @test "checking fail2ban ban" {
