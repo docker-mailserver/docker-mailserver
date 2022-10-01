@@ -138,6 +138,14 @@ function teardown_file() {
   refute_output --partial "192.0.66.7"
 }
 
+@test "checking FAIL2BAN_BLOCKTYPE is really set to drop" {
+  run docker exec mail_fail2ban bash -c 'nft list table inet f2b-table'
+  assert_success
+  assert_output --partial 'tcp dport { 110, 143, 465, 587, 993, 995, 4190 } ip saddr @addr-set-dovecot drop'
+  assert_output --partial 'tcp dport { 25, 110, 143, 465, 587, 993, 995 } ip saddr @addr-set-postfix-sasl drop'
+  assert_output --partial 'tcp dport { 25, 110, 143, 465, 587, 993, 995, 4190 } ip saddr @addr-set-custom drop'
+}
+
 @test "checking setup.sh: setup.sh fail2ban" {
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.4"
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client set dovecot banip 192.0.66.5"
