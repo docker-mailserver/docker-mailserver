@@ -126,9 +126,16 @@ function teardown_file() {
   assert_success
   assert_output --regexp "Banned in custom:.*192\.0\.66\.7"
 
+  run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
+  assert_success
+  assert_output --partial "elements = { 192.0.66.7 }"
+
   run docker exec mail_fail2ban fail2ban unban 192.0.66.7
   assert_success
   assert_output --partial "Unbanned IP from custom: 1"
+
+  run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
+  refute_output --partial "192.0.66.7"
 }
 
 @test "checking setup.sh: setup.sh fail2ban" {
