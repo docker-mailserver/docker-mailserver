@@ -99,7 +99,7 @@ function teardown_file() {
   assert_success
 
   # Checking that FAIL_AUTH_MAILER_IP is banned by nftables and blocktype set to DROP
-  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl 2>/dev/null"
+  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl"
   assert_output --partial "${FAIL_AUTH_MAILER_IP}"
 }
 
@@ -113,7 +113,7 @@ function teardown_file() {
   assert_failure
 
   # Checking that FAIL_AUTH_MAILER_IP is unbanned by nftables
-  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl 2>/dev/null"
+  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl"
   refute_output --partial "${FAIL_AUTH_MAILER_IP}"
 }
 
