@@ -107,13 +107,13 @@ chmod a+x ./setup.sh
 
 You are able to get a full overview of how the configuration works by either running:
 
-1. `./setup.sh help` which includes the options of `setup.sh`.
+1. `./setup.sh -help` which includes the options of `setup.sh`.
 2. `docker run --rm docker.io/mailserver/docker-mailserver:latest setup help` which provides you with all the information on configuration provided "inside" the container itself.
 
 If no `docker-mailserver` container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current _stable_ release), performing a `docker pull ...` if necessary followed by running the command in a temporary container.
 
 ``` CONSOLE
-$ ./setup.sh help
+$ ./setup.sh -help
 Image 'docker.io/mailserver/docker-mailserver:latest' not found. Pulling ...
 SETUP(1)
 
@@ -189,7 +189,7 @@ docker-compose up -d mailserver
 
 You should see the new version number on startup, for example: `[ TASKLOG ]  Welcome to docker-mailserver 10.1.2`.
 
-You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
+You're done! And don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh -help`.
 
 #### Supported Operating Systems
 
