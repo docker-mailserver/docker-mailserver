@@ -203,9 +203,9 @@ function _install_fail2ban
 
 function _install_getmail
 {
-  GETMAIL_SID_DEB_URL=http://http.us.debian.org/debian/pool/main/g/getmail6/getmail6_6.18.9-1_all.deb
-  curl -Lkso getmail6.deb  "${GETMAIL_SID_DEB_URL}" && \
-  dpkg -i getmail6.deb 2>&1 && \
+  local GETMAIL_SID_DEB_URL='http://http.us.debian.org/debian/pool/main/g/getmail6/getmail6_6.18.9-1_all.deb'
+  curl -Lkso getmail6.deb  "${GETMAIL_SID_DEB_URL}"
+  dpkg -i getmail6.deb 2>&1
   rm getmail6.deb
 }
 
