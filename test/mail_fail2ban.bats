@@ -98,7 +98,7 @@ function teardown_file() {
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep '${FAIL_AUTH_MAILER_IP}'"
   assert_success
 
-  # Checking that FAIL_AUTH_MAILER_IP is banned by nftables and blocktype set to DROP
+  # Checking that FAIL_AUTH_MAILER_IP is banned by nftables
   run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl"
   assert_output --partial "elements = { ${FAIL_AUTH_MAILER_IP} }"
 }
