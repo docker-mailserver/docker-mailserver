@@ -4,7 +4,6 @@ export IMAGE_NAME
 IMAGE_NAME="${NAME}"
 
 setup_file() {
-  export START_TIME
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
@@ -42,7 +41,6 @@ setup_file() {
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
     "${NAME}"
 
-  START_TIME=$(date +%s)
   wait_for_finished_setup_in_container mail
 
   # generate accounts after container has been started
@@ -112,14 +110,11 @@ teardown_file() {
 # Be careful with re-locating this test if earlier tests could potentially fail it by
 # triggering the `changedetector` service.
 @test "checking container healthcheck" {
-  local NOW
-  NOW=$(date +%s)
   # ensure, that at least 30 seconds have passed since container start
-  while (( NOW - START_TIME < 31 )); do
+  while [[ "$(docker inspect --format='{{.State.Health.Status}}' mail)" == "starting" ]]; do
     sleep 1
-    NOW=$(date +%s)
   done
-  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
+  run docker inspect --format='{{.State.Health.Status}}' mail
   assert_output "healthy"
   assert_success
 }
