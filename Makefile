@@ -1,6 +1,7 @@
 SHELL = /bin/bash
 
 NAME        ?= mailserver-testing:ci
+IMAGE_NAME  ?= $(NAME)
 VCS_REVISION = $(shell git rev-parse --short HEAD)
 VCS_VERSION  = $(shell cat VERSION)
 

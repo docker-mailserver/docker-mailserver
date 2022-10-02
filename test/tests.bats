@@ -1,29 +1,27 @@
 load 'test_helper/common'
 
-export IMAGE_NAME
-IMAGE_NAME="${NAME}"
+CONTAINER_NAME='mail'
 
-setup_file() {
+function setup_file() {
   export START_TIME
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
 
   # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
-  docker run --rm -d --name mail \
+  docker run --rm --detach --tty \
+    --name "${CONTAINER_NAME}" \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -v "$(pwd)/test/onedir":/var/mail-state \
     -e AMAVIS_LOGLEVEL=2 \
-    -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
-    -e ENABLE_CLAMAV=1 \
+    -e ENABLE_CLAMAV=0 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
     -e LOG_LEVEL='debug' \
-    -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
@@ -37,32 +35,25 @@ setup_file() {
     -e SSL_TYPE='snakeoil' \
     -e VIRUSMAILS_DELETE_DELAY=7 \
     --hostname mail.my-domain.com \
-    --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
-    "${NAME}"
+    "${IMAGE_NAME}"
 
   START_TIME=$(date +%s)
-  wait_for_finished_setup_in_container mail
+  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 
   # generate accounts after container has been started
-  docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
-  docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
+  docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${IMAGE_NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
+  docker exec "${CONTAINER_NAME}" addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
 
   # setup sieve
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
   # this relies on the checksum file being updated after all changes have been applied
-  wait_for_changes_to_be_detected_in_container mail
-  wait_until_change_detection_event_completes mail
-
+  wait_until_change_detection_event_completes "${CONTAINER_NAME}"
   wait_for_service mail postfix
   wait_for_service mail dovecot
-
-  # wait for ClamAV to be fully setup or we will get errors on the log
-  repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
-
-  wait_for_smtp_port_in_container mail
+  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 
   # The first mail sent leverages an assert for better error output if a failure occurs:
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
@@ -72,12 +63,10 @@ setup_file() {
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt"
-
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt"
-
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt"
@@ -90,7 +79,7 @@ setup_file() {
   wait_for_empty_mail_queue_in_container mail
 }
 
-teardown_file() {
+function teardown_file() {
   docker rm -f mail
 }
 
@@ -139,9 +128,9 @@ teardown_file() {
   assert_success
 }
 
-@test "checking process: clamd" {
+@test "checking process: clamd (is not running)" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  assert_success
+  assert_failure
 }
 
 @test "checking process: new" {
@@ -212,9 +201,8 @@ teardown_file() {
 #
 
 @test "checking logs: mail related logs should be located in a subdirectory" {
-  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log'|wc -l"
+  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'mail.log'"
   assert_success
-  assert_output 3
 }
 
 #
@@ -343,11 +331,12 @@ EOF
   assert_output 1
 }
 
-@test "checking smtp: rejects virus" {
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
-  assert_success
-  assert_output 1
-}
+# TODO maybe incorporate this test into clamav.bats
+# @test "checking smtp: rejects virus" {
+#   run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
+#   assert_success
+#   assert_output 1
+# }
 
 @test "checking smtp: not advertising smtputf8" {
   # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
@@ -447,19 +436,9 @@ EOF
   assert_success
 }
 
-
-#
-# ClamAV
-#
-
-@test "checking ClamAV: should be listed in amavis when enabled" {
+@test "checking ClamAV: should not be listed in Amavis when disabled" {
   run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_success
-}
-
-@test "checking ClamAV: CLAMAV_MESSAGE_SIZE_LIMIT" {
-  run docker exec mail grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
-  assert_success
+  assert_failure
 }
 
 #
@@ -492,9 +471,9 @@ EOF
 # system
 #
 
-@test "checking system: freshclam cron is enabled" {
+@test "checking system: freshclam cron is disabled" {
   run docker exec mail bash -c "grep '/usr/bin/freshclam' -r /etc/cron.d"
-  assert_success
+  assert_failure
 }
 
 @test "checking amavis: virusmail wiper cron exists" {
@@ -995,11 +974,6 @@ EOF
 
 @test "checking restart of process: postfix" {
   run docker exec mail /bin/bash -c "pkill master && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
-  assert_success
-}
-
-@test "checking restart of process: clamd" {
-  run docker exec mail /bin/bash -c "pkill clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_success
 }
 
