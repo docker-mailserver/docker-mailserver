@@ -107,14 +107,11 @@ function teardown_file() {
 # Be careful with re-locating this test if earlier tests could potentially fail it by
 # triggering the `changedetector` service.
 @test "checking container healthcheck" {
-  local NOW
-  NOW=$(date +%s)
   # ensure, that at least 30 seconds have passed since container start
-  while (( NOW - START_TIME < 31 )); do
+  while [[ "$(docker inspect --format='{{.State.Health.Status}}' mail)" == "starting" ]]; do
     sleep 1
-    NOW=$(date +%s)
   done
-  run bash -c "docker inspect mail | jq -r '.[].State.Health.Status'"
+  run docker inspect --format='{{.State.Health.Status}}' mail
   assert_output "healthy"
   assert_success
 }
