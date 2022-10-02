@@ -53,7 +53,7 @@ setup_file() {
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
   # this relies on the checksum file being updated after all changes have been applied
-  wait_for_changes_to_be_detected_in_container
+  wait_for_changes_to_be_detected_in_container mail
   wait_until_change_detection_event_completes mail
 
   wait_for_service mail postfix
