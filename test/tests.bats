@@ -114,8 +114,8 @@ teardown_file() {
 @test "checking container healthcheck" {
   local NOW
   NOW=$(date +%s)
-  # ensure, that at least 30 seconds have passed since container start
-  while (( NOW - START_TIME < 31 )); do
+  # ensure, that at least 33 seconds have passed since container start
+  while (( NOW - START_TIME < 34 )); do
     sleep 1
     NOW=$(date +%s)
   done
