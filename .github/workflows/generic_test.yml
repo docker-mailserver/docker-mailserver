@@ -49,3 +49,4 @@ jobs:
         env:
           CI: true
           NAME: mailserver-testing:ci
+          IMAGE_NAME: mailserver-testing:ci
