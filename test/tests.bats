@@ -51,8 +51,8 @@ function setup_file() {
 
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes "${CONTAINER_NAME}"
-  wait_for_service mail postfix
-  wait_for_service mail dovecot
+  wait_for_service "${CONTAINER_NAME}" postfix
+  wait_for_service "${CONTAINER_NAME}" dovecot
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 
   # The first mail sent leverages an assert for better error output if a failure occurs:
@@ -76,11 +76,11 @@ function setup_file() {
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
   docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 
-  wait_for_empty_mail_queue_in_container mail
+  wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
 function teardown_file() {
-  docker rm -f mail
+  docker rm -f "${CONTAINER_NAME}"
 }
 
 #

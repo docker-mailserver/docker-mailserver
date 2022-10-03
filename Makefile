@@ -1,9 +1,7 @@
 SHELL = /bin/bash
 
-NAME        ?= mailserver-testing:ci
-IMAGE_NAME  ?= $(NAME)
-VCS_REVISION = $(shell git rev-parse --short HEAD)
-VCS_VERSION  = $(shell cat VERSION)
+export NAME       ?= mailserver-testing:ci
+export IMAGE_NAME ?= $(NAME)
 
 # -----------------------------------------------
 # --- Generic Build Targets ---------------------
@@ -13,8 +11,8 @@ all: lint build backup generate-accounts tests clean
 
 build:
 	@ DOCKER_BUILDKIT=1 docker build --tag $(NAME) \
-		--build-arg VCS_VERSION=$(VCS_VERSION) \
-		--build-arg VCS_REVISION=$(VCS_REVISION) \
+		--build-arg VCS_VERSION=$(shell git rev-parse --short HEAD) \
+		--build-arg VCS_REVISION=$(shell cat VERSION) \
 		.
 
 backup:
@@ -44,11 +42,11 @@ generate-accounts:
 	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
 
 tests:
-	@ NAME=$(NAME) ./test/bats/bin/bats --timing test/*.bats
+	@ ./test/bats/bin/bats --timing test/*.bats
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
-	@ ./test/bats/bin/bats $@
+	@ ./test/bats/bin/bats --timing $@
 
 lint: eclint hadolint shellcheck
 

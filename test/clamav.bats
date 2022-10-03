@@ -9,7 +9,7 @@ function setup_file() {
 
   docker run --rm --detach --tty \
     --name "${CONTAINER_NAME}" \
-    --volume "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
+    --volume "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
     --env ENABLE_AMAVIS=1 \
     --env AMAVIS_LOGLEVEL=2 \
     --env ENABLE_CLAMAV=1 \
@@ -17,7 +17,7 @@ function setup_file() {
     --env ENABLE_SPAMASSASSIN=0 \
     --env ENABLE_FAIL2BAN=0 \
     --env CLAMAV_MESSAGE_SIZE_LIMIT=30M \
-    --env LOG_LEVEL='debug' \
+    --env LOG_LEVEL=debug \
     --hostname mail.my-domain.com \
     "${IMAGE_NAME}"
 
