@@ -96,6 +96,7 @@ function setup_file() {
   run docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
   assert_success
 
+  sleep 30
   wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
