@@ -42,7 +42,7 @@ generate-accounts:
 	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
 
 tests:
-	@ ./test/bats/bin/bats --timing test/*.bats
+	@ ./test/bats/bin/bats --timing test/tests.bats
 
 .PHONY: ALWAYS_RUN
 test/%: ALWAYS_RUN
