@@ -15,11 +15,12 @@ function setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -v "$(pwd)/test/onedir":/var/mail-state \
+    -e ENABLE_AMAVIS=0 \
     -e AMAVIS_LOGLEVEL=2 \
     -e ENABLE_CLAMAV=0 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
-    -e ENABLE_SPAMASSASSIN=1 \
+    -e ENABLE_SPAMASSASSIN=0 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
     -e LOG_LEVEL='debug' \
@@ -42,7 +43,7 @@ function setup_file() {
 
   START_TIME=$(date +%s)
   wait_for_finished_setup_in_container "${CONTAINER_NAME}"
-  wait_for_amavis_port_in_container "${CONTAINER_NAME}"
+  # wait_for_amavis_port_in_container "${CONTAINER_NAME}"
 
   # generate accounts after container has been started
   docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${IMAGE_NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
@@ -56,7 +57,7 @@ function setup_file() {
   wait_for_service "${CONTAINER_NAME}" postfix
   wait_for_service "${CONTAINER_NAME}" dovecot
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
-  wait_for_amavis_port_in_container "${CONTAINER_NAME}"
+  # wait_for_amavis_port_in_container "${CONTAINER_NAME}"
 
   # The first mail sent leverages an assert for better error output if a failure occurs:
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
@@ -95,8 +96,6 @@ function setup_file() {
   run docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
   assert_success
 
-  wait_for_service "${CONTAINER_NAME}" postfix
-  sleep 5
   wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
@@ -146,10 +145,10 @@ function teardown_file() {
   assert_failure
 }
 
-@test "checking process: new" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
-  assert_success
-}
+# @test "checking process: new" {
+#   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
+#   assert_success
+# }
 
 @test "checking process: opendkim" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
