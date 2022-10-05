@@ -98,9 +98,9 @@ function teardown_file() {
   run docker exec mail_fail2ban /bin/sh -c "fail2ban-client status postfix-sasl | grep '${FAIL_AUTH_MAILER_IP}'"
   assert_success
 
-  # Checking that FAIL_AUTH_MAILER_IP is banned by nftables and blocktype set to DROP
-  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl 2>/dev/null"
-  assert_output --regexp "${FAIL_AUTH_MAILER_IP}"
+  # Checking that FAIL_AUTH_MAILER_IP is banned by nftables
+  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl"
+  assert_output --partial "elements = { ${FAIL_AUTH_MAILER_IP} }"
 }
 
 @test "checking fail2ban: unban ip works" {
@@ -113,8 +113,8 @@ function teardown_file() {
   assert_failure
 
   # Checking that FAIL_AUTH_MAILER_IP is unbanned by nftables
-  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl 2>/dev/null"
-  refute_output "${FAIL_AUTH_MAILER_IP}"
+  run docker exec mail_fail2ban /bin/sh -c "nft list set inet f2b-table addr-set-postfix-sasl"
+  refute_output --partial "${FAIL_AUTH_MAILER_IP}"
 }
 
 @test "checking fail2ban ban" {
@@ -126,9 +126,24 @@ function teardown_file() {
   assert_success
   assert_output --regexp "Banned in custom:.*192\.0\.66\.7"
 
+  run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
+  assert_success
+  assert_output --partial "elements = { 192.0.66.7 }"
+
   run docker exec mail_fail2ban fail2ban unban 192.0.66.7
   assert_success
   assert_output --partial "Unbanned IP from custom: 1"
+
+  run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
+  refute_output --partial "192.0.66.7"
+}
+
+@test "checking FAIL2BAN_BLOCKTYPE is really set to drop" {
+  run docker exec mail_fail2ban bash -c 'nft list table inet f2b-table'
+  assert_success
+  assert_output --partial 'tcp dport { 110, 143, 465, 587, 993, 995, 4190 } ip saddr @addr-set-dovecot drop'
+  assert_output --partial 'tcp dport { 25, 110, 143, 465, 587, 993, 995 } ip saddr @addr-set-postfix-sasl drop'
+  assert_output --partial 'tcp dport { 25, 110, 143, 465, 587, 993, 995, 4190 } ip saddr @addr-set-custom drop'
 }
 
 @test "checking setup.sh: setup.sh fail2ban" {
