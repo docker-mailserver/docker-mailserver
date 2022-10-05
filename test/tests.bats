@@ -1,5 +1,6 @@
 load 'test_helper/common'
 
+IMAGE_NAME=${NAME}
 CONTAINER_NAME='mail'
 
 function setup_file() {
