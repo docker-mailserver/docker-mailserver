@@ -331,11 +331,12 @@ EOF
   assert_output 1
 }
 
-@test "checking smtp: rejects virus" {
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
-  assert_success
-  assert_output 1
-}
+# TODO move this into `clamav.bats`
+# @test "checking smtp: rejects virus" {
+#   run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
+#   assert_success
+#   assert_output 1
+# }
 
 @test "checking smtp: not advertising smtputf8" {
   # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
@@ -670,7 +671,7 @@ EOF
 @test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
-  assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
+  assert_output '* user1@localhost.localdomain ( 11K / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
