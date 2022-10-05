@@ -45,8 +45,8 @@ tests:
 	@ ./test/bats/bin/bats --timing test/*.bats
 
 .PHONY: ALWAYS_RUN
-test/%.bats: ALWAYS_RUN
-	@ ./test/bats/bin/bats --timing $@
+test/%: ALWAYS_RUN
+	@ ./test/bats/bin/bats --timing $@.bats
 
 lint: eclint hadolint shellcheck
 

@@ -41,6 +41,7 @@ function setup_file() {
 
   START_TIME=$(date +%s)
   wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+  wait_for_amavis_port_in_container "${CONTAINER_NAME}"
 
   # generate accounts after container has been started
   docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${IMAGE_NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
@@ -54,6 +55,7 @@ function setup_file() {
   wait_for_service "${CONTAINER_NAME}" postfix
   wait_for_service "${CONTAINER_NAME}" dovecot
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  wait_for_amavis_port_in_container "${CONTAINER_NAME}"
 
   # The first mail sent leverages an assert for better error output if a failure occurs:
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
@@ -90,11 +92,6 @@ function teardown_file() {
 @test "checking configuration: user-patches.sh executed" {
   run docker logs mail
   assert_output --partial "Default user-patches.sh successfully executed"
-}
-
-@test "checking configuration: hostname/domainname" {
-  run docker run "${IMAGE_NAME:?}"
-  assert_success
 }
 
 #
