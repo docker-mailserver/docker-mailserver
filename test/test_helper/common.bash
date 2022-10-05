@@ -6,8 +6,8 @@ load 'test_helper/bats-assert/load'
 NAME=${NAME:-mailserver-testing:ci}
 
 # default timeout is 120 seconds
-TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS-120}
-NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES-10}
+TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS:-120}
+NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES:-10}
 
 # @param ${1} timeout
 # @param --fatal-test <command eval string> additional test whose failure aborts immediately

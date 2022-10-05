@@ -15,7 +15,7 @@ setup_file() {
     -v "$(pwd)/test/onedir":/var/mail-state \
     -e AMAVIS_LOGLEVEL=2 \
     -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
-    -e ENABLE_CLAMAV=1 \
+    -e ENABLE_CLAMAV=0 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
@@ -42,6 +42,7 @@ setup_file() {
     "${NAME}"
 
   wait_for_finished_setup_in_container mail
+  sleep 15
 
   # generate accounts after container has been started
   docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
@@ -52,9 +53,7 @@ setup_file() {
 
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
-
-  # wait for ClamAV to be fully setup or we will get errors on the log
-  repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
+  sleep 15
 
   wait_for_smtp_port_in_container mail
 
@@ -79,6 +78,7 @@ setup_file() {
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
   docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 
+  sleep 15
   wait_for_empty_mail_queue_in_container mail
 }
 
@@ -128,9 +128,9 @@ teardown_file() {
   assert_success
 }
 
-@test "checking process: clamd" {
+@test "checking process: clamd (is not runnning)" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  assert_success
+  assert_failure
 }
 
 @test "checking process: new" {
@@ -201,9 +201,8 @@ teardown_file() {
 #
 
 @test "checking logs: mail related logs should be located in a subdirectory" {
-  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log'|wc -l"
+  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'mail.log'"
   assert_success
-  assert_output 3
 }
 
 #
@@ -436,21 +435,6 @@ EOF
   assert_success
 }
 
-
-#
-# ClamAV
-#
-
-@test "checking ClamAV: should be listed in amavis when enabled" {
-  run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_success
-}
-
-@test "checking ClamAV: CLAMAV_MESSAGE_SIZE_LIMIT" {
-  run docker exec mail grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
-  assert_success
-}
-
 #
 # postsrsd
 #
@@ -481,9 +465,9 @@ EOF
 # system
 #
 
-@test "checking system: freshclam cron is enabled" {
+@test "checking system: freshclam cron is disabled" {
   run docker exec mail bash -c "grep '/usr/bin/freshclam' -r /etc/cron.d"
-  assert_success
+  assert_failure
 }
 
 @test "checking amavis: virusmail wiper cron exists" {
@@ -984,11 +968,6 @@ EOF
 
 @test "checking restart of process: postfix" {
   run docker exec mail /bin/bash -c "pkill master && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
-  assert_success
-}
-
-@test "checking restart of process: clamd" {
-  run docker exec mail /bin/bash -c "pkill clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_success
 }
 
