@@ -1,7 +1,8 @@
-load 'test_helper/common'
+# this test needs more startup time, and we need
+# to increase the timeout
+export TEST_TIMEOUT_IN_SECONDS=180
 
-export IMAGE_NAME
-IMAGE_NAME="${NAME}"
+load 'test_helper/common'
 
 setup_file() {
   local PRIVATE_CONFIG
@@ -42,7 +43,6 @@ setup_file() {
     "${NAME}"
 
   wait_for_finished_setup_in_container mail
-  sleep 15
 
   # generate accounts after container has been started
   docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
@@ -53,8 +53,7 @@ setup_file() {
 
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
-  sleep 15
-
+  wait_for_service mail postfix
   wait_for_smtp_port_in_container mail
 
   # The first mail sent leverages an assert for better error output if a failure occurs:
@@ -78,7 +77,6 @@ setup_file() {
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
   docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
 
-  sleep 15
   wait_for_empty_mail_queue_in_container mail
 }
 
