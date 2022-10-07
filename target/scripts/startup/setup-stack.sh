@@ -65,7 +65,7 @@ function _setup_getmail
 
   CONFIGURATION='/tmp/docker-mailserver/getmail-*.cf'
   GETMAILRC='/etc/getmailrc.d'
-  CONFIGS = false
+  CONFIGS=false
 
   if [[ ! -d ${GETMAILRC} ]]
   then
@@ -75,20 +75,18 @@ function _setup_getmail
   for FILE in ${CONFIGURATION}; do
     if [[ -f ${FILE} ]]
     then
-      CONFIGS = true
+      CONFIGS=true
       ID=$(echo "${FILE}" | cut -d'-' -f 3| cut -d'.' -f1)
       cat /etc/getmailrc_general > "${GETMAILRC}/getmailrc-${ID}.tmp"
-      echo "message_log = /var/log/mail/getmail-${ID}.log" >> "${GETMAILRC}/getmailrc-${ID}.tmp"
+      echo -e "message_log = /var/log/mail/getmail-${ID}.log\n" >> "${GETMAILRC}/getmailrc-${ID}.tmp"
       cat "${GETMAILRC}/getmailrc-${ID}.tmp" "${FILE}" > "${GETMAILRC}/getmailrc-${ID}"
       rm "${GETMAILRC}/getmailrc-${ID}.tmp"
-    else
-      cat /etc/getmailrc_general > "${GETMAILRC}/getmailrc"
     fi
   done
   if [[ ${CONFIGS} == true ]]
   then
     cat >"/etc/cron.d/getmail" << EOF
-*/${GETMAIL_POLL} * * * * root /usr/local/bin/helpers/getmail-cron.sh
+*/${GETMAIL_POLL} * * * * root /usr/local/bin/getmail-cron
 EOF
     chmod -R 600 "${GETMAILRC}"
   fi

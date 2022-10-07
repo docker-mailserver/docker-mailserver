@@ -5,4 +5,3 @@ delete = false
 max_messages_per_session = 500
 received = false
 delivered_to = false
-
