@@ -61,10 +61,11 @@ function _setup_getmail
 {
   _log 'trace' 'Preparing Getmail configuration'
 
-  local CONFIGURATION GETMAILRC
+  local CONFIGURATION GETMAILRC ID CONFIGS
 
   CONFIGURATION='/tmp/docker-mailserver/getmail-*.cf'
   GETMAILRC='/etc/getmailrc.d'
+  CONFIGS = false
 
   if [[ ! -d ${GETMAILRC} ]]
   then
@@ -74,20 +75,23 @@ function _setup_getmail
   for FILE in ${CONFIGURATION}; do
     if [[ -f ${FILE} ]]
     then
-      USER=$(echo "${FILE}" | cut -d'-' -f 3| cut -d'.' -f1)
-      sed "s/PLACEHOLDER/${USER}/g" /etc/getmailrc_general > "${GETMAILRC}/getmailrc-${USER}.tmp"
-      cat "${GETMAILRC}/getmailrc-${USER}.tmp" "${FILE}" > "${GETMAILRC}/getmailrc-${USER}"
-      rm "${GETMAILRC}/getmailrc-${USER}.tmp"
-      GETMAIL_POLL_MINS=$((GETMAIL_POLL/60))
-      cat >"/etc/cron.d/getmail-${USER}" << EOF
-*/${GETMAIL_POLL_MINS} * * * * root /usr/bin/getmail --getmaildir /var/lib/getmail --rcfile "${GETMAILRC}/getmailrc-${USER}"
-EOF
+      CONFIGS = true
+      ID=$(echo "${FILE}" | cut -d'-' -f 3| cut -d'.' -f1)
+      cat /etc/getmailrc_general > "${GETMAILRC}/getmailrc-${ID}.tmp"
+      echo "message_log = /var/log/mail/getmail-${ID}.log" >> "${GETMAILRC}/getmailrc-${ID}.tmp"
+      cat "${GETMAILRC}/getmailrc-${ID}.tmp" "${FILE}" > "${GETMAILRC}/getmailrc-${ID}"
+      rm "${GETMAILRC}/getmailrc-${ID}.tmp"
     else
       cat /etc/getmailrc_general > "${GETMAILRC}/getmailrc"
     fi
   done
-  chmod -R 600 "${GETMAILRC}"
-  chown -R root:root "${GETMAILRC}"
+  if [[ ${CONFIGS} == true ]]
+  then
+    cat >"/etc/cron.d/getmail" << EOF
+*/${GETMAIL_POLL} * * * * root /usr/local/bin/helpers/getmail-cron.sh
+EOF
+    chmod -R 600 "${GETMAILRC}"
+  fi
 }
 
 

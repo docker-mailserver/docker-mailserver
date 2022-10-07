@@ -557,7 +557,7 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 ##### GETMAIL_POLL
 
-- **300** => `getmail` The number of seconds for the interval
+- **5** => `getmail` The number of minutes for the interval (minimum 1, maximum 60)
 
 Note: Fetchmail and Getmail are mutually exclusive
 
