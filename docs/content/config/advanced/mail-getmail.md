@@ -28,7 +28,7 @@ A detailed description of the configuration options can be found in the [online 
 
 ### Common Options
 
-The Default options added to each getmail config are :
+The default options added to each `getmail` config are:
 ```getmailrc
 [options]
 verbose = 0
