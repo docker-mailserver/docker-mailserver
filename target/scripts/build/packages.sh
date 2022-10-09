@@ -146,6 +146,11 @@ function _install_fail2ban
 
   dpkg -i fail2ban.deb 2>&1
   rm fail2ban.deb fail2ban.deb.asc
+
+  _log 'debug' 'Patching Fail2ban to enable network bans'
+  # Enable network bans
+  # https://github.com/docker-mailserver/docker-mailserver/issues/2669
+  sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
 function _post_installation_steps

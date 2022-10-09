@@ -21,10 +21,11 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
 COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
-RUN /bin/bash /build/packages.sh
 
 COPY target/bin/sedfile /usr/local/bin/sedfile
 RUN chmod +x /usr/local/bin/sedfile
+
+RUN /bin/bash /build/packages.sh
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
