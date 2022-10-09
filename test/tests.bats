@@ -44,8 +44,8 @@ setup_file() {
   wait_for_finished_setup_in_container mail
 
   # generate accounts after container has been started
-  docker run --rm -e MAIL_USER=added@localhost.localdomain -e MAIL_PASS=mypassword -t "${NAME}" /bin/sh -c 'echo "${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})"' >> "${PRIVATE_CONFIG}/postfix-accounts.cf"
-  docker exec mail addmailuser pass@localhost.localdomain 'may be \a `p^a.*ssword'
+  docker exec mail setup email add 'added@localhost.localdomain' 'mypassword'
+  docker exec mail setup email add 'pass@localhost.localdomain' 'may be \a `p^a.*ssword'
 
   # setup sieve
   docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
