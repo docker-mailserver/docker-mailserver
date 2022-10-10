@@ -58,7 +58,7 @@ function teardown_file() {
   assert_success
 }
 
-@test "checking system: freshclam cron is enabled" {
+@test "${TEST_NAME_PREFIX} freshclam cron is enabled" {
   "${RUN_COMMAND[@]}" bash -c "grep '/usr/bin/freshclam' -r /etc/cron.d"
   assert_success
 }
