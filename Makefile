@@ -7,8 +7,6 @@ export IMAGE_NAME := $(NAME)
 # --- Generic Build Targets ---------------------
 # -----------------------------------------------
 
-.PHONY: ALWAYS_RUN
-
 all: lint build backup generate-accounts tests clean
 
 build:
@@ -43,10 +41,10 @@ generate-accounts:
 # Dovecot master accounts
 	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
 
-tests: ALWAYS_RUN
+tests:
 	@ ./test/bats/bin/bats --timing test/*.bats
 
-test/%: ALWAYS_RUN
+test/%:
 	@ ./test/bats/bin/bats --timing $@.bats
 
 lint: eclint hadolint shellcheck

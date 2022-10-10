@@ -1,7 +1,3 @@
-# this test needs more startup time, and we need
-# to increase the timeout
-export TEST_TIMEOUT_IN_SECONDS=180
-
 load 'test_helper/common'
 
 setup_file() {
@@ -23,7 +19,6 @@ setup_file() {
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
     -e LOG_LEVEL='debug' \
-    -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
@@ -328,13 +323,6 @@ EOF
   assert_success
   assert_output 1
 }
-
-# TODO move this into `clamav.bats`
-# @test "checking smtp: rejects virus" {
-#   run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
-#   assert_success
-#   assert_output 1
-# }
 
 @test "checking smtp: not advertising smtputf8" {
   # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
