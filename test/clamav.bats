@@ -1,6 +1,6 @@
 load 'test_helper/common'
 
-TEST_NAME_PREFIX='checking ClamAV: '
+TEST_NAME_PREFIX='ClamAV:'
 CONTAINER_NAME='dms-test-clamav'
 
 function setup_file() {
@@ -31,28 +31,28 @@ function teardown_file() {
   docker rm -f "${CONTAINER_NAME}"
 }
 
-@test "${TEST_NAME_PREFIX}checking process clamd is running" {
+@test "${TEST_NAME_PREFIX} process clamd is running" {
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX}checking logs - mail related logs should be located in a subdirectory" {
+@test "${TEST_NAME_PREFIX} log files exist at /var/log/mail directory" {
   run docker exec "${CONTAINER_NAME}" /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log'| wc -l"
   assert_success
   assert_output 3
 }
 
-@test "${TEST_NAME_PREFIX}ClamAV should be listed in Amavis" {
+@test "${TEST_NAME_PREFIX} should be identified by Amavis" {
   run docker exec "${CONTAINER_NAME}" grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX}checking CLAMAV_MESSAGE_SIZE_LIMIT is set correctly" {
+@test "${TEST_NAME_PREFIX} env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly" {
   run docker exec "${CONTAINER_NAME}" grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX}checking restart of clamd process" {
+@test "${TEST_NAME_PREFIX} process clamd restarts when killed" {
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "pkill clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_success
 }
