@@ -72,15 +72,18 @@ function _setup_getmail
     mkdir "${GETMAILRC}"
   fi
 
+  # Generate getmailrc configs, starting with the `/etc/getmailrc_general` base config,
+  # Add a unique `message_log` config, then append users own config to the end.
   for FILE in ${CONFIGURATION}; do
     if [[ -f ${FILE} ]]
     then
       CONFIGS=true
       ID=$(echo "${FILE}" | cut -d'-' -f 3| cut -d'.' -f1)
-      cat /etc/getmailrc_general > "${GETMAILRC}/getmailrc-${ID}.tmp"
-      echo -e "message_log = /var/log/mail/getmail-${ID}.log\n" >> "${GETMAILRC}/getmailrc-${ID}.tmp"
-      cat "${GETMAILRC}/getmailrc-${ID}.tmp" "${FILE}" > "${GETMAILRC}/getmailrc-${ID}"
-      rm "${GETMAILRC}/getmailrc-${ID}.tmp"
+      local GETMAIL_CONFIG="${GETMAILRC}/getmailrc-${ID}"
+      cat /etc/getmailrc_general > "${GETMAIL_CONFIG}.tmp"
+      echo -e "message_log = /var/log/mail/getmail-${ID}.log\n" >> "${GETMAIL_CONFIG}.tmp"
+      cat "${GETMAIL_CONFIG}.tmp" "${FILE}" > "${GETMAIL_CONFIG}"
+      rm "${GETMAIL_CONFIG}.tmp"
     fi
   done
   if [[ ${CONFIGS} == true ]]

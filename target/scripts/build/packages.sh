@@ -201,6 +201,9 @@ function _install_fail2ban
   sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
+# Presently the getmail6 package is v6.14, which is too old.
+# v6.18 contains fixes for Google and Microsoft OAuth support.
+# TODO: Use a package when 6.18 or newer is available.
 function _install_getmail
 {
   local GETMAIL_SID_DEB_URL='http://http.us.debian.org/debian/pool/main/g/getmail6/getmail6_6.18.9-1_all.deb'
