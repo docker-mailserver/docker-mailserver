@@ -49,9 +49,8 @@ tests: test/part/0 test/part/1 test/part/2 test/part/3
 test/part/%:
 # part/0 => tests run in a serialized manner
 # part/x where (x > 0) => tests are run in parallel
-	@ [[ $* -eq 0 ]] \
-		&& ./test/bats/bin/bats --timing test/serial.*.bats \
-		|| ./test/bats/bin/bats --timing --jobs $(PARALLEL_JOBS) test/parallel.$*.*.bats
+	@ if [[ $* -eq 0 ]]; then ./test/bats/bin/bats --timing test/serial.*.bats; else \
+		./test/bats/bin/bats --timing --jobs $(PARALLEL_JOBS) test/parallel.$*.*.bats; fi
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
