@@ -87,12 +87,17 @@ Just like the IMAP example above, but instead via POP3 protocol if you prefer th
 
 ### Polling Interval
 
-By default the `getmail` service checks external mail accounts for new mail every 5 minutes. That polling interval is configurable via the `GETMAIL_POLL` ENV variable, with a value in minutes (_default: 5, min: 1, max: 60_):
+By default the `getmail` service checks external mail accounts for new mail every 5 minutes. That polling interval is configurable via the `GETMAIL_POLL` ENV variable, with a value in minutes (_default: 5, min: 1, max: 30_):
 ```yaml
 environment:
   - GETMAIL_POLL=1
 ```
 
+### XOAUTH2 Authentication
+
+It is possible to utilize the getmail-gmail-xoauth-token helper to provide authentication using xoauth2 for gmail [example 12][getmail-gmail-xoauth-12] or Microsoft Office 365 [example 13][getmail-gmail-xoauth-12]
+
 [getmail-website]: https://www.getmail.org
 [getmail-docs]: https://getmail6.org/configuration.html
-[getmail-gmail-xoauth]: https://www.bytereef.org/howto/oauth2/getmail.html
+[getmail-gmail-xoauth-12]: https://github.com/getmail6/getmail6/blob/master/docs/getmailrc-examples#L286
+[getmail-gmail-xoauth-12]: https://github.com/getmail6/getmail6/blob/master/docs/getmailrc-examples#L351
