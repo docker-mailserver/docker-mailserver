@@ -1,6 +1,8 @@
 SHELL = /bin/bash
 
-NAME        ?= mailserver-testing:ci
+export NAME       ?= mailserver-testing:ci
+export IMAGE_NAME := $(NAME)
+PARALLEL_JOBS     ?= 2
 VCS_REVISION = $(shell git rev-parse --short HEAD)
 VCS_VERSION  = $(shell cat VERSION)
 
@@ -11,7 +13,7 @@ VCS_VERSION  = $(shell cat VERSION)
 all: lint build backup generate-accounts tests clean
 
 build:
-	@ DOCKER_BUILDKIT=1 docker build --tag $(NAME) \
+	@ DOCKER_BUILDKIT=1 docker build --tag $(IMAGE_NAME) \
 		--build-arg VCS_VERSION=$(VCS_VERSION) \
 		--build-arg VCS_REVISION=$(VCS_REVISION) \
 		.
@@ -33,17 +35,23 @@ clean:
 
 generate-accounts:
 # Normal mail accounts
-	@ docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
-	@ docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
-	@ docker run --rm -e MAIL_USER=user3@localhost.localdomain -e MAIL_PASS=mypassword -t $(NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)|userdb_mail=mbox:~/mail:INBOX=~/inbox"' >> test/config/postfix-accounts.cf
+	@ docker run --rm -e MAIL_USER=user1@localhost.localdomain -e MAIL_PASS=mypassword -t $(IMAGE_NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' > test/config/postfix-accounts.cf
+	@ docker run --rm -e MAIL_USER=user2@otherdomain.tld -e MAIL_PASS=mypassword -t $(IMAGE_NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)"' >> test/config/postfix-accounts.cf
+	@ docker run --rm -e MAIL_USER=user3@localhost.localdomain -e MAIL_PASS=mypassword -t $(IMAGE_NAME) /bin/sh -c 'echo "$$MAIL_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MAIL_USER -p $$MAIL_PASS)|userdb_mail=mbox:~/mail:INBOX=~/inbox"' >> test/config/postfix-accounts.cf
 	@ echo "# this is a test comment, please don't delete me :'(" >> test/config/postfix-accounts.cf
 	@ echo "           # this is also a test comment, :O" >> test/config/postfix-accounts.cf
 
 # Dovecot master accounts
-	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
+	@ docker run --rm -e MASTER_USER=masterusername -e MASTER_PASS=masterpassword -t $(IMAGE_NAME) /bin/sh -c 'echo "$$MASTER_USER|$$(doveadm pw -s SHA512-CRYPT -u $$MASTER_USER -p $$MASTER_PASS)"' > test/config/dovecot-masters.cf
 
-tests:
-	@ NAME=$(NAME) ./test/bats/bin/bats --timing test/*.bats
+tests: test/part/0 test/part/1 test/part/2 test/part/3
+
+test/part/%:
+# part/0 => tests run in a serialized manner
+# part/x where (x > 0) => tests are run in parallel
+	@ [[ $* -eq 0 ]] \
+		&& ./test/bats/bin/bats --timing test/serial.*.bats \
+		|| ./test/bats/bin/bats --timing --jobs $(PARALLEL_JOBS) test/parallel.$*.*.bats
 
 .PHONY: ALWAYS_RUN
 test/%.bats: ALWAYS_RUN
