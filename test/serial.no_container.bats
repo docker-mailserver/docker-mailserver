@@ -142,3 +142,4 @@ function setup_file() {
   run /bin/sh -c 'cat ./test/relay/config/postfix-relaymap.cf | grep -e "^@example.org\s*$" | wc -l | grep 1'
   assert_success
 }
+
