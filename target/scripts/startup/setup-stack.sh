@@ -61,9 +61,8 @@ function _setup_getmail
 {
   _log 'trace' 'Preparing Getmail configuration'
 
-  local CONFIGURATION GETMAILRC ID CONFIGS
+  local GETMAILRC ID CONFIGS
 
-  CONFIGURATION='/tmp/docker-mailserver/getmail-*.cf'
   GETMAILRC='/etc/getmailrc.d'
   CONFIGS=false
 
@@ -74,15 +73,15 @@ function _setup_getmail
 
   # Generate getmailrc configs, starting with the `/etc/getmailrc_general` base config,
   # Add a unique `message_log` config, then append users own config to the end.
-  for FILE in ${CONFIGURATION}; do
+  for FILE in /tmp/docker-mailserver/getmail-*.cf
     if [[ -f ${FILE} ]]
     then
       CONFIGS=true
-      ID=$(echo "${FILE}" | cut -d'-' -f 3| cut -d'.' -f1)
+      ID=$(cut -d '-' -f 3 <<< "${FILE}" | cut -d '.' -f 1)
       local GETMAIL_CONFIG="${GETMAILRC}/getmailrc-${ID}"
-      cat /etc/getmailrc_general > "${GETMAIL_CONFIG}.tmp"
-      echo -e "message_log = /var/log/mail/getmail-${ID}.log\n" >> "${GETMAIL_CONFIG}.tmp"
-      cat "${GETMAIL_CONFIG}.tmp" "${FILE}" > "${GETMAIL_CONFIG}"
+      cat /etc/getmailrc_general >"${GETMAIL_CONFIG}.tmp"
+      echo -e "message_log = /var/log/mail/getmail-${ID}.log\n" >>"${GETMAIL_CONFIG}.tmp"
+      cat "${GETMAIL_CONFIG}.tmp" "${FILE}" >"${GETMAIL_CONFIG}"
       rm "${GETMAIL_CONFIG}.tmp"
     fi
   done
