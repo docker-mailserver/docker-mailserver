@@ -48,4 +48,3 @@ jobs:
         run: make generate-accounts tests
         env:
           CI: true
-          NAME: mailserver-testing:ci
