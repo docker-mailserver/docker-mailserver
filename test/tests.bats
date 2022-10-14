@@ -1,8 +1,5 @@
 load 'test_helper/common'
 
-export IMAGE_NAME
-IMAGE_NAME="${NAME}"
-
 setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
@@ -15,14 +12,13 @@ setup_file() {
     -v "$(pwd)/test/onedir":/var/mail-state \
     -e AMAVIS_LOGLEVEL=2 \
     -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
-    -e ENABLE_CLAMAV=1 \
+    -e ENABLE_CLAMAV=0 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
     -e ENABLE_SPAMASSASSIN=1 \
     -e ENABLE_SRS=1 \
     -e ENABLE_UPDATE_CHECK=0 \
     -e LOG_LEVEL='debug' \
-    -e PERMIT_DOCKER=container \
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
@@ -52,17 +48,13 @@ setup_file() {
 
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
-
-  # wait for ClamAV to be fully setup or we will get errors on the log
-  repeat_in_container_until_success_or_timeout 60 mail test -e /var/run/clamav/clamd.ctl
-
+  wait_for_service mail postfix
   wait_for_smtp_port_in_container mail
 
   # The first mail sent leverages an assert for better error output if a failure occurs:
   run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success
 
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
   docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt"
@@ -128,9 +120,9 @@ teardown_file() {
   assert_success
 }
 
-@test "checking process: clamd" {
+@test "checking process: clamd (is not runnning)" {
   run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  assert_success
+  assert_failure
 }
 
 @test "checking process: new" {
@@ -201,9 +193,8 @@ teardown_file() {
 #
 
 @test "checking logs: mail related logs should be located in a subdirectory" {
-  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log'|wc -l"
+  run docker exec mail /bin/sh -c "ls -1 /var/log/mail/ | grep -E 'mail.log'"
   assert_success
-  assert_output 3
 }
 
 #
@@ -332,12 +323,6 @@ EOF
   assert_output 1
 }
 
-@test "checking smtp: rejects virus" {
-  run docker exec mail /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep external.tld=virus@my-domain.com | wc -l"
-  assert_success
-  assert_output 1
-}
-
 @test "checking smtp: not advertising smtputf8" {
   # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
   # Better disable SMTPUTF8 support entirely if we can't handle it correctly
@@ -436,21 +421,6 @@ EOF
   assert_success
 }
 
-
-#
-# ClamAV
-#
-
-@test "checking ClamAV: should be listed in amavis when enabled" {
-  run docker exec mail grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_success
-}
-
-@test "checking ClamAV: CLAMAV_MESSAGE_SIZE_LIMIT" {
-  run docker exec mail grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
-  assert_success
-}
-
 #
 # postsrsd
 #
@@ -481,9 +451,9 @@ EOF
 # system
 #
 
-@test "checking system: freshclam cron is enabled" {
+@test "checking system: freshclam cron is disabled" {
   run docker exec mail bash -c "grep '/usr/bin/freshclam' -r /etc/cron.d"
-  assert_success
+  assert_failure
 }
 
 @test "checking amavis: virusmail wiper cron exists" {
@@ -686,7 +656,7 @@ EOF
 @test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
-  assert_output '* user1@localhost.localdomain ( 12K / ~ ) [0%]'
+  assert_output '* user1@localhost.localdomain ( 10K / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
@@ -984,11 +954,6 @@ EOF
 
 @test "checking restart of process: postfix" {
   run docker exec mail /bin/bash -c "pkill master && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
-  assert_success
-}
-
-@test "checking restart of process: clamd" {
-  run docker exec mail /bin/bash -c "pkill clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_success
 }
 
