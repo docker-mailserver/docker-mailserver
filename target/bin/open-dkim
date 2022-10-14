@@ -26,7 +26,7 @@ ${ORANGE}OPTIONS${RESET}
         help       Print the usage information.
 
     ${BLUE}Configuration adjustments${RESET}
-        keysize    Set the size of the keys to be generated. Possible are 1024, 2024 and 4096 (default).
+        keysize    Set the size of the keys to be generated. Possible are 1024, 2048 and 4096 (default).
         selector   Set a manual selector (default is 'mail') for the key. (${LCYAN}ATTENTION${RESET}: NOT IMPLEMENTED YET!)
         domain     Provide the domain(s) for which keys are to be generated.
 
