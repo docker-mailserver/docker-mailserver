@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Fixed
+
+- **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
+
 ## [11.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.2.0)
 
 ### Summary
@@ -92,7 +96,7 @@ In this release the relay-host support saw [significant internal refactoring](ht
 - **Platform Support - ARMv7**
   This is a very old platform, superceded by ARMv8 and newer with broad product availability around 2016 onwards.
   Support was introduced primarily for users the older generations of Raspberry Pi. ARM64 is the modern target for ARM devices.
-  
+
   If you require ARMv7 support, [please let us know](https://github.com/docker-mailserver/docker-mailserver/issues/2642).
 
 ## `v11.0.0`
@@ -204,7 +208,7 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 ## `v10.4.0`
 
-This release upgrades our base image from Debian 10 to Debian 11.  
+This release upgrades our base image from Debian 10 to Debian 11.
 There is also an important regression fixed for `SSL_TYPE=letsencrypt` users.
 
 - **[fix]** A regression with `check-for-changes.sh` introduced in `v10.3.0` affected `SSL_TYPE=letsencrypt`, preventing detection of cert renewals to restart services (_unless using `acme.json`_) [#2326](https://github.com/docker-mailserver/docker-mailserver/pull/2326)

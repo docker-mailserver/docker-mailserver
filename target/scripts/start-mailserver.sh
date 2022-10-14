@@ -143,7 +143,6 @@ function _register_functions
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
-  _register_setup_function '_setup_user_patches'
 
   # ? >> Fixes
 
@@ -228,6 +227,7 @@ _setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 _apply_fixes
 _start_misc
+_setup_user_patches
 _start_daemons
 
 # marker to check if container was restarted
