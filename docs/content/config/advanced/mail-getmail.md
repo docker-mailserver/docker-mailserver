@@ -95,9 +95,9 @@ environment:
 
 ### XOAUTH2 Authentication
 
-It is possible to utilize the getmail-gmail-xoauth-token helper to provide authentication using xoauth2 for gmail [example 12][getmail-gmail-xoauth-12] or Microsoft Office 365 [example 13][getmail-gmail-xoauth-12]
+It is possible to utilize the `getmail-gmail-xoauth-tokens` helper to provide authentication using `xoauth2` for [gmail (example 12)][getmail-docs-xoauth-12] or [Microsoft Office 365 (example 13)][getmail-docs-xoauth-13]
 
 [getmail-website]: https://www.getmail.org
 [getmail-docs]: https://getmail6.org/configuration.html
-[getmail-gmail-xoauth-12]: https://github.com/getmail6/getmail6/blob/master/docs/getmailrc-examples#L286
-[getmail-gmail-xoauth-12]: https://github.com/getmail6/getmail6/blob/master/docs/getmailrc-examples#L351
+[getmail-docs-xoauth-12]: https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L286
+[getmail-docs-xoauth-13]: https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L351
