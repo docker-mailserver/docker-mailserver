@@ -118,6 +118,7 @@ function teardown_file() {
 }
 
 @test "checking fail2ban ban" {
+  # Ban single IP address
   run docker exec mail_fail2ban fail2ban ban 192.0.66.7
   assert_success
   assert_output "Banned custom IP: 1"
@@ -136,6 +137,26 @@ function teardown_file() {
 
   run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
   refute_output --partial "192.0.66.7"
+
+  # Ban IP network
+  run docker exec mail_fail2ban fail2ban ban 192.0.66.0/24
+  assert_success
+  assert_output "Banned custom IP: 1"
+
+  run docker exec mail_fail2ban fail2ban
+  assert_success
+  assert_output --regexp "Banned in custom:.*192\.0\.66\.0/24"
+
+  run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
+  assert_success
+  assert_output --partial "elements = { 192.0.66.0/24 }"
+
+  run docker exec mail_fail2ban fail2ban unban 192.0.66.0/24
+  assert_success
+  assert_output --partial "Unbanned IP from custom: 1"
+
+  run docker exec mail_fail2ban nft list set inet f2b-table addr-set-custom
+  refute_output --partial "192.0.66.0/24"
 }
 
 @test "checking FAIL2BAN_BLOCKTYPE is really set to drop" {

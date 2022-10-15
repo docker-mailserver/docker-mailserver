@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+- **scripts**: fail2ban - enable network bans ([#2818](https://github.com/docker-mailserver/docker-mailserver/pull/2818))
+
 ### Fixed
 
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))

@@ -19,12 +19,13 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
-COPY target/scripts/build/* /build/
-COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
-RUN /bin/bash /build/packages.sh
-
 COPY target/bin/sedfile /usr/local/bin/sedfile
 RUN chmod +x /usr/local/bin/sedfile
+
+COPY target/scripts/build/* /build/
+COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
+
+RUN /bin/bash /build/packages.sh
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
