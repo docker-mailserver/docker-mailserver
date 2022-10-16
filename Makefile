@@ -11,10 +11,11 @@ export NAME       ?= $(IMAGE_NAME)
 all: lint build backup generate-accounts tests clean
 
 build:
-	@ DOCKER_BUILDKIT=1 docker build . \
+	@ DOCKER_BUILDKIT=1 docker build \
 		--tag $(IMAGE_NAME) \
 		--build-arg VCS_VERSION=$(shell git rev-parse --short HEAD) \
-		--build-arg VCS_REVISION=$(shell cat VERSION)
+		--build-arg VCS_REVISION=$(shell cat VERSION) \
+		.
 
 generate-accounts:
 	@ cp test/config/templates/postfix-accounts.cf test/config/postfix-accounts.cf
