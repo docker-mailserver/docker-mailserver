@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
+- **scripts**: Run Amavis cron job only when Amavis is enabled ([#2831](https://github.com/docker-mailserver/docker-mailserver/pull/2831))
 
 ## [11.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.2.0)
 
