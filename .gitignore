@@ -3,7 +3,7 @@
 #################################################
 
 .env
-docs/site
+docs/site/
 
 config.bak
 testconfig.bak
@@ -12,21 +12,20 @@ testconfig.bak
 ###  IDEs  ######################################
 #################################################
 
-.idea
-.vscode
+.idea/
+.vscode/
 
 #################################################
 ###  Tests  #####################################
 #################################################
 
-test/onedir
-test/duplicate_configs
-test/alias
-test/quota
-test/relay
+test/onedir/
+test/duplicate_configs/
+test/alias/
+test/quota/
+test/relay/
 test/config/key*
 test/config/empty/
-test/config/letsencrypt/mail.my-domain.com/combined.pem
 test/config/dovecot-masters.cf
 test/config/dovecot-lmtp/userdb
 test/config/opendkim/keys/domain.tld/

@@ -11,7 +11,8 @@ export NAME       ?= $(IMAGE_NAME)
 all: lint build backup generate-accounts tests clean
 
 build:
-	@ DOCKER_BUILDKIT=1 docker build . --tag $(NAME) \
+	@ DOCKER_BUILDKIT=1 docker build . \
+		--tag $(IMAGE_NAME) \
 		--build-arg VCS_VERSION=$(shell git rev-parse --short HEAD) \
 		--build-arg VCS_REVISION=$(shell cat VERSION)
 
@@ -27,8 +28,8 @@ backup:
 clean:
 # remove test containers and restore test/config directory
 	-@ [[ -d testconfig.bak ]] && { sudo rm -rf test/config ; mv testconfig.bak test/config ; } || :
-	-@ for CONTAINER in $$(docker ps -a --filter name='^dms-test-.*|^hadolint$$|^eclint$$|^shellcheck$$' | sed 1d | cut -f 1-1 -d ' '); do docker rm -f $${CONTAINER}; done
-	-@ while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && rm -rf $${LINE}; done < .gitignore
+	-@ for CONTAINER in $$(docker ps -a --filter name='^dms-test-.*|^mail_.*|^hadolint$$|^eclint$$|^shellcheck$$' | sed 1d | cut -f 1-1 -d ' '); do docker rm -f $${CONTAINER}; done
+	-@ while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && sudo rm -rf $${LINE}; done < .gitignore
 
 # -----------------------------------------------
 # --- Tests  & Lints ----------------------------
