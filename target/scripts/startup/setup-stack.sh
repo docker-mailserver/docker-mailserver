@@ -79,6 +79,11 @@ function _setup_amavis
   else
     _log 'debug' "Removing Amavis from Postfix's configuration"
     sed -i 's|content_filter =.*|content_filter =|' /etc/postfix/main.cf
+
+    _log 'debug' 'Disabling Amavis cron job'
+    mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
+    chmod 0 /etc/cron.d/amavisd-new.disabled
+
     [[ ${ENABLE_CLAMAV} -eq 1 ]] && _log 'warn' 'ClamAV will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && _log 'warn' 'Spamassassin will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
   fi
