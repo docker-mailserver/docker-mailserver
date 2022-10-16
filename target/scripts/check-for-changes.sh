@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # TODO: Adapt for compatibility with LDAP
 # Only the cert renewal change detection may be relevant for LDAP?

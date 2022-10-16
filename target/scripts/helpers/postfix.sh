@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # Support for Postfix features
 
 # Docs - virtual_mailbox_domains (Used in /etc/postfix/main.cf):

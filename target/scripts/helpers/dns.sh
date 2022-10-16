@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Outputs the DNS label count (delimited by `.`) for the given input string.
 # Useful for determining an FQDN like `mail.example.com` (3), vs `example.com` (2).

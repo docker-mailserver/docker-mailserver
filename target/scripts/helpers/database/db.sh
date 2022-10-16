@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Matches relative path to this scripts parent directory,
 # Must be defined above any function that would source relative to it:

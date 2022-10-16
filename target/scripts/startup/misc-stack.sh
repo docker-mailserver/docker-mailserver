@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 function _start_misc
 {

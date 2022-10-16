@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # -eE :: exit on error (do this in functions as well)
 # -u  :: show (and exit) when using unset variables

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # This helper supports the changedetector service. Used by:
 # - check-for-changes.sh
