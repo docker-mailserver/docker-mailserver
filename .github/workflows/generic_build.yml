@@ -84,7 +84,7 @@ jobs:
       # NOTE: AMD64 can build within 2 minutes, ARM adds 13 minutes. 330MB each
       # ARMv7 can build in parallel, adding no extra time (but does add 150MB cache size).
       - name: 'Build images'
-        uses: docker/build-push-action@v3.1.1
+        uses: docker/build-push-action@v3.2.0
         with:
           context: .
           # Build at least the AMD64 image (which runs against the test suite).
