@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck disable=SC2291 # Quote repeated spaces to avoid them collapsing into one.
 # shellcheck disable=SC2034 # VAR appears unused.

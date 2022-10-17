@@ -21,7 +21,7 @@ If you are managing your directory structure yourself, create a `docker-data/dms
 The contents could look like this:
 
 ``` sh
-#! /bin/bash
+#!/bin/bash
 
 cat >/etc/amavis/conf.d/50-user << "END"
 use strict;

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck source=../helpers/index.sh
 source /usr/local/bin/helpers/index.sh

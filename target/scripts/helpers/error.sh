@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 function _exit_with_error
 {

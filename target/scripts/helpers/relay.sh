@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # Support for Relay Hosts
 
 # Description:

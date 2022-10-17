@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Support for Postfix accounts managed via Dovecot
 

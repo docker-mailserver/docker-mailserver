@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # version   v0.3.0
 # executed  by Make (during CI or manually)

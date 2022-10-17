@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Manage DB writes for: DATABASE_QUOTA
 
