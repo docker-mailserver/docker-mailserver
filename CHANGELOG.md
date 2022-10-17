@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - **scripts**: fail2ban - enable network bans ([#2818](https://github.com/docker-mailserver/docker-mailserver/pull/2818))
 
+### Changed
+
+- **build** cleaned up `Makefile` and its targets ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+
 ### Fixed
 
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
