@@ -34,7 +34,7 @@ jobs:
       # Earlier `buildx` + `qemu` steps are not needed as no cache is exported,
       # and only a single platform (AMD64) is loaded:
       - name: 'Build AMD64 image from cache'
-        uses: docker/build-push-action@v3.1.1
+        uses: docker/build-push-action@v3.2.0
         with:
           context: .
           tags: mailserver-testing:ci
