@@ -5,7 +5,11 @@ source /usr/local/bin/helpers/index.sh
 
 function _main
 {
-  [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+  if [[ ${1:-} == 'help' ]] || [[ -z ${1:-} ]];
+  then
+    __usage
+    exit 0
+  fi
 
   local MAIL_ACCOUNT="${1}"
   shift

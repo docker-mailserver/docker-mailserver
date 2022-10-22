@@ -7,7 +7,7 @@ function _main
 {
   [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
 
-  local DOMAIN="${1}"
+  local DOMAIN="${1:-}"
   [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified' ; }
 
   _exclude_domain_from_relayhosts
