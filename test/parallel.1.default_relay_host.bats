@@ -1,28 +1,30 @@
 load 'test_helper/common'
 
-function setup() {
+TEST_NAME_PREFIX='default relay host:'
+CONTAINER_NAME='dms-test-default_relay_host'
+RUN_COMMAND=('run' 'docker' 'exec' "${CONTAINER_NAME}")
+
+function setup_file() {
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container relay-hosts)
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
-  docker run -d --name mail_with_default_relay \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
-    -e PERMIT_DOCKER=host \
-    -h mail.my-domain.com -t "${NAME}"
+  docker run --rm --detach --tty \
+    --name "${CONTAINER_NAME}" \
+    --hostname mail.my-domain.com \
+    --volume "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
+    --volume "${PWD}/test/test-files:/tmp/docker-mailserver-test:ro" \
+    --env DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
+    --env PERMIT_DOCKER=host \
+    "${IMAGE_NAME}"
 
-    wait_for_finished_setup_in_container mail_with_default_relay
+    wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 }
 
-function teardown() {
-  docker rm -f mail_with_default_relay
+function teardown_file() {
+  docker rm -f "${CONTAINER_NAME}"
 }
 
-#
-# default relay host
-#
-
-@test "checking default relay host: default relay host is added to main.cf" {
-  run docker exec mail_with_default_relay /bin/sh -c 'grep -e "^relayhost =" /etc/postfix/main.cf'
+@test "${TEST_NAME_PREFIX} default relay host is added to main.cf" {
+  "${RUN_COMMAND[@]}" bash -c 'grep -e "^relayhost =" /etc/postfix/main.cf'
   assert_output 'relayhost = default.relay.host.invalid:25'
 }
