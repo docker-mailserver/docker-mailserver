@@ -1095,12 +1095,7 @@ function _setup_fetchmail
   CONFIGURATION='/tmp/docker-mailserver/fetchmail.cf'
   FETCHMAILRC='/etc/fetchmailrc'
 
-  if [[ -f ${CONFIGURATION} ]]
-  then
-    cat /etc/fetchmailrc_general "${CONFIGURATION}" >"${FETCHMAILRC}"
-  else
-    cat /etc/fetchmailrc_general >"${FETCHMAILRC}"
-  fi
+  [[ -f ${CONFIGURATION} ]] && cat "${CONFIGURATION}" >"${FETCHMAILRC}"
 
   chmod 700 "${FETCHMAILRC}"
   chown fetchmail:root "${FETCHMAILRC}"
