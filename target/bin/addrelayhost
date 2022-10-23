@@ -5,7 +5,7 @@ source /usr/local/bin/helpers/index.sh
 
 function _main
 {
-  [[ ${#} -lt 3 ]] && { __usage ; exit 0 ; }
+  [[ ${#} -lt 2 ]] && { __usage ; exit 0 ; }
 
   local DOMAIN="${1}"
   local HOST="${2}"
