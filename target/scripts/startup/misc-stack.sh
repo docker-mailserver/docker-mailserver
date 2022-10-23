@@ -31,8 +31,9 @@ function _misc_save_states
     [[ ${ENABLE_AMAVIS} -eq 1 ]] && FILES+=('lib/amavis')
     [[ ${ENABLE_CLAMAV} -eq 1 ]] && FILES+=('lib/clamav')
     [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && FILES+=('lib/fail2ban')
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
+    [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && FILES+=('lib/fetchmail')
     [[ ${ENABLE_POSTGREY} -eq 1 ]] && FILES+=('lib/postgrey')
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
     [[ ${SMTP_ONLY} -ne 1 ]] && FILES+=('lib/dovecot')
 
     for FILE in "${FILES[@]}"
