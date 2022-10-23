@@ -31,11 +31,6 @@ function teardown_file() {
 # fetchmail
 #
 
-@test "checking fetchmail: gerneral options in fetchmailrc are loaded" {
-  run docker exec mail_fetchmail grep 'set syslog' /etc/fetchmailrc
-  assert_success
-}
-
 @test "checking fetchmail: fetchmail.cf is loaded" {
   run docker exec mail_fetchmail grep 'pop3.example.com' /etc/fetchmailrc
   assert_success
