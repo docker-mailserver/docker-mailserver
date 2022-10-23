@@ -17,8 +17,8 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **scripts**: Improve error handling, when parameters are missing ([#2854](https://github.com/docker-mailserver/docker-mailserver/pull/2854))
+- **scripts**: Fix unbound variable error ([#2849](https://github.com/docker-mailserver/docker-mailserver/pull/2849), [#2853](https://github.com/docker-mailserver/docker-mailserver/pull/2853))
 - **scripts**: Make fetchmail data persistant ([#2851](https://github.com/docker-mailserver/docker-mailserver/pull/2851))
-- **scripts**: Fix unbound variable error ([#2849](https://github.com/docker-mailserver/docker-mailserver/pull/2849))
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
 - **scripts**: Run Amavis cron job only when Amavis is enabled ([#2831](https://github.com/docker-mailserver/docker-mailserver/pull/2831))
 
