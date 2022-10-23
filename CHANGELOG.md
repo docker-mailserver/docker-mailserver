@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
-- **scripts**: Improve error handling, when parameters are missing ([#2852](https://github.com/docker-mailserver/docker-mailserver/pull/2852))
+- **scripts**: Improve error handling, when parameters are missing ([#2854](https://github.com/docker-mailserver/docker-mailserver/pull/2854))
 - **scripts**: Make fetchmail data persistant ([#2851](https://github.com/docker-mailserver/docker-mailserver/pull/2851))
 - **scripts**: Fix unbound variable error ([#2849](https://github.com/docker-mailserver/docker-mailserver/pull/2849))
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
