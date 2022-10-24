@@ -34,3 +34,28 @@ function _chown_var_mail_if_necessary
     chown -R 5000:5000 /var/mail || return 1
   fi
 }
+
+function _require_n_parameters_or_print_usage
+{
+  local COUNT FAIL=0
+  COUNT=${1}
+  shift
+
+  # One or more parameters?
+  if [[ ${COUNT} -eq 1 ]]; then
+    # one parameter
+    if [[ ${1:-} == 'help' ]] || [[ -z ${1:-} ]]
+    then
+      FAIL=1
+    fi
+  else
+    # n parameters
+    [[ ${#} -lt $COUNT ]] && FAIL=1
+  fi
+
+  if [[ ${FAIL} -eq 1 ]]
+  then
+    __usage
+    exit 0
+  fi
+}
