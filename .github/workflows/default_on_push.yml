@@ -28,7 +28,7 @@ jobs:
           submodules: recursive
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
+        uses: docker/setup-buildx-action@v2.2.1
         id: buildx
 
       - name: Cache Docker layers
@@ -89,7 +89,7 @@ jobs:
         uses: docker/setup-qemu-action@v2.0.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
+        uses: docker/setup-buildx-action@v2.2.1
         id: buildx
 
       - name: Cache Docker layers
