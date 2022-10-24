@@ -50,7 +50,7 @@ function _require_n_parameters_or_print_usage
     fi
   else
     # n parameters
-    [[ ${#} -lt $COUNT ]] && FAIL=1
+    [[ ${#} -lt ${COUNT} ]] && FAIL=1
   fi
 
   if [[ ${FAIL} -eq 1 ]]
