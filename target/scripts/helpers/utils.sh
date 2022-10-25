@@ -37,25 +37,10 @@ function _chown_var_mail_if_necessary
 
 function _require_n_parameters_or_print_usage
 {
-  local COUNT FAIL=0
+  local COUNT
   COUNT=${1}
   shift
 
-  # One or more parameters?
-  if [[ ${COUNT} -eq 1 ]]; then
-    # one parameter
-    if [[ ${1:-} == 'help' ]] || [[ -z ${1:-} ]]
-    then
-      FAIL=1
-    fi
-  else
-    # n parameters
-    [[ ${#} -lt ${COUNT} ]] && FAIL=1
-  fi
-
-  if [[ ${FAIL} -eq 1 ]]
-  then
-    __usage
-    exit 0
-  fi
+  [[ ${1:-} == 'help' ]]  && { __usage ; exit 0 ; }
+  [[ ${#} -lt ${COUNT} ]] && { __usage ; exit 1 ; }
 }
