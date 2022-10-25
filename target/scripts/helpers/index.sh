@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck source-path=target/scripts/helpers
 # This file serves as a single import for all helpers

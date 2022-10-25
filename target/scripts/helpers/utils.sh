@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 function _escape
 {
@@ -16,9 +16,7 @@ function _get_valid_lines_from_file
 # and it will return its value stored in /etc/dms-settings
 function _get_dms_env_value
 {
-  local VALUE
-  VALUE=$(grep "^${1}=" /etc/dms-settings | cut -d '=' -f 2)
-  printf '%s' "${VALUE:1:-1}"
+  grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
 }
 
 # TODO: `chown -R 5000:5000 /var/mail` has existed since the projects first commit.

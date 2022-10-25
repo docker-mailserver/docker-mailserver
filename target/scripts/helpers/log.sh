@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck disable=SC2291 # Quote repeated spaces to avoid them collapsing into one.
 # shellcheck disable=SC2034 # VAR appears unused.
@@ -46,28 +46,20 @@ function _log
 {
   if [[ -z ${1+set} ]]
   then
-    echo "Call to '_log' is missing a valid log level" >&2
+    _log 'error' "Call to '_log' is missing a valid log level"
     return 1
   fi
 
   if [[ -z ${2+set} ]]
   then
-    echo "Call to '_log' is missing a message to log" >&2
+    _log 'error' "Call to '_log' is missing a message to log"
     return 1
   fi
 
-  local MESSAGE LEVEL_AS_INT LOG_LEVEL_FALLBACK
-  MESSAGE="${RESET}["
+  local LEVEL_AS_INT
+  local MESSAGE="${RESET}["
 
-  if [[ -e /etc/dms-settings ]]
-  then
-    LOG_LEVEL_FALLBACK=$(grep "^LOG_LEVEL=" /etc/dms-settings | cut -d '=' -f 2)
-    LOG_LEVEL_FALLBACK="${LOG_LEVEL_FALLBACK:1:-1}"
-  else
-    LOG_LEVEL_FALLBACK='info'
-  fi
-
-  case "${LOG_LEVEL:-${LOG_LEVEL_FALLBACK}}" in
+  case "$(_get_log_level_or_default)" in
     ( 'trace' ) LEVEL_AS_INT=5 ;;
     ( 'debug' ) LEVEL_AS_INT=4 ;;
     ( 'warn'  ) LEVEL_AS_INT=2 ;;
@@ -78,12 +70,12 @@ function _log
   case "${1}" in
     ( 'trace' )
       [[ ${LEVEL_AS_INT} -ge 5 ]] || return 0
-      MESSAGE+="  ${LGRAY}TRACE  "
+      MESSAGE+="  ${CYAN}TRACE  "
       ;;
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${LBLUE}DEBUG  "
+      MESSAGE+="  ${PURPLE}DEBUG  "
       ;;
 
     ( 'info' )
@@ -98,10 +90,10 @@ function _log
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+="  ${RED}ERROR  " ;;
+      MESSAGE+="  ${LRED}ERROR  " ;;
 
     ( * )
-      echo "Call to '_log' with invalid log level argument '${1}'" >&2
+      _log 'error' "Call to '_log' with invalid log level argument '${1}'"
       return 1
       ;;
   esac
@@ -116,4 +108,32 @@ function _log
   fi
 }
 
-function _log_with_date { _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}" ; }
+# Like `_log` but adds a timestamp in front of the message.
+function _log_with_date
+{
+  _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}"
+}
+
+# Get the value of the environment variable LOG_LEVEL if
+# it is set. Otherwise, try to query the common environment
+# variables file. If this does not yield a value either,
+# use the default log level.
+function _get_log_level_or_default
+{
+  if [[ -n ${LOG_LEVEL+set} ]]
+  then
+    echo "${LOG_LEVEL}"
+  elif [[ -e /etc/dms-settings ]]
+  then
+    grep "^LOG_LEVEL=" /etc/dms-settings | cut -d "'" -f 2
+  else
+    echo 'info'
+  fi
+}
+
+# This function checks whether the log level is the one
+# provided as the first argument.
+function _log_level_is
+{
+  [[ $(_get_log_level_or_default) =~ ^${1}$ ]]
+}

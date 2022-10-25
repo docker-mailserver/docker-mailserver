@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # This user patches script runs right before starting the daemons.
 # That means, all the other configuration is in place, so the script

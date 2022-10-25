@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # You cannot start postfix in some foreground mode and
 # it's more or less important that docker doesn't kill

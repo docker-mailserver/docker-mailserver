@@ -1,11 +1,7 @@
 load 'test_helper/common'
 
 function setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
-
   docker run --rm -d --name mail_smtponly \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e PERMIT_DOCKER=network \
@@ -47,7 +43,7 @@ function teardown_file() {
 #
 
 @test "checking smtp_only: mail send should work" {
-  run docker exec mail_smtponly /bin/sh -c "postconf -e smtp_host_lookup=no"
+  run docker exec mail_smtponly /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
   run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
   assert_success

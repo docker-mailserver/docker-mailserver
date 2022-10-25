@@ -86,6 +86,9 @@ function teardown_file() {
   refute_output --partial 'Password must not be empty'
   assert_success
 
+  # NOTE: this was put in place for the next test `setup.sh email del` to properly work.
+  wait_until_change_detection_event_completes "${TEST_NAME}"
+
   # `postfix-accounts.cf` should have an updated password hash stored:
   local NEW_PASS_HASH
   NEW_PASS_HASH=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $2}')
@@ -111,14 +114,11 @@ function teardown_file() {
   run ./setup.sh -c "${TEST_NAME}" email del -y "${MAIL_ACCOUNT}"
   assert_success
 
-  # Mail storage for account was actually removed by `-y`:
   # NOTE: Sometimes the directory still exists, possibly from change detection
-  # of the previous test (`email udpate`) triggering. If this does not fix it,
-  # use `wait_until_change_detection_event_completes()` in that test to ensure
-  # consistency, or create another user to delete.
+  # of the previous test (`email udpate`) triggering. Therefore, the function
+  # `wait_until_change_detection_event_completes was added to the
+  # `setup.sh email update` test.
   repeat_in_container_until_success_or_timeout 60 "${TEST_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'
-  #run docker exec "${TEST_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'
-  #assert_success
 
   # Account is not present in `postfix-accounts.cf`:
   run grep "${MAIL_ACCOUNT}" "${TEST_TMP_CONFIG}/postfix-accounts.cf"

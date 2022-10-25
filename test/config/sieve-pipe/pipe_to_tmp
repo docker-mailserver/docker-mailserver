@@ -1,2 +1,2 @@
-#! /bin/bash
+#!/bin/bash
 cat - > /tmp/pipe-test.out

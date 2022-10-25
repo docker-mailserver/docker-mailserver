@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # Support for Relay Hosts
 
 # Description:
@@ -189,10 +189,10 @@ function _populate_relayhost_map
 
 function _relayhost_configure_postfix
 {
-  postconf -e \
-    "smtp_sasl_auth_enable = yes" \
-    "smtp_sasl_security_options = noanonymous" \
-    "smtp_tls_security_level = encrypt"
+  postconf \
+    'smtp_sasl_auth_enable = yes' \
+    'smtp_sasl_security_options = noanonymous' \
+    'smtp_tls_security_level = encrypt'
 }
 
 function _setup_relayhost
@@ -202,7 +202,7 @@ function _setup_relayhost
   if [[ -n ${DEFAULT_RELAY_HOST} ]]
   then
     _log 'trace' "Setting default relay host ${DEFAULT_RELAY_HOST} to /etc/postfix/main.cf"
-    postconf -e "relayhost = ${DEFAULT_RELAY_HOST}"
+    postconf "relayhost = ${DEFAULT_RELAY_HOST}"
   fi
 
   if [[ -n ${RELAY_HOST} ]]
