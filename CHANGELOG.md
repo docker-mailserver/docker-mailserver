@@ -12,7 +12,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
-- **build** cleaned up `Makefile` and its targets ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **configuration**: Run fetchmail not in verbose mode ([#2859](https://github.com/docker-mailserver/docker-mailserver/pull/2859))
+- **build**: cleaned up `Makefile` and its targets ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
 
 ### Fixed
 
