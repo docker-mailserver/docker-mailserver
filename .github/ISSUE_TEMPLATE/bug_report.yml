@@ -99,6 +99,13 @@ body:
         - Other (unsupported)
     validations:
       required: true
+  - type: input
+    id: operating-system-version
+    attributes:
+      label: Which operating system version?
+      placeholder: e.g. Debian 11
+    validations:
+      required: true
   - type: dropdown
     id: isa
     attributes:
