@@ -5,12 +5,11 @@ source /usr/local/bin/helpers/index.sh
 
 function _main
 {
-  [[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+  _require_n_parameters_or_print_usage 1 "${@}"
+
   # Tests expect early exit without error if no DB exists:
   [[ -s ${DATABASE_ACCOUNTS} ]] || return 0
 
-  # Validate Parameters:
-  [[ -z ${*} ]] && { __usage ; _exit_with_error 'No account specified' ; }
   _maildel_request_if_missing
 
   # TODO: May want to lock all database files prior to loop? (DATABASE_ACCOUNTS DATABASE_QUOTA DATABASE_VIRTUAL)
