@@ -27,22 +27,6 @@ RESET=$(echo -ne '\e[0m')
 
 set -euEo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
-trap '__err "${BASH_SOURCE}" "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
-
-function __err
-{
-  [[ ${5} -gt 1 ]] && exit 1
-
-  local ERR_MSG="\n--- ${RED}UNCHECKED ERROR${RESET}"
-  ERR_MSG+="\n  - script    = ${1}"
-  ERR_MSG+="\n  - function  = ${2}"
-  ERR_MSG+="\n  - command   = ${3}"
-  ERR_MSG+="\n  - line      = ${4}"
-  ERR_MSG+="\n  - exit code = ${5}"
-  ERR_MSG+='\n\nThis should not have happened. Please file a bug report.\n'
-
-  echo -e "${ERR_MSG}"
-}
 
 function _show_local_usage
 {
