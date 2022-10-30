@@ -19,7 +19,6 @@ USE_SELINUX=
 USE_TTY=
 VOLUME=
 
-RED=$(echo -ne '\e[31m\e[1m')
 WHITE=$(echo -ne '\e[37m')
 ORANGE=$(echo -ne '\e[38;5;214m')
 LBLUE=$(echo -ne '\e[94m')
