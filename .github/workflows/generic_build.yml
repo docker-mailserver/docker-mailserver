@@ -79,7 +79,7 @@ jobs:
           platforms: arm64,arm
 
       - name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v2.0.0
+        uses: docker/setup-buildx-action@v2.2.1
 
       # NOTE: AMD64 can build within 2 minutes, ARM adds 13 minutes. 330MB each
       # ARMv7 can build in parallel, adding no extra time (but does add 150MB cache size).
