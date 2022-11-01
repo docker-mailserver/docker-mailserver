@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **scripts**: `./setup.sh email list` did not display aliases correctly ([#2877](https://github.com/docker-mailserver/docker-mailserver/issues/2877))
 - **scripts**: Improve error handling, when parameters are missing ([#2854](https://github.com/docker-mailserver/docker-mailserver/pull/2854))
 - **scripts**: Fix unbound variable error ([#2849](https://github.com/docker-mailserver/docker-mailserver/pull/2849), [#2853](https://github.com/docker-mailserver/docker-mailserver/pull/2853))
 - **scripts**: Make fetchmail data persistant ([#2851](https://github.com/docker-mailserver/docker-mailserver/pull/2851))
