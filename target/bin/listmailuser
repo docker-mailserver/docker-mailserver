@@ -90,15 +90,9 @@ function _alias_list_for_account
   local MAIL_ACCOUNT=${1}
 
   # `__db_list_already_contains_value` would be a more reliable check:
-  function _account_has_an_alias
-  {
-    local ANY_ALIAS='\S\+\s'
-    grep -qis "^${ANY_ALIAS}.*${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
-  }
-
-  if _account_has_an_alias
+  if grep -qis "\s${MAIL_ACCOUNT}$" "${DATABASE_VIRTUAL}"
   then
-    grep "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
+    grep "\s${MAIL_ACCOUNT}$" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi
 }
 
