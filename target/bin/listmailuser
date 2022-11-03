@@ -87,6 +87,7 @@ function _bytes_to_human_readable_size
 # Returns a comma delimited list of aliases associated to a recipient (ideally the recipient is a mail account):
 function _alias_list_for_account
 {
+  local GREP_OPTIONS
   local MAIL_ACCOUNT=${1}
 
 # postfix-virtual.cf sample lines:
