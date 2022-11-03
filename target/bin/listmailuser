@@ -90,12 +90,12 @@ function _alias_list_for_account
   local GREP_OPTIONS
   local MAIL_ACCOUNT=${1}
 
-# postfix-virtual.cf sample lines:
-#
-# all@example.com foo@example.com
-# all@example.com foo@example.com,another@example.com
-# all@example.com another@example.com,foo@example.com,yetanother@example.com
-# all@example.com another@example.com,foo@example.com
+  # postfix-virtual.cf sample lines:
+  #
+  # all@example.com foo@example.com
+  # all@example.com foo@example.com,another@example.com
+  # all@example.com another@example.com,foo@example.com,yetanother@example.com
+  # all@example.com another@example.com,foo@example.com
 
   GREP_OPTIONS=(
     --ignore-case
