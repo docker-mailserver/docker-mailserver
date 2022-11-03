@@ -101,7 +101,7 @@ function _alias_list_for_account
     --ignore-case
     --extended-regexp
     -e "\s${MAIL_ACCOUNT}($|,)" # match first and second sample line
-    -e ",${MAIL_ACCOUNT}($|,)"  # match third and fourth sample line
+    -e  ",${MAIL_ACCOUNT}($|,)" # match third and fourth sample line
     "${DATABASE_VIRTUAL}"
   )
 
