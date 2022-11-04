@@ -154,12 +154,15 @@ body:
       description: >
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
-        Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
+        Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily. If you are experienced, we can skip basic questions and save time.
 
       options:
         - label: I am inexperienced with docker
+        - label: I am rather experienced with docker
         - label: I am inexperienced with mail servers
+        - label: I am rather experienced with mail servers
         - label: I am uncomfortable with the CLI
+        - label: I am rather comfortable with the CLI
   - type: checkboxes
     id: terms-code-of-conduct
     attributes:
@@ -170,9 +173,10 @@ body:
           required: true
         - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and I searched the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) but could not find a solution
           required: true
-  - type: textarea
+  - type: input
     id: form-improvements
     attributes:
       label: Improvements to this form?
       description: If you have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
-      render: Markdown
+    validations:
+      required: false
