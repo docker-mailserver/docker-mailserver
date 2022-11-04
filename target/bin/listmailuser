@@ -87,18 +87,27 @@ function _bytes_to_human_readable_size
 # Returns a comma delimited list of aliases associated to a recipient (ideally the recipient is a mail account):
 function _alias_list_for_account
 {
+  local GREP_OPTIONS
   local MAIL_ACCOUNT=${1}
 
-  # `__db_list_already_contains_value` would be a more reliable check:
-  function _account_has_an_alias
-  {
-    local ANY_ALIAS='\S\+\s'
-    grep -qis "^${ANY_ALIAS}.*${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
-  }
+  # postfix-virtual.cf sample lines:
+  #
+  # all@example.com foo@example.com
+  # all@example.com foo@example.com,another@example.com
+  # all@example.com another@example.com,foo@example.com,yetanother@example.com
+  # all@example.com another@example.com,foo@example.com
 
-  if _account_has_an_alias
+  GREP_OPTIONS=(
+    --ignore-case
+    --extended-regexp
+    -e "\s${MAIL_ACCOUNT}($|,)" # match first and second sample line
+    -e  ",${MAIL_ACCOUNT}($|,)" # match third and fourth sample line
+    "${DATABASE_VIRTUAL}"
+  )
+
+  if grep --quiet --no-messages "${GREP_OPTIONS[@]}"
   then
-    grep "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
+    grep "${GREP_OPTIONS[@]}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi
 }
 
