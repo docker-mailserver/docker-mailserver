@@ -49,7 +49,7 @@ jobs:
         run: |
           git pull
           git checkout contributors-update
-          echo "::set-output name=head_sha::$(git rev-parse contributors-update)"
+          echo "head_sha=$(git rev-parse contributors-update)" >>${GITHUB_OUTPUT}
 
       - name: 'Commit Status: Set Lint status to success (skipped)'
         uses: myrotvorets/set-commit-status-action@1.1.5
