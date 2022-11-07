@@ -36,7 +36,7 @@ function setup_file() {
 
 @test "checking enabled postscreen DNS block lists --> postscreen_dnsbl_sites" {
   run docker exec "${CONTAINER}" postconf postscreen_dnsbl_sites
-  assert_output 'postscreen_dnsbl_sites = zen.spamhaus.org*3 bl.mailspike.net b.barracudacentral.org*2 bl.spameatingmonkey.net dnsbl.sorbs.net psbl.surriel.com list.dnswl.org=127.0.[0..255].0*-2 list.dnswl.org=127.0.[0..255].1*-3 list.dnswl.org=127.0.[0..255].[2..3]*-4'
+  assert_output 'postscreen_dnsbl_sites = zen.spamhaus.org=127.0.0.[2..11]*3 bl.mailspike.net=127.0.0.[2;14;13;12;11;10] b.barracudacentral.org*2 bl.spameatingmonkey.net=127.0.0.2 dnsbl.sorbs.net psbl.surriel.com list.dnswl.org=127.0.[0..255].0*-2 list.dnswl.org=127.0.[0..255].1*-3 list.dnswl.org=127.0.[0..255].[2..3]*-4'
 }
 
 # ENABLE_DNSBL=0

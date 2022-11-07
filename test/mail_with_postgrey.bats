@@ -25,7 +25,7 @@ function teardown_file() {
 }
 
 @test "checking postgrey: /etc/postfix/main.cf correctly edited" {
-  run docker exec mail_with_postgrey /bin/bash -c "grep 'zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf | wc -l"
+  run docker exec mail_with_postgrey /bin/bash -c "grep -F 'zen.spamhaus.org=127.0.0.[2..11], check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf | wc -l"
   assert_success
   assert_output 1
 }
