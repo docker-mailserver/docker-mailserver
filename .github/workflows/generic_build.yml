@@ -55,7 +55,7 @@ jobs:
               | awk '{ print $1 }' \
           )
 
-          echo "::set-output name=digest::${IMAGE_CHECKSUM}"
+          echo "digest=${IMAGE_CHECKSUM}" >>"${GITHUB_OUTPUT}"
 
       # Attempts to restore the build cache from a prior build run.
       # If the exact key is not restored, then upon a successful job run

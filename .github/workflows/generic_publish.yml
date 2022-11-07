@@ -69,7 +69,7 @@ jobs:
       - name: 'Acquire the image version'
         id: get-version
         shell: bash
-        run: echo "::set-output name=version::$(<VERSION)"
+        run: echo "version=$(<VERSION)" >>"${GITHUB_OUTPUT}"
 
       - name: 'Build and publish images'
         uses: docker/build-push-action@v3.2.0
