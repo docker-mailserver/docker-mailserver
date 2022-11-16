@@ -101,6 +101,7 @@ function _register_functions
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
   [[ ${ENABLE_DNSBL} -eq 0 ]] && _register_setup_function '_setup_dnsbl_disable'
   [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]] && _register_setup_function '_setup_clamav_sizelimit'
+  [[ ${ENABLE_RSPAMD} -eq 1 ]] && _register_setup_function '_setup_rspamd'
 
   _register_setup_function '_setup_dkim'
   _register_setup_function '_setup_ssl'
@@ -164,6 +165,8 @@ function _register_functions
 
   [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
   [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  [[ ${ENABLE_RSPAMD} -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
+
 
   # needs to be started before SASLauthd
   _register_start_daemon '_start_daemon_opendkim'

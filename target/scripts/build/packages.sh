@@ -115,6 +115,21 @@ function _install_dovecot
   apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
 }
 
+function _install_rspamd
+{
+  _log 'trace' 'Adding Rspamd package signatures'
+  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
+
+  echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main" \
+    >/etc/apt/sources.list.d/rspamd.list
+  echo "deb-src [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main" \
+    >>/etc/apt/sources.list.d/rspamd.list
+
+  _log 'debug' 'Installing Rspamd'
+  apt-get "${QUIET}" update
+  apt-get "${QUIET}" --no-install-recommends install rspamd redis-server
+}
+
 function _install_fail2ban
 {
   local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb'
@@ -166,5 +181,6 @@ _pre_installation_steps
 _install_postfix
 _install_packages
 _install_dovecot
+_install_rspamd
 _install_fail2ban
 _post_installation_steps
