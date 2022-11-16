@@ -1055,7 +1055,7 @@ function _setup_user_patches
   if [[ -f ${USER_PATCHES} ]]
   then
     _log 'debug' 'Applying user patches'
-    /bin/bash "${USER_PATCHES}"
+    source "${USER_PATCHES}"
   else
     _log 'trace' "No optional '${USER_PATCHES}' provided"
   fi
