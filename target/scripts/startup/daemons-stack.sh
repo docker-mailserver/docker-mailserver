@@ -36,6 +36,7 @@ function _start_daemon_postfix        { _default_start_daemon 'postfix'        ;
 function _start_daemon_rsyslog        { _default_start_daemon 'rsyslog'        ; }
 function _start_daemon_update_check   { _default_start_daemon 'update-check'   ; }
 function _start_daemon_rspamd         { _default_start_daemon 'rspamd'         ; }
+function _start_daemon_redis          { _default_start_daemon 'redis'          ; }
 
 function _start_daemon_saslauthd
 {

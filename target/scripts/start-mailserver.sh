@@ -165,8 +165,12 @@ function _register_functions
 
   [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
   [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
-  [[ ${ENABLE_RSPAMD} -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
 
+  if [[ ${ENABLE_RSPAMD} -eq 1 ]]
+  then
+    _register_start_daemon '_start_daemon_rspamd'
+    _register_start_daemon '_start_daemon_redis'
+  fi
 
   # needs to be started before SASLauthd
   _register_start_daemon '_start_daemon_opendkim'
