@@ -67,6 +67,19 @@ Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_pro
 
 Set the timezone. If this variable is unset, the container runtime will try to detect the time using `/etc/localtime`, which you can alternatively mount into the container. The value of this variable must follow the pattern `AREA/ZONE`, i.e. of you want to use Germany's time zone, use `Europe/Berlin`. You can lookup all available timezones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
 
+##### ENABLE_RSPAMD
+
+!!! warning "Current State"
+
+    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. Moreover, you will _currently_ need to adjust Postfix's configuration _yourself_ if you want to use Rspamd; you may use [`user-patches.sh`][docs-userpatches].
+
+[docs-userpatches]: ./advanced/override-defaults/user-patches.md
+
+Enable or disable Rspamd.
+
+- **0** => disabled
+- 1 => enabled
+
 ##### ENABLE_AMAVIS
 
 Amavis content filter (used for ClamAV & SpamAssassin)
