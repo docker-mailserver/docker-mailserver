@@ -73,7 +73,13 @@ Set the timezone. If this variable is unset, the container runtime will try to d
 
     Rspamd-support is under active development. Be aware that breaking changes can happen at any time. Moreover, you will _currently_ need to adjust Postfix's configuration _yourself_ if you want to use Rspamd; you may use [`user-patches.sh`][docs-userpatches].
 
+    You will need to add Rspamd to the `smtpd_milters` in Postfix's `main.cf`. This can easily be done with `sed`: `sed -i -E 's|^(smtpd_milters = .*)|\1,inet:localhost:11332|g' /etc/postfix/main.cf`. Moreover, have a look at the [integration of Rspamd into Postfx](https://rspamd.com/doc/integration.html). You will need to provide additional configuration files at the moment (to `/etc/rspamd/local.d/`) to make Rspamd run in milter-mode.
+
 [docs-userpatches]: ./advanced/override-defaults/user-patches.md
+
+!!! bug "Rspamd and DNS Block Lists"
+
+    When you use Rspamd, you might want to use the [RBL module](https://rspamd.com/doc/modules/rbl.html). If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you [might not be able](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365) to make use of the block lists.
 
 Enable or disable Rspamd.
 

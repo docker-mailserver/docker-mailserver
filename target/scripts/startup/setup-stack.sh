@@ -98,10 +98,12 @@ function _setup_rspamd
     _shutdown 'You cannot run Amavis/SpamAssassin and Rspamd at the same time'
   fi
 
-  if [[ ${ENABLE_CLAMAV} -eq 0 ]]
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
-    _log 'debug' 'Rspamd will not use ClamAV (which is disabled)'
-    rm -f /etc/rspamd/local.d/antivirus.conf
+    _log 'debug' 'Rspamd will use ClamAV'
+    mv /etc/rspamd/local.d/disabled/antivirus.conf /etc/rspamd/local.d/antivirus.conf
+  else
+    _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
   _log 'warn' 'Only running with default configuration'
