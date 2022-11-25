@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 # Globals ${BATS_TMPDIR} and ${NAME}
 # `${NAME}` defaults to `mailserver-testing:ci`
 

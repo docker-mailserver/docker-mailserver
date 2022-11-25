@@ -1,4 +1,4 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 # Test case
 # ---------

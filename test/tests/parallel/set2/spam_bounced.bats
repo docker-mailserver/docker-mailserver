@@ -1,6 +1,5 @@
-load 'test_helper/common'
-# Globals referenced from `test_helper/common`:
-# TEST_NAME
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
 # Can run tests in parallel?: No
 # Shared static container name: TEST_NAME

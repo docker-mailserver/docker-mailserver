@@ -1,5 +1,5 @@
-load 'test_helper/common'
-load 'test_helper/tls'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/test_helper/tls"
 
 # Globals referenced from `test_helper/common`:
 # TEST_NAME TEST_FQDN TEST_TMP_CONFIG

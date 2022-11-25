@@ -1,4 +1,5 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
 function setup() {
   local PRIVATE_CONFIG

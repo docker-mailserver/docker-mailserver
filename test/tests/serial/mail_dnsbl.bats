@@ -1,4 +1,4 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 CONTAINER="mail_dnsbl_enabled"
 CONTAINER2="mail_dnsbl_disabled"

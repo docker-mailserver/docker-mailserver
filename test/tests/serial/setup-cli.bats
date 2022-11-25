@@ -1,4 +1,4 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 # Globals referenced from `test_helper/common`:
 # TEST_NAME (should match the filename, minus the bats extension)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 function setup_file() {
   # Internal copies made by `start-mailserver.sh`:

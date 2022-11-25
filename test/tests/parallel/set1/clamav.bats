@@ -1,4 +1,5 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
 TEST_NAME_PREFIX='ClamAV:'
 CONTAINER_NAME='dms-test-clamav'

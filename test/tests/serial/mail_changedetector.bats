@@ -1,4 +1,4 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 # Note if tests fail asserting against `supervisorctl tail changedetector` output,
 # use `supervisorctl tail -<num bytes> changedetector` instead to increase log output.

@@ -1,4 +1,4 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME=non-default-docker-mail-network
 setup_file() {

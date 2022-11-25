@@ -1,6 +1,4 @@
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 @test "repeat_until_success_or_timeout returns instantly on success" {
   SECONDS=0

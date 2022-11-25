@@ -1,6 +1,6 @@
 #!/bin/bash
 
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 # Helper methods for testing TLS.
 # `_should_*` methods are useful for common high-level functionality.

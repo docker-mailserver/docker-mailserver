@@ -1,4 +1,4 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 function setup_file() {
   pushd test/docker-openldap/ || return 1
