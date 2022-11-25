@@ -1,55 +1,46 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-function setup_file() {
-  local PRIVATE_CONFIG
-  export ALL IPV4 IPV6
+TEST_NAME_PREFIX='Dovecot protocols:'
 
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${IPV4}")
-  ALL="mail_dovecot_all_protocols"
-  IPV4="mail_dovecot_ipv4"
-  IPV6="mail_dovecot_ipv6"
+@test "${TEST_NAME_PREFIX} dual-stack IP configuration" {
+  local CONTAINER_NAME='dms-test-dovecot_protocols_all'
+  local CUSTOM_SETUP_ARGUMENTS=(--env DOVECOT_INET_PROTOCOLS=)
 
-  docker run --rm -d --name "${ALL}" \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -e DOVECOT_INET_PROTOCOLS= \
-    -h mail.my-domain.com \
-    -t "${NAME}"
+  init_with_defaults
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  docker run --rm -d --name "${IPV4}" \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -e DOVECOT_INET_PROTOCOLS=ipv4 \
-    -h mail.my-domain.com \
-    -t "${NAME}"
-
-  docker run --rm -d --name "${IPV6}" \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -e DOVECOT_INET_PROTOCOLS=ipv6 \
-    -h mail.my-domain.com \
-    -t "${NAME}"
-}
-
-@test 'checking dovecot IP configuration' {
-  wait_for_finished_setup_in_container "${ALL}"
-  run docker exec "${ALL}" grep '^#listen = \*, ::' /etc/dovecot/dovecot.conf
+  _run_in_container grep '^#listen = \*, ::' /etc/dovecot/dovecot.conf
   assert_success
   assert_output '#listen = *, ::'
+
+  docker rm -f "${CONTAINER_NAME}"
 }
 
-@test 'checking dovecot IPv4 configuration' {
-  wait_for_finished_setup_in_container "${IPV4}"
-  run docker exec "${IPV4}" grep '^listen = \*$' /etc/dovecot/dovecot.conf
+@test "${TEST_NAME_PREFIX} IPv4 configuration" {
+  local CONTAINER_NAME='dms-test-dovecot_protocols_ipv4'
+  local CUSTOM_SETUP_ARGUMENTS=(--env DOVECOT_INET_PROTOCOLS=ipv4)
+
+  init_with_defaults
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  _run_in_container grep '^listen = \*$' /etc/dovecot/dovecot.conf
   assert_success
   assert_output 'listen = *'
+
+  docker rm -f "${CONTAINER_NAME}"
 }
 
-@test 'checking dovecot IPv6 configuration' {
-  wait_for_finished_setup_in_container "${IPV6}"
-  run docker exec "${IPV6}" grep '^listen = \[::\]$' /etc/dovecot/dovecot.conf
+@test "${TEST_NAME_PREFIX} IPv6 configuration" {
+  local CONTAINER_NAME='dms-test-dovecot_protocols_ipv6'
+  local CUSTOM_SETUP_ARGUMENTS=(--env DOVECOT_INET_PROTOCOLS=ipv6)
+
+  init_with_defaults
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  _run_in_container grep '^listen = \[::\]$' /etc/dovecot/dovecot.conf
   assert_success
   assert_output 'listen = [::]'
-}
 
-function teardown_file {
-  docker rm -f "${ALL}" "${IPV4}" "${IPV6}"
+  docker rm -f "${CONTAINER_NAME}"
 }

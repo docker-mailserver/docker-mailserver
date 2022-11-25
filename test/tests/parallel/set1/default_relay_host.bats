@@ -1,29 +1,23 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-function setup() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container relay-hosts)
+export TEST_NAME_PREFIX='default relay host:'
+export CONTAINER_NAME='dms-test-default_relay_host'
 
-  docker run -d --name mail_with_default_relay \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
-    -e PERMIT_DOCKER=host \
-    -h mail.my-domain.com -t "${NAME}"
+function setup_file() {
+  init_with_defaults
 
-    wait_for_finished_setup_in_container mail_with_default_relay
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
+    --env PERMIT_DOCKER=host \
+  )
+
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown() {
-  docker rm -f mail_with_default_relay
-}
+function teardown_file() { _default_teardown ; }
 
-#
-# default relay host
-#
-
-@test "checking default relay host: default relay host is added to main.cf" {
-  run docker exec mail_with_default_relay /bin/sh -c 'grep -e "^relayhost =" /etc/postfix/main.cf'
+@test "${TEST_NAME_PREFIX} default relay host is added to main.cf" {
+  _run_in_container bash -c 'grep -e "^relayhost =" /etc/postfix/main.cf'
   assert_output 'relayhost = default.relay.host.invalid:25'
 }
