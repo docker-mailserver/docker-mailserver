@@ -34,6 +34,7 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
             domainname: example.com
             ports:
               - "25:25"
+              - "143:143"
               - "587:587"
               - "465:465"
             volumes:
