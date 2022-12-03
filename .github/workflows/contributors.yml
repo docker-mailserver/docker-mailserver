@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Create contributors-update branch
-        uses: peterjgrainger/action-create-branch@v2.2.0
+        uses: peterjgrainger/action-create-branch@v2.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
