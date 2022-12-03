@@ -1524,6 +1524,11 @@
 <p class="admonition-title">Can I use MacOS?</p>
 <p>We do not support running linting, tests, etc on macOS at this time. Please use a linux VM.</p>
 </div>
+<details class="tip">
+<summary>Running a Specific Test</summary>
+<p>To run a specific test, use <code>make build generate-accounts test/&lt;TEST NAME&gt;</code>, where <code>&lt;TEST NAME&gt;</code> is the file name of the test (<em>for more precision use a relative path: <code>test/test/&lt;PATH&gt;</code></em>) excluding the <code>.bats</code> suffix.</p>
+<p>To run only the tests in <code>template.bats</code>, use <code>make test/template</code> (or <code>make test/parallel/set2/template</code>).</p>
+</details>
 <h2 id="documentation"><a class="toclink" href="#documentation">Documentation</a></h2>
 <p>You will need to have Docker installed. Navigate into the <code>docs/</code> directory. Then run:</p>
 <div class="highlight"><pre><span></span><code>docker run --rm -it -p <span class="m">8000</span>:8000 -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">:/docs&quot;</span> squidfunk/mkdocs-material
