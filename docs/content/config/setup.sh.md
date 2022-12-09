@@ -84,9 +84,10 @@ DESCRIPTION
         ./setup.sh debug show-mail-logs
 
 EXAMPLES
-    ./setup.sh email add test@example.com
+    ./setup.sh email add test@example.com [password]
         Add the email account test@example.com. You will be prompted
-        to input a password afterwards since no password was supplied.
+        to input a password afterwards if no password was supplied.
+        You can supply password in plain-text.
 
     ./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'
         Creates keys of length 2048 but in an LDAP setup where domains are not known to
