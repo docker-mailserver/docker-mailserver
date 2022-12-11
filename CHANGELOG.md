@@ -2,18 +2,29 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.2.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.3.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [11.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.0)
 
 ### Added
 
 - **scripts**: Fail2ban - Enable network bans ([#2818](https://github.com/docker-mailserver/docker-mailserver/pull/2818))
+- **ci**: run tests in parallel ([#2857](https://github.com/docker-mailserver/docker-mailserver/pull/2857))
+- **docs**: added note about Docker version to documentation ([#2799](https://github.com/docker-mailserver/docker-mailserver/pull/2799))
 
 ### Changed
 
 - **configuration**: Run fetchmail not in verbose mode ([#2859](https://github.com/docker-mailserver/docker-mailserver/pull/2859))
 - **build**: cleaned up `Makefile` and its targets ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **configuration**: adjust handling of DNSBL return codes ([#2890](https://github.com/docker-mailserver/docker-mailserver/pull/2890))
+
+### Updates
+
+- **ci**: change to new output format in GH actions ([#2892](https://github.com/docker-mailserver/docker-mailserver/pull/2892))
+- **build**: cleaned up Makefile ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **tests**: miscellaneous enhancements ([#2815](https://github.com/docker-mailserver/docker-mailserver/pull/2815))
 
 ### Fixed
 
