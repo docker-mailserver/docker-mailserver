@@ -35,6 +35,18 @@ All notable changes to this project will be documented in this file. The format 
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
 - **scripts**: Run Amavis cron job only when Amavis is enabled ([#2831](https://github.com/docker-mailserver/docker-mailserver/pull/2831))
 
+### Deprecation Notice
+
+- **Removing TLS 1.0 and TLS 1.1 ciphersuites from `TLS_LEVEL=intermediate`**
+  You should not realistically need support for TLS 1.0 or TLS 1.1, except in niche scenarios such as an old printer/scanner device that refuses to negotiate a compatible non-vulnerable cipher. [More details covered here](https://github.com/docker-mailserver/docker-mailserver/issues/2679).
+- **`SASL_PASSWD` ENV**
+  An old ENV `SASL_PASSWD` has been around for supporting relay-host authentication, but since superceded by the `postfix-sasl-password.cf` config file. It will be removed in a future major release as detailed [here](https://github.com/docker-mailserver/docker-mailserver/pull/2605).
+- **Platform Support - ARMv7**
+  This is a very old platform, superceded by ARMv8 and newer with broad product availability around 2016 onwards.
+  Support was introduced primarily for users of the older generations of Raspberry Pi. ARM64 is the modern target for ARM devices.
+
+  If you require ARMv7 support, [please let us know](https://github.com/docker-mailserver/docker-mailserver/issues/2642).
+
 ## [11.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.2.0)
 
 ### Summary
