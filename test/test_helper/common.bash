@@ -1,7 +1,7 @@
 #!/bin/bash
 
-load 'test_helper/bats-support/load'
-load 'test_helper/bats-assert/load'
+load "${REPOSITORY_ROOT}/test/test_helper/bats-support/load"
+load "${REPOSITORY_ROOT}/test/test_helper/bats-assert/load"
 
 NAME=${NAME:-mailserver-testing:ci}
 

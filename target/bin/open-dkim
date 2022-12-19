@@ -51,7 +51,7 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
+_require_n_parameters_or_print_usage 0 "${@}"
 
 while [[ ${#} -gt 0 ]]
 do

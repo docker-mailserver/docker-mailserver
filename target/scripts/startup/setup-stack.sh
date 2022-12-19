@@ -398,8 +398,8 @@ function _setup_postgrey
 {
   _log 'debug' 'Configuring Postgrey'
 
-  sed -i -E \
-    's|, reject_rbl_client zen.spamhaus.org$|, reject_rbl_client zen.spamhaus.org, check_policy_service inet:127.0.0.1:10023|' \
+  sedfile -i -E \
+    's|(^smtpd_recipient_restrictions =.*)|\1, check_policy_service inet:127.0.0.1:10023|' \
     /etc/postfix/main.cf
 
   sed -i -e \
@@ -1078,7 +1078,7 @@ function _setup_dnsbl_disable
   _log 'debug' 'Disabling postfix DNS block list (zen.spamhaus.org)'
 
   sedfile -i \
-    '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org//' \
+    '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org=127.0.0.\[2..11\]//' \
     /etc/postfix/main.cf
 
   _log 'debug' 'Disabling postscreen DNS block lists'

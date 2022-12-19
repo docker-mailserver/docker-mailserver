@@ -34,3 +34,13 @@ function _chown_var_mail_if_necessary
     chown -R 5000:5000 /var/mail || return 1
   fi
 }
+
+function _require_n_parameters_or_print_usage
+{
+  local COUNT
+  COUNT=${1}
+  shift
+
+  [[ ${1:-} == 'help' ]]  && { __usage ; exit 0 ; }
+  [[ ${#} -lt ${COUNT} ]] && { __usage ; exit 1 ; }
+}

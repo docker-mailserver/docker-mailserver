@@ -1,8 +1,12 @@
-SHELL             := /bin/bash
-.SHELLFLAGS       += -e -u -o pipefail
+SHELL       := /bin/bash
+.SHELLFLAGS += -e -u -o pipefail
 
-export IMAGE_NAME := mailserver-testing:ci
-export NAME       ?= $(IMAGE_NAME)
+PARALLEL_JOBS          ?= 2
+export REPOSITORY_ROOT := $(CURDIR)
+export IMAGE_NAME      ?= mailserver-testing:ci
+export NAME            ?= $(IMAGE_NAME)
+
+.PHONY: ALWAYS_RUN
 
 # -----------------------------------------------
 # --- Generic Targets ---------------------------
@@ -17,7 +21,7 @@ build:
 		--build-arg VCS_REVISION=$(shell cat VERSION) \
 		.
 
-generate-accounts:
+generate-accounts: ALWAYS_RUN
 	@ cp test/config/templates/postfix-accounts.cf test/config/postfix-accounts.cf
 	@ cp test/config/templates/dovecot-masters.cf test/config/dovecot-masters.cf
 
@@ -33,14 +37,29 @@ clean:
 	-@ while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && sudo rm -rf $${LINE}; done < .gitignore
 
 # -----------------------------------------------
-# --- Tests  & Lints ----------------------------
+# --- Tests  ------------------------------------
 # -----------------------------------------------
 
-tests:
-	@ ./test/bats/bin/bats --timing test/*.bats
+tests: ALWAYS_RUN
+# See https://github.com/docker-mailserver/docker-mailserver/pull/2857#issuecomment-1312724303
+# on why `generate-accounts` is run before each set (TODO/FIXME)
+	@ $(MAKE) generate-accounts tests/serial
+	@ $(MAKE) generate-accounts tests/parallel/set1
+	@ $(MAKE) generate-accounts tests/parallel/set2
+	@ $(MAKE) generate-accounts tests/parallel/set3
 
-test/%:
-	@ ./test/bats/bin/bats --timing $@.bats
+tests/serial: ALWAYS_RUN
+	@ shopt -s globstar ; ./test/bats/bin/bats --timing --jobs 1 test/$@/**.bats
+
+tests/parallel/set%: ALWAYS_RUN
+	@ shopt -s globstar ; ./test/bats/bin/bats --timing --jobs $(PARALLEL_JOBS) test/$@/**.bats
+
+test/%: ALWAYS_RUN
+	@ shopt -s globstar nullglob ; ./test/bats/bin/bats --timing test/tests/**/{$*,}.bats
+
+# -----------------------------------------------
+# --- Lints -------------------------------------
+# -----------------------------------------------
 
 lint: eclint hadolint shellcheck
 

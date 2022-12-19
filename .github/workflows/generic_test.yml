@@ -14,6 +14,9 @@ jobs:
   run-tests:
     name: 'Test'
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        part: [serial, parallel/set1, parallel/set2, parallel/set3]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -45,6 +48,6 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
 
       - name: 'Run tests'
-        run: make generate-accounts tests
+        run: make generate-accounts tests/${{ matrix.part }}
         env:
           CI: true
