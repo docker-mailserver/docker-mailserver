@@ -117,7 +117,7 @@ function _install_dovecot
 
 function _install_fail2ban
 {
-  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/1.0.2/fail2ban_1.0.2-1.upstream1_all.deb'
+  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb'
   local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
   local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
   local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
