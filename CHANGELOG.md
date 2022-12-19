@@ -34,6 +34,7 @@ All notable changes to this project will be documented in this file. The format 
 - **scripts**: Make fetchmail data persistant ([#2851](https://github.com/docker-mailserver/docker-mailserver/pull/2851))
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
 - **scripts**: Run Amavis cron job only when Amavis is enabled ([#2831](https://github.com/docker-mailserver/docker-mailserver/pull/2831))
+- **config**: `opendmarc.conf` - Change the default OpenDMARC policy to reject ([#2933](https://github.com/docker-mailserver/docker-mailserver/pull/2933))
 
 ### Deprecation Notice
 
