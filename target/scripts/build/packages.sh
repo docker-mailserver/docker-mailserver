@@ -102,6 +102,20 @@ function _install_dovecot
 
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]
   then
+    # The package dovecot-fts-xapian is installed from the debian repository.
+    # Starting with version 1.4.9a-1+deb11u1, a new dependency was added: dovecot-abi-2.3.abiv13
+    # dovecot-abi-2.3.abiv13 is a virtual package provided by dovecot-core (from the debian repository).
+    # However dovecot-core from the community repository provides dovecot-abi-2.3.abiv19.
+    _log 'trace' "Create and install dummy package 'dovecot-abi-2.3.abiv13' to satisfy 'dovecot-fts-xapian' dependency"
+    apt-get "${QUIET}" --no-install-recommends install checkinstall
+    echo -e 'install:\n\t@true' > Makefile
+    echo 'Dummy package to satisfy dovecot-fts-xapian dependency' > description-pak
+    checkinstall -y --install=yes --pkgname="dovecot-abi-2.3.abiv13" --pkgversion=1 --maintainer=Nobody --pkggroup=mail
+    # Cleanup
+    rm description-pak dovecot-abi-2.3.abiv13*.deb Makefile
+    apt-get "${QUIET}" purge checkinstall
+    apt-get "${QUIET}" autoremove
+
     _log 'trace' 'Using Dovecot community repository'
     curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
