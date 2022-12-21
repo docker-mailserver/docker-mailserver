@@ -13,7 +13,7 @@ jobs:
     name: 'Build Images'
     uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
     with:
-      platforms: linux/amd64,linux/arm/v7,linux/arm64
+      platforms: linux/amd64,linux/arm64
 
   publish-images:
     name: 'Publish Images'
