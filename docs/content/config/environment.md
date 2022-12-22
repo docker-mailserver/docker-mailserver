@@ -685,11 +685,6 @@ Specify what password attribute to use for password verification.
 - **empty** => Nothing is added to the configuration but the documentation says it is `userPassword` by default.
 - Any value => Fills the `ldap_password_attr` option
 
-##### SASL_PASSWD
-
-- **empty** => No sasl_passwd will be created
-- string => `/etc/postfix/sasl_passwd` will be created with the string as password
-
 ##### SASLAUTHD_LDAP_AUTH_METHOD
 
 - **empty** => `bind` will be used as a default value
