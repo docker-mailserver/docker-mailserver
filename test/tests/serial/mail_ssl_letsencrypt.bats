@@ -139,7 +139,7 @@ function teardown() {
   # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
   function _acme_rsa() {
     _should_extract_on_changes 'mail.example.test' "${LOCAL_BASE_PATH}/rsa.acme.json"
-    _should_have_service_restart_count '1'
+    _should_have_service_reload_count '1'
 
     local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
     local RSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.rsa.pem"
@@ -151,7 +151,7 @@ function teardown() {
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
-    _should_have_service_restart_count '2'
+    _should_have_service_reload_count '2'
 
     # As the FQDN has changed since startup, the Postfix + Dovecot configs should be updated:
     _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
@@ -240,20 +240,17 @@ function _should_extract_on_changes() {
   assert_output --partial 'Change detected'
   assert_output --partial "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
-  assert_output --partial 'Restarting services due to detected changes'
-  assert_output --partial 'postfix: stopped'
-  assert_output --partial 'postfix: started'
-  assert_output --partial 'dovecot: stopped'
-  assert_output --partial 'dovecot: started'
+  assert_output --partial 'Reloading services due to detected changes'
+  assert_output --partial 'Completed handling of detected change'
 }
 
 # Ensure change detection is not mistakenly validating against previous change events:
-function _should_have_service_restart_count() {
-  local NUM_RESTARTS=${1}
+function _should_have_service_reload_count() {
+  local NUM_RELOADS=${1}
 
-  # Count how many times postfix was restarted by the `changedetector` service:
-  run docker exec "${TEST_NAME}" sh -c "grep -c 'postfix: started' /var/log/supervisor/changedetector.log"
-  assert_output "${NUM_RESTARTS}"
+  # Count how many times processes (like Postfix and Dovecot) have been reloaded by the `changedetector` service:
+  run docker exec "${TEST_NAME}" sh -c "grep -c 'Completed handling of detected change' /var/log/supervisor/changedetector.log"
+  assert_output "${NUM_RELOADS}"
 }
 
 # Extracted cert files from `acme.json` have content matching the expected reference files:

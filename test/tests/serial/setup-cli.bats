@@ -53,8 +53,8 @@ function teardown_file() {
 
   # Wait for change detection event to complete (create maildir and add account to Dovecot UserDB+PassDB)
   wait_until_account_maildir_exists "${TEST_NAME}" "${MAIL_ACCOUNT}"
-  # Dovecot is stopped briefly at the end of processing a change event (should change to reload in future),
-  # to more accurately use `wait_for_service` ensure you wait until `changedetector` is done.
+
+  # To more accurately use `wait_for_service` here, ensure you wait until `changedetector` is done.
   wait_until_change_detection_event_completes "${TEST_NAME}"
   wait_for_service "${TEST_NAME}" dovecot
 
