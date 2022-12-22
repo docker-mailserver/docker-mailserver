@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
+
+### Fixed
+
+- **build**:  Fix dovecot-fts-xapian dependency, when using dovecot community repository ([#2937](https://github.com/docker-mailserver/docker-mailserver/pull/2937))
+
 ## [11.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.0)
 
 ### Added
