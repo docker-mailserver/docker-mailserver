@@ -37,7 +37,7 @@ jobs:
       - name: 'Set up QEMU'
         uses: docker/setup-qemu-action@v2.1.0
         with:
-          platforms: arm64,arm
+          platforms: arm64
 
       - name: 'Set up Docker Buildx'
         uses: docker/setup-buildx-action@v2.2.1
@@ -78,7 +78,7 @@ jobs:
           build-args: |
             VCS_REVISION=${{ github.sha }}
             VCS_VERSION=${{ steps.get-version.outputs.version }}
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.prep.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
