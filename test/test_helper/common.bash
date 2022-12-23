@@ -203,7 +203,7 @@ function wait_until_change_detection_event_completes() {
 
   # A new change event is expected,
   # If the last event status is not yet `CHANGE_EVENT_START`, wait until it is:
-  if [[ $(__is_changedetector_processing) -ne 0 ]]
+  if ! __is_changedetector_processing
   then
     repeat_until_success_or_timeout 60 __is_changedetector_processing
   fi
