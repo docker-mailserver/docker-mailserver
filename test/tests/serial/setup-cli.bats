@@ -55,14 +55,10 @@ function teardown_file() {
   # Mail account and storage directory should now be valid
   wait_until_change_detection_event_completes "${TEST_NAME}"
 
-  # Verify mail storage directory exists:
-  local LOCAL_PART="${MAIL_ACCOUNT%@*}"
-  local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
-  local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN_PART}/${LOCAL_PART}"
-  run docker exec "${TEST_NAME}" bash -c "[[ -d ${MAIL_ACCOUNT_STORAGE_DIR} ]]"
-  assert_success
+  # Verify mail storage directory exists (polls if storage is slow, eg remote mount):
+  wait_until_account_maildir_exists "${TEST_NAME}" "${MAIL_ACCOUNT}"
 
-  # Verify account authentication is successful:
+  # Verify account authentication is successful (account added to Dovecot UserDB+PassDB):
   wait_for_service "${TEST_NAME}" dovecot
   local RESPONSE
   RESPONSE=$(docker exec "${TEST_NAME}" doveadm auth test "${MAIL_ACCOUNT}" "${MAIL_PASS}" | grep 'passdb')
