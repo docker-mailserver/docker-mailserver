@@ -7,7 +7,6 @@ setup_file() {
   docker run -d --name mail_with_mdbox_format \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e SASL_PASSWD="external-domain.com username:password" \
     -e ENABLE_CLAMAV=0 \
     -e ENABLE_SPAMASSASSIN=0 \
     -e DOVECOT_MAILBOX_FORMAT=mdbox \

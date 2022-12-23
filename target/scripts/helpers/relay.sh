@@ -47,9 +47,7 @@
 # NOTE: Present support has enforced wrapping the relay host with `[]` (prevents DNS MX record lookup),
 # which restricts what is supported by RELAY_HOST, although you usually do want to provide MX host directly.
 # NOTE: Present support expects to always append a port with an implicit default of `25`.
-# NOTE: DEFAULT_RELAY_HOST imposes neither restriction, but would only be compatible with SASL_PASSWD then when
-# auth is needed. However that seems tied to RELAY_HOST to enable the /etc/postfix/sasl_passwd table lookup,
-# which introduces issues if you would want DEFAULT_RELAY_HOST to use credentials..
+# NOTE: DEFAULT_RELAY_HOST imposes neither restriction.
 #
 # TODO: RELAY_PORT should be optional, it will use the transport default port (`postconf smtp_tcp_port`),
 # That shouldn't be a breaking change, as long as the mapping is maintained correctly.
@@ -65,8 +63,7 @@ function _env_relay_host
 function _relayhost_sasl
 {
   if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] \
-    && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]] \
-    && [[ -z ${SASL_PASSWD} ]]
+    && [[ -z ${RELAY_USER} ]] || [[ -z ${RELAY_PASSWORD} ]]
   then
     _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from postfix-sasl-password.cf"
     return 1
@@ -78,19 +75,6 @@ function _relayhost_sasl
   : >/etc/postfix/sasl_passwd
   chown root:root /etc/postfix/sasl_passwd
   chmod 0600 /etc/postfix/sasl_passwd
-
-  # SASL_PASSWD is a legacy ENV, not likely in use by any users.
-  #
-  # Single ENV for specifying `<DEFAULT_RELAY_HOST>    <RELAY_USER>:<RELAY_PASSWORD>`,
-  # Where `<DEFAULT_RELAY_HOST>` must match the equivalent ENV,
-  # while the other two have no dependency to their equivalent ENV.
-  # SASL_PASSWD requires `smtp_sasl_password_maps` to be enabled - but that has only
-  # ever been via this function which relies upon RELAY_HOST. Hence redundant.
-  # TODO: Deprecate. Remove on next major version?
-  if [[ -n ${SASL_PASSWD} ]]
-  then
-    echo "${SASL_PASSWD}" >> /etc/postfix/sasl_passwd
-  fi
 
   local DATABASE_SASL_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
   if [[ -f ${DATABASE_SASL_PASSWD} ]]
