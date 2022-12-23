@@ -22,7 +22,7 @@ body:
 
         We provide official support for
 
-        1. OS/ARCH: Linux on amd64/x86_64 or ARMv7 or ARM64
+        1. OS/ARCH: Linux on AMD64 (x86_64) and ARM64 (AArch64)
         2. Containerization platform: Docker and Docker Compose (i.e. based on Docker Engine)
 
         Other configurations are not officially supported, but there are maintainers that may be able to help you. This is the case for
@@ -52,7 +52,7 @@ body:
   - type: textarea
     id: when-does-it-occur
     attributes:
-      label:  What happened and when does this occur?
+      label: What happened and when does this occur?
       description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
       render: Markdown
@@ -61,7 +61,7 @@ body:
   - type: textarea
     id: what-did-you-expect-to-happen
     attributes:
-      label:  What did you expect to happen?
+      label: What did you expect to happen?
       description: Tell us what you expected.
       placeholder: I expected to see debug messages.
       render: Markdown
@@ -111,9 +111,8 @@ body:
     attributes:
       label: What instruction set architecture is DMS running on?
       options:
-        - x86_64 / AMD64
-        - ARM64 / ARM v8 (and newer)
-        - ARM v7
+        - AMD64 / x86_64
+        - ARM64 / AArch64 (ARM v8 and newer)
         - Other (unsupported)
     validations:
       required: true

@@ -102,6 +102,20 @@ function _install_dovecot
 
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]
   then
+    # The package dovecot-fts-xapian is installed from the debian repository.
+    # Starting with version 1.4.9a-1+deb11u1, a new dependency was added: dovecot-abi-2.3.abiv13
+    # dovecot-abi-2.3.abiv13 is a virtual package provided by dovecot-core (from the debian repository).
+    # However dovecot-core from the community repository provides dovecot-abi-2.3.abiv19.
+    _log 'trace' "Create and install dummy package 'dovecot-abi-2.3.abiv13' to satisfy 'dovecot-fts-xapian' dependency"
+    apt-get "${QUIET}" --no-install-recommends install checkinstall
+    echo -e 'install:\n\t@true' > Makefile
+    echo 'Dummy package to satisfy dovecot-fts-xapian dependency' > description-pak
+    checkinstall -y --install=yes --pkgname="dovecot-abi-2.3.abiv13" --pkgversion=1 --maintainer=Nobody --pkggroup=mail
+    # Cleanup
+    rm description-pak dovecot-abi-2.3.abiv13*.deb Makefile
+    apt-get "${QUIET}" purge checkinstall
+    apt-get "${QUIET}" autoremove
+
     _log 'trace' 'Using Dovecot community repository'
     curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
@@ -117,7 +131,7 @@ function _install_dovecot
 
 function _install_fail2ban
 {
-  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/1.0.2/fail2ban_1.0.2-1.upstream1_all.deb'
+  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb'
   local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
   local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
   local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
