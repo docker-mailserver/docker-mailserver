@@ -260,11 +260,11 @@ baduser@example.com devnull
 !!! important
     If you use a catch-all rule for the main/sub domain, you need another entry in `docker-data/dms/config/postfix-virtual.cf`:
 
-```cf
-@mail.example.com hello@example.com
-baduser@example.com devnull
-devnull@mail.example.com devnull
-```
+    ```cf
+    @mail.example.com hello@example.com
+    baduser@example.com devnull
+    devnull@mail.example.com devnull
+    ```
 
 ### How do I have more control about what SPAMASSASIN is filtering?
 
