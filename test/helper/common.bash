@@ -181,18 +181,15 @@ function wait_until_change_detection_event_completes() {
     [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]]
   }
 
-  if [[ ! $(__is_changedetector_processing) ]]
+  # A new change event is expected,
+  # If the last event status is not yet `CHANGE_EVENT_START`, wait until it is:
+  if ! __is_changedetector_processing
   then
-    # A new change event is expected, wait for it:
     repeat_until_success_or_timeout 60 __is_changedetector_processing
   fi
 
   # Change event is in progress, wait until it finishes:
   repeat_until_success_or_timeout 60 __is_changedetector_finished
-
-  # NOTE: Although the change event has completed, services like Postfix and Dovecot
-  # may still be in the process of restarting.
-  # You may still want to wait longer if depending on those to be ready.
 }
 
 # An account added to `postfix-accounts.cf` must wait for the `changedetector` service

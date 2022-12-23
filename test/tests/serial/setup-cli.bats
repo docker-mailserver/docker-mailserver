@@ -51,14 +51,15 @@ function teardown_file() {
   ACCOUNT=$(grep "${MAIL_ACCOUNT}" "${DATABASE_ACCOUNTS}" | awk -F '|' '{print $1}')
   assert_equal "${ACCOUNT}" "${MAIL_ACCOUNT}"
 
-  # Wait for change detection event to complete (create maildir and add account to Dovecot UserDB+PassDB)
-  wait_until_account_maildir_exists "${TEST_NAME}" "${MAIL_ACCOUNT}"
-  # Dovecot is stopped briefly at the end of processing a change event (should change to reload in future),
-  # to more accurately use `wait_for_service` ensure you wait until `changedetector` is done.
+  # Ensure you wait until `changedetector` is finished.
+  # Mail account and storage directory should now be valid
   wait_until_change_detection_event_completes "${TEST_NAME}"
-  wait_for_service "${TEST_NAME}" dovecot
 
-  # Verify account authentication is successful:
+  # Verify mail storage directory exists (polls if storage is slow, eg remote mount):
+  wait_until_account_maildir_exists "${TEST_NAME}" "${MAIL_ACCOUNT}"
+
+  # Verify account authentication is successful (account added to Dovecot UserDB+PassDB):
+  wait_for_service "${TEST_NAME}" dovecot
   local RESPONSE
   RESPONSE=$(docker exec "${TEST_NAME}" doveadm auth test "${MAIL_ACCOUNT}" "${MAIL_PASS}" | grep 'passdb')
   assert_equal "${RESPONSE}" "passdb: ${MAIL_ACCOUNT} auth succeeded"

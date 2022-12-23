@@ -38,17 +38,17 @@ function teardown_file() {
   echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
   sleep 25
 
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
-  assert_output --partial "postfix: stopped"
-  assert_output --partial "postfix: started"
-  assert_output --partial "Change detected"
-  assert_output --partial "Removed lock"
+  run docker exec mail_changedetector_one /bin/bash -c 'supervisorctl tail -3000 changedetector'
+  assert_output --partial 'Change detected'
+  assert_output --partial 'Reloading services due to detected changes'
+  assert_output --partial 'Removed lock'
+  assert_output --partial 'Completed handling of detected change'
 
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail -3000 changedetector"
-  assert_output --partial "postfix: stopped"
-  assert_output --partial "postfix: started"
-  assert_output --partial "Change detected"
-  assert_output --partial "Removed lock"
+  run docker exec mail_changedetector_two /bin/bash -c 'supervisorctl tail -3000 changedetector'
+  assert_output --partial 'Change detected'
+  assert_output --partial 'Reloading services due to detected changes'
+  assert_output --partial 'Removed lock'
+  assert_output --partial 'Completed handling of detected change'
 }
 
 @test "checking changedetector: lock file found, blocks, and doesn't get prematurely removed" {
