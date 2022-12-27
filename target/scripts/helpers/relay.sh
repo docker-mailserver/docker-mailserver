@@ -63,7 +63,7 @@ function _env_relay_host
 function _relayhost_sasl
 {
   if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] \
-    && [[ -z ${RELAY_USER} ]] || [[ -z ${RELAY_PASSWORD} ]]
+    && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
   then
     _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from postfix-sasl-password.cf"
     return 1
