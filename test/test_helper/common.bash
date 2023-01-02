@@ -32,11 +32,11 @@ function repeat_until_success_or_timeout {
   until "${@}"
   do
     if [[ -n ${FATAL_FAILURE_TEST_COMMAND} ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"; then
-      echo "\`${FATAL_FAILURE_TEST_COMMAND}\` failed, early aborting repeat_until_success of \`${*}\`" >&2
+      echo "\`${FATAL_FAILURE_TEST_COMMAND}\` failed, early aborting repeat_until_success_or_timeout of \`${*}\`" >&2
       return 1
     fi
 
-    sleep 1
+    sleep 0.1
 
     if [[ $(( SECONDS - STARTTIME )) -gt ${TIMEOUT} ]]; then
       echo "Timed out on command: ${*}" >&2
@@ -181,7 +181,7 @@ function wait_until_change_detection_event_completes() {
 
   # Ensure the container is configured with the required `LOG_LEVEL` ENV:
   assert_regex \
-    $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
+    "$(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=')" \
     '=(debug|trace)$'
 
   local CHANGE_EVENT_START='Change detected'
@@ -194,7 +194,8 @@ function wait_until_change_detection_event_completes() {
   }
 
   function __is_changedetector_processing() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]]
+    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]] \
+    || [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]]
   }
 
   function __is_changedetector_finished() {
