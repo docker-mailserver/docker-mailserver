@@ -56,13 +56,11 @@ function _check_for_changes
     _ssl_changes
     _postfix_dovecot_changes
 
-    # While some config changes may be properly applied by Postfix or Dovecot
-    # via their 'reload' commands; some may require restarting?:
-    _log_with_date 'debug' 'Restarting services due to detected changes'
+    _log_with_date 'debug' 'Reloading services due to detected changes'
 
     [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
-    supervisorctl restart postfix
-    [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
+    postfix reload
+    [[ ${SMTP_ONLY} -ne 1 ]] && dovecot reload
 
     _remove_lock
     _log_with_date 'debug' 'Completed handling of detected change'
@@ -113,6 +111,7 @@ function _postfix_dovecot_changes
   || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-quotas.cf   ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-masters.cf  ]]
   then
+    _log_with_date 'trace' 'Regenerating accounts (Dovecot + Postfix)'
     [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
   fi
 
@@ -126,6 +125,7 @@ function _postfix_dovecot_changes
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-relaymap.cf      ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-sasl-password.cf ]]
   then
+    _log_with_date 'trace' 'Regenerating relay config (Postfix)'
     _rebuild_relayhost
   fi
 
@@ -138,6 +138,7 @@ function _postfix_dovecot_changes
   if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf  ]]
   then
+    _log_with_date 'trace' 'Regenerating vhosts (Postfix)'
     _create_postfix_vhost
   fi
 
