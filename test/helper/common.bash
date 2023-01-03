@@ -30,10 +30,10 @@ function _default_teardown() {
 
 # @param ${1} program name [REQUIRED]
 # @param ${2} container name [IF UNSET: ${CONTAINER_NAME}]
-function _check_if_process_is_running() {
+function check_if_process_is_running() {
   local PROGRAM_NAME=${1:?Program name must be provided explicitly}
   local CONTAINER_NAME=${2:-${CONTAINER_NAME}}
-  _run_in_container_explicit "${CONTAINER_NAME}" pgrep "${PROGRAM_NAME}"
+  docker exec "${CONTAINER_NAME}" pgrep "${PROGRAM_NAME}"
 }
 
 # -------------------------------------------------------------------

@@ -1,81 +1,128 @@
-#!/usr/bin/env bats
-load "${REPOSITORY_ROOT}/test/test_helper/common"
-# Globals ${BATS_TMPDIR} and ${NAME}
-# `${NAME}` defaults to `mailserver-testing:ci`
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
-function teardown() {
-  docker rm -f tls_test_cipherlists
-}
+TEST_NAME_PREFIX='[Security] TLS (cipher lists):'
+CONTAINER_PREFIX='dms-test_tls-cipherlists'
+
+# NOTE: Tests cases here cannot be run concurrently:
+# - The `testssl.txt` file configures `testssl.sh` to connect to `example.test` (TEST_DOMAIN)
+#   and this is set as a network alias to the DMS container being tested.
+# - If multiple containers are active with this alias, the connection is not deterministic and will result
+#   in comparing the wrong results for a given variant.
 
 function setup_file() {
-  export DOMAIN="example.test"
-  export NETWORK="test-network"
+  export TEST_DOMAIN='example.test'
+  export TEST_FQDN="mail.${TEST_DOMAIN}"
+  export TEST_NETWORK='test-network'
 
-  # Shared config for TLS testing (read-only)
+  # Contains various certs for testing TLS support (read-only):
   export TLS_CONFIG_VOLUME
-  TLS_CONFIG_VOLUME="$(pwd)/test/test-files/ssl/${DOMAIN}/:/config/ssl/:ro"
-  # `${BATS_TMPDIR}` maps to `/tmp`
-  export TLS_RESULTS_DIR="${BATS_TMPDIR}/results"
+  TLS_CONFIG_VOLUME="${PWD}/test/test-files/ssl/${TEST_DOMAIN}/:/config/ssl/:ro"
 
-  # NOTE: If the network already exists, test will fail to start.
-  docker network create "${NETWORK}"
-
-  # Copies all of `./test/config/` to specific directory for testing
-  # `${PRIVATE_CONFIG}` becomes `$(pwd)/test/duplicate_configs/<bats test filename>`
-  export PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+  # Used for connecting testssl and DMS containers via network name `TEST_DOMAIN`:
+  # NOTE: If the network already exists, the test will fail to start
+  docker network create "${TEST_NETWORK}"
 
   # Pull `testssl.sh` image in advance to avoid it interfering with the `run` captured output.
   # Only interferes (potential test failure) with `assert_output` not `assert_success`?
   docker pull drwetter/testssl.sh:3.1dev
+
+  # Only used in `should_support_expected_cipherlists()` to set a storage location for `testssl.sh` JSON output:
+  # `${BATS_TMPDIR}` maps to `/tmp`: https://bats-core.readthedocs.io/en/v1.8.2/writing-tests.html#special-variables
+  export TLS_RESULTS_DIR="${BATS_TMPDIR}/results"
 }
 
 function teardown_file() {
-  docker network rm "${NETWORK}"
+  docker network rm "${TEST_NETWORK}"
 }
 
-@test "checking tls: cipher list - rsa intermediate" {
-  check_ports 'rsa' 'intermediate'
+function teardown() { _default_teardown ; }
+
+@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=intermediate' + RSA" {
+  configure_and_run_dms_container 'intermediate' 'rsa'
+  should_support_expected_cipherlists
 }
 
-@test "checking tls: cipher list - rsa modern" {
-  check_ports 'rsa' 'modern'
+@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=intermediate' + ECDSA" {
+  configure_and_run_dms_container 'intermediate' 'ecdsa'
+  should_support_expected_cipherlists
 }
 
-@test "checking tls: cipher list - ecdsa intermediate" {
-  check_ports 'ecdsa' 'intermediate'
+# Only ECDSA with an RSA fallback is tested.
+# There isn't a situation where RSA with an ECDSA fallback would make sense.
+@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=intermediate' + ECDSA with RSA fallback" {
+  configure_and_run_dms_container 'intermediate' 'ecdsa' 'rsa'
+  should_support_expected_cipherlists
 }
 
-@test "checking tls: cipher list - ecdsa modern" {
-  check_ports 'ecdsa' 'modern'
+@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=modern' + RSA" {
+  configure_and_run_dms_container 'modern' 'rsa'
+  should_support_expected_cipherlists
 }
 
-
-# Only ECDSA with RSA fallback is tested.
-# There isn't a situation where RSA with ECDSA fallback would make sense.
-@test "checking tls: cipher list - ecdsa intermediate, with rsa fallback" {
-  check_ports 'ecdsa' 'intermediate' 'rsa'
+@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=modern' + ECDSA" {
+  configure_and_run_dms_container 'modern' 'ecdsa'
+  should_support_expected_cipherlists
 }
 
-@test "checking tls: cipher list - ecdsa modern, with rsa fallback" {
-  check_ports 'ecdsa' 'modern' 'rsa'
+@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=modern' + ECDSA with RSA fallback" {
+  configure_and_run_dms_container 'modern' 'ecdsa' 'rsa'
+  should_support_expected_cipherlists
 }
 
-function check_ports() {
-  local KEY_TYPE=$1
-  local TLS_LEVEL=$2
+function configure_and_run_dms_container() {
+  local TLS_LEVEL=$1
+  local KEY_TYPE=$2
   local ALT_KEY_TYPE=$3 # Optional parameter
 
-  local KEY_TYPE_LABEL="${KEY_TYPE}"
-  # This is just to add a `_` delimiter between the two key types for readability
+  export TEST_VARIANT="${TLS_LEVEL}-${KEY_TYPE}"
   if [[ -n ${ALT_KEY_TYPE} ]]
   then
-    KEY_TYPE_LABEL="${KEY_TYPE}_${ALT_KEY_TYPE}"
+    TEST_VARIANT+="-${ALT_KEY_TYPE}"
   fi
-  local RESULTS_PATH="${KEY_TYPE_LABEL}/${TLS_LEVEL}"
 
-  collect_cipherlist_data
+  export CONTAINER_NAME="${CONTAINER_PREFIX}_${TEST_VARIANT}"
+  # The initial set of args is static across test cases:
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --volume "${TLS_CONFIG_VOLUME}"
+    --network "${TEST_NETWORK}"
+    --network-alias "${TEST_DOMAIN}"
+    --env ENABLE_POP3=1
+    --env SSL_TYPE="manual"
+  )
 
+  # The remaining args are dependent upon test case vars:
+  CUSTOM_SETUP_ARGUMENTS+=(
+    --env TLS_LEVEL="${TLS_LEVEL}"
+    --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem"
+    --env SSL_KEY_PATH="/config/ssl/key.${KEY_TYPE}.pem"
+  )
+
+  if [[ -n ${ALT_KEY_TYPE} ]]
+  then
+    CUSTOM_SETUP_ARGUMENTS+=(
+      --env SSL_ALT_CERT_PATH="/config/ssl/cert.${ALT_KEY_TYPE}.pem"
+      --env SSL_ALT_KEY_PATH="/config/ssl/key.${ALT_KEY_TYPE}.pem"
+    )
+  fi
+
+  init_with_defaults
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+}
+
+function should_support_expected_cipherlists() {
+  # Make a directory with test user ownership. Avoids Docker creating this with root ownership.
+  # TODO: Can switch to filename prefix for JSON output when this is resolved: https://github.com/drwetter/testssl.sh/issues/1845
+  local RESULTS_PATH="${TLS_RESULTS_DIR}/${TEST_VARIANT}"
+  mkdir -p "${RESULTS_PATH}"
+
+  collect_cipherlists
+  verify_cipherlists
+}
+
+# Verify that the collected results match our expected cipherlists:
+function verify_cipherlists() {
   # SMTP: Opportunistic STARTTLS Explicit(25)
   # Needs to test against cipher lists specific to Port 25 ('_p25' parameter)
   check_cipherlists "${RESULTS_PATH}/port_25.json" '_p25'
@@ -93,80 +140,54 @@ function check_ports() {
   check_cipherlists "${RESULTS_PATH}/port_995.json"
 }
 
-function collect_cipherlist_data() {
-  local ALT_CERT=()
-  local ALT_KEY=()
-
-  if [[ -n ${ALT_KEY_TYPE} ]]
-  then
-    ALT_CERT=(--env SSL_ALT_CERT_PATH="/config/ssl/cert.${ALT_KEY_TYPE}.pem")
-    ALT_KEY=(--env SSL_ALT_KEY_PATH="/config/ssl/key.${ALT_KEY_TYPE}.pem")
-  fi
-
-  run docker run -d --name tls_test_cipherlists \
-    --volume "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
-    --volume "${TLS_CONFIG_VOLUME}" \
-    --env ENABLE_POP3=1 \
-    --env SSL_TYPE="manual" \
-    --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem" \
-    --env SSL_KEY_PATH="/config/ssl/key.${KEY_TYPE}.pem" \
-    "${ALT_CERT[@]}" \
-    "${ALT_KEY[@]}" \
-    --env TLS_LEVEL="${TLS_LEVEL}" \
-    --network "${NETWORK}" \
-    --network-alias "${DOMAIN}" \
-    --hostname "mail.${DOMAIN}" \
-    --tty \
-    "${NAME}" # Image name
-
-  assert_success
-
-  wait_for_tcp_port_in_container 25 tls_test_cipherlists
+# Using `testssl.sh` we can test each port to collect a list of supported cipher suites (ordered):
+function collect_cipherlists() {
   # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
-
-  # Make directory with test user ownership. Avoids Docker creating with root ownership.
-  # TODO: Can switch to filename prefix for JSON output when this is resolved: https://github.com/drwetter/testssl.sh/issues/1845
-  mkdir -p "${TLS_RESULTS_DIR}/${RESULTS_PATH}"
 
   # For non-CI test runs, instead of removing prior test files after this test suite completes,
   # they're retained and overwritten by future test runs instead. Useful for inspection.
   # `--preference` reduces the test scope to the cipher suites reported as supported by the server. Completes in ~35% of the time.
-  local TESTSSL_CMD=(--quiet --file "/config/ssl/testssl.txt" --mode parallel --overwrite --preference)
+  local TESTSSL_CMD=(
+    --quiet
+    --file "/config/ssl/testssl.txt"
+    --mode parallel
+    --overwrite
+    --preference
+  )
   # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
   # If the failure for a test is misleading consider testing a single port with:
-  # local TESTSSL_CMD=(--quiet --jsonfile-pretty "${RESULTS_PATH}/port_${PORT}.json" --starttls smtp "${DOMAIN}:${PORT}")
+  # local TESTSSL_CMD=(--quiet --jsonfile-pretty "/output/port_${PORT}.json" --starttls smtp "${TEST_DOMAIN}:${PORT}")
   # TODO: Can use `jq` to check for failure when this is resolved: https://github.com/drwetter/testssl.sh/issues/1844
 
   # `--user "<uid>:<gid>"` is a workaround: Avoids `permission denied` write errors for json output, uses `id` to match user uid & gid.
   run docker run --rm \
     --user "$(id -u):$(id -g)" \
-    --network "${NETWORK}" \
+    --network "${TEST_NETWORK}" \
     --volume "${TLS_CONFIG_VOLUME}" \
-    --volume "${TLS_RESULTS_DIR}/${RESULTS_PATH}/:/output" \
+    --volume "${RESULTS_PATH}:/output" \
     --workdir "/output" \
     drwetter/testssl.sh:3.1dev "${TESTSSL_CMD[@]}"
 
   assert_success
 }
 
+# Compares the expected cipher lists against logged test results from `testssl.sh`
+function check_cipherlists() {
+  local RESULTS_FILEPATH=$1
+  local p25=$2 # optional suffix
+
+  compare_cipherlist "cipherorder_TLSv1_2" "$(get_cipherlist "TLSv1_2${p25}")"
+  compare_cipherlist "cipherorder_TLSv1_3" "$(get_cipherlist 'TLSv1_3')"
+}
+
 # Use `jq` to extract a specific cipher list from the target`testssl.sh` results json output file
 function compare_cipherlist() {
   local TARGET_CIPHERLIST=$1
-  local RESULTS_FILE=$2
-  local EXPECTED_CIPHERLIST=$3
+  local EXPECTED_CIPHERLIST=$2
 
-  run jq '.scanResult[0].serverPreferences[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${TLS_RESULTS_DIR}/${RESULTS_FILE}"
+  run jq '.scanResult[0].serverPreferences[] | select(.id=="'"${TARGET_CIPHERLIST}"'") | .finding' "${RESULTS_FILEPATH}"
   assert_success
   assert_output "${EXPECTED_CIPHERLIST}"
-}
-
-# Compares the expected cipher lists against logged test results from `testssl.sh`
-function check_cipherlists() {
-  local RESULTS_FILE=$1
-  local p25=$2 # optional suffix
-
-  compare_cipherlist "cipherorder_TLSv1_2" "${RESULTS_FILE}" "$(get_cipherlist "TLSv1_2${p25}")"
-  compare_cipherlist "cipherorder_TLSv1_3" "${RESULTS_FILE}" "$(get_cipherlist 'TLSv1_3')"
 }
 
 # Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `scripts/helpers/ssl.sh`.
@@ -185,34 +206,33 @@ function get_cipherlist() {
     # Associative array for easy querying of required cipher list
     declare -A CIPHER_LIST
 
-    CIPHER_LIST["rsa_intermediate_TLSv1_2"]='"ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-SHA256"'
-    CIPHER_LIST["rsa_modern_TLSv1_2"]='"ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
+    # RSA:
+    CIPHER_LIST["intermediate-rsa_TLSv1_2"]='"ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-SHA256"'
+    CIPHER_LIST["modern-rsa_TLSv1_2"]='"ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
 
     # ECDSA:
-    CIPHER_LIST["ecdsa_intermediate_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES256-SHA384"'
-    CIPHER_LIST["ecdsa_modern_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305"'
+    CIPHER_LIST["intermediate-ecdsa_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES256-SHA384"'
+    CIPHER_LIST["modern-ecdsa_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305"'
 
     # ECDSA + RSA fallback, dual cert support:
-    CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA384 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-SHA256"'
-    CIPHER_LIST["ecdsa_rsa_modern_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
+    CIPHER_LIST["intermediate-ecdsa-rsa_TLSv1_2"]='"ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-ECDSA-AES256-SHA384 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-SHA256"'
+    CIPHER_LIST["modern-ecdsa-rsa_TLSv1_2"]='"ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384"'
 
 
-    # Port 25
-    # TLSv1_2 has different server order and also includes ARIA, CCM, DHE+CHACHA20-POLY1305 cipher suites:
-    CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]='"ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ARIA128-GCM-SHA256"'
-    # Port 25 is unaffected by `TLS_LEVEL` profiles, it has the same TLS v1.2 cipher list under both:
-    CIPHER_LIST["rsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["rsa_intermediate_TLSv1_2_p25"]}
-
+    # Port 25 has a different server order, and also includes ARIA, CCM, DHE+CHACHA20-POLY1305 cipher suites:
+    # RSA (Port 25):
+    CIPHER_LIST["intermediate-rsa_TLSv1_2_p25"]='"ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ARIA128-GCM-SHA256"'
     # ECDSA (Port 25):
-    CIPHER_LIST["ecdsa_intermediate_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256"'
-    CIPHER_LIST["ecdsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["ecdsa_intermediate_TLSv1_2_p25"]}
-
+    CIPHER_LIST["intermediate-ecdsa_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256"'
     # ECDSA + RSA fallback, dual cert support (Port 25):
-    CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ARIA256-GCM-SHA384 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ARIA128-GCM-SHA256"'
-    CIPHER_LIST["ecdsa_rsa_modern_TLSv1_2_p25"]=${CIPHER_LIST["ecdsa_rsa_intermediate_TLSv1_2_p25"]}
+    CIPHER_LIST["intermediate-ecdsa-rsa_TLSv1_2_p25"]='"ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-GCM-SHA384 DHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-CCM8 ECDHE-ECDSA-AES256-CCM DHE-RSA-AES256-CCM8 DHE-RSA-AES256-CCM ECDHE-ECDSA-ARIA256-GCM-SHA384 ECDHE-ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-ECDSA-AES256-SHA384 ECDHE-RSA-AES256-SHA384 DHE-RSA-AES256-SHA256 ARIA256-GCM-SHA384 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES128-CCM DHE-RSA-AES128-CCM8 DHE-RSA-AES128-CCM ECDHE-ECDSA-ARIA128-GCM-SHA256 ECDHE-ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-ECDSA-AES128-SHA256 ECDHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA256 ARIA128-GCM-SHA256"'
 
+    # Port 25 is unaffected by `TLS_LEVEL` profiles, thus no difference for modern:
+    CIPHER_LIST["modern-rsa_TLSv1_2_p25"]=${CIPHER_LIST["intermediate-rsa_TLSv1_2_p25"]}
+    CIPHER_LIST["modern-ecdsa_TLSv1_2_p25"]=${CIPHER_LIST["intermediate-ecdsa_TLSv1_2_p25"]}
+    CIPHER_LIST["modern-ecdsa-rsa_TLSv1_2_p25"]=${CIPHER_LIST["intermediate-ecdsa-rsa_TLSv1_2_p25"]}
 
-    local TARGET_QUERY="${KEY_TYPE_LABEL}_${TLS_LEVEL}_${TLS_VERSION}"
+    local TARGET_QUERY="${TEST_VARIANT}_${TLS_VERSION}"
     echo "${CIPHER_LIST[${TARGET_QUERY}]}"
   fi
 }

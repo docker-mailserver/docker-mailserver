@@ -1,44 +1,46 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
-setup() {
-  # Getting mail container IP
-  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' mail_postscreen)
+TEST_NAME_PREFIX='Postscreen:'
+CONTAINER1_NAME='dms-test_postscreen_enforce'
+CONTAINER2_NAME='dms-test_postscreen_sender'
+
+function setup() {
+  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${CONTAINER1_NAME}")
 }
 
-setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+function setup_file() {
+  local CONTAINER_NAME=${CONTAINER1_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env POSTSCREEN_ACTION=enforce
+    --cap-add=NET_ADMIN
+  )
+  init_with_defaults
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 
-  docker run -d --name mail_postscreen \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e POSTSCREEN_ACTION=enforce \
-    --cap-add=NET_ADMIN \
-    -h mail.my-domain.com -t "${NAME}"
-
-  docker run --name mail_postscreen_sender \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -d "${NAME}" \
-    tail -f /var/log/faillog
-
-  wait_for_smtp_port_in_container mail_postscreen
+  local CONTAINER_NAME=${CONTAINER2_NAME}
+  init_with_defaults
+  common_container_setup
+  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 }
 
-teardown_file() {
-  docker rm -f mail_postscreen mail_postscreen_sender
+function teardown_file() {
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "checking postscreen: talk too fast" {
-  docker exec mail_postscreen_sender /bin/sh -c "nc ${MAIL_POSTSCREEN_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
+@test "${TEST_NAME_PREFIX} talk too fast" {
+  run docker exec "${CONTAINER2_NAME}" /bin/sh -c "nc ${MAIL_POSTSCREEN_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
+  assert_success
 
-  repeat_until_success_or_timeout 10 run docker exec mail_postscreen grep 'COMMAND PIPELINING' /var/log/mail/mail.log
+  repeat_until_success_or_timeout 10 run docker exec "${CONTAINER1_NAME}" grep 'COMMAND PIPELINING' /var/log/mail/mail.log
   assert_success
 }
 
-@test "checking postscreen: positive test (respecting postscreen_greet_wait time and talking in turn)" {
+@test "${TEST_NAME_PREFIX} positive test (respecting postscreen_greet_wait time and talking in turn)" {
   for _ in {1,2}; do
     # shellcheck disable=SC1004
-    docker exec mail_postscreen_sender /bin/bash -c \
+    docker exec "${CONTAINER2_NAME}" /bin/bash -c \
     'exec 3<>/dev/tcp/'"${MAIL_POSTSCREEN_IP}"'/25 && \
     while IFS= read -r cmd; do \
       head -1 <&3; \
@@ -47,6 +49,6 @@ teardown_file() {
     done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
   done
 
-  repeat_until_success_or_timeout 10 run docker exec mail_postscreen grep 'PASS NEW ' /var/log/mail/mail.log
+  repeat_until_success_or_timeout 10 run docker exec "${CONTAINER1_NAME}" grep 'PASS NEW ' /var/log/mail/mail.log
   assert_success
 }
