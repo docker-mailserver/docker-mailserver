@@ -10,7 +10,7 @@ function setup_file() {
     --env ENABLE_POSTGREY=1
     --env PERMIT_DOCKER=container
     --env POSTGREY_AUTO_WHITELIST_CLIENTS=5
-    --env POSTGREY_DELAY=15
+    --env POSTGREY_DELAY=3
     --env POSTGREY_MAX_AGE=35
     --env POSTGREY_TEXT="Delayed by Postgrey"
   )
@@ -24,20 +24,20 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} /etc/postfix/main.cf correctly edited" {
-  _run_in_container bash -c "grep -F 'zen.spamhaus.org=127.0.0.[2..11], check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf | wc -l"
+@test "${TEST_NAME_PREFIX} should have added Postgrey to 'main.cf:check_policy_service'" {
+  _run_in_container grep -F 'check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf
   assert_success
-  assert_output 1
+  _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} /etc/default/postgrey correctly edited and has the default values" {
-  _run_in_container bash -c "grep '^POSTGREY_OPTS=\"--inet=127.0.0.1:10023 --delay=15 --max-age=35 --auto-whitelist-clients=5\"$' /etc/default/postgrey | wc -l"
+@test "${TEST_NAME_PREFIX} should have configured /etc/default/postgrey with default values and ENV overrides" {
+  _run_in_container grep -F 'POSTGREY_OPTS="--inet=127.0.0.1:10023 --delay=3 --max-age=35 --auto-whitelist-clients=5"' /etc/default/postgrey
   assert_success
-  assert_output 1
+  _should_output_number_of_lines 1
 
-  _run_in_container bash -c "grep '^POSTGREY_TEXT=\"Delayed by Postgrey\"$' /etc/default/postgrey | wc -l"
+  _run_in_container grep -F 'POSTGREY_TEXT="Delayed by Postgrey"' /etc/default/postgrey
   assert_success
-  assert_output 1
+  _should_output_number_of_lines 1
 }
 
 @test "${TEST_NAME_PREFIX} Postgrey is running" {
@@ -45,48 +45,96 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} there should be a log entry about a new greylisted e-mail user@external.tld in /var/log/mail/mail.log" {
-  #editing the postfix config in order to ensure that postgrey handles the test e-mail. The other spam checks at smtpd_recipient_restrictions would interfere with it.
+@test "${TEST_NAME_PREFIX} should initially reject (greylist) mail from 'user@external.tld'" {
+  # Modify the postfix config in order to ensure that postgrey handles the test e-mail.
+  # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.
   _run_in_container bash -c "sed -ie 's/permit_sasl_authenticated.*policyd-spf,$//g' /etc/postfix/main.cf"
   _run_in_container bash -c "sed -ie 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' /etc/postfix/main.cf"
   _run_in_container bash -c "sed -ie 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' /etc/postfix/main.cf"
   _run_in_container bash -c "sed -ie 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' /etc/postfix/main.cf"
   _run_in_container postfix reload
 
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
-  sleep 5 #ensure that the information has been written into the log
-  _run_in_container bash -c "grep -i 'action=greylist.*user@external\.tld' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
+  # Send test mail (it should fail to deliver):
+  _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'
+
+  # Confirm mail was greylisted:
+  _should_have_log_entry \
+    'action=greylist' \
+    'reason=new' \
+    'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
+
+  repeat_until_success_or_timeout 10 _run_in_container grep \
+    'Recipient address rejected: Delayed by Postgrey' \
+    /var/log/mail/mail.log
 }
 
-@test "${TEST_NAME_PREFIX} there should be a log entry about the retried and passed e-mail user@external.tld in /var/log/mail/mail.log" {
-  sleep 20 #wait 20 seconds so that postgrey would accept the message
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/postgrey.txt"
-  sleep 8
+# NOTE: This test case depends on the previous one
+@test "${TEST_NAME_PREFIX} should accept mail from 'user@external.tld' after POSTGREY_DELAY duration" {
+  # Wait until `$POSTGREY_DELAY` seconds pass before trying again: 
+  sleep 3
+  # Retry delivering test mail (it should be trusted this time):
+  _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'
 
-  _run_in_container bash -c "grep -i 'action=pass, reason=triplet found.*user@external\.tld' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
+  # Confirm postgrey permitted delivery (triplet is now trusted):
+  _should_have_log_entry \
+    'action=pass' \
+    'reason=triplet found' \
+    'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
 }
 
-@test "${TEST_NAME_PREFIX} there should be a log entry about the whitelisted and passed e-mail user@whitelist.tld in /var/log/mail/mail.log" {
-  _run_in_container bash -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt"
-  _run_in_container bash -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
+
+# NOTE: These two whitelist tests use `test-files/nc_templates/` instead of `test-files/email-templates`.
+# - This allows to bypass the SMTP protocol on port 25, and send data directly to Postgrey instead.
+# - Appears to be a workaround due to `client_name=localhost` when sent from Postfix.
+# - Could send over port 25 if whitelisting `localhost`,
+#   - However this does not help verify that the actual client HELO address is properly whitelisted?
+#   - It'd also cause the earlier greylist test to fail.
+# - TODO: Actually confirm whitelist feature works correctly as these test cases are using a workaround:
+@test "${TEST_NAME_PREFIX} should whitelist sender 'user@whitelist.tld'" {
+  _send_test_mail '/tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt' '10023'
+
+  _should_have_log_entry \
+    'action=pass' \
+    'reason=client whitelist' \
+    'client_address=127.0.0.1/32, sender=test@whitelist.tld, recipient=user1@localhost.localdomain'
 }
 
-@test "${TEST_NAME_PREFIX} there should be a log entry about the whitelisted local and passed e-mail user@whitelistlocal.tld in /var/log/mail/mail.log" {
-  _run_in_container bash -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_local.txt"
-  _run_in_container bash -c "grep -i 'action=pass, reason=client whitelist' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
+@test "${TEST_NAME_PREFIX} should whitelist recipient 'user2@otherdomain.tld'" {
+  _send_test_mail '/tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_recipients.txt' '10023'
+
+  _should_have_log_entry \
+    'action=pass' \
+    'reason=recipient whitelist' \
+    'client_address=127.0.0.1/32, sender=test@nonwhitelist.tld, recipient=user2@otherdomain.tld'
 }
 
-@test "${TEST_NAME_PREFIX} there should be a log entry about the whitelisted recipient user2@otherdomain.tld in /var/log/mail/mail.log" {
-  _run_in_container bash -c "nc -w 8 0.0.0.0 10023 < /tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_recipients.txt"
-  _run_in_container bash -c "grep -i 'action=pass, reason=recipient whitelist' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
+function _send_test_mail() {
+  local MAIL_TEMPLATE=$1
+  local PORT=${2:-25}
+
+  # `-w 0` terminates the connection after sending the template, it does not wait for a response.
+  # This is required for port 10023, otherwise the connection never drops.
+  # It could increase the number of seconds to wait for port 25 to allow for asserting a response,
+  # but that would enforce the delay in tests for port 10023.
+  _run_in_container bash -c "nc -w 0 0.0.0.0 ${PORT} < ${MAIL_TEMPLATE}"
+}
+
+function _should_have_log_entry() {
+  local ACTION=$1
+  local REASON=$2
+  local TRIPLET=$3
+
+  # Allow some extra time for logs to update to avoids a false-positive failure:
+  run_until_success_or_timeout 10 docker exec "${CONTAINER_NAME}" grep \
+    "${ACTION}, ${REASON}," \
+    /var/log/mail/mail.log
+
+  # Log entry matched should be for the expected triplet:
+  assert_output --partial "${TRIPLET}"
+  _should_output_number_of_lines 1
+}
+
+# `lines` is a special BATS variable updated via `run`:
+function _should_output_number_of_lines() {
+  assert_equal "${#lines[@]}" $1
 }

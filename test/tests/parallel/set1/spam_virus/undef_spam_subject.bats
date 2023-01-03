@@ -7,8 +7,10 @@ CONTAINER1_NAME='dms-test_spam-undef-subject_1'
 CONTAINER2_NAME='dms-test_spam-undef-subject_2'
 CONTAINER_NAME=${CONTAINER2_NAME}
 
-function setup_file() {
-  local CONTAINER_NAME=${CONTAINER1_NAME}
+function teardown() { _default_teardown ; }
+
+@test "${TEST_NAME_PREFIX} 'SA_SPAM_SUBJECT=undef' should update Amavis config" {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
@@ -17,8 +19,14 @@ function setup_file() {
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  # ulimit required for `ENABLE_SRS=1`
-  local CONTAINER_NAME=${CONTAINER2_NAME}
+  _run_in_container bash -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
+  assert_success
+}
+
+# TODO: Unclear why some of these ENV are relevant for the test?
+@test "${TEST_NAME_PREFIX} Docker env variables are set correctly (custom)" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_CLAMAV=1
     --env SPOOF_PROTECTION=1
@@ -33,17 +41,12 @@ function setup_file() {
     --env ENABLE_SRS=1
     --env ENABLE_MANAGESIEVE=1
     --env PERMIT_DOCKER=host
+    # NOTE: ulimit required for `ENABLE_SRS=1` until running a newer `postsrsd`
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-}
 
-function teardown_file() {
-  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
-}
-
-@test "${TEST_NAME_PREFIX} Docker env variables are set correctly (custom)" {
   _run_in_container bash -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
   assert_success
 
@@ -54,8 +57,5 @@ function teardown_file() {
   assert_success
 
   _run_in_container bash -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
-  assert_success
-
-  run docker exec "${CONTAINER1_NAME}" bash -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
   assert_success
 }

@@ -6,49 +6,77 @@ CONTAINER1_NAME='dms-test_postscreen_enforce'
 CONTAINER2_NAME='dms-test_postscreen_sender'
 
 function setup() {
-  MAIL_POSTSCREEN_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${CONTAINER1_NAME}")
+  CONTAINER1_IP=$(get_container_ip ${CONTAINER1_NAME})
 }
 
 function setup_file() {
-  local CONTAINER_NAME=${CONTAINER1_NAME}
+  export CONTAINER_NAME
+
+  CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env POSTSCREEN_ACTION=enforce
-    --cap-add=NET_ADMIN
   )
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 
-  local CONTAINER_NAME=${CONTAINER2_NAME}
+  # A standard DMS instance to send mail from:
+  # NOTE: None of DMS is actually used for this (just bash + nc).
+  CONTAINER_NAME=${CONTAINER2_NAME}
   init_with_defaults
-  common_container_setup
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  # No need to wait for DMS to be ready for this container:
+  common_container_create
+  run docker start "${CONTAINER_NAME}"
+  assert_success
+
+  # Set default implicit container fallback for helpers:
+  CONTAINER_NAME=${CONTAINER1_NAME}
 }
 
 function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "${TEST_NAME_PREFIX} talk too fast" {
-  run docker exec "${CONTAINER2_NAME}" /bin/sh -c "nc ${MAIL_POSTSCREEN_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
+@test "${TEST_NAME_PREFIX} should fail login when talking out of turn" {
+  _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
   assert_success
+  assert_output --partial '502 5.5.2 Error: command not recognized'
 
-  repeat_until_success_or_timeout 10 run docker exec "${CONTAINER1_NAME}" grep 'COMMAND PIPELINING' /var/log/mail/mail.log
-  assert_success
+  # Expected postscreen log entry:
+  _run_in_container cat /var/log/mail/mail.log
+  assert_output --partial 'COMMAND PIPELINING'
 }
 
-@test "${TEST_NAME_PREFIX} positive test (respecting postscreen_greet_wait time and talking in turn)" {
-  for _ in {1,2}; do
-    # shellcheck disable=SC1004
-    docker exec "${CONTAINER2_NAME}" /bin/bash -c \
-    'exec 3<>/dev/tcp/'"${MAIL_POSTSCREEN_IP}"'/25 && \
+@test "${TEST_NAME_PREFIX} should successfully login (respecting postscreen_greet_wait time)" {
+  # NOTE: Sometimes fails on first attempt (trying too soon?),
+  # Instead of a `run` + asserting partial, Using repeat + internal grep match:
+  repeat_until_success_or_timeout 10 _should_wait_turn_speaking_smtp \
+    "${CONTAINER2_NAME}" \
+    "${CONTAINER1_IP}" \
+    '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' \
+    'Authentication successful'
+
+  # Expected postscreen log entry:
+  _run_in_container cat /var/log/mail/mail.log
+  assert_output --partial 'PASS NEW'
+}
+
+# When postscreen is active, it prevents the usual method of piping a file through nc:
+# (Won't work: _run_in_container_explicit "${CLIENT_CONTAINER_NAME}" bash -c "nc ${TARGET_CONTAINER_IP} 25 < ${SMTP_TEMPLATE}")
+# The below workaround respects `postscreen_greet_wait` time (default 6 sec), talking to the mail-server in turn:
+# https://www.postfix.org/postconf.5.html#postscreen_greet_wait
+function _should_wait_turn_speaking_smtp() {
+  local CLIENT_CONTAINER_NAME=$1
+  local TARGET_CONTAINER_IP=$2
+  local SMTP_TEMPLATE=$3
+  local EXPECTED=$4
+
+  local UGLY_WORKAROUND='exec 3<>/dev/tcp/'"${TARGET_CONTAINER_IP}"'/25 && \
     while IFS= read -r cmd; do \
       head -1 <&3; \
       [[ ${cmd} == "EHLO"* ]] && sleep 6; \
       echo ${cmd} >&3; \
-    done < "/tmp/docker-mailserver-test/auth/smtp-auth-login.txt"'
-  done
+    done < '"${SMTP_TEMPLATE}"
 
-  repeat_until_success_or_timeout 10 run docker exec "${CONTAINER1_NAME}" grep 'PASS NEW ' /var/log/mail/mail.log
-  assert_success
+  docker exec "${CLIENT_CONTAINER_NAME}" bash -c "${UGLY_WORKAROUND}" | grep "${EXPECTED}"
 }

@@ -5,10 +5,6 @@ TEST_NAME_PREFIX='Fail2Ban:'
 CONTAINER1_NAME='dms-test_fail2ban'
 CONTAINER2_NAME='dms-test_fail2ban_fail-auth-mailer'
 
-function get_container2_ip() {
-  docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${CONTAINER2_NAME}"
-}
-
 function setup_file() {
   export CONTAINER_NAME
 
@@ -17,6 +13,7 @@ function setup_file() {
     --env ENABLE_FAIL2BAN=1
     --env POSTSCREEN_ACTION=ignore
     --cap-add=NET_ADMIN
+    # NOTE: May no longer be needed with newer F2B:
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   init_with_defaults
@@ -25,7 +22,6 @@ function setup_file() {
 
   # Create a container which will send wrong authentications and should get banned
   CONTAINER_NAME=${CONTAINER2_NAME}
-  local CUSTOM_SETUP_ARGUMENTS=(--env MAIL_FAIL2BAN_IP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' ${CONTAINER1_NAME})")
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
@@ -76,30 +72,21 @@ function teardown_file() {
   done
 }
 
-# NOTE: This test case is fragile if other test cases were to be run concurrently
+# NOTE: This test case is fragile if other test cases were to be run concurrently.
+# - After multiple login fails and a slight delay, f2b will ban that IP.
+# - You could hard-code `sleep 5` on both cases to avoid the alternative assertions,
+#   but the polling + piping into grep approach here reliably minimizes the delay.
 @test "${TEST_NAME_PREFIX} ban ip on multiple failed login" {
-  # can't pipe the file as usual due to postscreen
-  # respecting postscreen_greet_wait time and talking in turn):
-
-  # shellcheck disable=SC1004
-  for _ in {1,2}
-  do
-    docker exec "${CONTAINER2_NAME}" /bin/bash -c \
-    'exec 3<>/dev/tcp/${MAIL_FAIL2BAN_IP}/25 && \
-    while IFS= read -r cmd; do \
-      head -1 <&3; \
-      [[ ${cmd} == "EHLO"* ]] && sleep 6; \
-      echo ${cmd} >&3; \
-    done < "/tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"'
-  done
-
-  sleep 5
+  CONTAINER1_IP=$(get_container_ip ${CONTAINER1_NAME})
+  # Trigger a ban by failing to login twice:
+  _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
+  _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
 
   # Checking that CONTAINER2_IP is banned in "${CONTAINER1_NAME}"
-  CONTAINER2_IP=$(get_container2_ip)
-  _run_in_container fail2ban-client status postfix-sasl
+  CONTAINER2_IP=$(get_container_ip ${CONTAINER2_NAME})
+  run repeat_in_container_until_success_or_timeout 10 "${CONTAINER_NAME}" bash -c "fail2ban-client status postfix-sasl | grep -F '${CONTAINER2_IP}'"
   assert_success
-  assert_output --partial "${CONTAINER2_IP}"
+  assert_output --partial 'Banned IP list:'
 
   # Checking that CONTAINER2_IP is banned by nftables
   _run_in_container bash -c 'nft list set inet f2b-table addr-set-postfix-sasl'
@@ -107,11 +94,11 @@ function teardown_file() {
   assert_output --partial "elements = { ${CONTAINER2_IP} }"
 }
 
+# NOTE: Depends on previous test case, if no IP was banned at this point, it passes regardless..
 @test "${TEST_NAME_PREFIX} unban ip works" {
-  CONTAINER2_IP=$(get_container2_ip)
+  CONTAINER2_IP=$(get_container_ip ${CONTAINER2_NAME})
   _run_in_container fail2ban-client set postfix-sasl unbanip "${CONTAINER2_IP}"
   assert_success
-  sleep 5
 
   # Checking that CONTAINER2_IP is unbanned in "${CONTAINER1_NAME}"
   _run_in_container fail2ban-client status postfix-sasl
@@ -188,8 +175,6 @@ function teardown_file() {
 @test "${TEST_NAME_PREFIX} setup.sh fail2ban" {
   _run_in_container fail2ban-client set dovecot banip 192.0.66.4
   _run_in_container fail2ban-client set dovecot banip 192.0.66.5
-
-  sleep 10
 
   # Originally: run ./setup.sh -c "${CONTAINER1_NAME}" fail2ban
   _run_in_container setup fail2ban

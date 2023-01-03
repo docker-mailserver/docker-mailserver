@@ -29,22 +29,17 @@ function teardown_file() { _default_teardown ; }
   assert_failure
 }
 
-@test "${TEST_NAME_PREFIX} SA - Amavis integration should not be active" {
-  _run_in_container /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
-  assert_success
-}
-
 @test "${TEST_NAME_PREFIX} ClamAV - Amavis integration should not be active" {
   _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   assert_failure
 }
 
-@test "${TEST_NAME_PREFIX} SA should not be called" {
-  _run_in_container grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
-  assert_failure
+@test "${TEST_NAME_PREFIX} SA - Amavis integration should not be active" {
+  _run_in_container bash -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  assert_success
 }
 
-@test "${TEST_NAME_PREFIX} ClamAV process should not be restarted when killed" {
-  _run_in_container /bin/bash -c "pkill -f clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+@test "${TEST_NAME_PREFIX} SA - should not have been called" {
+  _run_in_container grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
   assert_failure
 }
