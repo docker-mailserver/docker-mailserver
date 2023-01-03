@@ -2,26 +2,57 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.2.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.3.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
+
+### Fixed
+
+- **build**:  Fix dovecot-fts-xapian dependency, when using dovecot community repository ([#2937](https://github.com/docker-mailserver/docker-mailserver/pull/2937))
+
+## [11.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.0)
 
 ### Added
 
 - **scripts**: Fail2ban - Enable network bans ([#2818](https://github.com/docker-mailserver/docker-mailserver/pull/2818))
+- **ci**: run tests in parallel ([#2857](https://github.com/docker-mailserver/docker-mailserver/pull/2857))
+- **docs**: added note about Docker version to documentation ([#2799](https://github.com/docker-mailserver/docker-mailserver/pull/2799))
 
 ### Changed
 
 - **configuration**: Run fetchmail not in verbose mode ([#2859](https://github.com/docker-mailserver/docker-mailserver/pull/2859))
 - **build**: cleaned up `Makefile` and its targets ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **configuration**: adjust handling of DNSBL return codes ([#2890](https://github.com/docker-mailserver/docker-mailserver/pull/2890))
+
+### Updates
+
+- **ci**: change to new output format in GH actions ([#2892](https://github.com/docker-mailserver/docker-mailserver/pull/2892))
+- **build**: cleaned up Makefile ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **tests**: miscellaneous enhancements ([#2815](https://github.com/docker-mailserver/docker-mailserver/pull/2815))
 
 ### Fixed
 
+- **scripts**: `./setup.sh email list` did not display aliases correctly ([#2877](https://github.com/docker-mailserver/docker-mailserver/issues/2877))
 - **scripts**: Improve error handling, when parameters are missing ([#2854](https://github.com/docker-mailserver/docker-mailserver/pull/2854))
 - **scripts**: Fix unbound variable error ([#2849](https://github.com/docker-mailserver/docker-mailserver/pull/2849), [#2853](https://github.com/docker-mailserver/docker-mailserver/pull/2853))
 - **scripts**: Make fetchmail data persistant ([#2851](https://github.com/docker-mailserver/docker-mailserver/pull/2851))
 - **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
 - **scripts**: Run Amavis cron job only when Amavis is enabled ([#2831](https://github.com/docker-mailserver/docker-mailserver/pull/2831))
+- **config**: `opendmarc.conf` - Change the default OpenDMARC policy to reject ([#2933](https://github.com/docker-mailserver/docker-mailserver/pull/2933))
+
+### Deprecation Notice
+
+- **Removing TLS 1.0 and TLS 1.1 ciphersuites from `TLS_LEVEL=intermediate`**
+  You should not realistically need support for TLS 1.0 or TLS 1.1, except in niche scenarios such as an old printer/scanner device that refuses to negotiate a compatible non-vulnerable cipher. [More details covered here](https://github.com/docker-mailserver/docker-mailserver/issues/2679).
+- **`SASL_PASSWD` ENV**
+  An old ENV `SASL_PASSWD` has been around for supporting relay-host authentication, but since superceded by the `postfix-sasl-password.cf` config file. It will be removed in a future major release as detailed [here](https://github.com/docker-mailserver/docker-mailserver/pull/2605).
+- **Platform Support - ARMv7**
+  This is a very old platform, superceded by ARMv8 and newer with broad product availability around 2016 onwards.
+  Support was introduced primarily for users of the older generations of Raspberry Pi. ARM64 is the modern target for ARM devices.
+
+  If you require ARMv7 support, [please let us know](https://github.com/docker-mailserver/docker-mailserver/issues/2642).
 
 ## [11.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.2.0)
 
