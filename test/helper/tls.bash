@@ -1,21 +1,17 @@
 #!/bin/bash
 
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
-# Helper methods for testing TLS.
 # `_should_*` methods are useful for common high-level functionality.
 
-
 # ? --------------------------------------------- Negotiate TLS
-
 
 # For certs actually provisioned from LetsEncrypt the Root CA cert should not need to be provided,
 # as it would already be available by default in `/etc/ssl/certs`, requiring only the cert chain (fullchain.pem).
 function _should_succesfully_negotiate_tls() {
   local FQDN=${1}
-  local CONTAINER_NAME=${2:-${TEST_NAME}}
   # shellcheck disable=SC2031
-  local CA_CERT=${3:-${TEST_CA_CERT}}
+  local CA_CERT=${2:-${TEST_CA_CERT}}
 
   # Postfix and Dovecot are ready:
   wait_for_smtp_port_in_container_to_respond "${CONTAINER_NAME}"
@@ -36,9 +32,8 @@ function _should_succesfully_negotiate_tls() {
 function _negotiate_tls() {
   local FQDN=${1}
   local PORT=${2}
-  local CONTAINER_NAME=${3:-${TEST_NAME}}
   # shellcheck disable=SC2031
-  local CA_CERT=${4:-${TEST_CA_CERT}}
+  local CA_CERT=${3:-${TEST_CA_CERT}}
 
   local CMD_OPENSSL_VERIFY
   CMD_OPENSSL_VERIFY=$(_generate_openssl_cmd "${PORT}")
@@ -83,7 +78,6 @@ function _generate_openssl_cmd() {
   echo "${CMD_OPENSSL} ${EXTRA_ARGS} 2>/dev/null"
 }
 
-
 # ? --------------------------------------------- Verify FQDN
 
 function _get_fqdn_match_query() {
@@ -115,9 +109,8 @@ function escape_fqdn() {
 function _get_fqdns_for_cert() {
   local FQDN=${1}
   local PORT=${2:-'25'}
-  local CONTAINER_NAME=${3:-${TEST_NAME}}
   # shellcheck disable=SC2031
-  local CA_CERT=${4:-${TEST_CA_CERT}}
+  local CA_CERT=${3:-${TEST_CA_CERT}}
 
   # `-servername` is for SNI, where the port may be for a service that serves multiple certs,
   # and needs a specific FQDN to return the correct cert. Such as a reverse-proxy.

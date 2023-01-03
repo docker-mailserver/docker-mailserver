@@ -17,14 +17,15 @@ function __initialize_variables() {
     'CONTAINER_NAME'
   )
 
-  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS}"
+  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS[@]}"
   do
     __check_if_set "${VARIABLE}"
   done
 
+  export SETUP_FILE_MARKER TEST_TIMEOUT_IN_SECONDS NUMBER_OF_LOG_LINES
+  SETUP_FILE_MARKER="${BATS_TMPDIR:?}/$(basename "${BATS_TEST_FILENAME:?}").setup_file"
   TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS:-120}
   NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES:-10}
-  SETUP_FILE_MARKER="${BATS_TMPDIR:?}/$(basename "${BATS_TEST_FILENAME:?}").setup_file"
 }
 
 # -------------------------------------------------------------------
@@ -118,6 +119,8 @@ function common_container_create() {
     --env ENABLE_UPDATE_CHECK=0 \
     --env ENABLE_SPAMASSASSIN=0 \
     --env ENABLE_FAIL2BAN=0 \
+    --env POSTFIX_INET_PROTOCOLS=ipv4 \
+    --env DOVECOT_INET_PROTOCOLS=ipv4 \
     --env LOG_LEVEL=debug \
     "${X_EXTRA_ARGS[@]}" \
     "${IMAGE_NAME}"

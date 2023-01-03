@@ -9,12 +9,31 @@ __load_bats_helper
 
 # -------------------------------------------------------------------
 
+# like _run_in_container_explicit but infers ${1} by using the ENV CONTAINER_NAME
 function _run_in_container() {
+  run docker exec "${CONTAINER_NAME}" "${@}"
+}
+
+# @param ${1} container name [REQUIRED]
+# @param ... command to execute
+function _run_in_container_explicit() {
+  local CONTAINER_NAME=${1:?Container name must be given when using explicit}
+  shift 1
   run docker exec "${CONTAINER_NAME}" "${@}"
 }
 
 function _default_teardown() {
   docker rm -f "${CONTAINER_NAME}"
+}
+
+# -------------------------------------------------------------------
+
+# @param ${1} program name [REQUIRED]
+# @param ${2} container name [IF UNSET: ${CONTAINER_NAME}]
+function _check_if_process_is_running() {
+  local PROGRAM_NAME=${1:?Program name must be provided explicitly}
+  local CONTAINER_NAME=${2:-${CONTAINER_NAME}}
+  _run_in_container_explicit "${CONTAINER_NAME}" pgrep "${PROGRAM_NAME}"
 }
 
 # -------------------------------------------------------------------
