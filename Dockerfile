@@ -10,7 +10,7 @@
 FROM docker.io/debian:11-slim AS stage-base
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DOVECOT_COMMUNITY_REPO=0
+ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
@@ -133,6 +133,7 @@ EOF
 # -----------------------------------------------
 
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
+COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
   ln -s /var/log/mail/mail.log /var/log/mail.log
   # disable sshd jail

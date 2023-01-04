@@ -153,7 +153,7 @@ function wait_for_changes_to_be_detected_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
 
-# Relies on ENV `LOG_LEVEL=debug` or higher
+# NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
 function wait_until_change_detection_event_completes() {
   local CONTAINER_NAME="${1}"
   # Ensure early failure if arg is missing:
@@ -164,31 +164,20 @@ function wait_until_change_detection_event_completes() {
     $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
     '=(debug|trace)$'
 
-  local CHANGE_EVENT_START='Change detected'
-  local CHANGE_EVENT_END='Completed handling of detected change' # debug log
-
-  function __change_event_status() {
-    docker exec "${CONTAINER_NAME}" \
-      grep -oE "${CHANGE_EVENT_START}|${CHANGE_EVENT_END}" /var/log/supervisor/changedetector.log \
-      | tail -1
-  }
-
-  function __is_changedetector_processing() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]]
+  # NOTE: Change events can start and finish all within < 1 sec,
+  # Reliably track the completion of a change event by comparing the before/after count:
+  function __change_event_count() {
+    docker exec "${CONTAINER_NAME}" grep --count "${CHANGE_EVENT_END}" /var/log/supervisor/changedetector.log
   }
 
   function __is_changedetector_finished() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]]
+    [[ $(__change_event_count) -gt "${NUM_CHANGE_EVENTS_BEFORE}" ]]
   }
 
-  # A new change event is expected,
-  # If the last event status is not yet `CHANGE_EVENT_START`, wait until it is:
-  if ! __is_changedetector_processing
-  then
-    repeat_until_success_or_timeout 60 __is_changedetector_processing
-  fi
+  # Count by completions of this debug log line from `check-for-changes.sh`:
+  local CHANGE_EVENT_END='Completed handling of detected change'
+  local NUM_CHANGE_EVENTS_BEFORE=$(__change_event_count)
 
-  # Change event is in progress, wait until it finishes:
   repeat_until_success_or_timeout 60 __is_changedetector_finished
 }
 
