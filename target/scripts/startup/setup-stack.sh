@@ -231,7 +231,7 @@ function _setup_dovecot_quota
           "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins quota|g" \
           /etc/dovecot/conf.d/10-mail.conf
         sed -i \
-          "s|mail_plugins = \$mail_plugin|mail_plugins = \$mail_plugins imap_quota|g" \
+          "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins imap_quota|g" \
           /etc/dovecot/conf.d/20-imap.conf
       fi
 
