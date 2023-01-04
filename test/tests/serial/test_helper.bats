@@ -86,7 +86,7 @@ TEST_NAME_PREFIX='test helper functions:'
 # NOTE: Test requires external network access available
 @test "${TEST_NAME_PREFIX} wait_for_smtp_port_in_container returns immediately when port found" {
   local CONTAINER_NAME
-  CONTAINER_NAME=$(docker run --rm -d alpine sh -c "sleep 10")
+  CONTAINER_NAME=$(docker run --rm -d alpine sh -c "sleep 100")
 
   docker exec "${CONTAINER_NAME}" apk add netcat-openbsd
   docker exec "${CONTAINER_NAME}" nc -l 25 &

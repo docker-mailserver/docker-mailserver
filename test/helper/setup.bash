@@ -110,7 +110,7 @@ function common_container_create() {
   run docker create \
     --tty \
     --name "${CONTAINER_NAME}" \
-    --hostname "${TEST_FQDN:-mail.my-domain.com}" \
+    --hostname "${TEST_FQDN:-mail.example.test}" \
     --volume "${TEST_FILES_VOLUME}" \
     --volume "${TEST_CONFIG_VOLUME}" \
     --env ENABLE_AMAVIS=0 \
