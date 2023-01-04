@@ -139,6 +139,7 @@ EOF
 # -----------------------------------------------
 
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
+COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
   ln -s /var/log/mail/mail.log /var/log/mail.log
   # disable sshd jail
