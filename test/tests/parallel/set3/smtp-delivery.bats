@@ -19,13 +19,16 @@ function setup_file() {
     # Required for test 'rejects spam':
     --env ENABLE_SPAMASSASSIN=1
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
+    # Either SA_TAG or ENABLE_SRS=1 will pass the spamassassin X-SPAM headers test case:
+    --env SA_TAG=-5.0
 
     # Only relevant for tests expecting to match `external.tld=`?:
+    # NOTE: Disabling support in tests as it doesn't seem relevant to the test, but misleading..
     # `spam@external.tld` and `user@external.tld` are delivered with with the domain-part changed to `example.test`
     # https://github.com/roehling/postsrsd
-    --env ENABLE_SRS=1
+    # --env ENABLE_SRS=1
     # Required for ENABLE_SRS=1:
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+    # --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
 
     # Required for tests: 'redirects mail to external aliases' + 'rejects spam':
     --env ENABLE_AMAVIS=1
@@ -47,173 +50,207 @@ function setup_file() {
 
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 
-  # TODO (move to clamav tests): For use when ClamAV is enabled:
+  # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
   # _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
 
   # Required for 'delivers mail to existing alias':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt'
   # Required for 'delivers mail to existing catchall':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt'
   # Required for 'delivers mail to regexp alias':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt'
 
   # Required for 'rejects mail to unknown user':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt'
   # Required for 'redirects mail to external aliases':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt'
   # Required for 'rejects spam':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt'
 
   # Required for 'delivers mail to existing account':
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt"
-  _run_in_container bash -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt'
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt'
+  _run_in_container bash -c 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
 
   wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
 function teardown_file() { _default_teardown ; }
 
-@test "checking smtp: authentication works with good password (plain)" {
-  _run_in_container bash -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
+@test "${TEST_NAME_PREFIX} should successfully authenticate with good password (plain)" {
+  _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'
   assert_success
+  assert_output --partial 'Authentication successful'
 }
 
-@test "checking smtp: authentication fails with wrong password (plain)" {
-  _run_in_container bash -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt"
+@test "${TEST_NAME_PREFIX} should fail to authenticate with wrong password (plain)" {
+  _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt'
   assert_output --partial 'authentication failed'
   assert_success
 }
 
-@test "checking smtp: authentication works with good password (login)" {
-  _run_in_container bash -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
+@test "${TEST_NAME_PREFIX} should successfully authenticate with good password (login)" {
+  _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt'
   assert_success
+  assert_output --partial 'Authentication successful'
 }
 
-@test "checking smtp: authentication fails with wrong password (login)" {
-  _run_in_container bash -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
+@test "${TEST_NAME_PREFIX} should fail to authenticate with wrong password (login)" {
+  _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   assert_output --partial 'authentication failed'
   assert_success
 }
 
-@test "checking smtp: added user authentication works with good password (plain)" {
-  _run_in_container bash -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt | grep 'Authentication successful'"
+@test "${TEST_NAME_PREFIX} [user: 'added'] should successfully authenticate with good password (plain)" {
+  _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt'
   assert_success
+  assert_output --partial 'Authentication successful'
 }
 
-@test "checking smtp: added user authentication fails with wrong password (plain)" {
-  _run_in_container bash -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt | grep 'authentication failed'"
+@test "${TEST_NAME_PREFIX} [user: 'added'] should fail to authenticate with wrong password (plain)" {
+  _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt'
   assert_success
+  assert_output --partial 'authentication failed'
 }
 
-@test "checking smtp: added user authentication works with good password (login)" {
-  _run_in_container bash -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt | grep 'Authentication successful'"
+@test "${TEST_NAME_PREFIX} [user: 'added'] should successfully authenticate with good password (login)" {
+  _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt'
   assert_success
+  assert_output --partial 'Authentication successful'
 }
 
-@test "checking smtp: added user authentication fails with wrong password (login)" {
-  _run_in_container bash -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt | grep 'authentication failed'"
+@test "${TEST_NAME_PREFIX} [user: 'added'] should fail to authenticate with wrong password (login)" {
+  _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt'
   assert_success
+  assert_output --partial 'authentication failed'
 }
 
-# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
-@test "checking smtp: delivers mail to existing account" {
+# TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
+@test "${TEST_NAME_PREFIX} delivers mail to existing account" {
   _run_in_container bash -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
   assert_success
-  assert_output <<'EOF'
- 1 <added@localhost.localdomain>
- 6 <user1@localhost.localdomain>
- 1 <user1@localhost.localdomain>, orig_to=<postmaster@example.test>
- 1 <user1@localhost.localdomain>, orig_to=<root>
- 1 <user1~test@localhost.localdomain>
- 2 <user2@otherdomain.tld>
- 1 <user3@localhost.localdomain>
-EOF
+
+  assert_output --partial '1 <added@localhost.localdomain>'
+  assert_output --partial '6 <user1@localhost.localdomain>'
+  assert_output --partial '1 <user1@localhost.localdomain>, orig_to=<root>'
+  assert_output --partial '1 <user1~test@localhost.localdomain>'
+  assert_output --partial '2 <user2@otherdomain.tld>'
+  assert_output --partial '1 <user3@localhost.localdomain>'
+  _should_output_number_of_lines 6
+
+  # NOTE: Requires ClamAV enabled and to send `amavis-virus` template:
+  # assert_output --partial '1 <user1@localhost.localdomain>, orig_to=<postmaster@example.test>'
+  # _should_output_number_of_lines 7
 }
 
-@test "checking smtp: delivers mail to existing alias" {
-  _run_in_container bash -c "grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+@test "${TEST_NAME_PREFIX} delivers mail to existing alias" {
+  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log
   assert_success
-  assert_output 1
+  assert_output --partial 'status=sent'
+  _should_output_number_of_lines 1
 }
 
-@test "checking smtp: delivers mail to existing alias with recipient delimiter" {
-  _run_in_container bash -c "grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+@test "${TEST_NAME_PREFIX} delivers mail to existing alias with recipient delimiter" {
+  _run_in_container grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log
   assert_success
-  assert_output 1
+  assert_output --partial 'status=sent'
+  _should_output_number_of_lines 1
 
-  _run_in_container bash -c "grep 'to=<user1~test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=bounced'"
-  assert_failure
-}
-
-@test "checking smtp: delivers mail to existing catchall" {
-  _run_in_container bash -c "grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+  _run_in_container grep 'to=<user1~test@localhost.localdomain>' /var/log/mail/mail.log
   assert_success
-  assert_output 1
+  refute_output --partial 'status=bounced'
 }
 
-@test "checking smtp: delivers mail to regexp alias" {
-  _run_in_container bash -c "grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
+@test "${TEST_NAME_PREFIX} delivers mail to existing catchall" {
+  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log
   assert_success
-  assert_output 1
+  assert_output --partial 'status=sent'
+  _should_output_number_of_lines 1
 }
 
-@test "checking smtp: user1 should have received 9 mails" {
+@test "${TEST_NAME_PREFIX} delivers mail to regexp alias" {
+  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log
+  assert_success
+  assert_output --partial 'status=sent'
+  _should_output_number_of_lines 1
+}
+
+@test "${TEST_NAME_PREFIX} user1 should have received 8 mails" {
   _run_in_container bash -c "grep Subject /var/mail/localhost.localdomain/user1/new/* | sed 's/.*Subject: //g' | sed 's/\.txt.*//g' | sed 's/VIRUS.*/VIRUS/g' | sort"
   assert_success
-  # 9 messages, the virus mail has three subject lines
-  cat <<'EOF' | assert_output
-Root Test Message
-Test Message amavis-virus
-Test Message amavis-virus
-Test Message existing-alias-external
-Test Message existing-alias-recipient-delimiter
-Test Message existing-catchall-local
-Test Message existing-regexp-alias-local
-Test Message existing-user-and-cc-local-alias
-Test Message existing-user1
-Test Message sieve-spam-folder
-VIRUS
-EOF
+
+  assert_output --partial 'Root Test Message'
+  assert_output --partial 'Test Message existing-alias-external'
+  assert_output --partial 'Test Message existing-alias-recipient-delimiter'
+  assert_output --partial 'Test Message existing-catchall-local'
+  assert_output --partial 'Test Message existing-regexp-alias-local'
+  assert_output --partial 'Test Message existing-user-and-cc-local-alias'
+  assert_output --partial 'Test Message existing-user1'
+  assert_output --partial 'Test Message sieve-spam-folder'
+  _should_output_number_of_lines 8
+
+  # The virus mail has three subject lines
+  # NOTE: Requires ClamAV enabled and to send amavis-virus:
+  # assert_output --partial 'Test Message amavis-virus' # Should verify two lines expected with this content
+  # assert_output --partial 'VIRUS'
+  # _should_output_number_of_lines 11
 }
 
-@test "checking smtp: rejects mail to unknown user" {
-  _run_in_container bash -c "grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log | wc -l"
+@test "${TEST_NAME_PREFIX} rejects mail to unknown user" {
+  _run_in_container grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log
   assert_success
-  assert_output 1
+  _should_output_number_of_lines 1
 }
 
-@test "checking smtp: redirects mail to external aliases" {
-  _run_in_container bash -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log* | grep RelayedInbound | wc -l"
+@test "${TEST_NAME_PREFIX} redirects mail to external aliases" {
+  _run_in_container bash -c "grep 'Passed CLEAN {RelayedInbound}' /var/log/mail/mail.log | grep -- '-> <external1@otherdomain.tld>'"
   assert_success
-  assert_output 2
+  assert_output --partial '<user@external.tld> -> <external1@otherdomain.tld>'
+  _should_output_number_of_lines 2
+  # assert_output --partial 'external.tld=user@example.test> -> <external1@otherdomain.tld>'
 }
 
-# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
-@test "checking smtp: rejects spam" {
-  _run_in_container bash -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@example.test | wc -l"
+# TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
+@test "${TEST_NAME_PREFIX} rejects spam" {
+  _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
   assert_success
-  assert_output 1
+  assert_output --partial '<spam@external.tld> -> <user1@localhost.localdomain>'
+  _should_output_number_of_lines 1
+
+  # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=0 + grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}' /var/log/mail/mail.log:
+  # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=1 + grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log:
+  # <spam@external.tld> -> <user1@localhost.localdomain>
+  # Amavis log line with ENABLE_SRS=1 changes the domain-part to match in a log:
+  # <SRS0=g+ca=5C=external.tld=spam@example.test> -> <user1@localhost.localdomain>
+  # assert_output --partial 'external.tld=spam@example.test> -> <user1@localhost.localdomain>'
 }
 
-@test "checking smtp: not advertising smtputf8" {
-  # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
-  # Better disable SMTPUTF8 support entirely if we can't handle it correctly
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt | grep SMTPUTF8 | wc -l"
+@test "${TEST_NAME_PREFIX} SA - All registered domains should receive mail with spam headers (X-Spam)" {
+  _run_in_container grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new
   assert_success
-  assert_output 0
+
+  _run_in_container grep -ir 'X-Spam-' /var/mail/otherdomain.tld/user2/new
+  assert_success
 }
 
-@test "checking that mail for root was delivered" {
-  _run_in_container grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
+# Dovecot does not support SMTPUTF8, so while we can send we cannot receive
+# Better disable SMTPUTF8 support entirely if we can't handle it correctly
+@test "${TEST_NAME_PREFIX} not advertising smtputf8" {
+  _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt'
+  assert_success
+  refute_output --partial 'SMTPUTF8'
+}
+
+@test "${TEST_NAME_PREFIX} mail for root was delivered" {
+  _run_in_container grep -R 'Subject: Root Test Message' /var/mail/localhost.localdomain/user1/new/
   assert_success
 }

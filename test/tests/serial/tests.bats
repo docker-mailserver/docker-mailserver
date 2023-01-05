@@ -1,5 +1,5 @@
-load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
 CONTAINER_NAME='mail'
 
@@ -34,28 +34,6 @@ setup_file() {
   wait_until_change_detection_event_completes mail
   wait_for_service mail postfix
   wait_for_smtp_port_in_container mail
-
-  # The first mail sent leverages an assert for better error output if a failure occurs:
-  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
-  assert_success
-
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
-  docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
-
-  wait_for_empty_mail_queue_in_container mail
 }
 
 teardown_file() {
@@ -205,7 +183,7 @@ teardown_file() {
 }
 
 @test "checking accounts: user mail folder for user3" {
-  run docker exec mail /bin/bash -c "ls -d /var/mail/localhost.localdomain/user3/mail"
+  run docker exec mail /bin/bash -c "ls -d /var/mail/localhost.localdomain/user3"
   assert_success
 }
 
@@ -262,13 +240,6 @@ teardown_file() {
 @test "checking spamassassin: should be listed in amavis when enabled" {
   run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
   assert_failure
-}
-
-@test "checking spamassassin: all registered domains should see spam headers" {
-  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new"
-  assert_success
-  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/otherdomain.tld/user2/new"
-  assert_success
 }
 
 #
@@ -479,7 +450,7 @@ EOF
 @test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
-  assert_output '* user1@localhost.localdomain ( 10K / ~ ) [0%]'
+  assert_output '* user1@localhost.localdomain ( 0 / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
