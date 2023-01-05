@@ -535,6 +535,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_rspamd" class="md-nav__link">
+    ENABLE_RSPAMD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -2420,6 +2427,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_rspamd" class="md-nav__link">
+    ENABLE_RSPAMD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -3339,6 +3353,21 @@
 <p>Note: you probably want to <a href="#postfix_inet_protocols">set <code>POSTFIX_INET_PROTOCOLS=ipv4</code></a> to make it work fine with Docker.</p>
 <h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
 <p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
+<h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
+<div class="admonition warning">
+<p class="admonition-title">Current State</p>
+<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time. Moreover, you will <em>currently</em> need to adjust Postfix's configuration <em>yourself</em> if you want to use Rspamd; you may use <a href="../advanced/override-defaults/user-patches/"><code>user-patches.sh</code></a>.</p>
+<p>You will need to add Rspamd to the <code>smtpd_milters</code> in Postfix's <code>main.cf</code>. This can easily be done with <code>sed</code>: <code>sed -i -E 's|^(smtpd_milters = .*)|\1,inet:localhost:11332|g' /etc/postfix/main.cf</code>. Moreover, have a look at the <a href="https://rspamd.com/doc/integration.html">integration of Rspamd into Postfx</a>. You will need to provide additional configuration files at the moment (to <code>/etc/rspamd/local.d/</code>) to make Rspamd run in milter-mode.</p>
+</div>
+<div class="admonition bug">
+<p class="admonition-title">Rspamd and DNS Block Lists</p>
+<p>When you use Rspamd, you might want to use the <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a>. If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you <a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">might not be able</a> to make use of the block lists.</p>
+</div>
+<p>Enable or disable Rspamd.</p>
+<ul>
+<li><strong>0</strong> =&gt; disabled</li>
+<li>1 =&gt; enabled</li>
+</ul>
 <h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
 <p>Amavis content filter (used for ClamAV &amp; SpamAssassin)</p>
 <ul>
