@@ -1,42 +1,38 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
+
+CONTAINER_NAME='mail'
 
 setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
-  mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
+  init_with_defaults
 
-  docker run --rm -d --name mail \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e AMAVIS_LOGLEVEL=2 \
-    -e ENABLE_CLAMAV=0 \
-    -e ENABLE_MANAGESIEVE=1 \
-    -e ENABLE_QUOTAS=1 \
-    -e ENABLE_SPAMASSASSIN=1 \
-    -e ENABLE_SRS=1 \
-    -e ENABLE_UPDATE_CHECK=0 \
-    -e LOG_LEVEL='debug' \
-    -e PERMIT_DOCKER=host \
-    -e PFLOGSUMM_TRIGGER=logrotate \
-    -e REPORT_RECIPIENT=user1@localhost.localdomain \
-    -e REPORT_SENDER=report1@mail.example.test \
-    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
-    -e SPOOF_PROTECTION=1 \
-    -e SSL_TYPE='snakeoil' \
-    --hostname mail.example.test \
-    --tty \
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
-    --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
-    "${NAME}"
+  mv "${TEST_TMP_CONFIG}/user-patches/user-patches.sh" "${TEST_TMP_CONFIG}/user-patches.sh"
 
-  wait_for_finished_setup_in_container mail
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env ENABLE_AMAVIS=1
+    --env AMAVIS_LOGLEVEL=2
+    --env ENABLE_MANAGESIEVE=1
+    --env ENABLE_QUOTAS=1
+    --env ENABLE_SPAMASSASSIN=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER=host
+    --env PFLOGSUMM_TRIGGER=logrotate
+    --env REPORT_RECIPIENT=user1@localhost.localdomain
+    --env REPORT_SENDER=report1@mail.example.test
+    --env SPAMASSASSIN_SPAM_TO_INBOX=0
+    --env SPOOF_PROTECTION=1
+    --env SSL_TYPE='snakeoil'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+    --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+  )
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   # generate accounts after container has been started
   docker exec mail setup email add 'added@localhost.localdomain' 'mypassword'
   docker exec mail setup email add 'pass@localhost.localdomain' 'may be \a `p^a.*ssword'
 
   # setup sieve
-  docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
+  docker cp "${TEST_TMP_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
