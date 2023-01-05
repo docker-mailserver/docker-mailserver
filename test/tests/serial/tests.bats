@@ -209,30 +209,6 @@ teardown_file() {
   assert_line --index 2 "otherdomain.tld"
 }
 
-@test "checking postfix: main.cf overrides" {
-  run docker exec mail grep -q 'max_idle = 600s' /tmp/docker-mailserver/postfix-main.cf
-  assert_success
-  run docker exec mail grep -q 'readme_directory = /tmp' /tmp/docker-mailserver/postfix-main.cf
-  assert_success
-}
-
-@test "checking postfix: master.cf overrides" {
-  run docker exec mail grep -q 'submission/inet/smtpd_sasl_security_options=noanonymous' /tmp/docker-mailserver/postfix-master.cf
-  assert_success
-}
-
-#
-# dovecot
-#
-
-@test "checking dovecot: config additions" {
-  run docker exec mail grep -q 'mail_max_userip_connections = 69' /tmp/docker-mailserver/dovecot.cf
-  assert_success
-  run docker exec mail /bin/sh -c "doveconf | grep 'mail_max_userip_connections = 69'"
-  assert_success
-  assert_output 'mail_max_userip_connections = 69'
-}
-
 #
 # spamassassin
 #
