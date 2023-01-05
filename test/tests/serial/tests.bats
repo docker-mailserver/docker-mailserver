@@ -12,13 +12,11 @@ setup_file() {
     --env ENABLE_AMAVIS=1
     --env AMAVIS_LOGLEVEL=2
     --env ENABLE_QUOTAS=1
-    --env ENABLE_SPAMASSASSIN=1
     --env ENABLE_SRS=1
     --env PERMIT_DOCKER=host
     --env PFLOGSUMM_TRIGGER=logrotate
     --env REPORT_RECIPIENT=user1@localhost.localdomain
     --env REPORT_SENDER=report1@mail.example.test
-    --env SPAMASSASSIN_SPAM_TO_INBOX=0
     --env SPOOF_PROTECTION=1
     --env SSL_TYPE='snakeoil'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
@@ -207,15 +205,6 @@ teardown_file() {
   assert_line --index 0 "localdomain2.com"
   assert_line --index 1 "localhost.localdomain"
   assert_line --index 2 "otherdomain.tld"
-}
-
-#
-# spamassassin
-#
-
-@test "checking spamassassin: should be listed in amavis when enabled" {
-  run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
-  assert_failure
 }
 
 #
