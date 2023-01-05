@@ -11,7 +11,6 @@ setup_file() {
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_AMAVIS=1
     --env AMAVIS_LOGLEVEL=2
-    --env ENABLE_MANAGESIEVE=1
     --env ENABLE_QUOTAS=1
     --env ENABLE_SPAMASSASSIN=1
     --env ENABLE_SRS=1
@@ -30,9 +29,6 @@ setup_file() {
   # generate accounts after container has been started
   docker exec mail setup email add 'added@localhost.localdomain' 'mypassword'
   docker exec mail setup email add 'pass@localhost.localdomain' 'may be \a `p^a.*ssword'
-
-  # setup sieve
-  docker cp "${TEST_TMP_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
 
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
@@ -544,33 +540,6 @@ tnef
 xz
 zip
 EOF
-}
-
-
-#
-# sieve
-#
-
-@test "checking sieve: user1 should have received 1 email in folder INBOX.spam" {
-  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking manage sieve: server is ready when ENABLE_MANAGESIEVE has been set" {
-  run docker exec mail /bin/bash -c "nc -z 0.0.0.0 4190"
-  assert_success
-}
-
-@test "checking sieve: user2 should have piped 1 email to /tmp/" {
-  run docker exec mail /bin/sh -c "ls -A /tmp/pipe-test.out | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking sieve global: user1 should have gotten a copy of his spam mail" {
-  run docker exec mail /bin/sh -c "grep 'Spambot <spam@spam.com>' -R /var/mail/localhost.localdomain/user1/new/"
-  assert_success
 }
 
 #

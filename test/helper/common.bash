@@ -213,3 +213,8 @@ function wait_for_empty_mail_queue_in_container() {
   # shellcheck disable=SC2016
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
 }
+
+# `lines` is a special BATS variable updated via `run`:
+function _should_output_number_of_lines() {
+  assert_equal "${#lines[@]}" $1
+}
