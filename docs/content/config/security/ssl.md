@@ -225,7 +225,7 @@ Obtain a Cloudflare API token:
 6. Run the service to provision a certificate:
 
     ```sh
-    docker-compose up certbot-cloudflare
+    docker-compose run certbot-cloudflare
     ```
 
 7. You should see the following log output:
