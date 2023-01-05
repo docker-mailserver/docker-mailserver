@@ -1,0 +1,1 @@
+pidfile = false;
