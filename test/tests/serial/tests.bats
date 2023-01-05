@@ -5,13 +5,10 @@ setup_file() {
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
   mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
 
-  # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
   docker run --rm -d --name mail \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -v "$(pwd)/test/onedir":/var/mail-state \
     -e AMAVIS_LOGLEVEL=2 \
-    -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
     -e ENABLE_CLAMAV=0 \
     -e ENABLE_MANAGESIEVE=1 \
     -e ENABLE_QUOTAS=1 \
@@ -22,16 +19,11 @@ setup_file() {
     -e PERMIT_DOCKER=host \
     -e PFLOGSUMM_TRIGGER=logrotate \
     -e REPORT_RECIPIENT=user1@localhost.localdomain \
-    -e REPORT_SENDER=report1@mail.my-domain.com \
-    -e SA_KILL=3.0 \
-    -e SA_SPAM_SUBJECT="SPAM: " \
-    -e SA_TAG=-5.0 \
-    -e SA_TAG2=2.0 \
+    -e REPORT_SENDER=report1@mail.example.test \
     -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
     -e SPOOF_PROTECTION=1 \
     -e SSL_TYPE='snakeoil' \
-    -e VIRUSMAILS_DELETE_DELAY=7 \
-    --hostname mail.my-domain.com \
+    --hostname mail.example.test \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
@@ -250,7 +242,7 @@ teardown_file() {
   assert_output <<'EOF'
  1 <added@localhost.localdomain>
  6 <user1@localhost.localdomain>
- 1 <user1@localhost.localdomain>, orig_to=<postmaster@my-domain.com>
+ 1 <user1@localhost.localdomain>, orig_to=<postmaster@example.test>
  1 <user1@localhost.localdomain>, orig_to=<root>
  1 <user1~test@localhost.localdomain>
  2 <user2@otherdomain.tld>
@@ -318,7 +310,7 @@ EOF
 
 # TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
 @test "checking smtp: rejects spam" {
-  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@my-domain.com | wc -l"
+  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@example.test | wc -l"
   assert_success
   assert_output 1
 }
@@ -443,7 +435,7 @@ EOF
 
 
 @test "checking SRS: fallback to hostname is handled correctly" {
-  run docker exec mail grep "SRS_DOMAIN=my-domain.com" /etc/default/postsrsd
+  run docker exec mail grep "SRS_DOMAIN=example.test" /etc/default/postsrsd
   assert_success
 }
 
@@ -510,13 +502,13 @@ EOF
 @test "checking system: sets the server fqdn" {
   run docker exec mail hostname
   assert_success
-  assert_output "mail.my-domain.com"
+  assert_output "mail.example.test"
 }
 
 @test "checking system: sets the server domain name in /etc/mailname" {
   run docker exec mail cat /etc/mailname
   assert_success
-  assert_output "my-domain.com"
+  assert_output "example.test"
 }
 
 @test "checking system: postfix should not log to syslog" {
@@ -914,7 +906,7 @@ EOF
 # postfix
 
 @test "checking dovecot: postmaster address" {
-  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
+  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@example.test' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 
@@ -941,10 +933,10 @@ EOF
   run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
   # check sender is the one specified in REPORT_SENDER
-  run docker exec mail grep "From: report1@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  run docker exec mail grep "From: report1@mail.example.test" /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
   # check sender is not the default one.
-  run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  run docker exec mail grep "From: mailserver-report@mail.example.test" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
 }
 
