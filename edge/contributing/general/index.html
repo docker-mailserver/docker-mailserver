@@ -1525,9 +1525,22 @@
 <p>We do not support running linting, tests, etc on macOS at this time. Please use a linux VM.</p>
 </div>
 <details class="tip">
-<summary>Running a Specific Test</summary>
-<p>To run a specific test, use <code>make build generate-accounts test/&lt;TEST NAME&gt;</code>, where <code>&lt;TEST NAME&gt;</code> is the file name of the test (<em>for more precision use a relative path: <code>test/test/&lt;PATH&gt;</code></em>) excluding the <code>.bats</code> suffix.</p>
-<p>To run only the tests in <code>template.bats</code>, use <code>make test/template</code> (or <code>make test/parallel/set2/template</code>).</p>
+<summary>Setting the Degree of Parallelization for Tests</summary>
+<p>If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the <code>make clean all</code> command with <code>BATS_PARALLEL_JOBS=X</code> (i.e. <code>BATS_PARALLEL_JOBS=X make clean all</code>). This wil speed up the test procedure. You can also run all tests in serial by setting <code>BATS_PARALLEL_JOBS=1</code> this way.</p>
+<p>The default value of <code>BATS_PARALLEL_JOBS</code> is 2. Increasing it to <code>3</code> requires 6 threads and 6GB of main memory; increasing it to <code>4</code> requires 8 threads and at least 8GB of main memory.</p>
+</details>
+<div class="admonition warning">
+<p class="admonition-title">Test Output when Running in Parallel</p>
+<p><a href="https://bats-core.readthedocs.io/en/v1.8.2/usage.html#parallel-execution">When running tests in parallel</a> (<em>with <code>make clean generate-accounts tests/parallel/setX</code></em>), BATS will delay outputting the results until completing all test cases within a file.</p>
+<p>This also delays test failures as a result. When troubleshooting parallel set tests, you may prefer to run them serially as advised below.</p>
+<p>When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.</p>
+</div>
+<details class="tip">
+<summary>Run a Specific Test</summary>
+<p>Run <code>make build generate-accounts test/&lt;TEST NAME&gt;</code>, where <code>&lt;TEST NAME&gt;</code> is the file name of the test <strong>excluding</strong> the <code>.bats</code> suffix (<em>use a relative path if needing to be more specific: <code>test/&lt;RELATIVE PATH&gt;/&lt;TEST NAME&gt;</code></em>).</p>
+<p>Multiple test files can be run sequentially with a <code>,</code> delimiter between file names:
+<code>make test/tls_letsencrypt,tls_manual</code></p>
+<p><strong>Example:</strong> To run only the tests in <code>template.bats</code>, use <code>make test/template</code> (<em>or with relative path: <code>make test/parallel/set2/template</code></em>).</p>
 </details>
 <h2 id="documentation"><a class="toclink" href="#documentation">Documentation</a></h2>
 <p>You will need to have Docker installed. Navigate into the <code>docs/</code> directory. Then run:</p>
