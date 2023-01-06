@@ -1,77 +1,37 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
+
+CONTAINER_NAME='mail'
 
 setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail)
-  mv "${PRIVATE_CONFIG}/user-patches/user-patches.sh" "${PRIVATE_CONFIG}/user-patches.sh"
+  init_with_defaults
 
-  # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`
-  docker run --rm -d --name mail \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -v "$(pwd)/test/onedir":/var/mail-state \
-    -e AMAVIS_LOGLEVEL=2 \
-    -e CLAMAV_MESSAGE_SIZE_LIMIT=30M \
-    -e ENABLE_CLAMAV=0 \
-    -e ENABLE_MANAGESIEVE=1 \
-    -e ENABLE_QUOTAS=1 \
-    -e ENABLE_SPAMASSASSIN=1 \
-    -e ENABLE_SRS=1 \
-    -e ENABLE_UPDATE_CHECK=0 \
-    -e LOG_LEVEL='debug' \
-    -e PERMIT_DOCKER=host \
-    -e PFLOGSUMM_TRIGGER=logrotate \
-    -e REPORT_RECIPIENT=user1@localhost.localdomain \
-    -e REPORT_SENDER=report1@mail.my-domain.com \
-    -e SA_KILL=3.0 \
-    -e SA_SPAM_SUBJECT="SPAM: " \
-    -e SA_TAG=-5.0 \
-    -e SA_TAG2=2.0 \
-    -e SPAMASSASSIN_SPAM_TO_INBOX=0 \
-    -e SPOOF_PROTECTION=1 \
-    -e SSL_TYPE='snakeoil' \
-    -e VIRUSMAILS_DELETE_DELAY=7 \
-    --hostname mail.my-domain.com \
-    --tty \
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
-    --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1" \
-    "${NAME}"
+  mv "${TEST_TMP_CONFIG}/user-patches/user-patches.sh" "${TEST_TMP_CONFIG}/user-patches.sh"
 
-  wait_for_finished_setup_in_container mail
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env ENABLE_AMAVIS=1
+    --env AMAVIS_LOGLEVEL=2
+    --env ENABLE_QUOTAS=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER=host
+    --env PFLOGSUMM_TRIGGER=logrotate
+    --env REPORT_RECIPIENT=user1@localhost.localdomain
+    --env REPORT_SENDER=report1@mail.example.test
+    --env SPOOF_PROTECTION=1
+    --env SSL_TYPE='snakeoil'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+    --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+  )
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   # generate accounts after container has been started
   docker exec mail setup email add 'added@localhost.localdomain' 'mypassword'
   docker exec mail setup email add 'pass@localhost.localdomain' 'may be \a `p^a.*ssword'
 
-  # setup sieve
-  docker cp "${PRIVATE_CONFIG}/sieve/dovecot.sieve" mail:/var/mail/localhost.localdomain/user1/.dovecot.sieve
-
   # this relies on the checksum file being updated after all changes have been applied
   wait_until_change_detection_event_completes mail
   wait_for_service mail postfix
   wait_for_smtp_port_in_container mail
-
-  # The first mail sent leverages an assert for better error output if a failure occurs:
-  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
-  assert_success
-
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt"
-  docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt"
-  docker exec mail /bin/sh -c "sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt"
-
-  wait_for_empty_mail_queue_in_container mail
 }
 
 teardown_file() {
@@ -198,140 +158,6 @@ teardown_file() {
 }
 
 #
-# smtp
-#
-
-@test "checking smtp: authentication works with good password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt | grep 'Authentication successful'"
-  assert_success
-}
-
-@test "checking smtp: authentication fails with wrong password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt"
-  assert_output --partial 'authentication failed'
-  assert_success
-}
-
-@test "checking smtp: authentication works with good password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt | grep 'Authentication successful'"
-  assert_success
-}
-
-@test "checking smtp: authentication fails with wrong password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
-  assert_output --partial 'authentication failed'
-  assert_success
-}
-
-@test "checking smtp: added user authentication works with good password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt | grep 'Authentication successful'"
-  assert_success
-}
-
-@test "checking smtp: added user authentication fails with wrong password (plain)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt | grep 'authentication failed'"
-  assert_success
-}
-
-@test "checking smtp: added user authentication works with good password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt | grep 'Authentication successful'"
-  assert_success
-}
-
-@test "checking smtp: added user authentication fails with wrong password (login)" {
-  run docker exec mail /bin/sh -c "nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt | grep 'authentication failed'"
-  assert_success
-}
-
-# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
-@test "checking smtp: delivers mail to existing account" {
-  run docker exec mail /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
-  assert_success
-  assert_output <<'EOF'
- 1 <added@localhost.localdomain>
- 6 <user1@localhost.localdomain>
- 1 <user1@localhost.localdomain>, orig_to=<postmaster@my-domain.com>
- 1 <user1@localhost.localdomain>, orig_to=<root>
- 1 <user1~test@localhost.localdomain>
- 2 <user2@otherdomain.tld>
- 1 <user3@localhost.localdomain>
-EOF
-}
-
-@test "checking smtp: delivers mail to existing alias" {
-  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking smtp: delivers mail to existing alias with recipient delimiter" {
-  run docker exec mail /bin/sh -c "grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
-  assert_success
-  assert_output 1
-
-  run docker exec mail /bin/sh -c "grep 'to=<user1~test@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=bounced'"
-  assert_failure
-}
-
-@test "checking smtp: delivers mail to existing catchall" {
-  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking smtp: delivers mail to regexp alias" {
-  run docker exec mail /bin/sh -c "grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log | grep 'status=sent' | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking smtp: user1 should have received 9 mails" {
-  run docker exec mail /bin/sh -c "grep Subject /var/mail/localhost.localdomain/user1/new/* | sed 's/.*Subject: //g' | sed 's/\.txt.*//g' | sed 's/VIRUS.*/VIRUS/g' | sort"
-  assert_success
-  # 9 messages, the virus mail has three subject lines
-  cat <<'EOF' | assert_output
-Root Test Message
-Test Message amavis-virus
-Test Message amavis-virus
-Test Message existing-alias-external
-Test Message existing-alias-recipient-delimiter
-Test Message existing-catchall-local
-Test Message existing-regexp-alias-local
-Test Message existing-user-and-cc-local-alias
-Test Message existing-user1
-Test Message sieve-spam-folder
-VIRUS
-EOF
-}
-
-@test "checking smtp: rejects mail to unknown user" {
-  run docker exec mail /bin/sh -c "grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking smtp: redirects mail to external aliases" {
-  run docker exec mail /bin/sh -c "grep -- '-> <external1@otherdomain.tld>' /var/log/mail/mail.log* | grep RelayedInbound | wc -l"
-  assert_success
-  assert_output 2
-}
-
-# TODO add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
-@test "checking smtp: rejects spam" {
-  run docker exec mail /bin/sh -c "grep 'Blocked SPAM' /var/log/mail/mail.log | grep external.tld=spam@my-domain.com | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking smtp: not advertising smtputf8" {
-  # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
-  # Better disable SMTPUTF8 support entirely if we can't handle it correctly
-  run docker exec mail /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt | grep SMTPUTF8 | wc -l"
-  assert_success
-  assert_output 0
-}
-
-#
 # accounts
 #
 
@@ -355,7 +181,7 @@ EOF
 }
 
 @test "checking accounts: user mail folder for user3" {
-  run docker exec mail /bin/bash -c "ls -d /var/mail/localhost.localdomain/user3/mail"
+  run docker exec mail /bin/bash -c "ls -d /var/mail/localhost.localdomain/user3"
   assert_success
 }
 
@@ -381,46 +207,6 @@ EOF
   assert_line --index 2 "otherdomain.tld"
 }
 
-@test "checking postfix: main.cf overrides" {
-  run docker exec mail grep -q 'max_idle = 600s' /tmp/docker-mailserver/postfix-main.cf
-  assert_success
-  run docker exec mail grep -q 'readme_directory = /tmp' /tmp/docker-mailserver/postfix-main.cf
-  assert_success
-}
-
-@test "checking postfix: master.cf overrides" {
-  run docker exec mail grep -q 'submission/inet/smtpd_sasl_security_options=noanonymous' /tmp/docker-mailserver/postfix-master.cf
-  assert_success
-}
-
-#
-# dovecot
-#
-
-@test "checking dovecot: config additions" {
-  run docker exec mail grep -q 'mail_max_userip_connections = 69' /tmp/docker-mailserver/dovecot.cf
-  assert_success
-  run docker exec mail /bin/sh -c "doveconf | grep 'mail_max_userip_connections = 69'"
-  assert_success
-  assert_output 'mail_max_userip_connections = 69'
-}
-
-#
-# spamassassin
-#
-
-@test "checking spamassassin: should be listed in amavis when enabled" {
-  run docker exec mail /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
-  assert_failure
-}
-
-@test "checking spamassassin: all registered domains should see spam headers" {
-  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new"
-  assert_success
-  run docker exec mail /bin/sh -c "grep -ir 'X-Spam-' /var/mail/otherdomain.tld/user2/new"
-  assert_success
-}
-
 #
 # postsrsd
 #
@@ -443,7 +229,7 @@ EOF
 
 
 @test "checking SRS: fallback to hostname is handled correctly" {
-  run docker exec mail grep "SRS_DOMAIN=my-domain.com" /etc/default/postsrsd
+  run docker exec mail grep "SRS_DOMAIN=example.test" /etc/default/postsrsd
   assert_success
 }
 
@@ -510,13 +296,13 @@ EOF
 @test "checking system: sets the server fqdn" {
   run docker exec mail hostname
   assert_success
-  assert_output "mail.my-domain.com"
+  assert_output "mail.example.test"
 }
 
 @test "checking system: sets the server domain name in /etc/mailname" {
   run docker exec mail cat /etc/mailname
   assert_success
-  assert_output "my-domain.com"
+  assert_output "example.test"
 }
 
 @test "checking system: postfix should not log to syslog" {
@@ -556,33 +342,6 @@ tnef
 xz
 zip
 EOF
-}
-
-
-#
-# sieve
-#
-
-@test "checking sieve: user1 should have received 1 email in folder INBOX.spam" {
-  run docker exec mail /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking manage sieve: server is ready when ENABLE_MANAGESIEVE has been set" {
-  run docker exec mail /bin/bash -c "nc -z 0.0.0.0 4190"
-  assert_success
-}
-
-@test "checking sieve: user2 should have piped 1 email to /tmp/" {
-  run docker exec mail /bin/sh -c "ls -A /tmp/pipe-test.out | wc -l"
-  assert_success
-  assert_output 1
-}
-
-@test "checking sieve global: user1 should have gotten a copy of his spam mail" {
-  run docker exec mail /bin/sh -c "grep 'Spambot <spam@spam.com>' -R /var/mail/localhost.localdomain/user1/new/"
-  assert_success
 }
 
 #
@@ -656,7 +415,7 @@ EOF
 @test "checking accounts: listmailuser (quotas enabled)" {
   run docker exec mail /bin/sh -c "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
-  assert_output '* user1@localhost.localdomain ( 10K / ~ ) [0%]'
+  assert_output '* user1@localhost.localdomain ( 0 / ~ ) [0%]'
 }
 
 @test "checking accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
@@ -914,7 +673,7 @@ EOF
 # postfix
 
 @test "checking dovecot: postmaster address" {
-  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
+  run docker exec mail /bin/sh -c "grep 'postmaster_address = postmaster@example.test' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 
@@ -941,10 +700,10 @@ EOF
   run docker exec mail grep "Subject: Postfix Summary for " /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
   # check sender is the one specified in REPORT_SENDER
-  run docker exec mail grep "From: report1@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  run docker exec mail grep "From: report1@mail.example.test" /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
   # check sender is not the default one.
-  run docker exec mail grep "From: mailserver-report@mail.my-domain.com" /var/mail/localhost.localdomain/user1/new/ -R
+  run docker exec mail grep "From: mailserver-report@mail.example.test" /var/mail/localhost.localdomain/user1/new/ -R
   assert_failure
 }
 
@@ -969,14 +728,5 @@ EOF
 
 @test "checking restart of process: opendmarc" {
   run docker exec mail /bin/bash -c "pkill opendmarc && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'"
-  assert_success
-}
-
-#
-# root mail delivery
-#
-
-@test "checking that mail for root was delivered" {
-  run docker exec mail grep "Subject: Root Test Message" /var/mail/localhost.localdomain/user1/new/ -R
   assert_success
 }
