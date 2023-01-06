@@ -1,95 +1,76 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
 # Test case
 # ---------
 # By default, this image is using audited FFDHE groups (https://github.com/docker-mailserver/docker-mailserver/pull/1463)
-#
-# Description:
-# 1. Verify that the file `ffdhe4096.pem` has not been modified (checksum verification).
-# 2. Verify Postfix and Dovecot are using the default `ffdhe4096.pem` from Dockerfile build.
-# 3. When custom DHE parameters are supplied by the user as `/tmp/docker-mailserver/dhparams.pem`:
-#    - Verify Postfix and Dovecot use the custom `custom-dhe-params.pem` (contents is actually `ffdhe2048.pem`).
-#    - A warning is raised about usage of potentially insecure parameters.
-
-function teardown() {
-  docker rm -f mail_dhparams
-}
-
-function setup_file() {
-  # Global scope
-  # Copies all of `./test/config/` to specific directory for testing
-  # `${PRIVATE_CONFIG}` becomes `$(pwd)/test/duplicate_configs/<bats test filename>`
-  export PRIVATE_CONFIG
-
-  local DH_DEFAULT_PARAMS
-  export DH_DEFAULT_CHECKSUM
-  export DH_CUSTOM_PARAMS
-  export DH_CUSTOM_CHECKSUM
-
-  DH_DEFAULT_PARAMS="$(pwd)/target/shared/ffdhe4096.pem"
-  DH_DEFAULT_CHECKSUM=$(sha512sum "${DH_DEFAULT_PARAMS}" | awk '{print $1}')
-
-  DH_CUSTOM_PARAMS="$(pwd)/test/test-files/ssl/custom-dhe-params.pem"
-  DH_CUSTOM_CHECKSUM=$(sha512sum "${DH_CUSTOM_PARAMS}" | awk '{print $1}')
-}
-
-# Reference used (22/04/2020):
+# Reference used (22/04/2020) - Page 27 (ffdhe4096 RFC 7919, regarded as sufficient):
 # https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls
-@test "testing tls: DH Parameters - Verify integrity of Default (ffdhe4096)" {
-  run echo "${DH_DEFAULT_CHECKSUM}"
-  refute_output '' # checksum must not be empty
 
-  # Verify the FFDHE params file has not been modified (equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
-  local DH_MOZILLA_CHECKSUM
-  DH_MOZILLA_CHECKSUM=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
-  assert_equal "${DH_DEFAULT_CHECKSUM}" "${DH_MOZILLA_CHECKSUM}"
-}
+BATS_TEST_NAME_PREFIX='[Security] TLS (DH Parameters) '
 
-@test "testing tls: DH Parameters - Default" {
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_default_1)
+CONTAINER1_NAME='dms-test_tls-dh-params_default'
+CONTAINER2_NAME='dms-test_tls-dh-params_custom'
 
+function teardown() { _default_teardown ; }
+
+# Verify that the file `ffdhe4096.pem` has not been modified (checksum verification against trusted third-party copy).
+# Verify Postfix and Dovecot are using the default `ffdhe4096.pem` from Dockerfile build.
+@test "Default" {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+  local DH_PARAMS_DEFAULT='target/shared/ffdhe4096.pem'
+  local DH_CHECKSUM_DEFAULT=$(sha512sum "${DH_PARAMS_DEFAULT}" | awk '{print $1}')
+
+  init_with_defaults
   common_container_setup
-  should_have_valid_checksum "${DH_DEFAULT_CHECKSUM}"
+
+  _should_match_mozilla_copy "${DH_CHECKSUM_DEFAULT}"
+  _should_match_service_copies "${DH_CHECKSUM_DEFAULT}"
 }
 
-@test "testing tls: DH Parameters - Custom" {
-  # shellcheck disable=SC2030
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_custom_1)
+# When custom DHE parameters are supplied by the user to `/tmp/docker-mailserver/dhparams.pem`:
+# - Verify Postfix and Dovecot use the custom `custom-dhe-params.pem` (contents tested is actually `ffdhe2048.pem`).
+# - A warning is raised about usage of potentially insecure parameters.
+@test "Custom" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+  local DH_PARAMS_CUSTOM='test/test-files/ssl/custom-dhe-params.pem'
+  local DH_CHECKSUM_CUSTOM=$(sha512sum "${DH_PARAMS_CUSTOM}" | awk '{print $1}')
 
-  cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
-
+  init_with_defaults
+  cp "${DH_PARAMS_CUSTOM}" "${TEST_TMP_CONFIG}/dhparams.pem"
   common_container_setup
-  should_have_valid_checksum "${DH_CUSTOM_CHECKSUM}"
-  should_emit_warning
+
+  _should_match_service_copies "${DH_CHECKSUM_CUSTOM}"
+  _should_emit_warning
 }
 
-function common_container_setup() {
-  # shellcheck disable=SC2031
-  docker run -d --name mail_dhparams \
-    -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
-    -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
-    -h mail.my-domain.com \
-    --tty \
-    "${NAME}"
-
-  wait_for_finished_setup_in_container mail_dhparams
-}
-
-# Ensures the docker image services (Postfix and Dovecot) have the intended DH files
-function should_have_valid_checksum() {
+# Verify integrity of the default supplied DH Params (ffdhe4096)
+function _should_match_mozilla_copy() {
   local DH_CHECKSUM=$1
 
-  local DH_CHECKSUM_DOVECOT
-  DH_CHECKSUM_DOVECOT=$(docker exec mail_dhparams sha512sum /etc/dovecot/dh.pem | awk '{print $1}')
-  assert_equal "${DH_CHECKSUM_DOVECOT}" "${DH_CHECKSUM}"
-
-  local DH_CHECKSUM_POSTFIX
-  DH_CHECKSUM_POSTFIX=$(docker exec mail_dhparams sha512sum /etc/postfix/dhparams.pem | awk '{print $1}')
-  assert_equal "${DH_CHECKSUM_POSTFIX}" "${DH_CHECKSUM}"
+  # Verify the FFDHE params file has not been modified (equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
+  # 716a462baecb43520fb1ba6f15d288ba8df4d612bf9d450474b4a1c745b64be01806e5ca4fb2151395fd4412a98831b77ea8dfd389fe54a9c768d170b9565a25
+  local DH_CHECKSUM_MOZILLA
+  DH_CHECKSUM_MOZILLA=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
+  assert_equal "${DH_CHECKSUM}" "${DH_CHECKSUM_MOZILLA}"
 }
 
-function should_emit_warning() {
-  run docker logs mail_dhparams
+# Ensures the docker image services (Postfix and Dovecot) have the expected DH files:
+function _should_match_service_copies() {
+  local DH_CHECKSUM=$1
+
+  function __should_have_expected_checksum() {
+    _run_in_container bash -c "sha512sum ${1} | awk '{print \$1}'"
+    assert_success
+    assert_output "${DH_CHECKSUM}"
+  }
+
+  __should_have_expected_checksum '/etc/dovecot/dh.pem'
+  __should_have_expected_checksum '/etc/postfix/dhparams.pem'
+}
+
+function _should_emit_warning() {
+  run grep '[ WARNING ]' <<< $(docker logs "${CONTAINER_NAME}")
   assert_success
-  assert_output --partial 'Using self-generated dhparams is considered insecure.'
+  assert_output --partial 'Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
 }
