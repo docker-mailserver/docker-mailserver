@@ -4,6 +4,7 @@
 
 .env
 docs/site/
+docker-data/
 
 config.bak
 testconfig.bak
