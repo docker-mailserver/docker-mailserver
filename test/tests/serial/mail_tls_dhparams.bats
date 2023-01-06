@@ -4,8 +4,6 @@ load "${REPOSITORY_ROOT}/test/test_helper/common"
 # ---------
 # By default, this image is using audited FFDHE groups (https://github.com/docker-mailserver/docker-mailserver/pull/1463)
 #
-# This test case covers the described case against both boolean states for `ONE_DIR`.
-#
 # Description:
 # 1. Verify that the file `ffdhe4096.pem` has not been modified (checksum verification).
 # 2. Verify Postfix and Dovecot are using the default `ffdhe4096.pem` from Dockerfile build.
@@ -18,15 +16,10 @@ function teardown() {
 }
 
 function setup_file() {
-  # Delegated container setup to common_container_setup
-  # DRY - Explicit config changes between tests are more apparent this way.
-
   # Global scope
   # Copies all of `./test/config/` to specific directory for testing
   # `${PRIVATE_CONFIG}` becomes `$(pwd)/test/duplicate_configs/<bats test filename>`
   export PRIVATE_CONFIG
-
-  export DMS_ONE_DIR=1 # default
 
   local DH_DEFAULT_PARAMS
   export DH_DEFAULT_CHECKSUM
@@ -40,14 +33,9 @@ function setup_file() {
   DH_CUSTOM_CHECKSUM=$(sha512sum "${DH_CUSTOM_PARAMS}" | awk '{print $1}')
 }
 
-# Not used
-# function teardown_file() {
-# }
-
+# Reference used (22/04/2020):
+# https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls
 @test "testing tls: DH Parameters - Verify integrity of Default (ffdhe4096)" {
-  # Reference used (22/04/2020):
-  # https://english.ncsc.nl/publications/publications/2019/juni/01/it-security-guidelines-for-transport-layer-security-tls
-
   run echo "${DH_DEFAULT_CHECKSUM}"
   refute_output '' # checksum must not be empty
 
@@ -57,34 +45,14 @@ function setup_file() {
   assert_equal "${DH_DEFAULT_CHECKSUM}" "${DH_MOZILLA_CHECKSUM}"
 }
 
-@test "testing tls: DH Parameters - Default [ONE_DIR=0]" {
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_default_0)
-  DMS_ONE_DIR=0
-
-  common_container_setup
-  should_have_valid_checksum "${DH_DEFAULT_CHECKSUM}"
-}
-
-@test "testing tls: DH Parameters - Default [ONE_DIR=1]" {
+@test "testing tls: DH Parameters - Default" {
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_default_1)
 
   common_container_setup
   should_have_valid_checksum "${DH_DEFAULT_CHECKSUM}"
 }
 
-@test "testing tls: DH Parameters - Custom [ONE_DIR=0]" {
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_custom_0)
-  # shellcheck disable=SC2030
-  DMS_ONE_DIR=0
-
-  cp "${DH_CUSTOM_PARAMS}" "${PRIVATE_CONFIG}/dhparams.pem"
-
-  common_container_setup
-  should_have_valid_checksum "${DH_CUSTOM_CHECKSUM}"
-  should_emit_warning
-}
-
-@test "testing tls: DH Parameters - Custom [ONE_DIR=1]" {
+@test "testing tls: DH Parameters - Custom" {
   # shellcheck disable=SC2030
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dhparams_custom_1)
 
@@ -100,7 +68,6 @@ function common_container_setup() {
   docker run -d --name mail_dhparams \
     -v "${PRIVATE_CONFIG}:/tmp/docker-mailserver" \
     -v "$(pwd)/test/test-files:/tmp/docker-mailserver-test:ro" \
-    -e ONE_DIR="${DMS_ONE_DIR}" \
     -h mail.my-domain.com \
     --tty \
     "${NAME}"
@@ -122,6 +89,7 @@ function should_have_valid_checksum() {
 }
 
 function should_emit_warning() {
-  run sh -c "docker logs mail_dhparams | grep 'Using self-generated dhparams is considered insecure.'"
+  run docker logs mail_dhparams
   assert_success
+  assert_output --partial 'Using self-generated dhparams is considered insecure.'
 }
