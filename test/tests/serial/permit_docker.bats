@@ -71,8 +71,7 @@ teardown_file() {
   # we should be able to send from the other container on the second network!
   run docker exec mail_smtponly_second_network_sender /bin/sh -c "nc mail_smtponly_second_network 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
   assert_output --partial "250 2.0.0 Ok: queued as "
-  repeat_until_success_or_timeout 60 run docker exec mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
-  [[ ${status} -ge 0 ]]
+  repeat_in_container_until_success_or_timeout 60 mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
 }
 
 @test "checking PERMIT_DOCKER: none" {

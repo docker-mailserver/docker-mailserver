@@ -6,7 +6,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 # ?   to identify the test easily
 TEST_NAME_PREFIX='template:'
 # ?   must be unique
-CONTAINER_NAME='dms-test-template'
+CONTAINER_NAME='dms-test_template'
 
 # ? test setup
 
