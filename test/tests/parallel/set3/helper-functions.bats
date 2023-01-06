@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 TEST_NAME_PREFIX='helper functions inside container:'
-CONTAINER_NAME='dms-test-helper_functions'
+CONTAINER_NAME='dms-test_helper_functions'
 
 function setup_file() {
   init_with_defaults

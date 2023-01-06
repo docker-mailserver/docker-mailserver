@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 TEST_NAME_PREFIX='ClamAV:'
-CONTAINER_NAME='dms-test-clamav'
+CONTAINER_NAME='dms-test_clamav'
 
 function setup_file() {
   init_with_defaults
@@ -35,7 +35,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test "${TEST_NAME_PREFIX} process clamd is running" {
-  _run_in_container bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+  run check_if_process_is_running 'clamd'
   assert_success
 }
 
@@ -66,6 +66,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "${TEST_NAME_PREFIX} process clamd restarts when killed" {
-  _run_in_container bash -c "pkill clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
+  _run_in_container pkill 'clamd'
   assert_success
+
+  run_until_success_or_timeout 10 check_if_process_is_running 'clamd'
 }

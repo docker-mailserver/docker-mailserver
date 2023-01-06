@@ -9,12 +9,39 @@ __load_bats_helper
 
 # -------------------------------------------------------------------
 
+# like _run_in_container_explicit but infers ${1} by using the ENV CONTAINER_NAME
+# WARNING: Careful using this with _until_success_or_timeout methods,
+# which can be misleading in the success of `run`, not the command given to `run`.
 function _run_in_container() {
+  run docker exec "${CONTAINER_NAME}" "${@}"
+}
+
+# @param ${1} container name [REQUIRED]
+# @param ... command to execute
+function _run_in_container_explicit() {
+  local CONTAINER_NAME=${1:?Container name must be given when using explicit}
+  shift 1
   run docker exec "${CONTAINER_NAME}" "${@}"
 }
 
 function _default_teardown() {
   docker rm -f "${CONTAINER_NAME}"
+}
+
+# -------------------------------------------------------------------
+
+# @param ${1} program name [REQUIRED]
+# @param ${2} container name [IF UNSET: ${CONTAINER_NAME}]
+function check_if_process_is_running() {
+  local PROGRAM_NAME=${1:?Program name must be provided explicitly}
+  local CONTAINER_NAME=${2:-${CONTAINER_NAME}}
+  docker exec "${CONTAINER_NAME}" pgrep "${PROGRAM_NAME}"
+}
+
+# @param ${1} target container name [IF UNSET: ${CONTAINER_NAME}]
+function get_container_ip() {
+  local TARGET_CONTAINER_NAME=${1:-${CONTAINER_NAME}}
+  docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${TARGET_CONTAINER_NAME}"
 }
 
 # -------------------------------------------------------------------
