@@ -242,6 +242,57 @@ Obtain a Cloudflare API token:
     - The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal structions.
     ```
 
+!!! tip "(Optional) Renewing certificate"
+
+    Since the above example only implements how to provision a certificate, since generated certificate will expire in 90 days, you might want to implement renew feature here.
+
+    In the following example, we will modify our created `docker-compose.yml` and create a container which will use for renewing the certificate
+
+    First, we modify our `docker-compose.yml` to add a service called `certbot-cloudflare-renew`:
+
+    ```yml
+    services:
+      certbot-cloudflare-renew:
+        image: certbot/dns-cloudflare:latest
+        command: renew --dns-cloudflare --dns-cloudflare-credentials /run/secrets/cloudflare-api-token
+        volumes:
+          - ./docker-data/certbot/certs/:/etc/letsencrtypt/
+          - ./docker-data/certbot/logs/:/var/log/letsencrypt/
+        secrets:
+          - cloudflare-api-token
+
+    If needed, run the service to renew a certificate:
+    
+    ```sh
+    docker-compose run certbot-cloudflare-renew
+    ```
+
+    You should see the following output
+    (The following log was generated with `--dry-run` options)
+
+    ```log
+     Saving debug log to /var/log/letsencrypt/letsencrypt.log
+    
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Processing /etc/letsencrypt/renewal/mail.example.com.conf
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Account registered.
+     Simulating renewal of an existing certificate for brtest.club
+     Waiting 10 seconds for DNS changes to propagate
+    
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Congratulations, all simulated renewals succeeded:
+       /etc/letsencrypt/live/mail.example.com/fullchain.pem (success)
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ``````
+
+    Then we add auto-renew certificate script into `crontab`
+    (Here we let certbot check if the certificate need renew every day)
+
+    ```sh
+    0 0 * * * docker-compose -f PATH_TO_YOUR_DOCKER_COMPOSE_YML up certbot-cloudflare-renew
+    ```
+
 After completing the steps above, your certificate should be ready to use.
 
 #### Example using `nginx-proxy` and `acme-companion` with Docker { data-toc-label='nginx-proxy with Docker' }
