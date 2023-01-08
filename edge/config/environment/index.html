@@ -3341,6 +3341,7 @@
 <li>OIDC =&gt; use OIDC authentication (<strong>not yet implemented</strong>)</li>
 <li>FILE =&gt; use local files (this is used as the default)</li>
 </ul>
+<p>A second container for the ldap service is necessary (e.g. <a href="https://github.com/osixia/docker-openldap">docker-openldap</a>)</p>
 <h5 id="permit_docker"><a class="toclink" href="#permit_docker">PERMIT_DOCKER</a></h5>
 <p>Set different options for mynetworks option (can be overwrite in postfix-main.cf) <strong>WARNING</strong>: Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance if IPv6 is enabled on the host machine but not in Docker.</p>
 <ul>
@@ -3475,7 +3476,7 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <ul>
 <li><strong>empty</strong>: fail</li>
 <li><code>lmtp:unix:private/dovecot-lmtp</code> (use socket)</li>
-<li><code>lmtps:inet:&lt;host&gt;:&lt;port&gt;</code> (secure lmtp with starttls, take a look at <a href="https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/">https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/</a>)</li>
+<li><code>lmtps:inet:&lt;host&gt;:&lt;port&gt;</code> (secure lmtp with starttls)</li>
 <li><code>lmtp:&lt;kopano-host&gt;:2003</code> (use kopano as mailstore)</li>
 <li>etc.</li>
 </ul>
