@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/tls"
 
-TEST_NAME_PREFIX='[Security] TLS (SSL_TYPE=letsencrypt):'
+BATS_TEST_NAME_PREFIX='[Security] (TLS) (SSL_TYPE=letsencrypt) '
 CONTAINER1_NAME='dms-test_tls-letsencrypt_default-hostname'
 CONTAINER2_NAME='dms-test_tls-letsencrypt_fallback-domainname'
 CONTAINER3_NAME='dms-test_tls-letsencrypt_support-acme-json'
@@ -30,7 +30,7 @@ function _initial_setup() {
 }
 
 # Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
-@test "${TEST_NAME_PREFIX} Should default to HOSTNAME (${TEST_FQDN})" {
+@test "Should default to HOSTNAME (${TEST_FQDN})" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
   _initial_setup
 
@@ -50,7 +50,7 @@ function _initial_setup() {
 
 # Should detect and choose cert for FQDN `example.test` (DOMAINNAME),
 # as fallback when no cert for FQDN `mail.example.test` (HOSTNAME) exists:
-@test "${TEST_NAME_PREFIX} Should fallback to DOMAINNAME (example.test)" {
+@test "Should fallback to DOMAINNAME (example.test)" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
   _initial_setup
 
@@ -75,7 +75,7 @@ function _initial_setup() {
 # all Subject CN (`main` in acme.json) are `Smallstep Leaf` which is not an FQDN.
 # While not using a FQDN is valid for that field,
 # it does mean there is no test coverage against the `acme.json` field `main`.
-@test "${TEST_NAME_PREFIX} Traefik 'acme.json' (*.example.test)" {
+@test "Traefik 'acme.json' (*.example.test)" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
   _initial_setup
 

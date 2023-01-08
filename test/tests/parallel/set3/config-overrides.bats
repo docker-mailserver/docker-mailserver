@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
-TEST_NAME_PREFIX='Override Configs:'
+BATS_TEST_NAME_PREFIX='[Configuration] (overrides) '
 CONTAINER_NAME='dms-test_config-overrides'
 
 function setup_file() {

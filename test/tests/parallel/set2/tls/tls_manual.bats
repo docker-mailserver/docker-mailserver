@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='[Security] TLS (SSL_TYPE=manual):'
+BATS_TEST_NAME_PREFIX='[Security] (TLS) (SSL_TYPE=manual) '
 CONTAINER_NAME='dms-test_tls-manual'
 
 function setup_file() {
@@ -38,7 +38,7 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} ENV vars provided are valid files" {
+@test "ENV vars provided are valid files" {
   _run_in_container [ -f "${SSL_CERT_PATH}" ]
   assert_success
 
@@ -52,7 +52,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} manual configuration is correct" {
+@test "manual configuration is correct" {
   local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
 
   _run_in_container grep '^smtpd_tls_chain_files =' '/etc/postfix/main.cf'
@@ -76,7 +76,7 @@ function teardown_file() { _default_teardown ; }
   assert_output "ssl_alt_cert = <${FALLBACK_CERT}"
 }
 
-@test "${TEST_NAME_PREFIX} manual configuration copied files correctly " {
+@test "manual configuration copied files correctly " {
   _run_in_container cmp -s "${PRIMARY_KEY}" "${SSL_KEY_PATH}"
   assert_success
   _run_in_container cmp -s "${PRIMARY_CERT}" "${SSL_CERT_PATH}"
@@ -89,7 +89,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} manual cert works correctly" {
+@test "manual cert works correctly" {
   wait_for_tcp_port_in_container 587 "${CONTAINER_NAME}"
 
   local TEST_COMMAND=(timeout 1 openssl s_client -connect mail.example.test:587 -starttls smtp)
@@ -106,7 +106,7 @@ function teardown_file() { _default_teardown ; }
   assert_equal "${RESULT}" 'Verification: OK'
 }
 
-@test "${TEST_NAME_PREFIX} manual cert changes are picked up by check-for-changes" {
+@test "manual cert changes are picked up by check-for-changes" {
   printf '%s' 'someThingsChangedHere' \
     >>"$(pwd)/test/test-files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 
