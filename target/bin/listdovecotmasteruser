@@ -1,21 +1,26 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-# suppress error output, e.g. when listmailuser runs in a fresh container (DMS not running)
-# shellcheck source=/dev/null
-source /etc/dms-settings 2>/dev/null
+function _main
+{
+  local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
+  _list_entries "${DATABASE_DOVECOT_MASTERS}"
+}
 
-DATABASE='/tmp/docker-mailserver/dovecot-masters.cf'
+function _list_entries
+{
+  local DATABASE=${1}
+  _db_should_exist_with_content "${DATABASE}"
 
-[[ -f ${DATABASE} ]] || _exit_with_error "No 'dovecot-masters.cf' file"
-[[ -s ${DATABASE} ]] || _exit_with_error "Empty 'dovecot-masters.cf' - no dovecot master accounts have been added"
+  local MASTER_ACCOUNT
+  while read -r LINE
+  do
+    MASTER_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
 
-while read -r LINE
-do
-  USER=$(echo "${LINE}" | cut -d'|' -f1)
-  echo "* ${USER}"
-done < <(_get_valid_lines_from_file "${DATABASE}")
+    echo -e "* ${MASTER_ACCOUNT}\n"
+  done < <(_get_valid_lines_from_file "${DATABASE}")
+}
 
-exit 0
+_main

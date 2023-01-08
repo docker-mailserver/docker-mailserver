@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 SCRIPT='setup'
 
@@ -110,16 +110,16 @@ function _main
         ( del      ) shift 2 ; delmailuser "${@}" ;;
         ( restrict ) shift 2 ; restrict-access "${@}" ;;
         ( list     ) listmailuser ;;
-        ( *        ) _invalid_command "${1}" "${2}" ;;
+        ( *        ) _invalid_command "${@}" ;;
       esac
       ;;
 
     ( alias )
       case ${2:-} in
-        ( add      ) shift 2 ; addalias "${1}" "${2}" ;;
-        ( del      ) shift 2 ; delalias "${1}" "${2}" ;;
+        ( add      ) shift 2 ; addalias "${@}" ;;
+        ( del      ) shift 2 ; delalias "${@}" ;;
         ( list     ) shift 2 ; listalias ;;
-        ( *        ) _invalid_command "${1}" "${2}" ;;
+        ( *        ) _invalid_command "${@}" ;;
       esac
       ;;
 
@@ -127,7 +127,7 @@ function _main
       case ${2:-} in
         ( set      ) shift 2 ; setquota "${@}" ;;
         ( del      ) shift 2 ; delquota "${@}" ;;
-        ( *        ) _invalid_command "${1}" "${2}" ;;
+        ( *        ) _invalid_command "${@}" ;;
       esac
       ;;
 
@@ -137,14 +137,14 @@ function _main
         ( update   ) shift 2 ; updatedovecotmasteruser "${@}" ;;
         ( del      ) shift 2 ; deldovecotmasteruser "${@}" ;;
         ( list     ) listdovecotmasteruser ;;
-        ( *        ) _invalid_command "${1}" "${2}" ;;
+        ( *        ) _invalid_command "${@}" ;;
       esac
       ;;
 
     ( config )
       case ${2:-} in
         ( dkim     ) shift 2 ; open-dkim "${@}" ;;
-        ( *        ) _invalid_command "${1}" "${2}" ;;
+        ( *        ) _invalid_command "${@}" ;;
       esac
       ;;
 
@@ -153,7 +153,7 @@ function _main
         ( add-domain     ) shift 2 ; addrelayhost "${@}" ;;
         ( add-auth       ) shift 2 ; addsaslpassword "${@}" ;;
         ( exclude-domain ) shift 2 ; excluderelaydomain "${@}" ;;
-        ( *              ) _invalid_command "${1}" "${2}" ;;
+        ( *              ) _invalid_command "${@}" ;;
       esac
       ;;
 

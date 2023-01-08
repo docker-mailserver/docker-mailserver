@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 function _mask_ip_digit
 {

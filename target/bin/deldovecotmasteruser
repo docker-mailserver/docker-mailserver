@@ -1,75 +1,46 @@
-#! /bin/bash
-
-# shellcheck disable=SC2094
-# ? This is done to ignore the message "Make sure not to read and write
-# ? the same file in the same pipeline", which is a result of ${DATABASE}
-# ? being used below. (This disables the message file-wide.)
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE=/tmp/docker-mailserver/dovecot-masters.cf
+function _main
+{
+  _require_n_parameters_or_print_usage 1 "${@}"
+
+  # Actual command to perform:
+  for MAIL_ACCOUNT in "${@}"
+  do
+    _manage_accounts_dovecotmaster_delete "${MAIL_ACCOUNT}" \
+      || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted"
+  done
+}
 
 function __usage
 {
-  printf '%s' "${PURPLE}DELDOVECOTMASTERUSER${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}deldovecotmasteruser${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    deldovecotmasteruser - delete a dovecot master user
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh dovecot-master del [ OPTIONS ] { <MAIL ADDRESS> [<MAIL ADDRESS>${RED}...${RESET}] ${RED}|${RESET} help }
-
-${ORANGE}DESCRIPTION${RESET}
-    Delete a dovecot master user.
+${ORANGE}USAGE${RESET}
+    ./setup.sh dovecot-master del <MASTER ACCOUNT> [<EXTRA MASTER ACCOUNTS> ${RED}...${RESET} ]
 
 ${ORANGE}OPTIONS${RESET}
-    -h
-        Show this help dialogue.
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
+
+${ORANGE}DESCRIPTION${RESET}
+    Delete a dovecot-master account.
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh dovecot-master del administrator${RESET}
-        Delete the dovecot master user called 'administrator'.
+    ${LWHITE}./setup.sh dovecot-master del admin${RESET}
+        Delete the dovecot-master account 'admin'.
 
-    ${LWHITE}./setup.sh dovecot-master del administrator admin${RESET}
-        Delete dovecot master users 'administrator' and 'admin'.
+    ${LWHITE}./setup.sh dovecot-master del admin extra-admin${RESET}
+        Delete the two dovecot-master accounts requested.
 
 ${ORANGE}EXIT STATUS${RESET}
-    Exit status is 0 if command was successful, and 1 if there was an error.
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
 "
 }
 
-if [[ ${1} == 'help' ]]
-then
-  __usage
-  exit 0
-fi
-
-shift $((OPTIND-1))
-
-[[ -z ${*} ]] && { __usage ; _exit_with_error 'No user specified' ; }
-[[ -s ${DATABASE} ]] || exit 0
-
-_create_lock # Protect config file with lock to avoid race conditions
-
-for USER in "${@}"
-do
-  ERROR=false
-
-  # ${USER} must not contain /s and other syntactic characters
-  UNESCAPED_USER="${USER}"
-  USER=$(_escape "${USER}")
-
-  if [[ -f ${DATABASE} ]]
-  then
-    if ! sedfile --strict -i "/^${USER}|/d" "${DATABASE}"
-    then
-      _log 'error' "'${UNESCAPED_USER}' couldn't be deleted in '${DATABASE}'"
-      ERROR=true
-    fi
-  fi
-
-  ${ERROR} && _exit_with_error 'See the messages above.'
-done
-
-exit 0
+_main "${@}"

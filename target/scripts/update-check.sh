@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck source=./helpers/log.sh
 source /usr/local/bin/helpers/log.sh

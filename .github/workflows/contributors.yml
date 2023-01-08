@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Create contributors-update branch
-        uses: peterjgrainger/action-create-branch@v2.2.0
+        uses: peterjgrainger/action-create-branch@v2.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -49,10 +49,10 @@ jobs:
         run: |
           git pull
           git checkout contributors-update
-          echo "::set-output name=head_sha::$(git rev-parse contributors-update)"
+          echo "head_sha=$(git rev-parse contributors-update)" >>"${GITHUB_OUTPUT}"
 
       - name: 'Commit Status: Set Lint status to success (skipped)'
-        uses: myrotvorets/set-commit-status-action@1.1.4
+        uses: myrotvorets/set-commit-status-action@1.1.6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Skipped workflows are still assigned a "success" status:

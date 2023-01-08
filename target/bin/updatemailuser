@@ -1,33 +1,45 @@
-#! /bin/bash
-
-# ? This is done to ignore the message "Make sure not to read and write
-# ? the same file in the same pipeline", which is a result of ${DATABASE}
-# ? being used below. (This disables the message file-wide.)
-# shellcheck disable=SC2094
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
+function _main
+{
+  _require_n_parameters_or_print_usage 1 "${@}"
 
-USER="${1}"
-shift
-PASSWD="${*}"
+  local MAIL_ACCOUNT="${1}"
+  shift
+  local PASSWD="${*}"
 
-function __usage { echo 'Usage: updatemailuser <user@domain.tld> [password]' ; }
+  _manage_accounts_update "${MAIL_ACCOUNT}" "${PASSWD}"
+}
 
-[[ -z ${USER} ]] && { __usage ; _exit_with_error 'No username specified' ; }
+function __usage
+{
+  printf '%s' "${PURPLE}updatemailuser${RED}(${YELLOW}8${RED})
 
-if [[ -z ${PASSWD} ]]
-then
-  read -r -s -p 'Enter Password: ' PASSWD
-  echo
-  [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
-fi
+${ORANGE}USAGE${RESET}
+    ./setup.sh email update <MAIL ACCOUNT> [<PASSWORD>]
 
-HASH=$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
+        help       Print the usage information.
 
-touch "${DATABASE}"
-_create_lock # Protect config file with lock to avoid race conditions
-grep -qi "^$(_escape "${USER}")|" "${DATABASE}" 2>/dev/null || _exit_with_error "User \"${USER}\" does not exist"
-sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"
+${ORANGE}DESCRIPTION${RESET}
+    Update the password for a mail account.
+
+    To avoid a password being logged in the command history of your shell,
+    you may omit it, you'll be prompted to input the password instead.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}./setup.sh email update user@example.com${RESET}
+        You will be prompted to input a password afterwards since no password was supplied.
+
+${ORANGE}EXIT STATUS${RESET}
+    Exit status is 0 if command was successful. If wrong arguments are provided
+    or arguments contain errors, the script will exit early with exit status 1.
+
+"
+}
+
+_main "${@}"

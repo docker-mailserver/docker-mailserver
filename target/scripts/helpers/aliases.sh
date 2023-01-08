@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # Support for Postfix aliases
 
 # NOTE: LDAP doesn't appear to use this, but the docs page: "Use Cases | Forward-Only Mail-Server with LDAP"

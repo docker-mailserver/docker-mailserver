@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
@@ -9,7 +9,6 @@ fail2ban-client ping &>/dev/null || _exit_with_error "Fail2ban not running"
 
 unset JAILS
 declare -a JAILS
-IP_REGEXP='((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
 
 for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g')
 do
@@ -22,13 +21,11 @@ then
 
   for JAIL in "${JAILS[@]}"
   do
-    BANNED_IPS=$(fail2ban-client status "${JAIL}" \
-      | grep 'Banned IP list' \
-      | grep -oE "${IP_REGEXP}")
+    BANNED_IPS=$(fail2ban-client status "${JAIL}" | grep -oP '(?<=Banned IP list:\s).+')
 
     if [[ -n ${BANNED_IPS} ]]
     then
-      echo "Banned in ${JAIL}: ${BANNED_IPS//$'\n'/, }"
+      echo "Banned in ${JAIL}: ${BANNED_IPS}"
       IPS_BANNED=1
     fi
   done

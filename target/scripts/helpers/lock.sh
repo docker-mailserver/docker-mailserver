@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # This becomes the sourcing script name
 # (example: check-for-changes.sh)

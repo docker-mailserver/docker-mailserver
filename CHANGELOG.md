@@ -1,5 +1,114 @@
 # Changelog
 
+All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.3.0...HEAD)
+
+> **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
+
+### Fixed
+
+- **build**:  Fix dovecot-fts-xapian dependency, when using dovecot community repository ([#2937](https://github.com/docker-mailserver/docker-mailserver/pull/2937))
+
+## [11.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.0)
+
+### Added
+
+- **scripts**: Fail2ban - Enable network bans ([#2818](https://github.com/docker-mailserver/docker-mailserver/pull/2818))
+- **ci**: run tests in parallel ([#2857](https://github.com/docker-mailserver/docker-mailserver/pull/2857))
+- **docs**: added note about Docker version to documentation ([#2799](https://github.com/docker-mailserver/docker-mailserver/pull/2799))
+
+### Changed
+
+- **configuration**: Run fetchmail not in verbose mode ([#2859](https://github.com/docker-mailserver/docker-mailserver/pull/2859))
+- **build**: cleaned up `Makefile` and its targets ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **configuration**: adjust handling of DNSBL return codes ([#2890](https://github.com/docker-mailserver/docker-mailserver/pull/2890))
+
+### Updates
+
+- **ci**: change to new output format in GH actions ([#2892](https://github.com/docker-mailserver/docker-mailserver/pull/2892))
+- **build**: cleaned up Makefile ([#2833](https://github.com/docker-mailserver/docker-mailserver/pull/2833))
+- **tests**: miscellaneous enhancements ([#2815](https://github.com/docker-mailserver/docker-mailserver/pull/2815))
+
+### Fixed
+
+- **scripts**: `./setup.sh email list` did not display aliases correctly ([#2877](https://github.com/docker-mailserver/docker-mailserver/issues/2877))
+- **scripts**: Improve error handling, when parameters are missing ([#2854](https://github.com/docker-mailserver/docker-mailserver/pull/2854))
+- **scripts**: Fix unbound variable error ([#2849](https://github.com/docker-mailserver/docker-mailserver/pull/2849), [#2853](https://github.com/docker-mailserver/docker-mailserver/pull/2853))
+- **scripts**: Make fetchmail data persistant ([#2851](https://github.com/docker-mailserver/docker-mailserver/pull/2851))
+- **scripts**: Run `user-patches.sh` right before starting daemons ([#2817](https://github.com/docker-mailserver/docker-mailserver/pull/2817))
+- **scripts**: Run Amavis cron job only when Amavis is enabled ([#2831](https://github.com/docker-mailserver/docker-mailserver/pull/2831))
+- **config**: `opendmarc.conf` - Change the default OpenDMARC policy to reject ([#2933](https://github.com/docker-mailserver/docker-mailserver/pull/2933))
+
+### Deprecation Notice
+
+- **Removing TLS 1.0 and TLS 1.1 ciphersuites from `TLS_LEVEL=intermediate`**
+  You should not realistically need support for TLS 1.0 or TLS 1.1, except in niche scenarios such as an old printer/scanner device that refuses to negotiate a compatible non-vulnerable cipher. [More details covered here](https://github.com/docker-mailserver/docker-mailserver/issues/2679).
+- **`SASL_PASSWD` ENV**
+  An old ENV `SASL_PASSWD` has been around for supporting relay-host authentication, but since superceded by the `postfix-sasl-password.cf` config file. It will be removed in a future major release as detailed [here](https://github.com/docker-mailserver/docker-mailserver/pull/2605).
+- **Platform Support - ARMv7**
+  This is a very old platform, superceded by ARMv8 and newer with broad product availability around 2016 onwards.
+  Support was introduced primarily for users of the older generations of Raspberry Pi. ARM64 is the modern target for ARM devices.
+
+  If you require ARMv7 support, [please let us know](https://github.com/docker-mailserver/docker-mailserver/issues/2642).
+
+## [11.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.2.0)
+
+### Summary
+
+This release features a lot of small and medium-sized changes, many related to how the image is build and tested during CI. The build now requires Docker Buildkit as the ClamAV Signatures are added via `COPY --link ...` during build-time. Moreover, the build is now multi-stage. `ENABLE_LDAP` is now deprecated.
+
+### Added
+
+- **documentation**: improve cron tasks documentation and fix link in documentation
+- **documentation**: added link to brakkee.org for setup of docker-mailserver on Kubernetes
+- **CI**: better build caching for CI
+- **CI**: improve GitHub Action CI with re-usable workflows
+- **tests**: ensure excessive FD limits are avoided
+- **configuration**: added `reject_unknown_client_hostname` to main.cf
+
+### Changed
+
+- **documentation**: update and improve K8s documentation
+- **scripts**: set configomat output to loglevel debug
+- **scripts**: refactor CLI commands for database management
+- **scripts**: simplify Fail2Ban output
+- **tests**: update submodules for BATS
+- **scripts**: rework environment variables setup
+- **scripts**: revised linting script
+- **scripts**: `addmailuser` - remove delaying completion until `/var/mail` is ready
+- **configuration**: remove unnecessary postconf switch '-e' and use single quotes where possible
+- **build**: streamline COPY statements in Dockerfile
+- **scripts**: improve `helpers/log.sh`
+- **build**: adjust build arguments
+- **build**: enhance build process
+
+### Deprecated
+
+- The environment variable `ENABLE_LDAP` is deprecated and will be removed in [13.0.0]. Use `ACCOUNT_PROVISIONER=LDAP` now.
+
+### Removed
+
+- **configuration**: remove unnecessary configuration files
+
+### Fixed
+
+- **documentation**: update documentation to fix regression causing broken links
+- **scripts**: `_create_accounts()` should run after waiting
+- **scripts**: only calculate checksums, when there are files to monitor.
+- **tests**: wait at least 30 seconds before checking the health state of the container
+- **CI**: add `outputs` to `workflow_call` on `generic_build`
+
+### Security
+
+There are no security-related changes in this release.
+
+---
+
+> **Note**: This part of the changelog was created before switching to the "Keep a Changelog"-format.
+
 ## `v11.1.0`
 
 In this release the relay-host support saw [significant internal refactoring](https://github.com/docker-mailserver/docker-mailserver/pull/2604) in preparation for a future breaking change. Similar extensive restructuring through the codebase also occurred, where [each PR provides more details](https://github.com/docker-mailserver/docker-mailserver/milestone/17?closed=1). Care was taken to avoid breakage, but there may be some risk affecting unsupported third-party customizations which our test suite is unaware of.
@@ -31,7 +140,7 @@ In this release the relay-host support saw [significant internal refactoring](ht
 - **Platform Support - ARMv7**
   This is a very old platform, superceded by ARMv8 and newer with broad product availability around 2016 onwards.
   Support was introduced primarily for users the older generations of Raspberry Pi. ARM64 is the modern target for ARM devices.
-  
+
   If you require ARMv7 support, [please let us know](https://github.com/docker-mailserver/docker-mailserver/issues/2642).
 
 ## `v11.0.0`
@@ -143,7 +252,7 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 ## `v10.4.0`
 
-This release upgrades our base image from Debian 10 to Debian 11.  
+This release upgrades our base image from Debian 10 to Debian 11.
 There is also an important regression fixed for `SSL_TYPE=letsencrypt` users.
 
 - **[fix]** A regression with `check-for-changes.sh` introduced in `v10.3.0` affected `SSL_TYPE=letsencrypt`, preventing detection of cert renewals to restart services (_unless using `acme.json`_) [#2326](https://github.com/docker-mailserver/docker-mailserver/pull/2326)

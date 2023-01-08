@@ -1,0 +1,53 @@
+name: 'Test the DMS Container Image'
+
+on:
+  workflow_call:
+    inputs:
+      cache-key:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    name: 'Test'
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        part: [serial, parallel/set1, parallel/set2, parallel/set3]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Required to retrieve bats (core + extras):
+          submodules: recursive
+
+      # Get the cached build layers from the build job:
+      # This should always be a cache-hit, thus `restore-keys` fallback is not used.
+      # No new cache uploads should ever happen for this job.
+      - name: 'Retrieve image built from build cache'
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: cache-buildx-${{ inputs.cache-key }}
+
+      # Importing from the cache should create the image within approx 30 seconds:
+      # Earlier `buildx` + `qemu` steps are not needed as no cache is exported,
+      # and only a single platform (AMD64) is loaded:
+      - name: 'Build AMD64 image from cache'
+        uses: docker/build-push-action@v3.2.0
+        with:
+          context: .
+          tags: mailserver-testing:ci
+          # Export the built image to the Docker host for use with BATS:
+          load: true
+          # Rebuilds the AMD64 image from the cache:
+          platforms: linux/amd64
+          cache-from: type=local,src=/tmp/.buildx-cache
+
+      - name: 'Run tests'
+        run: make generate-accounts tests/${{ matrix.part }}
+        env:
+          CI: true

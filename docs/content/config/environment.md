@@ -40,6 +40,19 @@ The log-level will show everything in its class and above.
 - 0 => state in default directories.
 - **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
 
+##### ACCOUNT_PROVISIONER
+
+Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
+
+User provisioning via OIDC is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
+
+- **empty** => use FILE
+- LDAP => use LDAP authentication
+- OIDC => use OIDC authentication (**not yet implemented**)
+- FILE => use local files (this is used as the default)
+
+A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
+
 ##### PERMIT_DOCKER
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
@@ -55,6 +68,25 @@ Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_pro
 ##### TZ
 
 Set the timezone. If this variable is unset, the container runtime will try to detect the time using `/etc/localtime`, which you can alternatively mount into the container. The value of this variable must follow the pattern `AREA/ZONE`, i.e. of you want to use Germany's time zone, use `Europe/Berlin`. You can lookup all available timezones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
+
+##### ENABLE_RSPAMD
+
+!!! warning "Current State"
+
+    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. Moreover, you will _currently_ need to adjust Postfix's configuration _yourself_ if you want to use Rspamd; you may use [`user-patches.sh`][docs-userpatches].
+
+    You will need to add Rspamd to the `smtpd_milters` in Postfix's `main.cf`. This can easily be done with `sed`: `sed -i -E 's|^(smtpd_milters = .*)|\1,inet:localhost:11332|g' /etc/postfix/main.cf`. Moreover, have a look at the [integration of Rspamd into Postfx](https://rspamd.com/doc/integration.html). You will need to provide additional configuration files at the moment (to `/etc/rspamd/local.d/`) to make Rspamd run in milter-mode.
+
+[docs-userpatches]: ./advanced/override-defaults/user-patches.md
+
+!!! bug "Rspamd and DNS Block Lists"
+
+    When you use Rspamd, you might want to use the [RBL module](https://rspamd.com/doc/modules/rbl.html). If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you [might not be able](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365) to make use of the block lists.
+
+Enable or disable Rspamd.
+
+- **0** => disabled
+- 1 => enabled
 
 ##### ENABLE_AMAVIS
 
@@ -439,10 +471,7 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 ##### ENABLE_LDAP
 
-- **empty** => LDAP authentification is disabled
-- 1 => LDAP authentification is enabled
-- NOTE:
-  - A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
+Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 ##### LDAP_START_TLS
 
@@ -677,11 +706,6 @@ Specify what password attribute to use for password verification.
 - **empty** => Nothing is added to the configuration but the documentation says it is `userPassword` by default.
 - Any value => Fills the `ldap_password_attr` option
 
-##### SASL_PASSWD
-
-- **empty** => No sasl_passwd will be created
-- string => `/etc/postfix/sasl_passwd` will be created with the string as password
-
 ##### SASLAUTHD_LDAP_AUTH_METHOD
 
 - **empty** => `bind` will be used as a default value
@@ -758,7 +782,7 @@ you to replace both instead of just the envelope sender.
 - **empty** => no default
 - password for default relay user
 
-[docs-faq-onedir]: ../faq.md#what-is-the-mail-state-folder-for
+[docs-faq-onedir]: ../faq.md#what-about-docker-datadmsmail-state-folder-varmail-state-internally
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates

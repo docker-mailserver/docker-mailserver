@@ -21,7 +21,7 @@ If you are managing your directory structure yourself, create a `docker-data/dms
 The contents could look like this:
 
 ``` sh
-#! /bin/bash
+#!/bin/bash
 
 cat >/etc/amavis/conf.d/50-user << "END"
 use strict;
@@ -40,4 +40,4 @@ And you're done. The user patches script runs right before starting daemons. Tha
 !!! note
     Many "patches" can already be done with the Docker Compose-/Stack-file. Adding hostnames to `/etc/hosts` is done with the `#!yaml extra_hosts:` section, `sysctl` commands can be managed with the `#!yaml sysctls:` section, etc.
 
-[gh-file-userpatches]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/user-patches.sh.dist
+[gh-file-userpatches]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/user-patches.sh

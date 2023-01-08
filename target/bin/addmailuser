@@ -1,30 +1,45 @@
-#! /bin/bash
-
-# shellcheck disable=SC2094
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-accounts.cf'
+function _main
+{
+  _require_n_parameters_or_print_usage 1 "${@}"
+
+  local MAIL_ACCOUNT="${1}"
+  shift
+  local PASSWD="${*}"
+
+  _manage_accounts_create "${MAIL_ACCOUNT}" "${PASSWD}"
+
+  # NOTE: An account has only been added to `postfix-accounts.cf`.
+  # The `changedetector` service will be triggered from this update
+  # where the actual account is created in Dovecot. Expect a delay.
+}
 
 function __usage
 {
-  printf '%s' "${PURPLE}ADDMAILUSER${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}addmailuser${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    addmailuser - add an email address (i.e. a user)
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh email add <EMAIL ADDRESS> [<PASSWORD>]
+${ORANGE}USAGE${RESET}
+    ./setup.sh email add <MAIL ACCOUNT> [<PASSWORD>]
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
+${ORANGE}DESCRIPTION${RESET}
+    Add a new mail account (email address).
+
+    To avoid a password being logged in the command history of your shell,
+    you may omit it, you'll be prompted to input the password instead.
+
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh email add test@domain.tld${RESET}
-        Add the email account test@domain.tld. You will be prompted
-        to input a password afterwards since no password was supplied.
+    ${LWHITE}./setup.sh email add user@example.com${RESET}
+        Create the email account 'user@example.com'.
+
+        You will be prompted to input a password afterwards since no password was supplied.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided
@@ -33,42 +48,4 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
-
-FULL_EMAIL="${1}"
-shift
-PASSWD="${*}"
-
-[[ -z ${FULL_EMAIL} ]] && { __usage ; _exit_with_error 'No username specified' ; }
-[[ ${FULL_EMAIL} =~ .*\@.* ]] || { __usage ; _exit_with_error 'Username must include the domain' ; }
-
-touch "${DATABASE}"
-_create_lock # Protect config file with lock to avoid race conditions
-if grep -qi "^$(_escape "${FULL_EMAIL}")|" "${DATABASE}"
-then
-  _exit_with_error "User '${FULL_EMAIL}' already exists"
-fi
-
-if [[ -z ${PASSWD} ]]
-then
-  read -r -s -p "Enter Password: " PASSWD
-  echo
-  [[ -z ${PASSWD} ]] && _exit_with_error "Password must not be empty"
-fi
-
-HASH=$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")
-echo "${FULL_EMAIL}|${HASH}" >> "${DATABASE}"
-
-USER="${FULL_EMAIL%@*}"
-DOMAIN="${FULL_EMAIL#*@}"
-
-# Tests fail if the creation of /var/mail/${DOMAIN}/${USER} doesn't happen fast enough after addmailuser executes (check-for-changes.sh race-condition)
-# Prevent infinite loop in tests like "checking accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist"
-if [[ -e ${CHKSUM_FILE} ]]
-then
-  while [[ ! -d "/var/mail/${DOMAIN}/${USER}" ]]
-  do
-    _log 'info' "Waiting for dovecot to create '/var/mail/${DOMAIN}/${USER}/'"
-    sleep 1
-  done
-fi
+_main "${@}"

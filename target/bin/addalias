@@ -1,28 +1,39 @@
-#! /bin/bash
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-DATABASE='/tmp/docker-mailserver/postfix-virtual.cf'
+function _main
+{
+  _require_n_parameters_or_print_usage 2 "${@}"
+
+  local MAIL_ALIAS="${1}"
+  local RECIPIENT="${2}"
+
+  _manage_virtual_aliases_update "${MAIL_ALIAS}" "${RECIPIENT}" \
+    || _exit_with_error "'${MAIL_ALIAS}' is already an alias for recipient: '${RECIPIENT}'"
+}
 
 function __usage
 {
-  printf '%s' "${PURPLE}ADDALIAS${RED}(${YELLOW}8${RED})
+  printf '%s' "${PURPLE}addalias${RED}(${YELLOW}8${RED})
 
-${ORANGE}NAME${RESET}
-    addalias - add an email alias for an existing user
-
-${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh alias add <EMAIL ADDRESS> <RECIPIENT>
+${ORANGE}USAGE${RESET}
+    ./setup.sh alias add <MAIL ALIAS> <RECIPIENT>
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
+${ORANGE}DESCRIPTION${RESET}
+    Add an alias for a recipient (a mail account).
+
+    Alias and recipient domains can be different.
+    The recipient domain can be external (eg: @gmail.com).
+
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh alias add alias-for-me@domain.tld admin@domain.tld${RESET}
-        Add the alias alias-for-me@doamin.tld for the existing user
-        admin@domain.tld.
+    ${LWHITE}./setup.sh alias add alias@example.com recipient@example.com${RESET}
+        Add the alias 'alias@example.com' for the mail account 'recipient@example.com'.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided
@@ -31,21 +42,4 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-[[ ${1:-} == 'help' ]] && { __usage ; exit 0 ; }
-
-EMAIL="${1}"
-RECIPIENT="${2}"
-
-[[ -z ${EMAIL} ]] && { __usage ; _exit_with_error 'No alias specified' ; }
-[[ -z ${RECIPIENT} ]] && { __usage ; _exit_with_error 'No recipient specified' ; }
-
-grep \
-  -qi "^$(_escape "${EMAIL}")[a-zA-Z@.\ ]*$(_escape "${RECIPIENT}")" \
-  "${DATABASE}" 2>/dev/null && _exit_with_error "Alias \"${EMAIL} ${RECIPIENT}\" already exists"
-
-if grep -qi "^$(_escape "${EMAIL}")" "${DATABASE}" 2>/dev/null
-then
-  sed -i "/${EMAIL}/s/$/,${RECIPIENT}/" "${DATABASE}"
-else
-  echo "${EMAIL} ${RECIPIENT}" >> "${DATABASE}"
-fi
+_main "${@}"

@@ -22,7 +22,7 @@ body:
 
         We provide official support for
 
-        1. OS/ARCH: Linux on amd64/x86_64 or ARMv7 or ARM64
+        1. OS/ARCH: Linux on AMD64 (x86_64) and ARM64 (AArch64)
         2. Containerization platform: Docker and Docker Compose (i.e. based on Docker Engine)
 
         Other configurations are not officially supported, but there are maintainers that may be able to help you. This is the case for
@@ -52,7 +52,7 @@ body:
   - type: textarea
     id: when-does-it-occur
     attributes:
-      label:  What happened and when does this occur?
+      label: What happened and when does this occur?
       description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
       render: Markdown
@@ -61,7 +61,7 @@ body:
   - type: textarea
     id: what-did-you-expect-to-happen
     attributes:
-      label:  What did you expect to happen?
+      label: What did you expect to happen?
       description: Tell us what you expected.
       placeholder: I expected to see debug messages.
       render: Markdown
@@ -99,14 +99,20 @@ body:
         - Other (unsupported)
     validations:
       required: true
+  - type: input
+    id: operating-system-version
+    attributes:
+      label: Which operating system version?
+      placeholder: e.g. Debian 11
+    validations:
+      required: true
   - type: dropdown
     id: isa
     attributes:
       label: What instruction set architecture is DMS running on?
       options:
-        - x86_64 / AMD64
-        - ARM64 / ARM v8 (and newer)
-        - ARM v7
+        - AMD64 / x86_64
+        - ARM64 / AArch64 (ARM v8 and newer)
         - Other (unsupported)
     validations:
       required: true
@@ -147,12 +153,15 @@ body:
       description: >
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
-        Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily.
+        Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily. If you are experienced, we can skip basic questions and save time.
 
       options:
         - label: I am inexperienced with docker
+        - label: I am rather experienced with docker
         - label: I am inexperienced with mail servers
+        - label: I am rather experienced with mail servers
         - label: I am uncomfortable with the CLI
+        - label: I am rather comfortable with the CLI
   - type: checkboxes
     id: terms-code-of-conduct
     attributes:
@@ -163,9 +172,10 @@ body:
           required: true
         - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and I searched the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) but could not find a solution
           required: true
-  - type: textarea
+  - type: input
     id: form-improvements
     attributes:
       label: Improvements to this form?
       description: If you have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
-      render: Markdown
+    validations:
+      required: false

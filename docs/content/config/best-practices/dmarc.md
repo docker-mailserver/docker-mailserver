@@ -10,7 +10,7 @@ More information at [DMARC Guide][dmarc-howto].
 
 In `docker-mailserver`, DMARC is pre-configured out of the box. The only thing you need to do in order to enable it, is to add new `TXT` entry to your DNS.
 
-In contrast with [DKIM][docs-dkim], the DMARC DNS entry does not require any keys, but merely setting the [configuration values][dmarc-howto-configtags]. You can either handcraft the entry by yourself or use one of available generators (like [this one][dmarc-tool::gca]).
+In contrast with [DKIM][docs-dkim], the DMARC DNS entry does not require any keys, but merely setting the [configuration values][dmarc-howto::configtags]. You can either handcraft the entry by yourself or use one of available generators (like [this one][dmarc-tool::gca]).
 
 Typically something like this should be good to start with (_don't forget to replace `@example.com` to your actual domain_):
 

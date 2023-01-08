@@ -1,4 +1,4 @@
-name: "Build, Test & Deploy"
+name: 'Build, Test & Deploy'
 
 on:
   workflow_dispatch:
@@ -6,11 +6,11 @@ on:
     branches:
       - master
     paths:
-      - 'target/**'
-      - '.dockerignore'
-      - '.gitmodules'
-      - 'Dockerfile'
-      - 'setup.sh'
+      - target/**
+      - .dockerignore
+      - .gitmodules
+      - Dockerfile
+      - setup.sh
     tags:
       - '*.*.*'
 
@@ -19,110 +19,21 @@ permissions:
   packages: write
 
 jobs:
-  build-and-test-image:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+  build-image:
+    name: 'Build AMD64 Image'
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
-        id: buildx
+  run-tests:
+    name: 'Test AMD64 Image'
+    needs: build-image
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_test.yml@master
+    with:
+      cache-key: ${{ needs.build-image.outputs.build-cache-key }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Build image locally
-        uses: docker/build-push-action@v3.0.0
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          file: ./Dockerfile
-          build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
-          platforms: linux/amd64
-          load: true
-          tags: mailserver-testing:ci
-          cache-to: type=local,dest=/tmp/.buildx-cache
-
-      - name: Run test suite
-        run: >
-          NAME=mailserver-testing:ci
-          bash -c 'make generate-accounts tests'
-        env:
-          CI: true
-
-  build-multiarch-and-publish:
-    needs: build-and-test-image
-    runs-on: ubuntu-20.04
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Prepare tags
-        id: prep
-        uses: docker/metadata-action@v4.0.1
-        with:
-          images: |
-            ${{ secrets.DOCKER_REPOSITORY }}
-            ${{ secrets.GHCR_REPOSITORY }}
-          tags: |
-            type=edge,branch=master
-            type=semver,pattern={{major}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}.{{minor}}.{{patch}}
-          flavor: |
-            latest=auto
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.0.0
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
-        id: buildx
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2.0.0
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2.0.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build images locally
-        uses: docker/build-push-action@v3.0.0
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          file: ./Dockerfile
-          build-args: |
-            VCS_REF=${{ github.sha }}
-            VCS_VER=${{ github.ref }}
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
-          push: true
-          tags: ${{ steps.prep.outputs.tags }}
-          cache-from: type=local,src=/tmp/.buildx-cache
+  publish-images:
+    name: 'Publish AMD64 and ARM64 Image'
+    needs: [build-image, run-tests]
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_publish.yml@master
+    with:
+      cache-key: ${{ needs.build-image.outputs.build-cache-key }}
+    secrets: inherit

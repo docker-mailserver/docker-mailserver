@@ -2,7 +2,7 @@
 
 [![ci::status]][ci::github] [![docker::pulls]][docker::hub] [![documentation::badge]][documentation::web]
 
-[ci::status]: https://img.shields.io/github/workflow/status/docker-mailserver/docker-mailserver/Build%2C%20Test%20%26%20Deploy?color=blue&label=CI&logo=github&logoColor=white&style=for-the-badge
+[ci::status]: https://img.shields.io/github/actions/workflow/status/docker-mailserver/docker-mailserver/default_on_push.yml?branch=master&color=blue&label=CI&logo=github&logoColor=white&style=for-the-badge
 [ci::github]: https://github.com/docker-mailserver/docker-mailserver/actions
 [docker::pulls]: https://img.shields.io/docker/pulls/mailserver/docker-mailserver.svg?style=for-the-badge&logo=docker&logoColor=white
 [docker::hub]: https://hub.docker.com/r/mailserver/docker-mailserver/
@@ -293,7 +293,8 @@ services:
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
       - ONE_DIR=1
-      - ENABLE_LDAP=1
+      - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
+      - ACCOUNT_PROVISIONER=LDAP
       - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
       - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
       - LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
