@@ -18,8 +18,10 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "integration should be active" {
-  _run_in_container grep 'ANTI-SPAM-SA' /var/log/mail/mail.log
+@test "SpamAssassin integration should be active" {
+  # give Amavis just a bit of time to print out its full debug log
+  run repeat_in_container_until_success_or_timeout 5 "${CONTAINER_NAME}" grep 'ANTI-SPAM-SA' /var/log/mail/mail.log
+  assert_success
   assert_output --partial 'loaded'
   refute_output --partial 'NOT loaded'
 }
