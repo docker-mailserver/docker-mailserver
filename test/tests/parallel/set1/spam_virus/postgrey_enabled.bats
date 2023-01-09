@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Postgrey (enabled):'
+BATS_TEST_NAME_PREFIX='[Postgrey] (enabled) '
 CONTAINER_NAME='dms-test_postgrey_enabled'
 
 function setup_file() {
@@ -24,13 +24,13 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} should have added Postgrey to 'main.cf:check_policy_service'" {
+@test "should have added Postgrey to 'main.cf:check_policy_service'" {
   _run_in_container grep -F 'check_policy_service inet:127.0.0.1:10023' /etc/postfix/main.cf
   assert_success
   _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} should have configured /etc/default/postgrey with default values and ENV overrides" {
+@test "should have configured /etc/default/postgrey with default values and ENV overrides" {
   _run_in_container grep -F 'POSTGREY_OPTS="--inet=127.0.0.1:10023 --delay=3 --max-age=35 --auto-whitelist-clients=5"' /etc/default/postgrey
   assert_success
   _should_output_number_of_lines 1
@@ -40,12 +40,12 @@ function teardown_file() { _default_teardown ; }
   _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} Postgrey is running" {
+@test "Postgrey is running" {
   run check_if_process_is_running 'postgrey'
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} should initially reject (greylist) mail from 'user@external.tld'" {
+@test "should initially reject (greylist) mail from 'user@external.tld'" {
   # Modify the postfix config in order to ensure that postgrey handles the test e-mail.
   # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.
   _run_in_container bash -c "sed -ie 's/permit_sasl_authenticated.*policyd-spf,$//g' /etc/postfix/main.cf"
@@ -69,8 +69,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 # NOTE: This test case depends on the previous one
-@test "${TEST_NAME_PREFIX} should accept mail from 'user@external.tld' after POSTGREY_DELAY duration" {
-  # Wait until `$POSTGREY_DELAY` seconds pass before trying again: 
+@test "should accept mail from 'user@external.tld' after POSTGREY_DELAY duration" {
+  # Wait until `$POSTGREY_DELAY` seconds pass before trying again:
   sleep 3
   # Retry delivering test mail (it should be trusted this time):
   _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'
@@ -90,7 +90,7 @@ function teardown_file() { _default_teardown ; }
 #   - However this does not help verify that the actual client HELO address is properly whitelisted?
 #   - It'd also cause the earlier greylist test to fail.
 # - TODO: Actually confirm whitelist feature works correctly as these test cases are using a workaround:
-@test "${TEST_NAME_PREFIX} should whitelist sender 'user@whitelist.tld'" {
+@test "should whitelist sender 'user@whitelist.tld'" {
   _send_test_mail '/tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt' '10023'
 
   _should_have_log_entry \
@@ -99,7 +99,7 @@ function teardown_file() { _default_teardown ; }
     'client_address=127.0.0.1/32, sender=test@whitelist.tld, recipient=user1@localhost.localdomain'
 }
 
-@test "${TEST_NAME_PREFIX} should whitelist recipient 'user2@otherdomain.tld'" {
+@test "should whitelist recipient 'user2@otherdomain.tld'" {
   _send_test_mail '/tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_recipients.txt' '10023'
 
   _should_have_log_entry \

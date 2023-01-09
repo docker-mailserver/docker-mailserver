@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Undefined spam subject:'
+BATS_TEST_NAME_PREFIX='[Spam] (undefined subject) '
 
 CONTAINER1_NAME='dms-test_spam-undef-subject_1'
 CONTAINER2_NAME='dms-test_spam-undef-subject_2'
@@ -9,7 +9,7 @@ CONTAINER_NAME=${CONTAINER2_NAME}
 
 function teardown() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} 'SA_SPAM_SUBJECT=undef' should update Amavis config" {
+@test "'SA_SPAM_SUBJECT=undef' should update Amavis config" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
@@ -24,7 +24,7 @@ function teardown() { _default_teardown ; }
 }
 
 # TODO: Unclear why some of these ENV are relevant for the test?
-@test "${TEST_NAME_PREFIX} Docker env variables are set correctly (custom)" {
+@test "Docker env variables are set correctly (custom)" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
   local CUSTOM_SETUP_ARGUMENTS=(

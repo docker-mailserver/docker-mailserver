@@ -62,9 +62,9 @@ function _install_packages
   )
 
   MISCELLANEOUS_PACKAGES=(
-    apt-transport-https binutils bsd-mailx
+    apt-transport-https bind9-dnsutils binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init ed gamin gnupg iproute2
+    dumb-init ed gamin gnupg iproute2 iputils-ping
     libdate-manip-perl libldap-common
     libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd

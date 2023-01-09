@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Fail2Ban:'
+BATS_TEST_NAME_PREFIX='[Fail2Ban] '
 CONTAINER1_NAME='dms-test_fail2ban'
 CONTAINER2_NAME='dms-test_fail2ban_fail-auth-mailer'
 
@@ -33,12 +33,12 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "${TEST_NAME_PREFIX} Fail2Ban is running" {
+@test "Fail2Ban is running" {
   run check_if_process_is_running 'fail2ban-server'
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} localhost is not banned because ignored" {
+@test "localhost is not banned because ignored" {
   _run_in_container fail2ban-client status postfix-sasl
   assert_success
   refute_output --regexp '.*IP list:.*127\.0\.0\.1.*'
@@ -47,13 +47,13 @@ function teardown_file() {
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} fail2ban-fail2ban.cf overrides" {
+@test "fail2ban-fail2ban.cf overrides" {
   _run_in_container fail2ban-client get loglevel
   assert_success
   assert_output --partial 'DEBUG'
 }
 
-@test "${TEST_NAME_PREFIX} fail2ban-jail.cf overrides" {
+@test "fail2ban-jail.cf overrides" {
   for FILTER in 'dovecot' 'postfix' 'postfix-sasl'
   do
     _run_in_container fail2ban-client get "${FILTER}" bantime
@@ -76,7 +76,7 @@ function teardown_file() {
 # - After multiple login fails and a slight delay, f2b will ban that IP.
 # - You could hard-code `sleep 5` on both cases to avoid the alternative assertions,
 #   but the polling + piping into grep approach here reliably minimizes the delay.
-@test "${TEST_NAME_PREFIX} ban ip on multiple failed login" {
+@test "ban ip on multiple failed login" {
   CONTAINER1_IP=$(get_container_ip ${CONTAINER1_NAME})
   # Trigger a ban by failing to login twice:
   _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
@@ -95,7 +95,7 @@ function teardown_file() {
 }
 
 # NOTE: Depends on previous test case, if no IP was banned at this point, it passes regardless..
-@test "${TEST_NAME_PREFIX} unban ip works" {
+@test "unban ip works" {
   CONTAINER2_IP=$(get_container_ip ${CONTAINER2_NAME})
   _run_in_container fail2ban-client set postfix-sasl unbanip "${CONTAINER2_IP}"
   assert_success
@@ -110,7 +110,7 @@ function teardown_file() {
   refute_output --partial "${CONTAINER2_IP}"
 }
 
-@test "${TEST_NAME_PREFIX} bans work properly (single IP)" {
+@test "bans work properly (single IP)" {
   _run_in_container fail2ban ban 192.0.66.7
   assert_success
   assert_output 'Banned custom IP: 1'
@@ -131,7 +131,7 @@ function teardown_file() {
   refute_output --partial '192.0.66.7'
 }
 
-@test "${TEST_NAME_PREFIX} bans work properly (subnet)" {
+@test "bans work properly (subnet)" {
   _run_in_container fail2ban ban 192.0.66.0/24
   assert_success
   assert_output 'Banned custom IP: 1'
@@ -152,7 +152,7 @@ function teardown_file() {
   refute_output --partial '192.0.66.0/24'
 }
 
-@test "${TEST_NAME_PREFIX} FAIL2BAN_BLOCKTYPE is really set to drop" {
+@test "FAIL2BAN_BLOCKTYPE is really set to drop" {
   # ban IPs here manually so we can be sure something is inside the jails
   for JAIL in dovecot postfix-sasl custom; do
     _run_in_container fail2ban-client set "${JAIL}" banip 192.33.44.55
@@ -172,7 +172,7 @@ function teardown_file() {
   done
 }
 
-@test "${TEST_NAME_PREFIX} setup.sh fail2ban" {
+@test "setup.sh fail2ban" {
   _run_in_container fail2ban-client set dovecot banip 192.0.66.4
   _run_in_container fail2ban-client set dovecot banip 192.0.66.5
 
@@ -194,7 +194,7 @@ function teardown_file() {
   assert_output --partial 'You need to specify an IP address: Run'
 }
 
-@test "${TEST_NAME_PREFIX} restart of Fail2Ban" {
+@test "restart of Fail2Ban" {
   _run_in_container pkill fail2ban
   assert_success
 
