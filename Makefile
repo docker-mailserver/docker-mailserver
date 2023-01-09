@@ -8,7 +8,6 @@ export NAME            ?= $(IMAGE_NAME)
 MAKEFLAGS              += --no-print-directory
 BATS_FLAGS             ?= --timing
 BATS_PARALLEL_JOBS     ?= 2
-BATS_FLAGS_PARALLEL    ?= $(BATS_FLAGS) --no-parallelize-within-files --jobs $(BATS_PARALLEL_JOBS)
 
 .PHONY: ALWAYS_RUN
 
@@ -53,7 +52,8 @@ tests/serial: ALWAYS_RUN
 	@ shopt -s globstar ; ./test/bats/bin/bats $(BATS_FLAGS) test/$@/*.bats
 
 tests/parallel/set%: ALWAYS_RUN
-	@ shopt -s globstar ; ./test/bats/bin/bats $(BATS_FLAGS_PARALLEL) test/$@/**/*.bats
+	@ shopt -s globstar ; ./test/bats/bin/bats $(BATS_FLAGS) \
+		--no-parallelize-within-files --jobs $(BATS_PARALLEL_JOBS) test/$@/**/*.bats
 
 test/%: ALWAYS_RUN
 	@ shopt -s globstar nullglob ; ./test/bats/bin/bats $(BATS_FLAGS) test/tests/**/{$*,}.bats

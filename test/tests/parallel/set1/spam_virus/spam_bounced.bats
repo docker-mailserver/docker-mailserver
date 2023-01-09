@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Spam bounced:'
+BATS_TEST_NAME_PREFIX='[Spam] (bounced) '
 CONTAINER_NAME='dms-test_spam-bounced'
 
 function setup_file() {
@@ -25,7 +25,7 @@ function teardown_file() { _default_teardown ; }
 # When SPAMASSASSIN_SPAM_TO_INBOX=0, spam messages must be bounced (rejected).
 # SPAMASSASSIN_SPAM_TO_INBOX=1 is covered in `mail_spam_junk_folder.bats`.
 # Original test PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
-@test "${TEST_NAME_PREFIX} spam message is bounced (rejected)" {
+@test "spam message is bounced (rejected)" {
   # send a spam message
   _run_in_container /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success

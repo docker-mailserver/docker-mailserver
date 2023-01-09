@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Postscreen:'
+BATS_TEST_NAME_PREFIX='[Postscreen] '
 CONTAINER1_NAME='dms-test_postscreen_enforce'
 CONTAINER2_NAME='dms-test_postscreen_sender'
 
@@ -37,7 +37,7 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "${TEST_NAME_PREFIX} should fail login when talking out of turn" {
+@test "should fail login when talking out of turn" {
   _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt"
   assert_success
   assert_output --partial '502 5.5.2 Error: command not recognized'
@@ -47,7 +47,7 @@ function teardown_file() {
   assert_output --partial 'COMMAND PIPELINING'
 }
 
-@test "${TEST_NAME_PREFIX} should successfully login (respecting postscreen_greet_wait time)" {
+@test "should successfully login (respecting postscreen_greet_wait time)" {
   # NOTE: Sometimes fails on first attempt (trying too soon?),
   # Instead of a `run` + asserting partial, Using repeat + internal grep match:
   repeat_until_success_or_timeout 10 _should_wait_turn_speaking_smtp \

@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='[Security] TLS (cipher lists):'
+BATS_TEST_NAME_PREFIX='[Security] (TLS) (cipher lists) '
 CONTAINER_PREFIX='dms-test_tls-cipherlists'
 
 # NOTE: Tests cases here cannot be run concurrently:
@@ -38,34 +38,34 @@ function teardown_file() {
 
 function teardown() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=intermediate' + RSA" {
+@test "'TLS_LEVEL=intermediate' + RSA" {
   configure_and_run_dms_container 'intermediate' 'rsa'
   should_support_expected_cipherlists
 }
 
-@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=intermediate' + ECDSA" {
+@test "'TLS_LEVEL=intermediate' + ECDSA" {
   configure_and_run_dms_container 'intermediate' 'ecdsa'
   should_support_expected_cipherlists
 }
 
 # Only ECDSA with an RSA fallback is tested.
 # There isn't a situation where RSA with an ECDSA fallback would make sense.
-@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=intermediate' + ECDSA with RSA fallback" {
+@test "'TLS_LEVEL=intermediate' + ECDSA with RSA fallback" {
   configure_and_run_dms_container 'intermediate' 'ecdsa' 'rsa'
   should_support_expected_cipherlists
 }
 
-@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=modern' + RSA" {
+@test "'TLS_LEVEL=modern' + RSA" {
   configure_and_run_dms_container 'modern' 'rsa'
   should_support_expected_cipherlists
 }
 
-@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=modern' + ECDSA" {
+@test "'TLS_LEVEL=modern' + ECDSA" {
   configure_and_run_dms_container 'modern' 'ecdsa'
   should_support_expected_cipherlists
 }
 
-@test "${TEST_NAME_PREFIX} 'TLS_LEVEL=modern' + ECDSA with RSA fallback" {
+@test "'TLS_LEVEL=modern' + ECDSA with RSA fallback" {
   configure_and_run_dms_container 'modern' 'ecdsa' 'rsa'
   should_support_expected_cipherlists
 }

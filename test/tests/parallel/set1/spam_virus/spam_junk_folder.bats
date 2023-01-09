@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Spam junk folder:'
+BATS_TEST_NAME_PREFIX='[Spam] (junk folder) '
 CONTAINER1_NAME='dms-test_spam-junk-folder_1'
 CONTAINER2_NAME='dms-test_spam-junk-folder_2'
 
@@ -12,7 +12,7 @@ function teardown() { _default_teardown ; }
 # When SPAMASSASSIN_SPAM_TO_INBOX=1, spam messages must be delivered
 # and eventually (MOVE_SPAM_TO_JUNK=1) moved to the Junk folder.
 
-@test "${TEST_NAME_PREFIX} (Amavis) spam message delivered & moved to Junk folder" {
+@test "(Amavis) spam message delivered & moved to Junk folder" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
@@ -39,7 +39,7 @@ function teardown() { _default_teardown ; }
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} (Amavis) spam message delivered to INBOX" {
+@test "(Amavis) spam message delivered to INBOX" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
