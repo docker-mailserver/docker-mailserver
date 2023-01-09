@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
-TEST_NAME_PREFIX='SMTP Delivery:'
+BATS_TEST_NAME_PREFIX='[SMTP] (delivery) '
 CONTAINER_NAME='dms-test_smtp-delivery'
 
 function setup_file() {
@@ -86,56 +86,56 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} should successfully authenticate with good password (plain)" {
+@test "should successfully authenticate with good password (plain)" {
   _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
-@test "${TEST_NAME_PREFIX} should fail to authenticate with wrong password (plain)" {
+@test "should fail to authenticate with wrong password (plain)" {
   _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt'
   assert_output --partial 'authentication failed'
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} should successfully authenticate with good password (login)" {
+@test "should successfully authenticate with good password (login)" {
   _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
-@test "${TEST_NAME_PREFIX} should fail to authenticate with wrong password (login)" {
+@test "should fail to authenticate with wrong password (login)" {
   _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   assert_output --partial 'authentication failed'
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} [user: 'added'] should successfully authenticate with good password (plain)" {
+@test "[user: 'added'] should successfully authenticate with good password (plain)" {
   _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
-@test "${TEST_NAME_PREFIX} [user: 'added'] should fail to authenticate with wrong password (plain)" {
+@test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
   _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt'
   assert_success
   assert_output --partial 'authentication failed'
 }
 
-@test "${TEST_NAME_PREFIX} [user: 'added'] should successfully authenticate with good password (login)" {
+@test "[user: 'added'] should successfully authenticate with good password (login)" {
   _run_in_container bash -c 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
-@test "${TEST_NAME_PREFIX} [user: 'added'] should fail to authenticate with wrong password (login)" {
+@test "[user: 'added'] should fail to authenticate with wrong password (login)" {
   _run_in_container bash -c 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt'
   assert_success
   assert_output --partial 'authentication failed'
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
-@test "${TEST_NAME_PREFIX} delivers mail to existing account" {
+@test "delivers mail to existing account" {
   _run_in_container bash -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
   assert_success
 
@@ -152,14 +152,14 @@ function teardown_file() { _default_teardown ; }
   # _should_output_number_of_lines 7
 }
 
-@test "${TEST_NAME_PREFIX} delivers mail to existing alias" {
+@test "delivers mail to existing alias" {
   _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log
   assert_success
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} delivers mail to existing alias with recipient delimiter" {
+@test "delivers mail to existing alias with recipient delimiter" {
   _run_in_container grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log
   assert_success
   assert_output --partial 'status=sent'
@@ -170,21 +170,21 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial 'status=bounced'
 }
 
-@test "${TEST_NAME_PREFIX} delivers mail to existing catchall" {
+@test "delivers mail to existing catchall" {
   _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log
   assert_success
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} delivers mail to regexp alias" {
+@test "delivers mail to regexp alias" {
   _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log
   assert_success
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} user1 should have received 8 mails" {
+@test "user1 should have received 8 mails" {
   _run_in_container bash -c "grep Subject /var/mail/localhost.localdomain/user1/new/* | sed 's/.*Subject: //g' | sed 's/\.txt.*//g' | sed 's/VIRUS.*/VIRUS/g' | sort"
   assert_success
 
@@ -205,13 +205,13 @@ function teardown_file() { _default_teardown ; }
   # _should_output_number_of_lines 11
 }
 
-@test "${TEST_NAME_PREFIX} rejects mail to unknown user" {
+@test "rejects mail to unknown user" {
   _run_in_container grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log
   assert_success
   _should_output_number_of_lines 1
 }
 
-@test "${TEST_NAME_PREFIX} redirects mail to external aliases" {
+@test "redirects mail to external aliases" {
   _run_in_container bash -c "grep 'Passed CLEAN {RelayedInbound}' /var/log/mail/mail.log | grep -- '-> <external1@otherdomain.tld>'"
   assert_success
   assert_output --partial '<user@external.tld> -> <external1@otherdomain.tld>'
@@ -220,7 +220,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
-@test "${TEST_NAME_PREFIX} rejects spam" {
+@test "rejects spam" {
   _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
   assert_success
   assert_output --partial '<spam@external.tld> -> <user1@localhost.localdomain>'
@@ -234,7 +234,7 @@ function teardown_file() { _default_teardown ; }
   # assert_output --partial 'external.tld=spam@example.test> -> <user1@localhost.localdomain>'
 }
 
-@test "${TEST_NAME_PREFIX} SA - All registered domains should receive mail with spam headers (X-Spam)" {
+@test "SA - All registered domains should receive mail with spam headers (X-Spam)" {
   _run_in_container grep -ir 'X-Spam-' /var/mail/localhost.localdomain/user1/new
   assert_success
 
@@ -244,13 +244,13 @@ function teardown_file() { _default_teardown ; }
 
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
-@test "${TEST_NAME_PREFIX} not advertising smtputf8" {
+@test "not advertising smtputf8" {
   _run_in_container bash -c 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt'
   assert_success
   refute_output --partial 'SMTPUTF8'
 }
 
-@test "${TEST_NAME_PREFIX} mail for root was delivered" {
+@test "mail for root was delivered" {
   _run_in_container grep -R 'Subject: Root Test Message' /var/mail/localhost.localdomain/user1/new/
   assert_success
 }

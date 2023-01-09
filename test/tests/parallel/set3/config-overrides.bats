@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
-TEST_NAME_PREFIX='Override Configs:'
+BATS_TEST_NAME_PREFIX='[Configuration] (overrides) '
 CONTAINER_NAME='dms-test_config-overrides'
 
 function setup_file() {
@@ -15,7 +15,7 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX}: Postfix - 'postfix-main.cf' overrides applied to '/etc/postfix/main.cf'" {
+@test "Postfix - 'postfix-main.cf' overrides applied to '/etc/postfix/main.cf'" {
   _run_in_container grep -q 'max_idle = 600s' /tmp/docker-mailserver/postfix-main.cf
   assert_success
 
@@ -28,7 +28,7 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial 'readme_directory = /tmp'
 }
 
-@test "${TEST_NAME_PREFIX}: Postfix - 'postfix-master.cf' overrides applied to '/etc/postfix/master.cf'" {
+@test "Postfix - 'postfix-master.cf' overrides applied to '/etc/postfix/master.cf'" {
   _run_in_container grep -q 'submission/inet/smtpd_sasl_security_options=noanonymous' /tmp/docker-mailserver/postfix-master.cf
   assert_success
 
@@ -37,7 +37,7 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial '-o smtpd_sasl_security_options=noanonymous'
 }
 
-@test "${TEST_NAME_PREFIX}: Dovecot - 'dovecot.cf' overrides applied to '/etc/dovecot/local.conf'" {
+@test "Dovecot - 'dovecot.cf' overrides applied to '/etc/dovecot/local.conf'" {
   _run_in_container grep -q 'mail_max_userip_connections = 69' /tmp/docker-mailserver/dovecot.cf
   assert_success
 

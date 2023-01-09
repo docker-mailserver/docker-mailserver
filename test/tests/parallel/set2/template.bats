@@ -4,7 +4,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 
 # ? global variable initialization
 # ?   to identify the test easily
-TEST_NAME_PREFIX='template:'
+BATS_TEST_NAME_PREFIX='[no-op template] '
 # ?   must be unique
 CONTAINER_NAME='dms-test_template'
 
@@ -33,7 +33,7 @@ function teardown_file() { _default_teardown ; }
 
 # ? actual unit tests
 
-@test "${TEST_NAME_PREFIX} default check" {
+@test "default check" {
   _run_in_container bash -c "true"
   assert_success
 }

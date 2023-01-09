@@ -4,7 +4,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 # Docs:
 # https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve/
 
-TEST_NAME_PREFIX='Dovecot [Sieve Support]:'
+BATS_TEST_NAME_PREFIX='[Dovecot] (Sieve support) '
 CONTAINER_NAME='dms-test_dovecot-sieve'
 
 function setup_file() {
@@ -36,20 +36,20 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 # dovecot-sieve/dovecot.sieve
-@test "${TEST_NAME_PREFIX} User Sieve - should store mail from 'spam@spam.com' into recipient (user1) mailbox 'INBOX.spam'" {
+@test "User Sieve - should store mail from 'spam@spam.com' into recipient (user1) mailbox 'INBOX.spam'" {
   _run_in_container bash -c 'ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new'
   assert_success
   _should_output_number_of_lines 1
 }
 
 # dovecot-sieve/before.dovecot.sieve
-@test "${TEST_NAME_PREFIX} Global Sieve - should have copied mail from 'spam@spam.com' to recipient (user1) inbox" {
+@test "Global Sieve - should have copied mail from 'spam@spam.com' to recipient (user1) inbox" {
   _run_in_container grep 'Spambot <spam@spam.com>' -R /var/mail/localhost.localdomain/user1/new/
   assert_success
 }
 
 # dovecot-sieve/sieve-pipe + dovecot-sieve/user2@otherdomain.tld.dovecot.sieve
-@test "${TEST_NAME_PREFIX} Sieve Pipe - should pipe mail received for user2 into '/tmp/pipe-test.out'" {
+@test "Sieve Pipe - should pipe mail received for user2 into '/tmp/pipe-test.out'" {
   _run_in_container bash -c 'ls -A /tmp/pipe-test.out'
   assert_success
   _should_output_number_of_lines 1
@@ -57,7 +57,7 @@ function teardown_file() { _default_teardown ; }
 
 # Only test coverage for feature is to check that the service is listening on the expected port:
 # https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_server/
-@test "${TEST_NAME_PREFIX} ENV 'ENABLE_MANAGESIEVE' - should have enabled service on port 4190" {
+@test "ENV 'ENABLE_MANAGESIEVE' - should have enabled service on port 4190" {
   _run_in_container bash -c 'nc -z 0.0.0.0 4190'
   assert_success
 }
