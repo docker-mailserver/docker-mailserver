@@ -150,7 +150,7 @@ Remember to run this command as root user.
 
 ### Port Forwarding
 
-When it comes to forwarding ports using `firewalld`, see <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld> for more infomation.
+When it comes to forwarding ports using `firewalld`, see <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld> for more information.
 
 ```bash
 firewall-cmd --permanent --add-forward-port=port=<25|143|465|587|993>:proto=<tcp>:toport=<10025|10143|10465|10587|10993>
