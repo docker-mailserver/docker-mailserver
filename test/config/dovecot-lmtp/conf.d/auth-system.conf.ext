@@ -14,7 +14,7 @@ passdb {
   #args = dovecot
 }
 
-# System users (NSS, /etc/passwd, or similiar).
+# System users (NSS, /etc/passwd, or similar).
 # In many systems nowadays this uses Name Service Switch, which is
 # configured in /etc/nsswitch.conf. <doc/wiki/AuthDatabase.Passwd.txt>
 #passdb {
@@ -23,7 +23,7 @@ passdb {
   #args =
 #}
 
-# Shadow passwords for system users (NSS, /etc/shadow or similiar).
+# Shadow passwords for system users (NSS, /etc/shadow or similar).
 # Deprecated by PAM nowadays.
 # <doc/wiki/PasswordDatabase.Shadow.txt>
 #passdb {
@@ -44,7 +44,7 @@ passdb {
 ## User databases
 ##
 
-# System users (NSS, /etc/passwd, or similiar). In many systems nowadays this
+# System users (NSS, /etc/passwd, or similar). In many systems nowadays this
 # uses Name Service Switch, which is configured in /etc/nsswitch.conf.
 userdb {
   # <doc/wiki/AuthDatabase.Passwd.txt>

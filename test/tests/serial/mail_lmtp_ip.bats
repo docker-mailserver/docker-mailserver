@@ -30,7 +30,7 @@ teardown_file() {
 }
 
 @test "checking postfix-lmtp: delivers mail to existing account" {
-  # maybe we can move this into the setup to speed things up futher.
+  # maybe we can move this into the setup to speed things up further.
   # this likely would need an async coroutine to avoid blocking the other tests while waiting for the server to come up
   wait_for_smtp_port_in_container mail_lmtp_ip
   run docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
