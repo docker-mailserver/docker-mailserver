@@ -44,3 +44,13 @@ function _require_n_parameters_or_print_usage
   [[ ${1:-} == 'help' ]]  && { __usage ; exit 0 ; }
   [[ ${#} -lt ${COUNT} ]] && { __usage ; exit 1 ; }
 }
+
+# NOTE: Postfix commands that read `main.cf` will stall execution,
+# until the config file has not be written to for at least 2 seconds.
+# After we modify the config explicitly, we can safely assume (reasonably)
+# that the write stream has completed, and it is safe to read the config.
+# https://github.com/docker-mailserver/docker-mailserver/issues/2985
+function _adjust_mtime_for_postfix_maincf
+{
+  touch -d '2 seconds ago' /etc/postfix/main.cf
+}
