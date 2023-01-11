@@ -32,34 +32,23 @@ function teardown_file() {
 
 @test "checking changedetector: can detect changes & between two containers using same config" {
   _create_change_event
+  # Wait for change detection event to start and complete processing:
   sleep 25
 
-  run _get_logs_since_last_change_detection mail_changedetector_one
-  _assert_has_standard_change_event_logs
-
-  run _get_logs_since_last_change_detection mail_changedetector_two
-  _assert_has_standard_change_event_logs
+  _should_perform_standard_change_event mail_changedetector_one
+  _should_perform_standard_change_event mail_changedetector_two
 }
 
 @test "checking changedetector: lock file found, blocks, and doesn't get prematurely removed" {
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl stop changedetector"
-  docker exec mail_changedetector_one /bin/bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
-  _create_change_event
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl start changedetector"
+  _prepare_blocking_lock_test
+
+  # Once the next change event has started, the processing blocked log ('another execution') should be present:
   sleep 15
 
-  run _get_logs_since_last_change_detection mail_changedetector_one
-  _assert_foreign_lock_exists
-
-  run _get_logs_since_last_change_detection mail_changedetector_two
-  _assert_foreign_lock_exists
-
-  # Ensure starting a new check-for-changes.sh instance (restarting here) doesn't delete the lock
-  docker exec mail_changedetector_two /bin/bash -c "rm -f /var/log/supervisor/changedetector.log"
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl restart changedetector"
-  sleep 5
-  run _get_logs_since_last_change_detection mail_changedetector_two
-  _assert_no_lock_actions_performed
+  # Wait until the 2nd change event attempts to process:
+  _should_block_change_event_from_processing mail_changedetector_one
+  # NOTE: Although the service is restarted, a change detection should still occur (previous checksum still exists):
+  _should_block_change_event_from_processing mail_changedetector_two
 }
 
 @test "checking changedetector: lock stale and cleaned up" {
@@ -74,6 +63,24 @@ function teardown_file() {
   run _get_logs_since_last_change_detection mail_changedetector_one
   assert_output --partial 'Lock file older than 1 minute - removing stale lock file'
   _assert_has_standard_change_event_logs
+}
+
+function _should_perform_standard_change_event() {
+  local CONTAINER_NAME=$1
+
+  # Container should have created it's own lock file,
+  # and later removed it when finished processing:
+  run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
+  _assert_has_standard_change_event_logs
+}
+
+function _should_block_change_event_from_processing() {
+  local CONTAINER_NAME=$1
+
+  run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
+  _assert_foreign_lock_exists
+  # This additionally verifies that the change event processing is incomplete (blocked):
+  _assert_no_lock_actions_performed
 }
 
 function _assert_has_standard_change_event_logs() {
@@ -92,6 +99,22 @@ function _assert_no_lock_actions_performed() {
   refute_output --partial 'Lock file older than 1 minute - removing stale lock file'
   refute_output --partial "Creating lock '/tmp/docker-mailserver/check-for-changes.sh.lock'"
   refute_output --partial 'Removed lock'
+}
+
+function _prepare_blocking_lock_test {
+  # Temporarily disable the Container2 changedetector service:
+  docker exec mail_changedetector_two bash -c "supervisorctl stop changedetector"
+  docker exec mail_changedetector_two bash -c 'rm -f /var/log/supervisor/changedetector.log'
+
+  # Create a foreign lock file to prevent change processing (in both containers):
+  docker exec mail_changedetector_one bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
+  # Create a new change to detect (that the foreign lock should prevent from processing):
+  _create_change_event
+
+  # Restore Container2 changedetector service:
+  # NOTE: The last known checksum is retained in Container2,
+  #       It will be compared to and start a change event.
+  docker exec mail_changedetector_two bash -c "supervisorctl start changedetector"
 }
 
 function _create_change_event() {
