@@ -1,9 +1,5 @@
 load "${REPOSITORY_ROOT}/test/test_helper/common"
 
-# Note if tests fail asserting against `supervisorctl tail changedetector` output,
-# use `supervisorctl tail -<num bytes> changedetector` instead to increase log output.
-# Default `<num bytes>` appears to be around 1500.
-
 function setup_file() {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail_changedetector_one)
@@ -35,53 +31,77 @@ function teardown_file() {
 }
 
 @test "checking changedetector: can detect changes & between two containers using same config" {
-  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
+  _create_change_event
   sleep 25
 
-  run docker exec mail_changedetector_one /bin/bash -c 'supervisorctl tail -3000 changedetector'
-  assert_output --partial 'Change detected'
-  assert_output --partial 'Reloading services due to detected changes'
-  assert_output --partial 'Removed lock'
-  assert_output --partial 'Completed handling of detected change'
+  run _get_logs_since_last_change_detection mail_changedetector_one
+  _assert_has_standard_change_event_logs
 
-  run docker exec mail_changedetector_two /bin/bash -c 'supervisorctl tail -3000 changedetector'
-  assert_output --partial 'Change detected'
-  assert_output --partial 'Reloading services due to detected changes'
-  assert_output --partial 'Removed lock'
-  assert_output --partial 'Completed handling of detected change'
+  run _get_logs_since_last_change_detection mail_changedetector_two
+  _assert_has_standard_change_event_logs
 }
 
 @test "checking changedetector: lock file found, blocks, and doesn't get prematurely removed" {
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl stop changedetector"
   docker exec mail_changedetector_one /bin/bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
-  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
+  _create_change_event
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl start changedetector"
   sleep 15
 
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
+  run _get_logs_since_last_change_detection mail_changedetector_one
+  _assert_foreign_lock_exists
+
+  run _get_logs_since_last_change_detection mail_changedetector_two
+  _assert_foreign_lock_exists
 
   # Ensure starting a new check-for-changes.sh instance (restarting here) doesn't delete the lock
   docker exec mail_changedetector_two /bin/bash -c "rm -f /var/log/supervisor/changedetector.log"
   run docker exec mail_changedetector_two /bin/bash -c "supervisorctl restart changedetector"
   sleep 5
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  refute_output --partial "another execution of 'check-for-changes.sh' is happening"
-  refute_output --partial "Removed lock"
+  run _get_logs_since_last_change_detection mail_changedetector_two
+  _assert_no_lock_actions_performed
 }
 
 @test "checking changedetector: lock stale and cleaned up" {
   docker rm -f mail_changedetector_two
   docker exec mail_changedetector_one /bin/bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
-  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
+  _create_change_event
   sleep 15
 
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
+  run _get_logs_since_last_change_detection mail_changedetector_one
+  _assert_foreign_lock_exists
   sleep 65
 
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
-  assert_output --partial "removing stale lock file"
+  run _get_logs_since_last_change_detection mail_changedetector_one
+  assert_output --partial 'Lock file older than 1 minute - removing stale lock file'
+}
+
+function _assert_has_standard_change_event_logs() {
+  assert_output --partial "Creating lock '/tmp/docker-mailserver/check-for-changes.sh.lock'"
+  assert_output --partial 'Reloading services due to detected changes'
+  assert_output --partial 'Removed lock'
+  assert_output --partial 'Completed handling of detected change'
+}
+
+function _assert_foreign_lock_exists() {
+  assert_output --partial "Lock file '/tmp/docker-mailserver/check-for-changes.sh.lock' exists"
+  assert_output --partial "- another execution of 'check-for-changes.sh' is happening - trying again shortly"
+}
+
+function _assert_no_lock_actions_performed() {
+  refute_output --partial 'Lock file older than 1 minute - removing stale lock file'
+  refute_output --partial "Creating lock '/tmp/docker-mailserver/check-for-changes.sh.lock'"
+  refute_output --partial 'Removed lock'
+}
+
+function _create_change_event() {
+  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
+}
+
+function _get_logs_since_last_change_detection() {
+  local CONTAINER_NAME=$1
+  local MATCH_IN_FILE='/var/log/supervisor/changedetector.log'
+  local MATCH_STRING='Change detected'
+
+  docker exec "${CONTAINER_NAME}" bash -c "tac ${MATCH_IN_FILE} | sed '/${MATCH_STRING}/q' | tac"
 }
