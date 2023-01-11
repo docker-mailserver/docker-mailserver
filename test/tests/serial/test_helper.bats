@@ -126,7 +126,7 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   run cat "${path}/marker"
   assert_line "This marker file is there to identify the correct config being copied"
 
-  run duplicate_config_for_container non-existant-source-folder "${BATS_TEST_NAME}2"
+  run duplicate_config_for_container non-existent-source-folder "${BATS_TEST_NAME}2"
   assert_failure
 }
 
