@@ -180,14 +180,6 @@ function wait_for_service() {
     container_has_service_running "${CONTAINER_NAME}" "${SERVICE_NAME}"
 }
 
-function wait_for_changes_to_be_detected_in_container() {
-  local CONTAINER_NAME="${1}"
-  local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
-
-  # shellcheck disable=SC2016
-  repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
-}
-
 function wait_until_change_detection_event_begins() {
   local MATCH_CONTENT='Change detected'
   local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
