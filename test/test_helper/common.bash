@@ -173,56 +173,6 @@ function wait_for_service() {
     container_has_service_running "${CONTAINER_NAME}" "${SERVICE_NAME}"
 }
 
-function wait_until_change_detection_event_begins() {
-  local MATCH_CONTENT='Change detected'
-  local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
-
-  _wait_until_expected_count_is_matched "${@}"
-}
-
-# NOTE: Change events can start and finish all within < 1 sec,
-# Reliably track the completion of a change event by counting events:
-function wait_until_change_detection_event_completes() {
-  local MATCH_CONTENT='Completed handling of detected change'
-  local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
-  
-  _wait_until_expected_count_is_matched "${@}"
-}
-
-# NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
-function _wait_until_expected_count_is_matched() {
-  function __get_count() {
-    docker exec "${CONTAINER_NAME}" grep --count "${MATCH_CONTENT}" "${MATCH_IN_LOG}"
-  }
-
-  # WARNING: Keep in mind it is a '>=' comparison.
-  # If you provide an explict count to match, ensure it is not too low to cause a false-positive.
-  function __has_expected_count() {
-    [[ $(__get_count) -ge "${EXPECTED_COUNT}" ]]
-  }
-
-  local CONTAINER_NAME=$1
-  local EXPECTED_COUNT=$2
-
-  # Ensure early failure if arg is missing:
-  assert_not_equal "${CONTAINER_NAME}" ''
-
-  # Ensure the container is configured with the required `LOG_LEVEL` ENV:
-  assert_regex \
-    $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
-    '=(debug|trace)$'
-
-  # Default behaviour is to wait until one new match is found (eg: incremented),
-  # unless explicitly set (useful for waiting on a min count to be reached):
-  if [[ -z $EXPECTED_COUNT ]]
-  then
-    # +1 of starting count:
-    EXPECTED_COUNT=$(bc <<< "$(__get_count) + 1")
-  fi
-
-  repeat_until_success_or_timeout 20 __has_expected_count
-}
-
 # An account added to `postfix-accounts.cf` must wait for the `changedetector` service
 # to process the update before Dovecot creates the mail account and associated storage dir:
 function wait_until_account_maildir_exists() {

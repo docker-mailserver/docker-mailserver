@@ -180,22 +180,6 @@ function wait_for_service() {
     container_has_service_running "${CONTAINER_NAME}" "${SERVICE_NAME}"
 }
 
-function wait_until_change_detection_event_begins() {
-  local MATCH_CONTENT='Change detected'
-  local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
-
-  _wait_until_expected_count_is_matched "${@}"
-}
-
-# NOTE: Change events can start and finish all within < 1 sec,
-# Reliably track the completion of a change event by counting events:
-function wait_until_change_detection_event_completes() {
-  local MATCH_CONTENT='Completed handling of detected change'
-  local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
-  
-  _wait_until_expected_count_is_matched "${@}"
-}
-
 # NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
 function _wait_until_expected_count_is_matched() {
   function __get_count() {

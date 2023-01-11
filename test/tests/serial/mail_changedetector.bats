@@ -1,4 +1,5 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/change-detection"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[Change Detection] '
@@ -135,12 +136,4 @@ function _prepare_blocking_lock_test {
 
 function _create_change_event() {
   echo '' >> "${TEST_TMP_CONFIG}/postfix-accounts.cf"
-}
-
-function _get_logs_since_last_change_detection() {
-  local CONTAINER_NAME=$1
-  local MATCH_IN_FILE='/var/log/supervisor/changedetector.log'
-  local MATCH_STRING='Change detected'
-
-  docker exec "${CONTAINER_NAME}" bash -c "tac ${MATCH_IN_FILE} | sed '/${MATCH_STRING}/q' | tac"
 }

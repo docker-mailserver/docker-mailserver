@@ -1,5 +1,6 @@
-load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/change-detection"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/tls"
 
 BATS_TEST_NAME_PREFIX='[Security] (TLS) (SSL_TYPE=letsencrypt) '
@@ -215,12 +216,9 @@ function _should_extract_on_changes() {
   wait_until_change_detection_event_completes "${CONTAINER_NAME}"
 
   # Expected log lines from the changedetector service:
-  run $(_get_service_logs 'changedetector')
-  assert_output --partial 'Change detected'
+  run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
   assert_output --partial "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
-  assert_output --partial 'Reloading services due to detected changes'
-  assert_output --partial 'Completed handling of detected change'
 }
 
 # Extracted cert files from `acme.json` have content matching the expected reference files:
