@@ -103,9 +103,6 @@ function _initial_setup() {
     )
     common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
     wait_for_service "${CONTAINER_NAME}" 'changedetector'
-
-    # Wait until the changedetector service startup delay is over:
-    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'Changedetector is ready'"
   }
 
   # Test `acme.json` extraction works at container startup:
@@ -127,7 +124,6 @@ function _initial_setup() {
   # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
   function _acme_rsa() {
     _should_extract_on_changes 'mail.example.test' "${LOCAL_BASE_PATH}/rsa.acme.json"
-    _should_have_service_reload_count '1'
 
     local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
     local RSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.rsa.pem"
@@ -139,7 +135,6 @@ function _initial_setup() {
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
-    _should_have_service_reload_count '2'
 
     # As the FQDN has changed since startup, the Postfix + Dovecot configs should be updated:
     _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
@@ -217,8 +212,7 @@ function _should_extract_on_changes() {
   local ACME_JSON=${2}
 
   cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
-  # Change detection takes a little over 5 seconds to complete (restart services)
-  sleep 10
+  wait_until_change_detection_event_completes "${CONTAINER_NAME}"
 
   # Expected log lines from the changedetector service:
   run $(_get_service_logs 'changedetector')
@@ -227,15 +221,6 @@ function _should_extract_on_changes() {
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
   assert_output --partial 'Reloading services due to detected changes'
   assert_output --partial 'Completed handling of detected change'
-}
-
-# Ensure change detection is not mistakenly validating against previous change events:
-function _should_have_service_reload_count() {
-  local NUM_RELOADS=${1}
-
-  # Count how many times processes (like Postfix and Dovecot) have been reloaded by the `changedetector` service:
-  _run_in_container grep --count 'Completed handling of detected change' '/var/log/supervisor/changedetector.log'
-  assert_output "${NUM_RELOADS}"
 }
 
 # Extracted cert files from `acme.json` have content matching the expected reference files:
