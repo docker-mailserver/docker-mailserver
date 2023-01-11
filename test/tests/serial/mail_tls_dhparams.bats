@@ -14,8 +14,8 @@ CONTAINER2_NAME='dms-test_tls-dh-params_custom'
 
 function teardown() { _default_teardown ; }
 
-# Verify that the file `ffdhe4096.pem` has not been modified (checksum verification against trusted third-party copy).
 # Verify Postfix and Dovecot are using the default `ffdhe4096.pem` from Dockerfile build.
+# Verify that the file `ffdhe4096.pem` has not been modified (checksum verification against trusted third-party copy).
 @test "Default" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local DH_PARAMS_DEFAULT='target/shared/ffdhe4096.pem'
@@ -24,8 +24,13 @@ function teardown() { _default_teardown ; }
   init_with_defaults
   common_container_setup
 
-  _should_match_mozilla_copy "${DH_CHECKSUM_DEFAULT}"
   _should_match_service_copies "${DH_CHECKSUM_DEFAULT}"
+  
+  # Verify integrity of the default supplied DH Params (ffdhe4096, should be equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
+  # 716a462baecb43520fb1ba6f15d288ba8df4d612bf9d450474b4a1c745b64be01806e5ca4fb2151395fd4412a98831b77ea8dfd389fe54a9c768d170b9565a25
+  local DH_CHECKSUM_MOZILLA
+  DH_CHECKSUM_MOZILLA=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
+  assert_equal "${DH_CHECKSUM_DEFAULT}" "${DH_CHECKSUM_MOZILLA}"
 }
 
 # When custom DHE parameters are supplied by the user to `/tmp/docker-mailserver/dhparams.pem`:
@@ -41,18 +46,11 @@ function teardown() { _default_teardown ; }
   common_container_setup
 
   _should_match_service_copies "${DH_CHECKSUM_CUSTOM}"
-  _should_emit_warning
-}
 
-# Verify integrity of the default supplied DH Params (ffdhe4096)
-function _should_match_mozilla_copy() {
-  local DH_CHECKSUM=$1
-
-  # Verify the FFDHE params file has not been modified (equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
-  # 716a462baecb43520fb1ba6f15d288ba8df4d612bf9d450474b4a1c745b64be01806e5ca4fb2151395fd4412a98831b77ea8dfd389fe54a9c768d170b9565a25
-  local DH_CHECKSUM_MOZILLA
-  DH_CHECKSUM_MOZILLA=$(curl https://ssl-config.mozilla.org/ffdhe4096.txt -s | sha512sum | awk '{print $1}')
-  assert_equal "${DH_CHECKSUM}" "${DH_CHECKSUM_MOZILLA}"
+  # Should emit a warning:
+  run docker logs "${CONTAINER_NAME}"
+  assert_success
+  assert_output --partial '[ WARNING ]  Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
 }
 
 # Ensures the docker image services (Postfix and Dovecot) have the expected DH files:
@@ -67,10 +65,4 @@ function _should_match_service_copies() {
 
   __should_have_expected_checksum '/etc/dovecot/dh.pem'
   __should_have_expected_checksum '/etc/postfix/dhparams.pem'
-}
-
-function _should_emit_warning() {
-  run docker logs "${CONTAINER_NAME}"
-  assert_success
-  assert_output --partial '[ WARNING ]  Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
 }
