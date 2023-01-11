@@ -66,13 +66,11 @@ function wait_for_finished_setup_in_container() {
 # in the file, then use `local TEST_TMP_CONFIG=$(duplicate_config_for_container . "${UNIQUE_ID_HERE}")`
 function init_with_defaults() {
   __initialize_variables
+  # REQUIRED: `CONTAINER_NAME` must be set before this method is called.
+  # It only affects the `TEST_TMP_CONFIG` directory created,
+  # but will be used in `common_container_create()` and implicitly in other helper methods.
 
   export TEST_TMP_CONFIG
-
-  # In `setup_file()` the default name to use for the currently tested docker container
-  # is `${CONTAINER_NAME}` global defined here. It derives the name from the test filename:
-  # `basename` to ignore absolute dir path and file extension, only extract filename.
-  # In `setup_file()` creates a single copy of the test config folder to use for an entire test file:
   TEST_TMP_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
   # Common complimentary test files, read-only safe to share across containers:
