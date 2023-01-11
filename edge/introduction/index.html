@@ -1732,7 +1732,7 @@ MUA &lt;---- STARTTLS ---- ┤(143)   MDA ╯        |
                         └─────────────────────┘
  ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
 </code></pre></div>
-<p>If you're new to email infrastructure, both that table and the schema may be confusing.<br />
+<p>If you're new to email infrastructure, both that table and the schema may be confusing.
 Read on to expand your understanding and learn about <code>docker-mailserver</code>'s configuration, including how you can customize it.</p>
 <h3 id="submission-smtp"><a class="toclink" href="#submission-smtp">Submission - SMTP</a></h3>
 <p>For a MUA to send an email to an MTA, it needs to establish a connection with that server, then push data packets over a network that both the MUA (client) and the MTA (server) are connected to. The server implements the <a href="https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> protocol, which makes it capable of handling <em>Submission</em>.</p>
@@ -1767,7 +1767,7 @@ Me ---------------&gt; ┤                    ├ -----------------&gt; ┊     
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This Submission setup is sometimes refered to as <a href="https://en.wikipedia.org/wiki/SMTPS">SMTPS</a>. Long story short: this is incorrect and should be avoided.</p>
+<p>This Submission setup is sometimes referred to as <a href="https://en.wikipedia.org/wiki/SMTPS">SMTPS</a>. Long story short: this is incorrect and should be avoided.</p>
 </div>
 <p>Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cutting edge". There exists another well established mail Submission setup that must be supported as well, SMTP+STARTTLS on port 587. It uses Explicit TLS: the client starts with a cleartext connection, then the server informs a TLS-encrypted "upgraded" connection may be established, and the client <em>may</em> eventually decide to establish it prior to the Submission. Basically it's an opportunistic, opt-in TLS upgrade of the connection between the client and the server, at the client's discretion, using a mechanism known as <a href="https://en.wikipedia.org/wiki/Opportunistic_TLS">STARTTLS</a> that both ends need to implement.</p>
 <p>In many implementations, the mail-server doesn't enforce TLS encryption, for backwards compatibility. Clients are thus free to deny the TLS-upgrade proposal (or <a href="https://security.stackexchange.com/questions/168998/what-happens-if-starttls-dropped-in-smtp">misled by a hacker</a> about STARTTLS not being available), and the server accepts unencrypted (cleartext) mail exchange, which poses a confidentiality threat and, to some extent, spam issues. <a href="https://tools.ietf.org/html/rfc8314#section-3.3">RFC 8314 (section 3.3)</a> recommends for a mail-server to support both Implicit and Explicit TLS for Submission, <em>and</em> to enforce TLS-encryption on ports 587 (Explicit TLS) and 465 (Implicit TLS). That's exactly <code>docker-mailserver</code>'s default configuration: abiding by RFC 8314, it <a href="http://www.postfix.org/postconf.5.html#smtpd_tls_security_level">enforces a strict (<code>encrypt</code>) STARTTLS policy</a>, where a denied TLS upgrade terminates the connection thus (hopefully but at the client's discretion) preventing unencrypted (cleartext) Submission.</p>
