@@ -35,6 +35,11 @@ function teardown_file() {
   wait_for_service "${CONTAINER2_NAME}" changedetector
 }
 
+# NOTE: Non-deterministic behaviour - One container will perform change detection before the other.
+# Depending on the timing of the other container checking for a lock file, the lock may no longer be
+# present, avoiding the 5 second delay. The first container to create a lock is not deterministic either.
+# NOTE: Change detection at this point typically occurs at 2 or 4 seconds since the service was up,
+# thus expect 2-8 seconds to complete.
 @test "should detect and process changes (in both containers with shared config)" {
   _create_change_event
 
@@ -42,6 +47,8 @@ function teardown_file() {
   _should_perform_standard_change_event "${CONTAINER2_NAME}"
 }
 
+# Both containers should acknowledge the foreign lock file added,
+# blocking an attempt to process the pending change event detected.
 @test "should find existing lock file and block processing changes (without removing lock)" {
   _prepare_blocking_lock_test
 
