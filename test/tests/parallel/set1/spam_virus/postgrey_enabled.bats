@@ -54,9 +54,7 @@ function teardown_file() { _default_teardown ; }
     -e 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' \
     -e 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' \
     /etc/postfix/main.cf
-  # Reloading Postfix config after modifying it in <2 sec will cause Postfix to delay, workaround that:
-  _run_in_container touch -d '2 seconds ago' /etc/postfix/main.cf
-  _run_in_container postfix reload
+  _reload_postfix
 
   # Send test mail (it should fail to deliver):
   _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'

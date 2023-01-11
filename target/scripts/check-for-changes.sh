@@ -59,7 +59,7 @@ function _check_for_changes
     _log_with_date 'debug' 'Reloading services due to detected changes'
 
     [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
-    postfix reload
+    _reload_postfix
     [[ ${SMTP_ONLY} -ne 1 ]] && dovecot reload
 
     _remove_lock
@@ -94,6 +94,12 @@ function _reload_amavis
     # reading this file again in case of new domains, otherwise they will be ignored.
     amavisd-new reload
   fi
+}
+
+function _reload_postfix
+{
+  _adjust_mtime_for_postfix_maincf
+  postfix reload
 }
 
 # Also note that changes are performed in place and are not atomic

@@ -65,8 +65,7 @@ teardown_file() {
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
-  run docker exec mail_smtponly_second_network /bin/sh -c "/etc/init.d/postfix reload"
-  assert_success
+  _reload_postfix mail_smtponly_second_network
 
   # we should be able to send from the other container on the second network!
   run docker exec mail_smtponly_second_network_sender /bin/sh -c "nc mail_smtponly_second_network 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
@@ -78,8 +77,7 @@ teardown_file() {
   run docker exec mail_smtponly_force_authentication /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
-  run docker exec mail_smtponly_force_authentication /bin/sh -c "/etc/init.d/postfix reload"
-  assert_success
+  _reload_postfix mail_smtponly_force_authentication
 
   # the mailserver should require authentication and a protocol error should occur when using TLS
   run docker exec mail_smtponly_force_authentication /bin/sh -c "nc localhost 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"

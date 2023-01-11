@@ -52,5 +52,8 @@ function _require_n_parameters_or_print_usage
 # https://github.com/docker-mailserver/docker-mailserver/issues/2985
 function _adjust_mtime_for_postfix_maincf
 {
-  touch -d '2 seconds ago' /etc/postfix/main.cf
+  if [[ $(( $(date '+%s') - $(stat -c '%Y' '/etc/postfix/main.cf') )) -lt 2 ]]
+  then
+    touch -d '2 seconds ago' /etc/postfix/main.cf
+  fi
 }
