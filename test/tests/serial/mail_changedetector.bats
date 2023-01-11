@@ -63,17 +63,17 @@ function teardown_file() {
 }
 
 @test "checking changedetector: lock stale and cleaned up" {
+  # Avoid a race condition (to remove the lock file) by removing the 2nd container:
   docker rm -f mail_changedetector_two
-  docker exec mail_changedetector_one /bin/bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
-  _create_change_event
-  sleep 15
+  # Make the previously created lock file become stale:
+  docker exec mail_changedetector_one touch -d '60 seconds ago' /tmp/docker-mailserver/check-for-changes.sh.lock
 
-  run _get_logs_since_last_change_detection mail_changedetector_one
-  _assert_foreign_lock_exists
-  sleep 65
+  # Previous change event should now be processed (stale lock is detected and removed):
+  wait_until_change_detection_event_completes mail_changedetector_one
 
   run _get_logs_since_last_change_detection mail_changedetector_one
   assert_output --partial 'Lock file older than 1 minute - removing stale lock file'
+  _assert_has_standard_change_event_logs
 }
 
 function _assert_has_standard_change_event_logs() {
