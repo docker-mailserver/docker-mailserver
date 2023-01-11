@@ -2061,6 +2061,14 @@ chmod <span class="m">0644</span> ./docker-data/dms/cron/sa-learn
 <p>Considering you want to delete all the e-mails received for <code>baduser@example.com</code>, add the following line to <code>docker-data/dms/config/postfix-virtual.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">baduser@example.com devnull</span><span class="w"></span>
 </code></pre></div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you use a catch-all rule for the main/sub domain, you need another entry in <code>docker-data/dms/config/postfix-virtual.cf</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="na">@mail.example.com hello@example.com</span><span class="w"></span>
+<span class="na">baduser@example.com devnull</span><span class="w"></span>
+<span class="na">devnull@mail.example.com devnull</span><span class="w"></span>
+</code></pre></div>
+</div>
 <h3 id="how-do-i-have-more-control-about-what-spamassasin-is-filtering"><a class="toclink" href="#how-do-i-have-more-control-about-what-spamassasin-is-filtering">How do I have more control about what SPAMASSASIN is filtering?</a></h3>
 <p>By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:</p>
 <p>First, make sure you have the proper thresholds set:</p>
