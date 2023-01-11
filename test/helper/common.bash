@@ -188,32 +188,54 @@ function wait_for_changes_to_be_detected_in_container() {
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
 
-# NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
+function wait_until_change_detection_event_begins() {
+  local MATCH_CONTENT='Change detected'
+  local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
+
+  _wait_until_expected_count_is_matched "${@}"
+}
+
+# NOTE: Change events can start and finish all within < 1 sec,
+# Reliably track the completion of a change event by counting events:
 function wait_until_change_detection_event_completes() {
-  local CONTAINER_NAME="${1}"
+  local MATCH_CONTENT='Completed handling of detected change'
+  local MATCH_IN_LOG='/var/log/supervisor/changedetector.log'
+  
+  _wait_until_expected_count_is_matched "${@}"
+}
+
+# NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
+function _wait_until_expected_count_is_matched() {
+  function __get_count() {
+    docker exec "${CONTAINER_NAME}" grep --count "${MATCH_CONTENT}" "${MATCH_IN_LOG}"
+  }
+
+  # WARNING: Keep in mind it is a '>=' comparison.
+  # If you provide an explict count to match, ensure it is not too low to cause a false-positive.
+  function __has_expected_count() {
+    [[ $(__get_count) -ge "${EXPECTED_COUNT}" ]]
+  }
+
+  local CONTAINER_NAME=$1
+  local EXPECTED_COUNT=$2
+
   # Ensure early failure if arg is missing:
-  assert_not_equal "${CONTAINER_NAME}" ""
+  assert_not_equal "${CONTAINER_NAME}" ''
 
   # Ensure the container is configured with the required `LOG_LEVEL` ENV:
   assert_regex \
     $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
     '=(debug|trace)$'
 
-  # NOTE: Change events can start and finish all within < 1 sec,
-  # Reliably track the completion of a change event by comparing the before/after count:
-  function __change_event_count() {
-    docker exec "${CONTAINER_NAME}" grep --count "${CHANGE_EVENT_END}" /var/log/supervisor/changedetector.log
-  }
+  # Default behaviour is to wait until one new match is found (eg: incremented),
+  # unless explicitly set (useful for waiting on a min count to be reached):
+  if [[ -z $EXPECTED_COUNT ]]
+  then
+    # +1 of starting count:
+    EXPECTED_COUNT=$(bc <<< "$(__get_count) + 1")
+  fi
 
-  function __is_changedetector_finished() {
-    [[ $(__change_event_count) -gt "${NUM_CHANGE_EVENTS_BEFORE}" ]]
-  }
-
-  # Count by completions of this debug log line from `check-for-changes.sh`:
-  local CHANGE_EVENT_END='Completed handling of detected change'
-  local NUM_CHANGE_EVENTS_BEFORE=$(__change_event_count)
-
-  repeat_until_success_or_timeout 60 __is_changedetector_finished
+  repeat_until_success_or_timeout 20 __has_expected_count
 }
 
 # An account added to `postfix-accounts.cf` must wait for the `changedetector` service

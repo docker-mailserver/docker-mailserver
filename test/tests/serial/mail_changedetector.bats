@@ -32,8 +32,6 @@ function teardown_file() {
 
 @test "checking changedetector: can detect changes & between two containers using same config" {
   _create_change_event
-  # Wait for change detection event to start and complete processing:
-  sleep 25
 
   _should_perform_standard_change_event mail_changedetector_one
   _should_perform_standard_change_event mail_changedetector_two
@@ -42,13 +40,10 @@ function teardown_file() {
 @test "checking changedetector: lock file found, blocks, and doesn't get prematurely removed" {
   _prepare_blocking_lock_test
 
-  # Once the next change event has started, the processing blocked log ('another execution') should be present:
-  sleep 15
-
   # Wait until the 2nd change event attempts to process:
-  _should_block_change_event_from_processing mail_changedetector_one
+  _should_block_change_event_from_processing mail_changedetector_one 2
   # NOTE: Although the service is restarted, a change detection should still occur (previous checksum still exists):
-  _should_block_change_event_from_processing mail_changedetector_two
+  _should_block_change_event_from_processing mail_changedetector_two 1
 }
 
 @test "checking changedetector: lock stale and cleaned up" {
@@ -57,9 +52,10 @@ function teardown_file() {
   # Make the previously created lock file become stale:
   docker exec mail_changedetector_one touch -d '60 seconds ago' /tmp/docker-mailserver/check-for-changes.sh.lock
 
-  # Previous change event should now be processed (stale lock is detected and removed):
-  wait_until_change_detection_event_completes mail_changedetector_one
+  # A 2nd change event should complete (or may already have if quick enough?):
+  wait_until_change_detection_event_completes mail_changedetector_one 2
 
+  # Should have removed the stale lock file, then handle the change event:
   run _get_logs_since_last_change_detection mail_changedetector_one
   assert_output --partial 'Lock file older than 1 minute - removing stale lock file'
   _assert_has_standard_change_event_logs
@@ -67,6 +63,10 @@ function teardown_file() {
 
 function _should_perform_standard_change_event() {
   local CONTAINER_NAME=$1
+
+  # Wait for change detection event to start and complete processing:
+  # NOTE: An explicit count is provided as the 2nd container may have already completed processing.
+  wait_until_change_detection_event_completes "${CONTAINER_NAME}" 1
 
   # Container should have created it's own lock file,
   # and later removed it when finished processing:
@@ -76,6 +76,10 @@ function _should_perform_standard_change_event() {
 
 function _should_block_change_event_from_processing() {
   local CONTAINER_NAME=$1
+  local EXPECTED_COUNT=$2
+
+  # Once the next change event has started, the processing blocked log ('another execution') should be present:
+  wait_until_change_detection_event_begins "${CONTAINER_NAME}" "${EXPECTED_COUNT}"
 
   run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
   _assert_foreign_lock_exists
