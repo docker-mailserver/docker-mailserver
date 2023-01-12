@@ -9,6 +9,7 @@ function setup_file() {
     -t "${NAME}"
 
   wait_for_finished_setup_in_container mail_smtponly
+  wait_for_smtp_port_in_container mail_smtponly
 }
 
 function teardown_file() {
@@ -45,8 +46,8 @@ function teardown_file() {
 @test "checking smtp_only: mail send should work" {
   run docker exec mail_smtponly /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
-  run docker exec mail_smtponly /bin/sh -c "/etc/init.d/postfix reload"
-  assert_success
+
+  _reload_postfix mail_smtponly
 
   wait_for_smtp_port_in_container mail_smtponly
   run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"

@@ -686,48 +686,52 @@ function _setup_docker_permit
     CONTAINER_NETWORKS+=("${IP}")
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
+  function __clear_postfix_mynetworks
+  {
+    _log 'trace' "Clearing Postfix's 'mynetworks'"
+    postconf "mynetworks ="
+  }
+
+  function __add_to_postfix_mynetworks
+  {
+    local NETWORK_TYPE=$1
+    local NETWORK=$2
+
+    _log 'trace' "Adding ${NETWORK_TYPE} (${NETWORK}) to Postfix 'main.cf:mynetworks'"
+    _adjust_mtime_for_postfix_maincf
+    postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
+    echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
+    echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
+  }
+
   case "${PERMIT_DOCKER}" in
     ( 'none' )
-      _log 'trace' "Clearing Postfix's 'mynetworks'"
-      postconf "mynetworks ="
+      __clear_postfix_mynetworks
       ;;
 
     ( 'connected-networks' )
-      for NETWORK in "${CONTAINER_NETWORKS[@]}"
+      for CONTAINER_NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
-        NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
-        _log 'trace' "Adding Docker network '${NETWORK}' to Postfix's 'mynetworks'"
-        postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
-        echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
-        echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
+        CONTAINER_NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${CONTAINER_NETWORK}")
+        __add_to_postfix_mynetworks 'Docker Network' "${CONTAINER_NETWORK}"
       done
       ;;
 
     ( 'container' )
-      _log 'trace' "Adding container IP address to Postfix's 'mynetworks'"
-      postconf "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
-      echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
-      echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
+      __add_to_postfix_mynetworks 'Container IP address' "${CONTAINER_IP}/32"
       ;;
 
     ( 'host' )
-      _log 'trace' "Adding '${CONTAINER_NETWORK}/16' to Postfix's 'mynetworks'"
-      postconf "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
-      echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
-      echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
+      __add_to_postfix_mynetworks 'Host Network' "${CONTAINER_NETWORK}/16"
       ;;
 
     ( 'network' )
-      _log 'trace' "Adding Docker network to Postfix's 'mynetworks'"
-      postconf "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
-      echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
-      echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
+      __add_to_postfix_mynetworks 'Docker IPv4 Subnet' '172.16.0.0/12'
       ;;
 
     ( * )
       _log 'warn' "Invalid value for PERMIT_DOCKER: '${PERMIT_DOCKER}'"
-      _log 'warn' "Clearing Postfix's 'mynetworks'"
-      postconf "mynetworks ="
+      __clear_postfix_mynetworks
       ;;
 
   esac
@@ -754,9 +758,13 @@ function _setup_postfix_override_configuration
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
     cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
+    _adjust_mtime_for_postfix_maincf
+
     # do not directly output to 'main.cf' as this causes a read-write-conflict
     postconf -n >/tmp/postfix-main-new.cf 2>/dev/null
+
     mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
+    _adjust_mtime_for_postfix_maincf
     _log 'trace' "Adjusted '/etc/postfix/main.cf' according to '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"

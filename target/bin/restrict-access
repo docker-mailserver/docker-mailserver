@@ -44,7 +44,7 @@ case "${MODE}" in
           sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf \
         || sed -i 's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
 
-      service postfix reload >/dev/null
+      _reload_postfix
     fi
 
     echo -e "${USER} \t\t REJECT" >>"${DATABASE}"

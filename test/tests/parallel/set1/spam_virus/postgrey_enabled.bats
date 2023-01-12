@@ -48,11 +48,13 @@ function teardown_file() { _default_teardown ; }
 @test "should initially reject (greylist) mail from 'user@external.tld'" {
   # Modify the postfix config in order to ensure that postgrey handles the test e-mail.
   # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.
-  _run_in_container bash -c "sed -ie 's/permit_sasl_authenticated.*policyd-spf,$//g' /etc/postfix/main.cf"
-  _run_in_container bash -c "sed -ie 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' /etc/postfix/main.cf"
-  _run_in_container bash -c "sed -ie 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' /etc/postfix/main.cf"
-  _run_in_container bash -c "sed -ie 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' /etc/postfix/main.cf"
-  _run_in_container postfix reload
+  _run_in_container sed -i \
+    -e 's/permit_sasl_authenticated.*policyd-spf,$//g' \
+    -e 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' \
+    -e 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' \
+    -e 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' \
+    /etc/postfix/main.cf
+  _reload_postfix
 
   # Send test mail (it should fail to deliver):
   _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'
