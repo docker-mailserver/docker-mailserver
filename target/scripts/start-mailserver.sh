@@ -38,7 +38,7 @@ source /usr/local/bin/daemons-stack.sh
 source /usr/local/bin/helpers/variables.sh
 
 _setup_supervisor
-_obtain_hostname_and_domainname
+_obtain_dns_names
 _environment_variables_backwards_compatibility
 _environment_variables_general_setup
 
@@ -55,7 +55,7 @@ function _register_functions
 
   # ? >> Checks
 
-  _register_check_function '_check_hostname'
+  _register_check_function '_check_dns_names'
   _register_check_function '_check_log_level'
 
   # ? >> Setup
@@ -240,7 +240,7 @@ _start_daemons
 # marker to check if container was restarted
 date >/CONTAINER_START
 
-_log 'info' "${HOSTNAME} is up and running"
+_log 'info' "${DMS_FQDN} is up and running"
 
 touch /var/log/mail/mail.log
 tail -Fn 0 /var/log/mail/mail.log

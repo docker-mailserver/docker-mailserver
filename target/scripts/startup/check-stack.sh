@@ -9,30 +9,34 @@ function _check
   done
 }
 
-function _check_hostname
+function _check_dns_names
 {
-  _log 'debug' 'Checking that hostname/domainname is provided or overridden'
+  _log 'debug' 'Checking that DNS names are properly set'
 
-  _log 'debug' "Domain has been set to ${DOMAINNAME}"
-  _log 'debug' "Hostname has been set to ${HOSTNAME}"
+  _log 'trace' "DNS names: FQDN has been set to '${DMS_FQDN}'"
+  _log 'trace' "DNS names: Domainname has been set to '${DMS_DOMAINNAME}'"
+  _log 'trace' "DNS names: Hostname has been set to '${DMS_HOSTNAME}'"
 
-  # HOSTNAME should be an FQDN (eg: hostname.domain)
-  if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
+  if ! grep -q -E '^(\S+[.]\S+)$' <<< "${DMS_FQDN}"
   then
-    _shutdown 'Setting hostname/domainname is required'
+    _shutdown "DNS names: FQDN ('${DMS_FQDN}') is invalid"
+  fi
+
+  if ! grep -q -E '^(\S+[.]\S+)$' <<< "${DMS_DOMAINNAME}"
+  then
+    _shutdown "DNS names: domainname ('${DMS_DOMAINNAME}') is invalid"
+  fi
+
+  if [[ -z ${DMS_HOSTNAME} ]]
+  then
+    _log 'debug' 'Detected bare domain setup'
   fi
 }
 
 function _check_log_level
 {
-  if [[ ${LOG_LEVEL} == 'trace' ]] \
-  || [[ ${LOG_LEVEL} == 'debug' ]] \
-  || [[ ${LOG_LEVEL} == 'info' ]]  \
-  || [[ ${LOG_LEVEL} == 'warn' ]]  \
-  || [[ ${LOG_LEVEL} == 'error' ]]
+  if [[ ! ${LOG_LEVEL} =~ ^(trace|debug|info|warn|error)$ ]]
   then
-    return 0
-  else
     local DEFAULT_LOG_LEVEL='info'
     _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
 

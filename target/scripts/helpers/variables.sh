@@ -76,9 +76,9 @@ function _environment_variables_general_setup
   # these variables must be defined first
   # they are used as default values for other variables
 
-  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+  VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DMS_DOMAINNAME}}"
   VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
-  VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
+  VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${DMS_FQDN}}"
 
   _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 

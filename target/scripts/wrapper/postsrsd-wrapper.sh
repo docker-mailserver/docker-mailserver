@@ -2,16 +2,16 @@
 
 # shellcheck source=../helpers/index.sh
 source /usr/local/bin/helpers/index.sh
+# shellcheck source=/dev/null
+source /etc/dms-settings
 
 function _generate_secret { ( umask 0077 ; dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 > "${1}" ; ) ; }
-
-_obtain_hostname_and_domainname
 
 if [[ -n "${SRS_DOMAINNAME}" ]]
 then
   NEW_DOMAIN_NAME="${SRS_DOMAINNAME}"
 else
-  NEW_DOMAIN_NAME="${DOMAINNAME}"
+  NEW_DOMAIN_NAME="${DMS_DOMAINNAME}"
 fi
 
 sed -i -e "s/localdomain/${NEW_DOMAIN_NAME}/g" /etc/default/postsrsd

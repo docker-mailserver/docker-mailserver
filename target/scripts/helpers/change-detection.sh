@@ -62,8 +62,8 @@ function _monitored_files_checksums
     STAGING_FILES+=(
       /etc/letsencrypt/acme.json
       /etc/letsencrypt/live/"${SSL_DOMAIN}"/*.pem
-      /etc/letsencrypt/live/"${HOSTNAME}"/*.pem
-      /etc/letsencrypt/live/"${DOMAINNAME}"/*.pem
+      /etc/letsencrypt/live/"${DMS_HOSTNAME}"/*.pem
+      /etc/letsencrypt/live/"${DMS_DOMAINNAME}"/*.pem
     )
   fi
 

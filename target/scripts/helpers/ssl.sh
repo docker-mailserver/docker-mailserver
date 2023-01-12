@@ -109,12 +109,12 @@ function _setup_ssl
       if [[ -n ${SSL_DOMAIN} ]] && _extract_certs_from_acme "${SSL_DOMAIN}"
       then
         EXTRACTED_DOMAIN=('SSL_DOMAIN' "${SSL_DOMAIN}")
-      elif _extract_certs_from_acme "${HOSTNAME}"
+      elif _extract_certs_from_acme "${DMS_FQDN}"
       then
-        EXTRACTED_DOMAIN=('HOSTNAME' "${HOSTNAME}")
-      elif _extract_certs_from_acme "${DOMAINNAME}"
+        EXTRACTED_DOMAIN=('DMS_FQDN' "${DMS_FQDN}")
+      elif _extract_certs_from_acme "${DMS_DOMAINNAME}"
       then
-        EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
+        EXTRACTED_DOMAIN=('DMS_DOMAINNAME' "${DMS_DOMAINNAME}")
       else
         _log 'warn' "letsencrypt (acme.json) failed to identify a certificate to extract"
       fi
@@ -194,10 +194,10 @@ function _setup_ssl
       ;;
 
     ( "custom" ) # (hard-coded path) Use a private key with full certificate chain all in a single PEM file.
-      _log 'debug' "Adding ${HOSTNAME} SSL certificate"
+      _log 'debug' "Adding ${DMS_FQDN} SSL certificate"
 
       # NOTE: Dovecot works fine still as both values are bundled into the keychain
-      local COMBINED_PEM_NAME="${HOSTNAME}-full.pem"
+      local COMBINED_PEM_NAME="${DMS_FQDN}-full.pem"
       local TMP_KEY_WITH_FULLCHAIN="${TMP_DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
       local KEY_WITH_FULLCHAIN="${DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
 
@@ -266,10 +266,10 @@ function _setup_ssl
       ;;
 
     ( "self-signed" ) # (hard-coded path) Use separate private key and cert/chain files (should be PEM encoded), expects self-signed CA
-      _log 'debug' "Adding ${HOSTNAME} SSL certificate"
+      _log 'debug' "Adding ${DMS_FQDN} SSL certificate"
 
-      local KEY_NAME="${HOSTNAME}-key.pem"
-      local CERT_NAME="${HOSTNAME}-cert.pem"
+      local KEY_NAME="${DMS_FQDN}-key.pem"
+      local CERT_NAME="${DMS_FQDN}-cert.pem"
 
       # Self-Signed source files:
       local SS_KEY="${TMP_DMS_TLS_PATH}/${KEY_NAME}"
@@ -301,7 +301,7 @@ function _setup_ssl
         # May have been to support the now removed `Courier` (Dovecot replaced it):
         # https://github.com/docker-mailserver/docker-mailserver/commit/1fb3aeede8ac9707cc9ea11d603e3a7b33b5f8d5
         # smtp_tls_CApath and smtpd_tls_CApath both point to /etc/ssl/certs
-        local PRIVATE_CA="/etc/ssl/certs/cacert-${HOSTNAME}.pem"
+        local PRIVATE_CA="/etc/ssl/certs/cacert-${DMS_FQDN}.pem"
         ln -s "${CA_CERT}" "${PRIVATE_CA}"
 
         _log 'trace' "SSL configured with 'self-signed' certificates"
@@ -377,14 +377,14 @@ function _find_letsencrypt_domain
   if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
   then
     LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
-  elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
+  elif [[ -e /etc/letsencrypt/live/${DMS_FQDN}/fullchain.pem ]]
   then
-    LETSENCRYPT_DOMAIN=${HOSTNAME}
-  elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
+    LETSENCRYPT_DOMAIN=${DMS_FQDN}
+  elif [[ -e /etc/letsencrypt/live/${DMS_DOMAINNAME}/fullchain.pem ]]
   then
-    LETSENCRYPT_DOMAIN=${DOMAINNAME}
+    LETSENCRYPT_DOMAIN=${DMS_DOMAINNAME}
   else
-    _log 'error' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
+    _log 'error' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${DMS_FQDN}', '${DMS_DOMAINNAME}'"
     dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_domain'
   fi
 

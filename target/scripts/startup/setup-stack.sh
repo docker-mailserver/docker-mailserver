@@ -65,7 +65,7 @@ function _setup_file_permissions
 function _setup_mailname
 {
   _log 'debug' "Setting up mailname and creating '/etc/mailname'"
-  echo "${DOMAINNAME}" >/etc/mailname
+  echo "${DMS_DOMAINNAME}" >/etc/mailname
 }
 
 function _setup_amavis
@@ -74,7 +74,7 @@ function _setup_amavis
   then
     _log 'debug' 'Setting up Amavis'
     sed -i \
-      "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
+      "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${DMS_FQDN}\";|" \
       /etc/amavis/conf.d/05-node_id
   else
     _log 'debug' "Removing Amavis from Postfix's configuration"
@@ -114,23 +114,23 @@ function _setup_dmarc_hostname
 {
   _log 'debug' 'Setting up DMARC'
   sed -i -e \
-    "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
-    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${HOSTNAME}|g" \
+    "s|^AuthservID.*$|AuthservID          ${DMS_FQDN}|g" \
+    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${DMS_FQDN}|g" \
     /etc/opendmarc.conf
 }
 
 function _setup_postfix_hostname
 {
   _log 'debug' 'Applying hostname and domainname to Postfix'
-  postconf "myhostname = ${HOSTNAME}"
-  postconf "mydomain = ${DOMAINNAME}"
+  postconf "myhostname = ${DMS_FQDN}"
+  postconf "mydomain = ${DMS_DOMAINNAME}"
 }
 
 function _setup_dovecot_hostname
 {
   _log 'debug' 'Applying hostname to Dovecot'
   sed -i \
-    "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" \
+    "s|^#hostname =.*$|hostname = '${DMS_FQDN}'|g" \
     /etc/dovecot/conf.d/15-lda.conf
 }
 
@@ -1005,7 +1005,7 @@ function _setup_mail_summary
       cat >/etc/cron.daily/postfix-summary << EOM
 #!/bin/bash
 
-/usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
+/usr/local/bin/report-pflogsumm-yesterday ${DMS_FQDN} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
 EOM
 
       chmod +x /etc/cron.daily/postfix-summary
@@ -1015,7 +1015,7 @@ EOM
       _log 'debug' "${ENABLED_MESSAGE}"
       _log 'trace' 'Add postrotate action for pflogsumm report'
       sed -i \
-        "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" \
+        "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${DMS_FQDN} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" \
         /etc/logrotate.d/maillog
       ;;
 
@@ -1053,7 +1053,7 @@ function _setup_logwatch
       cat >"${LOGWATCH_FILE}" << EOM
 #!/bin/bash
 
-/usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
+/usr/sbin/logwatch ${INTERVAL} --hostname ${DMS_FQDN} --mailto ${LOGWATCH_RECIPIENT}
 EOM
       chmod 744 "${LOGWATCH_FILE}"
       ;;
