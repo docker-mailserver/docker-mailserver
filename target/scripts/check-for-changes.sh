@@ -96,12 +96,6 @@ function _reload_amavis
   fi
 }
 
-function _reload_postfix
-{
-  _adjust_mtime_for_postfix_maincf
-  postfix reload
-}
-
 # Also note that changes are performed in place and are not atomic
 # We should fix that and write to temporary files, stop, swap and start
 function _postfix_dovecot_changes

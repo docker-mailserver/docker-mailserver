@@ -57,3 +57,9 @@ function _adjust_mtime_for_postfix_maincf
     touch -d '2 seconds ago' /etc/postfix/main.cf
   fi
 }
+
+function _reload_postfix
+{
+  _adjust_mtime_for_postfix_maincf
+  postfix reload
+}
