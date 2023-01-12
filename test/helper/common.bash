@@ -28,6 +28,14 @@ function _default_teardown() {
   docker rm -f "${CONTAINER_NAME}"
 }
 
+function _reload_postfix() {
+  local CONTAINER_NAME=${1:-${CONTAINER_NAME}}
+
+  # Reloading Postfix config after modifying it in <2 sec will cause Postfix to delay, workaround that:
+  docker exec "${CONTAINER_NAME}" touch -d '2 seconds ago' /etc/postfix/main.cf
+  docker exec "${CONTAINER_NAME}" postfix reload
+}
+
 # -------------------------------------------------------------------
 
 # @param ${1} program name [REQUIRED]

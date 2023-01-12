@@ -59,7 +59,7 @@ function _check_for_changes
     _log_with_date 'debug' 'Reloading services due to detected changes'
 
     [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
-    postfix reload
+    _reload_postfix
     [[ ${SMTP_ONLY} -ne 1 ]] && dovecot reload
 
     _remove_lock

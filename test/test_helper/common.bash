@@ -9,6 +9,14 @@ NAME=${NAME:-mailserver-testing:ci}
 TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS:-120}
 NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES:-10}
 
+function _reload_postfix() {
+  local CONTAINER_NAME=$1
+
+  # Reloading Postfix config after modifying it in <2 sec will cause Postfix to delay, workaround that:
+  docker exec "${CONTAINER_NAME}" touch -d '2 seconds ago' /etc/postfix/main.cf
+  docker exec "${CONTAINER_NAME}" postfix reload
+}
+
 # @param ${1} timeout
 # @param --fatal-test <command eval string> additional test whose failure aborts immediately
 # @param ... test to run

@@ -54,6 +54,7 @@ function _handle_postfix_aliases_config
   local DATABASE_ALIASES='/tmp/docker-mailserver/postfix-aliases.cf'
   [[ -f ${DATABASE_ALIASES} ]] && cat "${DATABASE_ALIASES}" >>/etc/aliases
 
+  _adjust_mtime_for_postfix_maincf
   postalias /etc/aliases
 }
 
