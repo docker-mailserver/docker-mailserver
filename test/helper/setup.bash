@@ -111,9 +111,9 @@ function common_container_create() {
   run docker create \
     --tty \
     --name "${CONTAINER_NAME}" \
-    --hostname "${TEST_FQDN:-mail.example.test}" \
     --volume "${TEST_FILES_VOLUME}" \
     --volume "${TEST_CONFIG_VOLUME}" \
+    --env DMS_FQDN="${TEST_FQDN:-mail.example.test}" \
     --env ENABLE_AMAVIS=0 \
     --env ENABLE_CLAMAV=0 \
     --env ENABLE_UPDATE_CHECK=0 \
