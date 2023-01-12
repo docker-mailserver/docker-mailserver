@@ -7,59 +7,74 @@ function _get_label_count
   awk -F '.' '{ print NF }' <<< "${1}"
 }
 
-# Sets HOSTNAME and DOMAINNAME globals used throughout the scripts,
-# and any subprocesses called that intereact with it.
-function _obtain_hostname_and_domainname
+# This function is called very early during the setup process, directly after setting up Supervisor.
+# It will check whether DNS-related variables (https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#dns-names)
+# are set. If not, it will try to derive the values from the environment.
+function _obtain_dns_names
 {
-  # Normally this value would match the output of `hostname` which mirrors `/proc/sys/kernel/hostname`,
-  # However for legacy reasons, the system ENV `HOSTNAME` was replaced here with `hostname -f` instead.
-  #
-  # TODO: Consider changing to `DMS_FQDN`; a more accurate name, and removing the `export`, assuming no
-  # subprocess like postconf would be called that would need access to the same value via `$HOSTNAME` ENV.
-  #
-  # ! There is already a stub in variables.sh which contains DMS_FQDN. One will just need to uncomment the
-  # ! correct lines in variables.sh.
-  #
-  # TODO: `OVERRIDE_HOSTNAME` was introduced for non-Docker runtimes that could not configure an explicit hostname.
-  # Kubernetes was the particular runtime in 2017. This does not update `/etc/hosts` or other locations, thus risking
-  # inconsistency with expected behaviour. Investigate if it's safe to remove support. (--net=host also uses this as a workaround)
-  export HOSTNAME="${OVERRIDE_HOSTNAME:-$(hostname -f)}"
-
-  # If the container is misconfigured.. `hostname -f` (which derives it's return value from `/etc/hosts` or DNS query),
-  # will result in an error that returns an empty value. This warrants a panic.
-  if [[ -z ${HOSTNAME} ]]
+  # TODO remove when OVERRIDE_HOSTNAME is dropped in v13.0.0.
+  # We return early when OVERRIDE_HOSTNAME is set because it will be used to set the values
+  # of the other DNS related variables.
+  if [[ -n ${OVERRIDE_HOSTNAME+set} ]]
   then
-    dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
+    return 0
   fi
 
-  # If the `HOSTNAME` is more than 2 labels long (eg: mail.example.com),
-  # We take the FQDN from it, minus the 1st label (aka _short hostname_, `hostname -s`).
-  #
-  # TODO: For some reason we're explicitly separating out a domain name from our FQDN,
-  # `hostname -d` was probably not the correct command for this intention either.
-  # Needs further investigation for relevance, and if `/etc/hosts` is important for consumers
-  # of this variable or if a more deterministic approach with `cut` should be relied on.
-  if [[ $(_get_label_count "${HOSTNAME}") -gt 2 ]]
+  if [[ -n ${DMS_FQDN+set} ]]
   then
-    if [[ -n ${OVERRIDE_HOSTNAME} ]]
-    then
-      # Emulates the intended behaviour of `hostname -d`:
-      # Assign the HOSTNAME value minus everything up to and including the first `.`
-      DOMAINNAME=${HOSTNAME#*.}
-    else
-      # Operates on the FQDN returned from querying `/etc/hosts` or fallback DNS:
-      #
-      # Note if you want the actual NIS `domainname`, use the `domainname` command,
-      # or `cat /proc/sys/kernel/domainname`.
-      # Our usage of `domainname` is under consideration as legacy, and not advised
-      # going forward. In future our docs should drop any mention of it.
+    _log 'trace' "'DMS_FQDN' supplied"
+  else
+    _log 'debug' "'DMS_FQDN' not supplied; the value will be derived"
+    DMS_FQDN=$(hostname -f)
+    _log 'debug' "FQDN has been set to '${DMS_FQDN}'"
 
-      #shellcheck disable=SC2034
-      DOMAINNAME=$(hostname -d)
+  fi
+
+  # `hostname -f`, which derives it's return value from `/etc/hosts` or DNS query,
+  # will result in an error that returns an empty value. This warrants a panic.
+  if [[ -z ${DMS_FQDN} ]]
+  then
+    dms_panic__misconfigured 'DMS_FQDN' '/etc/hosts'
+  fi
+
+  # Check whether we're running a bare domain (i.e. if `DMS_FQDN`` is more than 2 labels
+  # long (eg: mail.example.test).
+  if [[ $(_get_label_count "${DMS_FQDN}") -gt 2 ]]
+  then
+    # using a subdomain
+    if [[ -n ${DMS_DOMAINNAME+set} ]]
+    then
+      _log 'trace' "'DMS_DOMAINNAME' supplied"
+    else
+      _log 'debug' "'DMS_DOMAINNAME' not supplied; the value will be derived"
+      # https://devhints.io/bash#parameter-expansions
+      DMS_DOMAINNAME=${DMS_FQDN#*.}
+    fi
+    if [[ -n ${DMS_HOSTNAME+set} ]]
+    then
+      _log 'trace' "'DMS_HOSTNAME' supplied"
+    else
+      _log 'debug' "'DMS_HOSTNAME' not supplied; the value will be derived"
+      DMS_HOSTNAME=$(cut -d '.' -f 1 <<< "${DMS_FQDN}")
+    fi
+  else
+    # bare domain
+    _log 'debug' 'Detected a bare domain setup'
+
+    # small sanity check
+    if [[ -n ${DMS_HOSTNAME+set} ]]
+    then
+      _log 'warn' "Running a bare domain setup but 'DMS_HOSTNAME' is set - this does not make sense!"
+      _log 'warn' "Emptying 'DMS_HOSTNAME' now"
+    fi
+    DMS_HOSTNAME=
+
+    if [[ -n ${DMS_DOMAINNAME+set} ]]
+    then
+      _log 'trace' "'DMS_DOMAINNAME' supplied"
+    else
+      _log 'debug' "'DMS_DOMAINNAME' not supplied; the value will be derived"
+      DMS_DOMAINNAME=${DMS_FQDN}
     fi
   fi
-
-  # Otherwise we assign the same value (eg: example.com):
-  # Not an else statement in the previous conditional in the event that `hostname -d` fails.
-  DOMAINNAME="${DOMAINNAME:-${HOSTNAME}}"
 }

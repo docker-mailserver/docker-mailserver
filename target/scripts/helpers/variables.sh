@@ -17,13 +17,32 @@ function _environment_variables_backwards_compatibility
     ACCOUNT_PROVISIONER='LDAP'
   fi
 
-  # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
-  # TODO see check_for_changes.sh and dns.sh
-  # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
-  # then
-  #   _log 'warn' "'OVERRIDE_HOSTNAME' is deprecated (and will be removed in v13.0.0) => use 'DMS_FQDN' instead"
-  #   [[ -z ${DMS_FQDN} ]] && DMS_FQDN=${OVERRIDE_HOSTNAME}
-  # fi
+  if [[ -n ${OVERRIDE_HOSTNAME+set} ]]
+  then
+    # when OVERRIDE_HOSTNAME is set, it will override all other DNS
+    # names because it has "a stronger binding" as it is older.
+
+    _log 'warn' "'OVERRIDE_HOSTNAME' is deprecated (and will be removed in v13.0.0). See https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#override_hostname"
+    _log 'warn' "Setting 'DMS_FQDN' to 'OVERRIDE_HOSTNAME' and deriving 'DMS_DOMAINNAME' and 'DMS_HOSTNAME'"
+    DMS_FQDN=${OVERRIDE_HOSTNAME}
+
+    # check whether we're running a bare domain
+    if [[ $(_get_label_count "${OVERRIDE_HOSTNAME}") -gt 2 ]]
+    then
+      # using a subdomain
+      DMS_HOSTNAME=$(cut -d '.' -f 1 <<< "${OVERRIDE_HOSTNAME}")
+      # https://devhints.io/bash#parameter-expansions
+      DMS_DOMAINNAME=${OVERRIDE_HOSTNAME#*.}
+    else
+      # bare domain
+      _log 'warn' 'Detected a bare domain setup'
+      DMS_HOSTNAME=
+      DMS_DOMAINNAME=${OVERRIDE_HOSTNAME}
+    fi
+
+     _log 'warn' "'DMS_HOSTNAME' set to '${DMS_HOSTNAME}'"
+     _log 'warn' "'DMS_DOMAINNAME' set to '${DMS_DOMAINNAME}'"
+  fi
 }
 
 # This function Writes the contents of the `VARS` map (associative array)
@@ -101,11 +120,10 @@ function _environment_variables_general_setup
   _log 'trace' 'Setting IP, DNS and SSL environment variables'
 
   VARS[DEFAULT_RELAY_HOST]="${DEFAULT_RELAY_HOST:=}"
-  # VARS[DMS_FQDN]="${DMS_FQDN:=}"
-  # VARS[DMS_DOMAINNAME]="${DMS_DOMAINNAME:=}"
-  # VARS[DMS_HOSTNAME]="${DMS_HOSTNAME:=}"
+  VARS[DMS_FQDN]="${DMS_FQDN:=}"
+  VARS[DMS_DOMAINNAME]="${DMS_DOMAINNAME:=}"
+  VARS[DMS_HOSTNAME]="${DMS_HOSTNAME:=}"
   VARS[NETWORK_INTERFACE]="${NETWORK_INTERFACE:=eth0}"
-  VARS[OVERRIDE_HOSTNAME]="${OVERRIDE_HOSTNAME:-}"
   VARS[RELAY_HOST]="${RELAY_HOST:=}"
   VARS[SSL_TYPE]="${SSL_TYPE:=}"
   VARS[TLS_LEVEL]="${TLS_LEVEL:=modern}"
