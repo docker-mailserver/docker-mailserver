@@ -48,7 +48,9 @@ tests/serial: ALWAYS_RUN
 
 tests/parallel/set%: ALWAYS_RUN
 	@ shopt -s globstar ; ./test/bats/bin/bats $(BATS_FLAGS) \
-		--no-parallelize-within-files --jobs $(BATS_PARALLEL_JOBS) test/$@/**/*.bats
+		--no-parallelize-within-files \
+		--jobs $(BATS_PARALLEL_JOBS) \
+		test/$@/**/*.bats
 
 test/%: ALWAYS_RUN
 	@ shopt -s globstar nullglob ; ./test/bats/bin/bats $(BATS_FLAGS) test/tests/**/{$*,}.bats
