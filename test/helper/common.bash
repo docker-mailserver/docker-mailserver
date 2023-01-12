@@ -192,8 +192,8 @@ function _wait_until_expected_count_is_matched() {
     [[ $(__get_count) -ge "${EXPECTED_COUNT}" ]]
   }
 
-  local CONTAINER_NAME=$1
-  local EXPECTED_COUNT=$2
+  local CONTAINER_NAME=${1}
+  local EXPECTED_COUNT=${2}
 
   # Ensure early failure if arg is missing:
   assert_not_equal "${CONTAINER_NAME}" ''

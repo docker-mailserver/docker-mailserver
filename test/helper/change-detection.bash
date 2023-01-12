@@ -19,7 +19,7 @@ function wait_until_change_detection_event_completes() {
 }
 
 function _get_logs_since_last_change_detection() {
-  local CONTAINER_NAME=$1
+  local CONTAINER_NAME=${1}
   local MATCH_IN_FILE='/var/log/supervisor/changedetector.log'
   local MATCH_STRING='Change detected'
 

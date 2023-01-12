@@ -75,7 +75,7 @@ function teardown_file() {
 }
 
 function _should_perform_standard_change_event() {
-  local CONTAINER_NAME=$1
+  local CONTAINER_NAME=${1}
 
   # Wait for change detection event to start and complete processing:
   # NOTE: An explicit count is provided as the 2nd container may have already completed processing.
@@ -88,8 +88,8 @@ function _should_perform_standard_change_event() {
 }
 
 function _should_block_change_event_from_processing() {
-  local CONTAINER_NAME=$1
-  local EXPECTED_COUNT=$2
+  local CONTAINER_NAME=${1}
+  local EXPECTED_COUNT=${2}
 
   # Once the next change event has started, the processing blocked log ('another execution') should be present:
   wait_until_change_detection_event_begins "${CONTAINER_NAME}" "${EXPECTED_COUNT}"
@@ -135,5 +135,5 @@ function _prepare_blocking_lock_test {
 }
 
 function _create_change_event() {
-  echo '' >> "${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  echo '' >>"${TEST_TMP_CONFIG}/postfix-accounts.cf"
 }
