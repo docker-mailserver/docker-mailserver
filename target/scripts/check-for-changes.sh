@@ -10,16 +10,9 @@ source /usr/local/bin/helpers/index.sh
 _log_with_date 'debug' 'Starting changedetector'
 
 # ATTENTION: Do not remove!
-# This script requires some environment variables to be properly set.
-# POSTMASTER_ADDRESS (for helpers/alias.sh) is read from /etc/dms-settings
+# This script requires certain environment variables (DNS names, Postfix, etc.) to be properly set.
 # shellcheck source=/dev/null
 source /etc/dms-settings
-
-# HOSTNAME and DOMAINNAME are used by helpers/ssl.sh and _monitored_files_checksums
-# These are not stored in /etc/dms-settings
-# TODO: It is planned to stop overriding HOSTNAME and replace that
-# usage with DMS_HOSTNAME, which should remove the need to call this:
-_obtain_hostname_and_domainname
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]

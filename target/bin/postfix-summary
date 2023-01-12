@@ -3,7 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-HOSTNAME=${1}
+FQDN=${1}
 RECIPIENT=${2}
 SENDER=${3}
 
@@ -21,13 +21,13 @@ else
 In case of mail inactivity since the last report, this might be considered a nuisance warning.
 
 Yours faithfully,
-The ${HOSTNAME} Mailserver"
+The ${FQDN} Mailserver"
 fi
 
 sendmail -t <<EOF
 From: ${SENDER}
 To: ${RECIPIENT}
-Subject: Postfix Summary for ${HOSTNAME}
+Subject: Postfix Summary for ${FQDN}
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset=UTF-8
 

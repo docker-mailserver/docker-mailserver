@@ -7,7 +7,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-HOSTNAME=${1}
+FQDN=${1}
 RECIPIENT=${2}
 SENDER=${3}
 
@@ -19,7 +19,7 @@ BODY=$(gzip -cdfq $(ls -tr /var/log/mail/mail.log*) | /usr/sbin/pflogsumm --prob
 sendmail -t <<EOF
 From: ${SENDER}
 To: ${RECIPIENT}
-Subject: Postfix summary for ${HOSTNAME} sent $(date '+%Y-%m-%d_%H%M%S')
+Subject: Postfix summary for ${FQDN} sent $(date '+%Y-%m-%d_%H%M%S')
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset=UTF-8
 
