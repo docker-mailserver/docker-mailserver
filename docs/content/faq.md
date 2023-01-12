@@ -124,24 +124,18 @@ environment:
   - "SA_SPAM_SUBJECT=[SPAM] "
 ```
 
-### Can I use naked/bare domains (no host name)?
+### Can I use naked / bare domains (i.e. no hostname)?
 
-Yes, but not without some configuration changes. Normally it is assumed that `docker-mailserver` runs on a host with a name, so the fully qualified host name might be `mail.example.com` with the domain `example.com`. The MX records point to `mail.example.com`.
+Yes, but not without some configuration changes. Normally it is assumed that `docker-mailserver` runs on a host with a name, so the fully qualified host name might be `mail.example.test` with the domain `example.test`. The MX records point to `mail.example.test`.
 
-To use a bare domain (_where the host name is `example.com` and the domain is also `example.com`_), change `mydestination`:
+To use a bare domain (_where the host name is `example.test` and the domain is also `example.test`_), change `mydestination`:
 
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that `OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file (see [#1731](https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425)). Without these changes there will be warnings in the logs like:
+Add the latter line to `docker-data/dms/config/postfix-main.cf`. Make sure that the environment variable `DMS_HOSTNAME` is empty. The environment variable `DMS_FQDN` should equal `DMS_DOMAINNAME`.
 
-```log
-warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
-```
-
-Plus of course mail delivery fails.
-
-Also you need to define `hostname: example.com` in your docker-compose.yml and don't sepecify the `domainname:` at all.
+You may also define `hostname: example.test` in your `docker-compose.yml` and don't sepecify `domainname:` at all. Setting [the appropriate environment variables][docs-dns_names] suffices though.
 
 ### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
@@ -447,6 +441,7 @@ Use the following command:
 The default bantime is 180 days. This value can be [customized][fail2ban-customize].
 
 [fail2ban-customize]: ./config/security/fail2ban.md
+[docs-dns_names]: ./config/environment.md#dns-names
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95

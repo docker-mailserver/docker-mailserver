@@ -121,7 +121,7 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
     !!! example
 
         Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
-    
+
         ```yaml
         services:
           mailserver:
@@ -169,7 +169,7 @@ Obtain a Cloudflare API token:
 3. Click "Create Token", and choose the `Edit zone DNS` template (_Certbot [requires the `ZONE:DNS:Edit` permission](https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials)_).
 
     !!! warning "Only include the necessary Zone resource configuration"
-    
+
         Be sure to configure "Zone Resources" section on this page to `Include -> Specific zone -> <your zone here>`.
 
         This restricts the API token to only this zone (domain) which is an important security measure.
@@ -264,7 +264,7 @@ After completing the steps above, your certificate should be ready to use.
     ```
 
     You can manually run this service to renew the cert within 90 days:
-    
+
     ```sh
     docker-compose run certbot-cloudflare-renew
     ```
@@ -274,14 +274,14 @@ After completing the steps above, your certificate should be ready to use.
 
     ```log
     Saving debug log to /var/log/letsencrypt/letsencrypt.log
-    
+
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Processing /etc/letsencrypt/renewal/mail.example.com.conf
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Account registered.
     Simulating renewal of an existing certificate for mail.example.com
     Waiting 10 seconds for DNS changes to propagate
-    
+
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Congratulations, all simulated renewals succeeded:
       /etc/letsencrypt/live/mail.example.com/fullchain.pem (success)
@@ -628,8 +628,8 @@ Wildcard certificates are supported. If your FQDN is `mail.example.com` and your
 The mail-server will select it's certificate from `acme.json` checking these ENV for a matching FQDN (_in order of priority_):
 
 1. `#!bash ${SSL_DOMAIN}`
-2. `#!bash ${HOSTNAME}`
-3. `#!bash ${DOMAINNAME}`
+2. `#!bash ${DMS_FQDN}`
+3. `#!bash ${DMS_DOMAINNAME}`
 
 This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from _Let's Encrypt_, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
 
@@ -864,7 +864,7 @@ export SITE_URL="mail.example.com"
 export SITE_IP_URL="192.168.0.72" # can also use `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
 
-##works: check if certificate will expire in two weeks 
+##works: check if certificate will expire in two weeks
 #2 weeks is 1209600 seconds
 #3 weeks is 1814400
 #12 weeks is 7257600
@@ -921,7 +921,7 @@ if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
     echo "Cert seems to be expiring pretty soon, within two weeks: $certcheck_2weeks"
     echo "we will send an alert email and log as well"
     logger Certwatch: cert $SITE_URL will expire in two weeks
-    echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR 
+    echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR
 fi
 ```
 

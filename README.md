@@ -95,7 +95,7 @@ chmod a+x ./setup.sh
    - if you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
 3. Configure the mailserver container to your liking by editing `mailserver.env` ([**Documentation**](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)), but keep in mind this `.env` file:
    - [_only_ basic `VAR=VAL`](https://docs.docker.com/compose/env-file/) is supported (**do not** quote your values!)
-   - variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
+   - variable substitution is **not** supported (e.g. :no_entry_sign: `DMS_FQDN=$DMS_HOSTNAME.$DMS_DOMAINNAME` :no_entry_sign:)
 
 **Note:** If you're using podman, make sure to read the related [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/)
 

@@ -35,7 +35,9 @@ immutable: false
 data:
   TLS_LEVEL: modern
   POSTSCREEN_ACTION: drop
-  OVERRIDE_HOSTNAME: mail.example.com
+  DMS_FQDN: mail.example.com
+  DMS_DOMAINNAME: example.com
+  DMS_HOSTNAME: mail
   FAIL2BAN_BLOCKTYPE: drop
   POSTMASTER_ADDRESS: postmaster@example.com
   UPDATE_CHECK_INTERVAL: 10d
@@ -287,7 +289,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: data
-        
+
         # certificates
         - name: certificates-rsa
           secret:
@@ -401,7 +403,7 @@ metadata:
 # ...
     spec:
       hostNetwork: true
-    
+
     # ...
       containers:
         # ...

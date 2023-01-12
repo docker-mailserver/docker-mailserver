@@ -8,12 +8,27 @@ title: Environment Variables
 
 #### General
 
-##### OVERRIDE_HOSTNAME
+##### OVERRIDE_HOSTNAME \[DEPRECATED\]
 
-- **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
-- => Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will take priority over `docker run` options: `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents: `hostname:` and `domainname:`.
+**This environment variable will be removed in `v13.0.0`!** Use the [new environment variables for DNS names](#dns-names).
 
-##### DMS_DEBUG
+##### DNS Names
+
+**We strongly encourage everyone to set these values!** This ensures all DNS-related names are properly set. Deriving these names can potentially result in wrong values.
+
+###### DMS_FQDN
+
+Provide the complete fully-qualified domain name of your mail server. In case you own the domain `example.test` and your mail server runs on the subdomain `mail`, the value of this variable should be `mail.example.test`. If your are using a bare domain for your mail server (i.e. no subdomain), just use `example.test`.
+
+###### DMS_DOMAINNAME
+
+Provide only the domain that your mail server is running on. In case you own the domain `example.test` and your mail server runs on the subdomain `mail`, the value of this variable should be `example.test`.
+
+###### DMS_HOSTNAME
+
+Provide only the hostname of your mail server. In case you own the domain `example.test` and your mail server runs on the subdomain `mail`, the value of this variable should be `mail`. If your are using a bare domain for your mail server (i.e. no subdomain), this variable should be empty.
+
+##### DMS_DEBUG \[DEPRECATED & REMOVED\]
 
 **This environment variable was removed in `v11.0.0`!** Use `LOG_LEVEL` instead.
 
