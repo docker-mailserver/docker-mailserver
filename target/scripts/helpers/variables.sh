@@ -40,8 +40,8 @@ function _environment_variables_backwards_compatibility
       DMS_DOMAINNAME=${OVERRIDE_HOSTNAME}
     fi
 
-     _log 'warn' "'DMS_HOSTNAME' set to '${DMS_HOSTNAME}'"
-     _log 'warn' "'DMS_DOMAINNAME' set to '${DMS_DOMAINNAME}'"
+    _log 'warn' "'DMS_HOSTNAME' set to '${DMS_HOSTNAME}'"
+    _log 'warn' "'DMS_DOMAINNAME' set to '${DMS_DOMAINNAME}'"
   fi
 }
 

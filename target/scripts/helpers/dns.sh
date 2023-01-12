@@ -8,9 +8,17 @@ function _get_label_count
 }
 
 # This function is called very early during the setup process, directly after setting up Supervisor.
-# It will check whether DNS-related variables (https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#dns-names)
+#
+# ATTENTION: This function should only be called once! If you need access to ENV
+# variables, use `source /etc/dms-settings`.
+#
+# This function will check whether DNS-related variables
+# (https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#dns-names)
 # are set. If not, it will try to derive the values from the environment.
-function _obtain_dns_names
+#
+# NOTE: This function touches `/etc/hostname` and `/etc/hosts` to ensure they are in-sync
+# with DMS. This is required as some tools (like `openssl`) use these files.
+function _handle_dns_names
 {
   # TODO remove when OVERRIDE_HOSTNAME is dropped in v13.0.0.
   # We return early when OVERRIDE_HOSTNAME is set because it will be used to set the values
@@ -57,6 +65,8 @@ function _obtain_dns_names
       _log 'debug' "'DMS_HOSTNAME' not supplied; the value will be derived"
       DMS_HOSTNAME=$(cut -d '.' -f 1 <<< "${DMS_FQDN}")
     fi
+
+    echo "${DMS_HOSTNAME}" >/etc/hostname
   else
     # bare domain
     _log 'debug' 'Detected a bare domain setup'
@@ -76,5 +86,27 @@ function _obtain_dns_names
       _log 'debug' "'DMS_DOMAINNAME' not supplied; the value will be derived"
       DMS_DOMAINNAME=${DMS_FQDN}
     fi
+
+    echo "${DMS_FQDN}" >/etc/hostname
+  fi
+
+  # handle /etc/hosts as well
+  # tools like `openssl` require this to be correctc
+  echo " IP              FQDN (CANONICAL_HOSTNAME)    ALIASES
+# --------------  ---------------------------  -----------------------
+
+127.0.0.1         localhost
+127.0.1.1         ${DMS_FQDN}   ${DMS_HOSTNAME}" >/etc/hosts 2>/dev/null
+
+  if [[ $(tr -d '\n' < /sys/module/ipv6/parameters/disable) -eq 0 ]]
+  then
+    echo "
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters" >>/etc/hosts 2>/dev/null
   fi
 }

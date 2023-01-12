@@ -38,7 +38,7 @@ source /usr/local/bin/daemons-stack.sh
 source /usr/local/bin/helpers/variables.sh
 
 _setup_supervisor
-_obtain_dns_names
+_handle_dns_names
 _environment_variables_backwards_compatibility
 _environment_variables_general_setup
 
