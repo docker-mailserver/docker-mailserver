@@ -6,9 +6,6 @@
 docs/site/
 docker-data/
 
-config.bak
-testconfig.bak
-
 #################################################
 ###  IDEs  ######################################
 #################################################
@@ -20,23 +17,6 @@ testconfig.bak
 ###  Tests  #####################################
 #################################################
 
-test/onedir/
 test/duplicate_configs/
-test/alias/
-test/quota/
-test/relay/
-test/config/key*
-test/config/empty/
 test/config/dovecot-masters.cf
-test/config/dovecot-lmtp/userdb
-test/config/opendkim/keys/domain.tld/
-test/config/opendkim/keys/example.com/
-test/config/opendkim/keys/localdomain2.com/
 test/config/postfix-accounts.cf
-test/config/postfix-aliases.cf
-test/config/postfix-receive-access.cf
-test/config/postfix-receive-access.cfe
-test/config/postfix-send-access.cf
-test/config/postfix-send-access.cfe
-test/config/relay-hosts/chksum
-test/config/relay-hosts/postfix-aliases.cf
