@@ -9,6 +9,7 @@ function setup_file() {
     -t "${NAME}"
 
   wait_for_finished_setup_in_container mail_smtponly
+  wait_for_smtp_port_in_container mail_smtponly
 }
 
 function teardown_file() {
