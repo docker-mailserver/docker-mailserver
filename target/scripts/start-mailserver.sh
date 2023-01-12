@@ -138,7 +138,7 @@ function _register_functions
   _register_setup_function '_setup_postfix_access_control'
   _register_setup_function '_setup_postfix_relay_hosts'
 
-  [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT:-0} -eq 1 ]] && _register_setup_function '_setup_postfix_virtual_transport'
+  [[ -n ${POSTFIX_DAGENT} ]] && _register_setup_function '_setup_postfix_virtual_transport'
 
   _register_setup_function '_setup_postfix_override_configuration'
   _register_setup_function '_setup_logrotate'
