@@ -75,7 +75,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
 
   assert_success
-  assert_output 6
+  assert_output 10
 
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/keyDefault/opendkim":/etc/opendkim \
@@ -105,7 +105,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 4096 | wc -l'
 
   assert_success
-  assert_output 6
+  assert_output 10
 
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
@@ -135,7 +135,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 | wc -l'
 
   assert_success
-  assert_output 6
+  assert_output 10
 
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
@@ -165,7 +165,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 1024 | wc -l'
 
   assert_success
-  assert_output 6
+  assert_output 10
 
   run docker run --rm \
     -v "${PRIVATE_CONFIG}/key1024/opendkim":/etc/opendkim \
@@ -191,7 +191,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
 
   assert_success
-  assert_output 6
+  assert_output 10
 
   # check keys for localhost.localdomain
   run docker run --rm \
@@ -232,7 +232,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
 
   assert_success
-  assert_output 5
+  assert_output 9
 
   # check keys for localhost.localdomain
   run docker run --rm \
@@ -274,7 +274,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
 
   assert_success
-  assert_output 5
+  assert_output 9
 
   # check keys for localhost.localdomain
   run docker run --rm \
@@ -316,7 +316,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain domain1.tld | wc -l'
 
   assert_success
-  assert_output 4
+  assert_output 8
 
   # generate two additional keys different to the previous one
   run docker run --rm \
@@ -325,7 +325,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain "domain2.tld,domain3.tld" | wc -l'
 
   assert_success
-  assert_output 2
+  assert_output 6
 
   # generate an additional key whilst providing already existing domains
   run docker run --rm \
@@ -334,7 +334,7 @@ function teardown_file
     "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain "domain3.tld,domain4.tld" | wc -l'
 
   assert_success
-  assert_output 1
+  assert_output 5
 
   # check keys for domain1.tld
   run docker run --rm \
@@ -414,7 +414,7 @@ function teardown_file
     "${IMAGE_NAME:?}" /bin/sh -c "open-dkim keysize 2048 domain 'domain1.tld' selector mailer| wc -l"
 
   assert_success
-  assert_output 4
+  assert_output 8
 
   # Check keys for domain1.tld
   run docker run --rm \
