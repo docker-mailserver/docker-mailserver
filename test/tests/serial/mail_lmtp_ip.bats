@@ -3,6 +3,8 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 
 # Originally contributed Jan 2017:
 # https://github.com/docker-mailserver/docker-mailserver/pull/461
+# Refactored with additional insights:
+# https://github.com/docker-mailserver/docker-mailserver/pull/3004
 
 # NOTE: Purpose of feature is to use an ENV instead of providing a `postfix-main.cf`
 # to configure a URI for sending mail to an alternative LMTP server.
