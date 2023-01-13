@@ -136,7 +136,11 @@ function teardown_file() { _default_teardown ; }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
 @test "delivers mail to existing account" {
-  _run_in_container bash -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s \" \""
+  # NOTE: Matched log lines should look similar to:
+  # postfix/lmtp[1274]: 0EA424ABE7D9: to=<user1@localhost.localdomain>, relay=127.0.0.1[127.0.0.1]:24, delay=0.13, delays=0.07/0.01/0.01/0.05, dsn=2.0.0, status=sent (250 2.0.0 <user1@localhost.localdomain> ixPpB+Zvv2P7BAAAUi6ngw Saved)
+  local LOG_DELIVERED='postfix/lmtp.* status=sent .* Saved)'
+  local FORMAT_LINES="sed 's/.* to=</</g' | sed 's/, relay.*//g' | sort | uniq -c | tr -s ' '"
+  _run_in_container bash -c "grep '${LOG_DELIVERED}' /var/log/mail/mail.log | ${FORMAT_LINES}"
   assert_success
 
   assert_output --partial '1 <added@localhost.localdomain>'
