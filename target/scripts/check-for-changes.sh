@@ -9,16 +9,16 @@ source /usr/local/bin/helpers/index.sh
 
 _log_with_date 'debug' 'Starting changedetector'
 
-# ATTENTION: Do not remove!
-# This script requires certain environment variables (DNS names, Postfix, etc.) to be properly set.
-# shellcheck source=/dev/null
-source /etc/dms-settings
+if [[ -f /etc/dms-settings ]]
+then
+  # shellcheck source=/dev/null
+  source /etc/dms-settings
+else
+  _handle_dns_names
+fi
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
-if [[ ! -f ${CHKSUM_FILE} ]]
-then
-  _exit_with_error "'${CHKSUM_FILE}' is missing" 0
-fi
+[[ -f ${CHKSUM_FILE} ]] || _exit_with_error "'${CHKSUM_FILE}' is missing" 0
 
 _log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 

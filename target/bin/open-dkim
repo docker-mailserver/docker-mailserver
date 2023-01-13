@@ -2,8 +2,14 @@
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
-# shellcheck source=/dev/null
-source /etc/dms-settings
+
+if [[ -f /etc/dms-settings ]]
+then
+  # shellcheck source=/dev/null
+  source /etc/dms-settings
+else
+  _handle_dns_names
+fi
 
 KEYSIZE=4096
 SELECTOR=mail

@@ -177,7 +177,7 @@ function wait_for_changes_to_be_detected_in_container() {
   local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
 
   # shellcheck disable=SC2016
-  repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /etc/dms-settings; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
+  repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _handle_dns_names; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
 }
 
 # NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
