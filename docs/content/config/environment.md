@@ -18,15 +18,15 @@ title: Environment Variables
 
 ###### DMS_FQDN
 
-Provide the complete fully-qualified domain name of your mail server. In case you own the domain `example.test` and your mail server runs on the subdomain `mail`, the value of this variable should be `mail.example.test`. If your are using a bare domain for your mail server (i.e. no subdomain), just use `example.test`.
+Provide the complete fully-qualified domain name of your mail server. In case you own the domain `example.com` and your mail server runs on the subdomain `mail`, the value of this variable should be `mail.example.com`. If your are using a bare domain for your mail server (i.e. no subdomain), just use `example.com`.
 
 ###### DMS_DOMAINNAME
 
-Provide only the domain that your mail server is running on. In case you own the domain `example.test` and your mail server runs on the subdomain `mail`, the value of this variable should be `example.test`.
+Provide only the domain that your mail server is running on. In case you own the domain `example.com` and your mail server runs on the subdomain `mail`, the value of this variable should be `example.com`.
 
 ###### DMS_HOSTNAME
 
-Provide only the hostname of your mail server. In case you own the domain `example.test` and your mail server runs on the subdomain `mail`, the value of this variable should be `mail`. If your are using a bare domain for your mail server (i.e. no subdomain), this variable should be empty.
+Provide only the hostname of your mail server. In case you own the domain `example.com` and your mail server runs on the subdomain `mail`, the value of this variable should be `mail`. If your are using a bare domain for your mail server (i.e. no subdomain), this variable should be empty.
 
 ##### DMS_DEBUG \[DEPRECATED & REMOVED\]
 
