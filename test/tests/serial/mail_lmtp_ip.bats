@@ -1,44 +1,49 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-setup_file() {
-  local PRIVATE_CONFIG PRIVATE_ETC
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
-  PRIVATE_ETC=$(duplicate_config_for_container dovecot-lmtp/ mail_lmtp_ip_dovecot-lmtp)
+# Originally contributed Jan 2017:
+# https://github.com/docker-mailserver/docker-mailserver/pull/461
 
-  docker run -d --name mail_lmtp_ip \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "${PRIVATE_ETC}":/etc/dovecot \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1 \
-    -e POSTFIX_DAGENT=lmtp:127.0.0.1:24 \
-    -e PERMIT_DOCKER=container \
-    -h mail.my-domain.com -t "${NAME}"
+# NOTE: Purpose of feature is to use an ENV instead of providing a `postfix-main.cf`
+# to configure a URI for sending mail to an alternative LMTP server.
+# TODO: A more appropriate test if keeping this feature would be to run Dovecot via a
+# separate container to deliver mail to, and verify it was stored in the expected mail dir.
 
-  wait_for_finished_setup_in_container mail_lmtp_ip
+BATS_TEST_NAME_PREFIX='[ENV] (POSTFIX_DAGENT)'
+CONTAINER_NAME='dms-test_env_postfix-dagent'
+
+function setup_file() {
+  export LMTP_URI='lmtp:127.0.0.1:24'
+  init_with_defaults
+
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env PERMIT_DOCKER='container'
+    --env POSTFIX_DAGENT="${LMTP_URI}"
+  )
+
+  # Configure LMTP service listener in `/etc/dovecot/conf.d/10-master.conf` to instead listen on TCP port 24:
+  mv "${TEST_TMP_CONFIG}/dovecot-lmtp/user-patches.sh" "${TEST_TMP_CONFIG}/"
+
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 }
 
-teardown_file() {
-  docker rm -f mail_lmtp_ip
-}
+function teardown_file() { _default_teardown ; }
 
-#
-# Postfix VIRTUAL_TRANSPORT
-#
-@test "checking postfix-lmtp: virtual_transport config is set" {
-  run docker exec mail_lmtp_ip /bin/sh -c "grep 'virtual_transport = lmtp:127.0.0.1:24' /etc/postfix/main.cf"
+@test "should have updated the value of 'main.cf:virtual_transport'" {
+  _run_in_container grep "virtual_transport = ${LMTP_URI}" /etc/postfix/main.cf
   assert_success
 }
 
-@test "checking postfix-lmtp: delivers mail to existing account" {
-  # maybe we can move this into the setup to speed things up further.
-  # this likely would need an async coroutine to avoid blocking the other tests while waiting for the server to come up
-  wait_for_smtp_port_in_container mail_lmtp_ip
-  run docker exec mail_lmtp_ip /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+@test "delivers mail to existing account" {
+  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+
+  # Send a test mail:
+  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
 
-  # polling needs to avoid wc -l's unconditionally successful return status
-  repeat_until_success_or_timeout 60 docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)'"
-  run docker exec mail_lmtp_ip /bin/sh -c "grep 'postfix/lmtp' /var/log/mail/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
+  # Verify delivery was successful, log line should look similar to:
+  # postfix/lmtp[1274]: 0EA424ABE7D9: to=<user1@localhost.localdomain>, relay=127.0.0.1[127.0.0.1]:24, delay=0.13, delays=0.07/0.01/0.01/0.05, dsn=2.0.0, status=sent (250 2.0.0 <user1@localhost.localdomain> ixPpB+Zvv2P7BAAAUi6ngw Saved)
+  local MATCH_LOG_LINE='postfix/lmtp.* status=sent .* Saved)'
+  run timeout 60 docker exec "${CONTAINER_NAME}" bash -c "tail -F /var/log/mail/mail.log | grep --max-count 1 '${MATCH_LOG_LINE}'"
   assert_success
-  assert_output 1
 }
