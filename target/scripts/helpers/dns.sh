@@ -90,23 +90,8 @@ function _handle_dns_names
     echo "${DMS_FQDN}" >/etc/hostname
   fi
 
-  # handle /etc/hosts as well
-  # tools like `openssl` require this to be correctc
-  echo " IP              FQDN (CANONICAL_HOSTNAME)    ALIASES
-# --------------  ---------------------------  -----------------------
-
-127.0.0.1         localhost
-127.0.1.1         ${DMS_FQDN}   ${DMS_HOSTNAME}" >/etc/hosts 2>/dev/null
-
-  if [[ $(tr -d '\n' < /sys/module/ipv6/parameters/disable) -eq 0 ]]
-  then
-    echo "
-
-# The following lines are desirable for IPv6 capable hosts
-::1     ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters" >>/etc/hosts 2>/dev/null
-  fi
+  # tools like `openssl` require `/etc/hosts` to have
+  # an entry for the FQDN and hostname; a loopback address is
+  # absolutely fine here
+  echo "127.0.0.2 ${DMS_FQDN} ${DMS_HOSTNAME}" >/etc/hosts 2>/dev/null
 }
