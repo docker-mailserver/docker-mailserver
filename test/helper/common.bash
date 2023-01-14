@@ -208,7 +208,7 @@ function _wait_until_expected_count_is_matched() {
   if [[ -z $EXPECTED_COUNT ]]
   then
     # +1 of starting count:
-    EXPECTED_COUNT=$(( $(__get_count) + 1 ))
+    EXPECTED_COUNT=$(bc <<< "$(__get_count) + 1")
   fi
 
   repeat_until_success_or_timeout 20 __has_expected_count
