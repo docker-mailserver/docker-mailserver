@@ -189,13 +189,11 @@ The changes on the configurations necessary to work with Active Directory (**onl
 ???+ example "Basic Setup"
 
     ```yaml
-    version: '3.8'
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
 
         ports:
           - "25:25"
@@ -243,7 +241,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - SASLAUTHD_LDAP_FILTER=(&(mail=%U@example.org)(objectClass=inetOrgPerson))
           # <<< SASL LDAP Authentication
 
-          - ONE_DIR=1
           - SSL_TYPE=letsencrypt
           - PERMIT_DOCKER=host
 
@@ -254,14 +251,11 @@ The changes on the configurations necessary to work with Active Directory (**onl
 ??? example "Kopano / Zarafa"
 
     ```yaml
-    version: '3.8'
-
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
 
         ports:
           - "25:25"
@@ -303,11 +297,9 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< Postfix Ldap Integration
 
           # >>> Kopano Integration
-          - ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
           - POSTFIX_DAGENT=lmtp:kopano:2003
           # <<< Kopano Integration
 
-          - ONE_DIR=1
           - SSL_TYPE=letsencrypt
           - PERMIT_DOCKER=host
 

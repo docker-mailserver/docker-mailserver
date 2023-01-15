@@ -737,17 +737,10 @@ function _setup_docker_permit
   esac
 }
 
-# Requires ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
 function _setup_postfix_virtual_transport
 {
-  _log 'trace' 'Setting up Postfix virtual transport'
-
-  if [[ -z ${POSTFIX_DAGENT} ]]
-  then
-    dms_panic__no_env 'POSTFIX_DAGENT' 'Postfix Setup [virtual_transport]'
-    return 1
-  fi
-
+  _log 'trace' "Changing Postfix virtual transport to '${POSTFIX_DAGENT}'"
+  # Default value in main.cf should be 'lmtp:unix:/var/run/dovecot/lmtp'
   postconf "virtual_transport = ${POSTFIX_DAGENT}"
 }
 

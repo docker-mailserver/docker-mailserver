@@ -197,22 +197,16 @@ Set how many days a virusmail will stay on the server before being deleted
 
 - **empty** => 7 days
 
-##### ENABLE_POSTFIX_VIRTUAL_TRANSPORT
-
-This Option is activating the Usage of POSTFIX_DAGENT to specify a ltmp client different from default dovecot socket.
-
-- **empty** => disabled
-- 1 => enabled
-
 ##### POSTFIX_DAGENT
 
-Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postfix
+Configure Postfix `virtual_transport` to deliver mail to a different LMTP client (_default is a unix socket to dovecot_).
 
-- **empty**: fail
+Provide any valid URI. Examples:
+
+- **empty** => `lmtp:unix:/var/run/dovecot/lmtp` (default, configured in Postfix `main.cf`)
 - `lmtp:unix:private/dovecot-lmtp` (use socket)
 - `lmtps:inet:<host>:<port>` (secure lmtp with starttls)
 - `lmtp:<kopano-host>:2003` (use kopano as mailstore)
-- etc.
 
 ##### POSTFIX\_MAILBOX\_SIZE\_LIMIT
 

@@ -57,7 +57,6 @@ function setup_file() {
   wait_for_smtp_port_in_container mail_srs_domainname
   wait_for_smtp_port_in_container mail_domainname
 
-  # postfix virtual transport lmtp
   docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 }
