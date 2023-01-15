@@ -57,10 +57,6 @@ function _start_daemon_postgrey
 function _start_daemon_fail2ban
 {
   touch /var/log/auth.log
-
-  # delete fail2ban.sock that probably was left here after container restart
-  [[ -e /var/run/fail2ban/fail2ban.sock ]] && rm /var/run/fail2ban/fail2ban.sock
-
   _default_start_daemon 'fail2ban'
 }
 
