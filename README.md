@@ -211,7 +211,7 @@ If you want to use a bare domain (`hostname` == `domainname`), see [FAQ](https:/
 
 #### SPF/Forwarding Problems
 
-If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.md) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
+If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.rst) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
 
 #### Ports
 
