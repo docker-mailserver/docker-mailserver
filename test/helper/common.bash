@@ -183,7 +183,9 @@ function wait_for_service() {
 # NOTE: Relies on ENV `LOG_LEVEL=debug` or higher
 function _wait_until_expected_count_is_matched() {
   function __get_count() {
-    docker exec "${CONTAINER_NAME}" grep --count "${MATCH_CONTENT}" "${MATCH_IN_LOG}"
+    # NOTE: `|| true` required due to `set -e` usage:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/2997#discussion_r1070583876
+    docker exec "${CONTAINER_NAME}" grep --count "${MATCH_CONTENT}" "${MATCH_IN_LOG}" || true
   }
 
   # WARNING: Keep in mind it is a '>=' comparison.
@@ -208,7 +210,7 @@ function _wait_until_expected_count_is_matched() {
   if [[ -z $EXPECTED_COUNT ]]
   then
     # +1 of starting count:
-    EXPECTED_COUNT=$(bc <<< "$(__get_count) + 1")
+    EXPECTED_COUNT=$(( $(__get_count) + 1 ))
   fi
 
   repeat_until_success_or_timeout 20 __has_expected_count
