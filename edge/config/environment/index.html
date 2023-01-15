@@ -640,13 +640,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_postfix_virtual_transport" class="md-nav__link">
-    ENABLE_POSTFIX_VIRTUAL_TRANSPORT
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#postfix_dagent" class="md-nav__link">
     POSTFIX_DAGENT
   </a>
@@ -2532,13 +2525,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_postfix_virtual_transport" class="md-nav__link">
-    ENABLE_POSTFIX_VIRTUAL_TRANSPORT
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#postfix_dagent" class="md-nav__link">
     POSTFIX_DAGENT
   </a>
@@ -3465,20 +3451,14 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <ul>
 <li><strong>empty</strong> =&gt; 7 days</li>
 </ul>
-<h5 id="enable_postfix_virtual_transport"><a class="toclink" href="#enable_postfix_virtual_transport">ENABLE_POSTFIX_VIRTUAL_TRANSPORT</a></h5>
-<p>This Option is activating the Usage of POSTFIX_DAGENT to specify a ltmp client different from default dovecot socket.</p>
-<ul>
-<li><strong>empty</strong> =&gt; disabled</li>
-<li>1 =&gt; enabled</li>
-</ul>
 <h5 id="postfix_dagent"><a class="toclink" href="#postfix_dagent">POSTFIX_DAGENT</a></h5>
-<p>Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postfix</p>
+<p>Configure Postfix <code>virtual_transport</code> to deliver mail to a different LMTP client (<em>default is a unix socket to dovecot</em>).</p>
+<p>Provide any valid URI. Examples:</p>
 <ul>
-<li><strong>empty</strong>: fail</li>
+<li><strong>empty</strong> =&gt; <code>lmtp:unix:/var/run/dovecot/lmtp</code> (default, configured in Postfix <code>main.cf</code>)</li>
 <li><code>lmtp:unix:private/dovecot-lmtp</code> (use socket)</li>
 <li><code>lmtps:inet:&lt;host&gt;:&lt;port&gt;</code> (secure lmtp with starttls)</li>
 <li><code>lmtp:&lt;kopano-host&gt;:2003</code> (use kopano as mailstore)</li>
-<li>etc.</li>
 </ul>
 <h5 id="postfix_mailbox_size_limit"><a class="toclink" href="#postfix_mailbox_size_limit">POSTFIX_MAILBOX_SIZE_LIMIT</a></h5>
 <p>Set the mailbox size limit for all users. If set to zero, the size will be unlimited (default).</p>
