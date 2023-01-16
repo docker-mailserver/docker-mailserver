@@ -77,15 +77,46 @@ function teardown_file() { _default_teardown ; }
 
 function _should_restart_when_killed() {
   local PROCESS=${1}
-  run_until_success_or_timeout 10 check_if_process_is_running "${PROCESS}"
+  local MIN_PROCESS_AGE=4
+
+  # Wait until process has been running for at least MIN_PROCESS_AGE:
+  # (this allows us to more confidently check the process was restarted)
+  run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}" "${MIN_PROCESS_AGE}"
+  # NOTE: refute_output doesn't have output to work with on timeout failure
+  # refute_output --partial 'is not running'
   assert_success
 
-  _run_in_container pkill "${PROCESS}"
+  # Should kill the process successfully:
+  # (which should then get restarted by supervisord)
+  _run_in_container pkill --echo "${PROCESS}"
+  assert_output --partial "${PROCESS}"
   assert_success
 
-  run_until_success_or_timeout 10 check_if_process_is_running "${PROCESS}"
+  # Wait until original process is not running:
+  # (Ignore restarted process by filtering with MIN_PROCESS_AGE, --fatal-test with `false` stops polling on error):
+  run repeat_until_success_or_timeout --fatal-test "_check_if_process_is_running ${PROCESS} ${MIN_PROCESS_AGE}" 30 false
+  assert_output --partial 'is not running'
+  assert_failure
+
+  # Should be running:
+  # (poll as some processes a slower to restart, such as those run by wrapper scripts adding delay via sleep)
+  run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}"
+  # refute_output --partial 'is not running'
+  assert_success
 }
 
-# Previous `check` and `restart` test case commands before the new version (now migrated into `_should_restart_when_killed()`):
-# run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
-# run docker exec mail /bin/bash -c "pkill opendkim && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
+# NOTE: CONTAINER_NAME is implicit; it should have be set prior to calling.
+function _check_if_process_is_running() {
+  local PROCESS=${1}
+  local MIN_SECS_RUNNING
+  [[ -n ${2} ]] && MIN_SECS_RUNNING="--older ${2}"
+
+  local IS_RUNNING=$(docker exec "${CONTAINER_NAME}" pgrep --list-full ${MIN_SECS_RUNNING} "${PROCESS}")
+
+  # When no matches are found, nothing is returned. Provide something we can assert on (helpful for debugging):
+  if [[ ! ${IS_RUNNING} =~ "${PROCESS}" ]]
+  then
+    echo "'${PROCESS}' is not running"
+    return 1
+  fi
+}
