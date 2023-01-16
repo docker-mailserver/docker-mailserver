@@ -2,8 +2,8 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[Process Management] '
-CONTAINER1_NAME='dms-test_process-check-restart_enabled'
-CONTAINER2_NAME='dms-test_process-check-restart_disabled'
+CONTAINER1_NAME='dms-test_process-check-restart_disabled'
+CONTAINER2_NAME='dms-test_process-check-restart_enabled'
 CONTAINER3_NAME='dms-test_process-check-restart_clamav'
 
 function teardown() { _default_teardown ; }
@@ -51,14 +51,41 @@ ENV_PROCESS_LIST=(
   saslauthd
 )
 
-ENABLED_PROCESS_LIST=(
-  "${CORE_PROCESS_LIST[@]}"
-  "${ENV_PROCESS_LIST[@]}"
-)
+@test "disabled - should only run expected processes" {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env ENABLE_AMAVIS=0
+    --env ENABLE_CLAMAV=0
+    --env ENABLE_FAIL2BAN=0
+    --env ENABLE_FETCHMAIL=0
+    --env ENABLE_POSTGREY=0
+    --env ENABLE_SASLAUTHD=0
+    --env ENABLE_SRS=0
+    # Disable Dovecot:
+    --env SMTP_ONLY=1
+  )
+  init_with_defaults
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+
+  for PROCESS in "${CORE_PROCESS_LIST[@]}"
+  do
+    run _check_if_process_is_running "${PROCESS}"
+    assert_success
+    assert_output --partial "${PROCESS}"
+    refute_output --partial "is not running"
+  done
+
+  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd
+  do
+    run _check_if_process_is_running "${PROCESS}"
+    assert_failure
+    assert_output --partial "'${PROCESS}' is not running"
+  done
+}
 
 # Average time: 23 seconds (Sometimes up to 34 sec)
 @test "enabled - should restart processes when killed" {
-  export CONTAINER_NAME=${CONTAINER1_NAME}
+  export CONTAINER_NAME=${CONTAINER2_NAME}
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_FAIL2BAN=1
@@ -75,6 +102,11 @@ ENABLED_PROCESS_LIST=(
   init_with_defaults
   # Average time: 6 seconds
   common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+
+  local ENABLED_PROCESS_LIST=(
+    "${CORE_PROCESS_LIST[@]}"
+    "${ENV_PROCESS_LIST[@]}"
+  )
 
   for PROCESS in "${ENABLED_PROCESS_LIST[@]}"
   do
@@ -105,38 +137,6 @@ ENABLED_PROCESS_LIST=(
   common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   _should_restart_when_killed 'clamd'
-}
-
-@test "disabled - should only run expected processes" {
-  export CONTAINER_NAME=${CONTAINER2_NAME}
-  local CONTAINER_ARGS_ENV_CUSTOM=(
-    --env ENABLE_AMAVIS=0
-    --env ENABLE_CLAMAV=0
-    --env ENABLE_FAIL2BAN=0
-    --env ENABLE_FETCHMAIL=0
-    --env ENABLE_POSTGREY=0
-    --env ENABLE_SASLAUTHD=0
-    --env ENABLE_SRS=0
-    # Disable Dovecot:
-    --env SMTP_ONLY=1
-  )
-  init_with_defaults
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
-
-  for PROCESS in "${CORE_PROCESS_LIST[@]}"
-  do
-    run _check_if_process_is_running "${PROCESS}"
-    assert_success
-    assert_output --partial "${PROCESS}"
-    refute_output --partial "is not running"
-  done
-
-  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd
-  do
-    run _check_if_process_is_running "${PROCESS}"
-    assert_failure
-    assert_output --partial "'${PROCESS}' is not running"
-  done
 }
 
 function _should_restart_when_killed() {
