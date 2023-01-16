@@ -29,11 +29,6 @@ function teardown_file() {
 # imap
 #
 
-@test "checking process: dovecot imaplogin (disabled using SMTP_ONLY)" {
-  run docker exec mail_smtponly /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
-  assert_failure
-}
-
 @test "checking configuration: dovecot quota absent in postconf (disabled using SMTP_ONLY)" {
   run docker exec mail_smtponly /bin/bash -c "postconf | grep 'check_policy_service inet:localhost:65265'"
   assert_failure

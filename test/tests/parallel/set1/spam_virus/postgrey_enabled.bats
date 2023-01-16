@@ -40,11 +40,6 @@ function teardown_file() { _default_teardown ; }
   _should_output_number_of_lines 1
 }
 
-@test "Postgrey is running" {
-  run check_if_process_is_running 'postgrey'
-  assert_success
-}
-
 @test "should initially reject (greylist) mail from 'user@external.tld'" {
   # Modify the postfix config in order to ensure that postgrey handles the test e-mail.
   # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.

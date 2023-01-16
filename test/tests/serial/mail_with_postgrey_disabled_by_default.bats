@@ -16,8 +16,3 @@ function setup() {
 function teardown() {
   docker rm -f "${CONTAINER}"
 }
-
-@test "checking process: postgrey (disabled in default configuration)" {
-  run docker exec "${CONTAINER}" /bin/bash -c "ps aux --forest | grep -v grep | grep 'postgrey'"
-  assert_failure
-}

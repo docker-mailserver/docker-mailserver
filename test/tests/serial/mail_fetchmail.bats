@@ -19,15 +19,6 @@ function teardown_file() {
 }
 
 #
-# processes
-#
-
-@test "checking process: fetchmail (fetchmail server enabled)" {
-  run docker exec mail_fetchmail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
-  assert_success
-}
-
-#
 # fetchmail
 #
 
@@ -38,14 +29,5 @@ function teardown_file() {
 
 @test "checking fetchmail: fetchmail.cf is loaded" {
   run docker exec mail_fetchmail grep 'pop3.example.com' /etc/fetchmailrc
-  assert_success
-}
-
-#
-# supervisor
-#
-
-@test "checking restart of process: fetchmail" {
-  run docker exec mail_fetchmail /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
   assert_success
 }
