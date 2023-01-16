@@ -4,31 +4,9 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 BATS_TEST_NAME_PREFIX='[Process Management] '
 CONTAINER1_NAME='dms-test_process-check-restart_enabled'
 CONTAINER2_NAME='dms-test_process-check-restart_disabled'
-CONTAINER_NAME=${CONTAINER1_NAME}
+CONTAINER3_NAME='dms-test_process-check-restart_clamav'
 
-function setup_file() {
-  local CONTAINER_ARGS_ENV_CUSTOM=(
-    --env ENABLE_AMAVIS=1
-    --env ENABLE_CLAMAV=1
-    --env ENABLE_FAIL2BAN=1
-    --env ENABLE_FETCHMAIL=1
-    --env FETCHMAIL_PARALLEL=1
-    --env ENABLE_POSTGREY=1
-    --env ENABLE_SASLAUTHD=1
-    --env ENABLE_SRS=1
-    --env SMTP_ONLY=0
-    # Required workaround for some environments when using ENABLE_SRS=1:
-    # PR 2730: https://github.com/docker-mailserver/docker-mailserver/commit/672e9cf19a3bb1da309e8cea6ee728e58f905366
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
-  )
-  init_with_defaults
-  # Average time: 6 seconds
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
-}
-
-function teardown_file() {
-  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
-}
+function teardown() { _default_teardown ; }
 
 # Process matching notes:
 # opendkim (/usr/sbin/opendkim) - x2 of the same process are found running (1 is the parent)
@@ -62,9 +40,9 @@ CORE_PROCESS_LIST=(
 )
 
 # These processes can be toggled via ENV:
+# NOTE: clamd handled in separate test case
 ENV_PROCESS_LIST=(
   amavi
-  clamd
   dovecot
   fail2ban-server
   fetchmail
@@ -80,6 +58,24 @@ ENABLED_PROCESS_LIST=(
 
 # Average time: 23 seconds (Sometimes up to 34 sec)
 @test "enabled - should restart processes when killed" {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_FAIL2BAN=1
+    --env ENABLE_FETCHMAIL=1
+    --env FETCHMAIL_PARALLEL=1
+    --env ENABLE_POSTGREY=1
+    --env ENABLE_SASLAUTHD=1
+    --env ENABLE_SRS=1
+    --env SMTP_ONLY=0
+    # Required workaround for some environments when using ENABLE_SRS=1:
+    # PR 2730: https://github.com/docker-mailserver/docker-mailserver/commit/672e9cf19a3bb1da309e8cea6ee728e58f905366
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  init_with_defaults
+  # Average time: 6 seconds
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+
   for PROCESS in "${ENABLED_PROCESS_LIST[@]}"
   do
     _should_restart_when_killed "${PROCESS}"
@@ -91,6 +87,24 @@ ENABLED_PROCESS_LIST=(
   assert_success
   pgrep --full 'fetchmail-2'
   assert_success
+}
+
+@test "enabled - should restart clamd when killed" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env ENABLE_AMAVIS=0
+    --env ENABLE_CLAMAV=1
+    --env ENABLE_FAIL2BAN=0
+    --env ENABLE_FETCHMAIL=0
+    --env ENABLE_POSTGREY=0
+    --env ENABLE_SASLAUTHD=0
+    --env ENABLE_SRS=0
+    --env SMTP_ONLY=1
+  )
+  init_with_defaults
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+
+  _should_restart_when_killed 'clamd'
 }
 
 @test "disabled - should only run expected processes" {
@@ -117,7 +131,7 @@ ENABLED_PROCESS_LIST=(
     refute_output --partial "is not running"
   done
 
-  for PROCESS in "${ENV_PROCESS_LIST[@]}"
+  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd
   do
     run _check_if_process_is_running "${PROCESS}"
     assert_failure
