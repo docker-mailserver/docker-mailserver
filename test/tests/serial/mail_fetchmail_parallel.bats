@@ -20,20 +20,6 @@ function teardown_file() {
 }
 
 #
-# processes
-#
-
-@test "checking process: fetchmail 1 (fetchmail server enabled)" {
-  run docker exec mail_fetchmail_parallel /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail -f /etc/fetchmailrc.d/fetchmail-1.rc'"
-  assert_success
-}
-
-@test "checking process: fetchmail 2 (fetchmail server enabled)" {
-  run docker exec mail_fetchmail_parallel /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail -f /etc/fetchmailrc.d/fetchmail-2.rc'"
-  assert_success
-}
-
-#
 # fetchmail
 #
 
@@ -64,19 +50,5 @@ function teardown_file() {
 
 @test "checking fetchmail: fetchmail-2.rc is loaded with pop3-2.example.com" {
   run docker exec mail_fetchmail_parallel grep 'pop3-2.example.com' /etc/fetchmailrc.d/fetchmail-2.rc
-  assert_success
-}
-
-#
-# supervisor
-#
-
-@test "checking restart of process: fetchmail-1" {
-  run docker exec mail_fetchmail_parallel /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail -f /etc/fetchmailrc.d/fetchmail-1.rc'"
-  assert_success
-}
-
-@test "checking restart of process: fetchmail-2" {
-  run docker exec mail_fetchmail_parallel /bin/bash -c "pkill fetchmail && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail -f /etc/fetchmailrc.d/fetchmail-2.rc'"
   assert_success
 }

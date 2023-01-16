@@ -12,6 +12,7 @@ function setup_file() {
     --env ENABLE_CLAMAV=1
     --env ENABLE_FAIL2BAN=1
     --env ENABLE_FETCHMAIL=1
+    --env FETCHMAIL_PARALLEL=1
     --env ENABLE_POSTGREY=1
     --env ENABLE_SASLAUTHD=1
     --env ENABLE_SRS=1
@@ -75,12 +76,19 @@ ENABLED_PROCESS_LIST=(
   "${ENV_PROCESS_LIST[@]}"
 )
 
-# Average time: 23 seconds
-@test "processes should restart when killed" {
+# Average time: 23 seconds (Sometimes up to 34 sec)
+@test "enabled - should restart processes when killed" {
   for PROCESS in "${ENABLED_PROCESS_LIST[@]}"
   do
     _should_restart_when_killed "${PROCESS}"
   done
+
+  # By this point the fetchmail processes have been verified to exist and restart,
+  # For FETCHMAIL_PARALLEL=1 coverage, match full commandline for COUNTER values:
+  pgrep --full 'fetchmail-1'
+  assert_success
+  pgrep --full 'fetchmail-2'
+  assert_success
 }
 
 function _should_restart_when_killed() {
