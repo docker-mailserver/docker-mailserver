@@ -1,5 +1,6 @@
-load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/change-detection"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/tls"
 
 BATS_TEST_NAME_PREFIX='[Security] (TLS) (SSL_TYPE=letsencrypt) '
@@ -103,18 +104,13 @@ function _initial_setup() {
     )
     common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
     wait_for_service "${CONTAINER_NAME}" 'changedetector'
-
-    # Wait until the changedetector service startup delay is over:
-    repeat_until_success_or_timeout 20 sh -c "$(_get_service_logs 'changedetector') | grep 'Changedetector is ready'"
   }
 
   # Test `acme.json` extraction works at container startup:
   # It should have already extracted `mail.example.test` from the original mounted `acme.json`.
   function _acme_ecdsa() {
-    _should_have_succeeded_at_extraction 'mail.example.test'
-
-    # SSL_DOMAIN set as ENV, but startup should not have match in `acme.json`:
-    _should_have_failed_at_extraction '*.example.test' 'mailserver'
+    # SSL_DOMAIN value should not be present in current `acme.json`:
+    _should_fail_to_extract_for_wildcard_env
     _should_have_valid_config 'mail.example.test' 'key.pem' 'fullchain.pem'
 
     local ECDSA_KEY_PATH="${LOCAL_BASE_PATH}/key.ecdsa.pem"
@@ -127,7 +123,6 @@ function _initial_setup() {
   # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
   function _acme_rsa() {
     _should_extract_on_changes 'mail.example.test' "${LOCAL_BASE_PATH}/rsa.acme.json"
-    _should_have_service_reload_count '1'
 
     local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
     local RSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.rsa.pem"
@@ -139,7 +134,6 @@ function _initial_setup() {
   # Wildcard `*.example.test` should extract to `example.test/` in `letsencrypt/live/`:
   function _acme_wildcard() {
     _should_extract_on_changes 'example.test' "${LOCAL_BASE_PATH}/wildcard/rsa.acme.json"
-    _should_have_service_reload_count '2'
 
     # As the FQDN has changed since startup, the Postfix + Dovecot configs should be updated:
     _should_have_valid_config 'example.test' 'key.pem' 'fullchain.pem'
@@ -194,21 +188,17 @@ function _has_matching_line() {
 # Traefik `acme.json` specific
 #
 
-# It should log success of extraction for the expected domain and restart Postfix.
-function _should_have_succeeded_at_extraction() {
-  local EXPECTED_DOMAIN=${1}
-  local SERVICE=${2}
+function _should_fail_to_extract_for_wildcard_env() {
+  # Set as value for ENV `SSL_DOMAIN`, but during startup it should fail to find a match in the current `acme.json`:
+  local DOMAIN_WILDCARD='*.example.test'
+  # The expected domain to be found and extracted instead (value from container `--hostname`):
+  local DOMAIN_MAIL='mail.example.test'
 
-  run $(_get_service_logs "${SERVICE}")
-  assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
-}
-
-function _should_have_failed_at_extraction() {
-  local EXPECTED_DOMAIN=${1}
-  local SERVICE=${2}
-
-  run $(_get_service_logs "${SERVICE}")
-  assert_output --partial "_extract_certs_from_acme | Unable to find key and/or cert for '${EXPECTED_DOMAIN}' in '/etc/letsencrypt/acme.json'"
+  # /var/log/mail/mail.log is not equivalent to stdout content,
+  # Relevant log content only available via docker logs:
+  run docker logs "${CONTAINER_NAME}"
+  assert_output --partial "_extract_certs_from_acme | Unable to find key and/or cert for '${DOMAIN_WILDCARD}' in '/etc/letsencrypt/acme.json'"
+  assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${DOMAIN_MAIL}'"
 }
 
 # Replace the mounted `acme.json` and wait to see if changes were detected.
@@ -217,25 +207,12 @@ function _should_extract_on_changes() {
   local ACME_JSON=${2}
 
   cp "${ACME_JSON}" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
-  # Change detection takes a little over 5 seconds to complete (restart services)
-  sleep 10
+  wait_until_change_detection_event_completes "${CONTAINER_NAME}"
 
   # Expected log lines from the changedetector service:
-  run $(_get_service_logs 'changedetector')
-  assert_output --partial 'Change detected'
+  run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
   assert_output --partial "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
   assert_output --partial "_extract_certs_from_acme | Certificate successfully extracted for '${EXPECTED_DOMAIN}'"
-  assert_output --partial 'Reloading services due to detected changes'
-  assert_output --partial 'Completed handling of detected change'
-}
-
-# Ensure change detection is not mistakenly validating against previous change events:
-function _should_have_service_reload_count() {
-  local NUM_RELOADS=${1}
-
-  # Count how many times processes (like Postfix and Dovecot) have been reloaded by the `changedetector` service:
-  _run_in_container grep --count 'Completed handling of detected change' '/var/log/supervisor/changedetector.log'
-  assert_output "${NUM_RELOADS}"
 }
 
 # Extracted cert files from `acme.json` have content matching the expected reference files:
@@ -277,19 +254,4 @@ function _should_be_equal_in_content() {
   _run_in_container /bin/bash -c "cat ${CONTAINER_PATH}"
   assert_output "$(cat "${LOCAL_PATH}")"
   assert_success
-}
-
-function _get_service_logs() {
-  local SERVICE=${1:-'mailserver'}
-
-  local CMD_LOGS=(docker exec "${CONTAINER_NAME}" "supervisorctl tail -2200 ${SERVICE}")
-
-  # As the `mailserver` service logs are not stored in a file but output to stdout/stderr,
-  # The `supervisorctl tail` command won't work; we must instead query via `docker logs`:
-  if [[ ${SERVICE} == 'mailserver' ]]
-  then
-    CMD_LOGS=(docker logs "${CONTAINER_NAME}")
-  fi
-
-  echo "${CMD_LOGS[@]}"
 }

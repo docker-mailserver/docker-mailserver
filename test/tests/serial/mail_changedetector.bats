@@ -1,87 +1,139 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/change-detection"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-# Note if tests fail asserting against `supervisorctl tail changedetector` output,
-# use `supervisorctl tail -<num bytes> changedetector` instead to increase log output.
-# Default `<num bytes>` appears to be around 1500.
+BATS_TEST_NAME_PREFIX='[Change Detection] '
+
+CONTAINER1_NAME='dms-test_changedetector_one'
+CONTAINER2_NAME='dms-test_changedetector_two'
 
 function setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_changedetector_one)
+  export CONTAINER_NAME
 
-  docker run -d --name mail_changedetector_one \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e LOG_LEVEL=trace \
-    -h mail.my-domain.com -t "${NAME}"
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env LOG_LEVEL=trace
+  )
 
-  docker run -d --name mail_changedetector_two \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e LOG_LEVEL=trace \
-    -h mail.my-domain.com -t "${NAME}"
+  CONTAINER_NAME=${CONTAINER1_NAME}
+  init_with_defaults
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  wait_for_finished_setup_in_container mail_changedetector_one
-  wait_for_finished_setup_in_container mail_changedetector_two
+  CONTAINER_NAME=${CONTAINER2_NAME}
+  # NOTE: No `init_with_defaults` used here,
+  # Intentionally sharing previous containers config instead.
+  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  # Set default implicit container fallback for helpers:
+  CONTAINER_NAME=${CONTAINER1_NAME}
 }
 
 function teardown_file() {
-  docker rm -f mail_changedetector_one
-  docker rm -f mail_changedetector_two
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "checking changedetector: servers are ready" {
-  wait_for_service mail_changedetector_one changedetector
-  wait_for_service mail_changedetector_two changedetector
+@test "changedetector service is ready" {
+  wait_for_service "${CONTAINER1_NAME}" changedetector
+  wait_for_service "${CONTAINER2_NAME}" changedetector
 }
 
-@test "checking changedetector: can detect changes & between two containers using same config" {
-  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
-  sleep 25
+# NOTE: Non-deterministic behaviour - One container will perform change detection before the other.
+# Depending on the timing of the other container checking for a lock file, the lock may no longer be
+# present, avoiding the 5 second delay. The first container to create a lock is not deterministic either.
+# NOTE: Change detection at this point typically occurs at 2 or 4 seconds since the service was up,
+# thus expect 2-8 seconds to complete.
+@test "should detect and process changes (in both containers with shared config)" {
+  _create_change_event
 
-  run docker exec mail_changedetector_one /bin/bash -c 'supervisorctl tail -3000 changedetector'
-  assert_output --partial 'Change detected'
+  _should_perform_standard_change_event "${CONTAINER1_NAME}"
+  _should_perform_standard_change_event "${CONTAINER2_NAME}"
+}
+
+# Both containers should acknowledge the foreign lock file added,
+# blocking an attempt to process the pending change event detected.
+@test "should find existing lock file and block processing changes (without removing lock)" {
+  _prepare_blocking_lock_test
+
+  # Wait until the 2nd change event attempts to process:
+  _should_block_change_event_from_processing "${CONTAINER1_NAME}" 2
+  # NOTE: Although the service is restarted, a change detection should still occur (previous checksum still exists):
+  _should_block_change_event_from_processing "${CONTAINER2_NAME}" 1
+}
+
+@test "should remove lock file when stale" {
+  # Avoid a race condition (to remove the lock file) by removing the 2nd container:
+  docker rm -f "${CONTAINER2_NAME}"
+  # Make the previously created lock file become stale:
+  docker exec "${CONTAINER1_NAME}" touch -d '60 seconds ago' /tmp/docker-mailserver/check-for-changes.sh.lock
+
+  # A 2nd change event should complete (or may already have if quick enough?):
+  wait_until_change_detection_event_completes "${CONTAINER1_NAME}" 2
+
+  # Should have removed the stale lock file, then handle the change event:
+  run _get_logs_since_last_change_detection "${CONTAINER1_NAME}"
+  assert_output --partial 'Lock file older than 1 minute - removing stale lock file'
+  _assert_has_standard_change_event_logs
+}
+
+function _should_perform_standard_change_event() {
+  local CONTAINER_NAME=${1}
+
+  # Wait for change detection event to start and complete processing:
+  # NOTE: An explicit count is provided as the 2nd container may have already completed processing.
+  wait_until_change_detection_event_completes "${CONTAINER_NAME}" 1
+
+  # Container should have created it's own lock file,
+  # and later removed it when finished processing:
+  run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
+  _assert_has_standard_change_event_logs
+}
+
+function _should_block_change_event_from_processing() {
+  local CONTAINER_NAME=${1}
+  local EXPECTED_COUNT=${2}
+
+  # Once the next change event has started, the processing blocked log ('another execution') should be present:
+  wait_until_change_detection_event_begins "${CONTAINER_NAME}" "${EXPECTED_COUNT}"
+
+  run _get_logs_since_last_change_detection "${CONTAINER_NAME}"
+  _assert_foreign_lock_exists
+  # This additionally verifies that the change event processing is incomplete (blocked):
+  _assert_no_lock_actions_performed
+}
+
+function _assert_has_standard_change_event_logs() {
+  assert_output --partial "Creating lock '/tmp/docker-mailserver/check-for-changes.sh.lock'"
   assert_output --partial 'Reloading services due to detected changes'
   assert_output --partial 'Removed lock'
   assert_output --partial 'Completed handling of detected change'
-
-  run docker exec mail_changedetector_two /bin/bash -c 'supervisorctl tail -3000 changedetector'
-  assert_output --partial 'Change detected'
-  assert_output --partial 'Reloading services due to detected changes'
-  assert_output --partial 'Removed lock'
-  assert_output --partial 'Completed handling of detected change'
 }
 
-@test "checking changedetector: lock file found, blocks, and doesn't get prematurely removed" {
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl stop changedetector"
-  docker exec mail_changedetector_one /bin/bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
-  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl start changedetector"
-  sleep 15
-
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
-
-  # Ensure starting a new check-for-changes.sh instance (restarting here) doesn't delete the lock
-  docker exec mail_changedetector_two /bin/bash -c "rm -f /var/log/supervisor/changedetector.log"
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl restart changedetector"
-  sleep 5
-  run docker exec mail_changedetector_two /bin/bash -c "supervisorctl tail changedetector"
-  refute_output --partial "another execution of 'check-for-changes.sh' is happening"
-  refute_output --partial "Removed lock"
+function _assert_foreign_lock_exists() {
+  assert_output --partial "Lock file '/tmp/docker-mailserver/check-for-changes.sh.lock' exists"
+  assert_output --partial "- another execution of 'check-for-changes.sh' is happening - trying again shortly"
 }
 
-@test "checking changedetector: lock stale and cleaned up" {
-  docker rm -f mail_changedetector_two
-  docker exec mail_changedetector_one /bin/bash -c "touch /tmp/docker-mailserver/check-for-changes.sh.lock"
-  echo "" >> "$(private_config_path mail_changedetector_one)/postfix-accounts.cf"
-  sleep 15
+function _assert_no_lock_actions_performed() {
+  refute_output --partial 'Lock file older than 1 minute - removing stale lock file'
+  refute_output --partial "Creating lock '/tmp/docker-mailserver/check-for-changes.sh.lock'"
+  refute_output --partial 'Removed lock'
+}
 
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail changedetector"
-  assert_output --partial "another execution of 'check-for-changes.sh' is happening"
-  sleep 65
+function _prepare_blocking_lock_test {
+  # Temporarily disable the Container2 changedetector service:
+  docker exec "${CONTAINER2_NAME}" bash -c 'supervisorctl stop changedetector'
+  docker exec "${CONTAINER2_NAME}" bash -c 'rm -f /var/log/supervisor/changedetector.log'
 
-  run docker exec mail_changedetector_one /bin/bash -c "supervisorctl tail -3000 changedetector"
-  assert_output --partial "removing stale lock file"
+  # Create a foreign lock file to prevent change processing (in both containers):
+  docker exec "${CONTAINER1_NAME}" bash -c 'touch /tmp/docker-mailserver/check-for-changes.sh.lock'
+  # Create a new change to detect (that the foreign lock should prevent from processing):
+  _create_change_event
+
+  # Restore Container2 changedetector service:
+  # NOTE: The last known checksum is retained in Container2,
+  #       It will be compared to and start a change event.
+  docker exec "${CONTAINER2_NAME}" bash -c 'supervisorctl start changedetector'
+}
+
+function _create_change_event() {
+  echo '' >>"${TEST_TMP_CONFIG}/postfix-accounts.cf"
 }

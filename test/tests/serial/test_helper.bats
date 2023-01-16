@@ -158,57 +158,6 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   assert_failure
 }
 
-@test "wait_for_changes_to_be_detected_in_container fails when timeout is reached" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
-
-  # variable not local to make visible to teardown
-  CONTAINER_NAME=$(docker run -d --rm \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -h mail.my-domain.com \
-    -t "${NAME}")
-
-  teardown() { docker rm -f "${CONTAINER_NAME}"; }
-
-  # wait for the initial checksum file to be created
-  # shellcheck disable=SC2016
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; test -e "${CHKSUM_FILE}"'
-
-  # there should be no changes in the beginning
-  TEST_TIMEOUT_IN_SECONDS=0 wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
-
-  # trigger some change
-  docker exec "${CONTAINER_NAME}" /bin/sh -c "addmailuser auser3@mail.my-domain.com mypassword"
-
-  # that should be picked up as not yet detected
-  ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
-}
-
-@test "wait_for_changes_to_be_detected_in_container succeeds within timeout" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
-
-  # variable not local to make visible to teardown
-  CONTAINER_NAME=$(docker run -d --rm \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -h mail.my-domain.com \
-    -t "${NAME}")
-
-  teardown() { docker rm -f "${CONTAINER_NAME}"; }
-
-  # wait for the initial checksum file to be created
-  # shellcheck disable=SC2016
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; test -e "${CHKSUM_FILE}"'
-
-  # trigger some change
-  docker exec "${CONTAINER_NAME}" /bin/sh -c "addmailuser auser3@mail.my-domain.com mypassword"
-
-  # that should eventually be detected
-  SECONDS=0
-  wait_for_changes_to_be_detected_in_container "${CONTAINER_NAME}"
-  [[ ${SECONDS} -gt 0 ]]
-}
-
 # TODO investigate why this test fails
 @test "wait_for_empty_mail_queue_in_container fails when timeout reached" {
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2177'
