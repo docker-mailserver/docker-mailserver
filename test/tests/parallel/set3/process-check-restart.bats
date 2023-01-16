@@ -51,52 +51,36 @@ function teardown_file() { _default_teardown ; }
 # clamd + postsrsd sometimes take 1-3 sec to restart after old process is killed.
 # postfix + fail2ban (due to Wrapper scripts) can delay a restart by up to 5 seconds from usage of sleep.
 
-### Core processes (always running) ###
+# These processes should always be running:
+CORE_PROCESS_LIST=(
+  opendkim
+  opendmarc
+  master
+)
 
-@test "process should restart when killed (OpenDKIM)" {
-  _should_restart_when_killed 'opendkim'
-}
+# These processes can be toggled via ENV:
+ENV_PROCESS_LIST=(
+  amavi
+  clamd
+  dovecot
+  fail2ban-server
+  fetchmail
+  postgrey
+  postsrsd
+  saslauthd
+)
 
-@test "process should restart when killed (OpenDMARC)" {
-  _should_restart_when_killed 'opendmarc'
-}
+ENABLED_PROCESS_LIST=(
+  "${CORE_PROCESS_LIST[@]}"
+  "${ENV_PROCESS_LIST[@]}"
+)
 
-@test "process should restart when killed (Postfix)" {
-  _should_restart_when_killed 'master'
-}
-
-### ENV dependent processes ###
-
-@test "process should restart when killed (Amavis)" {
-  _should_restart_when_killed 'amavi'
-}
-
-@test "process should restart when killed (ClamAV)" {
-  _should_restart_when_killed 'clamd'
-}
-
-@test "process should restart when killed (Dovecot)" {
-  _should_restart_when_killed 'dovecot'
-}
-
-@test "process should restart when killed (Fail2Ban)" {
-  _should_restart_when_killed 'fail2ban-server'
-}
-
-@test "process should restart when killed (Fetchmail)" {
-  _should_restart_when_killed 'fetchmail'
-}
-
-@test "process should restart when killed (Postgrey)" {
-  _should_restart_when_killed 'postgrey'
-}
-
-@test "process should restart when killed (PostSRSd)" {
-  _should_restart_when_killed 'postsrsd'
-}
-
-@test "process should restart when killed (saslauthd)" {
-  _should_restart_when_killed 'saslauthd'
+# Average time: 23 seconds
+@test "processes should restart when killed" {
+  for PROCESS in "${ENABLED_PROCESS_LIST[@]}"
+  do
+    _should_restart_when_killed "${PROCESS}"
+  done
 }
 
 function _should_restart_when_killed() {
@@ -106,8 +90,7 @@ function _should_restart_when_killed() {
   # Wait until process has been running for at least MIN_PROCESS_AGE:
   # (this allows us to more confidently check the process was restarted)
   run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}" "${MIN_PROCESS_AGE}"
-  # NOTE: refute_output doesn't have output to work with on timeout failure
-  # refute_output --partial 'is not running'
+  # NOTE: refute_output doesn't have output to compare to when failure is due to a timeout
   assert_success
 
   # Should kill the process successfully:
@@ -125,7 +108,6 @@ function _should_restart_when_killed() {
   # Should be running:
   # (poll as some processes a slower to restart, such as those run by wrapper scripts adding delay via sleep)
   run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}"
-  # refute_output --partial 'is not running'
   assert_success
 }
 
