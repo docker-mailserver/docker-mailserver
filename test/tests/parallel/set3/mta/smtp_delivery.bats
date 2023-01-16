@@ -102,49 +102,49 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'
+  _run_in_container_bash 'nc -w 5 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt'
+  _run_in_container_bash 'nc -w 20 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt'
   assert_output --partial 'authentication failed'
   assert_success
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt'
+  _run_in_container_bash 'nc -w 5 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  _run_in_container_bash 'nc -w 20 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
   assert_output --partial 'authentication failed'
   assert_success
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt'
+  _run_in_container_bash 'nc -w 5 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt'
+  _run_in_container_bash 'nc -w 20 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt'
   assert_success
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt'
+  _run_in_container_bash 'nc -w 5 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt'
+  _run_in_container_bash 'nc -w 20 0.0.0.0 465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt'
   assert_success
   assert_output --partial 'authentication failed'
 }

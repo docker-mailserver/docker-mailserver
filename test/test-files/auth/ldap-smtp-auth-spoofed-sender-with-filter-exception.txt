@@ -1,6 +1,6 @@
 EHLO mail
 AUTH LOGIN
-c29tZS51c2VyLmVtYWlsQGxvY2FsaG9zdC5sb2NhbGRvbWFpbgo=
+c29tZS51c2VyQGxvY2FsaG9zdC5sb2NhbGRvbWFpbg==
 c2VjcmV0
 MAIL FROM: randomspoofedaddress@localhost.localdomain
 RCPT TO: some.user@localhost.localdomain
