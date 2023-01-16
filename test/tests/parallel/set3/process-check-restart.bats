@@ -27,6 +27,30 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
+# Process matching notes:
+# opendkim (/usr/sbin/opendkim) - x2 of the same process are found running (1 is the parent)
+# opendmarc (/usr/sbin/opendmarc)
+# master (/usr/lib/postfix/sbin/master) - Postfix main process (Can take a few seconds running to be ready)
+# NOTE: pgrep or pkill used with `--full` would also match `/usr/sbin/amavisd-new (master)`
+#
+# amavi (/usr/sbin/amavi) - Matches three processes, the main process is `/usr/sbin/amavisd-new (master)`
+# NOTE: `amavisd-new` can only be matched with `--full`, regardless pkill would return `/usr/sbin/amavi`
+#
+# clamd (/usr/sbin/clamd)
+# dovecot (/usr/sbin/dovecot)
+# fetchmail (/usr/bin/fetchmail)
+# fail2ban-server (/usr/bin/python3 /usr/bin/fail2ban-server) - Started by fail2ban-wrapper.sh
+# postgrey (postgrey) - NOTE: This process lacks path information to match with `--full` in pgrep / pkill
+# postsrsd (/usr/sbin/postsrsd) - NOTE: Also matches the wrapper: `/bin/bash /usr/local/bin/postsrsd-wrapper.sh`
+# saslauthd (/usr/sbin/saslauthd) - x5 of the same process are found running (1 is a parent of 4)
+
+# Delays:
+# (An old process may still be running: `pkill -e opendkim && sleep 3 && pgrep -a --older 5 opendkim`)
+# dovecot + fail2ban, take approx 1 sec to kill properly
+# opendkim + opendmarc can take up to 6 sec to kill properly
+# clamd + postsrsd sometimes take 1-3 sec to restart after old process is killed.
+# postfix + fail2ban (due to Wrapper scripts) can delay a restart by up to 5 seconds from usage of sleep.
+
 ### Core processes (always running) ###
 
 @test "process should restart when killed (OpenDKIM)" {
