@@ -26,7 +26,9 @@ function setup_file() {
   common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 }
 
-function teardown_file() { _default_teardown ; }
+function teardown_file() {
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
+}
 
 # Process matching notes:
 # opendkim (/usr/sbin/opendkim) - x2 of the same process are found running (1 is the parent)
@@ -91,6 +93,38 @@ ENABLED_PROCESS_LIST=(
   assert_success
 }
 
+@test "disabled - should only run expected processes" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+  local CONTAINER_ARGS_ENV_CUSTOM=(
+    --env ENABLE_AMAVIS=0
+    --env ENABLE_CLAMAV=0
+    --env ENABLE_FAIL2BAN=0
+    --env ENABLE_FETCHMAIL=0
+    --env ENABLE_POSTGREY=0
+    --env ENABLE_SASLAUTHD=0
+    --env ENABLE_SRS=0
+    # Disable Dovecot:
+    --env SMTP_ONLY=1
+  )
+  init_with_defaults
+  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+
+  for PROCESS in "${CORE_PROCESS_LIST[@]}"
+  do
+    run _check_if_process_is_running "${PROCESS}"
+    assert_success
+    assert_output --partial "${PROCESS}"
+    refute_output --partial "is not running"
+  done
+
+  for PROCESS in "${ENV_PROCESS_LIST[@]}"
+  do
+    run _check_if_process_is_running "${PROCESS}"
+    assert_failure
+    assert_output --partial "'${PROCESS}' is not running"
+  done
+}
+
 function _should_restart_when_killed() {
   local PROCESS=${1}
   local MIN_PROCESS_AGE=4
@@ -98,8 +132,9 @@ function _should_restart_when_killed() {
   # Wait until process has been running for at least MIN_PROCESS_AGE:
   # (this allows us to more confidently check the process was restarted)
   run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}" "${MIN_PROCESS_AGE}"
-  # NOTE: refute_output doesn't have output to compare to when failure is due to a timeout
+  # NOTE: refute_output doesn't have output to compare to when a run failure is due to a timeout
   assert_success
+  assert_output --partial "${PROCESS}"
 
   # Should kill the process successfully:
   # (which should then get restarted by supervisord)
@@ -110,13 +145,14 @@ function _should_restart_when_killed() {
   # Wait until original process is not running:
   # (Ignore restarted process by filtering with MIN_PROCESS_AGE, --fatal-test with `false` stops polling on error):
   run repeat_until_success_or_timeout --fatal-test "_check_if_process_is_running ${PROCESS} ${MIN_PROCESS_AGE}" 30 false
-  assert_output --partial 'is not running'
+  assert_output --partial "'${PROCESS}' is not running"
   assert_failure
 
   # Should be running:
   # (poll as some processes a slower to restart, such as those run by wrapper scripts adding delay via sleep)
   run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}"
   assert_success
+  assert_output --partial "${PROCESS}"
 }
 
 # NOTE: CONTAINER_NAME is implicit; it should have be set prior to calling.
@@ -133,4 +169,7 @@ function _check_if_process_is_running() {
     echo "'${PROCESS}' is not running"
     return 1
   fi
+
+  # Original output (if any) for assertions
+  echo "${IS_RUNNING}"
 }
