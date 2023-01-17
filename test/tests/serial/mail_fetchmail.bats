@@ -13,6 +13,7 @@ function setup_file() {
     --env ENABLE_FETCHMAIL=1
   )
   init_with_defaults
+  mv "${TEST_TMP_CONFIG}/fetchmail/fetchmail.cf" "${TEST_TMP_CONFIG}/fetchmail.cf"
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   CONTAINER_NAME=${CONTAINER2_NAME}
@@ -21,6 +22,7 @@ function setup_file() {
     --env FETCHMAIL_PARALLEL=1
   )
   init_with_defaults
+  mv "${TEST_TMP_CONFIG}/fetchmail/fetchmail.cf" "${TEST_TMP_CONFIG}/fetchmail.cf"
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 

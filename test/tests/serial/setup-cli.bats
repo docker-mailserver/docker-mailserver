@@ -11,6 +11,7 @@ CONTAINER_NAME='dms-test_setup-cli'
 function setup_file() {
   # Initializes common default vars to prepare a DMS container with:
   init_with_defaults
+  mv "${TEST_TMP_CONFIG}/fetchmail/fetchmail.cf" "${TEST_TMP_CONFIG}/fetchmail.cf"
 
   # Creates and starts the container with additional ENV needed:
   # `LOG_LEVEL=debug` required for using `wait_until_change_detection_event_completes()`

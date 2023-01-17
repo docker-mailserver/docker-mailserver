@@ -103,6 +103,7 @@ ENV_PROCESS_LIST=(
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   init_with_defaults
+  mv "${TEST_TMP_CONFIG}/fetchmail/fetchmail.cf" "${TEST_TMP_CONFIG}/fetchmail.cf"
   # Average time: 6 seconds
   common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
