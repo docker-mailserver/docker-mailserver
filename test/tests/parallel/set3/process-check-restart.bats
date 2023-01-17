@@ -51,7 +51,7 @@ ENV_PROCESS_LIST=(
   saslauthd
 )
 
-@test "disabled - should only run expected processes" {
+@test "(disabled ENV) should only run expected processes" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_AMAVIS=0
@@ -87,7 +87,7 @@ ENV_PROCESS_LIST=(
 }
 
 # Average time: 23 seconds (29 with wrapper scripts)
-@test "enabled - should restart processes when killed" {
+@test "(enabled ENV) should restart processes when killed" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_AMAVIS=1
@@ -119,23 +119,18 @@ ENV_PROCESS_LIST=(
 
   # By this point the fetchmail processes have been verified to exist and restart,
   # For FETCHMAIL_PARALLEL=1 coverage, match full commandline for COUNTER values:
-  pgrep --full 'fetchmail-1'
+  pgrep --full 'fetchmail-1.rc'
   assert_success
-  pgrep --full 'fetchmail-2'
+  pgrep --full 'fetchmail-2.rc'
   assert_success
 }
 
-@test "enabled - should restart clamd when killed" {
+# Split into separate test case for the benefit of minimizing CPU + RAM overhead of clamd.
+# NOTE: Does not reduce test time of previous test case. Adds 10 seconds to test time.
+@test "(enabled ENV) should restart clamd when killed" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
   local CONTAINER_ARGS_ENV_CUSTOM=(
-    --env ENABLE_AMAVIS=0
     --env ENABLE_CLAMAV=1
-    --env ENABLE_FAIL2BAN=0
-    --env ENABLE_FETCHMAIL=0
-    --env ENABLE_POSTGREY=0
-    --env ENABLE_SASLAUTHD=0
-    --env ENABLE_SRS=0
-    --env SMTP_ONLY=1
   )
   init_with_defaults
   common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
