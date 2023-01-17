@@ -67,6 +67,9 @@ ENV_PROCESS_LIST=(
   init_with_defaults
   common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
+  # Required for Postfix (when launched by wrapper script which is slow to start)
+  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+
   for PROCESS in "${CORE_PROCESS_LIST[@]}"
   do
     run _check_if_process_is_running "${PROCESS}"
@@ -83,7 +86,7 @@ ENV_PROCESS_LIST=(
   done
 }
 
-# Average time: 23 seconds (Sometimes up to 34 sec)
+# Average time: 23 seconds (29 with wrapper scripts)
 @test "enabled - should restart processes when killed" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
   local CONTAINER_ARGS_ENV_CUSTOM=(
