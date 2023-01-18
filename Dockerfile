@@ -27,6 +27,26 @@ COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh
 
+# buildx with docker-container driver has a compatibility bug preventing COPY with --link and --chown:
+# https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1386427426
+# NOTE: `chown -R` instead of `COPY --chown` doubles the size of the content it creats a new layer copy.
+# Isolating it to this stage, we can later use `COPY --link` to avoid retaining that excess weight.
+FROM docker.io/debian:11-slim as stage-clamav
+# Reference user + group lookups from stage-base files instead:
+COPY --link --from=stage-base /etc/passwd /etc/group /etc/
+
+# Copy over latest DB updates from official ClamAV image.
+# Better than running `freshclam` (which requires extra RAM during build)
+# hadolint ignore=DL3021
+COPY --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
+RUN chown -R clamav:clamav /var/lib/clamav
+
+#
+# Configure stage provides config changes, and adds scripts
+#
+
+FROM stage-base AS stage-configure
+
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
 # -----------------------------------------------
@@ -40,14 +60,8 @@ RUN <<EOF
   rm -rf /var/log/clamav/
 EOF
 
-# Copy over latest DB updates from official ClamAV image. Better than running `freshclam` (which requires extra RAM during build)
 # hadolint ignore=DL3021
-COPY --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
-# buildx with docker-container driver has a compatibility bug preventing COPY with --link and --chown:
-# https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1386427426
-# NOTE: This doubles the size of the content copied in the stage as it's a separate layer.
-# Hence the scratch + COPY for the final stage.
-RUN chown -R clamav:clamav /var/lib/clamav
+COPY --link --from=stage-clamav /var/lib/clamav /var/lib/clamav
 
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
@@ -264,11 +278,7 @@ COPY target/scripts/helpers /usr/local/bin/helpers
 # Final stage focuses only on image config
 #
 
-FROM scratch AS stage-final
-# Compress previous stage layers into one:
-# (avoids retaining replaced / deleted content)
-COPY --link --from=stage-base / /
-
+FROM stage-configure AS stage-final
 ARG VCS_REVISION=unknown
 ARG VCS_VERSION=edge
 
