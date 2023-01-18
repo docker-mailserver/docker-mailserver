@@ -42,7 +42,7 @@ EOF
 
 # Copy over latest DB updates from official ClamAV image. Better than running `freshclam` (which requires extra RAM during build)
 # hadolint ignore=DL3021
-COPY --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
+COPY --chown=clamav --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
