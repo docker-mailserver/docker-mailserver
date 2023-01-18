@@ -21,6 +21,7 @@ function _misc_save_states
   then
     _log 'debug' "Consolidating all state onto ${STATEDIR}"
 
+    # Always enabled features:
     FILES=(
       spool/postfix
       lib/postfix
@@ -43,21 +44,23 @@ function _misc_save_states
       DEST="${STATEDIR}/${FILE//\//-}"
       FILE="/var/${FILE}"
 
+      # If relevant content is found in /var/mail-state (presumably a volume mount),
+      # use it instead. Otherwise copy over any missing directories checked.
       if [[ -d ${DEST} ]]
       then
         _log 'trace' "Destination ${DEST} exists, linking ${FILE} to it"
+        # Original content from image no longer relevant, remove it:
         rm -rf "${FILE}"
-        ln -s "${DEST}" "${FILE}"
       elif [[ -d ${FILE} ]]
       then
         _log 'trace' "Moving contents of ${FILE} to ${DEST}"
+        # Empty volume was mounted, or new content from enabling a feature ENV:
         mv "${FILE}" "${DEST}"
-        ln -s "${DEST}" "${FILE}"
-      else
-        _log 'trace' "Linking ${FILE} to ${DEST}"
-        mkdir -p "${DEST}"
-        ln -s "${DEST}" "${FILE}"
       fi
+
+      # Symlink the original path in the container ($FILE) to be
+      # sourced from assocaiated path in /var/mail-state/ ($DEST):
+      ln -s "${DEST}" "${FILE}"
     done
 
     # This ensures the user and group of the files from the external mount have their
