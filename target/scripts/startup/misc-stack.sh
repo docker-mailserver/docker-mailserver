@@ -65,14 +65,17 @@ function _misc_save_states
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd /var/mail-state/lib-spamassassin
     [[ ${ENABLE_POSTGREY} -eq 1 ]] && chown -R postgrey /var/mail-state/lib-postgrey
 
-    chown -R postfix /var/mail-state/lib-postfix
+    chown -R postfix:postfix /var/mail-state/lib-postfix
 
+    # NOTE: The Postfix spool location has mixed owner/groups to take into account:
     # UID = postfix(101): active, bounce, corrupt, defer, deferred, flush, hold, incoming, maildrop, private, public, saved, trace
     # UID = root(0): dev, etc, lib, pid, usr
     # GID = postdrop(103): maildrop, public
     # GID for all other directories is root(0)
+    # NOTE: `spool-postfix/private/` will be set to `postfix:postfix` when Postfix starts / restarts
     # Set most common ownership:
     chown -R postfix:root /var/mail-state/spool-postfix
+    chown root:root /var/mail-state/spool-postfix
     # These two require the postdrop(103) group:
     chgrp -R postdrop /var/mail-state/spool-postfix/maildrop
     chgrp -R postdrop /var/mail-state/spool-postfix/public
