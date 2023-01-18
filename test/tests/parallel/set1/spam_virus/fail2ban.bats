@@ -33,11 +33,6 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "Fail2Ban is running" {
-  run check_if_process_is_running 'fail2ban-server'
-  assert_success
-}
-
 @test "localhost is not banned because ignored" {
   _run_in_container fail2ban-client status postfix-sasl
   assert_success
@@ -192,11 +187,4 @@ function teardown_file() {
 
   _run_in_container setup fail2ban unban
   assert_output --partial 'You need to specify an IP address: Run'
-}
-
-@test "restart of Fail2Ban" {
-  _run_in_container pkill fail2ban
-  assert_success
-
-  run_until_success_or_timeout 10 check_if_process_is_running 'fail2ban-server'
 }

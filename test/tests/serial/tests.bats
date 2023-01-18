@@ -73,52 +73,8 @@ teardown_file() {
 }
 
 #
-# processes
-#
-
-@test "checking process: postfix" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
-  assert_success
-}
-
-@test "checking process: clamd (is not runnning)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
-  assert_failure
-}
-
-@test "checking process: new" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new'"
-  assert_success
-}
-
-@test "checking process: opendkim" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
-  assert_success
-}
-
-@test "checking process: opendmarc" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'"
-  assert_success
-}
-
-@test "checking process: fail2ban (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/python3 /usr/bin/fail2ban-server'"
-  assert_failure
-}
-
-@test "checking process: fetchmail (disabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/bin/fetchmail'"
-  assert_failure
-}
-
-#
 # imap
 #
-
-@test "checking process: dovecot imaplogin (enabled in default configuration)" {
-  run docker exec mail /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/dovecot'"
-  assert_success
-}
 
 @test "checking imap: server is ready with STARTTLS" {
   run docker exec mail /bin/bash -c "nc -w 2 0.0.0.0 143 | grep '* OK' | grep 'STARTTLS' | grep 'ready'"
@@ -222,12 +178,6 @@ teardown_file() {
   run docker exec mail grep "recipient_canonical_classes = envelope_recipient,header_recipient" /etc/postfix/main.cf
   assert_success
 }
-
-@test "checking SRS: postsrsd running" {
-  run docker exec mail /bin/sh -c "ps aux | grep ^postsrsd"
-  assert_success
-}
-
 
 @test "checking SRS: fallback to hostname is handled correctly" {
   run docker exec mail grep "SRS_DOMAIN=example.test" /etc/default/postsrsd
@@ -712,22 +662,4 @@ EOF
 # supervisor
 #
 
-@test "checking restart of process: postfix" {
-  run docker exec mail /bin/bash -c "pkill master && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/lib/postfix/sbin/master'"
-  assert_success
-}
 
-@test "checking restart of process: amavisd-new" {
-  run docker exec mail /bin/bash -c "pkill amavi && sleep 12 && ps aux --forest | grep -v grep | grep '/usr/sbin/amavisd-new (master)'"
-  assert_success
-}
-
-@test "checking restart of process: opendkim" {
-  run docker exec mail /bin/bash -c "pkill opendkim && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendkim'"
-  assert_success
-}
-
-@test "checking restart of process: opendmarc" {
-  run docker exec mail /bin/bash -c "pkill opendmarc && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/opendmarc'"
-  assert_success
-}

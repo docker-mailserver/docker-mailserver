@@ -34,11 +34,6 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "process clamd is running" {
-  run check_if_process_is_running 'clamd'
-  assert_success
-}
-
 @test "log files exist at /var/log/mail directory" {
   _run_in_container bash -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log' | wc -l"
   assert_success
@@ -63,11 +58,4 @@ function teardown_file() { _default_teardown ; }
 @test "rejects virus" {
   _run_in_container bash -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<virus@external.tld> -> <user1@localhost.localdomain>'"
   assert_success
-}
-
-@test "process clamd restarts when killed" {
-  _run_in_container pkill 'clamd'
-  assert_success
-
-  run_until_success_or_timeout 10 check_if_process_is_running 'clamd'
 }

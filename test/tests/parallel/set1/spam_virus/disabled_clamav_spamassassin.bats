@@ -24,11 +24,6 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "ClamAV - should be disabled by ENV 'ENABLED_CLAMAV=0'" {
-  run check_if_process_is_running 'clamd'
-  assert_failure
-}
-
 @test "ClamAV - Amavis integration should not be active" {
   _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   assert_failure

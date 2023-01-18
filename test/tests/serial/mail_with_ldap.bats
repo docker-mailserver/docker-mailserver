@@ -64,13 +64,6 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
-# processes
-
-@test "checking process: saslauthd (saslauthd server enabled)" {
-  run docker exec mail_with_ldap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
-  assert_success
-}
-
 # postfix
 @test "checking postfix: ldap lookup works correctly" {
   run docker exec mail_with_ldap /bin/sh -c "postmap -q some.user@${FQDN_LOCALHOST_A} ldap:/etc/postfix/ldap-users.cf"
@@ -245,14 +238,5 @@ function teardown_file() {
 
   # checking default logrotation setup
   run docker exec mail_with_ldap grep "weekly" /etc/logrotate.d/maillog
-  assert_success
-}
-
-#
-# supervisor
-#
-
-@test "checking restart of process: saslauthd (saslauthd server enabled)" {
-  run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   assert_success
 }

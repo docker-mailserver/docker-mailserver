@@ -38,14 +38,6 @@ function _reload_postfix() {
 
 # -------------------------------------------------------------------
 
-# @param ${1} program name [REQUIRED]
-# @param ${2} container name [IF UNSET: ${CONTAINER_NAME}]
-function check_if_process_is_running() {
-  local PROGRAM_NAME=${1:?Program name must be provided explicitly}
-  local CONTAINER_NAME=${2:-${CONTAINER_NAME}}
-  docker exec "${CONTAINER_NAME}" pgrep "${PROGRAM_NAME}"
-}
-
 # @param ${1} target container name [IF UNSET: ${CONTAINER_NAME}]
 function get_container_ip() {
   local TARGET_CONTAINER_NAME=${1:-${CONTAINER_NAME}}
