@@ -46,6 +46,7 @@ RUN chown -R clamav:clamav /var/lib/clamav
 #
 
 FROM stage-base AS stage-configure
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
