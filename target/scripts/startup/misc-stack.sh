@@ -60,10 +60,14 @@ function _misc_save_states
       fi
     done
 
+    # This ensures the user and group of the files from the external mount have their
+    # numeric ID values in sync. New releases where the installed packages order changes
+    # can change the values in the Docker image, causing an ownership mismatch.
     _log 'trace' 'Fixing /var/mail-state/* permissions'
-    [[ ${ENABLE_CLAMAV} -eq 1 ]] && chown -R clamav /var/mail-state/lib-clamav
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd /var/mail-state/lib-spamassassin
-    [[ ${ENABLE_POSTGREY} -eq 1 ]] && chown -R postgrey /var/mail-state/lib-postgrey
+    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav /var/mail-state/lib-clamav
+    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup /var/mail-state/lib-fetchmail
+    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey /var/mail-state/lib-postgrey
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd /var/mail-state/lib-spamassassin
 
     chown -R postfix:postfix /var/mail-state/lib-postfix
 
