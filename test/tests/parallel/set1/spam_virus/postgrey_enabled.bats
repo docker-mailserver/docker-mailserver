@@ -15,11 +15,11 @@ function setup_file() {
     --env POSTGREY_TEXT="Delayed by Postgrey"
   )
 
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # Postfix needs to be ready on port 25 for nc usage below:
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _wait_for_smtp_port_in_container
 }
 
 function teardown_file() { _default_teardown ; }
@@ -60,7 +60,7 @@ function teardown_file() { _default_teardown ; }
     'reason=new' \
     'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
 
-  repeat_until_success_or_timeout 10 _run_in_container grep \
+  _repeat_until_success_or_timeout 10 _run_in_container grep \
     'Recipient address rejected: Delayed by Postgrey' \
     /var/log/mail/mail.log
 }
@@ -113,7 +113,7 @@ function _send_test_mail() {
   # This is required for port 10023, otherwise the connection never drops.
   # It could increase the number of seconds to wait for port 25 to allow for asserting a response,
   # but that would enforce the delay in tests for port 10023.
-  _run_in_container bash -c "nc -w 0 0.0.0.0 ${PORT} < ${MAIL_TEMPLATE}"
+  _run_in_container_bash "nc -w 0 0.0.0.0 ${PORT} < ${MAIL_TEMPLATE}"
 }
 
 function _should_have_log_entry() {
@@ -122,7 +122,7 @@ function _should_have_log_entry() {
   local TRIPLET=$3
 
   # Allow some extra time for logs to update to avoids a false-positive failure:
-  run_until_success_or_timeout 10 docker exec "${CONTAINER_NAME}" grep \
+  _run_until_success_or_timeout 10 _exec_in_container grep \
     "${ACTION}, ${REASON}," \
     /var/log/mail/mail.log
 

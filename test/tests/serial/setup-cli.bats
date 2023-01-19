@@ -10,7 +10,7 @@ CONTAINER_NAME='dms-test_setup-cli'
 # no state is reset between test-cases.
 function setup_file() {
   # Initializes common default vars to prepare a DMS container with:
-  init_with_defaults
+  _init_with_defaults
   mv "${TEST_TMP_CONFIG}/fetchmail/fetchmail.cf" "${TEST_TMP_CONFIG}/fetchmail.cf"
 
   # Creates and starts the container with additional ENV needed:
@@ -20,12 +20,10 @@ function setup_file() {
     --env LOG_LEVEL='debug'
   )
 
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+  _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 }
 
-function teardown_file() {
-  docker rm -f "${CONTAINER_NAME}"
-}
+function teardown_file() { _default_teardown ; }
 
 @test "show usage when no arguments provided" {
   run ./setup.sh
@@ -56,13 +54,13 @@ function teardown_file() {
 
   # Ensure you wait until `changedetector` is finished.
   # Mail account and storage directory should now be valid
-  wait_until_change_detection_event_completes "${CONTAINER_NAME}"
+  _wait_until_change_detection_event_completes
 
   # Verify mail storage directory exists (polls if storage is slow, eg remote mount):
-  wait_until_account_maildir_exists "${CONTAINER_NAME}" "${MAIL_ACCOUNT}"
+  _wait_until_account_maildir_exists "${MAIL_ACCOUNT}"
 
   # Verify account authentication is successful (account added to Dovecot UserDB+PassDB):
-  wait_for_service "${CONTAINER_NAME}" dovecot
+  _wait_for_service dovecot
   local RESPONSE
   RESPONSE=$(docker exec "${CONTAINER_NAME}" doveadm auth test "${MAIL_ACCOUNT}" "${MAIL_PASS}" | grep 'passdb')
   assert_equal "${RESPONSE}" "passdb: ${MAIL_ACCOUNT} auth succeeded"
@@ -91,7 +89,7 @@ function teardown_file() {
   assert_success
 
   # NOTE: this was put in place for the next test `setup.sh email del` to properly work.
-  wait_until_change_detection_event_completes "${CONTAINER_NAME}"
+  _wait_until_change_detection_event_completes
 
   # `postfix-accounts.cf` should have an updated password hash stored:
   local NEW_PASS_HASH
@@ -122,7 +120,7 @@ function teardown_file() {
   # of the previous test (`email udpate`) triggering. Therefore, the function
   # `wait_until_change_detection_event_completes was added to the
   # `setup.sh email update` test.
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'
+  _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'
 
   # Account is not present in `postfix-accounts.cf`:
   run grep "${MAIL_ACCOUNT}" "${TEST_TMP_CONFIG}/postfix-accounts.cf"

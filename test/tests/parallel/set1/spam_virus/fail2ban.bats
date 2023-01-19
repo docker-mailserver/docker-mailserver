@@ -16,14 +16,14 @@ function setup_file() {
     # NOTE: May no longer be needed with newer F2B:
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 
   # Create a container which will send wrong authentications and should get banned
   CONTAINER_NAME=${CONTAINER2_NAME}
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # Set default implicit container fallback for helpers:
   CONTAINER_NAME=${CONTAINER1_NAME}
@@ -72,26 +72,26 @@ function teardown_file() {
 # - You could hard-code `sleep 5` on both cases to avoid the alternative assertions,
 #   but the polling + piping into grep approach here reliably minimizes the delay.
 @test "ban ip on multiple failed login" {
-  CONTAINER1_IP=$(get_container_ip ${CONTAINER1_NAME})
+  CONTAINER1_IP=$(_get_container_ip "${CONTAINER1_NAME}")
   # Trigger a ban by failing to login twice:
   _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
   _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
 
   # Checking that CONTAINER2_IP is banned in "${CONTAINER1_NAME}"
-  CONTAINER2_IP=$(get_container_ip ${CONTAINER2_NAME})
-  run repeat_in_container_until_success_or_timeout 10 "${CONTAINER_NAME}" bash -c "fail2ban-client status postfix-sasl | grep -F '${CONTAINER2_IP}'"
+  CONTAINER2_IP=$(_get_container_ip "${CONTAINER2_NAME}")
+  run _repeat_in_container_until_success_or_timeout 10 "${CONTAINER_NAME}" /bin/bash -c "fail2ban-client status postfix-sasl | grep -F '${CONTAINER2_IP}'"
   assert_success
   assert_output --partial 'Banned IP list:'
 
   # Checking that CONTAINER2_IP is banned by nftables
-  _run_in_container bash -c 'nft list set inet f2b-table addr-set-postfix-sasl'
+  _run_in_container_bash 'nft list set inet f2b-table addr-set-postfix-sasl'
   assert_success
   assert_output --partial "elements = { ${CONTAINER2_IP} }"
 }
 
 # NOTE: Depends on previous test case, if no IP was banned at this point, it passes regardless..
 @test "unban ip works" {
-  CONTAINER2_IP=$(get_container_ip ${CONTAINER2_NAME})
+  CONTAINER2_IP=$(_get_container_ip "${CONTAINER2_NAME}")
   _run_in_container fail2ban-client set postfix-sasl unbanip "${CONTAINER2_IP}"
   assert_success
 
@@ -101,7 +101,7 @@ function teardown_file() {
   refute_output --partial "${CONTAINER2_IP}"
 
   # Checking that CONTAINER2_IP is unbanned by nftables
-  _run_in_container bash -c 'nft list set inet f2b-table addr-set-postfix-sasl'
+  _run_in_container_bash 'nft list set inet f2b-table addr-set-postfix-sasl'
   refute_output --partial "${CONTAINER2_IP}"
 }
 
