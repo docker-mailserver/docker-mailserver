@@ -38,15 +38,13 @@ COPY --link --from=stage-base /etc/passwd /etc/group /etc/
 # Copy over latest DB updates from official ClamAV image.
 # Better than running `freshclam` (which requires extra RAM during build)
 # hadolint ignore=DL3021
-COPY --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
-RUN chown -R clamav:clamav /var/lib/clamav
+COPY --chown=clamav --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 #
 # Configure stage provides config changes, and adds scripts
 #
 
 FROM stage-base AS stage-configure
-SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
