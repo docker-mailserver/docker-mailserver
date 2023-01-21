@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[ClamAV + SA] (disabled) '
 CONTAINER_NAME='dms-test_clamav-spamassasin_disabled'
 
 function setup_file() {
-  init_with_defaults
+  _init_with_defaults
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
@@ -14,12 +14,12 @@ function setup_file() {
     --env AMAVIS_LOGLEVEL=2
   )
 
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
-  wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+  _wait_for_empty_mail_queue_in_container
 }
 
 function teardown_file() { _default_teardown ; }
@@ -30,7 +30,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "SA - Amavis integration should not be active" {
-  _run_in_container bash -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  _run_in_container_bash "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
   assert_success
 }
 

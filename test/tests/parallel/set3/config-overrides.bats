@@ -5,12 +5,12 @@ BATS_TEST_NAME_PREFIX='[Configuration] (overrides) '
 CONTAINER_NAME='dms-test_config-overrides'
 
 function setup_file() {
-  init_with_defaults
+  _init_with_defaults
 
   # Move override configs into main `/tmp/docker-mailserver` config location:
   mv "${TEST_TMP_CONFIG}/override-configs/"* "${TEST_TMP_CONFIG}/"
 
-  common_container_setup
+  _common_container_setup
 }
 
 function teardown_file() { _default_teardown ; }

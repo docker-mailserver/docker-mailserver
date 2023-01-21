@@ -30,10 +30,10 @@ function setup_file() {
     --env SSL_ALT_CERT_PATH="${SSL_ALT_CERT_PATH}"
   )
 
-  init_with_defaults
-  # Override the default set in `common_container_setup`:
+  _init_with_defaults
+  # Override the default set in `_common_container_setup`:
   export TEST_FQDN="mail.${TEST_DOMAIN}"
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
 function teardown_file() { _default_teardown ; }
@@ -90,7 +90,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "manual cert works correctly" {
-  wait_for_tcp_port_in_container 587 "${CONTAINER_NAME}"
+  _wait_for_tcp_port_in_container 587
 
   local TEST_COMMAND=(timeout 1 openssl s_client -connect mail.example.test:587 -starttls smtp)
   local RESULT
