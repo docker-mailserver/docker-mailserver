@@ -34,8 +34,6 @@ function teardown() { _default_teardown ; }
 
 # These processes should always be running:
 CORE_PROCESS_LIST=(
-  opendkim
-  opendmarc
   master
 )
 
@@ -46,6 +44,8 @@ ENV_PROCESS_LIST=(
   dovecot
   fail2ban-server
   fetchmail
+  opendkim
+  opendmarc
   postgrey
   postsrsd
   saslauthd
@@ -58,6 +58,8 @@ ENV_PROCESS_LIST=(
     --env ENABLE_CLAMAV=0
     --env ENABLE_FAIL2BAN=0
     --env ENABLE_FETCHMAIL=0
+    --env ENABLE_OPENDKIM=0
+    --env ENABLE_OPENDMARC=0
     --env ENABLE_POSTGREY=0
     --env ENABLE_SASLAUTHD=0
     --env ENABLE_SRS=0
@@ -93,6 +95,8 @@ ENV_PROCESS_LIST=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_FAIL2BAN=1
     --env ENABLE_FETCHMAIL=1
+    --env ENABLE_OPENDKIM=1
+    --env ENABLE_OPENDMARC=1
     --env FETCHMAIL_PARALLEL=1
     --env ENABLE_POSTGREY=1
     --env ENABLE_SASLAUTHD=1

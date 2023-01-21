@@ -102,19 +102,45 @@ function _setup_rspamd
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _shutdown 'You cannot run Amavis/SpamAssassin and Rspamd at the same time'
+    _log 'warn' 'Running Amavis/SpamAssassin & rspamd at the same time is discouraged'
   fi
 
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
     _log 'debug' 'Rspamd will use ClamAV'
-    mv /etc/rspamd/local.d/disabled/antivirus.conf /etc/rspamd/local.d/antivirus.conf
+    usermod -a -G clamav _rspamd
+    sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
   else
     _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
-  _log 'warn' 'Only running with default configuration'
-  _log 'warn' 'You will need to adjust the Postfix configuration yourself to use Rspamd as of now'
+  # the modules documentation can be found here: https://rspamd.com/doc/modules/
+  declare -a DISABLE_MODULES
+  DISABLE_MODULES=(
+    clickhouse
+    dkim_signing
+    elastic
+    greylist
+    rbl
+    reputation
+    spamassassin
+    url_redirector
+    metric_exporter
+  )
+
+  for MODULE in "${DISABLE_MODULES[@]}"
+  do
+    cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOM
+#documentation: https://rspamd.com/doc/modules/${MODULE}.html
+
+enabled = false;
+
+EOM
+  done
+
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
+  touch /var/lib/rspamd/stats.ucl
 }
 
 function _setup_dmarc_hostname
@@ -620,7 +646,7 @@ function _setup_dkim_dmarc
 
   _log 'debug' 'Setting up DKIM'
 
-  mkdir -p /etc/opendkim && touch /etc/opendkim/SigningTable
+  mkdir -p /etc/opendkim/keys/ && touch /etc/opendkim/SigningTable
 
   _log 'trace' "Adding OpenDKIM tp Postfix's milters"
   # shellcheck disable=SC2016
