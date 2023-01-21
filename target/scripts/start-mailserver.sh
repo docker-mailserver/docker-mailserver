@@ -168,8 +168,8 @@ function _register_functions
 
   if [[ ${ENABLE_RSPAMD} -eq 1 ]]
   then
-    _register_start_daemon '_start_daemon_rspamd'
     _register_start_daemon '_start_daemon_redis'
+    _register_start_daemon '_start_daemon_rspamd'
   fi
 
   # needs to be started before SASLauthd
