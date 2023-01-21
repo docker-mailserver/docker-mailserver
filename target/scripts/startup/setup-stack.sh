@@ -114,7 +114,6 @@ function _setup_rspamd
     _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
-  # the modules documentation can be found here: https://rspamd.com/doc/modules/
   declare -a DISABLE_MODULES
   DISABLE_MODULES=(
     clickhouse
