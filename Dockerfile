@@ -20,35 +20,25 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 COPY target/bin/sedfile /usr/local/bin/sedfile
-RUN chmod +x /usr/local/bin/sedfile
+RUN <<EOF
+  chmod +x /usr/local/bin/sedfile
+  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
+EOF
 
 COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh
 
-# buildx with docker-container driver has a compatibility bug preventing COPY with --link and --chown:
-# https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1386427426
-# NOTE: `chown -R` instead of `COPY --chown` doubles the size of the content it creats a new layer copy.
-# Isolating it to this stage, we can later use `COPY --link` to avoid retaining that excess weight.
-FROM docker.io/debian:11-slim as stage-clamav
-# Reference user + group lookups from stage-base files instead:
-COPY --link --from=stage-base /etc/passwd /etc/group /etc/
-
-# Copy over latest DB updates from official ClamAV image.
-# Better than running `freshclam` (which requires extra RAM during build)
-# hadolint ignore=DL3021
-COPY --chown=clamav --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
-
-#
-# Configure stage provides config changes, and adds scripts
-#
-
-FROM stage-base AS stage-configure
-
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
 # -----------------------------------------------
+
+# Copy over latest DB updates from official ClamAV image. This is better than running `freshclam`,
+# which would require an extra memory of 500MB+ during an image build.
+# When using `COPY --link`, the `--chown` option is only compatible with numeric ID values.
+# hadolint ignore=DL3021
+COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 RUN <<EOF
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
@@ -58,9 +48,6 @@ RUN <<EOF
   chown -R clamav:root /var/run/clamav
   rm -rf /var/log/clamav/
 EOF
-
-# hadolint ignore=DL3021
-COPY --link --from=stage-clamav /var/lib/clamav /var/lib/clamav
 
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
@@ -277,7 +264,7 @@ COPY target/scripts/helpers /usr/local/bin/helpers
 # Final stage focuses only on image config
 #
 
-FROM stage-configure AS stage-final
+FROM stage-base AS stage-final
 ARG VCS_REVISION=unknown
 ARG VCS_VERSION=edge
 
