@@ -66,6 +66,8 @@ function _misc_save_states
     # This ensures the user and group of the files from the external mount have their
     # numeric ID values in sync. New releases where the installed packages order changes
     # can change the values in the Docker image, causing an ownership mismatch.
+    # NOTE: More details about users and groups added during image builds are documented here:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1399120252
     _log 'trace' 'Fixing /var/mail-state/* permissions'
     [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             /var/mail-state/lib-amavis
     [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             /var/mail-state/lib-clamav
