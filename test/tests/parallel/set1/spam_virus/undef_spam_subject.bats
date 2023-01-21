@@ -16,10 +16,10 @@ function teardown() { _default_teardown ; }
     --env ENABLE_SPAMASSASSIN=1
     --env SA_SPAM_SUBJECT='undef'
   )
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  _run_in_container bash -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
+  _run_in_container_bash "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= undef'"
   assert_success
 }
 
@@ -44,18 +44,18 @@ function teardown() { _default_teardown ; }
     # NOTE: ulimit required for `ENABLE_SRS=1` until running a newer `postsrsd`
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  _run_in_container bash -c "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
+  _run_in_container_bash "grep '\$sa_tag_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= -5.0'"
   assert_success
 
-  _run_in_container bash -c "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
+  _run_in_container_bash "grep '\$sa_tag2_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 2.0'"
   assert_success
 
-  _run_in_container bash -c "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
+  _run_in_container_bash "grep '\$sa_kill_level_deflt' /etc/amavis/conf.d/20-debian_defaults | grep '= 3.0'"
   assert_success
 
-  _run_in_container bash -c "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
+  _run_in_container_bash "grep '\$sa_spam_subject_tag' /etc/amavis/conf.d/20-debian_defaults | grep '= .SPAM: .'"
   assert_success
 }

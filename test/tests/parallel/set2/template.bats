@@ -14,7 +14,7 @@ function setup_file() {
   # ? optional setup before container is started
 
   # ? initialize the test helpers
-  init_with_defaults
+  _init_with_defaults
 
   # ? add custom arguments supplied to `docker run` here
   local CUSTOM_SETUP_ARGUMENTS=(
@@ -22,7 +22,7 @@ function setup_file() {
   )
 
   # ? use a helper to correctly setup the container
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # ? optional setup after the container is started
 }
@@ -34,6 +34,6 @@ function teardown_file() { _default_teardown ; }
 # ? actual unit tests
 
 @test "default check" {
-  _run_in_container bash -c "true"
+  _run_in_container_bash "true"
   assert_success
 }
