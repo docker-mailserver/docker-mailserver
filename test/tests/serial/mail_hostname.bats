@@ -82,27 +82,12 @@ function teardown_file() {
   assert_success
 }
 
+
 @test "checking configuration: hostname/domainname override: check overriden hostname is applied to all configs" {
-  run docker exec mail_override_hostname /bin/bash -c "cat /etc/mailname | grep my-domain.com"
-  assert_success
+  local CONTAINER_NAME='mail_override_hostname'
 
-  run docker exec mail_override_hostname /bin/bash -c "postconf -n | grep mydomain | grep my-domain.com"
-  assert_success
-
-  run docker exec mail_override_hostname /bin/bash -c "postconf -n | grep myhostname | grep mail.my-domain.com"
-  assert_success
-
-  run docker exec mail_override_hostname /bin/bash -c "doveconf | grep hostname | grep mail.my-domain.com"
-  assert_success
-
-  run docker exec mail_override_hostname /bin/bash -c "cat /etc/opendmarc.conf | grep AuthservID | grep mail.my-domain.com"
-  assert_success
-
-  run docker exec mail_override_hostname /bin/bash -c "cat /etc/opendmarc.conf | grep TrustedAuthservIDs | grep mail.my-domain.com"
-  assert_success
-
-  run docker exec mail_override_hostname /bin/bash -c "cat /etc/amavis/conf.d/05-node_id | grep myhostname | grep mail.my-domain.com"
-  assert_success
+  _should_be_configured_to_domainname 'my-domain.com'
+  _should_be_configured_to_fqdn 'mail.my-domain.com'
 }
 
 @test "checking configuration: hostname/domainname override: check hostname in postfix HELO message" {
@@ -142,26 +127,11 @@ function teardown_file() {
 }
 
 @test "checking configuration: non-subdomain: check overriden hostname is applied to all configs" {
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "cat /etc/mailname | grep domain.com"
-  assert_success
+  local CONTAINER_NAME='mail_non_subdomain_hostname'
 
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "postconf -n | grep mydomain | grep domain.com"
-  assert_success
-
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "postconf -n | grep myhostname | grep domain.com"
-  assert_success
-
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "doveconf | grep hostname | grep domain.com"
-  assert_success
-
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "cat /etc/opendmarc.conf | grep AuthservID | grep domain.com"
-  assert_success
-
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "cat /etc/opendmarc.conf | grep TrustedAuthservIDs | grep domain.com"
-  assert_success
-
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "cat /etc/amavis/conf.d/05-node_id | grep myhostname | grep domain.com"
-  assert_success
+  _should_be_configured_to_domainname 'domain.com'
+  # Bare domain configured, thus no subdomain:
+  _should_be_configured_to_fqdn 'domain.com'
 }
 
 @test "checking configuration: non-subdomain: check hostname in postfix HELO message" {
@@ -209,5 +179,34 @@ function teardown_file() {
 
 @test "checking that the container stops cleanly: mail_domainname" {
   run docker stop -t 60 mail_domainname
+  assert_success
+}
+
+function _should_be_configured_to_domainname() {
+  local EXPECTED_DOMAIN=${1}
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/mailname | grep ${EXPECTED_DOMAIN}"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "postconf -n | grep mydomain | grep ${EXPECTED_DOMAIN}"
+  assert_success
+}
+
+function _should_be_configured_to_fqdn() {
+  local EXPECTED_FQDN=${1}
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "postconf -n | grep myhostname | grep ${EXPECTED_FQDN}"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "doveconf | grep hostname | grep ${EXPECTED_FQDN}"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendmarc.conf | grep AuthservID | grep ${EXPECTED_FQDN}"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendmarc.conf | grep TrustedAuthservIDs | grep ${EXPECTED_FQDN}"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/amavis/conf.d/05-node_id | grep myhostname | grep ${EXPECTED_FQDN}"
   assert_success
 }
