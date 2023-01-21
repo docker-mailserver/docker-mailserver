@@ -66,11 +66,11 @@ ENV_PROCESS_LIST=(
     # Disable Dovecot:
     --env SMTP_ONLY=1
   )
-  init_with_defaults
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+  _init_with_defaults
+  _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   # Required for Postfix (when launched by wrapper script which is slow to start)
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _wait_for_smtp_port_in_container
 
   for PROCESS in "${CORE_PROCESS_LIST[@]}"
   do
@@ -106,10 +106,10 @@ ENV_PROCESS_LIST=(
     # PR 2730: https://github.com/docker-mailserver/docker-mailserver/commit/672e9cf19a3bb1da309e8cea6ee728e58f905366
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
-  init_with_defaults
+  _init_with_defaults
   mv "${TEST_TMP_CONFIG}/fetchmail/fetchmail.cf" "${TEST_TMP_CONFIG}/fetchmail.cf"
   # Average time: 6 seconds
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+  _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   local ENABLED_PROCESS_LIST=(
     "${CORE_PROCESS_LIST[@]}"
@@ -136,8 +136,8 @@ ENV_PROCESS_LIST=(
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_CLAMAV=1
   )
-  init_with_defaults
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+  _init_with_defaults
+  _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   _should_restart_when_killed 'clamd'
 }
@@ -148,7 +148,7 @@ function _should_restart_when_killed() {
 
   # Wait until process has been running for at least MIN_PROCESS_AGE:
   # (this allows us to more confidently check the process was restarted)
-  run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}" "${MIN_PROCESS_AGE}"
+  _run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}" "${MIN_PROCESS_AGE}"
   # NOTE: refute_output doesn't have output to compare to when a run failure is due to a timeout
   assert_success
   assert_output --partial "${PROCESS}"
@@ -161,13 +161,13 @@ function _should_restart_when_killed() {
 
   # Wait until original process is not running:
   # (Ignore restarted process by filtering with MIN_PROCESS_AGE, --fatal-test with `false` stops polling on error):
-  run repeat_until_success_or_timeout --fatal-test "_check_if_process_is_running ${PROCESS} ${MIN_PROCESS_AGE}" 30 false
+  run _repeat_until_success_or_timeout --fatal-test "_check_if_process_is_running ${PROCESS} ${MIN_PROCESS_AGE}" 30 false
   assert_output --partial "'${PROCESS}' is not running"
   assert_failure
 
   # Should be running:
   # (poll as some processes a slower to restart, such as those run by wrapper scripts adding delay via sleep)
-  run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}"
+  _run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}"
   assert_success
   assert_output --partial "${PROCESS}"
 }

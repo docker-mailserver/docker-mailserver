@@ -1,10 +1,17 @@
 #!/bin/bash
 
+# TODO: Functions need better documentation / or documentation at all (adhere to doc conventions!)
+# ? ABOUT: Functions defined here can be used when testing encrypt-related functionality.
+# ? NOTE: `_should_*` methods are useful for common high-level functionality.
+
+# ! -------------------------------------------------------------------
+# ? >> Miscellaneous initialization functionality
+
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-# `_should_*` methods are useful for common high-level functionality.
-
-# ? --------------------------------------------- Negotiate TLS
+# ? << Miscellaneous initialization functionality
+# ! -------------------------------------------------------------------
+# ? >> Negotiate TLS
 
 # For certs actually provisioned from LetsEncrypt the Root CA cert should not need to be provided,
 # as it would already be available by default in `/etc/ssl/certs`, requiring only the cert chain (fullchain.pem).
@@ -14,11 +21,12 @@ function _should_succesfully_negotiate_tls() {
   local CA_CERT=${2:-${TEST_CA_CERT}}
 
   # Postfix and Dovecot are ready:
-  wait_for_smtp_port_in_container_to_respond "${CONTAINER_NAME}"
-  wait_for_tcp_port_in_container 993 "${CONTAINER_NAME}"
+  _wait_for_smtp_port_in_container_to_respond
+  _wait_for_tcp_port_in_container 993
 
   # Root CA cert should be present in the container:
-  assert docker exec "${CONTAINER_NAME}" [ -f "${CA_CERT}" ]
+  _run_in_container_bash "[[ -f ${CA_CERT} ]]"
+  assert_success
 
   local PORTS=(25 587 465 143 993)
   for PORT in "${PORTS[@]}"
@@ -82,7 +90,7 @@ function _generate_openssl_cmd() {
 
 function _get_fqdn_match_query() {
   local FQDN
-  FQDN=$(escape_fqdn "${1}")
+  FQDN=$(_escape_fqdn "${1}")
 
   # 3rd check is for wildcard support by replacing the 1st DNS label of the FQDN with a `*`,
   # eg: `mail.example.test` will become `*.example.test` matching `DNS:*.example.test`.
@@ -101,7 +109,7 @@ function _should_not_support_fqdn_in_cert() {
 
 # Escapes `*` and `.` so the FQDN literal can be used in regex queries
 # `sed` will match those two chars and `\\&` says to prepend a `\` to the sed match (`&`)
-function escape_fqdn() {
+function _escape_fqdn() {
   # shellcheck disable=SC2001
   sed 's|[\*\.]|\\&|g' <<< "${1}"
 }

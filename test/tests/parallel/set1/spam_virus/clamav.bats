@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[ClamAV] '
 CONTAINER_NAME='dms-test_clamav'
 
 function setup_file() {
-  init_with_defaults
+  _init_with_defaults
 
   # Comment for maintainers about `PERMIT_DOCKER=host`:
   # https://github.com/docker-mailserver/docker-mailserver/pull/2815/files#r991087509
@@ -18,24 +18,24 @@ function setup_file() {
     --env LOG_LEVEL=trace
   )
 
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # wait for ClamAV to be fully setup or we will get errors on the log
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
+  _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
 
-  wait_for_service "${CONTAINER_NAME}" postfix
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _wait_for_service postfix
+  _wait_for_smtp_port_in_container
 
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
   assert_success
 
-  wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+  _wait_for_empty_mail_queue_in_container
 }
 
 function teardown_file() { _default_teardown ; }
 
 @test "log files exist at /var/log/mail directory" {
-  _run_in_container bash -c "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log' | wc -l"
+  _run_in_container_bash "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log' | wc -l"
   assert_success
   assert_output 3
 }
@@ -46,7 +46,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "freshclam cron is enabled" {
-  _run_in_container bash -c "grep '/usr/bin/freshclam' -r /etc/cron.d"
+  _run_in_container_bash "grep '/usr/bin/freshclam' -r /etc/cron.d"
   assert_success
 }
 
@@ -56,6 +56,6 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "rejects virus" {
-  _run_in_container bash -c "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<virus@external.tld> -> <user1@localhost.localdomain>'"
+  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<virus@external.tld> -> <user1@localhost.localdomain>'"
   assert_success
 }
