@@ -599,11 +599,27 @@ function _setup_SRS
   postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
 }
 
-function _setup_dkim
+function _setup_dkim_dmarc
 {
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
+  then
+    _log 'trace' "Adding OpenDMARC to Postfix's milters"
+
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
+  fi
+
+  [[ ${ENABLE_OPENDKIM} -eq 1 ]] || return 0
+
   _log 'debug' 'Setting up DKIM'
 
   mkdir -p /etc/opendkim && touch /etc/opendkim/SigningTable
+
+  _log 'trace' "Adding OpenDKIM tp Postfix's milters"
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
 
   # check if any keys are available
   if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
