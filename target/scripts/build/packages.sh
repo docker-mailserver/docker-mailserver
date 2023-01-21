@@ -153,6 +153,7 @@ function _install_fail2ban
   local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
 
   _log 'debug' 'Installing Fail2ban'
+  apt-get "${QUIET}" --no-install-recommends install python3-pyinotify python3-dnspython
 
   gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
 
