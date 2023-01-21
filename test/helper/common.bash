@@ -2,7 +2,7 @@
 
 # ? ABOUT: Functions defined here aid with common functionality during tests.
 
-# ! ATTENTION: Functions prefixed with `__` are not meant to be called in tests.
+# ! ATTENTION: Functions prefixed with `__` are intended for internal use within this file only, not in tests.
 
 # ! -------------------------------------------------------------------
 # ? >> Miscellaneous initialization functionality
@@ -45,7 +45,7 @@ __load_bats_helper
 #
 #     local SOME_VAR=$(__handle_container_name "${X:-}")
 #
-# where `X` an arbitrary argument of the function you're in.
+# Where `X` is an arbitrary argument of the function you're calling.
 #
 # ## Note
 #
@@ -60,7 +60,7 @@ function __handle_container_name() {
     printf '%s' "${CONTAINER_NAME}"
     return 0
   else
-    echo 'ERROR: (helper/common.sh) Container name not given explicitly and could also not be derived' >&2
+    echo 'ERROR: (helper/common.sh) Container name was either provided explicitly without the required `dms-test_` prefix, or CONTAINER_NAME is not set for implicit usage' >&2
     exit 1
   fi
 }
@@ -262,7 +262,7 @@ function _wait_for_smtp_port_in_container_to_respond() {
 #
 # @param ${1} = service name
 # @param ${2} = container name [OPTIONAL]
-function _container_has_service_running() {
+function _should_have_service_running_in_container() {
   local SERVICE_NAME="${1:?Service name must be provided}"
   local CONTAINER_NAME=$(__handle_container_name "${2:-}")
 
@@ -282,7 +282,7 @@ function _wait_for_service() {
   _repeat_until_success_or_timeout \
     --fatal-test "_container_is_running ${CONTAINER_NAME}" \
     "${TEST_TIMEOUT_IN_SECONDS}" \
-    _container_has_service_running "${SERVICE_NAME}"
+    _should_have_service_running_in_container "${SERVICE_NAME}"
 }
 
 # An account added to `postfix-accounts.cf` must wait for the `changedetector` service
@@ -323,7 +323,7 @@ function _wait_for_empty_mail_queue_in_container() {
 
 # Adds a mail account and waits for the associated files to be created.
 #
-# @param ${1} = account name
+# @param ${1} = mail account name
 # @param ${2} = password [OPTIONAL]
 # @param ${3} = container name [OPTIONAL]
 function _add_mail_account_then_wait_until_ready() {
@@ -374,14 +374,14 @@ function _container_is_running() {
   [[ $(docker inspect -f '{{.State.Running}}' "${TARGET_CONTAINER_NAME}") == 'true' ]]
 }
 
-# Checks whether the directory exists and then how many files it container.
+# Checks if the directory exists and then how many files it contains at the top-level.
 #
 # @param ${1} = directory
 # @param ${2} = number of files that should be in ${1}
 # @param ${3} = container name [OPTIONAL]
 function _count_files_in_directory_in_container()
 {
-  local DIRECTORY=${1:?No directoty provided}
+  local DIRECTORY=${1:?No directory provided}
   local NUMBER_OF_LINES=${2:?No line count provided}
   local CONTAINER_NAME=$(__handle_container_name "${3:-}")
 

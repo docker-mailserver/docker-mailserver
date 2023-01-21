@@ -2,8 +2,8 @@
 
 # ? ABOUT: Functions defined here should be used when initializing tests.
 
-# ! ATTENTION: Functions prefixed with `__` are not meant to be called in tests.
-# ! ATTENTION: This script should must not use functions from `common.bash` to
+# ! ATTENTION: Functions prefixed with `__` are intended for internal use within this file only, not in tests.
+# ! ATTENTION: This script must not use functions from `common.bash` to
 # !            avoid dependency hell.
 
 # ! -------------------------------------------------------------------
@@ -79,9 +79,9 @@ function _duplicate_config_for_container() {
 
 # Common defaults appropriate for most tests.
 #
-# Override variables in each test when necessary. For all tests in a single files,
-# overrides are done in `setup_file()` via `export <VARIABLE>`. For individual tests,
-# override variables via `local <VARIABLE>` instead.
+# Override variables in test cases within a file when necessary:
+# - Use `export <VARIABLE>` in `setup_file()` to overrides for all test cases.
+# - Use `local <VARIABLE>` to override within a specific test case.
 #
 # ## Attenton
 #

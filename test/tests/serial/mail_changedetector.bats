@@ -125,7 +125,7 @@ function _prepare_blocking_lock_test {
   _exec_in_container_bash 'rm -f /var/log/supervisor/changedetector.log'
 
   # Create a foreign lock file to prevent change processing (in both containers):
-  docker exec "${CONTAINER1_NAME}" /bin/bash -c 'touch /tmp/docker-mailserver/check-for-changes.sh.lock'
+  _exec_in_container_explicit "${CONTAINER1_NAME}" /bin/bash -c 'touch /tmp/docker-mailserver/check-for-changes.sh.lock'
   # Create a new change to detect (that the foreign lock should prevent from processing):
   _create_change_event
 
