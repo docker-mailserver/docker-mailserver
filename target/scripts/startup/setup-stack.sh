@@ -84,8 +84,15 @@ function _setup_amavis
     mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
     chmod 0 /etc/cron.d/amavisd-new.disabled
 
-    [[ ${ENABLE_CLAMAV} -eq 1 ]] && _log 'warn' 'ClamAV will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && _log 'warn' 'Spamassassin will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
+    if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]
+    then
+      _log 'warn' 'ClamAV will not work when Amavis & rspamd are disabled. Enable either Amavis or rspamd to fix it.'
+    fi
+
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+    then
+      _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
+    fi
   fi
 }
 
@@ -580,7 +587,7 @@ EOF
     -e "/dovecot_destination_recipient_limit =.*/d" \
     /etc/postfix/main.cf
 
-  gpasswd -a postfix sasl
+  gpasswd -a postfix sasl >/dev/null
 }
 
 function _setup_postfix_aliases
@@ -626,7 +633,9 @@ function _setup_dkim_dmarc
   then
     cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
 
-    _log 'trace' "DKIM keys added for: $(ls /etc/opendkim/keys/)"
+    local KEYS
+    KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
+    _log 'trace' "DKIM keys added for: ${KEYS}"
     _log 'trace' "Changing permissions on '/etc/opendkim'"
 
     chown -R opendkim:opendkim /etc/opendkim/
