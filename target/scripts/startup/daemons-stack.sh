@@ -56,7 +56,6 @@ function _start_daemon_postgrey
 
 function _start_daemon_fail2ban
 {
-  touch /var/log/auth.log
   _default_start_daemon 'fail2ban'
 }
 
