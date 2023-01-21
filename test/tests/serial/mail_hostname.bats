@@ -90,11 +90,6 @@ function teardown_file() {
   _should_be_configured_to_fqdn 'mail.my-domain.com'
 }
 
-@test "checking configuration: hostname/domainname override: check hostname in postfix HELO message" {
-  run docker exec mail_override_hostname /bin/bash -c "nc -w 1 0.0.0.0 25 | grep mail.my-domain.com"
-  assert_success
-}
-
 @test "checking configuration: hostname/domainname override: check headers of received mail" {
   run docker exec mail_override_hostname /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l | grep 1"
   assert_success
@@ -105,16 +100,6 @@ function teardown_file() {
   # test whether the container hostname is not found in received mail
   run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep unknown.domain.tld"
   assert_failure
-}
-
-@test "checking SRS: OVERRIDE_HOSTNAME is handled correctly" {
-  run docker exec mail_override_hostname grep "SRS_DOMAIN=my-domain.com" /etc/default/postsrsd
-  assert_success
-}
-
-@test "checking dovecot: postmaster address" {
-  run docker exec mail_override_hostname /bin/sh -c "grep 'postmaster_address = postmaster@my-domain.com' /etc/dovecot/conf.d/15-lda.conf"
-  assert_success
 }
 
 #
@@ -134,27 +119,11 @@ function teardown_file() {
   _should_be_configured_to_fqdn 'domain.com'
 }
 
-@test "checking configuration: non-subdomain: check hostname in postfix HELO message" {
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "nc -w 1 0.0.0.0 25 | grep domain.com"
-  assert_success
-}
-
 @test "checking configuration: non-subdomain: check headers of received mail" {
   run docker exec mail_non_subdomain_hostname /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l | grep 1"
   assert_success
 
   run docker exec mail_non_subdomain_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep domain.com"
-  assert_success
-}
-
-@test "checking SRS: non-subdomain is handled correctly" {
-  docker exec mail_non_subdomain_hostname cat /etc/default/postsrsd
-  run docker exec mail_non_subdomain_hostname grep "SRS_DOMAIN=domain.com" /etc/default/postsrsd
-  assert_success
-}
-
-@test "checking dovecot: non-subdomain postmaster address" {
-  run docker exec mail_non_subdomain_hostname /bin/sh -c "grep 'postmaster_address = postmaster@domain.com' /etc/dovecot/conf.d/15-lda.conf"
   assert_success
 }
 
@@ -190,6 +159,14 @@ function _should_be_configured_to_domainname() {
 
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "postconf -n | grep mydomain | grep ${EXPECTED_DOMAIN}"
   assert_success
+
+  # PostSRSd should be configured correctly:
+  run docker exec "${CONTAINER_NAME}" grep "SRS_DOMAIN=${EXPECTED_DOMAIN}" /etc/default/postsrsd
+  assert_success
+
+  # Dovecot postmaster address should be configured correctly:
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "grep 'postmaster_address = postmaster@${EXPECTED_DOMAIN}' /etc/dovecot/conf.d/15-lda.conf"
+  assert_success
 }
 
 function _should_be_configured_to_fqdn() {
@@ -208,5 +185,9 @@ function _should_be_configured_to_fqdn() {
   assert_success
 
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/amavis/conf.d/05-node_id | grep myhostname | grep ${EXPECTED_FQDN}"
+  assert_success
+
+  # FQDN (hostname) should be present in the Postfix HELO message
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "nc -w 1 0.0.0.0 25 | grep ${EXPECTED_FQDN}"
   assert_success
 }
