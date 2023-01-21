@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[rspamd] '
 CONTAINER_NAME='dms-test_rspamd'
 
 function setup_file() {
-  init_with_defaults
+  _init_with_defaults
 
   # Comment for maintainers about `PERMIT_DOCKER=host`:
   # https://github.com/docker-mailserver/docker-mailserver/pull/2815/files#r991087509
@@ -20,26 +20,26 @@ function setup_file() {
     -p 11334:11334
   )
 
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # wait for ClamAV to be fully setup or we will get errors on the log
-  repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
+  _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
 
-  wait_for_service "${CONTAINER_NAME}" redis
-  wait_for_service "${CONTAINER_NAME}" rspamd
-  wait_for_service "${CONTAINER_NAME}" postfix
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _wait_for_service redis
+  _wait_for_service rspamd
+  _wait_for_service postfix
+  _wait_for_smtp_port_in_container
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/rspamd-spam.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/rspamd-spam.txt"
   assert_success
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/rspamd-virus.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/rspamd-virus.txt"
   assert_success
 
-  wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+  _wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
 }
 
 function teardown_file() { _default_teardown ; }
