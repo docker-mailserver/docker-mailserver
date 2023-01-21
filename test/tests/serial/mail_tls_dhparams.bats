@@ -1,5 +1,5 @@
-load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
 # Test case
 # ---------
@@ -21,11 +21,11 @@ function teardown() { _default_teardown ; }
   local DH_PARAMS_DEFAULT='target/shared/ffdhe4096.pem'
   local DH_CHECKSUM_DEFAULT=$(sha512sum "${DH_PARAMS_DEFAULT}" | awk '{print $1}')
 
-  init_with_defaults
-  common_container_setup
+  _init_with_defaults
+  _common_container_setup
 
   _should_match_service_copies "${DH_CHECKSUM_DEFAULT}"
-  
+
   # Verify integrity of the default supplied DH Params (ffdhe4096, should be equivalent to `target/shared/ffdhe4096.pem.sha512sum`):
   # 716a462baecb43520fb1ba6f15d288ba8df4d612bf9d450474b4a1c745b64be01806e5ca4fb2151395fd4412a98831b77ea8dfd389fe54a9c768d170b9565a25
   local DH_CHECKSUM_MOZILLA
@@ -41,9 +41,9 @@ function teardown() { _default_teardown ; }
   local DH_PARAMS_CUSTOM='test/test-files/ssl/custom-dhe-params.pem'
   local DH_CHECKSUM_CUSTOM=$(sha512sum "${DH_PARAMS_CUSTOM}" | awk '{print $1}')
 
-  init_with_defaults
+  _init_with_defaults
   cp "${DH_PARAMS_CUSTOM}" "${TEST_TMP_CONFIG}/dhparams.pem"
-  common_container_setup
+  _common_container_setup
 
   _should_match_service_copies "${DH_CHECKSUM_CUSTOM}"
 
@@ -58,7 +58,7 @@ function _should_match_service_copies() {
   local DH_CHECKSUM=$1
 
   function __should_have_expected_checksum() {
-    _run_in_container bash -c "sha512sum ${1} | awk '{print \$1}'"
+    _run_in_container_bash "sha512sum ${1} | awk '{print \$1}'"
     assert_success
     assert_output "${DH_CHECKSUM}"
   }

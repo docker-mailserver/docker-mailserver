@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[Spam] (bounced) '
 CONTAINER_NAME='dms-test_spam-bounced'
 
 function setup_file() {
-  init_with_defaults
+  _init_with_defaults
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
@@ -14,8 +14,8 @@ function setup_file() {
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
   )
 
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  wait_for_smtp_port_in_container_to_respond "${CONTAINER_NAME}"
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container_to_respond
 }
 
 function teardown_file() { _default_teardown ; }
@@ -31,6 +31,6 @@ function teardown_file() { _default_teardown ; }
   assert_success
 
   # message will be added to a queue with varying delay until amavis receives it
-  run repeat_until_success_or_timeout 60 sh -c "docker logs ${CONTAINER_NAME} | grep 'Blocked SPAM {NoBounceInbound,Quarantined}'"
+  run _repeat_until_success_or_timeout 60 sh -c "docker logs ${CONTAINER_NAME} | grep 'Blocked SPAM {NoBounceInbound,Quarantined}'"
   assert_success
 }

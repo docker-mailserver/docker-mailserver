@@ -6,7 +6,7 @@ CONTAINER1_NAME='dms-test_postscreen_enforce'
 CONTAINER2_NAME='dms-test_postscreen_sender'
 
 function setup() {
-  CONTAINER1_IP=$(get_container_ip ${CONTAINER1_NAME})
+  CONTAINER1_IP=$(_get_container_ip ${CONTAINER1_NAME})
 }
 
 function setup_file() {
@@ -16,16 +16,16 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env POSTSCREEN_ACTION=enforce
   )
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 
   # A standard DMS instance to send mail from:
   # NOTE: None of DMS is actually used for this (just bash + nc).
   CONTAINER_NAME=${CONTAINER2_NAME}
-  init_with_defaults
+  _init_with_defaults
   # No need to wait for DMS to be ready for this container:
-  common_container_create
+  _common_container_create
   run docker start "${CONTAINER_NAME}"
   assert_success
 
@@ -50,7 +50,7 @@ function teardown_file() {
 @test "should successfully login (respecting postscreen_greet_wait time)" {
   # NOTE: Sometimes fails on first attempt (trying too soon?),
   # Instead of a `run` + asserting partial, Using repeat + internal grep match:
-  repeat_until_success_or_timeout 10 _should_wait_turn_speaking_smtp \
+  _repeat_until_success_or_timeout 10 _should_wait_turn_speaking_smtp \
     "${CONTAINER2_NAME}" \
     "${CONTAINER1_IP}" \
     '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' \

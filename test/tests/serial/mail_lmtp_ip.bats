@@ -11,12 +11,12 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 # TODO: A more appropriate test if keeping this feature would be to run Dovecot via a
 # separate container to deliver mail to, and verify it was stored in the expected mail dir.
 
-BATS_TEST_NAME_PREFIX='[ENV] (POSTFIX_DAGENT)'
+BATS_TEST_NAME_PREFIX='[ENV] (POSTFIX_DAGENT) '
 CONTAINER_NAME='dms-test_env_postfix-dagent'
 
 function setup_file() {
   export LMTP_URI='lmtp:127.0.0.1:24'
-  init_with_defaults
+  _init_with_defaults
 
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env PERMIT_DOCKER='container'
@@ -26,7 +26,7 @@ function setup_file() {
   # Configure LMTP service listener in `/etc/dovecot/conf.d/10-master.conf` to instead listen on TCP port 24:
   mv "${TEST_TMP_CONFIG}/dovecot-lmtp/user-patches.sh" "${TEST_TMP_CONFIG}/"
 
-  common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
+  _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 }
 
 function teardown_file() { _default_teardown ; }
@@ -37,10 +37,10 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "delivers mail to existing account" {
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _wait_for_smtp_port_in_container
 
   # Send a test mail:
-  _run_in_container bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
 
   # Verify delivery was successful, log line should look similar to:

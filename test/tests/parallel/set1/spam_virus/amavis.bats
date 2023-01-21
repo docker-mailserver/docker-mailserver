@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[Amavis] '
 CONTAINER_NAME='dms-test_amavis'
 
 function setup_file() {
-  init_with_defaults
+  _init_with_defaults
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
@@ -13,14 +13,14 @@ function setup_file() {
     --env ENABLE_SPAMASSASSIN=1
   )
 
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
 function teardown_file() { _default_teardown ; }
 
 @test "SpamAssassin integration should be active" {
   # give Amavis just a bit of time to print out its full debug log
-  run repeat_in_container_until_success_or_timeout 5 "${CONTAINER_NAME}" grep 'ANTI-SPAM-SA' /var/log/mail/mail.log
+  run _repeat_in_container_until_success_or_timeout 5 "${CONTAINER_NAME}" grep 'ANTI-SPAM-SA' /var/log/mail/mail.log
   assert_success
   assert_output --partial 'loaded'
   refute_output --partial 'NOT loaded'
