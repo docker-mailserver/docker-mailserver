@@ -12,12 +12,10 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_CLAMAV=1
     --env ENABLE_RSPAMD=1
-    --env CLAMAV_MESSAGE_SIZE_LIMIT=30M
     --env ENABLE_OPENDKIM=0
     --env ENABLE_OPENDMARC=0
     --env PERMIT_DOCKER=host
     --env LOG_LEVEL=trace
-    -p 11334:11334
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
