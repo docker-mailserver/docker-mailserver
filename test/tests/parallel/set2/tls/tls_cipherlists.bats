@@ -27,7 +27,7 @@ function setup_file() {
   # Only interferes (potential test failure) with `assert_output` not `assert_success`?
   docker pull drwetter/testssl.sh:3.1dev
 
-  # Only used in `should_support_expected_cipherlists()` to set a storage location for `testssl.sh` JSON output:
+  # Only used in `_should_support_expected_cipherlists()` to set a storage location for `testssl.sh` JSON output:
   # `${BATS_TMPDIR}` maps to `/tmp`: https://bats-core.readthedocs.io/en/v1.8.2/writing-tests.html#special-variables
   export TLS_RESULTS_DIR="${BATS_TMPDIR}/results"
 }
@@ -39,38 +39,38 @@ function teardown_file() {
 function teardown() { _default_teardown ; }
 
 @test "'TLS_LEVEL=intermediate' + RSA" {
-  configure_and_run_dms_container 'intermediate' 'rsa'
-  should_support_expected_cipherlists
+  _configure_and_run_dms_container 'intermediate' 'rsa'
+  _should_support_expected_cipherlists
 }
 
 @test "'TLS_LEVEL=intermediate' + ECDSA" {
-  configure_and_run_dms_container 'intermediate' 'ecdsa'
-  should_support_expected_cipherlists
+  _configure_and_run_dms_container 'intermediate' 'ecdsa'
+  _should_support_expected_cipherlists
 }
 
 # Only ECDSA with an RSA fallback is tested.
 # There isn't a situation where RSA with an ECDSA fallback would make sense.
 @test "'TLS_LEVEL=intermediate' + ECDSA with RSA fallback" {
-  configure_and_run_dms_container 'intermediate' 'ecdsa' 'rsa'
-  should_support_expected_cipherlists
+  _configure_and_run_dms_container 'intermediate' 'ecdsa' 'rsa'
+  _should_support_expected_cipherlists
 }
 
 @test "'TLS_LEVEL=modern' + RSA" {
-  configure_and_run_dms_container 'modern' 'rsa'
-  should_support_expected_cipherlists
+  _configure_and_run_dms_container 'modern' 'rsa'
+  _should_support_expected_cipherlists
 }
 
 @test "'TLS_LEVEL=modern' + ECDSA" {
-  configure_and_run_dms_container 'modern' 'ecdsa'
-  should_support_expected_cipherlists
+  _configure_and_run_dms_container 'modern' 'ecdsa'
+  _should_support_expected_cipherlists
 }
 
 @test "'TLS_LEVEL=modern' + ECDSA with RSA fallback" {
-  configure_and_run_dms_container 'modern' 'ecdsa' 'rsa'
-  should_support_expected_cipherlists
+  _configure_and_run_dms_container 'modern' 'ecdsa' 'rsa'
+  _should_support_expected_cipherlists
 }
 
-function configure_and_run_dms_container() {
+function _configure_and_run_dms_container() {
   local TLS_LEVEL=$1
   local KEY_TYPE=$2
   local ALT_KEY_TYPE=$3 # Optional parameter
@@ -106,23 +106,23 @@ function configure_and_run_dms_container() {
     )
   fi
 
-  init_with_defaults
-  common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  wait_for_smtp_port_in_container "${CONTAINER_NAME}"
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 }
 
-function should_support_expected_cipherlists() {
+function _should_support_expected_cipherlists() {
   # Make a directory with test user ownership. Avoids Docker creating this with root ownership.
   # TODO: Can switch to filename prefix for JSON output when this is resolved: https://github.com/drwetter/testssl.sh/issues/1845
   local RESULTS_PATH="${TLS_RESULTS_DIR}/${TEST_VARIANT}"
   mkdir -p "${RESULTS_PATH}"
 
-  collect_cipherlists
-  verify_cipherlists
+  _collect_cipherlists
+  _verify_cipherlists
 }
 
 # Verify that the collected results match our expected cipherlists:
-function verify_cipherlists() {
+function _verify_cipherlists() {
   # SMTP: Opportunistic STARTTLS Explicit(25)
   # Needs to test against cipher lists specific to Port 25 ('_p25' parameter)
   check_cipherlists "${RESULTS_PATH}/port_25.json" '_p25'
@@ -141,7 +141,7 @@ function verify_cipherlists() {
 }
 
 # Using `testssl.sh` we can test each port to collect a list of supported cipher suites (ordered):
-function collect_cipherlists() {
+function _collect_cipherlists() {
   # NOTE: An rDNS query for the container IP will resolve to `<container name>.<network name>.`
 
   # For non-CI test runs, instead of removing prior test files after this test suite completes,

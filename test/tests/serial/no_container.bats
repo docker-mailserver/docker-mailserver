@@ -1,5 +1,5 @@
-load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
 # Tests the `setup.sh` companion script.
 # Only test coverage below is that the config path `-p` and image `-i` options work as intended.
@@ -12,7 +12,7 @@ function setup_file() {
 
   # Copy the base config that `setup.sh` will volume mount to a container it runs:
   export TEST_TMP_CONFIG
-  TEST_TMP_CONFIG=$(duplicate_config_for_container . 'no_container')
+  TEST_TMP_CONFIG=$(_duplicate_config_for_container . 'no_container')
 }
 
 @test "'setup.sh -p <PATH> -i <IMAGE>' should correctly use options" {

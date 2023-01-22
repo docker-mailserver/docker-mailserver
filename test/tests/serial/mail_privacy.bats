@@ -1,39 +1,38 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
+
+BATS_TEST_NAME_PREFIX='[Privacy] '
+CONTAINER_NAME='dms-test_privacy'
 
 function setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+  _init_with_defaults
 
-  docker run -d --name mail_privacy \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e ENABLE_MANAGESIEVE=1 \
-    -e PERMIT_DOCKER=host \
-    -h mail.my-domain.com \
-    -e SSL_TYPE='snakeoil' \
-    --tty \
-    "${NAME}" # Image name
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_MANAGESIEVE=1
+    --env PERMIT_DOCKER=host
+    --env SSL_TYPE='snakeoil'
+  )
 
-  wait_for_amavis_port_in_container mail_privacy
-  wait_for_smtp_port_in_container mail_privacy
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  # Port 10024 (Amavis)
+  _wait_for_tcp_port_in_container 10024
+  _wait_for_smtp_port_in_container
 }
 
-function teardown_file() {
-  docker rm -f mail_privacy
-}
+function teardown_file() { _default_teardown ; }
 
-# What this test should cover: https://github.com/docker-mailserver/docker-mailserver/issues/681
-@test "checking postfix: remove privacy details of the sender" {
-  docker exec mail_privacy /bin/sh -c "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
-  # shellcheck disable=SC2016
-  repeat_until_success_or_timeout 120 docker exec mail_privacy /bin/bash -c '[[ $(ls /var/mail/localhost.localdomain/user1/new | wc -l) -eq 1 ]]'
-  docker logs mail_privacy
-
-  run docker exec mail_privacy /bin/sh -c "ls /var/mail/localhost.localdomain/user1/new | wc -l"
+# this test covers https://github.com/docker-mailserver/docker-mailserver/issues/681
+@test "(Postfix) remove privacy details of the sender" {
+  _run_in_container_bash "openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/email-templates/send-privacy-email.txt"
   assert_success
-  assert_output 1
 
-  run docker exec mail_privacy /bin/sh -c 'grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new | wc -l'
+  _run_until_success_or_timeout 120 _exec_in_container_bash '[[ -d /var/mail/localhost.localdomain/user1/new ]]'
   assert_success
-  assert_output 0
+
+  _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
+
+  _run_in_container_bash 'grep -rE "^User-Agent:" /var/mail/localhost.localdomain/user1/new'
+  _should_output_number_of_lines 0
 }
