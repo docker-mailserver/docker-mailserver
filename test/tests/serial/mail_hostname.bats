@@ -1,9 +1,9 @@
 load "${REPOSITORY_ROOT}/test/test_helper/common"
 
-CONTAINER1_NAME='mail_override_hostname'
-CONTAINER2_NAME='mail_non_subdomain_hostname'
-CONTAINER3_NAME='mail_srs_domainname'
-CONTAINER4_NAME='mail_domainname'
+CONTAINER1_NAME='dms-test_hostname_env-override-hostname'
+CONTAINER2_NAME='dms-test_hostname_bare-domain'
+CONTAINER3_NAME='dms-test_hostname_env-srs-domainname'
+CONTAINER4_NAME='dms-test_hostname_fqdn-with-subdomain'
 
 function setup_file() {
   local PRIVATE_CONFIG
@@ -15,8 +15,8 @@ function setup_file() {
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     --env PERMIT_DOCKER='container' \
     --env ENABLE_SRS=1 \
-    --env OVERRIDE_HOSTNAME='mail.my-domain.com' \
-    --hostname 'unknown.domain.tld' \
+    --env OVERRIDE_HOSTNAME='mail.override.test' \
+    --hostname 'original.example.test' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
@@ -28,7 +28,7 @@ function setup_file() {
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     --env PERMIT_DOCKER='container' \
     --env ENABLE_SRS=1 \
-    --hostname 'domain.com' \
+    --hostname 'bare-domain.test' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
@@ -40,8 +40,8 @@ function setup_file() {
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     --env PERMIT_DOCKER='container' \
     --env ENABLE_SRS=1 \
-    --env SRS_DOMAINNAME='srs.my-domain.com' \
-    --domainname 'my-domain.com' \
+    --env SRS_DOMAINNAME='srs.example.test' \
+    --domainname 'example.test' \
     --hostname 'mail' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
@@ -54,7 +54,7 @@ function setup_file() {
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
     --env PERMIT_DOCKER='container' \
     --env ENABLE_SRS=1 \
-    --domainname 'my-domain.com' \
+    --domainname 'example.test' \
     --hostname 'mail' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
@@ -75,7 +75,7 @@ function teardown_file() {
 
   # PostSRSd should be configured correctly:
   run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
-  assert_output "SRS_DOMAIN=srs.my-domain.com"
+  assert_output "SRS_DOMAIN=srs.example.test"
   assert_success
 }
 
@@ -84,7 +84,7 @@ function teardown_file() {
 
   # PostSRSd should be configured correctly:
   run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
-  assert_output "SRS_DOMAIN=my-domain.com"
+  assert_output "SRS_DOMAIN=example.test"
   assert_success
 }
 
@@ -92,27 +92,27 @@ function teardown_file() {
   local CONTAINER_NAME="${CONTAINER1_NAME}"
 
   # Should be the original `--hostname`, not `OVERRIDE_HOSTNAME`:
-  _should_have_expected_hostname 'unknown.domain.tld'
+  _should_have_expected_hostname 'original.example.test'
 
-  _should_be_configured_to_domainname 'my-domain.com'
-  _should_be_configured_to_fqdn 'mail.my-domain.com'
+  _should_be_configured_to_domainname 'override.test'
+  _should_be_configured_to_fqdn 'mail.override.test'
 
-  _should_have_correct_mail_headers 'mail.my-domain.com' 'unknown.domain.tld'
+  _should_have_correct_mail_headers 'mail.override.test' 'original.example.test'
   # Container hostname should not be found in received mail (due to `OVERRIDE_HOSTNAME`):
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep -R unknown.domain.tld /var/mail/localhost.localdomain/user1/new/"
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep -R original.example.test /var/mail/localhost.localdomain/user1/new/"
   assert_failure
 }
 
 @test "checking configuration: non-subdomain: check overriden hostname is applied to all configs" {
   local CONTAINER_NAME="${CONTAINER2_NAME}"
 
-  _should_have_expected_hostname 'domain.com'
+  _should_have_expected_hostname 'bare-domain.test'
 
-  _should_be_configured_to_domainname 'domain.com'
+  _should_be_configured_to_domainname 'bare-domain.test'
   # Bare domain configured, thus no subdomain:
-  _should_be_configured_to_fqdn 'domain.com'
+  _should_be_configured_to_fqdn 'bare-domain.test'
 
-  _should_have_correct_mail_headers 'domain.com'
+  _should_have_correct_mail_headers 'bare-domain.test'
 }
 
 function _should_have_expected_hostname() {
