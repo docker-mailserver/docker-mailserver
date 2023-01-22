@@ -78,7 +78,7 @@ function teardown_file() {
   local CONTAINER_NAME="${CONTAINER3_NAME}"
 
   # PostSRSd should be configured correctly:
-  run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
+  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
   assert_output "SRS_DOMAIN=srs.example.test"
   assert_success
 }
@@ -87,7 +87,7 @@ function teardown_file() {
   local CONTAINER_NAME="${CONTAINER4_NAME}"
 
   # PostSRSd should be configured correctly:
-  run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
+  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
   assert_output "SRS_DOMAIN=example.test"
   assert_success
 }
@@ -103,7 +103,7 @@ function teardown_file() {
 
   _should_have_correct_mail_headers 'mail.override.test' 'original.example.test'
   # Container hostname should not be found in received mail (due to `OVERRIDE_HOSTNAME`):
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep -R original.example.test /var/mail/localhost.localdomain/user1/new/"
+  _run_in_container_bash "grep -R original.example.test /var/mail/localhost.localdomain/user1/new/"
   assert_failure
 }
 
@@ -122,32 +122,34 @@ function teardown_file() {
 function _should_have_expected_hostname() {
   local EXPECTED_FQDN=${1}
 
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "hostname"
+  _run_in_container_bash "hostname"
   assert_output "${EXPECTED_FQDN}"
   assert_success
 
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep -E '[[:space:]]+${EXPECTED_FQDN}' /etc/hosts"
+  _run_in_container_bash "grep -E '[[:space:]]+${EXPECTED_FQDN}' /etc/hosts"
   assert_success
 }
 
 function _should_be_configured_to_domainname() {
   local EXPECTED_DOMAIN=${1}
 
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/mailname"
+  # setup-stack.sh:_setup_mailname
+  _run_in_container_bash "cat /etc/mailname"
   assert_output "${EXPECTED_DOMAIN}"
   assert_success
 
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "postconf mydomain"
+  # Postfix
+  _run_in_container_bash "postconf mydomain"
   assert_output "mydomain = ${EXPECTED_DOMAIN}"
   assert_success
 
-  # PostSRSd should be configured correctly:
-  run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
+  # PostSRSd
+  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
   assert_output "SRS_DOMAIN=${EXPECTED_DOMAIN}"
   assert_success
 
-  # Dovecot postmaster address should be configured correctly:
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep '^postmaster_address' /etc/dovecot/conf.d/15-lda.conf"
+  # Dovecot
+  _run_in_container_bash "grep '^postmaster_address' /etc/dovecot/conf.d/15-lda.conf"
   assert_output "postmaster_address = postmaster@${EXPECTED_DOMAIN}"
   assert_success
 }
@@ -156,29 +158,29 @@ function _should_be_configured_to_fqdn() {
   local EXPECTED_FQDN=${1}
 
   # Postfix
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "postconf myhostname"
+  _run_in_container_bash "postconf myhostname"
   assert_output "myhostname = ${EXPECTED_FQDN}"
   assert_success
   # Postfix HELO message should contain FQDN (hostname)
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "nc -w 1 0.0.0.0 25"
+  _run_in_container_bash "nc -w 1 0.0.0.0 25"
   assert_output --partial "220 ${EXPECTED_FQDN} ESMTP"
   assert_success
 
   # Dovecot
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "doveconf hostname"
+  _run_in_container_bash "doveconf hostname"
   assert_output "hostname = ${EXPECTED_FQDN}"
   assert_success
 
   # OpenDMARC
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep '^AuthservID' /etc/opendmarc.conf"
+  _run_in_container_bash "grep '^AuthservID' /etc/opendmarc.conf"
   assert_output --partial " ${EXPECTED_FQDN}"
   assert_success
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep '^TrustedAuthservIDs' /etc/opendmarc.conf"
+  _run_in_container_bash "grep '^TrustedAuthservIDs' /etc/opendmarc.conf"
   assert_output --partial " ${EXPECTED_FQDN}"
   assert_success
 
   # Amavis
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep '^\$myhostname' /etc/amavis/conf.d/05-node_id"
+  _run_in_container_bash "grep '^\$myhostname' /etc/amavis/conf.d/05-node_id"
   assert_output "\$myhostname = \"${EXPECTED_FQDN}\";"
   assert_success
 }
@@ -187,19 +189,19 @@ function _should_have_correct_mail_headers() {
   local EXPECTED_FQDN=${1}
   local EXPECTED_HOSTNAME=${2:-${EXPECTED_FQDN}}
 
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
 
   _wait_for_empty_mail_queue_in_container
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 
   # MTA hostname (sender?) is used in filename of stored mail:
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1/new"
+  _run_in_container_bash "ls -A /var/mail/localhost.localdomain/user1/new"
   assert_output --partial ".${EXPECTED_HOSTNAME},"
   assert_success
 
   # FQDN should be in mail headers:
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "grep -R '${EXPECTED_FQDN}' /var/mail/localhost.localdomain/user1/new/"
+  _run_in_container_bash "grep -R '${EXPECTED_FQDN}' /var/mail/localhost.localdomain/user1/new/"
   assert_output --partial "Received: from ${EXPECTED_FQDN}"
   assert_output --partial "by ${EXPECTED_FQDN} with LMTP"
   assert_output --partial "by ${EXPECTED_FQDN} (Postfix) with ESMTP id"
