@@ -59,10 +59,6 @@ function setup_file() {
 }
 
 function teardown_file() {
-  # Running `docker rm -f` too soon after `docker stop` can result in failure during teardown with:
-  # "Error response from daemon: removal of container mail_domainname is already in progress"
-  sleep 1
-
   docker rm -f mail_override_hostname mail_non_subdomain_hostname mail_srs_domainname mail_domainname
 }
 
@@ -99,30 +95,6 @@ function teardown_file() {
   _should_be_configured_to_fqdn 'domain.com'
 
   _should_have_correct_mail_headers 'domain.com'
-}
-
-#
-# clean exit
-#
-
-@test "checking that the container stops cleanly: mail_override_hostname" {
-  run docker stop -t 60 mail_override_hostname
-  assert_success
-}
-
-@test "checking that the container stops cleanly: mail_non_subdomain_hostname" {
-  run docker stop -t 60 mail_non_subdomain_hostname
-  assert_success
-}
-
-@test "checking that the container stops cleanly: mail_srs_domainname" {
-  run docker stop -t 60 mail_srs_domainname
-  assert_success
-}
-
-@test "checking that the container stops cleanly: mail_domainname" {
-  run docker stop -t 60 mail_domainname
-  assert_success
 }
 
 function _should_have_expected_hostname() {

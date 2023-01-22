@@ -127,6 +127,8 @@ ENV_PROCESS_LIST=(
   assert_success
   pgrep --full 'fetchmail-2.rc'
   assert_success
+
+  _should_stop_cleanly
 }
 
 # Split into separate test case for the benefit of minimizing CPU + RAM overhead of clamd.
@@ -140,6 +142,7 @@ ENV_PROCESS_LIST=(
   _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
   _should_restart_when_killed 'clamd'
+  _should_stop_cleanly
 }
 
 function _should_restart_when_killed() {
@@ -189,4 +192,17 @@ function _check_if_process_is_running() {
 
   # Original output (if any) for assertions
   echo "${IS_RUNNING}"
+}
+
+# The process manager (supervisord) should perform a graceful shutdown:
+# NOTE: Time limit should never be below these configured values:
+# - supervisor-app.conf:stopwaitsecs
+# - docker-compose.yml:stop_grace_period
+function _should_stop_cleanly() {
+  run docker stop -t 60 "${CONTAINER_NAME}"
+  assert_success
+
+  # Running `docker rm -f` too soon after `docker stop` can result in failure during teardown with:
+  # "Error response from daemon: removal of container "${CONTAINER_NAME}" is already in progress"
+  sleep 1
 }
