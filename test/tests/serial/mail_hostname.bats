@@ -1,77 +1,95 @@
 load "${REPOSITORY_ROOT}/test/test_helper/common"
 
+CONTAINER1_NAME='mail_override_hostname'
+CONTAINER2_NAME='mail_non_subdomain_hostname'
+CONTAINER3_NAME='mail_srs_domainname'
+CONTAINER4_NAME='mail_domainname'
 
 function setup_file() {
   local PRIVATE_CONFIG
 
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_override_hostname)
-  docker run --rm -d --name mail_override_hostname \
+  # mail_override_hostname
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER1_NAME}")
+  docker run --rm -d --name "${CONTAINER1_NAME}" \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e PERMIT_DOCKER=network \
-    -e ENABLE_SRS=1 \
-    -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-    --hostname unknown.domain.tld \
+    --env PERMIT_DOCKER='container' \
+    --env ENABLE_SRS=1 \
+    --env OVERRIDE_HOSTNAME='mail.my-domain.com' \
+    --hostname 'unknown.domain.tld' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
-  PRIVATE_CONFIG_TWO=$(duplicate_config_for_container . mail_non_subdomain_hostname)
-  docker run --rm -d --name mail_non_subdomain_hostname \
+  # mail_non_subdomain_hostname
+  PRIVATE_CONFIG_TWO=$(duplicate_config_for_container . "${CONTAINER2_NAME}")
+  docker run --rm -d --name "${CONTAINER2_NAME}" \
     -v "${PRIVATE_CONFIG_TWO}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e PERMIT_DOCKER=network \
-    -e ENABLE_SRS=1 \
-    --hostname domain.com \
+    --env PERMIT_DOCKER='container' \
+    --env ENABLE_SRS=1 \
+    --hostname 'domain.com' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
-  PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . mail_srs_domainname)
-  docker run --rm -d --name mail_srs_domainname \
+  # mail_srs_domainname
+  PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . "${CONTAINER3_NAME}")
+  docker run --rm -d --name "${CONTAINER3_NAME}" \
     -v "${PRIVATE_CONFIG_THREE}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e PERMIT_DOCKER=network \
-    -e ENABLE_SRS=1 \
-    -e SRS_DOMAINNAME='srs.my-domain.com' \
+    --env PERMIT_DOCKER='container' \
+    --env ENABLE_SRS=1 \
+    --env SRS_DOMAINNAME='srs.my-domain.com' \
     --domainname 'my-domain.com' \
     --hostname 'mail' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
-  PRIVATE_CONFIG_FOUR=$(duplicate_config_for_container . mail_domainname)
-  docker run --rm -d --name mail_domainname \
+  # mail_domainname
+  PRIVATE_CONFIG_FOUR=$(duplicate_config_for_container . "${CONTAINER4_NAME}")
+  docker run --rm -d --name "${CONTAINER4_NAME}" \
     -v "${PRIVATE_CONFIG_FOUR}":/tmp/docker-mailserver \
     -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e PERMIT_DOCKER=network \
-    -e ENABLE_SRS=1 \
+    --env PERMIT_DOCKER='container' \
+    --env ENABLE_SRS=1 \
     --domainname 'my-domain.com' \
     --hostname 'mail' \
     --tty \
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
     "${NAME}"
 
-  wait_for_smtp_port_in_container mail_override_hostname
-  wait_for_smtp_port_in_container mail_non_subdomain_hostname
-  wait_for_smtp_port_in_container mail_srs_domainname
-  wait_for_smtp_port_in_container mail_domainname
+  wait_for_smtp_port_in_container "${CONTAINER1_NAME}"
+  wait_for_smtp_port_in_container "${CONTAINER2_NAME}"
+  wait_for_smtp_port_in_container "${CONTAINER3_NAME}"
+  wait_for_smtp_port_in_container "${CONTAINER4_NAME}"
 }
 
 function teardown_file() {
-  docker rm -f mail_override_hostname mail_non_subdomain_hostname mail_srs_domainname mail_domainname
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}" "${CONTAINER4_NAME}"
 }
 
 @test "checking SRS: SRS_DOMAINNAME is used correctly" {
-  repeat_until_success_or_timeout 15 docker exec mail_srs_domainname grep "SRS_DOMAIN=srs.my-domain.com" /etc/default/postsrsd
+  local CONTAINER_NAME="${CONTAINER3_NAME}"
+
+  # PostSRSd should be configured correctly:
+  run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
+  assert_output "SRS_DOMAIN=srs.my-domain.com"
+  assert_success
 }
 
 @test "checking SRS: DOMAINNAME is handled correctly" {
-  repeat_until_success_or_timeout 15 docker exec mail_domainname grep "SRS_DOMAIN=my-domain.com" /etc/default/postsrsd
+  local CONTAINER_NAME="${CONTAINER4_NAME}"
+
+  # PostSRSd should be configured correctly:
+  run docker exec "${CONTAINER_NAME}" grep '^SRS_DOMAIN=' /etc/default/postsrsd
+  assert_output "SRS_DOMAIN=my-domain.com"
+  assert_success
 }
 
 @test "checking configuration: hostname/domainname override: check overriden hostname is applied to all configs" {
-  local CONTAINER_NAME='mail_override_hostname'
+  local CONTAINER_NAME="${CONTAINER1_NAME}"
 
   # Should be the original `--hostname`, not `OVERRIDE_HOSTNAME`:
   _should_have_expected_hostname 'unknown.domain.tld'
@@ -86,7 +104,7 @@ function teardown_file() {
 }
 
 @test "checking configuration: non-subdomain: check overriden hostname is applied to all configs" {
-  local CONTAINER_NAME='mail_non_subdomain_hostname'
+  local CONTAINER_NAME="${CONTAINER2_NAME}"
 
   _should_have_expected_hostname 'domain.com'
 
