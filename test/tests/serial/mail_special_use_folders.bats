@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[Special Use Folders] '
-CONTAINER_NAME='dms-test_special_use_folders'
+CONTAINER_NAME='dms-test_special-use-folders'
 
 function setup_file() {
   _init_with_defaults
@@ -20,7 +20,7 @@ function teardown_file() { _default_teardown ; }
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new 1
 }
 
-@test "(IMAP) special-use folders are not yet created" {
+@test "(IMAP) special-use folders should not exist yet" {
   _run_in_container find /var/mail/localhost.localdomain/user1 -maxdepth 1 -type d
   assert_success
   refute_output --partial '.Drafts'
@@ -28,7 +28,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial '.Trash'
 }
 
-@test "(IMAP) special-use folders are available" {
+@test "(IMAP) special-use folders should be created when necessary" {
   _run_in_container_bash "nc -w 8 0.0.0.0 143 < /tmp/docker-mailserver-test/nc_templates/imap_special_use_folders.txt"
   assert_success
   assert_output --partial 'Drafts'

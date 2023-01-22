@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[SMTP-Only] '
-CONTAINER_NAME='dms-test_smtp_only'
+CONTAINER_NAME='dms-test_env-smtp-only'
 
 function setup_file() {
   _init_with_defaults
@@ -14,7 +14,6 @@ function setup_file() {
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  _wait_for_finished_setup_in_container "${CONTAINER_NAME}"
   _wait_for_smtp_port_in_container
 }
 
@@ -30,13 +29,8 @@ function teardown_file() { _default_teardown ; }
 @test "sending mail should work" {
   skip 'TODO: This test is absolutely broken and needs reworking!'
 
-  # the value `no` is not even valid for `smtp_host_lookup`
-  # `smtp_host_lookup` seems to be deprecated too
-  _run_in_container postconf smtp_host_lookup=no
   assert_success
 
-  _reload_postfix
-  _wait_for_smtp_port_in_container
 
   # it looks as if someone tries to send mail to another domain outside of DMS
   _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
