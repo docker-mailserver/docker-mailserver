@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[Quotas Disabled] '
-CONTAINER_NAME='dms-test_timezone'
+CONTAINER_NAME='dms-test_quotas-disabled'
 
 function setup_file() {
   _init_with_defaults
@@ -13,18 +13,16 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test "(Dovecot) quota plugin is disabled" {
-  _run_in_container cat /etc/dovecot/conf.d/10-mail.conf
-  assert_success
-  refute_output --partial '$mail_plugins quota'
+  _run_in_container_bash_and_filter_output 'cat /etc/dovecot/conf.d/10-mail.conf'
+  refute_output --partial 'quota'
 
-  _run_in_container cat /etc/dovecot/conf.d/20-imap.conf
-  assert_success
-  refute_output --partial '$mail_plugins imap_quota'
+  _run_in_container_bash_and_filter_output 'cat /etc/dovecot/conf.d/20-imap.conf'
+  refute_output --partial 'imap_quota'
 
-  _run_in_container test -e /etc/dovecot/conf.d/90-quota.conf
+  _run_in_container_bash "[[ -f /etc/dovecot/conf.d/90-quota.conf ]]"
   assert_failure
 
-  _run_in_container test -e /etc/dovecot/conf.d/90-quota.conf.disab
+  _run_in_container_bash "[[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]"
   assert_success
 }
 

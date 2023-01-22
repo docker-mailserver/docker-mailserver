@@ -119,6 +119,27 @@ function _exec_in_container_bash() { _exec_in_container /bin/bash -c "${@}" ; }
 # @param ...  = Bash command to execute
 function _run_in_container_bash() { _run_in_container /bin/bash -c "${@}" ; }
 
+# Run a command in Bash and filter the output given a regex.
+#
+# @param ${1} = command to run in Bash
+# @param ${2} = regex to filter [OPTIONAL]
+#
+# ## Attention
+#
+# The regex is given to `grep -E`, so make sure it is compatible.
+#
+# ## Note
+#
+# If no regex is provided, this function will default to one that strips
+# empty lines and Bash comments from the output.
+function _run_in_container_bash_and_filter_output() {
+  local COMMAND=${1:?Command must be provided}
+  local FILTER_REGEX=${2:-^[[:space:]]*$|^ *#}
+
+  _run_in_container_bash "${COMMAND} | grep -E -v '${FILTER_REGEX}'"
+  assert_success
+}
+
 # ? << Functions to execute commands inside a container
 # ! -------------------------------------------------------------------
 # ? >> Functions about executing commands with timeouts
