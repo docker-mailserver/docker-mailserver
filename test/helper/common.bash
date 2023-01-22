@@ -60,7 +60,7 @@ function __handle_container_name() {
     printf '%s' "${CONTAINER_NAME}"
     return 0
   else
-    echo 'ERROR: (helper/common.sh) Container name was either provided explicitly without the required `dms-test_` prefix, or CONTAINER_NAME is not set for implicit usage' >&2
+    echo 'ERROR: (helper/common.sh) Container name was either provided explicitly without the required "dms-test_" prefix, or CONTAINER_NAME is not set for implicit usage' >&2
     exit 1
   fi
 }
