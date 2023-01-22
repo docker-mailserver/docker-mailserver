@@ -130,12 +130,12 @@ function _setup_rspamd
 
   for MODULE in "${DISABLE_MODULES[@]}"
   do
-    cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOM
+    cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOF
 #documentation: https://rspamd.com/doc/modules/${MODULE}.html
 
 enabled = false;
 
-EOM
+EOF
   done
 
   # shellcheck disable=SC2016
@@ -940,7 +940,7 @@ function _setup_security_stack
 
       sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
 
-      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
+      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOF"
 #!/bin/bash
 
 RESULT=$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)
@@ -955,7 +955,7 @@ fi
 
 exit 0
 
-EOM
+EOF
 
       chmod +x "${SPAMASSASSIN_KAM_CRON_FILE}"
     fi
@@ -1054,11 +1054,11 @@ function _setup_mail_summary
       _log 'debug' "${ENABLED_MESSAGE}"
       _log 'trace' 'Creating daily cron job for pflogsumm report'
 
-      cat >/etc/cron.daily/postfix-summary << EOM
+      cat >/etc/cron.daily/postfix-summary << EOF
 #!/bin/bash
 
 /usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
-EOM
+EOF
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
@@ -1102,11 +1102,11 @@ function _setup_logwatch
         INTERVAL="--range 'between -7 days and -1 days'"
       fi
 
-      cat >"${LOGWATCH_FILE}" << EOM
+      cat >"${LOGWATCH_FILE}" << EOF
 #!/bin/bash
 
 /usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
-EOM
+EOF
       chmod 744 "${LOGWATCH_FILE}"
       ;;
 
