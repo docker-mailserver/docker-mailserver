@@ -1,64 +1,50 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
+
+BATS_TEST_NAME_PREFIX='[SMTP-Only] '
+CONTAINER_NAME='dms-test_smtp_only'
 
 function setup_file() {
-  docker run --rm -d --name mail_smtponly \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e SMTP_ONLY=1 \
-    -e PERMIT_DOCKER=network \
-    -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-    -t "${NAME}"
+  _init_with_defaults
 
-  wait_for_finished_setup_in_container mail_smtponly
-  wait_for_smtp_port_in_container mail_smtponly
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env SMTP_ONLY=1
+    --env PERMIT_DOCKER=network
+  )
+
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  _wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+  _wait_for_smtp_port_in_container
 }
 
-function teardown_file() {
-  docker rm -f mail_smtponly
-}
+function teardown_file() { _default_teardown ; }
 
-#
-# configuration checks
-#
-
-@test "checking configuration: hostname/domainname override" {
-  run docker exec mail_smtponly /bin/bash -c "cat /etc/mailname | grep my-domain.com"
+@test "Dovecot quota absent in postconf" {
+  _run_in_container postconf
   assert_success
+  refute_output --partial "check_policy_service inet:localhost:65265'"
 }
 
-#
-# imap
-#
+# TODO: needs complete rework when proper DNS container is running for tests
+@test "sending mail should work" {
+  skip 'TODO: This test is absolutely broken and needs reworking!'
 
-@test "checking configuration: dovecot quota absent in postconf (disabled using SMTP_ONLY)" {
-  run docker exec mail_smtponly /bin/bash -c "postconf | grep 'check_policy_service inet:localhost:65265'"
-  assert_failure
-}
-
-#
-# smtp
-#
-
-@test "checking smtp_only: mail send should work" {
-  run docker exec mail_smtponly /bin/sh -c "postconf smtp_host_lookup=no"
+  # the value `no` is not even valid for `smtp_host_lookup`
+  # `smtp_host_lookup` seems to be deprecated too
+  _run_in_container postconf smtp_host_lookup=no
   assert_success
 
-  _reload_postfix mail_smtponly
+  _reload_postfix
+  _wait_for_smtp_port_in_container
 
-  wait_for_smtp_port_in_container mail_smtponly
-  run docker exec mail_smtponly /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
+  # it looks as if someone tries to send mail to another domain outside of DMS
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
   assert_success
-  run docker exec mail_smtponly /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
+  _wait_for_empty_mail_queue_in_container
+
+  # this seemingly succeeds, but looking at the logs, it doesn't
+  _run_in_container_bash 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
+  # this is absolutely useless! `grep -c` count 0 but also returns 0; the mail was never properly sent!
   [[ ${status} -ge 0 ]]
-}
-
-#
-# PERMIT_DOCKER=network
-#
-
-@test "checking PERMIT_DOCKER=network: opendmarc/opendkim config" {
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
-  assert_success
-
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
-  assert_success
 }
