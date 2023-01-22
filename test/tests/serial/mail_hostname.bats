@@ -1,69 +1,73 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
+BATS_TEST_NAME_PREFIX='[Network - Hostname] '
 CONTAINER1_NAME='dms-test_hostname_env-override-hostname'
 CONTAINER2_NAME='dms-test_hostname_bare-domain'
 CONTAINER3_NAME='dms-test_hostname_env-srs-domainname'
 CONTAINER4_NAME='dms-test_hostname_fqdn-with-subdomain'
 
+# NOTE: Required until postsrsd package updated:
+# `--ulimit` is a workaround for some environments when using ENABLE_SRS=1:
+# PR 2730: https://github.com/docker-mailserver/docker-mailserver/commit/672e9cf19a3bb1da309e8cea6ee728e58f905366
+
 function setup_file() {
-  local PRIVATE_CONFIG
+  export CONTAINER_NAME
 
   # mail_override_hostname
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER1_NAME}")
-  docker run --rm -d --name "${CONTAINER1_NAME}" \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    --env PERMIT_DOCKER='container' \
-    --env ENABLE_SRS=1 \
-    --env OVERRIDE_HOSTNAME='mail.override.test' \
-    --hostname 'original.example.test' \
-    --tty \
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
-    "${NAME}"
+  CONTAINER_NAME=${CONTAINER1_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'original.example.test'
+    --env OVERRIDE_HOSTNAME='mail.override.test'
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # mail_non_subdomain_hostname
-  PRIVATE_CONFIG_TWO=$(duplicate_config_for_container . "${CONTAINER2_NAME}")
-  docker run --rm -d --name "${CONTAINER2_NAME}" \
-    -v "${PRIVATE_CONFIG_TWO}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    --env PERMIT_DOCKER='container' \
-    --env ENABLE_SRS=1 \
-    --hostname 'bare-domain.test' \
-    --tty \
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
-    "${NAME}"
+  CONTAINER_NAME=${CONTAINER2_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'bare-domain.test'
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # mail_srs_domainname
-  PRIVATE_CONFIG_THREE=$(duplicate_config_for_container . "${CONTAINER3_NAME}")
-  docker run --rm -d --name "${CONTAINER3_NAME}" \
-    -v "${PRIVATE_CONFIG_THREE}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    --env PERMIT_DOCKER='container' \
-    --env ENABLE_SRS=1 \
-    --env SRS_DOMAINNAME='srs.example.test' \
-    --domainname 'example.test' \
-    --hostname 'mail' \
-    --tty \
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
-    "${NAME}"
+  CONTAINER_NAME=${CONTAINER3_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'mail'
+    --domainname 'example.test'
+    --env ENABLE_SRS=1
+    --env SRS_DOMAINNAME='srs.example.test'
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # mail_domainname
-  PRIVATE_CONFIG_FOUR=$(duplicate_config_for_container . "${CONTAINER4_NAME}")
-  docker run --rm -d --name "${CONTAINER4_NAME}" \
-    -v "${PRIVATE_CONFIG_FOUR}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    --env PERMIT_DOCKER='container' \
-    --env ENABLE_SRS=1 \
-    --domainname 'example.test' \
-    --hostname 'mail' \
-    --tty \
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)" \
-    "${NAME}"
+  CONTAINER_NAME=${CONTAINER4_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'mail'
+    --domainname 'example.test'
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  wait_for_smtp_port_in_container "${CONTAINER1_NAME}"
-  wait_for_smtp_port_in_container "${CONTAINER2_NAME}"
-  wait_for_smtp_port_in_container "${CONTAINER3_NAME}"
-  wait_for_smtp_port_in_container "${CONTAINER4_NAME}"
+  _wait_for_smtp_port_in_container "${CONTAINER1_NAME}"
+  _wait_for_smtp_port_in_container "${CONTAINER2_NAME}"
+  _wait_for_smtp_port_in_container "${CONTAINER3_NAME}"
+  _wait_for_smtp_port_in_container "${CONTAINER4_NAME}"
 }
 
 function teardown_file() {
@@ -186,13 +190,12 @@ function _should_have_correct_mail_headers() {
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
 
-  # Add slight delay to wait for mail delivery (otherwise directory doesn't exist):
-  sleep 0.1
+  _wait_for_empty_mail_queue_in_container
+  _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 
   # MTA hostname (sender?) is used in filename of stored mail:
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1/new"
   assert_output --partial ".${EXPECTED_HOSTNAME},"
-  # TODO: Also verify only a single mail exists
   assert_success
 
   # FQDN should be in mail headers:
