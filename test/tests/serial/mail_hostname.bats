@@ -56,9 +56,6 @@ function setup_file() {
   wait_for_smtp_port_in_container mail_non_subdomain_hostname
   wait_for_smtp_port_in_container mail_srs_domainname
   wait_for_smtp_port_in_container mail_domainname
-
-  docker exec mail_override_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  docker exec mail_non_subdomain_hostname /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
 }
 
 function teardown_file() {
@@ -88,16 +85,9 @@ function teardown_file() {
 
   _should_be_configured_to_domainname 'my-domain.com'
   _should_be_configured_to_fqdn 'mail.my-domain.com'
-}
 
-@test "checking configuration: hostname/domainname override: check headers of received mail" {
-  run docker exec mail_override_hostname /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l | grep 1"
-  assert_success
-
-  run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep mail.my-domain.com"
-  assert_success
-
-  # test whether the container hostname is not found in received mail
+  _should_have_correct_mail_headers 'mail.my-domain.com'
+  # Container hostname should not be found in received mail (due to `OVERRIDE_HOSTNAME`):
   run docker exec mail_override_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep unknown.domain.tld"
   assert_failure
 }
@@ -117,14 +107,8 @@ function teardown_file() {
   _should_be_configured_to_domainname 'domain.com'
   # Bare domain configured, thus no subdomain:
   _should_be_configured_to_fqdn 'domain.com'
-}
 
-@test "checking configuration: non-subdomain: check headers of received mail" {
-  run docker exec mail_non_subdomain_hostname /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l | grep 1"
-  assert_success
-
-  run docker exec mail_non_subdomain_hostname /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep domain.com"
-  assert_success
+  _should_have_correct_mail_headers 'domain.com'
 }
 
 #
@@ -189,5 +173,18 @@ function _should_be_configured_to_fqdn() {
 
   # FQDN (hostname) should be present in the Postfix HELO message
   run docker exec "${CONTAINER_NAME}" /bin/bash -c "nc -w 1 0.0.0.0 25 | grep ${EXPECTED_FQDN}"
+  assert_success
+}
+
+function _should_have_correct_mail_headers() {
+  local EXPECTED_FQDN=${1}
+
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "ls -A /var/mail/localhost.localdomain/user1/new | wc -l | grep 1"
+  assert_success
+
+  run docker exec "${CONTAINER_NAME}" /bin/sh -c "cat /var/mail/localhost.localdomain/user1/new/* | grep ${EXPECTED_FQDN}"
   assert_success
 }
