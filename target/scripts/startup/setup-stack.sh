@@ -108,8 +108,9 @@ function _setup_rspamd
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
     _log 'debug' 'Rspamd will use ClamAV'
-    usermod -a -G clamav _rspamd
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
+    # RSpamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
+    usermod -a -G clamav _rspamd
   else
     _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
