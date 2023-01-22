@@ -74,14 +74,11 @@ function teardown_file() {
   repeat_until_success_or_timeout 15 docker exec mail_domainname grep "SRS_DOMAIN=my-domain.com" /etc/default/postsrsd
 }
 
-@test "checking configuration: hostname/domainname override: check container hostname is applied correctly" {
-  run docker exec mail_override_hostname /bin/bash -c "hostname | grep unknown.domain.tld"
-  assert_success
-}
-
-
 @test "checking configuration: hostname/domainname override: check overriden hostname is applied to all configs" {
   local CONTAINER_NAME='mail_override_hostname'
+
+  # Should be the original `--hostname`, not `OVERRIDE_HOSTNAME`:
+  _should_have_expected_hostname 'unknown.domain.tld'
 
   _should_be_configured_to_domainname 'my-domain.com'
   _should_be_configured_to_fqdn 'mail.my-domain.com'
@@ -92,17 +89,10 @@ function teardown_file() {
   assert_failure
 }
 
-#
-# non-subdomain tests
-#
-
-@test "checking configuration: non-subdomain: check container hostname is applied correctly" {
-  run docker exec mail_non_subdomain_hostname /bin/bash -c "hostname | grep domain.com"
-  assert_success
-}
-
 @test "checking configuration: non-subdomain: check overriden hostname is applied to all configs" {
   local CONTAINER_NAME='mail_non_subdomain_hostname'
+
+  _should_have_expected_hostname 'domain.com'
 
   _should_be_configured_to_domainname 'domain.com'
   # Bare domain configured, thus no subdomain:
@@ -132,6 +122,13 @@ function teardown_file() {
 
 @test "checking that the container stops cleanly: mail_domainname" {
   run docker stop -t 60 mail_domainname
+  assert_success
+}
+
+function _should_have_expected_hostname() {
+  local EXPECTED_FQDN=${1}
+
+  run docker exec "${CONTAINER_NAME}" /bin/bash -c "hostname | grep ${EXPECTED_FQDN}"
   assert_success
 }
 
