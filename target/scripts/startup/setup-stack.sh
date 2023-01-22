@@ -102,7 +102,7 @@ function _setup_rspamd
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _log 'warn' 'Running Amavis/SpamAssassin & rspamd at the same time is discouraged'
+    _log 'warn' 'Running rspamd at the same time as Amavis or SpamAssassin is discouraged'
   fi
 
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]
@@ -648,7 +648,7 @@ function _setup_dkim_dmarc
 
   mkdir -p /etc/opendkim/keys/ && touch /etc/opendkim/SigningTable
 
-  _log 'trace' "Adding OpenDKIM tp Postfix's milters"
+  _log 'trace' "Adding OpenDKIM to Postfix's milters"
   # shellcheck disable=SC2016
   sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
   # shellcheck disable=SC2016
