@@ -57,6 +57,7 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --hostname 'mail'
     --domainname 'example.test'
+    --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
     --env PERMIT_DOCKER='container'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
@@ -74,7 +75,7 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}" "${CONTAINER4_NAME}"
 }
 
-@test "checking SRS: SRS_DOMAINNAME is used correctly" {
+@test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
   local CONTAINER_NAME="${CONTAINER3_NAME}"
 
   # PostSRSd should be configured correctly:
@@ -83,31 +84,33 @@ function teardown_file() {
   assert_success
 }
 
-@test "checking SRS: DOMAINNAME is handled correctly" {
+@test "should update configuration correctly (--hostname + --domainname)" {
   local CONTAINER_NAME="${CONTAINER4_NAME}"
 
-  # PostSRSd should be configured correctly:
-  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
-  assert_output "SRS_DOMAIN=example.test"
-  assert_success
+  _should_have_expected_hostname 'mail'
+
+  _should_be_configured_to_domainname 'example.test'
+  _should_be_configured_to_fqdn 'mail.example.test'
+
+  _should_have_correct_mail_headers 'mail.example.test' 'example.test' 'mail'
 }
 
-@test "checking configuration: hostname/domainname override: check overriden hostname is applied to all configs" {
+@test "should update configuration correctly (ENV OVERRIDE_HOSTNAME)" {
   local CONTAINER_NAME="${CONTAINER1_NAME}"
 
-  # Should be the original `--hostname`, not `OVERRIDE_HOSTNAME`:
+  # Should be the original `--hostname` (`hostname -f`), not `OVERRIDE_HOSTNAME`:
   _should_have_expected_hostname 'original.example.test'
 
   _should_be_configured_to_domainname 'override.test'
   _should_be_configured_to_fqdn 'mail.override.test'
 
-  _should_have_correct_mail_headers 'mail.override.test' 'original.example.test'
+  _should_have_correct_mail_headers 'mail.override.test' 'override.test' 'original.example.test'
   # Container hostname should not be found in received mail (due to `OVERRIDE_HOSTNAME`):
   _run_in_container_bash "grep -R original.example.test /var/mail/localhost.localdomain/user1/new/"
   assert_failure
 }
 
-@test "checking configuration: non-subdomain: check overriden hostname is applied to all configs" {
+@test "should update configuration correctly (Bare Domain)" {
   local CONTAINER_NAME="${CONTAINER2_NAME}"
 
   _should_have_expected_hostname 'bare-domain.test'
@@ -187,7 +190,11 @@ function _should_be_configured_to_fqdn() {
 
 function _should_have_correct_mail_headers() {
   local EXPECTED_FQDN=${1}
-  local EXPECTED_HOSTNAME=${2:-${EXPECTED_FQDN}}
+  # NOTE: The next two params should not differ for bare domains:
+  local EXPECTED_DOMAINPART=${2:-${EXPECTED_FQDN}}
+  # Required when EXPECTED_FQDN would not match the container hostname:
+  # (eg: OVERRIDE_HOSTNAME or `--hostname mail --domainname example.test`)
+  local EXPECTED_HOSTNAME=${3:-${EXPECTED_FQDN}}
 
   _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
@@ -196,19 +203,48 @@ function _should_have_correct_mail_headers() {
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 
   # MTA hostname (sender?) is used in filename of stored mail:
-  _run_in_container_bash "ls -A /var/mail/localhost.localdomain/user1/new"
-  assert_output --partial ".${EXPECTED_HOSTNAME},"
-  assert_success
+  local MAIL_FILEPATH="$(_exec_in_container_bash "ls -A /var/mail/localhost.localdomain/user1/new")"
 
-  # FQDN should be in mail headers:
-  _run_in_container_bash "grep -R '${EXPECTED_FQDN}' /var/mail/localhost.localdomain/user1/new/"
-  assert_output --partial "Received: from ${EXPECTED_FQDN}"
-  assert_output --partial "by ${EXPECTED_FQDN} with LMTP"
-  assert_output --partial "by ${EXPECTED_FQDN} (Postfix) with ESMTP id"
-  assert_output --partial "@${EXPECTED_FQDN}>"
-  # Lines matching partial `@${EXPECTED_FQDN}`:
-  # Return-Path: <SRS0=3y+C=5T=external.tld=user@domain.com>
-  # (envelope-from <SRS0=3y+C=5T=external.tld=user@domain.com>)
-  # Message-Id: <20230122005631.0E2B741FBE18@domain.com>
+  run echo "${MAIL_FILEPATH}"
   assert_success
+  assert_output --partial ".${EXPECTED_HOSTNAME},"
+
+  # Mail headers should contain EXPECTED_FQDN for lines Received + by + Message-Id
+  # For `ENABLE_SRS=1`, EXPECTED_DOMAINPART should match lines Return-Path + envelope-from
+  _run_in_container_bash "cat '/var/mail/localhost.localdomain/user1/new/${MAIL_FILEPATH}'"
+  assert_success
+  assert_line --index 0 --partial 'Return-Path: <SRS0='
+  assert_line --index 0 --partial "@${EXPECTED_DOMAINPART}>"
+  # Passed on from Postfix to Dovecot via LMTP:
+  assert_line --index 2 --partial "Received: from ${EXPECTED_FQDN}"
+  assert_line --index 3 --partial "by ${EXPECTED_FQDN} with LMTP"
+  assert_line --index 5 --partial '(envelope-from <SRS0='
+  assert_line --index 5 --partial "@${EXPECTED_DOMAINPART}>"
+  # Arrived via Postfix:
+  # NOTE: The first `localhost` in this line would actually be `mail.external.tld`,
+  # but Amavis is changing that. It also changes protocol from SMTP to ESMTP.
+  assert_line --index 7 --partial 'Received: from localhost (localhost [127.0.0.1])'
+  assert_line --index 8 --partial "by ${EXPECTED_FQDN} (Postfix) with ESMTP id"
+  assert_line --index 14 --partial 'Message-Id:'
+  assert_line --index 14 --partial "@${EXPECTED_FQDN}>"
+
+  # Mail contents example:
+  #
+  # Return-Path: <SRS0=Smtf=5T=external.tld=user@example.test>
+  # Delivered-To: user1@localhost.localdomain
+  # Received: from mail.example.test
+  #   by mail.example.test with LMTP
+  #   id jvJfJk23zGPeBgAAUi6ngw
+  #   (envelope-from <SRS0=Smtf=5T=external.tld=user@example.test>)
+  #   for <user1@localhost.localdomain>; Sun, 22 Jan 2023 04:10:53 +0000
+  # Received: from localhost (localhost [127.0.0.1])
+  #   by mail.example.test (Postfix) with ESMTP id 8CFC4C30F9C4
+  #   for <user1@localhost.localdomain>; Sun, 22 Jan 2023 04:10:53 +0000 (UTC)
+  # From: Docker Mail Server <dockermailserver@external.tld>
+  # To: Existing Local User <user1@localhost.localdomain>
+  # Date: Sat, 22 May 2010 07:43:25 -0400
+  # Subject: Test Message existing-user1.txt
+  # Message-Id: <20230122041053.5A5F1C2F608E@mail.example.test>
+  #
+  # This is a test mail.
 }
