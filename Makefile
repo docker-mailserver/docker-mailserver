@@ -32,7 +32,7 @@ generate-accounts: ALWAYS_RUN
 # `.gitignore`: Remove `test/duplicate_configs` and files copied via `make generate-accounts`
 clean: ALWAYS_RUN
 	-@ for CONTAINER in $$(docker ps -a --filter name='^dms-test_.*|^mail_.*|^hadolint$$|^eclint$$|^shellcheck$$' | sed 1d | cut -f 1-1 -d ' '); do docker rm -f $${CONTAINER}; done
-	-@ declare -a FILES ; while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && FILES+=("/mnt$${LINE#test}"); done < .gitignore ; docker run --rm --volume "$(REPOSITORY_ROOT)/test/:/mnt" docker.io/alpine:3.17.1 rm -rf "$${FILES[@]}"
+	-@ declare -a FILES ; while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && FILES+=("/mnt$${LINE#test}"); done < .gitignore ; docker run --rm --volume "$(REPOSITORY_ROOT)/test/:/mnt" docker.io/alpine:3.17.1 ash -c "rm -rf '$${FILES[@]}'"
 
 # -----------------------------------------------
 # --- Tests  ------------------------------------
