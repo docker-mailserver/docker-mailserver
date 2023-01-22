@@ -12,7 +12,7 @@ DMS employs a variety of unit- and integration-tests. All tests and associated c
 
 !!! question "Can I use macOS?"
 
-    We do not support running linting, tests, etc on macOS at this time. Please use a linux VM.
+    We do not support running linting, tests, etc. on macOS at this time. Please use a Linux VM.
 
 ### About
 
@@ -26,12 +26,12 @@ The `test/` directory contains multiple directories, among them the `bats/` dire
 
     We are currently in the process of parallelizing all of our tests. Tests will be moved into `test/tests/parallel/` and new tests should be placed there as well.
 
-### How Do Tests Run?
+### How Are Tests Run?
 
 Before running tests yourself, you need to understand the following first: we need to differentiate between
 
-1. running test locally on **system** system
-2. running tests in our CI (_GitHub Actions_), e.g. when [testing a pull request][testing-prs]
+1. running test locally on **your system**
+2. running tests in **our CI** (_GitHub Actions_), e.g. when [testing a pull request][testing-prs]
 
 #### How Local Tests Work
 
@@ -39,7 +39,7 @@ Local tests are executed on your machine. In the ["Prerequisites" section](#prer
 
 #### How Tests Work With GitHub Actions
 
-With GitHub Actions, is is very similar to how [tests run locally](#how-local-tests-work), but all parallel sets and the serial tests are run **in parallell** but separately to not interfere with each other (on different runners). This increases the degree of parallelization which in turn speeds up CI.
+With GitHub Actions, is is very similar to how [tests run locally](#how-local-tests-work), but all parallel sets and the serial tests are run **in parallell** but separately (on different runners) to not interfere with each other. This increases the degree of parallelization which in turn speeds up CI.
 
 ## Running Tests
 
