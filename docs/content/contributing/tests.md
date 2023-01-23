@@ -12,7 +12,7 @@ DMS employs a variety of unit- and integration-tests. All tests and associated c
 
 !!! question "Can I use macOS?"
 
-    We do not support running linting, tests, etc. on macOS at this time. Please use a Linux VM.
+    We do not support running linting, tests, etc. on macOS at this time. Please use a Linux VM, Debian/Ubuntu is recommended.
 
 ### About
 
