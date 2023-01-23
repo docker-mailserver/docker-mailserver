@@ -60,12 +60,6 @@ We use `make` to run commands. You will first need to build the container image 
 3. Run multiple unrelated tests: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>,<TEST NAME WITHOUT .bats SUFFIX>` (just add a `,` and then immediately write the new test name)
 4. Run a whole set or all serial tests: `make clean generate-accounts tests/parallel/setX` where `X` is the number of the set or `make clean generate-accounts tests/serial`
 
-??? example "Run One or Multiple Specific Test(s)"
-
-    Multiple test files can be run sequentially with a `,` delimiter between file names: `make test/tls_letsencrypt,tls_manual`
-
-    To run only the tests in `template.bats`, use `make clean test/template` (or with relative path: `make clean test/parallel/set2/template`).
-
 ??? tip "Setting the Degree of Parallelization for Tests"
 
     If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the `make clean all` command with `BATS_PARALLEL_JOBS=X` (i.e. `BATS_PARALLEL_JOBS=X make clean all`). This wil speed up the test procedure. You can also run all tests in serial by setting `BATS_PARALLEL_JOBS=1` this way.
@@ -79,6 +73,58 @@ We use `make` to run commands. You will first need to build the container image 
     This also delays test failures as a result. When troubleshooting parallel set tests, you may prefer to run them serially as advised below.
 
     When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.
+
+### An Example
+
+Let's say you adjusted Rspamd and want to see whether you did not introduce a regression. Of course, you already made up your mind and did your best to ensure that beforehand. You want to run only the Rspamd test in the beginning, so you use:
+
+```console
+$ make clean generate-accounts test/rspamd
+rspamd.bats
+ ✓ [Rspamd] Postfix's main.cf was adjusted [12]
+ ✓ [Rspamd] normal mail passes fine [44]
+ ✓ [Rspamd] detects and rejects spam [122]
+ ✓ [Rspamd] detects and rejects virus [189]
+```
+
+But then you realize that the Rspamd test is somehow also testing ClamAV functionality. You also want to test ClamAV, and because you made changes, you want to run the Rspamd test again, so you go ahead:
+
+```console
+$ make clean generate-accounts test/rspamd,clamav
+rspamd.bats
+ ✓ [Rspamd] Postfix's main.cf was adjusted [12]
+ ✓ [Rspamd] normal mail passes fine [44]
+ ✓ [Rspamd] detects and rejects spam [122]
+ ✓ [Rspamd] detects and rejects virus [189]
+clamav.bats
+ ✓ [ClamAV] log files exist at /var/log/mail directory [68]
+ ✓ [ClamAV] should be identified by Amavis [67]
+ ✓ [ClamAV] freshclam cron is enabled [76]
+ ✓ [ClamAV] env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly [63]
+ ✓ [ClamAV] rejects virus [60]
+```
+
+You're mostly finished, so want to check the parallel set that Rspamd and ClamAV tests belong to:
+
+```console
+$ make clean generate-accounts tests/parallel/set1
+default_relay_host.bats
+ ✓ [Relay] (ENV) 'DEFAULT_RELAY_HOST' should configure 'main.cf:relayhost' [88]
+spam_virus/amavis.bats
+ ✓ [Amavis] SpamAssassin integration should be active [1165]
+spam_virus/clamav.bats
+ ✓ [ClamAV] log files exist at /var/log/mail directory [73]
+ ✓ [ClamAV] should be identified by Amavis [67]
+ ✓ [ClamAV] freshclam cron is enabled [76]
+...
+```
+
+In the end, before opening the PR, you want to test everything because you want to give maintains an easy time reviewing your nice PR, so you run:
+
+```console
+$ make clean tests
+...
+```
 
 [//]: # (Links)
 
