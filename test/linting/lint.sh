@@ -21,7 +21,7 @@ function _eclint
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
-    --name eclint \
+    --name dms-test_eclint \
     "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
   then
     _log 'info' 'ECLint succeeded'
@@ -36,6 +36,7 @@ function _hadolint
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
+    --name dms-test_hadolint \
     "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
   then
     _log 'info' 'Hadolint succeeded'
@@ -89,6 +90,7 @@ function _shellcheck
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
+    --name dms-test_shellcheck \
     "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
   then
     _log 'info' 'ShellCheck succeeded'
