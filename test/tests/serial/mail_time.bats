@@ -1,29 +1,23 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+BATS_TEST_NAME_PREFIX='[Timezone] '
+CONTAINER_NAME='dms-test_timezone'
 
-  docker run -d --name mail_time \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e TZ='Asia/Jakarta' \
-    -e LOG_LEVEL=debug \
-    -h mail.my-domain.com -t "${NAME}"
-
-  wait_for_smtp_port_in_container mail_time
+function setup_file() {
+  _init_with_defaults
+  local CUSTOM_SETUP_ARGUMENTS=(--env TZ='Asia/Jakarta')
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-teardown_file() {
-  docker rm -f mail_time
-}
+function teardown_file() { _default_teardown ; }
 
-@test "checking time: setting the time with TZ works correctly" {
-  run docker exec mail_time cat /etc/timezone
+@test "setting the time with TZ works correctly" {
+  _run_in_container cat /etc/timezone
   assert_success
   assert_output 'Asia/Jakarta'
 
-  run docker exec mail_time date '+%Z'
+  _run_in_container date '+%Z'
   assert_success
   assert_output 'WIB'
 }
