@@ -1,4 +1,4 @@
-HELO mail.localhost
+HELO mail.example.test
 MAIL FROM: test@localhost
 RCPT TO: user2@external.tld
 DATA
