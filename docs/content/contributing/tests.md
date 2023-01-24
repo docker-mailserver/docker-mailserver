@@ -28,18 +28,12 @@ The `test/` directory contains multiple directories. Among them is the `bats/` d
 
 ### How Are Tests Run?
 
-Before running tests yourself, you need to understand the following first: we need to differentiate between
+Tests are split into two categories:
 
-1. running test locally on **your system**
-2. running tests in **our CI** (_GitHub Actions_), e.g. when [testing a pull request][testing-prs]
+- **`test/tests/parallel/`:** Multiple test files are run concurrently to reduce the required time to complete the test suite. A test file will presently run it's own defined test-cases in a sequential order.
+- **`test/tests/serial/`:** Each test file is queued up to run sequentially. Tests that are unable to be support being run concurrently belong here.
 
-#### How Local Tests Work
-
-Local tests are executed on your machine. In the ["Prerequisites" section](#prerequisites) below you'll find everything you need to run tests yourself. Tests under `test/tests/parallel/` are run in parallel. To be more precise, tests within a single file are run **sequentially**, but multiple files are run in **parallel**. Parallel tests are partionioned into sets (currently 3). You can run all sets simultaneously, although we do not recommend this because of the high resource demand this incours on your system, which in turn could lead to test failures. The tests under `test/tests/serial/` are all run in serial.
-
-#### How Tests Work With GitHub Actions
-
-With GitHub Actions, is is very similar to how [tests run locally](#how-local-tests-work), but all parallel sets and the serial tests are run **in parallell** but separately (on different runners) to not interfere with each other. This increases the degree of parallelization which in turn speeds up CI.
+Parallel tests are further partitioned into smaller sets. If your system has the resources to support running more than one of those sets at a time this is perfectly ok (_our CI runs tests by distributing the sets across multiple test runners_). Care must be taken not to mix running the serial tests while a parallel set is also running; this is handled for you when using `make tests`.
 
 ## Running Tests
 
@@ -64,7 +58,7 @@ We use `make` to run commands. You will first need to build the container image 
 
     If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the `make clean all` command with `BATS_PARALLEL_JOBS=X` (i.e. `BATS_PARALLEL_JOBS=X make clean all`). This wil speed up the test procedure. You can also run all tests in serial by setting `BATS_PARALLEL_JOBS=1` this way.
 
-    The default value of `BATS_PARALLEL_JOBS` is 2. Increasing it to `3` requires 6 threads and 6GB of main memory; increasing it to `4` requires 8 threads and at least 8GB of main memory.
+    The default value of `BATS_PARALLEL_JOBS` is 2. If your system has the available resources spare to support increasing the amount of active jobs, the test suite can finish more quickly.
 
 !!! warning "Test Output when Running in Parallel"
 
@@ -125,8 +119,6 @@ Even better, before opening a PR run the full test suite:
 $ make clean tests
 ...
 ```
-
-[//]: # (Links)
 
 [BATS]: https://github.com/bats-core/bats-core
 [template-test]: https://github.com/docker-mailserver/docker-mailserver/blob/master/test/tests/parallel/set2/template.bats
