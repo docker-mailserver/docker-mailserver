@@ -84,3 +84,12 @@ teardown_file() {
   assert_output --partial "550 5.5.1 Protocol error"
   [[ ${status} -ge 0 ]]
 }
+
+@test "checking PERMIT_DOCKER=network: opendmarc/opendkim config" {
+  skip 'TODO: this test was taken from mail_smtponly, where it did not actually belong to'
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
+  assert_success
+
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
+  assert_success
+}

@@ -1,40 +1,38 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
+BATS_TEST_NAME_PREFIX='[Special Use Folders] '
+CONTAINER_NAME='dms-test_special-use-folders'
 
-  docker run -d --name mail_special_use_folders \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e ENABLE_CLAMAV=0 \
-    -e ENABLE_SPAMASSASSIN=0 \
-    -e PERMIT_DOCKER=host \
-    -h mail.my-domain.com -t "${NAME}"
-
-  wait_for_smtp_port_in_container mail_special_use_folders
+function setup_file() {
+  _init_with_defaults
+  local CUSTOM_SETUP_ARGUMENTS=(--env PERMIT_DOCKER=host)
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 }
 
-teardown_file() {
-  docker rm -f mail_special_use_folders
-}
+function teardown_file() { _default_teardown ; }
 
-@test "checking normal delivery" {
-  run docker exec mail_special_use_folders /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
+@test "normal delivery works" {
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
   assert_success
 
-  # shellcheck disable=SC2016
-  repeat_until_success_or_timeout 30 docker exec mail_special_use_folders /bin/sh -c '[ $(ls /var/mail/localhost.localdomain/user1/new | wc -l) -eq 1 ]'
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new 1
 }
 
-@test "checking special-use folders not yet created" {
-  run docker exec mail_special_use_folders /bin/bash -c "ls -A /var/mail/localhost.localdomain/user1 | grep -E '.Drafts|.Sent|.Trash' | wc -l"
+@test "(IMAP) special-use folders should not exist yet" {
+  _run_in_container find /var/mail/localhost.localdomain/user1 -maxdepth 1 -type d
   assert_success
-  assert_output 0
+  refute_output --partial '.Drafts'
+  refute_output --partial '.Sent'
+  refute_output --partial '.Trash'
 }
 
-@test "checking special-use folders available in IMAP" {
-  run docker exec mail_special_use_folders /bin/sh -c "nc -w 8 0.0.0.0 143 < /tmp/docker-mailserver-test/nc_templates/imap_special_use_folders.txt | grep -E 'Drafts|Junk|Trash|Sent' | wc -l"
+@test "(IMAP) special-use folders should be created when necessary" {
+  _run_in_container_bash "nc -w 8 0.0.0.0 143 < /tmp/docker-mailserver-test/nc_templates/imap_special_use_folders.txt"
   assert_success
-  assert_output 4
+  assert_output --partial 'Drafts'
+  assert_output --partial 'Junk'
+  assert_output --partial 'Trash'
+  assert_output --partial 'Sent'
 }
