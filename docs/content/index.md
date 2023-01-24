@@ -14,6 +14,7 @@ This documentation provides you with advanced configuration, detailed examples, 
 2. Be aware that advanced tasks may still require tweaking environment variables, reading through documentation and sometimes inspecting your running container for debugging purposes. After all, a mail-server is a complex arrangement of various programs.
 3. A list of all configuration options is documented on [the ENV page][docs-environment]. The [`README.md`][github-file-readme] is a good starting point to understand what this image is capable of.
 4. A list of all optional and automatically created configuration files and directories is available [on the dedicated page][docs-optionalconfig].
+5. If you want to know more about our test suite, view our [testing docs][docs-tests].
 
 !!! tip
     See the [FAQ][docs-faq] for some more tips!
@@ -25,6 +26,7 @@ This documentation provides you with advanced configuration, detailed examples, 
 
 We are always happy to welcome new contributors. For guidelines and entrypoints please have a look at the [Contributing section][docs-contributing].
 
+[docs-tests]: ./contributing/tests.md
 [docs-contributing]: ./contributing/issues-and-pull-requests.md
 [docs-faq]: ./faq.md
 [docs-optionalconfig]: ./config/advanced/optional-config.md
