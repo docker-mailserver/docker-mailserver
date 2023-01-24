@@ -31,7 +31,7 @@ The `test/` directory contains multiple directories. Among them is the `bats/` d
 Tests are split into two categories:
 
 - **`test/tests/parallel/`:** Multiple test files are run concurrently to reduce the required time to complete the test suite. A test file will presently run it's own defined test-cases in a sequential order.
-- **`test/tests/serial/`:** Each test file is queued up to run sequentially. Tests that are unable to be support being run concurrently belong here.
+- **`test/tests/serial/`:** Each test file is queued up to run sequentially. Tests that are unable to support running concurrently belong here.
 
 Parallel tests are further partitioned into smaller sets. If your system has the resources to support running more than one of those sets at a time this is perfectly ok (_our CI runs tests by distributing the sets across multiple test runners_). Care must be taken not to mix running the serial tests while a parallel set is also running; this is handled for you when using `make tests`.
 
@@ -58,7 +58,7 @@ We use `make` to run commands. You will first need to build the container image 
 
     If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the `make clean all` command with `BATS_PARALLEL_JOBS=X` (i.e. `BATS_PARALLEL_JOBS=X make clean all`). This wil speed up the test procedure. You can also run all tests in serial by setting `BATS_PARALLEL_JOBS=1` this way.
 
-    The default value of `BATS_PARALLEL_JOBS` is 2. If your system has the available resources spare to support increasing the amount of active jobs, the test suite can finish more quickly.
+    The default value of `BATS_PARALLEL_JOBS` is 2. This can be increased if your system has the resources spare to support running more jobs at once to complete the test suite sooner.
 
 !!! warning "Test Output when Running in Parallel"
 
