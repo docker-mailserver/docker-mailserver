@@ -1367,13 +1367,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    Tests
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     Documentation
   </a>
@@ -1384,6 +1377,20 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tests/" class="md-nav__link">
+        Tests
+      </a>
     </li>
   
 
@@ -1471,13 +1478,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    Tests
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     Documentation
   </a>
@@ -1512,36 +1512,6 @@
 <li><strong>Use the provided <code>.editorconfig</code></strong> file.</li>
 <li>Use <code>/bin/bash</code> instead of <code>/bin/sh</code> in scripts</li>
 </ol>
-<h2 id="tests"><a class="toclink" href="#tests">Tests</a></h2>
-<p>To run the test suite, you will need to</p>
-<ol>
-<li><a href="https://docs.docker.com/get-docker/">Install Docker</a></li>
-<li>Install <code>jq</code> (under Ubuntu, use <code>sudo apt-get -y install jq</code>)</li>
-<li>Execute <code>git submodule update --init --recursive</code> if you haven't already initialized the git submodules</li>
-<li>Execute <code>make clean all</code></li>
-</ol>
-<div class="admonition info">
-<p class="admonition-title">Can I use MacOS?</p>
-<p>We do not support running linting, tests, etc on macOS at this time. Please use a linux VM.</p>
-</div>
-<details class="tip">
-<summary>Setting the Degree of Parallelization for Tests</summary>
-<p>If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the <code>make clean all</code> command with <code>BATS_PARALLEL_JOBS=X</code> (i.e. <code>BATS_PARALLEL_JOBS=X make clean all</code>). This wil speed up the test procedure. You can also run all tests in serial by setting <code>BATS_PARALLEL_JOBS=1</code> this way.</p>
-<p>The default value of <code>BATS_PARALLEL_JOBS</code> is 2. Increasing it to <code>3</code> requires 6 threads and 6GB of main memory; increasing it to <code>4</code> requires 8 threads and at least 8GB of main memory.</p>
-</details>
-<div class="admonition warning">
-<p class="admonition-title">Test Output when Running in Parallel</p>
-<p><a href="https://bats-core.readthedocs.io/en/v1.8.2/usage.html#parallel-execution">When running tests in parallel</a> (<em>with <code>make clean generate-accounts tests/parallel/setX</code></em>), BATS will delay outputting the results until completing all test cases within a file.</p>
-<p>This also delays test failures as a result. When troubleshooting parallel set tests, you may prefer to run them serially as advised below.</p>
-<p>When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.</p>
-</div>
-<details class="tip">
-<summary>Run a Specific Test</summary>
-<p>Run <code>make build generate-accounts test/&lt;TEST NAME&gt;</code>, where <code>&lt;TEST NAME&gt;</code> is the file name of the test <strong>excluding</strong> the <code>.bats</code> suffix (<em>use a relative path if needing to be more specific: <code>test/&lt;RELATIVE PATH&gt;/&lt;TEST NAME&gt;</code></em>).</p>
-<p>Multiple test files can be run sequentially with a <code>,</code> delimiter between file names:
-<code>make test/tls_letsencrypt,tls_manual</code></p>
-<p><strong>Example:</strong> To run only the tests in <code>template.bats</code>, use <code>make test/template</code> (<em>or with relative path: <code>make test/parallel/set2/template</code></em>).</p>
-</details>
 <h2 id="documentation"><a class="toclink" href="#documentation">Documentation</a></h2>
 <p>You will need to have Docker installed. Navigate into the <code>docs/</code> directory. Then run:</p>
 <div class="highlight"><pre><span></span><code>docker run --rm -it -p <span class="m">8000</span>:8000 -v <span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">:/docs&quot;</span> squidfunk/mkdocs-material
@@ -1583,13 +1553,13 @@
       
       
         
-        <a href="../issues-and-pull-requests/" class="md-footer__link md-footer__link--next" aria-label="Next: Issues and Pull Requests" rel="next">
+        <a href="../tests/" class="md-footer__link md-footer__link--next" aria-label="Next: Tests" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Issues and Pull Requests
+              Tests
             </div>
           </div>
           <div class="md-footer__button md-icon">
