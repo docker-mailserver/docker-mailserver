@@ -1,43 +1,33 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-# Test case
-# ---------
-# When ENABLE_QUOTAS is explicitly disabled (ENABLE_QUOTAS=0), dovecot quota must not be enabled.
-
+BATS_TEST_NAME_PREFIX='[Quotas Disabled] '
+CONTAINER_NAME='dms-test_quotas-disabled'
 
 function setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
-
-  docker run -d --name mail_no_quotas \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e ENABLE_QUOTAS=0 \
-    -h mail.my-domain.com -t "${NAME}"
-
-  wait_for_finished_setup_in_container mail_no_quotas
+  _init_with_defaults
+  local CUSTOM_SETUP_ARGUMENTS=(--env ENABLE_QUOTAS=0)
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown_file() {
-  docker rm -f mail_no_quotas
-}
+function teardown_file() { _default_teardown ; }
 
-@test "checking dovecot: (ENABLE_QUOTAS=0) quota plugin is disabled" {
-  run docker exec mail_no_quotas /bin/sh -c "grep '\$mail_plugins quota' /etc/dovecot/conf.d/10-mail.conf"
+@test "(Dovecot) quota plugin is disabled" {
+  _run_in_container_bash_and_filter_output 'cat /etc/dovecot/conf.d/10-mail.conf'
+  refute_output --partial 'quota'
+
+  _run_in_container_bash_and_filter_output 'cat /etc/dovecot/conf.d/20-imap.conf'
+  refute_output --partial 'imap_quota'
+
+  _run_in_container_bash "[[ -f /etc/dovecot/conf.d/90-quota.conf ]]"
   assert_failure
 
-  run docker exec mail_no_quotas /bin/sh -c "grep '\$mail_plugins imap_quota' /etc/dovecot/conf.d/20-imap.conf"
-  assert_failure
-
-  run docker exec mail_no_quotas ls /etc/dovecot/conf.d/90-quota.conf
-  assert_failure
-
-  run docker exec mail_no_quotas ls /etc/dovecot/conf.d/90-quota.conf.disab
+  _run_in_container_bash "[[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]"
   assert_success
 }
 
-@test "checking postfix: (ENABLE_QUOTAS=0) dovecot quota absent in postconf" {
-  run docker exec mail_no_quotas /bin/bash -c "postconf | grep 'check_policy_service inet:localhost:65265'"
-  assert_failure
+@test "(Postfix) Dovecot quota absent in postconf" {
+  _run_in_container postconf
+  assert_success
+  refute_output --partial "check_policy_service inet:localhost:65265'"
 }
-
