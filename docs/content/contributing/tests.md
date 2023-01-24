@@ -8,7 +8,7 @@ title: 'Tests'
 
 ## Introduction
 
-DMS employs a variety of unit- and integration-tests. All tests and associated configuration is stored in the `test/` directory. If you want to integrate a new feature into DMS or change existing functionality, you will probably need to work with our test suite.
+DMS employs a variety of unit and integration tests. All tests and associated configuration is stored in the `test/` directory. If you want to change existing functionality or integrate a new feature into DMS, you will probably need to work with our test suite.
 
 !!! question "Can I use macOS?"
 
@@ -16,15 +16,15 @@ DMS employs a variety of unit- and integration-tests. All tests and associated c
 
 ### About
 
-We use [BATS] (_Bash Automated Testing System_) and additional support libraries. [BATS] is very similar to Bash, and one will easily and quickly get an understanding of how tests in a single file are run. A [template test file][template-test] provides a minimal working example for newcomers to look at.
+We use [BATS] (_Bash Automated Testing System_) and additional support libraries. BATS is very similar to Bash, and one can easily and quickly get an understanding of how tests in a single file are run. A [test file template][template-test] provides a minimal working example for newcomers to look at.
 
 ### Structure
 
-The `test/` directory contains multiple directories, among them the `bats/` directory, which is the [BATS] submodule, as well as the `helper/` directory. This one is especially interesting because it contains helper functionality used in almost every test. The tests themselves live in `test/tests/`.
+The `test/` directory contains multiple directories. Among them is the `bats/` directory (_which is the [BATS] git submodule_) and the `helper/` directory. The latter is especially interesting because it contains common support functionality used in almost every test. Actual tests are located in `test/tests/`.
 
-!!! info "WIP: Test Suite Refactoring"
+!!! warning "Test suite undergoing refactoring"
 
-    We are currently in the process of parallelizing all of our tests. Tests will be moved into `test/tests/parallel/` and new tests should be placed there as well.
+    We are currently in the process of restructuring all of our tests. Tests will be moved into `test/tests/parallel/` and new tests should be placed there as well.
 
 ### How Are Tests Run?
 
@@ -45,7 +45,7 @@ With GitHub Actions, is is very similar to how [tests run locally](#how-local-te
 
 ### Prerequisites
 
-To run the test suite, you will need to
+To run the test suite, you will need to:
 
 1. [Install Docker][get-docker]
 2. Install `jq` and (GNU) `parallel` (under Ubuntu, use `sudo apt-get -y install jq parallel`)
@@ -53,7 +53,7 @@ To run the test suite, you will need to
 
 ### Executing Test(s)
 
-We use `make` to run commands. You will first need to build the container image via `make build`. You can then
+We use `make` to run commands. You will first need to build the container image via `make build`. You can then:
 
 1. Run all tests: `make clean tests`
 2. Run a single test: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>`
@@ -70,13 +70,13 @@ We use `make` to run commands. You will first need to build the container image 
 
     [When running tests in parallel][docs-bats-parallel] (_with `make clean generate-accounts tests/parallel/setX`_), BATS will delay outputting the results until completing all test cases within a file.
 
-    This also delays test failures as a result. When troubleshooting parallel set tests, you may prefer to run them serially as advised below.
+    This likewise delays the reporting of test-case failures. When troubleshooting parallel set tests, you may prefer to run specific tests you're working on serially (_as demonstrated in the example below_).
 
     When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.
 
 ### An Example
 
-Let's say you adjusted Rspamd and want to see whether you did not introduce a regression. Of course, you already made up your mind and did your best to ensure that beforehand. You want to run only the Rspamd test in the beginning, so you use:
+In this example, you've made a change to the Rspamd feature support (_or adjusted it's tests_). First verify no regressions have been introduced by running it's specific test file:
 
 ```console
 $ make clean generate-accounts test/rspamd
@@ -87,7 +87,7 @@ rspamd.bats
  ✓ [Rspamd] detects and rejects virus [189]
 ```
 
-But then you realize that the Rspamd test is somehow also testing ClamAV functionality. You also want to test ClamAV, and because you made changes, you want to run the Rspamd test again, so you go ahead:
+As your feature work progresses your change for Rspamd also affects ClamAV. As your change now spans more than just the Rspamd test file, you could run multiple test files serially:
 
 ```console
 $ make clean generate-accounts test/rspamd,clamav
@@ -104,7 +104,7 @@ clamav.bats
  ✓ [ClamAV] rejects virus [60]
 ```
 
-You're mostly finished, so want to check the parallel set that Rspamd and ClamAV tests belong to:
+You're almost finished with your change before submitting it as a PR. It's a good idea to run the full parallel set those individual tests belong to (_especially if you've modified any tests_):
 
 ```console
 $ make clean generate-accounts tests/parallel/set1
@@ -119,7 +119,7 @@ spam_virus/clamav.bats
 ...
 ```
 
-In the end, before opening the PR, you want to test everything because you want to give maintains an easy time reviewing your nice PR, so you run:
+Even better, before opening a PR run the full test suite:
 
 ```console
 $ make clean tests
