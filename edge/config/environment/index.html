@@ -563,8 +563,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_clamav" class="md-nav__link">
-    ENABLE_CLAMAV
+  <a href="#enable_opendkim" class="md-nav__link">
+    ENABLE_OPENDKIM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_opendmarc" class="md-nav__link">
+    ENABLE_OPENDMARC
   </a>
   
 </li>
@@ -572,6 +579,13 @@
           <li class="md-nav__item">
   <a href="#enable_pop3" class="md-nav__link">
     ENABLE_POP3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_clamav" class="md-nav__link">
+    ENABLE_CLAMAV
   </a>
   
 </li>
@@ -1624,6 +1638,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/rspamd/" class="md-nav__link">
+        Rspamd
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -2462,8 +2490,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_clamav" class="md-nav__link">
-    ENABLE_CLAMAV
+  <a href="#enable_opendkim" class="md-nav__link">
+    ENABLE_OPENDKIM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_opendmarc" class="md-nav__link">
+    ENABLE_OPENDMARC
   </a>
   
 </li>
@@ -2471,6 +2506,13 @@
           <li class="md-nav__item">
   <a href="#enable_pop3" class="md-nav__link">
     ENABLE_POP3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_clamav" class="md-nav__link">
+    ENABLE_CLAMAV
   </a>
   
 </li>
@@ -3355,16 +3397,16 @@
 <h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
 <p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
 <h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
+<p>Enable or disable Rspamd.</p>
 <div class="admonition warning">
 <p class="admonition-title">Current State</p>
-<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time. Moreover, you will <em>currently</em> need to adjust Postfix's configuration <em>yourself</em> if you want to use Rspamd; you may use <a href="../advanced/override-defaults/user-patches/"><code>user-patches.sh</code></a>.</p>
-<p>You will need to add Rspamd to the <code>smtpd_milters</code> in Postfix's <code>main.cf</code>. This can easily be done with <code>sed</code>: <code>sed -i -E 's|^(smtpd_milters = .*)|\1,inet:localhost:11332|g' /etc/postfix/main.cf</code>. Moreover, have a look at the <a href="https://rspamd.com/doc/integration.html">integration of Rspamd into Postfx</a>. You will need to provide additional configuration files at the moment (to <code>/etc/rspamd/local.d/</code>) to make Rspamd run in milter-mode.</p>
+<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time.</p>
+<p>Currently, rspamd is integrated into Postfix as a milter. However, there is no official DKIM/DMARC support for rspamd in DMS as of now (WIP). To get more information, see <a href="../security/rspamd/">the detailed documentation page for Rspamd</a>.</p>
 </div>
-<div class="admonition bug">
+<div class="admonition warning">
 <p class="admonition-title">Rspamd and DNS Block Lists</p>
 <p>When you use Rspamd, you might want to use the <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a>. If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you <a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">might not be able</a> to make use of the block lists.</p>
 </div>
-<p>Enable or disable Rspamd.</p>
 <ul>
 <li><strong>0</strong> =&gt; disabled</li>
 <li>1 =&gt; enabled</li>
@@ -3391,15 +3433,27 @@ and various <a href="https://github.com/docker-mailserver/docker-mailserver/blob
 <li><strong>0</strong> =&gt; DNS block lists are disabled</li>
 <li>1     =&gt; DNS block lists are enabled</li>
 </ul>
-<h5 id="enable_clamav"><a class="toclink" href="#enable_clamav">ENABLE_CLAMAV</a></h5>
+<h5 id="enable_opendkim"><a class="toclink" href="#enable_opendkim">ENABLE_OPENDKIM</a></h5>
+<p>Enables the OpenDKIM service.</p>
 <ul>
-<li><strong>0</strong> =&gt; ClamAV is disabled</li>
-<li>1 =&gt; ClamAV is enabled</li>
+<li><strong>1</strong> =&gt; Enabled</li>
+<li>0 =&gt; Disabled</li>
+</ul>
+<h5 id="enable_opendmarc"><a class="toclink" href="#enable_opendmarc">ENABLE_OPENDMARC</a></h5>
+<p>Enables the OpenDMARC service.</p>
+<ul>
+<li><strong>1</strong> =&gt; Enabled</li>
+<li>0 =&gt; Disabled</li>
 </ul>
 <h5 id="enable_pop3"><a class="toclink" href="#enable_pop3">ENABLE_POP3</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; POP3 service disabled</li>
 <li>1 =&gt; Enables POP3 service</li>
+</ul>
+<h5 id="enable_clamav"><a class="toclink" href="#enable_clamav">ENABLE_CLAMAV</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; ClamAV is disabled</li>
+<li>1 =&gt; ClamAV is enabled</li>
 </ul>
 <h5 id="enable_fail2ban"><a class="toclink" href="#enable_fail2ban">ENABLE_FAIL2BAN</a></h5>
 <ul>

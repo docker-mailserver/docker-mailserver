@@ -12,14 +12,14 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/spf/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/rspamd/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
     
     
       
-        <title>Best Practices | SPF - Docker Mailserver</title>
+        <title>Security | Rspamd - Docker Mailserver</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#add-a-spf-record" class="md-skip">
+        <a href="#about" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Best Practices | SPF
+              Security | Rspamd
             
           </span>
         </div>
@@ -329,8 +329,6 @@
           
             
               
-                
-              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -516,14 +514,12 @@
               
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
       
       
       
@@ -546,7 +542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dkim/" class="md-nav__link">
+      <a href="../../best-practices/dkim/" class="md-nav__link">
         DKIM
       </a>
     </li>
@@ -560,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dmarc/" class="md-nav__link">
+      <a href="../../best-practices/dmarc/" class="md-nav__link">
         DMARC
       </a>
     </li>
@@ -572,55 +568,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          SPF
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../best-practices/spf/" class="md-nav__link">
         SPF
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#add-a-spf-record" class="md-nav__link">
-    Add a SPF Record
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#backup-mx-secondary-mx" class="md-nav__link">
-    Backup MX, Secondary MX
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -632,7 +584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../autodiscover/" class="md-nav__link">
+      <a href="../../best-practices/autodiscover/" class="md-nav__link">
         Auto-discovery
       </a>
     </li>
@@ -651,12 +603,14 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" checked>
       
       
       
@@ -679,7 +633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../security/understanding-the-ports/" class="md-nav__link">
+      <a href="../understanding-the-ports/" class="md-nav__link">
         Understanding the Ports
       </a>
     </li>
@@ -693,7 +647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../security/ssl/" class="md-nav__link">
+      <a href="../ssl/" class="md-nav__link">
         SSL/TLS
       </a>
     </li>
@@ -707,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../security/fail2ban/" class="md-nav__link">
+      <a href="../fail2ban/" class="md-nav__link">
         Fail2Ban
       </a>
     </li>
@@ -721,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../security/mail_crypt/" class="md-nav__link">
+      <a href="../mail_crypt/" class="md-nav__link">
         Mail Encryption
       </a>
     </li>
@@ -733,11 +687,82 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../security/rspamd/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Rspamd
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Rspamd
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    About
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-configuration" class="md-nav__link">
+    Integration &amp; Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providing-overriding-settings" class="md-nav__link">
+    Providing &amp; Overriding Settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dms-defaults" class="md-nav__link">
+    DMS' Defaults
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#missing-in-dms-current-implementation" class="md-nav__link">
+    Missing in DMS' Current Implementation
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1472,9 +1497,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1491,15 +1514,42 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#add-a-spf-record" class="md-nav__link">
-    Add a SPF Record
+  <a href="#about" class="md-nav__link">
+    About
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#backup-mx-secondary-mx" class="md-nav__link">
-    Backup MX, Secondary MX
+  <a href="#integration-configuration" class="md-nav__link">
+    Integration &amp; Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providing-overriding-settings" class="md-nav__link">
+    Providing &amp; Overriding Settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dms-defaults" class="md-nav__link">
+    DMS' Defaults
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#missing-in-dms-current-implementation" class="md-nav__link">
+    Missing in DMS' Current Implementation
   </a>
   
 </li>
@@ -1516,52 +1566,34 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/best-practices/spf.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/security/rspamd.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-  <h1>SPF</h1>
+  <h1>Rspamd</h1>
 
-<p>From <a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework">Wikipedia</a>:</p>
-<div class="admonition quote">
-<p class="admonition-title">Quote</p>
-<p>Sender Policy Framework (SPF) is a simple email-validation system designed to detect email spoofing by providing a mechanism to allow receiving mail exchangers to check that incoming mail from a domain comes from a host authorized by that domain's administrators. The list of authorized sending hosts for a domain is published in the Domain Name System (DNS) records for that domain in the form of a specially formatted TXT record. Email spam and phishing often use forged "from" addresses, so publishing and checking SPF records can be considered anti-spam techniques.</p>
+<div class="admonition warning">
+<p class="admonition-title">Implementation of Rspamd into DMS is WIP!</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For a more technical review: <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/SPF-how-to.md">https://github.com/internetstandards/toolbox-wiki/blob/master/SPF-how-to.md</a></p>
-</div>
-<h2 id="add-a-spf-record"><a class="toclink" href="#add-a-spf-record">Add a SPF Record</a></h2>
-<p>To add a SPF record in your DNS, insert the following line in your DNS zone:</p>
-<div class="highlight"><pre><span></span><code>; MX record must be declared for SPF to work
-example.com. IN  MX 1 mail.example.com.
-
-; SPF record
-example.com. IN TXT &quot;v=spf1 mx ~all&quot;
-</code></pre></div>
-<p>This enables the <em>Softfail</em> mode for SPF. You could first add this SPF record with a very low TTL.</p>
-<p><em>SoftFail</em> is a good setting for getting started and testing, as it lets all email through, with spams tagged as such in the mailbox.</p>
-<p>After verification, you <em>might</em> want to change your SPF record to <code>v=spf1 mx -all</code> so as to enforce the <em>HardFail</em> policy. See <a href="http://www.open-spf.org/SPF_Record_Syntax">http://www.open-spf.org/SPF_Record_Syntax</a> for more details about SPF policies.</p>
-<p>In any case, increment the SPF record's TTL to its final value.</p>
-<h2 id="backup-mx-secondary-mx"><a class="toclink" href="#backup-mx-secondary-mx">Backup MX, Secondary MX</a></h2>
-<p>For whitelisting a IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
-<p><strong>Example:</strong></p>
-<p>Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">debugLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
-<span class="c1">#0(only errors)-4(complete data received)</span><span class="w"></span>
-
-<span class="na">skip_addresses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.0/8,::ffff:127.0.0.0/104,::1</span><span class="w"></span>
-
-<span class="c1"># Preferably use IP-Addresses for whitelist lookups:</span><span class="w"></span>
-<span class="na">Whitelist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">192.168.0.0/31,192.168.1.0/30</span><span class="w"></span>
-<span class="c1"># Domain_Whitelist = mx1.not-example.com,mx2.not-example.com</span><span class="w"></span>
-</code></pre></div>
-<p>Then add this line to <code>docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf</span><span class="w"></span>
-</code></pre></div>
+<h2 id="about"><a class="toclink" href="#about">About</a></h2>
+<p>Rspamd is a "fast, free and open-source spam filtering system". It offers high performance as it is written in C. Visit <a href="https://rspamd.com/">their homepage</a> for more details.</p>
+<h2 id="integration-configuration"><a class="toclink" href="#integration-configuration">Integration &amp; Configuration</a></h2>
+<p>We provide a very simple but easy to maintain setup of RSpamd. The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-overriding-settings">overriding the configuration by DMS</a>.</p>
+<h3 id="providing-overriding-settings"><a class="toclink" href="#providing-overriding-settings">Providing &amp; Overriding Settings</a></h3>
+<p>DMS brings sane default settings for Rspamd. They are located at <code>/etc/rspamd/local.d/</code> inside the container (or <code>target/rspamd/local.d/</code> in the repository). If you want to change these settings and / or provide your own settings, you can</p>
+<ol>
+<li>place files at <code>/etc/rspamd/override.d/</code> which will override Rspamd settings and DMS settings</li>
+<li>(re-)place files at <code>/etc/rspamd/local.d/</code> to override DMS settings and merge them with Rspamd settings</li>
+</ol>
+<p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
+<h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS' Defaults</a></h3>
+<p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
+<p>DMS disables certain modules (clickhouse, dkim_signing, elastic, greylist, rbl, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and needlessly use resources. You can re-activate them by replacing <code>/etc/rspamd/local.d/&lt;MODULE&gt;.conf</code> or overriding DMS' default with <code>/etc/rspamd/override.d/&lt;MODULE&gt;.conf</code>.</p>
+<p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setup where you already have an authentication provider in front of the Rspamd webpage, you may add <code>secure_ip = "0.0.0.0/0";</code> to <code>worker-controller.inc</code> to disable password authentication inside Rspamd completely.</p>
+<h2 id="missing-in-dms-current-implementation"><a class="toclink" href="#missing-in-dms-current-implementation">Missing in DMS' Current Implementation</a></h2>
+<p>We currently lack easy integration for DKIM signing. We use OpenDKIM though which should work just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment <code>ENABLE_OPENKIM=0</code>. Do not confuse the signing with checking DKIM signatures of other emails: Rspamd will check signatures from other emails, just not sign yours in the default configuration.</p>
 
               
             </article>
@@ -1579,12 +1611,10 @@ example.com. IN TXT &quot;v=spf1 mx ~all&quot;
         <footer class="md-footer">
   
     
-      
-    
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../dmarc/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DMARC" rel="prev">
+        <a href="../mail_crypt/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mail Encryption" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1593,20 +1623,20 @@ example.com. IN TXT &quot;v=spf1 mx ~all&quot;
               <span class="md-footer__direction">
                 Previous
               </span>
-              DMARC
+              Mail Encryption
             </div>
           </div>
         </a>
       
       
         
-        <a href="../autodiscover/" class="md-footer__link md-footer__link--next" aria-label="Next: Auto-discovery" rel="next">
+        <a href="../../troubleshooting/debugging/" class="md-footer__link md-footer__link--next" aria-label="Next: Debugging" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Auto-discovery
+              Debugging
             </div>
           </div>
           <div class="md-footer__button md-icon">
