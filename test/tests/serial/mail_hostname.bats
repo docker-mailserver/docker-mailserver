@@ -11,36 +11,11 @@ CONTAINER4_NAME='dms-test_hostname_fqdn-with-subdomain'
 # `--ulimit` is a workaround for some environments when using ENABLE_SRS=1:
 # PR 2730: https://github.com/docker-mailserver/docker-mailserver/commit/672e9cf19a3bb1da309e8cea6ee728e58f905366
 
-function setup_file() {
-  export CONTAINER_NAME
+function teardown() { _default_teardown ; }
 
-  # mail_override_hostname
-  CONTAINER_NAME=${CONTAINER1_NAME}
-  local CUSTOM_SETUP_ARGUMENTS=(
-    --hostname 'original.example.test'
-    --env OVERRIDE_HOSTNAME='mail.override.test'
-    --env ENABLE_AMAVIS=1
-    --env ENABLE_SRS=1
-    --env PERMIT_DOCKER='container'
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
-  )
-  _init_with_defaults
-  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+@test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
+  export CONTAINER_NAME="${CONTAINER3_NAME}"
 
-  # mail_non_subdomain_hostname
-  CONTAINER_NAME=${CONTAINER2_NAME}
-  local CUSTOM_SETUP_ARGUMENTS=(
-    --hostname 'bare-domain.test'
-    --env ENABLE_AMAVIS=1
-    --env ENABLE_SRS=1
-    --env PERMIT_DOCKER='container'
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
-  )
-  _init_with_defaults
-  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-
-  # mail_srs_domainname
-  CONTAINER_NAME=${CONTAINER3_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --hostname 'mail'
     --domainname 'example.test'
@@ -52,8 +27,15 @@ function setup_file() {
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  # mail_domainname
-  CONTAINER_NAME=${CONTAINER4_NAME}
+  # PostSRSd should be configured correctly:
+  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
+  assert_output "SRS_DOMAIN=srs.example.test"
+  assert_success
+}
+
+@test "should update configuration correctly (--hostname + --domainname)" {
+  export CONTAINER_NAME="${CONTAINER4_NAME}"
+
   local CUSTOM_SETUP_ARGUMENTS=(
     --hostname 'mail'
     --domainname 'example.test'
@@ -64,28 +46,7 @@ function setup_file() {
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-
-  _wait_for_smtp_port_in_container "${CONTAINER1_NAME}"
-  _wait_for_smtp_port_in_container "${CONTAINER2_NAME}"
-  _wait_for_smtp_port_in_container "${CONTAINER3_NAME}"
-  _wait_for_smtp_port_in_container "${CONTAINER4_NAME}"
-}
-
-function teardown_file() {
-  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}" "${CONTAINER4_NAME}"
-}
-
-@test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
-  local CONTAINER_NAME="${CONTAINER3_NAME}"
-
-  # PostSRSd should be configured correctly:
-  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
-  assert_output "SRS_DOMAIN=srs.example.test"
-  assert_success
-}
-
-@test "should update configuration correctly (--hostname + --domainname)" {
-  local CONTAINER_NAME="${CONTAINER4_NAME}"
+  _wait_for_smtp_port_in_container
 
   _should_have_expected_hostname 'mail'
 
@@ -96,7 +57,19 @@ function teardown_file() {
 }
 
 @test "should update configuration correctly (ENV OVERRIDE_HOSTNAME)" {
-  local CONTAINER_NAME="${CONTAINER1_NAME}"
+  export CONTAINER_NAME="${CONTAINER1_NAME}"
+
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'original.example.test'
+    --env OVERRIDE_HOSTNAME='mail.override.test'
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 
   # Should be the original `--hostname` (`hostname -f`), not `OVERRIDE_HOSTNAME`:
   _should_have_expected_hostname 'original.example.test'
@@ -111,7 +84,18 @@ function teardown_file() {
 }
 
 @test "should update configuration correctly (Bare Domain)" {
-  local CONTAINER_NAME="${CONTAINER2_NAME}"
+  export CONTAINER_NAME="${CONTAINER2_NAME}"
+
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'bare-domain.test'
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 
   _should_have_expected_hostname 'bare-domain.test'
 
