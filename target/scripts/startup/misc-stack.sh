@@ -35,7 +35,6 @@ function _misc_save_states
     [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && FILES+=('lib/fetchmail')
     [[ ${ENABLE_POSTGREY} -eq 1 ]] && FILES+=('lib/postgrey')
     [[ ${ENABLE_RSPAMD} -eq 1 ]] && FILES+=('lib/rspamd')
-    # [[ ${ENABLE_RSPAMD} -eq 1 ]] && FILES+=('lib/redis')
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
     [[ ${SMTP_ONLY} -ne 1 ]] && FILES+=('lib/dovecot')
 

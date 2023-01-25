@@ -71,19 +71,17 @@ Set the timezone. If this variable is unset, the container runtime will try to d
 
 ##### ENABLE_RSPAMD
 
+Enable or disable Rspamd.
+
 !!! warning "Current State"
 
-    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. Moreover, you will _currently_ need to adjust Postfix's configuration _yourself_ if you want to use Rspamd; you may use [`user-patches.sh`][docs-userpatches].
+    Rspamd-support is under active development. Be aware that breaking changes can happen at any time.
 
-    You will need to add Rspamd to the `smtpd_milters` in Postfix's `main.cf`. This can easily be done with `sed`: `sed -i -E 's|^(smtpd_milters = .*)|\1,inet:localhost:11332|g' /etc/postfix/main.cf`. Moreover, have a look at the [integration of Rspamd into Postfx](https://rspamd.com/doc/integration.html). You will need to provide additional configuration files at the moment (to `/etc/rspamd/local.d/`) to make Rspamd run in milter-mode.
+    Currently, rspamd is integrated into Postfix as a milter. However, there is no official DKIM/DMARC support for rspamd in DMS as of now (WIP). To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
 
-[docs-userpatches]: ./advanced/override-defaults/user-patches.md
-
-!!! bug "Rspamd and DNS Block Lists"
+!!! warning "Rspamd and DNS Block Lists"
 
     When you use Rspamd, you might want to use the [RBL module](https://rspamd.com/doc/modules/rbl.html). If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you [might not be able](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365) to make use of the block lists.
-
-Enable or disable Rspamd.
 
 - **0** => disabled
 - 1 => enabled
@@ -114,15 +112,29 @@ Note: Emails will be rejected, if they don't pass the block list checks!
 - **0** => DNS block lists are disabled
 - 1     => DNS block lists are enabled
 
-##### ENABLE_CLAMAV
+##### ENABLE_OPENDKIM
 
-- **0** => ClamAV is disabled
-- 1 => ClamAV is enabled
+Enables the OpenDKIM service.
+
+- **1** => Enabled
+- 0 => Disabled
+
+##### ENABLE_OPENDMARC
+
+Enables the OpenDMARC service.
+
+- **1** => Enabled
+- 0 => Disabled
 
 ##### ENABLE_POP3
 
 - **empty** => POP3 service disabled
 - 1 => Enables POP3 service
+
+##### ENABLE_CLAMAV
+
+- **0** => ClamAV is disabled
+- 1 => ClamAV is enabled
 
 ##### ENABLE_FAIL2BAN
 
@@ -776,6 +788,7 @@ you to replace both instead of just the envelope sender.
 - **empty** => no default
 - password for default relay user
 
+[docs-rspamd]: ./security/rspamd.md
 [docs-faq-onedir]: ../faq.md#what-about-docker-datadmsmail-state-folder-varmail-state-internally
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended

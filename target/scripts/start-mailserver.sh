@@ -103,7 +103,7 @@ function _register_functions
   [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]] && _register_setup_function '_setup_clamav_sizelimit'
   [[ ${ENABLE_RSPAMD} -eq 1 ]] && _register_setup_function '_setup_rspamd'
 
-  _register_setup_function '_setup_dkim'
+  _register_setup_function '_setup_dkim_dmarc'
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
@@ -167,13 +167,13 @@ function _register_functions
 
   if [[ ${ENABLE_RSPAMD} -eq 1 ]]
   then
-    _register_start_daemon '_start_daemon_rspamd'
     _register_start_daemon '_start_daemon_redis'
+    _register_start_daemon '_start_daemon_rspamd'
   fi
 
   # needs to be started before SASLauthd
-  _register_start_daemon '_start_daemon_opendkim'
-  _register_start_daemon '_start_daemon_opendmarc'
+  [[ ${ENABLE_OPENDKIM} -eq 1 ]] && _register_start_daemon '_start_daemon_opendkim'
+  [[ ${ENABLE_OPENDMARC} -eq 1 ]] && _register_start_daemon '_start_daemon_opendmarc'
 
   # needs to be started before postfix
   [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon '_start_daemon_postgrey'

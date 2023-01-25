@@ -84,8 +84,15 @@ function _setup_amavis
     mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
     chmod 0 /etc/cron.d/amavisd-new.disabled
 
-    [[ ${ENABLE_CLAMAV} -eq 1 ]] && _log 'warn' 'ClamAV will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && _log 'warn' 'Spamassassin will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
+    if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]
+    then
+      _log 'warn' 'ClamAV will not work when Amavis & rspamd are disabled. Enable either Amavis or rspamd to fix it.'
+    fi
+
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+    then
+      _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
+    fi
   fi
 }
 
@@ -95,19 +102,45 @@ function _setup_rspamd
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _shutdown 'You cannot run Amavis/SpamAssassin and Rspamd at the same time'
+    _log 'warn' 'Running rspamd at the same time as Amavis or SpamAssassin is discouraged'
   fi
 
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
     _log 'debug' 'Rspamd will use ClamAV'
-    mv /etc/rspamd/local.d/disabled/antivirus.conf /etc/rspamd/local.d/antivirus.conf
+    sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
+    # RSpamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
+    usermod -a -G clamav _rspamd
   else
     _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
-  _log 'warn' 'Only running with default configuration'
-  _log 'warn' 'You will need to adjust the Postfix configuration yourself to use Rspamd as of now'
+  declare -a DISABLE_MODULES
+  DISABLE_MODULES=(
+    clickhouse
+    dkim_signing
+    elastic
+    greylist
+    rbl
+    reputation
+    spamassassin
+    url_redirector
+    metric_exporter
+  )
+
+  for MODULE in "${DISABLE_MODULES[@]}"
+  do
+    cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOF
+#documentation: https://rspamd.com/doc/modules/${MODULE}.html
+
+enabled = false;
+
+EOF
+  done
+
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
+  touch /var/lib/rspamd/stats.ucl
 }
 
 function _setup_dmarc_hostname
@@ -580,7 +613,7 @@ EOF
     -e "/dovecot_destination_recipient_limit =.*/d" \
     /etc/postfix/main.cf
 
-  gpasswd -a postfix sasl
+  gpasswd -a postfix sasl >/dev/null
 }
 
 function _setup_postfix_aliases
@@ -599,18 +632,36 @@ function _setup_SRS
   postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
 }
 
-function _setup_dkim
+function _setup_dkim_dmarc
 {
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
+  then
+    _log 'trace' "Adding OpenDMARC to Postfix's milters"
+
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
+  fi
+
+  [[ ${ENABLE_OPENDKIM} -eq 1 ]] || return 0
+
   _log 'debug' 'Setting up DKIM'
 
-  mkdir -p /etc/opendkim && touch /etc/opendkim/SigningTable
+  mkdir -p /etc/opendkim/keys/ && touch /etc/opendkim/SigningTable
+
+  _log 'trace' "Adding OpenDKIM to Postfix's milters"
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
 
   # check if any keys are available
   if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
   then
     cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
 
-    _log 'trace' "DKIM keys added for: $(ls /etc/opendkim/keys/)"
+    local KEYS
+    KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
+    _log 'trace' "DKIM keys added for: ${KEYS}"
     _log 'trace' "Changing permissions on '/etc/opendkim'"
 
     chown -R opendkim:opendkim /etc/opendkim/
@@ -889,7 +940,7 @@ function _setup_security_stack
 
       sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
 
-      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
+      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOF"
 #!/bin/bash
 
 RESULT=$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)
@@ -904,7 +955,7 @@ fi
 
 exit 0
 
-EOM
+EOF
 
       chmod +x "${SPAMASSASSIN_KAM_CRON_FILE}"
     fi
@@ -1003,11 +1054,11 @@ function _setup_mail_summary
       _log 'debug' "${ENABLED_MESSAGE}"
       _log 'trace' 'Creating daily cron job for pflogsumm report'
 
-      cat >/etc/cron.daily/postfix-summary << EOM
+      cat >/etc/cron.daily/postfix-summary << EOF
 #!/bin/bash
 
 /usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
-EOM
+EOF
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
@@ -1051,11 +1102,11 @@ function _setup_logwatch
         INTERVAL="--range 'between -7 days and -1 days'"
       fi
 
-      cat >"${LOGWATCH_FILE}" << EOM
+      cat >"${LOGWATCH_FILE}" << EOF
 #!/bin/bash
 
 /usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
-EOM
+EOF
       chmod 744 "${LOGWATCH_FILE}"
       ;;
 
