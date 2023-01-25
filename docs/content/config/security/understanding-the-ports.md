@@ -66,7 +66,7 @@ flowchart LR
 
 #### Explicit TLS (aka Opportunistic TLS) - Opt-in Encryption
 
-Communication on these ports begin in [cleartext][ref-clear-vs-plain], indicating support for `STARTTLS`. If both client and server support `STARTTLS` the connection will be secured over TLS, otherwise no encryption will be used.
+Communication on these ports begin in [cleartext][ref-clear-vs-plain], indicating support for `STARTTLS`. If both client and server support `STARTTLS` the connection will be secured over TLS, otherwise the connection is unable to use encryption to secure it. By default, `docker-mailserver` is configured to reject connections that fail to establish a secure connection when authentication is required, rather than allow an insecure connection (_Port 25 will allow receiving unencrypted deliveries which doesn't require authentication_).
 
 Support for `STARTTLS` is not always implemented correctly, which can lead to leaking credentials(client sending too early) prior to a TLS connection being established. Third-parties such as some ISPs have also been known to intercept the `STARTTLS` exchange, modifying network traffic to prevent establishing a secure connection.
 
