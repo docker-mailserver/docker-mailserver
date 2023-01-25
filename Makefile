@@ -31,8 +31,10 @@ generate-accounts: ALWAYS_RUN
 # `docker ps`:  Remove any lingering test containers
 # `.gitignore`: Remove `test/duplicate_configs` and files copied via `make generate-accounts`
 clean: ALWAYS_RUN
-	-@ for CONTAINER in $$(docker ps -a --filter name='^dms-test_.*|^mail_.*|^hadolint$$|^eclint$$|^shellcheck$$' | sed 1d | cut -f 1-1 -d ' '); do docker rm -f $${CONTAINER}; done
-	-@ while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && sudo rm -rf $${LINE}; done < .gitignore
+	-@ while read -r LINE; do CONTAINERS+=("$${LINE}"); done < <(docker ps -qaf name='^(dms-test|mail)_.*') ; \
+		for CONTAINER in "$${CONTAINERS[@]}"; do docker rm -f "$${CONTAINER}"; done
+	-@ while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && FILES+=("/mnt$${LINE#test}"); done < .gitignore ; \
+		docker run --rm -v "$(REPOSITORY_ROOT)/test/:/mnt" alpine ash -c "rm -rf $${FILES[@]}"
 
 # -----------------------------------------------
 # --- Tests  ------------------------------------
