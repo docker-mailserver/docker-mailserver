@@ -14,32 +14,11 @@ CONTAINER5_NAME='dms-test_hostname_env-srs-domainname'
 
 function teardown() { _default_teardown ; }
 
-@test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
-  export CONTAINER_NAME="${CONTAINER5_NAME}"
+@test "should update configuration correctly (Bare Domain)" {
+  export CONTAINER_NAME="${CONTAINER2_NAME}"
 
   local CUSTOM_SETUP_ARGUMENTS=(
-    --hostname 'mail'
-    --domainname 'example.test'
-    --env ENABLE_SRS=1
-    --env SRS_DOMAINNAME='srs.example.test'
-    --env PERMIT_DOCKER='container'
-    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
-  )
-  _init_with_defaults
-  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-
-  # PostSRSd should be configured correctly:
-  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
-  assert_output "SRS_DOMAIN=srs.example.test"
-  assert_success
-}
-
-@test "should update configuration correctly (--hostname + --domainname)" {
-  export CONTAINER_NAME="${CONTAINER4_NAME}"
-
-  local CUSTOM_SETUP_ARGUMENTS=(
-    --hostname 'mail'
-    --domainname 'example.test'
+    --hostname 'bare-domain.test'
     --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
     --env PERMIT_DOCKER='container'
@@ -49,12 +28,13 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _should_have_expected_hostname 'mail'
+  _should_have_expected_hostname 'bare-domain.test'
 
-  _should_be_configured_to_domainname 'example.test'
-  _should_be_configured_to_fqdn 'mail.example.test'
+  _should_be_configured_to_domainname 'bare-domain.test'
+  # Bare domain configured, thus no subdomain:
+  _should_be_configured_to_fqdn 'bare-domain.test'
 
-  _should_have_correct_mail_headers 'mail.example.test' 'example.test' 'mail'
+  _should_have_correct_mail_headers 'bare-domain.test'
 }
 
 @test "should update configuration correctly (ENV OVERRIDE_HOSTNAME)" {
@@ -84,11 +64,12 @@ function teardown() { _default_teardown ; }
   assert_failure
 }
 
-@test "should update configuration correctly (Bare Domain)" {
-  export CONTAINER_NAME="${CONTAINER2_NAME}"
+@test "should update configuration correctly (--hostname + --domainname)" {
+  export CONTAINER_NAME="${CONTAINER4_NAME}"
 
   local CUSTOM_SETUP_ARGUMENTS=(
-    --hostname 'bare-domain.test'
+    --hostname 'mail'
+    --domainname 'example.test'
     --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
     --env PERMIT_DOCKER='container'
@@ -98,13 +79,32 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _should_have_expected_hostname 'bare-domain.test'
+  _should_have_expected_hostname 'mail'
 
-  _should_be_configured_to_domainname 'bare-domain.test'
-  # Bare domain configured, thus no subdomain:
-  _should_be_configured_to_fqdn 'bare-domain.test'
+  _should_be_configured_to_domainname 'example.test'
+  _should_be_configured_to_fqdn 'mail.example.test'
 
-  _should_have_correct_mail_headers 'bare-domain.test'
+  _should_have_correct_mail_headers 'mail.example.test' 'example.test' 'mail'
+}
+
+@test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
+  export CONTAINER_NAME="${CONTAINER5_NAME}"
+
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --hostname 'mail'
+    --domainname 'example.test'
+    --env ENABLE_SRS=1
+    --env SRS_DOMAINNAME='srs.example.test'
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  # PostSRSd should be configured correctly:
+  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
+  assert_output "SRS_DOMAIN=srs.example.test"
+  assert_success
 }
 
 function _should_have_expected_hostname() {
