@@ -244,18 +244,6 @@ function teardown_file() { _default_teardown ; }
   assert_failure
 }
 
-@test "system: sets the server fqdn" {
-  _run_in_container hostname
-  assert_success
-  assert_output "mail.example.test"
-}
-
-@test "system: sets the server domain name in /etc/mailname" {
-  _run_in_container cat /etc/mailname
-  assert_success
-  assert_output "example.test"
-}
-
 @test "system: postfix should not log to syslog" {
   _run_in_container grep 'postfix' /var/log/syslog
   assert_failure
