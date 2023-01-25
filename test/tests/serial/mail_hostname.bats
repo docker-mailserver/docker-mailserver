@@ -2,10 +2,11 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[Network - Hostname] '
-CONTAINER1_NAME='dms-test_hostname_env-override-hostname'
+CONTAINER1_NAME='dms-test_hostname_fqdn-with-subdomain'
 CONTAINER2_NAME='dms-test_hostname_bare-domain'
-CONTAINER3_NAME='dms-test_hostname_env-srs-domainname'
-CONTAINER4_NAME='dms-test_hostname_fqdn-with-subdomain'
+CONTAINER3_NAME='dms-test_hostname_env-override-hostname'
+CONTAINER4_NAME='dms-test_hostname_with-nis-domain'
+CONTAINER5_NAME='dms-test_hostname_env-srs-domainname'
 
 # NOTE: Required until postsrsd package updated:
 # `--ulimit` is a workaround for some environments when using ENABLE_SRS=1:
@@ -14,7 +15,7 @@ CONTAINER4_NAME='dms-test_hostname_fqdn-with-subdomain'
 function teardown() { _default_teardown ; }
 
 @test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
-  export CONTAINER_NAME="${CONTAINER3_NAME}"
+  export CONTAINER_NAME="${CONTAINER5_NAME}"
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --hostname 'mail'
@@ -57,7 +58,7 @@ function teardown() { _default_teardown ; }
 }
 
 @test "should update configuration correctly (ENV OVERRIDE_HOSTNAME)" {
-  export CONTAINER_NAME="${CONTAINER1_NAME}"
+  export CONTAINER_NAME="${CONTAINER3_NAME}"
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --hostname 'original.example.test'
