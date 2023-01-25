@@ -14,6 +14,28 @@ CONTAINER5_NAME='dms-test_hostname_env-srs-domainname'
 
 function teardown() { _default_teardown ; }
 
+@test "should update configuration correctly (Standard FQDN setup)" {
+  export CONTAINER_NAME="${CONTAINER1_NAME}"
+
+  # Should be using the default `--hostname mail.example.test`
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SRS=1
+    --env PERMIT_DOCKER='container'
+    --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
+
+  _should_have_expected_hostname 'mail.example.test'
+
+  _should_be_configured_to_domainname 'example.test'
+  _should_be_configured_to_fqdn 'mail.example.test'
+
+  _should_have_correct_mail_headers 'mail.example.test' 'example.test'
+}
+
 @test "should update configuration correctly (Bare Domain)" {
   export CONTAINER_NAME="${CONTAINER2_NAME}"
 
@@ -79,14 +101,17 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
+  # Differs from the first test case, matches exact `--hostname` value:
   _should_have_expected_hostname 'mail'
 
   _should_be_configured_to_domainname 'example.test'
   _should_be_configured_to_fqdn 'mail.example.test'
 
+  # Likewise `--hostname` value will always match the third parameter:
   _should_have_correct_mail_headers 'mail.example.test' 'example.test' 'mail'
 }
 
+# This test is purely for testing the ENV `SRS_DOMAINNAME` (not relevant to these tests?)
 @test "should give priority to ENV in postsrsd config (ENV SRS_DOMAINNAME)" {
   export CONTAINER_NAME="${CONTAINER5_NAME}"
 
