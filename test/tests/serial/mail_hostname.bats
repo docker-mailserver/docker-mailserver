@@ -82,7 +82,7 @@ function teardown() { _default_teardown ; }
 
   _should_have_correct_mail_headers 'mail.override.test' 'override.test' 'original.example.test'
   # Container hostname should not be found in received mail (due to `OVERRIDE_HOSTNAME`):
-  _run_in_container_bash "grep -R original.example.test /var/mail/localhost.localdomain/user1/new/"
+  _run_in_container grep -R 'original.example.test' /var/mail/localhost.localdomain/user1/new/
   assert_failure
 }
 
@@ -127,7 +127,7 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # PostSRSd should be configured correctly:
-  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
+  _run_in_container grep '^SRS_DOMAIN=' /etc/default/postsrsd
   assert_output "SRS_DOMAIN=srs.example.test"
   assert_success
 }
@@ -139,7 +139,7 @@ function _should_have_expected_hostname() {
   assert_output "${EXPECTED_FQDN}"
   assert_success
 
-  _run_in_container_bash "grep -E '[[:space:]]+${EXPECTED_FQDN}' /etc/hosts"
+  _run_in_container grep -E '[[:space:]]+${EXPECTED_FQDN}' /etc/hosts
   assert_success
 }
 
@@ -147,22 +147,22 @@ function _should_be_configured_to_domainname() {
   local EXPECTED_DOMAIN=${1}
 
   # setup-stack.sh:_setup_mailname
-  _run_in_container_bash "cat /etc/mailname"
+  _run_in_container cat /etc/mailname
   assert_output "${EXPECTED_DOMAIN}"
   assert_success
 
   # Postfix
-  _run_in_container_bash "postconf mydomain"
+  _run_in_container postconf mydomain
   assert_output "mydomain = ${EXPECTED_DOMAIN}"
   assert_success
 
   # PostSRSd
-  _run_in_container_bash "grep '^SRS_DOMAIN=' /etc/default/postsrsd"
+  _run_in_container grep '^SRS_DOMAIN=' /etc/default/postsrsd
   assert_output "SRS_DOMAIN=${EXPECTED_DOMAIN}"
   assert_success
 
   # Dovecot
-  _run_in_container_bash "grep '^postmaster_address' /etc/dovecot/conf.d/15-lda.conf"
+  _run_in_container grep '^postmaster_address' /etc/dovecot/conf.d/15-lda.conf
   assert_output "postmaster_address = postmaster@${EXPECTED_DOMAIN}"
   assert_success
 }
@@ -171,7 +171,7 @@ function _should_be_configured_to_fqdn() {
   local EXPECTED_FQDN=${1}
 
   # Postfix
-  _run_in_container_bash "postconf myhostname"
+  _run_in_container postconf myhostname
   assert_output "myhostname = ${EXPECTED_FQDN}"
   assert_success
   # Postfix HELO message should contain FQDN (hostname)
@@ -180,20 +180,20 @@ function _should_be_configured_to_fqdn() {
   assert_success
 
   # Dovecot
-  _run_in_container_bash "doveconf hostname"
+  _run_in_container doveconf hostname
   assert_output "hostname = ${EXPECTED_FQDN}"
   assert_success
 
   # OpenDMARC
-  _run_in_container_bash "grep '^AuthservID' /etc/opendmarc.conf"
+  _run_in_container grep '^AuthservID' /etc/opendmarc.conf
   assert_output --partial " ${EXPECTED_FQDN}"
   assert_success
-  _run_in_container_bash "grep '^TrustedAuthservIDs' /etc/opendmarc.conf"
+  _run_in_container grep '^TrustedAuthservIDs' /etc/opendmarc.conf
   assert_output --partial " ${EXPECTED_FQDN}"
   assert_success
 
   # Amavis
-  _run_in_container_bash "grep '^\$myhostname' /etc/amavis/conf.d/05-node_id"
+  _run_in_container grep '^\$myhostname' /etc/amavis/conf.d/05-node_id
   assert_output "\$myhostname = \"${EXPECTED_FQDN}\";"
   assert_success
 }
