@@ -135,11 +135,11 @@ function teardown() { _default_teardown ; }
 function _should_have_expected_hostname() {
   local EXPECTED_FQDN=${1}
 
-  _run_in_container_bash "hostname"
+  _run_in_container "hostname"
   assert_output "${EXPECTED_FQDN}"
   assert_success
 
-  _run_in_container grep -E '[[:space:]]+${EXPECTED_FQDN}' /etc/hosts
+  _run_in_container grep -E "[[:space:]]+${EXPECTED_FQDN}" /etc/hosts
   assert_success
 }
 
@@ -175,7 +175,7 @@ function _should_be_configured_to_fqdn() {
   assert_output "myhostname = ${EXPECTED_FQDN}"
   assert_success
   # Postfix HELO message should contain FQDN (hostname)
-  _run_in_container_bash "nc -w 1 0.0.0.0 25"
+  _run_in_container nc -w 1 0.0.0.0 25
   assert_output --partial "220 ${EXPECTED_FQDN} ESMTP"
   assert_success
 
@@ -213,7 +213,7 @@ function _should_have_correct_mail_headers() {
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 
   # MTA hostname (sender?) is used in filename of stored mail:
-  local MAIL_FILEPATH="$(_exec_in_container_bash "ls -A /var/mail/localhost.localdomain/user1/new")"
+  local MAIL_FILEPATH=$(_exec_in_container_bash "find /var/mail/localhost.localdomain/user1/new -maxdepth 1 -type f | head -n 1")
 
   run echo "${MAIL_FILEPATH}"
   assert_success
@@ -221,7 +221,7 @@ function _should_have_correct_mail_headers() {
 
   # Mail headers should contain EXPECTED_FQDN for lines Received + by + Message-Id
   # For `ENABLE_SRS=1`, EXPECTED_DOMAINPART should match lines Return-Path + envelope-from
-  _run_in_container_bash "cat '/var/mail/localhost.localdomain/user1/new/${MAIL_FILEPATH}'"
+  _run_in_container cat "${MAIL_FILEPATH}"
   assert_success
   assert_line --index 0 --partial 'Return-Path: <SRS0='
   assert_line --index 0 --partial "@${EXPECTED_DOMAINPART}>"
