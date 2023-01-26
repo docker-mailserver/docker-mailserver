@@ -213,7 +213,7 @@ function _should_have_correct_mail_headers() {
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 
   # MTA hostname (sender?) is used in filename of stored mail:
-  local MAIL_FILEPATH=$(_exec_in_container_bash "find /var/mail/localhost.localdomain/user1/new -maxdepth 1 -type f | head -n 1")
+  local MAIL_FILEPATH=$(_exec_in_container find /var/mail/localhost.localdomain/user1/new -maxdepth 1 -type f)
 
   run echo "${MAIL_FILEPATH}"
   assert_success
