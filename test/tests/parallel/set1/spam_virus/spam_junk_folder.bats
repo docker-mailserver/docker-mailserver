@@ -14,6 +14,7 @@ function teardown() { _default_teardown ; }
 
 @test "(Amavis) spam message delivered & moved to Junk folder" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
+
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
@@ -24,23 +25,14 @@ function teardown() { _default_teardown ; }
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  _wait_for_smtp_port_in_container
 
-  # send a spam message
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
-  assert_success
-
-  # message will be added to a queue with varying delay until amavis receives it
-  run _repeat_until_success_or_timeout 60 bash -c "docker logs ${CONTAINER_NAME} | grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}'"
-  assert_success
-
-  # spam moved to Junk folder
-  run _repeat_until_success_or_timeout 20 bash -c "docker exec ${CONTAINER_NAME} sh -c 'grep \"Subject: SPAM: \" /var/mail/localhost.localdomain/user1/.Junk/new/ -R'"
-  assert_success
+  # Should move delivered spam to Junk folder
+  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
 }
 
 @test "(Amavis) spam message delivered to INBOX" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
+
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
@@ -51,17 +43,27 @@ function teardown() { _default_teardown ; }
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  # Should move delivered spam to INBOX
+  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/new/'
+}
+
+function _should_receive_spam_at() {
+  local MAIL_DIR=${1}
+
   _wait_for_smtp_port_in_container
+  # Port 10024 (Amavis)
+  _wait_for_tcp_port_in_container 10024
 
   # send a spam message
-  _run_in_container /bin/bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success
 
   # message will be added to a queue with varying delay until amavis receives it
-  run _repeat_until_success_or_timeout 60 bash -c "docker logs ${CONTAINER_NAME} | grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}'"
+  _run_in_container_bash 'timeout 60 tail -F /var/log/mail/mail.log | grep --max-count 1 "Passed SPAM {RelayedTaggedInbound,Quarantined}"'
   assert_success
 
-  # spam moved to INBOX
-  run _repeat_until_success_or_timeout 20 bash -c "docker exec ${CONTAINER_NAME} sh -c 'grep \"Subject: SPAM: \" /var/mail/localhost.localdomain/user1/new/ -R'"
+  # spam moved into MAIL_DIR
+  _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep -R 'Subject: SPAM: ' "${MAIL_DIR}"
   assert_success
 }
