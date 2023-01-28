@@ -420,9 +420,17 @@ function _count_files_in_directory_in_container()
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
+# @param ${3} = container name [OPTIONAL]
+#
+# ## Attention
+#
+# The string given to this function is interpreted by `grep -E`, i.e.
+# as a regular expression. In case you use characters that are special
+# in regular expressions, you need to escape them!
 function _filter_service_log() {
   local SERVICE=${1:?Service name must be provided}
   local STRING=${2:?String to match must be provided}
+  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
 
   _run_in_container grep -E "${STRING}" "/var/log/supervisor/${SERVICE}.log"
 }
@@ -431,15 +439,17 @@ function _filter_service_log() {
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
+# @param ${3} = container name [OPTIONAL]
 #
 # ## Attention
 #
-# The string given to this function is interpreted by `grep`, i.e.
+# The string given to this function is interpreted by `grep -E`, i.e.
 # as a regular expression. In case you use characters that are special
 # in regular expressions, you need to escape them!
 function _service_log_should_contain_string() {
   local SERVICE=${1:?Service name must be provided}
   local STRING=${2:?String to match must be provided}
+  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
 
   _filter_service_log "${SERVICE}" "${STRING}"
   assert_success
