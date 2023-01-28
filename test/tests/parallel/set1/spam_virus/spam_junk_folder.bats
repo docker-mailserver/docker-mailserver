@@ -27,27 +27,6 @@ function teardown() { _default_teardown ; }
   _should_be_received_by_amavis 'Blocked SPAM {NoBounceInbound,Quarantined}'
 }
 
-@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk folder" {
-  export CONTAINER_NAME=${CONTAINER3_NAME}
-
-  local CUSTOM_SETUP_ARGUMENTS=(
-    --env ENABLE_AMAVIS=1
-    --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
-    --env SPAMASSASSIN_SPAM_TO_INBOX=1
-    --env MOVE_SPAM_TO_JUNK=1
-    --env PERMIT_DOCKER=container
-  )
-  _init_with_defaults
-  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-
-  _should_send_spam_message
-  _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
-
-  # Should move delivered spam to Junk folder
-  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
-}
-
 @test "(enabled + MOVE_SPAM_TO_JUNK=0) should deliver spam message into INBOX" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
@@ -67,6 +46,27 @@ function teardown() { _default_teardown ; }
 
   # Should move delivered spam to INBOX
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/new/'
+}
+
+@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk folder" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SPAMASSASSIN=1
+    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAMASSASSIN_SPAM_TO_INBOX=1
+    --env MOVE_SPAM_TO_JUNK=1
+    --env PERMIT_DOCKER=container
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  _should_send_spam_message
+  _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
+
+  # Should move delivered spam to Junk folder
+  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
 }
 
 function _should_send_spam_message() {
