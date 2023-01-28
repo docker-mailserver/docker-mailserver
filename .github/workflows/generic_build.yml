@@ -23,7 +23,7 @@ permissions:
 jobs:
   build-image:
     name: 'Build'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       build-cache-key: ${{ steps.derive-image-cache-key.outputs.digest }}
     steps:
