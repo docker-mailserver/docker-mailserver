@@ -77,4 +77,5 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_id "${MAIL_ID3}"
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
+  refute_output --partial "stored mail into mailbox 'INBOX'"
 }
