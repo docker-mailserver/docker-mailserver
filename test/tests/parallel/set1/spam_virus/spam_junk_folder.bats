@@ -1,14 +1,40 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-BATS_TEST_NAME_PREFIX='[Spam - Amavis] ENV MOVE_SPAM_TO_JUNK '
-CONTAINER1_NAME='dms-test_spam-amavis_env-move-spam-to-junk-1'
+# Tests originally contributed in PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
+# That introduced both ENV: SPAMASSASSIN_SPAM_TO_INBOX and MOVE_SPAM_TO_JUNK
+
+BATS_TEST_NAME_PREFIX='[Spam - Amavis] ENV SPAMASSASSIN_SPAM_TO_INBOX '
+CONTAINER1_NAME='dms-test_spam-amavis_bounced'
 CONTAINER2_NAME='dms-test_spam-amavis_env-move-spam-to-junk-0'
+CONTAINER3_NAME='dms-test_spam-amavis_env-move-spam-to-junk-1'
 
 function teardown() { _default_teardown ; }
 
-@test "(enabled) should deliver spam message into Junk folder" {
+@test "(disabled) spam message should be bounced (rejected)" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
+
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_AMAVIS=1
+    --env ENABLE_SPAMASSASSIN=1
+    --env SPAMASSASSIN_SPAM_TO_INBOX=0
+    --env PERMIT_DOCKER=container
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container_to_respond
+
+  # send a spam message
+  _run_in_container /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
+  assert_success
+
+  # message will be added to a queue with varying delay until amavis receives it
+  run _repeat_until_success_or_timeout 60 sh -c "docker logs ${CONTAINER_NAME} | grep 'Blocked SPAM {NoBounceInbound,Quarantined}'"
+  assert_success
+}
+
+@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk folder" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
@@ -25,7 +51,7 @@ function teardown() { _default_teardown ; }
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
 }
 
-@test "(disabled) should deliver spam message into INBOX" {
+@test "(enabled + MOVE_SPAM_TO_JUNK=0) should deliver spam message into INBOX" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
   local CUSTOM_SETUP_ARGUMENTS=(
