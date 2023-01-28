@@ -17,6 +17,7 @@
 function __load_bats_helper() {
   load "${REPOSITORY_ROOT}/test/test_helper/bats-support/load"
   load "${REPOSITORY_ROOT}/test/test_helper/bats-assert/load"
+  load "${REPOSITORY_ROOT}/test/helper/sending"
 }
 
 __load_bats_helper
@@ -412,6 +413,49 @@ function _count_files_in_directory_in_container()
   _run_in_container_bash "find ${DIRECTORY} -maxdepth 1 -type f -printf 'x\n'"
   assert_success
   _should_output_number_of_lines "${NUMBER_OF_LINES}"
+}
+
+# Filters a service's logs (under `/var/log/supervisor/<SERVICE>.log`) given
+# a specific string.
+#
+# @param ${1} = service name
+# @param ${2} = string to filter by
+function _filter_service_log() {
+  local SERVICE=${1:?Service name must be provided}
+  local STRING=${2:?String to match must be provided}
+
+  _run_in_container grep -E "${STRING}" "/var/log/supervisor/${SERVICE}.log"
+}
+
+# Like `_filter_service_log` but asserts that the string was found.
+#
+# @param ${1} = service name
+# @param ${2} = string to filter by
+#
+# ## Attention
+#
+# The string given to this function is interpreted by `grep`, i.e.
+# as a regular expression. In case you use characters that are special
+# in regular expressions, you need to escape them!
+function _service_log_should_contain_string() {
+  local SERVICE=${1:?Service name must be provided}
+  local STRING=${2:?String to match must be provided}
+
+  _filter_service_log "${SERVICE}" "${STRING}"
+  assert_success
+}
+
+# Filters the mail log for lines that belong to a certain email identified
+# by its ID. You can obtain the ID of an email you want to send by using
+# `_send_mail_and_get_id`.
+#
+# @param ${1} = email ID
+# @param ${2} = container name [OPTIONAL]
+function _print_mail_log_for_id() {
+  local MAIL_ID=${1:?Mail ID must be provided}
+  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+
+  _run_in_container grep -F "${MAIL_ID}" /var/log/mail.log
 }
 
 # ? << Miscellaneous helper functions
