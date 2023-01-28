@@ -22,15 +22,9 @@ function teardown() { _default_teardown ; }
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  _wait_for_smtp_port_in_container_to_respond
 
-  # send a spam message
-  _run_in_container /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
-  assert_success
-
-  # message will be added to a queue with varying delay until amavis receives it
-  run _repeat_until_success_or_timeout 60 sh -c "docker logs ${CONTAINER_NAME} | grep 'Blocked SPAM {NoBounceInbound,Quarantined}'"
-  assert_success
+  _should_send_spam_message
+  _should_be_received_by_amavis 'Blocked SPAM {NoBounceInbound,Quarantined}'
 }
 
 @test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk folder" {
@@ -46,6 +40,9 @@ function teardown() { _default_teardown ; }
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  _should_send_spam_message
+  _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
 
   # Should move delivered spam to Junk folder
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
@@ -65,24 +62,32 @@ function teardown() { _default_teardown ; }
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
+  _should_send_spam_message
+  _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
+
   # Should move delivered spam to INBOX
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/new/'
 }
 
-function _should_receive_spam_at() {
-  local MAIL_DIR=${1}
-
+function _should_send_spam_message() {
   _wait_for_smtp_port_in_container
   # Port 10024 (Amavis)
   _wait_for_tcp_port_in_container 10024
 
-  # send a spam message
   _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
   assert_success
+}
+
+function _should_be_received_by_amavis() {
+  local MATCH_CONTENT=${1}
 
   # message will be added to a queue with varying delay until amavis receives it
-  _run_in_container_bash 'timeout 60 tail -F /var/log/mail/mail.log | grep --max-count 1 "Passed SPAM {RelayedTaggedInbound,Quarantined}"'
+  _run_in_container_bash "timeout 60 tail -F /var/log/mail/mail.log | grep --max-count 1 '${MATCH_CONTENT}'"
   assert_success
+}
+
+function _should_receive_spam_at() {
+  local MAIL_DIR=${1}
 
   # spam moved into MAIL_DIR
   _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep -R 'Subject: SPAM: ' "${MAIL_DIR}"
