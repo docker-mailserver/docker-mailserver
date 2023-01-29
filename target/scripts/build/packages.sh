@@ -64,7 +64,7 @@ function _install_packages
   MISCELLANEOUS_PACKAGES=(
     apt-transport-https bind9-dnsutils binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init ed gamin gnupg iproute2 iputils-ping
+    dumb-init ed gnupg iproute2 iputils-ping
     libdate-manip-perl libldap-common
     libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd
@@ -153,6 +153,7 @@ function _install_fail2ban
   local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
 
   _log 'debug' 'Installing Fail2ban'
+  apt-get "${QUIET}" --no-install-recommends install python3-pyinotify python3-dnspython
 
   gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
 
