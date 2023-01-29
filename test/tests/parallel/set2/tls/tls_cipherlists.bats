@@ -94,15 +94,15 @@ function _configure_and_run_dms_container() {
   # The remaining args are dependent upon test case vars:
   CUSTOM_SETUP_ARGUMENTS+=(
     --env TLS_LEVEL="${TLS_LEVEL}"
-    --env SSL_CERT_PATH="/config/ssl/cert.${KEY_TYPE}.pem"
-    --env SSL_KEY_PATH="/config/ssl/key.${KEY_TYPE}.pem"
+    --env SSL_CERT_PATH="/config/ssl/with_ca/ecdsa/cert.${KEY_TYPE}.pem"
+    --env SSL_KEY_PATH="/config/ssl/with_ca/ecdsa/key.${KEY_TYPE}.pem"
   )
 
   if [[ -n ${ALT_KEY_TYPE} ]]
   then
     CUSTOM_SETUP_ARGUMENTS+=(
-      --env SSL_ALT_CERT_PATH="/config/ssl/cert.${ALT_KEY_TYPE}.pem"
-      --env SSL_ALT_KEY_PATH="/config/ssl/key.${ALT_KEY_TYPE}.pem"
+      --env SSL_ALT_CERT_PATH="/config/ssl/with_ca/ecdsa/cert.${ALT_KEY_TYPE}.pem"
+      --env SSL_ALT_KEY_PATH="/config/ssl/with_ca/ecdsa/key.${ALT_KEY_TYPE}.pem"
     )
   fi
 
@@ -161,6 +161,7 @@ function _collect_cipherlists() {
 
   # `--user "<uid>:<gid>"` is a workaround: Avoids `permission denied` write errors for json output, uses `id` to match user uid & gid.
   run docker run --rm \
+    --env ADDTL_CA_FILES="/config/ssl/with_ca/ecdsa/ca-cert.ecdsa.pem" \
     --user "$(id -u):$(id -g)" \
     --network "${TEST_NETWORK}" \
     --volume "${TLS_CONFIG_VOLUME}" \
