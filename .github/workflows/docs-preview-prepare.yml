@@ -23,7 +23,7 @@ permissions:
 jobs:
   prepare-preview:
     name: 'Build Preview'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       BUILD_DIR: docs/site
       NETLIFY_SITE_PREFIX: pullrequest-${{ github.event.pull_request.number }}
