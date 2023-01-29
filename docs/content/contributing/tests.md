@@ -26,6 +26,15 @@ The `test/` directory contains multiple directories. Among them is the `bats/` d
 
     We are currently in the process of restructuring all of our tests. Tests will be moved into `test/tests/parallel/` and new tests should be placed there as well.
 
+### Using Our Helper Functions
+
+There are many functions that aid in writing tests. **We urge you to use them!** They will not only ease writing a test but they will also do their best to ensure there are no race conditions or other unwanted side effects. To learn about the functions we provide, you can:
+
+1. look into existing tests for helper functions we already used
+2. look into the `test/helper/` directory which contains all files that can (and will) be loaded in test files
+
+We encourage you to try both of the approaches mentioned above. To make understanding and using the helper functions easy, every function contains detailed documentation comments. Read them carefully!
+
 ### How Are Tests Run?
 
 Tests are split into two categories:

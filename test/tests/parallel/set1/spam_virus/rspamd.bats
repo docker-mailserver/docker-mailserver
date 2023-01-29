@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-BATS_TEST_NAME_PREFIX='[rspamd] '
+BATS_TEST_NAME_PREFIX='[Rspamd] '
 CONTAINER_NAME='dms-test_rspamd'
 
 function setup_file() {
@@ -30,14 +30,9 @@ function setup_file() {
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  assert_success
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/rspamd-spam.txt"
-  assert_success
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/rspamd-virus.txt"
-  assert_success
-
-  _wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
+  export MAIL_ID1=$(_send_mail_and_get_id 'existing-user1')
+  export MAIL_ID2=$(_send_mail_and_get_id 'rspamd-spam')
+  export MAIL_ID3=$(_send_mail_and_get_id 'rspamd-virus')
 }
 
 function teardown_file() { _default_teardown ; }
@@ -48,49 +43,39 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "logs exist and contains proper content" {
-  _should_contain_string_rspamd 'rspamd .* is loading configuration'
-  _should_contain_string_rspamd 'lua module clickhouse is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module dkim_signing is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module elastic is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module rbl is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module reputation is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module spamassassin is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module url_redirector is disabled in the configuration'
-  _should_contain_string_rspamd 'lua module metric_exporter is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'rspamd .* is loading configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module clickhouse is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module dkim_signing is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module elastic is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module rbl is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module reputation is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module spamassassin is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module url_redirector is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module metric_exporter is disabled in the configuration'
 }
 
 @test "normal mail passes fine" {
-  _should_contain_string_rspamd 'F (no action)'
+  _service_log_should_contain_string 'rspamd' 'F \(no action\)'
 
-  run docker logs -n 100 "${CONTAINER_NAME}"
-  assert_success
+  _print_mail_log_for_id "${MAIL_ID1}"
   assert_output --partial "stored mail into mailbox 'INBOX'"
 }
 
 @test "detects and rejects spam" {
-  _should_contain_string_rspamd 'S (reject)'
-  _should_contain_string_rspamd 'reject "Gtube pattern"'
+  _service_log_should_contain_string 'rspamd' 'S \(reject\)'
+  _service_log_should_contain_string 'rspamd' 'reject "Gtube pattern"'
 
-  run docker logs -n 100 "${CONTAINER_NAME}"
-  assert_success
+  _print_mail_log_for_id "${MAIL_ID2}"
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 Gtube pattern'
 }
 
 @test "detects and rejects virus" {
-  _should_contain_string_rspamd 'T (reject)'
-  _should_contain_string_rspamd 'reject "ClamAV FOUND VIRUS "Eicar-Signature"'
+  _service_log_should_contain_string 'rspamd' 'T \(reject\)'
+  _service_log_should_contain_string 'rspamd' 'reject "ClamAV FOUND VIRUS "Eicar-Signature"'
 
-  run docker logs -n 8 "${CONTAINER_NAME}"
-  assert_success
+  _print_mail_log_for_id "${MAIL_ID3}"
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
   refute_output --partial "stored mail into mailbox 'INBOX'"
-}
-
-function _should_contain_string_rspamd() {
-  local STRING=${1:?No string provided to _should_contain_string_rspamd}
-
-  _run_in_container grep -q "${STRING}" /var/log/supervisor/rspamd.log
-  assert_success
 }
