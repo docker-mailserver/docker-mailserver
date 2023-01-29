@@ -1410,6 +1410,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#using-our-helper-functions" class="md-nav__link">
+    Using Our Helper Functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#how-are-tests-run" class="md-nav__link">
     How Are Tests Run?
   </a>
@@ -1561,6 +1568,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#using-our-helper-functions" class="md-nav__link">
+    Using Our Helper Functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#how-are-tests-run" class="md-nav__link">
     How Are Tests Run?
   </a>
@@ -1644,6 +1658,13 @@
 <p class="admonition-title">Test suite undergoing refactoring</p>
 <p>We are currently in the process of restructuring all of our tests. Tests will be moved into <code>test/tests/parallel/</code> and new tests should be placed there as well.</p>
 </div>
+<h3 id="using-our-helper-functions"><a class="toclink" href="#using-our-helper-functions">Using Our Helper Functions</a></h3>
+<p>There are many functions that aid in writing tests. <strong>We urge you to use them!</strong> They will not only ease writing a test but they will also do their best to ensure there are no race conditions or other unwanted side effects. To learn about the functions we provide, you can:</p>
+<ol>
+<li>look into existing tests for helper functions we already used</li>
+<li>look into the <code>test/helper/</code> directory which contains all files that can (and will) be loaded in test files</li>
+</ol>
+<p>We encourage you to try both of the approaches mentioned above. To make understanding and using the helper functions easy, every function contains detailed documentation comments. Read them carefully!</p>
 <h3 id="how-are-tests-run"><a class="toclink" href="#how-are-tests-run">How Are Tests Run?</a></h3>
 <p>Tests are split into two categories:</p>
 <ul>
