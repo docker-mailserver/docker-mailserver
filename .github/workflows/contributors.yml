@@ -6,7 +6,7 @@ on:
 
 jobs:
   delete-old-branch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     continue-on-error: true
     steps:
       - name: Delete old contributors-update branch
@@ -16,7 +16,7 @@ jobs:
           branches: contributors-update
 
   add-contributors:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: delete-old-branch
     steps:
       - uses: actions/checkout@v3
