@@ -240,7 +240,6 @@ RUN <<EOF
   rm -rf /usr/share/locale/*
   rm -rf /usr/share/man/*
   rm -rf /usr/share/doc/*
-  touch /var/log/auth.log
   update-locale
   rm /etc/postsrsd.secret
   rm /etc/cron.daily/00logwatch
