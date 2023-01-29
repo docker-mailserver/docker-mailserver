@@ -1,9 +1,10 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
+# ! ATTENTION: Must be run in serial mode, as no existing containers should be present.
+
 # Tests the `setup.sh` companion script.
 # Only test coverage below is that the config path `-p` and image `-i` options work as intended.
-# NOTE: Must be run in serial mode, as no existing containers should be present.
 BATS_TEST_NAME_PREFIX='[No Existing Container] '
 
 function setup_file() {
