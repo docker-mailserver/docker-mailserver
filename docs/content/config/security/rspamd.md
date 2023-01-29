@@ -31,7 +31,7 @@ DMS does not set a default password for the controller worker. You may want to d
 
 ## Missing in DMS' Current Implementation
 
-We currently lack easy integration for DKIM signing outgoing mails. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment `ENABLE_OPENKIM=0`. Rspamd will still check for valid DKIM signatures for incoming mail by default.
+We currently lack easy integration for DKIM signing outgoing mails. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment `ENABLE_OPENDKIM=0`. Rspamd will still check for valid DKIM signatures for incoming mail by default.
 
 [homepage]: https://rspamd.com/
 [modules]: https://rspamd.com/doc/modules/
