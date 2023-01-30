@@ -45,9 +45,8 @@ function teardown_file() { _default_teardown ; }
 @test "logs exist and contains proper content" {
   _service_log_should_contain_string 'rspamd' 'rspamd .* is loading configuration'
   _service_log_should_contain_string 'rspamd' 'lua module clickhouse is disabled in the configuration'
-  _service_log_should_contain_string 'rspamd' 'lua module dkim_signing is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module elastic is disabled in the configuration'
-  _service_log_should_contain_string 'rspamd' 'lua module rbl is disabled in the configuration'
+  _service_log_should_contain_string 'rspamd' 'lua module neural is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module reputation is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module spamassassin is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module url_redirector is disabled in the configuration'

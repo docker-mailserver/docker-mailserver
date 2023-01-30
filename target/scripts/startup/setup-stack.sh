@@ -118,10 +118,9 @@ function _setup_rspamd
   declare -a DISABLE_MODULES
   DISABLE_MODULES=(
     clickhouse
-    dkim_signing
     elastic
     greylist
-    rbl
+    neural
     reputation
     spamassassin
     url_redirector
@@ -131,7 +130,7 @@ function _setup_rspamd
   for MODULE in "${DISABLE_MODULES[@]}"
   do
     cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOF
-#documentation: https://rspamd.com/doc/modules/${MODULE}.html
+# documentation: https://rspamd.com/doc/modules/${MODULE}.html
 
 enabled = false;
 
