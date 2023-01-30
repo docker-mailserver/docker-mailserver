@@ -112,6 +112,7 @@ RUN <<EOF
 EOF
 
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
+COPY target/amavis/postfix-master.cf /etc/amavis/
 RUN <<EOF
   sedfile -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
   # add users clamav and amavis to each others group
