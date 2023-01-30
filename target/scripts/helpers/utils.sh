@@ -63,3 +63,59 @@ function _reload_postfix
   _adjust_mtime_for_postfix_maincf
   postfix reload
 }
+
+# Replaces values in configuration files given a set of specific environment
+# variables. The environment variables follow a naming pattern, whereby every
+# variable that is taken into account has a given prefix. The new value in the
+# configuration will be the one the environment variable had at the time of
+# calling this function.
+#
+# @param ${1} = prefix for environment variables
+# @param ${2} = file in which substitutions should take place
+#
+# ## Example
+#
+# If you want to set a new value for `readme_directory` in Postfix's `main.cf`,
+# you can set the environment variable `POSTFIX_README_DIRECTORY='/new/dir/'`
+# (`POSTFIX_` is an arbitrary prefix, you can choose the one you like),
+# and then call this function:
+# `_replace_by_env_in_file 'POSTFIX_' 'PATH TO POSTFIX's main.cf>`
+function _replace_by_env_in_file
+{
+  if [[ -z ${1+set} ]]
+  then
+    echo "ldap.sh:_replace_in_file is missing its first argument" >&2
+    return 1
+  fi
+
+  if [[ -z ${2+set} ]]
+  then
+    echo "ldap.sh:_replace_in_file is missing its second argument" >&2
+    return 1
+  fi
+
+  if [[ ! -f ${2} ]]
+  then
+    echo "File '${2}' could not be found" >&2
+    return 1
+  fi
+
+  local ENV_PREFIX=${1} CONFIG_FILE=${2}
+  declare -A CONFIG_OVERRIDES
+
+  while IFS='=' read -r KEY VALUE
+  do
+    KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
+    KEY=${KEY,,} # make lowercase
+    CONFIG_OVERRIDES[${KEY}]="${VALUE}"
+  done < <(env | grep "${ENV_PREFIX}")
+
+  for KEY in "${!CONFIG_OVERRIDES[@]}"
+  do
+    local VALUE ESCAPED_VALUE
+    VALUE=${CONFIG_OVERRIDES[${KEY}]}
+    ESCAPED_VALUE=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${VALUE}")
+    _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
+    sed -i "s#^${KEY}[[:space:]]\+.*#${KEY} = ${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
+  done
+}
