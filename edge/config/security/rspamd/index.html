@@ -1590,10 +1590,10 @@
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS' Defaults</a></h3>
 <p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
-<p>DMS disables certain modules (clickhouse, dkim_signing, elastic, greylist, rbl, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and needlessly use resources. You can re-activate them by replacing <code>/etc/rspamd/local.d/&lt;MODULE&gt;.conf</code> or overriding DMS' default with <code>/etc/rspamd/override.d/&lt;MODULE&gt;.conf</code>.</p>
+<p>DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and needlessly use resources. You can re-activate them by replacing <code>/etc/rspamd/local.d/&lt;MODULE&gt;.conf</code> or overriding DMS' default with <code>/etc/rspamd/override.d/&lt;MODULE&gt;.conf</code>.</p>
 <p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setup where you already have an authentication provider in front of the Rspamd webpage, you may add <code>secure_ip = "0.0.0.0/0";</code> to <code>worker-controller.inc</code> to disable password authentication inside Rspamd completely.</p>
 <h2 id="missing-in-dms-current-implementation"><a class="toclink" href="#missing-in-dms-current-implementation">Missing in DMS' Current Implementation</a></h2>
-<p>We currently lack easy integration for DKIM signing. We use OpenDKIM though which should work just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment <code>ENABLE_OPENKIM=0</code>. Do not confuse the signing with checking DKIM signatures of other emails: Rspamd will check signatures from other emails, just not sign yours in the default configuration.</p>
+<p>We currently lack easy integration for DKIM signing outgoing mails. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment <code>ENABLE_OPENDKIM=0</code>. Rspamd will still check for valid DKIM signatures for incoming mail by default.</p>
 
               
             </article>
