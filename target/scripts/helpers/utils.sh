@@ -84,38 +84,27 @@ function _replace_by_env_in_file
 {
   if [[ -z ${1+set} ]]
   then
-    echo "ldap.sh:_replace_in_file is missing its first argument" >&2
+    _log 'warn' "(ldap.sh:_replace_in_file) missing first argument"
     return 1
-  fi
-
-  if [[ -z ${2+set} ]]
+  elif [[ -z ${2+set} ]]
   then
-    echo "ldap.sh:_replace_in_file is missing its second argument" >&2
+    _log 'warn' "(ldap.sh:_replace_in_file) missing second argument"
     return 1
-  fi
-
-  if [[ ! -f ${2} ]]
+  elif [[ ! -f ${2} ]]
   then
-    echo "File '${2}' could not be found" >&2
+    _log 'warn' "(ldap.sh:_replace_in_file) file '${2}' could not be found"
     return 1
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
-  declare -A CONFIG_OVERRIDES
+  local ESCAPED_VALUE
 
   while IFS='=' read -r KEY VALUE
   do
     KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
     KEY=${KEY,,} # make lowercase
-    CONFIG_OVERRIDES[${KEY}]="${VALUE}"
-  done < <(env | grep "${ENV_PREFIX}")
-
-  for KEY in "${!CONFIG_OVERRIDES[@]}"
-  do
-    local VALUE ESCAPED_VALUE
-    VALUE=${CONFIG_OVERRIDES[${KEY}]}
     ESCAPED_VALUE=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${VALUE}")
     _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
     sed -i "s#^${KEY}[[:space:]]\+.*#${KEY} = ${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
-  done
+  done < <(env | grep "${ENV_PREFIX}")
 }
