@@ -72,6 +72,7 @@ function _misc_save_states
     [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             /var/mail-state/lib-clamav
     [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         /var/mail-state/lib-fetchmail
     [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         /var/mail-state/lib-postgrey
+    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           /var/mail-state/lib-rspamd
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd /var/mail-state/lib-spamassassin
 
     chown -R postfix:postfix /var/mail-state/lib-postfix
