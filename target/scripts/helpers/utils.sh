@@ -97,14 +97,15 @@ function _replace_by_env_in_file
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
-  local ESCAPED_VALUE
+  local ESCAPED_VALUE ESCAPED_KEY
 
   while IFS='=' read -r KEY VALUE
   do
     KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
-    KEY=${KEY,,} # make lowercase
+    ESCAPED_KEY=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${KEY,,}")
     ESCAPED_VALUE=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${VALUE}")
+    [[ -n ${ESCAPED_VALUE} ]] && ESCAPED_VALUE=" ${ESCAPED_VALUE}"
     _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
-    sed -i "s#^${KEY}[[:space:]]\+.*#${KEY} = ${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
-  done < <(env | grep "${ENV_PREFIX}")
+    sed -i -E "s#^${ESCAPED_KEY}[[:space:]]*=.*#${ESCAPED_KEY} =${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
+  done < <(env | grep "^${ENV_PREFIX}")
 }
