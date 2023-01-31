@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
 source "${REPOSITORY_ROOT}/target/scripts/helpers/utils.sh"
 
-BATS_TEST_NAME_PREFIX='[Helper _replace_by_env_in_file] '
+BATS_TEST_NAME_PREFIX='[Helper] (_replace_by_env_in_file) '
 CONFIG_FILE="${REPOSITORY_ROOT}/test/test-files/replace_by_env_in_file.conf"
 
 function setup_file() {

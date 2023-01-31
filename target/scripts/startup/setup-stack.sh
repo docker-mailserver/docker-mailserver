@@ -379,7 +379,7 @@ function _setup_ldap
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
     [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
     [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
-    _replace_by_env_in_file 'LDAP_' "${FILE}"
+    [[ -f ${FILE} ]] && _replace_by_env_in_file 'LDAP_' "${FILE}"
   done
 
   _log 'trace' "Configuring Dovecot LDAP"

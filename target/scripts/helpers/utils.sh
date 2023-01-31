@@ -84,15 +84,13 @@ function _replace_by_env_in_file
 {
   if [[ -z ${1+set} ]]
   then
-    dms_panic__invalid_value 'first argument' 'utils.sh:_replace_by_env_in_file'
-    return 1
+    dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ -z ${2+set} ]]
   then
-    dms_panic__invalid_value 'second argument' 'utils.sh:_replace_by_env_in_file'
-    return 1
+    dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ ! -f ${2} ]]
   then
-    dms_panic__no_file "${2}" 'utils.sh:_replace_by_env_in_file'
+    _log 'warn' "(utils.sh:_replace_by_env_in_file) file '${2}' does not exist"
     return 1
   fi
 
