@@ -84,15 +84,15 @@ function _replace_by_env_in_file
 {
   if [[ -z ${1+set} ]]
   then
-    _log 'warn' "(ldap.sh:_replace_in_file) missing first argument"
+    dms_panic__invalid_value 'first argument' 'utils.sh:_replace_by_env_in_file'
     return 1
   elif [[ -z ${2+set} ]]
   then
-    _log 'warn' "(ldap.sh:_replace_in_file) missing second argument"
+    dms_panic__invalid_value 'second argument' 'utils.sh:_replace_by_env_in_file'
     return 1
   elif [[ ! -f ${2} ]]
   then
-    _log 'warn' "(ldap.sh:_replace_in_file) file '${2}' could not be found"
+    dms_panic__no_file "${2}" 'utils.sh:_replace_by_env_in_file'
     return 1
   fi
 
