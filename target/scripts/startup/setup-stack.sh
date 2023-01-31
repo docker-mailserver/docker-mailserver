@@ -73,7 +73,7 @@ function _setup_amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
   then
     _log 'debug' 'Setting up Amavis'
-    cat /etc/amavis/postfix-master.cf >>/etc/postfix/master.cf
+    cat /etc/dms/postfix/master.d/postfix-amavis.cf >>/etc/postfix/master.cf
     sed -i \
       "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
       /etc/amavis/conf.d/05-node_id
