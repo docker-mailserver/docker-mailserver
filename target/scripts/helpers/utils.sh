@@ -81,28 +81,24 @@ function _reload_postfix
 # (`POSTFIX_` is an arbitrary prefix, you can choose the one you like),
 # and then call this function:
 # `_replace_by_env_in_file 'POSTFIX_' 'PATH TO POSTFIX's main.cf>`
+#
+# ## Panics
+#
+# This function will panic, i.e. shut down the whole container, if:
+#
+# 1. No first and second argument is supplied
+# 2. The second argument is a path to a file that does not exist
 function _replace_by_env_in_file
 {
-  if [[ ${1:-} == '--shutdown-on-error' ]]
-  then
-    function __handle_error() { dms_panic__invalid_value "${1}" 'utils.sh:_replace_by_env_in_file' ; }
-    shift 1
-  else
-    function __handle_error() { _log 'warn' "${1} in 'utils.sh:_replace_by_env_in_file'" ; }
-  fi
-
   if [[ -z ${1+set} ]]
   then
-    __handle_error 'first argument unset'
-    return 1
+    dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ -z ${2+set} ]]
   then
-    __handle_error 'second argument unset'
-    return 1
+    dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ ! -f ${2} ]]
   then
-    __handle_error "file '${2}' does not exist"
-    return 1
+    dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file'
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
