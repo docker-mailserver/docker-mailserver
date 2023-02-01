@@ -70,6 +70,7 @@ function _reload_postfix
 # configuration will be the one the environment variable had at the time of
 # calling this function.
 #
+# @option --shutdown-on-error = shutdown in case an error is detected
 # @param ${1} = prefix for environment variables
 # @param ${2} = file in which substitutions should take place
 #
@@ -82,15 +83,25 @@ function _reload_postfix
 # `_replace_by_env_in_file 'POSTFIX_' 'PATH TO POSTFIX's main.cf>`
 function _replace_by_env_in_file
 {
+  if [[ ${1:-} == '--shutdown-on-error' ]]
+  then
+    function __handle_error() { dms_panic__invalid_value "${1}" 'utils.sh:_replace_by_env_in_file' ; }
+    shift 1
+  else
+    function __handle_error() { _log 'warn' "${1} in 'utils.sh:_replace_by_env_in_file'" ; }
+  fi
+
   if [[ -z ${1+set} ]]
   then
-    dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
+    __handle_error 'first argument unset'
+    return 1
   elif [[ -z ${2+set} ]]
   then
-    dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
+    __handle_error 'second argument unset'
+    return 1
   elif [[ ! -f ${2} ]]
   then
-    _log 'warn' "(utils.sh:_replace_by_env_in_file) file '${2}' does not exist"
+    __handle_error "file '${2}' does not exist"
     return 1
   fi
 

@@ -379,7 +379,7 @@ function _setup_ldap
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
     [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
     [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
-    [[ -f ${FILE} ]] && _replace_by_env_in_file 'LDAP_' "${FILE}"
+    _replace_by_env_in_file 'LDAP_' "${FILE}"
   done
 
   _log 'trace' "Configuring Dovecot LDAP"
@@ -406,7 +406,7 @@ function _setup_ldap
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
-  _replace_by_env_in_file 'DOVECOT_' '/etc/dovecot/dovecot-ldap.conf.ext'
+  _replace_by_env_in_file --shutdown-on-error 'DOVECOT_' '/etc/dovecot/dovecot-ldap.conf.ext'
 
   _log 'trace' 'Enabling Dovecot LDAP authentication'
 
