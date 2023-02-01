@@ -33,8 +33,8 @@ function teardown() { _default_teardown ; }
   assert_output '#listen = *, ::'
 
   _run_in_container postconf inet_protocols
-  assert_output 'inet_protocols = all'
   assert_success
+  assert_output 'inet_protocols = all'
 }
 
 @test "should configure for IPv4-only" {
@@ -52,8 +52,8 @@ function teardown() { _default_teardown ; }
   assert_output 'listen = *'
 
   _run_in_container postconf inet_protocols
-  assert_output 'inet_protocols = ipv4'
   assert_success
+  assert_output 'inet_protocols = ipv4'
 }
 
 @test "should configure for IPv6-only networks" {
@@ -71,6 +71,6 @@ function teardown() { _default_teardown ; }
   assert_output 'listen = [::]'
 
   _run_in_container postconf inet_protocols
-  assert_output 'inet_protocols = ipv6'
   assert_success
+  assert_output 'inet_protocols = ipv6'
 }
