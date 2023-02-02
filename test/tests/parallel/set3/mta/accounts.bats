@@ -16,7 +16,9 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "accounts: user accounts" {
+### Account Setup ###
+
+@test "should have created all accounts in Dovecot UserDB" {
   _run_in_container doveadm user '*'
   assert_success
   assert_line --index 0 "user1@localhost.localdomain"
@@ -25,38 +27,40 @@ function teardown_file() { _default_teardown ; }
   assert_line --index 3 "added@localhost.localdomain"
 }
 
-@test "accounts: user mail folder for user1" {
+@test "should have created maildir for 'user1@localhost.localdomain'" {
   _run_in_container_bash "ls -d /var/mail/localhost.localdomain/user1"
   assert_success
 }
 
-@test "accounts: user mail folder for user2" {
+@test "should have created maildir for 'user2@otherdomain.tld'" {
   _run_in_container_bash "ls -d /var/mail/otherdomain.tld/user2"
   assert_success
 }
 
-@test "accounts: user mail folder for user3" {
+@test "should have created maildir for 'user3@localhost.localdomain'" {
   _run_in_container_bash "ls -d /var/mail/localhost.localdomain/user3"
   assert_success
 }
 
-@test "accounts: user mail folder for added user" {
+@test "should have created maildir for 'added@localhost.localdomain'" {
   _run_in_container_bash "ls -d /var/mail/localhost.localdomain/added"
   assert_success
 }
 
-@test "accounts: comments are not parsed" {
+@test "should not accidentally parse comments in 'postfix-accounts.cf' as accounts" {
   _run_in_container_bash "ls /var/mail | grep 'comment'"
   assert_failure
 }
 
-@test "accounts: user_without_domain creation should be rejected since user@domain format is required" {
+### Account Management ###
+
+@test "should fail to create a user when the domain-part ('@example.com') is missing" {
   _run_in_container_bash "addmailuser user_without_domain mypassword"
   assert_failure
   assert_output --partial 'should include the domain (eg: user@example.com)'
 }
 
-@test "accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+@test "should add new user 'user3@domain.tld' into 'postfix-accounts.cf'" {
   _exec_in_container_bash "addmailuser user3@domain.tld mypassword"
 
   _run_in_container_bash "grep '^user3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
@@ -64,7 +68,8 @@ function teardown_file() { _default_teardown ; }
   [[ -n ${output} ]]
 }
 
-@test "accounts: auser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+# To catch mistakes from substring matching:
+@test "should add new user 'auser3@domain.tld' into 'postfix-accounts.cf'" {
   _exec_in_container_bash "addmailuser auser3@domain.tld mypassword"
 
   _run_in_container_bash "grep '^auser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
@@ -72,7 +77,8 @@ function teardown_file() { _default_teardown ; }
   [[ -n ${output} ]]
 }
 
-@test "accounts: a.ser3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf" {
+# To catch mistakes from accidental pattern `.` matching as `u`:
+@test "should add new user 'a.ser3@domain.tld' into 'postfix-accounts.cf'" {
   _exec_in_container_bash "addmailuser a.ser3@domain.tld mypassword"
 
   _run_in_container_bash "grep '^a\.ser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
@@ -80,7 +86,7 @@ function teardown_file() { _default_teardown ; }
   [[ -n ${output} ]]
 }
 
-@test "accounts: user3 should have been removed from /tmp/docker-mailserver/postfix-accounts.cf but not auser3" {
+@test "should remove user3 (but not auser3) from 'postfix-accounts.cf'" {
   _wait_until_account_maildir_exists 'user3@domain.tld'
 
   _exec_in_container_bash "delmailuser -y user3@domain.tld"
@@ -94,7 +100,7 @@ function teardown_file() { _default_teardown ; }
   [[ -n ${output} ]]
 }
 
-@test "user updating password for user in /tmp/docker-mailserver/postfix-accounts.cf" {
+@test "should update password for user4 by modifying entry in 'postfix-accounts.cf'" {
   _add_mail_account_then_wait_until_ready 'user4@domain.tld'
 
   initialpass=$(_exec_in_container_bash "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
@@ -105,23 +111,26 @@ function teardown_file() { _default_teardown ; }
 
   [[ ${initialpass} != "${changepass}" ]]
 
+  # TODO: Unclear why this is in the test case?:
   _run_in_container_bash "delmailuser -y auser3@domain.tld"
   assert_success
 }
 
-@test "accounts: listmailuser (quotas disabled)" {
+# TODO: Prone to failure sometimes from the change event in previous test case,
+# as Dovecot service can be momentarily unavailable during reload?
+@test "(ENV ENABLE_QUOTAS=0) 'setup email list' should not display quota information" {
   _run_in_container_bash "echo 'ENABLE_QUOTAS=0' >> /etc/dms-settings && listmailuser | head -n 1"
   assert_success
   assert_output '* user1@localhost.localdomain'
 }
 
-@test "accounts: listmailuser (quotas enabled)" {
+@test "(ENV ENABLE_QUOTAS=1) 'setup email list' should display quota information" {
   _run_in_container_bash "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
   assert_success
   assert_output '* user1@localhost.localdomain ( 0 / ~ ) [0%]'
 }
 
-@test "accounts: no error is generated when deleting a user if /tmp/docker-mailserver/postfix-accounts.cf is missing" {
+@test "(missing postfix-accounts.cf) 'setup email del' should not fail with an error" {
   run docker run --rm \
     -v "$(_duplicate_config_for_container without-accounts/ without-accounts-deleting-user)":/tmp/docker-mailserver/ \
     "${IMAGE_NAME:?}" /bin/sh -c 'delmailuser -y user3@domain.tld'
@@ -129,7 +138,7 @@ function teardown_file() { _default_teardown ; }
   [[ -z ${output} ]]
 }
 
-@test "accounts: user3 should have been added to /tmp/docker-mailserver/postfix-accounts.cf even when that file does not exist" {
+@test "(missing postfix-accounts.cf) 'setup email add' should create 'postfix-accounts.cf' and populate with new mail account" {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(_duplicate_config_for_container without-accounts/ without-accounts_file_does_not_exist)
   run docker run --rm \
