@@ -153,6 +153,7 @@ function _collect_cipherlists() {
     --mode parallel
     --overwrite
     --preference
+    --openssl /usr/bin/openssl
   )
   # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
   # If the failure for a test is misleading consider testing a single port with:
