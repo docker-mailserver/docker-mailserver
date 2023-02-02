@@ -410,8 +410,9 @@ function _count_files_in_directory_in_container()
   _run_in_container_bash "[[ -d ${DIRECTORY} ]]"
   assert_success
 
-  _run_in_container_bash "find ${DIRECTORY} -maxdepth 1 -type f -printf 'x\n'"
+  _run_in_container_bash "find ${DIRECTORY} -maxdepth 1 -type f"
   assert_success
+
   _should_output_number_of_lines "${NUMBER_OF_LINES}"
 }
 
