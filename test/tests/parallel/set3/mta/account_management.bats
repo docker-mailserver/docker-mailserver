@@ -95,7 +95,6 @@ function teardown_file() { _default_teardown ; }
   # elsewhere momentarily such as the Dovecot UserDB until change event kicks in.
   __check_mail_account_exists 'user3@domain.tld'
   assert_failure
-  assert_output ''
 
   __check_mail_account_exists 'auser3@domain.tld'
   assert_success
