@@ -21,133 +21,145 @@ function teardown_file() { _default_teardown ; }
 @test "should have created all accounts in Dovecot UserDB" {
   _run_in_container doveadm user '*'
   assert_success
-  assert_line --index 0 "user1@localhost.localdomain"
-  assert_line --index 1 "user2@otherdomain.tld"
-  assert_line --index 2 "user3@localhost.localdomain"
-  assert_line --index 3 "added@localhost.localdomain"
+  assert_line --index 0 'user1@localhost.localdomain'
+  assert_line --index 1 'user2@otherdomain.tld'
+  assert_line --index 2 'user3@localhost.localdomain'
+  assert_line --index 3 'added@localhost.localdomain'
+  assert_line --index 4 'pass@localhost.localdomain'
+  assert_line --index 5 'alias1@localhost.localdomain'
+  # TODO: Probably not intentional?:
+  assert_line --index 6 '@localdomain2.com'
+  _should_output_number_of_lines 7
+
+  # Relevant log output from scripts/helpers/accounts.sh:_create_dovecot_alias_dummy_accounts():
+  # [  DEBUG  ]  Adding alias 'alias1@localhost.localdomain' for user 'user1@localhost.localdomain' to Dovecot's userdb
+  # [  DEBUG  ]  Alias 'alias2@localhost.localdomain' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb
+  # [  DEBUG  ]  Adding alias '@localdomain2.com' for user 'user1@localhost.localdomain' to Dovecot's userdb
 }
 
 @test "should have created maildir for 'user1@localhost.localdomain'" {
-  _run_in_container_bash "ls -d /var/mail/localhost.localdomain/user1"
+  _run_in_container ls -d '/var/mail/localhost.localdomain/user1'
   assert_success
 }
 
 @test "should have created maildir for 'user2@otherdomain.tld'" {
-  _run_in_container_bash "ls -d /var/mail/otherdomain.tld/user2"
+  _run_in_container ls -d '/var/mail/otherdomain.tld/user2'
   assert_success
 }
 
 @test "should have created maildir for 'user3@localhost.localdomain'" {
-  _run_in_container_bash "ls -d /var/mail/localhost.localdomain/user3"
+  _run_in_container ls -d '/var/mail/localhost.localdomain/user3'
   assert_success
 }
 
 @test "should have created maildir for 'added@localhost.localdomain'" {
-  _run_in_container_bash "ls -d /var/mail/localhost.localdomain/added"
+  _run_in_container ls -d '/var/mail/localhost.localdomain/added'
   assert_success
 }
 
 @test "should not accidentally parse comments in 'postfix-accounts.cf' as accounts" {
-  _run_in_container_bash "ls /var/mail | grep 'comment'"
+  _run_in_container_bash 'ls /var/mail | grep comment'
   assert_failure
 }
 
 ### Account Management ###
 
 @test "should fail to create a user when the domain-part ('@example.com') is missing" {
-  _run_in_container_bash "addmailuser user_without_domain mypassword"
+  _run_in_container setup email add user_without_domain mypassword
   assert_failure
   assert_output --partial 'should include the domain (eg: user@example.com)'
 }
 
 @test "should add new user 'user3@domain.tld' into 'postfix-accounts.cf'" {
-  _exec_in_container_bash "addmailuser user3@domain.tld mypassword"
-
-  _run_in_container_bash "grep '^user3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
-  assert_success
-  [[ -n ${output} ]]
+  __should_add_new_user 'user3@domain.tld'
 }
 
 # To catch mistakes from substring matching:
 @test "should add new user 'auser3@domain.tld' into 'postfix-accounts.cf'" {
-  _exec_in_container_bash "addmailuser auser3@domain.tld mypassword"
-
-  _run_in_container_bash "grep '^auser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
-  assert_success
-  [[ -n ${output} ]]
+  __should_add_new_user 'auser3@domain.tld'
 }
 
 # To catch mistakes from accidental pattern `.` matching as `u`:
 @test "should add new user 'a.ser3@domain.tld' into 'postfix-accounts.cf'" {
-  _exec_in_container_bash "addmailuser a.ser3@domain.tld mypassword"
-
-  _run_in_container_bash "grep '^a\.ser3@domain\.tld|' -i /tmp/docker-mailserver/postfix-accounts.cf"
-  assert_success
-  [[ -n ${output} ]]
+  __should_add_new_user 'a.ser3@domain.tld'
 }
 
 @test "should remove user3 (but not auser3) from 'postfix-accounts.cf'" {
+  # Waits until change event has created directory but not completed:
   _wait_until_account_maildir_exists 'user3@domain.tld'
+  # Should trigger a new change event:
+  _exec_in_container setup email del -y 'user3@domain.tld'
 
-  _exec_in_container_bash "delmailuser -y user3@domain.tld"
-
-  _run_in_container_bash "grep '^user3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  # NOTE: This is only checking `postfix-accounts.cf`, account may still persist
+  # elsewhere momentarily such as the Dovecot UserDB until change event kicks in.
+  __check_mail_account_exists 'user3@domain.tld'
   assert_failure
-  [[ -z ${output} ]]
+  assert_output ''
 
-  _run_in_container_bash "grep '^auser3@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf"
+  __check_mail_account_exists 'auser3@domain.tld'
   assert_success
-  [[ -n ${output} ]]
+  assert_output 'auser3@domain.tld'
 }
 
 @test "should update password for user4 by modifying entry in 'postfix-accounts.cf'" {
+  # This change tends to be bundled with change detection event from previous test case
+  # deleting 'user3@domain.tld', thus both changes are usually applied together.
+  # NOTE: Technically these two `setup email ...` commands are run async, there is no
+  # proper file locking applied to `postfix-accounts.cf`, potentially a race condition.
   _add_mail_account_then_wait_until_ready 'user4@domain.tld'
 
-  initialpass=$(_exec_in_container_bash "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
-  sleep 2
-  _exec_in_container_bash "updatemailuser user4@domain.tld mynewpassword"
-  sleep 2
-  changepass=$(_exec_in_container_bash "grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf")
+  local ORIGINAL_ENTRY UPDATED_ENTRY
+  ORIGINAL_ENTRY=$(_exec_in_container grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf)
+  _exec_in_container setup email update 'user4@domain.tld' mynewpassword
+  UPDATED_ENTRY=$(_exec_in_container grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf)
 
-  [[ ${initialpass} != "${changepass}" ]]
+  assert_not_equal "${ORIGINAL_ENTRY}" "${UPDATED_ENTRY}"
 
   # TODO: Unclear why this is in the test case?:
-  _run_in_container_bash "delmailuser -y auser3@domain.tld"
+  _run_in_container setup email del -y 'auser3@domain.tld'
   assert_success
 }
 
 # TODO: Prone to failure sometimes from the change event in previous test case,
 # as Dovecot service can be momentarily unavailable during reload?
 @test "(ENV ENABLE_QUOTAS=0) 'setup email list' should not display quota information" {
-  _run_in_container_bash "echo 'ENABLE_QUOTAS=0' >> /etc/dms-settings && listmailuser | head -n 1"
+  _run_in_container_bash 'echo "ENABLE_QUOTAS=0" >> /etc/dms-settings && setup email list | head -n 1'
   assert_success
   assert_output '* user1@localhost.localdomain'
 }
 
 @test "(ENV ENABLE_QUOTAS=1) 'setup email list' should display quota information" {
-  _run_in_container_bash "sed -i '/ENABLE_QUOTAS=0/d' /etc/dms-settings; listmailuser | head -n 1"
+  _run_in_container_bash 'sed -i "/ENABLE_QUOTAS=0/d" /etc/dms-settings; setup email list | head -n 1'
   assert_success
   assert_output '* user1@localhost.localdomain ( 0 / ~ ) [0%]'
 }
 
 @test "(missing postfix-accounts.cf) 'setup email del' should not fail with an error" {
-  run docker run --rm \
-    -v "$(_duplicate_config_for_container without-accounts/ without-accounts-deleting-user)":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c 'delmailuser -y user3@domain.tld'
+  run docker run --rm "${IMAGE_NAME:?}" setup email del -y 'user3@domain.tld'
   assert_success
-  [[ -z ${output} ]]
+  assert_output ''
 }
 
 @test "(missing postfix-accounts.cf) 'setup email add' should create 'postfix-accounts.cf' and populate with new mail account" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(_duplicate_config_for_container without-accounts/ without-accounts_file_does_not_exist)
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/without-accounts/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c 'addmailuser user3@domain.tld mypassword'
+  run docker run --rm "${IMAGE_NAME:?}" \
+    /bin/bash -c 'setup email add user3@domain.tld mypassword && grep -o "^user3@domain\.tld" /tmp/docker-mailserver/postfix-accounts.cf'
   assert_success
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/without-accounts/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c 'grep user3@domain.tld -i /tmp/docker-mailserver/postfix-accounts.cf'
+  assert_output 'user3@domain.tld'
+}
+
+function __should_add_new_user() {
+  local MAIL_ACCOUNT=${1}
+  _exec_in_container setup email add "${MAIL_ACCOUNT}" mypassword
+
+  __check_mail_account_exists "${MAIL_ACCOUNT}"
   assert_success
-  [[ -n ${output} ]]
+  assert_output "${MAIL_ACCOUNT}"
+}
+
+# Uses a double grep to avoid test case failures from accidental substring/pattern matching
+function __check_mail_account_exists() {
+  local MAIL_ACCOUNT=${1}
+
+  # Filter out any comment lines, then truncate each line at their first `|` delimiter:
+  _run_in_container_bash "sed -e '/\s*#/d' -e 's/|.*//' /tmp/docker-mailserver/postfix-accounts.cf | grep '^${MAIL_ACCOUNT}' | grep -F '${MAIL_ACCOUNT}'"
 }
