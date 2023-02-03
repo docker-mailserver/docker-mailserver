@@ -114,10 +114,6 @@ function teardown_file() { _default_teardown ; }
   UPDATED_ENTRY=$(_exec_in_container grep '^user4@domain\.tld' -i /tmp/docker-mailserver/postfix-accounts.cf)
 
   assert_not_equal "${ORIGINAL_ENTRY}" "${UPDATED_ENTRY}"
-
-  # TODO: Unclear why this is in the test case?:
-  _run_in_container setup email del -y 'auser3@domain.tld'
-  assert_success
 }
 
 # TODO: Prone to failure sometimes from the change event in previous test case,
