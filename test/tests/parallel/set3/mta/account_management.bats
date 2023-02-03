@@ -38,28 +38,29 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "should have created maildir for 'user1@localhost.localdomain'" {
-  _run_in_container ls -d '/var/mail/localhost.localdomain/user1'
+  _run_in_container_bash '[[ -d /var/mail/localhost.localdomain/user1 ]]'
   assert_success
 }
 
 @test "should have created maildir for 'user2@otherdomain.tld'" {
-  _run_in_container ls -d '/var/mail/otherdomain.tld/user2'
+  _run_in_container_bash '[[ -d /var/mail/otherdomain.tld/user2 ]]'
   assert_success
 }
 
 @test "should have created maildir for 'user3@localhost.localdomain'" {
-  _run_in_container ls -d '/var/mail/localhost.localdomain/user3'
+  _run_in_container_bash '[[ -d /var/mail/localhost.localdomain/user3 ]]'
   assert_success
 }
 
 @test "should have created maildir for 'added@localhost.localdomain'" {
-  _run_in_container ls -d '/var/mail/localhost.localdomain/added'
+  _run_in_container_bash '[[ -d /var/mail/localhost.localdomain/added ]]'
   assert_success
 }
 
 @test "should not accidentally parse comments in 'postfix-accounts.cf' as accounts" {
-  _run_in_container_bash 'ls /var/mail | grep comment'
-  assert_failure
+  _run_in_container find /var/mail -maxdepth 1
+  assert_success
+  refute_output --partial 'comment'
 }
 
 ### Account Management ###
