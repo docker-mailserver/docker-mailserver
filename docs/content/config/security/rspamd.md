@@ -14,7 +14,7 @@ Rspamd is a "fast, free and open-source spam filtering system". It offers high p
 
 ## Integration & Configuration
 
-We provide a very simple but easy to maintain setup of RSpamd. The proxy worker operates in [self-scan mode][proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-overriding-settings). If you want to have a look at the default configuration for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-default-configuration].
+We provide a very simple but easy to maintain setup of Rspamd. The proxy worker operates in [self-scan mode][proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-overriding-settings). If you want to have a look at the default configuration for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-default-configuration].
 
 ### Providing & Overriding Settings
 

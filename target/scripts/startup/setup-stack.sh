@@ -176,8 +176,8 @@ EOF
           # sanity check: is the user writing the same option twice?
           if grep -q -E "${ARGUMENT1}.*=.*" "${FILE}"
           then
-            _log 'warn' "Rspamd setup: overwriting option '${ARGUMENT1}' twice (current value = '${ARGUMENT2}') for module '${MODULE}'"
-            sed -i -E "s|([[:space:]]${ARGUMENT1}).*|\1 = ${ARGUMENT2};|g" "${FILE}"
+            _log 'debug' "Rspamd setup: overwriting option '${ARGUMENT1}' with value = '${ARGUMENT2}' for module '${MODULE}'"
+            sed -i -E "s|([[:space:]]*${ARGUMENT1}).*|\1 = ${ARGUMENT2};|g" "${FILE}"
           else
             echo "${ARGUMENT1} = ${ARGUMENT2};" >>"${FILE}"
           fi
