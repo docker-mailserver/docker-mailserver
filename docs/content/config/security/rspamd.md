@@ -29,7 +29,7 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 #### With the Help of a Custom File
 
-DMS provides the ability to do simple adjustments to Rspamd modules with the help of a file you can mount to `docker-data/dms/config/rspamd-commands`. If this file is present, DMS will evaluate it. The structure is _very_ simple. Each line in the file looks like this:
+DMS provides the ability to do simple adjustments to Rspamd modules with the help of a file. Just place a file called `rspamd-commands` into the directory `docker-data/dms/config/` (which translates to `/tmp/docker-mailserver` in the container). If this file is present, DMS will evaluate it. The structure is _very_ simple. Each line in the file looks like this:
 
 ```txt
 COMMAND MODULE ARGUMENT1 ARGUMENT2

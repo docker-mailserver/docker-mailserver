@@ -145,11 +145,14 @@ EOF
   local RSPAMD_CUSTOM_COMMANDS_FILE=/tmp/docker-mailserver/rspamd-commands
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
   then
+    _log 'debug' "Found 'rspamd-commands' file - parsing and applying it"
+
     while read -r COMMAND MODULE ARGUMENT1 ARGUMENT2
     do
       case "${COMMAND}"
       in
         ('disable-module')
+          _log 'trace' "Disabling module '${MODULE}'"
           [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
           cat >"/etc/rspamd/override.d/${MODULE}.conf" << EOF
 # documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
@@ -160,6 +163,7 @@ EOF
           ;;
 
         ('enable-module')
+          _log 'trace' "Enabling module '${MODULE}' now"
           [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
           cat >>"/etc/rspamd/override.d/${MODULE}.conf" << EOF
 # documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
@@ -170,13 +174,14 @@ EOF
           ;;
 
         ('set-option-for-module')
+          _log 'trace' "Setting option '${ARGUMENT1}' for module '${MODULE}' to '${ARGUMENT2}'"
           local FILE="/etc/rspamd/override.d/${MODULE}.conf"
           [[ -f ${FILE} ]] || touch "${FILE}"
 
           # sanity check: is the user writing the same option twice?
           if grep -q -E "${ARGUMENT1}.*=.*" "${FILE}"
           then
-            _log 'debug' "Rspamd setup: overwriting option '${ARGUMENT1}' with value = '${ARGUMENT2}' for module '${MODULE}'"
+            _log 'debug' "Rspamd setup: overwriting option '${ARGUMENT1}' with value '${ARGUMENT2}' for module '${MODULE}'"
             sed -i -E "s|([[:space:]]*${ARGUMENT1}).*|\1 = ${ARGUMENT2};|g" "${FILE}"
           else
             echo "${ARGUMENT1} = ${ARGUMENT2};" >>"${FILE}"
@@ -184,6 +189,7 @@ EOF
           ;;
 
         ('add-line-to-module')
+          _log 'trace' "Adding complete line to module '${MODULE}'"
           echo "${ARGUMENT1} ${ARGUMENT2:-}" >>"/etc/rspamd/override.d/${MODULE}.conf"
           ;;
 
