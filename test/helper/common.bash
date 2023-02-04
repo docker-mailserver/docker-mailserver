@@ -353,6 +353,9 @@ function _add_mail_account_then_wait_until_ready() {
   local MAIL_PASS="${2:-password_not_relevant_to_test}"
   local CONTAINER_NAME=$(__handle_container_name "${3:-}")
 
+  # Required to detect a new account and create the maildir:
+  _wait_for_service changedetector "${CONTAINER_NAME}"
+
   _run_in_container setup email add "${MAIL_ACCOUNT}" "${MAIL_PASS}"
   assert_success
 
