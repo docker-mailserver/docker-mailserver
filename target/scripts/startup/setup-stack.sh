@@ -805,9 +805,8 @@ function _setup_docker_permit
     _log 'trace' "Adding ${NETWORK_TYPE} (${NETWORK}) to Postfix 'main.cf:mynetworks'"
     _adjust_mtime_for_postfix_maincf
     postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
-    mkdir -p /etc/{opendmarc,opendkim}
-    echo "${NETWORK}" >>/etc/opendmarc/ignore.hosts
-    echo "${NETWORK}" >>/etc/opendkim/TrustedHosts
+    [[ ${ENABLE_OPENDMARC} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendmarc/ignore.hosts
+    [[ ${ENABLE_OPENDKIM} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendkim/TrustedHosts
   }
 
   case "${PERMIT_DOCKER}" in
