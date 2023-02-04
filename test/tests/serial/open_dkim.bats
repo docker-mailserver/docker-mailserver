@@ -11,6 +11,7 @@ function setup_file
 {
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  mv "${PRIVATE_CONFIG}/example-opendkim/" "${PRIVATE_CONFIG}/opendkim/"
 
   docker run -d \
     --name "${CONTAINER_NAME}" \
@@ -60,30 +61,13 @@ function teardown_file
 
 # TODO Needs complete re-write
 @test "${TEST_FILE}generator creates default keys size" {
+  export CONTAINER_NAME='mail_default_key_size'
+
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_default_key_size)
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
-  # Prepare default key size 4096
-  rm -rf "${PRIVATE_CONFIG}/keyDefault"
-  mkdir -p "${PRIVATE_CONFIG}/keyDefault"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/keyDefault/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
-
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/keyDefault/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 861
+  __should_generate_dkim_key 6
+  __should_have_expected_keyfile '861'
 }
 
 # this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar <- DELETE AFTER REWRITE
@@ -91,89 +75,41 @@ function teardown_file
 
 # TODO Needs complete re-write
 @test "${TEST_FILE}generator creates key size 4096" {
+  export CONTAINER_NAME='mail_key_size_4096'
+
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_4096)
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
-  rm -rf "${PRIVATE_CONFIG}/key4096"
-  mkdir -p "${PRIVATE_CONFIG}/config/key4096"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 4096 | wc -l'
-
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 861
+  __should_generate_dkim_key 6 '4096'
+  __should_have_expected_keyfile '861'
 }
 
 # Instead it tests the file-size (here 511) - which may differ with a different domain names <- DELETE AFTER REWRITE
 # This test may be re-used as a global test to provide better test coverage. <- DELETE AFTER REWRITE
 
 # TODO Needs complete re-write
-@test "${TEST_FILE}generator creates key size 2048" {
+@test "${TEST_FILE}generator creates keys size 2048" {
+  export CONTAINER_NAME='mail_key_size_2048'
+
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_2048)
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
-  rm -rf "${PRIVATE_CONFIG}/key2048"
-  mkdir -p "${PRIVATE_CONFIG}/config/key2048"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 | wc -l'
-
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 511
+  __should_generate_dkim_key 6 '2048'
+  __should_have_expected_keyfile '511'
 }
 
 # this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar <- DELETE AFTER REWRITE
 # Instead it tests the file-size (here 329) - which may differ with a different domain names <- DELETE AFTER REWRITE
 
 # TODO Needs complete re-write
-@test "${TEST_FILE}generator creates key size 1024" {
+@test "${TEST_FILE}generator creates keys size 1024" {
+  export CONTAINER_NAME='mail_key_size_1024'
+
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_1024)
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
 
-  rm -rf "${PRIVATE_CONFIG}/key1024"
-  mkdir -p "${PRIVATE_CONFIG}/key1024"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/key1024/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 1024 | wc -l'
-
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/key1024/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 329
+  __should_generate_dkim_key 6 '1024'
+  __should_have_expected_keyfile '329'
 }
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts" {
@@ -463,3 +399,37 @@ function teardown_file
   assert_success
   assert_output 1
 }
+
+function __should_generate_dkim_key() {
+  local EXPECTED_LINES=${1}
+  local ARG_KEYSIZE=${2}
+  local ARG_DOMAINS=${3}
+  local ARG_SELECTOR=${4}
+
+  [[ -n ${ARG_KEYSIZE}  ]] && ARG_KEYSIZE="keysize ${ARG_KEYSIZE}"
+  [[ -n ${ARG_DOMAINS}  ]] && ARG_DOMAINS="domain '${ARG_DOMAINS}'"
+  [[ -n ${ARG_SELECTOR} ]] && ARG_SELECTOR="selector '${ARG_SELECTOR}'"
+
+  # rm -rf "${PRIVATE_CONFIG}/opendkim"
+  # mkdir -p "${PRIVATE_CONFIG}/opendkim"
+
+  run docker run --rm \
+    -e LOG_LEVEL='debug' \
+    -v "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
+    "${IMAGE_NAME}" /bin/bash -c "open-dkim ${ARG_KEYSIZE} ${ARG_DOMAINS} ${ARG_SELECTOR} | wc -l"
+
+  assert_success
+  assert_output "${EXPECTED_LINES}"
+}
+
+function __should_have_expected_keyfile() {
+  local EXPECTED_KEY_FILESIZE=${1}
+
+  run docker run --rm \
+    -v "${PRIVATE_CONFIG}/opendkim:/etc/opendkim" \
+    "${IMAGE_NAME}" /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
+
+  assert_success
+  assert_output "${EXPECTED_KEY_FILESIZE}"
+}
+

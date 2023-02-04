@@ -646,7 +646,9 @@ function _setup_dkim_dmarc
 
   _log 'debug' 'Setting up DKIM'
 
-  mkdir -p /etc/opendkim/keys/ && touch /etc/opendkim/SigningTable
+  mkdir -p /etc/opendkim/keys/
+  touch /etc/opendkim/SigningTable
+  touch /etc/opendkim/TrustedHosts
 
   _log 'trace' "Adding OpenDKIM to Postfix's milters"
   # shellcheck disable=SC2016
