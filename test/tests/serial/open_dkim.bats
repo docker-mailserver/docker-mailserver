@@ -1,55 +1,41 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-export IMAGE_NAME CONTAINER_NAME TEST_FILE
+BATS_TEST_NAME_PREFIX='[OpenDKIM] '
+CONTAINER_NAME='dms-test_opendkim'
 
+export IMAGE_NAME
 IMAGE_NAME="${NAME:?Image name must be set}"
-CONTAINER_NAME='open-dkim'
-TEST_FILE='checking OpenDKIM: '
 
 # WHY IS THIS CONTAINER EVEN CREATED WHEN MOST TESTS DO NOT USE IT?
-function setup_file
+function setup_file()
 {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
-  mv "${PRIVATE_CONFIG}/example-opendkim/" "${PRIVATE_CONFIG}/opendkim/"
-
-  docker run -d \
-    --name "${CONTAINER_NAME}" \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "${PWD}/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
-    -e PERMIT_DOCKER=host \
-    -e LOG_LEVEL='trace' \
-    -h mail.my-domain.com \
-    -t "${IMAGE_NAME}"
-
-  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+  _init_with_defaults
+  mv "${TEST_TMP_CONFIG}/example-opendkim/" "${TEST_TMP_CONFIG}/opendkim/"
+  _common_container_setup
 }
 
-function teardown_file
-{
-  docker rm -f "${CONTAINER_NAME}"
-}
+function teardown_file() { _default_teardown ; }
 
 # -----------------------------------------------
 # --- Actual Tests ------------------------------
 # -----------------------------------------------
 
 @test "${TEST_FILE}/etc/opendkim/KeyTable should contain 2 entries" {
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendkim/KeyTable | wc -l"
+  _run_in_container_bash "cat /etc/opendkim/KeyTable | wc -l"
   assert_success
   assert_output 2
 }
 
 # TODO piping ls into grep ...
 @test "${TEST_FILE}/etc/opendkim/keys/ should contain 2 entries" {
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
+  _run_in_container_bash "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
   assert_success
   assert_output 2
 }
 
 @test "${TEST_FILE}/etc/opendkim.conf contains nameservers copied from /etc/resolv.conf" {
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c \
+  _run_in_container_bash \
     "grep -E '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
     /etc/opendkim.conf"
   assert_success
@@ -63,8 +49,8 @@ function teardown_file
 @test "${TEST_FILE}generator creates default keys size" {
   export CONTAINER_NAME='mail_default_key_size'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  _init_with_defaults
+  # _common_container_setup
 
   __should_generate_dkim_key 6
   __should_have_expected_keyfile '861'
@@ -77,8 +63,8 @@ function teardown_file
 @test "${TEST_FILE}generator creates key size 4096" {
   export CONTAINER_NAME='mail_key_size_4096'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  _init_with_defaults
+  # _common_container_setup
 
   __should_generate_dkim_key 6 '4096'
   __should_have_expected_keyfile '861'
@@ -91,8 +77,8 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys size 2048" {
   export CONTAINER_NAME='mail_key_size_2048'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  _init_with_defaults
+  # _common_container_setup
 
   __should_generate_dkim_key 6 '2048'
   __should_have_expected_keyfile '511'
@@ -105,8 +91,8 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys size 1024" {
   export CONTAINER_NAME='mail_key_size_1024'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  _init_with_defaults
+  # _common_container_setup
 
   __should_generate_dkim_key 6 '1024'
   __should_have_expected_keyfile '329'
@@ -117,8 +103,8 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts" {
   export CONTAINER_NAME='mail_dkim_generator_creates_keys_tables_TrustedHosts'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  _init_with_defaults
+  # _common_container_setup
 
   __should_generate_dkim_key 6
   __should_have_key_for_domain 'localhost.localdomain'
@@ -129,9 +115,9 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
   export CONTAINER_NAME='dkim_without-accounts'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
-  rm -f "${PRIVATE_CONFIG}/postfix-accounts.cf"
+  _init_with_defaults
+  rm -f "${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  # _common_container_setup
 
   __should_generate_dkim_key 5
   __should_have_key_for_domain 'localhost.localdomain'
@@ -143,9 +129,9 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
   export CONTAINER_NAME='dkim_without-virtual'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
-  rm -f "${PRIVATE_CONFIG}/postfix-virtual.cf"
+  _init_with_defaults
+  rm -f "${TEST_TMP_CONFIG}/postfix-virtual.cf"
+  # _common_container_setup
 
   __should_generate_dkim_key 5
   __should_have_key_for_domain 'localhost.localdomain'
@@ -156,10 +142,10 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided domain name" {
   export CONTAINER_NAME='dkim_with-domain'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
-  rm -f "${PRIVATE_CONFIG}/postfix-accounts.cf"
-  rm -f "${PRIVATE_CONFIG}/postfix-virtual.cf"
+  _init_with_defaults
+  rm -f "${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  rm -f "${TEST_TMP_CONFIG}/postfix-virtual.cf"
+  # _common_container_setup
 
   # generate first key
   __should_generate_dkim_key 4 '2048' 'domain1.tld'
@@ -187,10 +173,10 @@ function teardown_file
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
   export CONTAINER_NAME='dkim_with-selector'
 
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
-  rm -f "${PRIVATE_CONFIG}/postfix-accounts.cf"
-  rm -f "${PRIVATE_CONFIG}/postfix-virtual.cf"
+  _init_with_defaults
+  rm -f "${TEST_TMP_CONFIG}/postfix-accounts.cf"
+  rm -f "${TEST_TMP_CONFIG}/postfix-virtual.cf"
+  # _common_container_setup
 
   __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
   
@@ -217,7 +203,7 @@ function __should_generate_dkim_key() {
 
   run docker run --rm \
     -e LOG_LEVEL='debug' \
-    -v "${PRIVATE_CONFIG}/:/tmp/docker-mailserver/" \
+    -v "${TEST_TMP_CONFIG}/:/tmp/docker-mailserver/" \
     "${IMAGE_NAME}" /bin/bash -c "open-dkim ${ARG_KEYSIZE} ${ARG_DOMAINS} ${ARG_SELECTOR} | wc -l"
 
   assert_success
@@ -228,7 +214,7 @@ function __should_have_expected_keyfile() {
   local EXPECTED_KEY_FILESIZE=${1}
 
   run docker run --rm \
-    -v "${PRIVATE_CONFIG}/opendkim:/etc/opendkim" \
+    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
     "${IMAGE_NAME}" /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
 
   assert_success
@@ -239,7 +225,7 @@ function __should_have_key_for_domain() {
   local KEY_DOMAIN=${1}
 
   run docker run --rm \
-    -v "${PRIVATE_CONFIG}/opendkim:/etc/opendkim" \
+    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
     "${IMAGE_NAME}" \
     /bin/bash -c "ls -1 /etc/opendkim/keys/${KEY_DOMAIN}/ | wc -l"
 
@@ -252,7 +238,7 @@ function __should_have_key_with_selector_for_domain() {
   local KEY_SELECTOR=${2}
 
   run docker run --rm \
-    -v "${PRIVATE_CONFIG}/opendkim:/etc/opendkim" \
+    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
     "${IMAGE_NAME}" \
     /bin/bash -c "ls -1 /etc/opendkim/keys/${KEY_DOMAIN}/ | grep -E '${KEY_SELECTOR}\.(private|txt)' | wc -l"
 
@@ -262,7 +248,7 @@ function __should_have_key_with_selector_for_domain() {
 
 function __should_have_tables_trustedhosts_for_domain() {
   run docker run --rm \
-    -v "${PRIVATE_CONFIG}/opendkim:/etc/opendkim" \
+    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
     "${IMAGE_NAME}" \
     /bin/bash -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'| wc -l"
 
@@ -276,7 +262,7 @@ function __should_have_key_in_table() {
   local KEY_DOMAIN=${3}
 
   run docker run --rm \
-    -v "${PRIVATE_CONFIG}/opendkim:/etc/opendkim" \
+    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
     "${IMAGE_NAME}" \
     /bin/bash -c "grep -E '${KEY_DOMAIN}' /etc/opendkim/${DKIM_TABLE} | wc -l"
 
