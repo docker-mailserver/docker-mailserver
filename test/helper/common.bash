@@ -419,6 +419,16 @@ function _count_files_in_directory_in_container()
   _should_output_number_of_lines "${NUMBER_OF_LINES}"
 }
 
+# Checks if the directory exists and then how many files it contains at the top-level.
+#
+# @param ${1} = directory
+function __should_have_content_in_directory() {
+  local DIRECTORY=${1:?No directory provided}
+
+  _run_in_container_bash "[[ -d ${DIRECTORY} ]] && find ${DIRECTORY} -mindepth 1 -maxdepth 1 -printf '%f\n'"
+  assert_success
+}
+
 # Filters a service's logs (under `/var/log/supervisor/<SERVICE>.log`) given
 # a specific string.
 #

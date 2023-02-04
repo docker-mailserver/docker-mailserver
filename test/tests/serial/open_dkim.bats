@@ -22,22 +22,24 @@ function teardown_file() { _default_teardown ; }
 # -----------------------------------------------
 
 @test "/etc/opendkim/KeyTable should contain 2 entries" {
-  _run_in_container_bash "cat /etc/opendkim/KeyTable | wc -l"
+  _run_in_container cat '/etc/opendkim/KeyTable'
   assert_success
-  assert_output 2
+  __assert_has_entry_in_keytable 'localhost.localdomain'
+  __assert_has_entry_in_keytable 'otherdomain.tld'
+  _should_output_number_of_lines 2
 }
 
-# TODO piping ls into grep ...
 @test "/etc/opendkim/keys/ should contain 2 entries" {
-  _run_in_container_bash "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
-  assert_success
-  assert_output 2
+  __should_have_content_in_directory '/etc/opendkim/keys/'
+  assert_output --partial 'localhost.localdomain'
+  assert_output --partial 'otherdomain.tld'
+  _should_output_number_of_lines 2
 }
 
 @test "/etc/opendkim.conf contains nameservers copied from /etc/resolv.conf" {
-  _run_in_container_bash \
-    "grep -E '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
-    /etc/opendkim.conf"
+  _run_in_container grep -E \
+    '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
+    /etc/opendkim.conf
   assert_success
 }
 
@@ -164,10 +166,19 @@ function teardown_file() { _default_teardown ; }
 
   __should_have_tables_trustedhosts_for_domain
 
-  __should_have_key_in_table 4 'KeyTable' 'domain1.tld|domain2.tld|domain3.tld|domain4.tld'
-  # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
-  __should_have_key_in_table 4 'SigningTable' 'domain1.tld|domain2.tld|domain3.tld|domain4.tld'
-  # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
+  run cat "${TEST_TMP_CONFIG}/opendkim/KeyTable"
+  __assert_has_entry_in_keytable 'domain1.tld'
+  __assert_has_entry_in_keytable 'domain2.tld'
+  __assert_has_entry_in_keytable 'domain3.tld'
+  __assert_has_entry_in_keytable 'domain4.tld'
+  _should_output_number_of_lines 4
+
+  run cat "${TEST_TMP_CONFIG}/opendkim/SigningTable"
+  __assert_has_entry_in_signingtable 'domain1.tld'
+  __assert_has_entry_in_signingtable 'domain2.tld'
+  __assert_has_entry_in_signingtable 'domain3.tld'
+  __assert_has_entry_in_signingtable 'domain4.tld'
+  _should_output_number_of_lines 4
 }
 
 @test "should create keys and config files (with custom selector)" {
@@ -180,12 +191,28 @@ function teardown_file() { _default_teardown ; }
 
   __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
   
-  __should_have_key_for_domain 'domain1.tld'
-  __should_have_key_with_selector_for_domain 'domain1.tld' 'mailer'
+  __should_have_key_for_domain 'domain1.tld' 'mailer'
   __should_have_tables_trustedhosts_for_domain
 
-  __should_have_key_in_table 1 'KeyTable' 'domain1.tld'
-  __should_have_key_in_table 1 'SigningTable' 'domain1.tld'
+  run cat "${TEST_TMP_CONFIG}/opendkim/KeyTable"
+  __assert_has_entry_in_keytable 'domain1.tld' 'mailer'
+
+  run cat "${TEST_TMP_CONFIG}/opendkim/SigningTable"
+  __assert_has_entry_in_signingtable 'domain1.tld' 'mailer'
+}
+
+function __assert_has_entry_in_keytable() {
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-'mail'}
+  # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
+  assert_output --partial "${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN} ${EXPECTED_DOMAIN}:${EXPECTED_SELECTOR}:/etc/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private"
+}
+
+function __assert_has_entry_in_signingtable() {
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-'mail'}
+  # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
+  assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
 }
 
 function __should_generate_dkim_key() {
@@ -197,9 +224,6 @@ function __should_generate_dkim_key() {
   [[ -n ${ARG_KEYSIZE}  ]] && ARG_KEYSIZE="keysize ${ARG_KEYSIZE}"
   [[ -n ${ARG_DOMAINS}  ]] && ARG_DOMAINS="domain '${ARG_DOMAINS}'"
   [[ -n ${ARG_SELECTOR} ]] && ARG_SELECTOR="selector '${ARG_SELECTOR}'"
-
-  # rm -rf "${PRIVATE_CONFIG}/opendkim"
-  # mkdir -p "${PRIVATE_CONFIG}/opendkim"
 
   run docker run --rm \
     -e LOG_LEVEL='debug' \
@@ -223,19 +247,7 @@ function __should_have_expected_keyfile() {
 
 function __should_have_key_for_domain() {
   local KEY_DOMAIN=${1}
-
-  run docker run --rm \
-    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
-    "${IMAGE_NAME}" \
-    /bin/bash -c "ls -1 /etc/opendkim/keys/${KEY_DOMAIN}/ | wc -l"
-
-  assert_success
-  assert_output 2
-}
-
-function __should_have_key_with_selector_for_domain() {
-  local KEY_DOMAIN=${1}
-  local KEY_SELECTOR=${2}
+  local KEY_SELECTOR=${2:-'mail'}
 
   run docker run --rm \
     -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
@@ -254,18 +266,4 @@ function __should_have_tables_trustedhosts_for_domain() {
 
   assert_success
   assert_output 4
-}
-
-function __should_have_key_in_table() {
-  local EXPECTED_LINES=${1}
-  local DKIM_TABLE=${2}
-  local KEY_DOMAIN=${3}
-
-  run docker run --rm \
-    -v "${TEST_TMP_CONFIG}/opendkim:/etc/opendkim" \
-    "${IMAGE_NAME}" \
-    /bin/bash -c "grep -E '${KEY_DOMAIN}' /etc/opendkim/${DKIM_TABLE} | wc -l"
-
-  assert_success
-  assert_output "${EXPECTED_LINES}"
 }
