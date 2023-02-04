@@ -141,6 +141,58 @@ EOF
   # shellcheck disable=SC2016
   sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
   touch /var/lib/rspamd/stats.ucl
+
+  local RSPAMD_CUSTOM_COMMANDS_FILE=/tmp/docker-mailserver/rspamd-commands
+  if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
+  then
+    while read -r COMMAND MODULE ARGUMENT1 ARGUMENT2
+    do
+      case "${COMMAND}"
+      in
+        ('disable-module')
+          [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
+          cat >"/etc/rspamd/override.d/${MODULE}.conf" << EOF
+# documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
+
+enabled = false;
+
+EOF
+          ;;
+
+        ('enable-module')
+          [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
+          cat >>"/etc/rspamd/override.d/${MODULE}.conf" << EOF
+# documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
+
+enabled = true;
+
+EOF
+          ;;
+
+        ('set-option-for-module')
+          local FILE="/etc/rspamd/override.d/${MODULE}.conf"
+          [[ -f ${FILE} ]] || touch "${FILE}"
+
+          # sanity check: is the user writing the same option twice?
+          if grep -q -E "${ARGUMENT1}.*=.*" "${FILE}"
+          then
+            _log 'warn' "Rspamd setup: overwriting option '${ARGUMENT1}' twice (current value = '${ARGUMENT2}') for module '${MODULE}'"
+            sed -i -E "s|([[:space:]]${ARGUMENT1}).*|\1 = ${ARGUMENT2};|g" "${FILE}"
+          else
+            echo "${ARGUMENT1} = ${ARGUMENT2};" >>"${FILE}"
+          fi
+          ;;
+
+        ('add-line-to-module')
+          echo "${ARGUMENT1} ${ARGUMENT2:-}" >>"/etc/rspamd/override.d/${MODULE}.conf"
+          ;;
+
+        (*)
+          _log 'warn' "Rspamd setup: Command '${COMMAND}' is not valid"
+          ;;
+      esac
+    done < <(_get_valid_lines_from_file "${RSPAMD_CUSTOM_COMMANDS_FILE}")
+  fi
 }
 
 function _setup_dmarc_hostname
@@ -753,8 +805,9 @@ function _setup_docker_permit
     _log 'trace' "Adding ${NETWORK_TYPE} (${NETWORK}) to Postfix 'main.cf:mynetworks'"
     _adjust_mtime_for_postfix_maincf
     postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
-    echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
-    echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
+    mkdir -p /etc/{opendmarc,opendkim}
+    echo "${NETWORK}" >>/etc/opendmarc/ignore.hosts
+    echo "${NETWORK}" >>/etc/opendkim/TrustedHosts
   }
 
   case "${PERMIT_DOCKER}" in
