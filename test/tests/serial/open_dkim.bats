@@ -185,65 +185,21 @@ function teardown_file
 }
 
 @test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
+  export CONTAINER_NAME='dkim_with-selector'
+
   local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
-  rm -rf "${PRIVATE_CONFIG}/with-selector" && mkdir -p "${PRIVATE_CONFIG}/with-selector"
+  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+  rm -f "${PRIVATE_CONFIG}/postfix-accounts.cf"
+  rm -f "${PRIVATE_CONFIG}/postfix-virtual.cf"
 
-  # Generate first key
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c "open-dkim keysize 2048 domain 'domain1.tld' selector mailer| wc -l"
+  __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
+  
+  __should_have_key_for_domain 'domain1.tld'
+  __should_have_key_with_selector_for_domain 'domain1.tld' 'mailer'
+  __should_have_tables_trustedhosts_for_domain
 
-  assert_success
-  assert_output 4
-
-  # Check keys for domain1.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # Check key names with selector for domain1.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim/keys/domain1.tld | grep -E 'mailer.private|mailer.txt' | wc -l"
-
-  assert_success
-  assert_output 2
-
-  # Check presence of tables and TrustedHosts
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
-
-  assert_success
-  assert_output 4
-
-  # Check valid entries actually present in KeyTable
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c \
-    "grep 'domain1.tld' /etc/opendkim/KeyTable | wc -l"
-
-  assert_success
-  assert_output 1
-
-  # Check valid entries actually present in SigningTable
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c \
-    "grep 'domain1.tld' /etc/opendkim/SigningTable | wc -l"
-
-  assert_success
-  assert_output 1
+  __should_have_key_in_table 1 'KeyTable' 'domain1.tld'
+  __should_have_key_in_table 1 'SigningTable' 'domain1.tld'
 }
 
 function __should_generate_dkim_key() {
