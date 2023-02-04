@@ -21,20 +21,20 @@ function teardown_file() { _default_teardown ; }
 # --- Actual Tests ------------------------------
 # -----------------------------------------------
 
-@test "${TEST_FILE}/etc/opendkim/KeyTable should contain 2 entries" {
+@test "/etc/opendkim/KeyTable should contain 2 entries" {
   _run_in_container_bash "cat /etc/opendkim/KeyTable | wc -l"
   assert_success
   assert_output 2
 }
 
 # TODO piping ls into grep ...
-@test "${TEST_FILE}/etc/opendkim/keys/ should contain 2 entries" {
+@test "/etc/opendkim/keys/ should contain 2 entries" {
   _run_in_container_bash "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
   assert_success
   assert_output 2
 }
 
-@test "${TEST_FILE}/etc/opendkim.conf contains nameservers copied from /etc/resolv.conf" {
+@test "/etc/opendkim.conf contains nameservers copied from /etc/resolv.conf" {
   _run_in_container_bash \
     "grep -E '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
     /etc/opendkim.conf"
@@ -46,7 +46,7 @@ function teardown_file() { _default_teardown ; }
 # Instead it tests the file-size (here 861) - which may differ with a different domain names WWHHHHHHAAAT??? <- DELETE AFTER REWRITE
 
 # TODO Needs complete re-write
-@test "${TEST_FILE}generator creates default keys size" {
+@test "should create key (size: default)" {
   export CONTAINER_NAME='mail_default_key_size'
 
   _init_with_defaults
@@ -60,7 +60,7 @@ function teardown_file() { _default_teardown ; }
 # Instead it tests the file-size (here 861) - which may differ with a different domain names <- DELETE AFTER REWRITE
 
 # TODO Needs complete re-write
-@test "${TEST_FILE}generator creates key size 4096" {
+@test "should create key (size: 4096)" {
   export CONTAINER_NAME='mail_key_size_4096'
 
   _init_with_defaults
@@ -74,7 +74,7 @@ function teardown_file() { _default_teardown ; }
 # This test may be re-used as a global test to provide better test coverage. <- DELETE AFTER REWRITE
 
 # TODO Needs complete re-write
-@test "${TEST_FILE}generator creates keys size 2048" {
+@test "should create key (size: 2048)" {
   export CONTAINER_NAME='mail_key_size_2048'
 
   _init_with_defaults
@@ -88,7 +88,7 @@ function teardown_file() { _default_teardown ; }
 # Instead it tests the file-size (here 329) - which may differ with a different domain names <- DELETE AFTER REWRITE
 
 # TODO Needs complete re-write
-@test "${TEST_FILE}generator creates keys size 1024" {
+@test "should create key (size: 1024)" {
   export CONTAINER_NAME='mail_key_size_1024'
 
   _init_with_defaults
@@ -100,7 +100,7 @@ function teardown_file() { _default_teardown ; }
 
 # No default config supplied to /tmp/docker-mailserver/opendkim
 # Generating key should create keys and tables + TrustedHosts files:
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts" {
+@test "should create keys and config files (with defaults)" {
   export CONTAINER_NAME='mail_dkim_generator_creates_keys_tables_TrustedHosts'
 
   _init_with_defaults
@@ -112,7 +112,7 @@ function teardown_file() { _default_teardown ; }
   __should_have_tables_trustedhosts_for_domain
 }
 
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
+@test "should create keys and config files (without postfix-accounts.cf)" {
   export CONTAINER_NAME='dkim_without-accounts'
 
   _init_with_defaults
@@ -126,7 +126,7 @@ function teardown_file() { _default_teardown ; }
   __should_have_tables_trustedhosts_for_domain
 }
 
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
+@test "should create keys and config files (without postfix-virtual.cf)" {
   export CONTAINER_NAME='dkim_without-virtual'
 
   _init_with_defaults
@@ -139,7 +139,7 @@ function teardown_file() { _default_teardown ; }
   __should_have_tables_trustedhosts_for_domain
 }
 
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided domain name" {
+@test "should create keys and config files (with custom domains)" {
   export CONTAINER_NAME='dkim_with-domain'
 
   _init_with_defaults
@@ -170,7 +170,7 @@ function teardown_file() { _default_teardown ; }
   # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
 }
 
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
+@test "should create keys and config files (with custom selector)" {
   export CONTAINER_NAME='dkim_with-selector'
 
   _init_with_defaults
