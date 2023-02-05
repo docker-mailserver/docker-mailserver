@@ -408,7 +408,7 @@ function _count_files_in_directory_in_container()
   local DIRECTORY=${1:?No directory provided}
   local NUMBER_OF_LINES=${2:?No line count provided}
 
-  __should_have_content_in_directory "${DIRECTORY}" '-type f'
+  _should_have_content_in_directory "${DIRECTORY}" '-type f'
   _should_output_number_of_lines "${NUMBER_OF_LINES}"
 }
 
@@ -416,7 +416,7 @@ function _count_files_in_directory_in_container()
 #
 # @param ${1} = directory
 # @param ${2} = Additional options to `find`
-function __should_have_content_in_directory() {
+function _should_have_content_in_directory() {
   local DIRECTORY=${1:?No directory provided}
   local FIND_OPTIONS=${2:-}
 

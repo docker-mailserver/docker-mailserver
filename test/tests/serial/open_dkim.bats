@@ -44,7 +44,7 @@ function teardown() { _default_teardown ; }
   __assert_has_entry_in_keytable 'otherdomain.tld'
   _should_output_number_of_lines 2
 
-  __should_have_content_in_directory '/etc/opendkim/keys/'
+  _should_have_content_in_directory '/etc/opendkim/keys/'
   assert_output --partial 'localhost.localdomain'
   assert_output --partial 'otherdomain.tld'
   _should_output_number_of_lines 2
@@ -281,11 +281,11 @@ function __should_have_key_for_domain() {
   local KEY_DOMAIN=${1}
   local KEY_SELECTOR=${2:-'mail'}
 
-  __should_have_content_in_directory "/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
+  _should_have_content_in_directory "/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
 
   assert_success
-  assert_line --index 0 "${KEY_SELECTOR}.private"
-  assert_line --index 1 "${KEY_SELECTOR}.txt"
+  assert_line "${KEY_SELECTOR}.private"
+  assert_line "${KEY_SELECTOR}.txt"
   _should_output_number_of_lines 2
 }
 
@@ -299,11 +299,11 @@ function __should_not_have_key_for_domain() {
 }
 
 function __should_have_tables_trustedhosts_for_domain() {
-  __should_have_content_in_directory '/tmp/docker-mailserver/opendkim'
+  _should_have_content_in_directory '/tmp/docker-mailserver/opendkim'
 
   assert_success
-  assert_line --index 0 'keys'
-  assert_line --index 1 'KeyTable'
-  assert_line --index 2 'SigningTable'
-  assert_line --index 3 'TrustedHosts'
+  assert_line 'keys'
+  assert_line 'KeyTable'
+  assert_line 'SigningTable'
+  assert_line 'TrustedHosts'
 }

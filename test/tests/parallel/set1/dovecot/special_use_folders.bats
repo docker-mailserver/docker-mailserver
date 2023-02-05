@@ -21,7 +21,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "(IMAP) special-use folders should not exist yet" {
-  __should_have_content_in_directory '/var/mail/localhost.localdomain/user1'
+  _should_have_content_in_directory '/var/mail/localhost.localdomain/user1'
   refute_output --partial '.Drafts'
   refute_output --partial '.Sent'
   refute_output --partial '.Trash'
