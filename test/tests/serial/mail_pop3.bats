@@ -36,12 +36,11 @@ function teardown_file() { _default_teardown ; }
 @test '/var/log/mail/mail.log is error-free' {
   _run_in_container grep 'non-null host address bits in' /var/log/mail/mail.log
   assert_failure
-
   _run_in_container grep ': error:' /var/log/mail/mail.log
   assert_failure
 }
 
 @test '(Manage Sieve) disabled per default' {
-  _run_in_container_bash "nc -z 0.0.0.0 4190"
+  _run_in_container nc -z 0.0.0.0 4190
   assert_failure
 }

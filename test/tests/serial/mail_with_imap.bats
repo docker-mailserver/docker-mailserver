@@ -26,7 +26,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(SASLauthd) SASL RIMAP authentication works' {
-  _run_in_container_bash "testsaslauthd -u user1@localhost.localdomain -p mypassword"
+  _run_in_container testsaslauthd -u 'user1@localhost.localdomain' -p 'mypassword'
   assert_success
 }
 
@@ -37,6 +37,6 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(Dovecot) master account can login' {
-  _run_in_container_bash "testsaslauthd -u user1@localhost.localdomain*masterusername -p masterpassword"
+  _run_in_container testsaslauthd -u 'user1@localhost.localdomain*masterusername' -p 'masterpassword'
   assert_success
 }
