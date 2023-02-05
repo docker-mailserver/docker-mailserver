@@ -63,3 +63,54 @@ function _reload_postfix
   _adjust_mtime_for_postfix_maincf
   postfix reload
 }
+
+# Replaces values in configuration files given a set of specific environment
+# variables. The environment variables follow a naming pattern, whereby every
+# variable that is taken into account has a given prefix. The new value in the
+# configuration will be the one the environment variable had at the time of
+# calling this function.
+#
+# @option --shutdown-on-error = shutdown in case an error is detected
+# @param ${1} = prefix for environment variables
+# @param ${2} = file in which substitutions should take place
+#
+# ## Example
+#
+# If you want to set a new value for `readme_directory` in Postfix's `main.cf`,
+# you can set the environment variable `POSTFIX_README_DIRECTORY='/new/dir/'`
+# (`POSTFIX_` is an arbitrary prefix, you can choose the one you like),
+# and then call this function:
+# `_replace_by_env_in_file 'POSTFIX_' 'PATH TO POSTFIX's main.cf>`
+#
+# ## Panics
+#
+# This function will panic, i.e. shut down the whole container, if:
+#
+# 1. No first and second argument is supplied
+# 2. The second argument is a path to a file that does not exist
+function _replace_by_env_in_file
+{
+  if [[ -z ${1+set} ]]
+  then
+    dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
+  elif [[ -z ${2+set} ]]
+  then
+    dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
+  elif [[ ! -f ${2} ]]
+  then
+    dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file'
+  fi
+
+  local ENV_PREFIX=${1} CONFIG_FILE=${2}
+  local ESCAPED_VALUE ESCAPED_KEY
+
+  while IFS='=' read -r KEY VALUE
+  do
+    KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
+    ESCAPED_KEY=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${KEY,,}")
+    ESCAPED_VALUE=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${VALUE}")
+    [[ -n ${ESCAPED_VALUE} ]] && ESCAPED_VALUE=" ${ESCAPED_VALUE}"
+    _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
+    sed -i -E "s#^${ESCAPED_KEY}[[:space:]]*=.*#${ESCAPED_KEY} =${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
+  done < <(env | grep "^${ENV_PREFIX}")
+}
