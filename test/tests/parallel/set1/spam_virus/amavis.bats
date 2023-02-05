@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
-BATS_TEST_NAME_PREFIX='[Amavis] '
+BATS_TEST_NAME_PREFIX='[Amavis + SA] '
 CONTAINER_NAME='dms-test_amavis'
 
 function setup_file() {
@@ -18,10 +18,29 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "SpamAssassin integration should be active" {
+@test 'SpamAssassin integration should be active' {
   # give Amavis just a bit of time to print out its full debug log
   run _repeat_in_container_until_success_or_timeout 5 "${CONTAINER_NAME}" grep 'ANTI-SPAM-SA' /var/log/mail/mail.log
   assert_success
   assert_output --partial 'loaded'
   refute_output --partial 'NOT loaded'
+}
+
+@test "SpamAssassin Docker ENV variables' defaults are set correctly" {
+  local AMAVIS_DEFAULTS_FILE='/etc/amavis/conf.d/20-debian_defaults'
+  _run_in_container grep '\$sa_tag_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
+  assert_success
+  assert_output --partial '= 2.0'
+
+  _run_in_container grep '\$sa_tag2_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
+  assert_success
+  assert_output --partial '= 6.31'
+
+  _run_in_container grep '\$sa_kill_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
+  assert_success
+  assert_output --partial '= 6.31'
+
+  _run_in_container grep '\$sa_spam_subject_tag' "${AMAVIS_DEFAULTS_FILE}"
+  assert_success
+  assert_output --partial "= '***SPAM*** ';"
 }
