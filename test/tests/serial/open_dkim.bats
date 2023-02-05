@@ -2,7 +2,13 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[OpenDKIM] '
-CONTAINER_NAME='dms-test_opendkim'
+CONTAINER1_NAME='dms-test_opendkim_with-config-volume'
+CONTAINER2_NAME='dms-test_opendkim_key-sizes'
+CONTAINER3_NAME='dms-test_opendkim_without-config-volume'
+CONTAINER4_NAME='dms-test_opendkim_without-accounts'
+CONTAINER5_NAME='dms-test_opendkim_without-virtual'
+CONTAINER6_NAME='dms-test_opendkim_with-domain'
+CONTAINER7_NAME='dms-test_opendkim_with-selector'
 
 export IMAGE_NAME
 IMAGE_NAME="${NAME:?Image name must be set}"
@@ -14,6 +20,8 @@ function teardown() { _default_teardown ; }
 # -----------------------------------------------
 
 @test "providing config volume should setup /etc/opendkim" {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+
   _init_with_defaults
   mv "${TEST_TMP_CONFIG}/example-opendkim/" "${TEST_TMP_CONFIG}/opendkim/"
   _common_container_setup
@@ -37,7 +45,7 @@ function teardown() { _default_teardown ; }
 }
 
 @test "should support creating keys of different sizes" {
-  export CONTAINER_NAME='dkim_key-size'
+  export CONTAINER_NAME=${CONTAINER2_NAME}
 
   __init_container_without_waiting
 
@@ -52,7 +60,7 @@ function teardown() { _default_teardown ; }
 # No default config supplied to /tmp/docker-mailserver/opendkim
 # Generating key should create keys and tables + TrustedHosts files:
 @test "should create keys and config files (with defaults)" {
-  export CONTAINER_NAME='mail_dkim_generator_creates_keys_tables_TrustedHosts'
+  export CONTAINER_NAME=${CONTAINER3_NAME}
 
   __init_container_without_waiting
 
@@ -63,7 +71,7 @@ function teardown() { _default_teardown ; }
 }
 
 @test "should create keys and config files (without postfix-accounts.cf)" {
-  export CONTAINER_NAME='dkim_without-accounts'
+  export CONTAINER_NAME=${CONTAINER4_NAME}
 
   # Only mount single config file (postfix-virtual.cf):
   __init_container_without_waiting "${PWD}/test/config/postfix-virtual.cf:/tmp/docker-mailserver/postfix-virtual.cf:ro"
@@ -76,7 +84,7 @@ function teardown() { _default_teardown ; }
 }
 
 @test "should create keys and config files (without postfix-virtual.cf)" {
-  export CONTAINER_NAME='dkim_without-virtual'
+  export CONTAINER_NAME=${CONTAINER5_NAME}
 
   # Only mount single config file (postfix-accounts.cf):
   __init_container_without_waiting "${PWD}/test/config/postfix-accounts.cf:/tmp/docker-mailserver/postfix-accounts.cf:ro"
@@ -88,7 +96,7 @@ function teardown() { _default_teardown ; }
 }
 
 @test "should create keys and config files (with custom domains)" {
-  export CONTAINER_NAME='dkim_with-domain'
+  export CONTAINER_NAME=${CONTAINER6_NAME}
 
   # Create without config volume (creates an empty anonymous volume instead):
   __init_container_without_waiting '/tmp/docker-mailserver'
@@ -126,7 +134,7 @@ function teardown() { _default_teardown ; }
 }
 
 @test "should create keys and config files (with custom selector)" {
-  export CONTAINER_NAME='dkim_with-selector'
+  export CONTAINER_NAME=${CONTAINER7_NAME}
 
   # Create without config volume (creates an empty anonymous volume instead):
   __init_container_without_waiting '/tmp/docker-mailserver'
