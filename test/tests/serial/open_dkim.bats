@@ -2,8 +2,8 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[OpenDKIM] '
-CONTAINER1_NAME='dms-test_opendkim_with-config-volume'
-CONTAINER2_NAME='dms-test_opendkim_key-sizes'
+CONTAINER1_NAME='dms-test_opendkim_key-sizes'
+CONTAINER2_NAME='dms-test_opendkim_with-config-volume'
 CONTAINER3_NAME='dms-test_opendkim_without-config-volume'
 CONTAINER4_NAME='dms-test_opendkim_without-accounts'
 CONTAINER5_NAME='dms-test_opendkim_without-virtual'
@@ -15,9 +15,18 @@ IMAGE_NAME="${NAME:?Image name must be set}"
 
 function teardown() { _default_teardown ; }
 
-# -----------------------------------------------
-# --- Actual Tests ------------------------------
-# -----------------------------------------------
+@test "should support creating keys of different sizes" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+
+  __init_container_without_waiting
+
+  # The default size created should be 4096-bit:
+  __should_support_creating_key_of_size
+  # Explicit sizes:
+  __should_support_creating_key_of_size '4096'
+  __should_support_creating_key_of_size '2048'
+  __should_support_creating_key_of_size '1024'
+}
 
 @test "providing config volume should setup /etc/opendkim" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
@@ -42,19 +51,6 @@ function teardown() { _default_teardown ; }
     '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
     /etc/opendkim.conf
   assert_success
-}
-
-@test "should support creating keys of different sizes" {
-  export CONTAINER_NAME=${CONTAINER2_NAME}
-
-  __init_container_without_waiting
-
-  # The default size created should be 4096-bit:
-  __should_support_creating_key_of_size
-  # Explicit sizes:
-  __should_support_creating_key_of_size '4096'
-  __should_support_creating_key_of_size '2048'
-  __should_support_creating_key_of_size '1024'
 }
 
 # No default config supplied to /tmp/docker-mailserver/opendkim
