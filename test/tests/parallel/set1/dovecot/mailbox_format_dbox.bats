@@ -32,9 +32,9 @@ function teardown() { _default_teardown ; }
   # Mail received should be stored as `u.1` (one file per message)
   local MAILBOX_STORAGE=
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/mailboxes/INBOX/dbox-Mails' 3
-  assert_output --partial 'dovecot.index.log'
-  assert_output --partial 'u.1'
-  assert_output --partial 'dovecot.index.cache'
+  assert_line 'dovecot.index.log'
+  assert_line 'u.1'
+  assert_line 'dovecot.index.cache'
 }
 
 @test "(ENV DOVECOT_MAILBOX_FORMAT=mdbox) should store received mail at expected location" {
@@ -53,6 +53,6 @@ function teardown() { _default_teardown ; }
 
   # Mail received should be stored in `m.1` (1 or more messages)
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/storage' 2
-  assert_output --partial 'dovecot.map.index.log'
-  assert_output --partial 'm.1'
+  assert_line 'dovecot.map.index.log'
+  assert_line 'm.1'
 }

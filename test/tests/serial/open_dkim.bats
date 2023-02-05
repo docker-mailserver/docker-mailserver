@@ -7,8 +7,7 @@ CONTAINER2_NAME='dms-test_opendkim_with-config-volume'
 CONTAINER3_NAME='dms-test_opendkim_without-config-volume'
 CONTAINER4_NAME='dms-test_opendkim_without-accounts'
 CONTAINER5_NAME='dms-test_opendkim_without-virtual'
-CONTAINER6_NAME='dms-test_opendkim_with-domain'
-CONTAINER7_NAME='dms-test_opendkim_with-selector'
+CONTAINER6_NAME='dms-test_opendkim_with-args'
 
 function teardown() { _default_teardown ; }
 
@@ -107,14 +106,14 @@ function teardown() { _default_teardown ; }
   __should_not_have_key_for_domain 'localdomain2.com'
 }
 
-@test "should create keys and config files (with custom domains)" {
+@test "should create keys and config files (with custom domains and selector)" {
   export CONTAINER_NAME=${CONTAINER6_NAME}
 
   # Create without config volume (creates an empty anonymous volume instead):
   __init_container_without_waiting '/tmp/docker-mailserver'
 
-  # generate first key
-  __should_generate_dkim_key 4 '2048' 'domain1.tld'
+  # generate first key (with a custom selector)
+  __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
   __assert_outputs_common_dkim_logs
   # generate two additional keys different to the previous one
   __should_generate_dkim_key 2 '2048' 'domain2.tld,domain3.tld'
@@ -126,7 +125,7 @@ function teardown() { _default_teardown ; }
 
   __should_have_tables_trustedhosts_for_domain
 
-  __should_have_key_for_domain 'domain1.tld'
+  __should_have_key_for_domain 'domain1.tld' 'mailer'
   __should_have_key_for_domain 'domain2.tld'
   __should_have_key_for_domain 'domain3.tld'
   __should_have_key_for_domain 'domain4.tld'
@@ -137,38 +136,18 @@ function teardown() { _default_teardown ; }
   __should_not_have_key_for_domain 'localdomain2.com'
 
   _run_in_container cat "/tmp/docker-mailserver/opendkim/KeyTable"
-  __assert_has_entry_in_keytable 'domain1.tld'
+  __assert_has_entry_in_keytable 'domain1.tld' 'mailer'
   __assert_has_entry_in_keytable 'domain2.tld'
   __assert_has_entry_in_keytable 'domain3.tld'
   __assert_has_entry_in_keytable 'domain4.tld'
   _should_output_number_of_lines 4
 
   _run_in_container cat "/tmp/docker-mailserver/opendkim/SigningTable"
-  __assert_has_entry_in_signingtable 'domain1.tld'
+  __assert_has_entry_in_signingtable 'domain1.tld' 'mailer'
   __assert_has_entry_in_signingtable 'domain2.tld'
   __assert_has_entry_in_signingtable 'domain3.tld'
   __assert_has_entry_in_signingtable 'domain4.tld'
   _should_output_number_of_lines 4
-}
-
-@test "should create keys and config files (with custom selector)" {
-  export CONTAINER_NAME=${CONTAINER7_NAME}
-
-  # Create without config volume (creates an empty anonymous volume instead):
-  __init_container_without_waiting '/tmp/docker-mailserver'
-
-  __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
-  __assert_outputs_common_dkim_logs
-  
-  __should_have_tables_trustedhosts_for_domain
-
-  __should_have_key_for_domain 'domain1.tld' 'mailer'
-
-  _run_in_container cat "/tmp/docker-mailserver/opendkim/KeyTable"
-  __assert_has_entry_in_keytable 'domain1.tld' 'mailer'
-
-  _run_in_container cat "/tmp/docker-mailserver/opendkim/SigningTable"
-  __assert_has_entry_in_signingtable 'domain1.tld' 'mailer'
 }
 
 function __init_container_without_waiting {
