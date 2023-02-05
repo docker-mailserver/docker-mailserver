@@ -58,8 +58,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "should not accidentally parse comments in 'postfix-accounts.cf' as accounts" {
-  _run_in_container find /var/mail -maxdepth 1
-  assert_success
+  __should_have_content_in_directory '/var/mail'
   refute_output --partial 'comment'
 }
 

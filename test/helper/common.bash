@@ -403,29 +403,24 @@ function _container_is_running() {
 #
 # @param ${1} = directory
 # @param ${2} = number of files that should be in ${1}
-# @param ${3} = container name [OPTIONAL]
 function _count_files_in_directory_in_container()
 {
   local DIRECTORY=${1:?No directory provided}
   local NUMBER_OF_LINES=${2:?No line count provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
 
-  _run_in_container_bash "[[ -d ${DIRECTORY} ]]"
-  assert_success
-
-  _run_in_container_bash "find ${DIRECTORY} -maxdepth 1 -type f"
-  assert_success
-
+  __should_have_content_in_directory "${DIRECTORY}" '-type f'
   _should_output_number_of_lines "${NUMBER_OF_LINES}"
 }
 
-# Checks if the directory exists and then how many files it contains at the top-level.
+# Checks if the directory exists and then list the top-level content.
 #
 # @param ${1} = directory
+# @param ${2} = Additional options to `find`
 function __should_have_content_in_directory() {
   local DIRECTORY=${1:?No directory provided}
+  local FIND_OPTIONS=${2:-}
 
-  _run_in_container_bash "[[ -d ${DIRECTORY} ]] && find ${DIRECTORY} -mindepth 1 -maxdepth 1 -printf '%f\n'"
+  _run_in_container_bash "[[ -d ${DIRECTORY} ]] && find ${DIRECTORY} -mindepth 1 -maxdepth 1 ${FIND_OPTIONS} -printf '%f\n'"
   assert_success
 }
 
