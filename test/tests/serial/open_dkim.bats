@@ -173,7 +173,7 @@ function __assert_logged_dkim_creation() {
 function __assert_output_for() {
   local ASSERT_FOR=${1}
   local EXPECTED_DOMAIN=${2}
-  local EXPECTED_SELECTOR=${3:-'mail'}
+  local EXPECTED_SELECTOR=${3:-mail}
 
   case "${ASSERT_FOR}" in
     ( 'KeyTable' )
@@ -198,7 +198,7 @@ function __assert_outputs_common_dkim_logs() {
 }
 
 function __should_support_creating_key_of_size() {
-  local EXPECTED_KEYSIZE=${1}
+  local EXPECTED_KEYSIZE=${1:-}
 
   __should_generate_dkim_key 6 "${EXPECTED_KEYSIZE}"
   __assert_outputs_common_dkim_logs
@@ -207,14 +207,14 @@ function __should_support_creating_key_of_size() {
   __assert_logged_dkim_creation 'otherdomain.tld'
 
   __should_have_expected_files "${EXPECTED_KEYSIZE:-4096}"
-  _run_in_container_bash 'rm -r /tmp/docker-mailserver/opendkim'
+  _run_in_container rm -r /tmp/docker-mailserver/opendkim
 }
 
 function __should_generate_dkim_key() {
   local EXPECTED_LINES=${1}
-  local ARG_KEYSIZE=${2}
-  local ARG_DOMAINS=${3}
-  local ARG_SELECTOR=${4}
+  local ARG_KEYSIZE=${2:-}
+  local ARG_DOMAINS=${3:-}
+  local ARG_SELECTOR=${4:-}
 
   local DKIM_CMD='open-dkim'
   [[ -n ${ARG_KEYSIZE}  ]] && DKIM_CMD+=" keysize ${ARG_KEYSIZE}"
@@ -228,7 +228,7 @@ function __should_generate_dkim_key() {
 }
 
 function __should_have_expected_files() {
-  local EXPECTED_KEYSIZE=${1}
+  local EXPECTED_KEYSIZE=${1:?Keysize must be provided}
   local DKIM_DOMAIN='localhost.localdomain'
   local TARGET_DIR="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
 
@@ -258,7 +258,7 @@ function __should_have_expected_files() {
 
 function __should_have_key_for_domain() {
   local KEY_DOMAIN=${1}
-  local KEY_SELECTOR=${2:-'mail'}
+  local KEY_SELECTOR=${2:-mail}
 
   _should_have_content_in_directory "/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
 
@@ -269,8 +269,8 @@ function __should_have_key_for_domain() {
 }
 
 function __should_not_have_key_for_domain() {
-  local KEY_DOMAIN=${1}
-  local KEY_SELECTOR=${2:-'mail'}
+  local KEY_DOMAIN=${1:?Domain must be provided}
+  local KEY_SELECTOR=${2:-mail}
   local TARGET_DIR="/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
 
   _run_in_container_bash "[[ -d ${TARGET_DIR} ]]"

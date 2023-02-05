@@ -30,7 +30,6 @@ function teardown() { _default_teardown ; }
   _wait_for_empty_mail_queue_in_container
 
   # Mail received should be stored as `u.1` (one file per message)
-  local MAILBOX_STORAGE=
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/mailboxes/INBOX/dbox-Mails' 3
   assert_line 'dovecot.index.log'
   assert_line 'u.1'
