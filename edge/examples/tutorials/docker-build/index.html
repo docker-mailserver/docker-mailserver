@@ -1609,9 +1609,6 @@ docker build -t mailserver/docker-mailserver .
 <p>Or, you can clone and retrieve the submodules in one command:</p>
 <div class="highlight"><pre><span></span><code>git clone --recurse-submodules https://github.com/docker-mailserver/docker-mailserver
 </code></pre></div>
-<p>Retrieving the git submodules will fix the error:</p>
-<div class="highlight"><pre><span></span><code>COPY failed: file not found in build context or excluded by .dockerignore: stat target/docker-configomat/configomat.sh: file does not exist
-</code></pre></div>
 <h3 id="about-docker"><a class="toclink" href="#about-docker">About Docker</a></h3>
 <h4 id="version"><a class="toclink" href="#version">Version</a></h4>
 <p>We make use of build-features that require a recent version of Docker. Depending on your distribution, please have a look at <a href="https://docs.docker.com/engine/install/">the official installation documentation for Docker</a> to get the latest version. Otherwise, you may encounter issues, for example with the <code>--link</code> flag for a <a href="https://docs.docker.com/engine/reference/builder/#copy"><code class="highlight"><span class="k">COPY</span><span class="w"></span></code></a> command.</p>
