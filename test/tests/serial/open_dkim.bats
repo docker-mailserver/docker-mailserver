@@ -10,10 +10,11 @@ CONTAINER5_NAME='dms-test_opendkim_without-virtual'
 CONTAINER6_NAME='dms-test_opendkim_with-domain'
 CONTAINER7_NAME='dms-test_opendkim_with-selector'
 
-export IMAGE_NAME
-IMAGE_NAME="${NAME:?Image name must be set}"
-
 function teardown() { _default_teardown ; }
+
+# TODO: Neither of these are too important, but might be worth covering:
+# - May want to also add test cases for log: 'No entries found, no keys to make'
+# - May want to also do a redundant 2nd run for matching no log output? (Bad UX?)
 
 @test "should support creating keys of different sizes" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
