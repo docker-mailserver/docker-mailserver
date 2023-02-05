@@ -36,57 +36,17 @@ function teardown() { _default_teardown ; }
   assert_success
 }
 
-# this set of tests is of low quality.                                                       WHAT? <- DELETE AFTER REWRITE
-# It does not test the RSA-Key size properly via openssl or similar                          WHAT??? <- DELETE AFTER REWRITE
-# Instead it tests the file-size (here 861) - which may differ with a different domain names WWHHHHHHAAAT??? <- DELETE AFTER REWRITE
-
-# TODO Needs complete re-write
-@test "should create key (size: default)" {
-  export CONTAINER_NAME='mail_default_key_size'
+@test "should support creating keys of different sizes" {
+  export CONTAINER_NAME='dkim_key-size'
 
   __init_container_without_waiting
 
-  __should_generate_dkim_key 6
-  __should_have_expected_keyfile '861'
-}
-
-# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar <- DELETE AFTER REWRITE
-# Instead it tests the file-size (here 861) - which may differ with a different domain names <- DELETE AFTER REWRITE
-
-# TODO Needs complete re-write
-@test "should create key (size: 4096)" {
-  export CONTAINER_NAME='mail_key_size_4096'
-
-  __init_container_without_waiting
-
-  __should_generate_dkim_key 6 '4096'
-  __should_have_expected_keyfile '861'
-}
-
-# Instead it tests the file-size (here 511) - which may differ with a different domain names <- DELETE AFTER REWRITE
-# This test may be re-used as a global test to provide better test coverage. <- DELETE AFTER REWRITE
-
-# TODO Needs complete re-write
-@test "should create key (size: 2048)" {
-  export CONTAINER_NAME='mail_key_size_2048'
-
-  __init_container_without_waiting
-
-  __should_generate_dkim_key 6 '2048'
-  __should_have_expected_keyfile '511'
-}
-
-# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar <- DELETE AFTER REWRITE
-# Instead it tests the file-size (here 329) - which may differ with a different domain names <- DELETE AFTER REWRITE
-
-# TODO Needs complete re-write
-@test "should create key (size: 1024)" {
-  export CONTAINER_NAME='mail_key_size_1024'
-
-  __init_container_without_waiting
-
-  __should_generate_dkim_key 6 '1024'
-  __should_have_expected_keyfile '329'
+  # The default size created should be 4096-bit:
+  __should_support_creating_key_of_size
+  # Explicit sizes:
+  __should_support_creating_key_of_size '4096'
+  __should_support_creating_key_of_size '2048'
+  __should_support_creating_key_of_size '1024'
 }
 
 # No default config supplied to /tmp/docker-mailserver/opendkim
@@ -205,6 +165,14 @@ function __assert_has_entry_in_signingtable() {
   assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
 }
 
+function __should_support_creating_key_of_size() {
+  local EXPECTED_KEYSIZE=${1}
+
+  __should_generate_dkim_key 6 "${EXPECTED_KEYSIZE}"
+  __should_have_expected_files "${EXPECTED_KEYSIZE:-4096}"
+  _run_in_container_bash 'rm -r /tmp/docker-mailserver/opendkim'
+}
+
 function __should_generate_dkim_key() {
   local EXPECTED_LINES=${1}
   local ARG_KEYSIZE=${2}
@@ -221,13 +189,33 @@ function __should_generate_dkim_key() {
   assert_output "${EXPECTED_LINES}"
 }
 
-function __should_have_expected_keyfile() {
-  local EXPECTED_KEY_FILESIZE=${1}
+function __should_have_expected_files() {
+  local EXPECTED_KEYSIZE=${1}
+  local DKIM_DOMAIN='localhost.localdomain'
+  local TARGET_DIR="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
 
-  _run_in_container_bash "stat -c%s /tmp/docker-mailserver/opendkim/keys/localhost.localdomain/mail.txt"
-
+  # DKIM private key for signing, parse it to verify private key size is correct:
+  _run_in_container_bash "openssl rsa -in '${TARGET_DIR}/mail.private' -noout -text"
   assert_success
-  assert_output "${EXPECTED_KEY_FILESIZE}"
+  assert_line --index 0 "RSA Private-Key: (${EXPECTED_KEYSIZE} bit, 2 primes)"
+
+  # DKIM record, extract public key (base64 encoded, potentially multi-line)
+  # - tail to exclude first line,
+  # - then sed to extract values within quoted lines, then remove `p=` from the start,
+  # - and finally echo to concatenate all lines into single string
+  # Next decode and parse it with openssl to verify public-key key size is correct:
+  _run_in_container_bash "echo \$( \
+    tail -n +2 '${TARGET_DIR}/mail.txt' \
+    | sed -nE -e 's/.*\"(.*)\".*/\1/p' \
+    | sed -e 's/^p=//' \
+  ) | openssl enc -base64 -d | openssl pkey -inform DER -pubin -noout -text
+  "
+  assert_success
+  assert_line --index 0 "RSA Public-Key: (${EXPECTED_KEYSIZE} bit)"
+
+  # Contents is for expected DKIM_DOMAIN and selector (mail):
+  _run_in_container cat "${TARGET_DIR}/mail.txt"
+  assert_output --regexp "; ----- DKIM key mail for ${DKIM_DOMAIN}$"
 }
 
 function __should_have_key_for_domain() {
