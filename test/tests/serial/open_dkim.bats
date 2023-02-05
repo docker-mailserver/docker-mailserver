@@ -28,6 +28,8 @@ function teardown() { _default_teardown ; }
   __should_support_creating_key_of_size '1024'
 }
 
+# NOTE: This pre-generated opendkim config was before the alias `localdomain2.com`
+# was present or supported by open-dkim? (when sourcing domains from generated vhost entries)
 @test "providing config volume should setup /etc/opendkim" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
@@ -61,9 +63,13 @@ function teardown() { _default_teardown ; }
   __init_container_without_waiting
 
   __should_generate_dkim_key 6
-  __should_have_key_for_domain 'localhost.localdomain'
-  __should_have_key_for_domain 'otherdomain.tld'
+  __assert_outputs_common_dkim_logs
+
   __should_have_tables_trustedhosts_for_domain
+
+  __should_have_key_for_domain 'localhost.localdomain'
+  __should_have_key_for_domain 'localdomain2.com'
+  __should_have_key_for_domain 'otherdomain.tld'
 }
 
 @test "should create keys and config files (without postfix-accounts.cf)" {
@@ -73,10 +79,14 @@ function teardown() { _default_teardown ; }
   __init_container_without_waiting "${PWD}/test/config/postfix-virtual.cf:/tmp/docker-mailserver/postfix-virtual.cf:ro"
 
   __should_generate_dkim_key 5
-  __should_have_key_for_domain 'localhost.localdomain'
-  # NOTE: This would only be valid if supplying the default postfix-accounts.cf:
-  # __should_have_key_for_domain 'otherdomain.tld'
+  __assert_outputs_common_dkim_logs
+
   __should_have_tables_trustedhosts_for_domain
+
+  __should_have_key_for_domain 'localhost.localdomain'
+  __should_have_key_for_domain 'localdomain2.com'
+  # NOTE: This would only be present if supplying the default postfix-accounts.cf:
+  __should_not_have_key_for_domain 'otherdomain.tld'
 }
 
 @test "should create keys and config files (without postfix-virtual.cf)" {
@@ -86,9 +96,14 @@ function teardown() { _default_teardown ; }
   __init_container_without_waiting "${PWD}/test/config/postfix-accounts.cf:/tmp/docker-mailserver/postfix-accounts.cf:ro"
 
   __should_generate_dkim_key 5
+  __assert_outputs_common_dkim_logs
+
+  __should_have_tables_trustedhosts_for_domain
+
   __should_have_key_for_domain 'localhost.localdomain'
   __should_have_key_for_domain 'otherdomain.tld'
-  __should_have_tables_trustedhosts_for_domain
+  # NOTE: This would only be present if supplying the default postfix-virtual.cf:
+  __should_not_have_key_for_domain 'localdomain2.com'
 }
 
 @test "should create keys and config files (with custom domains)" {
@@ -99,20 +114,26 @@ function teardown() { _default_teardown ; }
 
   # generate first key
   __should_generate_dkim_key 4 '2048' 'domain1.tld'
+  __assert_outputs_common_dkim_logs
   # generate two additional keys different to the previous one
   __should_generate_dkim_key 2 '2048' 'domain2.tld,domain3.tld'
+  __assert_logged_dkim_creation 'domain2.tld'
+  __assert_logged_dkim_creation 'domain3.tld'
   # generate an additional key whilst providing already existing domains
   __should_generate_dkim_key 1 '2048' 'domain3.tld,domain4.tld'
+  __assert_logged_dkim_creation 'domain4.tld'
+
+  __should_have_tables_trustedhosts_for_domain
 
   __should_have_key_for_domain 'domain1.tld'
   __should_have_key_for_domain 'domain2.tld'
   __should_have_key_for_domain 'domain3.tld'
   __should_have_key_for_domain 'domain4.tld'
-  # NOTE: Without the default account configs, neither of these should be valid:
-  # __should_have_key_for_domain 'localhost.localdomain'
-  # __should_have_key_for_domain 'otherdomain.tld'
-
-  __should_have_tables_trustedhosts_for_domain
+  # This would be created by default (from vhost) if no domain was given to open-dkim:
+  __should_not_have_key_for_domain 'localhost.localdomain'
+  # Without the default account configs, neither of these should be present:
+  __should_not_have_key_for_domain 'otherdomain.tld'
+  __should_not_have_key_for_domain 'localdomain2.com'
 
   _run_in_container cat "/tmp/docker-mailserver/opendkim/KeyTable"
   __assert_has_entry_in_keytable 'domain1.tld'
@@ -136,9 +157,11 @@ function teardown() { _default_teardown ; }
   __init_container_without_waiting '/tmp/docker-mailserver'
 
   __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
+  __assert_outputs_common_dkim_logs
   
-  __should_have_key_for_domain 'domain1.tld' 'mailer'
   __should_have_tables_trustedhosts_for_domain
+
+  __should_have_key_for_domain 'domain1.tld' 'mailer'
 
   _run_in_container cat "/tmp/docker-mailserver/opendkim/KeyTable"
   __assert_has_entry_in_keytable 'domain1.tld' 'mailer'
@@ -149,30 +172,60 @@ function teardown() { _default_teardown ; }
 
 function __init_container_without_waiting {
   _init_with_defaults
-  # Override the config volume:
+  # Override the default config volume:
   [[ -n ${1} ]] && TEST_CONFIG_VOLUME="${1}"
   _common_container_create
   _common_container_start
 }
 
 function __assert_has_entry_in_keytable() {
-  local EXPECTED_DOMAIN=${1}
-  local EXPECTED_SELECTOR=${2:-'mail'}
-  # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
-  assert_output --partial "${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN} ${EXPECTED_DOMAIN}:${EXPECTED_SELECTOR}:/etc/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private"
+  __assert_output_for 'KeyTable' "${@}"
 }
 
 function __assert_has_entry_in_signingtable() {
-  local EXPECTED_DOMAIN=${1}
-  local EXPECTED_SELECTOR=${2:-'mail'}
-  # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
-  assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
+  __assert_output_for 'SigningTable' "${@}"
+}
+
+function __assert_logged_dkim_creation() {
+  __assert_output_for 'Log' "${@}"
+}
+
+function __assert_output_for() {
+  local ASSERT_FOR=${1}
+  local EXPECTED_DOMAIN=${2}
+  local EXPECTED_SELECTOR=${3:-'mail'}
+
+  case "${ASSERT_FOR}" in
+    ( 'KeyTable' )
+      # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
+      assert_output --partial "${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN} ${EXPECTED_DOMAIN}:${EXPECTED_SELECTOR}:/etc/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private"
+      ;;
+    ( 'SigningTable' )
+      # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
+      assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
+      ;;
+    ( 'Log' )
+      assert_output --partial "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private'"
+      ;;
+  esac
+}
+
+function __assert_outputs_common_dkim_logs() {
+  refute_output --partial 'No entries found, no keys to make'
+  assert_output --partial 'Creating DKIM KeyTable'
+  assert_output --partial 'Creating DKIM SigningTable'
+  assert_output --partial 'Creating DKIM TrustedHosts'
 }
 
 function __should_support_creating_key_of_size() {
   local EXPECTED_KEYSIZE=${1}
 
   __should_generate_dkim_key 6 "${EXPECTED_KEYSIZE}"
+  __assert_outputs_common_dkim_logs
+  __assert_logged_dkim_creation 'localdomain2.com'
+  __assert_logged_dkim_creation 'localhost.localdomain'
+  __assert_logged_dkim_creation 'otherdomain.tld'
+
   __should_have_expected_files "${EXPECTED_KEYSIZE:-4096}"
   _run_in_container_bash 'rm -r /tmp/docker-mailserver/opendkim'
 }
@@ -183,14 +236,15 @@ function __should_generate_dkim_key() {
   local ARG_DOMAINS=${3}
   local ARG_SELECTOR=${4}
 
-  [[ -n ${ARG_KEYSIZE}  ]] && ARG_KEYSIZE="keysize ${ARG_KEYSIZE}"
-  [[ -n ${ARG_DOMAINS}  ]] && ARG_DOMAINS="domain '${ARG_DOMAINS}'"
-  [[ -n ${ARG_SELECTOR} ]] && ARG_SELECTOR="selector '${ARG_SELECTOR}'"
+  local DKIM_CMD='open-dkim'
+  [[ -n ${ARG_KEYSIZE}  ]] && DKIM_CMD+=" keysize ${ARG_KEYSIZE}"
+  [[ -n ${ARG_DOMAINS}  ]] && DKIM_CMD+=" domain '${ARG_DOMAINS}'"
+  [[ -n ${ARG_SELECTOR} ]] && DKIM_CMD+=" selector '${ARG_SELECTOR}'"
 
-  _run_in_container_bash "open-dkim ${ARG_KEYSIZE} ${ARG_DOMAINS} ${ARG_SELECTOR} | wc -l"
+  _run_in_container_bash "${DKIM_CMD}"
 
   assert_success
-  assert_output "${EXPECTED_LINES}"
+  _should_output_number_of_lines "${EXPECTED_LINES}"
 }
 
 function __should_have_expected_files() {
@@ -232,6 +286,15 @@ function __should_have_key_for_domain() {
   assert_line --index 0 "${KEY_SELECTOR}.private"
   assert_line --index 1 "${KEY_SELECTOR}.txt"
   _should_output_number_of_lines 2
+}
+
+function __should_not_have_key_for_domain() {
+  local KEY_DOMAIN=${1}
+  local KEY_SELECTOR=${2:-'mail'}
+  local TARGET_DIR="/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
+
+  _run_in_container_bash "[[ -d ${TARGET_DIR} ]]"
+  assert_failure
 }
 
 function __should_have_tables_trustedhosts_for_domain() {
