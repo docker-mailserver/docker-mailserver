@@ -142,7 +142,7 @@ EOF
   sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
   touch /var/lib/rspamd/stats.ucl
 
-  local RSPAMD_CUSTOM_COMMANDS_FILE=/tmp/docker-mailserver/rspamd-commands
+  local RSPAMD_CUSTOM_COMMANDS_FILE='/tmp/docker-mailserver/rspamd-modules.conf'
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
   then
     _log 'debug' "Found 'rspamd-commands' file - parsing and applying it"

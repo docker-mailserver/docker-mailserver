@@ -18,9 +18,6 @@ function setup_file() {
     --env LOG_LEVEL=trace
   )
 
-  # move custom rspamd commands into `/tmp/docker-mailserver` config location
-  mv "${TEST_TMP_CONFIG}/override-configs/rspamd-commands" "${TEST_TMP_CONFIG}/"
-
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # wait for ClamAV to be fully setup or we will get errors on the log
