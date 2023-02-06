@@ -26,7 +26,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial 'NOT loaded'
 }
 
-@test "SpamAssassin Docker ENV variables' defaults are set correctly" {
+@test 'SA ENV should update Amavis config' {
   local AMAVIS_DEFAULTS_FILE='/etc/amavis/conf.d/20-debian_defaults'
   _run_in_container grep '\$sa_tag_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
   assert_success
