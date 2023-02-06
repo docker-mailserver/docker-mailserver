@@ -150,7 +150,7 @@ function _install_rspamd
     curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
     local URL='[arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
     echo "deb ${URL}" >"${DEB_FILE}"
-    echo "deb-src §{URL}" >>"${DEB_FILE}"
+    echo "deb-src ${URL}" >>"${DEB_FILE}"
     RSPAMD_PACKAGE_NAME='rspamd'
   fi
 
