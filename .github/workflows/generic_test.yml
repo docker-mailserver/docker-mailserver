@@ -17,6 +17,7 @@ jobs:
     strategy:
       matrix:
         part: [serial, parallel/set1, parallel/set2, parallel/set3]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -49,5 +50,3 @@ jobs:
 
       - name: 'Run tests'
         run: make generate-accounts tests/${{ matrix.part }}
-        env:
-          CI: true
