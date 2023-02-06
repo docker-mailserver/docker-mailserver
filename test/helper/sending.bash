@@ -54,6 +54,9 @@ function _send_mail_and_get_id() {
   _send_email "${TEMPLATE_FILE}"
   _wait_for_empty_mail_queue_in_container
 
+  # The unique ID Postfix (and other services) use may be different in length
+  # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
+  # range to safely capture it.
   MAIL_ID=$(_exec_in_container tac /var/log/mail.log              \
     | grep -E -m 1 'postfix/smtpd.*: [A-Z0-9]+: client=localhost' \
     | grep -E -o '[A-Z0-9]{9,12}' || true)
