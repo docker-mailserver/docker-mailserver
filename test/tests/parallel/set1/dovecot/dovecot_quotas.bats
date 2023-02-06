@@ -114,38 +114,40 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial 'check_policy_service inet:localhost:65265'
 }
 
+@test '(ENV POSTFIX_MAILBOX_SIZE_LIMIT) should be configured for both Postfix and Dovecot' {
+  local MAILBOX_SIZE_POSTFIX MAILBOX_SIZE_DOVECOT MAILBOX_SIZE_POSTFIX_MB MAILBOX_SIZE_DOVECOT_MB
 
-@test '(mailbox max size) should be equal for both Postfix and Dovecot' {
-  postfix_mailbox_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=mailbox_size_limit = )[0-9]+'")
-  run echo "${postfix_mailbox_size}"
+  MAILBOX_SIZE_POSTFIX=$(_exec_in_container postconf -h mailbox_size_limit)
+  run echo "${MAILBOX_SIZE_POSTFIX}"
   refute_output ""
 
-  # dovecot relies on virtual_mailbox_size by default
-  postfix_virtual_mailbox_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=virtual_mailbox_limit = )[0-9]+'")
-  assert_equal "${postfix_virtual_mailbox_size}" "${postfix_mailbox_size}"
+  # Dovecot mailbox is sized by `virtual_mailbox_size` from Postfix:
+  MAILBOX_SIZE_DOVECOT=$(_exec_in_container postconf -h virtual_mailbox_limit)
+  assert_equal "${MAILBOX_SIZE_DOVECOT}" "${MAILBOX_SIZE_POSTFIX}"
 
-  postfix_mailbox_size_mb=$(( postfix_mailbox_size / 1000000))
-
-  dovecot_mailbox_size_mb=$(_exec_in_container_bash "doveconf | grep  -oP '(?<=quota_rule \= \*\:storage=)[0-9]+'")
-  run echo "${dovecot_mailbox_size_mb}"
+  # Quota support:
+  MAILBOX_SIZE_POSTFIX_MB=$(( MAILBOX_SIZE_POSTFIX / 1000000))
+  MAILBOX_SIZE_DOVECOT_MB=$(_exec_in_container_bash 'doveconf -h plugin/quota_rule | grep -oE "[0-9]+"')
+  run echo "${MAILBOX_SIZE_DOVECOT_MB}"
   refute_output ""
 
-  assert_equal "${postfix_mailbox_size_mb}" "${dovecot_mailbox_size_mb}"
+  assert_equal "${MAILBOX_SIZE_POSTFIX_MB}" "${MAILBOX_SIZE_DOVECOT_MB}"
 }
 
+@test '(ENV POSTFIX_MESSAGE_SIZE_LIMIT) should be configured for both Postfix and Dovecot' {
+  local MESSAGE_SIZE_POSTFIX MESSAGE_SIZE_POSTFIX_MB MESSAGE_SIZE_DOVECOT_MB
 
-@test '(message max size) should be equal for both Postfix and Dovecot' {
-  postfix_message_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=message_size_limit = )[0-9]+'")
-  run echo "${postfix_message_size}"
+  MESSAGE_SIZE_POSTFIX=$(_exec_in_container postconf -h message_size_limit)
+  run echo "${MESSAGE_SIZE_POSTFIX}"
   refute_output ""
 
-  postfix_message_size_mb=$(( postfix_message_size / 1000000))
-
-  dovecot_message_size_mb=$(_exec_in_container_bash "doveconf | grep  -oP '(?<=quota_max_mail_size = )[0-9]+'")
-  run echo "${dovecot_message_size_mb}"
+  # Quota support:
+  MESSAGE_SIZE_POSTFIX_MB=$(( MESSAGE_SIZE_POSTFIX / 1000000))
+  MESSAGE_SIZE_DOVECOT_MB=$(_exec_in_container_bash 'doveconf -h plugin/quota_max_mail_size | grep -oE "[0-9]+"')
+  run echo "${MESSAGE_SIZE_DOVECOT_MB}"
   refute_output ""
 
-  assert_equal "${postfix_message_size_mb}" "${dovecot_message_size_mb}"
+  assert_equal "${MESSAGE_SIZE_POSTFIX_MB}" "${MESSAGE_SIZE_DOVECOT_MB}"
 }
 
 @test 'Deleting an mailbox account should also remove that account from dovecot-quotas.cf' {
