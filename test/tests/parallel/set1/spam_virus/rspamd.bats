@@ -25,14 +25,15 @@ function setup_file() {
 
   _wait_for_service redis
   _wait_for_service rspamd
+  _wait_for_service clamav
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  export MAIL_ID1=$(_send_mail_and_get_id 'existing-user1')
-  export MAIL_ID2=$(_send_mail_and_get_id 'rspamd-spam')
-  export MAIL_ID3=$(_send_mail_and_get_id 'rspamd-virus')
+  export MAIL_ID1=$(_send_mail_and_get_id 'existing-user1' || exit 1)
+  export MAIL_ID2=$(_send_mail_and_get_id 'rspamd-spam' || exit 1)
+  export MAIL_ID3=$(_send_mail_and_get_id 'rspamd-virus' || exit 1)
 
   # add a nested option to a module
   _exec_in_container_bash "echo -e 'complicated {\n    anOption = someValue;\n}' >/etc/rspamd/override.d/testmodule_complicated.conf"
@@ -113,7 +114,7 @@ function teardown_file() { _default_teardown ; }
   # check whether adding a single line writes the line properly
   _run_in_container_bash '[[ -f /etc/rspamd/override.d/testmodule4.conf ]]'
   assert_success
-  _run_in_container grep -F 'some very long line with "weird $characters' /etc/rspamd/override.d/testmodule4.conf
+  _run_in_container grep -F 'some very long line with "weird $charact"ers' /etc/rspamd/override.d/testmodule4.conf
   assert_success
   _run_in_container grep -F 'and! ano. ther &line' /etc/rspamd/override.d/testmodule4.conf
   assert_success

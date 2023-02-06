@@ -56,11 +56,12 @@ function _send_mail_and_get_id() {
 
   MAIL_ID=$(_exec_in_container tac /var/log/mail.log              \
     | grep -E -m 1 'postfix/smtpd.*: [A-Z0-9]+: client=localhost' \
-    | grep -E -o '[A-Z0-9]{11}')
+    | grep -E -o '[A-Z0-9]{9,12}' || true)
 
   if [[ -z ${MAIL_ID} ]]
   then
     echo 'Could not obtain mail ID - aborting!' >&2
+    echo 'Could not obtain mail ID - aborting!' >&3
     exit 1
   fi
 
