@@ -64,10 +64,10 @@ function _check_for_changes
 
     _remove_lock
     _log_with_date 'debug' 'Completed handling of detected change'
-  fi
 
-  # mark changes as applied
-  mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+    # mark changes as applied
+    mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+  fi
 }
 
 function _get_changed_files
