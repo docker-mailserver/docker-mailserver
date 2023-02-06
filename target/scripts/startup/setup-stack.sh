@@ -99,21 +99,23 @@ function _setup_amavis
 
 function _setup_rspamd
 {
-  _log 'warn' 'Rspamd support is under active development, expect breaking changes at any time'
+  function __log { _log "${1:-}" "(Rspamd setup) ${2}" ; }
+
+  __log 'warn' 'Support is under active development, expect breaking changes at any time'
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
-    _log 'warn' 'Running rspamd at the same time as Amavis or SpamAssassin is discouraged'
+    __log 'warn' 'Running Amavis/SA & Rspamd at the same time is discouraged'
   fi
 
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
-    _log 'debug' 'Rspamd will use ClamAV'
+    __log 'debug' 'Enabling ClamAV integration'
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
     # RSpamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
     usermod -a -G clamav _rspamd
   else
-    _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
+    __log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
   declare -a DISABLE_MODULES
@@ -130,6 +132,7 @@ function _setup_rspamd
 
   for MODULE in "${DISABLE_MODULES[@]}"
   do
+    __log 'trace' "Disabling module '${MODULE}'"
     cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOF
 # documentation: https://rspamd.com/doc/modules/${MODULE}.html
 
@@ -145,14 +148,14 @@ EOF
   local RSPAMD_CUSTOM_COMMANDS_FILE='/tmp/docker-mailserver/rspamd-modules.conf'
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
   then
-    _log 'debug' "Found 'rspamd-commands' file - parsing and applying it"
+    __log 'debug' "Found file 'rspamd-modules.conf' - parsing and applying it"
 
     while read -r COMMAND MODULE ARGUMENT1 ARGUMENT2
     do
-      case "${COMMAND}"
-      in
+      case "${COMMAND}" in
+
         ('disable-module')
-          _log 'trace' "Disabling module '${MODULE}'"
+          __log 'trace' "Disabling module '${MODULE}'"
           [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
           cat >"/etc/rspamd/override.d/${MODULE}.conf" << EOF
 # documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
@@ -163,7 +166,7 @@ EOF
           ;;
 
         ('enable-module')
-          _log 'trace' "Enabling module '${MODULE}' now"
+          __log 'trace' "Enabling module '${MODULE}'"
           [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
           cat >>"/etc/rspamd/override.d/${MODULE}.conf" << EOF
 # documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
@@ -174,28 +177,29 @@ EOF
           ;;
 
         ('set-option-for-module')
-          _log 'trace' "Setting option '${ARGUMENT1}' for module '${MODULE}' to '${ARGUMENT2}'"
           local FILE="/etc/rspamd/override.d/${MODULE}.conf"
           [[ -f ${FILE} ]] || touch "${FILE}"
 
-          # sanity check: is the user writing the same option twice?
           if grep -q -E "${ARGUMENT1}.*=.*" "${FILE}"
           then
-            _log 'debug' "Rspamd setup: overwriting option '${ARGUMENT1}' with value '${ARGUMENT2}' for module '${MODULE}'"
+            __log 'trace' "Overwriting option '${ARGUMENT1}' with value '${ARGUMENT2}' for module '${MODULE}'"
             sed -i -E "s|([[:space:]]*${ARGUMENT1}).*|\1 = ${ARGUMENT2};|g" "${FILE}"
           else
+            __log 'trace' "Setting option '${ARGUMENT1}' for module '${MODULE}' to '${ARGUMENT2}'"
             echo "${ARGUMENT1} = ${ARGUMENT2};" >>"${FILE}"
           fi
           ;;
 
         ('add-line-to-module')
-          _log 'trace' "Adding complete line to module '${MODULE}'"
+          __log 'trace' "Adding complete line to module '${MODULE}'"
           echo "${ARGUMENT1} ${ARGUMENT2:-}" >>"/etc/rspamd/override.d/${MODULE}.conf"
           ;;
 
         (*)
-          _log 'warn' "Rspamd setup: Command '${COMMAND}' is not valid"
+          __log 'warn' "Command '${COMMAND}' is not valid"
+          continue
           ;;
+
       esac
     done < <(_get_valid_lines_from_file "${RSPAMD_CUSTOM_COMMANDS_FILE}")
   fi
