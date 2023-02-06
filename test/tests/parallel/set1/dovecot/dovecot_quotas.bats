@@ -17,82 +17,94 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'should only support setting quota for a valid account' {
+  # Prepare
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
-  _run_in_container_bash "setquota quota_user 50M"
+  # Actual tests
+  _run_in_container_bash "setup quota set quota_user 50M"
   assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld 50M"
+
+  _run_in_container_bash "setup quota set username@fulldomain 50M"
+  assert_failure
+
+  _run_in_container_bash "setup quota set quota_user@domain.tld 50M"
   assert_success
 
-  _run_in_container_bash "setquota username@fulldomain 50M"
-  assert_failure
-
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
+  # Cleanup
+  _run_in_container_bash "setup email del -y quota_user@domain.tld"
   assert_success
 }
 
 @test 'should only allow valid units as quota size' {
+  # Prepare
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
-  _run_in_container_bash "setquota quota_user@domain.tld 26GIGOTS"
+  # Actual tests
+  _run_in_container_bash "setup quota set quota_user@domain.tld 26GIGOTS"
   assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld 123"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 123"
   assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld M"
+  _run_in_container_bash "setup quota set quota_user@domain.tld M"
   assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld -60M"
+  _run_in_container_bash "setup quota set quota_user@domain.tld -60M"
   assert_failure
 
 
-  _run_in_container_bash "setquota quota_user@domain.tld 10B"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 10B"
   assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10k"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 10k"
   assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10M"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 10M"
   assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10G"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 10G"
   assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10T"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 10T"
   assert_success
 
-
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
+  # Cleanup
+  _run_in_container_bash "setup email del -y quota_user@domain.tld"
   assert_success
 }
 
 @test 'should only support removing quota from a valid account' {
+  # Prepare
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
-  _run_in_container_bash "delquota uota_user@domain.tld"
+  # Actual tests
+  _run_in_container_bash "setup quota del uota_user@domain.tld"
   assert_failure
-  _run_in_container_bash "delquota quota_user"
+  _run_in_container_bash "setup quota del quota_user"
   assert_failure
-  _run_in_container_bash "delquota dontknowyou@domain.tld"
+  _run_in_container_bash "setup quota del dontknowyou@domain.tld"
   assert_failure
 
-  _run_in_container_bash "setquota quota_user@domain.tld 10T"
+  _run_in_container_bash "setup quota set quota_user@domain.tld 10T"
   assert_success
-  _run_in_container_bash "delquota quota_user@domain.tld"
+  _run_in_container_bash "setup quota del quota_user@domain.tld"
   assert_success
   _run_in_container_bash "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
   assert_failure
 
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
+  # Cleanup
+  _run_in_container_bash "setup email del -y quota_user@domain.tld"
   assert_success
 }
 
 @test 'should not error when there is no quota to remove for an account' {
+  # Prepare
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
+  # Actual tests
   _run_in_container_bash "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
   assert_failure
 
-  _run_in_container_bash "delquota quota_user@domain.tld"
+  _run_in_container_bash "setup quota del quota_user@domain.tld"
   assert_success
-  _run_in_container_bash "delquota quota_user@domain.tld"
+  _run_in_container_bash "setup quota del quota_user@domain.tld"
   assert_success
 
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
+  # Cleanup
+  _run_in_container_bash "setup email del -y quota_user@domain.tld"
   assert_success
 }
 
@@ -138,13 +150,13 @@ function teardown_file() { _default_teardown ; }
 @test 'Deleting an mailbox account should also remove that account from dovecot-quotas.cf' {
   _add_mail_account_then_wait_until_ready 'quserremoved@domain.tld'
 
-  _run_in_container_bash "setquota quserremoved@domain.tld 12M"
+  _run_in_container_bash "setup quota set quserremoved@domain.tld 12M"
   assert_success
 
   _run_in_container_bash 'cat /tmp/docker-mailserver/dovecot-quotas.cf | grep -E "^quserremoved@domain.tld\:12M\$" | wc -l | grep 1'
   assert_success
 
-  _run_in_container_bash "delmailuser -y quserremoved@domain.tld"
+  _run_in_container_bash "setup email del -y quserremoved@domain.tld"
   assert_success
 
   _run_in_container_bash 'cat /tmp/docker-mailserver/dovecot-quotas.cf | grep -E "^quserremoved@domain.tld\:12M\$"'
@@ -155,14 +167,14 @@ function teardown_file() { _default_teardown ; }
   _run_in_container_bash "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
   assert_output --partial "-                         0"
 
-  _run_in_container_bash "setquota user1@localhost.localdomain 50M"
+  _run_in_container_bash "setup quota set user1@localhost.localdomain 50M"
   assert_success
 
   # wait until quota has been updated
   run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'doveadm quota get -u user1@localhost.localdomain | grep -oP "(User quota STORAGE\s+[0-9]+\s+)51200(.*)"'
   assert_success
 
-  _run_in_container_bash "delquota user1@localhost.localdomain"
+  _run_in_container_bash "setup quota del user1@localhost.localdomain"
   assert_success
 
   # wait until quota has been updated
@@ -173,9 +185,11 @@ function teardown_file() { _default_teardown ; }
 @test 'should receive a warning mail from Dovecot when quota is exceeded' {
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
-  # create user
+  # Prepare
   _add_mail_account_then_wait_until_ready 'quotauser@otherdomain.tld'
-  _run_in_container_bash 'setquota quotauser@otherdomain.tld 10k'
+
+  # Actual tests
+  _run_in_container_bash 'setup quota set quotauser@otherdomain.tld 10k'
   assert_success
 
   # wait until quota has been updated
@@ -206,6 +220,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
   assert_output "2"
 
-  _run_in_container_bash "delmailuser -y quotauser@otherdomain.tld"
+  # Cleanup
+  _run_in_container_bash "setup email del -y quotauser@otherdomain.tld"
   assert_success
 }
