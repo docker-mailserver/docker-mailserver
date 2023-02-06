@@ -16,7 +16,7 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "quota: setquota user must be existing" {
+@test 'should only support setting quota for a valid account' {
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
   _run_in_container_bash "setquota quota_user 50M"
@@ -31,7 +31,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "quota: setquota <quota> must be well formatted" {
+@test 'should only allow valid units as quota size' {
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
   _run_in_container_bash "setquota quota_user@domain.tld 26GIGOTS"
@@ -60,7 +60,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "quota: delquota user must be existing" {
+@test 'should only support removing quota from a valid account' {
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
   _run_in_container_bash "delquota uota_user@domain.tld"
@@ -81,7 +81,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "quota: delquota allow when no quota for existing user" {
+@test 'should not error when there is no quota to remove for an account' {
   _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
 
   _run_in_container_bash "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
@@ -96,13 +96,13 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "quota: dovecot quota present in postconf" {
+@test 'should have configured Postfix to use the Dovecot quota-status service' {
   _run_in_container_bash "postconf | grep 'check_policy_service inet:localhost:65265'"
   assert_success
 }
 
 
-@test "quota: dovecot mailbox max size must be equal to postfix mailbox max size" {
+@test '(mailbox max size) should be equal for both Postfix and Dovecot' {
   postfix_mailbox_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=mailbox_size_limit = )[0-9]+'")
   run echo "${postfix_mailbox_size}"
   refute_output ""
@@ -121,7 +121,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 
-@test "quota: dovecot message max size must be equal to postfix messsage max size" {
+@test '(message max size) should be equal for both Postfix and Dovecot' {
   postfix_message_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=message_size_limit = )[0-9]+'")
   run echo "${postfix_message_size}"
   refute_output ""
@@ -135,7 +135,7 @@ function teardown_file() { _default_teardown ; }
   assert_equal "${postfix_message_size_mb}" "${dovecot_message_size_mb}"
 }
 
-@test "quota: quota directive is removed when mailbox is removed" {
+@test 'Deleting an mailbox account should also remove that account from dovecot-quotas.cf' {
   _add_mail_account_then_wait_until_ready 'quserremoved@domain.tld'
 
   _run_in_container_bash "setquota quserremoved@domain.tld 12M"
@@ -151,7 +151,7 @@ function teardown_file() { _default_teardown ; }
   assert_failure
 }
 
-@test "quota: dovecot applies user quota" {
+@test 'Dovecot should acknowledge quota configured for accounts' {
   _run_in_container_bash "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
   assert_output --partial "-                         0"
 
@@ -170,7 +170,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "quota: warn message received when quota exceeded" {
+@test 'should receive a warning mail from Dovecot when quota is exceeded' {
   skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
 
   # create user
