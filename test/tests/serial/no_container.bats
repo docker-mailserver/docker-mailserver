@@ -8,10 +8,10 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 BATS_TEST_NAME_PREFIX='[No Existing Container] '
 
 function setup_file() {
-  # Fail early if the testing image is already running:
-  assert_not_equal "$(docker ps | grep -o "${IMAGE_NAME}")" "${IMAGE_NAME}"
+  run docker ps # fail early if the testing image is already running:
+  assert_success
+  refute_output --partial "${IMAGE_NAME}"
 
-  # Copy the base config that `setup.sh` will volume mount to a container it runs:
   export TEST_TMP_CONFIG
   TEST_TMP_CONFIG=$(_duplicate_config_for_container . 'no_container')
 }
