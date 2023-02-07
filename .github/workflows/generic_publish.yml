@@ -82,3 +82,5 @@ jobs:
           push: true
           tags: ${{ steps.prep.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
+          # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
+          provenance: false

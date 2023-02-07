@@ -47,6 +47,8 @@ jobs:
           # Rebuilds the AMD64 image from the cache:
           platforms: linux/amd64
           cache-from: type=local,src=/tmp/.buildx-cache
+          # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
+          provenance: false
 
       - name: 'Run tests'
         run: make generate-accounts tests/${{ matrix.part }}
