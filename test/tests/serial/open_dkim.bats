@@ -159,35 +159,26 @@ function __init_container_without_waiting {
 }
 
 function __assert_has_entry_in_keytable() {
-  __assert_output_for 'KeyTable' "${@}"
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-mail}
+
+  # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
+  assert_output --partial "${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN} ${EXPECTED_DOMAIN}:${EXPECTED_SELECTOR}:/etc/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private"
 }
 
 function __assert_has_entry_in_signingtable() {
-  __assert_output_for 'SigningTable' "${@}"
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-mail}
+
+  # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
+  assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
 }
 
 function __assert_logged_dkim_creation() {
-  __assert_output_for 'Log' "${@}"
-}
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-mail}
 
-function __assert_output_for() {
-  local ASSERT_FOR=${1}
-  local EXPECTED_DOMAIN=${2}
-  local EXPECTED_SELECTOR=${3:-mail}
-
-  case "${ASSERT_FOR}" in
-    ( 'KeyTable' )
-      # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
-      assert_output --partial "${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN} ${EXPECTED_DOMAIN}:${EXPECTED_SELECTOR}:/etc/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private"
-      ;;
-    ( 'SigningTable' )
-      # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
-      assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
-      ;;
-    ( 'Log' )
-      assert_output --partial "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private'"
-      ;;
-  esac
+  assert_output --partial "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private'"
 }
 
 function __assert_outputs_common_dkim_logs() {
