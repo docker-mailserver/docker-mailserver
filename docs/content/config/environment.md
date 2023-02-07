@@ -77,14 +77,6 @@ Enable or disable Rspamd.
 
     Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
 
-!!! danger "Rspamd and DNS Block Lists"
-
-    When using Rspamd, the [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will do a variety of DNS requests. Amongst other things, Rspamd will query DNS block lists (DNSBLs).
-
-    There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. We urge you not to rely on this though.
-
-    If you want to use RBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
-
 - **0** => disabled
 - 1 => enabled
 
