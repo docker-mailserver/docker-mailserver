@@ -221,6 +221,7 @@ function _run_until_success_or_timeout() {
 
   local STARTTIME=${SECONDS}
 
+  # shellcheck disable=SC2154
   until run "${@}" && [[ ${status} -eq 0 ]]
   do
     sleep 1
@@ -367,6 +368,7 @@ function _add_mail_account_then_wait_until_ready() {
 #
 # @param ${1} = number of lines that the output should have
 function _should_output_number_of_lines() {
+  # shellcheck disable=SC2154
   assert_equal "${#lines[@]}" "${1:?Number of lines not provided}"
 }
 

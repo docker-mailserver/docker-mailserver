@@ -253,7 +253,6 @@ COPY \
   target/scripts/*.sh \
   target/scripts/startup/*.sh \
   target/scripts/wrapper/*.sh \
-  target/docker-configomat/configomat.sh \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*
