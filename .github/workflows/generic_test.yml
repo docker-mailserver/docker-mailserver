@@ -38,7 +38,7 @@ jobs:
       # Earlier `buildx` + `qemu` steps are not needed as no cache is exported,
       # and only a single platform (AMD64) is loaded:
       - name: 'Build AMD64 image from cache'
-        uses: docker/build-push-action@v3.3.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           tags: mailserver-testing:ci
@@ -47,6 +47,8 @@ jobs:
           # Rebuilds the AMD64 image from the cache:
           platforms: linux/amd64
           cache-from: type=local,src=/tmp/.buildx-cache
+          # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
+          provenance: false
 
       - name: 'Run tests'
         run: make generate-accounts tests/${{ matrix.part }}
