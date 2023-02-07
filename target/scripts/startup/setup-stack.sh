@@ -1148,12 +1148,6 @@ function _setup_fail2ban
 
 function _setup_dnsbl_disable
 {
-  _log 'debug' 'Disabling postfix DNS block list (zen.spamhaus.org)'
-
-  sedfile -i \
-    '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org=127.0.0.\[2..11\]//' \
-    /etc/postfix/main.cf
-
   _log 'debug' 'Disabling postscreen DNS block lists'
   postconf 'postscreen_dnsbl_action = ignore'
   postconf 'postscreen_dnsbl_sites = '
