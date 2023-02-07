@@ -307,8 +307,8 @@ function _setup_dovecot_quota
       fi
 
       # enable quota policy check in postfix
-      sed -i \
-        "s|reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org|reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org|g" \
+      sed -i -E \
+        "s|(reject_unknown_recipient_domain)|\1, check_policy_service inet:localhost:65265|g" \
         /etc/postfix/main.cf
     fi
 }
