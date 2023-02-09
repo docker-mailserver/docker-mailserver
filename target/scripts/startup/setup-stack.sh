@@ -99,110 +99,22 @@ function _setup_amavis
 
 function _setup_rspamd
 {
-  function __log { _log "${1:-}" "(Rspamd setup) ${2}" ; }
-
-  __log 'warn' 'Support is under active development, expect breaking changes at any time'
-
-  if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+  if [[ -f /usr/local/bin/helpers/setup-rspamd.sh ]]
   then
-    __log 'warn' 'Running Amavis/SA & Rspamd at the same time is discouraged'
-  fi
-
-  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
-  then
-    __log 'debug' 'Enabling ClamAV integration'
-    sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
-    # RSpamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
-    usermod -a -G clamav _rspamd
+    # ShellCheck sources this from two different files, hence we discard the check of external sources.
+    # shellcheck source=/dev/null
+    source /usr/local/bin/helpers/setup-rspamd.sh
   else
-    __log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
+    _shutdown 'error' '(Rspamd setup) Helper functions required for setup were not found'
   fi
 
-  declare -a DISABLE_MODULES
-  DISABLE_MODULES=(
-    clickhouse
-    elastic
-    greylist
-    neural
-    reputation
-    spamassassin
-    url_redirector
-    metric_exporter
-  )
+  _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
+  _log 'debug' 'Enabling Rspamd'
 
-  for MODULE in "${DISABLE_MODULES[@]}"
-  do
-    __log 'trace' "Disabling module '${MODULE}'"
-    cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOF
-# documentation: https://rspamd.com/doc/modules/${MODULE}.html
-
-enabled = false;
-
-EOF
-  done
-
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
-  touch /var/lib/rspamd/stats.ucl
-
-  local RSPAMD_CUSTOM_COMMANDS_FILE='/tmp/docker-mailserver/rspamd-modules.conf'
-  if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
-  then
-    __log 'debug' "Found file 'rspamd-modules.conf' - parsing and applying it"
-
-    while read -r COMMAND MODULE ARGUMENT1 ARGUMENT2
-    do
-      case "${COMMAND}" in
-
-        ('disable-module')
-          __log 'trace' "Disabling module '${MODULE}'"
-          [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
-          cat >"/etc/rspamd/override.d/${MODULE}.conf" << EOF
-# documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
-
-enabled = false;
-
-EOF
-          ;;
-
-        ('enable-module')
-          __log 'trace' "Enabling module '${MODULE}'"
-          [[ -z ${ARGUMENT1:-} ]] && ARGUMENT1=${MODULE}
-          cat >>"/etc/rspamd/override.d/${MODULE}.conf" << EOF
-# documentation: https://rspamd.com/doc/modules/${ARGUMENT1}.html
-
-enabled = true;
-
-EOF
-          ;;
-
-        ('set-option-for-module')
-          local FILE="/etc/rspamd/override.d/${MODULE}.conf"
-          [[ -f ${FILE} ]] || touch "${FILE}"
-
-          if grep -q -E "${ARGUMENT1}.*=.*" "${FILE}"
-          then
-            __log 'trace' "Overwriting option '${ARGUMENT1}' with value '${ARGUMENT2}' for module '${MODULE}'"
-            sed -i -E "s|([[:space:]]*${ARGUMENT1}).*|\1 = ${ARGUMENT2};|g" "${FILE}"
-          else
-            __log 'trace' "Setting option '${ARGUMENT1}' for module '${MODULE}' to '${ARGUMENT2}'"
-            echo "${ARGUMENT1} = ${ARGUMENT2};" >>"${FILE}"
-          fi
-          ;;
-
-        ('add-line-to-module')
-          __log 'trace' "Adding complete line to module '${MODULE}'"
-          echo "${ARGUMENT1} ${ARGUMENT2:-}" >>"/etc/rspamd/override.d/${MODULE}.conf"
-          ;;
-
-        (*)
-          __log 'warn' "Command '${COMMAND}' is not valid"
-          continue
-          ;;
-
-      esac
-    done < <(_get_valid_lines_from_file "${RSPAMD_CUSTOM_COMMANDS_FILE}")
-  fi
+  __rspamd__preflight_checks
+  __rspamd__adjust_postfix_configuration
+  __rspamd__disable_default_modules
+  __rspamd__handle_modules_configuration
 }
 
 function _setup_dmarc_hostname
@@ -224,9 +136,7 @@ function _setup_postfix_hostname
 function _setup_dovecot_hostname
 {
   _log 'debug' 'Applying hostname to Dovecot'
-  sed -i \
-    "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" \
-    /etc/dovecot/conf.d/15-lda.conf
+  sed -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot
@@ -702,9 +612,15 @@ function _setup_dkim_dmarc
 
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
+  else
+    sed -i '/.*inet:localhost:8891/d' /etc/postfix/main.cf
   fi
 
-  [[ ${ENABLE_OPENDKIM} -eq 1 ]] || return 0
+  if [[ ${ENABLE_OPENDKIM} -eq 0 ]]
+  then
+    sed -i '/.*inet:localhost:8893/d' /etc/postfix/main.cf
+    return 0
+  fi
 
   _log 'debug' 'Setting up DKIM'
 
