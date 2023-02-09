@@ -41,8 +41,8 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test 'Postfix's main.cf was adjusted' {
-  _run_in_container grep -q 'smtpd_milters = inet:localhost:11332' /etc/postfix/main.cf
+@test "Postfix's main.cf was adjusted" {
+  _run_in_container grep -F 'smtpd_milters = inet:localhost:11332' /etc/postfix/main.cf
   assert_success
 }
 
@@ -84,43 +84,64 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'custom commands work correctly' {
-  # check all positive cases first that should not fail at all
-  _run_in_container_bash '[[ -f /etc/rspamd/override.d/testmodule1.conf ]]'
+  # check `testmodule1` which should be disabled
+  local MODULE_PATH='/etc/rspamd/override.d/testmodule1.conf'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
   assert_success
-  _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/someWeirdName.html' /etc/rspamd/override.d/testmodule1.conf
+  _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule1.html' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F 'enabled = false;' /etc/rspamd/override.d/testmodule1.conf
+  _run_in_container grep -F 'enabled = false;' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F 'someoption = somevalue;' /etc/rspamd/override.d/testmodule1.conf
+  _run_in_container grep -F 'someoption = somevalue;' "${MODULE_PATH}"
   assert_failure
 
-  _run_in_container_bash '[[ -f /etc/rspamd/override.d/testmodule2.conf ]]'
+  # check `testmodule2` which should be enabled and it should have extra options set
+  MODULE_PATH='/etc/rspamd/override.d/testmodule2.conf'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
   assert_success
-  _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule2.html' /etc/rspamd/override.d/testmodule2.conf
+  _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule2.html' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F 'enabled = true;' /etc/rspamd/override.d/testmodule2.conf
+  _run_in_container grep -F 'enabled = true;' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F 'someoption = somevalue;' /etc/rspamd/override.d/testmodule2.conf
+  _run_in_container grep -F 'someoption = somevalue;' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F 'anotheroption = whatAvaLue;' /etc/rspamd/override.d/testmodule2.conf
+  _run_in_container grep -F 'anotheroption = whatAvaLue;' "${MODULE_PATH}"
   assert_success
 
-  # check whether writing the same option twice overwrites the first value
-  _run_in_container grep -F 'someoption = somevalue;' /etc/rspamd/override.d/testmodule3.conf
+  # check whether writing the same option twice overwrites the first value in `testmodule3`
+  MODULE_PATH='/etc/rspamd/override.d/testmodule3.conf'
+  _run_in_container grep -F 'someoption = somevalue;' "${MODULE_PATH}"
   assert_failure
-  _run_in_container grep -F 'someoption = somevalue2;' /etc/rspamd/override.d/testmodule3.conf
+  _run_in_container grep -F 'someoption = somevalue2;' "${MODULE_PATH}"
   assert_success
 
-  # check whether adding a single line writes the line properly
-  _run_in_container_bash '[[ -f /etc/rspamd/override.d/testmodule4.conf ]]'
+  # check whether adding a single line writes the line properly in `testmodule4.something`
+  MODULE_PATH='/etc/rspamd/override.d/testmodule4.something'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
   assert_success
-  _run_in_container grep -F 'some very long line with "weird $charact"ers' /etc/rspamd/override.d/testmodule4.conf
+  _run_in_container grep -F 'some very long line with "weird $charact"ers' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F 'and! ano. ther &line' /etc/rspamd/override.d/testmodule4.conf
+  _run_in_container grep -F 'and! ano. ther &line' "${MODULE_PATH}"
   assert_success
-  _run_in_container grep -F '# some comment' /etc/rspamd/override.d/testmodule4.conf
+  _run_in_container grep -F '# some comment' "${MODULE_PATH}"
   assert_success
 
-  # check whether spaces in front of options are handles properly
-  _run_in_container grep -F '    anOption = anotherValue;' /etc/rspamd/override.d/testmodule_complicated.conf
+  # check whether spaces in front of options are handles properly in `testmodule_complicated`
+  MODULE_PATH='/etc/rspamd/override.d/testmodule_complicated.conf'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
+  assert_success
+  _run_in_container grep -F '    anOption = anotherValue;' "${MODULE_PATH}"
+
+  # check whether controller option was written properly
+  MODULE_PATH='/etc/rspamd/override.d/worker-controller.inc'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
+  assert_success
+  _run_in_container grep -F 'someOption = someValue42;' "${MODULE_PATH}"
+  assert_success
+
+  MODULE_PATH='/etc/rspamd/override.d/worker-proxy.inc'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
+  assert_success
+  _run_in_container grep -F 'abcdefg71 = RAAAANdooM;' "${MODULE_PATH}"
+  assert_success
 }

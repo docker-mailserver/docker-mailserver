@@ -61,12 +61,8 @@ function _send_mail_and_get_id() {
     | grep -E -m 1 'postfix/smtpd.*: [A-Z0-9]+: client=localhost' \
     | grep -E -o '[A-Z0-9]{9,12}' || true)
 
-  if [[ -z ${MAIL_ID} ]]
-  then
-    echo 'Could not obtain mail ID - aborting!' >&2
-    echo 'Could not obtain mail ID - aborting!' >&3
-    exit 1
-  fi
+  run bash -c "-z ${MAIL_ID}"
+  assert_success 'Could not obtain mail ID - aborting!'
 
   echo "${MAIL_ID}"
 }
