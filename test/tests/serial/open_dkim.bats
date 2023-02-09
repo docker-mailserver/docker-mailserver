@@ -1,465 +1,279 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
 
-export IMAGE_NAME CONTAINER_NAME TEST_FILE
+BATS_TEST_NAME_PREFIX='[OpenDKIM] '
+CONTAINER1_NAME='dms-test_opendkim_key-sizes'
+CONTAINER2_NAME='dms-test_opendkim_with-config-volume'
+CONTAINER3_NAME='dms-test_opendkim_without-config-volume'
+CONTAINER4_NAME='dms-test_opendkim_without-accounts'
+CONTAINER5_NAME='dms-test_opendkim_without-virtual'
+CONTAINER6_NAME='dms-test_opendkim_with-args'
 
-IMAGE_NAME="${NAME:?Image name must be set}"
-CONTAINER_NAME='open-dkim'
-TEST_FILE='checking OpenDKIM: '
+function teardown() { _default_teardown ; }
 
-# WHY IS THIS CONTAINER EVEN CREATED WHEN MOST TESTS DO NOT USE IT?
-function setup_file
-{
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${CONTAINER_NAME}")
+# TODO: Neither of these are too important, but might be worth covering:
+# - May want to also add test cases for log: 'No entries found, no keys to make'
+# - May want to also do a redundant 2nd run for matching no log output? (Bad UX?)
 
-  docker run -d \
-    --name "${CONTAINER_NAME}" \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "${PWD}/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e DEFAULT_RELAY_HOST=default.relay.host.invalid:25 \
-    -e PERMIT_DOCKER=host \
-    -e LOG_LEVEL='trace' \
-    -h mail.my-domain.com \
-    -t "${IMAGE_NAME}"
+@test "should support creating keys of different sizes" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
 
-  wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+  __init_container_without_waiting
+
+  # The default size created should be 4096-bit:
+  __should_support_creating_key_of_size
+  # Explicit sizes:
+  __should_support_creating_key_of_size '4096'
+  __should_support_creating_key_of_size '2048'
+  __should_support_creating_key_of_size '1024'
 }
 
-function teardown_file
-{
-  docker rm -f "${CONTAINER_NAME}"
-}
+# NOTE: This pre-generated opendkim config was before the alias `localdomain2.com`
+# was present or supported by open-dkim? (when sourcing domains from generated vhost entries)
+@test "providing config volume should setup /etc/opendkim" {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
 
-# -----------------------------------------------
-# --- Actual Tests ------------------------------
-# -----------------------------------------------
+  _init_with_defaults
+  mv "${TEST_TMP_CONFIG}/example-opendkim/" "${TEST_TMP_CONFIG}/opendkim/"
+  _common_container_setup
 
-@test "${TEST_FILE}/etc/opendkim/KeyTable should contain 2 entries" {
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "cat /etc/opendkim/KeyTable | wc -l"
+  _run_in_container cat '/etc/opendkim/KeyTable'
   assert_success
-  assert_output 2
-}
+  __assert_has_entry_in_keytable 'localhost.localdomain'
+  __assert_has_entry_in_keytable 'otherdomain.tld'
+  _should_output_number_of_lines 2
 
-# TODO piping ls into grep ...
-@test "${TEST_FILE}/etc/opendkim/keys/ should contain 2 entries" {
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c "ls -l /etc/opendkim/keys/ | grep '^d' | wc -l"
-  assert_success
-  assert_output 2
-}
+  _should_have_content_in_directory '/etc/opendkim/keys/'
+  assert_output --partial 'localhost.localdomain'
+  assert_output --partial 'otherdomain.tld'
+  _should_output_number_of_lines 2
 
-@test "${TEST_FILE}/etc/opendkim.conf contains nameservers copied from /etc/resolv.conf" {
-  run docker exec "${CONTAINER_NAME}" /bin/bash -c \
-    "grep -E '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
-    /etc/opendkim.conf"
+  # /etc/opendkim.conf should contain nameservers copied from /etc/resolv.conf
+  _run_in_container grep -E \
+    '^Nameservers ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
+    /etc/opendkim.conf
   assert_success
 }
 
-# this set of tests is of low quality.                                                       WHAT? <- DELETE AFTER REWRITE
-# It does not test the RSA-Key size properly via openssl or similar                          WHAT??? <- DELETE AFTER REWRITE
-# Instead it tests the file-size (here 861) - which may differ with a different domain names WWHHHHHHAAAT??? <- DELETE AFTER REWRITE
+# No default config supplied to /tmp/docker-mailserver/opendkim
+# Generating key should create keys and tables + TrustedHosts files:
+@test "should create keys and config files (with defaults)" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
 
-# TODO Needs complete re-write
-@test "${TEST_FILE}generator creates default keys size" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_default_key_size)
+  __init_container_without_waiting
 
-  # Prepare default key size 4096
-  rm -rf "${PRIVATE_CONFIG}/keyDefault"
-  mkdir -p "${PRIVATE_CONFIG}/keyDefault"
+  __should_generate_dkim_key 6
+  __assert_outputs_common_dkim_logs
 
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/keyDefault/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
+  __should_have_tables_trustedhosts_for_domain
 
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/keyDefault/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 861
+  __should_have_key_for_domain 'localhost.localdomain'
+  __should_have_key_for_domain 'localdomain2.com'
+  __should_have_key_for_domain 'otherdomain.tld'
 }
 
-# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar <- DELETE AFTER REWRITE
-# Instead it tests the file-size (here 861) - which may differ with a different domain names <- DELETE AFTER REWRITE
+@test "should create keys and config files (without postfix-accounts.cf)" {
+  export CONTAINER_NAME=${CONTAINER4_NAME}
 
-# TODO Needs complete re-write
-@test "${TEST_FILE}generator creates key size 4096" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_4096)
+  # Only mount single config file (postfix-virtual.cf):
+  __init_container_without_waiting "${PWD}/test/config/postfix-virtual.cf:/tmp/docker-mailserver/postfix-virtual.cf:ro"
 
-  rm -rf "${PRIVATE_CONFIG}/key4096"
-  mkdir -p "${PRIVATE_CONFIG}/config/key4096"
+  __should_generate_dkim_key 5
+  __assert_outputs_common_dkim_logs
 
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 4096 | wc -l'
+  __should_have_tables_trustedhosts_for_domain
 
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 861
+  __should_have_key_for_domain 'localhost.localdomain'
+  __should_have_key_for_domain 'localdomain2.com'
+  # NOTE: This would only be present if supplying the default postfix-accounts.cf:
+  __should_not_have_key_for_domain 'otherdomain.tld'
 }
 
-# Instead it tests the file-size (here 511) - which may differ with a different domain names <- DELETE AFTER REWRITE
-# This test may be re-used as a global test to provide better test coverage. <- DELETE AFTER REWRITE
+@test "should create keys and config files (without postfix-virtual.cf)" {
+  export CONTAINER_NAME=${CONTAINER5_NAME}
 
-# TODO Needs complete re-write
-@test "${TEST_FILE}generator creates key size 2048" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_2048)
+  # Only mount single config file (postfix-accounts.cf):
+  __init_container_without_waiting "${PWD}/test/config/postfix-accounts.cf:/tmp/docker-mailserver/postfix-accounts.cf:ro"
 
-  rm -rf "${PRIVATE_CONFIG}/key2048"
-  mkdir -p "${PRIVATE_CONFIG}/config/key2048"
+  __should_generate_dkim_key 5
+  __assert_outputs_common_dkim_logs
 
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/key2048/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 | wc -l'
+  __should_have_tables_trustedhosts_for_domain
 
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/key2048/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 511
+  __should_have_key_for_domain 'localhost.localdomain'
+  __should_have_key_for_domain 'otherdomain.tld'
+  # NOTE: This would only be present if supplying the default postfix-virtual.cf:
+  __should_not_have_key_for_domain 'localdomain2.com'
 }
 
-# this set of tests is of low quality. It does not test the RSA-Key size properly via openssl or similar <- DELETE AFTER REWRITE
-# Instead it tests the file-size (here 329) - which may differ with a different domain names <- DELETE AFTER REWRITE
+@test "should create keys and config files (with custom domains and selector)" {
+  export CONTAINER_NAME=${CONTAINER6_NAME}
 
-# TODO Needs complete re-write
-@test "${TEST_FILE}generator creates key size 1024" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_key_size_1024)
+  # Create without config volume (creates an empty anonymous volume instead):
+  __init_container_without_waiting '/tmp/docker-mailserver'
 
-  rm -rf "${PRIVATE_CONFIG}/key1024"
-  mkdir -p "${PRIVATE_CONFIG}/key1024"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/key1024/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 1024 | wc -l'
-
-  assert_success
-  assert_output 6
-
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/key1024/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" \
-    /bin/bash -c 'stat -c%s /etc/opendkim/keys/localhost.localdomain/mail.txt'
-
-  assert_success
-  assert_output 329
-}
-
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_dkim_generator_creates_keys_tables_TrustedHosts)
-
-  rm -rf "${PRIVATE_CONFIG}/empty"
-  mkdir -p "${PRIVATE_CONFIG}/empty"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/empty/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
-
-  assert_success
-  assert_output 6
-
-  # check keys for localhost.localdomain
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/empty/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check keys for otherdomain.tld
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/empty/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check presence of tables and TrustedHosts
-  run docker run --rm \
-    -v "${PRIVATE_CONFIG}/empty/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
-
-  assert_success
-  assert_output 4
-}
-
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-accounts.cf" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . )
-
-  rm -rf "${PRIVATE_CONFIG}/without-accounts"
-  mkdir -p "${PRIVATE_CONFIG}/without-accounts"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-accounts/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-virtual.cf":/tmp/docker-mailserver/postfix-virtual.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
-
-  assert_success
-  assert_output 5
-
-  # check keys for localhost.localdomain
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-accounts/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check keys for otherdomain.tld
-  # run docker run --rm \
-  #   -v "${PRIVATE_CONFIG}/without-accounts/opendkim":/etc/opendkim \
-  #   "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
-  # assert_success
-  # [ "${output}" -eq 0 ]
-
-  # check presence of tables and TrustedHosts
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-accounts/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
-
-  assert_success
-  assert_output 4
-}
-
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts without postfix-virtual.cf" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
-
-  rm -rf "${PRIVATE_CONFIG}/without-virtual"
-  mkdir -p "${PRIVATE_CONFIG}/without-virtual"
-
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-virtual/":/tmp/docker-mailserver/ \
-    -v "${PRIVATE_CONFIG}/postfix-accounts.cf":/tmp/docker-mailserver/postfix-accounts.cf \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim | wc -l'
-
-  assert_success
-  assert_output 5
-
-  # check keys for localhost.localdomain
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-virtual/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/localhost.localdomain/ | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check keys for otherdomain.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-virtual/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/otherdomain.tld | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check presence of tables and TrustedHosts
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/without-virtual/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys'|wc -l"
-
-  assert_success
-  assert_output 4
-}
-
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided domain name" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
-  rm -rf "${PRIVATE_CONFIG}/with-domain" && mkdir -p "${PRIVATE_CONFIG}/with-domain"
-
-  # generate first key
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain domain1.tld | wc -l'
-
-  assert_success
-  assert_output 4
-
+  # generate first key (with a custom selector)
+  __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
+  __assert_outputs_common_dkim_logs
   # generate two additional keys different to the previous one
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain "domain2.tld,domain3.tld" | wc -l'
-
-  assert_success
-  assert_output 2
-
+  __should_generate_dkim_key 2 '2048' 'domain2.tld,domain3.tld'
+  __assert_logged_dkim_creation 'domain2.tld'
+  __assert_logged_dkim_creation 'domain3.tld'
   # generate an additional key whilst providing already existing domains
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME}" /bin/bash -c 'open-dkim keysize 2048 domain "domain3.tld,domain4.tld" | wc -l'
+  __should_generate_dkim_key 1 '2048' 'domain3.tld,domain4.tld'
+  __assert_logged_dkim_creation 'domain4.tld'
 
-  assert_success
-  assert_output 1
+  __should_have_tables_trustedhosts_for_domain
 
-  # check keys for domain1.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
+  __should_have_key_for_domain 'domain1.tld' 'mailer'
+  __should_have_key_for_domain 'domain2.tld'
+  __should_have_key_for_domain 'domain3.tld'
+  __should_have_key_for_domain 'domain4.tld'
+  # This would be created by default (from vhost) if no domain was given to open-dkim:
+  __should_not_have_key_for_domain 'localhost.localdomain'
+  # Without the default account configs, neither of these should be present:
+  __should_not_have_key_for_domain 'otherdomain.tld'
+  __should_not_have_key_for_domain 'localdomain2.com'
 
-  assert_success
-  assert_output 2
+  _run_in_container cat "/tmp/docker-mailserver/opendkim/KeyTable"
+  __assert_has_entry_in_keytable 'domain1.tld' 'mailer'
+  __assert_has_entry_in_keytable 'domain2.tld'
+  __assert_has_entry_in_keytable 'domain3.tld'
+  __assert_has_entry_in_keytable 'domain4.tld'
+  _should_output_number_of_lines 4
 
-  # check keys for domain2.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/domain2.tld | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check keys for domain3.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/domain3.tld | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check keys for domain4.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c 'ls -1 /etc/opendkim/keys/domain4.tld | wc -l'
-
-  assert_success
-  assert_output 2
-
-  # check presence of tables and TrustedHosts
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
-
-  assert_success
-  assert_output 4
-
-  # check valid entries actually present in KeyTable
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c \
-    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/KeyTable | wc -l"
-
-  assert_success
-  assert_output 4
-
-  # check valid entries actually present in SigningTable
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-domain/opendkim":/etc/opendkim \
-    "${IMAGE_NAME}" /bin/bash -c \
-    "egrep 'domain1.tld|domain2.tld|domain3.tld|domain4.tld' /etc/opendkim/SigningTable | wc -l"
-
-  assert_success
-  assert_output 4
+  _run_in_container cat "/tmp/docker-mailserver/opendkim/SigningTable"
+  __assert_has_entry_in_signingtable 'domain1.tld' 'mailer'
+  __assert_has_entry_in_signingtable 'domain2.tld'
+  __assert_has_entry_in_signingtable 'domain3.tld'
+  __assert_has_entry_in_signingtable 'domain4.tld'
+  _should_output_number_of_lines 4
 }
 
-@test "${TEST_FILE}generator creates keys, tables and TrustedHosts using manual provided selector name" {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container . "${BATS_TEST_NAME}")
-  rm -rf "${PRIVATE_CONFIG}/with-selector" && mkdir -p "${PRIVATE_CONFIG}/with-selector"
+function __init_container_without_waiting {
+  _init_with_defaults
+  # Override the default config volume:
+  [[ -n ${1} ]] && TEST_CONFIG_VOLUME="${1}"
+  _common_container_create
+  _common_container_start
+}
 
-  # Generate first key
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/":/tmp/docker-mailserver/ \
-    "${IMAGE_NAME:?}" /bin/sh -c "open-dkim keysize 2048 domain 'domain1.tld' selector mailer| wc -l"
+function __assert_has_entry_in_keytable() {
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-mail}
+
+  # EXAMPLE: mail._domainkey.domain1.tld domain1.tld:mail:/etc/opendkim/keys/domain1.tld/mail.private
+  assert_output --partial "${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN} ${EXPECTED_DOMAIN}:${EXPECTED_SELECTOR}:/etc/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private"
+}
+
+function __assert_has_entry_in_signingtable() {
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-mail}
+
+  # EXAMPLE: *@domain1.tld mail._domainkey.domain1.tld
+  assert_output --partial "*@${EXPECTED_DOMAIN} ${EXPECTED_SELECTOR}._domainkey.${EXPECTED_DOMAIN}"
+}
+
+function __assert_logged_dkim_creation() {
+  local EXPECTED_DOMAIN=${1}
+  local EXPECTED_SELECTOR=${2:-mail}
+
+  assert_output --partial "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${EXPECTED_DOMAIN}/${EXPECTED_SELECTOR}.private'"
+}
+
+function __assert_outputs_common_dkim_logs() {
+  refute_output --partial 'No entries found, no keys to make'
+  assert_output --partial 'Creating DKIM KeyTable'
+  assert_output --partial 'Creating DKIM SigningTable'
+  assert_output --partial 'Creating DKIM TrustedHosts'
+}
+
+function __should_support_creating_key_of_size() {
+  local EXPECTED_KEYSIZE=${1:-}
+
+  __should_generate_dkim_key 6 "${EXPECTED_KEYSIZE}"
+  __assert_outputs_common_dkim_logs
+  __assert_logged_dkim_creation 'localdomain2.com'
+  __assert_logged_dkim_creation 'localhost.localdomain'
+  __assert_logged_dkim_creation 'otherdomain.tld'
+
+  __should_have_expected_files "${EXPECTED_KEYSIZE:-4096}"
+  _run_in_container rm -r /tmp/docker-mailserver/opendkim
+}
+
+function __should_generate_dkim_key() {
+  local EXPECTED_LINES=${1}
+  local ARG_KEYSIZE=${2:-}
+  local ARG_DOMAINS=${3:-}
+  local ARG_SELECTOR=${4:-}
+
+  local DKIM_CMD='open-dkim'
+  [[ -n ${ARG_KEYSIZE}  ]] && DKIM_CMD+=" keysize ${ARG_KEYSIZE}"
+  [[ -n ${ARG_DOMAINS}  ]] && DKIM_CMD+=" domain '${ARG_DOMAINS}'"
+  [[ -n ${ARG_SELECTOR} ]] && DKIM_CMD+=" selector '${ARG_SELECTOR}'"
+
+  _run_in_container_bash "${DKIM_CMD}"
 
   assert_success
-  assert_output 4
+  _should_output_number_of_lines "${EXPECTED_LINES}"
+}
 
-  # Check keys for domain1.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c 'ls -1 /etc/opendkim/keys/domain1.tld/ | wc -l'
+function __should_have_expected_files() {
+  local EXPECTED_KEYSIZE=${1:?Keysize must be provided}
+  local DKIM_DOMAIN='localhost.localdomain'
+  local TARGET_DIR="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+
+  # DKIM private key for signing, parse it to verify private key size is correct:
+  _run_in_container_bash "openssl rsa -in '${TARGET_DIR}/mail.private' -noout -text"
+  assert_success
+  assert_line --index 0 "RSA Private-Key: (${EXPECTED_KEYSIZE} bit, 2 primes)"
+
+  # DKIM record, extract public key (base64 encoded, potentially multi-line)
+  # - tail to exclude first line,
+  # - then sed to extract values within quoted lines, then remove `p=` from the start,
+  # - and finally echo to concatenate all lines into single string
+  # Next decode and parse it with openssl to verify public-key key size is correct:
+  _run_in_container_bash "echo \$( \
+    tail -n +2 '${TARGET_DIR}/mail.txt' \
+    | sed -nE -e 's/.*\"(.*)\".*/\1/p' \
+    | sed -e 's/^p=//' \
+  ) | openssl enc -base64 -d | openssl pkey -inform DER -pubin -noout -text
+  "
+  assert_success
+  assert_line --index 0 "RSA Public-Key: (${EXPECTED_KEYSIZE} bit)"
+
+  # Contents is for expected DKIM_DOMAIN and selector (mail):
+  _run_in_container cat "${TARGET_DIR}/mail.txt"
+  assert_output --regexp "; ----- DKIM key mail for ${DKIM_DOMAIN}$"
+}
+
+function __should_have_key_for_domain() {
+  local KEY_DOMAIN=${1}
+  local KEY_SELECTOR=${2:-mail}
+
+  _should_have_content_in_directory "/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
 
   assert_success
-  assert_output 2
+  assert_line "${KEY_SELECTOR}.private"
+  assert_line "${KEY_SELECTOR}.txt"
+  _should_output_number_of_lines 2
+}
 
-  # Check key names with selector for domain1.tld
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim/keys/domain1.tld | grep -E 'mailer.private|mailer.txt' | wc -l"
+function __should_not_have_key_for_domain() {
+  local KEY_DOMAIN=${1:?Domain must be provided}
+  local KEY_SELECTOR=${2:-mail}
+  local TARGET_DIR="/tmp/docker-mailserver/opendkim/keys/${KEY_DOMAIN}"
 
-  assert_success
-  assert_output 2
+  _run_in_container_bash "[[ -d ${TARGET_DIR} ]]"
+  assert_failure
+}
 
-  # Check presence of tables and TrustedHosts
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c "ls -1 /etc/opendkim | grep -E 'KeyTable|SigningTable|TrustedHosts|keys' | wc -l"
-
-  assert_success
-  assert_output 4
-
-  # Check valid entries actually present in KeyTable
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c \
-    "grep 'domain1.tld' /etc/opendkim/KeyTable | wc -l"
+function __should_have_tables_trustedhosts_for_domain() {
+  _should_have_content_in_directory '/tmp/docker-mailserver/opendkim'
 
   assert_success
-  assert_output 1
-
-  # Check valid entries actually present in SigningTable
-  run docker run --rm \
-    -e LOG_LEVEL='trace' \
-    -v "${PRIVATE_CONFIG}/with-selector/opendkim":/etc/opendkim \
-    "${IMAGE_NAME:?}" /bin/sh -c \
-    "grep 'domain1.tld' /etc/opendkim/SigningTable | wc -l"
-
-  assert_success
-  assert_output 1
+  assert_line 'keys'
+  assert_line 'KeyTable'
+  assert_line 'SigningTable'
+  assert_line 'TrustedHosts'
 }
