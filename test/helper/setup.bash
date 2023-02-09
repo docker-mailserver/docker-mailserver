@@ -183,8 +183,6 @@ function _common_container_create() {
 function _common_container_start() {
   run docker start "${CONTAINER_NAME:?Container name must be set}"
   assert_success
-
-  _wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 }
 
 # Using `create` and `start` instead of only `run` allows to modify
@@ -196,6 +194,8 @@ function _common_container_start() {
 function _common_container_setup() {
   _common_container_create "${@}"
   _common_container_start
+
+  _wait_for_finished_setup_in_container "${CONTAINER_NAME}"
 }
 
 # Can be used in BATS' `teardown_file` function as a default value.

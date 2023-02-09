@@ -72,7 +72,7 @@ jobs:
         run: echo "version=$(<VERSION)" >>"${GITHUB_OUTPUT}"
 
       - name: 'Build and publish images'
-        uses: docker/build-push-action@v3.3.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           build-args: |
@@ -82,3 +82,5 @@ jobs:
           push: true
           tags: ${{ steps.prep.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
+          # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
+          provenance: false
