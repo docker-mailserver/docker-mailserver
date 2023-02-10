@@ -634,13 +634,11 @@ function _setup_dkim_dmarc
     /etc/postfix/main.cf
 
   # check if any keys are available
-  if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
+  if [[ -e '/tmp/docker-mailserver/opendkim/KeyTable' ]]
   then
     cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
 
-    local KEYS
-    KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
-    _log 'trace' "DKIM keys added for: ${KEYS}"
+    _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -type f -maxdepth 1)"
     _log 'trace' "Changing permissions on '/etc/opendkim'"
 
     chown -R opendkim:opendkim /etc/opendkim/
