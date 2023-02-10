@@ -3400,12 +3400,7 @@
 <p>Enable or disable Rspamd.</p>
 <div class="admonition warning">
 <p class="admonition-title">Current State</p>
-<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time.</p>
-<p>Currently, rspamd is integrated into Postfix as a milter. However, there is no official DKIM/DMARC support for rspamd in DMS as of now (WIP). To get more information, see <a href="../security/rspamd/">the detailed documentation page for Rspamd</a>.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Rspamd and DNS Block Lists</p>
-<p>When you use Rspamd, you might want to use the <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a>. If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you <a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">might not be able</a> to make use of the block lists.</p>
+<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see <a href="../security/rspamd/">the detailed documentation page for Rspamd</a>.</p>
 </div>
 <ul>
 <li><strong>0</strong> =&gt; disabled</li>
@@ -3426,9 +3421,12 @@
 <li>3/4/5    =&gt; log debug information (very verbose)</li>
 </ul>
 <h5 id="enable_dnsbl"><a class="toclink" href="#enable_dnsbl">ENABLE_DNSBL</a></h5>
-<p>This enables the <a href="https://www.spamhaus.org/zen/">zen.spamhaus.org</a> DNS block list in postfix
-and various <a href="https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66">lists</a> in postscreen.</p>
-<p>Note: Emails will be rejected, if they don't pass the block list checks!</p>
+<p>This enables DNS block lists in <em>Postscreen</em>. If you want to know which lists we are using, have a look at <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf">the default <code>main.cf</code> for Postfix we provide</a> and search for <code>postscreen_dnsbl_sites</code>.</p>
+<div class="admonition danger">
+<p class="admonition-title">A Warning On DNS Block Lists</p>
+<p>Make sure your DNS queries are properly resolved, i.e. you will most likely not want to use a public DNS resolver as these queries do not return meaningful results. We try our best to only evaluate proper return codes - this is not a guarantee that all codes are handled fine though.</p>
+<p><strong>Note that emails will be rejected if they don't pass the block list checks!</strong></p>
+</div>
 <ul>
 <li><strong>0</strong> =&gt; DNS block lists are disabled</li>
 <li>1     =&gt; DNS block lists are enabled</li>

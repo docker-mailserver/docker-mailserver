@@ -1589,6 +1589,12 @@
 </ol>
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS' Defaults</a></h3>
+<div class="admonition danger">
+<p class="admonition-title">Rspamd and DNS Block Lists</p>
+<p>When using Rspamd, the <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will do a variety of DNS requests. Amongst other things, Rspamd will query DNS block lists (DNSBLs).</p>
+<p>There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. We urge you not to rely on this though.</p>
+<p>If you want to use RBLs, <strong>try to use your own DNS resolver</strong> and make sure it is set up correctly, i.e. it should be a non-public &amp; <strong>recursive</strong> resolver. Otherwise, you might not be able (<a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">see this Spamhaus post</a>) to make use of the block lists.</p>
+</div>
 <p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
 <p>DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and needlessly use resources. You can re-activate them by replacing <code>/etc/rspamd/local.d/&lt;MODULE&gt;.conf</code> or overriding DMS' default with <code>/etc/rspamd/override.d/&lt;MODULE&gt;.conf</code>.</p>
 <p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setup where you already have an authentication provider in front of the Rspamd webpage, you may add <code>secure_ip = "0.0.0.0/0";</code> to <code>worker-controller.inc</code> to disable password authentication inside Rspamd completely.</p>
