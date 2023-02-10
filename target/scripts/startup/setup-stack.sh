@@ -611,16 +611,13 @@ function _setup_dkim_dmarc
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
 
     # shellcheck disable=SC2016
-    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
-  else
-    sed -i '/.*inet:localhost:8891/d' /etc/postfix/main.cf
+    sed -i -E                                         \
+      -e 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' \
+      -e 's|^#.*(dmarc_milter)|\1|g'                  \
+      /etc/postfix/main.cf
   fi
 
-  if [[ ${ENABLE_OPENDKIM} -eq 0 ]]
-  then
-    sed -i '/.*inet:localhost:8893/d' /etc/postfix/main.cf
-    return 0
-  fi
+  [[ ${ENABLE_OPENDKIM} -eq 1 ]] || return 0
 
   _log 'debug' 'Setting up DKIM'
 
@@ -630,9 +627,11 @@ function _setup_dkim_dmarc
 
   _log 'trace' "Adding OpenDKIM to Postfix's milters"
   # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+  sed -i -E                                            \
+    -e 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g'     \
+    -e 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' \
+    -e 's|^#.*(dkim_milter)|\1|g'                      \
+    /etc/postfix/main.cf
 
   # check if any keys are available
   if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
