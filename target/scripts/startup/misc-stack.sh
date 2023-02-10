@@ -23,8 +23,9 @@ function _misc_save_states
 
     # Always enabled features:
     FILES=(
-      spool/postfix
+      lib/logrotate
       lib/postfix
+      spool/postfix
     )
 
     # Only consolidate state for services that are enabled
@@ -75,6 +76,7 @@ function _misc_save_states
     [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           /var/mail-state/lib-rspamd
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd /var/mail-state/lib-spamassassin
 
+    chown -R root:root /var/mail-state/lib-logrotate
     chown -R postfix:postfix /var/mail-state/lib-postfix
 
     # NOTE: The Postfix spool location has mixed owner/groups to take into account:
