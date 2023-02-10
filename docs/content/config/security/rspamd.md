@@ -2,9 +2,9 @@
 title: 'Security | Rspamd'
 ---
 
-!!! warning "The Current State of Rspamd's Integration Into DMS"
+!!! warning "The current state of Rspamd integration into DMS"
 
-    Recent pull requests have stabilized Rspamd's integration to a point where we encourage users to test the feature. We are confident that there are no major bugs in our code, that make using Rspamd infeasible, anymore. Please note that there may still be (breaking) changes ahead as integration is still work in progress!
+    Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be (breaking) changes ahead as integration is still work in progress!
 
     We expect to stabilize this feature with version `v12.1.0`.
 
@@ -48,8 +48,6 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 1. place files at `/etc/rspamd/override.d/` which will override Rspamd settings and DMS settings
 2. (re-)place files at `/etc/rspamd/local.d/` to override DMS settings and merge them with Rspamd settings
-
-inside the container.
 
 !!! warning "Clashing Overrides"
 
