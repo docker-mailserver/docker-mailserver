@@ -31,9 +31,9 @@ function teardown_file() { _default_teardown ; }
 @test '(Amavis enabled) configuration should be correct' {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
-  _run_in_container grep 'content_filter =' /etc/postfix/main.cf
+  _run_in_container postconf -h content_filter
   assert_success
-  assert_output --partial "smtp-amavis:[127.0.0.1]:10024"
+  assert_line 'smtp-amavis:[127.0.0.1]:10024'
   _run_in_container grep 'smtp-amavis' /etc/postfix/master.cf
   assert_success
   _run_in_container grep -F '127.0.0.1:10025' /etc/postfix/master.cf
@@ -45,7 +45,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test '(Amavis enabled) SpamAssassin integration should be active' {
+@test '(Amavis enabled) SA integration should be active' {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
   # give Amavis just a bit of time to print out its full debug log
@@ -79,8 +79,9 @@ function teardown_file() { _default_teardown ; }
 @test '(Amavis disabled) configuration should be correct' {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
-  _run_in_container grep 'smtp-amavis:[127.0.0.1]:10024' /etc/postfix/main.cf
-  assert_failure
+  _run_in_container postconf -h content_filter
+  assert_success
+  refute_output --partial 'smtp-amavis:[127.0.0.1]:10024'
   _run_in_container grep 'smtp-amavis' /etc/postfix/master.cf
   assert_failure
   _run_in_container grep -F '127.0.0.1:10025' /etc/postfix/master.cf

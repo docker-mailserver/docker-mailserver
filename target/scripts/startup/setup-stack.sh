@@ -75,9 +75,7 @@ function _setup_amavis
     _log 'debug' 'Setting up Amavis'
 
     cat /etc/dms/postfix/master.d/postfix-amavis.cf >>/etc/postfix/master.cf
-    echo -e \
-      "\n# Additional option for filtering\ncontent_filter = smtp-amavis:[127.0.0.1]:10024" \
-      >>/etc/postfix/main.cf
+    postconf 'content_filter = smtp-amavis:[127.0.0.1]:10024'
 
     sed -i \
       "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
