@@ -112,7 +112,9 @@ function __rspamd__handle_modules_configuration
     local MODULE_FILE=${1:?Module file name must be provided}
     local MODULE_LOG_NAME=${2:?Module log name must be provided}
     local OPTION=${3:?Option name must be provided}
-    local VALUE=${4:?Value must be provided}
+    local VALUE=${4:?Value belonging to an option must be provided}
+    # remove possible whitespace at the end (e.g., in case ${ARGUMENT3} is empty)
+    VALUE=${VALUE% }
 
     local FILE="/etc/rspamd/override.d/${MODULE_FILE}"
     [[ -f ${FILE} ]] || touch "${FILE}"
@@ -149,15 +151,15 @@ function __rspamd__handle_modules_configuration
           ;;
 
         ('set-option-for-controller')
-          __add_or_replace 'worker-controller.inc' 'controller worker' "${ARGUMENT1}" "${ARGUMENT2}"
+          __add_or_replace 'worker-controller.inc' 'controller worker' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
           ;;
 
         ('set-option-for-proxy')
-          __add_or_replace 'worker-proxy.inc' 'proxy worker' "${ARGUMENT1}" "${ARGUMENT2}"
+          __add_or_replace 'worker-proxy.inc' 'proxy worker' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
           ;;
 
         ('set-common-option')
-          __add_or_replace 'options.inc' 'common options' "${ARGUMENT1}" "${ARGUMENT2}"
+          __add_or_replace 'options.inc' 'common options' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
           ;;
 
         ('add-line')
