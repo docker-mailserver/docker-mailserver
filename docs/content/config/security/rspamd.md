@@ -78,7 +78,8 @@ where `COMMAND` can be:
 3. `set-option-for-module`: sets the value for option `ARGUMENT2` to `ARGUMENT3` inside module `ARGUMENT1`
 4. `set-option-for-controller`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the controller worker
 5. `set-option-for-proxy`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the proxy worker
-6. `add-line`: this will add the complete line after `ARGUMENT1` (with all characters) to the file `/etc/rspamd/override.d/<ARGUMENT1>`
+6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behaviour][basic-options] to value `ARGUMENT2`
+7. `add-line`: this will add the complete line after `ARGUMENT1` (with all characters) to the file `/etc/rspamd/override.d/<ARGUMENT1>`
 
 !!! note "File Names & Extensions"
 
@@ -96,3 +97,4 @@ You can also have comments (the line starts with `#`) and blank lines in `rspamd
 [dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
 [rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
 [dkim-signing-module]: https://rspamd.com/doc/modules/dkim_signing.html
+[basic-options]: https://rspamd.com/doc/configuration/options.html

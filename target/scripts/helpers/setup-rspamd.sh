@@ -156,6 +156,10 @@ function __rspamd__handle_modules_configuration
           __add_or_replace 'worker-proxy.inc' 'proxy worker' "${ARGUMENT1}" "${ARGUMENT2}"
           ;;
 
+        ('set-common-option')
+          __add_or_replace 'options.inc' 'common options' "${ARGUMENT1}" "${ARGUMENT2}"
+          ;;
+
         ('add-line')
           __rspamd__log 'trace' "Adding complete line to '${ARGUMENT1}'"
           echo "${ARGUMENT2} ${ARGUMENT3:-}" >>"/etc/rspamd/override.d/${ARGUMENT1}"

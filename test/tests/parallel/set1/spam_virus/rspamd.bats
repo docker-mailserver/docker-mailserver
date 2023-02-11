@@ -139,9 +139,17 @@ function teardown_file() { _default_teardown ; }
   _run_in_container grep -F 'someOption = someValue42;' "${MODULE_PATH}"
   assert_success
 
+  # check whether controller option was written properly
   MODULE_PATH='/etc/rspamd/override.d/worker-proxy.inc'
   _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
   assert_success
   _run_in_container grep -F 'abcdefg71 = RAAAANdooM;' "${MODULE_PATH}"
+  assert_success
+
+  # check whether basic options are written properly
+  MODULE_PATH='/etc/rspamd/override.d/options.inc'
+  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
+  assert_success
+  _run_in_container grep -F 'OhMy = "PraiseBeLinters !";' "${MODULE_PATH}"
   assert_success
 }
