@@ -48,7 +48,7 @@ smtpd_helo_required = yes
 smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org=127.0.0.[2..11]
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
 smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain, reject_unknown_client_hostname
 disable_vrfy_command = yes

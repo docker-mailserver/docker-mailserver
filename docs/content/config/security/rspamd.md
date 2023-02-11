@@ -36,9 +36,19 @@ DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation,
 
 You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable `ENABLE_CLAMAV=1`.
 
+#### RBLs (Realtime Blacklists) / DNSBLs (DNS-based Blacklists)
+
+The [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will perform DNS lookups to a variety of blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body \[[source][rbl-vs-dnsbl]\].
+
+!!! danger "Rspamd and DNS Block Lists"
+
+    When using Rspamd, the [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will do a variety of DNS requests. Amongst other things, Rspamd will query DNS block lists (DNSBLs). There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort, and adjustments made by
+
+    If you want to use RBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
+
 ### Missing in the Current Implementation
 
-We currently lack easy integration for DKIM signing outgoing mails. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment variable `ENABLE_OPENDKIM=0`. Rspamd will still check for valid DKIM signatures for incoming mail by default.
+We currently lack easy integration for [DKIM signing outgoing mails][dkim-signing-module]. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment variable `ENABLE_OPENDKIM=0`. Rspamd will still check for valid DKIM signatures for incoming mail by default.
 
 ## Providing Custom Settings & Overriding Settings
 
@@ -84,3 +94,5 @@ You can also have comments (the line starts with `#`) and blank lines in `rspamd
 [modules]: https://rspamd.com/doc/modules/
 [proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode
 [dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
+[rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
+[dkim-signing-module]: https://rspamd.com/doc/modules/dkim_signing.html
