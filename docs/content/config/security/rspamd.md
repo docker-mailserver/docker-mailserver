@@ -83,7 +83,7 @@ where `COMMAND` can be:
 
 !!! note "File Names & Extensions"
 
-    For command 1-3, we append the `.conf` suffix to the module name to get the correct file name automatically. For commands 4 & 5, the file name is fixed (you don't even need to provide it). For command 6, you will need to provide the whole file name (including the suffix) yourself!
+    For command 1 - 3, we append the `.conf` suffix to the module name to get the correct file name automatically. For commands 4 - 6, the file name is fixed (you don't even need to provide it). For command 7, you will need to provide the whole file name (including the suffix) yourself!
 
 You can also have comments (the line starts with `#`) and blank lines in `rspamd-modules.conf` - they are properly handled and not evaluated.
 
