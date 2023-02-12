@@ -634,51 +634,52 @@ function _setup_SRS
 
 function _setup_dkim_dmarc
 {
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
+  then
+    _log 'debug' 'Setting up DKIM'
+
+    mkdir -p /etc/opendkim/keys/
+    touch /etc/opendkim/SigningTable
+    touch /etc/opendkim/TrustedHosts
+
+    _log 'trace' "Adding OpenDKIM to Postfix's milters"
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+
+    # check if any keys are available
+    if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
+    then
+      cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
+
+      local KEYS
+      KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
+      _log 'trace' "DKIM keys added for: ${KEYS}"
+      _log 'trace' "Changing permissions on '/etc/opendkim'"
+
+      chown -R opendkim:opendkim /etc/opendkim/
+      chmod -R 0700 /etc/opendkim/keys/
+    else
+      _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
+      [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
+    fi
+
+    # setup nameservers parameter from /etc/resolv.conf if not defined
+    if ! grep '^Nameservers' /etc/opendkim.conf
+    then
+      echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf
+
+      _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
+    fi
+  fi
+
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
 
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
-  fi
-
-  [[ ${ENABLE_OPENDKIM} -eq 1 ]] || return 0
-
-  _log 'debug' 'Setting up DKIM'
-
-  mkdir -p /etc/opendkim/keys/
-  touch /etc/opendkim/SigningTable
-  touch /etc/opendkim/TrustedHosts
-
-  _log 'trace' "Adding OpenDKIM to Postfix's milters"
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
-
-  # check if any keys are available
-  if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
-  then
-    cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-
-    local KEYS
-    KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
-    _log 'trace' "DKIM keys added for: ${KEYS}"
-    _log 'trace' "Changing permissions on '/etc/opendkim'"
-
-    chown -R opendkim:opendkim /etc/opendkim/
-    chmod -R 0700 /etc/opendkim/keys/
-  else
-    _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
-    [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
-  fi
-
-  # setup nameservers parameter from /etc/resolv.conf if not defined
-  if ! grep '^Nameservers' /etc/opendkim.conf
-  then
-    echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf
-
-    _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
   fi
 }
 
