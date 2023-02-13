@@ -16,6 +16,12 @@ We provide a very simple but easy to maintain setup of Rspamd. If you want to ha
 
 If you want to adjust Rspamd's configuration, have a look at the ["Providing Custom Settings & Overriding Settings" section](#providing-custom-settings-overriding-settings) down below.
 
+!!! note "AMD64 vs ARM64"
+
+    We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference is two minor versions (AMD64 is at version 3.4, ARM64 at 3.2 \[13th Feb 2023\]).
+
+    Maintainers noticed only few differences, some of them with a big impact though. For those running Rspamd on ARM64, we recommend [disabling](#with-the-help-of-a-custom-file) the [DKIM signing module][dkim-signing-module] if you don't use it.
+
 ## The Default Configuration
 
 ### Mode of Operation
@@ -42,9 +48,9 @@ The [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default.
 
 !!! danger "Rspamd and DNS Block Lists"
 
-    When using Rspamd, the [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will do a variety of DNS requests. Amongst other things, Rspamd will query DNS block lists (DNSBLs). There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort, and adjustments made by
+    When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.
 
-    If you want to use RBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
+    If you want to use DNSBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
 
 ### Missing in the Current Implementation
 

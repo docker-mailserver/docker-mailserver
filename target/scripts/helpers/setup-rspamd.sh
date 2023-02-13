@@ -2,7 +2,10 @@
 
 # Just a helper to prepend the log messages with `(Rspamd setup)` so
 # users know exactly where the message originated from.
-function __rspamd__log { _log "${1:-}" "(Rspamd setup) ${2}" ; }
+#
+# @param ${1} = log level
+# @param ${2} = message
+function __rspamd__log { _log "${1:-}" "(Rspamd setup) ${2:-}" ; }
 
 # Run miscellaneous checks against the current configuration so we can
 # properly handle integration into ClamAV, etc.
@@ -29,7 +32,8 @@ function __rspamd__preflight_checks
   fi
 }
 
-# Simply adjusts Postfix's configuration files.
+# Adjust Postfix's configuration files. Append Rspamd at the end of
+# `smtpd_milters` in `main.cf`.
 function __rspamd__adjust_postfix_configuration
 {
   # shellcheck disable=SC2016
@@ -49,13 +53,13 @@ function __rspamd__enable_disable_module
   local LOCAL_OR_OVERRIDE=${3:-local}
   local MESSAGE='Enabling'
 
-  if [[ ! ${ENABLE_MODULE} =~ ^(true|false) ]]
+  if [[ ! ${ENABLE_MODULE} =~ ^(true|false)$ ]]
   then
     __rspamd__log 'warn' "__rspamd__enable_disable_module got non-boolean argument for deciding whether module should be enabled or not"
     return 1
   fi
 
-  [[ ${ENABLE_MODULE} == 'false' ]] && { ENABLE_MODULE=false ; MESSAGE='Disabling' ; }
+  [[ ${ENABLE_MODULE} == true ]] || MESSAGE='Disabling'
 
   __rspamd__log 'trace' "${MESSAGE} module '${MODULE}'"
   cat >"/etc/rspamd/${LOCAL_OR_OVERRIDE}.d/${MODULE}.conf" << EOF
