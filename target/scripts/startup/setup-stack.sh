@@ -617,12 +617,12 @@ function _setup_dkim_dmarc
     _log 'debug' 'Setting up DKIM'
 
     mkdir -p /etc/opendkim/keys/
-    touch /etc/opendkim/SigningTable /etc/opendkim/TrustedHosts
+    touch /etc/opendkim/{SigningTable,TrustedHosts,KeyTable}
 
     _log 'trace' "Adding OpenDKIM to Postfix's milters"
+    postconf 'dkim_milter = inet:localhost:8891'
     # shellcheck disable=SC2016
     sed -i -E                                            \
-      -e 's|^#.*(dkim_milter)|\1|g'                      \
       -e 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g'     \
       -e 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' \
       /etc/postfix/main.cf
@@ -631,19 +631,15 @@ function _setup_dkim_dmarc
     if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]
     then
       cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-
-      _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -type f -maxdepth 1)"
-      _log 'trace' "Changing permissions on '/etc/opendkim'"
-
+      _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')"
       chown -R opendkim:opendkim /etc/opendkim/
       chmod -R 0700 /etc/opendkim/keys/
     else
-      _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
-      [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
+      _log 'debug' 'OpenDKIM enabled but no DKIM key(s) provided'
     fi
 
     # setup nameservers parameter from /etc/resolv.conf if not defined
-    if ! grep '^Nameservers' /etc/opendkim.conf
+    if ! grep -q '^Nameservers' /etc/opendkim.conf
     then
       local NAMESERVER_IPS
       NAMESERVER_IPS=$(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)
@@ -654,18 +650,14 @@ function _setup_dkim_dmarc
 
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
+    # TODO when disabling SPF is possible, add a check whether DKIM and SPF is disabled
+    #      for DMARC to work, you should have at least one enabled
+    #      (see RFC 7489 https://www.rfc-editor.org/rfc/rfc7489#page-24)
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
+    postconf 'dmarc_milter = inet:localhost:8893'
     # Make sure to append the milter _behind_ the OpenDKIM milter!
     # shellcheck disable=SC2016
-    sed -i -E                                         \
-      -e 's|^#.*(dmarc_milter)|\1|g'                  \
-      -e 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' \
-      /etc/postfix/main.cf
-
-    if [[ ${ENABLE_OPENDKIM} -eq 0 ]]
-    then
-      _log 'warn' 'Enabling OpenDMARC but disabling OpenDKIM is not compliant with RFC 7489 (https://www.rfc-editor.org/rfc/rfc7489#page-24) in the default configuration'
-    fi
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
   fi
 }
 
