@@ -19,7 +19,7 @@ We provide a [dedicated documentation][documentation::web] hosted on GitHub Page
 
 ## :boom: Issues
 
-If you have issues, please search through [our documentation][documentation::web] **for your version** before opening an issue. The issue tracker is for issues, not for personal support. Make sure the version of the documentation matches the image version you're using!
+If you have issues, please search through [the documentation][documentation::web] **for your version** before opening an issue. The issue tracker is for issues, not for personal support. Make sure the version of the documentation matches the image version you're using!
 
 ## :link: Links to Useful Resources
 

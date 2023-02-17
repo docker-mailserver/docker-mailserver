@@ -8,7 +8,7 @@ title: Home
 
     **Make sure** to select the correct version of this documentation! It should match the version of the image you are using. The default version corresponds to the `:edge` image tag - [the most recent build, not the most recent stable release][docs-tagging].
 
-This documentation provides you not only with the basic setup and configuration of DMS but also with advanced configuration, elaborate usage scenario, detailed examples, hints and more.
+This documentation provides you not only with the basic setup and configuration of DMS but also with advanced configuration, elaborate usage scenarios, detailed examples, hints and more.
 
 [docs-tagging]: ./usage/#available-images-tags-tagging-convention
 
@@ -24,11 +24,11 @@ If you're completely new to mail servers or you want to read up on them, check o
 
 There is also a script - [`setup.sh`][github-file-setupsh] - supplied with this project. It supports you in configuring and administrating your server. Information on how to get it and how to use it is available [on a dedicated page][docs-setupsh].
 
-[docs-introduction]: ./introduction.md
-[docs-usage]: ./usage.md
+[docs-introduction]: ./introduction/
+[docs-usage]: ./usage/
 [docs-examples]: ./examples/tutorials/basic-installation/
 [github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh
-[docs-setupsh]: ./config/setup.sh.md
+[docs-setupsh]: ./config/setup.sh/
 
 ### Configuration
 
@@ -40,27 +40,27 @@ We have a [dedicated configuration page][docs-environment]. It contains most of 
 
 You might also want to check out:
 
-1. A list of all configuration options is documented on [the ENV page][docs-environment].
-2. A list of all optional and automatically created configuration files and directories is available [on the dedicated page][docs-optionalconfig].
+1. A list of [all configuration options via ENV][docs-environment]
+2. A list of [all optional and automatically created configuration files and directories][docs-optionalconfig]
 
 !!! tip
 
     Definitely check out the [FAQ][docs-faq] for more information and tips! Please do not open an issue before you have read through the full documentation, including the [FAQ][docs-faq]!
 
-[docs-environment]: ./config/environment.md
-[docs-userpatches]: ./faq.md/#how-to-adjust-settings-with-the-user-patchessh-script
-[docs-setupsh]: ./config/setup.sh.md
-[docs-optionalconfig]: ./config/advanced/optional-config.md
-[docs-faq]: ./faq.md
+[docs-environment]: ./config/environment/
+[docs-userpatches]: ./faq/#how-to-adjust-settings-with-the-user-patchessh-script
+[docs-setupsh]: ./config/setup.sh/
+[docs-optionalconfig]: ./config/advanced/optional-config/
+[docs-faq]: ./faq/
 
 ### Tests
 
 DMS employs a variety of tests. If you want to know more about our test suite, view our [testing docs][docs-tests].
 
-[docs-tests]: ./contributing/tests.md
+[docs-tests]: ./contributing/tests/
 
 ### Contributing
 
 We are always happy to welcome new contributors. For guidelines and entrypoints please have a look at the [Contributing section][docs-contributing].
 
-[docs-contributing]: ./contributing/issues-and-pull-requests.md
+[docs-contributing]: ./contributing/issues-and-pull-requests/
