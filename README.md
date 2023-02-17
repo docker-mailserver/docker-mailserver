@@ -9,7 +9,7 @@
 [documentation::badge]: https://img.shields.io/badge/DOCUMENTATION-GH%20PAGES-0078D4?style=for-the-badge&logo=git&logoColor=white
 [documentation::web]: https://docker-mailserver.github.io/docker-mailserver/edge/
 
-## :page_facing_up: About
+## :page_with_curl: About
 
 A production-ready fullstack but simple containerized mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to [deploy](#usage) and upgrade. [Documentation][documentation::web] via MkDocs. Originally created by @tomav, this project is now maintained by volunteers since January 2021.
 
@@ -17,16 +17,19 @@ A production-ready fullstack but simple containerized mail server (SMTP, IMAP, L
 
 If you have issues, please search through [our documentation][documentation::web] **for your version** before opening an issue. The issue tracker is for issues, not for personal support. Make sure the version of the documentation matches the image version you're using!
 
+## :bulb: Documentation
+
+We provide a [dedicated documentation][documentation::web] hosted on GitHub Pages.
+
 ## :link: Links to Useful Resources
 
-1. [Documentation][documentation::web]
-2. [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq/)
-3. [Issues and Contributing](https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/)
-4. [Usage](https://docker-mailserver.github.io/docker-mailserver/edge/usage/)
-5. [Examples](https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/basic-installation/)
-6. [Release Notes](./CHANGELOG.md)
-7. [Environment Variables](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
-8. [Updating](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#updating)
+1. [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq/)
+2. [Usage](https://docker-mailserver.github.io/docker-mailserver/edge/usage/)
+3. [Examples](https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/basic-installation/)
+4. [Issues and Contributing](https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/)
+5. [Release Notes](./CHANGELOG.md)
+6. [Environment Variables](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
+7. [Updating](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#updating)
 
 ## :package: Included Services
 
