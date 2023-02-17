@@ -48,6 +48,7 @@ You might also want to check out:
     Definitely check out the [FAQ][docs-faq] for more information and tips! Please do not open an issue before you have read through the full documentation, including the [FAQ][docs-faq]!
 
 [docs-environment]: ./config/environment.md
+[docs-userpatches]: ./faq.md/#how-to-adjust-settings-with-the-user-patchessh-script
 [docs-setupsh]: ./config/setup.sh.md
 [docs-optionalconfig]: ./config/advanced/optional-config.md
 [docs-faq]: ./faq.md

@@ -110,8 +110,8 @@ In case you're using LDAP, the setup looks a bit different as you do not add use
 ./setup.sh config dkim domain '<domain.tld>[,<domain2.tld>]'
 ```
 
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim/) for more details.
+When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](./config/best-practices/dkim.md) for more details.
 
 #### Custom User Changes & Patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation](./faq#how-to-adjust-settings-with-the-user-patchessh-script) for a detailed explanation.
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation](./faq.md/#how-to-adjust-settings-with-the-user-patchessh-script) for a detailed explanation.
