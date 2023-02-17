@@ -4,7 +4,7 @@ title: 'Tutorials | Basic Installation'
 
 ## A Basic Example With Relevant Environmental Variables
 
-This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [docker-compose.yml](./docker-compose.yml) can be used for the purpose out-of-the-box, see the [usage section](#usage).
+This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [docker-compose.yml](https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml) can be used for the purpose out-of-the-box, see the [_Usage_ chapter](../../usage.md).
 
 ``` YAML
 version: '3.8'
