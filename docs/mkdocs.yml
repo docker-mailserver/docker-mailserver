@@ -111,6 +111,7 @@ markdown_extensions:
 nav:
   - 'Home': index.md
   - 'Introduction': introduction.md
+  - 'Usage': usage.md
   - 'Configuration':
     - 'Your Best Friend setup.sh': config/setup.sh.md
     - 'Environment Variables': config/environment.md

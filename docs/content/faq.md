@@ -4,12 +4,45 @@ title: 'FAQ'
 
 ### What kind of database are you using?
 
-None! No database is required. Filesystem is the database.
-This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.
+None! No database is required. The filesystem is the database. This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.
 
 ### Where are emails stored?
 
 Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
+
+### How are IMAP Mailboxes (_aka IMAP Folders_) Set Up?
+
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders) for more information.
+
+### How Do I Update DMS?
+
+**Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md)** before updating to new versions, to be prepared for possible breaking changes.
+
+``` BASH
+docker-compose pull
+docker-compose down
+docker-compose up -d mailserver
+```
+
+You should see the new version number on startup, for example: `[   INF   ]  Welcome to docker-mailserver 11.3.1`. And you're done! Don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
+
+### Which Operating Systems Are Supported?
+
+We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mail-server in production.
+
+### What Are the System Requirements?
+
+#### Recommended
+
+- 1 Core
+- 2GB RAM
+- Swap enabled for the container
+
+#### Minimum
+
+- 1 vCore
+- 512MB RAM
+- You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#what-system-requirements-are-required-to-run-docker-mailserver-effectively).
 
 ### How to alter the running `docker-mailserver` instance _without_ relaunching the container?
 
@@ -47,6 +80,20 @@ volumes:
 All files are using the Unix format with `LF` line endings.
 
 Please do not use `CRLF`.
+
+### Support for Multiple Domains
+
+`docker-mailserver` supports multiple domains out of the box, so you can do this:
+
+``` BASH
+./setup.sh email add user1@docker.example.com
+./setup.sh email add user1@mail.example.de
+./setup.sh email add user1@server.example.org
+```
+
+### I Want to Know More About the Ports
+
+See the [documentation](./config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
 ### What about backups?
 
@@ -445,6 +492,10 @@ Use the following command:
 ```
 
 The default bantime is 180 days. This value can be [customized][fail2ban-customize].
+
+### What to do in case of SPF/Forwarding problems
+
+If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.rst) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
