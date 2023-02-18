@@ -23,6 +23,14 @@ You can find a list of all Rspamd modules [on their website][modules].
 
 ### DMS' Defaults
 
+!!! danger "Rspamd and DNS Block Lists"
+
+    When using Rspamd, the [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will do a variety of DNS requests. Amongst other things, Rspamd will query DNS block lists (DNSBLs).
+
+    There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. We urge you not to rely on this though.
+
+    If you want to use RBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
+
 You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable `ENABLE_CLAMAV=1`.
 
 DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and needlessly use resources. You can re-activate them by replacing `/etc/rspamd/local.d/<MODULE>.conf` or overriding DMS' default with `/etc/rspamd/override.d/<MODULE>.conf`.
