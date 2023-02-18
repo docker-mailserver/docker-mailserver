@@ -73,14 +73,14 @@ function _setup_amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
   then
     _log 'debug' 'Setting up Amavis'
+
     cat /etc/dms/postfix/master.d/postfix-amavis.cf >>/etc/postfix/master.cf
+    postconf 'content_filter = smtp-amavis:[127.0.0.1]:10024'
+
     sed -i \
       "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
       /etc/amavis/conf.d/05-node_id
   else
-    _log 'debug' "Removing Amavis from Postfix's configuration"
-    sed -i 's|content_filter =.*|content_filter =|' /etc/postfix/main.cf
-
     _log 'debug' 'Disabling Amavis cron job'
     mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
     chmod 0 /etc/cron.d/amavisd-new.disabled
@@ -1067,6 +1067,7 @@ function _setup_logwatch
 {
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
   echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
+  echo "Mailer = \"sendmail -t -f ${LOGWATCH_SENDER}\"" >>/etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
     ( 'daily' | 'weekly' )
