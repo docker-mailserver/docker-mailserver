@@ -261,7 +261,7 @@ function _wait_for_smtp_port_in_container() {
   _wait_for_tcp_port_in_container 25
 }
 
-# Wait until the SMPT port (25) can respond.
+# Wait until the SMTP port (25) can respond.
 #
 # @param ${1} = name of the container [OPTIONAL]
 function _wait_for_smtp_port_in_container_to_respond() {
