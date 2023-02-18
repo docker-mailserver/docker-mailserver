@@ -1089,6 +1089,7 @@ function _setup_logwatch
 {
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
   echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
+  echo "Mailer = \"sendmail -t -f ${LOGWATCH_SENDER}\"" >>/etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
     ( 'daily' | 'weekly' )
