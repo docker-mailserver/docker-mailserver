@@ -75,13 +75,7 @@ Enable or disable Rspamd.
 
 !!! warning "Current State"
 
-    Rspamd-support is under active development. Be aware that breaking changes can happen at any time.
-
-    Currently, rspamd is integrated into Postfix as a milter. However, there is no official DKIM/DMARC support for rspamd in DMS as of now (WIP). To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
-
-!!! warning "Rspamd and DNS Block Lists"
-
-    When you use Rspamd, you might want to use the [RBL module](https://rspamd.com/doc/modules/rbl.html). If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you [might not be able](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365) to make use of the block lists.
+    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
 
 - **0** => disabled
 - 1 => enabled
@@ -104,10 +98,13 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 
 ##### ENABLE_DNSBL
 
-This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list in postfix
-and various [lists](https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66) in postscreen.
+This enables DNS block lists in _Postscreen_. If you want to know which lists we are using, have a look at [the default `main.cf` for Postfix we provide](https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf) and search for `postscreen_dnsbl_sites`.
 
-Note: Emails will be rejected, if they don't pass the block list checks!
+!!! danger "A Warning On DNS Block Lists"
+
+    Make sure your DNS queries are properly resolved, i.e. you will most likely not want to use a public DNS resolver as these queries do not return meaningful results. We try our best to only evaluate proper return codes - this is not a guarantee that all codes are handled fine though.
+
+    **Note that emails will be rejected if they don't pass the block list checks!**
 
 - **0** => DNS block lists are disabled
 - 1     => DNS block lists are enabled
