@@ -5,6 +5,8 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 BATS_TEST_NAME_PREFIX='[SMTP] (delivery) '
 CONTAINER_NAME='dms-test_smtp-delivery'
 
+function teardown_file() { _default_teardown ; }
+
 function setup_file() {
   _init_with_defaults
 
@@ -49,7 +51,14 @@ function setup_file() {
   assert_success
   _wait_until_change_detection_event_completes
 
-  _wait_for_smtp_port_in_container
+  # Even if the Amavis port is reachable at this point, it may still refuse connections?
+  _wait_for_tcp_port_in_container 10024
+  _wait_for_smtp_port_in_container_to_respond
+
+  # Amavis may still not be ready to receive mail, sleep a little to avoid connection failures:
+  sleep 1
+
+  ### Send mail to queue for delivery ###
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
@@ -81,11 +90,16 @@ function setup_file() {
   _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt'
   _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
-
-  _wait_for_empty_mail_queue_in_container
 }
 
-function teardown_file() { _default_teardown ; }
+@test "should succeed at emptying mail queue" {
+  # Try catch errors preventing emptying the queue ahead of waiting:
+  _run_in_container mailq
+  # Amavis (Port 10024) may not have been ready when first mail was sent:
+  refute_output --partial 'Connection refused'
+  refute_output --partial '(unknown mail transport error)'
+  _wait_for_empty_mail_queue_in_container
+}
 
 @test "should successfully authenticate with good password (plain)" {
   _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'

@@ -307,8 +307,8 @@ function _setup_dovecot_quota
       fi
 
       # enable quota policy check in postfix
-      sed -i \
-        "s|reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org|reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org|g" \
+      sed -i -E \
+        "s|(reject_unknown_recipient_domain)|\1, check_policy_service inet:localhost:65265|g" \
         /etc/postfix/main.cf
     fi
 }
@@ -634,49 +634,52 @@ function _setup_SRS
 
 function _setup_dkim_dmarc
 {
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
+  then
+    _log 'debug' 'Setting up DKIM'
+
+    mkdir -p /etc/opendkim/keys/
+    touch /etc/opendkim/SigningTable
+    touch /etc/opendkim/TrustedHosts
+
+    _log 'trace' "Adding OpenDKIM to Postfix's milters"
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+
+    # check if any keys are available
+    if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
+    then
+      cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
+
+      local KEYS
+      KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
+      _log 'trace' "DKIM keys added for: ${KEYS}"
+      _log 'trace' "Changing permissions on '/etc/opendkim'"
+
+      chown -R opendkim:opendkim /etc/opendkim/
+      chmod -R 0700 /etc/opendkim/keys/
+    else
+      _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
+      [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
+    fi
+
+    # setup nameservers parameter from /etc/resolv.conf if not defined
+    if ! grep '^Nameservers' /etc/opendkim.conf
+    then
+      echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf
+
+      _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
+    fi
+  fi
+
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
 
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
-  fi
-
-  [[ ${ENABLE_OPENDKIM} -eq 1 ]] || return 0
-
-  _log 'debug' 'Setting up DKIM'
-
-  mkdir -p /etc/opendkim/keys/ && touch /etc/opendkim/SigningTable
-
-  _log 'trace' "Adding OpenDKIM to Postfix's milters"
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
-
-  # check if any keys are available
-  if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
-  then
-    cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-
-    local KEYS
-    KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
-    _log 'trace' "DKIM keys added for: ${KEYS}"
-    _log 'trace' "Changing permissions on '/etc/opendkim'"
-
-    chown -R opendkim:opendkim /etc/opendkim/
-    chmod -R 0700 /etc/opendkim/keys/
-  else
-    _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
-    [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
-  fi
-
-  # setup nameservers parameter from /etc/resolv.conf if not defined
-  if ! grep '^Nameservers' /etc/opendkim.conf
-  then
-    echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf
-
-    _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
   fi
 }
 
@@ -1086,6 +1089,7 @@ function _setup_logwatch
 {
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
   echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
+  echo "Mailer = \"sendmail -t -f ${LOGWATCH_SENDER}\"" >>/etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
     ( 'daily' | 'weekly' )
@@ -1148,12 +1152,6 @@ function _setup_fail2ban
 
 function _setup_dnsbl_disable
 {
-  _log 'debug' 'Disabling postfix DNS block list (zen.spamhaus.org)'
-
-  sedfile -i \
-    '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org=127.0.0.\[2..11\]//' \
-    /etc/postfix/main.cf
-
   _log 'debug' 'Disabling postscreen DNS block lists'
   postconf 'postscreen_dnsbl_action = ignore'
   postconf 'postscreen_dnsbl_sites = '

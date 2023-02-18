@@ -29,9 +29,6 @@ fi
 
 _log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
-# Change detection delayed during startup to avoid conflicting writes
-sleep 10
-
 _log_with_date 'debug' "Changedetector is ready"
 
 function _check_for_changes
@@ -64,10 +61,10 @@ function _check_for_changes
 
     _remove_lock
     _log_with_date 'debug' 'Completed handling of detected change'
-  fi
 
-  # mark changes as applied
-  mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+    # mark changes as applied
+    mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+  fi
 }
 
 function _get_changed_files
