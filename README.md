@@ -35,6 +35,7 @@ If you have issues, please search through [the documentation][documentation::web
 
 - [Postfix](http://www.postfix.org) with SMTP or LDAP authentication and support for [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) (_mail to `you+extension@example.com` delivered to `you@example.com`_)
 - [Dovecot](https://www.dovecot.org) with SASL, IMAP, POP3, LDAP, [basic Sieve support](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve) and [quotas](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts#notes)
+- [Rspamd](https://rspamd.com/)
 - [Amavis](https://www.amavis.org/)
 - [SpamAssassin](http://spamassassin.apache.org/) supporting custom rules
 - [ClamAV](https://www.clamav.net/) with automatic updates
