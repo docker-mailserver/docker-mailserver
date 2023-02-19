@@ -45,7 +45,7 @@ You might also want to check out:
 
 !!! tip
 
-    Definitely check out the [FAQ][docs-faq] for more information and tips! Please do not open an issue before you have read through the full documentation, including the [FAQ][docs-faq]!
+    Definitely check out the [FAQ][docs-faq] for more information and tips! Please do not open an issue before you have checked our documentation for answers, including the [FAQ][docs-faq]!
 
 [docs-environment]: ./config/environment/
 [docs-userpatches]: ./faq/#how-to-adjust-settings-with-the-user-patchessh-script

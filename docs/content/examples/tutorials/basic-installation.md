@@ -7,17 +7,14 @@ title: 'Tutorials | Basic Installation'
 This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [docker-compose.yml](https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml) can be used for the purpose out-of-the-box, see the [_Usage_ chapter](../../usage.md).
 
 ``` YAML
-version: '3.8'
-
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     container_name: mailserver
-    # Provide the FQDN of your mail server here
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
     hostname: mail.example.com
     ports:
       - "25:25"
-      - "143:143"
       - "587:587"
       - "993:993"
     volumes:
@@ -32,10 +29,8 @@ services:
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
-      - ENABLE_SASLAUTHD=0
-      - ONE_DIR=1
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # For Fail2Ban to work
     restart: always
 ```
 
@@ -44,17 +39,14 @@ services:
 **Note** There are currently no LDAP maintainers. If you encounter issues, please raise them in the issue tracker, but be aware that the core maintainers team will most likely not be able to help you. **We would appreciate and we encourage everyone to actively participate in maintaining LDAP-related code by becoming a maintainer!**
 
 ``` YAML
-version: '3.8'
-
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     container_name: mailserver
-    # Provide the FQDN of your mail server her
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
     hostname: mail.example.com
     ports:
       - "25:25"
-      - "143:143"
       - "587:587"
       - "993:993"
     volumes:
@@ -69,8 +61,6 @@ services:
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
       - ENABLE_POSTGREY=1
-      - ONE_DIR=1
-      - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
       - ACCOUNT_PROVISIONER=LDAP
       - LDAP_SERVER_HOST=ldap # your ldap container/IP/ServerName
       - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
@@ -90,7 +80,6 @@ services:
       - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
       - SASLAUTHD_LDAP_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%U))
       - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
-      - POSTFIX_MESSAGE_SIZE_LIMIT=100000000
     cap_add:
       - NET_ADMIN
     restart: always
@@ -101,8 +90,6 @@ services:
 !!! note
 
     This is a community contributed guide. Please let us know via a Github Issue if you're having any difficulty following the guide so that we can update it.
-
-    This section probably needs an overhaul!
 
 This guide is focused on only using [SMTP ports (not POP3 and IMAP)][docs-ports] with the intent to send received mail to another MTA service such as _Gmail_. It is not intended to have a MUA client (_eg: Thunderbird_) to retrieve mail directly from `docker-mailserver` via POP3/IMAP.
 
@@ -127,13 +114,12 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
           mailserver:
             image: docker.io/mailserver/docker-mailserver:latest
             container_name: mailserver
-            # provide the FQDN of your mail server here
+            # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
             hostname: mail.example.com
             ports:
               - "25:25"
-              - "143:143"
               - "587:587"
-              - "993:993"
+              - "465:465"
             volumes:
               - ./docker-data/dms/mail-data/:/var/mail/
               - ./docker-data/dms/mail-state/:/var/mail-state/
@@ -141,15 +127,18 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
               - ./docker-data/dms/config/:/tmp/docker-mailserver/
               - /etc/localtime:/etc/localtime:ro
             environment:
-              - ENABLE_SPAMASSASSIN=1
-              - SPAMASSASSIN_SPAM_TO_INBOX=1
-              - ENABLE_CLAMAV=1
               - ENABLE_FAIL2BAN=1
-              - ENABLE_POSTGREY=1
-              - ENABLE_SASLAUTHD=0
+              # Using letsencrypt for SSL/TLS certificates
+              - SSL_TYPE=letsencrypt
+              # Allow sending emails from other docker containers
+              # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#permit_docker
+              - PERMIT_DOCKER=network
+              # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#spoof_protection
+              # See step 8 below, which demonstrates setup with enabled/disabled SPOOF_PROTECTION:
+              - SPOOF_PROTECTION=0
               - ONE_DIR=1
             cap_add:
-              - NET_ADMIN
+              - NET_ADMIN # For Fail2Ban to work
             restart: always
         ```
 

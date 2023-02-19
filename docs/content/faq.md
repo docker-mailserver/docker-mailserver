@@ -23,20 +23,23 @@ Then, run the following commands:
 ``` BASH
 docker-compose pull
 docker-compose down
-docker-compose up -d mailserver
+docker-compose up -d
 ```
 
 You should see the new version number on startup, for example: `[   INF   ]  Welcome to docker-mailserver 11.3.1`. And you're done! Don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
 
 ### Which operating systems are supported?
 
-We are currently providing support for Linux. Windows is _not_ supported and is known to cause problems. Similarly, macOS is _not officially_ supported - but you may get it to work there. In the end, Linux should be your preferred operating system for this image, especially when using this mail-server in production.
+- Linux is officially supported.
+- Windows and macOS are _not_ supported and users and have reported various issues running the image on these hosts.
+
+As you'll realistically be deploying to production on a Linux host, if you are on Windows or macOS and want to run the image locally first, it's advised to do so via a VM guest running Linux if you have issues running DMS on your host system.
 
 ### What are the system requirements?
 
 #### Recommended
 
-- 1 Core
+- 1 vCore
 - 2GB RAM
 - Swap enabled for the container
 
@@ -44,7 +47,7 @@ We are currently providing support for Linux. Windows is _not_ supported and is 
 
 - 1 vCore
 - 512MB RAM
-- You'll need to deactivate some services like ClamAV to be able to run on a host with 512MB of RAM. Even with 1G RAM you may run into problems without swap, see [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#what-system-requirements-are-required-to-run-docker-mailserver-effectively).
+- You'll need to avoid running some services like ClamAV (_disabled by default_) to be able to run on a host with 512MB of RAM.
 
 !!! warning
 
@@ -58,7 +61,7 @@ We are currently providing support for Linux. Windows is _not_ supported and is 
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
-See [Supervisorctl's documentation](http://supervisord.org/running.html#running-supervisorctl).
+See the [documentation for `supervisorctl`](http://supervisord.org/running.html#running-supervisorctl).
 
 !!! tip
     To add, update or delete an email account; there is no need to restart postfix / dovecot service inside the container after using `setup.sh` script.
@@ -85,8 +88,8 @@ All files are using the Unix format with `LF` line endings. Please do not use `C
 DMS supports multiple domains out of the box, so you can do this:
 
 ``` BASH
-./setup.sh email add user1@docker.example.com
-./setup.sh email add user1@mail.example.de
+./setup.sh email add user1@example.com
+./setup.sh email add user1@example.de
 ./setup.sh email add user1@server.example.org
 ```
 
@@ -125,7 +128,10 @@ find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 
 ### What about the `./docker-data/dms/mail-state` folder?
 
-When you run DMS with the ENV variable `ONE_DIR=1` (which is the default since v10.2.0), this folder will store the data from internal services so that you can more easily persist state to disk (via `volumes`). The folder **translates to `/var/mail-state/` internally**. This has the advantage of Fail2Ban blocks, ClamAV signature updates and the like being kept across restarts for example.
+When you run DMS with the ENV variable `ONE_DIR=1` (default), this folder will:
+
+- Provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated.
+- To persist that container state properly this folder should be **volume mounted to `/var/mail-state/` internally**.
 
 Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.
 
@@ -206,7 +212,7 @@ baduser@example.com devnull
 
 ### What kind of SSL certificates can I use?
 
-You can use the same certificates you would use with another mail-server. The only difference is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader. Check out the [`SSL_TYPE` documentation](../config/environment/#ssl_type).
+Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](../config/environment/#ssl_type) for more details.
 
 ### I just moved from my old mail server to DMS, but "it doesn't work"?
 
