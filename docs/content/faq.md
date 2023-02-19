@@ -4,49 +4,94 @@ title: 'FAQ'
 
 ### What kind of database are you using?
 
-None! No database is required. Filesystem is the database.
-This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.
+None! No database is required. The filesystem is the database. This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.
 
 ### Where are emails stored?
 
 Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
 
-### How to alter the running `docker-mailserver` instance _without_ relaunching the container?
+### How are IMAP mailboxes (_aka IMAP Folders_) set up?
+
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders) for more information.
+
+### How do I update DMS?
+
+**Make sure to read the [CHANGELOG](https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md)** before updating to new versions, to be prepared for possible breaking changes.
+
+Then, run the following commands:
+
+``` BASH
+docker-compose pull
+docker-compose down
+docker-compose up -d
+```
+
+You should see the new version number on startup, for example: `[   INF   ]  Welcome to docker-mailserver 11.3.1`. And you're done! Don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
+
+### Which operating systems are supported?
+
+- Linux is officially supported.
+- Windows and macOS are _not_ supported and users and have reported various issues running the image on these hosts.
+
+As you'll realistically be deploying to production on a Linux host, if you are on Windows or macOS and want to run the image locally first, it's advised to do so via a VM guest running Linux if you have issues running DMS on your host system.
+
+### What are the system requirements?
+
+#### Recommended
+
+- 1 vCore
+- 2GB RAM
+- Swap enabled for the container
+
+#### Minimum
+
+- 1 vCore
+- 512MB RAM
+- You'll need to avoid running some services like ClamAV (_disabled by default_) to be able to run on a host with 512MB of RAM.
+
+!!! warning
+
+    ClamAV can consume a lot of memory, as it reads the entire signature database into RAM.
+
+    Current figure is about 850M and growing. If you get errors about ClamAV or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
+
+### How to alter a running DMS instance _without_ relaunching the container?
 
 `docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
-See [supervisorctl's documentation](http://supervisord.org/running.html#running-supervisorctl).
+See the [documentation for `supervisorctl`](http://supervisord.org/running.html#running-supervisorctl).
 
 !!! tip
     To add, update or delete an email account; there is no need to restart postfix / dovecot service inside the container after using `setup.sh` script.
 
     For more information, see [#1639][github-issue-1639].
 
-### How can I sync container with host date/time? Timezone?
+### How can I sync the container and host date/time?
 
-Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) with the `docker-mailserver` container, using a Docker volume:
+Share the host's [`/etc/localtime`](https://www.freedesktop.org/software/systemd/man/localtime.html) with the container, e.g. by using a bind mount:
 
 ```yaml
 volumes:
   - /etc/localtime:/etc/localtime:ro
 ```
 
-!!! help "Optional"
-    Add one line to `.env` or `env-mailserver` to set timetzone for container, for example:
-
-    ```env
-    TZ=Europe/Berlin
-    ```
-
-    Check here for the [`tz name list`](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+Optionally, you can set the `TZ` ENV variable; e.g. `TZ=Europe/Berlin`. Check [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for which values are allowed.
 
 ### What is the file format?
 
-All files are using the Unix format with `LF` line endings.
+All files are using the Unix format with `LF` line endings. Please do not use `CRLF`.
 
-Please do not use `CRLF`.
+### Do you support multiple domains?
+
+DMS supports multiple domains out of the box, so you can do this:
+
+``` BASH
+./setup.sh email add user1@example.com
+./setup.sh email add user1@example.de
+./setup.sh email add user1@server.example.org
+```
 
 ### What about backups?
 
@@ -81,52 +126,42 @@ docker run --rm -it \
 find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 ```
 
-### What about `docker-data/dms/mail-state` folder? (_`/var/mail-state` internally_)
+### What about the `./docker-data/dms/mail-state` folder?
 
-When you run `docker-mailserver` with the ENV var `ONE_DIR=1` (_default since v10.2_), this folder will store the data from internal services so that you can more easily persist state to disk (via `volumes`).
+When you run DMS with the ENV variable `ONE_DIR=1` (default), this folder will:
 
-This has the advantage of fail2ban blocks, ClamAV anti-virus updates and the like being kept across restarts for example.
+- Provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated.
+- To persist that container state properly this folder should be **volume mounted to `/var/mail-state/` internally**.
 
-Service data is [relocated to the `mail-state` folder][mail-state-folders] for services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.
+Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.
+
+### I Want to Know More About the Ports
+
+See [this part of the documentation](../config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
 ### How can I configure my email client?
 
 Login is full email address (`<user>@<domain>`).
 
 ```properties
-# imap
+# IMAP
 username:           <user1@example.com>
 password:           <mypassword>
 server:             <mail.example.com>
-imap port:          143 or 993 with ssl (recommended)
+imap port:          143 or 993 with STARTTLS/SSL (recommended)
 imap path prefix:   INBOX
 
-# smtp
-smtp port:          25 or 587 with ssl (recommended)
+# SMTP
+smtp port:          25 or 587/465 with STARTTLS/SSL (recommended)
 username:           <user1@example.com>
 password:           <mypassword>
 ```
 
-Please use `STARTTLS`.
+DMS is properly configured for port 587, if possible, we recommend using port 465 for SMTP though. See [this section to learn more about ports](#i-want-to-know-more-about-the-ports).
 
-### How can I manage my custom SpamAssassin rules?
+### Can I use a naked/bare domain (i.e. no hostname)?
 
-Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
-
-### What are acceptable `SA_SPAM_SUBJECT` values?
-
-For no subject set `SA_SPAM_SUBJECT=undef`.
-
-For a trailing white-space subject one can define the whole variable with quotes in `docker-compose.yml`:
-
-```yaml
-environment:
-  - "SA_SPAM_SUBJECT=[SPAM] "
-```
-
-### Can I use naked/bare domains (no host name)?
-
-Yes, but not without some configuration changes. Normally it is assumed that `docker-mailserver` runs on a host with a name, so the fully qualified host name might be `mail.example.com` with the domain `example.com`. The MX records point to `mail.example.com`.
+Yes, but not without some configuration changes. Normally it is assumed that DMS runs on a host with a name, so the fully qualified host name might be `mail.example.com` with the domain `example.com`. The MX records point to `mail.example.com`.
 
 To use a bare domain (_where the host name is `example.com` and the domain is also `example.com`_), change `mydestination`:
 
@@ -143,13 +178,184 @@ Plus of course mail delivery fails.
 
 Also you need to define `hostname: example.com` in your docker-compose.yml and don't sepecify the `domainname:` at all.
 
-### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
+### How can I configure a catch-all?
+
+Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
+
+```cf
+@example.com user1@example.com
+```
+
+### How can I delete all the emails for a specific user?
+
+First of all, create a special alias named `devnull` by editing `docker-data/dms/config/postfix-aliases.cf`:
+
+```cf
+devnull: /dev/null
+```
+
+Considering you want to delete all the e-mails received for `baduser@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
+
+```cf
+baduser@example.com devnull
+```
+
+!!! important
+
+    If you use a catch-all rule for the main/sub domain, you need another entry in `docker-data/dms/config/postfix-virtual.cf`:
+
+    ```cf
+    @mail.example.com hello@example.com
+    baduser@example.com devnull
+    devnull@mail.example.com devnull
+    ```
+
+### What kind of SSL certificates can I use?
+
+Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](../config/environment/#ssl_type) for more details.
+
+### I just moved from my old mail server to DMS, but "it doesn't work"?
+
+If this migration implies a DNS modification, be sure to wait for DNS propagation before opening an issue.
+Few examples of symptoms can be found [here][github-issue-95] or [here][github-issue-97].
+
+This could be related to a modification of your `MX` record, or the IP mapped to `mail.example.com`. Additionally, [validate your DNS configuration](https://intodns.com/).
+
+If everything is OK regarding DNS, please provide [formatted logs](https://guides.github.com/features/mastering-markdown/) and config files. This will allow us to help you.
+
+If we're blind, we won't be able to do anything.
+
+### Can DMS run in a Rancher environment?
+
+Yes, by adding the environment variable `PERMIT_DOCKER: network`.
+
+!!! warning
+
+    Adding the Docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
+
+### How can I authenticate users with `SMTP_ONLY=1`?
+
+See [#1247][github-issue-1247] for an example.
+
+!!! todo
+
+    Write a How-to / Use-Case / Tutorial about authentication with `SMTP_ONLY`.
+
+### Common Errors
+
+```log
+warning: connect to Milter service inet:localhost:8893: Connection refused
+# DMARC not running
+# => /etc/init.d/opendmarc restart
+
+warning: connect to Milter service inet:localhost:8891: Connection refused
+# DKIM not running
+# => /etc/init.d/opendkim restart
+
+mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can't connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory
+mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)
+mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.
+mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
+# Clamav is not running (not started or because you don't have enough memory)
+# => check requirements and/or start Clamav
+```
+
+### How to use DMS behind a proxy
+
+[Using `user-patches.sh`][docs-userpatches], update the container file `/etc/postfix/main.cf` to include:
+
+```cf
+proxy_interfaces = X.X.X.X (your public IP)
+```
+
+### How to adjust settings with the `user-patches.sh` script
+
+Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
+
+`docker-mailserver` has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
+
+It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
+
+Add or create the script file to your config directory:
+
+```sh
+cd ./docker-data/dms/config
+touch user-patches.sh
+chmod +x user-patches.sh
+```
+
+Then fill `user-patches.sh` with suitable code.
+
+If you want to test it you can move into the running container, run it and see if it does what you want. For instance:
+
+```sh
+# start shell in container
+./setup.sh debug login
+
+# check the file
+cat /tmp/docker-mailserver/user-patches.sh
+
+# run the script
+/tmp/docker-mailserver/user-patches.sh
+
+# exit the container shell back to the host shell
+exit
+```
+
+You can do a lot of things with such a script. You can find an example `user-patches.sh` script here: [example `user-patches.sh` script][hanscees-userpatches].
+
+We also have a [very similar docs page][docs-userpatches] specifically about this feature!
+
+!!! attention "Special use-case - patching the `supervisord` configuration"
+
+    It seems worth noting, that the `user-patches.sh` gets executed through `supervisord`. If you need to patch some supervisord config (e.g. `/etc/supervisor/conf.d/saslauth.conf`), the patching happens too late.
+
+    An easy workaround is to make the `user-patches.sh` reload the supervisord config after patching it:
+
+    ```bash
+    #!/bin/bash
+    sed -i 's/rimap -r/rimap/' /etc/supervisor/conf.d/saslauth.conf
+    supervisorctl update
+    ```
+
+### How to ban custom IP addresses with Fail2ban
+
+Use the following command:
+
+```bash
+./setup.sh fail2ban ban <IP>
+```
+
+The default bantime is 180 days. This value can be [customized][fail2ban-customize].
+
+### What to do in case of SPF/Forwarding problems
+
+If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.rst) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
+
+### SpamAssasin
+
+#### How can I manage my custom SpamAssassin rules?
+
+Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
+
+#### What are acceptable `SA_SPAM_SUBJECT` values?
+
+For no subject set `SA_SPAM_SUBJECT=undef`.
+
+For a trailing white-space subject one can define the whole variable with quotes in `docker-compose.yml`:
+
+```yaml
+environment:
+  - "SA_SPAM_SUBJECT=[SPAM] "
+```
+
+#### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
 In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (`05-domain_id` in the amavis defaults).
 
 The default setup `@local_domains_acl = ( ".$mydomain" );` does not match subdomains. To match subdomains, you can override the `@local_domains_acl` directive in the amavis user config file `50-user` with `@local_domains_maps = (".");` to match any sort of domain template.
 
-### How can I make SpamAssassin better recognize spam?
+#### How can I make SpamAssassin better recognize spam?
 
 Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` and `MOVE_SPAM_TO_JUNK=1` and add a _user_ cron like the following:
 
@@ -235,38 +441,7 @@ The following configuration works nicely:
 
 With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
-### How can I configure a catch-all?
-
-Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
-
-```cf
-@example.com user1@example.com
-```
-
-### How can I delete all the emails for a specific user?
-
-First of all, create a special alias named `devnull` by editing `docker-data/dms/config/postfix-aliases.cf`:
-
-```cf
-devnull: /dev/null
-```
-
-Considering you want to delete all the e-mails received for `baduser@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
-
-```cf
-baduser@example.com devnull
-```
-
-!!! important
-    If you use a catch-all rule for the main/sub domain, you need another entry in `docker-data/dms/config/postfix-virtual.cf`:
-
-    ```cf
-    @mail.example.com hello@example.com
-    baduser@example.com devnull
-    devnull@mail.example.com devnull
-    ```
-
-### How do I have more control about what SPAMASSASIN is filtering?
+#### How do I have more control about what SpamAssassin is filtering?
 
 By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:
 
@@ -311,140 +486,6 @@ $banned_quarantine_to     = "amavis\@example.com";
 $bad_header_quarantine_to = "amavis\@example.com";
 $spam_quarantine_to       = "amavis\@example.com";
 ```
-
-### What kind of SSL certificates can I use?
-
-You can use the same certificates you would use with another mail-server.
-
-The only difference is that we provide a `self-signed` certificate tool and a `letsencrypt` certificate loader.
-
-### I just moved from my old Mail-Server, but "it doesn't work"?
-
-If this migration implies a DNS modification, be sure to wait for DNS propagation before opening an issue.
-Few examples of symptoms can be found [here][github-issue-95] or [here][github-issue-97].
-
-This could be related to a modification of your `MX` record, or the IP mapped to `mail.example.com`. Additionally, [validate your DNS configuration](https://intodns.com/).
-
-If everything is OK regarding DNS, please provide [formatted logs](https://guides.github.com/features/mastering-markdown/) and config files. This will allow us to help you.
-
-If we're blind, we won't be able to do anything.
-
-### What system requirements are required to run `docker-mailserver` effectively?
-
-1 core and 1GB of RAM + swap partition is recommended to run `docker-mailserver` with ClamAV.
-Otherwise, it could work with 512M of RAM.
-
-!!! warning
-    ClamAV can consume a lot of memory, as it reads the entire signature database into RAM.
-
-    Current figure is about 850M and growing. If you get errors about ClamAV or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.
-
-### Can `docker-mailserver` run in a Rancher Environment?
-
-Yes, by adding the environment variable `PERMIT_DOCKER: network`.
-
-!!! warning
-    Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
-
-### How can I Authenticate Users with `SMTP_ONLY`?
-
-See [#1247][github-issue-1247] for an example.
-
-!!! todo
-    Write a How-to / Use-Case / Tutorial about authentication with `SMTP_ONLY`.
-
-### Common Errors
-
-```log
-warning: connect to Milter service inet:localhost:8893: Connection refused
-# DMARC not running
-# => /etc/init.d/opendmarc restart
-
-warning: connect to Milter service inet:localhost:8891: Connection refused
-# DKIM not running
-# => /etc/init.d/opendkim restart
-
-mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can't connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory
-mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)
-mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.
-mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
-# Clamav is not running (not started or because you don't have enough memory)
-# => check requirements and/or start Clamav
-```
-
-### How to use when behind a Proxy
-
-[Using `user-patches.sh`][docs-userpatches], update the container file `/etc/postfix/main.cf` to include:
-
-```cf
-proxy_interfaces = X.X.X.X (your public IP)
-```
-
-### What About Updates
-
-You can use your own scripts, or every now and then `pull && stop && rm && start` the images but there are tools already available for this.
-
-There is a section in the [Update and Cleanup][docs-maintenance] documentation page that explains how to do it the docker way.
-
-### How to adjust settings with the `user-patches.sh` script
-
-Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
-
-`docker-mailserver` has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
-
-It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
-
-Add or create the script file to your config directory:
-
-```sh
-cd ./docker-data/dms/config
-touch user-patches.sh
-chmod +x user-patches.sh
-```
-
-Then fill `user-patches.sh` with suitable code.
-
-If you want to test it you can move into the running container, run it and see if it does what you want. For instance:
-
-```sh
-# start shell in container
-./setup.sh debug login
-
-# check the file
-cat /tmp/docker-mailserver/user-patches.sh
-
-# run the script
-/tmp/docker-mailserver/user-patches.sh
-
-# exit the container shell back to the host shell
-exit
-```
-
-You can do a lot of things with such a script. You can find an example `user-patches.sh` script here: [example `user-patches.sh` script][hanscees-userpatches].
-
-We also have a [very similar docs page][docs-userpatches] specifically about this feature!
-
-#### Special use-case - Patching the `supervisord` config
-
-It seems worth noting, that the `user-patches.sh` gets executed through `supervisord`. If you need to patch some supervisord config (e.g. `/etc/supervisor/conf.d/saslauth.conf`), the patching happens too late.
-
-An easy workaround is to make the `user-patches.sh` reload the supervisord config after patching it:
-
-```bash
-#!/bin/bash
-sed -i 's/rimap -r/rimap/' /etc/supervisor/conf.d/saslauth.conf
-supervisorctl update
-```
-
-### How to ban custom IP addresses with Fail2ban
-
-Use the following command:
-
-```bash
-./setup.sh fail2ban ban <IP>
-```
-
-The default bantime is 180 days. This value can be [customized][fail2ban-customize].
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md

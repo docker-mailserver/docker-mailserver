@@ -111,9 +111,10 @@ markdown_extensions:
 nav:
   - 'Home': index.md
   - 'Introduction': introduction.md
+  - 'Usage': usage.md
   - 'Configuration':
-    - 'Your Best Friend setup.sh': config/setup.sh.md
     - 'Environment Variables': config/environment.md
+    - 'Your Best Friend setup.sh': config/setup.sh.md
     - 'User Management':
       - 'Accounts': config/user-management/accounts.md
       - 'Aliases': config/user-management/aliases.md
