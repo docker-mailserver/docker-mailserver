@@ -99,48 +99,22 @@ function _setup_amavis
 
 function _setup_rspamd
 {
-  _log 'warn' 'Rspamd support is under active development, expect breaking changes at any time'
-
-  if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+  if [[ -f /usr/local/bin/helpers/setup-rspamd.sh ]]
   then
-    _log 'warn' 'Running rspamd at the same time as Amavis or SpamAssassin is discouraged'
-  fi
-
-  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
-  then
-    _log 'debug' 'Rspamd will use ClamAV'
-    sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
-    # RSpamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
-    usermod -a -G clamav _rspamd
+    # ShellCheck sources this from two different files, hence we discard the check of external sources.
+    # shellcheck source=/dev/null
+    source /usr/local/bin/helpers/setup-rspamd.sh
   else
-    _log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
+    _shutdown 'error' '(Rspamd setup) Helper functions required for setup were not found'
   fi
 
-  declare -a DISABLE_MODULES
-  DISABLE_MODULES=(
-    clickhouse
-    elastic
-    greylist
-    neural
-    reputation
-    spamassassin
-    url_redirector
-    metric_exporter
-  )
+  _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
+  _log 'debug' 'Enabling Rspamd'
 
-  for MODULE in "${DISABLE_MODULES[@]}"
-  do
-    cat >"/etc/rspamd/local.d/${MODULE}.conf" << EOF
-# documentation: https://rspamd.com/doc/modules/${MODULE}.html
-
-enabled = false;
-
-EOF
-  done
-
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
-  touch /var/lib/rspamd/stats.ucl
+  __rspamd__preflight_checks
+  __rspamd__adjust_postfix_configuration
+  __rspamd__disable_default_modules
+  __rspamd__handle_modules_configuration
 }
 
 function _setup_dmarc_hostname
@@ -162,9 +136,7 @@ function _setup_postfix_hostname
 function _setup_dovecot_hostname
 {
   _log 'debug' 'Applying hostname to Dovecot'
-  sed -i \
-    "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" \
-    /etc/dovecot/conf.d/15-lda.conf
+  sed -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot
@@ -632,6 +604,12 @@ function _setup_SRS
   postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
 }
 
+# Set up OpenDKIM & OpenDMARC.
+#
+# ## Attention
+#
+# The OpenDKIM milter must come before the OpenDMARC milter in Postfix's#
+# `smtpd_milters` milters options.
 function _setup_dkim_dmarc
 {
   if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
@@ -639,45 +617,45 @@ function _setup_dkim_dmarc
     _log 'debug' 'Setting up DKIM'
 
     mkdir -p /etc/opendkim/keys/
-    touch /etc/opendkim/SigningTable
-    touch /etc/opendkim/TrustedHosts
+    touch /etc/opendkim/{SigningTable,TrustedHosts,KeyTable}
 
     _log 'trace' "Adding OpenDKIM to Postfix's milters"
+    postconf 'dkim_milter = inet:localhost:8891'
     # shellcheck disable=SC2016
-    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
-    # shellcheck disable=SC2016
-    sed -i -E 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' /etc/postfix/main.cf
+    sed -i -E                                            \
+      -e 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g'     \
+      -e 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' \
+      /etc/postfix/main.cf
 
     # check if any keys are available
-    if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
+    if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]
     then
       cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-
-      local KEYS
-      KEYS=$(find /etc/opendkim/keys/ -type f -maxdepth 1)
-      _log 'trace' "DKIM keys added for: ${KEYS}"
-      _log 'trace' "Changing permissions on '/etc/opendkim'"
-
+      _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')"
       chown -R opendkim:opendkim /etc/opendkim/
       chmod -R 0700 /etc/opendkim/keys/
     else
-      _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
-      [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
+      _log 'debug' 'OpenDKIM enabled but no DKIM key(s) provided'
     fi
 
     # setup nameservers parameter from /etc/resolv.conf if not defined
-    if ! grep '^Nameservers' /etc/opendkim.conf
+    if ! grep -q '^Nameservers' /etc/opendkim.conf
     then
-      echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf
-
+      local NAMESERVER_IPS
+      NAMESERVER_IPS=$(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)
+      echo "Nameservers ${NAMESERVER_IPS}" >>/etc/opendkim.conf
       _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
     fi
   fi
 
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
+    # TODO when disabling SPF is possible, add a check whether DKIM and SPF is disabled
+    #      for DMARC to work, you should have at least one enabled
+    #      (see RFC 7489 https://www.rfc-editor.org/rfc/rfc7489#page-24)
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
-
+    postconf 'dmarc_milter = inet:localhost:8893'
+    # Make sure to append the OpenDMARC milter _after_ the OpenDKIM milter!
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
   fi
@@ -754,8 +732,8 @@ function _setup_docker_permit
     _log 'trace' "Adding ${NETWORK_TYPE} (${NETWORK}) to Postfix 'main.cf:mynetworks'"
     _adjust_mtime_for_postfix_maincf
     postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
-    echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
-    echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
+    [[ ${ENABLE_OPENDMARC} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendmarc/ignore.hosts
+    [[ ${ENABLE_OPENDKIM} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendkim/TrustedHosts
   }
 
   case "${PERMIT_DOCKER}" in

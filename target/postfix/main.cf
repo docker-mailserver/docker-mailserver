@@ -88,8 +88,6 @@ virtual_alias_maps = texthash:/etc/postfix/virtual
 # Milters used by DKIM
 milter_protocol = 6
 milter_default_action = accept
-dkim_milter = inet:localhost:8891
-dmarc_milter = inet:localhost:8893
 smtpd_milters =
 non_smtpd_milters =
 

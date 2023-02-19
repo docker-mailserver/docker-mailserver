@@ -28,6 +28,7 @@ If you have issues, read the full `README` **and** the [documentation][documenta
 
 - [Postfix](http://www.postfix.org) with SMTP or LDAP auth
 - [Dovecot](https://www.dovecot.org) for SASL, IMAP (or POP3), with LDAP Auth, Sieve and [quotas](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts#notes)
+- [Rspamd](https://rspamd.com/)
 - [Amavis](https://www.amavis.org/)
 - [SpamAssassin](http://spamassassin.apache.org/) supporting custom rules
 - [ClamAV](https://www.clamav.net/) with automatic updates
