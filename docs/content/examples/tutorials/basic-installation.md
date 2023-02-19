@@ -81,7 +81,7 @@ services:
       - SASLAUTHD_LDAP_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%U))
       - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # For Fail2Ban to work
     restart: always
 ```
 
@@ -108,8 +108,6 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
     !!! example
 
         ```yaml
-        version: '3.8'
-
         services:
           mailserver:
             image: docker.io/mailserver/docker-mailserver:latest
@@ -136,7 +134,6 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
               # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#spoof_protection
               # See step 8 below, which demonstrates setup with enabled/disabled SPOOF_PROTECTION:
               - SPOOF_PROTECTION=0
-              - ONE_DIR=1
             cap_add:
               - NET_ADMIN # For Fail2Ban to work
             restart: always
