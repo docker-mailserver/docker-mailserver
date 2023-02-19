@@ -148,7 +148,7 @@ Login is full email address (`<user>@<domain>`).
 username:           <user1@example.com>
 password:           <mypassword>
 server:             <mail.example.com>
-imap port:          143 or 993 with ssl (recommended)
+imap port:          143 or 993 with STARTTLS/SSL (recommended)
 imap path prefix:   INBOX
 
 # SMTP
