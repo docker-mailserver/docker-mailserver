@@ -16,6 +16,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/usage/</loc>
+         <lastmod>2023-02-19</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/</loc>
          <lastmod>2023-02-19</lastmod>
          <changefreq>daily</changefreq>
