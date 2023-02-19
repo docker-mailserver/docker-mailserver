@@ -726,23 +726,57 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#integration-configuration" class="md-nav__link">
-    Integration &amp; Configuration
+  <a href="#the-default-configuration" class="md-nav__link">
+    The Default Configuration
   </a>
   
-    <nav class="md-nav" aria-label="Integration &amp; Configuration">
+    <nav class="md-nav" aria-label="The Default Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#providing-overriding-settings" class="md-nav__link">
-    Providing &amp; Overriding Settings
+  <a href="#mode-of-operation" class="md-nav__link">
+    Mode of Operation
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#dms-defaults" class="md-nav__link">
-    DMS' Defaults
+  <a href="#modules" class="md-nav__link">
+    Modules
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#disabled-by-default" class="md-nav__link">
+    Disabled By Default
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-virus-clamav" class="md-nav__link">
+    Anti-Virus (ClamAV)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists" class="md-nav__link">
+    RBLs (Realtime Blacklists) / DNSBLs (DNS-based Blacklists)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-in-the-current-implementation" class="md-nav__link">
+    Missing in the Current Implementation
   </a>
   
 </li>
@@ -753,9 +787,29 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#missing-in-dms-current-implementation" class="md-nav__link">
-    Missing in DMS' Current Implementation
+  <a href="#providing-custom-settings-overriding-settings" class="md-nav__link">
+    Providing Custom Settings &amp; Overriding Settings
   </a>
+  
+    <nav class="md-nav" aria-label="Providing Custom Settings &amp; Overriding Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manually" class="md-nav__link">
+    Manually
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-help-of-a-custom-file" class="md-nav__link">
+    With the Help of a Custom File
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1521,23 +1575,57 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#integration-configuration" class="md-nav__link">
-    Integration &amp; Configuration
+  <a href="#the-default-configuration" class="md-nav__link">
+    The Default Configuration
   </a>
   
-    <nav class="md-nav" aria-label="Integration &amp; Configuration">
+    <nav class="md-nav" aria-label="The Default Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#providing-overriding-settings" class="md-nav__link">
-    Providing &amp; Overriding Settings
+  <a href="#mode-of-operation" class="md-nav__link">
+    Mode of Operation
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#dms-defaults" class="md-nav__link">
-    DMS' Defaults
+  <a href="#modules" class="md-nav__link">
+    Modules
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#disabled-by-default" class="md-nav__link">
+    Disabled By Default
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-virus-clamav" class="md-nav__link">
+    Anti-Virus (ClamAV)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists" class="md-nav__link">
+    RBLs (Realtime Blacklists) / DNSBLs (DNS-based Blacklists)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-in-the-current-implementation" class="md-nav__link">
+    Missing in the Current Implementation
   </a>
   
 </li>
@@ -1548,9 +1636,29 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#missing-in-dms-current-implementation" class="md-nav__link">
-    Missing in DMS' Current Implementation
+  <a href="#providing-custom-settings-overriding-settings" class="md-nav__link">
+    Providing Custom Settings &amp; Overriding Settings
   </a>
+  
+    <nav class="md-nav" aria-label="Providing Custom Settings &amp; Overriding Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manually" class="md-nav__link">
+    Manually
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-help-of-a-custom-file" class="md-nav__link">
+    With the Help of a Custom File
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1575,31 +1683,72 @@
   <h1>Rspamd</h1>
 
 <div class="admonition warning">
-<p class="admonition-title">Implementation of Rspamd into DMS is WIP!</p>
+<p class="admonition-title">The current state of Rspamd integration into DMS</p>
+<p>Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be (breaking) changes ahead as integration is still work in progress!</p>
+<p>We expect to stabilize this feature with version <code>v12.1.0</code>.</p>
 </div>
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
-<p>Rspamd is a "fast, free and open-source spam filtering system". It offers high performance as it is written in C. Visit <a href="https://rspamd.com/">their homepage</a> for more details.</p>
-<h2 id="integration-configuration"><a class="toclink" href="#integration-configuration">Integration &amp; Configuration</a></h2>
-<p>We provide a very simple but easy to maintain setup of RSpamd. The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-overriding-settings">overriding the configuration by DMS</a>.</p>
-<h3 id="providing-overriding-settings"><a class="toclink" href="#providing-overriding-settings">Providing &amp; Overriding Settings</a></h3>
+<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. You will need to enable Rspamd (via <code>ENABLE_RSPAMD=1</code>) manually as it is disabled by default.</p>
+<p>We provide a very simple but easy to maintain setup of Rspamd. If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
+<p>If you want to adjust Rspamd's configuration, have a look at the <a href="#providing-custom-settings-overriding-settings">"Providing Custom Settings &amp; Overriding Settings" section</a> down below.</p>
+<div class="admonition note">
+<p class="admonition-title">AMD64 vs ARM64</p>
+<p>We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference is two minor versions (AMD64 is at version 3.4, ARM64 at 3.2 [13th Feb 2023]).</p>
+<p>Maintainers noticed only few differences, some of them with a big impact though. For those running Rspamd on ARM64, we recommend <a href="#with-the-help-of-a-custom-file">disabling</a> the <a href="https://rspamd.com/doc/modules/dkim_signing.html">DKIM signing module</a> if you don't use it.</p>
+</div>
+<h2 id="the-default-configuration"><a class="toclink" href="#the-default-configuration">The Default Configuration</a></h2>
+<h3 id="mode-of-operation"><a class="toclink" href="#mode-of-operation">Mode of Operation</a></h3>
+<p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
+<p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setup where you already have an authentication provider in front of the Rspamd webpage, you may add <code>secure_ip = "0.0.0.0/0";</code> to <code>worker-controller.inc</code> to disable password authentication inside Rspamd completely.</p>
+<h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
+<p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
+<h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
+<p>DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.</p>
+<h4 id="anti-virus-clamav"><a class="toclink" href="#anti-virus-clamav">Anti-Virus (ClamAV)</a></h4>
+<p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
+<h4 id="rbls-realtime-blacklists-dnsbls-dns-based-blacklists"><a class="toclink" href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists">RBLs (Realtime Blacklists) / DNSBLs (DNS-based Blacklists)</a></h4>
+<p>The <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will perform DNS lookups to a variety of blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body [<a href="https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&amp;comment=119818">source</a>].</p>
+<div class="admonition danger">
+<p class="admonition-title">Rspamd and DNS Block Lists</p>
+<p>When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.</p>
+<p>If you want to use DNSBLs, <strong>try to use your own DNS resolver</strong> and make sure it is set up correctly, i.e. it should be a non-public &amp; <strong>recursive</strong> resolver. Otherwise, you might not be able (<a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">see this Spamhaus post</a>) to make use of the block lists.</p>
+</div>
+<h3 id="missing-in-the-current-implementation"><a class="toclink" href="#missing-in-the-current-implementation">Missing in the Current Implementation</a></h3>
+<p>We currently lack easy integration for <a href="https://rspamd.com/doc/modules/dkim_signing.html">DKIM signing outgoing mails</a>. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment variable <code>ENABLE_OPENDKIM=0</code>. Rspamd will still check for valid DKIM signatures for incoming mail by default.</p>
+<h2 id="providing-custom-settings-overriding-settings"><a class="toclink" href="#providing-custom-settings-overriding-settings">Providing Custom Settings &amp; Overriding Settings</a></h2>
+<h3 id="manually"><a class="toclink" href="#manually">Manually</a></h3>
 <p>DMS brings sane default settings for Rspamd. They are located at <code>/etc/rspamd/local.d/</code> inside the container (or <code>target/rspamd/local.d/</code> in the repository). If you want to change these settings and / or provide your own settings, you can</p>
 <ol>
 <li>place files at <code>/etc/rspamd/override.d/</code> which will override Rspamd settings and DMS settings</li>
 <li>(re-)place files at <code>/etc/rspamd/local.d/</code> to override DMS settings and merge them with Rspamd settings</li>
 </ol>
-<p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
-<h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS' Defaults</a></h3>
-<div class="admonition danger">
-<p class="admonition-title">Rspamd and DNS Block Lists</p>
-<p>When using Rspamd, the <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will do a variety of DNS requests. Amongst other things, Rspamd will query DNS block lists (DNSBLs).</p>
-<p>There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. We urge you not to rely on this though.</p>
-<p>If you want to use RBLs, <strong>try to use your own DNS resolver</strong> and make sure it is set up correctly, i.e. it should be a non-public &amp; <strong>recursive</strong> resolver. Otherwise, you might not be able (<a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">see this Spamhaus post</a>) to make use of the block lists.</p>
+<div class="admonition warning">
+<p class="admonition-title">Clashing Overrides</p>
+<p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>rspamd-commands</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
 </div>
-<p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
-<p>DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and needlessly use resources. You can re-activate them by replacing <code>/etc/rspamd/local.d/&lt;MODULE&gt;.conf</code> or overriding DMS' default with <code>/etc/rspamd/override.d/&lt;MODULE&gt;.conf</code>.</p>
-<p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setup where you already have an authentication provider in front of the Rspamd webpage, you may add <code>secure_ip = "0.0.0.0/0";</code> to <code>worker-controller.inc</code> to disable password authentication inside Rspamd completely.</p>
-<h2 id="missing-in-dms-current-implementation"><a class="toclink" href="#missing-in-dms-current-implementation">Missing in DMS' Current Implementation</a></h2>
-<p>We currently lack easy integration for DKIM signing outgoing mails. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment <code>ENABLE_OPENDKIM=0</code>. Rspamd will still check for valid DKIM signatures for incoming mail by default.</p>
+<h3 id="with-the-help-of-a-custom-file"><a class="toclink" href="#with-the-help-of-a-custom-file">With the Help of a Custom File</a></h3>
+<p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>rspamd-modules.conf</code> into the directory <code>docker-data/dms/config/</code> (which translates to <code>/tmp/docker-mailserver/</code> in the container). If this file is present, DMS will evaluate it. The structure is <em>very</em> simple. Each line in the file looks like this:</p>
+<div class="highlight"><pre><span></span><code>COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
+</code></pre></div>
+<p>where <code>COMMAND</code> can be:</p>
+<ol>
+<li><code>disable-module</code>: disables the module with name <code>ARGUMENT1</code></li>
+<li><code>enable-module</code>: explicitly enables the module with name <code>ARGUMENT1</code></li>
+<li><code>set-option-for-module</code>: sets the value for option <code>ARGUMENT2</code> to <code>ARGUMENT3</code> inside module <code>ARGUMENT1</code></li>
+<li><code>set-option-for-controller</code>: set the value of option <code>ARGUMENT1</code> to <code>ARGUMENT2</code> for the controller worker</li>
+<li><code>set-option-for-proxy</code>: set the value of option <code>ARGUMENT1</code> to <code>ARGUMENT2</code> for the proxy worker</li>
+<li><code>set-common-option</code>: set the option <code>ARGUMENT1</code> that <a href="https://rspamd.com/doc/configuration/options.html">defines basic Rspamd behaviour</a> to value <code>ARGUMENT2</code></li>
+<li><code>add-line</code>: this will add the complete line after <code>ARGUMENT1</code> (with all characters) to the file <code>/etc/rspamd/override.d/&lt;ARGUMENT1&gt;</code></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">File Names &amp; Extensions</p>
+<p>For command 1 - 3, we append the <code>.conf</code> suffix to the module name to get the correct file name automatically. For commands 4 - 6, the file name is fixed (you don't even need to provide it). For command 7, you will need to provide the whole file name (including the suffix) yourself!</p>
+</div>
+<p>You can also have comments (the line starts with <code>#</code>) and blank lines in <code>rspamd-modules.conf</code> - they are properly handled and not evaluated.</p>
+<div class="admonition tip">
+<p class="admonition-title">Adjusting Modules This Way</p>
+<p>These simple commands are meant to give users the ability to <em>easily</em> alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that <a href="#manually">manually</a>!</p>
+</div>
 
               
             </article>
