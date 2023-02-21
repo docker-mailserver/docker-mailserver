@@ -89,7 +89,8 @@ function setup_file() {
   _send_email 'existing-user-and-cc-local-alias'
   _send_email 'sieve-spam-folder'
   _send_email 'sieve-pipe'
-  _send_email 'root-email'
+  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
+  _wait_for_empty_mail_queue_in_container
 }
 
 @test "should succeed at emptying mail queue" {
