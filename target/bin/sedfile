@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wrapper for 'sed -i': fail if file was not modified by sed and container was not restarted.
-# Error output is surpressed, when container is restarted to avoid harmless error messages.
+# Error output is suppressed, when container is restarted to avoid harmless error messages.
 # Use "--strict" as first parameter, to fail regardless of the container state (fresh or restarted).
 
 # When to use sedfile?

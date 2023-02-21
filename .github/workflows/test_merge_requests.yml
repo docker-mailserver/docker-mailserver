@@ -1,4 +1,4 @@
-name: 'Test Merge Requests'
+name: "Test Merge Requests"
 
 on:
   workflow_dispatch:
@@ -9,6 +9,7 @@ on:
       - .dockerignore
       - .gitmodules
       - Dockerfile
+      - Makefile
       - setup.sh
 
 permissions:
@@ -16,18 +17,18 @@ permissions:
 
 jobs:
   build-image-amd64:
-    name: 'Build AMD64 Image'
+    name: "Build AMD64 Image"
     uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
 
   run-tests:
-    name: 'Test AMD64 Image'
+    name: "Test AMD64 Image"
     needs: build-image-amd64
     uses: docker-mailserver/docker-mailserver/.github/workflows/generic_test.yml@master
     with:
       cache-key: ${{ needs.build-image-amd64.outputs.build-cache-key }}
 
   job-build-arm:
-    name: 'Build ARM64 Image'
+    name: "Build ARM64 Image"
     # Dependency ensures the cache-key is only created for AMD64 builds.
     # ARM64 will not be able to use this cache, building from scratch each time.
     # Expect about 2 minutes extra build time until adopting `type=gha` with scopes for cache.

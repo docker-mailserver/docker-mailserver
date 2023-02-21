@@ -32,13 +32,20 @@ function _start_daemon_cron           { _default_start_daemon 'cron'           ;
 function _start_daemon_opendkim       { _default_start_daemon 'opendkim'       ; }
 function _start_daemon_opendmarc      { _default_start_daemon 'opendmarc'      ; }
 function _start_daemon_postsrsd       { _default_start_daemon 'postsrsd'       ; }
-function _start_daemon_postfix        { _default_start_daemon 'postfix'        ; }
 function _start_daemon_rsyslog        { _default_start_daemon 'rsyslog'        ; }
 function _start_daemon_update_check   { _default_start_daemon 'update-check'   ; }
+function _start_daemon_rspamd         { _default_start_daemon 'rspamd'         ; }
+function _start_daemon_redis          { _default_start_daemon 'redis'          ; }
 
 function _start_daemon_saslauthd
 {
   _default_start_daemon "saslauthd_${SASLAUTHD_MECHANISMS}"
+}
+
+function _start_daemon_postfix
+{
+  _adjust_mtime_for_postfix_maincf
+  _default_start_daemon 'postfix'
 }
 
 function _start_daemon_postgrey
@@ -49,11 +56,6 @@ function _start_daemon_postgrey
 
 function _start_daemon_fail2ban
 {
-  touch /var/log/auth.log
-
-  # delete fail2ban.sock that probably was left here after container restart
-  [[ -e /var/run/fail2ban/fail2ban.sock ]] && rm /var/run/fail2ban/fail2ban.sock
-
   _default_start_daemon 'fail2ban'
 }
 

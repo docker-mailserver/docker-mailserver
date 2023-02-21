@@ -65,25 +65,31 @@ teardown_file() {
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
-  run docker exec mail_smtponly_second_network /bin/sh -c "/etc/init.d/postfix reload"
-  assert_success
+  _reload_postfix mail_smtponly_second_network
 
   # we should be able to send from the other container on the second network!
   run docker exec mail_smtponly_second_network_sender /bin/sh -c "nc mail_smtponly_second_network 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
   assert_output --partial "250 2.0.0 Ok: queued as "
-  repeat_until_success_or_timeout 60 run docker exec mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
-  [[ ${status} -ge 0 ]]
+  repeat_in_container_until_success_or_timeout 60 mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
 }
 
 @test "checking PERMIT_DOCKER: none" {
   run docker exec mail_smtponly_force_authentication /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
-  run docker exec mail_smtponly_force_authentication /bin/sh -c "/etc/init.d/postfix reload"
-  assert_success
+  _reload_postfix mail_smtponly_force_authentication
 
   # the mailserver should require authentication and a protocol error should occur when using TLS
   run docker exec mail_smtponly_force_authentication /bin/sh -c "nc localhost 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
   assert_output --partial "550 5.5.1 Protocol error"
   [[ ${status} -ge 0 ]]
+}
+
+@test "checking PERMIT_DOCKER=network: opendmarc/opendkim config" {
+  skip 'TODO: this test was taken from mail_smtponly, where it did not actually belong to'
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
+  assert_success
+
+  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
+  assert_success
 }

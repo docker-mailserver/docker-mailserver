@@ -19,12 +19,6 @@ Or, you can clone and retrieve the submodules in one command:
 git clone --recurse-submodules https://github.com/docker-mailserver/docker-mailserver
 ```
 
-Retrieving the git submodules will fix the error:
-
-```txt
-COPY failed: file not found in build context or excluded by .dockerignore: stat target/docker-configomat/configomat.sh: file does not exist
-```
-
 ### About Docker
 
 #### Version

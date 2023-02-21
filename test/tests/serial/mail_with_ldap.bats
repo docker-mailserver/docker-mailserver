@@ -23,7 +23,7 @@ function setup_file() {
     --tty \
     ldap # Image name
 
-  # _setup_ldap uses configomat with .ext files and ENV vars like DOVECOT_TLS with a prefix (eg DOVECOT_ or LDAP_)
+  # _setup_ldap uses _replace_by_env_in_file with ENV vars like DOVECOT_TLS with a prefix (eg. DOVECOT_ or LDAP_)
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container .)
   docker run -d --name mail_with_ldap \
@@ -62,13 +62,6 @@ function setup_file() {
 function teardown_file() {
   docker rm -f ldap_for_mail mail_with_ldap
   docker network rm "${DMS_TEST_NETWORK}"
-}
-
-# processes
-
-@test "checking process: saslauthd (saslauthd server enabled)" {
-  run docker exec mail_with_ldap /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
-  assert_success
 }
 
 # postfix
@@ -245,14 +238,5 @@ function teardown_file() {
 
   # checking default logrotation setup
   run docker exec mail_with_ldap grep "weekly" /etc/logrotate.d/maillog
-  assert_success
-}
-
-#
-# supervisor
-#
-
-@test "checking restart of process: saslauthd (saslauthd server enabled)" {
-  run docker exec mail_with_ldap /bin/bash -c "pkill saslauthd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/saslauthd'"
   assert_success
 }

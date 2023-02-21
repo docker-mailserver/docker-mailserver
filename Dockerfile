@@ -10,7 +10,7 @@
 FROM docker.io/debian:11-slim AS stage-base
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DOVECOT_COMMUNITY_REPO=0
+ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
@@ -20,7 +20,10 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 COPY target/bin/sedfile /usr/local/bin/sedfile
-RUN chmod +x /usr/local/bin/sedfile
+RUN <<EOF
+  chmod +x /usr/local/bin/sedfile
+  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
+EOF
 
 COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
@@ -31,6 +34,12 @@ RUN /bin/bash /build/packages.sh
 # --- ClamAV & FeshClam -------------------------
 # -----------------------------------------------
 
+# Copy over latest DB updates from official ClamAV image. This is better than running `freshclam`,
+# which would require an extra memory of 500MB+ during an image build.
+# When using `COPY --link`, the `--chown` option is only compatible with numeric ID values.
+# hadolint ignore=DL3021
+COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
+
 RUN <<EOF
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
@@ -39,10 +48,6 @@ RUN <<EOF
   chown -R clamav:root /var/run/clamav
   rm -rf /var/log/clamav/
 EOF
-
-# Copy over latest DB updates from official ClamAV image. Better than running `freshclam` (which requires extra RAM during build)
-# hadolint ignore=DL3021
-COPY --link --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
@@ -64,6 +69,12 @@ RUN <<EOF
   mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
   chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 EOF
+
+# -----------------------------------------------
+# --- Rspamd ------------------------------------
+# -----------------------------------------------
+
+COPY target/rspamd/local.d/ /etc/rspamd/local.d/
 
 # -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
@@ -101,6 +112,7 @@ RUN <<EOF
 EOF
 
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
+COPY target/amavis/postfix-amavis.cf /etc/dms/postfix/master.d/
 RUN <<EOF
   sedfile -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
   # add users clamav and amavis to each others group
@@ -133,6 +145,7 @@ EOF
 # -----------------------------------------------
 
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
+COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
   ln -s /var/log/mail/mail.log /var/log/mail.log
   # disable sshd jail
@@ -228,7 +241,6 @@ RUN <<EOF
   rm -rf /usr/share/locale/*
   rm -rf /usr/share/man/*
   rm -rf /usr/share/doc/*
-  touch /var/log/auth.log
   update-locale
   rm /etc/postsrsd.secret
   rm /etc/cron.daily/00logwatch
@@ -241,7 +253,6 @@ COPY \
   target/scripts/*.sh \
   target/scripts/startup/*.sh \
   target/scripts/wrapper/*.sh \
-  target/docker-configomat/configomat.sh \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*

@@ -101,7 +101,7 @@ MUA <---- STARTTLS ---- ┤(143)   MDA ╯        |
  ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
 ```
 
-If you're new to email infrastructure, both that table and the schema may be confusing.  
+If you're new to email infrastructure, both that table and the schema may be confusing.
 Read on to expand your understanding and learn about `docker-mailserver`'s configuration, including how you can customize it.
 
 ### Submission - SMTP
@@ -145,7 +145,7 @@ The best practice as of 2020 when it comes to securing Outward Submission is to 
 - Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.
 
 !!! warning
-    This Submission setup is sometimes refered to as [SMTPS][wikipedia-smtps]. Long story short: this is incorrect and should be avoided.
+    This Submission setup is sometimes referred to as [SMTPS][wikipedia-smtps]. Long story short: this is incorrect and should be avoided.
 
 Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cutting edge". There exists another well established mail Submission setup that must be supported as well, SMTP+STARTTLS on port 587. It uses Explicit TLS: the client starts with a cleartext connection, then the server informs a TLS-encrypted "upgraded" connection may be established, and the client _may_ eventually decide to establish it prior to the Submission. Basically it's an opportunistic, opt-in TLS upgrade of the connection between the client and the server, at the client's discretion, using a mechanism known as [STARTTLS][wikipedia-starttls] that both ends need to implement.
 

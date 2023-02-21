@@ -62,9 +62,9 @@ function _install_packages
   )
 
   MISCELLANEOUS_PACKAGES=(
-    apt-transport-https binutils bsd-mailx
+    apt-transport-https bind9-dnsutils binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init ed gamin gnupg iproute2
+    dumb-init ed gnupg iproute2 iputils-ping
     libdate-manip-perl libldap-common
     libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd
@@ -129,15 +129,46 @@ function _install_dovecot
   apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
 }
 
+function _install_rspamd
+{
+  _log 'trace' 'Adding Rspamd package signatures'
+  local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
+  local RSPAMD_PACKAGE_NAME
+
+  # We try getting the most recent version of Rspamd for aarch64 (from an official source, which
+  # is the backports repository). The version for aarch64 is 3.2; the most recent version for amd64
+  # that we get with the official PPA is 3.4.
+  #
+  # Not removing it later is fine as you have to explicitly opt into installing a backports package
+  # which is not something you could be doing by accident.
+  if [[ $(uname --machine) == 'aarch64' ]]
+  then
+    echo '# Official Rspamd PPA does not support aarch64, so we use the Bullseye backports' >"${DEB_FILE}"
+    echo 'deb [arch=arm64] http://deb.debian.org/debian bullseye-backports main' >>"${DEB_FILE}"
+    RSPAMD_PACKAGE_NAME='rspamd/bullseye-backports'
+  else
+    curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
+    local URL='[arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
+    echo "deb ${URL}" >"${DEB_FILE}"
+    echo "deb-src ${URL}" >>"${DEB_FILE}"
+    RSPAMD_PACKAGE_NAME='rspamd'
+  fi
+
+  _log 'debug' 'Installing Rspamd'
+  apt-get "${QUIET}" update
+  apt-get "${QUIET}" --no-install-recommends install "${RSPAMD_PACKAGE_NAME}" 'redis-server'
+}
+
 function _install_fail2ban
 {
-  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb'
+  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/1.0.2/fail2ban_1.0.2-1.upstream1_all.deb'
   local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
   local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
   local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
   local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
 
   _log 'debug' 'Installing Fail2ban'
+  apt-get "${QUIET}" --no-install-recommends install python3-pyinotify python3-dnspython
 
   gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
 
@@ -180,5 +211,6 @@ _pre_installation_steps
 _install_postfix
 _install_packages
 _install_dovecot
+_install_rspamd
 _install_fail2ban
 _post_installation_steps

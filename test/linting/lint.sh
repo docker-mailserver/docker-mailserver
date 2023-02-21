@@ -11,7 +11,7 @@ REPOSITORY_ROOT=$(realpath "$(dirname "$(readlink -f "${0}")")"/../../)
 LOG_LEVEL=${LOG_LEVEL:-debug}
 HADOLINT_VERSION='2.9.2'
 ECLINT_VERSION='2.4.0'
-SHELLCHECK_VERSION='0.8.0'
+SHELLCHECK_VERSION='0.9.0'
 
 # shellcheck source=./../../target/scripts/helpers/log.sh
 source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
@@ -21,7 +21,7 @@ function _eclint
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
-    --name eclint \
+    --name dms-test_eclint \
     "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
   then
     _log 'info' 'ECLint succeeded'
@@ -36,6 +36,7 @@ function _hadolint
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
+    --name dms-test_hadolint \
     "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
   then
     _log 'info' 'Hadolint succeeded'
@@ -50,8 +51,7 @@ function _shellcheck
   # File paths for shellcheck:
   F_SH=$(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
-    -not -path './test/test_helper/*' \
-    -not -path './target/docker-configomat/*'
+    -not -path './test/test_helper/*'
   )
   # shellcheck disable=SC2248
   F_BIN=$(find 'target/bin' -type f -not -name '*.py')
@@ -89,6 +89,7 @@ function _shellcheck
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
+    --name dms-test_shellcheck \
     "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
   then
     _log 'info' 'ShellCheck succeeded'

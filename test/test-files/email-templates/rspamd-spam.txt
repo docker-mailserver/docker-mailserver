@@ -1,0 +1,13 @@
+HELO mail.example.test
+MAIL FROM: spam@example.test
+RCPT TO: user1@localhost.localdomain
+DATA
+From: Docker Mail Server <spam@example.test>
+To: Existing Local User <user1@localhost.localdomain>
+Date: Sat, 21 Jan 2023 11:11:11 +0000
+Subject: Test Message rspamd-spam.txt
+This is a test mail.
+XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X
+
+.
+QUIT

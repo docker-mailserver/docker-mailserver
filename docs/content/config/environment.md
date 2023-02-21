@@ -51,6 +51,8 @@ User provisioning via OIDC is planned for the future, see [this tracking issue](
 - OIDC => use OIDC authentication (**not yet implemented**)
 - FILE => use local files (this is used as the default)
 
+A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
+
 ##### PERMIT_DOCKER
 
 Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
@@ -66,6 +68,17 @@ Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_pro
 ##### TZ
 
 Set the timezone. If this variable is unset, the container runtime will try to detect the time using `/etc/localtime`, which you can alternatively mount into the container. The value of this variable must follow the pattern `AREA/ZONE`, i.e. of you want to use Germany's time zone, use `Europe/Berlin`. You can lookup all available timezones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
+
+##### ENABLE_RSPAMD
+
+Enable or disable Rspamd.
+
+!!! warning "Current State"
+
+    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
+
+- **0** => disabled
+- 1 => enabled
 
 ##### ENABLE_AMAVIS
 
@@ -85,23 +98,40 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 
 ##### ENABLE_DNSBL
 
-This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list in postfix
-and various [lists](https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66) in postscreen.
+This enables DNS block lists in _Postscreen_. If you want to know which lists we are using, have a look at [the default `main.cf` for Postfix we provide](https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf) and search for `postscreen_dnsbl_sites`.
 
-Note: Emails will be rejected, if they don't pass the block list checks!
+!!! danger "A Warning On DNS Block Lists"
+
+    Make sure your DNS queries are properly resolved, i.e. you will most likely not want to use a public DNS resolver as these queries do not return meaningful results. We try our best to only evaluate proper return codes - this is not a guarantee that all codes are handled fine though.
+
+    **Note that emails will be rejected if they don't pass the block list checks!**
 
 - **0** => DNS block lists are disabled
 - 1     => DNS block lists are enabled
 
-##### ENABLE_CLAMAV
+##### ENABLE_OPENDKIM
 
-- **0** => ClamAV is disabled
-- 1 => ClamAV is enabled
+Enables the OpenDKIM service.
+
+- **1** => Enabled
+- 0 => Disabled
+
+##### ENABLE_OPENDMARC
+
+Enables the OpenDMARC service.
+
+- **1** => Enabled
+- 0 => Disabled
 
 ##### ENABLE_POP3
 
 - **empty** => POP3 service disabled
 - 1 => Enables POP3 service
+
+##### ENABLE_CLAMAV
+
+- **0** => ClamAV is disabled
+- 1 => ClamAV is enabled
 
 ##### ENABLE_FAIL2BAN
 
@@ -176,22 +206,16 @@ Set how many days a virusmail will stay on the server before being deleted
 
 - **empty** => 7 days
 
-##### ENABLE_POSTFIX_VIRTUAL_TRANSPORT
-
-This Option is activating the Usage of POSTFIX_DAGENT to specify a ltmp client different from default dovecot socket.
-
-- **empty** => disabled
-- 1 => enabled
-
 ##### POSTFIX_DAGENT
 
-Enabled by ENABLE_POSTFIX_VIRTUAL_TRANSPORT. Specify the final delivery of postfix
+Configure Postfix `virtual_transport` to deliver mail to a different LMTP client (_default is a unix socket to dovecot_).
 
-- **empty**: fail
+Provide any valid URI. Examples:
+
+- **empty** => `lmtp:unix:/var/run/dovecot/lmtp` (default, configured in Postfix `main.cf`)
 - `lmtp:unix:private/dovecot-lmtp` (use socket)
-- `lmtps:inet:<host>:<port>` (secure lmtp with starttls, take a look at <https://sys4.de/en/blog/2014/11/17/sicheres-lmtp-mit-starttls-in-dovecot/>)
+- `lmtps:inet:<host>:<port>` (secure lmtp with starttls)
 - `lmtp:<kopano-host>:2003` (use kopano as mailstore)
-- etc.
 
 ##### POSTFIX\_MAILBOX\_SIZE\_LIMIT
 
@@ -761,6 +785,7 @@ you to replace both instead of just the envelope sender.
 - **empty** => no default
 - password for default relay user
 
+[docs-rspamd]: ./security/rspamd.md
 [docs-faq-onedir]: ../faq.md#what-about-docker-datadmsmail-state-folder-varmail-state-internally
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended

@@ -42,7 +42,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     - LDAP_BIND_DN=cn=admin,dc=example,dc=org
     - LDAP_BIND_PW=mypassword
     - SPOOF_PROTECTION=1
-    
+
     - LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
     - LDAP_QUERY_FILTER_USER=(mail=%s)
     - LDAP_QUERY_FILTER_ALIAS=(|) # doesn't match anything
@@ -130,7 +130,7 @@ To enable LDAP over StartTLS (on port 389), you need to set the following enviro
 
 ## Active Directory Configurations (Tested with Samba4 AD Implementation)
 
-In addition to LDAP explanation above, when Docker Mailserver is intended to be used with Active Directory (or the equivelant implementations like Samba4 AD DC) the following points should be taken into consideration:
+In addition to LDAP explanation above, when Docker Mailserver is intended to be used with Active Directory (or the equivalent implementations like Samba4 AD DC) the following points should be taken into consideration:
 
 - Samba4 Active Directory requires a **secure connection** to the domain controller (DC), either via SSL/TLS (LDAPS) or via StartTLS.
 - The username equivalent in Active Directory is: `sAMAccountName`.
@@ -189,13 +189,11 @@ The changes on the configurations necessary to work with Active Directory (**onl
 ???+ example "Basic Setup"
 
     ```yaml
-    version: '3.8'
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
 
         ports:
           - "25:25"
@@ -243,7 +241,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - SASLAUTHD_LDAP_FILTER=(&(mail=%U@example.org)(objectClass=inetOrgPerson))
           # <<< SASL LDAP Authentication
 
-          - ONE_DIR=1
           - SSL_TYPE=letsencrypt
           - PERMIT_DOCKER=host
 
@@ -254,14 +251,11 @@ The changes on the configurations necessary to work with Active Directory (**onl
 ??? example "Kopano / Zarafa"
 
     ```yaml
-    version: '3.8'
-
     services:
       mailserver:
         image: docker.io/mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
 
         ports:
           - "25:25"
@@ -303,11 +297,9 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< Postfix Ldap Integration
 
           # >>> Kopano Integration
-          - ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
           - POSTFIX_DAGENT=lmtp:kopano:2003
           # <<< Kopano Integration
 
-          - ONE_DIR=1
           - SSL_TYPE=letsencrypt
           - PERMIT_DOCKER=host
 

@@ -21,16 +21,6 @@ function _fix_var_mail_permissions
   _log 'trace' 'Permissions in /var/mail look OK'
 }
 
-function _fix_var_amavis_permissions
-{
-  local AMAVIS_STATE_DIR='/var/mail-state/lib-amavis'
-  [[ ${ONE_DIR} -eq 0 ]] && AMAVIS_STATE_DIR="/var/lib/amavis"
-  [[ ! -e ${AMAVIS_STATE_DIR} ]] && return 0
-
-  _log 'trace' 'Fixing Amavis permissions'
-  chown -hR amavis:amavis "${AMAVIS_STATE_DIR}" || _shutdown 'Failed to fix Amavis permissions'
-}
-
 function _fix_cleanup_clamav
 {
   _log 'trace' 'Cleaning up disabled ClamAV'

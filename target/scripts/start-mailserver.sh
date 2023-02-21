@@ -101,8 +101,9 @@ function _register_functions
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
   [[ ${ENABLE_DNSBL} -eq 0 ]] && _register_setup_function '_setup_dnsbl_disable'
   [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]] && _register_setup_function '_setup_clamav_sizelimit'
+  [[ ${ENABLE_RSPAMD} -eq 1 ]] && _register_setup_function '_setup_rspamd'
 
-  _register_setup_function '_setup_dkim'
+  _register_setup_function '_setup_dkim_dmarc'
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
@@ -137,7 +138,7 @@ function _register_functions
   _register_setup_function '_setup_postfix_access_control'
   _register_setup_function '_setup_postfix_relay_hosts'
 
-  [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT:-0} -eq 1 ]] && _register_setup_function '_setup_postfix_virtual_transport'
+  [[ -n ${POSTFIX_DAGENT} ]] && _register_setup_function '_setup_postfix_virtual_transport'
 
   _register_setup_function '_setup_postfix_override_configuration'
   _register_setup_function '_setup_logrotate'
@@ -147,7 +148,6 @@ function _register_functions
   # ? >> Fixes
 
   _register_fix_function '_fix_var_mail_permissions'
-  [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_fix_function '_fix_var_amavis_permissions'
 
   [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
   [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function '_fix_cleanup_spamassassin'
@@ -165,9 +165,15 @@ function _register_functions
   [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
   [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
 
+  if [[ ${ENABLE_RSPAMD} -eq 1 ]]
+  then
+    _register_start_daemon '_start_daemon_redis'
+    _register_start_daemon '_start_daemon_rspamd'
+  fi
+
   # needs to be started before SASLauthd
-  _register_start_daemon '_start_daemon_opendkim'
-  _register_start_daemon '_start_daemon_opendmarc'
+  [[ ${ENABLE_OPENDKIM} -eq 1 ]] && _register_start_daemon '_start_daemon_opendkim'
+  [[ ${ENABLE_OPENDMARC} -eq 1 ]] && _register_start_daemon '_start_daemon_opendmarc'
 
   # needs to be started before postfix
   [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon '_start_daemon_postgrey'
@@ -179,8 +185,8 @@ function _register_functions
   [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemon_fail2ban'
   [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemon_fetchmail'
   [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
-  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
   [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
+  [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
 }
 
 function _register_start_daemon

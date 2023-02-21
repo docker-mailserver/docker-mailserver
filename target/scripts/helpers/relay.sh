@@ -38,7 +38,7 @@
 # Otherwise use another table type such as `hash` and run `postmap` on the table after modification.
 #
 # WARNING: Databases (tables above) are rebuilt during change detection. There is a minor chance of
-# a lookup occuring during a rebuild of these files that may affect or delay delivery?
+# a lookup occurring during a rebuild of these files that may affect or delay delivery?
 # TODO: Should instead perform an atomic operation with a temporary file + `mv` to replace?
 # Or switch back to using `hash` table type if plaintext access is not needed (unless retaining file for postmap).
 # Either way, plaintext copy is likely accessible if using our supported configs for providing them to the container.
@@ -63,7 +63,7 @@ function _env_relay_host
 function _relayhost_sasl
 {
   if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] \
-    && [[ -z ${RELAY_USER} ]] || [[ -z ${RELAY_PASSWORD} ]]
+    && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
   then
     _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from postfix-sasl-password.cf"
     return 1

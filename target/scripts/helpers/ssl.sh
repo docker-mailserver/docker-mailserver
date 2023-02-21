@@ -136,23 +136,11 @@ function _setup_ssl
       ;;
 
     ( "intermediate" )
-      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA'
-      local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3'
-      local TLS_INTERMEDIATE_MIN='TLSv1'
+      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256'
+      local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
+      local TLS_INTERMEDIATE_MIN='TLSv1.2'
 
       _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
-
-      # Lowers the minimum acceptable TLS version connection to `TLSv1` (from Debian upstream `TLSv1.2`)
-      # Lowers Security Level to `1` (from Debian upstream `2`, openssl release defaults to `1`)
-      # https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html
-      # https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1
-      # https://dovecot.org/pipermail/dovecot/2020-October/120225.html
-      # TODO: This is a fix for Debian Bullseye Dovecot. Can remove when we only support TLS >=1.2.
-      # WARNING: This applies to all processes that use openssl and respect these settings.
-      sedfile -i -r \
-        -e 's|^(MinProtocol).*|\1 = TLSv1|' \
-        -e 's|^(CipherString).*|\1 = DEFAULT@SECLEVEL=1|' \
-        /usr/lib/ssl/openssl.cnf
 
       _log 'debug' "TLS configured with 'intermediate' ciphers"
       ;;

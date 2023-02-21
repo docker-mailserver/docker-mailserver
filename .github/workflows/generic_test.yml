@@ -13,10 +13,11 @@ permissions:
 jobs:
   run-tests:
     name: 'Test'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         part: [serial, parallel/set1, parallel/set2, parallel/set3]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,11 +34,16 @@ jobs:
           path: /tmp/.buildx-cache
           key: cache-buildx-${{ inputs.cache-key }}
 
+      # Configures buildx to use `docker-container` driver,
+      # Ensures consistent BuildKit version (not coupled to Docker Engine),
+      # and increased compatibility of the build cache vs mixing buildx drivers.
+      - name: 'Set up Docker Buildx'
+        uses: docker/setup-buildx-action@v2.4.1
+
       # Importing from the cache should create the image within approx 30 seconds:
-      # Earlier `buildx` + `qemu` steps are not needed as no cache is exported,
-      # and only a single platform (AMD64) is loaded:
+      # NOTE: `qemu` step is not needed as we only test for AMD64.
       - name: 'Build AMD64 image from cache'
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           tags: mailserver-testing:ci
@@ -46,8 +52,8 @@ jobs:
           # Rebuilds the AMD64 image from the cache:
           platforms: linux/amd64
           cache-from: type=local,src=/tmp/.buildx-cache
+          # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
+          provenance: false
 
       - name: 'Run tests'
         run: make generate-accounts tests/${{ matrix.part }}
-        env:
-          CI: true

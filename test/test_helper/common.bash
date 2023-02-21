@@ -9,6 +9,14 @@ NAME=${NAME:-mailserver-testing:ci}
 TEST_TIMEOUT_IN_SECONDS=${TEST_TIMEOUT_IN_SECONDS:-120}
 NUMBER_OF_LOG_LINES=${NUMBER_OF_LOG_LINES:-10}
 
+function _reload_postfix() {
+  local CONTAINER_NAME=$1
+
+  # Reloading Postfix config after modifying it in <2 sec will cause Postfix to delay, workaround that:
+  docker exec "${CONTAINER_NAME}" touch -d '2 seconds ago' /etc/postfix/main.cf
+  docker exec "${CONTAINER_NAME}" postfix reload
+}
+
 # @param ${1} timeout
 # @param --fatal-test <command eval string> additional test whose failure aborts immediately
 # @param ... test to run
@@ -165,56 +173,6 @@ function wait_for_service() {
     container_has_service_running "${CONTAINER_NAME}" "${SERVICE_NAME}"
 }
 
-function wait_for_changes_to_be_detected_in_container() {
-  local CONTAINER_NAME="${1}"
-  local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
-
-  # shellcheck disable=SC2016
-  repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c 'source /usr/local/bin/helpers/index.sh; _obtain_hostname_and_domainname; cmp --silent -- <(_monitored_files_checksums) "${CHKSUM_FILE}" >/dev/null'
-}
-
-# Relies on ENV `LOG_LEVEL=debug` or higher
-function wait_until_change_detection_event_completes() {
-  local CONTAINER_NAME="${1}"
-  # Ensure early failure if arg is missing:
-  assert_not_equal "${CONTAINER_NAME}" ""
-
-  # Ensure the container is configured with the required `LOG_LEVEL` ENV:
-  assert_regex \
-    $(docker exec "${CONTAINER_NAME}" env | grep '^LOG_LEVEL=') \
-    '=(debug|trace)$'
-
-  local CHANGE_EVENT_START='Change detected'
-  local CHANGE_EVENT_END='Completed handling of detected change' # debug log
-
-  function __change_event_status() {
-    docker exec "${CONTAINER_NAME}" \
-      grep -oE "${CHANGE_EVENT_START}|${CHANGE_EVENT_END}" /var/log/supervisor/changedetector.log \
-      | tail -1
-  }
-
-  function __is_changedetector_processing() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_START}" ]]
-  }
-
-  function __is_changedetector_finished() {
-    [[ $(__change_event_status) == "${CHANGE_EVENT_END}" ]]
-  }
-
-  if [[ ! $(__is_changedetector_processing) ]]
-  then
-    # A new change event is expected, wait for it:
-    repeat_until_success_or_timeout 60 __is_changedetector_processing
-  fi
-
-  # Change event is in progress, wait until it finishes:
-  repeat_until_success_or_timeout 60 __is_changedetector_finished
-
-  # NOTE: Although the change event has completed, services like Postfix and Dovecot
-  # may still be in the process of restarting.
-  # You may still want to wait longer if depending on those to be ready.
-}
-
 # An account added to `postfix-accounts.cf` must wait for the `changedetector` service
 # to process the update before Dovecot creates the mail account and associated storage dir:
 function wait_until_account_maildir_exists() {
@@ -246,73 +204,4 @@ function wait_for_empty_mail_queue_in_container() {
 
   # shellcheck disable=SC2016
   repeat_in_container_until_success_or_timeout "${TIMEOUT}" "${CONTAINER_NAME}" bash -c '[[ $(mailq) == *"Mail queue is empty"* ]]'
-}
-
-# Common defaults appropriate for most tests, override vars in each test when necessary.
-# For all tests override in `setup_file()` via an `export` var.
-# For individual test override the var via `local` var instead.
-#
-# For example, if you need an immutable config volume that can't be affected by other tests
-# in the file, then use `local TEST_TMP_CONFIG=$(duplicate_config_for_container . "${UNIQUE_ID_HERE}")`
-function init_with_defaults() {
-  export TEST_NAME TEST_TMP_CONFIG
-
-  # In `setup_file()` the default name to use for the currently tested docker container
-  # is `${TEST_NAME}` global defined here. It derives the name from the test filename:
-  # `basename` to ignore absolute dir path and file extension, only extract filename.
-  TEST_NAME=$(basename "${BATS_TEST_FILENAME}" '.bats')
-  # In `setup_file()` creates a single copy of the test config folder to use for an entire test file:
-  TEST_TMP_CONFIG=$(duplicate_config_for_container . "${TEST_NAME}")
-
-  # Common complimentary test files, read-only safe to share across containers:
-  export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'
-  export TEST_FILES_VOLUME="${PWD}/test/test-files:${TEST_FILES_CONTAINER_PATH}:ro"
-
-  # The config volume cannot be read-only as some data needs to be written at container startup
-  # - two sed failures (unknown lines)
-  # - dovecot-quotas.cf (setup-stack.sh:_setup_dovecot_quotas)
-  # - postfix-aliases.cf (setup-stack.sh:_setup_postfix_aliases)
-  # TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
-  export TEST_CONFIG_VOLUME="${TEST_TMP_CONFIG}:/tmp/docker-mailserver"
-
-  # The common default FQDN assigned to the container `--hostname` option:
-  export TEST_FQDN='mail.my-domain.com'
-
-  # Default Root CA cert used in TLS tests with `openssl` commands:
-  export TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/ecdsa/ca-cert.ecdsa.pem"
-}
-
-# Using `create` and `start` instead of only `run` allows to modify
-# the container prior to starting it. Otherwise use this combined method.
-# NOTE: Forwards all args to the create method at present.
-function common_container_setup() {
-  common_container_create "$@"
-  common_container_start
-}
-
-# Common docker setup is centralized here.
-#
-# `X_EXTRA_ARGS` - Optional: Pass an array by it's variable name as a string, it will
-# be used as a reference for appending extra config into the `docker create` below:
-#
-# NOTE: Using array reference for a single input parameter, as this method is still
-# under development while adapting tests to it and requirements it must serve (eg: support base config matrix in CI)
-function common_container_create() {
-  [[ -n ${1} ]] && local -n X_EXTRA_ARGS=${1}
-
-  run docker create --name "${TEST_NAME}" \
-    --hostname "${TEST_FQDN}" \
-    --tty \
-    --volume "${TEST_FILES_VOLUME}" \
-    --volume "${TEST_CONFIG_VOLUME}" \
-    "${X_EXTRA_ARGS[@]}" \
-    "${NAME}"
-  assert_success
-}
-
-function common_container_start() {
-  run docker start "${TEST_NAME}"
-  assert_success
-
-  wait_for_finished_setup_in_container "${TEST_NAME}"
 }

@@ -18,6 +18,8 @@ body:
 
         **Make sure** you read through the whole [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md), the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
 
+        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
+
         ## Levels of support
 
         We provide official support for
@@ -55,7 +57,6 @@ body:
       label: What happened and when does this occur?
       description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
-      render: Markdown
     validations:
       required: true
   - type: textarea
@@ -64,7 +65,6 @@ body:
       label: What did you expect to happen?
       description: Tell us what you expected.
       placeholder: I expected to see debug messages.
-      render: Markdown
     validations:
       required: true
   - type: textarea
@@ -77,7 +77,6 @@ body:
         2.
         3.
         ...
-      render: Markdown
     validations:
       required: true
   - type: input
@@ -132,20 +131,19 @@ body:
     id: important-environment-variables
     attributes:
       label: docker-compose.yml
-      description: Show us your docker-compose.yml file or your equivalent "docker run" command.
+      description: Show us your `docker-compose.yml` file or your equivalent `docker run` command, if applicable. This filed is formatted as YAML.
       render: yml
   - type: textarea
     id: relevant-log-output
     attributes:
       label: Relevant log output
-      description: Show us relevant log output here. You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`.
-      render: bash
+      description: Show us relevant log output here. You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`. This field's contents are interpreted as pure text.
+      render: Text
   - type: textarea
     id: other-relevant-information
     attributes:
       label: Other relevant information
-      description: If there is more, you can tell us here. Make sure to use Markdown formatting here.
-      render: Markdown
+      description: If there is more, you can tell us here.
   - type: checkboxes
     id: experience
     attributes:

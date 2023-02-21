@@ -1,0 +1,9 @@
+# * Contains settings that act as fixes, mostly for tests.
+# ! When adding new content, provide a comment on why the fix is necessary.
+
+[Definition]
+
+# Fail2Ban will complain when using `fail2ban-client -d` about this option
+# not being set. This screws up `assert_output` in BATS tests. Therefore,
+# the default value is explicitly set here.
+allowipv6 = auto;

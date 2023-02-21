@@ -73,20 +73,48 @@ function _setup_amavis
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
   then
     _log 'debug' 'Setting up Amavis'
+
+    cat /etc/dms/postfix/master.d/postfix-amavis.cf >>/etc/postfix/master.cf
+    postconf 'content_filter = smtp-amavis:[127.0.0.1]:10024'
+
     sed -i \
       "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
       /etc/amavis/conf.d/05-node_id
   else
-    _log 'debug' "Removing Amavis from Postfix's configuration"
-    sed -i 's|content_filter =.*|content_filter =|' /etc/postfix/main.cf
-
     _log 'debug' 'Disabling Amavis cron job'
     mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
     chmod 0 /etc/cron.d/amavisd-new.disabled
 
-    [[ ${ENABLE_CLAMAV} -eq 1 ]] && _log 'warn' 'ClamAV will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && _log 'warn' 'Spamassassin will not work when Amavis is disabled. Remove ENABLE_AMAVIS=0 from your configuration to fix it.'
+    if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]
+    then
+      _log 'warn' 'ClamAV will not work when Amavis & rspamd are disabled. Enable either Amavis or rspamd to fix it.'
+    fi
+
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+    then
+      _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
+    fi
   fi
+}
+
+function _setup_rspamd
+{
+  if [[ -f /usr/local/bin/helpers/setup-rspamd.sh ]]
+  then
+    # ShellCheck sources this from two different files, hence we discard the check of external sources.
+    # shellcheck source=/dev/null
+    source /usr/local/bin/helpers/setup-rspamd.sh
+  else
+    _shutdown 'error' '(Rspamd setup) Helper functions required for setup were not found'
+  fi
+
+  _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
+  _log 'debug' 'Enabling Rspamd'
+
+  __rspamd__preflight_checks
+  __rspamd__adjust_postfix_configuration
+  __rspamd__disable_default_modules
+  __rspamd__handle_modules_configuration
 }
 
 function _setup_dmarc_hostname
@@ -108,9 +136,7 @@ function _setup_postfix_hostname
 function _setup_dovecot_hostname
 {
   _log 'debug' 'Applying hostname to Dovecot'
-  sed -i \
-    "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" \
-    /etc/dovecot/conf.d/15-lda.conf
+  sed -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
 }
 
 function _setup_dovecot
@@ -231,7 +257,7 @@ function _setup_dovecot_quota
           "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins quota|g" \
           /etc/dovecot/conf.d/10-mail.conf
         sed -i \
-          "s|mail_plugins = \$mail_plugin|mail_plugins = \$mail_plugins imap_quota|g" \
+          "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins imap_quota|g" \
           /etc/dovecot/conf.d/20-imap.conf
       fi
 
@@ -253,8 +279,8 @@ function _setup_dovecot_quota
       fi
 
       # enable quota policy check in postfix
-      sed -i \
-        "s|reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org|reject_unknown_recipient_domain, check_policy_service inet:localhost:65265, reject_rbl_client zen.spamhaus.org|g" \
+      sed -i -E \
+        "s|(reject_unknown_recipient_domain)|\1, check_policy_service inet:localhost:65265|g" \
         /etc/postfix/main.cf
     fi
 }
@@ -326,7 +352,7 @@ function _setup_ldap
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
     [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
     [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
-    _log debug "$(configomat.sh "LDAP_" "${FILE}" 2>&1)"
+    [[ -f ${FILE} ]] && _replace_by_env_in_file 'LDAP_' "${FILE}"
   done
 
   _log 'trace' "Configuring Dovecot LDAP"
@@ -353,7 +379,7 @@ function _setup_ldap
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
-  _log debug "$(configomat.sh "DOVECOT_" "/etc/dovecot/dovecot-ldap.conf.ext" 2>&1)"
+  _replace_by_env_in_file 'DOVECOT_' '/etc/dovecot/dovecot-ldap.conf.ext'
 
   _log 'trace' 'Enabling Dovecot LDAP authentication'
 
@@ -559,7 +585,7 @@ EOF
     -e "/dovecot_destination_recipient_limit =.*/d" \
     /etc/postfix/main.cf
 
-  gpasswd -a postfix sasl
+  gpasswd -a postfix sasl >/dev/null
 }
 
 function _setup_postfix_aliases
@@ -578,33 +604,60 @@ function _setup_SRS
   postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
 }
 
-function _setup_dkim
+# Set up OpenDKIM & OpenDMARC.
+#
+# ## Attention
+#
+# The OpenDKIM milter must come before the OpenDMARC milter in Postfix's#
+# `smtpd_milters` milters options.
+function _setup_dkim_dmarc
 {
-  _log 'debug' 'Setting up DKIM'
-
-  mkdir -p /etc/opendkim && touch /etc/opendkim/SigningTable
-
-  # check if any keys are available
-  if [[ -e "/tmp/docker-mailserver/opendkim/KeyTable" ]]
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
   then
-    cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
+    _log 'debug' 'Setting up DKIM'
 
-    _log 'trace' "DKIM keys added for: $(ls /etc/opendkim/keys/)"
-    _log 'trace' "Changing permissions on '/etc/opendkim'"
+    mkdir -p /etc/opendkim/keys/
+    touch /etc/opendkim/{SigningTable,TrustedHosts,KeyTable}
 
-    chown -R opendkim:opendkim /etc/opendkim/
-    chmod -R 0700 /etc/opendkim/keys/
-  else
-    _log 'debug' 'No DKIM key(s) provided - check the documentation on how to get your keys'
-    [[ ! -f /etc/opendkim/KeyTable ]] && touch /etc/opendkim/KeyTable
+    _log 'trace' "Adding OpenDKIM to Postfix's milters"
+    postconf 'dkim_milter = inet:localhost:8891'
+    # shellcheck disable=SC2016
+    sed -i -E                                            \
+      -e 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g'     \
+      -e 's|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' \
+      /etc/postfix/main.cf
+
+    # check if any keys are available
+    if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]
+    then
+      cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
+      _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')"
+      chown -R opendkim:opendkim /etc/opendkim/
+      chmod -R 0700 /etc/opendkim/keys/
+    else
+      _log 'debug' 'OpenDKIM enabled but no DKIM key(s) provided'
+    fi
+
+    # setup nameservers parameter from /etc/resolv.conf if not defined
+    if ! grep -q '^Nameservers' /etc/opendkim.conf
+    then
+      local NAMESERVER_IPS
+      NAMESERVER_IPS=$(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)
+      echo "Nameservers ${NAMESERVER_IPS}" >>/etc/opendkim.conf
+      _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
+    fi
   fi
 
-  # setup nameservers parameter from /etc/resolv.conf if not defined
-  if ! grep '^Nameservers' /etc/opendkim.conf
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
-    echo "Nameservers $(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)" >>/etc/opendkim.conf
-
-    _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
+    # TODO when disabling SPF is possible, add a check whether DKIM and SPF is disabled
+    #      for DMARC to work, you should have at least one enabled
+    #      (see RFC 7489 https://www.rfc-editor.org/rfc/rfc7489#page-24)
+    _log 'trace' "Adding OpenDMARC to Postfix's milters"
+    postconf 'dmarc_milter = inet:localhost:8893'
+    # Make sure to append the OpenDMARC milter _after_ the OpenDKIM milter!
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
   fi
 }
 
@@ -665,64 +718,61 @@ function _setup_docker_permit
     CONTAINER_NETWORKS+=("${IP}")
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
+  function __clear_postfix_mynetworks
+  {
+    _log 'trace' "Clearing Postfix's 'mynetworks'"
+    postconf "mynetworks ="
+  }
+
+  function __add_to_postfix_mynetworks
+  {
+    local NETWORK_TYPE=$1
+    local NETWORK=$2
+
+    _log 'trace' "Adding ${NETWORK_TYPE} (${NETWORK}) to Postfix 'main.cf:mynetworks'"
+    _adjust_mtime_for_postfix_maincf
+    postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
+    [[ ${ENABLE_OPENDMARC} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendmarc/ignore.hosts
+    [[ ${ENABLE_OPENDKIM} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendkim/TrustedHosts
+  }
+
   case "${PERMIT_DOCKER}" in
     ( 'none' )
-      _log 'trace' "Clearing Postfix's 'mynetworks'"
-      postconf "mynetworks ="
+      __clear_postfix_mynetworks
       ;;
 
     ( 'connected-networks' )
-      for NETWORK in "${CONTAINER_NETWORKS[@]}"
+      for CONTAINER_NETWORK in "${CONTAINER_NETWORKS[@]}"
       do
-        NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${NETWORK}")
-        _log 'trace' "Adding Docker network '${NETWORK}' to Postfix's 'mynetworks'"
-        postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
-        echo "${NETWORK}" >> /etc/opendmarc/ignore.hosts
-        echo "${NETWORK}" >> /etc/opendkim/TrustedHosts
+        CONTAINER_NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${CONTAINER_NETWORK}")
+        __add_to_postfix_mynetworks 'Docker Network' "${CONTAINER_NETWORK}"
       done
       ;;
 
     ( 'container' )
-      _log 'trace' "Adding container IP address to Postfix's 'mynetworks'"
-      postconf "$(postconf | grep '^mynetworks =') ${CONTAINER_IP}/32"
-      echo "${CONTAINER_IP}/32" >> /etc/opendmarc/ignore.hosts
-      echo "${CONTAINER_IP}/32" >> /etc/opendkim/TrustedHosts
+      __add_to_postfix_mynetworks 'Container IP address' "${CONTAINER_IP}/32"
       ;;
 
     ( 'host' )
-      _log 'trace' "Adding '${CONTAINER_NETWORK}/16' to Postfix's 'mynetworks'"
-      postconf "$(postconf | grep '^mynetworks =') ${CONTAINER_NETWORK}/16"
-      echo "${CONTAINER_NETWORK}/16" >> /etc/opendmarc/ignore.hosts
-      echo "${CONTAINER_NETWORK}/16" >> /etc/opendkim/TrustedHosts
+      __add_to_postfix_mynetworks 'Host Network' "${CONTAINER_NETWORK}/16"
       ;;
 
     ( 'network' )
-      _log 'trace' "Adding Docker network to Postfix's 'mynetworks'"
-      postconf "$(postconf | grep '^mynetworks =') 172.16.0.0/12"
-      echo 172.16.0.0/12 >> /etc/opendmarc/ignore.hosts
-      echo 172.16.0.0/12 >> /etc/opendkim/TrustedHosts
+      __add_to_postfix_mynetworks 'Docker IPv4 Subnet' '172.16.0.0/12'
       ;;
 
     ( * )
       _log 'warn' "Invalid value for PERMIT_DOCKER: '${PERMIT_DOCKER}'"
-      _log 'warn' "Clearing Postfix's 'mynetworks'"
-      postconf "mynetworks ="
+      __clear_postfix_mynetworks
       ;;
 
   esac
 }
 
-# Requires ENABLE_POSTFIX_VIRTUAL_TRANSPORT=1
 function _setup_postfix_virtual_transport
 {
-  _log 'trace' 'Setting up Postfix virtual transport'
-
-  if [[ -z ${POSTFIX_DAGENT} ]]
-  then
-    dms_panic__no_env 'POSTFIX_DAGENT' 'Postfix Setup [virtual_transport]'
-    return 1
-  fi
-
+  _log 'trace' "Changing Postfix virtual transport to '${POSTFIX_DAGENT}'"
+  # Default value in main.cf should be 'lmtp:unix:/var/run/dovecot/lmtp'
   postconf "virtual_transport = ${POSTFIX_DAGENT}"
 }
 
@@ -733,9 +783,13 @@ function _setup_postfix_override_configuration
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
     cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
+    _adjust_mtime_for_postfix_maincf
+
     # do not directly output to 'main.cf' as this causes a read-write-conflict
     postconf -n >/tmp/postfix-main-new.cf 2>/dev/null
+
     mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
+    _adjust_mtime_for_postfix_maincf
     _log 'trace' "Adjusted '/etc/postfix/main.cf' according to '/tmp/docker-mailserver/postfix-main.cf'"
   else
     _log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"
@@ -867,7 +921,7 @@ function _setup_security_stack
 
       sa-update --import /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key
 
-      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOM"
+      cat >"${SPAMASSASSIN_KAM_CRON_FILE}" <<"EOF"
 #!/bin/bash
 
 RESULT=$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)
@@ -882,7 +936,7 @@ fi
 
 exit 0
 
-EOM
+EOF
 
       chmod +x "${SPAMASSASSIN_KAM_CRON_FILE}"
     fi
@@ -981,11 +1035,11 @@ function _setup_mail_summary
       _log 'debug' "${ENABLED_MESSAGE}"
       _log 'trace' 'Creating daily cron job for pflogsumm report'
 
-      cat >/etc/cron.daily/postfix-summary << EOM
+      cat >/etc/cron.daily/postfix-summary << EOF
 #!/bin/bash
 
 /usr/local/bin/report-pflogsumm-yesterday ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}
-EOM
+EOF
 
       chmod +x /etc/cron.daily/postfix-summary
       ;;
@@ -1013,6 +1067,7 @@ function _setup_logwatch
 {
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
   echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
+  echo "Mailer = \"sendmail -t -f ${LOGWATCH_SENDER}\"" >>/etc/logwatch/conf/logwatch.conf
 
   case "${LOGWATCH_INTERVAL}" in
     ( 'daily' | 'weekly' )
@@ -1029,11 +1084,11 @@ function _setup_logwatch
         INTERVAL="--range 'between -7 days and -1 days'"
       fi
 
-      cat >"${LOGWATCH_FILE}" << EOM
+      cat >"${LOGWATCH_FILE}" << EOF
 #!/bin/bash
 
 /usr/sbin/logwatch ${INTERVAL} --hostname ${HOSTNAME} --mailto ${LOGWATCH_RECIPIENT}
-EOM
+EOF
       chmod 744 "${LOGWATCH_FILE}"
       ;;
 
@@ -1075,12 +1130,6 @@ function _setup_fail2ban
 
 function _setup_dnsbl_disable
 {
-  _log 'debug' 'Disabling postfix DNS block list (zen.spamhaus.org)'
-
-  sedfile -i \
-    '/^smtpd_recipient_restrictions = / s/, reject_rbl_client zen.spamhaus.org=127.0.0.\[2..11\]//' \
-    /etc/postfix/main.cf
-
   _log 'debug' 'Disabling postscreen DNS block lists'
   postconf 'postscreen_dnsbl_action = ignore'
   postconf 'postscreen_dnsbl_sites = '
