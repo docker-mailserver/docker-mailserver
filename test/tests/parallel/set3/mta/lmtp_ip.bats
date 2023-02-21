@@ -38,10 +38,7 @@ function teardown_file() { _default_teardown ; }
 
 @test "delivers mail to existing account" {
   _wait_for_smtp_port_in_container
-
-  # Send a test mail:
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  assert_success
+  _send_email 'existing-user1' # send a test email
 
   # Verify delivery was successful, log line should look similar to:
   # postfix/lmtp[1274]: 0EA424ABE7D9: to=<user1@localhost.localdomain>, relay=127.0.0.1[127.0.0.1]:24, delay=0.13, delays=0.07/0.01/0.01/0.05, dsn=2.0.0, status=sent (250 2.0.0 <user1@localhost.localdomain> ixPpB+Zvv2P7BAAAUi6ngw Saved)

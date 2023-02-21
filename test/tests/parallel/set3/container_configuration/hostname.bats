@@ -206,9 +206,7 @@ function _should_have_correct_mail_headers() {
   # (eg: OVERRIDE_HOSTNAME or `--hostname mail --domainname example.test`)
   local EXPECTED_HOSTNAME=${3:-${EXPECTED_FQDN}}
 
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  assert_success
-
+  _send_email 'existing-user1'
   _wait_for_empty_mail_queue_in_container
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 
