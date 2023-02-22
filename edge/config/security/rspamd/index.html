@@ -840,6 +840,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    Advanced Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#abusix-integration" class="md-nav__link">
+    Abusix Integration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1689,6 +1709,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    Advanced Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#abusix-integration" class="md-nav__link">
+    Abusix Integration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1776,6 +1816,17 @@
 <p class="admonition-title">Adjusting Modules This Way</p>
 <p>These simple commands are meant to give users the ability to <em>easily</em> alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that <a href="#manually">manually</a>!</p>
 </div>
+<h2 id="advanced-configuration"><a class="toclink" href="#advanced-configuration">Advanced Configuration</a></h2>
+<h3 id="abusix-integration"><a class="toclink" href="#abusix-integration"><em>Abusix</em> Integration</a></h3>
+<p>This subsection gives information about the integration of <a href="https://abusix.com/">Abusix</a>, "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:</p>
+<ol>
+<li><a href="https://app.abusix.com/signup">Create an account</a></li>
+<li>Retrieve your API key</li>
+<li>Navigate to the <a href="https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd">"Getting Started" documentation for Rspamd</a> and follow the steps described there</li>
+<li>Make sure to change <code>&lt;APIKEY&gt;</code> to your private API key</li>
+</ol>
+<p>We recommend mounting the files directly into the container, as they are rather big and not manageable with the <a href="#with-the-help-of-a-custom-file">modules script</a>. If mounted to the correct location, Rspamd will automatically pick them up.</p>
+<p>While <em>Abusix</em> can be integrated into Postfix, Postscreen and a multitude of other software, we recommend integrating <em>Abusix</em> only into a single piece of software running in your mail server - everything else would be excessive and wasting queries. Moreover, we recommend the integration into suitable filtering software and not Postfix itself, as software like Postscreen or Rspamd can properly evaluate the return codes and other configuration.</p>
 
               
             </article>
