@@ -25,10 +25,7 @@ function setup_file() {
 
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
-
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
-  assert_success
-
+  _send_email 'amavis-virus'
   _wait_for_empty_mail_queue_in_container
 }
 

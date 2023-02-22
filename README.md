@@ -29,7 +29,7 @@ If you have issues, please search through [the documentation][documentation::web
 4. [Issues and Contributing](https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/)
 5. [Release Notes](./CHANGELOG.md)
 6. [Environment Variables](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
-7. [Updating](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#updating)
+7. [Updating](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#how-do-i-update-dms)
 
 ## :package: Included Services
 

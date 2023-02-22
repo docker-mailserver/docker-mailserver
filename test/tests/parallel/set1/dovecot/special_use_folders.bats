@@ -13,14 +13,12 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "normal delivery works" {
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  assert_success
-
+@test 'normal delivery works' {
+  _send_email 'existing-user1'
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new 1
 }
 
-@test "(IMAP) special-use folders should not exist yet" {
+@test '(IMAP) special-use folders should not exist yet' {
   _should_have_content_in_directory '/var/mail/localhost.localdomain/user1'
   refute_line '.Drafts'
   refute_line '.Sent'

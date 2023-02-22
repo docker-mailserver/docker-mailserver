@@ -65,30 +65,30 @@ function setup_file() {
   # _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
 
   # Required for 'delivers mail to existing alias':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt'
+  _send_email 'existing-alias-external'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt'
+  _send_email 'existing-alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt'
+  _send_email 'existing-catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt'
+  _send_email 'existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt'
+  _send_email 'non-existing-user'
   # Required for 'redirects mail to external aliases':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt'
+  _send_email 'existing-regexp-alias-external'
+  _send_email 'existing-alias-local'
   # Required for 'rejects spam':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt'
+  _send_email 'amavis-spam'
 
   # Required for 'delivers mail to existing account':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt'
+  _send_email 'existing-user1'
+  _send_email 'existing-user2'
+  _send_email 'existing-user3'
+  _send_email 'existing-added'
+  _send_email 'existing-user-and-cc-local-alias'
+  _send_email 'sieve-spam-folder'
+  _send_email 'sieve-pipe'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
 }
 
