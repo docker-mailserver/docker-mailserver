@@ -71,11 +71,8 @@ function teardown() { _default_teardown ; }
 
 function _should_send_spam_message() {
   _wait_for_smtp_port_in_container
-  # Port 10024 (Amavis)
-  _wait_for_tcp_port_in_container 10024
-
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
-  assert_success
+  _wait_for_tcp_port_in_container 10024 # port 10024 is for Amavis
+  _send_email 'amavis-spam'
 }
 
 function _should_be_received_by_amavis() {

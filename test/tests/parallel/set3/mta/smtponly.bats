@@ -31,10 +31,8 @@ function teardown_file() { _default_teardown ; }
 
   assert_success
 
-
   # it looks as if someone tries to send mail to another domain outside of DMS
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
-  assert_success
+  _send_email 'smtp-only'
   _wait_for_empty_mail_queue_in_container
 
   # this seemingly succeeds, but looking at the logs, it doesn't

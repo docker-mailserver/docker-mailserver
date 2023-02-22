@@ -13,6 +13,7 @@
 #
 # @param ${1} = template file (path) name
 # @param ${2} = container name [OPTIONAL]
+# @param ${3} = port `nc` will use [OPTIONAL]
 #
 # ## Attention
 #
@@ -22,8 +23,9 @@
 function _send_email() {
   local TEMPLATE_FILE=${1:?Must provide name of template file}
   local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  local PORT=${3:-25}
 
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/${TEMPLATE_FILE}.txt"
+  _run_in_container_bash "nc 0.0.0.0 ${PORT} < /tmp/docker-mailserver-test/email-templates/${TEMPLATE_FILE}.txt"
   assert_success
 }
 

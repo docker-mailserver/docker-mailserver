@@ -17,8 +17,7 @@ function setup_file() {
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt"
-  assert_success
+  _send_email 'existing-user1'
   _wait_for_empty_mail_queue_in_container
 }
 
