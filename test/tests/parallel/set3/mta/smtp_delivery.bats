@@ -102,50 +102,43 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'
-  assert_success
+  _send_email 'auth/smtp-auth-plain' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 5'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt'
+  _send_email 'auth/smtp-auth-plain-wrong' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 20'
   assert_output --partial 'authentication failed'
-  assert_success
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt'
-  assert_success
+  _send_email 'auth/smtp-auth-login' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 5'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  _send_email 'auth/smtp-auth-login-wrong' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 20'
   assert_output --partial 'authentication failed'
-  assert_success
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt'
-  assert_success
+  _send_email 'auth/added-smtp-auth-plain' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 5'
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt'
-  assert_success
+  _send_email 'auth/added-smtp-auth-plain-wrong' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 20'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt'
+  _send_email 'auth/added-smtp-auth-login' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 5'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt'
-  assert_success
+  _send_email 'auth/added-smtp-auth-login-wrong' '0.0.0.0' '25' "${CONTAINER_NAME}" '-w 20'
   assert_output --partial 'authentication failed'
 }
 
@@ -264,8 +257,7 @@ function setup_file() {
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
 @test "not advertising smtputf8" {
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt'
-  assert_success
+  _send_email 'email-templates/smtp-ehlo'
   refute_output --partial 'SMTPUTF8'
 }
 

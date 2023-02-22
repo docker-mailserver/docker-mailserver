@@ -26,8 +26,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "(IMAP) special-use folders should be created when necessary" {
-  _run_in_container_bash "nc -w 8 0.0.0.0 143 < /tmp/docker-mailserver-test/nc_templates/imap_special_use_folders.txt"
-  assert_success
+  _send_email 'nc_templates/imap_special_use_folders' '0.0.0.0' '143' "${CONTAINER_NAME}" '-w 8'
   assert_output --partial 'Drafts'
   assert_output --partial 'Junk'
   assert_output --partial 'Trash'
