@@ -21,7 +21,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test '(Dovecot) LDAP RIMAP connection and authentication works' {
-  _send_email 'auth/imap-auth' '' '-w 1 0.0.0.0 143'
+  _send_email 'auth/imap-auth' '-w 1 0.0.0.0 143'
 }
 
 @test '(SASLauthd) SASL RIMAP authentication works' {
@@ -30,7 +30,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(SASLauthd) RIMAP SMTP authentication works' {
-  _send_email 'auth/smtp-auth-login' '' '-w 5 0.0.0.0 25'
+  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 25'
   assert_output --partial 'Authentication successful'
 }
 

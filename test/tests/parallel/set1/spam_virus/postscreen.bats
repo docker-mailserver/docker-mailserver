@@ -38,7 +38,7 @@ function teardown_file() {
 }
 
 @test "should fail login when talking out of turn" {
-  _send_email 'auth/smtp-auth-login' "${CONTAINER2_NAME}" "${CONTAINER1_IP} 25"
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'auth/smtp-auth-login' "${CONTAINER1_IP} 25"
   assert_output --partial '502 5.5.2 Error: command not recognized'
 
   # Expected postscreen log entry:
@@ -61,7 +61,7 @@ function teardown_file() {
 }
 
 # When postscreen is active, it prevents the usual method of piping a file through nc:
-# (Won't work: _send_email "${SMTP_TEMPLATE}" "${CLIENT_CONTAINER_NAME}" "${TARGET_CONTAINER_IP} 25")
+# (Won't work: CONTAINER_NAME=${CLIENT_CONTAINER_NAME} _send_email "${SMTP_TEMPLATE}" "${TARGET_CONTAINER_IP} 25")
 # The below workaround respects `postscreen_greet_wait` time (default 6 sec), talking to the mail-server in turn:
 # https://www.postfix.org/postconf.5.html#postscreen_greet_wait
 function _should_wait_turn_speaking_smtp() {

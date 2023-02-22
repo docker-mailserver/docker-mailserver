@@ -102,43 +102,43 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _send_email 'auth/smtp-auth-plain' '' '-w 5 0.0.0.0 25'
+  _send_email 'auth/smtp-auth-plain' '-w 5 0.0.0.0 25'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/smtp-auth-plain-wrong' '' '-w 20 0.0.0.0 25'
+  _send_email 'auth/smtp-auth-plain-wrong' '-w 20 0.0.0.0 25'
   assert_output --partial 'authentication failed'
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _send_email 'auth/smtp-auth-login' '' '-w 5 0.0.0.0 25'
+  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 25'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/smtp-auth-login-wrong' '' '-w 20 0.0.0.0 25'
+  _send_email 'auth/smtp-auth-login-wrong' '-w 20 0.0.0.0 25'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain' '' '-w 5 0.0.0.0 25'
+  _send_email 'auth/added-smtp-auth-plain' '-w 5 0.0.0.0 25'
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain-wrong' '' '-w 20 0.0.0.0 25'
+  _send_email 'auth/added-smtp-auth-plain-wrong' '-w 20 0.0.0.0 25'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _send_email 'auth/added-smtp-auth-login' '' '-w 5 0.0.0.0 25'
+  _send_email 'auth/added-smtp-auth-login' '-w 5 0.0.0.0 25'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/added-smtp-auth-login-wrong' '' '-w 20 0.0.0.0 25'
+  _send_email 'auth/added-smtp-auth-login-wrong' '-w 20 0.0.0.0 25'
   assert_output --partial 'authentication failed'
 }
 
