@@ -62,33 +62,33 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+  # _send_email 'email-templates/amavis-virus'
 
   # Required for 'delivers mail to existing alias':
-  _send_email 'existing-alias-external'
+  _send_email 'email-templates/existing-alias-external'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email 'existing-alias-recipient-delimiter'
+  _send_email 'email-templates/existing-alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email 'existing-catchall-local'
+  _send_email 'email-templates/existing-catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email 'existing-regexp-alias-local'
+  _send_email 'email-templates/existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email 'non-existing-user'
+  _send_email 'email-templates/non-existing-user'
   # Required for 'redirects mail to external aliases':
-  _send_email 'existing-regexp-alias-external'
-  _send_email 'existing-alias-local'
+  _send_email 'email-templates/existing-regexp-alias-external'
+  _send_email 'email-templates/existing-alias-local'
   # Required for 'rejects spam':
-  _send_email 'amavis-spam'
+  _send_email 'email-templates/amavis-spam'
 
   # Required for 'delivers mail to existing account':
-  _send_email 'existing-user1'
-  _send_email 'existing-user2'
-  _send_email 'existing-user3'
-  _send_email 'existing-added'
-  _send_email 'existing-user-and-cc-local-alias'
-  _send_email 'sieve-spam-folder'
-  _send_email 'sieve-pipe'
+  _send_email 'email-templates/existing-user1'
+  _send_email 'email-templates/existing-user2'
+  _send_email 'email-templates/existing-user3'
+  _send_email 'email-templates/existing-added'
+  _send_email 'email-templates/existing-user-and-cc-local-alias'
+  _send_email 'email-templates/sieve-spam-folder'
+  _send_email 'email-templates/sieve-pipe'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
 }
 

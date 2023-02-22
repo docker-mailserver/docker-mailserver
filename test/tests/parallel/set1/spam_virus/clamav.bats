@@ -25,7 +25,7 @@ function setup_file() {
 
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
-  _send_email 'amavis-virus'
+  _send_email 'email-templates/amavis-virus'
   _wait_for_empty_mail_queue_in_container
 }
 

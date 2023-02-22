@@ -7,13 +7,15 @@
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
 
-# Sends a mail from localhost (127.0.0.1) via port 25 to the container. To send
-# a custom email, create a file at `test/test-files/email-templates/<TEST FILE>`,
+# Sends a mail from localhost (127.0.0.1) to a container. To send
+# a custom email, create a file at `test/test-files/<TEST FILE>`,
 # and provide `<TEST FILE>` as an argument to this function.
 #
 # @param ${1} = template file (path) name
-# @param ${2} = container name [OPTIONAL]
-# @param ${3} = port `nc` will use [OPTIONAL]
+# @param ${2} = IP `nc` will use [OPTIONAL] (default: 0.0.0.0)
+# @param ${3} = port `nc` will use [OPTIONAL] (default: 25)
+# @param ${4} = container name [OPTIONAL]
+# @param ...  = additional options supplied to netcat [OPTIONAL]
 #
 # ## Attention
 #
@@ -22,10 +24,12 @@
 # has been sent.
 function _send_email() {
   local TEMPLATE_FILE=${1:?Must provide name of template file}
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  local IP=${2:-0.0.0.0}
   local PORT=${3:-25}
+  local CONTAINER_NAME=$(__handle_container_name "${4:-}")
+  shift 4
 
-  _run_in_container_bash "nc 0.0.0.0 ${PORT} < /tmp/docker-mailserver-test/email-templates/${TEMPLATE_FILE}.txt"
+  _run_in_container_bash "nc ${*} 0.0.0.0 ${PORT} < /tmp/docker-mailserver-test/${TEMPLATE_FILE}.txt"
   assert_success
 }
 
