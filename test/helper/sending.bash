@@ -12,10 +12,8 @@
 # and provide `<TEST FILE>` as an argument to this function.
 #
 # @param ${1} = template file (path) name
-# @param ${2} = IP `nc` will use [OPTIONAL] (default: 0.0.0.0)
-# @param ${3} = port `nc` will use [OPTIONAL] (default: 25)
-# @param ${4} = container name [OPTIONAL]
-# @param ...  = additional options supplied to netcat [OPTIONAL]
+# @param ${2} = container name [OPTIONAL] (can be empty if CONTAINER_NAME is set)
+# @param ${3} = parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
 #
 # ## Attention
 #
@@ -24,12 +22,9 @@
 # has been sent.
 function _send_email() {
   local TEMPLATE_FILE=${1:?Must provide name of template file}
-  local IP=${2:-0.0.0.0}
-  local PORT=${3:-25}
-  local CONTAINER_NAME=$(__handle_container_name "${4:-}")
-  shift 4
+  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
 
-  _run_in_container_bash "nc ${*} 0.0.0.0 ${PORT} < /tmp/docker-mailserver-test/${TEMPLATE_FILE}.txt"
+  _run_in_container_bash "nc ${3:-0.0.0.0 25} < /tmp/docker-mailserver-test/${TEMPLATE_FILE}.txt"
   assert_success
 }
 

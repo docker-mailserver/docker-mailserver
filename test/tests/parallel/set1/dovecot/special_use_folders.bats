@@ -26,7 +26,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "(IMAP) special-use folders should be created when necessary" {
-  _send_email 'nc_templates/imap_special_use_folders' '0.0.0.0' '143' "${CONTAINER_NAME}" '-w 8'
+  _send_email 'nc_templates/imap_special_use_folders' '' '-w 8 0.0.0.0 143'
   assert_output --partial 'Drafts'
   assert_output --partial 'Junk'
   assert_output --partial 'Trash'
