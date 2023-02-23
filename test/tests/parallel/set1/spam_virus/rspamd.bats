@@ -42,7 +42,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test "Postfix's main.cf was adjusted" {
-  _run_in_container grep -F 'smtpd_milters = inet:localhost:11332' /etc/postfix/main.cf
+  _run_in_container grep -F 'smtpd_milters = $rspamd_milter' /etc/postfix/main.cf
   assert_success
 }
 
