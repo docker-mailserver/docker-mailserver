@@ -36,8 +36,15 @@ function __rspamd__preflight_checks
 # `smtpd_milters` in `main.cf`.
 function __rspamd__adjust_postfix_configuration
 {
-  # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
+  postconf 'rspamd_milter = inet:localhost:11332'
+
+  if grep -q -E '^smtpd_milters.*=.*rspamd_milter' /etc/postfix/main.cf
+  then
+    _log 'warn' "'smtpd_milters' already contains Rspamd milter (inet:localhost:11332), it will not be added twice - likely an inconsistency (did you run docker compose down properly?)"
+  else
+    # shellcheck disable=SC2016
+    sed -i -E 's|^(smtpd_milters =.*)|\1 \$rspamd_milter|g' /etc/postfix/main.cf
+  fi
 }
 
 # Helper for explicitly enabling or disabling a specific module.

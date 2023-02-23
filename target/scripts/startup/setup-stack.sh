@@ -621,6 +621,7 @@ function _setup_dkim_dmarc
 
     _log 'trace' "Adding OpenDKIM to Postfix's milters"
     postconf 'dkim_milter = inet:localhost:8891'
+
     # shellcheck disable=SC2016
     sed -i -E                                            \
       -e 's|^(smtpd_milters =.*)|\1 \$dkim_milter|g'     \
@@ -656,6 +657,7 @@ function _setup_dkim_dmarc
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
     postconf 'dmarc_milter = inet:localhost:8893'
     # Make sure to append the OpenDMARC milter _after_ the OpenDKIM milter!
+
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
   fi
