@@ -15,6 +15,13 @@ jobs:
     with:
       platforms: linux/amd64,linux/arm64
 
+  scan-image:
+    name: 'Scan Image for Vulnerabilities'
+    needs: build-images
+    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_vulnerability-scan.yml@master
+    with:
+      cache-key: ${{ needs.build-images.outputs.build-cache-key }}
+
   publish-images:
     name: 'Publish Images'
     needs: build-images
