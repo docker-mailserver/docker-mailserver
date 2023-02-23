@@ -414,9 +414,9 @@ EOF
   sleep 10
 
   # send some big emails
-  _send_emails 'email-templates/quota-exceeded' '0.0.0.0 25'
-  _send_emails 'email-templates/quota-exceeded' '0.0.0.0 25'
-  _send_emails 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
 
   # check for quota warn message existence
   run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'
