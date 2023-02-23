@@ -37,23 +37,23 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "should fail login when talking out of turn" {
-  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'auth/smtp-auth-login' "${CONTAINER1_IP} 25"
-  assert_output --partial '502 5.5.2 Error: command not recognized'
+@test 'should fail send when talking out of turn' {
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'email-templates/postscreen' "${CONTAINER1_IP} 25"
+  assert_output --partial 'Protocol error'
 
   # Expected postscreen log entry:
   _run_in_container cat /var/log/mail/mail.log
   assert_output --partial 'COMMAND PIPELINING'
 }
 
-@test "should successfully login (respecting postscreen_greet_wait time)" {
+@test "should successfully pass postscreen and get postfix greeting message (respecting postscreen_greet_wait time)" {
   # NOTE: Sometimes fails on first attempt (trying too soon?),
   # Instead of a `run` + asserting partial, Using repeat + internal grep match:
   _repeat_until_success_or_timeout 10 _should_wait_turn_speaking_smtp \
     "${CONTAINER2_NAME}" \
     "${CONTAINER1_IP}" \
-    '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' \
-    'Authentication successful'
+    '/tmp/docker-mailserver-test/email-templates/postscreen.txt' \
+    '220 mail.example.test ESMTP'
 
   # Expected postscreen log entry:
   _run_in_container cat /var/log/mail/mail.log
