@@ -55,8 +55,9 @@ function setup_file() {
   _wait_for_tcp_port_in_container 10024
   _wait_for_smtp_port_in_container_to_respond
 
+  # see https://github.com/docker-mailserver/docker-mailserver/pull/3105#issuecomment-1441055103
   # Amavis may still not be ready to receive mail, sleep a little to avoid connection failures:
-  sleep 1
+  sleep 5
 
   ### Send mail to queue for delivery ###
 
