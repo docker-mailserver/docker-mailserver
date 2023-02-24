@@ -468,7 +468,7 @@ function _service_log_should_contain_string() {
 
 # Filters the mail log for lines that belong to a certain email identified
 # by its ID. You can obtain the ID of an email you want to send by using
-# `_send_mail_and_get_id`.
+# `_send_email_and_get_id`.
 #
 # @param ${1} = email ID
 # @param ${2} = container name [OPTIONAL]

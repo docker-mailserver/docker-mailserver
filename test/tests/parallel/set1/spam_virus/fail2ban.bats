@@ -74,8 +74,8 @@ function teardown_file() {
 @test "ban ip on multiple failed login" {
   CONTAINER1_IP=$(_get_container_ip "${CONTAINER1_NAME}")
   # Trigger a ban by failing to login twice:
-  _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 465 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
-  _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 465 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt"
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'auth/smtp-auth-login-wrong' "${CONTAINER1_IP} 465"
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'auth/smtp-auth-login-wrong' "${CONTAINER1_IP} 465"
 
   # Checking that CONTAINER2_IP is banned in "${CONTAINER1_NAME}"
   CONTAINER2_IP=$(_get_container_ip "${CONTAINER2_NAME}")

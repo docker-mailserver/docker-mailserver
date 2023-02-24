@@ -37,9 +37,8 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
-@test "should fail send when talking out of turn" {
-  _run_in_container_explicit "${CONTAINER2_NAME}" bash -c "nc ${CONTAINER1_IP} 25 < /tmp/docker-mailserver-test/email-templates/postscreen.txt"
-  assert_success
+@test 'should fail send when talking out of turn' {
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'email-templates/postscreen' "${CONTAINER1_IP} 25"
   assert_output --partial 'Protocol error'
 
   # Expected postscreen log entry:
@@ -62,7 +61,7 @@ function teardown_file() {
 }
 
 # When postscreen is active, it prevents the usual method of piping a file through nc:
-# (Won't work: _run_in_container_explicit "${CLIENT_CONTAINER_NAME}" bash -c "nc ${TARGET_CONTAINER_IP} 25 < ${SMTP_TEMPLATE}")
+# (Won't work: CONTAINER_NAME=${CLIENT_CONTAINER_NAME} _send_email "${SMTP_TEMPLATE}" "${TARGET_CONTAINER_IP} 25")
 # The below workaround respects `postscreen_greet_wait` time (default 6 sec), talking to the mail-server in turn:
 # https://www.postfix.org/postconf.5.html#postscreen_greet_wait
 function _should_wait_turn_speaking_smtp() {
