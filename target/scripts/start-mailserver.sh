@@ -225,6 +225,7 @@ function _register_misc_function
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
+_run_early_setup
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
 _register_functions

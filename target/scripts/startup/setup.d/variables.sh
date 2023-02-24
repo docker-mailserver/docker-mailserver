@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# shellcheck disable=SC2034
-declare -A VARS
-
-# shellcheck disable=SC2034
-declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
-
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
@@ -121,6 +115,7 @@ function _environment_variables_general_setup
   VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
   VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
   VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
+  VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
 
   _log 'trace' 'Setting miscellaneous environment variables'
 

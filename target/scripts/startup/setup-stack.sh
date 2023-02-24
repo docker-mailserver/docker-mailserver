@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# shellcheck source-path=target/scripts/startup
+
+# Runs early setup routines
+function _run_early_setup
+{
+  _log 'debug' 'Running early setup'
+
+  local PATH_TO_SCRIPTS='/usr/local/bin/setup.d/'
+
+  source "${PATH_TO_SCRIPTS}/rspamd.sh"
+  source "${PATH_TO_SCRIPTS}/variables.sh"
+
+  _setup_supervisor
+  _obtain_hostname_and_domainname
+  _environment_variables_backwards_compatibility
+  _environment_variables_general_setup
+}
+
 function _setup
 {
   _log 'info' 'Configuring mail server'
@@ -99,13 +117,14 @@ function _setup_amavis
 
 function _setup_rspamd
 {
-  if [[ -f /usr/local/bin/helpers/setup-rspamd.sh ]]
+  local HELPER_FUNCTIONS_FILE='/usr/local/bin/setup.d/rspamd.sh'
+  if [[ -f ${HELPER_FUNCTIONS_FILE} ]]
   then
     # ShellCheck sources this from two different files, hence we discard the check of external sources.
     # shellcheck source=/dev/null
-    source /usr/local/bin/helpers/setup-rspamd.sh
+    source "${HELPER_FUNCTIONS_FILE}"
   else
-    _shutdown 'error' '(Rspamd setup) Helper functions required for setup were not found'
+    _shutdown '(Rspamd setup) Helper functions required for setup were not found'
   fi
 
   _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'

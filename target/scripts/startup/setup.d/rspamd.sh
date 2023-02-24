@@ -38,13 +38,8 @@ function __rspamd__adjust_postfix_configuration
 {
   postconf 'rspamd_milter = inet:localhost:11332'
 
-  if grep -q -E '^smtpd_milters.*=.*rspamd_milter' /etc/postfix/main.cf
-  then
-    _log 'warn' "'smtpd_milters' already contains Rspamd milter (inet:localhost:11332), it will not be added twice - likely an inconsistency (did you run docker compose down properly?)"
-  else
-    # shellcheck disable=SC2016
-    sed -i -E 's|^(smtpd_milters =.*)|\1 \$rspamd_milter|g' /etc/postfix/main.cf
-  fi
+  # shellcheck disable=SC2016
+  sed -i -E 's|^(smtpd_milters =.*)|\1 \$rspamd_milter|g' /etc/postfix/main.cf
 }
 
 # Helper for explicitly enabling or disabling a specific module.
