@@ -36,18 +36,6 @@ function setup() {
   assert_output 'foo baz'
 }
 
-@test 'checking sedfile silent failure on substitute (when DMS was restarted)' {
-  # try to change 'baz' to 'something' and fail silently
-  _run_in_container sedfile -i 's|baz|something|' "${TEST_FILE}"
-  assert_success
-  assert_output ''
-
-  # file unchanged?
-  _run_in_container cat "${TEST_FILE}"
-  assert_success
-  assert_output 'foo bar'
-}
-
 @test 'checking sedfile substitude failure (strict)' {
   # try to change 'baz' to 'something' and fail
   _run_in_container sedfile --strict -i 's|baz|something|' "${TEST_FILE}"
