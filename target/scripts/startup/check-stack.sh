@@ -2,6 +2,24 @@
 
 declare -a FUNCS_CHECK
 
+function _run_early_checks
+{
+  _log 'debug' 'Running early setup'
+
+  # Make sure the container is properly destroyed and then started again;
+  # otherwise, we may run into inconsistent state.
+  function __check_if_improperly_restarted
+  {
+    if [[ -f /CONTAINER_START ]]
+    then
+      _log 'error' "Restarting this container is not supported (initial start: $(</CONTAINER_START))"
+      _shutdown "Properly destroy this container and then start a new one"
+    fi
+  }
+
+  __check_if_improperly_restarted
+}
+
 function _register_check_function
 {
   FUNCS_CHECK+=("${1}")

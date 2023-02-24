@@ -160,7 +160,9 @@ function _register_functions
 # ? >> Actual start of DMS
 # ------------------------------------------------------------
 
+_run_early_checks
 _run_early_setup
+
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
 _register_functions
