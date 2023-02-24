@@ -876,11 +876,7 @@ function _setup_security_stack
   echo "use strict;" >>"${DMS_AMAVIS_FILE}"
 
   # SpamAssassin
-  if [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]]
-  then
-    _log 'debug' 'SpamAssassin is disabled'
-    echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
-  elif [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+  if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
@@ -961,16 +957,20 @@ EOF
 
       chmod +x "${SPAMASSASSIN_KAM_CRON_FILE}"
     fi
+  else
+    _log 'debug' 'Disabling SpamAssassin'
+    echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
+    rm -f /etc/cron.daily/spamassassin
   fi
 
   # ClamAV
-  if [[ ${ENABLE_CLAMAV} -eq 0 ]]
-  then
-    _log 'debug' 'ClamAV is disabled'
-    echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
-  elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
     _log 'debug' 'Enabling ClamAV'
+  else
+    _log 'debug' 'ClamAV is disabled'
+    echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
+    rm -f /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam
   fi
 
   echo '1;  # ensure a defined return' >>"${DMS_AMAVIS_FILE}"
@@ -1278,5 +1278,112 @@ function _setup_timezone
   else
     _log 'warn' "Setting timezone to '${TZ}' failed"
     return 1
+  fi
+}
+
+function _setup_apply_fixes
+{
+  _log 'trace' 'Removing leftover PID files from a stop/start'
+  find /var/run/ -not -name 'supervisord.pid' -name '*.pid' -delete
+  touch /dev/shm/supervisor.sock
+
+  _log 'debug' 'Checking /var/mail permissions'
+  _chown_var_mail_if_necessary || _shutdown 'Failed to fix /var/mail permissions'
+  _log 'trace' 'Permissions in /var/mail look OK'
+}
+
+# consolidate all states into a single directory
+# (/var/mail-state) to allow persistence using docker volumes
+function _setup_save_states
+{
+  local STATEDIR FILE FILES
+
+  STATEDIR='/var/mail-state'
+
+  if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]
+  then
+    _log 'debug' "Consolidating all state onto ${STATEDIR}"
+
+    # Always enabled features:
+    FILES=(
+      lib/logrotate
+      lib/postfix
+      spool/postfix
+    )
+
+    # Only consolidate state for services that are enabled
+    # Notably avoids copying over 200MB for the ClamAV database
+    [[ ${ENABLE_AMAVIS} -eq 1 ]] && FILES+=('lib/amavis')
+    [[ ${ENABLE_CLAMAV} -eq 1 ]] && FILES+=('lib/clamav')
+    [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && FILES+=('lib/fail2ban')
+    [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && FILES+=('lib/fetchmail')
+    [[ ${ENABLE_POSTGREY} -eq 1 ]] && FILES+=('lib/postgrey')
+    [[ ${ENABLE_RSPAMD} -eq 1 ]] && FILES+=('lib/rspamd')
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
+    [[ ${SMTP_ONLY} -ne 1 ]] && FILES+=('lib/dovecot')
+
+    for FILE in "${FILES[@]}"
+    do
+      DEST="${STATEDIR}/${FILE//\//-}"
+      FILE="/var/${FILE}"
+
+      # If relevant content is found in /var/mail-state (presumably a volume mount),
+      # use it instead. Otherwise copy over any missing directories checked.
+      if [[ -d ${DEST} ]]
+      then
+        _log 'trace' "Destination ${DEST} exists, linking ${FILE} to it"
+        # Original content from image no longer relevant, remove it:
+        rm -rf "${FILE}"
+      elif [[ -d ${FILE} ]]
+      then
+        _log 'trace' "Moving contents of ${FILE} to ${DEST}"
+        # Empty volume was mounted, or new content from enabling a feature ENV:
+        mv "${FILE}" "${DEST}"
+      fi
+
+      # Symlink the original path in the container ($FILE) to be
+      # sourced from assocaiated path in /var/mail-state/ ($DEST):
+      ln -s "${DEST}" "${FILE}"
+    done
+
+    # This ensures the user and group of the files from the external mount have their
+    # numeric ID values in sync. New releases where the installed packages order changes
+    # can change the values in the Docker image, causing an ownership mismatch.
+    # NOTE: More details about users and groups added during image builds are documented here:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1399120252
+    _log 'trace' 'Fixing /var/mail-state/* permissions'
+    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             /var/mail-state/lib-amavis
+    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             /var/mail-state/lib-clamav
+    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         /var/mail-state/lib-fetchmail
+    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         /var/mail-state/lib-postgrey
+    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           /var/mail-state/lib-rspamd
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd /var/mail-state/lib-spamassassin
+
+    chown -R root:root /var/mail-state/lib-logrotate
+    chown -R postfix:postfix /var/mail-state/lib-postfix
+
+    # NOTE: The Postfix spool location has mixed owner/groups to take into account:
+    # UID = postfix(101): active, bounce, corrupt, defer, deferred, flush, hold, incoming, maildrop, private, public, saved, trace
+    # UID = root(0): dev, etc, lib, pid, usr
+    # GID = postdrop(103): maildrop, public
+    # GID for all other directories is root(0)
+    # NOTE: `spool-postfix/private/` will be set to `postfix:postfix` when Postfix starts / restarts
+    # Set most common ownership:
+    chown -R postfix:root /var/mail-state/spool-postfix
+    chown root:root /var/mail-state/spool-postfix
+    # These two require the postdrop(103) group:
+    chgrp -R postdrop /var/mail-state/spool-postfix/maildrop
+    chgrp -R postdrop /var/mail-state/spool-postfix/public
+    # These all have root ownership at the src location:
+    chown -R root /var/mail-state/spool-postfix/dev
+    chown -R root /var/mail-state/spool-postfix/etc
+    chown -R root /var/mail-state/spool-postfix/lib
+    chown -R root /var/mail-state/spool-postfix/pid
+    chown -R root /var/mail-state/spool-postfix/usr
+  elif [[  ${ONE_DIR} -eq 1 ]]
+  then
+    _log 'warn' "ONE_DIR is enabled (=1), but '${STATEDIR}' does not exist - is a volume mounted there?"
+  else
+    _log 'debug' "Mail state is not consolidated into one directory"
   fi
 }
