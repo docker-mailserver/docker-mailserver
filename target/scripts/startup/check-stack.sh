@@ -4,7 +4,7 @@ declare -a FUNCS_CHECK
 
 function _run_early_checks
 {
-  _log 'debug' 'Running early setup'
+  _log 'debug' 'Running early checks'
 
   # Make sure the container is properly destroyed and then started again;
   # otherwise, we may run into inconsistent state.
