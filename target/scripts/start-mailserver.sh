@@ -154,36 +154,6 @@ function _register_functions
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
 }
 
-function _register_start_daemon
-{
-  DAEMONS_START+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_setup_function
-{
-  FUNCS_SETUP+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_fix_function
-{
-  FUNCS_FIX+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_check_function
-{
-  FUNCS_CHECK+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_misc_function
-{
-  FUNCS_MISC+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
 # ------------------------------------------------------------
 # ? << Registering functions
 # --

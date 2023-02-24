@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+declare -A VARS
+declare -a FUNCS_SETUP
+
 # shellcheck source-path=target/scripts/startup
 
 # Runs early setup routines
@@ -16,6 +20,12 @@ function _run_early_setup
   _obtain_hostname_and_domainname
   _environment_variables_backwards_compatibility
   _environment_variables_general_setup
+}
+
+function _register_setup_function
+{
+  FUNCS_SETUP+=("${1}")
+  _log 'trace' "${1}() registered"
 }
 
 function _setup
