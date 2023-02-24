@@ -28,6 +28,10 @@ function _setup
 
   # All startup modifications to configs should have taken place before calling this:
   _prepare_for_change_detection
+  # Run user-patches
+  __setup_user_patches
+  # Show the environment if the log level "demands" it
+  [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 }
 
 function _setup_supervisor
@@ -1124,7 +1128,7 @@ EOF
   esac
 }
 
-function _setup_user_patches
+function __setup_user_patches
 {
   local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
 
