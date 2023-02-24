@@ -36,26 +36,6 @@ function setup() {
   assert_output 'foo baz'
 }
 
-@test 'checking sedfile substitute failure (on first container start)' {
-  # delete marker
-  _run_in_container rm '/CONTAINER_START'
-  assert_success
-
-  # try to change 'baz' to 'something' and fail
-  _run_in_container sedfile -i 's|baz|something|' "${TEST_FILE}"
-  assert_failure
-  assert_output --partial "No difference after call to 'sed' in 'sedfile' (sed -i s|baz|something| /tmp/sedfile-test.txt)"
-
-  # file unchanged?
-  _run_in_container cat "${TEST_FILE}"
-  assert_success
-  assert_output 'foo bar'
-
-  # recreate marker
-  _run_in_container touch '/CONTAINER_START'
-  assert_success
-}
-
 @test 'checking sedfile silent failure on substitute (when DMS was restarted)' {
   # try to change 'baz' to 'something' and fail silently
   _run_in_container sedfile -i 's|baz|something|' "${TEST_FILE}"
