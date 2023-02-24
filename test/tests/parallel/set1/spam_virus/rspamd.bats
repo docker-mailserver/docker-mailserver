@@ -31,9 +31,9 @@ function setup_file() {
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  export MAIL_ID1=$(_send_mail_and_get_id 'existing-user1')
-  export MAIL_ID2=$(_send_mail_and_get_id 'rspamd-spam')
-  export MAIL_ID3=$(_send_mail_and_get_id 'rspamd-virus')
+  export MAIL_ID1=$(_send_email_and_get_id 'email-templates/existing-user1')
+  export MAIL_ID2=$(_send_email_and_get_id 'email-templates/rspamd-spam')
+  export MAIL_ID3=$(_send_email_and_get_id 'email-templates/rspamd-virus')
 
   # add a nested option to a module
   _exec_in_container_bash "echo -e 'complicated {\n    anOption = someValue;\n}' >/etc/rspamd/override.d/testmodule_complicated.conf"

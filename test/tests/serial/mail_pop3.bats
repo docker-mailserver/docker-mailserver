@@ -24,13 +24,11 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'authentication works' {
-  _run_in_container_bash 'nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/pop3-auth.txt'
-  assert_success
+  _send_email 'auth/pop3-auth' '-w 1 0.0.0.0 110'
 }
 
 @test 'added user authentication works' {
-  _run_in_container_bash 'nc -w 1 0.0.0.0 110 < /tmp/docker-mailserver-test/auth/added-pop3-auth.txt'
-  assert_success
+  _send_email 'auth/added-pop3-auth' '-w 1 0.0.0.0 110'
 }
 
 @test '/var/log/mail/mail.log is error-free' {

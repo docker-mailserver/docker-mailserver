@@ -26,7 +26,9 @@ function setup_file() {
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown_file() { _default_teardown ; }
+function teardown_file() {
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
+}
 
 @test '(Amavis enabled) configuration should be correct' {
   export CONTAINER_NAME=${CONTAINER1_NAME}
