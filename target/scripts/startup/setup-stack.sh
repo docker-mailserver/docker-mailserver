@@ -4,7 +4,7 @@
 declare -A VARS
 declare -a FUNCS_SETUP
 
-# shellcheck source-path=target/scripts/startup
+# shellcheck source-path=target/scripts/startup/setup.d
 
 # Runs early setup routines
 function _run_early_setup
