@@ -13,6 +13,9 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+# shellcheck source=./startup/variables.sh
+source /usr/local/bin/variables-stack.sh
+
 # shellcheck source=./startup/check-stack.sh
 source /usr/local/bin/check-stack.sh
 
@@ -34,13 +37,8 @@ source /usr/local/bin/daemons-stack.sh
 # ? >> Early setup & environment variables setup
 # ------------------------------------------------------------
 
-# shellcheck source=./helpers/variables.sh
-source /usr/local/bin/helpers/variables.sh
-
 _early_setup_supervisor
-_obtain_hostname_and_domainname
-_environment_variables_backwards_compatibility
-_environment_variables_general_setup
+_early_variables_setup
 
 # ------------------------------------------------------------
 # ? << Early setup & environment variables setup
