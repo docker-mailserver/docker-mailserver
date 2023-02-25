@@ -13,7 +13,7 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-# shellcheck source=./startup/variables.sh
+# shellcheck source=./startup/variables-stack.sh
 source /usr/local/bin/variables-stack.sh
 
 # shellcheck source=./startup/check-stack.sh
