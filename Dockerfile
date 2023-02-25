@@ -258,6 +258,7 @@ COPY \
 RUN chmod +x /usr/local/bin/*
 
 COPY target/scripts/helpers /usr/local/bin/helpers
+COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
 
 #
 # Final stage focuses only on image config

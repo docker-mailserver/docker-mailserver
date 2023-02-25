@@ -81,7 +81,7 @@ function _register_functions
       ;;
 
     ( 'OIDC' )
-      _register_setup_function '_setup_oidc'
+      _shutdown 'OIDC user account provisioning is not yet implemented'
       ;;
 
     ( * )
