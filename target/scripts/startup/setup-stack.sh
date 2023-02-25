@@ -1,7 +1,21 @@
 #!/bin/bash
 
+declare -a FUNCS_SETUP
+
+function _register_setup_function
+{
+  FUNCS_SETUP+=("${1}")
+  _log 'trace' "${1}() registered"
+}
+
 function _setup
 {
+  while read -r FILE
+  do
+    # shellcheck source=/dev/null
+    source "${FILE}"
+  done < <(find /usr/local/bin/setup.d/ -type f)
+
   _log 'info' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"
   do
@@ -12,7 +26,7 @@ function _setup
   _prepare_for_change_detection
 }
 
-function _setup_supervisor
+function _early_setup_supervisor
 {
   SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:-warn}"
 
@@ -62,26 +76,7 @@ function _setup_file_permissions
   chmod 640 /var/log/mail/freshclam.log
 }
 
-function _setup_dhparam
-{
-  local DH_SERVICE=$1
-  local DH_DEST=$2
-  local DH_CUSTOM='/tmp/docker-mailserver/dhparams.pem'
-
-  _log 'debug' "Setting up ${DH_SERVICE} dhparam"
-
-  if [[ -f ${DH_CUSTOM} ]]
-  then # use custom supplied dh params (assumes they're probably insecure)
-    _log 'trace' "${DH_SERVICE} will use custom provided DH paramters"
-    _log 'warn' "Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove '${DH_CUSTOM}'"
-
-    cp -f "${DH_CUSTOM}" "${DH_DEST}"
-  else # use official standardized dh params (provided via Dockerfile)
-    _log 'trace' "${DH_SERVICE} will use official standardized DH parameters (ffdhe4096)."
-  fi
-}
-
-function _setup_user_patches
+function _setup_run_user_patches
 {
   local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
 

@@ -37,7 +37,7 @@ source /usr/local/bin/daemons-stack.sh
 # shellcheck source=./helpers/variables.sh
 source /usr/local/bin/helpers/variables.sh
 
-_setup_supervisor
+_early_setup_supervisor
 _obtain_hostname_and_domainname
 _environment_variables_backwards_compatibility
 _environment_variables_general_setup
@@ -195,12 +195,6 @@ function _register_start_daemon
   _log 'trace' "${1}() registered"
 }
 
-function _register_setup_function
-{
-  FUNCS_SETUP+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
 function _register_fix_function
 {
   FUNCS_FIX+=("${1}")
@@ -233,7 +227,7 @@ _setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 _apply_fixes
 _start_misc
-_setup_user_patches
+_setup_run_user_patches
 _start_daemons
 
 # marker to check if container was restarted

@@ -205,7 +205,7 @@ function _setup_dovecot_inet_protocols
 
 function _setup_dovecot_dhparam
 {
-  _setup_dhparam 'Dovecot' '/etc/dovecot/dh.pem'
+  __setup_dhparam 'Dovecot' '/etc/dovecot/dh.pem'
 }
 
 function _setup_dovecot_hostname
