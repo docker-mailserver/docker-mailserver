@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function __setup_dhparam
+function _setup_dhparam
 {
   local DH_SERVICE=$1
   local DH_DEST=$2

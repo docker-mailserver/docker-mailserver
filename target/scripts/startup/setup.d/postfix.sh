@@ -115,7 +115,7 @@ function _setup_postfix_relay_hosts
 
 function _setup_postfix_dhparam
 {
-  __setup_dhparam 'Postfix' '/etc/postfix/dhparams.pem'
+  _setup_dhparam 'Postfix' '/etc/postfix/dhparams.pem'
 }
 
 function _setup_dnsbl_disable
