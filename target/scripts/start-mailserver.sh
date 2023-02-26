@@ -22,9 +22,6 @@ source /usr/local/bin/check-stack.sh
 # shellcheck source=./startup/setup-stack.sh
 source /usr/local/bin/setup-stack.sh
 
-# shellcheck source=./startup/fixes-stack.sh
-source /usr/local/bin/fixes-stack.sh
-
 # shellcheck source=./startup/daemons-stack.sh
 source /usr/local/bin/daemons-stack.sh
 
@@ -140,14 +137,11 @@ function _register_functions
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
 
-  # ? >> Fixes
-
-  _register_fix_function '_fix_var_mail_permissions'
-
   [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
   [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function '_fix_cleanup_spamassassin'
 
   _register_setup_function '_setup_save_states'
+  _register_setup_function '_setup_apply_fixes_after_configuration'
   _register_setup_function '_environment_variables_export'
 
   # ? >> Daemons
@@ -185,12 +179,6 @@ function _register_functions
 function _register_start_daemon
 {
   DAEMONS_START+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_fix_function
-{
-  FUNCS_FIX+=("${1}")
   _log 'trace' "${1}() registered"
 }
 
