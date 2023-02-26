@@ -10,11 +10,13 @@ function _register_setup_function
 
 function _setup
 {
-  while read -r FILE
+  # requires `shopt -s globstar` because of `**` which in
+  # turn is required as we're decending through directories
+  for FILE in /usr/local/bin/setup.d/**/*.sh
   do
     # shellcheck source=/dev/null
     source "${FILE}"
-  done < <(find /usr/local/bin/setup.d/ -type f)
+  done
 
   _log 'info' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"
