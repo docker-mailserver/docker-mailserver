@@ -76,19 +76,6 @@ function _setup_file_permissions
   chmod 640 /var/log/mail/freshclam.log
 }
 
-function _setup_run_user_patches
-{
-  local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
-
-  if [[ -f ${USER_PATCHES} ]]
-  then
-    _log 'debug' 'Applying user patches'
-    /bin/bash "${USER_PATCHES}"
-  else
-    _log 'trace' "No optional '${USER_PATCHES}' provided"
-  fi
-}
-
 function _setup_timezone
 {
   [[ -n ${TZ} ]] || return 0
@@ -109,5 +96,18 @@ function _setup_timezone
   else
     _log 'warn' "Setting timezone to '${TZ}' failed"
     return 1
+  fi
+}
+
+function _run_user_patches
+{
+  local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
+
+  if [[ -f ${USER_PATCHES} ]]
+  then
+    _log 'debug' 'Applying user patches'
+    /bin/bash "${USER_PATCHES}"
+  else
+    _log 'trace' "No optional '${USER_PATCHES}' provided"
   fi
 }

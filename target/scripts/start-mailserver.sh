@@ -123,7 +123,6 @@ function _register_functions
 
   _register_setup_function '_setup_postfix_access_control'
   _register_setup_function '_setup_postfix_relay_hosts'
-
   _register_setup_function '_setup_postfix_virtual_transport'
   _register_setup_function '_setup_postfix_override_configuration'
   _register_setup_function '_setup_logrotate'
@@ -215,7 +214,7 @@ _setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 _apply_fixes
 _start_misc
-_setup_run_user_patches
+_run_user_patches
 _start_daemons
 
 # marker to check if container was restarted
