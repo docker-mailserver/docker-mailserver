@@ -25,9 +25,6 @@ source /usr/local/bin/setup-stack.sh
 # shellcheck source=./startup/fixes-stack.sh
 source /usr/local/bin/fixes-stack.sh
 
-# shellcheck source=./startup/misc-stack.sh
-source /usr/local/bin/misc-stack.sh
-
 # shellcheck source=./startup/daemons-stack.sh
 source /usr/local/bin/daemons-stack.sh
 
@@ -150,9 +147,7 @@ function _register_functions
   [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
   [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function '_fix_cleanup_spamassassin'
 
-  # ? >> Miscellaneous
-
-  _register_misc_function '_misc_save_states'
+  _register_setup_function '_setup_save_states'
   _register_setup_function '_environment_variables_export'
 
   # ? >> Daemons
@@ -202,12 +197,6 @@ function _register_fix_function
 function _register_check_function
 {
   FUNCS_CHECK+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_misc_function
-{
-  FUNCS_MISC+=("${1}")
   _log 'trace' "${1}() registered"
 }
 

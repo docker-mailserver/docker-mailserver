@@ -1,17 +1,8 @@
 #!/bin/bash
 
-function _start_misc
-{
-  _log 'info' 'Starting miscellaneous tasks'
-  for FUNC in "${FUNCS_MISC[@]}"
-  do
-    ${FUNC}
-  done
-}
-
-# consolidate all states into a single directory
+# Consolidate all states into a single directory
 # (/var/mail-state) to allow persistence using docker volumes
-function _misc_save_states
+function _setup_save_states
 {
   local STATEDIR FILE FILES
 
