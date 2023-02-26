@@ -117,15 +117,12 @@ function _register_functions
   _register_setup_function '_setup_postfix_dhparam'
   _register_setup_function '_setup_postfix_postscreen'
   _register_setup_function '_setup_postfix_sizelimits'
+  _register_setup_function '_setup_fetchmail'
+  _register_setup_function '_setup_fetchmail_parallel'
 
   # needs to come after _setup_postfix_aliases
   [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function '_setup_spoof_protection'
 
-  if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]
-  then
-    _register_setup_function '_setup_fetchmail'
-    [[ ${FETCHMAIL_PARALLEL} -eq 1 ]] && _register_setup_function '_setup_fetchmail_parallel'
-  fi
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
   then
