@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Set up OpenDKIM & OpenDMARC.
 #
 # ## Attention
@@ -43,6 +42,8 @@ function _setup_dkim_dmarc
       echo "Nameservers ${NAMESERVER_IPS}" >>/etc/opendkim.conf
       _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
     fi
+  else
+    _log 'debug' 'OpenDKIM is disabled'
   fi
 
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
@@ -55,6 +56,8 @@ function _setup_dkim_dmarc
     # Make sure to append the OpenDMARC milter _after_ the OpenDKIM milter!
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
+  else
+    _log 'debug' 'OpenDMARC is disabled'
   fi
 }
 

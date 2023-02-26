@@ -87,39 +87,33 @@ function _register_functions
     _register_setup_function '_setup_saslauthd'
   fi
 
-  [[ ${ENABLE_POSTGREY} -eq 1 ]] && _register_setup_function '_setup_postgrey'
   [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_postfix_inet_protocols'
   [[ ${DOVECOT_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_dovecot_inet_protocols'
-  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && _register_setup_function '_setup_fail2ban'
-  [[ ${ENABLE_DNSBL} -eq 0 ]] && _register_setup_function '_setup_dnsbl_disable'
-  [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]] && _register_setup_function '_setup_clamav_sizelimit'
-  [[ ${ENABLE_RSPAMD} -eq 1 ]] && _register_setup_function '_setup_rspamd'
 
   _register_setup_function '_setup_dkim_dmarc'
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
-  _register_setup_function '_setup_amavis'
   _register_setup_function '_setup_dmarc_hostname'
   _register_setup_function '_setup_postfix_hostname'
   _register_setup_function '_setup_dovecot_hostname'
   _register_setup_function '_setup_postfix_smtputf8'
   _register_setup_function '_setup_postfix_sasl'
   _register_setup_function '_setup_security_stack'
+  _register_setup_function '_setup_rspamd'
   _register_setup_function '_setup_postfix_aliases'
   _register_setup_function '_setup_postfix_vhost'
   _register_setup_function '_setup_postfix_dhparam'
-  _register_setup_function '_setup_postfix_postscreen'
   _register_setup_function '_setup_postfix_sizelimits'
 
   # needs to come after _setup_postfix_aliases
-  [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function '_setup_spoof_protection'
 
   if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]
   then
     _register_setup_function '_setup_fetchmail'
     [[ ${FETCHMAIL_PARALLEL} -eq 1 ]] && _register_setup_function '_setup_fetchmail_parallel'
   fi
+  _register_setup_function '_setup_spoof_protection'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
   then
@@ -136,9 +130,6 @@ function _register_functions
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
-
-  [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function '_fix_cleanup_clamav'
-  [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function '_fix_cleanup_spamassassin'
 
   _register_setup_function '_setup_save_states'
   _register_setup_function '_setup_apply_fixes_after_configuration'
@@ -158,21 +149,24 @@ function _register_functions
     _register_start_daemon '_start_daemon_rspamd'
   fi
 
+  [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
+  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+
   # needs to be started before SASLauthd
-  [[ ${ENABLE_OPENDKIM} -eq 1 ]] && _register_start_daemon '_start_daemon_opendkim'
-  [[ ${ENABLE_OPENDMARC} -eq 1 ]] && _register_start_daemon '_start_daemon_opendmarc'
+  [[ ${ENABLE_OPENDKIM}         -eq 1 ]] && _register_start_daemon '_start_daemon_opendkim'
+  [[ ${ENABLE_OPENDMARC}        -eq 1 ]] && _register_start_daemon '_start_daemon_opendmarc'
 
   # needs to be started before postfix
-  [[ ${ENABLE_POSTGREY} -eq 1 ]] &&	_register_start_daemon '_start_daemon_postgrey'
+  [[ ${ENABLE_POSTGREY}         -eq 1 ]] &&	_register_start_daemon '_start_daemon_postgrey'
 
   _register_start_daemon '_start_daemon_postfix'
 
   # needs to be started after postfix
-  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_start_daemon '_start_daemon_saslauthd'
-  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon '_start_daemon_fail2ban'
-  [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon '_start_daemon_fetchmail'
-  [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
-  [[ ${ENABLE_AMAVIS} -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
+  [[ ${ENABLE_SASLAUTHD}        -eq 1 ]] && _register_start_daemon '_start_daemon_saslauthd'
+  [[ ${ENABLE_FAIL2BAN}         -eq 1 ]] &&	_register_start_daemon '_start_daemon_fail2ban'
+  [[ ${ENABLE_FETCHMAIL}        -eq 1 ]] && _register_start_daemon '_start_daemon_fetchmail'
+  [[ ${ENABLE_CLAMAV}           -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
+  [[ ${ENABLE_AMAVIS}           -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
 }
 
