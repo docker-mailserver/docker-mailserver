@@ -3,9 +3,6 @@
 # shellcheck disable=SC2034
 declare -A VARS
 
-# shellcheck disable=SC2034
-declare -a FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
-
 function _early_variables_setup
 {
   _obtain_hostname_and_domainname

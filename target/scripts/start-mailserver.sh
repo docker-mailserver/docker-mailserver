@@ -2,12 +2,6 @@
 
 # ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks
-#      1. Helpers
-#      2. Checks
-#      3. Setup
-#      4. Fixes
-#      5. Miscellaneous
-#      6. Daemons
 # ------------------------------------------------------------
 
 # shellcheck source=./helpers/index.sh
@@ -42,7 +36,6 @@ _early_variables_setup
 
 function _register_functions
 {
-  _log 'info' 'Initializing setup'
   _log 'debug' 'Registering functions'
 
   # ? >> Checks
@@ -170,18 +163,6 @@ function _register_functions
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
 }
 
-function _register_start_daemon
-{
-  DAEMONS_START+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
-function _register_check_function
-{
-  FUNCS_CHECK+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
 # ------------------------------------------------------------
 # ? << Registering functions
 # --
@@ -194,8 +175,6 @@ _register_functions
 _check
 _setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-_apply_fixes
-_start_misc
 _setup_run_user_patches
 _start_daemons
 
