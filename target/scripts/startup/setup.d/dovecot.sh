@@ -184,10 +184,11 @@ function _setup_dovecot_local_user
 
 function _setup_dovecot_inet_protocols
 {
-  local PROTOCOL
+  [[ ${DOVECOT_INET_PROTOCOLS} == 'all' ]] && return 0
 
   _log 'trace' 'Setting up DOVECOT_INET_PROTOCOLS option'
 
+  local PROTOCOL
   # https://dovecot.org/doc/dovecot-example.conf
   if [[ ${DOVECOT_INET_PROTOCOLS} == "ipv4" ]]
   then
