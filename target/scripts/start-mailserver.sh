@@ -34,15 +34,6 @@ source /usr/local/bin/daemons-stack.sh
 # ------------------------------------------------------------
 # ? << Sourcing helpers & stacks
 # --
-# ? >> Early setup & environment variables setup
-# ------------------------------------------------------------
-
-_early_setup_supervisor
-_early_variables_setup
-
-# ------------------------------------------------------------
-# ? << Early setup & environment variables setup
-# --
 # ? >> Registering functions
 # ------------------------------------------------------------
 
@@ -212,6 +203,9 @@ function _register_misc_function
 # --
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
+
+_early_supervisor_setup
+_early_variables_setup
 
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 

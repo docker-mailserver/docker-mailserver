@@ -26,7 +26,7 @@ function _setup
   _prepare_for_change_detection
 }
 
-function _early_setup_supervisor
+function _early_supervisor_setup
 {
   SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:-warn}"
 

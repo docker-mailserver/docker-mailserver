@@ -9,14 +9,14 @@ declare -a FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
 function _early_variables_setup
 {
   _obtain_hostname_and_domainname
-  _environment_variables_backwards_compatibility
-  _environment_variables_general_setup
+  __environment_variables_backwards_compatibility
+  __environment_variables_general_setup
 }
 
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
-function _environment_variables_backwards_compatibility
+function __environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
   then
@@ -57,7 +57,7 @@ function _environment_variables_export
 # This function sets almost all environment variables. This involves setting
 # a default if no value was provided and writing the variable and its value
 # to the VARS map.
-function _environment_variables_general_setup
+function __environment_variables_general_setup
 {
   _log 'debug' 'Handling general environment variable setup'
 
