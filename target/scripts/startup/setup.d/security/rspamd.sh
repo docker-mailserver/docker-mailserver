@@ -1,5 +1,16 @@
 #!/bin/bash
 
+function _setup_rspamd
+{
+  _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
+  _log 'debug' 'Enabling Rspamd'
+
+  __rspamd__preflight_checks
+  __rspamd__adjust_postfix_configuration
+  __rspamd__disable_default_modules
+  __rspamd__handle_modules_configuration
+}
+
 # Just a helper to prepend the log messages with `(Rspamd setup)` so
 # users know exactly where the message originated from.
 #
@@ -36,8 +47,10 @@ function __rspamd__preflight_checks
 # `smtpd_milters` in `main.cf`.
 function __rspamd__adjust_postfix_configuration
 {
+  postconf 'rspamd_milter = inet:localhost:11332'
+
   # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 inet:localhost:11332|g' /etc/postfix/main.cf
+  sed -i -E 's|^(smtpd_milters =.*)|\1 \$rspamd_milter|g' /etc/postfix/main.cf
 }
 
 # Helper for explicitly enabling or disabling a specific module.

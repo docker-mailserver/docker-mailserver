@@ -4,7 +4,14 @@
 declare -A VARS
 
 # shellcheck disable=SC2034
-declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
+declare -a FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
+
+function _early_variables_setup
+{
+  _obtain_hostname_and_domainname
+  _environment_variables_backwards_compatibility
+  _environment_variables_general_setup
+}
 
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable

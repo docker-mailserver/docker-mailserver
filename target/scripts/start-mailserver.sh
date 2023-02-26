@@ -13,6 +13,9 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+# shellcheck source=./startup/variables-stack.sh
+source /usr/local/bin/variables-stack.sh
+
 # shellcheck source=./startup/check-stack.sh
 source /usr/local/bin/check-stack.sh
 
@@ -34,13 +37,8 @@ source /usr/local/bin/daemons-stack.sh
 # ? >> Early setup & environment variables setup
 # ------------------------------------------------------------
 
-# shellcheck source=./helpers/variables.sh
-source /usr/local/bin/helpers/variables.sh
-
-_setup_supervisor
-_obtain_hostname_and_domainname
-_environment_variables_backwards_compatibility
-_environment_variables_general_setup
+_early_setup_supervisor
+_early_variables_setup
 
 # ------------------------------------------------------------
 # ? << Early setup & environment variables setup
@@ -81,7 +79,7 @@ function _register_functions
       ;;
 
     ( 'OIDC' )
-      _register_setup_function '_setup_oidc'
+      _shutdown 'OIDC user account provisioning is not yet implemented'
       ;;
 
     ( * )
@@ -195,12 +193,6 @@ function _register_start_daemon
   _log 'trace' "${1}() registered"
 }
 
-function _register_setup_function
-{
-  FUNCS_SETUP+=("${1}")
-  _log 'trace' "${1}() registered"
-}
-
 function _register_fix_function
 {
   FUNCS_FIX+=("${1}")
@@ -233,7 +225,7 @@ _setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 _apply_fixes
 _start_misc
-_setup_user_patches
+_setup_run_user_patches
 _start_daemons
 
 # marker to check if container was restarted
