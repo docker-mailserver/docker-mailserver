@@ -128,6 +128,7 @@ function _environment_variables_general_setup
   VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
   VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
   VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
+  VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
 
   _log 'trace' 'Setting miscellaneous environment variables'
 

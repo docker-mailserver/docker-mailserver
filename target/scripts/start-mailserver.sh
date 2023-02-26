@@ -133,8 +133,7 @@ function _register_functions
   _register_setup_function '_setup_postfix_access_control'
   _register_setup_function '_setup_postfix_relay_hosts'
 
-  [[ -n ${POSTFIX_DAGENT} ]] && _register_setup_function '_setup_postfix_virtual_transport'
-
+  _register_setup_function '_setup_postfix_virtual_transport'
   _register_setup_function '_setup_postfix_override_configuration'
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
