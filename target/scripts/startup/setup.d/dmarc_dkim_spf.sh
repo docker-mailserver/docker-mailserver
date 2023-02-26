@@ -59,7 +59,7 @@ function _setup_opendkim
 # `smtpd_milters` milters options.
 function _setup_opendmarc
 {
-   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
     # TODO When disabling SPF is possible, add a check whether DKIM and SPF is disabled
     #      for DMARC to work, you should have at least one enabled
