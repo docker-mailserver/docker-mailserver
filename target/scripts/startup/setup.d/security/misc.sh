@@ -69,6 +69,8 @@ function __setup__security__postscreen
     _log 'debug' 'Disabling Postscreen DNSBLs'
     postconf 'postscreen_dnsbl_action = ignore'
     postconf 'postscreen_dnsbl_sites = '
+  else
+    _log 'debug' 'Postscreen DNSBLs are enabled'
   fi
 }
 
@@ -190,7 +192,7 @@ function __setup__security__fail2ban
 {
   if [[ ${ENABLE_FAIL2BAN} -eq 1 ]]
   then
-    _log 'debug' 'Enabling configuring Fail2Ban'
+    _log 'debug' 'Enabling and configuring Fail2Ban'
 
     if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]
     then
@@ -210,7 +212,6 @@ function __setup__security__fail2ban
     echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
   else
     _log 'debug' 'Fail2Ban is disabled'
-    # disable logrotate config for fail2ban if not enabled
     rm -f /etc/logrotate.d/fail2ban
   fi
 }

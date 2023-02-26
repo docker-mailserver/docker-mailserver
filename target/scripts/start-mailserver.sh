@@ -83,17 +83,20 @@ function _register_functions
   [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_postfix_inet_protocols'
   [[ ${DOVECOT_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_dovecot_inet_protocols'
 
-  _register_setup_function '_setup_dkim_dmarc'
+  _register_setup_function '_setup_opendkim'
+  _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
+
+  _register_setup_function '_setup_security_stack'
+  _register_setup_function '_setup_rspamd'
+
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
-  _register_setup_function '_setup_dmarc_hostname'
-  _register_setup_function '_setup_postfix_hostname'
   _register_setup_function '_setup_dovecot_hostname'
+
+  _register_setup_function '_setup_postfix_hostname'
   _register_setup_function '_setup_postfix_smtputf8'
   _register_setup_function '_setup_postfix_sasl'
-  _register_setup_function '_setup_security_stack'
-  _register_setup_function '_setup_rspamd'
   _register_setup_function '_setup_postfix_aliases'
   _register_setup_function '_setup_postfix_vhost'
   _register_setup_function '_setup_postfix_dhparam'
