@@ -111,3 +111,11 @@ function _setup_timezone
     return 1
   fi
 }
+function _setup_apply_fixes_after_configuration
+{
+  _log 'trace' 'Removing leftover PID files from a stop/start'
+  find /var/run/ -not -name 'supervisord.pid' -name '*.pid' -delete
+  touch /dev/shm/supervisor.sock
+  _log 'debug' 'Checking /var/mail permissions'
+  _chown_var_mail_if_necessary || _shutdown 'Failed to fix /var/mail permissions'
+}

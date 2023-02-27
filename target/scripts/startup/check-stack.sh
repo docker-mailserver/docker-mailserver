@@ -1,5 +1,13 @@
 #!/bin/bash
 
+declare -a FUNCS_CHECK
+
+function _register_check_function
+{
+  FUNCS_CHECK+=("${1}")
+  _log 'trace' "${1}() registered"
+}
+
 function _check
 {
   _log 'info' 'Checking configuration'

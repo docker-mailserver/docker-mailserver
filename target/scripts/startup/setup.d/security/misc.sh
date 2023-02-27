@@ -4,18 +4,79 @@ function _setup_security_stack
 {
   _log 'debug' 'Setting up Security Stack'
 
+  __setup__security__postgrey
+  __setup__security__postscreen
+
   # recreate auto-generated file
   local DMS_AMAVIS_FILE=/etc/amavis/conf.d/61-dms_auto_generated
 
   echo "# WARNING: this file is auto-generated." >"${DMS_AMAVIS_FILE}"
   echo "use strict;" >>"${DMS_AMAVIS_FILE}"
 
-  # SpamAssassin
-  if [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]]
+  __setup__security__spamassassin
+  __setup__security__clamav
+
+  echo '1;  # ensure a defined return' >>"${DMS_AMAVIS_FILE}"
+  chmod 444 "${DMS_AMAVIS_FILE}"
+
+  __setup__security__fail2ban
+  __setup__security__amavis
+}
+
+function __setup__security__postgrey
+{
+  if [[ ${ENABLE_POSTGREY} -eq 1 ]]
   then
-    _log 'debug' 'SpamAssassin is disabled'
-    echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
-  elif [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
+    _log 'debug' 'Enabling and configuring Postgrey'
+
+    sedfile -i -E \
+      's|(^smtpd_recipient_restrictions =.*)|\1, check_policy_service inet:127.0.0.1:10023|' \
+      /etc/postfix/main.cf
+
+    sed -i -e \
+      "s|\"--inet=127.0.0.1:10023\"|\"--inet=127.0.0.1:10023 --delay=${POSTGREY_DELAY} --max-age=${POSTGREY_MAX_AGE} --auto-whitelist-clients=${POSTGREY_AUTO_WHITELIST_CLIENTS}\"|" \
+      /etc/default/postgrey
+
+    if ! grep -i 'POSTGREY_TEXT' /etc/default/postgrey
+    then
+      printf 'POSTGREY_TEXT=\"%s\"\n\n' "${POSTGREY_TEXT}" >>/etc/default/postgrey
+    fi
+
+    if [[ -f /tmp/docker-mailserver/whitelist_clients.local ]]
+    then
+      cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
+    fi
+
+    if [[ -f /tmp/docker-mailserver/whitelist_recipients ]]
+    then
+      cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
+    fi
+  else
+    _log 'debug' 'Postscreen is disabled'
+  fi
+}
+
+function __setup__security__postscreen
+{
+  _log 'debug' 'Configuring Postscreen'
+  sed -i \
+    -e "s|postscreen_dnsbl_action = enforce|postscreen_dnsbl_action = ${POSTSCREEN_ACTION}|" \
+    -e "s|postscreen_greet_action = enforce|postscreen_greet_action = ${POSTSCREEN_ACTION}|" \
+    -e "s|postscreen_bare_newline_action = enforce|postscreen_bare_newline_action = ${POSTSCREEN_ACTION}|" /etc/postfix/main.cf
+
+  if [[ ${ENABLE_DNSBL} -eq 0 ]]
+  then
+    _log 'debug' 'Disabling Postscreen DNSBLs'
+    postconf 'postscreen_dnsbl_action = ignore'
+    postconf 'postscreen_dnsbl_sites = '
+  else
+    _log 'debug' 'Postscreen DNSBLs are enabled'
+  fi
+}
+
+function __setup__security__spamassassin
+{
+  if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
@@ -27,6 +88,11 @@ function _setup_security_stack
 
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
+
+    # fix cron.daily for spamassassin
+    sed -i \
+      's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
+      /etc/cron.daily/spamassassin
 
     if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]
     then
@@ -96,25 +162,37 @@ EOF
 
       chmod +x "${SPAMASSASSIN_KAM_CRON_FILE}"
     fi
+  else
+    _log 'debug' 'SpamAssassin is disabled'
+    echo "@bypass_spam_checks_maps = (1);" >>"${DMS_AMAVIS_FILE}"
+    rm -f /etc/cron.daily/spamassassin
   fi
+}
 
-  # ClamAV
-  if [[ ${ENABLE_CLAMAV} -eq 0 ]]
+function __setup__security__clamav
+{
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
-    _log 'debug' 'ClamAV is disabled'
+    _log 'debug' 'Enabling and configuring ClamAV'
+    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]
+    then
+      _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
+      sedfile -i \
+        "s/^MaxFileSize.*/MaxFileSize ${CLAMAV_MESSAGE_SIZE_LIMIT}/" \
+        /etc/clamav/clamd.conf
+    fi
+  else
+    _log 'debug' 'Disabling ClamAV'
     echo '@bypass_virus_checks_maps = (1);' >>"${DMS_AMAVIS_FILE}"
-  elif [[ ${ENABLE_CLAMAV} -eq 1 ]]
-  then
-    _log 'debug' 'Enabling ClamAV'
+    rm -f /etc/logrotate.d/clamav-* /etc/cron.d/clamav-freshclam
   fi
+}
 
-  echo '1;  # ensure a defined return' >>"${DMS_AMAVIS_FILE}"
-  chmod 444 "${DMS_AMAVIS_FILE}"
-
-  # Fail2ban
+function __setup__security__fail2ban
+{
   if [[ ${ENABLE_FAIL2BAN} -eq 1 ]]
   then
-    _log 'debug' 'Enabling Fail2Ban'
+    _log 'debug' 'Enabling and configuring Fail2Ban'
 
     if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]
     then
@@ -125,20 +203,24 @@ EOF
     then
       cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.d/user-jail.local
     fi
+
+    if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
+    then
+      echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
+    fi
+
+    echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
   else
-    # disable logrotate config for fail2ban if not enabled
+    _log 'debug' 'Fail2Ban is disabled'
     rm -f /etc/logrotate.d/fail2ban
   fi
+}
 
-  # fix cron.daily for spamassassin
-  sed -i \
-    's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
-    /etc/cron.daily/spamassassin
-
-  # Amavis
+function __setup__security__amavis
+{
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]
   then
-    _log 'debug' 'Enabling Amavis'
+    _log 'debug' 'Configuring Amavis'
     if [[ -f /tmp/docker-mailserver/amavis.cf ]]
     then
       cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
@@ -147,14 +229,6 @@ EOF
     sed -i -E \
       "s|(log_level).*|\1 = ${AMAVIS_LOGLEVEL};|g" \
       /etc/amavis/conf.d/49-docker-mailserver
-  fi
-}
-
-function _setup_amavis
-{
-  if [[ ${ENABLE_AMAVIS} -eq 1 ]]
-  then
-    _log 'debug' 'Setting up Amavis'
 
     cat /etc/dms/postfix/master.d/postfix-amavis.cf >>/etc/postfix/master.cf
     postconf 'content_filter = smtp-amavis:[127.0.0.1]:10024'
@@ -163,7 +237,9 @@ function _setup_amavis
       "s|^#\$myhostname = \"mail.example.com\";|\$myhostname = \"${HOSTNAME}\";|" \
       /etc/amavis/conf.d/05-node_id
   else
-    _log 'debug' 'Disabling Amavis cron job'
+    _log 'debug' 'Disabling Amavis'
+
+    _log 'trace' 'Disabling Amavis cron job'
     mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
     chmod 0 /etc/cron.d/amavisd-new.disabled
 
@@ -178,88 +254,3 @@ function _setup_amavis
     fi
   fi
 }
-
-function _setup_fail2ban
-{
-  _log 'debug' 'Setting up Fail2Ban'
-
-  if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
-  then
-    echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
-  fi
-
-  echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
-}
-
-function _setup_postgrey
-{
-  _log 'debug' 'Configuring Postgrey'
-
-  sedfile -i -E \
-    's|(^smtpd_recipient_restrictions =.*)|\1, check_policy_service inet:127.0.0.1:10023|' \
-    /etc/postfix/main.cf
-
-  sed -i -e \
-    "s|\"--inet=127.0.0.1:10023\"|\"--inet=127.0.0.1:10023 --delay=${POSTGREY_DELAY} --max-age=${POSTGREY_MAX_AGE} --auto-whitelist-clients=${POSTGREY_AUTO_WHITELIST_CLIENTS}\"|" \
-    /etc/default/postgrey
-
-  TEXT_FOUND=$(grep -c -i 'POSTGREY_TEXT' /etc/default/postgrey)
-
-  if [[ ${TEXT_FOUND} -eq 0 ]]
-  then
-    printf 'POSTGREY_TEXT=\"%s\"\n\n' "${POSTGREY_TEXT}" >>/etc/default/postgrey
-  fi
-
-  if [[ -f /tmp/docker-mailserver/whitelist_clients.local ]]
-  then
-    cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
-  fi
-
-  if [[ -f /tmp/docker-mailserver/whitelist_recipients ]]
-  then
-    cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
-  fi
-}
-
-function _setup_postfix_postscreen
-{
-  _log 'debug' 'Configuring Postscreen'
-  sed -i \
-    -e "s|postscreen_dnsbl_action = enforce|postscreen_dnsbl_action = ${POSTSCREEN_ACTION}|" \
-    -e "s|postscreen_greet_action = enforce|postscreen_greet_action = ${POSTSCREEN_ACTION}|" \
-    -e "s|postscreen_bare_newline_action = enforce|postscreen_bare_newline_action = ${POSTSCREEN_ACTION}|" /etc/postfix/main.cf
-}
-
-
-function _setup_clamav_sizelimit
-{
-  _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
-  sedfile -i "s/^MaxFileSize.*/MaxFileSize ${CLAMAV_MESSAGE_SIZE_LIMIT}/" /etc/clamav/clamd.conf
-}
-
-
-function _setup_spoof_protection
-{
-  _log 'trace' 'Configuring spoof protection'
-  sed -i \
-    's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
-    /etc/postfix/main.cf
-
-  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]
-  then
-    if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
-    then
-      postconf 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf'
-    else
-      postconf 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf'
-    fi
-  else
-    if [[ -f /etc/postfix/regexp ]]
-    then
-      postconf 'smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }'
-    else
-      postconf 'smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre'
-    fi
-  fi
-}
-
