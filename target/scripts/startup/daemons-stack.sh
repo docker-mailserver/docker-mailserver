@@ -1,5 +1,13 @@
 #!/bin/bash
 
+declare -a DAEMONS_START
+
+function _register_start_daemon
+{
+  DAEMONS_START+=("${1}")
+  _log 'trace' "${1}() registered"
+}
+
 function _start_daemons
 {
   _log 'info' 'Starting daemons'

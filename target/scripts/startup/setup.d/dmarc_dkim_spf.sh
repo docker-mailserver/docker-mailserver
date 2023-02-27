@@ -1,17 +1,16 @@
 #!/bin/bash
 
-
-# Set up OpenDKIM & OpenDMARC.
+# Set up OpenDKIM
 #
 # ## Attention
 #
-# The OpenDKIM milter must come before the OpenDMARC milter in Postfix's#
+# The OpenDKIM milter must come before the OpenDMARC milter in Postfix's
 # `smtpd_milters` milters options.
-function _setup_dkim_dmarc
+function _setup_opendkim
 {
   if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
   then
-    _log 'debug' 'Setting up DKIM'
+    _log 'debug' 'Configuring DKIM'
 
     mkdir -p /etc/opendkim/keys/
     touch /etc/opendkim/{SigningTable,TrustedHosts,KeyTable}
@@ -43,26 +42,45 @@ function _setup_dkim_dmarc
       echo "Nameservers ${NAMESERVER_IPS}" >>/etc/opendkim.conf
       _log 'trace' "Nameservers added to '/etc/opendkim.conf'"
     fi
+  else
+    # Even though we do nothing here and the message suggests we perform some action, the
+    # message is due to the default value being `1`, i.e. enabled. If the default were `0`,
+    # we could have said `OpenDKIM is disabled`, but we need to make it uniform with all
+    # other functions.
+    _log 'debug' 'Disabling OpenDKIM'
   fi
+}
 
+# Set up OpenDKIM
+#
+# ## Attention
+#
+# The OpenDMARC milter must come after the OpenDKIM milter in Postfix's
+# `smtpd_milters` milters options.
+function _setup_opendmarc
+{
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
   then
-    # TODO when disabling SPF is possible, add a check whether DKIM and SPF is disabled
+    # TODO When disabling SPF is possible, add a check whether DKIM and SPF is disabled
     #      for DMARC to work, you should have at least one enabled
     #      (see RFC 7489 https://www.rfc-editor.org/rfc/rfc7489#page-24)
+    _log 'debug' 'Configuring OpenDMARC'
+
     _log 'trace' "Adding OpenDMARC to Postfix's milters"
     postconf 'dmarc_milter = inet:localhost:8893'
     # Make sure to append the OpenDMARC milter _after_ the OpenDKIM milter!
     # shellcheck disable=SC2016
     sed -i -E 's|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
-  fi
-}
 
-function _setup_dmarc_hostname
-{
-  _log 'debug' 'Setting up DMARC'
-  sed -i -e \
-    "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
-    -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${HOSTNAME}|g" \
-    /etc/opendmarc.conf
+    sed -i \
+      -e "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
+      -e "s|^TrustedAuthservIDs.*$|TrustedAuthservIDs  ${HOSTNAME}|g" \
+      /etc/opendmarc.conf
+  else
+    # Even though we do nothing here and the message suggests we perform some action, the
+    # message is due to the default value being `1`, i.e. enabled. If the default were `0`,
+    # we could have said `OpenDKIM is disabled`, but we need to make it uniform with all
+    # other functions.
+    _log 'debug' 'Disabling OpenDMARC'
+  fi
 }

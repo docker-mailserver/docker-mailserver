@@ -2,13 +2,18 @@
 
 function _setup_rspamd
 {
-  _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
-  _log 'debug' 'Enabling Rspamd'
+  if [[ ${ENABLE_RSPAMD} -eq 1 ]]
+  then
+    _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
+    _log 'debug' 'Enabling and configuring Rspamd'
 
-  __rspamd__preflight_checks
-  __rspamd__adjust_postfix_configuration
-  __rspamd__disable_default_modules
-  __rspamd__handle_modules_configuration
+    __rspamd__preflight_checks
+    __rspamd__adjust_postfix_configuration
+    __rspamd__disable_default_modules
+    __rspamd__handle_modules_configuration
+  else
+    _log 'debug' 'Rspamd is disabled'
+  fi
 }
 
 # Just a helper to prepend the log messages with `(Rspamd setup)` so
