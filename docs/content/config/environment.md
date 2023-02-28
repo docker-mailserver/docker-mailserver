@@ -82,9 +82,20 @@ Enable or disable Rspamd.
 
 ##### ENABLE_REDIS
 
-Enables or disable a freestanding Redis instance inside the container. The default value is the value of [`ENABLE_RSPAMD`](#enable_rspamd), i.e. if you set `ENABLE_RSPAMD=X` this variable will also default to `X` if not specified.
+Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
 
-This way, you can enable Rspamd (`ENABLE_RSPAMD=1`) but run a dedicated Redis instance in another container (also set `ENABLE_REDIS=0`). Note that you will then need to provide `/etc/rspamd/local.d/redis.conf` yourself!
+The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
+
+??? note Configuring rspamd for an external Redis instance
+
+    You will need to [provide configuration][config-rspamd-redis] at `/etc/rspamd/local.d/redis.conf` similar to:
+    
+    ```
+    servers = "redis.example.test:6379";
+    expand_keys = true;
+    ```
+
+[config-rspamd-redis]: https://rspamd.com/doc/configuration/redis.html
 
 - 0 => Disabled
 - 1 => Enabled
