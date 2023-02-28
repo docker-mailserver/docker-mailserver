@@ -89,7 +89,7 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 ??? note "Configuring rspamd for an external Redis instance"
 
     You will need to [provide configuration][config-rspamd-redis] at `/etc/rspamd/local.d/redis.conf` similar to:
-    
+
     ```
     servers = "redis.example.test:6379";
     expand_keys = true;
@@ -204,8 +204,8 @@ Please read [the SSL page in the documentation][docs-tls] for more information.
 
 Configures the handling of creating mails with forged sender addresses.
 
-- **empty** => Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address. See also [Wikipedia](https://en.wikipedia.org/wiki/Email_spoofing)(not recommended, but default for backwards compatibility reasons)
-- 1 => (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
+- **0** => (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a [forged sender address](https://en.wikipedia.org/wiki/Email_spoofing).
+- 1 => Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
 ##### ENABLE_SRS
 

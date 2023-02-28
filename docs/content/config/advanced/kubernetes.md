@@ -287,7 +287,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: data
-        
+
         # certificates
         - name: certificates-rsa
           secret:
@@ -401,7 +401,7 @@ metadata:
 # ...
     spec:
       hostNetwork: true
-    
+
     # ...
       containers:
         # ...
