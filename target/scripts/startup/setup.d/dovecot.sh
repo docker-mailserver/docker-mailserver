@@ -87,6 +87,14 @@ function _setup_dovecot
   chown docker:docker -R /usr/lib/dovecot/sieve*
   chmod 550 -R /usr/lib/dovecot/sieve*
   chmod -f +x /usr/lib/dovecot/sieve-pipe/*
+
+  if [[ ${ENABLE_POP3} -eq 1 ]]
+  then
+    _log 'debug' 'Enabling POP3 services'
+    mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
+  fi
+
+  [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 }
 
 
