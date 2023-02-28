@@ -109,6 +109,9 @@ function _setup_apply_fixes_after_configuration
 
   _log 'debug' 'Checking /var/mail permissions'
   _chown_var_mail_if_necessary || _shutdown 'Failed to fix /var/mail permissions'
+
+  _log 'trace' 'Remove left-over files and directories from older versions'
+  rm -rf /var/spool/postfix/{dev,etc,lib,usr,private/auth}
 }
 
 function _run_user_patches
