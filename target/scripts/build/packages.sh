@@ -37,6 +37,9 @@ function _install_postfix
   chmod +x /bin/hostname
   apt-get "${QUIET}" install --no-install-recommends postfix
   mv /bin/hostname.bak /bin/hostname
+
+  # Instead of syslog, master.cf and main.cf we supply are configured to log to /dev/stdout
+  rm /etc/rsyslog.d/postfix.conf
 }
 
 function _install_packages
