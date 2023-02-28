@@ -10,11 +10,13 @@ function _register_setup_function
 
 function _setup
 {
-  while read -r FILE
+  # requires `shopt -s globstar` because of `**` which in
+  # turn is required as we're decending through directories
+  for FILE in /usr/local/bin/setup.d/**/*.sh
   do
     # shellcheck source=/dev/null
     source "${FILE}"
-  done < <(find /usr/local/bin/setup.d/ -type f)
+  done
 
   _log 'info' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"
@@ -97,6 +99,16 @@ function _setup_timezone
     _log 'warn' "Setting timezone to '${TZ}' failed"
     return 1
   fi
+}
+
+function _setup_apply_fixes_after_configuration
+{
+  _log 'trace' 'Removing leftover PID files from a stop/start'
+  find /var/run/ -not -name 'supervisord.pid' -name '*.pid' -delete
+  touch /dev/shm/supervisor.sock
+
+  _log 'debug' 'Checking /var/mail permissions'
+  _chown_var_mail_if_necessary || _shutdown 'Failed to fix /var/mail permissions'
 }
 
 function _run_user_patches
