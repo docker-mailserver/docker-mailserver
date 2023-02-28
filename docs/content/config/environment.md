@@ -86,7 +86,7 @@ Explicit control over running a Redis instance within the container. By default,
 
 The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
 
-??? note Configuring rspamd for an external Redis instance
+??? note "Configuring rspamd for an external Redis instance"
 
     You will need to [provide configuration][config-rspamd-redis] at `/etc/rspamd/local.d/redis.conf` similar to:
     
