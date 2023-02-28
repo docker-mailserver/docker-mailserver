@@ -6,14 +6,14 @@ declare -A VARS
 function _early_variables_setup
 {
   _obtain_hostname_and_domainname
-  _environment_variables_backwards_compatibility
-  _environment_variables_general_setup
+  __environment_variables_backwards_compatibility
+  __environment_variables_general_setup
 }
 
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
-function _environment_variables_backwards_compatibility
+function __environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
   then
@@ -30,31 +30,10 @@ function _environment_variables_backwards_compatibility
   # fi
 }
 
-# This function Writes the contents of the `VARS` map (associative array)
-# to locations where they can be sourced from (e.g. `/etc/dms-settings`)
-# or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export
-{
-  _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
-
-  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
-  : >/etc/dms-settings # this file can be sourced by other scripts
-
-  local VAR
-  for VAR in "${!VARS[@]}"
-  do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
-    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
-  done
-
-  sort -o /root/.bashrc     /root/.bashrc
-  sort -o /etc/dms-settings /etc/dms-settings
-}
-
 # This function sets almost all environment variables. This involves setting
 # a default if no value was provided and writing the variable and its value
 # to the VARS map.
-function _environment_variables_general_setup
+function __environment_variables_general_setup
 {
   _log 'debug' 'Handling general environment variable setup'
 
@@ -125,6 +104,7 @@ function _environment_variables_general_setup
   VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
   VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
   VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
+  VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
 
   _log 'trace' 'Setting miscellaneous environment variables'
 
@@ -216,4 +196,25 @@ function _environment_variables_saslauthd
     fi
     VARS[SASLAUTHD_LDAP_MECH]="${SASLAUTHD_LDAP_MECH}"
   fi
+}
+
+# This function Writes the contents of the `VARS` map (associative array)
+# to locations where they can be sourced from (e.g. `/etc/dms-settings`)
+# or where they can be used by Bash directly (e.g. `/root/.bashrc`).
+function _environment_variables_export
+{
+  _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
+
+  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
+  : >/etc/dms-settings # this file can be sourced by other scripts
+
+  local VAR
+  for VAR in "${!VARS[@]}"
+  do
+    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
+    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
+  done
+
+  sort -o /root/.bashrc     /root/.bashrc
+  sort -o /etc/dms-settings /etc/dms-settings
 }

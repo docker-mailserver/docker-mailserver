@@ -62,13 +62,16 @@ function _setup_postfix_vhost
 
 function _setup_postfix_inet_protocols
 {
+  [[ ${POSTFIX_INET_PROTOCOLS} == 'all' ]] && return 0
+
   _log 'trace' 'Setting up POSTFIX_INET_PROTOCOLS option'
   postconf "inet_protocols = ${POSTFIX_INET_PROTOCOLS}"
 }
 
-
 function _setup_postfix_virtual_transport
 {
+  [[ -z ${POSTFIX_DAGENT} ]] && return 0
+
   _log 'trace' "Changing Postfix virtual transport to '${POSTFIX_DAGENT}'"
   # Default value in main.cf should be 'lmtp:unix:/var/run/dovecot/lmtp'
   postconf "virtual_transport = ${POSTFIX_DAGENT}"

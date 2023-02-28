@@ -5,7 +5,7 @@ source /usr/local/bin/helpers/log.sh
 # shellcheck source=../scripts/startup/setup.d/fetchmail.sh
 source /usr/local/bin/setup.d/fetchmail.sh
 
-_setup_fetchmail
+ENABLE_FETCHMAIL=1 _setup_fetchmail
 
 su -s /bin/sh -c "/usr/bin/fetchmail \
   --verbose \

@@ -87,6 +87,14 @@ function _setup_dovecot
   chown docker:docker -R /usr/lib/dovecot/sieve*
   chmod 550 -R /usr/lib/dovecot/sieve*
   chmod -f +x /usr/lib/dovecot/sieve-pipe/*
+
+  if [[ ${ENABLE_POP3} -eq 1 ]]
+  then
+    _log 'debug' 'Enabling POP3 services'
+    mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
+  fi
+
+  [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 }
 
 
@@ -184,10 +192,11 @@ function _setup_dovecot_local_user
 
 function _setup_dovecot_inet_protocols
 {
-  local PROTOCOL
+  [[ ${DOVECOT_INET_PROTOCOLS} == 'all' ]] && return 0
 
   _log 'trace' 'Setting up DOVECOT_INET_PROTOCOLS option'
 
+  local PROTOCOL
   # https://dovecot.org/doc/dovecot-example.conf
   if [[ ${DOVECOT_INET_PROTOCOLS} == "ipv4" ]]
   then

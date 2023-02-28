@@ -24,15 +24,6 @@ source /usr/local/bin/daemons-stack.sh
 # ------------------------------------------------------------
 # ? << Sourcing helpers & stacks
 # --
-# ? >> Early setup & environment variables setup
-# ------------------------------------------------------------
-
-_early_setup_supervisor
-_early_variables_setup
-
-# ------------------------------------------------------------
-# ? << Early setup & environment variables setup
-# --
 # ? >> Registering functions
 # ------------------------------------------------------------
 
@@ -82,8 +73,8 @@ function _register_functions
     _register_setup_function '_setup_saslauthd'
   fi
 
-  [[ ${POSTFIX_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_postfix_inet_protocols'
-  [[ ${DOVECOT_INET_PROTOCOLS} != 'all' ]] && _register_setup_function '_setup_dovecot_inet_protocols'
+  _register_setup_function '_setup_postfix_inet_protocols'
+  _register_setup_function '_setup_dovecot_inet_protocols'
 
   _register_setup_function '_setup_opendkim'
   _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
@@ -103,14 +94,10 @@ function _register_functions
   _register_setup_function '_setup_postfix_vhost'
   _register_setup_function '_setup_postfix_dhparam'
   _register_setup_function '_setup_postfix_sizelimits'
+  _register_setup_function '_setup_fetchmail'
+  _register_setup_function '_setup_fetchmail_parallel'
 
   # needs to come after _setup_postfix_aliases
-
-  if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]
-  then
-    _register_setup_function '_setup_fetchmail'
-    [[ ${FETCHMAIL_PARALLEL} -eq 1 ]] && _register_setup_function '_setup_fetchmail_parallel'
-  fi
   _register_setup_function '_setup_spoof_protection'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
@@ -121,9 +108,7 @@ function _register_functions
 
   _register_setup_function '_setup_postfix_access_control'
   _register_setup_function '_setup_postfix_relay_hosts'
-
-  [[ -n ${POSTFIX_DAGENT} ]] && _register_setup_function '_setup_postfix_virtual_transport'
-
+  _register_setup_function '_setup_postfix_virtual_transport'
   _register_setup_function '_setup_postfix_override_configuration'
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
@@ -174,13 +159,16 @@ function _register_functions
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
+_early_supervisor_setup
+_early_variables_setup
+
 _log 'info' "Welcome to docker-mailserver $(</VERSION)"
 
 _register_functions
 _check
 _setup
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-_setup_run_user_patches
+_run_user_patches
 _start_daemons
 
 # marker to check if container was restarted
