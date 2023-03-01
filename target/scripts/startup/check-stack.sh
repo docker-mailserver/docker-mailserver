@@ -17,6 +17,17 @@ function _check
   done
 }
 
+function _check_improper_restart
+{
+  _log 'debug' 'Checking for improper restart'
+
+  if [[ -f /CONTAINER_START ]]
+  then
+    _log 'warn' 'This container was (likely) improperly restarted which can result in undefined behavior'
+    _log 'warn' 'Please destroy the container properly and then start DMS again'
+  fi
+}
+
 function _check_hostname
 {
   _log 'debug' 'Checking that hostname/domainname is provided or overridden'
