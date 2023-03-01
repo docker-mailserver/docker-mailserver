@@ -33,6 +33,7 @@ function _register_functions
 
   # ? >> Checks
 
+  _register_check_function '_check_improper_restart'
   _register_check_function '_check_hostname'
   _register_check_function '_check_log_level'
 
