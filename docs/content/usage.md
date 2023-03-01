@@ -58,6 +58,8 @@ chmod a+x ./setup.sh
 
     **Use `docker compose up / down`, not `docker compose start / stop`**. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state.
 
+    Using `Ctrl+C` **is not supported either**!
+
 You are able to get a full overview of how the configuration works by either running:
 
 1. `./setup.sh help` which includes the options of `setup.sh`.
