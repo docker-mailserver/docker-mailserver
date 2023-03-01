@@ -555,6 +555,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_redis" class="md-nav__link">
+    ENABLE_REDIS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -2496,6 +2503,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_redis" class="md-nav__link">
+    ENABLE_REDIS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -3432,6 +3446,20 @@
 <ul>
 <li><strong>0</strong> =&gt; disabled</li>
 <li>1 =&gt; enabled</li>
+</ul>
+<h5 id="enable_redis"><a class="toclink" href="#enable_redis">ENABLE_REDIS</a></h5>
+<p>Explicit control over running a Redis instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
+<p>The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.</p>
+<details class="note">
+<summary>Configuring rspamd for an external Redis instance</summary>
+<p>You will need to <a href="https://rspamd.com/doc/configuration/redis.html">provide configuration</a> at <code>/etc/rspamd/local.d/redis.conf</code> similar to:</p>
+<div class="highlight"><pre><span></span><code>servers = &quot;redis.example.test:6379&quot;;
+expand_keys = true;
+</code></pre></div>
+</details>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
 </ul>
 <h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
 <p>Amavis content filter (used for ClamAV &amp; SpamAssassin)</p>
