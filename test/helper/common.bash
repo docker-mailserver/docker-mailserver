@@ -2,7 +2,8 @@
 
 # ? ABOUT: Functions defined here aid with common functionality during tests.
 
-# ! ATTENTION: Functions prefixed with `__` are intended for internal use within this file only, not in tests.
+# ! ATTENTION: Functions prefixed with `__` are intended for internal use
+# !            within helper functions, not in tests.
 
 # ! -------------------------------------------------------------------
 # ? >> Miscellaneous initialization functionality
@@ -21,50 +22,6 @@ function __load_bats_helper() {
 }
 
 __load_bats_helper
-
-# Properly handle the container name given to tests. This makes the whole
-# test suite more robust as we can be sure that the container name is
-# properly set. Sometimes, we need to provide an explicit container name;
-# this function eases the pain by either providing the explicitly given
-# name or `CONTAINER_NAME` if it is set.
-#
-# @param ${1} = explicit container name [OPTIONAL]
-#
-# ## Attention
-#
-# Note that this function checks whether the name given to it starts with
-# the prefix `dms-test_`. One must adhere to this naming convention.
-#
-# ## Panics
-#
-# If neither an explicit non-empty argument is given nor `CONTAINER_NAME`
-# is set.
-#
-# ## "Calling Convention"
-#
-# This function should be called the following way:
-#
-#     local SOME_VAR=$(__handle_container_name "${X:-}")
-#
-# Where `X` is an arbitrary argument of the function you're calling.
-#
-# ## Note
-#
-# This function is internal and should not be used in tests.
-function __handle_container_name() {
-  if [[ -n ${1:-} ]] && [[ ${1:-} =~ ^dms-test_ ]]
-  then
-    printf '%s' "${1}"
-    return 0
-  elif [[ -n ${CONTAINER_NAME+set} ]]
-  then
-    printf '%s' "${CONTAINER_NAME}"
-    return 0
-  else
-    echo 'ERROR: (helper/common.sh) Container name was either provided explicitly without the required "dms-test_" prefix, or CONTAINER_NAME is not set for implicit usage' >&2
-    exit 1
-  fi
-}
 
 # ? << Miscellaneous initialization functionality
 # ! -------------------------------------------------------------------
@@ -480,4 +437,42 @@ function _print_mail_log_for_id() {
 }
 
 # ? << Miscellaneous helper functions
+# ! -------------------------------------------------------------------
+# ? >> Container name handling functionality
+
+# This is the ugliest, but also the only way to easily handle functions
+# that want to provide the users of test helper functions with a simple API that
+#
+# 1. is able to take the container name as an explicit argument via a positional parameter;
+# 2. or use the globally provided `CONTAINER_NAME` if no explicit parameter is provided;
+# 3. or abort if 1. and 2. fail.
+#
+# This cannot be done with `function`s though. The caller needs to use `local CONTAINER_NAME`
+# to only override `CONTAINER_NAME` for the scope of the function. Hence, you could either use
+# `local CONTAINER_NAME=$(__some_handling_function ${SOME_POSITIONAL_PARAMETER})`, but this way,
+# the test will not actually abort since the return value in the case of the abort will not be
+# properly set due to `local` (see https://www.shellcheck.net/wiki/SC2155); or you use
+# `local CONTAINER_NAME` and then
+# `CONTAINER_NAME=$(__some_handling_function ${SOME_POSITIONAL_PARAMETER})`, but this way, you
+# have just introduced `CONTAINER_NAME` as an _empty_ variable, and `__some_handling_function`
+# is unable to get the global value.
+#
+# Hence, you need to use these variables and `eval`, which will do an in-place evaluation.
+# This is not very beautiful, but it works flawlessly. Moreover, this is a private API, so
+# only those that write _helpers_ for those that write tests will need to use it; and even
+# fewer people need to actually understand it.
+
+# Use this variable if the optional explicit container name is provided via positional argument 1.
+# shellcheck disable=SC2016
+__SET_CONTAINER_NAME_WITH_POS_ARG_1='local CONTAINER_NAME=${1:-${CONTAINER_NAME:?Container name unset and explicit name not provided}}'
+
+# Use this variable if the optional explicit container name is provided via positional argument 2.
+# shellcheck disable=SC2016
+__SET_CONTAINER_NAME_WITH_POS_ARG_2='local CONTAINER_NAME=${2:-${CONTAINER_NAME:?Container name unset and explicit name not provided}}'
+
+# Use this variable if the optional explicit container name is provided via positional argument 3.
+# shellcheck disable=SC2016
+__SET_CONTAINER_NAME_WITH_POS_ARG_3='local CONTAINER_NAME=${3:-${CONTAINER_NAME:?Container name unset and explicit name not provided}}'
+
+# ? << Container name handling functionality
 # ! -------------------------------------------------------------------
