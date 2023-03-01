@@ -37,7 +37,7 @@ function _wait_until_expected_count_is_matched() {
   }
 
   local EXPECTED_COUNT=${1:-}
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_2}"
 
   # Ensure the container is configured with the required `LOG_LEVEL` ENV:
   assert_regex "$(_exec_in_container env | grep '^LOG_LEVEL=')" '=(debug|trace)$'
@@ -73,7 +73,7 @@ function _wait_until_change_detection_event_completes() {
 
 function _get_logs_since_last_change_detection() {
   # shellcheck disable=SC2034
-  local CONTAINER_NAME=$(__handle_container_name "${1:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
   local MATCH_IN_FILE='/var/log/supervisor/changedetector.log'
   local MATCH_STRING='Change detected'
 

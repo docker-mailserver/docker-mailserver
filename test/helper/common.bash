@@ -207,7 +207,7 @@ function _run_until_success_or_timeout() {
 # @param ${2} = container name [OPTIONAL]
 function _wait_for_tcp_port_in_container() {
   local PORT=${1:?Port number must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_2}"
 
   _repeat_until_success_or_timeout \
     --fatal-test "_container_is_running ${CONTAINER_NAME}" \
@@ -219,7 +219,7 @@ function _wait_for_tcp_port_in_container() {
 #
 # @param ${1} = name of the container [OPTIONAL]
 function _wait_for_smtp_port_in_container() {
-  local CONTAINER_NAME=$(__handle_container_name "${1:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
   _wait_for_tcp_port_in_container 25
 }
 
@@ -227,7 +227,7 @@ function _wait_for_smtp_port_in_container() {
 #
 # @param ${1} = name of the container [OPTIONAL]
 function _wait_for_smtp_port_in_container_to_respond() {
-  local CONTAINER_NAME=$(__handle_container_name "${1:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
 
   local COUNT=0
   until [[ $(_exec_in_container timeout 10 /bin/bash -c 'echo QUIT | nc localhost 25') == *'221 2.0.0 Bye'* ]]
@@ -249,7 +249,7 @@ function _wait_for_smtp_port_in_container_to_respond() {
 # @param ${2} = container name [OPTIONAL]
 function _should_have_service_running_in_container() {
   local SERVICE_NAME="${1:?Service name must be provided}"
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_2}"
 
   _run_in_container /usr/bin/supervisorctl status "${SERVICE_NAME}"
   assert_success
@@ -262,7 +262,7 @@ function _should_have_service_running_in_container() {
 # @param ${2} = container name [OPTIONAL]
 function _wait_for_service() {
   local SERVICE_NAME="${1:?Service name must be provided}"
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_2}"
 
   _repeat_until_success_or_timeout \
     --fatal-test "_container_is_running ${CONTAINER_NAME}" \
@@ -277,7 +277,7 @@ function _wait_for_service() {
 # @param ${2} = container name
 function _wait_until_account_maildir_exists() {
   local MAIL_ACCOUNT=${1:?Mail account must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_2}"
 
   local LOCAL_PART="${MAIL_ACCOUNT%@*}"
   local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
@@ -291,7 +291,7 @@ function _wait_until_account_maildir_exists() {
 #
 # @param ${1} = container name [OPTIONAL]
 function _wait_for_empty_mail_queue_in_container() {
-  local CONTAINER_NAME=$(__handle_container_name "${1:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
   local TIMEOUT=${TEST_TIMEOUT_IN_SECONDS}
 
   # shellcheck disable=SC2016
@@ -314,7 +314,7 @@ function _wait_for_empty_mail_queue_in_container() {
 function _add_mail_account_then_wait_until_ready() {
   local MAIL_ACCOUNT=${1:?Mail account must be provided}
   local MAIL_PASS="${2:-password_not_relevant_to_test}"
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_3}"
 
   # Required to detect a new account and create the maildir:
   _wait_for_service changedetector "${CONTAINER_NAME}"
@@ -338,7 +338,7 @@ function _should_output_number_of_lines() {
 #
 # @param ${1} = container name [OPTIONAL]
 function _reload_postfix() {
-  local CONTAINER_NAME=$(__handle_container_name "${1:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
 
   # Reloading Postfix config after modifying it within 2 seconds will cause Postfix to delay reading `main.cf`:
   # WORKAROUND: https://github.com/docker-mailserver/docker-mailserver/pull/2998
@@ -351,16 +351,16 @@ function _reload_postfix() {
 #
 # @param ${1} = container name [OPTIONAL]
 function _get_container_ip() {
-  local TARGET_CONTAINER_NAME=$(__handle_container_name "${1:-}")
-  docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${TARGET_CONTAINER_NAME}"
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
+  docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${CONTAINER_NAME}"
 }
 
 # Check if a container is running.
 #
 # @param ${1} = container name [OPTIONAL]
 function _container_is_running() {
-  local TARGET_CONTAINER_NAME=$(__handle_container_name "${1:-}")
-  [[ $(docker inspect -f '{{.State.Running}}' "${TARGET_CONTAINER_NAME}") == 'true' ]]
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_1}"
+  [[ $(docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}") == 'true' ]]
 }
 
 # Checks if the directory exists and then how many files it contains at the top-level.
@@ -410,7 +410,7 @@ function _should_have_content_in_directory() {
 function _filter_service_log() {
   local SERVICE=${1:?Service name must be provided}
   local STRING=${2:?String to match must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_3}"
 
   _run_in_container grep -E "${STRING}" "/var/log/supervisor/${SERVICE}.log"
 }
@@ -429,7 +429,7 @@ function _filter_service_log() {
 function _service_log_should_contain_string() {
   local SERVICE=${1:?Service name must be provided}
   local STRING=${2:?String to match must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_3}"
 
   _filter_service_log "${SERVICE}" "${STRING}"
   assert_success
@@ -443,7 +443,7 @@ function _service_log_should_contain_string() {
 # @param ${2} = container name [OPTIONAL]
 function _print_mail_log_for_id() {
   local MAIL_ID=${1:?Mail ID must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
+  eval "${__SET_CONTAINER_NAME_WITH_POS_ARG_2}"
 
   _run_in_container grep -F "${MAIL_ID}" /var/log/mail.log
 }
