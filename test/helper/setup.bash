@@ -2,12 +2,41 @@
 
 # ? ABOUT: Functions defined here should be used when initializing tests.
 
-# ! ATTENTION: Functions prefixed with `__` are intended for internal use within this file only, not in tests.
+# ! ATTENTION: Functions prefixed with `__` are intended for internal use
+# !            within helper functions, not in tests.
 # ! ATTENTION: This script must not use functions from `common.bash` to
 # !            avoid dependency hell.
 
 # ! -------------------------------------------------------------------
 # ? >> Miscellaneous initialization functionality
+
+# Aborts setup/teardown/tests.
+#
+# @param ${1} = message [OPTIONAL] (default: no message provided)
+# @param ${2} = exit code [OPTIONAL] (default: 42)
+#
+# ## Attention
+#
+# When using this function, you will need to know that if it is run from
+# another function that is executed via command substitution (`$()`), you need
+# to take the ShellCheck lint SC2155 (https://www.shellcheck.net/wiki/SC2155)
+# very serious! Otherwise tests might just continue running because the exit
+# status is not properly evaluated.
+function __abort() {
+  local MESSAGE=${1:-no message provided}
+  local EXIT_CODE=${2:-42}
+
+  echo -e "\n[  ERROR  ]  ${MESSAGE}\n"
+  return "${EXIT_CODE}"
+}
+
+# Check if a variable is set.
+#
+# @param ${1} = variable name that is to be checked
+function __check_if_var_is_set() {
+  local -n REF=${1:?No variable name given to __check_if_set}
+  [[ ${REF+set} == 'set' ]] || __abort "'${!REF}' is not set"
+}
 
 # Does pre-flight checks for each test: check whether certain required variables
 # are set and exports other variables.
@@ -16,23 +45,9 @@
 #
 # This function is internal and should not be used in tests.
 function __initialize_variables() {
-  function __check_if_set() {
-    if [[ ${!1+set} != 'set' ]]
-    then
-      echo "ERROR: (helper/setup.sh) '${1:?No variable name given to __check_if_set}' is not set" >&2
-      exit 1
-    fi
-  }
-
-  local REQUIRED_VARIABLES_FOR_TESTS=(
-    'REPOSITORY_ROOT'
-    'IMAGE_NAME'
-    'CONTAINER_NAME'
-  )
-
-  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS[@]}"
+  for VARIABLE in 'REPOSITORY_ROOT' 'IMAGE_NAME' 'CONTAINER_NAME'
   do
-    __check_if_set "${VARIABLE}"
+    __check_if_var_is_set "${VARIABLE}"
   done
 
   export SETUP_FILE_MARKER TEST_TIMEOUT_IN_SECONDS NUMBER_OF_LOG_LINES
