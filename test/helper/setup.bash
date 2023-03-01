@@ -33,7 +33,7 @@ function __abort() {
 # Check if a variable is set.
 #
 # @param ${1} = variable name that is to be checked
-function __check_if_var_is_set() {
+function _check_if_var_is_set() {
   local -n REF=${1:?No variable name given to __check_if_set}
   [[ ${REF+set} == 'set' ]] || __abort "'${!REF}' is not set"
 }
@@ -47,7 +47,7 @@ function __check_if_var_is_set() {
 function __initialize_variables() {
   for VARIABLE in 'REPOSITORY_ROOT' 'IMAGE_NAME' 'CONTAINER_NAME'
   do
-    __check_if_var_is_set "${VARIABLE}"
+    _check_if_var_is_set "${VARIABLE}"
   done
 
   export SETUP_FILE_MARKER TEST_TIMEOUT_IN_SECONDS NUMBER_OF_LOG_LINES

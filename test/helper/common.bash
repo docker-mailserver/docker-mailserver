@@ -86,11 +86,16 @@ function _run_in_container_bash() { _run_in_container /bin/bash -c "${@}" ; }
 #
 # The regex is given to `grep -E`, so make sure it is compatible.
 #
+# This function assumes `CONTAINER_NAME` to be properly set (to the container
+# name the command should be executed in)! This condition is checked.
+#
 # ## Note
 #
 # If no regex is provided, this function will default to one that strips
 # empty lines and Bash comments from the output.
 function _run_in_container_bash_and_filter_output() {
+  _check_if_var_is_set 'CONTAINER_NAME'
+
   local COMMAND=${1:?Command must be provided}
   local FILTER_REGEX=${2:-^[[:space:]]*$|^ *#}
 
@@ -375,7 +380,14 @@ function _count_files_in_directory_in_container()
 #
 # @param ${1} = directory
 # @param ${2} = Additional options to `find`
+#
+# ## Attention
+#
+# This function assumes `CONTAINER_NAME` to be properly set (to the container
+# name the command should be executed in)! This condition is checked.
 function _should_have_content_in_directory() {
+  _check_if_var_is_set 'CONTAINER_NAME'
+
   local DIRECTORY=${1:?No directory provided}
   local FIND_OPTIONS=${2:-}
 
