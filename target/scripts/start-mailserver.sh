@@ -124,16 +124,11 @@ function _register_functions
   _register_start_daemon '_start_daemon_cron'
   _register_start_daemon '_start_daemon_rsyslog'
 
-  [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
-  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
-
-  if [[ ${ENABLE_RSPAMD} -eq 1 ]]
-  then
-    _register_start_daemon '_start_daemon_redis'
-    _register_start_daemon '_start_daemon_rspamd'
-  fi
-
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
+
+  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  [[ ${ENABLE_REDIS}            -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
+  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_redis'
   [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
 
   # needs to be started before SASLauthd
