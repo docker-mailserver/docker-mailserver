@@ -15,7 +15,7 @@ function setup_file() {
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  _wait_for_smtp_port_in_container mail_with_imap
+  _wait_for_smtp_port_in_container
 }
 
 function teardown_file() { _default_teardown ; }
