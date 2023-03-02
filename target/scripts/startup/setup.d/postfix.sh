@@ -142,6 +142,51 @@ function _setup_SRS
   postconf "sender_canonical_classes = ${SRS_SENDER_CLASSES}"
   postconf 'recipient_canonical_maps = tcp:localhost:10002'
   postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
+
+  function __generate_secret
+  {
+    (
+      umask 0077
+      dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 >"${1}"
+    )
+  }
+
+  local POSTSRSD_SECRET_FILE POSTSRSD_STATE_DIR POSTSRSD_STATE_SECRET_FILE
+
+  sed -i "s/localdomain/${SRS_DOMAINNAME}/g" /etc/default/postsrsd
+
+  POSTSRSD_SECRET_FILE='/etc/postsrsd.secret'
+  POSTSRSD_STATE_DIR='/var/mail-state/etc-postsrsd'
+  POSTSRSD_STATE_SECRET_FILE="${POSTSRSD_STATE_DIR}/postsrsd.secret"
+
+  if [[ -n ${SRS_SECRET} ]]
+  then
+    (
+      umask 0077
+      echo "${SRS_SECRET}" | tr ',' '\n' >"${POSTSRSD_SECRET_FILE}"
+    )
+  else
+    if [[ ${ONE_DIR} -eq 1 ]]
+    then
+      if [[ ! -f ${POSTSRSD_STATE_SECRET_FILE} ]]
+      then
+        install -d -m 0775 "${POSTSRSD_STATE_DIR}"
+        __generate_secret "${POSTSRSD_STATE_SECRET_FILE}"
+      fi
+
+      install -m 0400 "${POSTSRSD_STATE_SECRET_FILE}" "${POSTSRSD_SECRET_FILE}"
+    elif [[ ! -f ${POSTSRSD_SECRET_FILE} ]]
+    then
+      __generate_secret "${POSTSRSD_SECRET_FILE}"
+    fi
+  fi
+
+  if [[ -n ${SRS_EXCLUDE_DOMAINS} ]]
+  then
+    sed -i \
+      "s/^#\?(SRS_EXCLUDE_DOMAINS=).*$/\1=${SRS_EXCLUDE_DOMAINS}/g" \
+      /etc/default/postsrsd
+  fi
 }
 
 function _setup_postfix_hostname

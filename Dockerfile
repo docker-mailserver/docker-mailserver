@@ -252,7 +252,6 @@ COPY \
   target/bin/* \
   target/scripts/*.sh \
   target/scripts/startup/*.sh \
-  target/scripts/wrapper/*.sh \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*

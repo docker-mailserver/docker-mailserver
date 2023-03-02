@@ -107,6 +107,13 @@ function __environment_variables_general_setup
   VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
   VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
 
+  _log 'trace' 'Setting SRS specific environment variables'
+
+  VARS[SRS_DOMAINNAME]="${SRS_DOMAINNAME:=${DOMAINNAME}}"
+  VARS[SRS_EXCLUDE_DOMAINS]="${SRS_EXCLUDE_DOMAINS:=}"
+  VARS[SRS_SECRET]="${SRS_SECRET:=}"
+  VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
+
   _log 'trace' 'Setting miscellaneous environment variables'
 
   VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
@@ -123,7 +130,6 @@ function __environment_variables_general_setup
   VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
   VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER:=none}"
   VARS[SMTP_ONLY]="${SMTP_ONLY:=0}"
-  VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
