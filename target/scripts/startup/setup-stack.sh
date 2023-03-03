@@ -10,7 +10,7 @@ function _register_setup_function
 
 function _setup
 {
-  # requires `shopt -s globstar` because of `**` which in
+  # Requires `shopt -s globstar` because of `**` which in
   # turn is required as we're decending through directories
   for FILE in /usr/local/bin/setup.d/**/*.sh
   do
