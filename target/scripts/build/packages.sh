@@ -38,7 +38,7 @@ function _install_postfix
   apt-get "${QUIET}" install --no-install-recommends postfix
   mv /bin/hostname.bak /bin/hostname
 
-  # Instead of syslog, master.cf and main.cf we supply are configured to log to /dev/stdout
+  # We are not using Debian's default `chroot` jail config for Postfix, this config is not needed:
   rm /etc/rsyslog.d/postfix.conf
 }
 

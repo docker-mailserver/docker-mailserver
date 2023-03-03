@@ -17,9 +17,6 @@ recipient_delimiter = +
 inet_interfaces = all
 inet_protocols = all
 
-# Logging (instead of syslog default, output to stdout for supervisor)
-maillog_file = /dev/stdout
-
 # TLS parameters
 # These [snakeoil files actually exist](https://askubuntu.com/questions/396120/what-is-the-purpose-of-the-ssl-cert-snakeoil-key), but shouldn't ever be used in production!
 # If no `SSL_TYPE` env is set, "plaintext" is configured, but still accepts SSL with these:
