@@ -47,7 +47,7 @@ function __rspamd__preflight_checks
     __rspamd__log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
-  if [[ ${ENABLE_REDIS} -eq 1 ]]
+  if [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]
   then
     __rspamd__log 'trace' 'Internal Redis is enabled, adding configuration'
     cat >/etc/rspamd/local.d/redis.conf << "EOF"

@@ -80,7 +80,7 @@ Enable or disable Rspamd.
 - **0** => disabled
 - 1 => enabled
 
-##### ENABLE_REDIS
+##### ENABLE_RSPAMD_REDIS
 
 Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
 
