@@ -6,10 +6,6 @@ function _setup_spoof_protection
   then
     _log 'trace' 'Enabling and configuring spoof protection'
 
-    sed -i \
-      's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' \
-      /etc/postfix/main.cf
-
     if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]
     then
       if [[ -z ${LDAP_QUERY_FILTER_SENDERS} ]]
@@ -28,5 +24,7 @@ function _setup_spoof_protection
     fi
   else
     _log 'debug' 'Spoof protection is disabled'
+    # shellcheck disable=SC2016
+    postconf 'mua_sender_restrictions = $dms_smtpd_sender_restrictions'
   fi
 }
