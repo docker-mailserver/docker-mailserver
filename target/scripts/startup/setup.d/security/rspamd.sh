@@ -61,7 +61,7 @@ EOF
     # Here we adjust the Redis default configuration that we supply to Redis
     # when starting it. Note that `/var/lib/redis/` is linked to
     # `/var/mail-state/redis/` (for persisting it) if `ONE_DIR=1`.
-    sed -i -E                                  \
+    sedfile -i -E                                  \
       -e 's|^(bind).*|\1 127.0.0.1|g'          \
       -e 's|^(daemonize).*|\1 no|g'            \
       -e 's|^(port).*|\1 6379|g'               \
