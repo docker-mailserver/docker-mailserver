@@ -57,19 +57,6 @@ function _early_supervisor_setup
   return 0
 }
 
-function _setup_file_permissions
-{
-  _log 'debug' 'Setting file and directory permissions'
-
-  touch /var/log/mail/clamav.log
-  chown clamav:adm /var/log/mail/clamav.log
-  chmod 640 /var/log/mail/clamav.log
-
-  touch /var/log/mail/freshclam.log
-  chown clamav:adm /var/log/mail/freshclam.log
-  chmod 640 /var/log/mail/freshclam.log
-}
-
 function _setup_timezone
 {
   [[ -n ${TZ} ]] || return 0

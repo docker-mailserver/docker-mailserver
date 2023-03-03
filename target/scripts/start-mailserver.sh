@@ -39,7 +39,6 @@ function _register_functions
 
   # ? >> Setup
 
-  _register_setup_function '_setup_file_permissions'
   _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
