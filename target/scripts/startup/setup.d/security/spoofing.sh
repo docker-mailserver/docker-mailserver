@@ -25,6 +25,6 @@ function _setup_spoof_protection
   else
     _log 'debug' 'Spoof protection is disabled'
     # shellcheck disable=SC2016
-    postconf 'mua_sender_restrictions = $smtpd_sender_restrictions'
+    postconf 'mua_sender_restrictions = $dms_smtpd_sender_restrictions'
   fi
 }
