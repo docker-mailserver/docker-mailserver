@@ -3553,8 +3553,8 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <h5 id="spoof_protection"><a class="toclink" href="#spoof_protection">SPOOF_PROTECTION</a></h5>
 <p>Configures the handling of creating mails with forged sender addresses.</p>
 <ul>
-<li><strong>empty</strong> =&gt; Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address. See also <a href="https://en.wikipedia.org/wiki/Email_spoofing">Wikipedia</a>(not recommended, but default for backwards compatibility reasons)</li>
-<li>1 =&gt; (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">extension delimiters</a> are not able to send messages.</li>
+<li><strong>0</strong> =&gt; (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a <a href="https://en.wikipedia.org/wiki/Email_spoofing">forged sender address</a>.</li>
+<li>1 =&gt; Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">extension delimiters</a> are not able to send messages.</li>
 </ul>
 <h5 id="enable_srs"><a class="toclink" href="#enable_srs">ENABLE_SRS</a></h5>
 <p>Enables the Sender Rewriting Scheme. SRS is needed if <code>docker-mailserver</code> acts as forwarder. See <a href="https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course">postsrsd</a> for further explanation.</p>
