@@ -37,6 +37,9 @@ function _install_postfix
   chmod +x /bin/hostname
   apt-get "${QUIET}" install --no-install-recommends postfix
   mv /bin/hostname.bak /bin/hostname
+
+  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
+  rm /etc/rsyslog.d/postfix.conf
 }
 
 function _install_packages
