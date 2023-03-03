@@ -23,7 +23,7 @@ function setup_file() {
   # wait for ClamAV to be fully setup or we will get errors on the log
   _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
 
-  _wait_for_service redis
+  _wait_for_service rspamd-redis
   _wait_for_service rspamd
   _wait_for_service clamav
   _wait_for_service postfix
