@@ -38,7 +38,7 @@ function _install_postfix
   apt-get "${QUIET}" install --no-install-recommends postfix
   mv /bin/hostname.bak /bin/hostname
 
-  # We are not using Debian's default `chroot` jail config for Postfix, this config is not needed:
+  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
   rm /etc/rsyslog.d/postfix.conf
 }
 
