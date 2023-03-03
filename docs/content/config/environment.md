@@ -80,6 +80,26 @@ Enable or disable Rspamd.
 - **0** => disabled
 - 1 => enabled
 
+##### ENABLE_REDIS
+
+Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
+
+The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
+
+??? note "Configuring rspamd for an external Redis instance"
+
+    You will need to [provide configuration][config-rspamd-redis] at `/etc/rspamd/local.d/redis.conf` similar to:
+    
+    ```
+    servers = "redis.example.test:6379";
+    expand_keys = true;
+    ```
+
+[config-rspamd-redis]: https://rspamd.com/doc/configuration/redis.html
+
+- 0 => Disabled
+- 1 => Enabled
+
 ##### ENABLE_AMAVIS
 
 Amavis content filter (used for ClamAV & SpamAssassin)

@@ -46,6 +46,20 @@ function __rspamd__preflight_checks
   else
     __rspamd__log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
+
+  if [[ ${ENABLE_REDIS} -eq 1 ]]
+  then
+    __rspamd__log 'trace' 'Internal Redis is enabled, adding configuration'
+    cat >/etc/rspamd/local.d/redis.conf << "EOF"
+# documentation: https://rspamd.com/doc/configuration/redis.html
+
+servers = "127.0.0.1:6379";
+expand_keys = true;
+
+EOF
+  else
+    __rspamd__log 'debug' 'Rspamd will not use internal Redis (which has been disabled)'
+  fi
 }
 
 # Adjust Postfix's configuration files. Append Rspamd at the end of
