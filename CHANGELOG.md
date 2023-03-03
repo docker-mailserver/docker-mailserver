@@ -2,9 +2,62 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.3.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v12.0.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [12.0.0](https://github.com/docker-mailserver/docker-mailserver/compare/v12.0.0...HEAD)
+
+### Added
+
+- **security**: Rspamd support
+  - integration into scripts, provisioning of configuration & documentation ([#2902](https://github.com/docker-mailserver/docker-mailserver/pull/2902),[#3016](https://github.com/docker-mailserver/docker-mailserver/pull/3016),[#3039](https://github.com/docker-mailserver/docker-mailserver/pull/3039))
+  - easily adjust options & modules ([#3059](https://github.com/docker-mailserver/docker-mailserver/pull/3059))
+  - advanced documentation ([#3104](https://github.com/docker-mailserver/docker-mailserver/pull/3104))
+  - make disabling Redis possible ([#3132](https://github.com/docker-mailserver/docker-mailserver/pull/3132))
+  - persistence for Redis ([#3143](https://github.com/docker-mailserver/docker-mailserver/pull/3143))
+- heavily updated CI & tests
+  - added functionality to send mail with a helper function ([#3026](https://github.com/docker-mailserver/docker-mailserver/pull/3026),[#3103](https://github.com/docker-mailserver/docker-mailserver/pull/3103),[#3105](https://github.com/docker-mailserver/docker-mailserver/pull/3105))
+  - add a dedicated page for tests with more information ([#3019](https://github.com/docker-mailserver/docker-mailserver/pull/3019))
+- add information to Logwatch's mailer so `Envelope From` is properly set ([#3081](https://github.com/docker-mailserver/docker-mailserver/pull/3081))
+- add vulnerability scanning workflow & security policy ([#3106](https://github.com/docker-mailserver/docker-mailserver/pull/3106))
+
+### Updates
+
+- heavily updated CI & tests
+  - we now run more tests in parallel bringing down overall time to build and test AMD64 to 6 minutes ([#2938](https://github.com/docker-mailserver/docker-mailserver/pull/2938),[#3038](https://github.com/docker-mailserver/docker-mailserver/pull/3038),[#3018](https://github.com/docker-mailserver/docker-mailserver/pull/3018),[#3062](https://github.com/docker-mailserver/docker-mailserver/pull/3062))
+  - remove CI ENV & disable fail-fast strategy ([#3065](https://github.com/docker-mailserver/docker-mailserver/pull/3065))
+  - streamlined GH Actions runners ([#3025](https://github.com/docker-mailserver/docker-mailserver/pull/3025))
+  - updated BATS & helper + minor updates to BATS variables ([#2988](https://github.com/docker-mailserver/docker-mailserver/pull/2988))
+  - improved consistency and documentation for test helpers ([#3012](https://github.com/docker-mailserver/docker-mailserver/pull/3012))
+- improve the `clean` recipe (don't require `sudo` anymore) ([#3020](https://github.com/docker-mailserver/docker-mailserver/pull/3020))
+- bumped Fail2Ban to (new major) version v1.0.2 ([#2959](https://github.com/docker-mailserver/docker-mailserver/pull/2959))
+- improve Amavis setup routine ([#3079](https://github.com/docker-mailserver/docker-mailserver/pull/3079))
+- completely refactor README & parts of docs ([#3097](https://github.com/docker-mailserver/docker-mailserver/pull/3097))
+
+### Fixed
+
+- `restrict-access` avoid inserting duplicates ([#3067](https://github.com/docker-mailserver/docker-mailserver/pull/3067))
+- correct the casing for Mime vs. MIME ([#3040](https://github.com/docker-mailserver/docker-mailserver/pull/3040))
+
+### Changed
+
+- the Dovecot community repository is now the default ([#2901](https://github.com/docker-mailserver/docker-mailserver/pull/2901))
+- moved SASL authentication socket location ([#3131](https://github.com/docker-mailserver/docker-mailserver/pull/3131))
+- only add Amavis configuration to Postfix when enabled ([#3046](https://github.com/docker-mailserver/docker-mailserver/pull/3046))
+- improve bug report template ([#3080](https://github.com/docker-mailserver/docker-mailserver/pull/3080))
+- remove Postfix DNSBLs ([#3069](https://github.com/docker-mailserver/docker-mailserver/pull/3069))
+- bigger script updates
+  - split `setup-stack.sh` ([#3115](https://github.com/docker-mailserver/docker-mailserver/pull/3115))
+  - housekeeping & cleanup setup ([#3121](https://github.com/docker-mailserver/docker-mailserver/pull/3121),[#3123](https://github.com/docker-mailserver/docker-mailserver/pull/3123))
+  - issue warning in case of improper restart ([#3129](https://github.com/docker-mailserver/docker-mailserver/pull/3129))
+  - remove PostSRSD wrapper ([#3128](https://github.com/docker-mailserver/docker-mailserver/pull/3128))
+  - miscellaneous small improvements ([#3144](https://github.com/docker-mailserver/docker-mailserver/pull/3144))
+- improve Postfix config for spoof protection ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127))
+
+### Removed
+
+- configomat (submodule) ([#3045](https://github.com/docker-mailserver/docker-mailserver/pull/3045))
 
 ## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
 
