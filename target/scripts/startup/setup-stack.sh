@@ -57,17 +57,9 @@ function _early_supervisor_setup
   return 0
 }
 
-# File/folder permissions are fine when using docker volumes, but may be wrong
-# when file system folders are mounted into the container.
-# Set the expected values and create missing folders/files just in case.
 function _setup_file_permissions
 {
   _log 'debug' 'Setting file and directory permissions'
-
-  mkdir -p /var/log/supervisor
-
-  mkdir -p /var/log/mail
-  chown syslog:root /var/log/mail
 
   touch /var/log/mail/clamav.log
   chown clamav:adm /var/log/mail/clamav.log
