@@ -10,7 +10,7 @@ function _register_setup_function
 
 function _setup
 {
-  # requires `shopt -s globstar` because of `**` which in
+  # Requires `shopt -s globstar` because of `**` which in
   # turn is required as we're decending through directories
   for FILE in /usr/local/bin/setup.d/**/*.sh
   do
@@ -57,27 +57,6 @@ function _early_supervisor_setup
   return 0
 }
 
-# File/folder permissions are fine when using docker volumes, but may be wrong
-# when file system folders are mounted into the container.
-# Set the expected values and create missing folders/files just in case.
-function _setup_file_permissions
-{
-  _log 'debug' 'Setting file and directory permissions'
-
-  mkdir -p /var/log/supervisor
-
-  mkdir -p /var/log/mail
-  chown syslog:root /var/log/mail
-
-  touch /var/log/mail/clamav.log
-  chown clamav:adm /var/log/mail/clamav.log
-  chmod 640 /var/log/mail/clamav.log
-
-  touch /var/log/mail/freshclam.log
-  chown clamav:adm /var/log/mail/freshclam.log
-  chmod 640 /var/log/mail/freshclam.log
-}
-
 function _setup_timezone
 {
   [[ -n ${TZ} ]] || return 0
@@ -110,8 +89,8 @@ function _setup_apply_fixes_after_configuration
   _log 'debug' 'Checking /var/mail permissions'
   _chown_var_mail_if_necessary || _shutdown 'Failed to fix /var/mail permissions'
 
-  _log 'trace' 'Remove left-over files and directories from older versions'
-  rm -rf /var/spool/postfix/{dev,etc,lib,usr,private/auth}
+  _log 'debug' 'Removing files and directories from older versions'
+  rm -rf /var/mail-state/spool-postfix/{dev,etc,lib,pid,usr,private/auth}
 }
 
 function _run_user_patches

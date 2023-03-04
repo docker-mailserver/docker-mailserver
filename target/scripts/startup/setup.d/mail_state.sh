@@ -82,13 +82,11 @@ function _setup_save_states
     chown -R postfix:root /var/mail-state/spool-postfix
     chown root:root /var/mail-state/spool-postfix
     # These two require the postdrop(103) group:
-    chgrp -R postdrop /var/mail-state/spool-postfix/maildrop
-    chgrp -R postdrop /var/mail-state/spool-postfix/public
-    # These all have root ownership at the src location:
-    chown -R root /var/mail-state/spool-postfix/dev
-    chown -R root /var/mail-state/spool-postfix/etc
-    chown -R root /var/mail-state/spool-postfix/lib
-    chown -R root /var/mail-state/spool-postfix/pid
-    chown -R root /var/mail-state/spool-postfix/usr
+    chgrp -R postdrop /var/mail-state/spool-postfix/{maildrop,public}
+  elif [[ ${ONE_DIR} -eq 1 ]]
+  then
+    _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
+  else
+    _log 'debug' 'Not consolidating state (because it has been disabled)'
   fi
 }
