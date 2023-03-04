@@ -47,7 +47,7 @@ function __rspamd__preflight_checks
     __rspamd__log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
 
-  if [[ ${ENABLE_REDIS} -eq 1 ]]
+  if [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]
   then
     __rspamd__log 'trace' 'Internal Redis is enabled, adding configuration'
     cat >/etc/rspamd/local.d/redis.conf << "EOF"
@@ -57,6 +57,19 @@ servers = "127.0.0.1:6379";
 expand_keys = true;
 
 EOF
+
+    # Here we adjust the Redis default configuration that we supply to Redis
+    # when starting it. Note that `/var/lib/redis/` is linked to
+    # `/var/mail-state/redis/` (for persisting it) if `ONE_DIR=1`.
+    sedfile -i -E                                  \
+      -e 's|^(bind).*|\1 127.0.0.1|g'          \
+      -e 's|^(daemonize).*|\1 no|g'            \
+      -e 's|^(port).*|\1 6379|g'               \
+      -e 's|^(loglevel).*|\1 warning|g'        \
+      -e 's|^(logfile).*|\1 ""|g'              \
+      -e 's|^(dir).*|\1 /var/lib/redis|g'      \
+      -e 's|^(dbfilename).*|\1 dms-dump.rdb|g' \
+      /etc/redis/redis.conf
   else
     __rspamd__log 'debug' 'Rspamd will not use internal Redis (which has been disabled)'
   fi
