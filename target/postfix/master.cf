@@ -19,7 +19,6 @@ submission     inet  n       -       n       -       -       smtpd
   -o smtpd_tls_security_level=encrypt
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_sasl_type=dovecot
-  -o smtpd_sasl_path=private/auth
   -o smtpd_reject_unlisted_recipient=no
   -o smtpd_sasl_authenticated_header=yes
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
@@ -33,7 +32,6 @@ smtps          inet  n       -       n       -       -       smtpd
   -o smtpd_tls_wrappermode=yes
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_sasl_type=dovecot
-  -o smtpd_sasl_path=private/auth
   -o smtpd_reject_unlisted_recipient=no
   -o smtpd_sasl_authenticated_header=yes
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
@@ -75,3 +73,4 @@ virtual        unix  -       n       n       -       -       virtual
 lmtp           unix  -       -       n       -       -       lmtp
 anvil          unix  -       -       n       -       1       anvil
 scache         unix  -       -       n       -       1       scache
+postlog  unix-dgram  n       -       n       -       1       postlogd
