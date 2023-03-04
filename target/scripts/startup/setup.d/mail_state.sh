@@ -83,6 +83,9 @@ function _setup_save_states
     chown root:root /var/mail-state/spool-postfix
     # These two require the postdrop(103) group:
     chgrp -R postdrop /var/mail-state/spool-postfix/{maildrop,public}
+    # After changing the group, special bits (set-gid, sticky) are lost and we need to restore them:
+    chmod 3730 /var/spool/postfix/maildrop
+    chmod 2730 /var/spool/postfix/public
   elif [[ ${ONE_DIR} -eq 1 ]]
   then
     _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
