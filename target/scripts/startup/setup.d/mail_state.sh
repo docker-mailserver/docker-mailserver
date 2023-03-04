@@ -21,14 +21,15 @@ function _setup_save_states
 
     # Only consolidate state for services that are enabled
     # Notably avoids copying over 200MB for the ClamAV database
-    [[ ${ENABLE_AMAVIS} -eq 1 ]] && FILES+=('lib/amavis')
-    [[ ${ENABLE_CLAMAV} -eq 1 ]] && FILES+=('lib/clamav')
-    [[ ${ENABLE_FAIL2BAN} -eq 1 ]] && FILES+=('lib/fail2ban')
-    [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && FILES+=('lib/fetchmail')
-    [[ ${ENABLE_POSTGREY} -eq 1 ]] && FILES+=('lib/postgrey')
-    [[ ${ENABLE_RSPAMD} -eq 1 ]] && FILES+=('lib/rspamd')
+    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && FILES+=('lib/amavis')
+    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && FILES+=('lib/clamav')
+    [[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && FILES+=('lib/fail2ban')
+    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && FILES+=('lib/fetchmail')
+    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && FILES+=('lib/postgrey')
+    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && FILES+=('lib/rspamd')
+    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && FILES+=('lib/redis')
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
-    [[ ${SMTP_ONLY} -ne 1 ]] && FILES+=('lib/dovecot')
+    [[ ${SMTP_ONLY}           -ne 1 ]] && FILES+=('lib/dovecot')
 
     for FILE in "${FILES[@]}"
     do
@@ -65,6 +66,7 @@ function _setup_save_states
     [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         /var/mail-state/lib-fetchmail
     [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         /var/mail-state/lib-postgrey
     [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           /var/mail-state/lib-rspamd
+    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && chown -R redis:redis               /var/mail-state/lib-redis
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd /var/mail-state/lib-spamassassin
 
     chown -R root:root /var/mail-state/lib-logrotate
