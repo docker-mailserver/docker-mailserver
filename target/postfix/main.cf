@@ -77,7 +77,7 @@ postscreen_bare_newline_action = enforce
 
 # SASL
 smtpd_sasl_auth_enable = no
-smtpd_sasl_path = /var/spool/postfix/private/auth
+smtpd_sasl_path = /dev/shm/sasl-auth.sock
 smtpd_sasl_type = dovecot
 
 smtpd_sasl_security_options = noanonymous

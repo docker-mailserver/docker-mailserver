@@ -53,7 +53,7 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
-COPY target/dovecot/auth-passwdfile.inc target/dovecot/auth-master.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
+COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/sieve/ /etc/dovecot/sieve/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
