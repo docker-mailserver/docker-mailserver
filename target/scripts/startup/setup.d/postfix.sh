@@ -151,13 +151,11 @@ function _setup_SRS
     )
   }
 
-  local POSTSRSD_SECRET_FILE POSTSRSD_STATE_DIR POSTSRSD_STATE_SECRET_FILE
+  local POSTSRSD_SECRET_FILE
 
   sed -i "s/localdomain/${SRS_DOMAINNAME}/g" /etc/default/postsrsd
 
   POSTSRSD_SECRET_FILE='/etc/postsrsd.secret'
-  POSTSRSD_STATE_DIR='/var/mail-state/etc-postsrsd'
-  POSTSRSD_STATE_SECRET_FILE="${POSTSRSD_STATE_DIR}/postsrsd.secret"
 
   if [[ -n ${SRS_SECRET} ]]
   then
@@ -166,16 +164,7 @@ function _setup_SRS
       echo "${SRS_SECRET}" | tr ',' '\n' >"${POSTSRSD_SECRET_FILE}"
     )
   else
-    if [[ ${ONE_DIR} -eq 1 ]]
-    then
-      if [[ ! -f ${POSTSRSD_STATE_SECRET_FILE} ]]
-      then
-        install -d -m 0775 "${POSTSRSD_STATE_DIR}"
-        __generate_secret "${POSTSRSD_STATE_SECRET_FILE}"
-      fi
-
-      install -m 0400 "${POSTSRSD_STATE_SECRET_FILE}" "${POSTSRSD_SECRET_FILE}"
-    elif [[ ! -f ${POSTSRSD_SECRET_FILE} ]]
+    if [[ ! -f ${POSTSRSD_SECRET_FILE} ]]
     then
       __generate_secret "${POSTSRSD_SECRET_FILE}"
     fi
