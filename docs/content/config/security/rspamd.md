@@ -10,7 +10,9 @@ title: 'Security | Rspamd'
 
 ## About
 
-Rspamd is a ["fast, free and open-source spam filtering system"][homepage]. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd. If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-default-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
+Rspamd is a ["fast, free and open-source spam filtering system"][homepage]. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd.
+
+If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-default-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
 
 !!! note "AMD64 vs ARM64"
 
@@ -26,7 +28,11 @@ The proxy worker operates in [self-scan mode][proxy-self-scan-mode]. This simpli
 
 DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to [set the `secure_ip ` option to `"0.0.0.0/0"` for the controller worker](#with-the-help-of-a-custom-file) to disable password authentication inside Rspamd completely.
 
-A Redis-instance in the container itself is enabled by default. It persists data to disk in the directory `/var/lib/redis` (which is a symbolic link to `/var/mail-state/lib-redis/` when [`ONE_DIR=1`](../environment.md#one_dir) and a volume is mounted to `/var/mail-state/` in order to make the Redis data survive container restarts). Redis uses `/etc/redis/redis.conf` for configuration. We adjust this file when internal Redis is enabled. You can disable Redis by setting the environment variable [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis) to `0`.
+### Persistence with Redis
+
+When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist it's data via RDB snapshots to disk in the directory `/var/lib/redis` (_which is a symbolic link to `/var/mail-state/lib-redis/` when [`ONE_DIR=1`](../environment.md#one_dir) and a volume is mounted to `/var/mail-state/`_). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
+
+Redis uses `/etc/redis/redis.conf` for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV  [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS rspamd config_).
 
 ### Modules
 
