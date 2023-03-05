@@ -2,7 +2,7 @@
 
 function postsrsd_stop
 {
-  /etc/init.d/postsrsd stop # does not properly stop postsrsd
+  /etc/init.d/postsrsd stop # does not properly stop postsrsd process
   kill $(pidof postsrsd)
 }
 
