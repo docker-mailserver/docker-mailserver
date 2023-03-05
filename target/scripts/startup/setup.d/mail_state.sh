@@ -61,13 +61,13 @@ function _setup_save_states
     # NOTE: More details about users and groups added during image builds are documented here:
     # https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1399120252
     _log 'trace' "Fixing ${STATEDIR}/* permissions"
-    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             ${STATEDIR}/lib-amavis
-    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             ${STATEDIR}/lib-clamav
-    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         ${STATEDIR}/lib-fetchmail
-    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         ${STATEDIR}/lib-postgrey
-    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           ${STATEDIR}/lib-rspamd
-    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && chown -R redis:redis               ${STATEDIR}/lib-redis
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd ${STATEDIR}/lib-spamassassin
+    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             "${STATEDIR}/lib-amavis"
+    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             "${STATEDIR}/lib-clamav"
+    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         "${STATEDIR}/lib-fetchmail"
+    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         "${STATEDIR}/lib-postgrey"
+    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           "${STATEDIR}/lib-rspamd"
+    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && chown -R redis:redis               "${STATEDIR}/lib-redis"
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd "${STATEDIR}/lib-spamassassin"
 
     chown -R root:root "${STATEDIR}/lib-logrotate"
     chown -R postfix:postfix "${STATEDIR}/lib-postfix"
