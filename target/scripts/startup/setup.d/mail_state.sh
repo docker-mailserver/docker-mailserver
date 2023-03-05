@@ -60,17 +60,17 @@ function _setup_save_states
     # can change the values in the Docker image, causing an ownership mismatch.
     # NOTE: More details about users and groups added during image builds are documented here:
     # https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1399120252
-    _log 'trace' 'Fixing /var/mail-state/* permissions'
-    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             /var/mail-state/lib-amavis
-    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             /var/mail-state/lib-clamav
-    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         /var/mail-state/lib-fetchmail
-    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         /var/mail-state/lib-postgrey
-    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           /var/mail-state/lib-rspamd
-    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && chown -R redis:redis               /var/mail-state/lib-redis
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd /var/mail-state/lib-spamassassin
+    _log 'trace' "Fixing ${STATEDIR}/* permissions"
+    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             "${STATEDIR}/lib-amavis"
+    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             "${STATEDIR}/lib-clamav"
+    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         "${STATEDIR}/lib-fetchmail"
+    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         "${STATEDIR}/lib-postgrey"
+    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           "${STATEDIR}/lib-rspamd"
+    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && chown -R redis:redis               "${STATEDIR}/lib-redis"
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && chown -R debian-spamd:debian-spamd "${STATEDIR}/lib-spamassassin"
 
-    chown -R root:root /var/mail-state/lib-logrotate
-    chown -R postfix:postfix /var/mail-state/lib-postfix
+    chown -R root:root "${STATEDIR}/lib-logrotate"
+    chown -R postfix:postfix "${STATEDIR}/lib-postfix"
 
     # NOTE: The Postfix spool location has mixed owner/groups to take into account:
     # UID = postfix(101): active, bounce, corrupt, defer, deferred, flush, hold, incoming, maildrop, private, public, saved, trace
@@ -79,14 +79,16 @@ function _setup_save_states
     # GID for all other directories is root(0)
     # NOTE: `spool-postfix/private/` will be set to `postfix:postfix` when Postfix starts / restarts
     # Set most common ownership:
-    chown -R postfix:root /var/mail-state/spool-postfix
-    chown root:root /var/mail-state/spool-postfix
+    chown -R postfix:root "${STATEDIR}/spool-postfix"
+    chown root:root "${STATEDIR}/spool-postfix"
+
     # These two require the postdrop(103) group:
-    chgrp -R postdrop /var/mail-state/spool-postfix/{maildrop,public}
+    chgrp -R postdrop "${STATEDIR}/spool-postfix/{maildrop,public}"
+
     # After changing the group, special bits (set-gid, sticky) may be stripped, restore them:
     # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3149#issuecomment-1454981309
-    chmod 1730 /var/mail-state/spool-postfix/maildrop
-    chmod 2710 /var/mail-state/spool-postfix/public
+    chmod 1730 "${STATEDIR}/spool-postfix/maildrop"
+    chmod 2710 "${STATEDIR}/spool-postfix/public"
   elif [[ ${ONE_DIR} -eq 1 ]]
   then
     _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
