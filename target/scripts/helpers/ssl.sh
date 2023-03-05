@@ -229,7 +229,7 @@ function _setup_ssl
 
         _log 'trace' "SSL configured with 'CA signed/custom' certificates"
       else
-        dms_panic__no_file "${TMP_KEY_WITH_FULLCHAIN}" "${SCOPE_SSL_TYPE}"
+        _dms_panic__no_file "${TMP_KEY_WITH_FULLCHAIN}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
@@ -243,7 +243,7 @@ function _setup_ssl
       # Fail early:
       if [[ -z ${SSL_KEY_PATH} ]] && [[ -z ${SSL_CERT_PATH} ]]
       then
-        dms_panic__no_env 'SSL_KEY_PATH or SSL_CERT_PATH' "${SCOPE_SSL_TYPE}"
+        _dms_panic__no_env 'SSL_KEY_PATH or SSL_CERT_PATH' "${SCOPE_SSL_TYPE}"
       fi
 
       if [[ -n ${SSL_ALT_KEY_PATH} ]] \
@@ -251,7 +251,7 @@ function _setup_ssl
       && [[ ! -f ${SSL_ALT_KEY_PATH} ]] \
       && [[ ! -f ${SSL_ALT_CERT_PATH} ]]
       then
-        dms_panic__no_file "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}" "${SCOPE_SSL_TYPE}"
+        _dms_panic__no_file "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
 
       if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]
@@ -280,7 +280,7 @@ function _setup_ssl
 
         _log 'trace' "SSL configured with 'Manual' certificates"
       else
-        dms_panic__no_file "${SSL_KEY_PATH} or ${SSL_CERT_PATH}" "${SCOPE_SSL_TYPE}"
+        _dms_panic__no_file "${SSL_KEY_PATH} or ${SSL_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
@@ -325,7 +325,7 @@ function _setup_ssl
 
         _log 'trace' "SSL configured with 'self-signed' certificates"
       else
-        dms_panic__no_file "${SS_KEY} or ${SS_CERT}" "${SCOPE_SSL_TYPE}"
+        _dms_panic__no_file "${SS_KEY} or ${SS_CERT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
@@ -381,7 +381,7 @@ function _setup_ssl
       ;;
 
     ( * ) # Unknown option, panic.
-      dms_panic__invalid_value 'SSL_TYPE' "${SCOPE_TLS_LEVEL}"
+      _dms_panic__invalid_value 'SSL_TYPE' "${SCOPE_TLS_LEVEL}"
       ;;
 
   esac
@@ -404,7 +404,7 @@ function _find_letsencrypt_domain
     LETSENCRYPT_DOMAIN=${DOMAINNAME}
   else
     _log 'error' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
-    dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_domain'
+    _dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_domain'
   fi
 
   echo "${LETSENCRYPT_DOMAIN}"
@@ -418,7 +418,7 @@ function _find_letsencrypt_key
   local LETSENCRYPT_DOMAIN=${1}
   if [[ -z ${LETSENCRYPT_DOMAIN} ]]
   then
-    dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_key'
+    _dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_key'
   fi
 
   if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
@@ -429,7 +429,7 @@ function _find_letsencrypt_key
     LETSENCRYPT_KEY='key'
   else
     _log 'error' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
-    dms_panic__misconfigured 'LETSENCRYPT_KEY' '_find_letsencrypt_key'
+    _dms_panic__misconfigured 'LETSENCRYPT_KEY' '_find_letsencrypt_key'
   fi
 
   echo "${LETSENCRYPT_KEY}"

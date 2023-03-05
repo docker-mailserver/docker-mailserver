@@ -29,7 +29,7 @@ function _default_start_daemon
   if [[ ${?} -ne 0 ]]
   then
     _log 'error' "${RESULT}"
-    dms_panic__fail_init "${1}"
+    _dms_panic__fail_init "${1}" '' 'immediate'
   fi
 }
 

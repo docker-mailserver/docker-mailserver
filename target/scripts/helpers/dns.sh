@@ -29,7 +29,7 @@ function _obtain_hostname_and_domainname
   # will result in an error that returns an empty value. This warrants a panic.
   if [[ -z ${HOSTNAME} ]]
   then
-    dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
+    _dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
   fi
 
   # If the `HOSTNAME` is more than 2 labels long (eg: mail.example.com),
