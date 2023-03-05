@@ -37,7 +37,7 @@ function _setup_save_states
 
     for SERVICEFILE in "${SERVICEFILES[@]}";
     do
-      DEST="${STATEDIR}/${SERVICEFILE//\//-}/${SERVICEFILE##*/}"
+      DEST="${STATEDIR}/${SERVICEFILE}"
       mkdir -p "${DEST}"
       if [[ -f ${DEST} ]]
       then
