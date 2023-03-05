@@ -201,6 +201,13 @@ function _install_fail2ban
   sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
+# Remove build-in secrets
+function _remove_secrets
+{
+  _log 'debug' 'Deleting sensitive files (secrets)'
+  rm /etc/postsrsd.secret
+}
+
 function _post_installation_steps
 {
   _log 'debug' 'Running post-installation steps (cleanup)'
@@ -216,4 +223,5 @@ _install_packages
 _install_dovecot
 _install_rspamd
 _install_fail2ban
+_remove_secrets
 _post_installation_steps
