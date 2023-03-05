@@ -83,6 +83,10 @@ function _setup_save_states
     chown root:root /var/mail-state/spool-postfix
     # These two require the postdrop(103) group:
     chgrp -R postdrop /var/mail-state/spool-postfix/{maildrop,public}
+    # After changing the group, special bits (set-gid, sticky) may be stripped, restore them:
+    # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3149#issuecomment-1454981309
+    chmod 1730 /var/mail-state/spool-postfix/maildrop
+    chmod 2710 /var/mail-state/spool-postfix/public
   elif [[ ${ONE_DIR} -eq 1 ]]
   then
     _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
