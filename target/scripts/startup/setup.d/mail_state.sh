@@ -83,7 +83,7 @@ function _setup_save_states
     chown root:root "${STATEDIR}/spool-postfix"
 
     # These two require the postdrop(103) group:
-    chgrp -R postdrop "${STATEDIR}/spool-postfix/{maildrop,public}"
+    chgrp -R postdrop "${STATEDIR}"/spool-postfix/{maildrop,public}
 
     # After changing the group, special bits (set-gid, sticky) may be stripped, restore them:
     # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3149#issuecomment-1454981309
