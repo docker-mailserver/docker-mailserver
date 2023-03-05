@@ -768,6 +768,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#persistence-with-redis" class="md-nav__link">
+    Persistence with Redis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -798,13 +805,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#missing-in-the-current-implementation" class="md-nav__link">
-    Missing in the Current Implementation
-  </a>
   
 </li>
         
@@ -841,12 +841,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#advanced-configuration" class="md-nav__link">
-    Advanced Configuration
+  <a href="#examples-advanced-configuration" class="md-nav__link">
+    Examples &amp; Advanced Configuration
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Configuration">
+    <nav class="md-nav" aria-label="Examples &amp; Advanced Configuration">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-very-basic-configuration" class="md-nav__link">
+    A Very Basic Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjusting-and-extending-the-very-basic-configuration" class="md-nav__link">
+    Adjusting and Extending The Very Basic Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-signing" class="md-nav__link">
+    DKIM Signing
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#abusix-integration" class="md-nav__link">
@@ -1637,6 +1658,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#persistence-with-redis" class="md-nav__link">
+    Persistence with Redis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -1667,13 +1695,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#missing-in-the-current-implementation" class="md-nav__link">
-    Missing in the Current Implementation
-  </a>
   
 </li>
         
@@ -1710,12 +1731,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#advanced-configuration" class="md-nav__link">
-    Advanced Configuration
+  <a href="#examples-advanced-configuration" class="md-nav__link">
+    Examples &amp; Advanced Configuration
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Configuration">
+    <nav class="md-nav" aria-label="Examples &amp; Advanced Configuration">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-very-basic-configuration" class="md-nav__link">
+    A Very Basic Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjusting-and-extending-the-very-basic-configuration" class="md-nav__link">
+    Adjusting and Extending The Very Basic Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-signing" class="md-nav__link">
+    DKIM Signing
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#abusix-integration" class="md-nav__link">
@@ -1755,9 +1797,8 @@
 <p>We expect to stabilize this feature with version <code>v12.1.0</code>.</p>
 </div>
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
-<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. You will need to enable Rspamd (via <code>ENABLE_RSPAMD=1</code>) manually as it is disabled by default.</p>
-<p>We provide a very simple but easy to maintain setup of Rspamd. If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
-<p>If you want to adjust Rspamd's configuration, have a look at the <a href="#providing-custom-settings-overriding-settings">"Providing Custom Settings &amp; Overriding Settings" section</a> down below.</p>
+<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd.</p>
+<p>If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
 <div class="admonition note">
 <p class="admonition-title">AMD64 vs ARM64</p>
 <p>We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference is two minor versions (AMD64 is at version 3.4, ARM64 at 3.2 [13th Feb 2023]).</p>
@@ -1766,7 +1807,10 @@
 <h2 id="the-default-configuration"><a class="toclink" href="#the-default-configuration">The Default Configuration</a></h2>
 <h3 id="mode-of-operation"><a class="toclink" href="#mode-of-operation">Mode of Operation</a></h3>
 <p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
-<p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setup where you already have an authentication provider in front of the Rspamd webpage, you may add <code>secure_ip = "0.0.0.0/0";</code> to <code>worker-controller.inc</code> to disable password authentication inside Rspamd completely.</p>
+<p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to <a href="#with-the-help-of-a-custom-file">set the <code>secure_ip</code> option to <code>"0.0.0.0/0"</code> for the controller worker</a> to disable password authentication inside Rspamd completely.</p>
+<h3 id="persistence-with-redis"><a class="toclink" href="#persistence-with-redis">Persistence with Redis</a></h3>
+<p>When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist it's data via RDB snapshots to disk in the directory <code>/var/lib/redis</code> (<em>which is a symbolic link to <code>/var/mail-state/lib-redis/</code> when <a href="../../environment/#one_dir"><code>ONE_DIR=1</code></a> and a volume is mounted to <code>/var/mail-state/</code></em>). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</p>
+<p>Redis uses <code>/etc/redis/redis.conf</code> for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV  <a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS=0</code></a> (<em>link also details required changes to the DMS rspamd config</em>).</p>
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
@@ -1780,8 +1824,6 @@
 <p>When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.</p>
 <p>If you want to use DNSBLs, <strong>try to use your own DNS resolver</strong> and make sure it is set up correctly, i.e. it should be a non-public &amp; <strong>recursive</strong> resolver. Otherwise, you might not be able (<a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">see this Spamhaus post</a>) to make use of the block lists.</p>
 </div>
-<h3 id="missing-in-the-current-implementation"><a class="toclink" href="#missing-in-the-current-implementation">Missing in the Current Implementation</a></h3>
-<p>We currently lack easy integration for <a href="https://rspamd.com/doc/modules/dkim_signing.html">DKIM signing outgoing mails</a>. We use OpenDKIM though which works just as well. If you want to use Rspamd for DKIM signing, you need to provide all settings yourself and probably also set the environment variable <code>ENABLE_OPENDKIM=0</code>. Rspamd will still check for valid DKIM signatures for incoming mail by default.</p>
 <h2 id="providing-custom-settings-overriding-settings"><a class="toclink" href="#providing-custom-settings-overriding-settings">Providing Custom Settings &amp; Overriding Settings</a></h2>
 <h3 id="manually"><a class="toclink" href="#manually">Manually</a></h3>
 <p>DMS brings sane default settings for Rspamd. They are located at <code>/etc/rspamd/local.d/</code> inside the container (or <code>target/rspamd/local.d/</code> in the repository). If you want to change these settings and / or provide your own settings, you can</p>
@@ -1807,6 +1849,9 @@
 <li><code>set-common-option</code>: set the option <code>ARGUMENT1</code> that <a href="https://rspamd.com/doc/configuration/options.html">defines basic Rspamd behaviour</a> to value <code>ARGUMENT2</code></li>
 <li><code>add-line</code>: this will add the complete line after <code>ARGUMENT1</code> (with all characters) to the file <code>/etc/rspamd/override.d/&lt;ARGUMENT1&gt;</code></li>
 </ol>
+<div class="admonition example">
+<p class="admonition-title">An Example Is <a href="#adjusting-and-extending-the-very-basic-configuration">Shown Down Below</a></p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">File Names &amp; Extensions</p>
 <p>For command 1 - 3, we append the <code>.conf</code> suffix to the module name to get the correct file name automatically. For commands 4 - 6, the file name is fixed (you don't even need to provide it). For command 7, you will need to provide the whole file name (including the suffix) yourself!</p>
@@ -1816,7 +1861,94 @@
 <p class="admonition-title">Adjusting Modules This Way</p>
 <p>These simple commands are meant to give users the ability to <em>easily</em> alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that <a href="#manually">manually</a>!</p>
 </div>
-<h2 id="advanced-configuration"><a class="toclink" href="#advanced-configuration">Advanced Configuration</a></h2>
+<h2 id="examples-advanced-configuration"><a class="toclink" href="#examples-advanced-configuration">Examples &amp; Advanced Configuration</a></h2>
+<h3 id="a-very-basic-configuration"><a class="toclink" href="#a-very-basic-configuration">A Very Basic Configuration</a></h3>
+<p>You want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:</p>
+<div class="highlight"><pre><span></span><code><span class="na">ENABLE_RSPAMD</span><span class="o">=</span><span class="s">1</span><span class="w"></span>
+<span class="na">ENABLE_OPENDKIM</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">ENABLE_OPENDMARC</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">ENABLE_AMAVIS</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span><span class="w"></span>
+</code></pre></div>
+<p>This will enable Rspamd and disable services you don't need when using Rspamd. Note that with this setup, the default DKIM signing that DMS provides does not work (as it is disabled)! To solve this issue, look at <a href="#dkim-signing">this subsection</a>.</p>
+<h3 id="adjusting-and-extending-the-very-basic-configuration"><a class="toclink" href="#adjusting-and-extending-the-very-basic-configuration">Adjusting and Extending The Very Basic Configuration</a></h3>
+<p>Rspamd is running, but you want or need to adjust it?</p>
+<ol>
+<li>Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: create a file called <code>rspamd-modules.conf</code> and add the line <code>set-option-for-controller secure_ip "0.0.0.0/0"</code>. Place the file <code>rspamd-modules.conf</code> inside the directory on the host you mount to <code>/tmp/docker-mailserver/</code> inside the container (in our documentation, we use <code>docker-data/dms/config</code> on the host for this purpose). And you're done! Note: this disables authentication on the website - make sure you know what you're doing!</li>
+<li>You additionally want to enable the auto-spam-learning for the Bayes module? No problem, just add another line to <code>rspamd-modules.conf</code> that looks like this: <code>set-option-for-module classifier-bayes autolearn true</code>.</li>
+<li>But the chartable module gets on your nerves? Just disable it by adding another line: <code>disable-module chartable</code>.</li>
+</ol>
+<h3 id="dkim-signing"><a class="toclink" href="#dkim-signing">DKIM Signing</a></h3>
+<p>By default, DMS offers no option to generate and configure signing e-mails with DKIM. This is because the parsing would be difficult. But don't worry: the process is relatively straightforward nevertheless. The <a href="https://rspamd.com/doc/modules/dkim_signing.html">official Rspamd documentation for the DKIM signing module</a> is pretty good. Basically, you need to</p>
+<ol>
+<li><code>exec</code> into the container</li>
+<li>Run a command similar to <code>rspamadm dkim_keygen -s 'woosh' -b 2048 -d example.com -k example.private &gt; example.txt</code>, adjusted to your needs</li>
+<li>Make sure to then persists the files <code>example.private</code> and <code>example.txt</code> (created in step 2) in the container (for example with a Docker bind mount)</li>
+<li>Create a configuration for the DKIM signing module, i.e. a file called <code>dkim_signing.conf</code> that you mount to <code>/etc/rspamd/local.d/</code> or <code>/etc/rspamd/override.d/</code>. We provide example configurations down below. We recommend mounting this file into the container as well (as described <a href="#manually">here</a>); do not use <a href="#with-the-help-of-a-custom-file"><code>rspamd-modules.conf</code></a> for this purpose.</li>
+</ol>
+<details class="example">
+<summary>DKIM Signing Module Configuration Examples</summary>
+<p>A simple configuration could look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># documentation: https://rspamd.com/doc/modules/dkim_signing.html</span><span class="w"></span>
+
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+
+<span class="na">sign_authenticated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+<span class="na">sign_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+
+<span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;;</span><span class="w"></span>
+<span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false; # don&#39;t change unless Redis also provides the DKIM keys</span><span class="w"></span>
+<span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+
+<span class="na">domain {</span><span class="w"></span>
+<span class="w">    </span><span class="na">example.com {</span><span class="w"></span>
+<span class="w">        </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/example.private&quot;;</span><span class="w"></span>
+<span class="w">        </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;woosh&quot;;</span><span class="w"></span>
+<span class="w">    </span><span class="na">}</span><span class="w"></span>
+<span class="na">}</span><span class="w"></span>
+</code></pre></div>
+<p>If you have multiple domains and you want to sign with the modern ED25519 elliptic curve but also with RSA (you will likely want to have RSA as a fallback!):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># documentation: https://rspamd.com/doc/modules/dkim_signing.html</span><span class="w"></span>
+
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+
+<span class="na">sign_authenticated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+<span class="na">sign_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+
+<span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;;</span><span class="w"></span>
+<span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false; # don&#39;t change unless Redis also provides the DKIM keys</span><span class="w"></span>
+<span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true;</span><span class="w"></span>
+
+<span class="na">domain {</span><span class="w"></span>
+<span class="w">    </span><span class="na">example.com {</span><span class="w"></span>
+<span class="w">        </span><span class="na">selectors [</span><span class="w"></span>
+<span class="w">            </span><span class="na">{</span><span class="w"></span>
+<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/com.example.rsa.private&quot;;</span><span class="w"></span>
+<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;;</span><span class="w"></span>
+<span class="w">            </span><span class="na">},</span><span class="w"></span>
+<span class="w">            </span><span class="na">{</span><span class="w"></span>
+<span class="w">              </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/com.example.ed25519.private&quot;;</span><span class="w"></span>
+<span class="w">              </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;;</span><span class="w"></span>
+<span class="w">            </span><span class="na">}</span><span class="w"></span>
+<span class="w">      </span><span class="na">]</span><span class="w"></span>
+<span class="w">    </span><span class="na">}</span><span class="w"></span>
+<span class="w">    </span><span class="na">example.org {</span><span class="w"></span>
+<span class="w">        </span><span class="na">selectors [</span><span class="w"></span>
+<span class="w">            </span><span class="na">{</span><span class="w"></span>
+<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/org.example.rsa.private&quot;;</span><span class="w"></span>
+<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;;</span><span class="w"></span>
+<span class="w">            </span><span class="na">},</span><span class="w"></span>
+<span class="w">            </span><span class="na">{</span><span class="w"></span>
+<span class="w">              </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/org.example.ed25519.private&quot;;</span><span class="w"></span>
+<span class="w">              </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;;</span><span class="w"></span>
+<span class="w">            </span><span class="na">}</span><span class="w"></span>
+<span class="w">        </span><span class="na">]</span><span class="w"></span>
+<span class="w">    </span><span class="na">}</span><span class="w"></span>
+<span class="na">}</span><span class="w"></span>
+</code></pre></div>
+</details>
 <h3 id="abusix-integration"><a class="toclink" href="#abusix-integration"><em>Abusix</em> Integration</a></h3>
 <p>This subsection gives information about the integration of <a href="https://abusix.com/">Abusix</a>, "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:</p>
 <ol>
