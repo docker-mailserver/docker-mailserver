@@ -4,7 +4,7 @@
 # (/var/mail-state) to allow persistence using docker volumes
 function _setup_save_states
 {
-  local STATEDIR FILE FILES
+  local STATEDIR SERVICEDIR SERVICEDIRS
 
   STATEDIR='/var/mail-state'
 
@@ -13,7 +13,7 @@ function _setup_save_states
     _log 'debug' "Consolidating all state onto ${STATEDIR}"
 
     # Always enabled features:
-    FILES=(
+    SERVICEDIRS=(
       lib/logrotate
       lib/postfix
       spool/postfix
@@ -21,39 +21,39 @@ function _setup_save_states
 
     # Only consolidate state for services that are enabled
     # Notably avoids copying over 200MB for the ClamAV database
-    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && FILES+=('lib/amavis')
-    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && FILES+=('lib/clamav')
-    [[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && FILES+=('lib/fail2ban')
-    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && FILES+=('lib/fetchmail')
-    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && FILES+=('lib/postgrey')
-    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && FILES+=('lib/rspamd')
-    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && FILES+=('lib/redis')
-    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
-    [[ ${ENABLE_SRS}          -eq 1 ]] && FILES+=('lib/postsrsd')
-    [[ ${SMTP_ONLY}           -ne 1 ]] && FILES+=('lib/dovecot')
+    [[ ${ENABLE_AMAVIS}       -eq 1 ]] && SERVICEDIRS+=('lib/amavis')
+    [[ ${ENABLE_CLAMAV}       -eq 1 ]] && SERVICEDIRS+=('lib/clamav')
+    [[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && SERVICEDIRS+=('lib/fail2ban')
+    [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICEDIRS+=('lib/fetchmail')
+    [[ ${ENABLE_POSTGREY}     -eq 1 ]] && SERVICEDIRS+=('lib/postgrey')
+    [[ ${ENABLE_RSPAMD}       -eq 1 ]] && SERVICEDIRS+=('lib/rspamd')
+    [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && SERVICEDIRS+=('lib/redis')
+    [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && SERVICEDIRS+=('lib/spamassassin')
+    [[ ${ENABLE_SRS}          -eq 1 ]] && SERVICEDIRS+=('lib/postsrsd')
+    [[ ${SMTP_ONLY}           -ne 1 ]] && SERVICEDIRS+=('lib/dovecot')
 
-    for FILE in "${FILES[@]}"
+    for SERVICEDIR in "${SERVICEDIRS[@]}"
     do
-      DEST="${STATEDIR}/${FILE//\//-}"
-      FILE="/var/${FILE}"
+      DEST="${STATEDIR}/${SERVICEDIR//\//-}"
+      SERVICEDIR="/var/${SERVICEDIR}"
 
       # If relevant content is found in /var/mail-state (presumably a volume mount),
       # use it instead. Otherwise copy over any missing directories checked.
       if [[ -d ${DEST} ]]
       then
-        _log 'trace' "Destination ${DEST} exists, linking ${FILE} to it"
+        _log 'trace' "Destination ${DEST} exists, linking ${SERVICEDIR} to it"
         # Original content from image no longer relevant, remove it:
-        rm -rf "${FILE}"
-      elif [[ -d ${FILE} ]]
+        rm -rf "${SERVICEDIR}"
+      elif [[ -d ${SERVICEDIR} ]]
       then
-        _log 'trace' "Moving contents of ${FILE} to ${DEST}"
+        _log 'trace' "Moving contents of ${SERVICEDIR} to ${DEST}"
         # Empty volume was mounted, or new content from enabling a feature ENV:
-        mv "${FILE}" "${DEST}"
+        mv "${SERVICEDIR}" "${DEST}"
       fi
 
-      # Symlink the original path in the container ($FILE) to be
+      # Symlink the original path in the container ($SERVICEDIR) to be
       # sourced from assocaiated path in /var/mail-state/ ($DEST):
-      ln -s "${DEST}" "${FILE}"
+      ln -s "${DEST}" "${SERVICEDIR}"
     done
 
     # This ensures the user and group of the files from the external mount have their
