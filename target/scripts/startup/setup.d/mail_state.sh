@@ -29,6 +29,7 @@ function _setup_save_states
     [[ ${ENABLE_RSPAMD}       -eq 1 ]] && FILES+=('lib/rspamd')
     [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && FILES+=('lib/redis')
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && FILES+=('lib/spamassassin')
+    [[ ${ENABLE_SRS}          -eq 1 ]] && FILES+=('lib/postsrsd')
     [[ ${SMTP_ONLY}           -ne 1 ]] && FILES+=('lib/dovecot')
 
     for FILE in "${FILES[@]}"
