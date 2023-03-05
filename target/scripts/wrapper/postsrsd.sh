@@ -3,6 +3,7 @@
 function postsrsd_stop
 {
   /etc/init.d/postsrsd stop # does not properly stop postsrsd process
+  # shellcheck disable=SC2046
   kill $(pidof postsrsd)
 }
 
