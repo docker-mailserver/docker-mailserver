@@ -38,8 +38,8 @@ function _setup_save_states
     for SERVICEFILE in "${SERVICEFILES[@]}";
     do
       DEST="${STATEDIR}/${SERVICEFILE//\//-}/${SERVICEFILE##*/}"
-      mkdir -p "$DEST"
-      if [[ -f $DEST ]]
+      mkdir -p "${DEST}"
+      if [[ -f ${DEST} ]]
       then
         _log 'trace' "Destination ${DEST} exists, linking ${SERVICEFILE} to it"
         # Original content from image no longer relevant, remove it:
