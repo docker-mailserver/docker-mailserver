@@ -4,7 +4,7 @@
 # (/var/mail-state) to allow persistence using docker volumes
 function _setup_save_states
 {
-  local STATEDIR SERVICEDIR SERVICEDIRS
+  local STATEDIR SERVICEDIR SERVICEDIRS SERVICEFILES
 
   STATEDIR='/var/mail-state'
 
@@ -31,6 +31,30 @@ function _setup_save_states
     [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && SERVICEDIRS+=('lib/spamassassin')
     [[ ${ENABLE_SRS}          -eq 1 ]] && SERVICEDIRS+=('lib/postsrsd')
     [[ ${SMTP_ONLY}           -ne 1 ]] && SERVICEDIRS+=('lib/dovecot')
+
+    # Single service files
+    [[ ${ENABLE_SRS}          -eq 1 ]] && SERVICEFILES+=('/etc/postsrsd.secret')
+
+    for SERVICEFILE in "${SERVICEFILES[@]}";
+    do
+      DEST="${STATEDIR}/${SERVICEFILE//\//-}/${SERVICEFILE##*/}"
+      mkdir -p "$DEST"
+      if [[ -f $DEST ]]
+      then
+        _log 'trace' "Destination ${DEST} exists, linking ${SERVICEFILE} to it"
+        # Original content from image no longer relevant, remove it:
+        rm -f "${SERVICEFILE}"
+      elif [[ -f "${SERVICEFILE}" ]]
+      then
+        _log 'trace' "Moving ${SERVICEFILE} to ${DEST}"
+        # Empty volume was mounted, or new content from enabling a feature ENV:
+        mv "${SERVICEFILE}" "${DEST}"
+      fi
+
+      # Symlink the original file in the container ($SERVICEFILE) to be
+      # sourced from assocaiated path in /var/mail-state/ ($DEST):
+      ln -s "${DEST}" "${SERVICEFILE}"
+    done
 
     for SERVICEDIR in "${SERVICEDIRS[@]}"
     do
