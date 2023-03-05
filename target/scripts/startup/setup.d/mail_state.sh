@@ -4,7 +4,7 @@
 # (/var/mail-state) to allow persistence using docker volumes
 function _setup_save_states
 {
-  local STATEDIR SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
+  local DEST DESTDIR STATEDIR SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
 
   STATEDIR='/var/mail-state'
 
@@ -38,7 +38,9 @@ function _setup_save_states
     for SERVICEFILE in "${SERVICEFILES[@]}";
     do
       DEST="${STATEDIR}/${SERVICEFILE}"
-      mkdir -p "${DEST}"
+      DESTDIR="${DEST%/*}"
+
+      mkdir -p "${DESTDIR}"
       if [[ -f ${DEST} ]]
       then
         _log 'trace' "Destination ${DEST} exists, linking ${SERVICEFILE} to it"
