@@ -38,7 +38,7 @@ function _check_hostname
   # HOSTNAME should be an FQDN (eg: hostname.domain)
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
-    _shutdown 'Setting hostname/domainname is required'
+    _dms_panic__general 'Setting hostname/domainname is required' '' 'immediate'
   fi
 }
 

@@ -22,7 +22,7 @@ function _setup_docker_permit
   if [[ -z ${CONTAINER_IP} ]]
   then
     _log 'error' 'Detecting the container IP address failed'
-    dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]'
+    _dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]' 'immediate'
   fi
 
   while read -r IP
