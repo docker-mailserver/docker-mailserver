@@ -182,7 +182,7 @@ function _setup_dovecot_local_user
       fi
     done
 
-    _shutdown 'No accounts provided - Dovecot could not be started'
+    _dms_panic__fail_init 'accounts provisioning because no accounts were provided - Dovecot could not be started' '' 'immediate'
   }
 
   __wait_until_an_account_is_added_or_shutdown
@@ -206,7 +206,7 @@ function _setup_dovecot_inet_protocols
     PROTOCOL='[::]' # IPv6 only
   else
     # Unknown value, panic.
-    dms_panic__invalid_value 'DOVECOT_INET_PROTOCOLS' "${DOVECOT_INET_PROTOCOLS}"
+    _dms_panic__invalid_value 'DOVECOT_INET_PROTOCOLS' "${DOVECOT_INET_PROTOCOLS}" 'immediate'
   fi
 
   sedfile -i "s|^#listen =.*|listen = ${PROTOCOL}|g" /etc/dovecot/dovecot.conf
