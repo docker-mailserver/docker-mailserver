@@ -16,6 +16,8 @@ function setup_file() {
     --env ENABLE_OPENDMARC=0
     --env PERMIT_DOCKER=host
     --env LOG_LEVEL=trace
+    --env MOVE_SPAM_TO_JUNK=1
+    --env RSPAMD_LEARN=1
   )
 
   mv "${TEST_TMP_CONFIG}"/rspamd/* "${TEST_TMP_CONFIG}/"
@@ -35,6 +37,7 @@ function setup_file() {
   export MAIL_ID1=$(_send_email_and_get_id 'email-templates/rspamd-pass')
   export MAIL_ID2=$(_send_email_and_get_id 'email-templates/rspamd-spam')
   export MAIL_ID3=$(_send_email_and_get_id 'email-templates/rspamd-virus')
+  export MAIL_ID4=$(_send_email_and_get_id 'email-templates/rspamd-spam-header')
 
   for ID in MAIL_ID{1,2,3,4}
   do
@@ -164,4 +167,79 @@ function teardown_file() { _default_teardown ; }
   assert_success
   _run_in_container grep -F 'OhMy = "PraiseBeLinters !";' "${MODULE_PATH}"
   assert_success
+}
+
+@test 'Check MOVE_SPAM_TO_JUNK works for Rspamd' {
+  _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve ]]'
+  assert_success
+  _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin ]]'
+  assert_success
+
+  _service_log_should_contain_string 'rspamd' 'S \(add header\)'
+  _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
+
+  _print_mail_log_for_id "${MAIL_ID4}"
+  assert_output --partial "fileinto action: stored mail into mailbox 'Junk'"
+
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1
+}
+
+@test 'Check RSPAMD_LEARN works' {
+  for FILE in learn-{ham,spam}.{sieve,svbin}
+  do
+    _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
+    assert_success
+  done
+
+  _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
+  local SIEVE_CONFIG_FILE='/etc/dovecot/conf.d/90-sieve.conf'
+  _run_in_container grep 'sieve_plugins.*sieve_imapsieve' "${SIEVE_CONFIG_FILE}"
+  _run_in_container grep 'sieve_global_extensions.*\+vnd\.dovecot\.pipe' "${SIEVE_CONFIG_FILE}"
+  _run_in_container grep -F 'sieve_pipe_bin_dir = /usr/lib/dovecot/sieve-pipe' "${SIEVE_CONFIG_FILE}"
+
+  # Move an email to the "Junk" folder from "INBOX"; the first email we
+  # sent should pass fine, hence we can now move it
+  _send_email 'nc_templates/rspamd_imap_move_to_junk' '0.0.0.0 143'
+  sleep 1 # wait for the transaction to finish
+
+  local MOVE_TO_JUNK_LINES=(
+    'imapsieve: mailbox Junk: MOVE event'
+    'imapsieve: Matched static mailbox rule [1]'
+    "sieve: file storage: script: Opened script \`learn-spam'"
+    'sieve: file storage: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve'
+    "sieve: Executing script from \`/usr/lib/dovecot/sieve-pipe/learn-spam.svbin'"
+    "Finished running script \`/usr/lib/dovecot/sieve-pipe/learn-spam.svbin'"
+    'sieve: action pipe: running program: rspamc'
+    "pipe action: piped message to program \`rspamc'"
+    "left message in mailbox 'Junk'"
+  )
+
+  _run_in_container cat /var/log/mail/mail.log
+  assert_success
+  for LINE in "${MOVE_TO_JUNK_LINES[@]}"
+  do
+    assert_output --partial "${LINE}"
+  done
+
+  # Move an email to the "INBOX" folder from "Junk"; there should be two mails
+  # in the "Junk" folder
+  _send_email 'nc_templates/rspamd_imap_move_to_inbox' '0.0.0.0 143'
+  sleep 1 # wait for the transaction to finish
+
+  local MOVE_TO_JUNK_LINES=(
+    'imapsieve: Matched static mailbox rule [2]'
+    "sieve: file storage: script: Opened script \`learn-ham'"
+    'sieve: file storage: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-ham.sieve'
+    "sieve: Executing script from \`/usr/lib/dovecot/sieve-pipe/learn-ham.svbin'"
+    "Finished running script \`/usr/lib/dovecot/sieve-pipe/learn-ham.svbin'"
+    "left message in mailbox 'INBOX'"
+  )
+
+  _run_in_container cat /var/log/mail/mail.log
+  assert_success
+  for LINE in "${MOVE_TO_JUNK_LINES[@]}"
+  do
+    assert_output --partial "${LINE}"
+  done
 }

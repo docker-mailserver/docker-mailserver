@@ -2,7 +2,7 @@ HELO mail.example.test
 MAIL FROM: virus@example.test
 RCPT TO: user1@localhost.localdomain
 DATA
-From: Docker Mail Server <dockermailserver@external.tld>
+From: Docker Mail Server <virus@example.test>
 To: Existing Local User <user1@localhost.localdomain>
 Date: Sat, 21 Jan 2023 11:11:11 +0000
 Subject: Test Message rspamd-virus.txt
