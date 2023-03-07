@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file. The format 
   - advanced documentation ([#3104](https://github.com/docker-mailserver/docker-mailserver/pull/3104))
   - make disabling Redis possible ([#3132](https://github.com/docker-mailserver/docker-mailserver/pull/3132))
   - persistence for Redis ([#3143](https://github.com/docker-mailserver/docker-mailserver/pull/3143))
+  - integrate into `MOVE_SPAM_TO_JUNK` ([#3159](https://github.com/docker-mailserver/docker-mailserver/pull/3159))
+  - make it possible to learn from user actions ([#3159](https://github.com/docker-mailserver/docker-mailserver/pull/3159))
 - heavily updated CI & tests
   - added functionality to send mail with a helper function ([#3026](https://github.com/docker-mailserver/docker-mailserver/pull/3026),[#3103](https://github.com/docker-mailserver/docker-mailserver/pull/3103),[#3105](https://github.com/docker-mailserver/docker-mailserver/pull/3105))
   - add a dedicated page for tests with more information ([#3019](https://github.com/docker-mailserver/docker-mailserver/pull/3019))
