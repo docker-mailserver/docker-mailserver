@@ -69,37 +69,6 @@ Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_pro
 
 Set the timezone. If this variable is unset, the container runtime will try to detect the time using `/etc/localtime`, which you can alternatively mount into the container. The value of this variable must follow the pattern `AREA/ZONE`, i.e. of you want to use Germany's time zone, use `Europe/Berlin`. You can lookup all available timezones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
 
-##### ENABLE_RSPAMD
-
-Enable or disable Rspamd.
-
-!!! warning "Current State"
-
-    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
-
-- **0** => disabled
-- 1 => enabled
-
-##### ENABLE_RSPAMD_REDIS
-
-Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
-
-The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
-
-??? note "Configuring rspamd for an external Redis instance"
-
-    You will need to [provide configuration][config-rspamd-redis] at `/etc/rspamd/local.d/redis.conf` similar to:
-
-    ```
-    servers = "redis.example.test:6379";
-    expand_keys = true;
-    ```
-
-[config-rspamd-redis]: https://rspamd.com/doc/configuration/redis.html
-
-- 0 => Disabled
-- 1 => Enabled
-
 ##### ENABLE_AMAVIS
 
 Amavis content filter (used for ClamAV & SpamAssassin)
@@ -316,6 +285,69 @@ Note: More details at <http://www.postfix.org/postconf.5.html#inet_protocols>
 
 Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
+##### MOVE_SPAM_TO_JUNK
+
+When enabled, e-mails marked with the
+
+1. `X-Spam: Yes` header added by Rspamd
+2. `X-Spam-Flag: YES` header added by SpamAssassin (requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox))
+
+will be automatically moved to the Junk folder (with the help of a Sieve script).
+
+- 0 => Spam messages will be delivered in the mailbox.
+- **1** => Spam messages will be delivered in the `Junk` folder.
+
+#### Rspamd
+
+##### ENABLE_RSPAMD
+
+Enable or disable Rspamd.
+
+!!! warning "Current State"
+
+    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
+
+- **0** => disabled
+- 1 => enabled
+
+##### ENABLE_RSPAMD_REDIS
+
+Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
+
+The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
+
+??? note "Configuring Rspamd for an external Redis instance"
+
+    You will need to [provide configuration][rspamd-redis-config] at `/etc/rspamd/local.d/redis.conf` similar to:
+
+    ```
+    servers = "redis.example.test:6379";
+    expand_keys = true;
+    ```
+
+[rspamd-redis-config]: https://rspamd.com/doc/configuration/redis.html
+
+- 0 => Disabled
+- 1 => Enabled
+
+##### RSPAMD_LEARN
+
+When enabled,
+
+1. the "[autolearning][rspamd-autolearn]" feature is turned on;
+2. the Bayes classifier will be trained when moving mails from or to the Junk folder (with the help of Sieve scripts).
+
+!!! attention
+
+    As of now, the spam learning database is global (i.e. available to all users). If one user deliberately trains it with malicious data, then it will ruin your detection rate.
+
+    This feature is suitably only for users who can tell ham from spam and users that can be trusted.
+
+[rspamd-autolearn]: https://rspamd.com/doc/configuration/statistic.html#autolearning
+
+- **0** => Disabled
+- 1 => Enabled
+
 #### Reports
 
 ##### PFLOGSUMM_TRIGGER
@@ -417,14 +449,6 @@ Changes the interval in which log files are rotated.
 
 - **0** => KAM disabled
 - 1 => KAM enabled
-
-##### MOVE_SPAM_TO_JUNK
-
-Spam messages can be moved in the Junk folder.
-Note: this setting needs `SPAMASSASSIN_SPAM_TO_INBOX=1`
-
-- 0 => Spam messages will be delivered in the mailbox.
-- **1** => Spam messages will be delivered in the `Junk` folder.
 
 ##### SA_TAG
 
