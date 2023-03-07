@@ -55,6 +55,7 @@ function __environment_variables_general_setup
   VARS[POSTGREY_MAX_AGE]="${POSTGREY_MAX_AGE:=35}"
   VARS[POSTGREY_TEXT]="${POSTGREY_TEXT:=Delayed by Postgrey}"
   VARS[POSTSCREEN_ACTION]="${POSTSCREEN_ACTION:=enforce}"
+  VARS[RSPAMD_LEARN]="${RSPAMD_LEARN:=0}"
   VARS[SA_KILL]=${SA_KILL:="6.31"}
   VARS[SA_SPAM_SUBJECT]=${SA_SPAM_SUBJECT:="***SPAM*** "}
   VARS[SA_TAG]=${SA_TAG:="2.0"}

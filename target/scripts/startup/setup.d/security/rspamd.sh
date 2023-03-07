@@ -7,10 +7,18 @@ function _setup_rspamd
     _log 'warn' 'Rspamd integration is work in progress - expect (breaking) changes at any time'
     _log 'debug' 'Enabling and configuring Rspamd'
 
-    __rspamd__preflight_checks
+    __rspamd__preflight_checks_and_setup
     __rspamd__adjust_postfix_configuration
     __rspamd__disable_default_modules
     __rspamd__handle_modules_configuration
+
+    if [[ ${RSPAMD_LEARN} -eq 1 ]]
+    then
+      __rspamd__log 'debug' 'Enabling and configuring learning'
+      __rspamd__setup_learning
+    else
+      __rspamd__log 'debug' 'Learning is disabled'
+    fi
   else
     _log 'debug' 'Rspamd is disabled'
   fi
@@ -28,7 +36,7 @@ function __rspamd__log { _log "${1:-}" "(Rspamd setup) ${2:-}" ; }
 #
 # This will also check whether Amavis is enabled and emit a warning as
 # we discourage users from running Amavis & Rspamd at the same time.
-function __rspamd__preflight_checks
+function __rspamd__preflight_checks_and_setup
 {
   touch /var/lib/rspamd/stats.ucl
 
@@ -224,4 +232,47 @@ function __rspamd__handle_modules_configuration
       esac
     done < <(_get_valid_lines_from_file "${RSPAMD_CUSTOM_COMMANDS_FILE}")
   fi
+}
+
+# This function sets up intelligent learning of Junk, by
+#
+# 1. enabling auto-learn for the classifier-bayes module
+# 2. setting up sieve scripts that detect when a user is moving e-mail
+#    from or to the "Junk" folder, and learning them as ham or spam.
+function __rspamd__setup_learning
+{
+  __rspamd__log 'debug' 'Setting up intelligent learning of spam and ham'
+
+  local SIEVE_PIPE_BIN_DIR='/usr/lib/dovecot/sieve-pipe'
+  ln -s "$(type -f -P rspamc)" "${SIEVE_PIPE_BIN_DIR}/rspamc"
+
+  sedfile -i -E 's|(mail_plugins =.*)|\1 imap_sieve|' /etc/dovecot/conf.d/20-imap.conf
+  sedfile -i -E '/^}/d' /etc/dovecot/conf.d/90-sieve.conf
+  cat >>/etc/dovecot/conf.d/90-sieve.conf << EOF
+
+  # From elsewhere to Junk folder
+  imapsieve_mailbox1_name = Junk
+  imapsieve_mailbox1_causes = COPY
+  imapsieve_mailbox1_before = file:${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve
+
+  # From Junk folder to elsewhere
+  imapsieve_mailbox2_name = *
+  imapsieve_mailbox2_from = Junk
+  imapsieve_mailbox2_causes = COPY
+  imapsieve_mailbox2_before = file:${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve
+}
+EOF
+
+  cat >"${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve" << EOF
+require ["vnd.dovecot.pipe", "copy", "imapsieve"];
+pipe :copy "rspamc" ["-h", "127.0.0.1:11334", "learn_spam"];
+EOF
+
+  cat >"${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve" << EOF
+require ["vnd.dovecot.pipe", "copy", "imapsieve"];
+pipe :copy "rspamc" ["-h", "127.0.0.1:11334", "learn_ham"];
+EOF
+
+  sievec "${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve"
+  sievec "${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve"
 }
