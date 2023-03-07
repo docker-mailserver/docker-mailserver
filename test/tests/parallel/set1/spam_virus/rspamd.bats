@@ -18,6 +18,7 @@ function setup_file() {
     --env LOG_LEVEL=trace
   )
 
+  mv "${TEST_TMP_CONFIG}"/rspamd/* "${TEST_TMP_CONFIG}/"
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # wait for ClamAV to be fully setup or we will get errors on the log
@@ -31,12 +32,14 @@ function setup_file() {
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  export MAIL_ID1=$(_send_email_and_get_id 'email-templates/existing-user1')
+  export MAIL_ID1=$(_send_email_and_get_id 'email-templates/rspamd-pass')
   export MAIL_ID2=$(_send_email_and_get_id 'email-templates/rspamd-spam')
   export MAIL_ID3=$(_send_email_and_get_id 'email-templates/rspamd-virus')
 
-  # add a nested option to a module
-  _exec_in_container_bash "echo -e 'complicated {\n    anOption = someValue;\n}' >/etc/rspamd/override.d/testmodule_complicated.conf"
+  for ID in MAIL_ID{1,2,3,4}
+  do
+    [[ -n ${!ID} ]] || { echo "${ID} is empty - aborting!" ; return 1 ; }
+  done
 }
 
 function teardown_file() { _default_teardown ; }
@@ -44,6 +47,9 @@ function teardown_file() { _default_teardown ; }
 @test "Postfix's main.cf was adjusted" {
   _run_in_container grep -F 'smtpd_milters = $rspamd_milter' /etc/postfix/main.cf
   assert_success
+  _run_in_container postconf rspamd_milter
+  assert_success
+  assert_output 'rspamd_milter = inet:localhost:11332'
 }
 
 @test 'logs exist and contains proper content' {
@@ -62,6 +68,8 @@ function teardown_file() { _default_teardown ; }
 
   _print_mail_log_for_id "${MAIL_ID1}"
   assert_output --partial "stored mail into mailbox 'INBOX'"
+
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
 }
 
 @test 'detects and rejects spam' {
@@ -71,6 +79,8 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_id "${MAIL_ID2}"
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 Gtube pattern'
+
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
 }
 
 @test 'detects and rejects virus' {
@@ -81,6 +91,8 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
   refute_output --partial "stored mail into mailbox 'INBOX'"
+
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
 }
 
 @test 'custom commands work correctly' {

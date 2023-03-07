@@ -37,27 +37,24 @@ function teardown_file() { _default_teardown ; }
 
 # dovecot-sieve/dovecot.sieve
 @test "User Sieve - should store mail from 'spam@spam.com' into recipient (user1) mailbox 'INBOX.spam'" {
-  _run_in_container_bash 'ls -A /var/mail/localhost.localdomain/user1/.INBOX.spam/new'
-  assert_success
-  _should_output_number_of_lines 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.INBOX.spam/new 1
 }
 
 # dovecot-sieve/before.dovecot.sieve
 @test "Global Sieve - should have copied mail from 'spam@spam.com' to recipient (user1) inbox" {
-  _run_in_container grep 'Spambot <spam@spam.com>' -R /var/mail/localhost.localdomain/user1/new/
+  _run_in_container grep -R 'Spambot <spam@spam.com>' /var/mail/localhost.localdomain/user1/new/
   assert_success
 }
 
 # dovecot-sieve/sieve-pipe + dovecot-sieve/user2@otherdomain.tld.dovecot.sieve
 @test "Sieve Pipe - should pipe mail received for user2 into '/tmp/pipe-test.out'" {
-  _run_in_container_bash 'ls -A /tmp/pipe-test.out'
+  _run_in_container_bash '[[ -f /tmp/pipe-test.out ]]'
   assert_success
-  _should_output_number_of_lines 1
 }
 
 # Only test coverage for feature is to check that the service is listening on the expected port:
 # https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_server/
 @test "ENV 'ENABLE_MANAGESIEVE' - should have enabled service on port 4190" {
-  _run_in_container_bash 'nc -z 0.0.0.0 4190'
+  _run_in_container nc -z 0.0.0.0 4190
   assert_success
 }
