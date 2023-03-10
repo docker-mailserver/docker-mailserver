@@ -325,7 +325,7 @@ function _setup_ssl
 
         _log 'trace' "SSL configured with 'self-signed' certificates"
       else
-        _dms_panic__no_file "${SS_KEY} or ${SS_CERT}" "${SCOPE_SSL_TYPE}"
+        _dms_panic__no_file "${SS_KEY} or ${SS_CERT} or ${SS_CA_CERT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
