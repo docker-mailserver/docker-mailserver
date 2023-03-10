@@ -54,7 +54,6 @@ EOF
 # -----------------------------------------------
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
-COPY target/dovecot/sieve-global/after/ /usr/lib/dovecot/sieve-global/after/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
 WORKDIR /usr/share/dovecot

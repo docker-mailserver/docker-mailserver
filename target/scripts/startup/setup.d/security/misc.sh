@@ -270,6 +270,14 @@ function _setup_spam_to_junk
   if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]
   then
     _log 'debug' 'Spam emails will be moved to the Junk folder'
+    cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
+require ["fileinto","mailbox"];
+
+if anyof (header :contains "X-Spam-Flag" "YES",
+          header :contains "X-Spam" "Yes") {
+    fileinto "Junk";
+}
+EOF
     sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
     chown dovecot:dovecot /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
 
@@ -279,6 +287,5 @@ function _setup_spam_to_junk
     fi
   else
     _log 'debug' 'Spam emails will not be moved to the Junk folder'
-    rm /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
   fi
 }
