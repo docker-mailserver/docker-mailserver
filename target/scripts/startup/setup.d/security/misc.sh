@@ -279,7 +279,7 @@ if anyof (header :contains "X-Spam-Flag" "YES",
 }
 EOF
     sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
-    chown dovecot:dovecot /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
+    chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]
     then

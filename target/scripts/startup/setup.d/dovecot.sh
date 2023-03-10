@@ -87,7 +87,7 @@ function _setup_dovecot_sieve
   fi
 
   chown dovecot:root -R /usr/lib/dovecot/sieve-*
-  find /usr/lib/dovecot/sieve-* -type d -exec chmod 775 {} \;
+  find /usr/lib/dovecot/sieve-* -type d -exec chmod 755 {} \;
   chmod +x /usr/lib/dovecot/sieve-{filter,pipe}/*
 }
 
