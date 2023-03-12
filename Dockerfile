@@ -242,8 +242,6 @@ RUN <<EOF
   rm -rf /usr/share/man/*
   rm -rf /usr/share/doc/*
   update-locale
-  rm /etc/postsrsd.secret
-  rm /etc/cron.daily/00logwatch
 EOF
 
 COPY VERSION /
