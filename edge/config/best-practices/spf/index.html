@@ -1573,7 +1573,7 @@ example.com. IN TXT &quot;v=spf1 mx ~all&quot;
 <p>After verification, you <em>might</em> want to change your SPF record to <code>v=spf1 mx -all</code> so as to enforce the <em>HardFail</em> policy. See <a href="http://www.open-spf.org/SPF_Record_Syntax">http://www.open-spf.org/SPF_Record_Syntax</a> for more details about SPF policies.</p>
 <p>In any case, increment the SPF record's TTL to its final value.</p>
 <h2 id="backup-mx-secondary-mx"><a class="toclink" href="#backup-mx-secondary-mx">Backup MX, Secondary MX</a></h2>
-<p>For whitelisting a IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
+<p>For whitelisting an IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
 <p><strong>Example:</strong></p>
 <p>Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">debugLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
