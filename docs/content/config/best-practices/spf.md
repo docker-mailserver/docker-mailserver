@@ -34,7 +34,7 @@ In any case, increment the SPF record's TTL to its final value.
 
 ## Backup MX, Secondary MX
 
-For whitelisting a IP Address from the SPF test, you can create a config file (see [`policyd-spf.conf`](https://www.linuxcertif.com/man/5/policyd-spf.conf)) and mount that file into `/etc/postfix-policyd-spf-python/policyd-spf.conf`.
+For whitelisting an IP Address from the SPF test, you can create a config file (see [`policyd-spf.conf`](https://www.linuxcertif.com/man/5/policyd-spf.conf)) and mount that file into `/etc/postfix-policyd-spf-python/policyd-spf.conf`.
 
 **Example:**
 
