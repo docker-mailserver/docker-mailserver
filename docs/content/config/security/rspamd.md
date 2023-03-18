@@ -20,6 +20,13 @@ If you want to have a look at the default configuration files for Rspamd that DM
 
     Maintainers noticed only few differences, some of them with a big impact though. For those running Rspamd on ARM64, we recommend [disabling](#with-the-help-of-a-custom-file) the [DKIM signing module][dkim-signing-module] if you don't use it.
 
+The following environment variables are related to Rspamd:
+
+1. [`ENABLE_RSPAMD`](../environment.md#enable_rspamd)
+2. [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis)
+3. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
+4. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
+
 ## The Default Configuration
 
 ### Mode of Operation

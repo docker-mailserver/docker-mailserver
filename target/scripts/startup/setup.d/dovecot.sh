@@ -40,54 +40,6 @@ function _setup_dovecot
 
   esac
 
-  # enable Managesieve service by setting the symlink
-  # to the configuration file Dovecot will actually find
-  if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]
-  then
-    _log 'trace' 'Sieve management enabled'
-    mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
-  fi
-
-  # copy pipe and filter programs, if any
-  rm -f /usr/lib/dovecot/sieve-filter/*
-  rm -f /usr/lib/dovecot/sieve-pipe/*
-  [[ -d /tmp/docker-mailserver/sieve-filter ]] && cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
-  [[ -d /tmp/docker-mailserver/sieve-pipe ]] && cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
-
-  # create global sieve directories
-  mkdir -p /usr/lib/dovecot/sieve-global/before
-  mkdir -p /usr/lib/dovecot/sieve-global/after
-
-  if [[ -f /tmp/docker-mailserver/before.dovecot.sieve ]]
-  then
-    cp /tmp/docker-mailserver/before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
-    sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
-  else
-    rm -f /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve /usr/lib/dovecot/sieve-global/before/50-before.dovecot.svbin
-  fi
-
-  if [[ -f /tmp/docker-mailserver/after.dovecot.sieve ]]
-  then
-    cp /tmp/docker-mailserver/after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
-    sievec /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
-  else
-    rm -f /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve /usr/lib/dovecot/sieve-global/after/50-after.dovecot.svbin
-  fi
-
-  # sieve will move spams to .Junk folder when SPAMASSASSIN_SPAM_TO_INBOX=1 and MOVE_SPAM_TO_JUNK=1
-  if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]] && [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]
-  then
-    _log 'debug' 'Spam messages will be moved to the Junk folder'
-    cp /etc/dovecot/sieve/before/60-spam.sieve /usr/lib/dovecot/sieve-global/before/
-    sievec /usr/lib/dovecot/sieve-global/before/60-spam.sieve
-  else
-    rm -f /usr/lib/dovecot/sieve-global/before/60-spam.sieve /usr/lib/dovecot/sieve-global/before/60-spam.svbin
-  fi
-
-  chown docker:docker -R /usr/lib/dovecot/sieve*
-  chmod 550 -R /usr/lib/dovecot/sieve*
-  chmod -f +x /usr/lib/dovecot/sieve-pipe/*
-
   if [[ ${ENABLE_POP3} -eq 1 ]]
   then
     _log 'debug' 'Enabling POP3 services'
@@ -97,6 +49,47 @@ function _setup_dovecot
   [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 }
 
+function _setup_dovecot_sieve
+{
+  mkdir -p /usr/lib/dovecot/sieve-{filter,global,pipe}
+  mkdir -p /usr/lib/dovecot/sieve-global/{before,after}
+
+  # enable Managesieve service by setting the symlink
+  # to the configuration file Dovecot will actually find
+  if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]
+  then
+    _log 'trace' 'Sieve management enabled'
+    mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
+  fi
+
+  if [[ -d /tmp/docker-mailserver/sieve-filter ]]
+  then
+    cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
+  fi
+  if [[ -d /tmp/docker-mailserver/sieve-pipe ]]
+  then
+    cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
+  fi
+
+  if [[ -f /tmp/docker-mailserver/before.dovecot.sieve ]]
+  then
+    cp \
+      /tmp/docker-mailserver/before.dovecot.sieve \
+      /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
+    sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
+  fi
+  if [[ -f /tmp/docker-mailserver/after.dovecot.sieve ]]
+  then
+    cp \
+      /tmp/docker-mailserver/after.dovecot.sieve \
+      /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
+    sievec /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
+  fi
+
+  chown dovecot:root -R /usr/lib/dovecot/sieve-*
+  find /usr/lib/dovecot/sieve-* -type d -exec chmod 755 {} \;
+  chmod +x /usr/lib/dovecot/sieve-{filter,pipe}/*
+}
 
 function _setup_dovecot_quota
 {

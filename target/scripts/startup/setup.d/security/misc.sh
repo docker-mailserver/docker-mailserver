@@ -263,3 +263,29 @@ function __setup__security__amavis
     fi
   fi
 }
+
+# We can use Sieve to move spam emails to the "Junk" folder.
+function _setup_spam_to_junk
+{
+  if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]
+  then
+    _log 'debug' 'Spam emails will be moved to the Junk folder'
+    cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
+require ["fileinto","mailbox"];
+
+if anyof (header :contains "X-Spam-Flag" "YES",
+          header :contains "X-Spam" "Yes") {
+    fileinto "Junk";
+}
+EOF
+    sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
+    chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
+
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]
+    then
+      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
+    fi
+  else
+    _log 'debug' 'Spam emails will not be moved to the Junk folder'
+  fi
+}
