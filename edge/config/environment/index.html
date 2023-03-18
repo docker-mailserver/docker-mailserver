@@ -548,20 +548,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_rspamd" class="md-nav__link">
-    ENABLE_RSPAMD
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#enable_rspamd_redis" class="md-nav__link">
-    ENABLE_RSPAMD_REDIS
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -764,6 +750,47 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#move_spam_to_junk" class="md-nav__link">
+    MOVE_SPAM_TO_JUNK
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rspamd" class="md-nav__link">
+    Rspamd
+  </a>
+  
+    <nav class="md-nav" aria-label="Rspamd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd" class="md-nav__link">
+    ENABLE_RSPAMD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd_redis" class="md-nav__link">
+    ENABLE_RSPAMD_REDIS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_learn" class="md-nav__link">
+    RSPAMD_LEARN
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -870,13 +897,6 @@
           <li class="md-nav__item">
   <a href="#enable_spamassassin_kam" class="md-nav__link">
     ENABLE_SPAMASSASSIN_KAM
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#move_spam_to_junk" class="md-nav__link">
-    MOVE_SPAM_TO_JUNK
   </a>
   
 </li>
@@ -2496,20 +2516,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_rspamd" class="md-nav__link">
-    ENABLE_RSPAMD
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#enable_rspamd_redis" class="md-nav__link">
-    ENABLE_RSPAMD_REDIS
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#enable_amavis" class="md-nav__link">
     ENABLE_AMAVIS
   </a>
@@ -2712,6 +2718,47 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#move_spam_to_junk" class="md-nav__link">
+    MOVE_SPAM_TO_JUNK
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rspamd" class="md-nav__link">
+    Rspamd
+  </a>
+  
+    <nav class="md-nav" aria-label="Rspamd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd" class="md-nav__link">
+    ENABLE_RSPAMD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd_redis" class="md-nav__link">
+    ENABLE_RSPAMD_REDIS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_learn" class="md-nav__link">
+    RSPAMD_LEARN
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2818,13 +2865,6 @@
           <li class="md-nav__item">
   <a href="#enable_spamassassin_kam" class="md-nav__link">
     ENABLE_SPAMASSASSIN_KAM
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#move_spam_to_junk" class="md-nav__link">
-    MOVE_SPAM_TO_JUNK
   </a>
   
 </li>
@@ -3437,30 +3477,6 @@
 <p>Note: you probably want to <a href="#postfix_inet_protocols">set <code>POSTFIX_INET_PROTOCOLS=ipv4</code></a> to make it work fine with Docker.</p>
 <h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
 <p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
-<h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
-<p>Enable or disable Rspamd.</p>
-<div class="admonition warning">
-<p class="admonition-title">Current State</p>
-<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see <a href="../security/rspamd/">the detailed documentation page for Rspamd</a>.</p>
-</div>
-<ul>
-<li><strong>0</strong> =&gt; disabled</li>
-<li>1 =&gt; enabled</li>
-</ul>
-<h5 id="enable_rspamd_redis"><a class="toclink" href="#enable_rspamd_redis">ENABLE_RSPAMD_REDIS</a></h5>
-<p>Explicit control over running a Redis instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
-<p>The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.</p>
-<details class="note">
-<summary>Configuring rspamd for an external Redis instance</summary>
-<p>You will need to <a href="https://rspamd.com/doc/configuration/redis.html">provide configuration</a> at <code>/etc/rspamd/local.d/redis.conf</code> similar to:</p>
-<div class="highlight"><pre><span></span><code>servers = &quot;redis.example.test:6379&quot;;
-expand_keys = true;
-</code></pre></div>
-</details>
-<ul>
-<li>0 =&gt; Disabled</li>
-<li>1 =&gt; Enabled</li>
-</ul>
 <h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
 <p>Amavis content filter (used for ClamAV &amp; SpamAssassin)</p>
 <ul>
@@ -3651,6 +3667,57 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <li>ipv6 =&gt; Listen only on IPv6 interfaces.</li>
 </ul>
 <p>Note: More information at <a href="https://dovecot.org/doc/dovecot-example.conf">https://dovecot.org/doc/dovecot-example.conf</a></p>
+<h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
+<p>When enabled, e-mails marked with the</p>
+<ol>
+<li><code>X-Spam: Yes</code> header added by Rspamd</li>
+<li><code>X-Spam-Flag: YES</code> header added by SpamAssassin (requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a>)</li>
+</ol>
+<p>will be automatically moved to the Junk folder (with the help of a Sieve script).</p>
+<ul>
+<li>0 =&gt; Spam messages will be delivered in the mailbox.</li>
+<li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
+</ul>
+<h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
+<h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
+<p>Enable or disable Rspamd.</p>
+<div class="admonition warning">
+<p class="admonition-title">Current State</p>
+<p>Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see <a href="../security/rspamd/">the detailed documentation page for Rspamd</a>.</p>
+</div>
+<ul>
+<li><strong>0</strong> =&gt; disabled</li>
+<li>1 =&gt; enabled</li>
+</ul>
+<h5 id="enable_rspamd_redis"><a class="toclink" href="#enable_rspamd_redis">ENABLE_RSPAMD_REDIS</a></h5>
+<p>Explicit control over running a Redis instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
+<p>The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.</p>
+<details class="note">
+<summary>Configuring Rspamd for an external Redis instance</summary>
+<p>You will need to <a href="https://rspamd.com/doc/configuration/redis.html">provide configuration</a> at <code>/etc/rspamd/local.d/redis.conf</code> similar to:</p>
+<div class="highlight"><pre><span></span><code>servers = &quot;redis.example.test:6379&quot;;
+expand_keys = true;
+</code></pre></div>
+</details>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="rspamd_learn"><a class="toclink" href="#rspamd_learn">RSPAMD_LEARN</a></h5>
+<p>When enabled,</p>
+<ol>
+<li>the "<a href="https://rspamd.com/doc/configuration/statistic.html#autolearning">autolearning</a>" feature is turned on;</li>
+<li>the Bayes classifier will be trained when moving mails from or to the Junk folder (with the help of Sieve scripts).</li>
+</ol>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>As of now, the spam learning database is global (i.e. available to all users). If one user deliberately trains it with malicious data, then it will ruin your detection rate.</p>
+<p>This feature is suitably only for users who can tell ham from spam and users that can be trusted.</p>
+</div>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
 <h4 id="reports"><a class="toclink" href="#reports">Reports</a></h4>
 <h5 id="pflogsumm_trigger"><a class="toclink" href="#pflogsumm_trigger">PFLOGSUMM_TRIGGER</a></h5>
 <p>Enables regular Postfix log summary ("pflogsumm") mail reports.</p>
@@ -3737,13 +3804,6 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <ul>
 <li><strong>0</strong> =&gt; KAM disabled</li>
 <li>1 =&gt; KAM enabled</li>
-</ul>
-<h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
-<p>Spam messages can be moved in the Junk folder.
-Note: this setting needs <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></p>
-<ul>
-<li>0 =&gt; Spam messages will be delivered in the mailbox.</li>
-<li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
 </ul>
 <h5 id="sa_tag"><a class="toclink" href="#sa_tag">SA_TAG</a></h5>
 <ul>

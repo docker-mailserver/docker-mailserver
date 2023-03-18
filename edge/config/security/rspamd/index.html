@@ -1804,6 +1804,13 @@
 <p>We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference is two minor versions (AMD64 is at version 3.4, ARM64 at 3.2 [13th Feb 2023]).</p>
 <p>Maintainers noticed only few differences, some of them with a big impact though. For those running Rspamd on ARM64, we recommend <a href="#with-the-help-of-a-custom-file">disabling</a> the <a href="https://rspamd.com/doc/modules/dkim_signing.html">DKIM signing module</a> if you don't use it.</p>
 </div>
+<p>The following environment variables are related to Rspamd:</p>
+<ol>
+<li><a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD</code></a></li>
+<li><a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS</code></a></li>
+<li><a href="../../environment/#rspamd_learn"><code>RSPAMD_LEARN</code></a></li>
+<li><a href="../../environment/#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK</code></a></li>
+</ol>
 <h2 id="the-default-configuration"><a class="toclink" href="#the-default-configuration">The Default Configuration</a></h2>
 <h3 id="mode-of-operation"><a class="toclink" href="#mode-of-operation">Mode of Operation</a></h3>
 <p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
