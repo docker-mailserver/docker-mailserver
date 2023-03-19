@@ -105,3 +105,33 @@ jobs:
           git add versions.json
           git commit -m "chore: Add ${{ env.DOCS_VERSION }} to version selector list"
           git push
+
+  update-latest-symlink:
+    permissions:
+      contents: write
+    name: 'update `latest` symlink if neccessary'
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: add-version-to-docs
+    steps:
+      - name: 'Checkout the docs deployment branch'
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+
+      - name: 'Ensure `latest` symlink refers to the substring from tag name'
+        id: update-latest
+        run: |
+          DOCS_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+' <<< "${GITHUB_REF}")
+          echo "DOCS_VERSION=${DOCS_VERSION}" >> "${GITHUB_ENV}"
+          ln -sf ${DOCS_VERSION} latest
+
+      - name: 'Push update for `latest` symlink'
+        # The step will fail if no change was made; ignore that failure
+        continue-on-error: true
+        run: |
+          git config user.name ${{ env.GIT_USER }}
+          git config user.email ${{ env.GIT_EMAIL }}
+          git add latest
+          git commit -m "chore: Update \`latest\` symlink to point to ${{ env.DOCS_VERSION }}"
+          git push
