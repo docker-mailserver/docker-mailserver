@@ -7,7 +7,7 @@
 [docker::pulls]: https://img.shields.io/docker/pulls/mailserver/docker-mailserver.svg?style=for-the-badge&logo=docker&logoColor=white
 [docker::hub]: https://hub.docker.com/r/mailserver/docker-mailserver/
 [documentation::badge]: https://img.shields.io/badge/DOCUMENTATION-GH%20PAGES-0078D4?style=for-the-badge&logo=git&logoColor=white
-[documentation::web]: https://docker-mailserver.github.io/docker-mailserver/edge/
+[documentation::web]: https://docker-mailserver.github.io/docker-mailserver/latest/
 
 ## :page_with_curl: About
 
@@ -23,18 +23,18 @@ If you have issues, please search through [the documentation][documentation::web
 
 ## :link: Links to Useful Resources
 
-1. [FAQ](https://docker-mailserver.github.io/docker-mailserver/edge/faq/)
-2. [Usage](https://docker-mailserver.github.io/docker-mailserver/edge/usage/)
-3. [Examples](https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/basic-installation/)
-4. [Issues and Contributing](https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/)
+1. [FAQ](https://docker-mailserver.github.io/docker-mailserver/latest/faq/)
+2. [Usage](https://docker-mailserver.github.io/docker-mailserver/latest/usage/)
+3. [Examples](https://docker-mailserver.github.io/docker-mailserver/latest/examples/tutorials/basic-installation/)
+4. [Issues and Contributing](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/)
 5. [Release Notes](./CHANGELOG.md)
-6. [Environment Variables](https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/)
-7. [Updating](https://docker-mailserver.github.io/docker-mailserver/edge/faq/#how-do-i-update-dms)
+6. [Environment Variables](https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/)
+7. [Updating](https://docker-mailserver.github.io/docker-mailserver/latest/faq/#how-do-i-update-dms)
 
 ## :package: Included Services
 
 - [Postfix](http://www.postfix.org) with SMTP or LDAP authentication and support for [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) (_mail to `you+extension@example.com` delivered to `you@example.com`_)
-- [Dovecot](https://www.dovecot.org) with SASL, IMAP, POP3, LDAP, [basic Sieve support](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve) and [quotas](https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/accounts#notes)
+- [Dovecot](https://www.dovecot.org) with SASL, IMAP, POP3, LDAP, [basic Sieve support](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/mail-sieve) and [quotas](https://docker-mailserver.github.io/docker-mailserver/latest/config/user-management/accounts#notes)
 - [Rspamd](https://rspamd.com/)
 - [Amavis](https://www.amavis.org/)
 - [SpamAssassin](http://spamassassin.apache.org/) supporting custom rules
@@ -45,5 +45,5 @@ If you have issues, please search through [the documentation][documentation::web
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
 - Support for [LetsEncrypt](https://letsencrypt.org/), manual and self-signed certificates
-- A [setup script](https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh) for easy configuration and maintenance
+- A [setup script](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh) for easy configuration and maintenance
 - SASLauthd with LDAP authentication
