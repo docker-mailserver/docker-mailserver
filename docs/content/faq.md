@@ -334,13 +334,16 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 ### Why are my emails not being delivered?
 
-There are many reasons why email might be rejected: a misconfigured SSL certificate, a TLD or IP address with a bad reputation, misconfigured DNS records, etc.
+There are many reasons why email might be rejected, common causes are:
 
-These aren't problems with DMS, so deliverability issues shouldn't be filed on the issue tracker.
+- Wrong or untrustworthy SSL certificate.
+- A TLD (your domain) or IP address with a bad reputation.
+- Misconfigured DNS records.
 
-[mail-tester](https://www.mail-tester.com/) can test your deliverability.
+DMS does not manage those concerns, verify they are not causing your delivery problems before reporting a bug on our issue tracker. Resources that can help you troubleshoot:
 
-[helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
+- [mail-tester](https://www.mail-tester.com/) can test your deliverability.
+- [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
 ### SpamAssasin
 
