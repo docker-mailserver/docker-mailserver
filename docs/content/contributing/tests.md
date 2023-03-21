@@ -56,12 +56,13 @@ To run the test suite, you will need to:
 
 ### Executing Test(s)
 
-We use `make` to run commands. You will first need to build the container image via `make build`. You can then:
+We use `make` to run commands.
 
-1. Run all tests: `make clean tests`
-2. Run a single test: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>`
-3. Run multiple unrelated tests: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>,<TEST NAME WITHOUT .bats SUFFIX>` (just add a `,` and then immediately write the new test name)
-4. Run a whole set or all serial tests: `make clean generate-accounts tests/parallel/setX` where `X` is the number of the set or `make clean generate-accounts tests/serial`
+1. Run `make build` to create or update the local `mailserver-testing:ci` Docker image (_using the projects `Dockerfile`_)
+2. Run all tests: `make clean tests`
+3. Run a single test: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>`
+4. Run multiple unrelated tests: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>,<TEST NAME WITHOUT .bats SUFFIX>` (just add a `,` and then immediately write the new test name)
+5. Run a whole set or all serial tests: `make clean generate-accounts tests/parallel/setX` where `X` is the number of the set or `make clean generate-accounts tests/serial`
 
 ??? tip "Setting the Degree of Parallelization for Tests"
 
