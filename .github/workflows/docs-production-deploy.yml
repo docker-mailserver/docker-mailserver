@@ -55,7 +55,7 @@ jobs:
           # Replace the tagged '${DOCS_VERSION}' in the 'canonical' link element of HTML files,
           # to point to the 'edge' version of docs as the authoritative source:
           find . -type f -name "*.html" -exec \
-            sed -i "s|^\(.*<link rel=\"canonical\".*\)${DOCS_VERSION}|\1edge|" \
+            sed -i "s|^\(.*<link rel=\"canonical\".*\)${DOCS_VERSION}|\1latest|" \
             {} +
 
       - name: 'Deploy to Github Pages'
