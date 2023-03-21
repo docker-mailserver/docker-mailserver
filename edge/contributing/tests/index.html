@@ -1708,8 +1708,9 @@
 <li>Execute <code>git submodule update --init --recursive</code> if you haven't already initialized the git submodules</li>
 </ol>
 <h3 id="executing-tests"><a class="toclink" href="#executing-tests">Executing Test(s)</a></h3>
-<p>We use <code>make</code> to run commands. You will first need to build the container image via <code>make build</code>. You can then:</p>
+<p>We use <code>make</code> to run commands.</p>
 <ol>
+<li>Run <code>make build</code> to create or update the local <code>mailserver-testing:ci</code> Docker image (<em>using the projects <code>Dockerfile</code></em>)</li>
 <li>Run all tests: <code>make clean tests</code></li>
 <li>Run a single test: <code>make clean generate-accounts test/&lt;TEST NAME WITHOUT .bats SUFFIX&gt;</code></li>
 <li>Run multiple unrelated tests: <code>make clean generate-accounts test/&lt;TEST NAME WITHOUT .bats SUFFIX&gt;,&lt;TEST NAME WITHOUT .bats SUFFIX&gt;</code> (just add a <code>,</code> and then immediately write the new test name)</li>
