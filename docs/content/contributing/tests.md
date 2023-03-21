@@ -58,7 +58,7 @@ To run the test suite, you will need to:
 
 We use `make` to run commands.
 
-1. First, build the container image: `make build`. You can then:
+1. Run `make build` to create or update the local `mailserver-testing:ci` Docker image (_using the projects `Dockerfile`_)
 2. Run all tests: `make clean tests`
 3. Run a single test: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>`
 4. Run multiple unrelated tests: `make clean generate-accounts test/<TEST NAME WITHOUT .bats SUFFIX>,<TEST NAME WITHOUT .bats SUFFIX>` (just add a `,` and then immediately write the new test name)
