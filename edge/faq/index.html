@@ -1580,6 +1580,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#why-are-my-emails-not-being-delivered" class="md-nav__link">
+    Why are my emails not being delivered?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spamassasin" class="md-nav__link">
     SpamAssasin
   </a>
@@ -1988,6 +1995,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#why-are-my-emails-not-being-delivered" class="md-nav__link">
+    Why are my emails not being delivered?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spamassasin" class="md-nav__link">
     SpamAssasin
   </a>
@@ -2273,6 +2287,18 @@ supervisorctl update
 <p>The default bantime is 180 days. This value can be <a href="../config/security/fail2ban/">customized</a>.</p>
 <h3 id="what-to-do-in-case-of-spfforwarding-problems"><a class="toclink" href="#what-to-do-in-case-of-spfforwarding-problems">What to do in case of SPF/Forwarding problems</a></h3>
 <p>If you got any problems with SPF and/or forwarding mails, give <a href="https://github.com/roehling/postsrsd/blob/master/README.rst">SRS</a> a try. You enable SRS by setting <code>ENABLE_SRS=1</code>. See the variable description for further information.</p>
+<h3 id="why-are-my-emails-not-being-delivered"><a class="toclink" href="#why-are-my-emails-not-being-delivered">Why are my emails not being delivered?</a></h3>
+<p>There are many reasons why email might be rejected, common causes are:</p>
+<ul>
+<li>Wrong or untrustworthy SSL certificate.</li>
+<li>A TLD (your domain) or IP address with a bad reputation.</li>
+<li>Misconfigured DNS records.</li>
+</ul>
+<p>DMS does not manage those concerns, verify they are not causing your delivery problems before reporting a bug on our issue tracker. Resources that can help you troubleshoot:</p>
+<ul>
+<li><a href="https://www.mail-tester.com/">mail-tester</a> can test your deliverability.</li>
+<li><a href="https://www.helloinbox.email/">helloinbox</a> provides a checklist of things to improve your deliverability.</li>
+</ul>
 <h3 id="spamassasin"><a class="toclink" href="#spamassasin">SpamAssasin</a></h3>
 <h4 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom SpamAssassin rules?</a></h4>
 <p>Antispam rules are managed in <code>docker-data/dms/config/spamassassin-rules.cf</code>.</p>
