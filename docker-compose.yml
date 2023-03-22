@@ -8,7 +8,7 @@ services:
     domainname: example.com
     env_file: mailserver.env
     # More information about the mail-server ports:
-    # https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/
+    # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/
     # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
     ports:
       - "25:25"    # SMTP  (explicit TLS => STARTTLS)
