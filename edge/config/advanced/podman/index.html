@@ -1752,7 +1752,7 @@ docker-compose ps
 <p>The <code>PERMIT_DOCKER</code> variable in the <code>mailserver.env</code> file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting <code>PERMIT_DOCKER=none</code> enforces authentication also from localhost, which prevents sending unauthenticated emails.</p>
 <h4 id="use-the-slip4netns-network-driver"><a class="toclink" href="#use-the-slip4netns-network-driver">Use the slip4netns network driver</a></h4>
 <p>The second workaround is slightly more complicated because the <code>docker-compose.yml</code> has to be modified.
-As shown in the <a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/#podman-with-slirp4netns-port-driver">fail2ban section</a> the <code>slirp4netns</code> network driver has to be enabled.
+As shown in the <a href="../../security/fail2ban/#podman-with-slirp4netns-port-driver">fail2ban section</a> the <code>slirp4netns</code> network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.</p>
 <p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>

@@ -1713,7 +1713,7 @@ chmod a+x ./setup.sh
 <li>if you want to use SELinux for the <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code> mount, append <code>-z</code> or <code>-Z</code></li>
 </ul>
 </li>
-<li>Configure the mailserver container to your liking by editing <code>mailserver.env</code> (<a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/"><strong>Documentation</strong></a>), but keep in mind this <code>.env</code> file:<ul>
+<li>Configure the mailserver container to your liking by editing <code>mailserver.env</code> (<a href="../config/environment/"><strong>Documentation</strong></a>), but keep in mind this <code>.env</code> file:<ul>
 <li><a href="https://docs.docker.com/compose/env-file/"><em>only</em> basic <code>VAR=VAL</code></a> is supported (<strong>do not</strong> quote your values)</li>
 <li>variable substitution is <strong>not</strong> supported (e.g. <img alt="🚫" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f6ab.svg" title=":no_entry_sign:" /> <code>OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME</code> <img alt="🚫" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f6ab.svg" title=":no_entry_sign:" />)</li>
 </ul>
@@ -1721,7 +1721,7 @@ chmod a+x ./setup.sh
 </ol>
 <div class="admonition info">
 <p class="admonition-title">Podman Support</p>
-<p>If you're using podman, make sure to read the related <a href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/">documentation</a></p>
+<p>If you're using podman, make sure to read the related <a href="../config/advanced/podman/">documentation</a></p>
 </div>
 <h2 id="get-up-and-running"><a class="toclink" href="#get-up-and-running">Get up and running</a></h2>
 <h3 id="first-things-first"><a class="toclink" href="#first-things-first">First Things First</a></h3>
