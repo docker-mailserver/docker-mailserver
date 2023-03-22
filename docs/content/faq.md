@@ -332,6 +332,19 @@ The default bantime is 180 days. This value can be [customized][fail2ban-customi
 
 If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.rst) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
 
+### Why are my emails not being delivered?
+
+There are many reasons why email might be rejected, common causes are:
+
+- Wrong or untrustworthy SSL certificate.
+- A TLD (your domain) or IP address with a bad reputation.
+- Misconfigured DNS records.
+
+DMS does not manage those concerns, verify they are not causing your delivery problems before reporting a bug on our issue tracker. Resources that can help you troubleshoot:
+
+- [mail-tester](https://www.mail-tester.com/) can test your deliverability.
+- [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
+
 ### SpamAssasin
 
 #### How can I manage my custom SpamAssassin rules?
