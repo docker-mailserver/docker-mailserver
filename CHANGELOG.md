@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. The format 
 ## [12.0.0](https://github.com/docker-mailserver/docker-mailserver/compare/v12.0.0...HEAD)
 
 Notable changes are:
+
 - Rspamd feature is promoted from preview status
 - Services no longer use `chroot`
 - Fail2Ban major version upgrade
@@ -31,6 +32,7 @@ Notable changes are:
   - add a dedicated page for tests with more information ([#3019](https://github.com/docker-mailserver/docker-mailserver/pull/3019))
 - add information to Logwatch's mailer so `Envelope From` is properly set ([#3081](https://github.com/docker-mailserver/docker-mailserver/pull/3081))
 - add vulnerability scanning workflow & security policy ([#3106](https://github.com/docker-mailserver/docker-mailserver/pull/3106))
+- Add tools (ping & dig) to the image ([2989](https://github.com/docker-mailserver/docker-mailserver/pull/2989))
 
 ### Updates
 
@@ -45,6 +47,7 @@ Notable changes are:
 - improve Amavis setup routine ([#3079](https://github.com/docker-mailserver/docker-mailserver/pull/3079))
 - completely refactor README & parts of docs ([#3097](https://github.com/docker-mailserver/docker-mailserver/pull/3097))
 - TLS setup (self-signed) error message now includes `SS_CA_CERT` ([#3168](https://github.com/docker-mailserver/docker-mailserver/pull/3168))
+- Better default value for SA_KILL variable ([#3058](https://github.com/docker-mailserver/docker-mailserver/pull/3058))
 
 ### Fixed
 
@@ -60,6 +63,11 @@ Notable changes are:
 - Dropping Postfix `chroot` mode:
   - Remove syslog socket created by Debian ([#3134](https://github.com/docker-mailserver/docker-mailserver/pull/3134))
   - Supervisor proxy signals for `postfix start-fg` via PID ([#3118](https://github.com/docker-mailserver/docker-mailserver/pull/3118))
+- Fixed several typos ([#2990](https://github.com/docker-mailserver/docker-mailserver/pull/2990)) ([#2993](https://github.com/docker-mailserver/docker-mailserver/pull/2993))
+- SRS setup fixed ([#3158](https://github.com/docker-mailserver/docker-mailserver/pull/3158))
+- Postsrsd restart loop fixed ([#3160](https://github.com/docker-mailserver/docker-mailserver/pull/3160))
+- Order of DKIM/DMARC milters matters ([#3082](https://github.com/docker-mailserver/docker-mailserver/pull/3082))
+- Make logrotate state persistant ([#3077](https://github.com/docker-mailserver/docker-mailserver/pull/3077))
 
 ### Changed
 
@@ -80,7 +88,7 @@ Notable changes are:
   - Stop using `chroot` + remove wrapper script ([#3033](https://github.com/docker-mailserver/docker-mailserver/pull/3033))
   - SMTP Authentication via port 25 disabled ([#3006](https://github.com/docker-mailserver/docker-mailserver/pull/3006))
 - Fail2Ban - Added support packages + remove wrapper script ([#3032](https://github.com/docker-mailserver/docker-mailserver/pull/3032))
-
+- Replace path with variable in mail_state.sh ([#3153](https://github.com/docker-mailserver/docker-mailserver/pull/3153))
 
 ### Removed
 
@@ -93,7 +101,6 @@ Notable changes are:
   - Makefile `backup` target ([#3000](https://github.com/docker-mailserver/docker-mailserver/pull/3000))
   - ENV `ENABLE_POSTFIX_VIRTUAL_TRANSPORT` ([#3004](https://github.com/docker-mailserver/docker-mailserver/pull/3004))
   - `gamin` package ([#3030](https://github.com/docker-mailserver/docker-mailserver/pull/3030))
-
 
 ## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
 
