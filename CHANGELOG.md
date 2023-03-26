@@ -44,12 +44,17 @@ Notable changes are:
 - improve the `clean` recipe (don't require `sudo` anymore) ([#3020](https://github.com/docker-mailserver/docker-mailserver/pull/3020))
 - improve Amavis setup routine ([#3079](https://github.com/docker-mailserver/docker-mailserver/pull/3079))
 - completely refactor README & parts of docs ([#3097](https://github.com/docker-mailserver/docker-mailserver/pull/3097))
+- TLS setup (self-signed) error message now includes `SS_CA_CERT` ([#3168](https://github.com/docker-mailserver/docker-mailserver/pull/3168))
 
 ### Fixed
 
 - `restrict-access` avoid inserting duplicates ([#3067](https://github.com/docker-mailserver/docker-mailserver/pull/3067))
 - correct the casing for Mime vs. MIME ([#3040](https://github.com/docker-mailserver/docker-mailserver/pull/3040))
-- Change detection speed-up via `reload` instead of process restarting ([#2947](https://github.com/docker-mailserver/docker-mailserver/pull/2947))
+- Dovecot:
+  - Quota plugin is now properly configured via `mail_plugins` at setup ([#2958](https://github.com/docker-mailserver/docker-mailserver/pull/2958))
+  - `quota-status` service (port 65265) now only binds to `127.0.0.1` ([#3057](https://github.com/docker-mailserver/docker-mailserver/pull/3057))
+- OpenDMARC - Change default policy to reject ([#2933](https://github.com/docker-mailserver/docker-mailserver/pull/2933))
+- Change Detection service - Use service `reload` instead of restarting process to minimize downtime ([#2947](https://github.com/docker-mailserver/docker-mailserver/pull/2947))
 - Slightly faster container startup via `postconf` workaround ([#2998](https://github.com/docker-mailserver/docker-mailserver/pull/2998))
 - Better group ownership to `/var/mail-state` + ClamAV in `Dockerfile` ([#3011](https://github.com/docker-mailserver/docker-mailserver/pull/3011))
 - Dropping Postfix `chroot` mode:
@@ -70,9 +75,12 @@ Notable changes are:
   - remove PostSRSD wrapper ([#3128](https://github.com/docker-mailserver/docker-mailserver/pull/3128))
   - miscellaneous small improvements ([#3144](https://github.com/docker-mailserver/docker-mailserver/pull/3144))
 - improve Postfix config for spoof protection ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127))
-- Change detection service - Remove 10 sec start-up delay ([#3064](https://github.com/docker-mailserver/docker-mailserver/pull/3064))
-- Postfix - Stop using `chroot` + remove wrapper script ([#3033](https://github.com/docker-mailserver/docker-mailserver/pull/3033))
+- Change Detection service - Remove 10 sec start-up delay ([#3064](https://github.com/docker-mailserver/docker-mailserver/pull/3064))
+- Postfix:
+  - Stop using `chroot` + remove wrapper script ([#3033](https://github.com/docker-mailserver/docker-mailserver/pull/3033))
+  - SMTP Authentication via port 25 disabled ([#3006](https://github.com/docker-mailserver/docker-mailserver/pull/3006))
 - Fail2Ban - Added support packages + remove wrapper script ([#3032](https://github.com/docker-mailserver/docker-mailserver/pull/3032))
+
 
 ### Removed
 
