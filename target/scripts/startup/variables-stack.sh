@@ -56,7 +56,7 @@ function __environment_variables_general_setup
   VARS[POSTGREY_TEXT]="${POSTGREY_TEXT:=Delayed by Postgrey}"
   VARS[POSTSCREEN_ACTION]="${POSTSCREEN_ACTION:=enforce}"
   VARS[RSPAMD_LEARN]="${RSPAMD_LEARN:=0}"
-  VARS[SA_KILL]=${SA_KILL:="6.31"}
+  VARS[SA_KILL]=${SA_KILL:="10.0"}
   VARS[SA_SPAM_SUBJECT]=${SA_SPAM_SUBJECT:="***SPAM*** "}
   VARS[SA_TAG]=${SA_TAG:="2.0"}
   VARS[SA_TAG2]=${SA_TAG2:="6.31"}

@@ -464,7 +464,7 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### SA_KILL
 
-- **6.31** => triggers spam evasive actions
+- **10.0** => triggers spam evasive actions
 
 !!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
 
