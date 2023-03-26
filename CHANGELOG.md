@@ -41,6 +41,12 @@ All notable changes to this project will be documented in this file. The format 
 
 - `restrict-access` avoid inserting duplicates ([#3067](https://github.com/docker-mailserver/docker-mailserver/pull/3067))
 - correct the casing for Mime vs. MIME ([#3040](https://github.com/docker-mailserver/docker-mailserver/pull/3040))
+- Change detection speed-up via `reload` instead of process restarting ([#2947](https://github.com/docker-mailserver/docker-mailserver/pull/2947))
+- Slightly faster container startup via `postconf` workaround ([#2998](https://github.com/docker-mailserver/docker-mailserver/pull/2998))
+- Better group ownership to `/var/mail-state` + ClamAV in `Dockerfile` ([#3011](https://github.com/docker-mailserver/docker-mailserver/pull/3011))
+- Dropping Postfix `chroot` mode:
+  - Remove syslog socket created by Debian ([#3134](https://github.com/docker-mailserver/docker-mailserver/pull/3134))
+  - Supervisor proxy signals for `postfix start-fg` via PID ([#3118](https://github.com/docker-mailserver/docker-mailserver/pull/3118))
 
 ### Changed
 
@@ -56,10 +62,22 @@ All notable changes to this project will be documented in this file. The format 
   - remove PostSRSD wrapper ([#3128](https://github.com/docker-mailserver/docker-mailserver/pull/3128))
   - miscellaneous small improvements ([#3144](https://github.com/docker-mailserver/docker-mailserver/pull/3144))
 - improve Postfix config for spoof protection ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127))
+- Change detection service - Remove 10 sec start-up delay ([#3064](https://github.com/docker-mailserver/docker-mailserver/pull/3064))
+- Postfix - Stop using `chroot` + remove wrapper script ([#3033](https://github.com/docker-mailserver/docker-mailserver/pull/3033))
+- Fail2Ban - Added support packages + remove wrapper script ([#3032](https://github.com/docker-mailserver/docker-mailserver/pull/3032))
 
 ### Removed
 
 - configomat (submodule) ([#3045](https://github.com/docker-mailserver/docker-mailserver/pull/3045))
+- Due to deprecation:
+  - ARMv7 image support ([#2943](https://github.com/docker-mailserver/docker-mailserver/pull/2943))
+  - TLS 1.2 is now the minimum supported protocol ([#2945](https://github.com/docker-mailserver/docker-mailserver/pull/2945))
+  - ENV `SASL_PASSWD` ([#2946](https://github.com/docker-mailserver/docker-mailserver/pull/2946))
+- Redundant:
+  - Makefile `backup` target ([#3000](https://github.com/docker-mailserver/docker-mailserver/pull/3000))
+  - ENV `ENABLE_POSTFIX_VIRTUAL_TRANSPORT` ([#3004](https://github.com/docker-mailserver/docker-mailserver/pull/3004))
+  - `gamin` package ([#3030](https://github.com/docker-mailserver/docker-mailserver/pull/3030))
+
 
 ## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
 
