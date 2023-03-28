@@ -14,6 +14,7 @@ function _setup_rspamd
     __rspamd__setup_clamav
     __rspamd__setup_default_modules
     __rspamd__setup_learning
+    __rspamd__setup_greylisting
     __rspamd__handle_user_modules_adjustments   # must run last
 
     _log 'trace' 'Rspamd setup finished'
@@ -139,7 +140,6 @@ function __rspamd__setup_default_modules
   local DISABLE_MODULES=(
     clickhouse
     elastic
-    greylist
     neural
     reputation
     spamassassin
@@ -198,6 +198,18 @@ EOF
     sievec "${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve"
   else
     __rspamd__log 'debug' 'Intelligent learning of spam and ham is disabled'
+  fi
+}
+
+# Sets up greylisting based on the environment variable RSPAMD_GREYLISTING.
+function __rspamd__setup_greylisting
+{
+  if [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
+  then
+    __rspamd__log 'debug' 'Enabling greylisting'
+    sed -i -E "s|(enabled =).*|\1 true;|g" /etc/rspamd/local.d/greylist.conf
+  else
+    __rspamd__log 'debug' 'Greylisting is disabled'
   fi
 }
 
