@@ -144,7 +144,7 @@ function _create_dovecot_alias_dummy_accounts
 
       if [[ -z ${REAL_ACC[1]} ]]
       then
-        dms_panic__misconfigured 'postfix-accounts.cf' 'alias configuration'
+        _dms_panic__misconfigured 'postfix-accounts.cf' 'alias configuration' 'immediate'
       fi
 
       # test if user has a defined quota

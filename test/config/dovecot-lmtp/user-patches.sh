@@ -3,12 +3,17 @@
 # This user script will be executed between configuration and starting daemons
 # To enable it you must save it in your config directory as "user-patches.sh"
 ##
+
 echo "[user-patches.sh] Changing Dovecot LMTP service listener from a unix socket to TCP on port 24"
-sedfile -i \
-  -e "s|unix_listener lmtp|inet_listener lmtp|" \
-  -e "s|mode = 0660|address = 0.0.0.0|" \
-  -e "s|group = postfix|port = 24|" \
-  /etc/dovecot/conf.d/10-master.conf
+
+cat >/etc/dovecot/conf.d/lmtp-master.inc << EOF
+service lmtp {
+  inet_listener lmtp {
+    address = 127.0.0.1
+    port = 24
+  }
+}
+EOF
 
 ### Before / After ###
 
@@ -21,7 +26,7 @@ sedfile -i \
 
 # service lmtp {
 #   inet_listener lmtp {
-#     address = 0.0.0.0
+#     address = 127.0.0.1
 #     port = 24
 #   }
 # }

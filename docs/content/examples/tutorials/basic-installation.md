@@ -129,9 +129,9 @@ In this setup `docker-mailserver` is not intended to receive email externally, s
               # Using letsencrypt for SSL/TLS certificates
               - SSL_TYPE=letsencrypt
               # Allow sending emails from other docker containers
-              # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#permit_docker
+              # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#permit_docker
               - PERMIT_DOCKER=network
-              # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/#spoof_protection
+              # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#spoof_protection
               # See step 8 below, which demonstrates setup with enabled/disabled SPOOF_PROTECTION:
               - SPOOF_PROTECTION=0
             cap_add:

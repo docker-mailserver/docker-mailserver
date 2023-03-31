@@ -12,7 +12,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
-`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders) for more information.
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
 
 ### How do I update DMS?
 
@@ -331,6 +331,19 @@ The default bantime is 180 days. This value can be [customized][fail2ban-customi
 ### What to do in case of SPF/Forwarding problems
 
 If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.rst) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
+
+### Why are my emails not being delivered?
+
+There are many reasons why email might be rejected, common causes are:
+
+- Wrong or untrustworthy SSL certificate.
+- A TLD (your domain) or IP address with a bad reputation.
+- Misconfigured DNS records.
+
+DMS does not manage those concerns, verify they are not causing your delivery problems before reporting a bug on our issue tracker. Resources that can help you troubleshoot:
+
+- [mail-tester](https://www.mail-tester.com/) can test your deliverability.
+- [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
 ### SpamAssasin
 

@@ -39,12 +39,13 @@ function _register_functions
 
   # ? >> Setup
 
-  _register_setup_function '_setup_file_permissions'
+  _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]
   then
     _register_setup_function '_setup_dovecot'
+    _register_setup_function '_setup_dovecot_sieve'
     _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
   fi
@@ -60,11 +61,11 @@ function _register_functions
       ;;
 
     ( 'OIDC' )
-      _shutdown 'OIDC user account provisioning is not yet implemented'
+      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented' '' 'immediate'
       ;;
 
     ( * )
-      _shutdown "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
+      _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER" '' 'immediate'
       ;;
   esac
 
@@ -81,6 +82,7 @@ function _register_functions
   _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
 
   _register_setup_function '_setup_security_stack'
+  _register_setup_function '_setup_spam_to_junk'
   _register_setup_function '_setup_rspamd'
 
   _register_setup_function '_setup_ssl'
@@ -127,8 +129,8 @@ function _register_functions
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
   [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
-  [[ ${ENABLE_REDIS}            -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
-  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_redis'
+  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
+  [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
   [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
 
   # needs to be started before SASLauthd

@@ -6,7 +6,7 @@ title: Home
 
 !!! info "This Documentation is Versioned"
 
-    **Make sure** to select the correct version of this documentation! It should match the version of the image you are using. The default version corresponds to the `:edge` image tag - [the most recent build, not the most recent stable release][docs-tagging].
+    **Make sure** to select the correct version of this documentation! It should match the version of the image you are using. The default version corresponds to the `:latest` image tag - [the most recent stable release][docs-tagging].
 
 This documentation provides you not only with the basic setup and configuration of DMS but also with advanced configuration, elaborate usage scenarios, detailed examples, hints and more.
 
