@@ -50,7 +50,7 @@ You can find a list of all Rspamd modules [on their website][modules].
 
 #### Disabled By Default
 
-DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.
+DMS disables certain modules (clickhouse, elastic, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.
 
 #### Anti-Virus (ClamAV)
 
