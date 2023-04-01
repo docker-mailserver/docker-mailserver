@@ -4,7 +4,7 @@ title: 'Security | Rspamd'
 
 !!! warning "The current state of Rspamd integration into DMS"
 
-    Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be (breaking) changes ahead as integration is still work in progress!
+    Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be changes ahead as integration is still work in progress!
 
     We expect to stabilize this feature with version `v12.1.0`.
 
@@ -16,16 +16,19 @@ If you want to have a look at the default configuration files for Rspamd that DM
 
 !!! note "AMD64 vs ARM64"
 
-    We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference is two minor versions (AMD64 is at version 3.4, ARM64 at 3.2 \[13th Feb 2023\]).
+    We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference as of 1st Apr 2023: AMD64 is at version 3.5 | ARM64 is at version 3.4.
 
-    Maintainers noticed only few differences, some of them with a big impact though. For those running Rspamd on ARM64, we recommend [disabling](#with-the-help-of-a-custom-file) the [DKIM signing module][dkim-signing-module] if you don't use it.
+## Related Environment Variables
 
 The following environment variables are related to Rspamd:
 
 1. [`ENABLE_RSPAMD`](../environment.md#enable_rspamd)
 2. [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis)
-3. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
-4. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
+3. [`RSPAMD_GREYLISTING`](../environment.md#rspamd_greylisting)
+4. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
+5. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
+
+With these variables, you can enable Rspamd itself and you can enable / disable certain features related to Rspamd.
 
 ## The Default Configuration
 
@@ -136,8 +139,8 @@ Rspamd is running, but you want or need to adjust it?
 By default, DMS offers no option to generate and configure signing e-mails with DKIM. This is because the parsing would be difficult. But don't worry: the process is relatively straightforward nevertheless. The [official Rspamd documentation for the DKIM signing module][dkim-signing-module] is pretty good. Basically, you need to
 
 1. `exec` into the container
-2. Run a command similar to `rspamadm dkim_keygen -s 'woosh' -b 2048 -d example.com -k example.private > example.txt`, adjusted to your needs
-3. Make sure to then persists the files `example.private` and `example.txt` (created in step 2) in the container (for example with a Docker bind mount)
+2. Run a command similar to `rspamadm dkim_keygen -s selector -b 2048 -d example.com -k private_key_file > public_key_file`, adjusted to your needs
+3. Make sure to then persists the files `private_key_file` and `public_key_file` (created in step 2) in the container (for example with a Docker bind mount)
 4. Create a configuration for the DKIM signing module, i.e. a file called `dkim_signing.conf` that you mount to `/etc/rspamd/local.d/` or `/etc/rspamd/override.d/`. We provide example configurations down below. We recommend mounting this file into the container as well (as described [here](#manually)); do not use [`rspamd-modules.conf`](#with-the-help-of-a-custom-file) for this purpose.
 
 ??? example "DKIM Signing Module Configuration Examples"
@@ -159,8 +162,8 @@ By default, DMS offers no option to generate and configure signing e-mails with 
 
     domain {
         example.com {
-            path = "/path/to/example.private";
-            selector = "woosh";
+            path = "/path/to/private_key_file";
+            selector = "selector";
         }
     }
     ```

@@ -334,8 +334,8 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 
 Controls whether the [Rspamd Greylisting module][rspamd-greylisting-module] is enabled. This module can further assist in avoiding spam emails by [greylisting] e-mails with a certain spam score.
 
-- **0** => disabled
-- 1 => enabled
+- **0** => Disabled
+- 1 => Enabled
 
 [rspamd-greylisting-module]: https://rspamd.com/doc/modules/greylisting.html
 [greylisting]: https://en.wikipedia.org/wiki/Greylisting_(email)

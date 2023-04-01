@@ -207,7 +207,7 @@ function __rspamd__setup_greylisting
   if [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Enabling greylisting'
-    sed -i -E "s|(enabled =).*|\1 true;|g" /etc/rspamd/local.d/greylist.conf
+    sedfile -i -E "s|(enabled =).*|\1 true;|g" /etc/rspamd/local.d/greylist.conf
   else
     __rspamd__log 'debug' 'Greylisting is disabled'
   fi
