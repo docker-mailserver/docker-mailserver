@@ -114,7 +114,6 @@ nav:
   - 'Usage': usage.md
   - 'Configuration':
     - 'Environment Variables': config/environment.md
-    - 'Your Best Friend setup.sh': config/setup.sh.md
     - 'User Management':
       - 'Accounts': config/user-management/accounts.md
       - 'Aliases': config/user-management/aliases.md
@@ -132,6 +131,7 @@ nav:
     - 'Troubleshooting':
       - 'Debugging': config/troubleshooting/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md
+    - 'Your Friend setup.sh': config/setup.sh.md
     - 'Advanced Configuration':
         - 'Optional Configuration': config/advanced/optional-config.md
         - 'Maintenance':
