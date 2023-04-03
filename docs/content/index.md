@@ -10,7 +10,7 @@ title: Home
 
 This documentation provides you not only with the basic setup and configuration of DMS but also with advanced configuration, elaborate usage scenarios, detailed examples, hints and more.
 
-[docs-tagging]: ./usage/#available-images-tags-tagging-convention
+[docs-tagging]: ./usage.md#tagging-convention
 
 ## About
 
