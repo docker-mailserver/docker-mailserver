@@ -77,21 +77,11 @@ In the previous section, different components were outlined. Each one of those i
 2. **Transfer** (aka. **Relay**): for an MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where an MTA will forward data to an MDA).
 3. **Retrieval**: for a MUA (client), the act of fetching actual email data over the network, from an MDA.
 
-Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports (see. [_Understanding the ports_][docs-understandports] for more details). Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
+Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports - see our article about [**Understanding the Ports**][docs-understandports] for more details! Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
 
 When it comes to the specifics of email exchange, we have to look at protocols and ports enabled to support all the identified purposes. There are several valid options and they've been evolving overtime.
 
 ### Overview
-
-| Purpose        | Protocol | Port    | Encryption               | Enabled by Default |
-|----------------|----------|---------|--------------------------|--------------------|
-| Transfer/Relay | SMTP     | 25/tcp  | Unencrypted              | Yes                |
-| Submission     | ESMTP    | 465/tcp | Implicit TLS             | Yes                |
-| Submission     | ESMTP    | 587/tcp | Encrypted using STARTTLS | Yes                |
-| Retrieval      | IMAP4    | 143/tcp | Encrypted using STARTTLS | Yes                |
-| Retrieval      | IMAP4    | 993/tcp | Implicit TLS             | Yes                |
-| Retrieval      | POP3     | 110/tcp | Encrypted using STARTTLS | No                 |
-| Retrieval      | POP3     | 995/tcp | Implicit TLS             | No                 |
 
 The following picture gives a visualization of the interplay of all components and their respective ports:
 
@@ -145,11 +135,7 @@ Me ---------------> ┤                    ├ -----------------> ┊           
 
 #### Outward Submission - SMTP
 
-The best practice as of 2020 when it comes to securing Outward Submission is to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Let's break it down.
-
-- Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS][wikipedia-tls]. With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go (TLS is implied, hence the name "Implicit"). Any client attempting to either submit email in cleartext (unencrypted, not secure), or requesting a cleartext connection to be upgraded to a TLS-encrypted one using `STARTTLS`, is to be denied. Implicit TLS is sometimes called Enforced TLS for that reason.
-- [ESMTP][wikipedia-esmtp] is [SMTP][wikipedia-smtp] + extensions. It's the version of the SMTP protocol that a mail server commonly communicates with today. For the purpose of this documentation, ESMTP and SMTP are synonymous.
-- Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.
+The best practice as of 2020 when it comes to securing Outward Submission is to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Please read our article about [**Understanding the Ports**][docs-understandports] for more details!
 
 !!! warning
 
@@ -237,7 +223,6 @@ Eventually, it is up to _you_ deciding exactly what kind of transportation/encry
 [wikipedia-clientserver]: https://en.wikipedia.org/wiki/Client%E2%80%93server_model
 [wikipedia-email]: https://en.wikipedia.org/wiki/Email
 [wikipedia-emailagent]: https://en.wikipedia.org/wiki/Email_agent_(infrastructure)
-[wikipedia-esmtp]: https://en.wikipedia.org/wiki/ESMTP
 [wikipedia-imap]: https://en.wikipedia.org/wiki/IMAP
 [wikipedia-imaps]: https://en.wikipedia.org/wiki/IMAPS
 [wikipedia-mda]: https://en.wikipedia.org/wiki/Mail_delivery_agent
@@ -249,4 +234,3 @@ Eventually, it is up to _you_ deciding exactly what kind of transportation/encry
 [wikipedia-smtps]: https://en.wikipedia.org/wiki/SMTPS
 [wikipedia-starttls]: https://en.wikipedia.org/wiki/Opportunistic_TLS
 [wikipedia-tcp]: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
-[wikipedia-tls]: https://en.wikipedia.org/wiki/Transport_Layer_Security

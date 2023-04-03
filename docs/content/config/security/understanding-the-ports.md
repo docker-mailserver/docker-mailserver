@@ -8,9 +8,9 @@ Prefer Implicit TLS ports, they're more secure and if you use a Reverse Proxy, s
 
 !!! info "About Ports 465 & 587"
 
-    Because there seems to be a lot of misconception and confusion when it comes to port 465, we would like to clarify some of the issues that we frequently encounter in issues and discussions.
+    Because there seems to be a lot of misconception and confusion when it comes to port 465, we would like to clarify some of the concerns that we frequently encounter in issues and discussions.
 
-    It is true that port 465 was historically assigned another protocol but then revoked. Nowadays (3 April 2023), it serves the ESMPT (SMTP with extensions) protocol via submission(s) using implicit TLs. Now this is a lot to digest; and why do we recommend using port 465 over 587? Here is a very brief explanation of why 465 is - from a technical & security perspective - the best port:
+    It is true that port 465 was historically assigned another protocol but then revoked. Nowadays (3 April 2023), it serves the ESMPT protocol for submission using Implicit TLS. But why do we recommend using port 465 over 587? Here is a very brief explanation of why 465 is - from a technical & security perspective - the best port:
 
     - port 25 is a plaintext, i.e. unencrypted, port - it is a relic from a time where traffic was sent in plain text, and something we (sadly) still need
     - port 587 is a well-known port that starts unencrypted but by issuing the STARTTLS command, new traffic will encrypted (afterwards); this is sub-optimal though, because in a wrong configuration, TLS is not enforced! With DMS though, port 587 is correctly configured by default and is no worse and no better than port 465.
@@ -20,12 +20,12 @@ Prefer Implicit TLS ports, they're more secure and if you use a Reverse Proxy, s
 
 ## Overview of Email Ports
 
-| Protocol | Explicit TLS<sup>1</sup> | Implicit TLS    | Purpose              |
-|----------|--------------------------|-----------------|----------------------|
-| SMTP     | 25                       | N/A             | Transfer<sup>2</sup> |
-| ESMTP    | 587                      | 465<sup>3</sup> | Submission           |
-| POP3     | 110                      | 995             | Retrieval            |
-| IMAP4    | 143                      | 993             | Retrieval            |
+| Protocol | Explicit TLS<sup>1</sup> | Implicit TLS    | Purpose              | Enabled by Default |
+|----------|--------------------------|-----------------|----------------------|--------------------|
+| SMTP     | 25                       | N/A             | Transfer<sup>2</sup> | Yes                |
+| ESMTP    | 587                      | 465<sup>3</sup> | Submission           | Yes                |
+| POP3     | 110                      | 995             | Retrieval            | No                 |
+| IMAP4    | 143                      | 993             | Retrieval            | Yes                |
 
 1. A connection _may_ be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured. Port 25 is [required][ref-port25-mandatory] to support insecure connections.
 2. Receives email, `docker-mailserver` additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the _submission_ ports(465, 587) - which require authentication. Unless a relay host is configured(eg SendGrid), outgoing email will leave the server via port 25(thus outbound traffic must not be blocked by your provider or firewall).
@@ -72,7 +72,7 @@ flowchart LR
 - **Port 25:** Send the email directly to the given email address MTA as possible. Like your own `docker-mailserver` port 25, this is the standard port for receiving email on, thus email will almost always arrive to the final MTA on this port. Note that, there may be additional MTAs further in the chain, but this would be the public facing one representing that email address.
 - **Port 465 (and 587):** SMTP Relays are a popular choice to hand-off delivery of email through. Services like SendGrid are useful for bulk email(marketing) or when your webhost or ISP are preventing you from using standard ports like port 25 to send out email(which can be abused by spammers).
 
-  `docker-mailserver` can serve as a relay too, but the difference between a DIY relay and a professional service is reputation, which is referenced by MTAs you're delivering to such as Outlook, Gmail or others(perhaps another `docker-mailserver` server!), when deciding if email should be marked as junked or potentially not delivered at all. As a service like SendGrid has a reputation to maintain, relay is restricted to registered users who must authenticate(even on port 25), they do not store email, merely forward it to another MTA which could be delivered on a different port like 25.
+`docker-mailserver` can serve as a relay too, but the difference between a DIY relay and a professional service is reputation, which is referenced by MTAs you're delivering to such as Outlook, Gmail or others(perhaps another `docker-mailserver` server!), when deciding if email should be marked as junked or potentially not delivered at all. As a service like SendGrid has a reputation to maintain, relay is restricted to registered users who must authenticate(even on port 25), they do not store email, merely forward it to another MTA which could be delivered on a different port like 25.
 
 ### Explicit vs Implicit TLS
 
@@ -91,6 +91,14 @@ Communication is always encrypted, avoiding the above mentioned issues with Expl
 You may know of these ports as **SMTPS, POP3S, IMAPS**, which indicate the protocol in combination with a TLS connection. However, Explicit TLS ports provide the same benefit when `STARTTLS` is successfully negotiated; Implicit TLS better communicates the improved security to all three protocols (SMTP/POP3/IMAP over Implicit TLS).
 
 Additionally, referring to port 465 as SMTPS would be incorrect, as it is a submissions port requiring authentication to proceed via ESMTP, whereas ESMTPS has a different meaning (STARTTLS supported). Port 25 may lack Implicit TLS, but can be configured to be more secure between trusted parties via MTA-STS, STARTTLS Policy List, DNSSEC and DANE.
+
+#### Port 465
+
+We would also like to give a quick breakdown of port 465's Implicit TLS again:
+
+- Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS][wikipedia-tls]. With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go (TLS is implied, hence the name "Implicit"). Any client attempting to either submit email in cleartext (unencrypted, not secure), or requesting a cleartext connection to be upgraded to a TLS-encrypted one using `STARTTLS`, is to be denied. Implicit TLS is sometimes called Enforced TLS for that reason.
+- [ESMTP][wikipedia-esmtp] is [SMTP][wikipedia-smtp] + extensions. It's the version of the SMTP protocol that a mail server commonly communicates with today. For the purpose of this documentation, ESMTP and SMTP are synonymous.
+- Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.
 
 ## Security
 
@@ -112,3 +120,6 @@ Other machines that facilitate a connection that generally aren't taken into acc
 [ref-port25-mandatory]: https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages
 [rfc-8314]: https://tools.ietf.org/html/rfc8314
 [rfc-8314-s41]: https://tools.ietf.org/html/rfc8314#section-4.1
+[wikipedia-esmtp]: https://en.wikipedia.org/wiki/ESMTP
+[wikipedia-smtp]: https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol
+[wikipedia-tls]: https://en.wikipedia.org/wiki/Transport_Layer_Security
