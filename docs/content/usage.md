@@ -2,7 +2,9 @@
 title: Usage
 ---
 
-This pages explains how to get started with DMS, basically explaining how you can use it. The procedure uses Docker Compose as a reference. In our examples, [`/docker-data/dms/config/`](../faq/#what-about-the-docker-datadmsmail-state-folder) on the host is mounted to `/tmp/docker-mailserver/` inside the container.
+This pages explains how to get started with DMS, basically explaining how you can use it. The procedure uses Docker Compose as a reference. In our examples, [`/docker-data/dms/config/`][docs-datadmsmail-state-folder] on the host is mounted to `/tmp/docker-mailserver/` inside the container.
+
+[docs-datadmsmail-state-folder]: ../faq/#what-about-the-docker-datadmsmail-state-folder
 
 ## Preliminary Steps
 
@@ -56,29 +58,14 @@ $ dig @1.1.1.1 +short -x 11.22.33.44
 mail.example.com
 ```
 
-### Advanced DNS Setup
-
-If you're a newcoming to DNS, you might want to skip this part and come back later. If you're familiar with DNS or mail servers, you may just go ahead and add these records. You want to have three additional TXT records, one for SPF, one for DKIM and one for DMARC. These records are subject to a lot of debate and misunderstandings. Because we want to stay brief, we will only show a minimal configuration and give you [this link][cloudflare-spf-dkim-dmarc] for an explanation. Note that you will only be able to create a DKIM record once you [generated DKIM keys](#dkim-keys).
-
-```console
-$ dig @1.1.1.1 +short TXT example.com
-"v=spf1 mx -all"
-$ dig @1.1.1.1 +short TXT dkim-rsa._domainkey.example.com
-"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ..."
-$ dig @1.1.1.1 +short TXT _dmarc.example.com
-"v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1"
-```
-
-[cloudflare-spf-dkim-dmarc]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
-
 ## Deploying the Actual Image
 
 ### Tagging Convention
 
-To understand which tags you should use, read this section carefully. [CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions) will automatically build, test and push new images to container registries. Currently, the following registries are supported:
+To understand which tags you should use, read this section carefully. [CI/CD] will automatically build, test and push new images to container registries. Currently, the following registries are supported:
 
-1. DockerHub ([`docker.io/mailserver/docker-mailserver`](https://hub.docker.com/r/mailserver/docker-mailserver))
-2. GitHub Container Registry ([`ghcr.io/docker-mailserver/docker-mailserver`](https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver))
+1. DockerHub ([`docker.io/mailserver/docker-mailserver`][dockerhub-image])
+2. GitHub Container Registry ([`ghcr.io/docker-mailserver/docker-mailserver`][ghcr-image])
 
 All workflows are using the tagging convention listed below. It is subsequently applied to all images.
 
@@ -86,6 +73,10 @@ All workflows are using the tagging convention listed below. It is subsequently 
 |-------------------------|-------------------------------|
 | `push` on `master`      | `edge`                        |
 | `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest` |
+
+[CI/CD]: https://github.com/docker-mailserver/docker-mailserver/actions
+[dockerhub-image]: https://hub.docker.com/r/mailserver/docker-mailserver
+[ghcr-image]: https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
 
 ### Get the Tools
 
@@ -97,15 +88,18 @@ Issue the following commands to acquire the necessary files:
 
 ``` BASH
 TAG='v11.3.1'
-DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/${TAG}/"
+DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/${TAG}"
 wget "${DMS_GITHUB_URL}/docker-compose.yml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
 ```
 
-Then edit `docker-compose.yml` to your liking; substitute `mail.example.com` according to your FQDN, and if you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`. Then configure the environment specific to the mail server by editing [`mailserver.env`](../config/environment/), but keep in mind that:
+Then edit `docker-compose.yml` to your liking; substitute `mail.example.com` according to your FQDN, and if you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:
 
-- [_only_ basic `VAR=VAL`](https://docs.docker.com/compose/env-file/) is supported (**do not** quote your values)
+- [_only_ basic `VAR=VAL`][docker-compose-env-file] is supported (**do not** quote your values)
 - variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
+
+[docs-environment]: ./config/environment.md
+[docker-compose-env-file]: https://docs.docker.com/compose/env-file/
 
 ### Get Up and Running
 
@@ -140,7 +134,7 @@ You are able to get a full overview of how the configuration works by running `d
     ...
     ```
 
-On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running `docker exec -ti <CONTAINER NAME> setup email add <user@example.com`. That's it! **It really is that easy**.
+On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running `docker exec -ti <CONTAINER NAME> setup email add <user@example.com`. **That's it! It really is that easy**.
 
 ## Further Miscellaneous Steps
 
@@ -168,24 +162,40 @@ In case you're using LDAP, the setup looks a bit different as you do not add use
 docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
 ```
 
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](./config/best-practices/dkim.md) for more details.
+When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-signing] for more details.
 
+[dkim-signing-setup]: https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim
 [rspamd-dkim-signing]: ./config/security/rspamd.md#dkim-signing
+[docs-dkim-signing]: ./config/best-practices/dkim.md
+
+### Advanced DNS Setup
+
+You will very likely want to have three additional TXT records: one for SPF, one for DKIM and one for DMARC. Because we want to stay brief, and well-written explanations already exist, we give you [this link][cloudflare-spf-dkim-dmarc] to read up on the topic.
+
+The following illustrates what a (rather strict) set of records could look like:
+
+```console
+$ dig @1.1.1.1 +short TXT example.com
+"v=spf1 mx -all"
+$ dig @1.1.1.1 +short TXT dkim-rsa._domainkey.example.com
+"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ..."
+$ dig @1.1.1.1 +short TXT _dmarc.example.com
+"v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1"
+```
+
+[cloudflare-spf-dkim-dmarc]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 
 ### Custom User Changes & Patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation](./faq.md/#how-to-adjust-settings-with-the-user-patchessh-script) for a detailed explanation.
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation][docs-user-patches] for a detailed explanation.
+
+[docs-user-patches]: ./faq.md#how-to-adjust-settings-with-the-user-patchessh-script
 
 ## Testing
 
 Here are some tools you can use to verify your configuration:
 
-1. [MX Toolbox]
-2. [DMARC Analyzer]
-3. [mail-tester.com]
-4. [multiRBL.valli.org]
-
-[MX Toolbox]: https://mxtoolbox.com/SuperTool.aspx
-[DMARC Analyzer]: https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/
-[mail-tester.com]: https://www.mail-tester.com/
-[multiRBL.valli.org]: https://multirbl.valli.org/
+1. [MX Toolbox](https://mxtoolbox.com/SuperTool.aspx)
+2. [DMARC Analyzer](https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/)
+3. [mail-tester.com](https://www.mail-tester.com/)
+4. [multiRBL.valli.org](https://multirbl.valli.org/)
