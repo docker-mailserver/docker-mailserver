@@ -233,6 +233,22 @@ Yes, by adding the environment variable `PERMIT_DOCKER: network`.
 
     Adding the Docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
 
+### My Connection is Refused / I Do No Get a Response At All
+
+You see errors like "Connection Refused" and "Connection closed by foreign host", or you cannot connect at all? You may not be able to connect with your mail client (MUA)? Make sure to check Fail2Ban did not ban you (for exceeding the number of tried logins for example)! You can run
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban
+```
+
+and check whether your IP address appears. Use
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban unban <YOUR IP>
+```
+
+to unban the IP address.
+
 ### How can I authenticate users with `SMTP_ONLY=1`?
 
 See [#1247][github-issue-1247] for an example.
