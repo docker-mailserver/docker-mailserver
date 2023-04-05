@@ -125,11 +125,13 @@ My MTA will thus have to support two kinds of Submission:
 
 ```txt
  ┏━━━━ Outward Submission ━━━━┓
+
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me ---------------> ┤                    ├ -----------------> ┊                 ┊
                     │       My MTA       │                    ┊ Third-party MTA ┊
                     │                    ├ <----------------- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+
                                ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
 ```
 

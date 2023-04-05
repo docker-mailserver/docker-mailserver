@@ -25,7 +25,7 @@ On the host, you should have a suitable container runtime (like _Docker_ or _Pod
 
 !!! info "Podman Support"
 
-    If you're using podman, make sure to read the related [documentation](../config/advanced/podman/)
+    If you're using podman, make sure to read the related [documentation](../config/advanced/podman/).
 
 [docs-introduction-ports]: ./introduction.md#overview
 [docker-compose]: https://docs.docker.com/compose/
@@ -134,7 +134,7 @@ You are able to get a full overview of how the configuration works by running `d
     ...
     ```
 
-On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running `docker exec -ti <CONTAINER NAME> setup email add <user@example.com`. **That's it! It really is that easy**.
+On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running `docker exec -ti <CONTAINER NAME> setup email add user@example.com`. **That's it! It really is that easy**.
 
 ## Further Miscellaneous Steps
 

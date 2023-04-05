@@ -6,17 +6,16 @@ title: 'Security | Understanding the Ports'
 
 Prefer Implicit TLS ports, they're more secure and if you use a Reverse Proxy, should be less hassle (although it's probably wiser to expose these ports directly to `docker-mailserver`).
 
-!!! info "About Ports 465 & 587"
+!!! info "The Infamous Port 465"
 
-    Because there seems to be a lot of misconception and confusion when it comes to port 465, we would like to clarify some of the concerns that we frequently encounter in issues and discussions.
+    Because there seems to be a lot of misconception and confusion when it comes to port 465, we would like to clarify some of the concerns that we frequently encounter in issues and discussions once and for all.
 
-    It is true that port 465 was historically assigned another protocol but then revoked. Nowadays (3 April 2023), it serves the ESMPT protocol for submission using Implicit TLS. But why do we recommend using port 465 over 587? Here is a very brief explanation of why 465 is - from a technical & security perspective - the best port:
+    It is true that port 465 was historically assigned another protocol but then revoked. Nowadays (5 April 2023), it serves the ESMPT protocol for submission using Implicit TLS. So why do we recommend using port 465 (over 587)? It is - from a technical & security perspective - just better than port 587:
 
-    - port 25 is a plaintext, i.e. unencrypted, port - it is a relic from a time where traffic was sent in plain text, and something we (sadly) still need
-    - port 587 is a well-known port that starts unencrypted but by issuing the STARTTLS command, new traffic will encrypted (afterwards); this is sub-optimal though, because in a wrong configuration, TLS is not enforced! With DMS though, port 587 is correctly configured by default and is no worse and no better than port 465.
-    - port 465 is a not-too-well-known port that offers implicit TLS, i.e. traffic will always be encrypted, no matter what. This is - at least we as the maintainers of DMS think this way - the best option for everyone.
+    - Traffic on port 587 starts unencrypted but by issuing the STARTTLS command, new traffic will encrypted (afterwards); this is sub-optimal, because in a wrong configuration, TLS is not enforced! With DMS though, port 587 is correctly configured by default.
+    - Port 465 offers implicit TLS, i.e. traffic will always be encrypted, no matter what. This is superior to optional encryption.
 
-    **The truth is**: you will probably need to expose all of these ports in order for your mail server to properly work with other mail servers!
+    **Please remember**: you will probably need to expose all of these ports (25 for transfer, 465 & 587 for submission) in order for your mail server to properly work with other mail servers!
 
 ## Overview of Email Ports
 
