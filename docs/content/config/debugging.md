@@ -10,8 +10,6 @@ This page contains valuable information when it comes to resolving issues you en
 
     Please consider contributing solutions to the [FAQ][docs-faq] :heart:
 
-[docs-faq]: ../../faq.md
-
 ## Preliminary Information
 
 1. **Sent mail is never received?** Some hosting provides have a stealth block on port 25. Make sure to check with your hosting provider that traffic on port 25 is allowed. Common hosting providers known to have this issue:
@@ -28,6 +26,7 @@ This page contains valuable information when it comes to resolving issues you en
 6. **Try a clean install**: If you just started with DMS, and your setup just won't work, ry starting afresh.
 7. **Debug a running container**: You may want to debug a running container. In this case, you want to go inside the container (using `docker exec -ti <CONTAINER NAME> bash`). In case you want to install software, you need to run `apt-get update` before using `apt-get install <PACKAGE>`! If you need an editor, install `vim` or `nano`. It is always a good idea to `tail` / `cat` as many logs as possible and search through them for issues - you do not need to install software for this.
 
-[docs-environment-log-level]: ../environment.md#log_level
+[docs-faq]: ../faq.md
+[docs-environment-log-level]: ./environment.md#log_level
 [docs-introduction]: ../introduction.md
 [docs-usage]: ../usage.md
