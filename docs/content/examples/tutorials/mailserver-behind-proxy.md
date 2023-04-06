@@ -60,7 +60,7 @@ Feel free to add your configuration if you achieved the same goal using differen
     version: '3.8'
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail
         domainname: example.com

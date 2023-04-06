@@ -61,7 +61,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
       version: '3.8'
       services:
         mailserver:
-          image: docker.io/mailserver/docker-mailserver:latest
+          image: ghcr.io/docker-mailserver/docker-mailserver:latest
           container_name: mailserver
           hostname: mail
           domainname: example.com
@@ -134,7 +134,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
           - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
     ```
@@ -144,7 +144,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
 The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in conjunction with [Apache Solr](https://lucene.apache.org/solr/) running in a separate container. This is quite straightforward to setup using the following instructions.
 
-Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email. 
+Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email.
 
 However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](https://solr.apache.org/guide/7_0/query-settings-in-solrconfig.html), it may require a bit of testing to get it right.
 
@@ -162,7 +162,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
       mailserver:
         depends_on:
           - solr
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         ...
         volumes:
           ...

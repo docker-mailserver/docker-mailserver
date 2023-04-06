@@ -445,7 +445,7 @@ The following configuration works nicely:
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
           - ./docker-data/dms/cron/sa-learn:/etc/cron.d/sa-learn
     ```
@@ -457,7 +457,7 @@ The following configuration works nicely:
 
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         # ...
         configs:
           - source: my_sa_crontab

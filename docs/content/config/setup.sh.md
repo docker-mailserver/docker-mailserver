@@ -40,7 +40,7 @@ DESCRIPTION
 
     Please note that the script executes most of the commands inside the container itself.
     If the image was not found, this script will pull the ':latest' tag of
-    'mailserver/docker-mailserver'. This tag refers to the latest release,
+    'docker.io/mailserver/docker-mailserver'. This tag refers to the latest release,
     see the tagging convention in the README under
     https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 

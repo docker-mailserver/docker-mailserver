@@ -19,7 +19,7 @@ In the example above, we've added 2 mail accounts for 2 different domains. Conse
 docker run --rm \
   -e MAIL_USER=user1@example.com \
   -e MAIL_PASS=mypassword \
-  -it mailserver/docker-mailserver:latest \
+  -it ghcr.io/docker-mailserver/docker-mailserver:latest \
   /bin/sh -c 'echo "$MAIL_USER|$(doveadm pw -s SHA512-CRYPT -u $MAIL_USER -p $MAIL_PASS)"' >> docker-data/dms/config/postfix-accounts.cf
 ```
 

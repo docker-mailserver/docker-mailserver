@@ -10,7 +10,7 @@ You'll need to retrieve the git submodules prior to building your own Docker ima
 
 ```sh
 git submodule update --init --recursive
-docker build -t mailserver/docker-mailserver .
+docker build -t <YOUR CUSTOM IMAGE NAME> .
 ```
 
 Or, you can clone and retrieve the submodules in one command:
@@ -37,4 +37,3 @@ The `Dockerfile` takes additional, so-called build arguments. These are
 2. `VCS_REVISION`: the image revision (default = unknown)
 
 When using `make` to build the image, these are filled with proper values. You can build the image without supplying these arguments just fine though.
-
