@@ -13,7 +13,7 @@ body:
 
         Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts.
 
-        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. The maintainers and moderators are volunteers that need you to fill this template with accurate informations in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly. Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
+        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. The maintainers and moderators are volunteers that need you to fill this template with accurate information in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly. Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
 
         **Make sure** you read through our [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
 
