@@ -1,10 +1,9 @@
 name: Bug report
 description: File a bug report
-title: "[BUG] "
+title: '[BUG] '
 labels:
-  - kind/bug
-  - meta/needs triage
-  - priority/medium
+  - kind/bug/report
+  - meta/bug/needs triage
 
 body:
   - type: markdown
@@ -14,34 +13,23 @@ body:
 
         Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts.
 
-        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. The maintainers and moderators are volunteers that need you to fill this template with accurate informations in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly.
+        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. The maintainers and moderators are volunteers that need you to fill this template with accurate information in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly. Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
 
-        **Make sure** you read through the whole [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md), the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
+        **Make sure** you read through our [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
 
-        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
-
-        ## Levels of support
-
-        We provide official support for
-
-        1. OS/ARCH: Linux on AMD64 (x86_64) and ARM64 (AArch64)
-        2. Containerization platform: Docker and Docker Compose (i.e. based on Docker Engine)
-
-        Other configurations are not officially supported, but there are maintainers that may be able to help you. This is the case for
-
-        1. OS/ARCH: macOS
-        2. Containerization platform: Kubernetes (K8s)
-
-        Support for these cases is dependent on specific maintainers, and these cases are marked with `not officially supported`. All other cases are not supported and there are very likely no maintainers that can help you. These cases are marked with `unsupported`.
+        We provide official support for all options not marked with "not officially supported" or "unsupported". When something is "not officially supported", support for these cases is dependent on specific maintainers.
+        ---
   - type: checkboxes
-    id: miscellaneous-first-checks
+    id: preliminary-checks
     attributes:
-      label: Miscellaneous first checks
+      label: Preliminary Checks
       description: Please read these carefully.
       options:
         - label: I checked that all ports are open and not blocked by my ISP / hosting provider.
           required: true
         - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
+          required: true
+        - label: I read the [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue.
           required: true
   - type: input
     id: affected-components

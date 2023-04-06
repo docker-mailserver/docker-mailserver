@@ -1,0 +1,26 @@
+name: Other
+description: Miscellaneous questions and reports
+title: '[OTHER] '
+labels:
+  - meta/help wanted
+
+body:
+  - type: dropdown
+    id: subject
+    attributes:
+      label: Subject
+      options:
+        - I would like to contribute to the project
+        - I would like to configure a not documented mail server use case
+        - I would like some feedback concerning a use case
+        - I have questions about TLS/SSL/STARTTLS/OpenSSL
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Tell us more. Markdown formatting is supported.
+    validations:
+      required: true
