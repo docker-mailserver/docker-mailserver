@@ -831,4 +831,4 @@ you to replace both instead of just the envelope sender.
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
-[docs-accounts]: ./user-management/accounts.md#notes
+[docs-accounts]: ./user-management.md#accounts
