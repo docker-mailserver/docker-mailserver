@@ -78,7 +78,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 [dockerhub-image]: https://hub.docker.com/r/mailserver/docker-mailserver
 [ghcr-image]: https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
 
-### Get the Tools
+### Get All Files
 
 !!! note "`setup.sh` Not Required Anymore"
 
@@ -87,16 +87,20 @@ All workflows are using the tagging convention listed below. It is subsequently 
 Issue the following commands to acquire the necessary files:
 
 ``` BASH
-TAG='v11.3.1'
-DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/${TAG}"
+DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/latest"
 wget "${DMS_GITHUB_URL}/docker-compose.yml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
 ```
 
-Then edit `docker-compose.yml` to your liking; substitute `mail.example.com` according to your FQDN, and if you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:
+### Configuration Steps
 
-- [_only_ basic `VAR=VAL`][docker-compose-env-file] is supported (**do not** quote your values)
-- variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
+1. First edit `docker-compose.yml` to your liking
+    - Substitute `mail.example.com` according to your FQDN.
+    - If you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`.
+2. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:
+    - only [basic `VAR=VAL`][docker-compose-env-file] is supported
+    - do not quote your values
+    - variable substitution is not supported, e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` does not work
 
 [docs-environment]: ./config/environment.md
 [docker-compose-env-file]: https://docs.docker.com/compose/env-file/
