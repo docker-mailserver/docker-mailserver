@@ -1,10 +1,18 @@
 name: Other
 description: Miscellaneous questions and reports
-title: '[OTHER] '
+title: 'other: '
 labels:
   - meta/help wanted
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
+
+        Be as precise as possible, and if in doubt, it's best to add more information that too few.
+
+        ---
   - type: dropdown
     id: subject
     attributes:
@@ -21,6 +29,5 @@ body:
     id: description
     attributes:
       label: Description
-      description: Tell us more. Markdown formatting is supported.
     validations:
       required: true

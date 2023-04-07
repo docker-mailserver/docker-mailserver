@@ -1,6 +1,6 @@
 name: Feature Request
 description: Suggest an idea for this project
-title: '[FR] '
+title: 'feature request: '
 labels:
   - kind/new feature
   - meta/needs triage
@@ -11,25 +11,21 @@ body:
       value: |
         Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
 
+        Be as precise as possible, and if in doubt, it's best to add more information that too few.
+
         ---
   - type: textarea
     id: context
     attributes:
       label: Context
-    validations:
-      required: true
-  - type: textarea
-    id: relations
-    attributes:
-      label: Relations
-      description: Is your request related to a problem?
+      description: Tell us how your request is related to DMS, one of its components or another issue / PR. Also **link all conected issues and PRs here**!
     validations:
       required: true
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: Describe the solution you would like
+      description: Describe the solution you would like to have implemented. Be as precise as possible!
     validations:
       required: true
   - type: textarea
@@ -59,12 +55,6 @@ body:
     id: contribution
     attributes:
       label: What are you going to contribute?
-    validations:
-      required: true
-  - type: textarea
-    id: already-done
-    attributes:
-      label: Already Done
-      description: Tell us what you have already done.
+      description: You may also tell us what you have already done.
     validations:
       required: true
