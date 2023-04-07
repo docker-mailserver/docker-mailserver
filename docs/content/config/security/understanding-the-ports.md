@@ -27,7 +27,7 @@ Prefer Implicit TLS ports, they're more secure and if you use a Reverse Proxy, s
 | IMAP4    | 143                      | 993             | Retrieval            | Yes                |
 
 1. A connection _may_ be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured. Port 25 is [required][ref-port25-mandatory] to support insecure connections.
-2. Receives email, `docker-mailserver` additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the _submission_ ports(465, 587) - which require authentication. Unless a relay host is configured(eg SendGrid), outgoing email will leave the server via port 25(thus outbound traffic must not be blocked by your provider or firewall).
+2. Receives email, `docker-mailserver` additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the _submission_ ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (_thus outbound traffic must not be blocked by your provider or firewall_).
 3. A _submission_ port since 2018 ([RFC 8314][rfc-8314]). Previously a secure variant of port 25.
 
 ### What Ports Should I Use? (SMTP)

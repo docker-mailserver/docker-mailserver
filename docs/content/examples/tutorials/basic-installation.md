@@ -28,8 +28,6 @@ services:
       - ENABLE_RSPAMD=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
-      - ENABLE_POSTGREY=0
-      - ENABLE_SPAMASSASSIN=0
     cap_add:
       - NET_ADMIN # For Fail2Ban to work
     restart: always

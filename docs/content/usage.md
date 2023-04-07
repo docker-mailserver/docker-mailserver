@@ -2,9 +2,9 @@
 title: Usage
 ---
 
-This pages explains how to get started with DMS, basically explaining how you can use it. The procedure uses Docker Compose as a reference. In our examples, [`/docker-data/dms/config/`][docs-datadmsmail-state-folder] on the host is mounted to `/tmp/docker-mailserver/` inside the container.
+This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs-dms-config-volume] to `/tmp/docker-mailserver/` inside the container.
 
-[docs-datadmsmail-state-folder]: ../faq/#what-about-the-docker-datadmsmail-state-folder
+[docs-dms-config-volume]: ./config/advanced/optional-config/
 
 ## Preliminary Steps
 
@@ -15,19 +15,20 @@ Before you can get started with deploying your own mail server, there are some r
 
 ### Host Setup
 
-Your host computer should fullfil a few requirements. If it doesn't, you will either need a workaround or a new host.
+There are a few requirements for a suitable host system:
 
 1. The host should have a static IP address; otherwise you will need to dynamically update DNS (undesirable due to DNS caching)
-2. The host should be able to send/receive on the ports listed in [this part of our documentation][docs-introduction-ports]
+2. The host should be able to send/receive on the [necessary ports for mail][docs-ports-overview]
 3. You should be able to set a `PTR` record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.
 
 On the host, you should have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation].
 
 !!! info "Podman Support"
 
-    If you're using podman, make sure to read the related [documentation](../config/advanced/podman/).
+    If you're using podman, make sure to read the related [documentation][docs-podman].
 
-[docs-introduction-ports]: ./introduction.md#overview
+[docs-podman]: ./config/advanced/podman.md
+[docs-ports-overview]: ./config/security/understanding-the-ports.md#overview-of-email-ports
 [docker-compose]: https://docs.docker.com/compose/
 [docker-compose-installation]: https://docs.docker.com/compose/install/
 
@@ -43,9 +44,12 @@ Now let's say you just bought `example.com` and you want to be able to send and 
 
 We will later dig into DKIM, DMARC & SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:
 
-1. The MX record tells everyone which (DNS) name is responsible for e-mails on your domain. Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`. This does not imply your e-mails will look like `test@mail.example.com`; the DNS name of your mail server is decoupled of the domain it serves e-mails for. In theory, you mail server could even serve e-mails for `test@someotherdomain.com`, if the MX record for `someotherdomain.com` contained `mail.example.com`.
-2. The A record just tells everyone which IP address the DNS name `mail.example.com` resolves to.
-3. The PTR record it the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
+- The **MX record** tells everyone which (DNS) name is responsible for e-mails on your domain.
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.  
+    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.  
+    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.  
+- The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
+- The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
 
 If you setup everything, it should roughly look like this:
 
@@ -62,7 +66,7 @@ mail.example.com
 
 ### Tagging Convention
 
-To understand which tags you should use, read this section carefully. [CI/CD] will automatically build, test and push new images to container registries. Currently, the following registries are supported:
+To understand which tags you should use, read this section carefully. [Our CI][github-ci] will automatically build, test and push new images to the following container registries:
 
 1. DockerHub ([`docker.io/mailserver/docker-mailserver`][dockerhub-image])
 2. GitHub Container Registry ([`ghcr.io/docker-mailserver/docker-mailserver`][ghcr-image])
@@ -74,7 +78,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 | `push` on `master`      | `edge`                        |
 | `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest` |
 
-[CI/CD]: https://github.com/docker-mailserver/docker-mailserver/actions
+[github-ci]: https://github.com/docker-mailserver/docker-mailserver/actions
 [dockerhub-image]: https://hub.docker.com/r/mailserver/docker-mailserver
 [ghcr-image]: https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
 
@@ -113,7 +117,7 @@ wget "${DMS_GITHUB_URL}/mailserver.env"
 
     Using `Ctrl+C` **is not supported either**!
 
-You are able to get a full overview of how the configuration works by running `docker run --rm ghcr.io/docker-mailserver/docker-mailserver:${TAG} setup help`, which provides you with all the information on configuration.
+For an overview of commands to manage DMS config, run: `docker exec -it <CONTAINER NAME> setup help`.
 
 ??? info "Usage of `setup.sh` when no DMS Container Is Running"
 
@@ -144,7 +148,10 @@ On first start, you will need to add at least one email account (unless you're u
 
 ### Aliases
 
-You will likely want to add at least one alias, the postmaster alias. This is a common convention, but not strictly required - you may create arbitrary aliases. Just run
+You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
+
+[docs-aliases]: ./config/user-management/aliases.md
+[docs-env-postmaster]: ./config/environment.md#postmaster_address
 
 ```bash
 docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@example.com
@@ -174,7 +181,7 @@ When keys are generated, you can configure your DNS server by just pasting the c
 
 ### Advanced DNS Setup
 
-You will very likely want to have three additional TXT records: one for SPF, one for DKIM and one for DMARC. Because we want to stay brief, and well-written explanations already exist, we give you [this link][cloudflare-spf-dkim-dmarc] to read up on the topic.
+You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc].
 
 The following illustrates what a (rather strict) set of records could look like:
 

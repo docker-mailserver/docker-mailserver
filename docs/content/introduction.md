@@ -71,19 +71,19 @@ The exact relationship between all the components and their respective (sometime
 
 ### Introduction
 
-In the previous section, different components were outlined. Each one of those is responsible for a specific task, it has a specific purpose. Three main purposes exist when it comes to exchanging emails:
+In the previous section, three components were outlined. Each one of those is responsible for a specific task when it comes to exchanging emails:
 
-1. **Submission**: for a MUA (client), the act of sending actual email data over the network, toward an MTA (server).
-2. **Transfer** (aka. **Relay**): for an MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where an MTA will forward data to an MDA).
-3. **Retrieval**: for a MUA (client), the act of fetching actual email data over the network, from an MDA.
+- **Submission**: for a MUA (client), the act of sending actual email data over the network, toward an MTA (server).
+- **Transfer** (aka. **Relay**): for an MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where an MTA will forward data to an MDA).
+- **Retrieval**: for a MUA (client), the act of fetching actual email data over the network, from an MDA.
 
-Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports - see our article about [**Understanding the Ports**][docs-understandports] for more details! Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
+Postfix handles **Submission** (_and may handle **Relay**_), whereas Dovecot handles **Retrieval**. They both need to be accessible by MUAs in order to act as servers, therefore they expose public [endpoints on specific TCP ports][docs-understandports]. Those endpoints _may_ be secured, using an encryption scheme and TLS certificates.
 
 When it comes to the specifics of email exchange, we have to look at protocols and ports enabled to support all the identified purposes. There are several valid options and they've been evolving overtime.
 
 ### Overview
 
-The following picture gives a visualization of the interplay of all components and their respective ports:
+The following picture gives a visualization of the interplay of all components and their [respective ports][docs-understandports]:
 
 ```txt
  ┏━━━━━━━━━━ Submission ━━━━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
@@ -103,7 +103,7 @@ MUA <---- STARTTLS ------- ┤(143)   MDA ╯        |
 If you're new to email infrastructure, both that table and the schema may be confusing.
 Read on to expand your understanding and learn about `docker-mailserver`'s configuration, including how you can customize it.
 
-### Submission
+### Submission - SMTP
 
 For a MUA to send an email to an MTA, it needs to establish a connection with that server, then push data packets over a network that both the MUA (client) and the MTA (server) are connected to. The server implements the [SMTP][wikipedia-smtp] protocol, which makes it capable of handling _Submission_.
 
@@ -135,7 +135,7 @@ Me ---------------> ┤                    ├ -----------------> ┊           
                                ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
 ```
 
-#### Outward Submission - SMTP
+#### Outward Submission
 
 The best practice as of 2020 when it comes to securing Outward Submission is to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Please read our article about [**Understanding the Ports**][docs-understandports] for more details!
 
@@ -173,7 +173,7 @@ Overall, `docker-mailserver`'s default configuration for SMTP looks like this:
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me -- cleartext --> ┤(25)            (25)├ --- cleartext ---> ┊                 ┊
 Me -- TLS      ---> ┤(465)  My MTA       │                    ┊ Third-party MTA ┊
-Me -- STARTTLS ---> ┤(587)               │                    ┊ Third-party MTA ┊
+Me -- STARTTLS ---> ┤(587)               │                    ┊                 ┊
                     │                (25)├ <---cleartext ---- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 
@@ -207,7 +207,6 @@ As a _batteries included_ container image, `docker-mailserver` provides you with
 - Simple customization is supported through [docker-compose configuration][github-file-compose] and the [env-mailserver][github-file-envmailserver] configuration file.
 - Advanced customization is supported through providing "monkey-patching" configuration files and/or [deriving your own image][github-file-dockerfile] from `docker-mailserver`'s upstream, for a complete control over how things run.
 
-On the subject of security, one might consider `docker-mailserver`'s **default** configuration to _not_ be 100% secure as it enables unencrypted traffic on port 25. We believe `docker-mailserver`'s default configuration to be a good middle ground: it goes slightly beyond "old" (1999) [RFC 2487][rfc-2487]; and with developer friendly configuration settings, it makes it pretty easy to abide by the "newest" (2018) [RFC 8314][rfc-8314].
 
 Eventually, it is up to _you_ deciding exactly what kind of transportation/encryption to use and/or enforce, and to customize your instance accordingly (with looser or stricter security). Be also aware that protocols and ports on your server can only go so far with security; third-party MTAs might relay your emails on insecure connections, man-in-the-middle attacks might still prove effective, etc. Advanced counter-measure such as DANE, MTA-STS and/or full body encryption (eg. PGP) should be considered as well for increased confidentiality, but ideally without compromising backwards compatibility so as to not block emails.
 
