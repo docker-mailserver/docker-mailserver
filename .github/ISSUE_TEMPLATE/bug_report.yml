@@ -1,6 +1,6 @@
-name: Bug report
+name: Bug Report
 description: File a bug report
-title: '[BUG] '
+title: 'bug report: '
 labels:
   - kind/bug/report
   - meta/bug/needs triage
@@ -11,13 +11,14 @@ body:
       value: |
         # Filing a report
 
-        Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts.
+        Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts. Maintainers and moderators are volunteers that need you to fill this template with accurate information in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly.
 
-        Please **fill out all the fields and checkboxes of this form** to make it easier for maintainers to understand the problem and to solve it. The maintainers and moderators are volunteers that need you to fill this template with accurate information in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly. Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
+        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
 
-        **Make sure** you read through our [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) before opening a new bug report.
+        Be as precise as possible, and if in doubt, it's best to add more information that too few.
 
         We provide official support for all options not marked with "not officially supported" or "unsupported". When something is "not officially supported", support for these cases is dependent on specific maintainers.
+
         ---
   - type: checkboxes
     id: preliminary-checks
@@ -28,6 +29,10 @@ body:
         - label: I checked that all ports are open and not blocked by my ISP / hosting provider.
           required: true
         - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
+          required: true
+        - label: I searched the issue tracker but was unable to find my issue.
+          required: true
+        - label: I read the [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue.
           required: true
         - label: I read the [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue.
           required: true
