@@ -97,7 +97,6 @@ We would also like to give a quick breakdown of port 465's Implicit TLS again:
 
 - Implicit TLS means the server _enforces_ the client into using an encrypted TCP connection, using [TLS][wikipedia-tls]. With this kind of connection, the MUA _has_ to establish a TLS-encrypted connection from the get go (TLS is implied, hence the name "Implicit"). Any client attempting to either submit email in cleartext (unencrypted, not secure), or requesting a cleartext connection to be upgraded to a TLS-encrypted one using `STARTTLS`, is to be denied. Implicit TLS is sometimes called Enforced TLS for that reason.
 - [ESMTP][wikipedia-esmtp] is [SMTP][wikipedia-smtp] + extensions. It's the version of the SMTP protocol that a mail server commonly communicates with today. For the purpose of this documentation, ESMTP and SMTP are synonymous.
-- Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.
 
 ## Security
 

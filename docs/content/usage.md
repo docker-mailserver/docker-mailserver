@@ -121,7 +121,7 @@ For an overview of commands to manage DMS config, run: `docker exec -it <CONTAIN
 
 ??? info "Usage of `setup.sh` when no DMS Container Is Running"
 
-    We encourage you to directly use `setup` inside the container (for instructions, see `docker exec -ti <CONTAINER NAME> setup help`). If you still want to use `setup.sh`, here's some information about it.
+    We encourage you to directly use `setup` inside the container (like shown above). If you still want to use `setup.sh`, here's some information about it.
 
     If no DMS container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current _stable_ release), performing a `docker pull ...` if necessary followed by running the command in a temporary container:
 

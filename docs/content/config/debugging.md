@@ -1,5 +1,5 @@
 ---
-title: 'Troubleshooting | Debugging'
+title: 'Debugging'
 hide:
     - toc
 ---

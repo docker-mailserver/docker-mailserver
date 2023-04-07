@@ -137,7 +137,7 @@ Me ---------------> ┤                    ├ -----------------> ┊           
 
 #### Outward Submission
 
-The best practice as of 2020 when it comes to securing Outward Submission is to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Please read our article about [**Understanding the Ports**][docs-understandports] for more details!
+When it comes to securing Outward Submission you should prefer to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Please read our article about [**Understanding the Ports**][docs-understandports] for more details!
 
 !!! warning
 
