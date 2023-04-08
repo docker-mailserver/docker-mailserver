@@ -120,11 +120,11 @@ In the second scenario, a third-party email account owner will be first submitti
 
 My MTA will thus have to support two kinds of Submission:
 
-- Outward Submission (self-owned email is submitted directly to the MTA, then is relayed "outside")
-- Inward Submission (third-party email has been submitted & relayed, then is accepted "inside" by the MTA)
+- Outbound Submission (self-owned email is submitted directly to the MTA, then is relayed "outside")
+- Inbound Submission (third-party email has been submitted & relayed, then is accepted "inside" by the MTA)
 
 ```txt
- ┏━━━━ Outward Submission ━━━━┓
+ ┏━━━━ Outbound Submission ━━━━┓
 
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me ---------------> ┤                    ├ -----------------> ┊                 ┊
@@ -132,12 +132,12 @@ Me ---------------> ┤                    ├ -----------------> ┊           
                     │                    ├ <----------------- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 
-                               ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
+                               ┗━━━━━━━━━━ Inbound Submission ━━━━━━━━━━┛
 ```
 
-#### Outward Submission
+#### Outbound Submission
 
-When it comes to securing Outward Submission you should prefer to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Please read our article about [**Understanding the Ports**][docs-understandports] for more details!
+When it comes to securing Outbound Submission you should prefer to use _Implicit TLS connection via ESMTP on port 465_ (see [RFC 8314][rfc-8314]). Please read our article about [**Understanding the Ports**][docs-understandports] for more details!
 
 !!! warning
 
@@ -147,28 +147,28 @@ Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cuttin
 
 In many implementations, the mail server doesn't enforce TLS encryption, for backwards compatibility. Clients are thus free to deny the TLS-upgrade proposal (or [misled by a hacker](https://security.stackexchange.com/questions/168998/what-happens-if-starttls-dropped-in-smtp) about STARTTLS not being available), and the server accepts unencrypted (cleartext) mail exchange, which poses a confidentiality threat and, to some extent, spam issues. [RFC 8314 (section 3.3)][rfc-8314-s33] recommends for a mail server to support both Implicit and Explicit TLS for Submission, _and_ to enforce TLS-encryption on ports 587 (Explicit TLS) and 465 (Implicit TLS). That's exactly `docker-mailserver`'s default configuration: abiding by RFC 8314, it [enforces a strict (`encrypt`) STARTTLS policy](http://www.postfix.org/postconf.5.html#smtpd_tls_security_level), where a denied TLS upgrade terminates the connection thus (hopefully but at the client's discretion) preventing unencrypted (cleartext) Submission.
 
-- **`docker-mailserver`'s default configuration enables and _requires_ Explicit TLS (STARTTLS) on port 587 for Outward Submission.**
-- It does not enable Implicit TLS Outward Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.
+- **`docker-mailserver`'s default configuration enables and _requires_ Explicit TLS (STARTTLS) on port 587 for Outbound Submission.**
+- It does not enable Implicit TLS Outbound Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.
 - It does not support old MUAs (clients) not supporting TLS encryption on ports 587/465 (those should perform Submission on port 25, more details below). One may relax that constraint through advanced custom configuration, for backwards compatibility.
 
-A final Outward Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (cleartext) mail exchange though, making STARTTLS a bit wrong to use. As is expected by [RFC 5321][rfc-5321], `docker-mailserver` uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.
+A final Outbound Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (cleartext) mail exchange though, making STARTTLS a bit wrong to use. As is expected by [RFC 5321][rfc-5321], `docker-mailserver` uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.
 
-- **`docker-mailserver`'s default configuration also enables unencrypted (cleartext) on port 25 for Outward Submission.**
-- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Outward Submission.
-- One may also secure Outward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
+- **`docker-mailserver`'s default configuration also enables unencrypted (cleartext) on port 25 for Outbound Submission.**
+- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Outbound Submission.
+- One may also secure Outbound Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
 
-#### Inward Submission
+#### Inbound Submission
 
-Granted it's still very difficult enforcing encryption between MTAs (Transfer/Relay) without risking dropping emails (when relayed by MTAs not supporting TLS-encryption), Inward Submission is to be handled in cleartext on port 25 by default.
+Granted it's still very difficult enforcing encryption between MTAs (Transfer/Relay) without risking dropping emails (when relayed by MTAs not supporting TLS-encryption), Inbound Submission is to be handled in cleartext on port 25 by default.
 
-- **`docker-mailserver`'s default configuration enables unencrypted (cleartext) on port 25 for Inward Submission.**
-- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Inward Submission.
-- One may also secure Inward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
+- **`docker-mailserver`'s default configuration enables unencrypted (cleartext) on port 25 for Inbound Submission.**
+- It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Inbound Submission.
+- One may also secure Inbound Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.
 
 Overall, `docker-mailserver`'s default configuration for SMTP looks like this:
 
 ```txt
- ┏━━━━ Outward Submission ━━━━┓
+ ┏━━━━ Outbound Submission ━━━━┓
 
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me -- cleartext --> ┤(25)            (25)├ --- cleartext ---> ┊                 ┊
@@ -177,7 +177,7 @@ Me -- STARTTLS ---> ┤(587)               │                    ┊           
                     │                (25)├ <---cleartext ---- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 
-                               ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
+                               ┗━━━━━━━━━━ Inbound Submission ━━━━━━━━━━┛
 ```
 
 ### Retrieval - IMAP
