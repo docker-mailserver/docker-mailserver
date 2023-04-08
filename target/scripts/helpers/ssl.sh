@@ -342,7 +342,7 @@ function _setup_ssl
       # | http://www.postfix.org/postconf.5.html#smtpd_tls_auth_only | http://www.postfix.org/TLS_README.html#server_tls_auth
       #
       # smtp_tls_wrappermode (default: not applied, 'no') | http://www.postfix.org/postconf.5.html#smtp_tls_wrappermode
-      # smtpd_tls_wrappermode (default: 'yes' for service port 'smtps') | http://www.postfix.org/postconf.5.html#smtpd_tls_wrappermode
+      # smtpd_tls_wrappermode (default: 'yes' for service port 'submissions') | http://www.postfix.org/postconf.5.html#smtpd_tls_wrappermode
       # NOTE: Enabling wrappermode requires a security_level of 'encrypt' or stronger. Port 465 presently does not meet this condition.
       #
       # Postfix main.cf (base config):
@@ -353,7 +353,7 @@ function _setup_ssl
       #
       # Postfix master.cf (per connection overrides):
       # Disables implicit TLS on port 465 for inbound (smtpd) and outbound (smtp) traffic. Treats it as equivalent to port 25 SMTP with explicit STARTTLS.
-      # Inbound 465 (aka service port aliases: submissions / smtps) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
+      # Inbound 465 (aka service port aliases: submissions) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
       # Outbound 465 as alternative to port 587 when sending to another MTA (with authentication), such as a relay service (eg SendGrid).
       sedfile -i -r \
         -e "/smtpd?_tls_security_level/s|=.*|=none|" \
