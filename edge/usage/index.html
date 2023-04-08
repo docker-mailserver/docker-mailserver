@@ -520,6 +520,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#setting-up-tls" class="md-nav__link">
+    Setting up TLS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#aliases" class="md-nav__link">
     Aliases
   </a>
@@ -1694,6 +1701,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#setting-up-tls" class="md-nav__link">
+    Setting up TLS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#aliases" class="md-nav__link">
     Aliases
   </a>
@@ -1783,9 +1797,9 @@
 <p>We will later dig into DKIM, DMARC &amp; SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:</p>
 <ul>
 <li>The <strong>MX record</strong> tells everyone which (DNS) name is responsible for e-mails on your domain.
-    Because you want to keep the option of running another service on the domain name itself, you run your mail server on <code>mail.example.com</code>.<br />
-    This does not imply your e-mails will look like <code>test@mail.example.com</code>, the DNS name of your mail server is decoupled of the domain it serves e-mails for.<br />
-    In theory, you mail server could even serve e-mails for <code>test@some-other-domain.com</code>, if the MX record for <code>some-other-domain.com</code> points to <code>mail.example.com</code>.  </li>
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on <code>mail.example.com</code>.
+    This does not imply your e-mails will look like <code>test@mail.example.com</code>, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
+    In theory, you mail server could even serve e-mails for <code>test@some-other-domain.com</code>, if the MX record for <code>some-other-domain.com</code> points to <code>mail.example.com</code>.</li>
 <li>The <strong>A record</strong> tells everyone which IP address the DNS name <code>mail.example.com</code> resolves to.</li>
 <li>The <strong>PTR record</strong> is the counterpart of the A record, telling everyone what name the IP address <code>11.22.33.44</code> resolves to.</li>
 </ul>
@@ -1872,6 +1886,8 @@ wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</s
 </details>
 <p>On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running <code>docker exec -ti &lt;CONTAINER NAME&gt; setup email add user@example.com</code>. <strong>That's it! It really is that easy</strong>.</p>
 <h2 id="further-miscellaneous-steps"><a class="toclink" href="#further-miscellaneous-steps">Further Miscellaneous Steps</a></h2>
+<h3 id="setting-up-tls"><a class="toclink" href="#setting-up-tls">Setting up TLS</a></h3>
+<p>You definitely want to setup TLS. Please refer to <a href="../config/security/ssl/">our documentation about TLS</a>.</p>
 <h3 id="aliases"><a class="toclink" href="#aliases">Aliases</a></h3>
 <p>You should add at least one <a href="../config/user-management/aliases/">alias</a>, the <a href="../config/environment/#postmaster_address"><em>postmaster alias</em></a>. This is a common convention, but not strictly required.</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>postmaster@example.com<span class="w"> </span>user@example.com
