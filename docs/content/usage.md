@@ -4,7 +4,7 @@ title: Usage
 
 This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs-dms-config-volume] to `/tmp/docker-mailserver/` inside the container.
 
-[docs-dms-config-volume]: ./config/advanced/optional-config/
+[docs-dms-config-volume]: ./config/advanced/optional-config.md
 
 ## Preliminary Steps
 
@@ -156,6 +156,7 @@ docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@exa
 ### DKIM Keys
 
 You can (_and you should_) generate DKIM keys. For more information:
+
 - DKIM [with OpenDKIM][docs-dkim-opendkim] (_enabled by default_)
 - DKIM [with Rspamd][docs-dkim-rspamd] (_when using `ENABLE_RSPAMD=1`_)
 

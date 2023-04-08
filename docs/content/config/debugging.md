@@ -15,6 +15,7 @@ This page contains valuable information when it comes to resolving issues you en
 ### Mail sent from DMS does not arrive at destination
 
 Some service providers block outbound traffic on port 25. Common hosting providers known to have this issue:
+
 - [Azure](https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity)
 - [AWS EC2](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/)
 - [Vultr](https://www.vultr.com/docs/what-ports-are-blocked/)
@@ -36,6 +37,7 @@ To get a shell inside the container run: `docker exec -it <CONTAINER NAME> bash`
 If you need more flexibility than `docker logs` offers, within the container `/var/log/mail/mail.log` and `/var/log/supervisor/` are the most useful locations to get relevant DMS logs. Use the `tail` or `cat` commands to view their contents.
 
 To install additional software:
+
 - `apt-get update` is needed to update repository metadata.
 - `apt-get install <PACKAGE>`
 - For example if you need a text editor, `nano` is a good package choice for beginners.
