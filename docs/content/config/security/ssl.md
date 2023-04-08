@@ -27,8 +27,8 @@ After installation, you can test your setup with:
 
 An [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (_Fully Qualified Domain Name_) such as `mail.example.com` is required for `docker-mailserver` to function correctly, especially for looking up the correct SSL certificate to use.
 
-- `mail.example.com` will still uses `user@example.com` as the mail address.
-- We usually advise not to use a bare domain (_DNS MX record does not point to a subdomain_) for your `docker-mailserver`, but [just `example.com` is supported][docs-faq-baredomain].
+- `mail.example.com` will still use `user@example.com` as the mail address. You do not need a bare domain for that.
+- We usually discourage assigning a bare domain (_When your DNS MX record does not point to a subdomain_) to represent `docker-mailserver`. However, an FQDN of [just `example.com` is also supported][docs-faq-baredomain].
 - Internally, `hostname -f` will be used to retrieve the FQDN as configured in the below examples.
 - Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencrypt`. Your configured FQDN below may be `mail.example.com`, and your wildcard certificate provisioned to `/etc/letsencrypt/live/example.com` which will be checked as a fallback FQDN by `docker-mailserver`.
 
