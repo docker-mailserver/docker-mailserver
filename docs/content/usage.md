@@ -84,10 +84,6 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
 ### Get All Files
 
-!!! note "`setup.sh` Not Required Anymore"
-
-    Since DMS `v10.2.0`, [`setup.sh` functionality](../faq/#how-to-adjust-settings-with-the-user-patchessh-script) is included within the container image. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead.
-
 Issue the following commands to acquire the necessary files:
 
 ``` BASH
