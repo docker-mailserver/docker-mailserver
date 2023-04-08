@@ -14,8 +14,14 @@
       
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/usage/">
       
+      
+        <link rel="prev" href="../introduction/">
+      
+      
+        <link rel="next" href="../config/environment/">
+      
       <link rel="icon" href="../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.5">
     
     
       
@@ -23,13 +29,13 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.7a7fce14.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
-        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
       
       
+
     
     
     
@@ -44,10 +50,11 @@
     
       <link rel="stylesheet" href="../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
+    
     
     
   </head>
@@ -72,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#available-images-tags-tagging-convention" class="md-skip">
+        <a href="#preliminary-steps" class="md-skip">
           Skip to content
         </a>
       
@@ -81,10 +88,8 @@
       
     </div>
     
-      <div data-md-component="outdated" hidden>
-        <aside class="md-banner md-banner--warning">
-          
-        </aside>
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
       </div>
     
     
@@ -120,7 +125,6 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          
           <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
@@ -128,7 +132,6 @@
             </label>
           
         
-          
           
           <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
           
@@ -155,7 +158,7 @@
       </label>
       <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
@@ -167,7 +170,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -179,7 +182,7 @@
         <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     docker-mailserver
@@ -198,7 +201,7 @@
           
             
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-tabs__inner md-grid">
+  <div class="md-grid">
     <ul class="md-tabs__list">
       
         
@@ -363,7 +366,7 @@
       <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     docker-mailserver
@@ -414,7 +417,7 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
       
@@ -441,44 +444,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-images-tags-tagging-convention" class="md-nav__link">
-    Available Images / Tags - Tagging Convention
+  <a href="#preliminary-steps" class="md-nav__link">
+    Preliminary Steps
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get-the-tools" class="md-nav__link">
-    Get the Tools
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#create-a-docker-compose-environment" class="md-nav__link">
-    Create a docker-compose Environment
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get-up-and-running" class="md-nav__link">
-    Get up and running
-  </a>
-  
-    <nav class="md-nav" aria-label="Get up and running">
+    <nav class="md-nav" aria-label="Preliminary Steps">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#first-things-first" class="md-nav__link">
-    First Things First
+  <a href="#host-setup" class="md-nav__link">
+    Host Setup
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#starting-for-the-first-time" class="md-nav__link">
-    Starting for the first time
+  <a href="#minimal-dns-setup" class="md-nav__link">
+    Minimal DNS Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-the-actual-image" class="md-nav__link">
+    Deploying the Actual Image
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying the Actual Image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tagging-convention" class="md-nav__link">
+    Tagging Convention
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-all-files" class="md-nav__link">
+    Get All Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-steps" class="md-nav__link">
+    Configuration Steps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-up-and-running" class="md-nav__link">
+    Get Up and Running
   </a>
   
 </li>
@@ -497,8 +520,22 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dns-dkim" class="md-nav__link">
-    DNS - DKIM
+  <a href="#aliases" class="md-nav__link">
+    Aliases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-keys" class="md-nav__link">
+    DKIM Keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-dns-setup" class="md-nav__link">
+    Advanced DNS Setup
   </a>
   
 </li>
@@ -512,6 +549,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    Testing
+  </a>
   
 </li>
       
@@ -534,17 +578,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4">
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
           Configuration
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Configuration" data-md-level="1">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
           Configuration
@@ -570,36 +617,25 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../config/setup.sh/" class="md-nav__link">
-        Your Best Friend setup.sh
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_3">
+        <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
           User Management
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="User Management" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_3">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4_2">
           <span class="md-nav__icon md-icon"></span>
           User Management
         </label>
@@ -649,18 +685,21 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_4">
+        <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
           Best Practices
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Best Practices" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_4">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4_3">
           <span class="md-nav__icon md-icon"></span>
           Best Practices
         </label>
@@ -738,18 +777,21 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_5">
+        <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
           Security
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Security" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_5">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4_4">
           <span class="md-nav__icon md-icon"></span>
           Security
         </label>
@@ -837,43 +879,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" checked>
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4_6">
-          Troubleshooting
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Troubleshooting" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_6">
-          <span class="md-nav__icon md-icon"></span>
-          Troubleshooting
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../config/troubleshooting/debugging/" class="md-nav__link">
+      <a href="../config/debugging/" class="md-nav__link">
         Debugging
       </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
     </li>
   
 
@@ -898,21 +907,38 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../config/setup.sh/" class="md-nav__link">
+        Your Friend setup.sh
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_8" type="checkbox" id="__nav_4_8" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_8">
+        <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
           Advanced Configuration
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Advanced Configuration" data-md-level="2">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4_8">
           <span class="md-nav__icon md-icon"></span>
           Advanced Configuration
@@ -942,17 +968,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_8_2" type="checkbox" id="__nav_4_8_2" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_2" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_8_2">
+        <label class="md-nav__link" for="__nav_4_8_2" id="__nav_4_8_2_label" tabindex="0">
           Maintenance
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Maintenance" data-md-level="3">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4_8_2">
           <span class="md-nav__icon md-icon"></span>
           Maintenance
@@ -989,17 +1018,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_8_3" type="checkbox" id="__nav_4_8_3" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_3" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_8_3">
+        <label class="md-nav__link" for="__nav_4_8_3" id="__nav_4_8_3_label" tabindex="0">
           Override the Default Configs
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Override the Default Configs" data-md-level="3">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_3_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4_8_3">
           <span class="md-nav__icon md-icon"></span>
           Override the Default Configs
@@ -1106,17 +1138,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_8_7" type="checkbox" id="__nav_4_8_7" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_7" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_4_8_7">
+        <label class="md-nav__link" for="__nav_4_8_7" id="__nav_4_8_7_label" tabindex="0">
           Email Forwarding
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Email Forwarding" data-md-level="3">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_7_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4_8_7">
           <span class="md-nav__icon md-icon"></span>
           Email Forwarding
@@ -1252,17 +1287,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_5">
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
           Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
           Examples
@@ -1278,17 +1316,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5_1" type="checkbox" id="__nav_5_1" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_5_1">
+        <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
           Tutorials
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Tutorials" data-md-level="2">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5_1">
           <span class="md-nav__icon md-icon"></span>
           Tutorials
@@ -1367,17 +1408,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_5_2">
+        <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
           Use Cases
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Use Cases" data-md-level="2">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5_2">
           <span class="md-nav__icon md-icon"></span>
           Use Cases
@@ -1451,17 +1495,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_7">
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
           Contributing
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Contributing" data-md-level="1">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
           Contributing
@@ -1571,44 +1618,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-images-tags-tagging-convention" class="md-nav__link">
-    Available Images / Tags - Tagging Convention
+  <a href="#preliminary-steps" class="md-nav__link">
+    Preliminary Steps
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get-the-tools" class="md-nav__link">
-    Get the Tools
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#create-a-docker-compose-environment" class="md-nav__link">
-    Create a docker-compose Environment
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get-up-and-running" class="md-nav__link">
-    Get up and running
-  </a>
-  
-    <nav class="md-nav" aria-label="Get up and running">
+    <nav class="md-nav" aria-label="Preliminary Steps">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#first-things-first" class="md-nav__link">
-    First Things First
+  <a href="#host-setup" class="md-nav__link">
+    Host Setup
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#starting-for-the-first-time" class="md-nav__link">
-    Starting for the first time
+  <a href="#minimal-dns-setup" class="md-nav__link">
+    Minimal DNS Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-the-actual-image" class="md-nav__link">
+    Deploying the Actual Image
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying the Actual Image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tagging-convention" class="md-nav__link">
+    Tagging Convention
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-all-files" class="md-nav__link">
+    Get All Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-steps" class="md-nav__link">
+    Configuration Steps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-up-and-running" class="md-nav__link">
+    Get Up and Running
   </a>
   
 </li>
@@ -1627,8 +1694,22 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dns-dkim" class="md-nav__link">
-    DNS - DKIM
+  <a href="#aliases" class="md-nav__link">
+    Aliases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-keys" class="md-nav__link">
+    DKIM Keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-dns-setup" class="md-nav__link">
+    Advanced DNS Setup
   </a>
   
 </li>
@@ -1645,6 +1726,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    Testing
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1653,21 +1741,65 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
-  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/usage.md" title="Edit this page" class="md-content__button md-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
+                  
 
+  
+  
 
 
   <h1>Usage</h1>
 
-<p>This pages explains how to get started with DMS, basically explaining how you can use it. The procedure uses Docker Compose as a reference. In our examples, <a href="../faq/#what-about-the-docker-datadmsmail-state-folder"><code>/docker-data/dms/config/</code></a> on the host is mounted to <code>/tmp/docker-mailserver/</code> inside the container.</p>
-<h2 id="available-images-tags-tagging-convention"><a class="toclink" href="#available-images-tags-tagging-convention">Available Images / Tags - Tagging Convention</a></h2>
-<p><a href="https://github.com/docker-mailserver/docker-mailserver/actions">CI/CD</a> will automatically build, test and push new images to container registries. Currently, the following registries are supported:</p>
+<p>This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location <a href="../config/advanced/optional-config/"><code>docker-data/dms/config/</code></a> to <code>/tmp/docker-mailserver/</code> inside the container.</p>
+<h2 id="preliminary-steps"><a class="toclink" href="#preliminary-steps">Preliminary Steps</a></h2>
+<p>Before you can get started with deploying your own mail server, there are some requirements to be met:</p>
+<ol>
+<li>You need to have a host that you can manage.</li>
+<li>You need to own a domain, and you need to able to manage DNS for this domain.</li>
+</ol>
+<h3 id="host-setup"><a class="toclink" href="#host-setup">Host Setup</a></h3>
+<p>There are a few requirements for a suitable host system:</p>
+<ol>
+<li>The host should have a static IP address; otherwise you will need to dynamically update DNS (undesirable due to DNS caching)</li>
+<li>The host should be able to send/receive on the <a href="../config/security/understanding-the-ports/#overview-of-email-ports">necessary ports for mail</a></li>
+<li>You should be able to set a <code>PTR</code> record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.</li>
+</ol>
+<p>On the host, you should have a suitable container runtime (like <em>Docker</em> or <em>Podman</em>) installed. We assume <a href="https://docs.docker.com/compose/"><em>Docker Compose</em></a> is <a href="https://docs.docker.com/compose/install/">installed</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Podman Support</p>
+<p>If you're using podman, make sure to read the related <a href="../config/advanced/podman/">documentation</a>.</p>
+</div>
+<h3 id="minimal-dns-setup"><a class="toclink" href="#minimal-dns-setup">Minimal DNS Setup</a></h3>
+<p>The DNS setup is a big and essential part of the whole setup. There is a lot of confusion for newcomers and people starting out when setting up DNS. This section provides an example configuration and supplementary explanation.  We expect you to be at least a bit familiar with DNS, what it does and what the individual record types are.</p>
+<p>Now let's say you just bought <code>example.com</code> and you want to be able to send and receive e-mails for the address <code>test@example.com</code>. On the most basic level, you will need to</p>
+<ol>
+<li>set an <code>MX</code> record for your domain <code>example.com</code> - in our example, the MX record contains <code>mail.example.com</code></li>
+<li>set an <code>A</code> record that resolves the name of your mail server - in our example, the A record contains <code>11.22.33.44</code></li>
+<li>(in a best-case scenario) set a <code>PTR</code> record that resolves the IP of your mail server - in our example, the PTR contains <code>mail.example.com</code></li>
+</ol>
+<p>We will later dig into DKIM, DMARC &amp; SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:</p>
+<ul>
+<li>The <strong>MX record</strong> tells everyone which (DNS) name is responsible for e-mails on your domain.
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on <code>mail.example.com</code>.<br />
+    This does not imply your e-mails will look like <code>test@mail.example.com</code>, the DNS name of your mail server is decoupled of the domain it serves e-mails for.<br />
+    In theory, you mail server could even serve e-mails for <code>test@some-other-domain.com</code>, if the MX record for <code>some-other-domain.com</code> points to <code>mail.example.com</code>.  </li>
+<li>The <strong>A record</strong> tells everyone which IP address the DNS name <code>mail.example.com</code> resolves to.</li>
+<li>The <strong>PTR record</strong> is the counterpart of the A record, telling everyone what name the IP address <code>11.22.33.44</code> resolves to.</li>
+</ul>
+<p>If you setup everything, it should roughly look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>MX<span class="w"> </span>example.com
+<span class="go">mail.example.com</span>
+<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>A<span class="w"> </span>mail.example.com
+<span class="go">11.22.33.44</span>
+<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>-x<span class="w"> </span><span class="m">11</span>.22.33.44
+<span class="go">mail.example.com</span>
+</code></pre></div>
+<h2 id="deploying-the-actual-image"><a class="toclink" href="#deploying-the-actual-image">Deploying the Actual Image</a></h2>
+<h3 id="tagging-convention"><a class="toclink" href="#tagging-convention">Tagging Convention</a></h3>
+<p>To understand which tags you should use, read this section carefully. <a href="https://github.com/docker-mailserver/docker-mailserver/actions">Our CI</a> will automatically build, test and push new images to the following container registries:</p>
 <ol>
 <li>DockerHub (<a href="https://hub.docker.com/r/mailserver/docker-mailserver"><code>docker.io/mailserver/docker-mailserver</code></a>)</li>
 <li>GitHub Container Registry (<a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver"><code>ghcr.io/docker-mailserver/docker-mailserver</code></a>)</li>
@@ -1691,54 +1823,38 @@
 </tr>
 </tbody>
 </table>
-<h2 id="get-the-tools"><a class="toclink" href="#get-the-tools">Get the Tools</a></h2>
-<div class="admonition note">
-<p class="admonition-title"><code>setup.sh</code> Not Required Anymore</p>
-<p>Since DMS <code>v10.2.0</code>, <a href="../faq/#how-to-adjust-settings-with-the-user-patchessh-script"><code>setup.sh</code> functionality</a> is included within the container image. The external convenience script is no longer required if you prefer using <code>docker exec &lt;CONTAINER NAME&gt; setup &lt;COMMAND&gt;</code> instead.</p>
-</div>
+<h3 id="get-all-files"><a class="toclink" href="#get-all-files">Get All Files</a></h3>
 <p>Issue the following commands to acquire the necessary files:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">DMS_GITHUB_URL</span><span class="o">=</span><span class="s1">&#39;https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master&#39;</span>
-wget <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/docker-compose.yml&quot;</span>
-wget <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/mailserver.env&quot;</span>
-
-<span class="c1"># Optional</span>
-wget <span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/setup.sh&quot;</span>
-chmod a+x ./setup.sh
+<div class="highlight"><pre><span></span><code><span class="nv">DMS_GITHUB_URL</span><span class="o">=</span><span class="s2">&quot;https://github.com/docker-mailserver/docker-mailserver/blob/latest&quot;</span>
+wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/docker-compose.yml&quot;</span>
+wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/mailserver.env&quot;</span>
 </code></pre></div>
-<h2 id="create-a-docker-compose-environment"><a class="toclink" href="#create-a-docker-compose-environment">Create a docker-compose Environment</a></h2>
+<h3 id="configuration-steps"><a class="toclink" href="#configuration-steps">Configuration Steps</a></h3>
 <ol>
-<li><a href="https://docs.docker.com/compose/install/">Install the latest Docker Compose</a></li>
-<li>Edit <code>docker-compose.yml</code> to your liking<ul>
-<li>substitute <code>mail.example.com</code> according to your FQDN</li>
-<li>if you want to use SELinux for the <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code> mount, append <code>-z</code> or <code>-Z</code></li>
+<li>First edit <code>docker-compose.yml</code> to your liking<ul>
+<li>Substitute <code>mail.example.com</code> according to your FQDN.</li>
+<li>If you want to use SELinux for the <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code> mount, append <code>-z</code> or <code>-Z</code>.</li>
 </ul>
 </li>
-<li>Configure the mailserver container to your liking by editing <code>mailserver.env</code> (<a href="../config/environment/"><strong>Documentation</strong></a>), but keep in mind this <code>.env</code> file:<ul>
-<li><a href="https://docs.docker.com/compose/env-file/"><em>only</em> basic <code>VAR=VAL</code></a> is supported (<strong>do not</strong> quote your values)</li>
-<li>variable substitution is <strong>not</strong> supported (e.g. <img alt="🚫" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f6ab.svg" title=":no_entry_sign:" /> <code>OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME</code> <img alt="🚫" class="twemoji" src="https://twemoji.maxcdn.com/v/latest/svg/1f6ab.svg" title=":no_entry_sign:" />)</li>
+<li>Then configure the environment specific to the mail server by editing <a href="../config/environment/"><code>mailserver.env</code></a>, but keep in mind that:<ul>
+<li>only <a href="https://docs.docker.com/compose/env-file/">basic <code>VAR=VAL</code></a> is supported</li>
+<li>do not quote your values</li>
+<li>variable substitution is not supported, e.g. <code>OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME</code> does not work</li>
 </ul>
 </li>
 </ol>
-<div class="admonition info">
-<p class="admonition-title">Podman Support</p>
-<p>If you're using podman, make sure to read the related <a href="../config/advanced/podman/">documentation</a></p>
-</div>
-<h2 id="get-up-and-running"><a class="toclink" href="#get-up-and-running">Get up and running</a></h2>
-<h3 id="first-things-first"><a class="toclink" href="#first-things-first">First Things First</a></h3>
+<h3 id="get-up-and-running"><a class="toclink" href="#get-up-and-running">Get Up and Running</a></h3>
 <div class="admonition danger">
 <p class="admonition-title">Using the Correct Commands For Stopping and Starting DMS</p>
 <p><strong>Use <code>docker compose up / down</code>, not <code>docker compose start / stop</code></strong>. Otherwise, the container is not properly destroyed and you may experience problems during startup because of inconsistent state.</p>
 <p>Using <code>Ctrl+C</code> <strong>is not supported either</strong>!</p>
 </div>
-<p>You are able to get a full overview of how the configuration works by either running:</p>
-<ol>
-<li><code>./setup.sh help</code> which includes the options of <code>setup.sh</code>.</li>
-<li><code>docker run --rm docker.io/mailserver/docker-mailserver:latest setup help</code> which provides you with all the information on configuration provided "inside" the container itself.</li>
-</ol>
+<p>For an overview of commands to manage DMS config, run: <code>docker exec -it &lt;CONTAINER NAME&gt; setup help</code>.</p>
 <details class="info">
 <summary>Usage of <code>setup.sh</code> when no DMS Container Is Running</summary>
+<p>We encourage you to directly use <code>setup</code> inside the container (like shown above). If you still want to use <code>setup.sh</code>, here's some information about it.</p>
 <p>If no DMS container is running, any <code>./setup.sh</code> command will check online for the <code>:latest</code> image tag (the current <em>stable</em> release), performing a <code>docker pull ...</code> if necessary followed by running the command in a temporary container:</p>
-<div class="highlight"><pre><span></span><code><span class="gp">$ </span>./setup.sh <span class="nb">help</span>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>./setup.sh<span class="w"> </span><span class="nb">help</span>
 <span class="go">Image &#39;docker.io/mailserver/docker-mailserver:latest&#39; not found. Pulling ...</span>
 <span class="go">SETUP(1)</span>
 
@@ -1746,7 +1862,7 @@ chmod a+x ./setup.sh
 <span class="go">    setup - &#39;docker-mailserver&#39; Administration &amp; Configuration script</span>
 <span class="go">...</span>
 
-<span class="gp">$ </span>docker run --rm docker.io/mailserver/docker-mailserver:latest setup <span class="nb">help</span>
+<span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>ghcr.io/docker-mailserver/docker-mailserver:latest<span class="w"> </span>setup<span class="w"> </span><span class="nb">help</span>
 <span class="go">SETUP(1)</span>
 
 <span class="go">NAME</span>
@@ -1754,87 +1870,65 @@ chmod a+x ./setup.sh
 <span class="go">...</span>
 </code></pre></div>
 </details>
-<h3 id="starting-for-the-first-time"><a class="toclink" href="#starting-for-the-first-time">Starting for the first time</a></h3>
-<p>On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts with the following two methods:</p>
-<ol>
-<li>Use <code>setup.sh</code>: <code>./setup.sh email add &lt;user@domain&gt;</code></li>
-<li>Run the command directly in the container: <code>docker exec -ti &lt;CONTAINER NAME&gt; setup email add &lt;user@domain&gt;</code></li>
-</ol>
-<p>You can then proceed by creating the postmaster alias and by creating DKIM keys.</p>
-<div class="highlight"><pre><span></span><code>docker-compose up -d mailserver
-
-<span class="c1"># you may add some more users</span>
-<span class="c1"># for SELinux, use -Z</span>
-./setup.sh <span class="o">[</span>-Z<span class="o">]</span> email add &lt;user@domain&gt; <span class="o">[</span>&lt;password&gt;<span class="o">]</span>
-
-<span class="c1"># and configure aliases, DKIM and more</span>
-./setup.sh <span class="o">[</span>-Z<span class="o">]</span> <span class="nb">alias</span> add postmaster@&lt;domain&gt; &lt;user@domain&gt;
-</code></pre></div>
+<p>On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running <code>docker exec -ti &lt;CONTAINER NAME&gt; setup email add user@example.com</code>. <strong>That's it! It really is that easy</strong>.</p>
 <h2 id="further-miscellaneous-steps"><a class="toclink" href="#further-miscellaneous-steps">Further Miscellaneous Steps</a></h2>
-<h3 id="dns-dkim"><a class="toclink" href="#dns-dkim">DNS - DKIM</a></h3>
-<p>You can (and you should) generate DKIM keys by running</p>
-<div class="highlight"><pre><span></span><code>./setup.sh <span class="o">[</span>-Z<span class="o">]</span> config dkim
+<h3 id="aliases"><a class="toclink" href="#aliases">Aliases</a></h3>
+<p>You should add at least one <a href="../config/user-management/aliases/">alias</a>, the <a href="../config/environment/#postmaster_address"><em>postmaster alias</em></a>. This is a common convention, but not strictly required.</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>postmaster@example.com<span class="w"> </span>user@example.com
 </code></pre></div>
-<p>If you want to see detailed usage information, run</p>
-<div class="highlight"><pre><span></span><code>./setup.sh config dkim <span class="nb">help</span>
-</code></pre></div>
+<h3 id="dkim-keys"><a class="toclink" href="#dkim-keys">DKIM Keys</a></h3>
+<p>You can (<em>and you should</em>) generate DKIM keys. For more information:</p>
+<ul>
+<li>DKIM <a href="../config/best-practices/dkim/#enabling-dkim-signature">with OpenDKIM</a> (<em>enabled by default</em>)</li>
+<li>DKIM <a href="../config/security/rspamd/#dkim-signing">with Rspamd</a> (<em>when using <code>ENABLE_RSPAMD=1</code></em>)</li>
+</ul>
+<p>When keys are generated, you can configure your DNS server by just pasting the content of <code>config/opendkim/keys/domain.tld/mail.txt</code> to <a href="https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim">set up DKIM</a>. See the <a href="../config/best-practices/dkim/#configuration-using-a-web-interface">documentation</a> for more details.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh config dkim domain <span class="s1">&#39;&lt;domain.tld&gt;[,&lt;domain2.tld&gt;]&#39;</span>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span><span class="s1">&#39;&lt;domain.tld&gt;[,&lt;domain2.tld&gt;]&#39;</span>
 </code></pre></div>
-<p>When keys are generated, you can configure your DNS server by just pasting the content of <code>config/opendkim/keys/domain.tld/mail.txt</code> to <a href="https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim">set up DKIM</a>. See the <a href="../config/best-practices/dkim/">documentation</a> for more details.</p>
+</div>
+<h3 id="advanced-dns-setup"><a class="toclink" href="#advanced-dns-setup">Advanced DNS Setup</a></h3>
+<p>You will very likely want to configure your DNS with these TXT records: <a href="https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/">SPF, DKIM, and DMARC</a>.</p>
+<p>The following illustrates what a (rather strict) set of records could look like:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>example.com
+<span class="go">&quot;v=spf1 mx -all&quot;</span>
+<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>dkim-rsa._domainkey.example.com
+<span class="go">&quot;v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ...&quot;</span>
+<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>_dmarc.example.com
+<span class="go">&quot;v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1&quot;</span>
+</code></pre></div>
 <h3 id="custom-user-changes-patches"><a class="toclink" href="#custom-user-changes-patches">Custom User Changes &amp; Patches</a></h3>
-<p>If you'd like to change, patch or alter files or behavior of <code>docker-mailserver</code>, you can use a script. See <a href="./faq.md/#how-to-adjust-settings-with-the-user-patchessh-script">this part of our documentation</a> for a detailed explanation.</p>
+<p>If you'd like to change, patch or alter files or behavior of <code>docker-mailserver</code>, you can use a script. See <a href="../faq/#how-to-adjust-settings-with-the-user-patchessh-script">this part of our documentation</a> for a detailed explanation.</p>
+<h2 id="testing"><a class="toclink" href="#testing">Testing</a></h2>
+<p>Here are some tools you can use to verify your configuration:</p>
+<ol>
+<li><a href="https://mxtoolbox.com/SuperTool.aspx">MX Toolbox</a></li>
+<li><a href="https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/">DMARC Analyzer</a></li>
+<li><a href="https://www.mail-tester.com/">mail-tester.com</a></li>
+<li><a href="https://multirbl.valli.org/">multiRBL.valli.org</a></li>
+</ol>
 
-              
-            </article>
-            
-          </div>
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
             Back to top
-          </a>
+          </button>
         
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../introduction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Introduction
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../config/environment/" class="md-footer__link md-footer__link--next" aria-label="Next: Environment Variables" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Environment Variables
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1860,10 +1954,11 @@ chmod a+x ./setup.sh
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      <script src="../assets/javascripts/bundle.407015b8.min.js"></script>
       
     
   </body>
