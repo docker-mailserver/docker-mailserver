@@ -13,12 +13,6 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 chmod a+x ./setup.sh
 ```
 
-!!! warning "`setup.sh` for `docker-mailserver` version `v10.1.x` and below"
-
-    If you're using `docker-mailserver` version `v10.1.x` or below, you will need to get `setup.sh` with a specific version. Substitute `<VERSION>` with the [tagged release version](https://github.com/docker-mailserver/docker-mailserver/tags) that you're using:
-
-    `wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/<VERSION>/setup.sh`.
-
 ## Usage
 
 Run `./setup.sh help` and you'll get ~~all you have ever wanted~~ some usage information:
@@ -40,7 +34,7 @@ DESCRIPTION
 
     Please note that the script executes most of the commands inside the container itself.
     If the image was not found, this script will pull the ':latest' tag of
-    'mailserver/docker-mailserver'. This tag refers to the latest release,
+    'docker.io/mailserver/docker-mailserver'. This tag refers to the latest release,
     see the tagging convention in the README under
     https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 

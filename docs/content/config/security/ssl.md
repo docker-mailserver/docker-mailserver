@@ -121,7 +121,7 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
     !!! example
 
         Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
-    
+
         ```yaml
         services:
           mailserver:
@@ -169,7 +169,7 @@ Obtain a Cloudflare API token:
 3. Click "Create Token", and choose the `Edit zone DNS` template (_Certbot [requires the `ZONE:DNS:Edit` permission](https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials)_).
 
     !!! warning "Only include the necessary Zone resource configuration"
-    
+
         Be sure to configure "Zone Resources" section on this page to `Include -> Specific zone -> <your zone here>`.
 
         This restricts the API token to only this zone (domain) which is an important security measure.
@@ -264,7 +264,7 @@ After completing the steps above, your certificate should be ready to use.
     ```
 
     You can manually run this service to renew the cert within 90 days:
-    
+
     ```sh
     docker-compose run certbot-cloudflare-renew
     ```
@@ -274,14 +274,14 @@ After completing the steps above, your certificate should be ready to use.
 
     ```log
     Saving debug log to /var/log/letsencrypt/letsencrypt.log
-    
+
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Processing /etc/letsencrypt/renewal/mail.example.com.conf
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Account registered.
     Simulating renewal of an existing certificate for mail.example.com
     Waiting 10 seconds for DNS changes to propagate
-    
+
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Congratulations, all simulated renewals succeeded:
       /etc/letsencrypt/live/mail.example.com/fullchain.pem (success)
@@ -640,7 +640,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
     version: '3.8'
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail
         domainname: example.com
@@ -695,10 +695,6 @@ Where `<FQDN>` is the FQDN you've configured for your `docker-mailserver` contai
 Add `SSL_TYPE=self-signed` to your `docker-mailserver` environment variables. Postfix and Dovecot will be configured to use the provided certificate (_`.pem` files above_) during container startup.
 
 #### Generating a self-signed certificate
-
-!!! note
-
-    Since `docker-mailserver` v10, support in `setup.sh` for generating a _self-signed SSL certificate_ internally was removed.
 
 One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates][github-file::tls-readme].
 
@@ -821,15 +817,13 @@ These options in conjunction mean:
 
 If you have another source for SSL/TLS certificates you can import them into the server via an external script. The external script can be found here: [external certificate import script][hanscees-renewcerts].
 
-!!! attention "Only compatible with `docker-mailserver` releases < `v10.2`"
+This is a community contributed script, and in most cases you will have better support via our _Change Detection_ service (_automatic for `SSL_TYPE` of `manual` and `letsencrypt`_) - Unless you're using LDAP which disables the service.
 
-    The script expects `/etc/postfix/ssl/cert` and `/etc/postfix/ssl/key` files to be configured paths for both Postfix and Dovecot to use.
+!!! warning "Script Compatibility"
 
-    Since the `docker-mailserver` 10.2 release, certificate files have moved to `/etc/dms/tls/`, and the file name may differ depending on provisioning method.
-
-    This third-party script also has `fullchain.pem` and `privkey.pem` as hard-coded, thus is incompatible with other filenames.
-
-    Additionally it has never supported handling `ALT` fallback certificates (for supporting dual/hybrid, RSA + ECDSA).
+    - Relies on private filepaths `/etc/dms/tls/cert` and `/etc/dms/tls/key` intended for internal use only.
+    - Only supports hard-coded `fullchain.key` + `privkey.pem` as your mounted file names. That may not align with your provisioning method.
+    - No support for `ALT` fallback certificates (_for supporting dual/hybrid, RSA + ECDSA_).
 
 The steps to follow are these:
 
@@ -864,7 +858,7 @@ export SITE_URL="mail.example.com"
 export SITE_IP_URL="192.168.0.72" # can also use `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
 
-##works: check if certificate will expire in two weeks 
+##works: check if certificate will expire in two weeks
 #2 weeks is 1209600 seconds
 #3 weeks is 1814400
 #12 weeks is 7257600
@@ -921,7 +915,7 @@ if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
     echo "Cert seems to be expiring pretty soon, within two weeks: $certcheck_2weeks"
     echo "we will send an alert email and log as well"
     logger Certwatch: cert $SITE_URL will expire in two weeks
-    echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR 
+    echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR
 fi
 ```
 

@@ -6,17 +6,17 @@ hide:
 
 # Mailboxes (_aka IMAP Folders_)
 
-`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
+`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
 
 These IMAP folders are considered special because they add a [_"SPECIAL-USE"_ attribute][rfc-6154], which is a standardized way to communicate to mail clients that the folder serves a purpose like storing spam/junk mail (`\Junk`) or deleted mail (`\Trash`). This differentiates them from regular mail folders that you may use for organizing.
 
 ## Adding a mailbox folder
 
-See [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the [official Dovecot documentation][dovecot-docs-mailboxes].
+See [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the [official Dovecot documentation][dovecot-docs-mailboxes].
 
-The `Archive` special IMAP folder may be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][gh-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
+The `Archive` special IMAP folder may be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
 
-With the provided [docker-compose.yml][gh-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
+With the provided [docker-compose.yml][github-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
 
 ```yaml
 volumes:
@@ -65,8 +65,8 @@ Take care to test localized names work well as well.
 
 
 [docs-config-overrides-dovecot]: ../../config/advanced/override-defaults/dovecot.md#override-configuration
-[gh-config-dockercompose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
-[gh-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
+[github-config-dockercompose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
+[github-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
 [dovecot-docs-namespaces]: https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox
 [dovecot-docs-mailboxes]: https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings
 [rfc-6154]: https://datatracker.ietf.org/doc/html/rfc6154

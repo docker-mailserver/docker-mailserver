@@ -10,7 +10,7 @@ title: Home
 
 This documentation provides you not only with the basic setup and configuration of DMS but also with advanced configuration, elaborate usage scenarios, detailed examples, hints and more.
 
-[docs-tagging]: ./usage/#available-images-tags-tagging-convention
+[docs-tagging]: ./usage.md#tagging-convention
 
 ## About
 
@@ -42,16 +42,18 @@ You might also want to check out:
 
 1. A list of [all configuration options via ENV][docs-environment]
 2. A list of [all optional and automatically created configuration files and directories][docs-optionalconfig]
+3. How to [debug your mail server][docs-debugging]
 
 !!! tip
 
     Definitely check out the [FAQ][docs-faq] for more information and tips! Please do not open an issue before you have checked our documentation for answers, including the [FAQ][docs-faq]!
 
-[docs-environment]: ./config/environment/
-[docs-userpatches]: ./faq/#how-to-adjust-settings-with-the-user-patchessh-script
-[docs-setupsh]: ./config/setup.sh/
-[docs-optionalconfig]: ./config/advanced/optional-config/
-[docs-faq]: ./faq/
+[docs-environment]: ./config/environment.md
+[docs-userpatches]: ./faq.md#how-to-adjust-settings-with-the-user-patchessh-script
+[docs-setupsh]: ./config/setup.sh.md
+[docs-optionalconfig]: ./config/advanced/optional-config.md
+[docs-faq]: ./faq.md
+[docs-debugging]: ./config/debugging.md
 
 ### Tests
 
