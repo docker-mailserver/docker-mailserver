@@ -89,11 +89,96 @@ echo 'ReportAddress           postmaster@example.com' >>/etc/opendkim.conf
 
 ### Rspamd
 
-TODO
+As previously stated, checking a signature and signing an email are two different tasks - and Rspamd realizes this distinction on a module level. This means:
+
+1. [The module for checking incoming signatures][rspamd-docs-dkim-checks] is enabled by default.
+2. [The module for signing outbound messages][rspamd-docs-dkim-signing] will need to be set up by you.
+
+By default, DMS offers no option to generate and configure signing e-mails with DKIM. This is because the parsing would be difficult. But don't worry: the process is relatively straightforward nevertheless. The [official Rspamd documentation for the DKIM signing module][rspamd-docs-dkim-signing] is pretty good. Basically, you need to
+
+1. Go inside the container with `docker exec -ti <CONTAINER NAME> bash`
+2. Run a command similar to `rspamadm dkim_keygen -s 'selector-name' -b 2048 -d example.com -k example.private > example.txt`, adjusted to your needs
+3. Make sure to then persists the files `example.private` and `example.txt` (created in step 2) in the container (for example with a Docker bind mount)
+4. Create a configuration for the DKIM signing module, i.e. a file called `dkim_signing.conf` that you mount to `/etc/rspamd/local.d/` or `/etc/rspamd/override.d/`. We provide example configurations down below. We recommend mounting this file into the container as well (as described [here](#manually)); do not use [`rspamd-modules.conf`](#with-the-help-of-a-custom-file) for this purpose.
+
+??? example "DKIM Signing Module Configuration Examples"
+
+    A simple configuration could look like this:
+
+    ```cf
+    # documentation: https://rspamd.com/doc/modules/dkim_signing.html
+
+    enabled = true;
+
+    sign_authenticated = true;
+    sign_local = true;
+
+    use_domain = "header";
+    use_redis = false; # don't change unless Redis also provides the DKIM keys
+    use_esld = true;
+    check_pubkey = true; # you wan't to use this in the beginning
+
+    domain {
+        example.com {
+            path = "/path/to/example.private";
+            selector = "selector-name";
+        }
+    }
+    ```
+
+    If you have multiple domains and you want to sign with the modern ED25519 elliptic curve but also with RSA (you will likely want to have RSA as a fallback!):
+
+    ```cf
+    # documentation: https://rspamd.com/doc/modules/dkim_signing.html
+
+    enabled = true;
+
+    sign_authenticated = true;
+    sign_local = true;
+
+    use_domain = "header";
+    use_redis = false; # don't change unless Redis also provides the DKIM keys
+    use_esld = true;
+    check_pubkey = true;
+
+    domain {
+        example.com {
+            selectors [
+                {
+                    path = "/path/to/com.example.rsa.private";
+                    selector = "dkim-rsa";
+                },
+                {
+                  path = /path/to/com.example.ed25519.private";
+                  selector = "dkim-ed25519";
+                }
+          ]
+        }
+        example.org {
+            selectors [
+                {
+                    path = "/path/to/org.example.rsa.private";
+                    selector = "dkim-rsa";
+                },
+                {
+                  path = "/path/to/org.example.ed25519.private";
+                  selector = "dkim-ed25519";
+                }
+            ]
+        }
+    }
+    ```
+
+!!! bug "File Permissions"
+
+    Make sure the user `_rspamd` is able to go into the directory where you persist the (private) key files, and ensure it can read them!
+
+[rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
+[rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
 
 ### Follow-Up DNS Setup
 
-Now the keys are generated, you need to configure your DNS zone, "simply" by adding a TXT record. We assume you are using a web-interface - if not, and you have access to a DNS zone _file_, you can copy the contents of the public key file into the file.
+Now that the keys are generated, you need to configure your DNS zone, "simply" by adding a TXT record. We assume you are using a web-interface - if not, and you have access to a DNS zone _file_, you can copy the contents of the public key file into the file.
 
 In the web-interface, create a new record of type `TXT`. If the selector you chose for the DKIM key was `mail`, the name of the record shpuld be `mail._domainkey` (i.e. the record is valid for the DNS name `mail._domainkey.example.com`). The value of the record should be
 
