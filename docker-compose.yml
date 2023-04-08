@@ -2,10 +2,8 @@ services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
     container_name: mailserver
-    # If the FQDN for your mail-server is only two labels (eg: example.com),
-    # you can assign this entirely to `hostname` and remove `domainname`.
-    hostname: mail
-    domainname: example.com
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: mail.example.com
     env_file: mailserver.env
     # More information about the mail-server ports:
     # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/
@@ -24,8 +22,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
-    cap_add:
-      - NET_ADMIN
+    # Uncomment if using `ENABLE_FAIL2BAN=1`:
+    # cap_add:
+    #   - NET_ADMIN
     healthcheck:
       test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
       timeout: 3s
