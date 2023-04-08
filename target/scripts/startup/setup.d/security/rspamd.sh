@@ -15,6 +15,7 @@ function _setup_rspamd
     __rspamd__setup_default_modules
     __rspamd__setup_learning
     __rspamd__setup_greylisting
+    __rspamd__setup_hfilter_group
     __rspamd__handle_user_modules_adjustments   # must run last
 
     _log 'trace' 'Rspamd setup finished'
@@ -138,6 +139,9 @@ function __rspamd__setup_default_modules
 {
   __rspamd__log 'debug' 'Disabling default modules'
 
+  # This array contains all the modules we disable by default. They
+  # can be re-enabled later (in `__rspamd__handle_user_modules_adjustments`)
+  # with `rspamd-modules.conf`.
   local DISABLE_MODULES=(
     clickhouse
     elastic
@@ -202,7 +206,8 @@ EOF
   fi
 }
 
-# Sets up greylisting based on the environment variable RSPAMD_GREYLISTING.
+# Sets up greylisting with the greylisting module (see
+# https://rspamd.com/doc/modules/greylisting.html).
 function __rspamd__setup_greylisting
 {
   if [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
@@ -211,6 +216,21 @@ function __rspamd__setup_greylisting
     sedfile -i -E "s|(enabled =).*|\1 true;|g" /etc/rspamd/local.d/greylist.conf
   else
     __rspamd__log 'debug' 'Greylisting is disabled'
+  fi
+}
+
+# This function handles setup of the Hfilter module (see
+# https://www.rspamd.com/doc/modules/hfilter.html). This module is mainly
+# used for hostname checks, and whether or not a reverse-DNS check
+# succeeds.
+function __rspamd__setup_hfilter_group
+{
+  if [[ ${RSPAMD_HFILTER} -eq 1 ]]
+  then
+    __rspamd__log 'debug' 'Hfilter (group) module is enabled'
+  else
+    __rspamd__log 'debug' 'Disabling Hfilter (group) module'
+    rm -f /etc/rspamd/local.d/hfilter_group.conf
   fi
 }
 
