@@ -16,6 +16,9 @@ Notable changes are:
 - ARMv7 platform is no longer suppoted
 - TLS 1.2 is the minimum supported protocol
 - SMTP authentication on port 25 disabled
+- The value of `smtpd_sender_restrictions` for Postfix has replaced the value ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127)):
+  - In `main.cf` with `$dms_smtpd_sender_restrictions`
+  - In `master.cf` inbound submissions ports 465 + 587 extend this inherited `smtpd` restriction with `$mua_sender_restrictions`
 
 ### Added
 
