@@ -45,9 +45,9 @@ Now let's say you just bought `example.com` and you want to be able to send and 
 We will later dig into DKIM, DMARC & SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:
 
 - The **MX record** tells everyone which (DNS) name is responsible for e-mails on your domain.
-    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.  
-    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.  
-    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.  
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.
+    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
+    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
 - The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
 
@@ -146,51 +146,19 @@ On first start, you will need to add at least one email account (unless you're u
 
 You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
 
-[docs-aliases]: ./config/user-management/aliases.md
+[docs-aliases]: ./config/user-management.md#aliases
 [docs-env-postmaster]: ./config/environment.md#postmaster_address
 
 ```bash
 docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@example.com
 ```
 
-### DKIM Keys
+### Advanced DNS Setup - DKIM, DMARC & SPF
 
-You can (_and you should_) generate DKIM keys. For more information:
-
-- DKIM [with OpenDKIM][docs-dkim-opendkim] (_enabled by default_)
-- DKIM [with Rspamd][docs-dkim-rspamd] (_when using `ENABLE_RSPAMD=1`_)
-
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-dns] for more details.
-
-!!! note
-
-    In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
-    
-    ``` BASH
-    docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
-    ```
-
-[dkim-signing-setup]: https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim
-[docs-dkim-dns]: ./config/best-practices/dkim.md#configuration-using-a-web-interface
-[docs-dkim-opendkim]: ./config/best-practices/dkim.md#enabling-dkim-signature
-[docs-dkim-rspamd]: ./config/security/rspamd.md#dkim-signing
-
-### Advanced DNS Setup
-
-You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc].
-
-The following illustrates what a (rather strict) set of records could look like:
-
-```console
-$ dig @1.1.1.1 +short TXT example.com
-"v=spf1 mx -all"
-$ dig @1.1.1.1 +short TXT dkim-rsa._domainkey.example.com
-"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ..."
-$ dig @1.1.1.1 +short TXT _dmarc.example.com
-"v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1"
-```
+You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc]. We also ship a [dedicated page in our documentation][docs-dkim-dmarc-spf] about the setup of DKIM, DMARC & SPF.
 
 [cloudflare-spf-dkim-dmarc]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
+[docs-dkim-dmarc-spf]: ./config/best-practices/dkim_dmarc_spf.md
 
 ### Custom User Changes & Patches
 
