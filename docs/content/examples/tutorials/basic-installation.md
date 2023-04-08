@@ -75,7 +75,5 @@ services:
       - SASLAUTHD_LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
       - SASLAUTHD_LDAP_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%U))
       - POSTMASTER_ADDRESS=postmaster@localhost.localdomain
-    cap_add:
-      - NET_ADMIN # For Fail2Ban to work
     restart: always
 ```
