@@ -4,7 +4,7 @@ title: 'Security | Understanding the Ports'
 
 ## Quick Reference
 
-Prefer ports with Implicit [TLS][wikipedia-tls] ports. They are more secure than ports using Explicit TLS; and if you use a Reverse Proxy, should be less hassle.
+Prefer ports with Implicit [TLS][wikipedia-tls] ports, they're more secure than ports using Explicit TLS, and if you use a Reverse Proxy should be less hassle.
 
 ## Overview of Email Ports
 
@@ -65,17 +65,16 @@ flowchart LR
 
 Mail arriving at your server will be processed and stored in a mailbox, or sent outbound to another mail server.
 
-**Port 25:**
-- Think of this like a physical mailbox, anyone can deliver mail to you here. Typically most mail is delivered to you on this port.
--`docker-mailserver` will actively filter email delivered on this port for spam or viruses, and refuse mail from known bad sources.
-- Connections to this port may be secure through STARTTLS, but is not mandatory as [mail is allowed to arrive via an unencrypted connection][ref-port25-mandatory].
-- It is possible for internal clients to submit mail to be sent outbound (_without requiring authentication_), but that is discouraged. Prefer the _submission_ ports.
-
-**Port 465 and 587:**
-- This is the equivalent of a post office box where you would send email to be delivered on your behalf (_`docker-mailserver` is that metaphorical post office, aka the MTA_).
-- These two ports are known as the _submission_ ports, they enable mail to be sent outbound to another MTA (eg: Outlook or Gmail) but require authentication via a [mail account][docs-accounts].
-- For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when `docker-mailserver` is configured as a mail relay, or when you have a service sending transactional mail (_eg: order confirmations, password resets, notifications_) through `docker-mailserver`.
-- _**Prefer port 465**_ over port 587, as 465 provides Implicit TLS.
+- **Port 25:**
+    - Think of this like a physical mailbox, anyone can deliver mail to you here. Typically most mail is delivered to you on this port.
+    -`docker-mailserver` will actively filter email delivered on this port for spam or viruses, and refuse mail from known bad sources.
+    - Connections to this port may be secure through STARTTLS, but is not mandatory as [mail is allowed to arrive via an unencrypted connection][ref-port25-mandatory].
+    - It is possible for internal clients to submit mail to be sent outbound (_without requiring authentication_), but that is discouraged. Prefer the _submission_ ports.
+- **Port 465 and 587:**
+    - This is the equivalent of a post office box where you would send email to be delivered on your behalf (_`docker-mailserver` is that metaphorical post office, aka the MTA_).
+    - These two ports are known as the _submission_ ports, they enable mail to be sent outbound to another MTA (eg: Outlook or Gmail) but require authentication via a [mail account][docs-accounts].
+    - For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when `docker-mailserver` is configured as a mail relay, or when you have a service sending transactional mail (_eg: order confirmations, password resets, notifications_) through `docker-mailserver`.
+    - _**Prefer port 465**_ over port 587, as 465 provides Implicit TLS.
 
 !!! note
 
@@ -85,14 +84,13 @@ Mail arriving at your server will be processed and stored in a mailbox, or sent 
 
 Mail being sent from your server is either being relayed through another MTA (eg: SendGrid), or direct to an MTA responsible for an email address (eg: Gmail). 
 
-**Port 25:**
-- As most MTA use port 25 to receive inbound mail, when no authenticated relay is involved this is the outbound port used.
-- Outbound traffic on this port is often blocked by service providers (eg: VPS, ISP) to prevent abuse by spammers. If the port cannot be unblocked, you will need to relay outbound mail through a service to send on your behalf.
-
-**Port 465 and 587:**
-- Submission ports for outbound traffic establish trust to forward mail through a third-party relay service. This requires [authenticating to an account on the relay service][docs-relays]. The relay will then deliver the mail through port 25 on your behalf.
-- These are the two typical ports used, but smart hosts like SendGrid often document support for additional non-standard ports as alternatives if necessary.
-- Usually you'll only use these outbound ports for relaying. It is possible to deliver directly to the relevant MTA for email address, but requires having credentials for each MTA.
+- **Port 25:**
+    - As most MTA use port 25 to receive inbound mail, when no authenticated relay is involved this is the outbound port used.
+    - Outbound traffic on this port is often blocked by service providers (eg: VPS, ISP) to prevent abuse by spammers. If the port cannot be unblocked, you will need to relay outbound mail through a service to send on your behalf.
+- **Port 465 and 587:**
+    - Submission ports for outbound traffic establish trust to forward mail through a third-party relay service. This requires [authenticating to an account on the relay service][docs-relays]. The relay will then deliver the mail through port 25 on your behalf.
+    - These are the two typical ports used, but smart hosts like SendGrid often document support for additional non-standard ports as alternatives if necessary.
+    - Usually you'll only use these outbound ports for relaying. It is possible to deliver directly to the relevant MTA for email address, but requires having credentials for each MTA.
 
 !!! tip
 
@@ -151,7 +149,7 @@ Other machines that facilitate a connection that generally aren't taken into acc
 [docs-accounts]: ../user-management/accounts.md
 [docs-relays]: ../advanced/mail-forwarding/relay-hosts.md
 [iana-services-465]: https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=465
-[starttls-policy-list] https://github.com/EFForg/starttls-everywhere#email-security-database-starttls-policy-list
+[starttls-policy-list]: https://github.com/EFForg/starttls-everywhere#email-security-database-starttls-policy-list
 [starttls-vulnerabilities]: https://blog.apnic.net/2021/11/18/vulnerabilities-show-why-starttls-should-be-avoided-if-possible/
 [ref-clear-vs-plain]: https://www.denimgroup.com/resources/blog/2007/10/cleartext-vs-pl
 [ref-port25-mandatory]: https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages
