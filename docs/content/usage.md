@@ -2,14 +2,74 @@
 title: Usage
 ---
 
-This pages explains how to get started with DMS, basically explaining how you can use it. The procedure uses Docker Compose as a reference. In our examples, [`/docker-data/dms/config/`](../faq/#what-about-the-docker-datadmsmail-state-folder) on the host is mounted to `/tmp/docker-mailserver/` inside the container.
+This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs-dms-config-volume] to `/tmp/docker-mailserver/` inside the container.
 
-## Available Images / Tags - Tagging Convention
+[docs-dms-config-volume]: ./config/advanced/optional-config.md
 
-[CI/CD](https://github.com/docker-mailserver/docker-mailserver/actions) will automatically build, test and push new images to container registries. Currently, the following registries are supported:
+## Preliminary Steps
 
-1. DockerHub ([`docker.io/mailserver/docker-mailserver`](https://hub.docker.com/r/mailserver/docker-mailserver))
-2. GitHub Container Registry ([`ghcr.io/docker-mailserver/docker-mailserver`](https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver))
+Before you can get started with deploying your own mail server, there are some requirements to be met:
+
+1. You need to have a host that you can manage.
+2. You need to own a domain, and you need to able to manage DNS for this domain.
+
+### Host Setup
+
+There are a few requirements for a suitable host system:
+
+1. The host should have a static IP address; otherwise you will need to dynamically update DNS (undesirable due to DNS caching)
+2. The host should be able to send/receive on the [necessary ports for mail][docs-ports-overview]
+3. You should be able to set a `PTR` record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.
+
+On the host, you should have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation].
+
+!!! info "Podman Support"
+
+    If you're using podman, make sure to read the related [documentation][docs-podman].
+
+[docs-podman]: ./config/advanced/podman.md
+[docs-ports-overview]: ./config/security/understanding-the-ports.md#overview-of-email-ports
+[docker-compose]: https://docs.docker.com/compose/
+[docker-compose-installation]: https://docs.docker.com/compose/install/
+
+### Minimal DNS Setup
+
+The DNS setup is a big and essential part of the whole setup. There is a lot of confusion for newcomers and people starting out when setting up DNS. This section provides an example configuration and supplementary explanation.  We expect you to be at least a bit familiar with DNS, what it does and what the individual record types are.
+
+Now let's say you just bought `example.com` and you want to be able to send and receive e-mails for the address `test@example.com`. On the most basic level, you will need to
+
+1. set an `MX` record for your domain `example.com` - in our example, the MX record contains `mail.example.com`
+2. set an `A` record that resolves the name of your mail server - in our example, the A record contains `11.22.33.44`
+3. (in a best-case scenario) set a `PTR` record that resolves the IP of your mail server - in our example, the PTR contains `mail.example.com`
+
+We will later dig into DKIM, DMARC & SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:
+
+- The **MX record** tells everyone which (DNS) name is responsible for e-mails on your domain.
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.  
+    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.  
+    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.  
+- The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
+- The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
+
+If you setup everything, it should roughly look like this:
+
+```console
+$ dig @1.1.1.1 +short MX example.com
+mail.example.com
+$ dig @1.1.1.1 +short A mail.example.com
+11.22.33.44
+$ dig @1.1.1.1 +short -x 11.22.33.44
+mail.example.com
+```
+
+## Deploying the Actual Image
+
+### Tagging Convention
+
+To understand which tags you should use, read this section carefully. [Our CI][github-ci] will automatically build, test and push new images to the following container registries:
+
+1. DockerHub ([`docker.io/mailserver/docker-mailserver`][dockerhub-image])
+2. GitHub Container Registry ([`ghcr.io/docker-mailserver/docker-mailserver`][ghcr-image])
 
 All workflows are using the tagging convention listed below. It is subsequently applied to all images.
 
@@ -18,41 +78,34 @@ All workflows are using the tagging convention listed below. It is subsequently 
 | `push` on `master`      | `edge`                        |
 | `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest` |
 
-## Get the Tools
+[github-ci]: https://github.com/docker-mailserver/docker-mailserver/actions
+[dockerhub-image]: https://hub.docker.com/r/mailserver/docker-mailserver
+[ghcr-image]: https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
 
-!!! note "`setup.sh` Not Required Anymore"
-
-    Since DMS `v10.2.0`, [`setup.sh` functionality](../faq/#how-to-adjust-settings-with-the-user-patchessh-script) is included within the container image. The external convenience script is no longer required if you prefer using `docker exec <CONTAINER NAME> setup <COMMAND>` instead.
+### Get All Files
 
 Issue the following commands to acquire the necessary files:
 
 ``` BASH
-DMS_GITHUB_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master'
+DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/latest"
 wget "${DMS_GITHUB_URL}/docker-compose.yml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
-
-# Optional
-wget "${DMS_GITHUB_URL}/setup.sh"
-chmod a+x ./setup.sh
 ```
 
-## Create a docker-compose Environment
+### Configuration Steps
 
-1. [Install the latest Docker Compose](https://docs.docker.com/compose/install/)
-2. Edit `docker-compose.yml` to your liking
-    - substitute `mail.example.com` according to your FQDN
-    - if you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`
-3. Configure the mailserver container to your liking by editing `mailserver.env` ([**Documentation**](../config/environment/)), but keep in mind this `.env` file:
-    - [_only_ basic `VAR=VAL`](https://docs.docker.com/compose/env-file/) is supported (**do not** quote your values)
-    - variable substitution is **not** supported (e.g. :no_entry_sign: `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` :no_entry_sign:)
+1. First edit `docker-compose.yml` to your liking
+    - Substitute `mail.example.com` according to your FQDN.
+    - If you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`.
+2. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:
+    - only [basic `VAR=VAL`][docker-compose-env-file] is supported
+    - do not quote your values
+    - variable substitution is not supported, e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME` does not work
 
-!!! info "Podman Support"
+[docs-environment]: ./config/environment.md
+[docker-compose-env-file]: https://docs.docker.com/compose/env-file/
 
-    If you're using podman, make sure to read the related [documentation](../config/advanced/podman/)
-
-## Get up and running
-
-### First Things First
+### Get Up and Running
 
 !!! danger "Using the Correct Commands For Stopping and Starting DMS"
 
@@ -60,12 +113,11 @@ chmod a+x ./setup.sh
 
     Using `Ctrl+C` **is not supported either**!
 
-You are able to get a full overview of how the configuration works by either running:
-
-1. `./setup.sh help` which includes the options of `setup.sh`.
-2. `docker run --rm docker.io/mailserver/docker-mailserver:latest setup help` which provides you with all the information on configuration provided "inside" the container itself.
+For an overview of commands to manage DMS config, run: `docker exec -it <CONTAINER NAME> setup help`.
 
 ??? info "Usage of `setup.sh` when no DMS Container Is Running"
+
+    We encourage you to directly use `setup` inside the container (like shown above). If you still want to use `setup.sh`, here's some information about it.
 
     If no DMS container is running, any `./setup.sh` command will check online for the `:latest` image tag (the current _stable_ release), performing a `docker pull ...` if necessary followed by running the command in a temporary container:
 
@@ -78,7 +130,7 @@ You are able to get a full overview of how the configuration works by either run
         setup - 'docker-mailserver' Administration & Configuration script
     ...
 
-    $ docker run --rm docker.io/mailserver/docker-mailserver:latest setup help
+    $ docker run --rm ghcr.io/docker-mailserver/docker-mailserver:latest setup help
     SETUP(1)
 
     NAME
@@ -86,50 +138,71 @@ You are able to get a full overview of how the configuration works by either run
     ...
     ```
 
-### Starting for the first time
-
-On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts with the following two methods:
-
-1. Use `setup.sh`: `./setup.sh email add <user@domain>`
-2. Run the command directly in the container: `docker exec -ti <CONTAINER NAME> setup email add <user@domain>`
-
-You can then proceed by creating the postmaster alias and by creating DKIM keys.
-
-``` BASH
-docker-compose up -d mailserver
-
-# you may add some more users
-# for SELinux, use -Z
-./setup.sh [-Z] email add <user@domain> [<password>]
-
-# and configure aliases, DKIM and more
-./setup.sh [-Z] alias add postmaster@<domain> <user@domain>
-```
+On first start, you will need to add at least one email account (unless you're using LDAP). You have two minutes to do so, otherwise DMS will shutdown and restart. You can add accounts by running `docker exec -ti <CONTAINER NAME> setup email add user@example.com`. **That's it! It really is that easy**.
 
 ## Further Miscellaneous Steps
 
-### DNS - DKIM
+### Aliases
 
-You can (and you should) generate DKIM keys by running
+You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
 
-``` BASH
-./setup.sh [-Z] config dkim
+[docs-aliases]: ./config/user-management/aliases.md
+[docs-env-postmaster]: ./config/environment.md#postmaster_address
+
+```bash
+docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@example.com
 ```
 
-If you want to see detailed usage information, run
+### DKIM Keys
 
-``` BASH
-./setup.sh config dkim help
+You can (_and you should_) generate DKIM keys. For more information:
+
+- DKIM [with OpenDKIM][docs-dkim-opendkim] (_enabled by default_)
+- DKIM [with Rspamd][docs-dkim-rspamd] (_when using `ENABLE_RSPAMD=1`_)
+
+When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-dns] for more details.
+
+!!! note
+
+    In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
+    
+    ``` BASH
+    docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
+    ```
+
+[dkim-signing-setup]: https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim
+[docs-dkim-dns]: ./config/best-practices/dkim.md#configuration-using-a-web-interface
+[docs-dkim-opendkim]: ./config/best-practices/dkim.md#enabling-dkim-signature
+[docs-dkim-rspamd]: ./config/security/rspamd.md#dkim-signing
+
+### Advanced DNS Setup
+
+You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc].
+
+The following illustrates what a (rather strict) set of records could look like:
+
+```console
+$ dig @1.1.1.1 +short TXT example.com
+"v=spf1 mx -all"
+$ dig @1.1.1.1 +short TXT dkim-rsa._domainkey.example.com
+"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ..."
+$ dig @1.1.1.1 +short TXT _dmarc.example.com
+"v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1"
 ```
 
-In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
-
-``` BASH
-./setup.sh config dkim domain '<domain.tld>[,<domain2.tld>]'
-```
-
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM](https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim). See the [documentation](./config/best-practices/dkim.md) for more details.
+[cloudflare-spf-dkim-dmarc]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 
 ### Custom User Changes & Patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation](./faq.md/#how-to-adjust-settings-with-the-user-patchessh-script) for a detailed explanation.
+If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation][docs-user-patches] for a detailed explanation.
+
+[docs-user-patches]: ./faq.md#how-to-adjust-settings-with-the-user-patchessh-script
+
+## Testing
+
+Here are some tools you can use to verify your configuration:
+
+1. [MX Toolbox](https://mxtoolbox.com/SuperTool.aspx)
+2. [DMARC Analyzer](https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/)
+3. [mail-tester.com](https://www.mail-tester.com/)
+4. [multiRBL.valli.org](https://multirbl.valli.org/)
