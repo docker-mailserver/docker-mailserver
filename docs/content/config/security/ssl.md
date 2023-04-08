@@ -44,8 +44,7 @@ Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencr
     ```yml
     services:
       mailserver:
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
     # `domainname` is not required:
     services:
       mailserver:
@@ -92,8 +91,7 @@ You don't have to do anything else. Enjoy!
     services:
       mailserver:
         # For the FQDN 'mail.example.com':
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
         environment:
           - SSL_TYPE=letsencrypt
         volumes:
@@ -126,8 +124,7 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
         services:
           mailserver:
             # For the FQDN 'mail.example.com':
-            hostname: mail
-            domainname: example.com
+            hostname: mail.example.com
             environment:
               - SSL_TYPE=letsencrypt
             volumes:
@@ -367,7 +364,6 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
     You should have an existing `docker-compose.yml` with a `mailserver` service. Below are the modifications to add for integrating with `nginx-proxy` and `acme-companion` services:
 
     ```yaml
-    version: '3.8'
     services:
       # Add the following `environment` and `volumes` to your existing `mailserver` service:
       mailserver:
@@ -637,13 +633,11 @@ This setup only comes with one caveat: The domain has to be configured on anothe
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
     ```yaml
-    version: '3.8'
     services:
       mailserver:
         image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
         volumes:
            - ./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:

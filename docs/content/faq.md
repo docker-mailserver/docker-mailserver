@@ -453,8 +453,6 @@ The following configuration works nicely:
     Or with [Docker Swarm](https://docs.docker.com/engine/swarm/configs/):
 
     ```yaml
-    version: '3.8'
-
     services:
       mailserver:
         image: ghcr.io/docker-mailserver/docker-mailserver:latest
