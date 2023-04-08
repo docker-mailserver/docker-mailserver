@@ -146,7 +146,7 @@ On first start, you will need to add at least one email account (unless you're u
 
 You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
 
-[docs-aliases]: ./config/user-management.md#aliases
+[docs-aliases]: ./config/user-management/aliases.md
 [docs-env-postmaster]: ./config/environment.md#postmaster_address
 
 ```bash

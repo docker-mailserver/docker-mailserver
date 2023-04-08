@@ -39,7 +39,7 @@ DKIM is twofold:
 1. Inbound mail is checked for DKIM signatures (whether they exist, and if so, whether they are correct)
 2. (Your) Signatures should (if enabled and keys exist) be added to outbound mail
 
-When OpenDKIM or Rspamd are enabled, checks for inbound mail are enabled automatically. You do not need to additionally setup anything. When you want to sign your own email, and we heavily encourage that you do, you need to read on.
+When OpenDKIM or Rspamd are enabled, checks for inbound mail are enabled automatically. You do not need to additionally setup anything. When you want to sign your own email, and we heavily encourage that you do, you need to read on. Please also choose whether you want to use OpenDKIM or Rspamd; we encourage you to use Rspamd.
 
 !!! warning "RSA Key Sizes >= 4096 Bit"
 

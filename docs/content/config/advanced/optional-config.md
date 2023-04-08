@@ -43,7 +43,7 @@ This is a list of all configuration files and directories which are optional or 
 
 [docs-accounts-quota]: ../../config/user-management/accounts.md#notes
 [docs-aliases-regex]: ../../config/user-management/aliases.md#configuring-regexp-aliases
-[docs-dkim]: ../../config/best-practices/dkim.md
+[docs-dkim]: ../../config/best-practices/dkim_dmarc_spf.md#dkim
 [docs-fail2ban]: ../../config/security/fail2ban.md
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
 [docs-faq-userpatches]: ../../faq.md#how-to-adjust-settings-with-the-user-patchessh-script
