@@ -25,8 +25,10 @@ The following environment variables are related to Rspamd:
 1. [`ENABLE_RSPAMD`](../environment.md#enable_rspamd)
 2. [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis)
 3. [`RSPAMD_GREYLISTING`](../environment.md#rspamd_greylisting)
-4. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
-5. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
+4. [`RSPAMD_HFILTER`](../environment.md#rspamd_hfilter)
+5. [`RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE`](../environment.md#rspamd_hfilter_hostname_unknown_score)
+6. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
+7. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
 
 With these variables, you can enable Rspamd itself and you can enable / disable certain features related to Rspamd.
 
