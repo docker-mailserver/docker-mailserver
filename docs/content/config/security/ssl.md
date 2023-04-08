@@ -696,10 +696,6 @@ Add `SSL_TYPE=self-signed` to your `docker-mailserver` environment variables. Po
 
 #### Generating a self-signed certificate
 
-!!! note
-
-    Since `docker-mailserver` v10, support in `setup.sh` for generating a _self-signed SSL certificate_ internally was removed.
-
 One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates][github-file::tls-readme].
 
 For example with the FQDN `mail.example.test`, you can generate the required files by running:
@@ -821,15 +817,13 @@ These options in conjunction mean:
 
 If you have another source for SSL/TLS certificates you can import them into the server via an external script. The external script can be found here: [external certificate import script][hanscees-renewcerts].
 
-!!! attention "Only compatible with `docker-mailserver` releases < `v10.2`"
+This is a community contributed script, and in most cases you will have better support via our _Change Detection_ service (_automatic for `SSL_TYPE` of `manual` and `letsencrypt`_) - Unless you're using LDAP which disables the service.
 
-    The script expects `/etc/postfix/ssl/cert` and `/etc/postfix/ssl/key` files to be configured paths for both Postfix and Dovecot to use.
+!!! warning "Script Compatibility"
 
-    Since the `docker-mailserver` 10.2 release, certificate files have moved to `/etc/dms/tls/`, and the file name may differ depending on provisioning method.
-
-    This third-party script also has `fullchain.pem` and `privkey.pem` as hard-coded, thus is incompatible with other filenames.
-
-    Additionally it has never supported handling `ALT` fallback certificates (for supporting dual/hybrid, RSA + ECDSA).
+    - Relies on private filepaths `/etc/dms/tls/cert` and `/etc/dms/tls/key` intended for internal use only.
+    - Only supports hard-coded `fullchain.key` + `privkey.pem` as your mounted file names. That may not align with your provisioning method.
+    - No support for `ALT` fallback certificates (_for supporting dual/hybrid, RSA + ECDSA_).
 
 The steps to follow are these:
 
