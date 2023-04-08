@@ -103,7 +103,7 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
         ```yaml
         services:
           mailserver:
-            image: docker.io/mailserver/docker-mailserver:latest
+            image: ghcr.io/docker-mailserver/docker-mailserver:latest
             container_name: mailserver
             # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
             hostname: mail.example.com
@@ -137,7 +137,7 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
     ??? tip "Firewalled ports"
 
         If you have a firewall running, you may need to open ports `25`, `587` and `465`.
-        
+
         For example, with the firewall `ufw`, run:
 
         ```sh
@@ -145,27 +145,27 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
         ufw allow 587
         ufw allow 465
         ```
-        
+
         **Caution:** This may [not be sound advice][github-issue-ufw].
 
 2. Configure your DNS service to use an MX record for the _hostname_ (eg: `mail`) you configured in the previous step and add the [SPF][docs-spf] TXT record.
 
     !!! tip "If you manually manage the DNS zone file for the domain"
-    
+
         It would look something like this:
-        
+
         ```txt
         $ORIGIN example.com
         @     IN  A      10.11.12.13
         mail  IN  A      10.11.12.13
-        
+
         ; mail-server for example.com
         @     IN  MX  10 mail.example.com.
-        
+
         ; Add SPF record
         @     IN  TXT    "v=spf1 mx -all"
         ```
-        
+
         Then don't forget to change the `SOA` serial number, and to restart the service.
 
 3. [Generate DKIM keys][docs-dkim] for your domain via `setup config dkim`.

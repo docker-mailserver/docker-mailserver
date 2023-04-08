@@ -34,7 +34,7 @@ DESCRIPTION
 
     Please note that the script executes most of the commands inside the container itself.
     If the image was not found, this script will pull the ':latest' tag of
-    'docker.io/mailserver/docker-mailserver'. This tag refers to the latest release,
+    'ghcr.io/docker-mailserver/docker-mailserver'. This tag refers to the latest release,
     see the tagging convention in the README under
     https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 
@@ -95,7 +95,7 @@ OPTIONS
     Config path, container or image adjustments
         -i IMAGE_NAME
             Provides the name of the 'docker-mailserver' image. The default value is
-            'docker.io/mailserver/docker-mailserver:latest'
+            'ghcr.io/docker-mailserver/docker-mailserver:latest'
 
         -c CONTAINER_NAME
             Provides the name of the running container.

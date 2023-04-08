@@ -45,9 +45,9 @@ Now let's say you just bought `example.com` and you want to be able to send and 
 We will later dig into DKIM, DMARC & SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:
 
 - The **MX record** tells everyone which (DNS) name is responsible for e-mails on your domain.
-    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.  
-    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.  
-    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.  
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.
+    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
+    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
 - The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
 
@@ -123,7 +123,7 @@ For an overview of commands to manage DMS config, run: `docker exec -it <CONTAIN
 
     ```console
     $ ./setup.sh help
-    Image 'docker.io/mailserver/docker-mailserver:latest' not found. Pulling ...
+    Image 'ghcr.io/docker-mailserver/docker-mailserver:latest' not found. Pulling ...
     SETUP(1)
 
     NAME
@@ -165,7 +165,7 @@ When keys are generated, you can configure your DNS server by just pasting the c
 !!! note
 
     In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
-    
+
     ``` BASH
     docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
     ```
