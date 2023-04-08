@@ -155,25 +155,24 @@ docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@exa
 
 ### DKIM Keys
 
-You can (and you should) generate DKIM keys. We encourage you to [use Rspamd for DKIM signing][rspamd-dkim-signing]. If you still want to use OpenDKIM, you can use
+You can (_and you should_) generate DKIM keys. For more information:
+- DKIM [with OpenDKIM][docs-dkim-opendkim] (_enabled by default_)
+- DKIM [with Rspamd][docs-dkim-rspamd] (_when using `ENABLE_RSPAMD=1`_)
 
-``` BASH
-docker exec -ti <CONTAINER NAME> setup config dkim help
-```
+When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-dns] for more details.
 
-to help you with generating keys.
+!!! note
 
-In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
-
-``` BASH
-docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
-```
-
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-signing] for more details.
+    In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
+    
+    ``` BASH
+    docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
+    ```
 
 [dkim-signing-setup]: https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim
-[rspamd-dkim-signing]: ./config/security/rspamd.md#dkim-signing
-[docs-dkim-signing]: ./config/best-practices/dkim.md
+[docs-dkim-dns]: ./config/best-practices/dkim.md#configuration-using-a-web-interface
+[docs-dkim-opendkim]: ./config/best-practices/dkim.md#enabling-dkim-signature
+[docs-dkim-rspamd]: ./config/security/rspamd.md#dkim-signing
 
 ### Advanced DNS Setup
 
