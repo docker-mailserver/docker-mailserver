@@ -10,8 +10,10 @@ title: Environment Variables
 
 ##### OVERRIDE_HOSTNAME
 
-- **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
-- => Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will take priority over `docker run` options: `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents: `hostname:` and `domainname:`.
+If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `docker-compose.yml`.
+
+- **empty** => Uses the `hostname -f` command to get canonical hostname for `docker-mailserver` to use.
+- => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for `docker-mailserver` to function correctly.
 
 ##### LOG_LEVEL
 
