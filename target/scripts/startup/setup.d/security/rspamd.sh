@@ -225,12 +225,26 @@ function __rspamd__setup_greylisting
 # succeeds.
 function __rspamd__setup_hfilter_group
 {
+  local MODULE_FILE='/etc/rspamd/local.d/hfilter_group.conf'
   if [[ ${RSPAMD_HFILTER} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
+    # Check if we received a number first
+    if [[ ! ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} =~ ^[0-9][1-9]*$ ]]
+    then
+      __rspamd__log 'warn' "'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' is not a number (${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}) but was expected to be!"
+    elif [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]
+    then
+      __rspamd__log 'trace' "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}"
+      sed -i -E \
+        "s|(.*score =).*(# __TAG__HFILTER_HOSTNAME_UNKNOWN)|\1 ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}; \2|g" \
+        "${MODULE_FILE}"
+    else
+      __rspamd__log 'trace' "Not adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module"
+    fi
   else
     __rspamd__log 'debug' 'Disabling Hfilter (group) module'
-    rm -f /etc/rspamd/local.d/hfilter_group.conf
+    rm -f "${MODULE_FILE}"
   fi
 }
 
