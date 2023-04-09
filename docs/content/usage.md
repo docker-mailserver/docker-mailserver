@@ -142,6 +142,12 @@ On first start, you will need to add at least one email account (unless you're u
 
 ## Further Miscellaneous Steps
 
+### Setting up TLS
+
+You definitely want to setup TLS. Please refer to [our documentation about TLS][docs-tls].
+
+[docs-tls]: ./config/security/ssl.md
+
 ### Aliases
 
 You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
