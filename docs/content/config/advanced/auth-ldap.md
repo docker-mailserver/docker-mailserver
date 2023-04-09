@@ -191,7 +191,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail.example.com
 
@@ -253,7 +253,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail.example.com
 

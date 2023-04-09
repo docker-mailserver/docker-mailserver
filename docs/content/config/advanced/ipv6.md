@@ -12,11 +12,7 @@ This can be solved by supporting IPv6 connections all the way to the `docker-mai
 
 ```diff
 +++ b/serv/docker-compose.yml
-@@ -1,4 +1,4 @@
--version: '2'
-+version: '2.1'
-
-@@ -32,6 +32,16 @@ services:
+@@ ... @@ services:
 
 +  ipv6nat:
 +    image: robbertkl/ipv6nat
@@ -29,7 +25,7 @@ This can be solved by supporting IPv6 connections all the way to the `docker-mai
 +      - /var/run/docker.sock:/var/run/docker.sock:ro
 +      - /lib/modules:/lib/modules:ro
 
-@@ -306,4 +316,13 @@ networks:
+@@ ... @@ networks:
 
 +  default:
 +    driver: bridge
