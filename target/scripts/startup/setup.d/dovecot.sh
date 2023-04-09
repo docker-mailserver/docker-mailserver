@@ -213,8 +213,6 @@ function _setup_dovecot_namespaces
     [[ "${DOVECOT_ENABLE_INBOX_SHARING}" = 1 ]] && _log 'warn' 'Namespace separator has to be defined in order for shared inboxes to work.'
     uncomment_shared_config_contents=no
     DOVECOT_NAMESPACE_SEPARATOR_CLAUSE="# ${DOVECOT_NAMESPACE_SEPARATOR_CLAUSE}"
-  else
-    DOVECOT_NAMESPACE_SEPARATOR_CLAUSE="${DOVECOT_NAMESPACE_SEPARATOR_CLAUSE}"
   fi
 
   [[ "${uncomment_shared_config_contents}" = yes ]] &&  sed -i -e "s/^#<#//" "/etc/dovecot/conf.d/${VARS[DOVECOT_SHARED_INBOX_CONFIG]}"
