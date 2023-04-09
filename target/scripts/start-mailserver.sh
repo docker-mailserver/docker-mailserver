@@ -95,6 +95,7 @@ function _register_functions() {
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
   _register_setup_function '_setup_dovecot_hostname'
+  _register_setup_function '_setup_dovecot_namespaces'
 
   _register_setup_function '_setup_postfix_early'
 
