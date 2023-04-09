@@ -624,60 +624,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-        
-      
-      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
-          User Management
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_4_2">
-          <span class="md-nav__icon md-icon"></span>
-          User Management
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../config/user-management/accounts/" class="md-nav__link">
-        Accounts
+      <a href="../config/user-management/" class="md-nav__link">
+        User Management
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../config/user-management/aliases/" class="md-nav__link">
-        Aliases
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
     </li>
   
 
@@ -1889,7 +1839,7 @@ wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</s
 <h3 id="setting-up-tls"><a class="toclink" href="#setting-up-tls">Setting up TLS</a></h3>
 <p>You definitely want to setup TLS. Please refer to <a href="../config/security/ssl/">our documentation about TLS</a>.</p>
 <h3 id="aliases"><a class="toclink" href="#aliases">Aliases</a></h3>
-<p>You should add at least one <a href="../config/user-management/aliases/">alias</a>, the <a href="../config/environment/#postmaster_address"><em>postmaster alias</em></a>. This is a common convention, but not strictly required.</p>
+<p>You should add at least one <a href="../config/user-management/#aliases">alias</a>, the <a href="../config/environment/#postmaster_address"><em>postmaster alias</em></a>. This is a common convention, but not strictly required.</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>postmaster@example.com<span class="w"> </span>user@example.com
 </code></pre></div>
 <h3 id="dkim-keys"><a class="toclink" href="#dkim-keys">DKIM Keys</a></h3>

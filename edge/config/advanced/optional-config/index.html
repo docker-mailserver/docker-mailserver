@@ -473,60 +473,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-        
-      
-      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
-          User Management
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_4_2">
-          <span class="md-nav__icon md-icon"></span>
-          User Management
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../user-management/accounts/" class="md-nav__link">
-        Accounts
+      <a href="../../user-management/" class="md-nav__link">
+        User Management
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-management/aliases/" class="md-nav__link">
-        Aliases
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
     </li>
   
 
@@ -1574,7 +1524,7 @@
 <li><strong>postfix-virtual.cf:</strong> Alias configuration file. Modify via <a href="../../setup.sh/"><code>setup.sh alias</code></a>.</li>
 <li><strong>postfix-sasl-password.cf:</strong> listing of relayed domains with their respective <code>&lt;username&gt;:&lt;password&gt;</code>. Modify via <code>setup.sh relay add-auth &lt;domain&gt; &lt;username&gt; [&lt;password&gt;]</code>. (Docs: <a href="../mail-forwarding/relay-hosts/#sender-dependent-authentication">Relay-Hosts Auth</a>)</li>
 <li><strong>postfix-relaymap.cf:</strong> domain-specific relays and exclusions. Modify via <code>setup.sh relay add-domain</code> and <code>setup.sh relay exclude-domain</code>. (Docs: <a href="../mail-forwarding/relay-hosts/#sender-dependent-relay-host">Relay-Hosts Senders</a>)</li>
-<li><strong>postfix-regexp.cf:</strong> Regular expression alias file. (Docs: <a href="../../user-management/aliases/#configuring-regexp-aliases">Aliases</a>)</li>
+<li><strong>postfix-regexp.cf:</strong> Regular expression alias file. (Docs: <a href="../../user-management/#configuring-regexp-aliases">Aliases</a>)</li>
 <li><strong>ldap-users.cf:</strong> Configuration for the virtual user mapping <code>virtual_mailbox_maps</code>. See the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411"><code>setup-stack.sh</code></a> script.</li>
 <li><strong>ldap-groups.cf:</strong> Configuration for the virtual alias mapping <code>virtual_alias_maps</code>. See the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411"><code>setup-stack.sh</code></a> script.</li>
 <li><strong>ldap-aliases.cf:</strong> Configuration for the virtual alias mapping <code>virtual_alias_maps</code>. See the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411"><code>setup-stack.sh</code></a> script.</li>
@@ -1585,7 +1535,7 @@
 <li><strong>fail2ban-jail.cf:</strong> Additional config options for fail2ban's jail behaviour. (Docs: <a href="../../security/fail2ban/">Fail2Ban</a>)</li>
 <li><strong>amavis.cf:</strong> replaces the <code>/etc/amavis/conf.d/50-user</code> file</li>
 <li><strong>dovecot.cf:</strong> replaces <code>/etc/dovecot/local.conf</code>. (Docs: <a href="../override-defaults/dovecot/">Override Dovecot Defaults</a>)</li>
-<li><strong>dovecot-quotas.cf:</strong> list of custom quotas per mailbox. (Docs: <a href="../../user-management/accounts/#notes">Accounts</a>)</li>
+<li><strong>dovecot-quotas.cf:</strong> list of custom quotas per mailbox. (Docs: <a href="../../user-management/#quotas">Accounts</a>)</li>
 <li><strong>user-patches.sh:</strong> this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: <a href="../../../faq/#how-to-adjust-settings-with-the-user-patchessh-script">FAQ - How to adjust settings with the <code>user-patches.sh</code> script</a>)</li>
 <li><strong>rspamd-commands:</strong> list of simple commands to adjust Rspamd modules in an easy way (Docs: <a href="../../security/rspamd/#with-the-help-of-a-custom-file">Rspamd</a>)</li>
 </ul>

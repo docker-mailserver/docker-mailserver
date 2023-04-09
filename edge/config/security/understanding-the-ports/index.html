@@ -471,60 +471,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-        
-      
-      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
-          User Management
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_4_2">
-          <span class="md-nav__icon md-icon"></span>
-          User Management
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../user-management/accounts/" class="md-nav__link">
-        Accounts
+      <a href="../../user-management/" class="md-nav__link">
+        User Management
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-management/aliases/" class="md-nav__link">
-        Aliases
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
     </li>
   
 
@@ -1803,7 +1753,7 @@
 </li>
 <li><strong>Port 465 and 587:</strong><ul>
 <li>This is the equivalent of a post office box where you would send email to be delivered on your behalf (<em><code>docker-mailserver</code> is that metaphorical post office, aka the MTA</em>).</li>
-<li>These two ports are known as the <em>submission</em> ports, they enable mail to be sent outbound to another MTA (eg: Outlook or Gmail) but require authentication via a <a href="../../user-management/accounts/">mail account</a>.</li>
+<li>These two ports are known as the <em>submission</em> ports, they enable mail to be sent outbound to another MTA (eg: Outlook or Gmail) but require authentication via a <a href="../../user-management/#accounts">mail account</a>.</li>
 <li>For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when <code>docker-mailserver</code> is configured as a mail relay, or when you have a service sending transactional mail (<em>eg: order confirmations, password resets, notifications</em>) through <code>docker-mailserver</code>.</li>
 <li><em><strong>Prefer port 465</strong></em> over port 587, as 465 provides Implicit TLS.</li>
 </ul>
@@ -1814,7 +1764,7 @@
 <p>When submitting mail (inbound) to be sent (outbound), this involves two separate connections to negotiate and secure. There may be additional intermediary connections which <code>docker-mailserver</code> is not involved in, and thus unable to ensure encrypted transit throughout delivery.</p>
 </div>
 <h4 id="outbound-traffic-on-the-right"><a class="toclink" href="#outbound-traffic-on-the-right">Outbound Traffic (On the Right)</a></h4>
-<p>Mail being sent from your server is either being relayed through another MTA (eg: SendGrid), or direct to an MTA responsible for an email address (eg: Gmail). </p>
+<p>Mail being sent from your server is either being relayed through another MTA (eg: SendGrid), or direct to an MTA responsible for an email address (eg: Gmail).</p>
 <ul>
 <li><strong>Port 25:</strong><ul>
 <li>As most MTA use port 25 to receive inbound mail, when no authenticated relay is involved this is the outbound port used.</li>
