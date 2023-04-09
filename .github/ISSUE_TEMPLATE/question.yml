@@ -1,0 +1,33 @@
+name: Other
+description: Miscellaneous questions and reports
+title: 'other: '
+labels:
+  - meta/help wanted
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
+
+        Be as precise as possible, and if in doubt, it's best to add more information that too few.
+
+        ---
+  - type: dropdown
+    id: subject
+    attributes:
+      label: Subject
+      options:
+        - I would like to contribute to the project
+        - I would like to configure a not documented mail server use case
+        - I would like some feedback concerning a use case
+        - I have questions about TLS/SSL/STARTTLS/OpenSSL
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+    validations:
+      required: true

@@ -1,0 +1,60 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: 'feature request: '
+labels:
+  - kind/new feature
+  - meta/needs triage
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
+
+        Be as precise as possible, and if in doubt, it's best to add more information that too few.
+
+        ---
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Tell us how your request is related to DMS, one of its components or another issue / PR. Also **link all conected issues and PRs here**!
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the solution you would like to have implemented. Be as precise as possible!
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Which alternatives have you considered?
+    validations:
+      required: true
+  - type: textarea
+    id: applicable-users
+    attributes:
+      label: Applicable Users
+      description: Who will that feature be useful to?
+    validations:
+      required: true
+  - type: dropdown
+    id: implementer
+    attributes:
+      label: Are you going to implement it?
+      options:
+        - Yes, because I know the probability of someone else doing it is low and I can learn from it.
+        - No, and I understand that it is highly likely no one will implement it. Furthermore, I understand that this issue will likely become stale and will be closed.
+    validations:
+      required: true
+  - type: textarea
+    id: contribution
+    attributes:
+      label: What are you going to contribute?
+      description: You may also tell us what you have already done.
+    validations:
+      required: true

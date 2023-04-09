@@ -1,9 +1,12 @@
 blank_issues_enabled: false
 
 contact_links:
-  - name: Documentation
-    url: https://docker-mailserver.github.io/docker-mailserver/edge
-    about: Extended documentaton - visit this first before opening issues
-  - name: Environment Variables Section
-    url: https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
-    about: Read this section for information about mail server variables
+  - name: Documentation | Landing Page
+    url: https://docker-mailserver.github.io/docker-mailserver/latest
+    about: Visit this first before opening issues!
+  - name: Documentation | Environment Variables Page
+    url: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/
+    about: Read this page for information about mail server variables.
+  - name: Documentation | Debugging Page
+    url: https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/
+    about: Read this page for information on how to debug DMS.

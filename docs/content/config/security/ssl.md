@@ -27,41 +27,27 @@ After installation, you can test your setup with:
 
 An [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (_Fully Qualified Domain Name_) such as `mail.example.com` is required for `docker-mailserver` to function correctly, especially for looking up the correct SSL certificate to use.
 
-Internally, `hostname -f` will be used to retrieve the FQDN as configured in the below examples.
+- `mail.example.com` will still use `user@example.com` as the mail address. You do not need a bare domain for that.
+- We usually discourage assigning a bare domain (_When your DNS MX record does not point to a subdomain_) to represent `docker-mailserver`. However, an FQDN of [just `example.com` is also supported][docs-faq-baredomain].
+- Internally, `hostname -f` will be used to retrieve the FQDN as configured in the below examples.
+- Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencrypt`. Your configured FQDN below may be `mail.example.com`, and your wildcard certificate provisioned to `/etc/letsencrypt/live/example.com` which will be checked as a fallback FQDN by `docker-mailserver`.
 
-Wildcard certificates (eg: `*.example.com`) are supported for `SSL_TYPE=letsencrypt`. Your configured FQDN below may be `mail.example.com`, and your wildcard certificate provisioned to `/etc/letsencrypt/live/example.com` which will be checked as a fallback FQDN by `docker-mailserver`.
+!!! example "Setting the hostname correctly"
 
-!!! example "Docker CLI options `--hostname` and optionally `--domainname`"
+    Change `mail.example.com` below to your own FQDN.
 
     ```sh
-    docker run --hostname mail --domainname example.com
-    # `--domainname` is not required:
+    # CLI:
     docker run --hostname mail.example.com
     ```
-
-!!! example "`docker-compose.yml` config"
-
+    
+    or
+    
     ```yml
-    services:
-      mailserver:
-        hostname: mail
-        domainname: example.com
-    # `domainname` is not required:
+    # docker-compose.yml
     services:
       mailserver:
         hostname: mail.example.com
-    ```
-
-!!! example "_Bare domains_ (eg: `example.com`) should only use the hostname option"
-
-    ```sh
-    docker run --hostname example.com
-    ```
-
-    ```yml
-    services:
-      mailserver:
-        hostname: example.com
     ```
 
 ## Provisioning methods
@@ -91,9 +77,7 @@ You don't have to do anything else. Enjoy!
     ```yaml
     services:
       mailserver:
-        # For the FQDN 'mail.example.com':
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
         environment:
           - SSL_TYPE=letsencrypt
         volumes:
@@ -107,7 +91,6 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
 1. Getting a certificate is this simple! (_Referencing: [Certbot docker instructions][certbot::docker] and [`certonly --standalone` mode][certbot::standalone]_):
 
     ```sh
-    # Change `mail.example.com` below to your own FQDN.
     # Requires access to port 80 from the internet, adjust your firewall if needed.
     docker run --rm -it \
       -v "${PWD}/docker-data/certbot/certs/:/etc/letsencrypt/" \
@@ -121,13 +104,11 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
     !!! example
 
         Add these additions to the `mailserver` service in your [`docker-compose.yml`][github-file-compose]:
-    
+
         ```yaml
         services:
           mailserver:
-            # For the FQDN 'mail.example.com':
-            hostname: mail
-            domainname: example.com
+            hostname: mail.example.com
             environment:
               - SSL_TYPE=letsencrypt
             volumes:
@@ -169,7 +150,7 @@ Obtain a Cloudflare API token:
 3. Click "Create Token", and choose the `Edit zone DNS` template (_Certbot [requires the `ZONE:DNS:Edit` permission](https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials)_).
 
     !!! warning "Only include the necessary Zone resource configuration"
-    
+
         Be sure to configure "Zone Resources" section on this page to `Include -> Specific zone -> <your zone here>`.
 
         This restricts the API token to only this zone (domain) which is an important security measure.
@@ -264,7 +245,7 @@ After completing the steps above, your certificate should be ready to use.
     ```
 
     You can manually run this service to renew the cert within 90 days:
-    
+
     ```sh
     docker-compose run certbot-cloudflare-renew
     ```
@@ -274,14 +255,14 @@ After completing the steps above, your certificate should be ready to use.
 
     ```log
     Saving debug log to /var/log/letsencrypt/letsencrypt.log
-    
+
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Processing /etc/letsencrypt/renewal/mail.example.com.conf
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Account registered.
     Simulating renewal of an existing certificate for mail.example.com
     Waiting 10 seconds for DNS changes to propagate
-    
+
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Congratulations, all simulated renewals succeeded:
       /etc/letsencrypt/live/mail.example.com/fullchain.pem (success)
@@ -367,7 +348,6 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
     You should have an existing `docker-compose.yml` with a `mailserver` service. Below are the modifications to add for integrating with `nginx-proxy` and `acme-companion` services:
 
     ```yaml
-    version: '3.8'
     services:
       # Add the following `environment` and `volumes` to your existing `mailserver` service:
       mailserver:
@@ -395,12 +375,10 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
         volumes:
           # `certs/`:      Managed by the `acme-companion` container (_read-only_).
           # `docker.sock`: Required to interact with containers via the Docker API.
-          # `dhparam`:     A named data volume to prevent `nginx-proxy` creating an anonymous volume each time.
           - ./docker-data/nginx-proxy/html/:/usr/share/nginx/html/
           - ./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/
           - ./docker-data/acme-companion/certs/:/etc/nginx/certs/:ro
           - /var/run/docker.sock:/tmp/docker.sock:ro
-          - dhparam:/etc/nginx/dhparam
 
       acme-companion:
         image: nginxproxy/acme-companion
@@ -421,12 +399,6 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
           - ./docker-data/acme-companion/certs/:/etc/nginx/certs/:rw
           - ./docker-data/acme-companion/acme-state/:/etc/acme.sh/
           - /var/run/docker.sock:/var/run/docker.sock:ro
-
-    # Once `nginx-proxy` fixes their Dockerfile, this named data volume can be removed from docs.
-    # Users can opt for a local bind mount volume like all others if they prefer, but this volume
-    # is only intended to be temporary.
-    volumes:
-      dhparam:
     ```
 
 !!! tip "Optional ENV vars worth knowing about"
@@ -494,8 +466,6 @@ Amongst other things, you can use these to secure your mail-server. DSM locates 
 Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your `docker-compose.yml` declaration file:
 
 ```yaml
-# Note: If you have an existing setup that was working pre docker-mailserver v10.2,
-# '/tmp/dms/custom-certs' below has replaced the previous '/tmp/ssl' container path.
 volumes:
   - /usr/syno/etc/certificate/_archive/<your-folder>/:/tmp/dms/custom-certs/
 environment:
@@ -507,16 +477,6 @@ environment:
 DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 ### Caddy
-
-If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read [#1440][github-issue-1440] for details. In short for Caddy v1 the `Caddyfile` should look something like:
-
-```caddyfile
-https://mail.example.com {
-  tls admin@example.com {
-    key_type rsa2048
-  }
-}
-```
 
 For Caddy v2 you can specify the `key_type` in your server's global settings, which would end up looking something like this if you're using a `Caddyfile`:
 
@@ -533,7 +493,7 @@ For Caddy v2 you can specify the `key_type` in your server's global settings, wh
 
 If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
 
-???+ example "Example Code"
+??? example "Caddy v2 JSON example snippet"
 
     ```json
     {
@@ -600,21 +560,12 @@ If you are instead using a json config for Caddy v2, you can set it in your site
     }
     ```
 
-The generated certificates can be mounted:
+The generated certificates can then be mounted:
 
 ```yaml
 volumes:
   - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem
   - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
-```
-
-EC certificates fail in the TLS handshake:
-
-```log
-CONNECTED(00000003)
-140342221178112:error:14094410:SSL routines:ssl3_read_bytes:sslv3 alert handshake failure:ssl/record/rec_layer_s3.c:1543:SSL alert number 40
-no peer certificate available
-No client certificate CA names sent
 ```
 
 ### Traefik v2
@@ -637,13 +588,11 @@ This setup only comes with one caveat: The domain has to be configured on anothe
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
     ```yaml
-    version: '3.8'
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
         volumes:
            - ./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
@@ -695,10 +644,6 @@ Where `<FQDN>` is the FQDN you've configured for your `docker-mailserver` contai
 Add `SSL_TYPE=self-signed` to your `docker-mailserver` environment variables. Postfix and Dovecot will be configured to use the provided certificate (_`.pem` files above_) during container startup.
 
 #### Generating a self-signed certificate
-
-!!! note
-
-    Since `docker-mailserver` v10, support in `setup.sh` for generating a _self-signed SSL certificate_ internally was removed.
 
 One way to generate self-signed certificates is with [Smallstep's `step` CLI](https://smallstep.com/docs/step-cli). This is exactly what [`docker-mailserver` does for creating test certificates][github-file::tls-readme].
 
@@ -821,15 +766,13 @@ These options in conjunction mean:
 
 If you have another source for SSL/TLS certificates you can import them into the server via an external script. The external script can be found here: [external certificate import script][hanscees-renewcerts].
 
-!!! attention "Only compatible with `docker-mailserver` releases < `v10.2`"
+This is a community contributed script, and in most cases you will have better support via our _Change Detection_ service (_automatic for `SSL_TYPE` of `manual` and `letsencrypt`_) - Unless you're using LDAP which disables the service.
 
-    The script expects `/etc/postfix/ssl/cert` and `/etc/postfix/ssl/key` files to be configured paths for both Postfix and Dovecot to use.
+!!! warning "Script Compatibility"
 
-    Since the `docker-mailserver` 10.2 release, certificate files have moved to `/etc/dms/tls/`, and the file name may differ depending on provisioning method.
-
-    This third-party script also has `fullchain.pem` and `privkey.pem` as hard-coded, thus is incompatible with other filenames.
-
-    Additionally it has never supported handling `ALT` fallback certificates (for supporting dual/hybrid, RSA + ECDSA).
+    - Relies on private filepaths `/etc/dms/tls/cert` and `/etc/dms/tls/key` intended for internal use only.
+    - Only supports hard-coded `fullchain.key` + `privkey.pem` as your mounted file names. That may not align with your provisioning method.
+    - No support for `ALT` fallback certificates (_for supporting dual/hybrid, RSA + ECDSA_).
 
 The steps to follow are these:
 
@@ -864,7 +807,7 @@ export SITE_URL="mail.example.com"
 export SITE_IP_URL="192.168.0.72" # can also use `mail.example.com`
 export SITE_SSL_PORT="993" # imap port dovecot
 
-##works: check if certificate will expire in two weeks 
+##works: check if certificate will expire in two weeks
 #2 weeks is 1209600 seconds
 #3 weeks is 1814400
 #12 weeks is 7257600
@@ -921,7 +864,7 @@ if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
     echo "Cert seems to be expiring pretty soon, within two weeks: $certcheck_2weeks"
     echo "we will send an alert email and log as well"
     logger Certwatch: cert $SITE_URL will expire in two weeks
-    echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR 
+    echo "Certwatch: cert $SITE_URL will expire in two weeks" | mail -s "cert $SITE_URL expires in two weeks " $ALERT_EMAIL_ADDR
 fi
 ```
 
@@ -933,10 +876,10 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 
 [docs-env::ssl-type]: ../environment.md#ssl_type
 [docs-optional-config]: ../advanced/optional-config.md
+[docs-faq-baredomain]: ../../faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
 [github-file::tls-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/3b8059f2daca80d967635e04d8d81e9abb755a4d/test/test-files/ssl/example.test/README.md
-[github-issue-1440]: https://github.com/docker-mailserver/docker-mailserver/issues/1440
 [hanscees-renewcerts]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-renew-certs
 
 [traefik::github]: https://github.com/containous/traefik
