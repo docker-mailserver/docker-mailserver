@@ -152,7 +152,7 @@ You definitely want to setup TLS. Please refer to [our documentation about TLS][
 
 You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
 
-[docs-aliases]: ./config/user-management/aliases.md
+[docs-aliases]: ./config/user-management.md#aliases
 [docs-env-postmaster]: ./config/environment.md#postmaster_address
 
 ```bash

@@ -114,9 +114,7 @@ nav:
   - 'Usage': usage.md
   - 'Configuration':
     - 'Environment Variables': config/environment.md
-    - 'User Management':
-      - 'Accounts': config/user-management/accounts.md
-      - 'Aliases': config/user-management/aliases.md
+    - 'User Management': config/user-management.md
     - 'Best Practices':
       - 'DKIM': config/best-practices/dkim.md
       - 'DMARC': config/best-practices/dmarc.md

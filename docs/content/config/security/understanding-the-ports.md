@@ -22,11 +22,11 @@ Prefer ports with Implicit [TLS][wikipedia-tls] ports, they're more secure than 
 ??? warning "Beware of outdated advice on port 465"
 
     There is a common misconception of this port due to it's history detailed by various communities and blogs articles on the topic (_including by popular mail relay services_).
-    
+
     Port 465 was [briefly assigned the role of SMTPS in 1997][wikipedia-smtps] as an secure alternative to Port 25 between MTA exchanges. Then RFC 2487 (`STARTTLS`) [while still in a draft status in late 1998 had IANA revoke the SMTPS assignment][history-465-revoked]. The [draft history was modified to exclude all mention of port 465 and SMTPS][history-465-politics].
-    
+
     In 2018 [RFC 8314][rfc-8314] was published which revives Port 465 as an Implicit TLS alternative to Port 587 for mail submission. It details very clearly that gaining adoption of 465 as the preferred port will take time. IANA reassigned [port 465 as the `submissions` service][iana-services-465]. Any unofficial usage as **SMTPS is legacy and has been for over two decades**.
-    
+
     Understand that port 587 is more broadly supported due to this history and that lots of software in that time has been built or configured with that port in mind. [`STARTTLS` is known to have various CVEs discovered even in recent years][starttls-vulnerabilities], do not be misled by any advice implying it should be preferred over implicit TLS. Trust in more official sources, such as the [config Postfix has][postfix-upstream-config-mastercf] which acknowledges the `submissions` port (465).
 
 
@@ -82,7 +82,7 @@ Mail arriving at your server will be processed and stored in a mailbox, or sent 
 
 #### Outbound Traffic (On the Right)
 
-Mail being sent from your server is either being relayed through another MTA (eg: SendGrid), or direct to an MTA responsible for an email address (eg: Gmail). 
+Mail being sent from your server is either being relayed through another MTA (eg: SendGrid), or direct to an MTA responsible for an email address (eg: Gmail).
 
 - **Port 25:**
     - As most MTA use port 25 to receive inbound mail, when no authenticated relay is involved this is the outbound port used.
@@ -95,10 +95,10 @@ Mail being sent from your server is either being relayed through another MTA (eg
 !!! tip
 
     `docker-mailserver` can function as a relay too, but professional relay services have a trusted reputation (_which increases success of delivery_).
-    
+
     An MTA with low reputation can affect if mail is treated as junk, or even rejected.
 
-!!! note 
+!!! note
 
     At best, you can only ensure a secure connection between the MTA you directly connect to. The receiving MTA may relay that mail to another MTA (_and so forth_), each connection may not be enforcing TLS.
 
@@ -119,7 +119,7 @@ Sometimes a reverse-proxy is involved, but is misconfigured or lacks support for
 !!! warning
 
     `STARTTLS` [continues to have vulnerabilities found][starttls-vulnerabilities] (Nov 2021 article), as per [RFC 8314 (Section 4.1)][rfc-8314-s41] you are encouraged to **prefer Implicit TLS where possible**.
-    
+
     Support for `STARTTLS` is not always implemented correctly, which can lead to leaking credentials (like a client sending too early) prior to a TLS connection being established. Third-parties such as some ISPs have also been known to intercept the `STARTTLS` exchange, modifying network traffic to prevent establishing a secure connection.
 
 
@@ -146,7 +146,7 @@ Unlike with HTTP where a web browser client communicates directly with the serve
 
 Other machines that facilitate a connection that generally aren't taken into account can exist between a client and server, such as those where your connection passes through your ISP provider are capable of compromising a `cleartext` connection through interception.
 
-[docs-accounts]: ../user-management/accounts.md
+[docs-accounts]: ../user-management.md#accounts
 [docs-relays]: ../advanced/mail-forwarding/relay-hosts.md
 [iana-services-465]: https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=465
 [starttls-policy-list]: https://github.com/EFForg/starttls-everywhere#email-security-database-starttls-policy-list
