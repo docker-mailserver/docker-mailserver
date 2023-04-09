@@ -169,9 +169,11 @@ By default, DMS offers no option to generate and configure signing e-mails with 
     }
     ```
 
-!!! bug "File Permissions"
+!!! bug "File Permissions & Signing Issues"
 
-    Make sure the user `_rspamd` is able to go into the directory where you persist the (private) key files, and ensure it can read them!
+    Make sure the user `_rspamd` is able to go into the directory where you persist the (private) key files, and ensure it can read them! You can use `su -l _rspamd -s /bin/bash` to change to the `_rspamd` user and then navigate into the directory and read the files (e.g. with `cat`). If any errors occur, you know the permissions are not correct yet.
+
+    When you set `check_pubkey = true;` in `dkim_signing.conf`, Rspamd will check the public key against your private key and emit a warning if there is a mismatch. Monitor the log file (`/var/log/supervisor/rspamd.log`) closely!
 
 [rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
 [rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
