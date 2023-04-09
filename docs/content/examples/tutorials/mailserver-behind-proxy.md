@@ -30,7 +30,6 @@ Feel free to add your configuration if you achieved the same goal using differen
     Truncated configuration of traefik itself:
 
     ```yaml
-    version: '3.8'
     services:
       reverse-proxy:
         image: docker.io/traefik:latest # v2.5
@@ -57,13 +56,11 @@ Feel free to add your configuration if you achieved the same goal using differen
     Truncated list of necessary labels on the `docker-mailserver` container:
 
     ```yaml
-    version: '3.8'
     services:
       mailserver:
         image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
         restart: always
         networks:
           - proxy

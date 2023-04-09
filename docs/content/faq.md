@@ -168,7 +168,7 @@ To use a bare domain (_where the host name is `example.com` and the domain is al
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that `OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file (see [#1731](https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425)). Without these changes there will be warnings in the logs like:
+Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that [`OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file][github-comment-override-hostname]. Without these changes there will be warnings in the logs like:
 
 ```log
 warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
@@ -176,7 +176,15 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
-Also you need to define `hostname: example.com` in your docker-compose.yml and don't sepecify the `domainname:` at all.
+Also you need to define `hostname: example.com` in your `docker-compose.yml`.
+
+!!! tip "You might not want a bare domain"
+
+    We encourage you to consider using a subdomain where possible.
+    
+    - There are [benefits][github-comment-baredomain] to preferring a subdomain.
+    - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
+
 
 ### How can I configure a catch-all?
 
@@ -453,8 +461,6 @@ The following configuration works nicely:
     Or with [Docker Swarm](https://docs.docker.com/engine/swarm/configs/):
 
     ```yaml
-    version: '3.8'
-
     services:
       mailserver:
         image: ghcr.io/docker-mailserver/docker-mailserver:latest
@@ -519,6 +525,8 @@ $spam_quarantine_to       = "amavis\@example.com";
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
+[github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
+[github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
 [github-issue-97]: https://github.com/docker-mailserver/docker-mailserver/issues/97
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247
