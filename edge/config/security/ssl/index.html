@@ -1766,34 +1766,23 @@
 </div>
 <h2 id="the-fqdn"><a class="toclink" href="#the-fqdn">The FQDN</a></h2>
 <p>An <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a> (<em>Fully Qualified Domain Name</em>) such as <code>mail.example.com</code> is required for <code>docker-mailserver</code> to function correctly, especially for looking up the correct SSL certificate to use.</p>
-<p>Internally, <code>hostname -f</code> will be used to retrieve the FQDN as configured in the below examples.</p>
-<p>Wildcard certificates (eg: <code>*.example.com</code>) are supported for <code>SSL_TYPE=letsencrypt</code>. Your configured FQDN below may be <code>mail.example.com</code>, and your wildcard certificate provisioned to <code>/etc/letsencrypt/live/example.com</code> which will be checked as a fallback FQDN by <code>docker-mailserver</code>.</p>
+<ul>
+<li><code>mail.example.com</code> will still use <code>user@example.com</code> as the mail address. You do not need a bare domain for that.</li>
+<li>We usually discourage assigning a bare domain (<em>When your DNS MX record does not point to a subdomain</em>) to represent <code>docker-mailserver</code>. However, an FQDN of <a href="../../../faq/#can-i-use-a-nakedbare-domain-ie-no-hostname">just <code>example.com</code> is also supported</a>.</li>
+<li>Internally, <code>hostname -f</code> will be used to retrieve the FQDN as configured in the below examples.</li>
+<li>Wildcard certificates (eg: <code>*.example.com</code>) are supported for <code>SSL_TYPE=letsencrypt</code>. Your configured FQDN below may be <code>mail.example.com</code>, and your wildcard certificate provisioned to <code>/etc/letsencrypt/live/example.com</code> which will be checked as a fallback FQDN by <code>docker-mailserver</code>.</li>
+</ul>
 <div class="admonition example">
-<p class="admonition-title">Docker CLI options <code>--hostname</code> and optionally <code>--domainname</code></p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="w"> </span>mail<span class="w"> </span>--domainname<span class="w"> </span>example.com
-<span class="c1"># `--domainname` is not required:</span>
+<p class="admonition-title">Setting the hostname correctly</p>
+<p>Change <code>mail.example.com</code> below to your own FQDN.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># CLI:</span>
 docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="w"> </span>mail.example.com
 </code></pre></div>
-</div>
-<div class="admonition example">
-<p class="admonition-title"><code>docker-compose.yml</code> config</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span>
-<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span>
-<span class="c1"># `domainname` is not required:</span>
+<p>or</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
-</code></pre></div>
-</div>
-<div class="admonition example">
-<p class="admonition-title"><em>Bare domains</em> (eg: <code>example.com</code>) should only use the hostname option</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="w"> </span>example.com
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span>
 </code></pre></div>
 </div>
 <h2 id="provisioning-methods"><a class="toclink" href="#provisioning-methods">Provisioning methods</a></h2>
@@ -1820,9 +1809,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="
 <p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="c1"># For the FQDN &#39;mail.example.com&#39;:</span>
-<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span>
-<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
@@ -1834,8 +1821,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="
 <ol>
 <li>
 <p>Getting a certificate is this simple! (<em>Referencing: <a href="https://certbot.eff.org/docs/install.html#running-with-docker">Certbot docker instructions</a> and <a href="https://certbot.eff.org/docs/using.html#standalone"><code>certonly --standalone</code> mode</a></em>):</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Change `mail.example.com` below to your own FQDN.</span>
-<span class="c1"># Requires access to port 80 from the internet, adjust your firewall if needed.</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Requires access to port 80 from the internet, adjust your firewall if needed.</span>
 docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/certbot/certs/:/etc/letsencrypt/&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/certbot/logs/:/var/log/letsencrypt/&quot;</span><span class="w"> </span><span class="se">\</span>
@@ -1850,9 +1836,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="c1"># For the FQDN &#39;mail.example.com&#39;:</span>
-<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span>
-<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=letsencrypt</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
@@ -2063,8 +2047,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <details class="example" open="open">
 <summary>Example: <code>docker-compose.yml</code></summary>
 <p>You should have an existing <code>docker-compose.yml</code> with a <code>mailserver</code> service. Below are the modifications to add for integrating with <code>nginx-proxy</code> and <code>acme-companion</code> services:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># Add the following `environment` and `volumes` to your existing `mailserver` service:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
@@ -2091,12 +2074,10 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="c1"># `certs/`:      Managed by the `acme-companion` container (_read-only_).</span>
 <span class="w">      </span><span class="c1"># `docker.sock`: Required to interact with containers via the Docker API.</span>
-<span class="w">      </span><span class="c1"># `dhparam`:     A named data volume to prevent `nginx-proxy` creating an anonymous volume each time.</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/html/:/usr/share/nginx/html/</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/nginx-proxy/vhost.d/:/etc/nginx/vhost.d/</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:ro</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/tmp/docker.sock:ro</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dhparam:/etc/nginx/dhparam</span>
 
 <span class="w">  </span><span class="nt">acme-companion</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginxproxy/acme-companion</span>
@@ -2117,12 +2098,6 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/certs/:/etc/nginx/certs/:rw</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/acme-companion/acme-state/:/etc/acme.sh/</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock:ro</span>
-
-<span class="c1"># Once `nginx-proxy` fixes their Dockerfile, this named data volume can be removed from docs.</span>
-<span class="c1"># Users can opt for a local bind mount volume like all others if they prefer, but this volume</span>
-<span class="c1"># is only intended to be temporary.</span>
-<span class="nt">volumes</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">dhparam</span><span class="p">:</span>
 </code></pre></div>
 </details>
 <div class="admonition tip">
@@ -2178,9 +2153,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <p>Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.</p>
 <p>Amongst other things, you can use these to secure your mail-server. DSM locates the generated certificates in a folder below <code>/usr/syno/etc/certificate/_archive/</code>.</p>
 <p>Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your <code>docker-compose.yml</code> declaration file:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Note: If you have an existing setup that was working pre docker-mailserver v10.2,</span>
-<span class="c1"># &#39;/tmp/dms/custom-certs&#39; below has replaced the previous &#39;/tmp/ssl&#39; container path.</span>
-<span class="nt">volumes</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/syno/etc/certificate/_archive/&lt;your-folder&gt;/:/tmp/dms/custom-certs/</span>
 <span class="nt">environment</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span>
@@ -2189,13 +2162,6 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 </code></pre></div>
 <p>DSM-generated letsencrypt certificates get auto-renewed every three months.</p>
 <h3 id="caddy"><a class="toclink" href="#caddy">Caddy</a></h3>
-<p>If you are using Caddy to renew your certificates, please note that only RSA certificates work. Read <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1440">#1440</a> for details. In short for Caddy v1 the <code>Caddyfile</code> should look something like:</p>
-<div class="highlight"><pre><span></span><code>https://mail.example.com {
-  tls admin@example.com {
-    key_type rsa2048
-  }
-}
-</code></pre></div>
 <p>For Caddy v2 you can specify the <code>key_type</code> in your server's global settings, which would end up looking something like this if you're using a <code>Caddyfile</code>:</p>
 <div class="highlight"><pre><span></span><code>{
   debug
@@ -2207,8 +2173,8 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 }
 </code></pre></div>
 <p>If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:</p>
-<details class="example" open="open">
-<summary>Example Code</summary>
+<details class="example">
+<summary>Caddy v2 JSON example snippet</summary>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;apps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;http&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -2273,16 +2239,10 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="p">}</span>
 </code></pre></div>
 </details>
-<p>The generated certificates can be mounted:</p>
+<p>The generated certificates can then be mounted:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span>
-</code></pre></div>
-<p>EC certificates fail in the TLS handshake:</p>
-<div class="highlight"><pre><span></span><code><span class="go">CONNECTED(00000003)</span>
-<span class="go">140342221178112:error:14094410:SSL routines:ssl3_read_bytes:sslv3 alert handshake failure:ssl/record/rec_layer_s3.c:1543:SSL alert number 40</span>
-<span class="go">no peer certificate available</span>
-<span class="go">No client certificate CA names sent</span>
 </code></pre></div>
 <h3 id="traefik-v2"><a class="toclink" href="#traefik-v2">Traefik v2</a></h3>
 <p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://datatracker.ietf.org/doc/html/rfc8555">ACME protocol</a>. <a href="https://github.com/containous/traefik">Traefik</a> can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use <a href="https://github.com/containous/traefik">Traefik</a>'s major version 2.</p>
@@ -2298,13 +2258,11 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <details class="example" open="open">
 <summary>Example Code</summary>
 <p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>docker-compose</code></a>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
-<span class="nt">services</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail</span>
-<span class="w">    </span><span class="nt">domainname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>

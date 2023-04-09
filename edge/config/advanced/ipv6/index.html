@@ -1518,11 +1518,7 @@
 <p>This can be solved by supporting IPv6 connections all the way to the <code>docker-mailserver</code> container.</p>
 <h2 id="setup-steps"><a class="toclink" href="#setup-steps">Setup steps</a></h2>
 <div class="highlight"><pre><span></span><code><span class="gi">+++ b/serv/docker-compose.yml</span>
-<span class="gu">@@ -1,4 +1,4 @@</span>
-<span class="gd">-version: &#39;2&#39;</span>
-<span class="gi">+version: &#39;2.1&#39;</span>
-
-<span class="gu">@@ -32,6 +32,16 @@ services:</span>
+<span class="gu">@@ ... @@ services:</span>
 
 <span class="gi">+  ipv6nat:</span>
 <span class="gi">+    image: robbertkl/ipv6nat</span>
@@ -1535,7 +1531,7 @@
 <span class="gi">+      - /var/run/docker.sock:/var/run/docker.sock:ro</span>
 <span class="gi">+      - /lib/modules:/lib/modules:ro</span>
 
-<span class="gu">@@ -306,4 +316,13 @@ networks:</span>
+<span class="gu">@@ ... @@ networks:</span>
 
 <span class="gi">+  default:</span>
 <span class="gi">+    driver: bridge</span>
