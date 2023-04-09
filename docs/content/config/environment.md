@@ -213,7 +213,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
 
-See [mailbox quota][docs-accounts].
+See [mailbox quota][docs-accounts-quota].
 
 ##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
 
@@ -831,4 +831,4 @@ you to replace both instead of just the envelope sender.
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
-[docs-accounts]: ./user-management.md#accounts
+[docs-accounts-quota]: ./user-management.md#quotas
