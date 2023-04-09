@@ -6,9 +6,9 @@
 # Call me like this: share_inbox.sh office bob lookup read
 
 DOMAIN=$(hostname -d)
-if [[ "${ENABLE_SHARED_INBOX}" = 0 ]]
+if [[ "${DOVECOT_ENABLE_INBOX_SHARING}" = 0 ]]
 then
-  echo "You have to enable inbox sharing by means of 'ENABLE_SHARED_INBOX' before actually sharing anything." >&2
+  echo "You have to enable inbox sharing by means of 'DOVECOT_ENABLE_INBOX_SHARING' before actually sharing anything." >&2
   exit 1
 fi
 
