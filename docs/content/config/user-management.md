@@ -2,11 +2,11 @@
 
 ## Accounts
 
-Users (email accounts) are managed in `/tmp/docker-mailserver/postfix-accounts.cf`. The best way to manage accounts is to use the reliable `setup` script inside the container. Just run `docker exec <CONTAINER NAME> setup help` and have a look at the section about subcommands, specifically the `email`-subcommand.
+Users (email accounts) are managed in `/tmp/docker-mailserver/postfix-accounts.cf`. The best way to manage accounts is to use the reliable `setup` command inside the container. Just run `docker exec <CONTAINER NAME> setup help` and have a look at the section about subcommands, specifically the `email` subcommand.
 
-### Adding a New Account
+### Adding a new Account
 
-#### Via `setup` Inside the Container
+#### Via `setup` inside the container
 
 You can add an account by running `docker exec -ti <CONTAINER NAME> setup email add <NEW ADDRESS>`. This method is strongly preferred.
 
@@ -70,7 +70,7 @@ Additional regexp aliases can be configured by placing them into `docker-data/dm
 /^test[0-9][0-9]*@example.com/ qa@example.com
 ```
 
-### Address Tags (Extension Delimiters) As an Alternative to Aliases
+### Address Tags (Extension Delimiters) as an alternative to Aliases
 
 Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`. This is configured by default and the (configurable!) separator is set to `+`. For more info, see [Postfix's official documentation][postfix-docs-extension-delimiters].
 
