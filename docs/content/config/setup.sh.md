@@ -6,13 +6,15 @@ hide:
 
 !!! note
 
-    `setup.sh` is not required since v10.2.0. We encourage you to use `docker exec -ti <CONTAINER NAME> setup` instead.
+    `setup.sh` is not required. We encourage you to use `docker exec -ti <CONTAINER NAME> setup` instead.
 
 !!! warning
 
     This script assumes Docker or Podman is used. You will not be able to use `setup.sh` with other container orchestration tools.
 
-[`setup.sh`][github-file-setupsh] is a script that aids in running commands inside your DMS container, including initial configuration. It has become a wrapper around `docker exec -ti <CONTAINER NAME> setup` where it basically tries to automatically determine `<CONTAINER NAME>`.
+[`setup.sh`][github-file-setupsh] is a script that is complimentary to the internal `setup` command in `docker-mailserver`.
+
+It mostly provides the convenience of aliasing `docker exec -ti <CONTAINER NAME> setup`, inferring the container name of a running `docker-mailserver` instance or running a new instance and bind mounting necessary volumes implicitly.
 
 It is intended to be run from the host machine, _not_ from inside your running container. The latest version of the script is included in the `docker-mailserver` repository. You may retrieve it at any time by running this command in your console:
 
@@ -21,6 +23,6 @@ wget https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/maste
 chmod a+x ./setup.sh
 ```
 
-By running `./setup.sh help`, usage information is printed.
+For more information on using the script run: `./setup.sh help`.
 
 [github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh
