@@ -58,13 +58,11 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
 
     ```yaml
-      version: '3.8'
       services:
         mailserver:
           image: ghcr.io/docker-mailserver/docker-mailserver:latest
           container_name: mailserver
-          hostname: mail
-          domainname: example.com
+          hostname: mail.example.com
           env_file: mailserver.env
           ports:
             - "25:25"    # SMTP  (explicit TLS => STARTTLS)
