@@ -1,8 +1,8 @@
 ---
-title: 'Tutorials | Mail-Server behind a Proxy'
+title: 'Tutorials | Mail Server behind a Proxy'
 ---
 
-## Using `docker-mailserver` behind a Proxy
+## Using DMS behind a Proxy
 
 ### Information
 
@@ -53,7 +53,7 @@ Feel free to add your configuration if you achieved the same goal using differen
     [...]
     ```
 
-    Truncated list of necessary labels on the `docker-mailserver` container:
+    Truncated list of necessary labels on the DMS container:
 
     ```yaml
     services:
