@@ -78,6 +78,8 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.magiclink
   - pymdownx.inlinehilite
   - pymdownx.tilde
@@ -116,9 +118,7 @@ nav:
     - 'Environment Variables': config/environment.md
     - 'User Management': config/user-management.md
     - 'Best Practices':
-      - 'DKIM': config/best-practices/dkim.md
-      - 'DMARC': config/best-practices/dmarc.md
-      - 'SPF': config/best-practices/spf.md
+      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
       - 'Auto-discovery': config/best-practices/autodiscover.md
     - 'Security':
       - 'Understanding the Ports': config/security/understanding-the-ports.md
@@ -128,7 +128,7 @@ nav:
       - 'Rspamd' : config/security/rspamd.md
     - 'Debugging': config/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md
-    - 'Your Friend setup.sh': config/setup.sh.md
+    - 'About setup.sh': config/setup.sh.md
     - 'Advanced Configuration':
         - 'Optional Configuration': config/advanced/optional-config.md
         - 'Maintenance':
