@@ -28,7 +28,7 @@ function teardown_file() { _default_teardown ; }
 @test "show usage when no arguments provided" {
   run ./setup.sh
   assert_success
-  assert_output --partial "This is the main administration script that you use for all your interactions with"
+  assert_output --partial "This is the main administration command that you use for all your interactions with"
 }
 
 @test "exit with error when wrong arguments provided" {

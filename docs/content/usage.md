@@ -123,7 +123,7 @@ For an overview of commands to manage DMS config, run: `docker exec -it <CONTAIN
 
     ```console
     $ ./setup.sh help
-    Image 'docker.io/mailserver/docker-mailserver:latest' not found. Pulling ...
+    Image 'ghcr.io/docker-mailserver/docker-mailserver:latest' not found. Pulling ...
     SETUP(1)
 
     NAME

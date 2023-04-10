@@ -103,7 +103,7 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
         ```yaml
         services:
           mailserver:
-            image: docker.io/mailserver/docker-mailserver:latest
+            image: ghcr.io/docker-mailserver/docker-mailserver:latest
             container_name: mailserver
             # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
             hostname: mail.example.com
