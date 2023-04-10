@@ -340,11 +340,11 @@ spec:
 
 The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information vai `Secrets`.
 
-## Exposing your Mail-Server to the Outside World
+## Exposing your Mail Server to the Outside World
 
 The more difficult part with Kubernetes is to expose a deployed `docker-mailserver` to the outside world. Kubernetes provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing `docker-mailserver` to outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by `docker-mailserver` for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line that states: `check_policy_service unix:private/policyd-spf`.
 
-The easiest approach was covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. **But** we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail-server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.
+The easiest approach was covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. **But** we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.
 
 ### External IPs Service
 

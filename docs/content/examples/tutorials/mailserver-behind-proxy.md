@@ -1,5 +1,5 @@
 ---
-title: 'Tutorials | Mail-Server behind a Proxy'
+title: 'Tutorials | Mail Server behind a Proxy'
 ---
 
 ## Using `docker-mailserver` behind a Proxy

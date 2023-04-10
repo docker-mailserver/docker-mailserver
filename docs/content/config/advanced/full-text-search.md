@@ -101,7 +101,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```
     docker-compose exec mailserver doveadm fts optimize -A
     ```
-    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail-server is not running:
+    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail server is not running:
 
 ??? example
 

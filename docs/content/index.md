@@ -32,7 +32,7 @@ There is also a script - [`setup.sh`][github-file-setupsh] - supplied with this 
 
 ### Configuration
 
-We have a [dedicated configuration page][docs-environment]. It contains most of the configuration and explanation you need to setup _your_ mail server properly. Be aware that advanced tasks may still require reading through all parts of this documentation; it may also involve inspecting your running container for debugging purposes. After all, a mail-server is a complex arrangement of various programs.
+We have a [dedicated configuration page][docs-environment]. It contains most of the configuration and explanation you need to setup _your_ mail server properly. Be aware that advanced tasks may still require reading through all parts of this documentation; it may also involve inspecting your running container for debugging purposes. After all, a mail server is a complex arrangement of various programs.
 
 !!! important
 

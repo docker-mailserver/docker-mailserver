@@ -140,7 +140,7 @@ While Explicit TLS can provide the same benefit (_when `STARTTLS` is successfull
 
     A related section or page on ciphers used may be useful, although less important for users to be concerned about.
 
-### TLS connections for a Mail-Server, compared to web browsers
+### TLS connections for a Mail Server, compared to web browsers
 
 Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below does not provide the equivalent safety that HTTPS does when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully.
 

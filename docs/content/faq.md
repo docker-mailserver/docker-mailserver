@@ -181,7 +181,7 @@ Also you need to define `hostname: example.com` in your `docker-compose.yml`.
 !!! tip "You might not want a bare domain"
 
     We encourage you to consider using a subdomain where possible.
-    
+
     - There are [benefits][github-comment-baredomain] to preferring a subdomain.
     - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
 
@@ -296,7 +296,7 @@ proxy_interfaces = X.X.X.X (your public IP)
 
 Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
 
-`docker-mailserver` has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
+DMS has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
 
 It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
@@ -405,7 +405,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-With `docker-compose` you can more easily use the internal instance of `cron` within `docker-mailserver`. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which `docker-mailserver` is running, and avoids errors if the mail-server is not running.
+With `docker-compose` you can more easily use the internal instance of `cron` within `docker-mailserver`. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which `docker-mailserver` is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 

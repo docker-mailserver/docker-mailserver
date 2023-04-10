@@ -159,7 +159,7 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
         @     IN  A      10.11.12.13
         mail  IN  A      10.11.12.13
 
-        ; mail-server for example.com
+        ; mail server for example.com
         @     IN  MX  10 mail.example.com.
 
         ; Add SPF record
