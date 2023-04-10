@@ -80,6 +80,7 @@ function _register_functions
 
   _register_setup_function '_setup_opendkim'
   _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
+  _register_setup_function '_setup_policyd_spf'
 
   _register_setup_function '_setup_security_stack'
   _register_setup_function '_setup_spam_to_junk'

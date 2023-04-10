@@ -84,3 +84,21 @@ function _setup_opendmarc
     _log 'debug' 'Disabling OpenDMARC'
   fi
 }
+
+# Configures the SPF check inside Postfix's configuration via policyd-spf. When
+# using Rspamd, you will likely want to turn that off.
+function _setup_policyd_spf
+{
+  if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]
+  then
+    _log 'debug' 'Configuring policyd-spf'
+    cat >>/etc/postfix/master.cf <<EOF
+
+policyd-spf    unix  -       n       n       -       0       spawn
+    user=policyd-spf argv=/usr/bin/policyd-spf
+EOF
+  else
+    _log 'debug' 'Disabling policyd-spf'
+    sedfile -i -E 's|check_policy_service unix:private/policyd-spf, ||g' /etc/postfix/main.cf
+  fi
+}
