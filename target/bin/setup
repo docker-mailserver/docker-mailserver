@@ -1,7 +1,5 @@
 #!/bin/bash
 
-SCRIPT='setup'
-
 set -euE -o pipefail
 
 # shellcheck source=../scripts/helpers/index.sh
@@ -13,89 +11,80 @@ function _usage
   printf '%s' "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
 
 ${ORANGE}NAME${RESET}
-    ${SCRIPT:-${0}} - 'docker-mailserver' Administration & Configuration script
+    setup - 'docker-mailserver' Administration & Configuration CLI
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./${SCRIPT:-${0}} [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
+    setup [ OPTIONS${RED}...${RESET} ] COMMAND [ help ${RED}|${RESET} ARGUMENTS${RED}...${RESET} ]
 
     COMMAND ${RED}:=${RESET} { email ${RED}|${RESET} alias ${RED}|${RESET} quota ${RED}|${RESET} dovecot-master ${RED}|${RESET} config ${RED}|${RESET} relay ${RED}|${RESET} debug } SUBCOMMAND
 
 ${ORANGE}DESCRIPTION${RESET}
-    This is the main administration script that you use for all your interactions with
-    'docker-mailserver'. Setup, configuration and much more is done with this script.
+    This is the main administration command that you use for all your interactions with
+    'docker-mailserver'. Initial setup, configuration, and much more is done with this CLI tool.
 
-    Please note that this script executes most of its commands inside the container itself.
-    If it cannot find a running 'docker-mailserver' container, it will attempt to run one using
-    any available tags which include 'label=org.opencontainers.image.title=\"docker-mailserver\"'
-    and then run the necessary commands. If the tag for the container is not found, this script
-    will pull the '${LWHITE}:latest${RESET}' tag of '${LWHITE}docker.io/mailserver/docker-mailserver${RESET}'.
-    This tag refers to the latest release, see the tagging convention in the README under:
-    ${BLUE}https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md${RESET}
-
-    You will be able to see detailed information about the script you're invoking and their
-    arguments by appending '${LWHITE}help${RESET}' after your command. Currently, this does not work with all scripts.
+    Most subcommands can provide additional information and examples by appending 'help'.
+    For example: 'setup email add help'
 
 ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
     ${LBLUE}COMMAND${RESET} email ${RED}:=${RESET}
-        ${0} email ${CYAN}add${RESET} <EMAIL ADDRESS> [<PASSWORD>]
-        ${0} email ${CYAN}update${RESET} <EMAIL ADDRESS> [<PASSWORD>]
-        ${0} email ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>${RED}...${RESET} ]
-        ${0} email ${CYAN}restrict${RESET} <add${RED}|${RESET}del${RED}|${RESET}list> <send${RED}|${RESET}receive> [<EMAIL ADDRESS>]
-        ${0} email ${CYAN}list${RESET}
+        setup email ${CYAN}add${RESET} <EMAIL ADDRESS> [<PASSWORD>]
+        setup email ${CYAN}update${RESET} <EMAIL ADDRESS> [<PASSWORD>]
+        setup email ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>${RED}...${RESET} ]
+        setup email ${CYAN}restrict${RESET} <add${RED}|${RESET}del${RED}|${RESET}list> <send${RED}|${RESET}receive> [<EMAIL ADDRESS>]
+        setup email ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} alias ${RED}:=${RESET}
-        ${0} alias ${CYAN}add${RESET} <EMAIL ADDRESS> <RECIPIENT>
-        ${0} alias ${CYAN}del${RESET} <EMAIL ADDRESS> <RECIPIENT>
-        ${0} alias ${CYAN}list${RESET}
+        setup alias ${CYAN}add${RESET} <EMAIL ADDRESS> <RECIPIENT>
+        setup alias ${CYAN}del${RESET} <EMAIL ADDRESS> <RECIPIENT>
+        setup alias ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} quota ${RED}:=${RESET}
-        ${0} quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
-        ${0} quota ${CYAN}del${RESET} <EMAIL ADDRESS>
+        setup quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
+        setup quota ${CYAN}del${RESET} <EMAIL ADDRESS>
 
     ${LBLUE}COMMAND${RESET} dovecot-master ${RED}:=${RESET}
-        ${0} dovecot-master ${CYAN}add${RESET} <USERNAME> [<PASSWORD>]
-        ${0} dovecot-master ${CYAN}update${RESET} <USERNAME> [<PASSWORD>]
-        ${0} dovecot-master ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <USERNAME> [ <USERNAME>${RED}...${RESET} ]
-        ${0} dovecot-master ${CYAN}list${RESET}
+        setup dovecot-master ${CYAN}add${RESET} <USERNAME> [<PASSWORD>]
+        setup dovecot-master ${CYAN}update${RESET} <USERNAME> [<PASSWORD>]
+        setup dovecot-master ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <USERNAME> [ <USERNAME>${RED}...${RESET} ]
+        setup dovecot-master ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
-        ${0} config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
+        setup config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
 
     ${LBLUE}COMMAND${RESET} relay ${RED}:=${RESET}
-        ${0} relay ${CYAN}add-auth${RESET} <DOMAIN> <USERNAME> [<PASSWORD>]
-        ${0} relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
-        ${0} relay ${CYAN}exclude-domain${RESET} <DOMAIN>
+        setup relay ${CYAN}add-auth${RESET} <DOMAIN> <USERNAME> [<PASSWORD>]
+        setup relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
+        setup relay ${CYAN}exclude-domain${RESET} <DOMAIN>
 
     ${LBLUE}COMMAND${RESET} fail2ban ${RED}:=${RESET}
-        ${0} fail2ban ${RESET}
-        ${0} fail2ban ${CYAN}ban${RESET} <IP>
-        ${0} fail2ban ${CYAN}unban${RESET} <IP>
+        setup fail2ban ${RESET}
+        setup fail2ban ${CYAN}ban${RESET} <IP>
+        setup fail2ban ${CYAN}unban${RESET} <IP>
 
     ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
-        ${0} debug ${CYAN}fetchmail${RESET}
-        ${0} debug ${CYAN}login${RESET} <COMMANDS>
-        ${0} debug ${CYAN}show-mail-logs${RESET}
+        setup debug ${CYAN}fetchmail${RESET}
+        setup debug ${CYAN}login${RESET} <COMMANDS>
+        setup debug ${CYAN}show-mail-logs${RESET}
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh email add test@example.com${RESET}
+    ${LWHITE}setup email add test@example.com${RESET}
         Add the email account ${LWHITE}test@example.com${RESET}. You will be prompted
         to input a password afterwards since no password was supplied.
 
-    ${LWHITE}./setup.sh config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
-        Creates keys of length 2048 but in an LDAP setup where domains are not known to
-        Postfix by default, so you need to provide them yourself in a comma-separated list.
+    ${LWHITE}setup config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
+        Creates keys of length 2048 for the domains in comma-seperated list.
+        This is necessary when using LDAP as the required domains cannot be inferred.
 
-    ${LWHITE}./setup.sh config dkim help${RESET}
+    ${LWHITE}setup config dkim help${RESET}
         This will provide you with a detailed explanation on how to use the ${LWHITE}
         config dkim${RESET} command, showing what arguments can be passed and what they do.
 
 "
 }
-
 function _invalid_command
 {
   echo "The command '${*}' is invalid.
-Use \`./setup.sh help\` to get an overview of all commands." >&2
+Use \`setup help\` to get an overview of all commands." >&2
   exit 2
 }
 
