@@ -4,21 +4,17 @@ Cloudflare has written an [article about DKIM, DMARC and SPF][cloudflare-dkim-dm
 
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 
-!!! note "Rspamd vs The Rest"
+!!! note "Rspamd vs Individual validators"
 
-    With v12.0.0, Rspamd was integrated into DMS. It will perform validations for DKIM, DMARC and SPF "all-in-one" as part of the spam-score-calculation for an email. But DMS also packs software that does the validations for each of these mechanisms on its own:
+    With v12.0.0, Rspamd was integrated into DMS. It can perform validations for DKIM, DMARC and SPF as part of the `spam-score-calculation` for an email. DMS provides individual alternatives for each validation that can be used instead of deferring to Rspamd:
 
-    - for DKIM: `opendkim` is used as a milter (like Rspamd)
-    - for DMARC: `opendmarc` is used as a milter (like Rspamd)
-    - for SPF: `policyd-spf` is used in Postfix's `smtpd_recipient_restrictions`
+    - DKIM: `opendkim` is used as a milter (like Rspamd)
+    - DMARC: `opendmarc` is used as a milter (like Rspamd)
+    - SPF: `policyd-spf` is used in Postfix's `smtpd_recipient_restrictions`
 
-    We plan on removing the individual services in favor of Rspamd. This will not happen soon though. We will
-
-    1. Change the defaults first (disabling the services by default)
-    2. Then deprecate them
-    3. Finally remove them
-
-    The removal is not expected to happen before v15.0.0 of DMS. We encourage everyone to switch to Rspamd before that though.
+    In a future release Rspamd will become the default for these validations, with a deprecation notice issued prior to the removal of the above alternatives.
+    
+    We encourage everyone to prefer Rspamd via `ENABLE_RSPAMD=1`.
 
 !!! warning "DNS Caches & Propagation"
 
@@ -36,15 +32,24 @@ Cloudflare has written an [article about DKIM, DMARC and SPF][cloudflare-dkim-dm
 
 DKIM is twofold:
 
-1. Inbound mail is checked for DKIM signatures (whether they exist, and if so, whether they are correct)
-2. (Your) Signatures should (if enabled and keys exist) be added to outbound mail
+1. Inbound mail will verify any DKIM signatures found.
+2. Outbound mail is signed when you've provided a DKIM key for the sending domain.
 
-When OpenDKIM or Rspamd are enabled, checks for inbound mail are enabled automatically. You do not need to additionally setup anything. When you want to sign your own email, and we heavily encourage that you do, you need to read on. Please also choose whether you want to use OpenDKIM or Rspamd; we encourage you to use Rspamd.
+DKIM support is handled by either:
+
+- OpenDKIM (_[enabled by default][docs-env-opendkim]_)
+- Rspamd (_opt-in via [`ENABLE_RSPAMD=1`][docs-env-rspamd]_)
+
+When DKIM is enabled, checks for inbound mail are enabled automatically. Additional setup is required for signing outbound mail. This is optional but encouraged.
+
+[docs-env-opendkim]: ../config/environment.md#enable_opendkim
+[docs-env-rspamd]: ../config/environment.md#enable_rspamd
 
 !!! warning "RSA Key Sizes >= 4096 Bit"
 
-    Keys of 4096 bits could de denied by some mail-servers. According to https://tools.ietf.org/html/rfc6376 keys are preferably between 512 and 2048 bits. See issue [#1854][github-issue-1854].
+    Keys of 4096 bits could denied by some mail servers. According to [RFC 6376][rfc-6376] keys are [preferably between 512 and 2048 bits][github-issue-1854].
 
+    [rfc-6376]: https://tools.ietf.org/html/rfc6376
     [github-issue-1854]: https://github.com/docker-mailserver/docker-mailserver/issues/1854
 
 ### OpenDKIM
@@ -53,25 +58,35 @@ OpenDKIM is currently enabled by default, but can be disabled with `ENABLE_OPEND
 
 #### Generating Keys
 
-The command `docker exec <CONTAINER NAME> setup dkim help` shows valuable information on our setup of OpenDKIM.
+The command `docker exec <CONTAINER NAME> setup config dkim help` details supported config options, along with some examples.
 
-To enable DKIM signature, **you must have created at least one email account**. The script should ideally be run with a volume for _config_ attached (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`). Once you created an account, just run the following command to generate the signature:
+DKIM signing requires a private key, while verification requires your DNS to be configured with the associated public key.
+
+This example **requires at least one email account** has been created. To store this data outside of the container have your [config volume][docs-volumes-config] attached (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`). Generate the DKIM keypair data with:
+
+[docs-volumes-config]: ../config/advanced/optional-config.md
 
 ```sh
 docker exec -ti <CONTAINER NAME> config dkim
 ```
 
-The default keysize when generating the signature is 4096 bits for now. If you need to change it (e.g. your DNS provider limits the size), then provide the size as the first parameter of the command:
+!!! tip "Changing the key size"
 
-```sh
-./setup.sh config dkim keysize <keysize>
-```
+    The private key presently defaults to RSA-4096. Some DNS services and clients are only compatible with a smaller size.
 
-For LDAP systems that do not have any directly created user account you can run the following command (since `8.0.0`) to generate the signature by additionally providing the desired domain name (if you have multiple domains use the command multiple times or provide a comma-separated list of domains):
+    You can override the default like so for 2048-bit keysize:
 
-```sh
-./setup.sh config dkim keysize <key-size> domain <example.com>[,<not-example.com>]
-```
+    ```sh
+    setup config dkim keysize 2048
+    ```
+
+!!! note "LDAP accounts need to specify domains explicitly"
+
+    The command is unable to infer the domains from LDAP user accounts, you must specify them:
+
+    ```sh
+    setup config dkim domain 'mail.example.com,mail.example.io'
+    ```
 
 After generating DKIM (with OpenDKIM) keys, you should restart `docker-mailserver`.
 
@@ -89,10 +104,10 @@ echo 'ReportAddress           postmaster@example.com' >>/etc/opendkim.conf
 
 ### Rspamd
 
-As previously stated, checking a signature and signing an email are two different tasks - and Rspamd realizes this distinction on a module level. This means:
+Verifying a DKIM signature and signing an email are two different tasks. Rspamd differentiates between the two at a module level:
 
-1. [The module for checking incoming signatures][rspamd-docs-dkim-checks] is enabled by default.
-2. [The module for signing outbound messages][rspamd-docs-dkim-signing] will need to be set up by you.
+1. [Verifying signatures of inbound mail][rspamd-docs-dkim-checks] is enabled by default.
+2. [Signing outbound mail][rspamd-docs-dkim-signing] needs additional setup.
 
 By default, DMS offers no option to generate and configure signing e-mails with DKIM. This is because the parsing would be difficult. But don't worry: the process is relatively straightforward nevertheless. The [official Rspamd documentation for the DKIM signing module][rspamd-docs-dkim-signing] is pretty good. Basically, you need to
 
@@ -180,21 +195,24 @@ By default, DMS offers no option to generate and configure signing e-mails with 
 
 ### Follow-Up DNS Setup
 
-Now that the keys are generated, you need to configure your DNS zone, "simply" by adding a TXT record. We assume you are using a web-interface - if not, and you have access to a DNS zone _file_, you can copy the contents of the public key file into the file.
+Configuring DNS for DKIM requires adding a TXT record. We assume you are using a web-interface - if not, and you have access to a DNS zone _file_, you can copy the contents of the public key file into the file.
 
-In the web-interface, create a new record of type `TXT`. If the selector you chose for the DKIM key was `mail`, the name of the record shpuld be `mail._domainkey` (i.e. the record is valid for the DNS name `mail._domainkey.example.com`). The value of the record should be
+In the DNS web-interface, create a new record with this field content:
 
-```txt
-v=DKIM1; k=rsa; p=AZERTYUGHJKLMWX...
-```
+- **Type:** `TXT`
+- **Name:** is your DKIM selector (default `mail`) with `._domainkey` appended: `mail._domainkey`
+- **Value:** should be the content within `( ... )`: `v=DKIM1; k=rsa; p=AZERTYUGHJKLMWX...`
+- **TTL:** The default value should be fine.
 
-In the TTL field, you'll most likely want to pick your DNS proiders default. Then save the record - and you're done.
+!!! info "`<selector>.txt` public key content"
 
-!!! danger "Confusing File Format"
+    The public key value was generated as the value for a complete record that can be pasted as-is into a [DNS zone file][cloudflare-dns-zonefile].
+    
+    DNS `TXT` records with long values need to be split into parts every 255 characters. This is why the public key has multiple parts wrapped within double-quotes between `(` and `)`.
+    
+    A DNS web-interface may not accept a public key with this special formatting as input (_while [others may require it, but all on a single line][dns-webui-dkim]_). 
 
-    Whether you're using OpenDMARC or Rspamd, the public key file has a confusing (at first) structure. The structure is used because you could directly copy this file's contents into a DNS zone file. When using a web-interface though, you need to take care you copy and concatenate the lines correctly.
-
-    When your file looks like this:
+    When your file with public key (eg: `mail.txt`) looks like this:
 
     ```txt
     dkim-rsa._domainkey IN TXT ( "v=DKIM1; k=rsa; "
@@ -215,6 +233,9 @@ In the TTL field, you'll most likely want to pick your DNS proiders default. The
     $ dig +short TXT dkim-rsa._domainkey.example.com
     "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39" "KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB"
     ```
+
+[cloudflare-dns-zonefile]: https://www.cloudflare.com/en-gb/learning/dns/glossary/dns-zone
+[dns-webui-dkim]: https://serverfault.com/questions/763815/route-53-doesnt-allow-adding-dkim-keys-because-length-is-too-long
 
 ### Debugging Issues
 
