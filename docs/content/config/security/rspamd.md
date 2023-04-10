@@ -41,6 +41,14 @@ When Rspamd is enabled, we implicitly also start an instance of Redis in the con
 
 Redis uses `/etc/redis/redis.conf` for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV  [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS rspamd config_).
 
+### Web Interface
+
+Rspamd provides a [web interface][rspamc-docs-web-interface], which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.
+
+![Rspamd Web Interface](https://rspamd.com/img/webui.png)
+
+[rspamc-docs-web-interface]: https://rspamd.com/webui/
+
 ### Modules
 
 You can find a list of all Rspamd modules [on their website][modules].
