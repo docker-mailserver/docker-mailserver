@@ -135,7 +135,7 @@ Rspamd is running, but you want or need to adjust it?
 
 There is a dedicated [section for setting up DKIM with Rspamd in our documentation][docs-dkim-with-rspamd].
 
-[docs-dkim-with-rspamd]: ../best-practices/dkim_dmarc_spf.md#rspamd
+[docs-dkim-with-rspamd]: ../best-practices/dkim_dmarc_spf.md#dkim
 
 ### _Abusix_ Integration
 
