@@ -168,7 +168,7 @@ You will very likely want to configure your DNS with these TXT records: [SPF, DK
 
 ### Custom User Changes & Patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation][docs-user-patches] for a detailed explanation.
+If you'd like to change, patch or alter files or behavior of DMS, you can use a script. See [this part of our documentation][docs-user-patches] for a detailed explanation.
 
 [docs-user-patches]: ./faq.md#how-to-adjust-settings-with-the-user-patchessh-script
 

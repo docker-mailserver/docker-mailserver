@@ -15,8 +15,8 @@ Prefer ports with Implicit [TLS][wikipedia-tls] ports, they're more secure than 
 | POP3                     | 110                      | 995             | Retrieval            | No                 |
 | IMAP4                    | 143                      | 993             | Retrieval            | Yes                |
 
-1. A connection _may_ be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, `docker-mailserver` will reject a connection that cannot be secured. Port 25 is [required][ref-port25-mandatory] to support insecure connections.
-2. Receives email, `docker-mailserver` additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the _submission_ ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (_thus outbound traffic must not be blocked by your provider or firewall_).
+1. A connection _may_ be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, DMS will reject a connection that cannot be secured. Port 25 is [required][ref-port25-mandatory] to support insecure connections.
+2. Receives email, DMS additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the _submission_ ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (_thus outbound traffic must not be blocked by your provider or firewall_).
 3. A _submission_ port since 2018 ([RFC 8314][rfc-8314]).
 
 ??? warning "Beware of outdated advice on port 465"
@@ -28,7 +28,6 @@ Prefer ports with Implicit [TLS][wikipedia-tls] ports, they're more secure than 
     In 2018 [RFC 8314][rfc-8314] was published which revives Port 465 as an Implicit TLS alternative to Port 587 for mail submission. It details very clearly that gaining adoption of 465 as the preferred port will take time. IANA reassigned [port 465 as the `submissions` service][iana-services-465]. Any unofficial usage as **SMTPS is legacy and has been for over two decades**.
 
     Understand that port 587 is more broadly supported due to this history and that lots of software in that time has been built or configured with that port in mind. [`STARTTLS` is known to have various CVEs discovered even in recent years][starttls-vulnerabilities], do not be misled by any advice implying it should be preferred over implicit TLS. Trust in more official sources, such as the [config Postfix has][postfix-upstream-config-mastercf] which acknowledges the `submissions` port (465).
-
 
 ### What Ports Should I Use? (SMTP)
 
@@ -67,18 +66,18 @@ Mail arriving at your server will be processed and stored in a mailbox, or sent 
 
 - **Port 25:**
     - Think of this like a physical mailbox, anyone can deliver mail to you here. Typically most mail is delivered to you on this port.
-    -`docker-mailserver` will actively filter email delivered on this port for spam or viruses, and refuse mail from known bad sources.
+    - DMS will actively filter email delivered on this port for spam or viruses, and refuse mail from known bad sources.
     - Connections to this port may be secure through STARTTLS, but is not mandatory as [mail is allowed to arrive via an unencrypted connection][ref-port25-mandatory].
     - It is possible for internal clients to submit mail to be sent outbound (_without requiring authentication_), but that is discouraged. Prefer the _submission_ ports.
 - **Port 465 and 587:**
-    - This is the equivalent of a post office box where you would send email to be delivered on your behalf (_`docker-mailserver` is that metaphorical post office, aka the MTA_).
+    - This is the equivalent of a post office box where you would send email to be delivered on your behalf (_DMS is that metaphorical post office, aka the MTA_).
     - These two ports are known as the _submission_ ports, they enable mail to be sent outbound to another MTA (eg: Outlook or Gmail) but require authentication via a [mail account][docs-accounts].
-    - For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when `docker-mailserver` is configured as a mail relay, or when you have a service sending transactional mail (_eg: order confirmations, password resets, notifications_) through `docker-mailserver`.
+    - For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when DMS is configured as a mail relay, or when you have a service sending transactional mail (_eg: order confirmations, password resets, notifications_) through DMS.
     - _**Prefer port 465**_ over port 587, as 465 provides Implicit TLS.
 
 !!! note
 
-    When submitting mail (inbound) to be sent (outbound), this involves two separate connections to negotiate and secure. There may be additional intermediary connections which `docker-mailserver` is not involved in, and thus unable to ensure encrypted transit throughout delivery.
+    When submitting mail (inbound) to be sent (outbound), this involves two separate connections to negotiate and secure. There may be additional intermediary connections which DMS is not involved in, and thus unable to ensure encrypted transit throughout delivery.
 
 #### Outbound Traffic (On the Right)
 
@@ -94,7 +93,7 @@ Mail being sent from your server is either being relayed through another MTA (eg
 
 !!! tip
 
-    `docker-mailserver` can function as a relay too, but professional relay services have a trusted reputation (_which increases success of delivery_).
+    DMS can function as a relay too, but professional relay services have a trusted reputation (_which increases success of delivery_).
 
     An MTA with low reputation can affect if mail is treated as junk, or even rejected.
 
@@ -113,7 +112,7 @@ Sometimes a reverse-proxy is involved, but is misconfigured or lacks support for
 
 !!! note
 
-    - By default, `docker-mailserver` is configured to reject connections that fail to establish a secure connection (_when authentication is required_), rather than allow an insecure connection.
+    - By default, DMS is configured to reject connections that fail to establish a secure connection (_when authentication is required_), rather than allow an insecure connection.
     - Port 25 does not require authentication. If `STARTTLS` is unsuccessful, mail can be received over an unencrypted connection. You can better secure this port between trusted parties with the addition of MTA-STS, [STARTTLS Policy List][starttls-policy-list], DNSSEC and DANE.
 
 !!! warning
@@ -140,7 +139,7 @@ While Explicit TLS can provide the same benefit (_when `STARTTLS` is successfull
 
     A related section or page on ciphers used may be useful, although less important for users to be concerned about.
 
-### TLS connections for a Mail-Server, compared to web browsers
+### TLS connections for a Mail Server, compared to web browsers
 
 Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below does not provide the equivalent safety that HTTPS does when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully.
 

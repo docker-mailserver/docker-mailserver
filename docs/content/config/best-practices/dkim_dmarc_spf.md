@@ -11,7 +11,7 @@ Cloudflare has written an [article about DKIM, DMARC and SPF][cloudflare-dkim-dm
     - SPF: `policyd-spf` is used in Postfix's `smtpd_recipient_restrictions`
 
     In a future release Rspamd will become the default for these validations, with a deprecation notice issued prior to the removal of the above alternatives.
-    
+
     We encourage everyone to prefer Rspamd via `ENABLE_RSPAMD=1`.
 
 !!! warning "DNS Caches & Propagation"
@@ -184,7 +184,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
 !!! info "Restart required"
 
-    After restarting `docker-mailserver`, outgoing mail will now be signed with your new DKIM key(s) :tada:
+    After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) :tada:
 
     You'll need to repeat this process if you add any new domains.
 
@@ -220,7 +220,7 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 ??? info "`<selector>.txt` - Formatting the `TXT` record value correctly"
 
     This file was generated for use within a [DNS zone file][dns::wikipedia-zonefile]. DNS `TXT` records values that are longer than 255 characters need to be split into multiple parts. This is why the public key has multiple parts wrapped within double-quotes between `(` and `)`.
-    
+
     A DNS web-interface may handle this internally instead, while [others may not, but expect the input as a single line][dns::webui-dkim]_). You'll need to manually format the value as described below.
 
     Your DNS record file (eg: `mail.txt`) should look similar to this:

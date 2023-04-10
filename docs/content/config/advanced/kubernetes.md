@@ -4,11 +4,11 @@ title: 'Advanced | Kubernetes'
 
 ## Introduction
 
-This article describes how to deploy `docker-mailserver` to Kubernetes. Please note that there is also a [Helm chart] available.
+This article describes how to deploy DMS to Kubernetes. Please note that there is also a [Helm chart] available.
 
 !!! attention "Requirements"
 
-    We assume basic knowledge about Kubernetes from the reader. Moreover, we assume the reader to have a basic understanding of mail servers. Ideally, the reader has deployed `docker-mailserver` before in an easier setup with Docker (Compose).
+    We assume basic knowledge about Kubernetes from the reader. Moreover, we assume the reader to have a basic understanding of mail servers. Ideally, the reader has deployed DMS before in an easier setup with Docker (Compose).
 
 !!! warning "About Support for Kubernetes"
 
@@ -58,7 +58,7 @@ data:
   SSL_KEY_PATH: /secrets/ssl/rsa/tls.key
 ```
 
-We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust `docker-mailserver` to our likings. We encourage you to have a look at [Kustomize][kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
+We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust DMS to our likings. We encourage you to have a look at [Kustomize][kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
 
 ```yaml
 ---
@@ -149,7 +149,7 @@ spec:
 
 ### Deployments
 
-Last but not least, the `Deployment` becomes the most complex component. It instructs Kubernetes how to run the `docker-mailserver` container and how to apply your `ConfigMaps`, persisted storage, etc. Additionally, we can set options to enforce runtime security here.
+Last but not least, the `Deployment` becomes the most complex component. It instructs Kubernetes how to run the DMS container and how to apply your `ConfigMaps`, persisted storage, etc. Additionally, we can set options to enforce runtime security here.
 
 ```yaml
 ---
@@ -305,7 +305,7 @@ spec:
 
 ### Certificates - An Example
 
-In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates. You can also supply RSA certificates as fallback certificates, which `docker-mailserver` supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
+In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates. You can also supply RSA certificates as fallback certificates, which DMS supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
 
 ```yaml
 ---
@@ -340,15 +340,15 @@ spec:
 
 The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information vai `Secrets`.
 
-## Exposing your Mail-Server to the Outside World
+## Exposing your Mail Server to the Outside World
 
-The more difficult part with Kubernetes is to expose a deployed `docker-mailserver` to the outside world. Kubernetes provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing `docker-mailserver` to outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by `docker-mailserver` for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line that states: `check_policy_service unix:private/policyd-spf`.
+The more difficult part with Kubernetes is to expose a deployed DMS to the outside world. Kubernetes provides multiple ways for doing that; each has downsides and complexity. The major problem with exposing DMS to outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by DMS for performing IP-based SPF checks and spam checks. If you do not require SPF checks for incoming mails, you may disable them in your [Postfix configuration][docs-postfix] by dropping the line that states: `check_policy_service unix:private/policyd-spf`.
 
-The easiest approach was covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. **But** we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail-server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.
+The easiest approach was covered above, using `#!yaml externalTrafficPolicy: Local`, which disables the service proxy, but makes the service local as well (which does not scale). This approach only works when you are given the correct (that is, a public and routable) IP address by a load balancer (like MetalLB). In this sense, the approach above is similar to the next example below. We want to provide you with a few alternatives too. **But** we also want to communicate the idea of another simple method: you could use a load-balancer without an external IP and DNAT the network traffic to the mail server. After all, this does not interfere with SPF checks because it keeps the origin IP address. If no dedicated external IP address is available, you could try the latter approach, if one is available, use the former.
 
 ### External IPs Service
 
-The simplest way is to expose `docker-mailserver` as a [Service][Kubernetes-network-service] with [external IPs][Kubernetes-network-external-ip]. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.
+The simplest way is to expose DMS as a [Service][Kubernetes-network-service] with [external IPs][Kubernetes-network-external-ip]. This is very similar to the approach taken above. Here, an external IP is given to the service directly by you. With the approach above, you tell your load-balancer to do this.
 
 ```yaml
 ---
@@ -380,7 +380,7 @@ This approach
 
 ### Proxy port to Service
 
-The [proxy pod][Kubernetes-proxy-service] helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each [Node][Kubernetes-nodes] you want to expose `docker-mailserver` on.
+The [proxy pod][Kubernetes-proxy-service] helps to avoid the necessity of specifying external IPs explicitly. This comes at the cost of complexity; you must deploy a proxy pod on each [Node][Kubernetes-nodes] you want to expose DMS on.
 
 This approach
 
@@ -388,7 +388,7 @@ This approach
 
 ### Bind to concrete Node and use host network
 
-One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes at the cost of availability; you can reach `docker-mailserver` from the outside world only via IPs of [Node][Kubernetes-nodes] where `docker-mailserver` is deployed.
+One way to preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This comes at the cost of availability; you can reach DMS from the outside world only via IPs of [Node][Kubernetes-nodes] where DMS is deployed.
 
 ```yaml
 ---
@@ -420,12 +420,12 @@ metadata:
 
 With this approach,
 
-- it is not possible to access `docker-mailserver` via other cluster Nodes, only via the Node `docker-mailserver` was deployed at.
+- it is not possible to access DMS via other cluster Nodes, only via the Node DMS was deployed at.
 - every Port within the Container is exposed on the Host side.
 
 ### Proxy Port to Service via PROXY Protocol
 
-This way is ideologically the same as [using a proxy pod](#proxy-port-to-service), but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the `docker-mailserver` pod using the PROXY protocol, which preserves the real client IP.
+This way is ideologically the same as [using a proxy pod](#proxy-port-to-service), but instead of a separate proxy pod, you configure your ingress to proxy TCP traffic to the DMS pod using the PROXY protocol, which preserves the real client IP.
 
 #### Configure your Ingress
 
@@ -501,7 +501,7 @@ Then, configure both [Postfix][docs-postfix] and [Dovecot][docs-dovecot] to expe
 
 With this approach,
 
-- it is not possible to access `docker-mailserver` via cluster-DNS, as the PROXY protocol is required for incoming connections.
+- it is not possible to access DMS via cluster-DNS, as the PROXY protocol is required for incoming connections.
 
 [Helm chart]: https://github.com/docker-mailserver/docker-mailserver-helm
 [kustomize]: https://kustomize.io/
