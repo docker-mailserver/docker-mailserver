@@ -78,7 +78,7 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 ### With the Help of a Custom File
 
-DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called `rspamd-modules.conf` into the directory `docker-data/dms/config/` (which translates to `/tmp/docker-mailserver/` in the container). If this file is present, DMS will evaluate it. The structure is _very_ simple. Each line in the file looks like this:
+DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called `rspamd-modules.conf` into the [local config directory `docker-data/dms/config/`][docs-volumes-config]. If this file is present, DMS will evaluate it. The structure is _very_ simple. Each line in the file looks like this:
 
 ```txt
 COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
@@ -133,80 +133,9 @@ Rspamd is running, but you want or need to adjust it?
 
 ### DKIM Signing
 
-By default, DMS offers no option to generate and configure signing e-mails with DKIM. This is because the parsing would be difficult. But don't worry: the process is relatively straightforward nevertheless. The [official Rspamd documentation for the DKIM signing module][dkim-signing-module] is pretty good. Basically, you need to
+There is a dedicated [section for setting up DKIM with Rspamd in our documentation][docs-dkim-with-rspamd].
 
-1. `exec` into the container
-2. Run a command similar to `rspamadm dkim_keygen -s 'woosh' -b 2048 -d example.com -k example.private > example.txt`, adjusted to your needs
-3. Make sure to then persists the files `example.private` and `example.txt` (created in step 2) in the container (for example with a Docker bind mount)
-4. Create a configuration for the DKIM signing module, i.e. a file called `dkim_signing.conf` that you mount to `/etc/rspamd/local.d/` or `/etc/rspamd/override.d/`. We provide example configurations down below. We recommend mounting this file into the container as well (as described [here](#manually)); do not use [`rspamd-modules.conf`](#with-the-help-of-a-custom-file) for this purpose.
-
-??? example "DKIM Signing Module Configuration Examples"
-
-    A simple configuration could look like this:
-
-    ```cf
-    # documentation: https://rspamd.com/doc/modules/dkim_signing.html
-
-    enabled = true;
-
-    sign_authenticated = true;
-    sign_local = true;
-
-    use_domain = "header";
-    use_redis = false; # don't change unless Redis also provides the DKIM keys
-    use_esld = true;
-    check_pubkey = true;
-
-    domain {
-        example.com {
-            path = "/path/to/example.private";
-            selector = "woosh";
-        }
-    }
-    ```
-
-    If you have multiple domains and you want to sign with the modern ED25519 elliptic curve but also with RSA (you will likely want to have RSA as a fallback!):
-
-    ```cf
-    # documentation: https://rspamd.com/doc/modules/dkim_signing.html
-
-    enabled = true;
-
-    sign_authenticated = true;
-    sign_local = true;
-
-    use_domain = "header";
-    use_redis = false; # don't change unless Redis also provides the DKIM keys
-    use_esld = true;
-    check_pubkey = true;
-
-    domain {
-        example.com {
-            selectors [
-                {
-                    path = "/path/to/com.example.rsa.private";
-                    selector = "dkim-rsa";
-                },
-                {
-                  path = /path/to/com.example.ed25519.private";
-                  selector = "dkim-ed25519";
-                }
-          ]
-        }
-        example.org {
-            selectors [
-                {
-                    path = "/path/to/org.example.rsa.private";
-                    selector = "dkim-rsa";
-                },
-                {
-                  path = "/path/to/org.example.ed25519.private";
-                  selector = "dkim-ed25519";
-                }
-            ]
-        }
-    }
-    ```
+[docs-dkim-with-rspamd]: ../best-practices/dkim_dmarc_spf.md#dkim
 
 ### _Abusix_ Integration
 
@@ -226,6 +155,7 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [//]: # (General Links)
 
+[docs-volumes-config]: ../advanced/optional-config.md
 [homepage]: https://rspamd.com/
 [modules]: https://rspamd.com/doc/modules/
 [proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode

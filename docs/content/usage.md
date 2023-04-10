@@ -159,44 +159,12 @@ You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs
 docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@example.com
 ```
 
-### DKIM Keys
+### Advanced DNS Setup - DKIM, DMARC & SPF
 
-You can (_and you should_) generate DKIM keys. For more information:
-
-- DKIM [with OpenDKIM][docs-dkim-opendkim] (_enabled by default_)
-- DKIM [with Rspamd][docs-dkim-rspamd] (_when using `ENABLE_RSPAMD=1`_)
-
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-dns] for more details.
-
-!!! note
-
-    In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
-
-    ``` BASH
-    docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
-    ```
-
-[dkim-signing-setup]: https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim
-[docs-dkim-dns]: ./config/best-practices/dkim.md#configuration-using-a-web-interface
-[docs-dkim-opendkim]: ./config/best-practices/dkim.md#enabling-dkim-signature
-[docs-dkim-rspamd]: ./config/security/rspamd.md#dkim-signing
-
-### Advanced DNS Setup
-
-You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc].
-
-The following illustrates what a (rather strict) set of records could look like:
-
-```console
-$ dig @1.1.1.1 +short TXT example.com
-"v=spf1 mx -all"
-$ dig @1.1.1.1 +short TXT dkim-rsa._domainkey.example.com
-"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ..."
-$ dig @1.1.1.1 +short TXT _dmarc.example.com
-"v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1"
-```
+You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc]. We also ship a [dedicated page in our documentation][docs-dkim-dmarc-spf] about the setup of DKIM, DMARC & SPF.
 
 [cloudflare-spf-dkim-dmarc]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
+[docs-dkim-dmarc-spf]: ./config/best-practices/dkim_dmarc_spf.md
 
 ### Custom User Changes & Patches
 

@@ -218,8 +218,8 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
 
 [docs-ports]: ../../config/security/understanding-the-ports.md
 [docs-environment]: ../../config/environment.md
-[docs-spf]: ../../config/best-practices/spf.md
-[docs-dkim]: ../../config/best-practices/dkim.md
+[docs-spf]: ../../config/best-practices/dkim_dmarc_spf.md#spf
+[docs-dkim]: ../../config/best-practices/dkim_dmarc_spf.md#dkim
 [docs-ssl]: ../../config/security/ssl.md#lets-encrypt-recommended
 [docs-usage]: ../../usage.md#get-up-and-running
 [github-issue-ufw]: https://github.com/docker-mailserver/docker-mailserver/issues/3151
