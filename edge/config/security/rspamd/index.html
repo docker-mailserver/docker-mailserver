@@ -694,6 +694,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#web-interface" class="md-nav__link">
+    Web Interface
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -1589,6 +1596,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#web-interface" class="md-nav__link">
+    Web Interface
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -1742,6 +1756,9 @@
 <h3 id="persistence-with-redis"><a class="toclink" href="#persistence-with-redis">Persistence with Redis</a></h3>
 <p>When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist it's data via RDB snapshots to disk in the directory <code>/var/lib/redis</code> (<em>which is a symbolic link to <code>/var/mail-state/lib-redis/</code> when <a href="../../environment/#one_dir"><code>ONE_DIR=1</code></a> and a volume is mounted to <code>/var/mail-state/</code></em>). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</p>
 <p>Redis uses <code>/etc/redis/redis.conf</code> for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV  <a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS=0</code></a> (<em>link also details required changes to the DMS rspamd config</em>).</p>
+<h3 id="web-interface"><a class="toclink" href="#web-interface">Web Interface</a></h3>
+<p>Rspamd provides a <a href="https://rspamd.com/webui/">web interface</a>, which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.</p>
+<p><img alt="Rspamd Web Interface" src="https://rspamd.com/img/webui.png" /></p>
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
