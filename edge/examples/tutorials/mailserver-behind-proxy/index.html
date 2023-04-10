@@ -25,7 +25,7 @@
     
     
       
-        <title>Tutorials | Mail-Server behind a Proxy - Docker Mailserver</title>
+        <title>Tutorials | Mail Server behind a Proxy - Docker Mailserver</title>
       
     
     
@@ -79,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#using-docker-mailserver-behind-a-proxy" class="md-skip">
+        <a href="#using-dms-behind-a-proxy" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tutorials | Mail-Server behind a Proxy
+              Tutorials | Mail Server behind a Proxy
             
           </span>
         </div>
@@ -1162,11 +1162,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-docker-mailserver-behind-a-proxy" class="md-nav__link">
-    Using docker-mailserver behind a Proxy
+  <a href="#using-dms-behind-a-proxy" class="md-nav__link">
+    Using DMS behind a Proxy
   </a>
   
-    <nav class="md-nav" aria-label="Using docker-mailserver behind a Proxy">
+    <nav class="md-nav" aria-label="Using DMS behind a Proxy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1458,11 +1458,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-docker-mailserver-behind-a-proxy" class="md-nav__link">
-    Using docker-mailserver behind a Proxy
+  <a href="#using-dms-behind-a-proxy" class="md-nav__link">
+    Using DMS behind a Proxy
   </a>
   
-    <nav class="md-nav" aria-label="Using docker-mailserver behind a Proxy">
+    <nav class="md-nav" aria-label="Using DMS behind a Proxy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1511,7 +1511,7 @@
 
   <h1>Mailserver behind Proxy</h1>
 
-<h2 id="using-docker-mailserver-behind-a-proxy"><a class="toclink" href="#using-docker-mailserver-behind-a-proxy">Using <code>docker-mailserver</code> behind a Proxy</a></h2>
+<h2 id="using-dms-behind-a-proxy"><a class="toclink" href="#using-dms-behind-a-proxy">Using DMS behind a Proxy</a></h2>
 <h3 id="information"><a class="toclink" href="#information">Information</a></h3>
 <p>If you are hiding your container behind a proxy service you might have discovered that the proxied requests from now on contain the proxy IP as the request origin. Whilst this behavior is technical correct it produces certain problems on the containers behind the proxy as they cannot distinguish the real origin of the requests anymore.</p>
 <p>To solve this problem on TCP connections we can make use of the <a href="https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt">proxy protocol</a>. Compared to other workarounds that exist (<code>X-Forwarded-For</code> which only works for HTTP requests or <code>Tproxy</code> that requires you to recompile your kernel) the proxy protocol:</p>
@@ -1551,7 +1551,7 @@
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4190:4190&quot;</span>
 <span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<p>Truncated list of necessary labels on the <code>docker-mailserver</code> container:</p>
+<p>Truncated list of necessary labels on the DMS container:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>

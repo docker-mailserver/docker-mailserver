@@ -2050,7 +2050,7 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 <p>Current figure is about 850M and growing. If you get errors about ClamAV or amavis failing to allocate memory you need more RAM or more swap and of course docker must be allowed to use swap (not always the case). If you can't use swap at all you may need 3G RAM.</p>
 </div>
 <h3 id="how-to-alter-a-running-dms-instance-without-relaunching-the-container"><a class="toclink" href="#how-to-alter-a-running-dms-instance-without-relaunching-the-container">How to alter a running DMS instance <em>without</em> relaunching the container?</a></h3>
-<p><code>docker-mailserver</code> aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.</p>
+<p>DMS aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.</p>
 <p>In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>), then restart the sub-service to apply your changes, using <code>supervisorctl</code>. For instance, after editing fail2ban's config: <code>supervisorctl restart fail2ban</code>.</p>
 <p>See the <a href="http://supervisord.org/running.html#running-supervisorctl">documentation for <code>supervisorctl</code></a>.</p>
 <div class="admonition tip">
@@ -2206,7 +2206,7 @@ Few examples of symptoms can be found <a href="https://github.com/docker-mailser
 </code></pre></div>
 <h3 id="how-to-adjust-settings-with-the-user-patchessh-script"><a class="toclink" href="#how-to-adjust-settings-with-the-user-patchessh-script">How to adjust settings with the <code>user-patches.sh</code> script</a></h3>
 <p>Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?</p>
-<p><code>docker-mailserver</code> has a built-in way to do post-install processes. If you place a script called <strong><code>user-patches.sh</code></strong> in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.</p>
+<p>DMS has a built-in way to do post-install processes. If you place a script called <strong><code>user-patches.sh</code></strong> in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.</p>
 <p>It is common to use a local directory for config added to <code>docker-mailsever</code> via a volume mount in your <code>docker-compose.yml</code> (eg: <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
 <p>Add or create the script file to your config directory:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>./docker-data/dms/config
@@ -2278,7 +2278,7 @@ supervisorctl<span class="w"> </span>update
 <span class="c1"># Everyday 2:00AM, learn spam from a specific user</span>
 <span class="na">0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
 </code></pre></div>
-<p>With <code>docker-compose</code> you can more easily use the internal instance of <code>cron</code> within <code>docker-mailserver</code>. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which <code>docker-mailserver</code> is running, and avoids errors if the mail-server is not running.</p>
+<p>With <code>docker-compose</code> you can more easily use the internal instance of <code>cron</code> within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.</p>
 <p>The following configuration works nicely:</p>
 <details class="example">
 <summary>Example</summary>

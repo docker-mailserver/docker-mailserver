@@ -1565,7 +1565,7 @@
 
 <h2 id="overview"><a class="toclink" href="#overview">Overview</a></h2>
 <p>Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported <a href="https://doc.dovecot.org/configuration_manual/fts/">FTS indexing backends</a>.</p>
-<p><code>docker-mailserver</code> comes pre-installed with two plugins that can be enabled with a dovecot config file.</p>
+<p>DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.</p>
 <p>Please be aware that indexing consumes memory and takes up additional disk space.</p>
 <h3 id="xapian"><a class="toclink" href="#xapian">Xapian</a></h3>
 <p>The <a href="https://github.com/grosjo/fts-xapian">dovecot-fts-xapian</a> plugin makes use of <a href="https://xapian.org/">Xapian</a>. Xapian enables embedding an FTS engine without the need for additional backends.</p>
@@ -1648,7 +1648,7 @@ docker-compose up -d
 <p>Run the following command in a daily cron job:</p>
 <p><div class="highlight"><pre><span></span><code>docker-compose exec mailserver doveadm fts optimize -A
 </code></pre></div>
-Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within <code>docker-mailserver</code> to avoid potential errors if the mail-server is not running:</p>
+Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within DMS to avoid potential errors if the mail server is not running:</p>
 </li>
 </ol>
 <details class="example">

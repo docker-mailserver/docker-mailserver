@@ -692,7 +692,7 @@
         
           <li class="md-nav__item">
   <a href="#tls-connections-for-a-mail-server-compared-to-web-browsers" class="md-nav__link">
-    TLS connections for a Mail-Server, compared to web browsers
+    TLS connections for a Mail Server, compared to web browsers
   </a>
   
 </li>
@@ -1601,7 +1601,7 @@
         
           <li class="md-nav__item">
   <a href="#tls-connections-for-a-mail-server-compared-to-web-browsers" class="md-nav__link">
-    TLS connections for a Mail-Server, compared to web browsers
+    TLS connections for a Mail Server, compared to web browsers
   </a>
   
 </li>
@@ -1676,8 +1676,8 @@
 </tbody>
 </table>
 <ol>
-<li>A connection <em>may</em> be secured over TLS when both ends support <code>STARTTLS</code>. On ports 110, 143 and 587, <code>docker-mailserver</code> will reject a connection that cannot be secured. Port 25 is <a href="https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages">required</a> to support insecure connections.</li>
-<li>Receives email, <code>docker-mailserver</code> additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the <em>submission</em> ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (<em>thus outbound traffic must not be blocked by your provider or firewall</em>).</li>
+<li>A connection <em>may</em> be secured over TLS when both ends support <code>STARTTLS</code>. On ports 110, 143 and 587, DMS will reject a connection that cannot be secured. Port 25 is <a href="https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages">required</a> to support insecure connections.</li>
+<li>Receives email, DMS additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the <em>submission</em> ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (<em>thus outbound traffic must not be blocked by your provider or firewall</em>).</li>
 <li>A <em>submission</em> port since 2018 (<a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>).</li>
 </ol>
 <details class="warning">
@@ -1717,23 +1717,23 @@
 <p>Mail arriving at your server will be processed and stored in a mailbox, or sent outbound to another mail server.</p>
 <ul>
 <li><strong>Port 25:</strong><ul>
-<li>Think of this like a physical mailbox, anyone can deliver mail to you here. Typically most mail is delivered to you on this port.
--<code>docker-mailserver</code> will actively filter email delivered on this port for spam or viruses, and refuse mail from known bad sources.</li>
+<li>Think of this like a physical mailbox, anyone can deliver mail to you here. Typically most mail is delivered to you on this port.</li>
+<li>DMS will actively filter email delivered on this port for spam or viruses, and refuse mail from known bad sources.</li>
 <li>Connections to this port may be secure through STARTTLS, but is not mandatory as <a href="https://serverfault.com/questions/623692/is-it-still-wrong-to-require-starttls-on-incoming-smtp-messages">mail is allowed to arrive via an unencrypted connection</a>.</li>
 <li>It is possible for internal clients to submit mail to be sent outbound (<em>without requiring authentication</em>), but that is discouraged. Prefer the <em>submission</em> ports.</li>
 </ul>
 </li>
 <li><strong>Port 465 and 587:</strong><ul>
-<li>This is the equivalent of a post office box where you would send email to be delivered on your behalf (<em><code>docker-mailserver</code> is that metaphorical post office, aka the MTA</em>).</li>
+<li>This is the equivalent of a post office box where you would send email to be delivered on your behalf (<em>DMS is that metaphorical post office, aka the MTA</em>).</li>
 <li>These two ports are known as the <em>submission</em> ports, they enable mail to be sent outbound to another MTA (eg: Outlook or Gmail) but require authentication via a <a href="../../user-management/#accounts">mail account</a>.</li>
-<li>For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when <code>docker-mailserver</code> is configured as a mail relay, or when you have a service sending transactional mail (<em>eg: order confirmations, password resets, notifications</em>) through <code>docker-mailserver</code>.</li>
+<li>For inbound traffic, this is relevant when you send mail from your MUA (eg: ThunderBird). It's also used when DMS is configured as a mail relay, or when you have a service sending transactional mail (<em>eg: order confirmations, password resets, notifications</em>) through DMS.</li>
 <li><em><strong>Prefer port 465</strong></em> over port 587, as 465 provides Implicit TLS.</li>
 </ul>
 </li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>When submitting mail (inbound) to be sent (outbound), this involves two separate connections to negotiate and secure. There may be additional intermediary connections which <code>docker-mailserver</code> is not involved in, and thus unable to ensure encrypted transit throughout delivery.</p>
+<p>When submitting mail (inbound) to be sent (outbound), this involves two separate connections to negotiate and secure. There may be additional intermediary connections which DMS is not involved in, and thus unable to ensure encrypted transit throughout delivery.</p>
 </div>
 <h4 id="outbound-traffic-on-the-right"><a class="toclink" href="#outbound-traffic-on-the-right">Outbound Traffic (On the Right)</a></h4>
 <p>Mail being sent from your server is either being relayed through another MTA (eg: SendGrid), or direct to an MTA responsible for an email address (eg: Gmail).</p>
@@ -1752,7 +1752,7 @@
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p><code>docker-mailserver</code> can function as a relay too, but professional relay services have a trusted reputation (<em>which increases success of delivery</em>).</p>
+<p>DMS can function as a relay too, but professional relay services have a trusted reputation (<em>which increases success of delivery</em>).</p>
 <p>An MTA with low reputation can affect if mail is treated as junk, or even rejected.</p>
 </div>
 <div class="admonition note">
@@ -1766,7 +1766,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul>
-<li>By default, <code>docker-mailserver</code> is configured to reject connections that fail to establish a secure connection (<em>when authentication is required</em>), rather than allow an insecure connection.</li>
+<li>By default, DMS is configured to reject connections that fail to establish a secure connection (<em>when authentication is required</em>), rather than allow an insecure connection.</li>
 <li>Port 25 does not require authentication. If <code>STARTTLS</code> is unsuccessful, mail can be received over an unencrypted connection. You can better secure this port between trusted parties with the addition of MTA-STS, <a href="https://github.com/EFForg/starttls-everywhere#email-security-database-starttls-policy-list">STARTTLS Policy List</a>, DNSSEC and DANE.</li>
 </ul>
 </div>
@@ -1787,7 +1787,7 @@
 <p class="admonition-title">Todo</p>
 <p>A related section or page on ciphers used may be useful, although less important for users to be concerned about.</p>
 </div>
-<h3 id="tls-connections-for-a-mail-server-compared-to-web-browsers"><a class="toclink" href="#tls-connections-for-a-mail-server-compared-to-web-browsers">TLS connections for a Mail-Server, compared to web browsers</a></h3>
+<h3 id="tls-connections-for-a-mail-server-compared-to-web-browsers"><a class="toclink" href="#tls-connections-for-a-mail-server-compared-to-web-browsers">TLS connections for a Mail Server, compared to web browsers</a></h3>
 <p>Unlike with HTTP where a web browser client communicates directly with the server providing a website, a secure TLS connection as discussed below does not provide the equivalent safety that HTTPS does when the transit of email (receiving or sending) is sent through third-parties, as the secure connection is only between two machines, any additional machines (MTAs) between the MUA and the MDA depends on them establishing secure connections between one another successfully.</p>
 <p>Other machines that facilitate a connection that generally aren't taken into account can exist between a client and server, such as those where your connection passes through your ISP provider are capable of compromising a <code>cleartext</code> connection through interception.</p>
 

@@ -25,7 +25,7 @@
     
     
       
-        <title>Use Cases | Forward-Only Mail-Server with LDAP - Docker Mailserver</title>
+        <title>Use Cases | Forward-Only Mail Server with LDAP - Docker Mailserver</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Use Cases | Forward-Only Mail-Server with LDAP
+              Use Cases | Forward-Only Mail Server with LDAP
             
           </span>
         </div>
@@ -1241,7 +1241,7 @@
       
         <li class="md-nav__item">
   <a href="#building-a-forward-only-mail-server" class="md-nav__link">
-    Building a Forward-Only Mail-Server
+    Building a Forward-Only Mail Server
   </a>
   
 </li>
@@ -1439,7 +1439,7 @@
       
         <li class="md-nav__item">
   <a href="#building-a-forward-only-mail-server" class="md-nav__link">
-    Building a Forward-Only Mail-Server
+    Building a Forward-Only Mail Server
   </a>
   
 </li>
@@ -1471,8 +1471,8 @@
 
   <h1>Forward-Only Mail-Server with LDAP</h1>
 
-<h2 id="building-a-forward-only-mail-server"><a class="toclink" href="#building-a-forward-only-mail-server">Building a Forward-Only Mail-Server</a></h2>
-<p>A <strong>forward-only</strong> mail-server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where <code>docker-mailserver</code> is installed), using as sender any of the alias addresses.</p>
+<h2 id="building-a-forward-only-mail-server"><a class="toclink" href="#building-a-forward-only-mail-server">Building a Forward-Only Mail Server</a></h2>
+<p>A <strong>forward-only</strong> mail server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where DMS is installed), using as sender any of the alias addresses.</p>
 <p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
 <div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span>
 <span class="na">ENABLE_POP3</span><span class="o">=</span>
@@ -1486,7 +1486,7 @@
 <div class="highlight"><pre><span></span><code>./setup.sh<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>&lt;alias-address&gt;<span class="w"> </span>&lt;external-email-account&gt;
 </code></pre></div>
 <h2 id="authenticating-with-ldap"><a class="toclink" href="#authenticating-with-ldap">Authenticating with LDAP</a></h2>
-<p>If you want to send emails from outside the mail-server you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
+<p>If you want to send emails from outside the mail server you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
 <div class="highlight"><pre><span></span><code><span class="na">ENABLE_LDAP</span><span class="o">=</span><span class="s">1 # with the :edge tag, use ACCOUNT_PROVISIONER</span>
 <span class="na">ACCOUNT_PROVISIONER</span><span class="o">=</span><span class="s">LDAP</span>
 <span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
@@ -1513,7 +1513,7 @@
 <span class="na">userPassword</span><span class="o">:</span><span class="w"> </span><span class="s">{SSHA}abcdefghi123456789</span>
 <span class="na">email</span><span class="o">:</span><span class="w"> </span><span class="s">external-account@gmail.com</span>
 </code></pre></div>
-<p>This structure is different from what is expected/assumed from the configuration scripts of <code>docker-mailserver</code>, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
+<p>This structure is different from what is expected/assumed from the configuration scripts of DMS, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 
 rm<span class="w"> </span>-f<span class="w"> </span>/etc/postfix/<span class="o">{</span>ldap-groups.cf,ldap-domains.cf<span class="o">}</span>
@@ -1548,11 +1548,11 @@ postfix<span class="w"> </span>reload
 <p>You see that besides <code>query_filter</code>, I had to customize as well <code>result_attribute</code> and <code>result_format</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">See also</p>
-<p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail-server with Postfix and Dovecot for multiple domains</a></p>
+<p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail server with Postfix and Dovecot for multiple domains</a></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Another solution that serves as a forward-only mail-server is <a href="https://gitlab.com/docker-scripts/postfix">this</a>.</p>
+<p>Another solution that serves as a forward-only mail server is <a href="https://gitlab.com/docker-scripts/postfix">this</a>.</p>
 </div>
 
 

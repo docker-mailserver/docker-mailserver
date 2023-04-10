@@ -1612,7 +1612,7 @@
 </code></pre></div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p><code>docker-mailserver</code> must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the nftables rules that actually ban IP addresses.</p>
+<p>DMS must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the nftables rules that actually ban IP addresses.</p>
 <p>Thus either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in <code>docker-compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>

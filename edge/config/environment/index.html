@@ -3345,8 +3345,8 @@
 <h5 id="override_hostname"><a class="toclink" href="#override_hostname">OVERRIDE_HOSTNAME</a></h5>
 <p>If you can't set your hostname (<em>eg: you're in a container platform that doesn't let you</em>) specify it via this environment variable. It will have priority over <code>docker run --hostname</code>, or the equivalent <code>hostname:</code> field in <code>docker-compose.yml</code>.</p>
 <ul>
-<li><strong>empty</strong> =&gt; Uses the <code>hostname -f</code> command to get canonical hostname for <code>docker-mailserver</code> to use.</li>
-<li>=&gt; Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for <code>docker-mailserver</code> to function correctly.</li>
+<li><strong>empty</strong> =&gt; Uses the <code>hostname -f</code> command to get canonical hostname for DMS to use.</li>
+<li>=&gt; Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.</li>
 </ul>
 <h5 id="log_level"><a class="toclink" href="#log_level">LOG_LEVEL</a></h5>
 <p>Set the log level for DMS. This is mostly relevant for container startup scripts and change detection event feedback.</p>
@@ -3484,7 +3484,7 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li>1 =&gt; Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">extension delimiters</a> are not able to send messages.</li>
 </ul>
 <h5 id="enable_srs"><a class="toclink" href="#enable_srs">ENABLE_SRS</a></h5>
-<p>Enables the Sender Rewriting Scheme. SRS is needed if <code>docker-mailserver</code> acts as forwarder. See <a href="https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course">postsrsd</a> for further explanation.</p>
+<p>Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See <a href="https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course">postsrsd</a> for further explanation.</p>
 <ul>
 <li><strong>0</strong> =&gt; Disabled</li>
 <li>1 =&gt; Enabled</li>
@@ -3732,7 +3732,7 @@ If this is not set and reports are enabled with the old options, logrotate will 
 </ul>
 <div class="admonition note">
 <p class="admonition-title">This SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code></p>
-<p>By default, <code>docker-mailserver</code> is configured to quarantine spam emails.</p>
+<p>By default, DMS is configured to quarantine spam emails.</p>
 <p>If emails are quarantined, they are compressed and stored in a location dependent on the <code>ONE_DIR</code> setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. <code>100.0</code>.</p>
 <p>If <code>ONE_DIR=1</code> (default) the location is <code>/var/mail-state/lib-amavis/virusmails/</code>, or if <code>ONE_DIR=0</code>: <code>/var/lib/amavis/virusmails/</code>. These paths are inside the docker container.</p>
 </div>
@@ -3779,7 +3779,7 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <ul>
 <li><strong>empty</strong> =&gt; mail.example.com</li>
 <li>=&gt; Specify the dns-name/ip-address where the ldap-server is listening, or an URI like <code>ldaps://mail.example.com</code></li>
-<li>NOTE: If you going to use <code>docker-mailserver</code> in combination with <code>docker-compose.yml</code> you can set the service name here</li>
+<li>NOTE: If you going to use DMS in combination with <code>docker-compose.yml</code> you can set the service name here</li>
 </ul>
 <h5 id="ldap_search_base"><a class="toclink" href="#ldap_search_base">LDAP_SEARCH_BASE</a></h5>
 <ul>

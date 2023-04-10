@@ -1486,8 +1486,8 @@
   <h1>IPv6</h1>
 
 <h2 id="background"><a class="toclink" href="#background">Background</a></h2>
-<p>If your container host supports IPv6, then <code>docker-mailserver</code> will automatically accept IPv6 connections by way of the docker host's IPv6. However, incoming mail will fail SPF checks because they will appear to come from the IPv4 gateway that docker is using to proxy the IPv6 connection (<code>172.20.0.1</code> is the gateway).</p>
-<p>This can be solved by supporting IPv6 connections all the way to the <code>docker-mailserver</code> container.</p>
+<p>If your container host supports IPv6, then DMS will automatically accept IPv6 connections by way of the docker host's IPv6. However, incoming mail will fail SPF checks because they will appear to come from the IPv4 gateway that docker is using to proxy the IPv6 connection (<code>172.20.0.1</code> is the gateway).</p>
+<p>This can be solved by supporting IPv6 connections all the way to the DMS container.</p>
 <h2 id="setup-steps"><a class="toclink" href="#setup-steps">Setup steps</a></h2>
 <div class="highlight"><pre><span></span><code><span class="gi">+++ b/serv/docker-compose.yml</span>
 <span class="gu">@@ ... @@ services:</span>

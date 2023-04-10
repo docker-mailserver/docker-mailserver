@@ -1420,9 +1420,9 @@
 <p class="admonition-title">Warning</p>
 <p>This script assumes Docker or Podman is used. You will not be able to use <code>setup.sh</code> with other container orchestration tools.</p>
 </div>
-<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is a script that is complimentary to the internal <code>setup</code> command in <code>docker-mailserver</code>.</p>
-<p>It mostly provides the convenience of aliasing <code>docker exec -ti &lt;CONTAINER NAME&gt; setup</code>, inferring the container name of a running <code>docker-mailserver</code> instance or running a new instance and bind mounting necessary volumes implicitly.</p>
-<p>It is intended to be run from the host machine, <em>not</em> from inside your running container. The latest version of the script is included in the <code>docker-mailserver</code> repository. You may retrieve it at any time by running this command in your console:</p>
+<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is a script that is complimentary to the internal <code>setup</code> command in DMS.</p>
+<p>It mostly provides the convenience of aliasing <code>docker exec -ti &lt;CONTAINER NAME&gt; setup</code>, inferring the container name of a running DMS instance or running a new instance and bind mounting necessary volumes implicitly.</p>
+<p>It is intended to be run from the host machine, <em>not</em> from inside your running container. The latest version of the script is included in the DMS repository. You may retrieve it at any time by running this command in your console:</p>
 <div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
 chmod<span class="w"> </span>a+x<span class="w"> </span>./setup.sh
 </code></pre></div>

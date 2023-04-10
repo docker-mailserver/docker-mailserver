@@ -1559,7 +1559,7 @@
 <p>This was originally a community contributed guide. Please let us know via a Github Issue if you're having any difficulty following the guide so that we can update it.</p>
 </div>
 <p>This guide is focused on only using <a href="../../../config/security/understanding-the-ports/">SMTP ports (not POP3 and IMAP)</a> with the intent to relay mail received from another service to an external email address (eg: <code>user@gmail.com</code>). It is not intended for mailbox storage of real users.</p>
-<p>In this setup <code>docker-mailserver</code> is not intended to receive email from the outside world, so no anti-spam or anti-virus software is needed, making the service lighter to run.</p>
+<p>In this setup DMS is not intended to receive email from the outside world, so no anti-spam or anti-virus software is needed, making the service lighter to run.</p>
 <div class="admonition tip">
 <p class="admonition-title"><code>setup</code></p>
 <p>The <code>setup</code> command used below is to be <a href="../../../usage/#get-up-and-running">run inside the container</a>.</p>
@@ -1625,7 +1625,7 @@ ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">465</spa
 @     IN  A      10.11.12.13
 mail  IN  A      10.11.12.13
 
-; mail-server for example.com
+; mail server for example.com
 @     IN  MX  10 mail.example.com.
 
 ; Add SPF record
@@ -1647,7 +1647,7 @@ mail  IN  A      10.11.12.13
 <p>Get an SSL certificate, <a href="../../../config/security/ssl/#lets-encrypt-recommended">we have a guide for you here</a> (<em>Let's Encrypt</em> is a popular service to get free SSL certificates).</p>
 </li>
 <li>
-<p>Start <code>docker-mailserver</code> and check the terminal output for any errors: <code>docker-compose up</code>.</p>
+<p>Start DMS and check the terminal output for any errors: <code>docker-compose up</code>.</p>
 </li>
 <li>
 <p>Create email accounts and aliases:</p>

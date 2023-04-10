@@ -1609,7 +1609,7 @@
 <p>Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux System.</p>
 <div class="admonition warning">
 <p class="admonition-title">About Support for Podman</p>
-<p>Please note that Podman <strong>is not</strong> officially supported as <code>docker-mailserver</code> is built and verified on top of the <em>Docker Engine</em>. This content is entirely community supported. If you find errors, please open an issue and provide a PR.</p>
+<p>Please note that Podman <strong>is not</strong> officially supported as DMS is built and verified on top of the <em>Docker Engine</em>. This content is entirely community supported. If you find errors, please open an issue and provide a PR.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">About this Guide</p>
@@ -1650,7 +1650,7 @@ systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> 
 <p>Also notice that Podman's rootless mode is not about running as a non-root user inside the container, but about the mapping of (normal, non-root) host users to root inside the container.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>In order to make rootless <code>docker-mailserver</code> work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.</p>
+<p>In order to make rootless DMS work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.</p>
 </div>
 <p>First, enable <code>podman.socket</code> in systemd's userspace with a non-root user.</p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>--user<span class="w"> </span>podman.socket
