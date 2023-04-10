@@ -12,8 +12,8 @@ title: Environment Variables
 
 If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `docker-compose.yml`.
 
-- **empty** => Uses the `hostname -f` command to get canonical hostname for `docker-mailserver` to use.
-- => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for `docker-mailserver` to function correctly.
+- **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
+- => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
 
 ##### LOG_LEVEL
 
@@ -176,7 +176,7 @@ Configures the handling of creating mails with forged sender addresses.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if `docker-mailserver` acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -466,7 +466,7 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 !!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
 
-    By default, `docker-mailserver` is configured to quarantine spam emails.
+    By default, DMS is configured to quarantine spam emails.
 
     If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
 
@@ -527,7 +527,7 @@ Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 - **empty** => mail.example.com
 - => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
-- NOTE: If you going to use `docker-mailserver` in combination with `docker-compose.yml` you can set the service name here
+- NOTE: If you going to use DMS in combination with `docker-compose.yml` you can set the service name here
 
 ##### LDAP_SEARCH_BASE
 

@@ -86,7 +86,7 @@ services:
 
 This guide is focused on only using [SMTP ports (not POP3 and IMAP)][docs-ports] with the intent to relay mail received from another service to an external email address (eg: `user@gmail.com`). It is not intended for mailbox storage of real users.
 
-In this setup `docker-mailserver` is not intended to receive email from the outside world, so no anti-spam or anti-virus software is needed, making the service lighter to run.
+In this setup DMS is not intended to receive email from the outside world, so no anti-spam or anti-virus software is needed, making the service lighter to run.
 
 !!! tip "`setup`"
 
@@ -159,7 +159,7 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
         @     IN  A      10.11.12.13
         mail  IN  A      10.11.12.13
 
-        ; mail-server for example.com
+        ; mail server for example.com
         @     IN  MX  10 mail.example.com.
 
         ; Add SPF record
@@ -182,7 +182,7 @@ In this setup `docker-mailserver` is not intended to receive email from the outs
 
 4. Get an SSL certificate, [we have a guide for you here][docs-ssl] (_Let's Encrypt_ is a popular service to get free SSL certificates).
 
-5. Start `docker-mailserver` and check the terminal output for any errors: `docker-compose up`.
+5. Start DMS and check the terminal output for any errors: `docker-compose up`.
 
 6. Create email accounts and aliases:
 

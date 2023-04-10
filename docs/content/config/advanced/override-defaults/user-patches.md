@@ -2,7 +2,7 @@
 title: 'Custom User Changes & Patches | Scripting'
 ---
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script.
+If you'd like to change, patch or alter files or behavior of DMS, you can use a script.
 
 In case you cloned this repository, you can copy the file [`user-patches.sh.dist` (_under `config/`_)][github-file-userpatches] with `#!sh cp config/user-patches.sh.dist docker-data/dms/config/user-patches.sh` in order to create the `user-patches.sh` script.
 
