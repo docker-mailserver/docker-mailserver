@@ -66,20 +66,20 @@ DKIM signing requires a private key, while verification requires your DNS to be 
 
     This example requires:
 
-    - You have [created at least one email account][docs-accounts-add].
-    - Use your [volume for config][docs-volumes-config] (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`) to persist the DKIM key.
-    
+    - At least one [email account setup][docs-accounts-add].
+    - Persisting the generated files with your [volume for config][docs-volumes-config] (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
+
+    ----
+
     Generate the DKIM files with:
 
     ```sh
-    docker exec -ti <CONTAINER NAME> config dkim
+    docker exec -ti <CONTAINER NAME> setup config dkim
     ```
 
-    This has created your DKIM key and OpenDKIM config files.
+    Your new DKIM key(s) and OpenDKIM config files can be found at `/tmp/docker-mailserver/opendkim/`. You'll need to repeat this process if you add any new domains.
 
-    - `docker-mailserver` needs to be restarted. Outgoing mail will now be signed with your new DKIM key(s).
-    - For a receiver to verify your DKIM key, you must also add the DKIM public key to your DNS.
-    - You'll need to repeat this process if you add any new domains.
+    After restarting `docker-mailserver` outgoing mail will now be signed with your new DKIM key(s). To support verification of your signed mail, complete the DNS record setup.
 
 !!! note "LDAP accounts need to specify domains explicitly"
 
@@ -199,16 +199,18 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 
 !!! example "Configuring DNS - DKIM record"
 
-    When you generated your key in the previous step, the DNS data was saved into a file `<selector>.txt` (default: `mail.txt`). Use this content to update your [DNS via Web Interface][dns::example-webui] or directly editing your [DNS Zone file][dns::wikipedia-zonefile]:
+    When you generated your key in the previous step, the DNS data was saved into a file `<selector>.txt` (default: `mail.txt`). Use this content to update your [DNS via Web Interface][dns::example-webui] or directly edit your [DNS Zone file][dns::wikipedia-zonefile]:
 
     === "Web Interface"
 
         Create a new record:
 
-        - **Type:** `TXT`
-        - **Name:** should be your DKIM selector `<selector>._domainkey` (_default: `mail._domainkey`_)
-        - **Value:** should use the content within `( ... )` (_see the info section below for advice on correct formatting_)
-        - **TTL:** Use the default (_otherwise [3600 seconds is appropriate][dns::digicert-ttl]_)
+        | Field  | Value                                                                                                                                 |
+        | -------- | --------------------------------------------------------------------------------------------------------------- |
+        | Type   | `TXT`                                                                                                                                  |
+        | Name | `<selector>._domainkey` (_default: `mail._domainkey`_)                                         |
+        | TTL      | Use the default (_otherwise [3600 seconds is appropriate][dns::digicert-ttl]_) |
+        | Data   | File content within `( ... )` (_formatted as advised below_)                                      |
 
     === "DNS Zone file"
 
@@ -220,7 +222,7 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 [dns::digicert-ttl]: https://www.digicert.com/faq/dns/what-is-ttl
 [dns::wikipedia-zonefile]: https://en.wikipedia.org/wiki/Zone_file
 
-!!! info "`<selector>.txt` - Formatting the `TXT` value correctly"
+??? info "`<selector>.txt` - Formatting the `TXT` record value correctly"
 
     This file was generated for use within a [DNS zone file][dns::wikipedia-zonefile]. DNS `TXT` records values that are longer than 255 characters need to be split into multiple parts. This is why the public key has multiple parts wrapped within double-quotes between `(` and `)`.
     
