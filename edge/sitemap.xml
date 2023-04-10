@@ -126,17 +126,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim/</loc>
-         <lastmod>2023-04-10</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dmarc/</loc>
-         <lastmod>2023-04-10</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/spf/</loc>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim_dmarc_spf/</loc>
          <lastmod>2023-04-10</lastmod>
          <changefreq>daily</changefreq>
     </url>

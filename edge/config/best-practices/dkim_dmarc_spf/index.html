@@ -12,10 +12,10 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/spf/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim_dmarc_spf/">
       
       
-        <link rel="prev" href="../dmarc/">
+        <link rel="prev" href="../../user-management/">
       
       
         <link rel="next" href="../autodiscover/">
@@ -25,7 +25,7 @@
     
     
       
-        <title>Best Practices | SPF - Docker Mailserver</title>
+        <title>DKIM, DMARC & SPF - Docker Mailserver</title>
       
     
     
@@ -79,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#add-a-spf-record" class="md-skip">
+        <a href="#dkim-dmarc-spf" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Best Practices | SPF
+              DKIM, DMARC & SPF
             
           </span>
         </div>
@@ -344,8 +344,6 @@
           
             
               
-                
-              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -515,34 +513,6 @@
               
   
   
-  
-    <li class="md-nav__item">
-      <a href="../dkim/" class="md-nav__link">
-        DKIM
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../dmarc/" class="md-nav__link">
-        DMARC
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
     
   
   
@@ -551,14 +521,16 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          SPF
+          DKIM, DMARC & SPF
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        SPF
+        DKIM, DMARC & SPF
       </a>
       
         
@@ -566,6 +538,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -575,16 +549,70 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#add-a-spf-record" class="md-nav__link">
-    Add a SPF Record
+  <a href="#dkim" class="md-nav__link">
+    DKIM
+  </a>
+  
+    <nav class="md-nav" aria-label="DKIM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-keys" class="md-nav__link">
+    Generating Keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-dns" class="md-nav__link">
+    DNS Record
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-debug" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dmarc" class="md-nav__link">
+    DMARC
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#backup-mx-secondary-mx" class="md-nav__link">
-    Backup MX, Secondary MX
+  <a href="#spf" class="md-nav__link">
+    SPF
   </a>
+  
+    <nav class="md-nav" aria-label="SPF">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-an-spf-record" class="md-nav__link">
+    Adding an SPF Record
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-mx-secondary-mx-for-policyd-spf" class="md-nav__link">
+    Backup MX &amp; Secondary MX for policyd-spf
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1451,9 +1479,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1461,6 +1487,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -1470,16 +1498,70 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#add-a-spf-record" class="md-nav__link">
-    Add a SPF Record
+  <a href="#dkim" class="md-nav__link">
+    DKIM
+  </a>
+  
+    <nav class="md-nav" aria-label="DKIM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-keys" class="md-nav__link">
+    Generating Keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-dns" class="md-nav__link">
+    DNS Record
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-debug" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dmarc" class="md-nav__link">
+    DMARC
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#backup-mx-secondary-mx" class="md-nav__link">
-    Backup MX, Secondary MX
+  <a href="#spf" class="md-nav__link">
+    SPF
   </a>
+  
+    <nav class="md-nav" aria-label="SPF">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-an-spf-record" class="md-nav__link">
+    Adding an SPF Record
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-mx-secondary-mx-for-policyd-spf" class="md-nav__link">
+    Backup MX &amp; Secondary MX for policyd-spf
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1501,33 +1583,271 @@
   
 
 
-  <h1>SPF</h1>
-
-<p>From <a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework">Wikipedia</a>:</p>
+<h1 id="dkim-dmarc-spf"><a class="toclink" href="#dkim-dmarc-spf">DKIM, DMARC &amp; SPF</a></h1>
+<p>Cloudflare has written an <a href="https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/">article about DKIM, DMARC and SPF</a> that we highly recommend you to read to get acquainted with the topic.</p>
+<div class="admonition note">
+<p class="admonition-title">Rspamd vs Individual validators</p>
+<p>With v12.0.0, Rspamd was integrated into DMS. It can perform validations for DKIM, DMARC and SPF as part of the <code>spam-score-calculation</code> for an email. DMS provides individual alternatives for each validation that can be used instead of deferring to Rspamd:</p>
+<ul>
+<li>DKIM: <code>opendkim</code> is used as a milter (like Rspamd)</li>
+<li>DMARC: <code>opendmarc</code> is used as a milter (like Rspamd)</li>
+<li>SPF: <code>policyd-spf</code> is used in Postfix's <code>smtpd_recipient_restrictions</code></li>
+</ul>
+<p>In a future release Rspamd will become the default for these validations, with a deprecation notice issued prior to the removal of the above alternatives.</p>
+<p>We encourage everyone to prefer Rspamd via <code>ENABLE_RSPAMD=1</code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">DNS Caches &amp; Propagation</p>
+<p>While modern DNS providers are quick, it may take minutes or even hours for new DNS records to become available / propagate.</p>
+</div>
+<h2 id="dkim"><a class="toclink" href="#dkim">DKIM</a></h2>
 <div class="admonition quote">
-<p class="admonition-title">Quote</p>
-<p>Sender Policy Framework (SPF) is a simple email-validation system designed to detect email spoofing by providing a mechanism to allow receiving mail exchangers to check that incoming mail from a domain comes from a host authorized by that domain's administrators. The list of authorized sending hosts for a domain is published in the Domain Name System (DNS) records for that domain in the form of a specially formatted TXT record. Email spam and phishing often use forged "from" addresses, so publishing and checking SPF records can be considered anti-spam techniques.</p>
+<p class="admonition-title">What is DKIM</p>
+<p>DomainKeys Identified Mail (DKIM) is an email authentication method designed to detect forged sender addresses in email (email spoofing), a technique often used in phishing and email spam.</p>
+<p><a href="https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail">Source</a></p>
+</div>
+<p>When DKIM is enabled:</p>
+<ol>
+<li>Inbound mail will verify any included DKIM signatures</li>
+<li>Outbound mail is signed (<em>when you're sending domain has a configured DKIM key</em>)</li>
+</ol>
+<p>DKIM requires a public/private key pair to enable <strong>signing (<em>via private key</em>)</strong> your outgoing mail, while the receiving end must query DNS to <strong>verify (<em>via public key</em>)</strong> that the signature is trustworthy.</p>
+<h3 id="generating-keys"><a class="toclink" href="#generating-keys">Generating Keys</a></h3>
+<p>You should have:</p>
+<ul>
+<li>At least one <a href="../../user-management/#adding-a-new-account">email account setup</a></li>
+<li>Attached a <a href="../../advanced/optional-config/">volume for config</a> to persist the generated files to local storage</li>
+</ul>
+<p>DKIM is currently supported by either OpenDKIM or Rspamd:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">OpenDKIM</label><label for="__tabbed_1_2">Rspamd</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>OpenDKIM is currently <a href="../../environment/#enable_opendkim">enabled by default</a>.</p>
+<p>The command <code>docker exec &lt;CONTAINER NAME&gt; setup config dkim help</code> details supported config options, along with some examples.</p>
+<div class="admonition example">
+<p class="admonition-title">Create a DKIM key</p>
+<p>Generate the DKIM files with:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>dkim
+</code></pre></div>
+<p>Your new DKIM key(s) and OpenDKIM config files have been added to <code>/tmp/docker-mailserver/opendkim/</code>.</p>
+</div>
+<details class="note">
+<summary>LDAP accounts need to specify domains explicitly</summary>
+<p>The command is unable to infer the domains from LDAP user accounts, you must specify them:</p>
+<div class="highlight"><pre><span></span><code>setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span><span class="s1">&#39;example.com,example.io&#39;</span>
+</code></pre></div>
+</details>
+<details class="tip">
+<summary>Changing the key size</summary>
+<p>The private key presently defaults to RSA-4096. To create an RSA 2048-bit key run:</p>
+<div class="highlight"><pre><span></span><code>setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>keysize<span class="w"> </span><span class="m">2048</span>
+</code></pre></div>
+</details>
+</div>
+<div class="tabbed-block">
+<p>Opt-in via <a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD=1</code></a> (<em>and disable the default OpenDKIM: <code>ENABLE_OPENDKIM=0</code></em>).</p>
+<p>Rspamd provides DKIM support through two separate modules:</p>
+<ol>
+<li><a href="https://www.rspamd.com/doc/modules/dkim.html">Verifying DKIM signatures from inbound mail</a> is enabled by default.</li>
+<li><a href="https://www.rspamd.com/doc/modules/dkim_signing.html">Signing outbound mail with your DKIM key</a> needs additional setup (key + dns + config).</li>
+</ol>
+<div class="admonition example">
+<p class="admonition-title">Create a DKIM key</p>
+<p>Presently only OpenDKIM is supported with <code>setup config dkim</code>. To generate your DKIM key and DNS files you'll need to specify:</p>
+<ul>
+<li><code>-s</code> The DKIM selector (<em>eg: <code>mail</code>, it can be anything you like</em>)</li>
+<li><code>-d</code> The sender address domain (<em>everything after <code>@</code> from the email address</em>)</li>
+</ul>
+<p>See <code>rspamadm dkim_keygen -h</code> for an overview of the supported options.</p>
+<hr />
+<ol>
+<li>Go inside the container with <code>docker exec -ti &lt;CONTAINER NAME&gt; bash</code></li>
+<li>Add <code>rspamd/dkim/</code> folder to your config volume and switch to it: <code>cd /tmp/docker-mailserver/rspamd/dkim</code></li>
+<li>Run: <code>rspamadm dkim_keygen -s mail -b 2048 -d example.com -k mail.private &gt; mail.txt</code> (<em>change <code>-d</code> to your domain-part</em>)</li>
+<li>Presently you must ensure Rspamd can read the <code>&lt;selector&gt;.private</code> file, run:
+     -<code>chgrp _rspamd mail.private</code>
+     -<code>chmod g+r mail.private</code></li>
+</ol>
+</div>
+<hr />
+<div class="admonition bug inline end">
+<p class="admonition-title">DMS config volume support is not ready for Rspamd</p>
+<p>Presently you'll need to <a href="../../security/rspamd/#manually">explicitly mount <code>rspamd/modules/override.d/</code></a> as an additional volume; do not use <a href="../../security/rspamd/#with-the-help-of-a-custom-file"><code>rspamd-modules.conf</code></a> for this purpose.</p>
+</div>
+<p>Create a configuration file for the DKIM signing module at <code>rspamd/modules/override.d/dkim_signing.conf</code> and populate it with config as shown in the example below:</p>
+<details class="example">
+<summary>DKIM Signing Module Configuration Examples</summary>
+<p>A simple configuration could look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># documentation: https://rspamd.com/doc/modules/dkim_signing.html</span>
+
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
+
+<span class="na">sign_authenticated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
+<span class="na">sign_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
+
+<span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="c1">;</span>
+<span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="c1">; # don&#39;t change unless Redis also provides the DKIM keys</span>
+<span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
+<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">; # you wan&#39;t to use this in the beginning</span>
+
+<span class="na">domain {</span>
+<span class="w">    </span><span class="na">example.com {</span>
+<span class="w">        </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/rspamd/dkim/mail.private&quot;</span><span class="c1">;</span>
+<span class="w">        </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;mail&quot;</span><span class="c1">;</span>
+<span class="w">    </span><span class="na">}</span>
+<span class="na">}</span>
+</code></pre></div>
+<p>As shown next, you can:</p>
+<ul>
+<li>You can add more domains into the <code>domain { ... }</code> section.</li>
+<li>A domain can also be configured with multiple selectors and keys within a <code>selectors [ ... ]</code> array.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
+
+<span class="na">domain {</span>
+<span class="w">    </span><span class="na">example.com {</span>
+<span class="w">        </span><span class="na">selectors [</span>
+<span class="w">            </span><span class="na">{</span>
+<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/rspamd/dkim/example.com/rsa.private&quot;</span><span class="c1">;</span>
+<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;</span><span class="c1">;</span>
+<span class="w">            </span><span class="na">},</span>
+<span class="w">            </span><span class="na">{</span>
+<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/tmp/docker-mailserver/rspamd/example.com/ed25519.private&quot;</span><span class="c1">;</span>
+<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;</span><span class="c1">;</span>
+<span class="w">            </span><span class="na">}</span>
+<span class="w">        </span><span class="na">]</span>
+<span class="w">    </span><span class="na">}</span>
+<span class="w">    </span><span class="na">example.org {</span>
+<span class="w">        </span><span class="na">selectors [</span>
+<span class="w">            </span><span class="na">{</span>
+<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/rspamd/dkim/example.org/rsa.private&quot;</span><span class="c1">;</span>
+<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;</span><span class="c1">;</span>
+<span class="w">            </span><span class="na">},</span>
+<span class="w">            </span><span class="na">{</span>
+<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/rspamd/dkim/example.org/ed25519.private&quot;</span><span class="c1">;</span>
+<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;</span><span class="c1">;</span>
+<span class="w">            </span><span class="na">}</span>
+<span class="w">        </span><span class="na">]</span>
+<span class="w">    </span><span class="na">}</span>
+<span class="na">}</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Support for DKIM keys using Ed25519</p>
+<p>This modern elliptic curve is supported by Rspamd, but support by third-parties for <a href="https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545">verifying Ed25519 DKIM signatures is unreliable</a>.</p>
+<p>If you sign your mail with this key type, you should include RSA as a fallback, like shown in the above example.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">DKIM Signing config: <code>check_pubkey = true;</code></p>
+<p>This setting will have Rspamd query the DNS record for each DKIM selector, verifying each public key matches the private key configured.</p>
+<p>If there is a mismatch, a warning will be omitted to the Rspamd log (<code>/var/log/supervisor/rspamd.log</code>).</p>
+</div>
+</details>
+</div>
+</div>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Restart required</p>
+<p>After restarting <code>docker-mailserver</code>, outgoing mail will now be signed with your new DKIM key(s) <img alt="🎉" class="twemoji" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f389.svg" title=":tada:" /></p>
+<p>You'll need to repeat this process if you add any new domains.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">RSA Key Sizes &gt;= 4096 Bit</p>
+<p>Keys of 4096 bits could denied by some mail servers. According to <a href="https://tools.ietf.org/html/rfc6376">RFC 6376</a> keys are <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1854">preferably between 512 and 2048 bits</a>.</p>
+</div>
+<h3 id="dkim-dns"><a class="toclink" href="#dkim-dns">DNS Record</a></h3>
+<p>When mail signed with your DKIM key is sent from your mail server, the receiver needs to check a DNS <code>TXT</code> record to verify the DKIM signature is trustworthy.</p>
+<div class="admonition example">
+<p class="admonition-title">Configuring DNS - DKIM record</p>
+<p>When you generated your key in the previous step, the DNS data was saved into a file <code>&lt;selector&gt;.txt</code> (default: <code>mail.txt</code>). Use this content to update your <a href="https://www.vultr.com/docs/introduction-to-vultr-dns/">DNS via Web Interface</a> or directly edit your <a href="https://en.wikipedia.org/wiki/Zone_file">DNS Zone file</a>:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Web Interface</label><label for="__tabbed_2_2">DNS Zone file</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Create a new record:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td><code>TXT</code></td>
+</tr>
+<tr>
+<td>Name</td>
+<td><code>&lt;selector&gt;._domainkey</code> (<em>default: <code>mail._domainkey</code></em>)</td>
+</tr>
+<tr>
+<td>TTL</td>
+<td>Use the default (<em>otherwise <a href="https://www.digicert.com/faq/dns/what-is-ttl">3600 seconds is appropriate</a></em>)</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>File content within <code>( ... )</code> (<em>formatted as advised below</em>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tabbed-block">
+<p><code>&lt;selector&gt;.txt</code> is already formatted as a snippet for adding to your <a href="https://en.wikipedia.org/wiki/Zone_file">DNS Zone file</a>.</p>
+<p>Just copy/paste the file contents into your existing DNS zone. The <code>TXT</code> value has been split into separate strings every 255 characters for compatibility.</p>
+</div>
+</div>
+</div>
+</div>
+<details class="info">
+<summary><code>&lt;selector&gt;.txt</code> - Formatting the <code>TXT</code> record value correctly</summary>
+<p>This file was generated for use within a <a href="https://en.wikipedia.org/wiki/Zone_file">DNS zone file</a>. DNS <code>TXT</code> records values that are longer than 255 characters need to be split into multiple parts. This is why the public key has multiple parts wrapped within double-quotes between <code>(</code> and <code>)</code>.</p>
+<p>A DNS web-interface may handle this internally instead, while <a href="https://serverfault.com/questions/763815/route-53-doesnt-allow-adding-dkim-keys-because-length-is-too-long">others may not, but expect the input as a single line</a>_). You'll need to manually format the value as described below.</p>
+<p>Your DNS record file (eg: <code>mail.txt</code>) should look similar to this:</p>
+<div class="highlight"><pre><span></span><code>mail._domainkey IN TXT ( &quot;v=DKIM1; k=rsa; &quot;
+&quot;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ&quot;
+&quot;5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB&quot;
+) ;
+</code></pre></div>
+<p>Take the content between <code>( ... )</code>, and combine all the quote wrapped content and remove the double-quotes including the white-space between them. That is your <code>TXT</code> record value, the above example would become this:</p>
+<div class="highlight"><pre><span></span><code>v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB
+</code></pre></div>
+<p>To test that your new DKIM record is correct, query it with the <code>dig</code> command. The <code>TXT</code> value response should be a single line split into multiple parts wrapped in double-quotes:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>dkim-rsa._domainkey.example.com
+<span class="go">&quot;v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39&quot; &quot;KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB&quot;</span>
+</code></pre></div>
+</details>
+<h3 id="dkim-debug"><a class="toclink" href="#dkim-debug">Troubleshooting</a></h3>
+<p><a href="https://mxtoolbox.com/dkim.aspx">MxToolbox has a DKIM Verifier</a> that you can use to check your DKIM DNS record(s).</p>
+<p>When using Rspamd, we recommend you turn on <code>check_pubkey = true;</code> in <code>dkim_signing.conf</code>. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at <code>/var/log/supervisor/rspamd.log</code>.</p>
+<h2 id="dmarc"><a class="toclink" href="#dmarc">DMARC</a></h2>
+<p>With DMS, DMARC is pre-configured out of the box. You may disable extra and excessive DMARC checks when using Rspamd via <code>ENABLE_OPENDMARC=0</code>.</p>
+<p>The only thing you need to do in order to enable DMARC on a "DNS-level" is to add new <code>TXT</code>. In contrast to <a href="#dkim">DKIM</a>, DMARC DNS entries do not require any keys, but merely setting the <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags">configuration values</a>. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org">this one</a>).</p>
+<p>Typically something like this should be good to start with:</p>
+<div class="highlight"><pre><span></span><code>_dmarc.example.com. IN TXT &quot;v=DMARC1; p=none; sp=none; fo=0; adkim=4; aspf=r; pct=100; rf=afrf; ri=86400; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com&quot;
+</code></pre></div>
+<p>Or a bit more strict policies (<em>mind <code>p=quarantine</code> and <code>sp=quarantine</code></em>):</p>
+<div class="highlight"><pre><span></span><code>_dmarc.example.com. IN TXT &quot;v=DMARC1; p=quarantine; sp=quarantine; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com&quot;
+</code></pre></div>
+<p>The DMARC status may not be displayed instantly due to delays in DNS (caches). Dmarcian has <a href="https://dmarcian.com/dmarc-tools/">a few tools</a> you can use to verify your DNS records.</p>
+<h2 id="spf"><a class="toclink" href="#spf">SPF</a></h2>
+<div class="admonition quote">
+<p class="admonition-title">What is SPF</p>
+<p>Sender Policy Framework (SPF) is a simple email-validation system designed to detect email spoofing by providing a mechanism to allow receiving mail exchangers to check that incoming mail from a domain comes from a host authorized by that domain's administrators.</p>
+<p><a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework">Source</a></p>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For a more technical review: <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/SPF-how-to.md">https://github.com/internetstandards/toolbox-wiki/blob/master/SPF-how-to.md</a></p>
+<p class="admonition-title">Disabling <code>policyd-spf</code>?</p>
+<p>As of now, <code>policyd-spf</code> cannot be disabled. This is WIP.</p>
 </div>
-<h2 id="add-a-spf-record"><a class="toclink" href="#add-a-spf-record">Add a SPF Record</a></h2>
+<h3 id="adding-an-spf-record"><a class="toclink" href="#adding-an-spf-record">Adding an SPF Record</a></h3>
 <p>To add a SPF record in your DNS, insert the following line in your DNS zone:</p>
-<div class="highlight"><pre><span></span><code>; MX record must be declared for SPF to work
-example.com. IN  MX 1 mail.example.com.
-
-; SPF record
-example.com. IN TXT &quot;v=spf1 mx ~all&quot;
+<div class="highlight"><pre><span></span><code>example.com. IN TXT &quot;v=spf1 mx ~all&quot;
 </code></pre></div>
-<p>This enables the <em>Softfail</em> mode for SPF. You could first add this SPF record with a very low TTL.</p>
-<p><em>SoftFail</em> is a good setting for getting started and testing, as it lets all email through, with spams tagged as such in the mailbox.</p>
+<p>This enables the <em>Softfail</em> mode for SPF. You could first add this SPF record with a very low TTL. <em>SoftFail</em> is a good setting for getting started and testing, as it lets all email through, with spams tagged as such in the mailbox.</p>
 <p>After verification, you <em>might</em> want to change your SPF record to <code>v=spf1 mx -all</code> so as to enforce the <em>HardFail</em> policy. See <a href="http://www.open-spf.org/SPF_Record_Syntax">http://www.open-spf.org/SPF_Record_Syntax</a> for more details about SPF policies.</p>
 <p>In any case, increment the SPF record's TTL to its final value.</p>
-<h2 id="backup-mx-secondary-mx"><a class="toclink" href="#backup-mx-secondary-mx">Backup MX, Secondary MX</a></h2>
+<h3 id="backup-mx-secondary-mx-for-policyd-spf"><a class="toclink" href="#backup-mx-secondary-mx-for-policyd-spf">Backup MX &amp; Secondary MX for <code>policyd-spf</code></a></h3>
 <p>For whitelisting an IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
-<p><strong>Example:</strong></p>
-<p>Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
+<p><strong>Example:</strong> Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">debugLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 <span class="c1">#0(only errors)-4(complete data received)</span>
 
@@ -1543,8 +1863,6 @@ example.com. IN TXT &quot;v=spf1 mx ~all&quot;
 </code></pre></div>
 
 
-
-  
 
 
 

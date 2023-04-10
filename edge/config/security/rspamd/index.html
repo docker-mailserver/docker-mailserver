@@ -515,36 +515,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../best-practices/dkim/" class="md-nav__link">
-        DKIM
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../best-practices/dmarc/" class="md-nav__link">
-        DMARC
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../best-practices/spf/" class="md-nav__link">
-        SPF
+      <a href="../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+        DKIM, DMARC & SPF
       </a>
     </li>
   
@@ -1795,7 +1767,7 @@
 <p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>rspamd-commands</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
 </div>
 <h3 id="with-the-help-of-a-custom-file"><a class="toclink" href="#with-the-help-of-a-custom-file">With the Help of a Custom File</a></h3>
-<p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>rspamd-modules.conf</code> into the directory <code>docker-data/dms/config/</code> (which translates to <code>/tmp/docker-mailserver/</code> in the container). If this file is present, DMS will evaluate it. The structure is <em>very</em> simple. Each line in the file looks like this:</p>
+<p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>rspamd-modules.conf</code> into the <a href="../../advanced/optional-config/">local config directory <code>docker-data/dms/config/</code></a>. If this file is present, DMS will evaluate it. The structure is <em>very</em> simple. Each line in the file looks like this:</p>
 <div class="highlight"><pre><span></span><code>COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
 </code></pre></div>
 <p>where <code>COMMAND</code> can be:</p>
@@ -1838,76 +1810,7 @@
 <li>But the chartable module gets on your nerves? Just disable it by adding another line: <code>disable-module chartable</code>.</li>
 </ol>
 <h3 id="dkim-signing"><a class="toclink" href="#dkim-signing">DKIM Signing</a></h3>
-<p>By default, DMS offers no option to generate and configure signing e-mails with DKIM. This is because the parsing would be difficult. But don't worry: the process is relatively straightforward nevertheless. The <a href="https://rspamd.com/doc/modules/dkim_signing.html">official Rspamd documentation for the DKIM signing module</a> is pretty good. Basically, you need to</p>
-<ol>
-<li><code>exec</code> into the container</li>
-<li>Run a command similar to <code>rspamadm dkim_keygen -s 'woosh' -b 2048 -d example.com -k example.private &gt; example.txt</code>, adjusted to your needs</li>
-<li>Make sure to then persists the files <code>example.private</code> and <code>example.txt</code> (created in step 2) in the container (for example with a Docker bind mount)</li>
-<li>Create a configuration for the DKIM signing module, i.e. a file called <code>dkim_signing.conf</code> that you mount to <code>/etc/rspamd/local.d/</code> or <code>/etc/rspamd/override.d/</code>. We provide example configurations down below. We recommend mounting this file into the container as well (as described <a href="#manually">here</a>); do not use <a href="#with-the-help-of-a-custom-file"><code>rspamd-modules.conf</code></a> for this purpose.</li>
-</ol>
-<details class="example">
-<summary>DKIM Signing Module Configuration Examples</summary>
-<p>A simple configuration could look like this:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># documentation: https://rspamd.com/doc/modules/dkim_signing.html</span>
-
-<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">sign_authenticated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-<span class="na">sign_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="c1">;</span>
-<span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="c1">; # don&#39;t change unless Redis also provides the DKIM keys</span>
-<span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">domain {</span>
-<span class="w">    </span><span class="na">example.com {</span>
-<span class="w">        </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/example.private&quot;</span><span class="c1">;</span>
-<span class="w">        </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;woosh&quot;</span><span class="c1">;</span>
-<span class="w">    </span><span class="na">}</span>
-<span class="na">}</span>
-</code></pre></div>
-<p>If you have multiple domains and you want to sign with the modern ED25519 elliptic curve but also with RSA (you will likely want to have RSA as a fallback!):</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># documentation: https://rspamd.com/doc/modules/dkim_signing.html</span>
-
-<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">sign_authenticated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-<span class="na">sign_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="c1">;</span>
-<span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="c1">; # don&#39;t change unless Redis also provides the DKIM keys</span>
-<span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">domain {</span>
-<span class="w">    </span><span class="na">example.com {</span>
-<span class="w">        </span><span class="na">selectors [</span>
-<span class="w">            </span><span class="na">{</span>
-<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/com.example.rsa.private&quot;</span><span class="c1">;</span>
-<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;</span><span class="c1">;</span>
-<span class="w">            </span><span class="na">},</span>
-<span class="w">            </span><span class="na">{</span>
-<span class="w">              </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/com.example.ed25519.private&quot;</span><span class="c1">;</span>
-<span class="w">              </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;</span><span class="c1">;</span>
-<span class="w">            </span><span class="na">}</span>
-<span class="w">      </span><span class="na">]</span>
-<span class="w">    </span><span class="na">}</span>
-<span class="w">    </span><span class="na">example.org {</span>
-<span class="w">        </span><span class="na">selectors [</span>
-<span class="w">            </span><span class="na">{</span>
-<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/org.example.rsa.private&quot;</span><span class="c1">;</span>
-<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;</span><span class="c1">;</span>
-<span class="w">            </span><span class="na">},</span>
-<span class="w">            </span><span class="na">{</span>
-<span class="w">              </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/path/to/org.example.ed25519.private&quot;</span><span class="c1">;</span>
-<span class="w">              </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;</span><span class="c1">;</span>
-<span class="w">            </span><span class="na">}</span>
-<span class="w">        </span><span class="na">]</span>
-<span class="w">    </span><span class="na">}</span>
-<span class="na">}</span>
-</code></pre></div>
-</details>
+<p>There is a dedicated <a href="../../best-practices/dkim_dmarc_spf/#dkim">section for setting up DKIM with Rspamd in our documentation</a>.</p>
 <h3 id="abusix-integration"><a class="toclink" href="#abusix-integration"><em>Abusix</em> Integration</a></h3>
 <p>This subsection gives information about the integration of <a href="https://abusix.com/">Abusix</a>, "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:</p>
 <ol>

@@ -515,36 +515,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/best-practices/dkim/" class="md-nav__link">
-        DKIM
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../config/best-practices/dmarc/" class="md-nav__link">
-        DMARC
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../config/best-practices/spf/" class="md-nav__link">
-        SPF
+      <a href="../../../config/best-practices/dkim_dmarc_spf/" class="md-nav__link">
+        DKIM, DMARC & SPF
       </a>
     </li>
   
@@ -1645,7 +1617,7 @@ ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">465</spa
 </details>
 </li>
 <li>
-<p>Configure your DNS service to use an MX record for the <em>hostname</em> (eg: <code>mail</code>) you configured in the previous step and add the <a href="../../../config/best-practices/spf/">SPF</a> TXT record.</p>
+<p>Configure your DNS service to use an MX record for the <em>hostname</em> (eg: <code>mail</code>) you configured in the previous step and add the <a href="../../../config/best-practices/dkim_dmarc_spf/#spf">SPF</a> TXT record.</p>
 <div class="admonition tip">
 <p class="admonition-title">If you manually manage the DNS zone file for the domain</p>
 <p>It would look something like this:</p>
@@ -1663,7 +1635,7 @@ mail  IN  A      10.11.12.13
 </div>
 </li>
 <li>
-<p><a href="../../../config/best-practices/dkim/">Generate DKIM keys</a> for your domain via <code>setup config dkim</code>.</p>
+<p><a href="../../../config/best-practices/dkim_dmarc_spf/#dkim">Generate DKIM keys</a> for your domain via <code>setup config dkim</code>.</p>
 <p>Copy the content of the file <code>docker-data/dms/config/opendkim/keys/example.com/mail.txt</code> and add it to your DNS records as a TXT like SPF was handled above.</p>
 <p>I use <a href="https://github.com/docker-scripts/bind9">bind9</a> for managing my domains, so I just paste it on <code>example.com.db</code>:</p>
 <div class="highlight"><pre><span></span><code>mail._domainkey IN      TXT     ( &quot;v=DKIM1; h=sha256; k=rsa; &quot;

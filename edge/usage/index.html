@@ -534,15 +534,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dkim-keys" class="md-nav__link">
-    DKIM Keys
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#advanced-dns-setup" class="md-nav__link">
-    Advanced DNS Setup
+  <a href="#advanced-dns-setup-dkim-dmarc-spf" class="md-nav__link">
+    Advanced DNS Setup - DKIM, DMARC &amp; SPF
   </a>
   
 </li>
@@ -668,36 +661,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../config/best-practices/dkim/" class="md-nav__link">
-        DKIM
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../config/best-practices/dmarc/" class="md-nav__link">
-        DMARC
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../config/best-practices/spf/" class="md-nav__link">
-        SPF
+      <a href="../config/best-practices/dkim_dmarc_spf/" class="md-nav__link">
+        DKIM, DMARC & SPF
       </a>
     </li>
   
@@ -1665,15 +1630,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dkim-keys" class="md-nav__link">
-    DKIM Keys
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#advanced-dns-setup" class="md-nav__link">
-    Advanced DNS Setup
+  <a href="#advanced-dns-setup-dkim-dmarc-spf" class="md-nav__link">
+    Advanced DNS Setup - DKIM, DMARC &amp; SPF
   </a>
   
 </li>
@@ -1842,29 +1800,8 @@ wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</s
 <p>You should add at least one <a href="../config/user-management/#aliases">alias</a>, the <a href="../config/environment/#postmaster_address"><em>postmaster alias</em></a>. This is a common convention, but not strictly required.</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>postmaster@example.com<span class="w"> </span>user@example.com
 </code></pre></div>
-<h3 id="dkim-keys"><a class="toclink" href="#dkim-keys">DKIM Keys</a></h3>
-<p>You can (<em>and you should</em>) generate DKIM keys. For more information:</p>
-<ul>
-<li>DKIM <a href="../config/best-practices/dkim/#enabling-dkim-signature">with OpenDKIM</a> (<em>enabled by default</em>)</li>
-<li>DKIM <a href="../config/security/rspamd/#dkim-signing">with Rspamd</a> (<em>when using <code>ENABLE_RSPAMD=1</code></em>)</li>
-</ul>
-<p>When keys are generated, you can configure your DNS server by just pasting the content of <code>config/opendkim/keys/domain.tld/mail.txt</code> to <a href="https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim">set up DKIM</a>. See the <a href="../config/best-practices/dkim/#configuration-using-a-web-interface">documentation</a> for more details.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span><span class="s1">&#39;&lt;domain.tld&gt;[,&lt;domain2.tld&gt;]&#39;</span>
-</code></pre></div>
-</div>
-<h3 id="advanced-dns-setup"><a class="toclink" href="#advanced-dns-setup">Advanced DNS Setup</a></h3>
-<p>You will very likely want to configure your DNS with these TXT records: <a href="https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/">SPF, DKIM, and DMARC</a>.</p>
-<p>The following illustrates what a (rather strict) set of records could look like:</p>
-<div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>example.com
-<span class="go">&quot;v=spf1 mx -all&quot;</span>
-<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>dkim-rsa._domainkey.example.com
-<span class="go">&quot;v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ...&quot;</span>
-<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>TXT<span class="w"> </span>_dmarc.example.com
-<span class="go">&quot;v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1&quot;</span>
-</code></pre></div>
+<h3 id="advanced-dns-setup-dkim-dmarc-spf"><a class="toclink" href="#advanced-dns-setup-dkim-dmarc-spf">Advanced DNS Setup - DKIM, DMARC &amp; SPF</a></h3>
+<p>You will very likely want to configure your DNS with these TXT records: <a href="https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/">SPF, DKIM, and DMARC</a>. We also ship a <a href="../config/best-practices/dkim_dmarc_spf/">dedicated page in our documentation</a> about the setup of DKIM, DMARC &amp; SPF.</p>
 <h3 id="custom-user-changes-patches"><a class="toclink" href="#custom-user-changes-patches">Custom User Changes &amp; Patches</a></h3>
 <p>If you'd like to change, patch or alter files or behavior of <code>docker-mailserver</code>, you can use a script. See <a href="../faq/#how-to-adjust-settings-with-the-user-patchessh-script">this part of our documentation</a> for a detailed explanation.</p>
 <h2 id="testing"><a class="toclink" href="#testing">Testing</a></h2>
