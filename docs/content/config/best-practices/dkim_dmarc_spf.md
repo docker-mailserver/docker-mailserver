@@ -62,13 +62,32 @@ The command `docker exec <CONTAINER NAME> setup config dkim help` details suppor
 
 DKIM signing requires a private key, while verification requires your DNS to be configured with the associated public key.
 
-This example **requires at least one email account** has been created. To store this data outside of the container have your [config volume][docs-volumes-config] attached (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`). Generate the DKIM keypair data with:
+!!! example "Create a DKIM key (OpenDKIM)"
 
-[docs-volumes-config]: ../advanced/optional-config.md
+    This example requires:
 
-```sh
-docker exec -ti <CONTAINER NAME> config dkim
-```
+    - You have [created at least one email account][docs-accounts-add].
+    - Use your [volume for config][docs-volumes-config] (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`) to persist the DKIM key.
+    
+    Generate the DKIM files with:
+
+    ```sh
+    docker exec -ti <CONTAINER NAME> config dkim
+    ```
+
+    This has created your DKIM key and OpenDKIM config files.
+
+    - `docker-mailserver` needs to be restarted. Outgoing mail will now be signed with your new DKIM key(s).
+    - For a receiver to verify your DKIM key, you must also add the DKIM public key to your DNS.
+    - You'll need to repeat this process if you add any new domains.
+
+!!! note "LDAP accounts need to specify domains explicitly"
+
+    The command is unable to infer the domains from LDAP user accounts, you must specify them:
+
+    ```sh
+    setup config dkim domain 'mail.example.com,mail.example.io'
+    ```
 
 !!! tip "Changing the key size"
 
@@ -80,15 +99,8 @@ docker exec -ti <CONTAINER NAME> config dkim
     setup config dkim keysize 2048
     ```
 
-!!! note "LDAP accounts need to specify domains explicitly"
-
-    The command is unable to infer the domains from LDAP user accounts, you must specify them:
-
-    ```sh
-    setup config dkim domain 'mail.example.com,mail.example.io'
-    ```
-
-After generating DKIM (with OpenDKIM) keys, you should restart `docker-mailserver`.
+[docs-accounts-add]: ../user-management.md#adding-a-new-account
+[docs-volumes-config]: ../advanced/optional-config.md
 
 ### Rspamd
 
@@ -183,39 +195,49 @@ By default, DMS offers no option to generate and configure signing e-mails with 
 
 ### Follow-Up DNS Setup
 
-Configuring DNS for DKIM requires adding a TXT record. We assume you are using a web-interface - if not, and you have access to a DNS zone _file_, you can copy the contents of the public key file into the file.
+When you send a mail signed with your DKIM key, the receiver needs to check a DNS `TXT` record to verify the DKIM signature is legit.
 
-In the DNS web-interface, create a new record with this field content:
+When you generated your key in the previous step, the DNS data was saved into a file `<selector>.txt` (default: `mail.txt`). Update your DNS with this content:
 
-- **Type:** `TXT`
-- **Name:** is your DKIM selector (default `mail`) with `._domainkey` appended: `mail._domainkey`
-- **Value:** should be the content within `( ... )`: `v=DKIM1; k=rsa; p=AZERTYUGHJKLMWX...`
-- **TTL:** The default value should be fine.
+=== "Web Interface"
 
-!!! info "`<selector>.txt` public key content"
+    If your DNS can be [managed by a web-interface][dns::example-webui], create a new record:
 
-    The public key value was generated as the value for a complete record that can be pasted as-is into a [DNS zone file][cloudflare-dns-zonefile].
+    - **Type:** `TXT`
+    - **Name:** should be your DKIM selector `<selector>._domainkey` (_default: `mail._domainkey`_)
+    - **Value:** should use the content within `( ... )` (_see the info section below for advice on correct formatting_)
+    - **TTL (_Time To Live_):** Use the default (_otherwise [3600 seconds is appropriate][dns::digicert-ttl]_)
+
+=== "DNS Zone file"
+
+    If your DNS is configured via files instead of a UI, `<selector>.txt` is already formatted as a [DNS Zone file][dns::wikipedia-zonefile] snippet that **you can copy/paste into your existing DNS zone**. The `TXT` value has been split into separate strings every 255 characters for compatibility.
+
+[dns::example-webui]: https://www.vultr.com/docs/introduction-to-vultr-dns/
+[dns::digicert-ttl]: https://www.digicert.com/faq/dns/what-is-ttl
+[dns::wikipedia-zonefile]: https://en.wikipedia.org/wiki/Zone_file
+
+!!! info "`<selector>.txt` - Formatting the `TXT` value correctly"
+
+    This file was generated for use within a [DNS zone file][dns::wikipedia-zonefile]. DNS `TXT` records values that are longer than 255 characters need to be split into multiple parts. This is why the public key has multiple parts wrapped within double-quotes between `(` and `)`.
     
-    DNS `TXT` records with long values need to be split into parts every 255 characters. This is why the public key has multiple parts wrapped within double-quotes between `(` and `)`.
-    
-    A DNS web-interface may not accept a public key with this special formatting as input (_while [others may require it, but all on a single line][dns-webui-dkim]_). 
+    A DNS web-interface may handle this internally instead, while [others may not, but expect the input as a single line][dns-webui-dkim]_). You'll need to manually format the value as described below.
 
-    When your file with public key (eg: `mail.txt`) looks like this:
+    Your DNS record file (eg: `mail.txt`) should look similar to this:
 
     ```txt
-    dkim-rsa._domainkey IN TXT ( "v=DKIM1; k=rsa; "
+    mail._domainkey IN TXT ( "v=DKIM1; k=rsa; "
     "p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ"
     "5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB"
     ) ;
     ```
 
-    the value of your DNS record for DKIM should look like this:
+    Take the content between `( ... )`, and combine all the quote wrapped content and remove the double-quotes including the white-space between them. That is your `TXT` record value, the above example would become this:
 
     ```txt
     v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB
     ```
 
-    And `dig` should confirm that:
+    To test that your new DKIM record is correct, query it with the `dig` command. The `TXT` value response should be a single line split into multiple parts wrapped in double-quotes:
 
     ```console
     $ dig +short TXT dkim-rsa._domainkey.example.com
