@@ -78,6 +78,8 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true 
   - pymdownx.magiclink
   - pymdownx.inlinehilite
   - pymdownx.tilde
