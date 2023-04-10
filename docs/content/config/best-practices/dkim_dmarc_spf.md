@@ -92,7 +92,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         See `rspamadm dkim_keygen -h` for an overview of the supported options.
 
-       ---
+        ---
 
         1. Go inside the container with `docker exec -ti <CONTAINER NAME> bash`
         2. Add `rspamd/dkim/` folder to your config volume and switch to it: `cd /tmp/docker-mailserver/rspamd/dkim`
@@ -101,14 +101,13 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
              -`chgrp _rspamd mail.private`
              -`chmod g+r mail.private`
 
-
     ---
-
-    Create a configuration file for the DKIM signing module at `rspamd/modules/override.d/dkim_signing.conf` and populate it with config as shown in the example below:
 
     !!! bug inline end "DMS config volume support is not ready for Rspamd"
 
         Presently you'll need to [explicitly mount `rspamd/modules/override.d/`][docs-rspamd-config-dropin] as an additional volume; do not use [`rspamd-modules.conf`][docs-rspamd-config-declarative] for this purpose.
+
+    Create a configuration file for the DKIM signing module at `rspamd/modules/override.d/dkim_signing.conf` and populate it with config as shown in the example below:
 
     ??? example "DKIM Signing Module Configuration Examples"
 
