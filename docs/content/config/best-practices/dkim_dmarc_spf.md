@@ -197,7 +197,7 @@ By default, DMS offers no option to generate and configure signing e-mails with 
 
 When mail signed with your DKIM key is sent from your mail server, the receiver needs to check a DNS `TXT` record to verify the DKIM signature is trustworthy.
 
-!!! "Configuring DNS - DKIM record"
+!!! example "Configuring DNS - DKIM record"
 
     When you generated your key in the previous step, the DNS data was saved into a file `<selector>.txt` (default: `mail.txt`). Use this content to update your [DNS via Web Interface][dns::example-webui] or directly editing your [DNS Zone file][dns::wikipedia-zonefile]:
 
