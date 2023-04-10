@@ -25,7 +25,7 @@
     
     
       
-        <title>Your best friend setup.sh - Docker Mailserver</title>
+        <title>About setup.sh - Docker Mailserver</title>
       
     
     
@@ -78,11 +78,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#usage" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -115,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Your best friend setup.sh
+              About setup.sh
             
           </span>
         </div>
@@ -721,38 +716,9 @@
       
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Your Friend setup.sh
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
-        Your Friend setup.sh
+        About setup.sh
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1456,21 +1422,6 @@
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1487,115 +1438,23 @@
   
 
 
-  <h1>Your Friend setup.sh</h1>
+  <h1>About setup.sh</h1>
 
-<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is an administration script that helps with the most common tasks, including initial configuration. It is intended to be run from the host machine, <em>not</em> from inside your running container.</p>
-<p>The latest version of the script is included in the <code>docker-mailserver</code> repository. You may retrieve it at any time by running this command in your console:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>setup.sh</code> is not required. We encourage you to use <code>docker exec -ti &lt;CONTAINER NAME&gt; setup</code> instead.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This script assumes Docker or Podman is used. You will not be able to use <code>setup.sh</code> with other container orchestration tools.</p>
+</div>
+<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh"><code>setup.sh</code></a> is a script that is complimentary to the internal <code>setup</code> command in <code>docker-mailserver</code>.</p>
+<p>It mostly provides the convenience of aliasing <code>docker exec -ti &lt;CONTAINER NAME&gt; setup</code>, inferring the container name of a running <code>docker-mailserver</code> instance or running a new instance and bind mounting necessary volumes implicitly.</p>
+<p>It is intended to be run from the host machine, <em>not</em> from inside your running container. The latest version of the script is included in the <code>docker-mailserver</code> repository. You may retrieve it at any time by running this command in your console:</p>
 <div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/setup.sh
 chmod<span class="w"> </span>a+x<span class="w"> </span>./setup.sh
 </code></pre></div>
-<h2 id="usage"><a class="toclink" href="#usage">Usage</a></h2>
-<p>Run <code>./setup.sh help</code> and you'll get <del>all you have ever wanted</del> some usage information:</p>
-<div class="highlight"><pre><span></span><code>SETUP(1)
-
-NAME
-    setup.sh - docker-mailserver administration script
-
-SYNOPSIS
-    ./setup.sh [ OPTIONS... ] COMMAND [ help | ARGUMENTS... ]
-
-    COMMAND := { email | alias | quota | config | relay | debug } SUBCOMMAND
-
-DESCRIPTION
-    This is the main administration script that you use for all your interactions with
-    &#39;docker-mailserver&#39;. Setup, configuration and much more is done with this script.
-
-    Please note that the script executes most of the commands inside the container itself.
-    If the image was not found, this script will pull the &#39;:latest&#39; tag of
-    &#39;docker.io/mailserver/docker-mailserver&#39;. This tag refers to the latest release,
-    see the tagging convention in the README under
-    https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
-
-    You will be able to see detailed information about the script you&#39;re invoking and
-    its arguments by appending help after your command. Currently, this
-    does not work with all scripts.
-
-[SUB]COMMANDS
-    COMMAND email :=
-        ./setup.sh email add &lt;EMAIL ADDRESS&gt; [&lt;PASSWORD&gt;]
-        ./setup.sh email update &lt;EMAIL ADDRESS&gt; [&lt;PASSWORD&gt;]
-        ./setup.sh email del [ OPTIONS... ] &lt;EMAIL ADDRESS&gt; [ &lt;EMAIL ADDRESS&gt;... ]
-        ./setup.sh email restrict &lt;add|del|list&gt; &lt;send|receive&gt; [&lt;EMAIL ADDRESS&gt;]
-        ./setup.sh email list
-
-    COMMAND alias :=
-        ./setup.sh alias add &lt;EMAIL ADDRESS&gt; &lt;RECIPIENT&gt;
-        ./setup.sh alias del &lt;EMAIL ADDRESS&gt; &lt;RECIPIENT&gt;
-        ./setup.sh alias list
-
-    COMMAND quota :=
-        ./setup.sh quota set &lt;EMAIL ADDRESS&gt; [&lt;QUOTA&gt;]
-        ./setup.sh quota del &lt;EMAIL ADDRESS&gt;
-
-    COMMAND config :=
-        ./setup.sh config dkim [ ARGUMENTS... ]
-
-    COMMAND relay :=
-        ./setup.sh relay add-auth &lt;DOMAIN&gt; &lt;USERNAME&gt; [&lt;PASSWORD&gt;]
-        ./setup.sh relay add-domain &lt;DOMAIN&gt; &lt;HOST&gt; [&lt;PORT&gt;]
-        ./setup.sh relay exclude-domain &lt;DOMAIN&gt;
-
-    COMMAND fail2ban =
-        ./setup.sh fail2ban
-        ./setup.sh fail2ban ban &lt;IP&gt;
-        ./setup.sh fail2ban unban &lt;IP&gt;
-
-    COMMAND debug :=
-        ./setup.sh debug fetchmail
-        ./setup.sh debug login &lt;COMMANDS&gt;
-        ./setup.sh debug show-mail-logs
-
-EXAMPLES
-    ./setup.sh email add test@example.com [password]
-        Add the email account test@example.com. You will be prompted
-        to input a password afterwards if no password was supplied.
-        When supplying `[password]`, it should be in plaintext.
-
-    ./setup.sh config dkim keysize 2048 domain &#39;example.com,not-example.com&#39;
-        Creates keys of length 2048 but in an LDAP setup where domains are not known to
-        Postfix by default, so you need to provide them yourself in a comma-separated list.
-
-    ./setup.sh config dkim help
-        This will provide you with a detailed explanation on how to use the
-        config dkim command, showing what arguments can be passed and what they do.
-
-OPTIONS
-    Config path, container or image adjustments
-        -i IMAGE_NAME
-            Provides the name of the &#39;docker-mailserver&#39; image. The default value is
-            &#39;docker.io/mailserver/docker-mailserver:latest&#39;
-
-        -c CONTAINER_NAME
-            Provides the name of the running container.
-
-        -p PATH
-            Provides the config folder path to the temporary container
-            (does not work if a &#39;docker-mailserver&#39; container already exists).
-
-    SELinux
-        -z
-            Allows container access to the bind mount content that is shared among
-            multiple containers on a SELinux-enabled host.
-
-        -Z
-            Allows container access to the bind mount content that is private and
-            unshared with other containers on a SELinux-enabled host.
-
-EXIT STATUS
-    Exit status is 0 if the command was successful. If there was an unexpected error, an error
-    message is shown describing the error. In case of an error, the script will exit with exit
-    status 1.
-</code></pre></div>
+<p>For more information on using the script run: <code>./setup.sh help</code>.</p>
 
 
 

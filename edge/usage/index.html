@@ -866,7 +866,7 @@
   
     <li class="md-nav__item">
       <a href="../config/setup.sh/" class="md-nav__link">
-        Your Friend setup.sh
+        About setup.sh
       </a>
     </li>
   
@@ -1819,7 +1819,7 @@ wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</s
 <p>We encourage you to directly use <code>setup</code> inside the container (like shown above). If you still want to use <code>setup.sh</code>, here's some information about it.</p>
 <p>If no DMS container is running, any <code>./setup.sh</code> command will check online for the <code>:latest</code> image tag (the current <em>stable</em> release), performing a <code>docker pull ...</code> if necessary followed by running the command in a temporary container:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>./setup.sh<span class="w"> </span><span class="nb">help</span>
-<span class="go">Image &#39;docker.io/mailserver/docker-mailserver:latest&#39; not found. Pulling ...</span>
+<span class="go">Image &#39;ghcr.io/docker-mailserver/docker-mailserver:latest&#39; not found. Pulling ...</span>
 <span class="go">SETUP(1)</span>
 
 <span class="go">NAME</span>
