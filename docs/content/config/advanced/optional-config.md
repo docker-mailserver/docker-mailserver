@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-This is a list of all configuration files and directories which are optional or automatically generated in your `docker-data/dms/config/` directory.
+This is a list of all configuration files and directories which are optional or automatically generated in your `docker-data/dms/config/` directory. We use this path to reference the local config directory in our docs, which you should attach a volume into the container at `/tmp/docker-mailserver`.
 
 ## Directories
 
