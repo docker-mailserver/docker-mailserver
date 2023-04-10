@@ -193,24 +193,28 @@ By default, DMS offers no option to generate and configure signing e-mails with 
 [rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
 [rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
 
-### Follow-Up DNS Setup
+### DNS Record { #dkim-dns }
 
-When you send a mail signed with your DKIM key, the receiver needs to check a DNS `TXT` record to verify the DKIM signature is legit.
+When mail signed with your DKIM key is sent from your mail server, the receiver needs to check a DNS `TXT` record to verify the DKIM signature is trustworthy.
 
-When you generated your key in the previous step, the DNS data was saved into a file `<selector>.txt` (default: `mail.txt`). Update your DNS with this content:
+!!! "Configuring DNS - DKIM record"
 
-=== "Web Interface"
+    When you generated your key in the previous step, the DNS data was saved into a file `<selector>.txt` (default: `mail.txt`). Use this content to update your [DNS via Web Interface][dns::example-webui] or directly editing your [DNS Zone file][dns::wikipedia-zonefile]:
 
-    If your DNS can be [managed by a web-interface][dns::example-webui], create a new record:
+    === "Web Interface"
 
-    - **Type:** `TXT`
-    - **Name:** should be your DKIM selector `<selector>._domainkey` (_default: `mail._domainkey`_)
-    - **Value:** should use the content within `( ... )` (_see the info section below for advice on correct formatting_)
-    - **TTL (_Time To Live_):** Use the default (_otherwise [3600 seconds is appropriate][dns::digicert-ttl]_)
+        Create a new record:
 
-=== "DNS Zone file"
+        - **Type:** `TXT`
+        - **Name:** should be your DKIM selector `<selector>._domainkey` (_default: `mail._domainkey`_)
+        - **Value:** should use the content within `( ... )` (_see the info section below for advice on correct formatting_)
+        - **TTL:** Use the default (_otherwise [3600 seconds is appropriate][dns::digicert-ttl]_)
 
-    If your DNS is configured via files instead of a UI, `<selector>.txt` is already formatted as a [DNS Zone file][dns::wikipedia-zonefile] snippet that **you can copy/paste into your existing DNS zone**. The `TXT` value has been split into separate strings every 255 characters for compatibility.
+    === "DNS Zone file"
+
+        `<selector>.txt` is already formatted as a snippet for adding to your [DNS Zone file][dns::wikipedia-zonefile].
+
+        Just copy/paste the file contents into your existing DNS zone. The `TXT` value has been split into separate strings every 255 characters for compatibility.
 
 [dns::example-webui]: https://www.vultr.com/docs/introduction-to-vultr-dns/
 [dns::digicert-ttl]: https://www.digicert.com/faq/dns/what-is-ttl
@@ -247,7 +251,7 @@ When you generated your key in the previous step, the DNS data was saved into a 
 [cloudflare-dns-zonefile]: https://www.cloudflare.com/en-gb/learning/dns/glossary/dns-zone
 [dns-webui-dkim]: https://serverfault.com/questions/763815/route-53-doesnt-allow-adding-dkim-keys-because-length-is-too-long
 
-### Debugging Issues
+### Troubleshooting { #dkim-debug }
 
 [MxToolbox has a DKIM Verifier][mxtoolbox-dkim-verifier] that you can use to check your DKIM DNS record(s).
 
