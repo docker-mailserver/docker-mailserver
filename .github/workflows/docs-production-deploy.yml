@@ -123,12 +123,11 @@ jobs:
         id: update-latest
         run: |
           DOCS_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+' <<< "${GITHUB_REF}")
-          echo "DOCS_VERSION=${DOCS_VERSION}" >> "${GITHUB_ENV}"
-          ln -sf ${DOCS_VERSION} latest
+          echo "DOCS_VERSION=${DOCS_VERSION}" >>"${GITHUB_ENV}"
+          rm latest
+          ln -s "${DOCS_VERSION}" latest
 
       - name: 'Push update for `latest` symlink'
-        # The step will fail if no change was made; ignore that failure
-        continue-on-error: true
         run: |
           git config user.name ${{ env.GIT_USER }}
           git config user.email ${{ env.GIT_EMAIL }}
