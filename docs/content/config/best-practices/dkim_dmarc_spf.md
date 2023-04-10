@@ -42,8 +42,8 @@ DKIM support is handled by either:
 
 When DKIM is enabled, checks for inbound mail are enabled automatically. Additional setup is required for signing outbound mail. This is optional but encouraged.
 
-[docs-env-opendkim]: ../config/environment.md#enable_opendkim
-[docs-env-rspamd]: ../config/environment.md#enable_rspamd
+[docs-env-opendkim]: ../environment.md#enable_opendkim
+[docs-env-rspamd]: ../environment.md#enable_rspamd
 
 !!! warning "RSA Key Sizes >= 4096 Bit"
 
@@ -64,7 +64,7 @@ DKIM signing requires a private key, while verification requires your DNS to be 
 
 This example **requires at least one email account** has been created. To store this data outside of the container have your [config volume][docs-volumes-config] attached (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`). Generate the DKIM keypair data with:
 
-[docs-volumes-config]: ../config/advanced/optional-config.md
+[docs-volumes-config]: ../advanced/optional-config.md
 
 ```sh
 docker exec -ti <CONTAINER NAME> config dkim
@@ -89,18 +89,6 @@ docker exec -ti <CONTAINER NAME> config dkim
     ```
 
 After generating DKIM (with OpenDKIM) keys, you should restart `docker-mailserver`.
-
-#### Using Verify-Only Mode
-
-If you want to run OpenDKIM in verify-only mode, you need to adjust `/etc/opendkim.conf` manually (e.g. with [`user-patches.sh`][docs-userpatches]):
-
-```bash
-sed -i -E 's|^(Mode[ ]*).*|\1v|g' /etc/opendkim.conf
-echo 'ReportAddress           postmaster@example.com' >>/etc/opendkim.conf
-
-```
-
-[docs-userpatches]: ../advanced/override-defaults/user-patches.md
 
 ### Rspamd
 
