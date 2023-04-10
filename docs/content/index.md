@@ -36,7 +36,7 @@ We have a [dedicated configuration page][docs-environment]. It contains most of 
 
 !!! important
 
-    If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place a script called `user-patches.sh` in your `./docker-data/dms/config/` folder volume (which is mounted to `/tmp/docker-mailserver/` inside the container) and it will be run on container startup. See the ['Modifications via Script' page][docs-userpatches] for additional documentation and an example.
+    If you'd like to change, patch or alter files or behavior of DMS, you can use a script. Just place a script called `user-patches.sh` in your `./docker-data/dms/config/` folder volume (which is mounted to `/tmp/docker-mailserver/` inside the container) and it will be run on container startup. See the ['Modifications via Script' page][docs-userpatches] for additional documentation and an example.
 
 You might also want to check out:
 

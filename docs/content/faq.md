@@ -57,7 +57,7 @@ As you'll realistically be deploying to production on a Linux host, if you are o
 
 ### How to alter a running DMS instance _without_ relaunching the container?
 
-`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.
+DMS aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
@@ -405,7 +405,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-With `docker-compose` you can more easily use the internal instance of `cron` within `docker-mailserver`. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which `docker-mailserver` is running, and avoids errors if the mail server is not running.
+With `docker-compose` you can more easily use the internal instance of `cron` within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 

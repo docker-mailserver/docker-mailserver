@@ -4,7 +4,7 @@ title: 'Use Cases | Forward-Only Mail Server with LDAP'
 
 ## Building a Forward-Only Mail Server
 
-A **forward-only** mail server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where `docker-mailserver` is installed), using as sender any of the alias addresses.
+A **forward-only** mail server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where DMS is installed), using as sender any of the alias addresses.
 
 The important settings for this setup (on `mailserver.env`) are these:
 
@@ -60,7 +60,7 @@ userPassword: {SSHA}abcdefghi123456789
 email: external-account@gmail.com
 ```
 
-This structure is different from what is expected/assumed from the configuration scripts of `docker-mailserver`, so it doesn't work just by using the `LDAP_QUERY_FILTER_...` settings. Instead, I had to use a custom configuration ([via `user-patches.sh`][docs-userpatches]). I created the script `docker-data/dms/config/user-patches.sh`, with content like this:
+This structure is different from what is expected/assumed from the configuration scripts of DMS, so it doesn't work just by using the `LDAP_QUERY_FILTER_...` settings. Instead, I had to use a custom configuration ([via `user-patches.sh`][docs-userpatches]). I created the script `docker-data/dms/config/user-patches.sh`, with content like this:
 
 ```bash
 #!/bin/bash
