@@ -28,17 +28,17 @@ Cloudflare has written an [article about DKIM, DMARC and SPF][cloudflare-dkim-dm
 
 When DKIM is enabled:
 
-1. Inbound mail will verify any included DKIM signatures.
-2. Outbound mail is signed (_when you're sending domain has a configured DKIM key_).
+1. Inbound mail will verify any included DKIM signatures
+2. Outbound mail is signed (_when you're sending domain has a configured DKIM key_)
 
-DKIM requires a public/private key pair to enable **signing (_via private key_)** your outgoing mail, while the receiving end must query DNS to **verify (_via public key_)** the signature is trustworthy.
+DKIM requires a public/private key pair to enable **signing (_via private key_)** your outgoing mail, while the receiving end must query DNS to **verify (_via public key_)** that the signature is trustworthy.
 
 ### Generating Keys
 
 You should have:
 
-- At least one [email account setup][docs-accounts-add].
-- Attached a [volume for config][docs-volumes-config] to persist the generated files to local storage.
+- At least one [email account setup][docs-accounts-add]
+- Attached a [volume for config][docs-volumes-config] to persist the generated files to local storage
 
 DKIM is currently supported by either OpenDKIM or Rspamd:
 
@@ -58,19 +58,17 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         Your new DKIM key(s) and OpenDKIM config files have been added to `/tmp/docker-mailserver/opendkim/`.
 
-    !!! note "LDAP accounts need to specify domains explicitly"
+    ??? note "LDAP accounts need to specify domains explicitly"
 
         The command is unable to infer the domains from LDAP user accounts, you must specify them:
 
         ```sh
-        setup config dkim domain 'mail.example.com,mail.example.io'
+        setup config dkim domain 'example.com,example.io'
         ```
 
-    !!! tip "Changing the key size"
+    ??? tip "Changing the key size"
 
-        The private key presently defaults to RSA-4096. Some DNS services and clients are only compatible with a smaller size.
-
-        You can override the default like so for 2048-bit keysize:
+        The private key presently defaults to RSA-4096. To create an RSA 2048-bit key run:
 
         ```sh
         setup config dkim keysize 2048
@@ -90,20 +88,25 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         Presently only OpenDKIM is supported with `setup config dkim`. To generate your DKIM key and DNS files you'll need to specify:
 
         - `-s` The DKIM selector (_eg: `mail`, it can be anything you like_)
-        - `-d` The domain-part of email addresses you'll be sending from (_eg: `user@example.com` => `example.com`, not the mail server hostname `mail.example.com`_).
+        - `-d` The sender address domain (_everything after `@` from the email address_)
 
-        See `rspamadm dkim_keygen -h` for an overview of the command options.
+        See `rspamadm dkim_keygen -h` for an overview of the supported options.
 
-        1. Go inside the container with `docker exec -ti <CONTAINER NAME> bash`.
+       ---
+
+        1. Go inside the container with `docker exec -ti <CONTAINER NAME> bash`
         2. Add `rspamd/dkim/` folder to your config volume and switch to it: `cd /tmp/docker-mailserver/rspamd/dkim`
-        3. Run: `rspamadm dkim_keygen -s mail -b 2048 -d example.com -k mail.private > mail.txt` (_change `-d` to your domain-part_).
+        3. Run: `rspamadm dkim_keygen -s mail -b 2048 -d example.com -k mail.private > mail.txt` (_change `-d` to your domain-part_)
         4. Presently you must ensure Rspamd can read the `<selector>.private` file, run:
-            -`chgrp _rspamd mail.private`
-            -`chmod g+r mail.private`
+             -`chgrp _rspamd mail.private`
+             -`chmod g+r mail.private`
 
-    Create a configuration file for the DKIM signing module at `rspamd/modules/override.d/dkim_signing.conf` and populate it with config as demonstrated below.
 
-    !!! bug "DMS config volume support is not ready for Rspamd"
+    ---
+
+    Create a configuration file for the DKIM signing module at `rspamd/modules/override.d/dkim_signing.conf` and populate it with config as shown in the example below:
+
+    !!! bug inline end "DMS config volume support is not ready for Rspamd"
 
         Presently you'll need to [explicitly mount `rspamd/modules/override.d/`][docs-rspamd-config-dropin] as an additional volume; do not use [`rspamd-modules.conf`][docs-rspamd-config-declarative] for this purpose.
 
@@ -132,7 +135,10 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         }
         ```
 
-        You can add more domains into the `domain { ... }` section. A domain can also be configured with multiple selectors and keys within a `selectors [ ... ]` array as shown below:
+        As shown next, you can:
+
+        - You can add more domains into the `domain { ... }` section.
+        - A domain can also be configured with multiple selectors and keys within a `selectors [ ... ]` array.
 
         ```cf
         # ...
@@ -165,17 +171,17 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         }
         ```
 
-    !!! warning "Support for DKIM keys using Ed25519"
+        !!! warning "Support for DKIM keys using Ed25519"
 
-        This modern elliptic curve is supported by Rspamd, but support by third-parties for [verifying Ed25519 DKIM signatures is unreliable][dkim-ed25519-support].
+            This modern elliptic curve is supported by Rspamd, but support by third-parties for [verifying Ed25519 DKIM signatures is unreliable][dkim-ed25519-support].
 
-        If you sign your mail with this key type, you should include RSA as a fallback, like shown in the above example.
+            If you sign your mail with this key type, you should include RSA as a fallback, like shown in the above example.
 
-    !!! tip "DKIM Signing config: `check_pubkey = true;`"
+        !!! tip "DKIM Signing config: `check_pubkey = true;`"
 
-        This setting will have Rspamd query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
+            This setting will have Rspamd query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
 
-        If there is a mismatch, a warning will be omitted to the Rspamd log (`/var/log/supervisor/rspamd.log`).
+            If there is a mismatch, a warning will be omitted to the Rspamd log (`/var/log/supervisor/rspamd.log`).
 
 !!! info "Restart required"
 
