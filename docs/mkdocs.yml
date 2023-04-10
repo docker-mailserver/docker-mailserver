@@ -128,7 +128,7 @@ nav:
       - 'Rspamd' : config/security/rspamd.md
     - 'Debugging': config/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md
-    - 'Your Friend setup.sh': config/setup.sh.md
+    - 'About setup.sh': config/setup.sh.md
     - 'Advanced Configuration':
         - 'Optional Configuration': config/advanced/optional-config.md
         - 'Maintenance':
