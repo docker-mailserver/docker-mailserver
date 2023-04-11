@@ -110,6 +110,13 @@ Enables the OpenDMARC service.
 - **1** => Enabled
 - 0 => Disabled
 
+##### ENABLE_POLICYD_SPF
+
+Enabled `policyd-spf` in Postfix's configuration. You will likely want to set this to `0` in case you're using Rspamd ([`ENABLE_RSPAMD=1`](#enable_rspamd)).
+
+- 0 => Disabled
+- **1** => Enabled
+
 ##### ENABLE_POP3
 
 - **empty** => POP3 service disabled
