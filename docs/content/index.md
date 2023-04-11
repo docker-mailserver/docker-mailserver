@@ -6,11 +6,11 @@ title: Home
 
 !!! info "This Documentation is Versioned"
 
-    **Make sure** to select the correct version of this documentation! It should match the version of the image you are using. The default version corresponds to the `:edge` image tag - [the most recent build, not the most recent stable release][docs-tagging].
+    **Make sure** to select the correct version of this documentation! It should match the version of the image you are using. The default version corresponds to the `:latest` image tag - [the most recent stable release][docs-tagging].
 
 This documentation provides you not only with the basic setup and configuration of DMS but also with advanced configuration, elaborate usage scenarios, detailed examples, hints and more.
 
-[docs-tagging]: ./usage/#available-images-tags-tagging-convention
+[docs-tagging]: ./usage.md#tagging-convention
 
 ## About
 
@@ -32,26 +32,28 @@ There is also a script - [`setup.sh`][github-file-setupsh] - supplied with this 
 
 ### Configuration
 
-We have a [dedicated configuration page][docs-environment]. It contains most of the configuration and explanation you need to setup _your_ mail server properly. Be aware that advanced tasks may still require reading through all parts of this documentation; it may also involve inspecting your running container for debugging purposes. After all, a mail-server is a complex arrangement of various programs.
+We have a [dedicated configuration page][docs-environment]. It contains most of the configuration and explanation you need to setup _your_ mail server properly. Be aware that advanced tasks may still require reading through all parts of this documentation; it may also involve inspecting your running container for debugging purposes. After all, a mail server is a complex arrangement of various programs.
 
 !!! important
 
-    If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place a script called `user-patches.sh` in your `./docker-data/dms/config/` folder volume (which is mounted to `/tmp/docker-mailserver/` inside the container) and it will be run on container startup. See the ['Modifications via Script' page][docs-userpatches] for additional documentation and an example.
+    If you'd like to change, patch or alter files or behavior of DMS, you can use a script. Just place a script called `user-patches.sh` in your `./docker-data/dms/config/` folder volume (which is mounted to `/tmp/docker-mailserver/` inside the container) and it will be run on container startup. See the ['Modifications via Script' page][docs-userpatches] for additional documentation and an example.
 
 You might also want to check out:
 
 1. A list of [all configuration options via ENV][docs-environment]
 2. A list of [all optional and automatically created configuration files and directories][docs-optionalconfig]
+3. How to [debug your mail server][docs-debugging]
 
 !!! tip
 
     Definitely check out the [FAQ][docs-faq] for more information and tips! Please do not open an issue before you have checked our documentation for answers, including the [FAQ][docs-faq]!
 
-[docs-environment]: ./config/environment/
-[docs-userpatches]: ./faq/#how-to-adjust-settings-with-the-user-patchessh-script
-[docs-setupsh]: ./config/setup.sh/
-[docs-optionalconfig]: ./config/advanced/optional-config/
-[docs-faq]: ./faq/
+[docs-environment]: ./config/environment.md
+[docs-userpatches]: ./faq.md#how-to-adjust-settings-with-the-user-patchessh-script
+[docs-setupsh]: ./config/setup.sh.md
+[docs-optionalconfig]: ./config/advanced/optional-config.md
+[docs-faq]: ./faq.md
+[docs-debugging]: ./config/debugging.md
 
 ### Tests
 

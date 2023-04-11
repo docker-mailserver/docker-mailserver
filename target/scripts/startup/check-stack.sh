@@ -1,5 +1,13 @@
 #!/bin/bash
 
+declare -a FUNCS_CHECK
+
+function _register_check_function
+{
+  FUNCS_CHECK+=("${1}")
+  _log 'trace' "${1}() registered"
+}
+
 function _check
 {
   _log 'info' 'Checking configuration'
@@ -7,6 +15,17 @@ function _check
   do
     ${FUNC}
   done
+}
+
+function _check_improper_restart
+{
+  _log 'debug' 'Checking for improper restart'
+
+  if [[ -f /CONTAINER_START ]]
+  then
+    _log 'warn' 'This container was (likely) improperly restarted which can result in undefined behavior'
+    _log 'warn' 'Please destroy the container properly and then start DMS again'
+  fi
 }
 
 function _check_hostname
@@ -19,7 +38,7 @@ function _check_hostname
   # HOSTNAME should be an FQDN (eg: hostname.domain)
   if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
   then
-    _shutdown 'Setting hostname/domainname is required'
+    _dms_panic__general 'Setting hostname/domainname is required' '' 'immediate'
   fi
 }
 

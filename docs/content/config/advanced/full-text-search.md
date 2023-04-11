@@ -6,7 +6,7 @@ title: 'Advanced | Full-Text Search'
 
 Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported [FTS indexing backends](https://doc.dovecot.org/configuration_manual/fts/).
 
-`docker-mailserver` comes pre-installed with two plugins that can be enabled with a dovecot config file.
+DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.
 
 Please be aware that indexing consumes memory and takes up additional disk space.
 
@@ -58,13 +58,11 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
 
     ```yaml
-      version: '3.8'
       services:
         mailserver:
-          image: docker.io/mailserver/docker-mailserver:latest
+          image: ghcr.io/docker-mailserver/docker-mailserver:latest
           container_name: mailserver
-          hostname: mail
-          domainname: example.com
+          hostname: mail.example.com
           env_file: mailserver.env
           ports:
             - "25:25"    # SMTP  (explicit TLS => STARTTLS)
@@ -103,7 +101,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```
     docker-compose exec mailserver doveadm fts optimize -A
     ```
-    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail-server is not running:
+    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
 
 ??? example
 
@@ -134,7 +132,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
           - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
     ```
@@ -144,7 +142,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
 The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in conjunction with [Apache Solr](https://lucene.apache.org/solr/) running in a separate container. This is quite straightforward to setup using the following instructions.
 
-Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email. 
+Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email.
 
 However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](https://solr.apache.org/guide/7_0/query-settings-in-solrconfig.html), it may require a bit of testing to get it right.
 
@@ -162,7 +160,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
       mailserver:
         depends_on:
           - solr
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         ...
         volumes:
           ...

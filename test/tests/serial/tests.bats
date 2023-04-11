@@ -81,13 +81,11 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "imap: authentication works" {
-  _run_in_container_bash "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-auth.txt"
-  assert_success
+  _send_email 'auth/imap-auth' '-w 1 0.0.0.0 143'
 }
 
 @test "imap: added user authentication works" {
-  _run_in_container_bash "nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/added-imap-auth.txt"
-  assert_success
+  _send_email 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
 }
 
 #
@@ -416,12 +414,10 @@ EOF
   sleep 10
 
   # send some big emails
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
-  assert_success
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
-  assert_success
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
-  assert_success
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+
   # check for quota warn message existence
   run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'
   assert_success
@@ -483,12 +479,12 @@ EOF
 @test "spoofing: rejects sender forging" {
   # rejection of spoofed sender
   _wait_for_smtp_port_in_container_to_respond
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt"
+  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt"
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing: accepts sending as alias" {
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
   assert_success
 }
 

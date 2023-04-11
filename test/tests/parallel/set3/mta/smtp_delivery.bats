@@ -55,40 +55,41 @@ function setup_file() {
   _wait_for_tcp_port_in_container 10024
   _wait_for_smtp_port_in_container_to_respond
 
+  # see https://github.com/docker-mailserver/docker-mailserver/pull/3105#issuecomment-1441055103
   # Amavis may still not be ready to receive mail, sleep a little to avoid connection failures:
-  sleep 1
+  sleep 5
 
   ### Send mail to queue for delivery ###
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+  # _send_email 'email-templates/amavis-virus'
 
   # Required for 'delivers mail to existing alias':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-external.txt'
+  _send_email 'email-templates/existing-alias-external'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-recipient-delimiter.txt'
+  _send_email 'email-templates/existing-alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-catchall-local.txt'
+  _send_email 'email-templates/existing-catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-local.txt'
+  _send_email 'email-templates/existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/non-existing-user.txt'
+  _send_email 'email-templates/non-existing-user'
   # Required for 'redirects mail to external aliases':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-regexp-alias-external.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-alias-local.txt'
+  _send_email 'email-templates/existing-regexp-alias-external'
+  _send_email 'email-templates/existing-alias-local'
   # Required for 'rejects spam':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt'
+  _send_email 'email-templates/amavis-spam'
 
   # Required for 'delivers mail to existing account':
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user1.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user2.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user3.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-added.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/existing-user-and-cc-local-alias.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-spam-folder.txt'
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/sieve-pipe.txt'
+  _send_email 'email-templates/existing-user1'
+  _send_email 'email-templates/existing-user2'
+  _send_email 'email-templates/existing-user3'
+  _send_email 'email-templates/existing-added'
+  _send_email 'email-templates/existing-user-and-cc-local-alias'
+  _send_email 'email-templates/sieve-spam-folder'
+  _send_email 'email-templates/sieve-pipe'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
 }
 
@@ -102,50 +103,43 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain.txt'
-  assert_success
+  _send_email 'auth/smtp-auth-plain' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt'
+  _send_email 'auth/smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
-  assert_success
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login.txt'
-  assert_success
+  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt'
+  _send_email 'auth/smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
-  assert_success
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt'
-  assert_success
+  _send_email 'auth/added-smtp-auth-plain' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt'
-  assert_success
+  _send_email 'auth/added-smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt'
+  _send_email 'auth/added-smtp-auth-login' '-w 5 0.0.0.0 465'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _run_in_container_bash 'nc -w 20 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt'
-  assert_success
+  _send_email 'auth/added-smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
@@ -264,8 +258,7 @@ function setup_file() {
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
 @test "not advertising smtputf8" {
-  _run_in_container_bash 'nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/smtp-ehlo.txt'
-  assert_success
+  _send_email 'email-templates/smtp-ehlo'
   refute_output --partial 'SMTPUTF8'
 }
 

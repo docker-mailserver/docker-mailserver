@@ -37,6 +37,9 @@ function _install_postfix
   chmod +x /bin/hostname
   apt-get "${QUIET}" install --no-install-recommends postfix
   mv /bin/hostname.bak /bin/hostname
+
+  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
+  rm /etc/rsyslog.d/postfix.conf
 }
 
 function _install_packages
@@ -198,6 +201,15 @@ function _install_fail2ban
   sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
+function _remove_data_after_package_installations
+{
+  _log 'debug' 'Deleting sensitive files (secrets)'
+  rm /etc/postsrsd.secret
+
+  _log 'debug' 'Deleting default logwatch cronjob'
+  rm /etc/cron.daily/00logwatch
+}
+
 function _post_installation_steps
 {
   _log 'debug' 'Running post-installation steps (cleanup)'
@@ -213,4 +225,5 @@ _install_packages
 _install_dovecot
 _install_rspamd
 _install_fail2ban
+_remove_data_after_package_installations
 _post_installation_steps

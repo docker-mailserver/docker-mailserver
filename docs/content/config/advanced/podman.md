@@ -8,7 +8,7 @@ Podman is a daemonless container engine for developing, managing, and running OC
 
 !!! warning "About Support for Podman"
 
-    Please note that Podman **is not** officially supported as `docker-mailserver` is built and verified on top of the _Docker Engine_. This content is entirely community supported. If you find errors, please open an issue and provide a PR.
+    Please note that Podman **is not** officially supported as DMS is built and verified on top of the _Docker Engine_. This content is entirely community supported. If you find errors, please open an issue and provide a PR.
 
 !!! warning "About this Guide"
 
@@ -67,7 +67,7 @@ Also notice that Podman's rootless mode is not about running as a non-root user 
 
 !!! warning
 
-    In order to make rootless `docker-mailserver` work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.
+    In order to make rootless DMS work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.
 
 First, enable `podman.socket` in systemd's userspace with a non-root user.
 
@@ -107,7 +107,7 @@ The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trus
 #### Use the slip4netns network driver
 
 The second workaround is slightly more complicated because the `docker-compose.yml` has to be modified.
-As shown in the [fail2ban section](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/#podman-with-slirp4netns-port-driver) the `slirp4netns` network driver has to be enabled.
+As shown in the [fail2ban section](../../security/fail2ban/#podman-with-slirp4netns-port-driver) the `slirp4netns` network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.
 

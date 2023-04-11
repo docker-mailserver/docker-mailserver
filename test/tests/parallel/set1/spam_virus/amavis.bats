@@ -26,7 +26,9 @@ function setup_file() {
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown_file() { _default_teardown ; }
+function teardown_file() {
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
+}
 
 @test '(Amavis enabled) configuration should be correct' {
   export CONTAINER_NAME=${CONTAINER1_NAME}
@@ -69,7 +71,7 @@ function teardown_file() { _default_teardown ; }
 
   _run_in_container grep '\$sa_kill_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
   assert_success
-  assert_output --partial '= 6.31'
+  assert_output --partial '= 10.0'
 
   _run_in_container grep '\$sa_spam_subject_tag' "${AMAVIS_DEFAULTS_FILE}"
   assert_success

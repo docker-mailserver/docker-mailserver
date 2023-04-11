@@ -3,13 +3,17 @@
 # shellcheck disable=SC2034
 declare -A VARS
 
-# shellcheck disable=SC2034
-declare -a FUNCS_SETUP FUNCS_FIX FUNCS_CHECK FUNCS_MISC DAEMONS_START
+function _early_variables_setup
+{
+  _obtain_hostname_and_domainname
+  __environment_variables_backwards_compatibility
+  __environment_variables_general_setup
+}
 
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
-function _environment_variables_backwards_compatibility
+function __environment_variables_backwards_compatibility
 {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
   then
@@ -26,31 +30,10 @@ function _environment_variables_backwards_compatibility
   # fi
 }
 
-# This function Writes the contents of the `VARS` map (associative array)
-# to locations where they can be sourced from (e.g. `/etc/dms-settings`)
-# or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export
-{
-  _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
-
-  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
-  : >/etc/dms-settings # this file can be sourced by other scripts
-
-  local VAR
-  for VAR in "${!VARS[@]}"
-  do
-    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
-    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
-  done
-
-  sort -o /root/.bashrc     /root/.bashrc
-  sort -o /etc/dms-settings /etc/dms-settings
-}
-
 # This function sets almost all environment variables. This involves setting
 # a default if no value was provided and writing the variable and its value
 # to the VARS map.
-function _environment_variables_general_setup
+function __environment_variables_general_setup
 {
   _log 'debug' 'Handling general environment variable setup'
 
@@ -72,7 +55,9 @@ function _environment_variables_general_setup
   VARS[POSTGREY_MAX_AGE]="${POSTGREY_MAX_AGE:=35}"
   VARS[POSTGREY_TEXT]="${POSTGREY_TEXT:=Delayed by Postgrey}"
   VARS[POSTSCREEN_ACTION]="${POSTSCREEN_ACTION:=enforce}"
-  VARS[SA_KILL]=${SA_KILL:="6.31"}
+  VARS[RSPAMD_GREYLISTING]="${RSPAMD_GREYLISTING:=0}"
+  VARS[RSPAMD_LEARN]="${RSPAMD_LEARN:=0}"
+  VARS[SA_KILL]=${SA_KILL:="10.0"}
   VARS[SA_SPAM_SUBJECT]=${SA_SPAM_SUBJECT:="***SPAM*** "}
   VARS[SA_TAG]=${SA_TAG:="2.0"}
   VARS[SA_TAG2]=${SA_TAG2:="6.31"}
@@ -90,10 +75,12 @@ function _environment_variables_general_setup
   VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
   VARS[ENABLE_OPENDKIM]="${ENABLE_OPENDKIM:=1}"
   VARS[ENABLE_OPENDMARC]="${ENABLE_OPENDMARC:=1}"
+  VARS[ENABLE_POLICYD_SPF]="${ENABLE_POLICYD_SPF:=1}"
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
   VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
+  VARS[ENABLE_RSPAMD_REDIS]="${ENABLE_RSPAMD_REDIS:=${ENABLE_RSPAMD}}"
   VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
   VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
   VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
@@ -121,6 +108,14 @@ function _environment_variables_general_setup
   VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
   VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
   VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
+  VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
+
+  _log 'trace' 'Setting SRS specific environment variables'
+
+  VARS[SRS_DOMAINNAME]="${SRS_DOMAINNAME:=${DOMAINNAME}}"
+  VARS[SRS_EXCLUDE_DOMAINS]="${SRS_EXCLUDE_DOMAINS:=}"
+  VARS[SRS_SECRET]="${SRS_SECRET:=}"
+  VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
 
   _log 'trace' 'Setting miscellaneous environment variables'
 
@@ -138,7 +133,6 @@ function _environment_variables_general_setup
   VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
   VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER:=none}"
   VARS[SMTP_ONLY]="${SMTP_ONLY:=0}"
-  VARS[SRS_SENDER_CLASSES]="${SRS_SENDER_CLASSES:=envelope_sender}"
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
@@ -212,4 +206,25 @@ function _environment_variables_saslauthd
     fi
     VARS[SASLAUTHD_LDAP_MECH]="${SASLAUTHD_LDAP_MECH}"
   fi
+}
+
+# This function Writes the contents of the `VARS` map (associative array)
+# to locations where they can be sourced from (e.g. `/etc/dms-settings`)
+# or where they can be used by Bash directly (e.g. `/root/.bashrc`).
+function _environment_variables_export
+{
+  _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
+
+  : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
+  : >/etc/dms-settings # this file can be sourced by other scripts
+
+  local VAR
+  for VAR in "${!VARS[@]}"
+  do
+    echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
+    echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
+  done
+
+  sort -o /root/.bashrc     /root/.bashrc
+  sort -o /etc/dms-settings /etc/dms-settings
 }

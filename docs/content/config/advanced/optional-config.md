@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-This is a list of all configuration files and directories which are optional or automatically generated in your `docker-data/dms/config/` directory.
+This is a list of all configuration files and directories which are optional or automatically generated in your `docker-data/dms/config/` directory. We use this path to reference the local config directory in our docs, which you should attach a volume into the container at `/tmp/docker-mailserver`.
 
 ## Directories
 
@@ -41,9 +41,9 @@ This is a list of all configuration files and directories which are optional or 
 - **user-patches.sh:** this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: [FAQ - How to adjust settings with the `user-patches.sh` script][docs-faq-userpatches])
 - **rspamd-commands:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
 
-[docs-accounts-quota]: ../../config/user-management/accounts.md#notes
-[docs-aliases-regex]: ../../config/user-management/aliases.md#configuring-regexp-aliases
-[docs-dkim]: ../../config/best-practices/dkim.md
+[docs-accounts-quota]: ../../config/user-management.md#quotas
+[docs-aliases-regex]: ../../config/user-management.md#configuring-regexp-aliases
+[docs-dkim]: ../../config/best-practices/dkim_dmarc_spf.md#dkim
 [docs-fail2ban]: ../../config/security/fail2ban.md
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
 [docs-faq-userpatches]: ../../faq.md#how-to-adjust-settings-with-the-user-patchessh-script

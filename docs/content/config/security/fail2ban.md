@@ -29,7 +29,8 @@ Example configuration volume bind:
 ```
 
 !!! attention
-    `docker-mailserver` must be launched with the `NET_ADMIN` capability in order to be able to install the nftables rules that actually ban IP addresses.
+
+    DMS must be launched with the `NET_ADMIN` capability in order to be able to install the nftables rules that actually ban IP addresses.
 
     Thus either include `--cap-add=NET_ADMIN` in the `docker run` command, or the equivalent in `docker-compose.yml`:
 

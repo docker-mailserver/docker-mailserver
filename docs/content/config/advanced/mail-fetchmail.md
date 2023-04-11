@@ -10,7 +10,7 @@ environment:
   - FETCHMAIL_POLL=300
 ```
 
-Generate a file called `fetchmail.cf` and place it in the `docker-data/dms/config/` folder. Your `docker-mailserver` folder should look like this example:
+Generate a file called `fetchmail.cf` and place it in the `docker-data/dms/config/` folder. Your DMS folder should look like this example:
 
 ```txt
 ├── docker-data/dms/config

@@ -53,8 +53,7 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
-COPY target/dovecot/auth-passwdfile.inc target/dovecot/auth-master.inc target/dovecot/??-*.conf /etc/dovecot/conf.d/
-COPY target/dovecot/sieve/ /etc/dovecot/sieve/
+COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
 WORKDIR /usr/share/dovecot
@@ -66,8 +65,6 @@ RUN <<EOF
   sedfile -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf
   sedfile -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf
   sedfile -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf
-  mkdir -p /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
-  chmod 755 -R /usr/lib/dovecot/sieve-pipe /usr/lib/dovecot/sieve-filter /usr/lib/dovecot/sieve-global
 EOF
 
 # -----------------------------------------------
@@ -242,8 +239,6 @@ RUN <<EOF
   rm -rf /usr/share/man/*
   rm -rf /usr/share/doc/*
   update-locale
-  rm /etc/postsrsd.secret
-  rm /etc/cron.daily/00logwatch
 EOF
 
 COPY VERSION /
@@ -252,12 +247,12 @@ COPY \
   target/bin/* \
   target/scripts/*.sh \
   target/scripts/startup/*.sh \
-  target/scripts/wrapper/*.sh \
   /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*
 
 COPY target/scripts/helpers /usr/local/bin/helpers
+COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
 
 #
 # Final stage focuses only on image config

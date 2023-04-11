@@ -12,7 +12,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
-`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders) for more information.
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
 
 ### How do I update DMS?
 
@@ -57,7 +57,7 @@ As you'll realistically be deploying to production on a Linux host, if you are o
 
 ### How to alter a running DMS instance _without_ relaunching the container?
 
-`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.
+DMS aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
@@ -168,7 +168,7 @@ To use a bare domain (_where the host name is `example.com` and the domain is al
 - From: `mydestination = $myhostname, localhost.$mydomain, localhost`
 - To: `mydestination = localhost.$mydomain, localhost`
 
-Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that `OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file (see [#1731](https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425)). Without these changes there will be warnings in the logs like:
+Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that [`OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file][github-comment-override-hostname]. Without these changes there will be warnings in the logs like:
 
 ```log
 warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
@@ -176,7 +176,15 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
-Also you need to define `hostname: example.com` in your docker-compose.yml and don't sepecify the `domainname:` at all.
+Also you need to define `hostname: example.com` in your `docker-compose.yml`.
+
+!!! tip "You might not want a bare domain"
+
+    We encourage you to consider using a subdomain where possible.
+
+    - There are [benefits][github-comment-baredomain] to preferring a subdomain.
+    - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
+
 
 ### How can I configure a catch-all?
 
@@ -233,6 +241,22 @@ Yes, by adding the environment variable `PERMIT_DOCKER: network`.
 
     Adding the Docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
 
+### Connection refused or No response at all
+
+You see errors like "Connection Refused" and "Connection closed by foreign host", or you cannot connect at all? You may not be able to connect with your mail client (MUA)? Make sure to check Fail2Ban did not ban you (for exceeding the number of tried logins for example)! You can run
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban
+```
+
+and check whether your IP address appears. Use
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban unban <YOUR IP>
+```
+
+to unban the IP address.
+
 ### How can I authenticate users with `SMTP_ONLY=1`?
 
 See [#1247][github-issue-1247] for an example.
@@ -272,7 +296,7 @@ proxy_interfaces = X.X.X.X (your public IP)
 
 Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
 
-`docker-mailserver` has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
+DMS has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
 
 It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
@@ -332,6 +356,19 @@ The default bantime is 180 days. This value can be [customized][fail2ban-customi
 
 If you got any problems with SPF and/or forwarding mails, give [SRS](https://github.com/roehling/postsrsd/blob/master/README.rst) a try. You enable SRS by setting `ENABLE_SRS=1`. See the variable description for further information.
 
+### Why are my emails not being delivered?
+
+There are many reasons why email might be rejected, common causes are:
+
+- Wrong or untrustworthy SSL certificate.
+- A TLD (your domain) or IP address with a bad reputation.
+- Misconfigured DNS records.
+
+DMS does not manage those concerns, verify they are not causing your delivery problems before reporting a bug on our issue tracker. Resources that can help you troubleshoot:
+
+- [mail-tester](https://www.mail-tester.com/) can test your deliverability.
+- [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
+
 ### SpamAssasin
 
 #### How can I manage my custom SpamAssassin rules?
@@ -368,7 +405,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-With `docker-compose` you can more easily use the internal instance of `cron` within `docker-mailserver`. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which `docker-mailserver` is running, and avoids errors if the mail-server is not running.
+With `docker-compose` you can more easily use the internal instance of `cron` within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 
@@ -416,7 +453,7 @@ The following configuration works nicely:
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
           - ./docker-data/dms/cron/sa-learn:/etc/cron.d/sa-learn
     ```
@@ -424,11 +461,9 @@ The following configuration works nicely:
     Or with [Docker Swarm](https://docs.docker.com/engine/swarm/configs/):
 
     ```yaml
-    version: '3.8'
-
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         # ...
         configs:
           - source: my_sa_crontab
@@ -490,6 +525,8 @@ $spam_quarantine_to       = "amavis\@example.com";
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
+[github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
+[github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
 [github-issue-97]: https://github.com/docker-mailserver/docker-mailserver/issues/97
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247

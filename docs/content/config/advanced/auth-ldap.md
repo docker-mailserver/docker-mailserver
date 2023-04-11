@@ -4,7 +4,7 @@ title: 'Advanced | LDAP Authentication'
 
 ## Introduction
 
-Getting started with ldap and `docker-mailserver` we need to take 3 parts in account:
+Getting started with ldap and DMS we need to take 3 parts in account:
 
 - `postfix` for incoming & outgoing email
 - `dovecot` for accessing mailboxes
@@ -191,7 +191,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail.example.com
 
@@ -253,7 +253,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail.example.com
 
