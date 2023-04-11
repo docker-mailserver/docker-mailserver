@@ -10,6 +10,8 @@ function setup_file() {
   # Comment for maintainers about `PERMIT_DOCKER=host`:
   # https://github.com/docker-mailserver/docker-mailserver/pull/2815/files#r991087509
   local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_AMAVIS=0
+    --env ENABLE_SPAMASSASSIN=0
     --env ENABLE_CLAMAV=1
     --env ENABLE_RSPAMD=1
     --env ENABLE_OPENDKIM=0
@@ -19,6 +21,8 @@ function setup_file() {
     --env MOVE_SPAM_TO_JUNK=1
     --env RSPAMD_LEARN=1
     --env RSPAMD_GREYLISTING=1
+    --env RSPAMD_HFILTER=1
+    --env RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE=7
   )
 
   mv "${TEST_TMP_CONFIG}"/rspamd/* "${TEST_TMP_CONFIG}/"
@@ -170,7 +174,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test 'Check MOVE_SPAM_TO_JUNK works for Rspamd' {
+@test 'MOVE_SPAM_TO_JUNK works for Rspamd' {
   _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve ]]'
   assert_success
   _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin ]]'
@@ -186,7 +190,7 @@ function teardown_file() { _default_teardown ; }
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1
 }
 
-@test 'Check RSPAMD_LEARN works' {
+@test 'RSPAMD_LEARN works' {
   for FILE in learn-{ham,spam}.{sieve,svbin}
   do
     _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
@@ -245,10 +249,19 @@ function teardown_file() { _default_teardown ; }
   done
 }
 
-@test 'Check greylisting is enabled' {
+@test 'greylisting is enabled' {
   _run_in_container grep 'enabled = true;' /etc/rspamd/local.d/greylist.conf
   assert_success
   _run_in_container rspamadm configdump greylist
   assert_success
   assert_output --partial 'enabled = true;'
+}
+
+@test 'hfilter group module is configured correctly' {
+  _run_in_container_bash '[[ -f /etc/rspamd/local.d/hfilter_group.conf ]]'
+  assert_success
+
+  _run_in_container grep '__TAG__HFILTER_HOSTNAME_UNKNOWN' /etc/rspamd/local.d/hfilter_group.conf
+  assert_success
+  assert_output --partial 'score = 7;'
 }
