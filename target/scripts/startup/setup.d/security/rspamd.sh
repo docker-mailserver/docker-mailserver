@@ -64,7 +64,8 @@ EOF
 # or checking for other anti-spam/anti-virus software.
 function __rspamd__run_early_setup_and_checks
 {
-  touch /var/lib/rspamd/stats.ucl
+  mkdir -p /var/lib/rspamd/
+  : >/var/lib/rspamd/stats.ucl
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
   then
