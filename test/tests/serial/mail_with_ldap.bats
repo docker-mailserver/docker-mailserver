@@ -151,7 +151,7 @@ function teardown_file() {
 @test "checking dovecot: ldap mail delivery works" {
   run docker exec mail_with_ldap /bin/sh -c "sendmail -f user@external.tld some.user@${FQDN_LOCALHOST_A} < /tmp/docker-mailserver-test/email-templates/test-email.txt"
   sleep 10
-  run docker exec mail_with_ldap /bin/sh -c "ls -A /var/mail/${FQDN_LOCALHOST_A}/some.user/new | wc -l"
+  run docker exec mail_with_ldap /bin/sh -c "grep -R 'This is a test mail.' /var/mail/${FQDN_LOCALHOST_A}/some.user/new/ | wc -l"
   assert_success
   assert_output 1
 }
