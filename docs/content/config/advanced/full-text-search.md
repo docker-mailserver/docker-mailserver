@@ -6,7 +6,7 @@ title: 'Advanced | Full-Text Search'
 
 Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported [FTS indexing backends](https://doc.dovecot.org/configuration_manual/fts/).
 
-`docker-mailserver` comes pre-installed with two plugins that can be enabled with a dovecot config file.
+DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.
 
 Please be aware that indexing consumes memory and takes up additional disk space.
 
@@ -101,7 +101,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     ```
     docker-compose exec mailserver doveadm fts optimize -A
     ```
-    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail-server is not running:
+    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
 
 ??? example
 

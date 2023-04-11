@@ -32,11 +32,11 @@ There is also a script - [`setup.sh`][github-file-setupsh] - supplied with this 
 
 ### Configuration
 
-We have a [dedicated configuration page][docs-environment]. It contains most of the configuration and explanation you need to setup _your_ mail server properly. Be aware that advanced tasks may still require reading through all parts of this documentation; it may also involve inspecting your running container for debugging purposes. After all, a mail-server is a complex arrangement of various programs.
+We have a [dedicated configuration page][docs-environment]. It contains most of the configuration and explanation you need to setup _your_ mail server properly. Be aware that advanced tasks may still require reading through all parts of this documentation; it may also involve inspecting your running container for debugging purposes. After all, a mail server is a complex arrangement of various programs.
 
 !!! important
 
-    If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. Just place a script called `user-patches.sh` in your `./docker-data/dms/config/` folder volume (which is mounted to `/tmp/docker-mailserver/` inside the container) and it will be run on container startup. See the ['Modifications via Script' page][docs-userpatches] for additional documentation and an example.
+    If you'd like to change, patch or alter files or behavior of DMS, you can use a script. Just place a script called `user-patches.sh` in your `./docker-data/dms/config/` folder volume (which is mounted to `/tmp/docker-mailserver/` inside the container) and it will be run on container startup. See the ['Modifications via Script' page][docs-userpatches] for additional documentation and an example.
 
 You might also want to check out:
 
