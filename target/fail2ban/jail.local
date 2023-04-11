@@ -1,11 +1,11 @@
 [DEFAULT]
 
 # "bantime" is the number of seconds that a host is banned.
-bantime = 7d
+bantime = 1w
 
 # A host is banned if it has generated "maxretry" during the last "findtime"
 # seconds.
-findtime = 1d
+findtime = 1w
 
 # "maxretry" is the number of failures before a host get banned.
 maxretry = 2
@@ -25,6 +25,9 @@ enabled = true
 
 [postfix]
 enabled = true
+# See https://github.com/fail2ban/fail2ban/blob/27294c4b9ee5d5568a1d5f83af744ea39d5a1acb/config/filter.d/postfix.conf#L58
+# `mode=aggressive` basically combines more filters to match more lines, and hence, apply rules
+# more aggressively. The same goes for the `postfix-sasl` jail.
 mode = aggressive
 
 [postfix-sasl]
