@@ -672,6 +672,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#related-environment-variables" class="md-nav__link">
+    Related Environment Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-default-configuration" class="md-nav__link">
     The Default Configuration
   </a>
@@ -1574,6 +1581,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#related-environment-variables" class="md-nav__link">
+    Related Environment Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-default-configuration" class="md-nav__link">
     The Default Configuration
   </a>
@@ -1731,7 +1745,7 @@
 
 <div class="admonition warning">
 <p class="admonition-title">The current state of Rspamd integration into DMS</p>
-<p>Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be (breaking) changes ahead as integration is still work in progress!</p>
+<p>Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be changes ahead as integration is still work in progress!</p>
 <p>We expect to stabilize this feature with version <code>v12.1.0</code>.</p>
 </div>
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
@@ -1739,16 +1753,18 @@
 <p>If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
 <div class="admonition note">
 <p class="admonition-title">AMD64 vs ARM64</p>
-<p>We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference is two minor versions (AMD64 is at version 3.4, ARM64 at 3.2 [13th Feb 2023]).</p>
-<p>Maintainers noticed only few differences, some of them with a big impact though. For those running Rspamd on ARM64, we recommend <a href="#with-the-help-of-a-custom-file">disabling</a> the <a href="https://rspamd.com/doc/modules/dkim_signing.html">DKIM signing module</a> if you don't use it.</p>
+<p>We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference as of 1st Apr 2023: AMD64 is at version 3.5 | ARM64 is at version 3.4.</p>
 </div>
+<h2 id="related-environment-variables"><a class="toclink" href="#related-environment-variables">Related Environment Variables</a></h2>
 <p>The following environment variables are related to Rspamd:</p>
 <ol>
 <li><a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD</code></a></li>
 <li><a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS</code></a></li>
+<li><a href="../../environment/#rspamd_greylisting"><code>RSPAMD_GREYLISTING</code></a></li>
 <li><a href="../../environment/#rspamd_learn"><code>RSPAMD_LEARN</code></a></li>
 <li><a href="../../environment/#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK</code></a></li>
 </ol>
+<p>With these variables, you can enable Rspamd itself and you can enable / disable certain features related to Rspamd.</p>
 <h2 id="the-default-configuration"><a class="toclink" href="#the-default-configuration">The Default Configuration</a></h2>
 <h3 id="mode-of-operation"><a class="toclink" href="#mode-of-operation">Mode of Operation</a></h3>
 <p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
@@ -1762,7 +1778,7 @@
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
-<p>DMS disables certain modules (clickhouse, elastic, greylist, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.</p>
+<p>DMS disables certain modules (clickhouse, elastic, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.</p>
 <h4 id="anti-virus-clamav"><a class="toclink" href="#anti-virus-clamav">Anti-Virus (ClamAV)</a></h4>
 <p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
 <h4 id="rbls-realtime-blacklists-dnsbls-dns-based-blacklists"><a class="toclink" href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists">RBLs (Realtime Blacklists) / DNSBLs (DNS-based Blacklists)</a></h4>
