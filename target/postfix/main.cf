@@ -54,7 +54,7 @@ smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
 disable_vrfy_command = yes
 
 # Custom defined parameters for DMS:
-dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain, reject_unknown_client_hostname
+dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
 # Submission ports 587 and 465 support for SPOOF_PROTECTION=1
 mua_sender_restrictions = reject_authenticated_sender_login_mismatch, $dms_smtpd_sender_restrictions
 

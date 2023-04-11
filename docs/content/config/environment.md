@@ -110,6 +110,13 @@ Enables the OpenDMARC service.
 - **1** => Enabled
 - 0 => Disabled
 
+##### ENABLE_POLICYD_SPF
+
+Enabled `policyd-spf` in Postfix's configuration. You will likely want to set this to `0` in case you're using Rspamd ([`ENABLE_RSPAMD=1`](#enable_rspamd)).
+
+- 0 => Disabled
+- **1** => Enabled
+
 ##### ENABLE_POP3
 
 - **empty** => POP3 service disabled
@@ -303,7 +310,7 @@ Enable or disable Rspamd.
 
 !!! warning "Current State"
 
-    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
+    Rspamd-support is under active development. Be aware that changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
 
 - **0** => disabled
 - 1 => enabled
@@ -328,6 +335,16 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 - 0 => Disabled
 - 1 => Enabled
 
+##### RSPAMD_GREYLISTING
+
+Controls whether the [Rspamd Greylisting module][rspamd-greylisting-module] is enabled. This module can further assist in avoiding spam emails by [greylisting] e-mails with a certain spam score.
+
+- **0** => Disabled
+- 1 => Enabled
+
+[rspamd-greylisting-module]: https://rspamd.com/doc/modules/greylisting.html
+[greylisting]: https://en.wikipedia.org/wiki/Greylisting_(email)
+
 ##### RSPAMD_LEARN
 
 When enabled,
@@ -335,7 +352,7 @@ When enabled,
 1. the "[autolearning][rspamd-autolearn]" feature is turned on;
 2. the Bayes classifier will be trained when moving mails from or to the Junk folder (with the help of Sieve scripts).
 
-!!! attention
+!!! warning "Attention"
 
     As of now, the spam learning database is global (i.e. available to all users). If one user deliberately trains it with malicious data, then it will ruin your detection rate.
 
@@ -345,6 +362,21 @@ When enabled,
 
 - **0** => Disabled
 - 1 => Enabled
+
+##### RSPAMD_HFILTER
+
+Can be used to enable or disable the [Hfilter group module][rspamd-docs-hfilter-group-module]. This is used by DMS to adjust the `HFILTER_HOSTNAME_UNKNOWN` symbol, increasing it's default weight to act similar to Postfix's `reject_unknown_client_hostname`, without the need to outright reject a message.
+
+- 0 => Disabled
+- **1** => Enabled
+
+[rspamd-docs-hfilter-group-module]: https://www.rspamd.com/doc/modules/hfilter.html
+
+##### RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+
+Can be used to control the score when the [`HFILTER_HOSTNAME_UNKNOWN` symbol](#rspamd_hfilter) applies. A higher score is more punishing. Setting it to 15 (the default score for rejecting an e-mail) is equivalent to rejecting the email when the check fails.
+
+Default: 6 (which corresponds to the `add_header` action)
 
 #### Reports
 

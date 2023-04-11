@@ -80,6 +80,7 @@ function _register_functions
 
   _register_setup_function '_setup_opendkim'
   _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
+  _register_setup_function '_setup_policyd_spf'
 
   _register_setup_function '_setup_security_stack'
   _register_setup_function '_setup_spam_to_junk'
@@ -129,9 +130,10 @@ function _register_functions
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
   [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
-  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
+
+  # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
-  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
 
   # needs to be started before SASLauthd
   [[ ${ENABLE_OPENDKIM}         -eq 1 ]] && _register_start_daemon '_start_daemon_opendkim'
