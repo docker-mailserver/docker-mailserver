@@ -802,6 +802,20 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter" class="md-nav__link">
+    RSPAMD_HFILTER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter_hostname_unknown_score" class="md-nav__link">
+    RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2699,6 +2713,20 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter" class="md-nav__link">
+    RSPAMD_HFILTER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter_hostname_unknown_score" class="md-nav__link">
+    RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3669,6 +3697,15 @@ expand_keys = true;
 <li><strong>0</strong> =&gt; Disabled</li>
 <li>1 =&gt; Enabled</li>
 </ul>
+<h5 id="rspamd_hfilter"><a class="toclink" href="#rspamd_hfilter">RSPAMD_HFILTER</a></h5>
+<p>Can be used to enable or disable the <a href="https://www.rspamd.com/doc/modules/hfilter.html">Hfilter group module</a>. This is used by DMS to adjust the <code>HFILTER_HOSTNAME_UNKNOWN</code> symbol, increasing it's default weight to act similar to Postfix's <code>reject_unknown_client_hostname</code>, without the need to outright reject a message.</p>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li><strong>1</strong> =&gt; Enabled</li>
+</ul>
+<h5 id="rspamd_hfilter_hostname_unknown_score"><a class="toclink" href="#rspamd_hfilter_hostname_unknown_score">RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE</a></h5>
+<p>Can be used to control the score when the <a href="#rspamd_hfilter"><code>HFILTER_HOSTNAME_UNKNOWN</code> symbol</a> applies. A higher score is more punishing. Setting it to 15 (the default score for rejecting an e-mail) is equivalent to rejecting the email when the check fails.</p>
+<p>Default: 6 (which corresponds to the <code>add_header</code> action)</p>
 <h4 id="reports"><a class="toclink" href="#reports">Reports</a></h4>
 <h5 id="pflogsumm_trigger"><a class="toclink" href="#pflogsumm_trigger">PFLOGSUMM_TRIGGER</a></h5>
 <p>Enables regular Postfix log summary ("pflogsumm") mail reports.</p>
