@@ -18,6 +18,7 @@ function setup_file() {
     --env LOG_LEVEL=trace
     --env MOVE_SPAM_TO_JUNK=1
     --env RSPAMD_LEARN=1
+    --env RSPAMD_GREYLISTING=1
   )
 
   mv "${TEST_TMP_CONFIG}"/rspamd/* "${TEST_TMP_CONFIG}/"
@@ -242,4 +243,12 @@ function teardown_file() { _default_teardown ; }
   do
     assert_output --partial "${LINE}"
   done
+}
+
+@test 'Check greylisting is enabled' {
+  _run_in_container grep 'enabled = true;' /etc/rspamd/local.d/greylist.conf
+  assert_success
+  _run_in_container rspamadm configdump greylist
+  assert_success
+  assert_output --partial 'enabled = true;'
 }
