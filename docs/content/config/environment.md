@@ -141,6 +141,12 @@ cap_add:
 
 Otherwise, `nftables` won't be able to ban IPs.
 
+##### FAIL2BAN_DBPURGEAGE
+
+This variable sets `dbpurgeage`, which sets the age at which bans are purged from the database.
+
+Default: 10d
+
 ##### FAIL2BAN_BLOCKTYPE
 
 - **drop**   => drop packet (send NO reply)

@@ -218,6 +218,12 @@ function __setup__security__fail2ban
       echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
     fi
 
+    # We increased the ban time, so we should increase the `dbpurgeage` as well
+    # because Fail2Ban recommends that. Hence, we make it configurable.
+    sed -i -E \
+      "s|^(dbpurgeage =).*|\1 ${FAIL2BAN_DBPURGEAGE}|g" \
+      /etc/fail2ban/fail2ban.conf
+
     echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
   else
     _log 'debug' 'Fail2Ban is disabled'
