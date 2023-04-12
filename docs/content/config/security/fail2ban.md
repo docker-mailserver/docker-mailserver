@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-Fail2Ban is installed automatically and bans IP addresses for 3 hours after 3 failed attempts in 10 minutes by default.
+Fail2Ban is installed automatically and bans IP addresses for 1 week after 2 failed attempts in a time frame of 1 week by default.
 
 ## Configuration files
 
