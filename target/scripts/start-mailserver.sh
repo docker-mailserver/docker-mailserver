@@ -75,7 +75,6 @@ function _register_functions
     _register_setup_function '_setup_saslauthd'
   fi
 
-  _register_setup_function '_setup_postfix_inet_protocols'
   _register_setup_function '_setup_dovecot_inet_protocols'
 
   _register_setup_function '_setup_opendkim'
@@ -91,17 +90,11 @@ function _register_functions
   _register_setup_function '_setup_mailname'
   _register_setup_function '_setup_dovecot_hostname'
 
-  _register_setup_function '_setup_postfix_hostname'
-  _register_setup_function '_setup_postfix_smtputf8'
-  _register_setup_function '_setup_postfix_sasl'
-  _register_setup_function '_setup_postfix_aliases'
-  _register_setup_function '_setup_postfix_vhost'
-  _register_setup_function '_setup_postfix_dhparam'
-  _register_setup_function '_setup_postfix_sizelimits'
+  _register_setup_function '_setup_postfix_early'
   _register_setup_function '_setup_fetchmail'
   _register_setup_function '_setup_fetchmail_parallel'
 
-  # needs to come after _setup_postfix_aliases
+  # needs to come after _setup_postfix_early
   _register_setup_function '_setup_spoof_protection'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
@@ -110,10 +103,7 @@ function _register_functions
     _register_start_daemon '_start_daemon_postsrsd'
   fi
 
-  _register_setup_function '_setup_postfix_access_control'
-  _register_setup_function '_setup_postfix_relay_hosts'
-  _register_setup_function '_setup_postfix_virtual_transport'
-  _register_setup_function '_setup_postfix_override_configuration'
+  _register_setup_function '_setup_postfix_late'
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
