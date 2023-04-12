@@ -52,7 +52,7 @@ EOF
   __postfix__log 'trace' 'Setting up DH Parameters'
   _setup_dhparam 'Postfix' '/etc/postfix/dhparams.pem'
 
-   __postfix__log 'trace' "Configuring message size limit to '${POSTFIX_MESSAGE_SIZE_LIMIT}'"
+  __postfix__log 'trace' "Configuring message size limit to '${POSTFIX_MESSAGE_SIZE_LIMIT}'"
   postconf "message_size_limit = ${POSTFIX_MESSAGE_SIZE_LIMIT}"
 
   __postfix__log 'trace' "Configuring mailbox size limit to '${POSTFIX_MAILBOX_SIZE_LIMIT}'"
@@ -60,6 +60,14 @@ EOF
 
   __postfix__log 'trace' "Configuring virtual mailbox size limit to '${POSTFIX_MAILBOX_SIZE_LIMIT}'"
   postconf "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
+
+  if [[ ${POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME} -eq 1 ]]
+  then
+    __postfix__log 'trace' 'Enabling reject_unknown_client_hostname to dms_smtpd_sender_restrictions'
+    sedfile -i -E \
+      's|^(dms_smtpd_sender_restrictions = .*)|\1, reject_unknown_client_hostname|' \
+      /etc/postfix/main.cf
+  fi
 }
 
 function _setup_postfix_late

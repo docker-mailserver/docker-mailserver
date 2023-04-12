@@ -274,6 +274,13 @@ Customize the update check interval. Number + Suffix. Suffix must be 's' for sec
 
 This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://wiki2.dovecot.org/MailboxFormat).
 
+##### POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+
+If enabled, employs `reject_unknown_client_hostname` to sender restrictions in Postfix's configuration.
+
+- **0** => Disabled
+- 1 => Enabled
+
 ##### POSTFIX_INET_PROTOCOLS
 
 - **all** => Listen on all interfaces.
