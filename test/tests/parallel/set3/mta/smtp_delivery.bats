@@ -4,6 +4,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 
 BATS_TEST_NAME_PREFIX='[SMTP] (delivery) '
 CONTAINER_NAME='dms-test_smtp-delivery'
+TEST_FQDN='localhost.localdomain'
 
 function teardown_file() { _default_teardown ; }
 
