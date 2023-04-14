@@ -134,9 +134,10 @@ function __db_list_already_contains_value
   # 1. Extract the current value of the entry (`\1`),
   # 2. If a value list, split into separate lines (`\n`+`g`) at V_DELIMITER,
   # 3. Check each line for an exact match of the target VALUE
+  grep "^${KEY_LOOKUP}" "${DATABASE}" | \
   sed -e "s/^${KEY_LOOKUP}\(.*\)/\1/" \
-      -e "s/${V_DELIMITER}/\n/g"      \
-      "${DATABASE}" | grep -qi "^${_VALUE_}$"
+      -e "s/${V_DELIMITER}/\n/g"      | \
+  grep -qi "^${_VALUE_}$"
 }
 
 
