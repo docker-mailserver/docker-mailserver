@@ -59,6 +59,20 @@ Rspamd provides a [web interface][rspamc-docs-web-interface], which contains sta
 
 [rspamc-docs-web-interface]: https://rspamd.com/webui/
 
+### DNS
+
+DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using [DNS-based black/whitelists](#rbls-realtime-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs-basic-options] yourself.
+
+!!! tip "Making DNS Servers Configurable"
+
+    If you want to see an environment variable (like `RSPAMD_DNS_SERVERS`) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.
+
+!!! danger
+
+    While we do not provide values for custom DNS servers by default, we set `soft_reject_on_timeout = true;` by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.
+
+    This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.
+
 ### Modules
 
 You can find a list of all Rspamd modules [on their website][rspamd-docs-modules].
