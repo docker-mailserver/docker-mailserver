@@ -3,7 +3,7 @@
 # Function called during global setup to handle the complete setup of Rspamd.
 function _setup_rspamd
 {
-  if [[ ${ENABLE_RSPAMD} -eq 1 ]]
+  if ! _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]
   then
     _log 'warn' 'Rspamd integration is work in progress - expect changes at any time'
     _log 'debug' 'Enabling and configuring Rspamd'
@@ -98,7 +98,7 @@ function __rspamd__run_early_setup_and_checks
 # supply a configuration for our local Redis instance which is started later.
 function __rspamd__setup_redis
 {
-  if [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]
+  if ! _env_var_expect_zero_or_one 'ENABLE_RSPAMD_REDIS' && [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Internal Redis is enabled, adding configuration'
     cat >/etc/rspamd/local.d/redis.conf << "EOF"
@@ -140,7 +140,7 @@ function __rspamd__setup_postfix
 # If ClamAV is enabled, we will integrate it into Rspamd.
 function __rspamd__setup_clamav
 {
-  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
+  if ! _env_var_expect_zero_or_one 'ENABLE_CLAMAV' && [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Enabling ClamAV integration'
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
@@ -185,7 +185,7 @@ function __rspamd__setup_default_modules
 #    from or to the "Junk" folder, and learning them as ham or spam.
 function __rspamd__setup_learning
 {
-  if [[ ${RSPAMD_LEARN} -eq 1 ]]
+  if ! _env_var_expect_zero_or_one 'RSPAMD_LEARN' && [[ ${RSPAMD_LEARN} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Setting up intelligent learning of spam and ham'
 
@@ -230,7 +230,7 @@ EOF
 # https://rspamd.com/doc/modules/greylisting.html).
 function __rspamd__setup_greylisting
 {
-  if [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
+  if ! _env_var_expect_zero_or_one 'RSPAMD_GREYLISTING' && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Enabling greylisting'
     sedfile -i -E "s|(enabled =).*|\1 true;|g" /etc/rspamd/local.d/greylist.conf
@@ -246,14 +246,11 @@ function __rspamd__setup_greylisting
 function __rspamd__setup_hfilter_group
 {
   local MODULE_FILE='/etc/rspamd/local.d/hfilter_group.conf'
-  if [[ ${RSPAMD_HFILTER} -eq 1 ]]
+  if ! _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
     # Check if we received a number first
-    if [[ ! ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} =~ ^[0-9][1-9]*$ ]]
-    then
-      __rspamd__log 'warn' "'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' is not a number (${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}) but was expected to be!"
-    elif [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]
+    if _env_var_expect_integer 'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' && [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]
     then
       __rspamd__log 'trace' "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}"
       sed -i -E \
