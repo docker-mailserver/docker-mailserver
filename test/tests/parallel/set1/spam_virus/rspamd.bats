@@ -16,6 +16,8 @@ function setup_file() {
     --env ENABLE_RSPAMD=1
     --env ENABLE_OPENDKIM=0
     --env ENABLE_OPENDMARC=0
+    --env ENABLE_POLICYD_SPF=0
+    --env ENABLE_POSTGREY=0
     --env PERMIT_DOCKER=host
     --env LOG_LEVEL=trace
     --env MOVE_SPAM_TO_JUNK=1

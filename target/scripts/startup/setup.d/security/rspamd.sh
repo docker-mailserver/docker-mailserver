@@ -7,6 +7,7 @@ function _setup_rspamd
   then
     _log 'warn' 'Rspamd integration is work in progress - expect changes at any time'
     _log 'debug' 'Enabling and configuring Rspamd'
+    __rspamd__log 'trace' '----------  Setup started  ----------'
 
     __rspamd__run_early_setup_and_checks        # must run first
     __rspamd__setup_redis
@@ -18,7 +19,7 @@ function _setup_rspamd
     __rspamd__setup_hfilter_group
     __rspamd__handle_user_modules_adjustments   # must run last
 
-    _log 'trace' 'Rspamd setup finished'
+    __rspamd__log 'trace' '----------  Setup finished  ----------'
   else
     _log 'debug' 'Rspamd is disabled'
   fi
