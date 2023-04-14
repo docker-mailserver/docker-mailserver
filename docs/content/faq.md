@@ -159,33 +159,6 @@ password:           <mypassword>
 
 DMS is properly configured for port 587, if possible, we recommend using port 465 for SMTP though. See [this section to learn more about ports](#i-want-to-know-more-about-the-ports).
 
-### Can I use a naked/bare domain (i.e. no hostname)?
-
-Yes, but not without some configuration changes. Normally it is assumed that DMS runs on a host with a name, so the fully qualified host name might be `mail.example.com` with the domain `example.com`. The MX records point to `mail.example.com`.
-
-To use a bare domain (_where the host name is `example.com` and the domain is also `example.com`_), change `mydestination`:
-
-- From: `mydestination = $myhostname, localhost.$mydomain, localhost`
-- To: `mydestination = localhost.$mydomain, localhost`
-
-Add the latter line to `docker-data/dms/config/postfix-main.cf`. If that doesn't work, make sure that [`OVERRIDE_HOSTNAME` is blank in your `mailserver.env` file][github-comment-override-hostname]. Without these changes there will be warnings in the logs like:
-
-```log
-warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains
-```
-
-Plus of course mail delivery fails.
-
-Also you need to define `hostname: example.com` in your `docker-compose.yml`.
-
-!!! tip "You might not want a bare domain"
-
-    We encourage you to consider using a subdomain where possible.
-
-    - There are [benefits][github-comment-baredomain] to preferring a subdomain.
-    - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
-
-
 ### How can I configure a catch-all?
 
 Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
