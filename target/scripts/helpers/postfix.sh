@@ -75,7 +75,6 @@ function _vhost_collect_postfix_domains
 
 # Add DOMAINNAME (not an ENV, set by `helpers/dns.sh`) to vhost.
 # NOTE: `setup-stack.sh:_setup_ldap` has related logic:
-# - `main.cf:mydestination` setting removes `$mydestination` as an LDAP bugfix.
 # - `main.cf:virtual_mailbox_domains` uses `/etc/postfix/vhost`, but may
 #   conditionally include a 2nd table (ldap:/etc/postfix/ldap-domains.cf).
 function _vhost_ldap_support

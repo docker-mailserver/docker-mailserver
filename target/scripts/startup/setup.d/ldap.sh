@@ -89,8 +89,5 @@ function _setup_ldap
     _log 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
   fi
 
-  # shellcheck disable=SC2016
-  sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf
-
   return 0
 }
