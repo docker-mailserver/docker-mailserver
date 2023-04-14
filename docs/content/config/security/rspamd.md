@@ -101,16 +101,19 @@ The [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default.
 
 ## Providing Custom Settings & Overriding Settings
 
+DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/local.d/` inside the container (or `target/rspamd/local.d/` in the repository).
+
 ### Manually
 
-DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/local.d/` inside the container (or `target/rspamd/local.d/` in the repository). If you want to change these settings and / or provide your own settings, you can
+If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/` (a directory that is linked to `/etc/rspamd/override.d/`, if it exists) to override Rspamd and DMS default settings.
 
-1. place files at `/etc/rspamd/override.d/` which will override Rspamd settings and DMS settings
-2. (re-)place files at `/etc/rspamd/local.d/` to override DMS settings and merge them with Rspamd settings
+!!! note "What is [`docker-data/dms/config/`][docs-dms-config-volume]?"
 
 !!! warning "Clashing Overrides"
 
     Note that when also [using the `rspamd-commands` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
+
+[docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsmail-state-folder
 
 ### With the Help of a Custom File
 
