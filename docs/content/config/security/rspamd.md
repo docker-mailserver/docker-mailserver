@@ -155,6 +155,7 @@ You want to start using Rspamd? Rspamd is disabled by default, so you need to se
 ENABLE_RSPAMD=1
 ENABLE_OPENDKIM=0
 ENABLE_OPENDMARC=0
+ENABLE_POLICYD_SPF=0
 ENABLE_AMAVIS=0
 ENABLE_SPAMASSASSIN=0
 ```
