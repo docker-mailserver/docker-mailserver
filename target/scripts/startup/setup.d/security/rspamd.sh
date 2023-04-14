@@ -72,6 +72,26 @@ function __rspamd__run_early_setup_and_checks
   then
     __rspamd__log 'warn' 'Running Amavis/SA & Rspamd at the same time is discouraged'
   fi
+
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
+  then
+    __rspamd__log 'warn' 'Running OpenDKIM & Rspamd at the same time is discouraged - we recommend Rspamd for DKIM checks (enabled with Rspamd by default) & signing'
+  fi
+
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
+  then
+    __rspamd__log 'warn' 'Running OpenDMARC & Rspamd at the same time is discouraged - we recommend Rspamd for DMARC checks (enabled with Rspamd by default)'
+  fi
+
+  if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]
+  then
+    __rspamd__log 'warn' 'Running policyd-spf & Rspamd at the same time is discouraged - we recommend Rspamd for SPF checks (enabled with Rspamd by default)'
+  fi
+
+  if [[ ${ENABLE_POSTGREY} -eq 1 ]] && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
+  then
+    __rspamd__log 'warn' 'Running Postgrey & Rspamd at the same time is discouraged - we recommend Rspamd for greylisting'
+  fi
 }
 
 # Sets up Redis. In case the user does not use a dedicated Redis instance, we
