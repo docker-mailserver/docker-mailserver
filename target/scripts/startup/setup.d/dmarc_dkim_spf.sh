@@ -101,10 +101,8 @@ EOF
   sedfile -i -E \
     's|^(smtpd_recipient_restrictions.*reject_unauth_destination)(.*)|\1, check_policy_service unix:private/policyd-spf\2|' \
     /etc/postfix/main.cf
-  cat >>/etc/postfix/main.cf <<EOF
-
-# SPF policy settings
-policyd-spf_time_limit = 3600
+  # SPF policy settings
+  postconf 'policyd-spf_time_limit = 3600'
 EOF
   else
     _log 'debug' 'Disabling policyd-spf'
