@@ -48,7 +48,7 @@ smtpd_helo_required = yes
 smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
 smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
 disable_vrfy_command = yes
@@ -95,9 +95,6 @@ milter_protocol = 6
 milter_default_action = accept
 smtpd_milters =
 non_smtpd_milters =
-
-# SPF policy settings
-policyd-spf_time_limit = 3600
 
 # Header checks for content inspection on receiving
 header_checks = pcre:/etc/postfix/maps/header_checks.pcre
