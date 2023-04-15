@@ -66,14 +66,23 @@ EOF
 # or checking for other anti-spam/anti-virus software.
 function __rspamd__run_early_setup_and_checks
 {
+  export RSPAMD_LOCAL_D='/etc/rspamd/local.d'
+  export RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
+  export RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+  local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d/"
+
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
 
-  if [[ -d /tmp/docker-mailserver/rspamd/override.d/ ]]
+  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]
   then
-    __rspamd__log 'debug' "Found directory '/tmp/docker-mailserver/rspamd/override.d/' - linking it to '/etc/rspamd/override.d/'"
-    rmdir /etc/rspamd/override.d/
-    ln -s /tmp/docker-mailserver/rspamd/override.d/ /etc/rspamd/override.d/
+    __rspamd__log 'debug' "Found directory '${RSPAMD_DMS_OVERRIDE_D}' - linking it to '${RSPAMD_OVERRIDE_D}'"
+    if rmdir "${RSPAMD_OVERRIDE_D}"
+    then
+      ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
+    else
+      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
+    fi
   fi
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
@@ -109,7 +118,7 @@ function __rspamd__setup_redis
   if _env_var_expect_zero_or_one 'ENABLE_RSPAMD_REDIS' && [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Internal Redis is enabled, adding configuration'
-    cat >/etc/rspamd/local.d/redis.conf << "EOF"
+    cat >"${RSPAMD_LOCAL_D}/redis.conf" << "EOF"
 # documentation: https://rspamd.com/doc/configuration/redis.html
 
 servers = "127.0.0.1:6379";
@@ -151,7 +160,7 @@ function __rspamd__setup_clamav
   if _env_var_expect_zero_or_one 'ENABLE_CLAMAV' && [[ ${ENABLE_CLAMAV} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Enabling ClamAV integration'
-    sedfile -i -E 's|^(enabled).*|\1 = true;|g' /etc/rspamd/local.d/antivirus.conf
+    sedfile -i -E 's|^(enabled).*|\1 = true;|g' "${RSPAMD_LOCAL_D}/antivirus.conf"
     # Rspamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
     usermod -a -G clamav _rspamd
   else
@@ -241,7 +250,7 @@ function __rspamd__setup_greylisting
   if _env_var_expect_zero_or_one 'RSPAMD_GREYLISTING' && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Enabling greylisting'
-    sedfile -i -E "s|(enabled =).*|\1 true;|g" /etc/rspamd/local.d/greylist.conf
+    sedfile -i -E "s|(enabled =).*|\1 true;|g" "${RSPAMD_LOCAL_D}/greylist.conf"
   else
     __rspamd__log 'debug' 'Greylisting is disabled'
   fi
@@ -253,7 +262,7 @@ function __rspamd__setup_greylisting
 # succeeds.
 function __rspamd__setup_hfilter_group
 {
-  local MODULE_FILE='/etc/rspamd/local.d/hfilter_group.conf'
+  local MODULE_FILE="${RSPAMD_LOCAL_D}/hfilter_group.conf"
   if _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]
   then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
@@ -300,7 +309,7 @@ function __rspamd__handle_user_modules_adjustments
     # remove possible whitespace at the end (e.g., in case ${ARGUMENT3} is empty)
     VALUE=${VALUE% }
 
-    local FILE="/etc/rspamd/override.d/${MODULE_FILE}"
+    local FILE="${RSPAMD_OVERRIDE_D}/${MODULE_FILE}"
     [[ -f ${FILE} ]] || touch "${FILE}"
 
     if grep -q -E "${OPTION}.*=.*" "${FILE}"
