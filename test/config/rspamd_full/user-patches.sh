@@ -13,4 +13,4 @@ echo "enable_test_patterns = true;" >>/etc/rspamd/local.d/options.inc
 # `RSPAMD_LEARN=1`.
 echo 'mail_debug = yes' >>/etc/dovecot/dovecot.conf
 sed -i -E '/^}/d' /etc/dovecot/conf.d/90-sieve.conf
-echo -e 'sieve_trace_debug = yes\n}' >>/etc/dovecot/conf.d/90-sieve.conf
+echo -e '\n  sieve_trace_debug = yes\n}' >>/etc/dovecot/conf.d/90-sieve.conf
