@@ -27,7 +27,7 @@ function setup_file() {
     --env RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE=7
   )
 
-  mv "${TEST_TMP_CONFIG}"/rspamd/* "${TEST_TMP_CONFIG}/"
+  cp -r "${TEST_TMP_CONFIG}"/rspamd_full/* "${TEST_TMP_CONFIG}/"
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # wait for ClamAV to be fully setup or we will get errors on the log
