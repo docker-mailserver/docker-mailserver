@@ -324,10 +324,21 @@ function __rspamd__handle_user_modules_adjustments
     fi
   }
 
-  local RSPAMD_CUSTOM_COMMANDS_FILE='/tmp/docker-mailserver/rspamd-modules.conf'
+  local RSPAMD_CUSTOM_COMMANDS_FILE="${RSPAMD_DMS_D}/custom-commands.conf"
+  local RSPAMD_CUSTOM_COMMANDS_FILE_OLD="${RSPAMD_DMS_D}-modules.conf"
+
+  # We check for usage of the previous location of the commands file.
+  # This can be removed after the release of v14.0.0.
+  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]
+  then
+    __rspamd__log 'warn' "Detected usage of old file location for modules adjustment ('${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}') - please use the new location ('${RSPAMD_CUSTOM_COMMANDS_FILE}')"
+    __rspamd__log 'warn' "Using old file location now (deprecated) - this will prevent startup in v13.0.0"
+    RSPAMD_CUSTOM_COMMANDS_FILE=${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}
+  fi
+
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
   then
-    __rspamd__log 'debug' "Found file 'rspamd-modules.conf' - parsing and applying it"
+    __rspamd__log 'debug' "Found file '${RSPAMD_CUSTOM_COMMANDS_FILE}' - parsing and applying it"
 
     while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
     do

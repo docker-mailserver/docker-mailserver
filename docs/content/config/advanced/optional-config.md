@@ -40,7 +40,7 @@ This is a list of all configuration files and directories which are optional or 
 - **dovecot.cf:** replaces `/etc/dovecot/local.conf`. (Docs: [Override Dovecot Defaults][docs-override-dovecot])
 - **dovecot-quotas.cf:** list of custom quotas per mailbox. (Docs: [Accounts][docs-accounts-quota])
 - **user-patches.sh:** this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: [FAQ - How to adjust settings with the `user-patches.sh` script][docs-faq-userpatches])
-- **rspamd-commands:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
+- **rspamd/custom-commands.conf:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
 
 [docs-accounts-quota]: ../../config/user-management.md#quotas
 [docs-aliases-regex]: ../../config/user-management.md#configuring-regexp-aliases
