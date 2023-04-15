@@ -74,7 +74,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test 'startup log shows all feature as properly enabled' {
+@test 'startup log shows all features as properly enabled' {
   run docker logs "${CONTAINER_NAME}"
   assert_success
   assert_line --partial 'Enabling ClamAV integration'
