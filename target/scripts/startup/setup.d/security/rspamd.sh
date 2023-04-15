@@ -292,7 +292,7 @@ function __rspamd__handle_user_modules_adjustments
   # Adds an option with a corresponding value to a module, or, in case the option
   # is already present, overwrites it.
   #
-  # @param ${1} = file name in /etc/rspamd/override.d/
+  # @param ${1} = file name in ${RSPAMD_OVERRIDE_D}/
   # @param ${2} = module name as it should appear in the log
   # @patam ${3} = option name in the module
   # @param ${4} = value of the option
@@ -370,7 +370,7 @@ function __rspamd__handle_user_modules_adjustments
 
         ('add-line')
           __rspamd__log 'trace' "Adding complete line to '${ARGUMENT1}'"
-          echo "${ARGUMENT2} ${ARGUMENT3:-}" >>"/etc/rspamd/override.d/${ARGUMENT1}"
+          echo "${ARGUMENT2}${ARGUMENT3+ ${ARGUMENT3}}" >>"${RSPAMD_OVERRIDE_D}/${ARGUMENT1}"
           ;;
 
         (*)
