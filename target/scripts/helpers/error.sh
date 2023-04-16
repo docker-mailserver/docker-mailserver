@@ -84,6 +84,6 @@ function _shutdown
   _log 'error' 'Shutting down'
 
   sleep 1
-  kill -SIGTERM 1               # Graceful DMS shutdown.
+  kill -SIGTERM 1               # Trigger graceful DMS shutdown.
   kill -SIGUSR1 "${SCRIPT_PID}" # Stop start-mailserver.sh execution, even when _shutdown() is called from a subshell.
 }
