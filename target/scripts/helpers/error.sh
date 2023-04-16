@@ -77,7 +77,7 @@ function _dms_panic__general       { dms_panic 'general'       "${1:-}" "${2:-}"
 # Call this method when you want to panic (i.e. emit an 'ERROR' log, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
 trap "exit 1" SIGUSR1
-SCRIPT_PID="${$}"
+SCRIPT_PID=${$}
 function _shutdown
 {
   _log 'error' "${1:-_shutdown called without message}"
