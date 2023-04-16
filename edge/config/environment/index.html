@@ -741,6 +741,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#postfix_reject_unknown_client_hostname" class="md-nav__link">
+    POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#postfix_inet_protocols" class="md-nav__link">
     POSTFIX_INET_PROTOCOLS
   </a>
@@ -2652,6 +2659,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#postfix_reject_unknown_client_hostname" class="md-nav__link">
+    POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#postfix_inet_protocols" class="md-nav__link">
     POSTFIX_INET_PROTOCOLS
   </a>
@@ -3626,6 +3640,12 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <li>mdbox ==&gt; (experimental) uses Dovecot high-performance mailbox format, multiple messages per file and multiple files per box</li>
 </ul>
 <p>This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to <a href="https://wiki2.dovecot.org/MailboxFormat">Dovecot Documentation</a>.</p>
+<h5 id="postfix_reject_unknown_client_hostname"><a class="toclink" href="#postfix_reject_unknown_client_hostname">POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME</a></h5>
+<p>If enabled, employs <code>reject_unknown_client_hostname</code> to sender restrictions in Postfix's configuration.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
 <h5 id="postfix_inet_protocols"><a class="toclink" href="#postfix_inet_protocols">POSTFIX_INET_PROTOCOLS</a></h5>
 <ul>
 <li><strong>all</strong> =&gt; Listen on all interfaces.</li>
