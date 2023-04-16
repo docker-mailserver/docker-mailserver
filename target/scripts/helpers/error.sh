@@ -76,7 +76,7 @@ function _dms_panic__general       { dms_panic 'general'       "${1:-}" "${2:-}"
 
 # Call this method when you want to panic (i.e. emit an 'ERROR' log, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
-trap "exit 1" 10
+trap "exit 1" SIGUSR1
 SCRIPT_PID="$$"
 function _shutdown
 {
@@ -84,6 +84,6 @@ function _shutdown
   _log 'error' 'Shutting down'
 
   sleep 1
-  kill 1                   # Graceful DMS shutdown.
-  kill -10 "${SCRIPT_PID}" # Stop start-mailserver.sh execution, even when _shutdown() is called from a subshell.
+  kill -SIGTERM 1               # Graceful DMS shutdown.
+  kill -SIGUSR1 "${SCRIPT_PID}" # Stop start-mailserver.sh execution, even when _shutdown() is called from a subshell.
 }
