@@ -144,7 +144,8 @@ EOF
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
-  ln -s /var/log/mail/mail.log /var/log/mail.log
+  ln -s  /var/log/mail/mail.log     /var/log/mail.log
+  ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
   # disable sshd jail
   rm /etc/fail2ban/jail.d/defaults-debian.conf
   mkdir /var/run/fail2ban
