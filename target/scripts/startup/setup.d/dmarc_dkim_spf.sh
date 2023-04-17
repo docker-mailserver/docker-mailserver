@@ -103,7 +103,7 @@ EOF
     /etc/postfix/main.cf
   # SPF policy settings
   postconf 'policyd-spf_time_limit = 3600'
-EOF
+
   else
     _log 'debug' 'Disabling policyd-spf'
   fi
