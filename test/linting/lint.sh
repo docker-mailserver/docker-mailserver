@@ -51,7 +51,8 @@ function _shellcheck
   # File paths for shellcheck:
   F_SH=$(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
-    -not -path './test/test_helper/*'
+    -not -path './test/test_helper/*' \
+    -not -path './.git/*'
   )
   # shellcheck disable=SC2248
   F_BIN=$(find 'target/bin' -type f -not -name '*.py')
