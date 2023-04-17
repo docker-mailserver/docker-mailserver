@@ -74,7 +74,7 @@ function _arg_expect_mail_account
 function _account_should_not_exist_yet
 {
   __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
-  if grep -q "^${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
+  if [[ -f ${DATABASE_VIRTUAL} ]] && grep -q "^${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
   then
     _exit_with_error "'${MAIL_ACCOUNT}' is already defined to be an alias"
   fi
