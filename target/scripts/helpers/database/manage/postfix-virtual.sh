@@ -25,6 +25,10 @@ function _manage_virtual_aliases
   case "${ACTION}" in
     # Associate RECIPIENT to MAIL_ALIAS:
     ( 'update' )
+      if grep -q "^${MAIL_ALIAS}" "${DATABASE_ACCOUNTS}"
+      then
+        _exit_with_error "'${MAIL_ALIAS}' is already defined to be an account"
+      fi
       _db_entry_add_or_append "${DATABASE_VIRTUAL}" "${MAIL_ALIAS}" "${RECIPIENT}"
       ;;
 
