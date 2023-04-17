@@ -24,7 +24,7 @@ function dms_panic
 {
   local PANIC_TYPE=${1:-}
   local PANIC_INFO=${2:-}
-  local PANIC_SCOPE=${3-} # optional, must not be :- but just -
+  local PANIC_SCOPE=${3:-}
 
   local SHUTDOWN_MESSAGE
 
