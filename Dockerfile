@@ -90,7 +90,7 @@ COPY \
 RUN <<EOF
   sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
-  mkdir -p /etc/spamassassin/kam/
+  mkdir /etc/spamassassin/kam/
   curl -sSfLo /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key
 EOF
 
@@ -193,7 +193,7 @@ EOF
 
 RUN <<EOF
   sedfile -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
-  mkdir -p /var/log/mail
+  mkdir /var/log/mail
   chown syslog:root /var/log/mail
   touch /var/log/mail/clamav.log
   chown -R clamav:root /var/log/mail/clamav.log
