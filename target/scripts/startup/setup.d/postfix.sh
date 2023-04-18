@@ -77,7 +77,7 @@ function _setup_postfix_late
   __postfix__log 'trace' 'Configuring user access'
   if [[ -f /tmp/docker-mailserver/postfix-send-access.cf ]]
   then
-    sed -i 's|(smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
+    sed -i -E 's|(smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-receive-access.cf ]]
