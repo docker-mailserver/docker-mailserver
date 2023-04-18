@@ -61,11 +61,11 @@ function _register_functions
       ;;
 
     ( 'OIDC' )
-      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented' '' 'immediate'
+      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented'
       ;;
 
     ( * )
-      _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER" '' 'immediate'
+      _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
       ;;
   esac
 
