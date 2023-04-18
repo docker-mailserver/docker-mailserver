@@ -24,8 +24,7 @@ function dms_panic
 {
   local PANIC_TYPE=${1:-}
   local PANIC_INFO=${2:-}
-  local PANIC_SCOPE=${3-} # optional, must not be :- but just -
-  local PANIC_STRATEGY=${4:-} # optional
+  local PANIC_SCOPE=${3:-}
 
   local SHUTDOWN_MESSAGE
 
@@ -61,9 +60,9 @@ function dms_panic
 
   if [[ -n ${PANIC_SCOPE:-} ]]
   then
-    _shutdown "${PANIC_SCOPE} | ${SHUTDOWN_MESSAGE}" "${PANIC_STRATEGY}"
+    _shutdown "${PANIC_SCOPE} | ${SHUTDOWN_MESSAGE}"
   else
-    _shutdown "${SHUTDOWN_MESSAGE}" "${PANIC_STRATEGY}"
+    _shutdown "${SHUTDOWN_MESSAGE}"
   fi
 }
 
@@ -77,22 +76,14 @@ function _dms_panic__general       { dms_panic 'general'       "${1:-}" "${2:-}"
 
 # Call this method when you want to panic (i.e. emit an 'ERROR' log, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
+trap "exit 1" SIGUSR1
+SCRIPT_PID=${$}
 function _shutdown
 {
   _log 'error' "${1:-_shutdown called without message}"
   _log 'error' 'Shutting down'
 
   sleep 1
-  kill 1
-
-  if [[ ${2:-wait} == 'immediate' ]]
-  then
-    # In case the user requested an immediate exit, he ensure he is not in a subshell
-    # call and exiting the whole script is safe. This way, we make the shutdown quicker.
-    exit 1
-  else
-    # We can simply wait until Supervisord has terminated all processes; this way,
-    # we do not return from a subshell call and continue as if nothing happened.
-    sleep 1000
-  fi
+  kill -SIGTERM 1               # Trigger graceful DMS shutdown.
+  kill -SIGUSR1 "${SCRIPT_PID}" # Stop start-mailserver.sh execution, even when _shutdown() is called from a subshell.
 }

@@ -89,7 +89,7 @@ function _setup_apply_fixes_after_configuration
   _log 'debug' 'Checking /var/mail permissions'
   if ! _chown_var_mail_if_necessary
   then
-    _dms_panic__general 'Failed to fix /var/mail permissions' '' 'immediate'
+    _dms_panic__general 'Failed to fix /var/mail permissions'
   fi
 
   _log 'debug' 'Removing files and directories from older versions'

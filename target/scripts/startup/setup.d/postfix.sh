@@ -77,7 +77,7 @@ function _setup_postfix_late
   __postfix__log 'trace' 'Configuring user access'
   if [[ -f /tmp/docker-mailserver/postfix-send-access.cf ]]
   then
-    sed -i 's|(smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
+    sed -i -E 's|(smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-receive-access.cf ]]
@@ -170,8 +170,8 @@ function _setup_SRS
 
   if [[ -n ${SRS_EXCLUDE_DOMAINS} ]]
   then
-    sed -i \
-      "s/^#\?(SRS_EXCLUDE_DOMAINS=).*$/\1=${SRS_EXCLUDE_DOMAINS}/g" \
+    sedfile -i -E \
+      "s|^#?(SRS_EXCLUDE_DOMAINS=).*|\1${SRS_EXCLUDE_DOMAINS}|" \
       /etc/default/postsrsd
   fi
 }
