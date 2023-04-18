@@ -170,8 +170,8 @@ function _setup_SRS
 
   if [[ -n ${SRS_EXCLUDE_DOMAINS} ]]
   then
-    sed -i \
-      "s/^#\?(SRS_EXCLUDE_DOMAINS=).*$/\1=${SRS_EXCLUDE_DOMAINS}/g" \
+    sedfile -i -E \
+      "s|^#?(SRS_EXCLUDE_DOMAINS=).*|\1${SRS_EXCLUDE_DOMAINS}|" \
       /etc/default/postsrsd
   fi
 }
