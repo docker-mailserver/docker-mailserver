@@ -3,7 +3,7 @@ description: File a bug report
 title: 'bug report: '
 labels:
   - kind/bug/report
-  - meta/bug/needs triage
+  - meta/needs triage
 
 body:
   - type: markdown
