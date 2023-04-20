@@ -3,7 +3,7 @@ description: File a bug report
 title: 'bug report: '
 labels:
   - kind/bug/report
-  - meta/bug/needs triage
+  - meta/needs triage
 
 body:
   - type: markdown
@@ -35,6 +35,8 @@ body:
         - label: I read the [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue.
           required: true
         - label: I read the [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue.
+          required: true
+        - label: I have read this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree
           required: true
   - type: input
     id: affected-components
@@ -153,16 +155,6 @@ body:
         - label: I am rather experienced with mail servers
         - label: I am uncomfortable with the CLI
         - label: I am rather comfortable with the CLI
-  - type: checkboxes
-    id: terms-code-of-conduct
-    attributes:
-      label: Code of conduct
-      description: By submitting this issue, you agree to follow [our code of conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md).
-      options:
-        - label: I have read this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree
-          required: true
-        - label: I have read the [README](https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md) and the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/) and I searched the [issue tracker](https://github.com/docker-mailserver/docker-mailserver/issues?q=is%3Aissue) but could not find a solution
-          required: true
   - type: input
     id: form-improvements
     attributes:
