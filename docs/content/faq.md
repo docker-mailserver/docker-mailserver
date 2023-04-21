@@ -498,8 +498,6 @@ $spam_quarantine_to       = "amavis\@example.com";
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
-[github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
-[github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
 [github-issue-97]: https://github.com/docker-mailserver/docker-mailserver/issues/97
 [github-issue-1247]: https://github.com/docker-mailserver/docker-mailserver/issues/1247
