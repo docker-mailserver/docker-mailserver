@@ -92,13 +92,13 @@ function _replace_by_env_in_file
 {
   if [[ -z ${1+set} ]]
   then
-    _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file' 'immediate'
+    _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ -z ${2+set} ]]
   then
-    _dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file' 'immediate'
+    _dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ ! -f ${2} ]]
   then
-    _dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file' 'immediate'
+    _dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file'
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
