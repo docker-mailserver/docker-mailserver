@@ -10,13 +10,16 @@ title: 'Security | Rspamd'
 
 ## About
 
-Rspamd is a ["fast, free and open-source spam filtering system"][homepage]. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd.
+Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-homepage]. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd.
 
 If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-default-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
 
 !!! note "AMD64 vs ARM64"
 
     We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference as of 1st Apr 2023: AMD64 is at version 3.5 | ARM64 is at version 3.4.
+
+[rspamd-homepage]: https://rspamd.com/
+[dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
 
 ## Related Environment Variables
 
@@ -36,9 +39,11 @@ With these variables, you can enable Rspamd itself and you can enable / disable 
 
 ### Mode of Operation
 
-The proxy worker operates in [self-scan mode][proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-custom-settings-overriding-settings).
+The proxy worker operates in [self-scan mode][rspamd-docs-proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-custom-settings-overriding-settings).
 
 DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to [set the `secure_ip ` option to `"0.0.0.0/0"` for the controller worker](#with-the-help-of-a-custom-file) to disable password authentication inside Rspamd completely.
+
+[rspamd-docs-proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode
 
 ### Persistence with Redis
 
@@ -54,9 +59,25 @@ Rspamd provides a [web interface][rspamc-docs-web-interface], which contains sta
 
 [rspamc-docs-web-interface]: https://rspamd.com/webui/
 
+### DNS
+
+DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using [DNS-based black/whitelists](#rbls-realtime-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs-basic-options] yourself.
+
+!!! tip "Making DNS Servers Configurable"
+
+    If you want to see an environment variable (like `RSPAMD_DNS_SERVERS`) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.
+
+!!! danger
+
+    While we do not provide values for custom DNS servers by default, we set `soft_reject_on_timeout = true;` by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.
+
+    This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.
+
 ### Modules
 
-You can find a list of all Rspamd modules [on their website][modules].
+You can find a list of all Rspamd modules [on their website][rspamd-docs-modules].
+
+[rspamd-docs-modules]: https://rspamd.com/doc/modules/
 
 #### Disabled By Default
 
@@ -75,6 +96,8 @@ The [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default.
     When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.
 
     If you want to use DNSBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
+
+[rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
 
 ## Providing Custom Settings & Overriding Settings
 
@@ -104,7 +127,7 @@ where `COMMAND` can be:
 3. `set-option-for-module`: sets the value for option `ARGUMENT2` to `ARGUMENT3` inside module `ARGUMENT1`
 4. `set-option-for-controller`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the controller worker
 5. `set-option-for-proxy`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the proxy worker
-6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behaviour][basic-options] to value `ARGUMENT2`
+6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behaviour][rspamd-docs-basic-options] to value `ARGUMENT2`
 7. `add-line`: this will add the complete line after `ARGUMENT1` (with all characters) to the file `/etc/rspamd/override.d/<ARGUMENT1>`
 
 !!! example "An Example Is [Shown Down Below](#adjusting-and-extending-the-very-basic-configuration)"
@@ -119,6 +142,9 @@ You can also have comments (the line starts with `#`) and blank lines in `rspamd
 
     These simple commands are meant to give users the ability to _easily_ alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that [manually](#manually)!
 
+[docs-volumes-config]: ../advanced/optional-config.md
+[rspamd-docs-basic-options]: https://rspamd.com/doc/configuration/options.html
+
 ## Examples & Advanced Configuration
 
 ### A Very Basic Configuration
@@ -129,6 +155,7 @@ You want to start using Rspamd? Rspamd is disabled by default, so you need to se
 ENABLE_RSPAMD=1
 ENABLE_OPENDKIM=0
 ENABLE_OPENDMARC=0
+ENABLE_POLICYD_SPF=0
 ENABLE_AMAVIS=0
 ENABLE_SPAMASSASSIN=0
 ```
@@ -165,14 +192,3 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [Abusix]: https://abusix.com/
 [abusix-rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
-
-[//]: # (General Links)
-
-[docs-volumes-config]: ../advanced/optional-config.md
-[homepage]: https://rspamd.com/
-[modules]: https://rspamd.com/doc/modules/
-[proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode
-[dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
-[rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
-[dkim-signing-module]: https://rspamd.com/doc/modules/dkim_signing.html
-[basic-options]: https://rspamd.com/doc/configuration/options.html
