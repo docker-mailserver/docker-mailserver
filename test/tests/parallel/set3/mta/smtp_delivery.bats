@@ -91,6 +91,7 @@ function setup_file() {
   _send_email 'email-templates/existing-user-and-cc-local-alias'
   _send_email 'email-templates/sieve-spam-folder'
   _send_email 'email-templates/sieve-pipe'
+  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
 }
 
 @test "should succeed at emptying mail queue" {
@@ -154,14 +155,15 @@ function setup_file() {
 
   assert_output --partial '1 <added@localhost.localdomain>'
   assert_output --partial '6 <user1@localhost.localdomain>'
+  assert_output --partial '1 <user1@localhost.localdomain>, orig_to=<root>'
   assert_output --partial '1 <user1~test@localhost.localdomain>'
   assert_output --partial '2 <user2@otherdomain.tld>'
   assert_output --partial '1 <user3@localhost.localdomain>'
-  _should_output_number_of_lines 5
+  _should_output_number_of_lines 6
 
   # NOTE: Requires ClamAV enabled and to send `amavis-virus` template:
   # assert_output --partial '1 <user1@localhost.localdomain>, orig_to=<postmaster@example.test>'
-  # _should_output_number_of_lines 6
+  # _should_output_number_of_lines 7
 }
 
 @test "delivers mail to existing alias" {
@@ -200,6 +202,7 @@ function setup_file() {
   _run_in_container_bash "grep Subject /var/mail/localhost.localdomain/user1/new/* | sed 's/.*Subject: //g' | sed 's/\.txt.*//g' | sed 's/VIRUS.*/VIRUS/g' | sort"
   assert_success
 
+  assert_output --partial 'Root Test Message'
   assert_output --partial 'Test Message existing-alias-external'
   assert_output --partial 'Test Message existing-alias-recipient-delimiter'
   assert_output --partial 'Test Message existing-catchall-local'
@@ -207,7 +210,7 @@ function setup_file() {
   assert_output --partial 'Test Message existing-user-and-cc-local-alias'
   assert_output --partial 'Test Message existing-user1'
   assert_output --partial 'Test Message sieve-spam-folder'
-  _should_output_number_of_lines 7
+  _should_output_number_of_lines 8
 
   # The virus mail has three subject lines
   # NOTE: Requires ClamAV enabled and to send amavis-virus:
@@ -258,4 +261,9 @@ function setup_file() {
 @test "not advertising smtputf8" {
   _send_email 'email-templates/smtp-ehlo'
   refute_output --partial 'SMTPUTF8'
+}
+
+@test "mail for root was delivered" {
+  _run_in_container grep -R 'Subject: Root Test Message' /var/mail/localhost.localdomain/user1/new/
+  assert_success
 }
