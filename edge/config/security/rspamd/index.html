@@ -708,6 +708,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    DNS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -1617,6 +1624,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    DNS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -1777,6 +1791,17 @@
 <h3 id="web-interface"><a class="toclink" href="#web-interface">Web Interface</a></h3>
 <p>Rspamd provides a <a href="https://rspamd.com/webui/">web interface</a>, which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.</p>
 <p><img alt="Rspamd Web Interface" src="https://rspamd.com/img/webui.png" /></p>
+<h3 id="dns"><a class="toclink" href="#dns">DNS</a></h3>
+<p>DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using <a href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists">DNS-based black/whitelists</a>, you need to adjust <a href="https://rspamd.com/doc/configuration/options.html"><code>options.inc</code></a> yourself.</p>
+<div class="admonition tip">
+<p class="admonition-title">Making DNS Servers Configurable</p>
+<p>If you want to see an environment variable (like <code>RSPAMD_DNS_SERVERS</code>) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>While we do not provide values for custom DNS servers by default, we set <code>soft_reject_on_timeout = true;</code> by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.</p>
+<p>This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.</p>
+</div>
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
@@ -1833,6 +1858,7 @@
 <div class="highlight"><pre><span></span><code><span class="na">ENABLE_RSPAMD</span><span class="o">=</span><span class="s">1</span>
 <span class="na">ENABLE_OPENDKIM</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_OPENDMARC</span><span class="o">=</span><span class="s">0</span>
+<span class="na">ENABLE_POLICYD_SPF</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_AMAVIS</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
 </code></pre></div>
