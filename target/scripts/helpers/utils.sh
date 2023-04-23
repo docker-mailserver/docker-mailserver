@@ -114,3 +114,34 @@ function _replace_by_env_in_file
     sed -i -E "s#^${ESCAPED_KEY}[[:space:]]*=.*#${ESCAPED_KEY} =${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
   done < <(env | grep "^${ENV_PREFIX}")
 }
+
+# Check if an environment variable's value is zero or one. This aids in checking variables
+# that act as "booleans" for enabling or disabling a service, configuration option, etc.
+#
+# This function will log a warning and return with exit code 1 in case the variable's value
+# is not zero or one.
+#
+# @param ${1} = name of the ENV variable to check
+function _env_var_expect_zero_or_one
+{
+  local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_zero_or_one}
+
+  [[ ${!ENV_VAR_NAME} =~ ^(0|1)$ ]] && return 0
+  _log 'warn' "The value of '${ENV_VAR_NAME}' is not zero or one ('${!ENV_VAR_NAME}'), but was expected to be"
+  return 1
+}
+
+# Check if an environment variable's value is an integer.
+#
+# This function will log a warning and return with exit code 1 in case the variable's value
+# is not an integer.
+#
+# @param ${1} = name of the ENV variable to check
+function _env_var_expect_integer
+{
+  local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_integer}
+
+  [[ ${!ENV_VAR_NAME} =~ ^-?[0-9][0-9]*$ ]] && return 0
+  _log 'warn' "The value of '${ENV_VAR_NAME}' is not an integer ('${!ENV_VAR_NAME}'), but was expected to be"
+  return 1
+}
