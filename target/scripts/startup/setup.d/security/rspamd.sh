@@ -292,7 +292,7 @@ function __rspamd__handle_user_modules_adjustments
   # Adds an option with a corresponding value to a module, or, in case the option
   # is already present, overwrites it.
   #
-  # @param ${1} = file name in /etc/rspamd/override.d/
+  # @param ${1} = file name in ${RSPAMD_OVERRIDE_D}/
   # @param ${2} = module name as it should appear in the log
   # @patam ${3} = option name in the module
   # @param ${4} = value of the option
@@ -324,10 +324,21 @@ function __rspamd__handle_user_modules_adjustments
     fi
   }
 
-  local RSPAMD_CUSTOM_COMMANDS_FILE='/tmp/docker-mailserver/rspamd-modules.conf'
+  local RSPAMD_CUSTOM_COMMANDS_FILE="${RSPAMD_DMS_D}/custom-commands.conf"
+  local RSPAMD_CUSTOM_COMMANDS_FILE_OLD="${RSPAMD_DMS_D}-modules.conf"
+
+  # We check for usage of the previous location of the commands file.
+  # This can be removed after the release of v14.0.0.
+  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]
+  then
+    __rspamd__log 'warn' "Detected usage of old file location for modules adjustment ('${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}') - please use the new location ('${RSPAMD_CUSTOM_COMMANDS_FILE}')"
+    __rspamd__log 'warn' "Using old file location now (deprecated) - this will prevent startup in v13.0.0"
+    RSPAMD_CUSTOM_COMMANDS_FILE=${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}
+  fi
+
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
   then
-    __rspamd__log 'debug' "Found file 'rspamd-modules.conf' - parsing and applying it"
+    __rspamd__log 'debug' "Found file '${RSPAMD_CUSTOM_COMMANDS_FILE}' - parsing and applying it"
 
     while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
     do
@@ -359,7 +370,7 @@ function __rspamd__handle_user_modules_adjustments
 
         ('add-line')
           __rspamd__log 'trace' "Adding complete line to '${ARGUMENT1}'"
-          echo "${ARGUMENT2} ${ARGUMENT3:-}" >>"/etc/rspamd/override.d/${ARGUMENT1}"
+          echo "${ARGUMENT2}${ARGUMENT3+ ${ARGUMENT3}}" >>"${RSPAMD_OVERRIDE_D}/${ARGUMENT1}"
           ;;
 
         (*)
