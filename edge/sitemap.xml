@@ -2,202 +2,202 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/faq/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/introduction/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/usage/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/debugging/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/pop3/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/setup.sh/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/auth-ldap/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/dovecot-master-accounts/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/full-text-search/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/ipv6/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/kubernetes/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-fetchmail/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-sieve/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/optional-config/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/podman/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/aws-ses/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/relay-hosts/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/maintenance/update-and-cleanup/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/postfix/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/user-patches/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/autodiscover/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim_dmarc_spf/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/security/fail2ban/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/security/mail_crypt/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/security/rspamd/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/security/ssl/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/contributing/general/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/contributing/tests/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/basic-installation/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/blog-posts/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/docker-build/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/mailserver-behind-proxy/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/forward-only-mailserver-with-ldap-authentication/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders/</loc>
-         <lastmod>2023-04-21</lastmod>
+         <lastmod>2023-04-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
