@@ -20,9 +20,9 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
   source "${SOURCE_BASE_PATH}/log.sh"
   source "${SOURCE_BASE_PATH}/utils.sh"
 
-  export ZERO=0
-  export ONE=1
-  export TWO=2
+  ZERO=0
+  ONE=1
+  TWO=2
 
   run _env_var_expect_zero_or_one ZERO
   assert_success
@@ -43,9 +43,9 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
   source "${SOURCE_BASE_PATH}/log.sh"
   source "${SOURCE_BASE_PATH}/utils.sh"
 
-  export INTEGER=1234
-  export NEGATIVE=-${INTEGER}
-  export NaN=not_an_integer
+  INTEGER=1234
+  NEGATIVE=-${INTEGER}
+  NaN=not_an_integer
 
   run _env_var_expect_integer INTEGER
   assert_success

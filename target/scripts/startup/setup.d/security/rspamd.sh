@@ -66,9 +66,11 @@ EOF
 # or checking for other anti-spam/anti-virus software.
 function __rspamd__run_early_setup_and_checks
 {
-  export RSPAMD_LOCAL_D='/etc/rspamd/local.d'
-  export RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
-  export RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+  # Note: Variables not marked with `local` are
+  # used in other functions as well.
+  RSPAMD_LOCAL_D='/etc/rspamd/local.d'
+  RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
+  RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
   local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d/"
 
   mkdir -p /var/lib/rspamd/
