@@ -16,7 +16,7 @@ If you want to have a look at the default configuration files for Rspamd that DM
 
 !!! note "AMD64 vs ARM64"
 
-    We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference as of 1st Apr 2023: AMD64 is at version 3.5 | ARM64 is at version 3.4.
+    We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference as of 23rd Apr 2023: AMD64 is at version 3.5 | ARM64 is at version 3.4.
 
 [rspamd-homepage]: https://rspamd.com/
 [dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
@@ -117,7 +117,7 @@ If you want to overwrite the default settings and / or provide your own settings
 
 ### With the Help of a Custom File
 
-DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called `rspamd-modules.conf` into the [local config directory `docker-data/dms/config/`][docs-volumes-config]. If this file is present, DMS will evaluate it. The structure is _very_ simple. Each line in the file looks like this:
+DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called `custom-commands.conf` into `docker-data/dms/config/rspamd/`. If this file is present, DMS will evaluate it. The structure is _very_ simple. Each line in the file looks like this:
 
 ```txt
 COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
@@ -139,13 +139,12 @@ where `COMMAND` can be:
 
     For command 1 - 3, we append the `.conf` suffix to the module name to get the correct file name automatically. For commands 4 - 6, the file name is fixed (you don't even need to provide it). For command 7, you will need to provide the whole file name (including the suffix) yourself!
 
-You can also have comments (the line starts with `#`) and blank lines in `rspamd-modules.conf` - they are properly handled and not evaluated.
+You can also have comments (the line starts with `#`) and blank lines in `custom-commands.conf` - they are properly handled and not evaluated.
 
 !!! tip "Adjusting Modules This Way"
 
     These simple commands are meant to give users the ability to _easily_ alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that [manually](#manually)!
 
-[docs-volumes-config]: ../advanced/optional-config.md
 [rspamd-docs-basic-options]: https://rspamd.com/doc/configuration/options.html
 
 ## Examples & Advanced Configuration
@@ -169,10 +168,9 @@ This will enable Rspamd and disable services you don't need when using Rspamd. N
 
 Rspamd is running, but you want or need to adjust it?
 
-1. Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: create a file called `rspamd-modules.conf` and add the line `set-option-for-controller secure_ip "0.0.0.0/0"`. Place the file `rspamd-modules.conf` inside the directory on the host you mount to `/tmp/docker-mailserver/` inside the container (in our documentation, we use `docker-data/dms/config` on the host for this purpose). And you're done! Note: this disables authentication on the website - make sure you know what you're doing!
-2. You additionally want to enable the auto-spam-learning for the Bayes module? No problem, just add another line to `rspamd-modules.conf` that looks like this: `set-option-for-module classifier-bayes autolearn true`.
-3. But the chartable module gets on your nerves? Just disable it by adding another line: `disable-module chartable
-`.
+1. Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: create a file called `custom-commands.conf` and add the line `set-option-for-controller secure_ip "0.0.0.0/0"`. Place the file `custom-commands.conf` inside the directory on the host you mount to `/tmp/docker-mailserver/rspamd/` inside the container (in our documentation, we use `docker-data/dms/config/rspamd/` on the host for this purpose). And you're done! Note: this disables authentication on the website - make sure you know what you're doing!
+2. You additionally want to enable the auto-spam-learning for the Bayes module? No problem, just add another line to `custom-commands.conf` that looks like this: `set-option-for-module classifier-bayes autolearn true`.
+3. But the chartable module gets on your nerves? Just disable it by adding another line: `disable-module chartable`.
 
 ### DKIM Signing
 
