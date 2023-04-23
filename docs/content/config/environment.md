@@ -313,11 +313,7 @@ will be automatically moved to the Junk folder (with the help of a Sieve script)
 
 ##### ENABLE_RSPAMD
 
-Enable or disable Rspamd.
-
-!!! warning "Current State"
-
-    Rspamd-support is under active development. Be aware that changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
+Enable or disable [Rspamd][docs-rspamd].
 
 - **0** => disabled
 - 1 => enabled

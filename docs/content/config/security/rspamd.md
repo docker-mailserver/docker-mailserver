@@ -2,12 +2,6 @@
 title: 'Security | Rspamd'
 ---
 
-!!! warning "The current state of Rspamd integration into DMS"
-
-    Recent pull requests have stabilized integration of Rspamd to a point that we encourage users to test the feature. We are confident that there are no major bugs in our integration that make using Rspamd infeasible. Please note that there may still be changes ahead as integration is still work in progress!
-
-    We expect to stabilize this feature with version `v12.1.0`.
-
 ## About
 
 Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-homepage]. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd.
