@@ -5,11 +5,10 @@ function _setup_rspamd
 {
   if _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]
   then
-    _log 'warn' 'Rspamd integration is work in progress - expect changes at any time'
     _log 'debug' 'Enabling and configuring Rspamd'
     __rspamd__log 'trace' '----------  Setup started  ----------'
 
-    __rspamd__run_early_setup_and_checks        # must run first
+    __rspamd__run_early_setup_and_checks      # must run first
     __rspamd__setup_redis
     __rspamd__setup_postfix
     __rspamd__setup_clamav
@@ -17,7 +16,7 @@ function _setup_rspamd
     __rspamd__setup_learning
     __rspamd__setup_greylisting
     __rspamd__setup_hfilter_group
-    __rspamd__handle_user_modules_adjustments   # must run last
+    __rspamd__handle_user_modules_adjustments # must run last
 
     __rspamd__log 'trace' '----------  Setup finished  ----------'
   else
