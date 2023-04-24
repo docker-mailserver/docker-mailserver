@@ -87,3 +87,26 @@ function _shutdown
   kill -SIGTERM 1               # Trigger graceful DMS shutdown.
   kill -SIGUSR1 "${SCRIPT_PID}" # Stop start-mailserver.sh execution, even when _shutdown() is called from a subshell.
 }
+
+# Calling this function sets up a handler for the `ERR` signal, that occurs when
+# an error is not properly checked (e.g., in an `if`-clause or in an `&&` block).
+#
+# This is mostly useful for debugging. It also helps when using something like `set -eE`,
+# as it shows where the script aborts.
+function _trap_err_signal
+{
+  trap '__log_unexpected_error "${FUNCNAME[0]:-}" "${BASH_COMMAND:-}" "${LINENO:-}" "${?:-}"' ERR
+
+  # shellcheck disable=SC2317
+  function __log_unexpected_error
+  {
+    local MESSAGE="Unexpected error occured :: script = ${SCRIPT:-${0}} "
+    MESSAGE+=" | function = ${1:-none (global)}"
+    MESSAGE+=" | command = ${2:-?}"
+    MESSAGE+=" | line = ${3:-?}"
+    MESSAGE+=" | exit code = ${4:-?}"
+
+    _log 'error' "${MESSAGE}"
+    return 0
+  }
+}

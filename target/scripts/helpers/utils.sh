@@ -16,7 +16,13 @@ function _get_valid_lines_from_file
 # and it will return its value stored in /etc/dms-settings
 function _get_dms_env_value
 {
-  grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
+  if [[ -f /etc/dms-settings ]]
+  then
+    grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
+  else
+    _log 'warn' "Call to '_get_dms_env_value' but '/etc/dms-settings' is not present"
+    return 1
+  fi
 }
 
 # TODO: `chown -R 5000:5000 /var/mail` has existed since the projects first commit.
@@ -33,6 +39,7 @@ function _chown_var_mail_if_necessary
     _log 'trace' 'Fixing /var/mail permissions'
     chown -R 5000:5000 /var/mail || return 1
   fi
+  return 0
 }
 
 function _require_n_parameters_or_print_usage
@@ -43,6 +50,7 @@ function _require_n_parameters_or_print_usage
 
   [[ ${1:-} == 'help' ]]  && { __usage ; exit 0 ; }
   [[ ${#} -lt ${COUNT} ]] && { __usage ; exit 1 ; }
+  return 0
 }
 
 # NOTE: Postfix commands that read `main.cf` will stall execution,
@@ -56,6 +64,7 @@ function _adjust_mtime_for_postfix_maincf
   then
     touch -d '2 seconds ago' /etc/postfix/main.cf
   fi
+  return 0
 }
 
 function _reload_postfix
