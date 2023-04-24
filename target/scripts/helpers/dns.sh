@@ -41,7 +41,7 @@ function _obtain_hostname_and_domainname
   # of this variable or if a more deterministic approach with `cut` should be relied on.
   if [[ $(_get_label_count "${HOSTNAME}") -gt 2 ]]
   then
-    if [[ -n ${OVERRIDE_HOSTNAME} ]]
+    if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
     then
       # Emulates the intended behaviour of `hostname -d`:
       # Assign the HOSTNAME value minus everything up to and including the first `.`
