@@ -29,7 +29,7 @@ hide:
 
 ### DMS Defaults
 
-DMS will automatically ban IP addresses of hosts that have generated 2 failed attempts over the course of the last week. The bans themselves last for one week.
+DMS will automatically ban IP addresses of hosts that have generated 2 failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use `mode = extra` in DMS.
 
 ### Custom Files
 
