@@ -1,65 +1,78 @@
-name: Update contributors
+name: 'Update Contributors List'
+
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 0 1 * *'
+    - cron: 0 4 * * 0
+
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
+env:
+  # Assign commit authorship to official Github Actions bot:
+  GIT_USER: github-actions[bot]
+  GIT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
 
 jobs:
-  delete-old-branch:
-    runs-on: ubuntu-22.04
-    continue-on-error: true
-    steps:
-      - name: Delete old contributors-update branch
-        uses: dawidd6/action-delete-branch@v3
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          branches: contributors-update
-
   add-contributors:
+    name: 'Add Contributors'
     runs-on: ubuntu-22.04
-    needs: delete-old-branch
     steps:
-      - uses: actions/checkout@v3
+      - name: 'Checkout'
+        uses: actions/checkout@v3
 
-      - name: Create contributors-update branch
-        uses: peterjgrainger/action-create-branch@v2.4.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch: 'contributors-update'
-
-      - name: Auto-add contributors
+      # See https://github.com/marketplace/actions/auto-add-contributors for reference of the action.
+      #
+      # This action is not well documented, but it does the job for now. We pin the version in order
+      # to not have any issues in the future.
+      - name: 'Update CONTRIBUTORS.md'
         uses: BobAnkh/add-contributors@v0.2.2
         with:
-          BRANCH: 'contributors-update'
-          PULL_REQUEST: 'master'
-          CONTRIBUTOR: '## Contributors'
-          COLUMN_PER_ROW: '6'
           ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          IMG_WIDTH: '100'
-          FONT_SIZE: '14'
-          PATH: '/CONTRIBUTORS.md'
-          COMMIT_MESSAGE: 'docs(CONTRIBUTORS): update contributors'
-          AVATAR_SHAPE: 'round'
+          COMMIT_MESSAGE: 'docs: update `CONTRIBUTORS.md`'
+          PATH: /CONTRIBUTORS.md
+          CONTRIBUTOR: '## Contributors'
+          COLUMN_PER_ROW: 6
+          IMG_WIDTH: 100
+          FONT_SIZE: 14
+          AVATAR_SHAPE: round
 
-      # This workflow will not trigger a `pull_request` event without a PAT.
-      # The lint workflow is not important for this type of PR, skip it and pretend it was successful:
-      - name: 'Get the latest commit hash from the contributors-update branch'
-        id: commit-data
-        run: |
-          git pull
-          git checkout contributors-update
-          echo "head_sha=$(git rev-parse contributors-update)" >>"${GITHUB_OUTPUT}"
+      # See https://github.com/marketplace/actions/create-pull-request for reference of the action.
+      - name: 'Create Pull Request'
+        uses: peter-evans/create-pull-request@v5.0.0
+        id: create-pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: contributors-update
+          title: 'docs: update `CONTRIBUTORS.md`'
+          commit-message: 'docs: update `CONTRIBUTORS.md`'
+          delete-branch: true
+          committer: ${{ env.GIT_USER }} <${{ env.GIT_EMAIL }}>
+          author: ${{ env.GIT_USER }} <${{ env.GIT_EMAIL }}>
+          signoff: true
+          body: |
+            Updated `CONTRIBUTORS.md` via the CI workflow: [`contributors.yml`][workflow].
 
-      - name: 'Commit Status: Set Lint status to success (skipped)'
+            [workflow]: https://github.com/docker-mailserver/docker-mailserver/blob/master/.github/workflows/contributors.yml
+
+      # See https://github.com/marketplace/actions/set-commit-status for reference of the action.
+      #
+      # GH Actions are limited when it comes to actions triggering other actions. Hence,
+      # this whole workflow will not trigger a `pull_request` event without a PAT. The lint
+      # workflow, which is required due to branch protection, is not important for this type
+      # of PR, so we skip it and pretend it was successful.
+      - name: 'Set Status for Linting Actions to Success (Skipped)'
         uses: myrotvorets/set-commit-status-action@1.1.6
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Skipped workflows are still assigned a "success" status:
           status: success
           # This should be the correct commit SHA on the contributors-update branch:
-          sha: ${{ steps.commit-data.outputs.head_sha }}
+          sha: ${{ steps.create-pr.outputs.pull-request-head-sha }}
           # Name of status check to add/update:
-          context: 'lint'
+          context: lint
           # Optional message/note we can inline to the right of the context name in the UI:
-          description: "Lint skipped. Not relevant."
+          description: Lint skipped. Not relevant.
