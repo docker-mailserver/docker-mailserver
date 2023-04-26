@@ -29,7 +29,7 @@ hide:
 
 ### DMS Defaults
 
-DMS will automatically ban IP addresses of hosts that have generated 10 failed attempts during the last week for one week.
+DMS will automatically ban IP addresses of hosts that have generated 2 failed attempts over the course of the last week. The bans themselves last for one week.
 
 ### Custom Files
 
@@ -72,6 +72,10 @@ It is necessary for F2B to have access to the real source IP addresses in order 
 
     For [rootless mode][rootless::docker] in Docker, create `~/.config/systemd/user/docker.service.d/override.conf` with the following content:
 
+    !!! danger inline end
+
+        This changes the port driver for all rootless containers managed by Docker. Per container configuration is not supported, if you need that consider Podman instead.
+
     ```cf
     [Service]
     Environment="DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns"
@@ -84,17 +88,11 @@ It is necessary for F2B to have access to the real source IP addresses in order 
     $ systemctl --user restart docker
     ```
 
-    !!! danger
-
-        This changes the port driver for all rootless containers managed by Docker. Per container configuration is not supported, if you need that consider Podman instead.
-
     [rootless::docker]: https://docs.docker.com/engine/security/rootless
 
 === "Podman"
 
-    [Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `compose.yml`.
-
-    You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`.
+    [Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `compose.yml`:
 
     !!! example
 
@@ -108,9 +106,7 @@ It is necessary for F2B to have access to the real source IP addresses in order 
               ...
         ```
 
-    !!! note
-
-        `slirp4netns` is not compatible with user-defined networks.
+    You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`. `slirp4netns` is not compatible with user-defined networks!
 
     [rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
     [rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
