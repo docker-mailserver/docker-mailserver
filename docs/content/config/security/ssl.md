@@ -385,7 +385,7 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
         container_name: nginx-proxy-acme
         restart: always
         environment:
-          # Only Docker Compose v2 supports: `volumes_from: [nginx-proxy]`,
+          # When `volumes_from: [nginx-proxy]` is not supported,
           # reference the _reverse-proxy_ `container_name` here:
           - NGINX_PROXY_CONTAINER=nginx-proxy
         volumes:
