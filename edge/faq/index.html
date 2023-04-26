@@ -1297,6 +1297,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
+    What About the docker-data/dms/config/ Directory?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-are-imap-mailboxes-aka-imap-folders-set-up" class="md-nav__link">
     How are IMAP mailboxes (aka IMAP Folders) set up?
   </a>
@@ -1722,6 +1729,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
+    What About the docker-data/dms/config/ Directory?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-are-imap-mailboxes-aka-imap-folders-set-up" class="md-nav__link">
     How are IMAP mailboxes (aka IMAP Folders) set up?
   </a>
@@ -2015,6 +2029,8 @@
 <p>None! No database is required. The filesystem is the database. This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.</p>
 <h3 id="where-are-emails-stored"><a class="toclink" href="#where-are-emails-stored">Where are emails stored?</a></h3>
 <p>Mails are stored in <code>/var/mail/${domain}/${username}</code>. Since <code>v9.0.0</code> it is possible to add custom <code>user_attributes</code> for each accounts to have a different mailbox configuration (See <a href="https://github.com/docker-mailserver/docker-mailserver/pull/1792">#1792</a>).</p>
+<h3 id="what-about-the-docker-datadmsconfig-directory"><a class="toclink" href="#what-about-the-docker-datadmsconfig-directory">What About the <code>docker-data/dms/config/</code> Directory?</a></h3>
+<p>This documentation and all example configuration files in the GitHub repository use <code>docker-data/dms/config/</code> to refer to the directory in the host that is mounted (e.g. via a bind mount) to <code>/tmp/docker-mailserver/</code> inside the container,.</p>
 <h3 id="how-are-imap-mailboxes-aka-imap-folders-set-up"><a class="toclink" href="#how-are-imap-mailboxes-aka-imap-folders-set-up">How are IMAP mailboxes (<em>aka IMAP Folders</em>) set up?</a></h3>
 <p><code>INBOX</code> is setup by default with the special IMAP folders <code>Drafts</code>, <code>Sent</code>, <code>Junk</code> and <code>Trash</code>. You can learn how to modify or add your own folders (<em>including additional special folders like <code>Archive</code></em>) by visiting our docs page <a href="../examples/use-cases/imap-folders"><em>Customizing IMAP Folders</em></a> for more information.</p>
 <h3 id="how-do-i-update-dms"><a class="toclink" href="#how-do-i-update-dms">How do I update DMS?</a></h3>

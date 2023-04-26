@@ -79,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration-files" class="md-skip">
+        <a href="#configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -639,16 +639,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-files" class="md-nav__link">
-    Configuration files
+  <a href="#configuration" class="md-nav__link">
+    Configuration
   </a>
   
-    <nav class="md-nav" aria-label="Configuration files">
+    <nav class="md-nav" aria-label="Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#docker-compose-config" class="md-nav__link">
-    Docker-compose config
+  <a href="#dms-defaults" class="md-nav__link">
+    DMS Defaults
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-files" class="md-nav__link">
+    Custom Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-bans" class="md-nav__link">
+    Managing Bans
   </a>
   
 </li>
@@ -659,56 +673,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-fail2ban-in-a-rootless-container" class="md-nav__link">
-    Running fail2ban in a rootless container
+  <a href="#running-inside-a-rootless-container" class="md-nav__link">
+    Running Inside A Rootless Container
   </a>
-  
-    <nav class="md-nav" aria-label="Running fail2ban in a rootless container">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-with-slirp4netns-port-driver" class="md-nav__link">
-    Docker with slirp4netns port driver
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#podman-with-slirp4netns-port-driver" class="md-nav__link">
-    Podman with slirp4netns port driver
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manage-bans" class="md-nav__link">
-    Manage bans
-  </a>
-  
-    <nav class="md-nav" aria-label="Manage bans">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#list-bans" class="md-nav__link">
-    List bans
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#un-ban" class="md-nav__link">
-    Un-ban
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1502,16 +1469,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-files" class="md-nav__link">
-    Configuration files
+  <a href="#configuration" class="md-nav__link">
+    Configuration
   </a>
   
-    <nav class="md-nav" aria-label="Configuration files">
+    <nav class="md-nav" aria-label="Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#docker-compose-config" class="md-nav__link">
-    Docker-compose config
+  <a href="#dms-defaults" class="md-nav__link">
+    DMS Defaults
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-files" class="md-nav__link">
+    Custom Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-bans" class="md-nav__link">
+    Managing Bans
   </a>
   
 </li>
@@ -1522,56 +1503,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-fail2ban-in-a-rootless-container" class="md-nav__link">
-    Running fail2ban in a rootless container
+  <a href="#running-inside-a-rootless-container" class="md-nav__link">
+    Running Inside A Rootless Container
   </a>
-  
-    <nav class="md-nav" aria-label="Running fail2ban in a rootless container">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#docker-with-slirp4netns-port-driver" class="md-nav__link">
-    Docker with slirp4netns port driver
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#podman-with-slirp4netns-port-driver" class="md-nav__link">
-    Podman with slirp4netns port driver
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manage-bans" class="md-nav__link">
-    Manage bans
-  </a>
-  
-    <nav class="md-nav" aria-label="Manage bans">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#list-bans" class="md-nav__link">
-    List bans
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#un-ban" class="md-nav__link">
-    Un-ban
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1595,49 +1529,68 @@
 
   <h1>Fail2Ban</h1>
 
-<p>Fail2Ban is installed automatically and bans IP addresses for 1 week after 2 failed attempts in a time frame of 1 week by default.</p>
-<h2 id="configuration-files"><a class="toclink" href="#configuration-files">Configuration files</a></h2>
-<p>If you want to change this, you can easily edit our github example file: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>config-examples/fail2ban-jail.cf</code></a>.</p>
-<p>You can do the same with the values from <code>fail2ban.conf</code>, e.g <code>dbpurgeage</code>. In that case you need to edit: <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf"><code>config-examples/fail2ban-fail2ban.cf</code></a>.</p>
-<p>The configuration files need to be located at the root of the <code>/tmp/docker-mailserver/</code> volume bind (usually <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
-<p>This following configuration files from <code>/tmp/docker-mailserver/</code> will be copied during container startup.</p>
-<ul>
-<li><code>fail2ban-jail.cf</code> -&gt; <code>/etc/fail2ban/jail.d/user-jail.local</code></li>
-<li><code>fail2ban-fail2ban.cf</code> -&gt; <code>/etc/fail2ban/fail2ban.local</code></li>
-</ul>
-<h3 id="docker-compose-config"><a class="toclink" href="#docker-compose-config">Docker-compose config</a></h3>
-<p>Example configuration volume bind:</p>
-<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-</code></pre></div>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>DMS must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the nftables rules that actually ban IP addresses.</p>
-<p>Thus either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in <code>docker-compose.yml</code>:</p>
+<div class="admonition quote">
+<p class="admonition-title">What is Fail2Ban (F2B)?</p>
+<p>Fail2ban is an intrusion prevention software framework. Written in the Python programming language, it is designed to prevent against brute-force attacks. It is able to run on POSIX systems that have an interface to a packet-control system or firewall installed locally, such as [NFTables] or TCP Wrapper.</p>
+<p><a href="https://en.wikipedia.org/wiki/Fail2ban">Source</a></p>
+</div>
+<h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>DMS must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the NFTables rules that actually ban IP addresses. Thus, either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in the <code>compose.yml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
 </code></pre></div>
 </div>
-<h2 id="running-fail2ban-in-a-rootless-container"><a class="toclink" href="#running-fail2ban-in-a-rootless-container">Running fail2ban in a rootless container</a></h2>
-<p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
-<p>It is necessary for <code>fail2ban</code> to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than <code>builtin</code> but does preserve the real source IPs.</p>
-<h3 id="docker-with-slirp4netns-port-driver"><a class="toclink" href="#docker-with-slirp4netns-port-driver">Docker with <code>slirp4netns</code> port driver</a></h3>
+<div class="admonition bug">
+<p class="admonition-title">Running Fail2Ban on Older Kernels</p>
+<p>DMS configures F2B to use NFTables, not IPTables (legacy). We have observed that older systems, for example NAS systems, do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example with the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>fail2ban-jail.cf</code></a>, see the <a href="#custom-files">section on configuration further down below</a>.</p>
+</div>
+<h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS Defaults</a></h3>
+<p>DMS will automatically ban IP addresses of hosts that have generated 2 failed attempts over the course of the last week. The bans themselves last for one week.</p>
+<h3 id="custom-files"><a class="toclink" href="#custom-files">Custom Files</a></h3>
+<div class="admonition question">
+<p class="admonition-title">What is <a href="../../../faq/#what-about-the-docker-datadmsconfig-directory"><code>docker-data/dms/config/</code></a>?</p>
+</div>
+<p>This following configuration files inside the <code>docker-data/dms/config/</code> volume will be copied inside the container during startup</p>
+<ol>
+<li><code>fail2ban-jail.cf</code> is copied to <code>/etc/fail2ban/jail.d/user-jail.local</code><ul>
+<li>with this file, you can adjust the configuration of individual jails and their defaults</li>
+<li>the is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf">in our repository on GitHub</a></li>
+</ul>
+</li>
+<li><code>fail2ban-fail2ban.cf</code> is copied to <code>/etc/fail2ban/fail2ban.local</code><ul>
+<li>with this file, you can adjust F2B behavior in general</li>
+<li>the is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf">in our repository on GitHub</a></li>
+</ul>
+</li>
+</ol>
+<h3 id="managing-bans"><a class="toclink" href="#managing-bans">Managing Bans</a></h3>
+<p>You can manage F2B with the <code>setup</code> script. The usage looks like this:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span><span class="o">[</span>&lt;ban<span class="p">|</span>unban&gt;<span class="w"> </span>&lt;IP&gt;<span class="o">]</span>
+</code></pre></div>
+<p>When just running <code>setup fail2ban</code>, the script will show all banned IP addresses.</p>
+<h2 id="running-inside-a-rootless-container"><a class="toclink" href="#running-inside-a-rootless-container">Running Inside A Rootless Container</a></h2>
+<p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default, RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
+<p>It is necessary for F2B to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than the builtin driver but does preserve the real source IPs.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Docker</label><label for="__tabbed_1_2">Podman</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <p>For <a href="https://docs.docker.com/engine/security/rootless">rootless mode</a> in Docker, create <code>~/.config/systemd/user/docker.service.d/override.conf</code> with the following content:</p>
-<div class="highlight"><pre><span></span><code>[Service]
-Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
+<div class="admonition danger inline end">
+<p class="admonition-title">Danger</p>
+<p>This changes the port driver for all rootless containers managed by Docker. Per container configuration is not supported, if you need that consider Podman instead.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="k">[Service]</span>
+<span class="na">Environment</span><span class="o">=</span><span class="s">&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;</span>
 </code></pre></div>
 <p>And then restart the daemon:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>systemctl<span class="w"> </span>--user<span class="w"> </span>daemon-reload
 <span class="gp">$ </span>systemctl<span class="w"> </span>--user<span class="w"> </span>restart<span class="w"> </span>docker
 </code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This changes the port driver for all rootless containers managed by Docker.</p>
-<p>Per container configuration is not supported, if you need that consider Podman instead.</p>
 </div>
-<h3 id="podman-with-slirp4netns-port-driver"><a class="toclink" href="#podman-with-slirp4netns-port-driver">Podman with <code>slirp4netns</code> port driver</a></h3>
-<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
-<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>.</p>
+<div class="tabbed-block">
+<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>compose.yml</code>:</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
@@ -1649,19 +1602,10 @@ Environment=&quot;DOCKERD_ROOTLESS_ROOTLESSKIT_PORT_DRIVER=slirp4netns&quot;
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code>slirp4netns</code> is not compatible with user-defined networks.</p>
+<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>. <code>slirp4netns</code> is not compatible with user-defined networks!</p>
 </div>
-<h2 id="manage-bans"><a class="toclink" href="#manage-bans">Manage bans</a></h2>
-<p>You can also manage and list the banned IPs with the <a href="../../setup.sh/"><code>setup.sh</code></a> script.</p>
-<h3 id="list-bans"><a class="toclink" href="#list-bans">List bans</a></h3>
-<div class="highlight"><pre><span></span><code>./setup.sh<span class="w"> </span>fail2ban
-</code></pre></div>
-<h3 id="un-ban"><a class="toclink" href="#un-ban">Un-ban</a></h3>
-<p>Here <code>192.168.1.15</code> is our banned IP.</p>
-<div class="highlight"><pre><span></span><code>./setup.sh<span class="w"> </span>fail2ban<span class="w"> </span>unban<span class="w"> </span><span class="m">192</span>.168.1.15
-</code></pre></div>
+</div>
+</div>
 
 
 

@@ -1813,10 +1813,10 @@
 <h2 id="providing-custom-settings-overriding-settings"><a class="toclink" href="#providing-custom-settings-overriding-settings">Providing Custom Settings &amp; Overriding Settings</a></h2>
 <p>DMS brings sane default settings for Rspamd. They are located at <code>/etc/rspamd/local.d/</code> inside the container (or <code>target/rspamd/local.d/</code> in the repository).</p>
 <h3 id="manually"><a class="toclink" href="#manually">Manually</a></h3>
-<p>If you want to overwrite the default settings and / or provide your own settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code> (a directory that is linked to <code>/etc/rspamd/override.d/</code>, if it exists) to override Rspamd and DMS default settings.</p>
-<div class="admonition note">
-<p class="admonition-title">What is <a href="../../../faq/#what-about-the-docker-datadmsmail-state-folder"><code>docker-data/dms/config/</code></a>?</p>
+<div class="admonition question">
+<p class="admonition-title">What is <a href="../../../faq/#what-about-the-docker-datadmsconfig-directory"><code>docker-data/dms/config/</code></a>?</p>
 </div>
+<p>If you want to overwrite the default settings and / or provide your own settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code> (a directory that is linked to <code>/etc/rspamd/override.d/</code>, if it exists) to override Rspamd and DMS default settings.</p>
 <div class="admonition warning">
 <p class="admonition-title">Clashing Overrides</p>
 <p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>rspamd-commands</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
