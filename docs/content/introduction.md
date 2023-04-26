@@ -207,7 +207,6 @@ As a _batteries included_ container image, DMS provides you with all the require
 - Simple customization is supported through [Docker Compose configuration][github-file-compose] and the [env-mailserver][github-file-envmailserver] configuration file.
 - Advanced customization is supported through providing "monkey-patching" configuration files and/or [deriving your own image][github-file-dockerfile] from DMS's upstream, for a complete control over how things run.
 
-
 Eventually, it is up to _you_ deciding exactly what kind of transportation/encryption to use and/or enforce, and to customize your instance accordingly (with looser or stricter security). Be also aware that protocols and ports on your server can only go so far with security; third-party MTAs might relay your emails on insecure connections, man-in-the-middle attacks might still prove effective, etc. Advanced counter-measure such as DANE, MTA-STS and/or full body encryption (eg. PGP) should be considered as well for increased confidentiality, but ideally without compromising backwards compatibility so as to not block emails.
 
 [docs-understandports]: ./config/security/understanding-the-ports.md

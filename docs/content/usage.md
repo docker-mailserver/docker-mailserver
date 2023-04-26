@@ -21,16 +21,17 @@ There are a few requirements for a suitable host system:
 2. The host should be able to send/receive on the [necessary ports for mail][docs-ports-overview]
 3. You should be able to set a `PTR` record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.
 
-On the host, you should have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation].
+!!! note "About the Container Runtime"
 
-!!! info "Podman Support"
+    On the host, you need to have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation]. We have aligned file names and configuration conventions with the latest [Docker Compose (currently V2) specification][docker-compose-specification].
 
     If you're using podman, make sure to read the related [documentation][docs-podman].
 
-[docs-podman]: ./config/advanced/podman.md
 [docs-ports-overview]: ./config/security/understanding-the-ports.md#overview-of-email-ports
 [docker-compose]: https://docs.docker.com/compose/
 [docker-compose-installation]: https://docs.docker.com/compose/install/
+[docker-compose-specification]: https://docs.docker.com/compose/compose-file/
+[docs-podman]: ./config/advanced/podman.md
 
 ### Minimal DNS Setup
 
