@@ -204,7 +204,7 @@ The best practice as of 2020 would be [POP3S][wikipedia-pop3s] on port 995, rath
 
 As a _batteries included_ container image, DMS provides you with all the required components and a default configuration to run a decent and secure mail server. One may then customize all aspects of its internal components.
 
-- Simple customization is supported through [docker-compose configuration][github-file-compose] and the [env-mailserver][github-file-envmailserver] configuration file.
+- Simple customization is supported through [Docker Compose configuration][github-file-compose] and the [env-mailserver][github-file-envmailserver] configuration file.
 - Advanced customization is supported through providing "monkey-patching" configuration files and/or [deriving your own image][github-file-dockerfile] from DMS's upstream, for a complete control over how things run.
 
 

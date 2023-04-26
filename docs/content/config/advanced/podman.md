@@ -23,7 +23,7 @@ Podman is a daemonless container engine for developing, managing, and running OC
 
 While using Podman, you can just manage docker-mailserver as what you did with Docker. Your best friend `setup.sh` includes the minimum code in order to support Podman since it's 100% compatible with the Docker CLI.
 
-The installation is basically the same. Podman v3.2 introduced a RESTful API that is 100% compatible with the Docker API, so you can use docker-compose with Podman easily. Install Podman and docker-compose with your package manager first.
+The installation is basically the same. Podman v3.2 introduced a RESTful API that is 100% compatible with the Docker API, so you can use Docker Compose with Podman easily. Install Podman and Docker Compose with your package manager first.
 
 ```bash
 sudo dnf install podman docker-compose
@@ -39,8 +39,8 @@ This will create a unix socket locate under `/run/podman/podman.sock`, which is 
 
 ```bash
 export DOCKER_HOST="unix:///run/podman/podman.sock"
-docker-compose up -d mailserver
-docker-compose ps
+docker compose up -d mailserver
+docker compose ps
 ```
 
 You should see that docker-mailserver is running now.
@@ -88,12 +88,12 @@ services:
       - "10993:993"  # IMAP4 (implicit TLS)
 ```
 
-Then, setup your `mailserver.env` file follow the documentation and use docker-compose to start the container.
+Then, setup your `mailserver.env` file follow the documentation and use Docker Compose to start the container.
 
 ```bash
 export DOCKER_HOST="unix:///var/run/user/$(id -u)/podman/podman.sock"
-docker-compose up -d mailserver
-docker-compose ps
+docker compose up -d mailserver
+docker compose ps
 ```
 
 ### Security in Rootless Mode

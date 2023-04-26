@@ -86,20 +86,20 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 3. Recreate containers:
 
     ```
-    docker-compose down
-    docker-compose up -d
+    docker compose down
+    docker compose up -d
     ```
 
 4. Initialize indexing on all users for all mail:
 
     ```
-    docker-compose exec mailserver doveadm index -A -q \*
+    docker compose exec mailserver doveadm index -A -q \*
     ```
 
 5. Run the following command in a daily cron job:
 
     ```
-    docker-compose exec mailserver doveadm fts optimize -A
+    docker compose exec mailserver doveadm fts optimize -A
     ```
     Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
 
@@ -180,9 +180,9 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
     }
     ```
 
-3. Recreate containers: `docker-compose down ; docker-compose up -d`
+3. Recreate containers: `docker compose down ; docker compose up -d`
 
-4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
+4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker compose exec mailserver doveadm fts rescan -A`
 
 #### Further Discussion
 

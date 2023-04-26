@@ -206,7 +206,7 @@ Obtain a Cloudflare API token:
 6. Run the service to provision a certificate:
 
     ```sh
-    docker-compose run certbot-cloudflare
+    docker compose run certbot-cloudflare
     ```
 
 7. You should see the following log output:
@@ -247,7 +247,7 @@ After completing the steps above, your certificate should be ready to use.
     You can manually run this service to renew the cert within 90 days:
 
     ```sh
-    docker-compose run certbot-cloudflare-renew
+    docker compose run certbot-cloudflare-renew
     ```
 
     You should see the following output
@@ -273,7 +273,7 @@ After completing the steps above, your certificate should be ready to use.
     (`crontab` example: Checks every day if the certificate should be renewed)
 
     ```sh
-    0 0 * * * docker-compose -f PATH_TO_YOUR_DOCKER_COMPOSE_YML up certbot-cloudflare-renew
+    0 0 * * * docker compose -f PATH_TO_YOUR_DOCKER_COMPOSE_YML up certbot-cloudflare-renew
     ```
 
 #### Example using `nginx-proxy` and `acme-companion` with Docker { data-toc-label='nginx-proxy with Docker' }
@@ -337,7 +337,7 @@ In the following example, we show how DMS can be run alongside the docker contai
       - ./docker-data/acme-companion/certs/:/etc/letsencrypt/live/:ro
     ```
 
-6. Then from the `compose.yml` project directory, run: `docker-compose up -d mailserver`.
+6. Then from the `compose.yml` project directory, run: `docker compose up -d mailserver`.
 
 #### Example using `nginx-proxy` and `acme-companion` with `docker-compose` { data-toc-label='nginx-proxy with docker-compose' }
 
@@ -385,7 +385,7 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
         container_name: nginx-proxy-acme
         restart: always
         environment:
-          # Only docker-compose v2 supports: `volumes_from: [nginx-proxy]`,
+          # Only Docker Compose v2 supports: `volumes_from: [nginx-proxy]`,
           # reference the _reverse-proxy_ `container_name` here:
           - NGINX_PROXY_CONTAINER=nginx-proxy
         volumes:
