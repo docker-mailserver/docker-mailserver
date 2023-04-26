@@ -1297,13 +1297,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
-    What About the docker-data/dms/config/ Directory?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#how-are-imap-mailboxes-aka-imap-folders-set-up" class="md-nav__link">
     How are IMAP mailboxes (aka IMAP Folders) set up?
   </a>
@@ -1407,13 +1400,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsmail-state-folder" class="md-nav__link">
-    What about the ./docker-data/dms/mail-state folder?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#i-want-to-know-more-about-the-ports" class="md-nav__link">
     I Want to Know More About the Ports
   </a>
@@ -1458,13 +1444,6 @@
         <li class="md-nav__item">
   <a href="#i-just-moved-from-my-old-mail-server-to-dms-but-it-doesnt-work" class="md-nav__link">
     I just moved from my old mail server to DMS, but "it doesn't work"?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-dms-run-in-a-rancher-environment" class="md-nav__link">
-    Can DMS run in a Rancher environment?
   </a>
   
 </li>
@@ -1522,6 +1501,33 @@
   <a href="#why-are-my-emails-not-being-delivered" class="md-nav__link">
     Why are my emails not being delivered?
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-directories" class="md-nav__link">
+    Special Directories
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Directories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
+    What About the docker-data/dms/config/ Directory?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-about-the-docker-datadmsmail-state-directory" class="md-nav__link">
+    What About the docker-data/dms/mail-state/ Directory?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1729,13 +1735,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
-    What About the docker-data/dms/config/ Directory?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#how-are-imap-mailboxes-aka-imap-folders-set-up" class="md-nav__link">
     How are IMAP mailboxes (aka IMAP Folders) set up?
   </a>
@@ -1839,13 +1838,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsmail-state-folder" class="md-nav__link">
-    What about the ./docker-data/dms/mail-state folder?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#i-want-to-know-more-about-the-ports" class="md-nav__link">
     I Want to Know More About the Ports
   </a>
@@ -1890,13 +1882,6 @@
         <li class="md-nav__item">
   <a href="#i-just-moved-from-my-old-mail-server-to-dms-but-it-doesnt-work" class="md-nav__link">
     I just moved from my old mail server to DMS, but "it doesn't work"?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#can-dms-run-in-a-rancher-environment" class="md-nav__link">
-    Can DMS run in a Rancher environment?
   </a>
   
 </li>
@@ -1954,6 +1939,33 @@
   <a href="#why-are-my-emails-not-being-delivered" class="md-nav__link">
     Why are my emails not being delivered?
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-directories" class="md-nav__link">
+    Special Directories
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Directories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
+    What About the docker-data/dms/config/ Directory?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-about-the-docker-datadmsmail-state-directory" class="md-nav__link">
+    What About the docker-data/dms/mail-state/ Directory?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2029,8 +2041,6 @@
 <p>None! No database is required. The filesystem is the database. This image is based on config files that can be persisted using bind mounts (default) or Docker volumes, and as such versioned, backed up and so forth.</p>
 <h3 id="where-are-emails-stored"><a class="toclink" href="#where-are-emails-stored">Where are emails stored?</a></h3>
 <p>Mails are stored in <code>/var/mail/${domain}/${username}</code>. Since <code>v9.0.0</code> it is possible to add custom <code>user_attributes</code> for each accounts to have a different mailbox configuration (See <a href="https://github.com/docker-mailserver/docker-mailserver/pull/1792">#1792</a>).</p>
-<h3 id="what-about-the-docker-datadmsconfig-directory"><a class="toclink" href="#what-about-the-docker-datadmsconfig-directory">What About the <code>docker-data/dms/config/</code> Directory?</a></h3>
-<p>This documentation and all example configuration files in the GitHub repository use <code>docker-data/dms/config/</code> to refer to the directory in the host that is mounted (e.g. via a bind mount) to <code>/tmp/docker-mailserver/</code> inside the container,.</p>
 <h3 id="how-are-imap-mailboxes-aka-imap-folders-set-up"><a class="toclink" href="#how-are-imap-mailboxes-aka-imap-folders-set-up">How are IMAP mailboxes (<em>aka IMAP Folders</em>) set up?</a></h3>
 <p><code>INBOX</code> is setup by default with the special IMAP folders <code>Drafts</code>, <code>Sent</code>, <code>Junk</code> and <code>Trash</code>. You can learn how to modify or add your own folders (<em>including additional special folders like <code>Archive</code></em>) by visiting our docs page <a href="../examples/use-cases/imap-folders"><em>Customizing IMAP Folders</em></a> for more information.</p>
 <h3 id="how-do-i-update-dms"><a class="toclink" href="#how-do-i-update-dms">How do I update DMS?</a></h3>
@@ -2109,13 +2119,6 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <span class="c1"># delete backups older than 30 days</span>
 find<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/docker-data/dms-backups/&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-mtime<span class="w"> </span>+30<span class="w"> </span>-delete
 </code></pre></div>
-<h3 id="what-about-the-docker-datadmsmail-state-folder"><a class="toclink" href="#what-about-the-docker-datadmsmail-state-folder">What about the <code>./docker-data/dms/mail-state</code> folder?</a></h3>
-<p>When you run DMS with the ENV variable <code>ONE_DIR=1</code> (default), this folder will:</p>
-<ul>
-<li>Provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated.</li>
-<li>To persist that container state properly this folder should be <strong>volume mounted to <code>/var/mail-state/</code> internally</strong>.</li>
-</ul>
-<p>Service data is <a href="https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33">relocated to the <code>mail-state</code> folder</a> for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.</p>
 <h3 id="i-want-to-know-more-about-the-ports"><a class="toclink" href="#i-want-to-know-more-about-the-ports">I Want to Know More About the Ports</a></h3>
 <p>See <a href="../config/security/understanding-the-ports/">this part of the documentation</a> for further details and best practice advice, <strong>especially regarding security concerns</strong>.</p>
 <h3 id="how-can-i-configure-my-email-client"><a class="toclink" href="#how-can-i-configure-my-email-client">How can I configure my email client?</a></h3>
@@ -2180,12 +2183,6 @@ Few examples of symptoms can be found <a href="https://github.com/docker-mailser
 <p>This could be related to a modification of your <code>MX</code> record, or the IP mapped to <code>mail.example.com</code>. Additionally, <a href="https://intodns.com/">validate your DNS configuration</a>.</p>
 <p>If everything is OK regarding DNS, please provide <a href="https://guides.github.com/features/mastering-markdown/">formatted logs</a> and config files. This will allow us to help you.</p>
 <p>If we're blind, we won't be able to do anything.</p>
-<h3 id="can-dms-run-in-a-rancher-environment"><a class="toclink" href="#can-dms-run-in-a-rancher-environment">Can DMS run in a Rancher environment?</a></h3>
-<p>Yes, by adding the environment variable <code>PERMIT_DOCKER: network</code>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Adding the Docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498">if IPv6 is enabled on the host machine but not in Docker</a>.</p>
-</div>
 <h3 id="connection-refused-or-no-response-at-all"><a class="toclink" href="#connection-refused-or-no-response-at-all">Connection refused or No response at all</a></h3>
 <p>You see errors like "Connection Refused" and "Connection closed by foreign host", or you cannot connect at all? You may not be able to connect with your mail client (MUA)? Make sure to check Fail2Ban did not ban you (for exceeding the number of tried logins for example)! You can run</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban
@@ -2273,6 +2270,13 @@ supervisorctl<span class="w"> </span>update
 <li><a href="https://www.mail-tester.com/">mail-tester</a> can test your deliverability.</li>
 <li><a href="https://www.helloinbox.email/">helloinbox</a> provides a checklist of things to improve your deliverability.</li>
 </ul>
+<h3 id="special-directories"><a class="toclink" href="#special-directories">Special Directories</a></h3>
+<h4 id="what-about-the-docker-datadmsconfig-directory"><a class="toclink" href="#what-about-the-docker-datadmsconfig-directory">What About the <code>docker-data/dms/config/</code> Directory?</a></h4>
+<p>This documentation and all example configuration files in the GitHub repository use <code>docker-data/dms/config/</code> to refer to the directory in the host that is mounted (e.g. via a bind mount) to <code>/tmp/docker-mailserver/</code> inside the container.</p>
+<p>Most configuration files for Postfix, Dovecot, etc. are persisted here. <a href="../config/advanced/optional-config/">Optional configuration</a> is stored here as well.</p>
+<h4 id="what-about-the-docker-datadmsmail-state-directory"><a class="toclink" href="#what-about-the-docker-datadmsmail-state-directory">What About the <code>docker-data/dms/mail-state/</code> Directory?</a></h4>
+<p>This documentation and all example configuration files in the GitHub repository use <code>docker-data/dms/mail-state/</code> to refer to the directory in the host that is mounted (e.g. via a bind mount) to <code>/var/mail-state/</code> inside the container.</p>
+<p>When you run DMS with the ENV variable <code>ONE_DIR=1</code> (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is <a href="https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33">relocated to the <code>mail-state</code> folder</a> for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd &amp; Redis.</p>
 <h3 id="spamassasin"><a class="toclink" href="#spamassasin">SpamAssasin</a></h3>
 <h4 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom SpamAssassin rules?</a></h4>
 <p>Antispam rules are managed in <code>docker-data/dms/config/spamassassin-rules.cf</code>.</p>
