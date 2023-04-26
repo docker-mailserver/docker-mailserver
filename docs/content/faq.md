@@ -10,10 +10,6 @@ None! No database is required. The filesystem is the database. This image is bas
 
 Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
 
-### What About the `docker-data/dms/config/` Directory?
-
-This documentation and all example configuration files in the GitHub repository use `docker-data/dms/config/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/tmp/docker-mailserver/` inside the container,.
-
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
 `INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
@@ -129,15 +125,6 @@ docker run --rm -it \
 # delete backups older than 30 days
 find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 ```
-
-### What about the `./docker-data/dms/mail-state` folder?
-
-When you run DMS with the ENV variable `ONE_DIR=1` (default), this folder will:
-
-- Provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated.
-- To persist that container state properly this folder should be **volume mounted to `/var/mail-state/` internally**.
-
-Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.
 
 ### I Want to Know More About the Ports
 
@@ -365,6 +352,20 @@ DMS does not manage those concerns, verify they are not causing your delivery pr
 - [mail-tester](https://www.mail-tester.com/) can test your deliverability.
 - [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
+### Special Directories
+
+#### What About the `docker-data/dms/config/` Directory?
+
+This documentation and all example configuration files in the GitHub repository use `docker-data/dms/config/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/tmp/docker-mailserver/` inside the container.
+
+Most configuration files for Postfix, Dovecot, etc. are persisted here. [Optional configuration][docs-optional-configuration] is stored here as well.
+
+#### What About the `docker-data/dms/mail-state/` Directory?
+
+This documentation and all example configuration files in the GitHub repository use `docker-data/dms/mail-state/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/var/mail-state/` inside the container.
+
+When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd & Redis.
+
 ### SpamAssasin
 
 #### How can I manage my custom SpamAssassin rules?
@@ -531,3 +532,4 @@ $spam_quarantine_to       = "amavis\@example.com";
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
 [mail-state-folders]: https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33
+[docs-optional-configuration]: ./config/advanced/optional-config.md
