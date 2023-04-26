@@ -211,7 +211,7 @@ As a _batteries included_ container image, DMS provides you with all the require
 Eventually, it is up to _you_ deciding exactly what kind of transportation/encryption to use and/or enforce, and to customize your instance accordingly (with looser or stricter security). Be also aware that protocols and ports on your server can only go so far with security; third-party MTAs might relay your emails on insecure connections, man-in-the-middle attacks might still prove effective, etc. Advanced counter-measure such as DANE, MTA-STS and/or full body encryption (eg. PGP) should be considered as well for increased confidentiality, but ideally without compromising backwards compatibility so as to not block emails.
 
 [docs-understandports]: ./config/security/understanding-the-ports.md
-[github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yml
+[github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml
 [github-file-envmailserver]: https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env
 [github-file-dockerfile]: https://github.com/docker-mailserver/docker-mailserver/blob/master/Dockerfile
 [rfc-2487]: https://tools.ietf.org/html/rfc2487

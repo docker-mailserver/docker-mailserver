@@ -314,7 +314,7 @@ Whitelist = 192.168.0.0/31,192.168.1.0/30
 # Domain_Whitelist = mx1.not-example.com,mx2.not-example.com
 ```
 
-Then add this line to `compose.yml`:
+Then add this line to `compose.yaml`:
 
 ```yaml
 volumes:
