@@ -4,7 +4,7 @@ title: 'Tutorials | Basic Installation'
 
 ## A Basic Example With Relevant Environmental Variables
 
-This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [docker-compose.yml](https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml) can be used for the purpose out-of-the-box, see the [_Usage_ chapter](../../usage.md).
+This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [compose.yml](https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yml) can be used for the purpose out-of-the-box, see the [_Usage_ chapter](../../usage.md).
 
 ``` YAML
 services:
@@ -96,7 +96,7 @@ In this setup DMS is not intended to receive email from the outside world, so no
 
     Adding the docker network's gateway to the list of trusted hosts (_eg: using the `network` or `connected-networks` option_), can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay). For instance [if IPv6 is enabled on the host machine, but not in Docker][github-issue-1405-comment].
 
-1. Create the file `docker-compose.yml` with a content like this:
+1. Create the file `compose.yml` with a content like this:
 
     !!! example
 

@@ -55,7 +55,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
     adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments
 
-2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
+2. Update `compose.yml` to load the previously created dovecot plugin config file:
 
     ```yaml
       services:
@@ -108,7 +108,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     Create a _system_ cron file:
 
     ```sh
-    # in the docker-compose.yml root directory
+    # in the compose.yml root directory
     mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
     touch ./docker-data/dms/cron/fts_xapian
     chown root:root ./docker-data/dms/cron/fts_xapian
@@ -127,7 +127,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     0  4 * * * root  doveadm fts optimize -A
     ```
 
-    Then with `docker-compose.yml`:
+    Then with `compose.yml`:
 
     ```yaml
     services:
@@ -148,7 +148,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
 
 #### Setup
 
-1. `docker-compose.yml`:
+1. `compose.yml`:
 
     ```yaml
       solr:

@@ -75,7 +75,7 @@ First, enable `podman.socket` in systemd's userspace with a non-root user.
 systemctl enable --now --user podman.socket
 ```
 
-The socket file should be located at `/var/run/user/$(id -u)/podman/podman.sock`. Then, modify `docker-compose.yml` to make sure all ports are bindings are on non-privileged ports.
+The socket file should be located at `/var/run/user/$(id -u)/podman/podman.sock`. Then, modify `compose.yml` to make sure all ports are bindings are on non-privileged ports.
 
 ```yaml
 services:
@@ -106,12 +106,12 @@ The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trus
 
 #### Use the slip4netns network driver
 
-The second workaround is slightly more complicated because the `docker-compose.yml` has to be modified.
+The second workaround is slightly more complicated because the `compose.yml` has to be modified.
 As shown in the [fail2ban section](../../security/fail2ban/#podman-with-slirp4netns-port-driver) the `slirp4netns` network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.
 
-[Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `docker-compose.yml`.
+[Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `compose.yml`.
 
 You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`.
 
@@ -169,7 +169,7 @@ firewall-cmd --permanent --direct --add-rule <ipv4|ipv6> nat OUTPUT 0 -p <tcp|ud
 firewall-cmd --reload
 ```
 
-Just map all the privilege port with non-privilege port you set in docker-compose.yml before as root user.
+Just map all the privilege port with non-privilege port you set in compose.yml before as root user.
 
 [rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
 [rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264

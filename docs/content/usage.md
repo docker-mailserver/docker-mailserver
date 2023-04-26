@@ -88,13 +88,13 @@ Issue the following commands to acquire the necessary files:
 
 ``` BASH
 DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/latest"
-wget "${DMS_GITHUB_URL}/docker-compose.yml"
+wget "${DMS_GITHUB_URL}/compose.yml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
 ```
 
 ### Configuration Steps
 
-1. First edit `docker-compose.yml` to your liking
+1. First edit `compose.yml` to your liking
     - Substitute `mail.example.com` according to your FQDN.
     - If you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`.
 2. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:
