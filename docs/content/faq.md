@@ -10,6 +10,10 @@ None! No database is required. The filesystem is the database. This image is bas
 
 Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is possible to add custom `user_attributes` for each accounts to have a different mailbox configuration (See [#1792][github-issue-1792]).
 
+### What About the `docker-data/dms/config/` Directory?
+
+This documentation and all example configuration files in the GitHub repository use `docker-data/dms/config/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/tmp/docker-mailserver/` inside the container,.
+
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
 `INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
