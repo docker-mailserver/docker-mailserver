@@ -56,6 +56,12 @@ You can manage F2B with the `setup` script. The usage looks like this:
 docker exec <CONTAINER NAME> setup fail2ban [<ban|unban> <IP>]
 ```
 
+### View log file
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban log
+```
+
 When just running `setup fail2ban`, the script will show all banned IP addresses.
 
 ## Running Inside A Rootless Container
