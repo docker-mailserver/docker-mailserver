@@ -29,7 +29,7 @@ hide:
 
 ### DMS Defaults
 
-DMS will automatically ban IP addresses of hosts that have generated 2 failed attempts over the course of the last week. The bans themselves last for one week.
+DMS will automatically ban IP addresses of hosts that have generated 6 failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use `mode = extra` in DMS.
 
 ### Custom Files
 
@@ -39,10 +39,10 @@ This following configuration files inside the `docker-data/dms/config/` volume w
 
 1. `fail2ban-jail.cf` is copied to `/etc/fail2ban/jail.d/user-jail.local`
     - with this file, you can adjust the configuration of individual jails and their defaults
-    - the is an example provided [in our repository on GitHub][github-file-f2bjail]
+    - there is an example provided [in our repository on GitHub][github-file-f2bjail]
 2. `fail2ban-fail2ban.cf` is copied to `/etc/fail2ban/fail2ban.local`
     - with this file, you can adjust F2B behavior in general
-    - the is an example provided [in our repository on GitHub][github-file-f2bconfig]
+    - there is an example provided [in our repository on GitHub][github-file-f2bconfig]
 
 [docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory
 [github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
