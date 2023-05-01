@@ -87,48 +87,32 @@ function _parse_arguments
     case "${1}" in
 
       ( 'keytype' )
-        if [[ -n ${2+set} ]]
+        [[ -n ${2:-} ]] || _exit_with_error "No keytype provided after 'keytype' argument"
+        if [[ ${2} == 'rsa' ]] || [[ ${2} == 'ed25519' ]]
         then
-          if [[ ${2} == 'rsa' ]] || [[ ${2} == 'ed25519' ]]
-          then
-            KEYTYPE=${2}
-            _log 'debug' "Keytype set to '${KEYTYPE}'"
-          else
-            _exit_with_error "Unknown keytype '${2}'"
-          fi
+          KEYTYPE=${2}
+          _log 'debug' "Keytype set to '${KEYTYPE}'"
         else
-          _exit_with_error "No keytype provided after 'keytype' argument"
+          _exit_with_error "Unknown keytype '${2}'"
         fi
         ;;
 
       ( 'keysize' )
-        if [[ -n ${2+set} ]]
-        then
-          KEYSIZE=${2}
-          _log 'debug' "Keysize set to '${KEYSIZE}'"
-        else
-          _exit_with_error "No keysize provided after 'keysize' argument"
-        fi
+        [[ -n ${2:-} ]] || _exit_with_error "No keysize provided after 'keysize' argument"
+        KEYSIZE=${2}
+        _log 'debug' "Keysize set to '${KEYSIZE}'"
         ;;
 
       ( 'selector' )
-        if [[ -n ${2+set} ]]
-        then
-          SELECTOR=${2}
-          _log 'debug' "Selector set to '${SELECTOR}'"
-        else
-          _exit_with_error "No selector provided after 'selector' argument"
-        fi
+        [[ -n ${2:-} ]] || _exit_with_error "No selector provided after 'selector' argument"
+        SELECTOR=${2}
+        _log 'debug' "Selector set to '${SELECTOR}'"
         ;;
 
       ( 'domain' )
-        if [[ -n ${2+set} ]]
-        then
-          DOMAIN=${2}
-          _log 'debug' "Domain set to '${DOMAIN}'"
-        else
-          _exit_with_error "No domain provided after 'domain' argument"
-        fi
+        [[ -n ${2:-} ]] || _exit_with_error "No domain provided after 'domain' argument"
+        DOMAIN=${2}
+        _log 'debug' "Domain set to '${DOMAIN}'"
         ;;
 
       ( 'help' )
@@ -164,7 +148,7 @@ function _parse_arguments
 
   if [[ ${KEYTYPE} == 'ed25519' ]] && [[ ${KEYSIZE} -ne 2048 ]]
   then
-    _exit_with_error "Chosen keytype ed25519 does not accept the 'keysize' argument"
+    _exit_with_error "Chosen keytype does not accept the 'keysize' argument"
   fi
 
   return 0
