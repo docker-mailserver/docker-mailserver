@@ -78,8 +78,7 @@ else
       ;;
 
     ( 'log' )
-      LOG=/var/log/mail/fail2ban.log
-      [[ -f "${LOG}" ]] && cat "${LOG}"
+      cat /var/log/mail/fail2ban.log
       ;;
 
     ( * )
