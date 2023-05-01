@@ -8,7 +8,7 @@ bantime = 1w
 findtime = 1w
 
 # "maxretry" is the number of failures before a host get banned.
-maxretry = 2
+maxretry = 6
 
 # "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
 # will not ban a host which matches an address in this list. Several addresses
@@ -25,14 +25,12 @@ enabled = true
 
 [postfix]
 enabled = true
-# See https://github.com/fail2ban/fail2ban/blob/27294c4b9ee5d5568a1d5f83af744ea39d5a1acb/config/filter.d/postfix.conf#L58
-# `mode=aggressive` basically combines more filters to match more lines, and hence, apply rules
-# more aggressively. The same goes for the `postfix-sasl` jail.
-mode = aggressive
+# For a reference on why this mode was chose, see
+# https://github.com/docker-mailserver/docker-mailserver/issues/3256#issuecomment-1511188760
+mode = extra
 
 [postfix-sasl]
 enabled = true
-mode = aggressive
 
 # This jail is used for manual bans.
 # To ban an IP address use: setup.sh fail2ban ban <IP>
