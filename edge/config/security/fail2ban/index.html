@@ -1547,7 +1547,7 @@
 <p>DMS configures F2B to use NFTables, not IPTables (legacy). We have observed that older systems, for example NAS systems, do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example with the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>fail2ban-jail.cf</code></a>, see the <a href="#custom-files">section on configuration further down below</a>.</p>
 </div>
 <h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS Defaults</a></h3>
-<p>DMS will automatically ban IP addresses of hosts that have generated 2 failed attempts over the course of the last week. The bans themselves last for one week.</p>
+<p>DMS will automatically ban IP addresses of hosts that have generated 6 failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use <code>mode = extra</code> in DMS.</p>
 <h3 id="custom-files"><a class="toclink" href="#custom-files">Custom Files</a></h3>
 <div class="admonition question">
 <p class="admonition-title">What is <a href="../../../faq/#what-about-the-docker-datadmsconfig-directory"><code>docker-data/dms/config/</code></a>?</p>
@@ -1556,12 +1556,12 @@
 <ol>
 <li><code>fail2ban-jail.cf</code> is copied to <code>/etc/fail2ban/jail.d/user-jail.local</code><ul>
 <li>with this file, you can adjust the configuration of individual jails and their defaults</li>
-<li>the is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf">in our repository on GitHub</a></li>
+<li>there is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf">in our repository on GitHub</a></li>
 </ul>
 </li>
 <li><code>fail2ban-fail2ban.cf</code> is copied to <code>/etc/fail2ban/fail2ban.local</code><ul>
 <li>with this file, you can adjust F2B behavior in general</li>
-<li>the is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf">in our repository on GitHub</a></li>
+<li>there is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf">in our repository on GitHub</a></li>
 </ul>
 </li>
 </ol>
