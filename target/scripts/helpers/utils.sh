@@ -39,7 +39,6 @@ function _chown_var_mail_if_necessary
     _log 'trace' 'Fixing /var/mail permissions'
     chown -R 5000:5000 /var/mail || return 1
   fi
-  return 0
 }
 
 function _require_n_parameters_or_print_usage
@@ -64,7 +63,6 @@ function _adjust_mtime_for_postfix_maincf
   then
     touch -d '2 seconds ago' /etc/postfix/main.cf
   fi
-  return 0
 }
 
 function _reload_postfix
