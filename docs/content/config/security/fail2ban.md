@@ -56,7 +56,7 @@ You can manage F2B with the `setup` script. The usage looks like this:
 docker exec <CONTAINER NAME> setup fail2ban [<ban|unban> <IP>]
 ```
 
-### View log file
+### Viewing log file
 
 ```bash
 docker exec <CONTAINER NAME> setup fail2ban log
