@@ -264,11 +264,11 @@ function _transform_public_key_file_to_dns_record_contents
   _log 'trace' 'Transforming DNS zone format to DNS record content now'
   : >"${PUBLIC_KEY_DNS_FILE}"
   grep -o '".*"' "${PUBLIC_KEY_FILE}" | tr -d '"\n' >>"${PUBLIC_KEY_DNS_FILE}"
-  printf '\n' >>"${PUBLIC_KEY_DNS_FILE}"
+  echo '' >>"${PUBLIC_KEY_DNS_FILE}"
 
-  _log 'info' "Here is the content of the TXT DNS record ${SELECTOR}._domainkey.${DOMAIN} that you need to create:\n"
   if ! _log_level_is '(warn|error)'
   then
+    _log 'info' "Here is the content of the TXT DNS record ${SELECTOR}._domainkey.${DOMAIN} that you need to create:\n"
     cat "${PUBLIC_KEY_DNS_FILE}"
     printf '\n'
   fi
