@@ -661,8 +661,22 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#viewing-all-bans" class="md-nav__link">
+    Viewing All Bans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#managing-bans" class="md-nav__link">
     Managing Bans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-the-log-file" class="md-nav__link">
+    Viewing the Log File
   </a>
   
 </li>
@@ -1491,8 +1505,22 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#viewing-all-bans" class="md-nav__link">
+    Viewing All Bans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#managing-bans" class="md-nav__link">
     Managing Bans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-the-log-file" class="md-nav__link">
+    Viewing the Log File
   </a>
   
 </li>
@@ -1565,11 +1593,18 @@
 </ul>
 </li>
 </ol>
+<h3 id="viewing-all-bans"><a class="toclink" href="#viewing-all-bans">Viewing All Bans</a></h3>
+<p>When just running</p>
+<div class="highlight"><pre><span></span><code>setup<span class="w"> </span>fail2ban
+</code></pre></div>
+<p>the script will show all banned IP addresses.</p>
 <h3 id="managing-bans"><a class="toclink" href="#managing-bans">Managing Bans</a></h3>
 <p>You can manage F2B with the <code>setup</code> script. The usage looks like this:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span><span class="o">[</span>&lt;ban<span class="p">|</span>unban&gt;<span class="w"> </span>&lt;IP&gt;<span class="o">]</span>
 </code></pre></div>
-<p>When just running <code>setup fail2ban</code>, the script will show all banned IP addresses.</p>
+<h3 id="viewing-the-log-file"><a class="toclink" href="#viewing-the-log-file">Viewing the Log File</a></h3>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span>log
+</code></pre></div>
 <h2 id="running-inside-a-rootless-container"><a class="toclink" href="#running-inside-a-rootless-container">Running Inside A Rootless Container</a></h2>
 <p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default, RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
 <p>It is necessary for F2B to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than the builtin driver but does preserve the real source IPs.</p>
