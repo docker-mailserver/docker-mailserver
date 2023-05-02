@@ -160,7 +160,7 @@ function teardown_file() { _default_teardown ; }
 @test "when 'keytype=ed25519' is set, setting custom 'keysize' is rejected" {
   __create_key 'ed25519' 'mail' "${DOMAIN_NAME}" 4096
   assert_failure
-  assert_line --partial "Chosen keytype ed25519 does not accept the 'keysize' argument"
+  assert_line --partial "Chosen keytype does not accept the 'keysize' argument"
 }
 
 @test "setting all arguments to a custom value works" {
