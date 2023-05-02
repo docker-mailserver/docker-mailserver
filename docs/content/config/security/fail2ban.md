@@ -48,6 +48,16 @@ This following configuration files inside the `docker-data/dms/config/` volume w
 [github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
 [github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 
+### Viewing All Bans
+
+When just running
+
+```bash
+setup fail2ban
+```
+
+the script will show all banned IP addresses.
+
 ### Managing Bans
 
 You can manage F2B with the `setup` script. The usage looks like this:
@@ -56,7 +66,11 @@ You can manage F2B with the `setup` script. The usage looks like this:
 docker exec <CONTAINER NAME> setup fail2ban [<ban|unban> <IP>]
 ```
 
-When just running `setup fail2ban`, the script will show all banned IP addresses.
+### Viewing the Log File
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban log
+```
 
 ## Running Inside A Rootless Container
 
