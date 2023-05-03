@@ -1618,6 +1618,10 @@
 <li>At least one <a href="../../user-management/#adding-a-new-account">email account setup</a></li>
 <li>Attached a <a href="../../advanced/optional-config/">volume for config</a> to persist the generated files to local storage</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">RSA Key Sizes &gt;= 4096 Bit</p>
+<p>Keys of 4096 bits could be denied by some mail servers. According to <a href="https://tools.ietf.org/html/rfc6376">RFC 6376</a>, keys are <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1854">preferably between 512 and 2048 bits</a>.</p>
+</div>
 <p>DKIM is currently supported by either OpenDKIM or Rspamd:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">OpenDKIM</label><label for="__tabbed_1_2">Rspamd</label></div>
 <div class="tabbed-content">
@@ -1625,7 +1629,7 @@
 <p>OpenDKIM is currently <a href="../../environment/#enable_opendkim">enabled by default</a>.</p>
 <p>The command <code>docker exec &lt;CONTAINER NAME&gt; setup config dkim help</code> details supported config options, along with some examples.</p>
 <div class="admonition example">
-<p class="admonition-title">Create a DKIM key</p>
+<p class="admonition-title">Creating a DKIM key</p>
 <p>Generate the DKIM files with:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>dkim
 </code></pre></div>
@@ -1643,6 +1647,11 @@
 <div class="highlight"><pre><span></span><code>setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>keysize<span class="w"> </span><span class="m">2048</span>
 </code></pre></div>
 </details>
+<div class="admonition info">
+<p class="admonition-title">Restart required</p>
+<p>After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) <img alt="🎉" class="twemoji" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f389.svg" title=":tada:" /></p>
+<p>You'll need to repeat this process if you add any new domains.</p>
+</div>
 </div>
 <div class="tabbed-block">
 <p>Opt-in via <a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD=1</code></a> (<em>and disable the default OpenDKIM: <code>ENABLE_OPENDKIM=0</code></em>).</p>
@@ -1652,29 +1661,23 @@
 <li><a href="https://www.rspamd.com/doc/modules/dkim_signing.html">Signing outbound mail with your DKIM key</a> needs additional setup (key + dns + config).</li>
 </ol>
 <div class="admonition example">
-<p class="admonition-title">Create a DKIM key</p>
-<p>Presently only OpenDKIM is supported with <code>setup config dkim</code>. To generate your DKIM key and DNS files you'll need to specify:</p>
-<ul>
-<li><code>-s</code> The DKIM selector (<em>eg: <code>mail</code>, it can be anything you like</em>)</li>
-<li><code>-d</code> The sender address domain (<em>everything after <code>@</code> from the email address</em>)</li>
-</ul>
-<p>See <code>rspamadm dkim_keygen -h</code> for an overview of the supported options.</p>
-<hr />
-<ol>
-<li>Go inside the container with <code>docker exec -ti &lt;CONTAINER NAME&gt; bash</code></li>
-<li>Add <code>rspamd/dkim/</code> folder to your config volume and switch to it: <code>cd /tmp/docker-mailserver/rspamd/dkim</code></li>
-<li>Run: <code>rspamadm dkim_keygen -s mail -b 2048 -d example.com -k mail.private &gt; mail.txt</code> (<em>change <code>-d</code> to your domain-part</em>)</li>
-<li>Presently you must ensure Rspamd can read the <code>&lt;selector&gt;.private</code> file, run:
-     -<code>chgrp _rspamd mail.private</code>
-     -<code>chmod g+r mail.private</code></li>
-</ol>
+<p class="admonition-title">Creating DKIM Keys</p>
+<p>You can simply run</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span><span class="nb">help</span>
+</code></pre></div>
+<p>which provides you with an overview of what the script can do. Just running</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>dkim
+</code></pre></div>
+<p>will execute the helper script with default parameters.</p>
 </div>
+<div class="admonition info">
+<p class="admonition-title">About the Helper Script</p>
+<p>The script will persist the keys in <code>/tmp/docker-mailserver/rspamd/dkim/</code>. Hence, if you are already using the default volume mounts, the keys are persisted in a volume. The script also restarts Rspamd directly, so changes take effect without restarting DMS.</p>
+<p>The script provides you with log messages along the way of creating keys. In case you want to read the complete log, use <code>-v</code> (verbose) or <code>-vv</code> (very verbose).</p>
 <hr />
-<div class="admonition bug inline end">
-<p class="admonition-title">DMS config volume support is not ready for Rspamd</p>
-<p>Presently you'll need to <a href="../../security/rspamd/#manually">explicitly mount <code>rspamd/modules/override.d/</code></a> as an additional volume; do not use <a href="../../security/rspamd/#with-the-help-of-a-custom-file"><code>rspamd-modules.conf</code></a> for this purpose.</p>
+<p>In case you have not already provided a default DKIM signing configuration, the script will create one and write it to <code>/etc/rspamd/override.d/dkim_signing.conf</code>. If this file already exist, it will not be overwritten. When you're already using <a href="../../security/rspamd/#manually">the <code>rspamd/override.d/</code> directory</a>, the file is created inside your volume and therefore persisted correctly. If you are not using <code>rspamd/override.d/</code>, you will need to persist the file yourself (otherwise it is lost on container restart).</p>
+<p>An example of what a default configuration file for DKIM signing looks like can be found by expanding the example below.</p>
 </div>
-<p>Create a configuration file for the DKIM signing module at <code>rspamd/modules/override.d/dkim_signing.conf</code> and populate it with config as shown in the example below:</p>
 <details class="example">
 <summary>DKIM Signing Module Configuration Examples</summary>
 <p>A simple configuration could look like this:</p>
@@ -1688,6 +1691,7 @@
 <span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="c1">;</span>
 <span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="c1">; # don&#39;t change unless Redis also provides the DKIM keys</span>
 <span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
+
 <span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">; # you wan&#39;t to use this in the beginning</span>
 
 <span class="na">domain {</span>
@@ -1697,7 +1701,7 @@
 <span class="w">    </span><span class="na">}</span>
 <span class="na">}</span>
 </code></pre></div>
-<p>As shown next, you can:</p>
+<p>As shown next:</p>
 <ul>
 <li>You can add more domains into the <code>domain { ... }</code> section.</li>
 <li>A domain can also be configured with multiple selectors and keys within a <code>selectors [ ... ]</code> array.</li>
@@ -1731,28 +1735,19 @@
 <span class="w">    </span><span class="na">}</span>
 <span class="na">}</span>
 </code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Support for DKIM keys using Ed25519</p>
+</details>
+<details class="warning">
+<summary>Support for DKIM Keys using ED25519</summary>
 <p>This modern elliptic curve is supported by Rspamd, but support by third-parties for <a href="https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545">verifying Ed25519 DKIM signatures is unreliable</a>.</p>
 <p>If you sign your mail with this key type, you should include RSA as a fallback, like shown in the above example.</p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">DKIM Signing config: <code>check_pubkey = true;</code></p>
-<p>This setting will have Rspamd query the DNS record for each DKIM selector, verifying each public key matches the private key configured.</p>
-<p>If there is a mismatch, a warning will be omitted to the Rspamd log (<code>/var/log/supervisor/rspamd.log</code>).</p>
-</div>
+</details>
+<details class="tip">
+<summary>Let Rspamd Check Your Keys</summary>
+<p>When <code>check_pubkey = true;</code> is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.</p>
+<p>If there is a mismatch, a warning will be omitted to the Rspamd log <code>/var/log/supervisor/rspamd.log</code>.</p>
 </details>
 </div>
 </div>
-</div>
-<div class="admonition info">
-<p class="admonition-title">Restart required</p>
-<p>After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) <img alt="🎉" class="twemoji" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f389.svg" title=":tada:" /></p>
-<p>You'll need to repeat this process if you add any new domains.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">RSA Key Sizes &gt;= 4096 Bit</p>
-<p>Keys of 4096 bits could denied by some mail servers. According to <a href="https://tools.ietf.org/html/rfc6376">RFC 6376</a> keys are <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1854">preferably between 512 and 2048 bits</a>.</p>
 </div>
 <h3 id="dkim-dns"><a class="toclink" href="#dkim-dns">DNS Record</a></h3>
 <p>When mail signed with your DKIM key is sent from your mail server, the receiver needs to check a DNS <code>TXT</code> record to verify the DKIM signature is trustworthy.</p>
@@ -1789,6 +1784,7 @@
 </tr>
 </tbody>
 </table>
+<p>When using Rspamd, the helper script has already provided you with the contents (the "Data" field) of the DNS record you need to create - you can just copy-paste this text.</p>
 </div>
 <div class="tabbed-block">
 <p><code>&lt;selector&gt;.txt</code> is already formatted as a snippet for adding to your <a href="https://en.wikipedia.org/wiki/Zone_file">DNS Zone file</a>.</p>
