@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function _setup_getmail
 {
   _log 'trace' 'Preparing Getmail configuration'
