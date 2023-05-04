@@ -206,7 +206,7 @@ function _install_fail2ban
 # TODO: Use a package when 6.18 or newer is available.
 function _install_getmail
 {
-  local GETMAIL_SID_DEB_URL='http://http.us.debian.org/debian/pool/main/g/getmail6/getmail6_6.18.9-1_all.deb'
+  local GETMAIL_SID_DEB_URL='http://http.us.debian.org/debian/pool/main/g/getmail6/getmail6_6.18.11-2_all.deb'
   curl -Lkso getmail6.deb  "${GETMAIL_SID_DEB_URL}"
   dpkg -i getmail6.deb 2>&1
   rm getmail6.deb
