@@ -203,13 +203,14 @@ function _install_fail2ban
 
 # Presently the getmail6 package is v6.14, which is too old.
 # v6.18 contains fixes for Google and Microsoft OAuth support.
-# TODO: Use a package when 6.18 or newer is available.
+# using pip to install getmail.
 function _install_getmail
 {
-  local GETMAIL_SID_DEB_URL='http://http.us.debian.org/debian/pool/main/g/getmail6/getmail6_6.18.11-2_all.deb'
-  curl -Lkso getmail6.deb  "${GETMAIL_SID_DEB_URL}"
-  dpkg -i getmail6.deb 2>&1
-  rm getmail6.deb
+  _log 'debug' 'Installing getmail6'
+  apt-get "${QUIET}" --no-install-recommends install python3-pip
+  pip3 install 'getmail6~=6.18.12'
+  ln -s /usr/local/bin/getmail /usr/bin/getmail
+  ln -s /usr/local/bin/getmail-gmail-xoauth-tokens /usr/bin/getmail-gmail-xoauth-tokens
 }
 
 function _remove_data_after_package_installations
