@@ -2,7 +2,7 @@
 title: 'Advanced | Email Gathering with Getmail'
 ---
 
-To enable the [getmail][getmail-website] service to retrieve e-mails set the environment variable `ENABLE_GETMAIL` to `1`. Your `docker-compose.yml` file should include the following:
+To enable the [getmail][getmail-website] service to retrieve e-mails set the environment variable `ENABLE_GETMAIL` to `1`. Your `compose.yaml` file should include the following:
 
 ```yaml
 environment:
@@ -12,7 +12,7 @@ environment:
 
 In your DMS config volume (eg: `docker-data/dms/config/`), create a `getmail-<ID>.cf` file for each remote account that you want to retrieve mail and store into a local DMS account. `<ID>` should be replaced by you, and is just the rest of the filename (eg: `getmail-example.cf`). The contents of each file should be configuration like documented below.
 
-Your `docker-mailserver` folder should look similar to this example:
+The directory structure should similar to this:
 
 ```txt
 ├── docker-data/dms/config
@@ -31,6 +31,7 @@ A detailed description of the configuration options can be found in the [online 
 ### Common Options
 
 The default options added to each `getmail` config are:
+
 ```getmailrc
 [options]
 verbose = 0
@@ -43,22 +44,20 @@ delivered_to = false
 
 If you want to use a different base config, mount a file to `/etc/getmailrc_general`. This file will replace the default "Common Options" base config above, that all `getmail-<ID>.cf` files will extend with their configs when used.
 
-### IMAP Configuration 
+??? example "IMAP Configuration" 
 
-This example will:
+    This example will:
 
-1. Connect to the remote IMAP server from Gmail.
-2. Retrieve mail from the gmail account `alice` with password `notsecure`.
-3. Store any mail retrieved from the remote mail-server into DMS for the `user1@example.com` account that DMS manages.
+    1. Connect to the remote IMAP server from Gmail.
+    2. Retrieve mail from the gmail account `alice` with password `notsecure`.
+    3. Store any mail retrieved from the remote mail-server into DMS for the `user1@example.com` account that DMS manages.
 
-!!! example
     ```getmailrc
     [retriever]
     type = SimpleIMAPRetriever
     server = imap.gmail.com
     username = alice
     password = notsecure
-
     [destination]
     type = MDA_external
     path = /usr/lib/dovecot/deliver
@@ -66,18 +65,16 @@ This example will:
     arguments =("-d","user1@example.com")
     ```
 
-### POP3 Configuration
+??? example "POP3 Configuration"
 
-Just like the IMAP example above, but instead via POP3 protocol if you prefer that over IMAP.
+    Just like the IMAP example above, but instead via POP3 protocol if you prefer that over IMAP.
 
-!!! example
     ```getmailrc
     [retriever]
     type = SimplePOP3Retriever
     server = pop3.gmail.com
     username = alice
     password = notsecure
-
     [destination]
     type = MDA_external
     path = /usr/lib/dovecot/deliver
@@ -88,6 +85,7 @@ Just like the IMAP example above, but instead via POP3 protocol if you prefer th
 ### Polling Interval
 
 By default the `getmail` service checks external mail accounts for new mail every 5 minutes. That polling interval is configurable via the `GETMAIL_POLL` ENV variable, with a value in minutes (_default: 5, min: 1, max: 30_):
+
 ```yaml
 environment:
   - GETMAIL_POLL=1

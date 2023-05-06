@@ -552,14 +552,14 @@ Note: The defaults of your fetchmailrc file need to be at the top of the file. O
 
 ##### ENABLE_GETMAIL
 
-- **0** => `getmail` disabled
-- 1 => `getmail` enabled
+Enable or disable `getmail`. Note: Fetchmail ([`ENABLE_FETCHMAIL`](#enable_fetchmail)) and Getmail are mutually exclusive!
+
+- **0** => Disabled
+- 1 => Enabled
 
 ##### GETMAIL_POLL
 
-- **5** => `getmail` The number of minutes for the interval (min: 1, max: 30)
-
-Note: Fetchmail and Getmail are mutually exclusive
+The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
 
 #### LDAP
 

@@ -7,12 +7,9 @@ function _setup_getmail
   local GETMAILRC ID CONFIGS
 
   GETMAILRC='/etc/getmailrc.d'
-  CONFIGS=false
+  CONFIGS=0
 
-  if [[ ! -d ${GETMAILRC} ]]
-  then
-    mkdir "${GETMAILRC}"
-  fi
+  mkdir -p "${GETMAILRC}"
 
   # Generate getmailrc configs, starting with the `/etc/getmailrc_general` base config,
   # Add a unique `message_log` config, then append users own config to the end.
@@ -20,7 +17,7 @@ function _setup_getmail
   do
     if [[ -f ${FILE} ]]
     then
-      CONFIGS=true
+      CONFIGS=1
       ID=$(cut -d '-' -f 3 <<< "${FILE}" | cut -d '.' -f 1)
       local GETMAIL_CONFIG="${GETMAILRC}/getmailrc-${ID}"
       cat /etc/getmailrc_general >"${GETMAIL_CONFIG}.tmp"
@@ -29,9 +26,10 @@ function _setup_getmail
       rm "${GETMAIL_CONFIG}.tmp"
     fi
   done
-  if [[ ${CONFIGS} == true ]]
+
+  if [[ ${CONFIGS} -eq 1 ]]
   then
-    cat >"/etc/cron.d/getmail" << EOF
+    cat >/etc/cron.d/getmail << EOF
 */${GETMAIL_POLL} * * * * root /usr/local/bin/getmail-cron
 EOF
     chmod -R 600 "${GETMAILRC}"

@@ -98,11 +98,7 @@ function _register_functions
   # needs to come after _setup_postfix_early
   _register_setup_function '_setup_spoof_protection'
 
-  if [[ ${ENABLE_GETMAIL} -eq 1 ]]
-  then
-    _register_setup_function '_setup_getmail'
-  fi
-
+[[ ${ENABLE_GETMAIL} -eq 1 ]] && _register_setup_function '_setup_getmail'
   if [[ ${ENABLE_SRS} -eq 1  ]]
   then
     _register_setup_function '_setup_SRS'
