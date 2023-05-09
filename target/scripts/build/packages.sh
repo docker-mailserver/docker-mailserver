@@ -209,6 +209,8 @@ function _install_getmail
   _log 'debug' 'Installing getmail6'
   apt-get "${QUIET}" --no-install-recommends install python3-pip
   pip3 install 'getmail6~=6.18.12'
+  ln -s /usr/local/bin/getmail /usr/bin/getmail
+  ln -s /usr/local/bin/getmail-gmail-xoauth-tokens /usr/bin/getmail-gmail-xoauth-tokens
   apt-get "${QUIET}" purge python3-pip
   apt-get "${QUIET}" autoremove
 }
