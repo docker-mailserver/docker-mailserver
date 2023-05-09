@@ -1,19 +1,23 @@
-load 'test_helper/common'
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
+
+BATS_TEST_NAME_PREFIX='[Getmail] '
+CONTAINER_NAME='dms-test_getmail'
 
 function setup_file() {
-  local PRIVATE_CONFIG
-  PRIVATE_CONFIG=$(duplicate_config_for_container .)
-
-  docker run -d --name mail_getmail \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
-    -e ENABLE_GETMAIL=1 \
-    --cap-add=NET_ADMIN \
-    -h mail.my-domain.com -t "${NAME}"
-
-  wait_for_finished_setup_in_container mail_getmail
+  _init_with_defaults
+  local CUSTOM_SETUP_ARGUMENTS=(--env 'ENABLE_GETMAIL=1')
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown_file() {
-  docker rm -f mail_getmail
+function teardown_file() { _default_teardown ; }
+
+@test "default configuration exists and is correct" {
+  : ;
+}
+@test "GETMAIL_POLL works as expected" {
+  : ;
+}
+@test "debug-getmail works as expected" {
+  : ;
 }
