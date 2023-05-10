@@ -52,7 +52,7 @@ function __setup__security__postgrey
       cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
     fi
   else
-    _log 'debug' 'Postscreen is disabled'
+    _log 'debug' 'Postgrey is disabled'
   fi
 }
 

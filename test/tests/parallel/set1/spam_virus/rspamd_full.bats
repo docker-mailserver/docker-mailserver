@@ -1,8 +1,10 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-BATS_TEST_NAME_PREFIX='[Rspamd] '
-CONTAINER_NAME='dms-test_rspamd'
+# This file tests Rspamd when all of its features are enabled, and
+# all other interfering features are disabled.
+BATS_TEST_NAME_PREFIX='[Rspamd] (full) '
+CONTAINER_NAME='dms-test_rspamd-full'
 
 function setup_file() {
   _init_with_defaults
@@ -10,17 +12,24 @@ function setup_file() {
   # Comment for maintainers about `PERMIT_DOCKER=host`:
   # https://github.com/docker-mailserver/docker-mailserver/pull/2815/files#r991087509
   local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_AMAVIS=0
+    --env ENABLE_SPAMASSASSIN=0
     --env ENABLE_CLAMAV=1
     --env ENABLE_RSPAMD=1
     --env ENABLE_OPENDKIM=0
     --env ENABLE_OPENDMARC=0
+    --env ENABLE_POLICYD_SPF=0
+    --env ENABLE_POSTGREY=0
     --env PERMIT_DOCKER=host
     --env LOG_LEVEL=trace
     --env MOVE_SPAM_TO_JUNK=1
     --env RSPAMD_LEARN=1
+    --env RSPAMD_GREYLISTING=1
+    --env RSPAMD_HFILTER=1
+    --env RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE=7
   )
 
-  mv "${TEST_TMP_CONFIG}"/rspamd/* "${TEST_TMP_CONFIG}/"
+  cp -r "${TEST_TMP_CONFIG}"/rspamd_full/* "${TEST_TMP_CONFIG}/"
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   # wait for ClamAV to be fully setup or we will get errors on the log
@@ -55,7 +64,28 @@ function teardown_file() { _default_teardown ; }
   assert_output 'rspamd_milter = inet:localhost:11332'
 }
 
-@test 'logs exist and contains proper content' {
+@test "'/etc/rspamd/override.d/' is linked correctly" {
+  local OVERRIDE_D='/etc/rspamd/override.d'
+
+  _run_in_container_bash "[[ -h ${OVERRIDE_D} ]]"
+  assert_success
+
+  _run_in_container_bash "[[ -f ${OVERRIDE_D}/testmodule_complicated.conf ]]"
+  assert_success
+}
+
+@test 'startup log shows all features as properly enabled' {
+  run docker logs "${CONTAINER_NAME}"
+  assert_success
+  assert_line --partial 'Enabling ClamAV integration'
+  assert_line --partial 'Setting up intelligent learning of spam and ham'
+  assert_line --partial 'Enabling greylisting'
+  assert_line --partial 'Hfilter (group) module is enabled'
+  assert_line --partial "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to"
+  assert_line --partial "Found file '/tmp/docker-mailserver/rspamd/custom-commands.conf' - parsing and applying it"
+}
+
+@test 'service log exist and contains proper content' {
   _service_log_should_contain_string 'rspamd' 'rspamd .* is loading configuration'
   _service_log_should_contain_string 'rspamd' 'lua module clickhouse is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module elastic is disabled in the configuration'
@@ -169,7 +199,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test 'Check MOVE_SPAM_TO_JUNK works for Rspamd' {
+@test 'MOVE_SPAM_TO_JUNK works for Rspamd' {
   _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve ]]'
   assert_success
   _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin ]]'
@@ -185,7 +215,7 @@ function teardown_file() { _default_teardown ; }
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1
 }
 
-@test 'Check RSPAMD_LEARN works' {
+@test 'RSPAMD_LEARN works' {
   for FILE in learn-{ham,spam}.{sieve,svbin}
   do
     _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
@@ -193,10 +223,12 @@ function teardown_file() { _default_teardown ; }
   done
 
   _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
+  assert_success
   local SIEVE_CONFIG_FILE='/etc/dovecot/conf.d/90-sieve.conf'
   _run_in_container grep 'sieve_plugins.*sieve_imapsieve' "${SIEVE_CONFIG_FILE}"
-  _run_in_container grep 'sieve_global_extensions.*\+vnd\.dovecot\.pipe' "${SIEVE_CONFIG_FILE}"
+  assert_success
   _run_in_container grep -F 'sieve_pipe_bin_dir = /usr/lib/dovecot/sieve-pipe' "${SIEVE_CONFIG_FILE}"
+  assert_success
 
   # Move an email to the "Junk" folder from "INBOX"; the first email we
   # sent should pass fine, hence we can now move it
@@ -242,4 +274,21 @@ function teardown_file() { _default_teardown ; }
   do
     assert_output --partial "${LINE}"
   done
+}
+
+@test 'greylisting is enabled' {
+  _run_in_container grep 'enabled = true;' /etc/rspamd/local.d/greylist.conf
+  assert_success
+  _run_in_container rspamadm configdump greylist
+  assert_success
+  assert_output --partial 'enabled = true;'
+}
+
+@test 'hfilter group module is configured correctly' {
+  _run_in_container_bash '[[ -f /etc/rspamd/local.d/hfilter_group.conf ]]'
+  assert_success
+
+  _run_in_container grep '__TAG__HFILTER_HOSTNAME_UNKNOWN' /etc/rspamd/local.d/hfilter_group.conf
+  assert_success
+  assert_output --partial 'score = 7;'
 }

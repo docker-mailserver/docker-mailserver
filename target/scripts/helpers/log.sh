@@ -123,9 +123,9 @@ function _get_log_level_or_default
   if [[ -n ${LOG_LEVEL+set} ]]
   then
     echo "${LOG_LEVEL}"
-  elif [[ -e /etc/dms-settings ]]
+  elif [[ -e /etc/dms-settings ]] && grep -q -E "^LOG_LEVEL='[a-z]+'" /etc/dms-settings
   then
-    grep "^LOG_LEVEL=" /etc/dms-settings | cut -d "'" -f 2
+    grep '^LOG_LEVEL=' /etc/dms-settings | cut -d "'" -f 2
   else
     echo 'info'
   fi

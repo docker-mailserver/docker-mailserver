@@ -2,9 +2,157 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v11.3.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v12.1.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [v12.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v12.1.0)
+
+### Added
+
+- Rspamd:
+  - note about Rspamd's web interface ([#3245](https://github.com/docker-mailserver/docker-mailserver/pull/3245))
+  - add greylisting option & code refactoring ([#3206](https://github.com/docker-mailserver/docker-mailserver/pull/3206))
+  - added `HFILTER_HOSTNAME_UNKNOWN` and make it configurable ([#3248](https://github.com/docker-mailserver/docker-mailserver/pull/3248))
+  - add option to re-enable `reject_unknown_client_hostname` after #3248 ([#3255](https://github.com/docker-mailserver/docker-mailserver/pull/3255))
+  - add DKIM helper script ([#3286](https://github.com/docker-mailserver/docker-mailserver/pull/3286))
+- make `policyd-spf` configurable ([#3246](https://github.com/docker-mailserver/docker-mailserver/pull/3246))
+- add 'log' command to setup for Fail2Ban ([#3299](https://github.com/docker-mailserver/docker-mailserver/pull/3299))
+- `setup` command now expects accounts and aliases to be mutually exclusive ([#3270](https://github.com/docker-mailserver/docker-mailserver/pull/3270))
+
+### Updated
+
+- update DKIM/DMARC/SPF docs ([#3231](https://github.com/docker-mailserver/docker-mailserver/pull/3231))
+- Fail2Ban:
+  - made config more aggressive ([#3243](https://github.com/docker-mailserver/docker-mailserver/pull/3243) & [#3288](https://github.com/docker-mailserver/docker-mailserver/pull/3288))
+  - update fail2ban config examples with current DMS default values ([#3258](https://github.com/docker-mailserver/docker-mailserver/pull/3258))
+  - make Fail2Ban log persistent ([#3269](https://github.com/docker-mailserver/docker-mailserver/pull/3269))
+  - update F2B docs & bind mount links ([#3293](https://github.com/docker-mailserver/docker-mailserver/pull/3293))
+- Rspamd:
+  - improve Rspamd docs ([#3257](https://github.com/docker-mailserver/docker-mailserver/pull/3257))
+  - script stabilization ([#3261](https://github.com/docker-mailserver/docker-mailserver/pull/3261) & [#3282](https://github.com/docker-mailserver/docker-mailserver/pull/3282))
+  - remove WIP warnings ([#3283](https://github.com/docker-mailserver/docker-mailserver/pull/3283))
+- improve shutdown function by making PANIC_STRATEGY obsolete ([#3265](https://github.com/docker-mailserver/docker-mailserver/pull/3265))
+- update `bug_report.yml` ([#3275](https://github.com/docker-mailserver/docker-mailserver/pull/3275))
+- simplify `bug_report.yml` ([#3276](https://github.com/docker-mailserver/docker-mailserver/pull/3276))
+- revised the contributor workflow ([#2227](https://github.com/docker-mailserver/docker-mailserver/pull/2227))
+
+### Changed
+
+- default registry changed from DockerHub (`docker.io`) to GHCR (`ghcr.io`) ([#3233](https://github.com/docker-mailserver/docker-mailserver/pull/3233))
+- consistent namings in docs ([#3242](https://github.com/docker-mailserver/docker-mailserver/pull/3242))
+- get all `policyd-spf` setup in one place ([#3263](https://github.com/docker-mailserver/docker-mailserver/pull/3263))
+- miscellaneous script improvements ([#3281](https://github.com/docker-mailserver/docker-mailserver/pull/3281))
+- update FAQ entries ([#3294](https://github.com/docker-mailserver/docker-mailserver/pull/3294))
+
+### Fixed
+
+- GitHub Actions docs update workflow ([#3241](https://github.com/docker-mailserver/docker-mailserver/pull/3241))
+- fix dovecot: ldap mail delivery works ([#3252](https://github.com/docker-mailserver/docker-mailserver/pull/3252))
+- shellcheck: do not check .git folder ([#3267](https://github.com/docker-mailserver/docker-mailserver/pull/3267))
+- add missing -E for extended regexes in `smtpd_sender_restrictions` ([#3272](https://github.com/docker-mailserver/docker-mailserver/pull/3272))
+- fix setting `SRS_EXCLUDE_DOMAINS` during startup ([#3271](https://github.com/docker-mailserver/docker-mailserver/pull/3271))
+- remove superfluous `EOF` in `dmarc_dkim_spf.sh` ([#3266](https://github.com/docker-mailserver/docker-mailserver/pull/3266))
+- apply fixes to helpers when using `set -eE` ([#3285](https://github.com/docker-mailserver/docker-mailserver/pull/3285))
+
+## [12.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v12.0.0)
+
+Notable changes are:
+
+- Rspamd feature is promoted from preview status
+- Services no longer use `chroot`
+- Fail2Ban major version upgrade
+- ARMv7 platform is no longer suppoted
+- TLS 1.2 is the minimum supported protocol
+- SMTP authentication on port 25 disabled
+- The value of `smtpd_sender_restrictions` for Postfix has replaced the value ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127)):
+  - In `main.cf` with `$dms_smtpd_sender_restrictions`
+  - In `master.cf` inbound submissions ports 465 + 587 extend this inherited `smtpd` restriction with `$mua_sender_restrictions`
+
+### Added
+
+- **security**: Rspamd support:
+  - integration into scripts, provisioning of configuration & documentation ([#2902](https://github.com/docker-mailserver/docker-mailserver/pull/2902),[#3016](https://github.com/docker-mailserver/docker-mailserver/pull/3016),[#3039](https://github.com/docker-mailserver/docker-mailserver/pull/3039))
+  - easily adjust options & modules ([#3059](https://github.com/docker-mailserver/docker-mailserver/pull/3059))
+  - advanced documentation ([#3104](https://github.com/docker-mailserver/docker-mailserver/pull/3104))
+  - make disabling Redis possible ([#3132](https://github.com/docker-mailserver/docker-mailserver/pull/3132))
+  - persistence for Redis ([#3143](https://github.com/docker-mailserver/docker-mailserver/pull/3143))
+  - integrate into `MOVE_SPAM_TO_JUNK` ([#3159](https://github.com/docker-mailserver/docker-mailserver/pull/3159))
+  - make it possible to learn from user actions ([#3159](https://github.com/docker-mailserver/docker-mailserver/pull/3159))
+- heavily updated CI & tests:
+  - added functionality to send mail with a helper function ([#3026](https://github.com/docker-mailserver/docker-mailserver/pull/3026),[#3103](https://github.com/docker-mailserver/docker-mailserver/pull/3103),[#3105](https://github.com/docker-mailserver/docker-mailserver/pull/3105))
+  - add a dedicated page for tests with more information ([#3019](https://github.com/docker-mailserver/docker-mailserver/pull/3019))
+- add information to Logwatch's mailer so `Envelope From` is properly set ([#3081](https://github.com/docker-mailserver/docker-mailserver/pull/3081))
+- add vulnerability scanning workflow & security policy ([#3106](https://github.com/docker-mailserver/docker-mailserver/pull/3106))
+- Add tools (ping & dig) to the image ([2989](https://github.com/docker-mailserver/docker-mailserver/pull/2989))
+
+### Updates
+
+- Fail2Ban major version updated to v1.0.2 ([#2959](https://github.com/docker-mailserver/docker-mailserver/pull/2959))
+- heavily updated CI & tests:
+  - we now run more tests in parallel bringing down overall time to build and test AMD64 to 6 minutes ([#2938](https://github.com/docker-mailserver/docker-mailserver/pull/2938),[#3038](https://github.com/docker-mailserver/docker-mailserver/pull/3038),[#3018](https://github.com/docker-mailserver/docker-mailserver/pull/3018),[#3062](https://github.com/docker-mailserver/docker-mailserver/pull/3062))
+  - remove CI ENV & disable fail-fast strategy ([#3065](https://github.com/docker-mailserver/docker-mailserver/pull/3065))
+  - streamlined GH Actions runners ([#3025](https://github.com/docker-mailserver/docker-mailserver/pull/3025))
+  - updated BATS & helper + minor updates to BATS variables ([#2988](https://github.com/docker-mailserver/docker-mailserver/pull/2988))
+  - improved consistency and documentation for test helpers ([#3012](https://github.com/docker-mailserver/docker-mailserver/pull/3012))
+- improve the `clean` recipe (don't require `sudo` anymore) ([#3020](https://github.com/docker-mailserver/docker-mailserver/pull/3020))
+- improve Amavis setup routine ([#3079](https://github.com/docker-mailserver/docker-mailserver/pull/3079))
+- completely refactor README & parts of docs ([#3097](https://github.com/docker-mailserver/docker-mailserver/pull/3097))
+- TLS setup (self-signed) error message now includes `SS_CA_CERT` ([#3168](https://github.com/docker-mailserver/docker-mailserver/pull/3168))
+- Better default value for SA_KILL variable ([#3058](https://github.com/docker-mailserver/docker-mailserver/pull/3058))
+
+### Fixed
+
+- `restrict-access` avoid inserting duplicates ([#3067](https://github.com/docker-mailserver/docker-mailserver/pull/3067))
+- correct the casing for Mime vs. MIME ([#3040](https://github.com/docker-mailserver/docker-mailserver/pull/3040))
+- Dovecot:
+  - Quota plugin is now properly configured via `mail_plugins` at setup ([#2958](https://github.com/docker-mailserver/docker-mailserver/pull/2958))
+  - `quota-status` service (port 65265) now only binds to `127.0.0.1` ([#3057](https://github.com/docker-mailserver/docker-mailserver/pull/3057))
+- OpenDMARC - Change default policy to reject ([#2933](https://github.com/docker-mailserver/docker-mailserver/pull/2933))
+- Change Detection service - Use service `reload` instead of restarting process to minimize downtime ([#2947](https://github.com/docker-mailserver/docker-mailserver/pull/2947))
+- Slightly faster container startup via `postconf` workaround ([#2998](https://github.com/docker-mailserver/docker-mailserver/pull/2998))
+- Better group ownership to `/var/mail-state` + ClamAV in `Dockerfile` ([#3011](https://github.com/docker-mailserver/docker-mailserver/pull/3011))
+- Dropping Postfix `chroot` mode:
+  - Remove syslog socket created by Debian ([#3134](https://github.com/docker-mailserver/docker-mailserver/pull/3134))
+  - Supervisor proxy signals for `postfix start-fg` via PID ([#3118](https://github.com/docker-mailserver/docker-mailserver/pull/3118))
+- Fixed several typos ([#2990](https://github.com/docker-mailserver/docker-mailserver/pull/2990)) ([#2993](https://github.com/docker-mailserver/docker-mailserver/pull/2993))
+- SRS setup fixed ([#3158](https://github.com/docker-mailserver/docker-mailserver/pull/3158))
+- Postsrsd restart loop fixed ([#3160](https://github.com/docker-mailserver/docker-mailserver/pull/3160))
+- Order of DKIM/DMARC milters matters ([#3082](https://github.com/docker-mailserver/docker-mailserver/pull/3082))
+- Make logrotate state persistant ([#3077](https://github.com/docker-mailserver/docker-mailserver/pull/3077))
+
+### Changed
+
+- the Dovecot community repository is now the default ([#2901](https://github.com/docker-mailserver/docker-mailserver/pull/2901))
+- moved SASL authentication socket location ([#3131](https://github.com/docker-mailserver/docker-mailserver/pull/3131))
+- only add Amavis configuration to Postfix when enabled ([#3046](https://github.com/docker-mailserver/docker-mailserver/pull/3046))
+- improve bug report template ([#3080](https://github.com/docker-mailserver/docker-mailserver/pull/3080))
+- remove Postfix DNSBLs ([#3069](https://github.com/docker-mailserver/docker-mailserver/pull/3069))
+- bigger script updates:
+  - split `setup-stack.sh` ([#3115](https://github.com/docker-mailserver/docker-mailserver/pull/3115))
+  - housekeeping & cleanup setup ([#3121](https://github.com/docker-mailserver/docker-mailserver/pull/3121),[#3123](https://github.com/docker-mailserver/docker-mailserver/pull/3123))
+  - issue warning in case of improper restart ([#3129](https://github.com/docker-mailserver/docker-mailserver/pull/3129))
+  - remove PostSRSD wrapper ([#3128](https://github.com/docker-mailserver/docker-mailserver/pull/3128))
+  - miscellaneous small improvements ([#3144](https://github.com/docker-mailserver/docker-mailserver/pull/3144))
+- improve Postfix config for spoof protection ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127))
+- Change Detection service - Remove 10 sec start-up delay ([#3064](https://github.com/docker-mailserver/docker-mailserver/pull/3064))
+- Postfix:
+  - Stop using `chroot` + remove wrapper script ([#3033](https://github.com/docker-mailserver/docker-mailserver/pull/3033))
+  - SMTP Authentication via port 25 disabled ([#3006](https://github.com/docker-mailserver/docker-mailserver/pull/3006))
+- Fail2Ban - Added support packages + remove wrapper script ([#3032](https://github.com/docker-mailserver/docker-mailserver/pull/3032))
+- Replace path with variable in mail_state.sh ([#3153](https://github.com/docker-mailserver/docker-mailserver/pull/3153))
+
+### Removed
+
+- configomat (submodule) ([#3045](https://github.com/docker-mailserver/docker-mailserver/pull/3045))
+- Due to deprecation:
+  - ARMv7 image support ([#2943](https://github.com/docker-mailserver/docker-mailserver/pull/2943))
+  - TLS 1.2 is now the minimum supported protocol ([#2945](https://github.com/docker-mailserver/docker-mailserver/pull/2945))
+  - ENV `SASL_PASSWD` ([#2946](https://github.com/docker-mailserver/docker-mailserver/pull/2946))
+- Redundant:
+  - Makefile `backup` target ([#3000](https://github.com/docker-mailserver/docker-mailserver/pull/3000))
+  - ENV `ENABLE_POSTFIX_VIRTUAL_TRANSPORT` ([#3004](https://github.com/docker-mailserver/docker-mailserver/pull/3004))
+  - `gamin` package ([#3030](https://github.com/docker-mailserver/docker-mailserver/pull/3030))
 
 ## [11.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v11.3.1)
 
@@ -164,49 +312,49 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 ### Merged Pull Requests
 
-- **[improvement]** tests: remove legacy functions / tests by @casperklein in [#2434](https://github.com/docker-mailserver/docker-mailserver/pull/2434)
-- **[improvement]** `PERMIT_DOCKER=none` as new default value by @casperklein in [#2424](https://github.com/docker-mailserver/docker-mailserver/pull/2424)
-- **[improvement]** Adjust environment variables to more sensible defaults by @georglauterbach in [#2428](https://github.com/docker-mailserver/docker-mailserver/pull/2428)
-- **[fix]** macOS linting support by @NorseGaud in [#2448](https://github.com/docker-mailserver/docker-mailserver/pull/2448)
-- **[improvement]** Rename config examples directory by @casperklein in [#2438](https://github.com/docker-mailserver/docker-mailserver/pull/2438)
-- **[docs]** FAQ - Update naked/bare domain section by @sportshead in [#2446](https://github.com/docker-mailserver/docker-mailserver/pull/2446)
-- **[improvement]** Remove obsolete `setup.sh debug inspect` command from usage description by @casperklein in [#2454](https://github.com/docker-mailserver/docker-mailserver/pull/2454)
-- **[feature]** Introduce `CLAMAV_MESSAGE_SIZE_LIMIT` env by @casperklein in [#2453](https://github.com/docker-mailserver/docker-mailserver/pull/2453)
-- **[fix]** remove SA reload for KAM by @georglauterbach in [#2456](https://github.com/docker-mailserver/docker-mailserver/pull/2456)
-- **[docs]** Enhance logrotate description by @casperklein in [#2469](https://github.com/docker-mailserver/docker-mailserver/pull/2469)
-- **[improvement]** Remove macOS specific code / support + shellcheck should avoid python, regardless of permissions by @NorseGaud in [#2466](https://github.com/docker-mailserver/docker-mailserver/pull/2466)
-- **[docs]** Update fail2ban.md by @casperklein in [#2484](https://github.com/docker-mailserver/docker-mailserver/pull/2484)
-- **[fix]** Makefile: Remove backup/restore of obsolete config directory by @casperklein in [#2479](https://github.com/docker-mailserver/docker-mailserver/pull/2479)
-- **[improvement]** scripts: small refactorings by @georglauterbach in [#2485](https://github.com/docker-mailserver/docker-mailserver/pull/2485)
-- **[fix]** Building on Ubuntu 21.10 failing to install postfix by @NorseGaud in [#2468](https://github.com/docker-mailserver/docker-mailserver/pull/2468)
-- **[improvement]** Use FQDN as `REPORT_SENDER` default value by @casperklein in [#2487](https://github.com/docker-mailserver/docker-mailserver/pull/2487)
-- **[improvement]** Improve test, get rid of sleep by @casperklein in [#2492](https://github.com/docker-mailserver/docker-mailserver/pull/2492)
-- **[feature]** scripts: new log by @georglauterbach in [#2493](https://github.com/docker-mailserver/docker-mailserver/pull/2493)
-- **[fix]** Restart supervisord early by @casperklein in [#2494](https://github.com/docker-mailserver/docker-mailserver/pull/2494)
-- **[improvement]** scripts: renamed function `_errex` -> `_exit_with_error` by @georglauterbach in [#2497](https://github.com/docker-mailserver/docker-mailserver/pull/2497)
-- **[improvement]** Remove invalid URL from SPF message by @casperklein in [#2503](https://github.com/docker-mailserver/docker-mailserver/pull/2503)
-- **[improvement]** scripts: refactored scripts located under `target/bin/` by @georglauterbach in [#2500](https://github.com/docker-mailserver/docker-mailserver/pull/2500)
-- **[improvement]** scripts: refactoring & miscellaneous small changes by @georglauterbach in [#2499](https://github.com/docker-mailserver/docker-mailserver/pull/2499)
-- **[improvement]** scripts: refactored `daemon-stack.sh` by @georglauterbach in [#2496](https://github.com/docker-mailserver/docker-mailserver/pull/2496)
-- **[fix]** add compatibility for Bash 4 to setup.sh by @georglauterbach in [#2519](https://github.com/docker-mailserver/docker-mailserver/pull/2519)
-- **[fix]** tests: disabled "quota exceeded" test by @georglauterbach in [#2511](https://github.com/docker-mailserver/docker-mailserver/pull/2511)
-- **[fix]** typo in setup-stack.sh by @eltociear in [#2521](https://github.com/docker-mailserver/docker-mailserver/pull/2521)
-- **[improvement]** scripts: introduce `_log` to `sedfile` by @georglauterbach in [#2507](https://github.com/docker-mailserver/docker-mailserver/pull/2507)
-- **[feature]** create `.github/FUNDING.yml` by @georglauterbach in [#2512](https://github.com/docker-mailserver/docker-mailserver/pull/2512)
-- **[improvement]** scripts: refactored `check-for-changes.sh` by @georglauterbach in [#2498](https://github.com/docker-mailserver/docker-mailserver/pull/2498)
-- **[improvement]** scripts: remove `DMS_DEBUG` by @georglauterbach in [#2523](https://github.com/docker-mailserver/docker-mailserver/pull/2523)
-- **[feature]** firewall: replace `iptables` with `nftables` by @georglauterbach in [#2505](https://github.com/docker-mailserver/docker-mailserver/pull/2505)
-- **[improvement]** log: adjust level and message(s) slightly for four messages by @georglauterbach in [#2532](https://github.com/docker-mailserver/docker-mailserver/pull/2532)
-- **[improvement]** log: introduce proper log level fallback and env getter function by @georglauterbach in [#2506](https://github.com/docker-mailserver/docker-mailserver/pull/2506)
-- **[feature]** scripts: added `TZ` environment variable to set timezone by @georglauterbach in [#2530](https://github.com/docker-mailserver/docker-mailserver/pull/2530)
-- **[improvement]** setup: added grace period for account creation by @georglauterbach in [#2531](https://github.com/docker-mailserver/docker-mailserver/pull/2531)
-- **[improvement]** refactor: letsencrypt implicit location discovery by @polarathene in [#2525](https://github.com/docker-mailserver/docker-mailserver/pull/2525)
-- **[improvement]** setup.sh/setup: show usage when no argument is given by @casperklein in [#2540](https://github.com/docker-mailserver/docker-mailserver/pull/2540)
-- **[improvement]** Dockerfile: Remove not needed ENVs and add comment by @casperklein in [#2541](https://github.com/docker-mailserver/docker-mailserver/pull/2541)
-- **[improvement]** chore: (setup-stack.sh) Fix a small typo by @polarathene in [#2552](https://github.com/docker-mailserver/docker-mailserver/pull/2552)
-- **[feature]** Add ban feature to fail2ban script by @casperklein in [#2538](https://github.com/docker-mailserver/docker-mailserver/pull/2538)
-- **[fix]** Fix changedetector restart loop by @casperklein in [#2548](https://github.com/docker-mailserver/docker-mailserver/pull/2548)
-- **[improvement]** chore: Drop `setup.sh` DATABASE fallback ENV by @polarathene in [#2556](https://github.com/docker-mailserver/docker-mailserver/pull/2556)
+- **[improvement]** tests: remove legacy functions / tests [#2434](https://github.com/docker-mailserver/docker-mailserver/pull/2434)
+- **[improvement]** `PERMIT_DOCKER=none` as new default value [#2424](https://github.com/docker-mailserver/docker-mailserver/pull/2424)
+- **[improvement]** Adjust environment variables to more sensible defaults [#2428](https://github.com/docker-mailserver/docker-mailserver/pull/2428)
+- **[fix]** macOS linting support [#2448](https://github.com/docker-mailserver/docker-mailserver/pull/2448)
+- **[improvement]** Rename config examples directory [#2438](https://github.com/docker-mailserver/docker-mailserver/pull/2438)
+- **[docs]** FAQ - Update naked/bare domain section [#2446](https://github.com/docker-mailserver/docker-mailserver/pull/2446)
+- **[improvement]** Remove obsolete `setup.sh debug inspect` command from usage description [#2454](https://github.com/docker-mailserver/docker-mailserver/pull/2454)
+- **[feature]** Introduce `CLAMAV_MESSAGE_SIZE_LIMIT` env [#2453](https://github.com/docker-mailserver/docker-mailserver/pull/2453)
+- **[fix]** remove SA reload for KAM [#2456](https://github.com/docker-mailserver/docker-mailserver/pull/2456)
+- **[docs]** Enhance logrotate description [#2469](https://github.com/docker-mailserver/docker-mailserver/pull/2469)
+- **[improvement]** Remove macOS specific code / support + shellcheck should avoid python, regardless of permissions [#2466](https://github.com/docker-mailserver/docker-mailserver/pull/2466)
+- **[docs]** Update fail2ban.md [#2484](https://github.com/docker-mailserver/docker-mailserver/pull/2484)
+- **[fix]** Makefile: Remove backup/restore of obsolete config directory [#2479](https://github.com/docker-mailserver/docker-mailserver/pull/2479)
+- **[improvement]** scripts: small refactorings [#2485](https://github.com/docker-mailserver/docker-mailserver/pull/2485)
+- **[fix]** Building on Ubuntu 21.10 failing to install postfix [#2468](https://github.com/docker-mailserver/docker-mailserver/pull/2468)
+- **[improvement]** Use FQDN as `REPORT_SENDER` default value [#2487](https://github.com/docker-mailserver/docker-mailserver/pull/2487)
+- **[improvement]** Improve test, get rid of sleep [#2492](https://github.com/docker-mailserver/docker-mailserver/pull/2492)
+- **[feature]** scripts: new log [#2493](https://github.com/docker-mailserver/docker-mailserver/pull/2493)
+- **[fix]** Restart supervisord early [#2494](https://github.com/docker-mailserver/docker-mailserver/pull/2494)
+- **[improvement]** scripts: renamed function `_errex` -> `_exit_with_error` [#2497](https://github.com/docker-mailserver/docker-mailserver/pull/2497)
+- **[improvement]** Remove invalid URL from SPF message [#2503](https://github.com/docker-mailserver/docker-mailserver/pull/2503)
+- **[improvement]** scripts: refactored scripts located under `target/bin/` [#2500](https://github.com/docker-mailserver/docker-mailserver/pull/2500)
+- **[improvement]** scripts: refactoring & miscellaneous small changes [#2499](https://github.com/docker-mailserver/docker-mailserver/pull/2499)
+- **[improvement]** scripts: refactored `daemon-stack.sh` [#2496](https://github.com/docker-mailserver/docker-mailserver/pull/2496)
+- **[fix]** add compatibility for Bash 4 to setup.sh [#2519](https://github.com/docker-mailserver/docker-mailserver/pull/2519)
+- **[fix]** tests: disabled "quota exceeded" test [#2511](https://github.com/docker-mailserver/docker-mailserver/pull/2511)
+- **[fix]** typo in setup-stack.sh [#2521](https://github.com/docker-mailserver/docker-mailserver/pull/2521)
+- **[improvement]** scripts: introduce `_log` to `sedfile` [#2507](https://github.com/docker-mailserver/docker-mailserver/pull/2507)
+- **[feature]** create `.github/FUNDING.yml` [#2512](https://github.com/docker-mailserver/docker-mailserver/pull/2512)
+- **[improvement]** scripts: refactored `check-for-changes.sh` [#2498](https://github.com/docker-mailserver/docker-mailserver/pull/2498)
+- **[improvement]** scripts: remove `DMS_DEBUG` [#2523](https://github.com/docker-mailserver/docker-mailserver/pull/2523)
+- **[feature]** firewall: replace `iptables` with `nftables` [#2505](https://github.com/docker-mailserver/docker-mailserver/pull/2505)
+- **[improvement]** log: adjust level and message(s) slightly for four messages [#2532](https://github.com/docker-mailserver/docker-mailserver/pull/2532)
+- **[improvement]** log: introduce proper log level fallback and env getter function [#2506](https://github.com/docker-mailserver/docker-mailserver/pull/2506)
+- **[feature]** scripts: added `TZ` environment variable to set timezone [#2530](https://github.com/docker-mailserver/docker-mailserver/pull/2530)
+- **[improvement]** setup: added grace period for account creation [#2531](https://github.com/docker-mailserver/docker-mailserver/pull/2531)
+- **[improvement]** refactor: letsencrypt implicit location discovery [#2525](https://github.com/docker-mailserver/docker-mailserver/pull/2525)
+- **[improvement]** setup.sh/setup: show usage when no argument is given [#2540](https://github.com/docker-mailserver/docker-mailserver/pull/2540)
+- **[improvement]** Dockerfile: Remove not needed ENVs and add comment [#2541](https://github.com/docker-mailserver/docker-mailserver/pull/2541)
+- **[improvement]** chore: (setup-stack.sh) Fix a small typo [#2552](https://github.com/docker-mailserver/docker-mailserver/pull/2552)
+- **[feature]** Add ban feature to fail2ban script [#2538](https://github.com/docker-mailserver/docker-mailserver/pull/2538)
+- **[fix]** Fix changedetector restart loop [#2548](https://github.com/docker-mailserver/docker-mailserver/pull/2548)
+- **[improvement]** chore: Drop `setup.sh` DATABASE fallback ENV [#2556](https://github.com/docker-mailserver/docker-mailserver/pull/2556)
 
 ## `v10.5.0`
 
@@ -238,9 +386,9 @@ In this release the relay-host support saw [significant internal refactoring](ht
 - **[fix]** Fixed non-number-argument in `listmailuser` in [#2382](https://github.com/docker-mailserver/docker-mailserver/pull/2382)
 - **[fix]** docs: Fail2Ban - Fix links for rootless podman in [#2384](https://github.com/docker-mailserver/docker-mailserver/pull/2384)
 - **[fix]** docs(kubernetes): fix image name in example in [#2385](https://github.com/docker-mailserver/docker-mailserver/pull/2385)
-- **[fix]** SSL documentation contains a small bug #2381 by @Twist235 in [#2383](https://github.com/docker-mailserver/docker-mailserver/pull/2383)
+- **[fix]** SSL documentation contains a small bug #2381 [#2383](https://github.com/docker-mailserver/docker-mailserver/pull/2383)
 - **[fix]** get rid of subshell + `exec` in `helper-functions.sh` in [#2401](https://github.com/docker-mailserver/docker-mailserver/pull/2401)
-- **[docs]** Rootless Podman security update by @p-fruck in [#2393](https://github.com/docker-mailserver/docker-mailserver/pull/2393)
+- **[docs]** Rootless Podman security update [#2393](https://github.com/docker-mailserver/docker-mailserver/pull/2393)
 - **[fix]** fix: double occurrence of `/etc/postfix/regexp` in [#2397](https://github.com/docker-mailserver/docker-mailserver/pull/2397)
 - **[improvement]** consistently make 1 the default value for `SPAMASSASSIN_SPAM_TO_INBOX` in [#2361](https://github.com/docker-mailserver/docker-mailserver/pull/2361)
 - **[docs]** added sieve example for subaddress sorting in [#2410](https://github.com/docker-mailserver/docker-mailserver/pull/2410)

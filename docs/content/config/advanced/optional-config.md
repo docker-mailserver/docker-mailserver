@@ -4,7 +4,7 @@ hide:
   - toc # Hide Table of Contents for this page
 ---
 
-This is a list of all configuration files and directories which are optional or automatically generated in your `docker-data/dms/config/` directory.
+This is a list of all configuration files and directories which are optional or automatically generated in your [`docker-data/dms/config/`][docs-dms-config-volume] directory.
 
 ## Directories
 
@@ -12,6 +12,7 @@ This is a list of all configuration files and directories which are optional or 
 - **sieve-pipe:** directory for sieve pipe scripts. (Docs: [Sieve][docs-sieve])
 - **opendkim:** DKIM directory. Auto-configurable via [`setup.sh config dkim`][docs-setupsh]. (Docs: [DKIM][docs-dkim])
 - **ssl:** SSL Certificate directory if `SSL_TYPE` is set to `self-signed` or `custom`. (Docs: [SSL][docs-ssl])
+- **Rspamd:** Override directory for custom settings when using Rspamd (Docs: [Rspamd][docs-rspamd-override-d])
 
 ## Files
 
@@ -39,11 +40,12 @@ This is a list of all configuration files and directories which are optional or 
 - **dovecot.cf:** replaces `/etc/dovecot/local.conf`. (Docs: [Override Dovecot Defaults][docs-override-dovecot])
 - **dovecot-quotas.cf:** list of custom quotas per mailbox. (Docs: [Accounts][docs-accounts-quota])
 - **user-patches.sh:** this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: [FAQ - How to adjust settings with the `user-patches.sh` script][docs-faq-userpatches])
-- **rspamd-commands:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
+- **rspamd/custom-commands.conf:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
 
-[docs-accounts-quota]: ../../config/user-management/accounts.md#notes
-[docs-aliases-regex]: ../../config/user-management/aliases.md#configuring-regexp-aliases
-[docs-dkim]: ../../config/best-practices/dkim.md
+[docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory
+[docs-accounts-quota]: ../../config/user-management.md#quotas
+[docs-aliases-regex]: ../../config/user-management.md#configuring-regexp-aliases
+[docs-dkim]: ../../config/best-practices/dkim_dmarc_spf.md#dkim
 [docs-fail2ban]: ../../config/security/fail2ban.md
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
 [docs-faq-userpatches]: ../../faq.md#how-to-adjust-settings-with-the-user-patchessh-script
@@ -54,5 +56,6 @@ This is a list of all configuration files and directories which are optional or 
 [docs-sieve]: ./mail-sieve.md
 [docs-setupsh]: ../../config/setup.sh.md
 [docs-ssl]: ../../config/security/ssl.md
+[docs-rspamd-override-d]: ../security/rspamd.md#manually
 [docs-rspamd-commands]: ../security/rspamd.md#with-the-help-of-a-custom-file
 [github-commit-setup-stack.sh-L411]: https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411

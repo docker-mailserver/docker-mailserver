@@ -3,7 +3,11 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function __usage { echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]" ; }
+function __usage
+{
+  echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]"
+  echo "       ./setup.sh fail2ban log"
+}
 
 fail2ban-client ping &>/dev/null || _exit_with_error "Fail2ban not running"
 
@@ -71,6 +75,10 @@ else
         _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban' to get a list of banned IP addresses"
         exit 0
       fi
+      ;;
+
+    ( 'log' )
+      cat /var/log/mail/fail2ban.log
       ;;
 
     ( * )

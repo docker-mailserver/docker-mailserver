@@ -61,11 +61,11 @@ function _register_functions
       ;;
 
     ( 'OIDC' )
-      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented' '' 'immediate'
+      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented'
       ;;
 
     ( * )
-      _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER" '' 'immediate'
+      _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
       ;;
   esac
 
@@ -75,11 +75,11 @@ function _register_functions
     _register_setup_function '_setup_saslauthd'
   fi
 
-  _register_setup_function '_setup_postfix_inet_protocols'
   _register_setup_function '_setup_dovecot_inet_protocols'
 
   _register_setup_function '_setup_opendkim'
   _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
+  _register_setup_function '_setup_policyd_spf'
 
   _register_setup_function '_setup_security_stack'
   _register_setup_function '_setup_spam_to_junk'
@@ -90,17 +90,11 @@ function _register_functions
   _register_setup_function '_setup_mailname'
   _register_setup_function '_setup_dovecot_hostname'
 
-  _register_setup_function '_setup_postfix_hostname'
-  _register_setup_function '_setup_postfix_smtputf8'
-  _register_setup_function '_setup_postfix_sasl'
-  _register_setup_function '_setup_postfix_aliases'
-  _register_setup_function '_setup_postfix_vhost'
-  _register_setup_function '_setup_postfix_dhparam'
-  _register_setup_function '_setup_postfix_sizelimits'
+  _register_setup_function '_setup_postfix_early'
   _register_setup_function '_setup_fetchmail'
   _register_setup_function '_setup_fetchmail_parallel'
 
-  # needs to come after _setup_postfix_aliases
+  # needs to come after _setup_postfix_early
   _register_setup_function '_setup_spoof_protection'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
@@ -109,10 +103,7 @@ function _register_functions
     _register_start_daemon '_start_daemon_postsrsd'
   fi
 
-  _register_setup_function '_setup_postfix_access_control'
-  _register_setup_function '_setup_postfix_relay_hosts'
-  _register_setup_function '_setup_postfix_virtual_transport'
-  _register_setup_function '_setup_postfix_override_configuration'
+  _register_setup_function '_setup_postfix_late'
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
@@ -129,9 +120,10 @@ function _register_functions
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
   [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
-  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
+
+  # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
-  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
 
   # needs to be started before SASLauthd
   [[ ${ENABLE_OPENDKIM}         -eq 1 ]] && _register_start_daemon '_start_daemon_opendkim'

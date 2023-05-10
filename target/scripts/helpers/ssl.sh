@@ -77,13 +77,13 @@ function _setup_ssl
     # Postfix configuration
     # NOTE: This operation doesn't replace the line, it appends to the end of the line.
     # Thus this method should only be used when this line has explicitly been replaced earlier in the script.
-    # Otherwise without `docker-compose down` first, a `docker-compose up` may
+    # Otherwise without `docker compose down` first, a `docker compose up` may
     # persist previous container state and cause a failure in postfix configuration.
     sedfile -i "s|^smtpd_tls_chain_files =.*|& ${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}|" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration
     # Conditionally checks for `#`, in the event that internal container state is accidentally persisted,
-    # can be caused by: `docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`
+    # can be caused by: `docker compose up` run again after a `ctrl+c`, without running `docker compose down`
     sedfile -i -r \
       -e "s|^#?(ssl_alt_key =).*|\1 <${PRIVATE_KEY_ALT}|" \
       -e "s|^#?(ssl_alt_cert =).*|\1 <${CERT_CHAIN_ALT}|" \

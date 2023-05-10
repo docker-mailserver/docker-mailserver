@@ -90,7 +90,7 @@ COPY \
 RUN <<EOF
   sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
-  mkdir -p /etc/spamassassin/kam/
+  mkdir /etc/spamassassin/kam/
   curl -sSfLo /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key
 EOF
 
@@ -144,7 +144,8 @@ EOF
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
-  ln -s /var/log/mail/mail.log /var/log/mail.log
+  ln -s  /var/log/mail/mail.log     /var/log/mail.log
+  ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
   # disable sshd jail
   rm /etc/fail2ban/jail.d/defaults-debian.conf
   mkdir /var/run/fail2ban
@@ -192,7 +193,7 @@ EOF
 
 RUN <<EOF
   sedfile -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
-  mkdir -p /var/log/mail
+  mkdir /var/log/mail
   chown syslog:root /var/log/mail
   touch /var/log/mail/clamav.log
   chown -R clamav:root /var/log/mail/clamav.log
@@ -208,6 +209,7 @@ RUN <<EOF
   sedfile -i -r '/postrotate/,/endscript/d' /etc/logrotate.d/clamav-freshclam
   sedfile -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
   sedfile -i -r '/\/var\/log\/mail\/mail.log/d' /etc/logrotate.d/rsyslog
+  sedfile -i    's|^/var/log/fail2ban.log {$|/var/log/mail/fail2ban.log {|' /etc/logrotate.d/fail2ban
   # prevent syslog logrotate warnings
   sedfile -i -e 's/\(printerror "could not determine current runlevel"\)/#\1/' /usr/sbin/invoke-rc.d
   sedfile -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d

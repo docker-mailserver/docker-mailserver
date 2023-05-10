@@ -4,7 +4,7 @@ title: Usage
 
 This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs-dms-config-volume] to `/tmp/docker-mailserver/` inside the container.
 
-[docs-dms-config-volume]: ./config/advanced/optional-config.md
+[docs-dms-config-volume]: ./faq.md#what-about-the-docker-datadmsconfig-directory
 
 ## Preliminary Steps
 
@@ -21,16 +21,17 @@ There are a few requirements for a suitable host system:
 2. The host should be able to send/receive on the [necessary ports for mail][docs-ports-overview]
 3. You should be able to set a `PTR` record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.
 
-On the host, you should have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation].
+!!! note "About the Container Runtime"
 
-!!! info "Podman Support"
+    On the host, you need to have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation]. We have aligned file names and configuration conventions with the latest [Docker Compose (currently V2) specification][docker-compose-specification].
 
     If you're using podman, make sure to read the related [documentation][docs-podman].
 
-[docs-podman]: ./config/advanced/podman.md
 [docs-ports-overview]: ./config/security/understanding-the-ports.md#overview-of-email-ports
 [docker-compose]: https://docs.docker.com/compose/
 [docker-compose-installation]: https://docs.docker.com/compose/install/
+[docker-compose-specification]: https://docs.docker.com/compose/compose-file/
+[docs-podman]: ./config/advanced/podman.md
 
 ### Minimal DNS Setup
 
@@ -45,9 +46,9 @@ Now let's say you just bought `example.com` and you want to be able to send and 
 We will later dig into DKIM, DMARC & SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:
 
 - The **MX record** tells everyone which (DNS) name is responsible for e-mails on your domain.
-    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.  
-    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.  
-    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.  
+    Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.
+    This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
+    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
 - The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
 
@@ -88,13 +89,13 @@ Issue the following commands to acquire the necessary files:
 
 ``` BASH
 DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/latest"
-wget "${DMS_GITHUB_URL}/docker-compose.yml"
+wget "${DMS_GITHUB_URL}/compose.yaml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
 ```
 
 ### Configuration Steps
 
-1. First edit `docker-compose.yml` to your liking
+1. First edit `compose.yaml` to your liking
     - Substitute `mail.example.com` according to your FQDN.
     - If you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`.
 2. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:
@@ -123,7 +124,7 @@ For an overview of commands to manage DMS config, run: `docker exec -it <CONTAIN
 
     ```console
     $ ./setup.sh help
-    Image 'docker.io/mailserver/docker-mailserver:latest' not found. Pulling ...
+    Image 'ghcr.io/docker-mailserver/docker-mailserver:latest' not found. Pulling ...
     SETUP(1)
 
     NAME
@@ -142,59 +143,33 @@ On first start, you will need to add at least one email account (unless you're u
 
 ## Further Miscellaneous Steps
 
+### Setting up TLS
+
+You definitely want to setup TLS. Please refer to [our documentation about TLS][docs-tls].
+
+[docs-tls]: ./config/security/ssl.md
+
 ### Aliases
 
 You should add at least one [alias][docs-aliases], the [_postmaster alias_][docs-env-postmaster]. This is a common convention, but not strictly required.
 
-[docs-aliases]: ./config/user-management/aliases.md
+[docs-aliases]: ./config/user-management.md#aliases
 [docs-env-postmaster]: ./config/environment.md#postmaster_address
 
 ```bash
 docker exec -ti <CONTAINER NAME> setup alias add postmaster@example.com user@example.com
 ```
 
-### DKIM Keys
+### Advanced DNS Setup - DKIM, DMARC & SPF
 
-You can (_and you should_) generate DKIM keys. For more information:
-
-- DKIM [with OpenDKIM][docs-dkim-opendkim] (_enabled by default_)
-- DKIM [with Rspamd][docs-dkim-rspamd] (_when using `ENABLE_RSPAMD=1`_)
-
-When keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` to [set up DKIM][dkim-signing-setup]. See the [documentation][docs-dkim-dns] for more details.
-
-!!! note
-
-    In case you're using LDAP, the setup looks a bit different as you do not add user accounts directly. Postfix doesn't know your domain(s) and you need to provide it when configuring DKIM:
-    
-    ``` BASH
-    docker exec -ti <CONTAINER NAME> setup config dkim domain '<domain.tld>[,<domain2.tld>]'
-    ```
-
-[dkim-signing-setup]: https://mxtoolbox.com/dmarc/dkim/setup/how-to-setup-dkim
-[docs-dkim-dns]: ./config/best-practices/dkim.md#configuration-using-a-web-interface
-[docs-dkim-opendkim]: ./config/best-practices/dkim.md#enabling-dkim-signature
-[docs-dkim-rspamd]: ./config/security/rspamd.md#dkim-signing
-
-### Advanced DNS Setup
-
-You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc].
-
-The following illustrates what a (rather strict) set of records could look like:
-
-```console
-$ dig @1.1.1.1 +short TXT example.com
-"v=spf1 mx -all"
-$ dig @1.1.1.1 +short TXT dkim-rsa._domainkey.example.com
-"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQ..."
-$ dig @1.1.1.1 +short TXT _dmarc.example.com
-"v=DMARC1; p=reject; sp=reject; pct=100; adkim=s; aspf=s; fo=1"
-```
+You will very likely want to configure your DNS with these TXT records: [SPF, DKIM, and DMARC][cloudflare-spf-dkim-dmarc]. We also ship a [dedicated page in our documentation][docs-dkim-dmarc-spf] about the setup of DKIM, DMARC & SPF.
 
 [cloudflare-spf-dkim-dmarc]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
+[docs-dkim-dmarc-spf]: ./config/best-practices/dkim_dmarc_spf.md
 
 ### Custom User Changes & Patches
 
-If you'd like to change, patch or alter files or behavior of `docker-mailserver`, you can use a script. See [this part of our documentation][docs-user-patches] for a detailed explanation.
+If you'd like to change, patch or alter files or behavior of DMS, you can use a script. See [this part of our documentation][docs-user-patches] for a detailed explanation.
 
 [docs-user-patches]: ./faq.md#how-to-adjust-settings-with-the-user-patchessh-script
 

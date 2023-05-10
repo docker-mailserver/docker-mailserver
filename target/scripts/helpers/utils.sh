@@ -16,7 +16,13 @@ function _get_valid_lines_from_file
 # and it will return its value stored in /etc/dms-settings
 function _get_dms_env_value
 {
-  grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
+  if [[ -f /etc/dms-settings ]]
+  then
+    grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
+  else
+    _log 'warn' "Call to '_get_dms_env_value' but '/etc/dms-settings' is not present"
+    return 1
+  fi
 }
 
 # TODO: `chown -R 5000:5000 /var/mail` has existed since the projects first commit.
@@ -43,6 +49,7 @@ function _require_n_parameters_or_print_usage
 
   [[ ${1:-} == 'help' ]]  && { __usage ; exit 0 ; }
   [[ ${#} -lt ${COUNT} ]] && { __usage ; exit 1 ; }
+  return 0
 }
 
 # NOTE: Postfix commands that read `main.cf` will stall execution,
@@ -92,13 +99,13 @@ function _replace_by_env_in_file
 {
   if [[ -z ${1+set} ]]
   then
-    _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file' 'immediate'
+    _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ -z ${2+set} ]]
   then
-    _dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file' 'immediate'
+    _dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ ! -f ${2} ]]
   then
-    _dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file' 'immediate'
+    _dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file'
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
@@ -113,4 +120,35 @@ function _replace_by_env_in_file
     _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
     sed -i -E "s#^${ESCAPED_KEY}[[:space:]]*=.*#${ESCAPED_KEY} =${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
   done < <(env | grep "^${ENV_PREFIX}")
+}
+
+# Check if an environment variable's value is zero or one. This aids in checking variables
+# that act as "booleans" for enabling or disabling a service, configuration option, etc.
+#
+# This function will log a warning and return with exit code 1 in case the variable's value
+# is not zero or one.
+#
+# @param ${1} = name of the ENV variable to check
+function _env_var_expect_zero_or_one
+{
+  local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_zero_or_one}
+
+  [[ ${!ENV_VAR_NAME} =~ ^(0|1)$ ]] && return 0
+  _log 'warn' "The value of '${ENV_VAR_NAME}' is not zero or one ('${!ENV_VAR_NAME}'), but was expected to be"
+  return 1
+}
+
+# Check if an environment variable's value is an integer.
+#
+# This function will log a warning and return with exit code 1 in case the variable's value
+# is not an integer.
+#
+# @param ${1} = name of the ENV variable to check
+function _env_var_expect_integer
+{
+  local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_integer}
+
+  [[ ${!ENV_VAR_NAME} =~ ^-?[0-9][0-9]*$ ]] && return 0
+  _log 'warn' "The value of '${ENV_VAR_NAME}' is not an integer ('${!ENV_VAR_NAME}'), but was expected to be"
+  return 1
 }
