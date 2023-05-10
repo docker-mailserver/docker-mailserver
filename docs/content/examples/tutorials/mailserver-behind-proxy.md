@@ -105,7 +105,7 @@ and to `docker-data/dms/config/postfix-master.cf`:
 
 ```cf
 submission/inet/smtpd_upstream_proxy_protocol=haproxy
-smtps/inet/smtpd_upstream_proxy_protocol=haproxy
+submissions/inet/smtpd_upstream_proxy_protocol=haproxy
 ```
 
 Changes for `dovecot` can be applied by adding the following content to `docker-data/dms/config/dovecot.cf`:
