@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file. The format 
   - add DKIM helper script ([#3286](https://github.com/docker-mailserver/docker-mailserver/pull/3286))
 - make `policyd-spf` configurable ([#3246](https://github.com/docker-mailserver/docker-mailserver/pull/3246))
 - add 'log' command to setup for Fail2Ban ([#3299](https://github.com/docker-mailserver/docker-mailserver/pull/3299))
-- disallow alias = account ([#3270](https://github.com/docker-mailserver/docker-mailserver/pull/3270))
+- `setup` command now expects accounts and aliases to be mutually exclusive ([#3270](https://github.com/docker-mailserver/docker-mailserver/pull/3270))
 
 ### Updated
 
