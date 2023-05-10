@@ -1857,14 +1857,28 @@
 <span class="na">ENABLE_AMAVIS</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
 </code></pre></div>
-<p>This will enable Rspamd and disable services you don't need when using Rspamd. Note that with this setup, the default DKIM signing that DMS provides does not work (as it is disabled)! To solve this issue, look at <a href="#dkim-signing">this subsection</a>.</p>
+<p>This will enable Rspamd and disable services you don't need when using Rspamd.</p>
 <h3 id="adjusting-and-extending-the-very-basic-configuration"><a class="toclink" href="#adjusting-and-extending-the-very-basic-configuration">Adjusting and Extending The Very Basic Configuration</a></h3>
-<p>Rspamd is running, but you want or need to adjust it?</p>
+<p>Rspamd is running, but you want or need to adjust it? First, create a file named <code>custom-commands.conf</code> under <code>docker-data/dms/config/rspamd</code> (which translates to <code>/tmp/docker-mailserver/rspamd/</code> inside the container). Then add you changes:</p>
 <ol>
-<li>Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: create a file called <code>custom-commands.conf</code> and add the line <code>set-option-for-controller secure_ip "0.0.0.0/0"</code>. Place the file <code>custom-commands.conf</code> inside the directory on the host you mount to <code>/tmp/docker-mailserver/rspamd/</code> inside the container (in our documentation, we use <code>docker-data/dms/config/rspamd/</code> on the host for this purpose). And you're done! Note: this disables authentication on the website - make sure you know what you're doing!</li>
-<li>You additionally want to enable the auto-spam-learning for the Bayes module? No problem, just add another line to <code>custom-commands.conf</code> that looks like this: <code>set-option-for-module classifier-bayes autolearn true</code>.</li>
-<li>But the chartable module gets on your nerves? Just disable it by adding another line: <code>disable-module chartable</code>.</li>
+<li>Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: <code>set-option-for-controller secure_ip "0.0.0.0/0"</code>.</li>
+<li>You additionally want to enable the auto-spam-learning for the Bayes module? No problem: <code>set-option-for-module classifier-bayes autolearn true</code>.</li>
+<li>But the chartable module gets on your nerves? Easy: <code>disable-module chartable</code>.</li>
 </ol>
+<details class="example">
+<summary>What Does the Result Look Like?</summary>
+<p>Here is what the file looks like in the end:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># See 1.</span>
+<span class="c1"># ATTENTION: this disables authentication on the website - make sure you know what you&#39;re doing!</span>
+set-option-for-controller<span class="w"> </span>secure_ip<span class="w"> </span><span class="s2">&quot;0.0.0.0/0&quot;</span>
+
+<span class="c1"># See 2.</span>
+set-option-for-module<span class="w"> </span>classifier-bayes<span class="w"> </span>autolearn<span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># See 3.</span>
+disable-module<span class="w"> </span>chartable
+</code></pre></div>
+</details>
 <h3 id="dkim-signing"><a class="toclink" href="#dkim-signing">DKIM Signing</a></h3>
 <p>There is a dedicated <a href="../../best-practices/dkim_dmarc_spf/#dkim">section for setting up DKIM with Rspamd in our documentation</a>.</p>
 <h3 id="abusix-integration"><a class="toclink" href="#abusix-integration"><em>Abusix</em> Integration</a></h3>
