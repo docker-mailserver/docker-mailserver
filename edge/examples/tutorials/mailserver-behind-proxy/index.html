@@ -1593,7 +1593,7 @@
 </code></pre></div>
 <p>and to <code>docker-data/dms/config/postfix-master.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">submission/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span>
-<span class="na">smtps/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span>
+<span class="na">submissions/inet/smtpd_upstream_proxy_protocol</span><span class="o">=</span><span class="s">haproxy</span>
 </code></pre></div>
 <p>Changes for <code>dovecot</code> can be applied by adding the following content to <code>docker-data/dms/config/dovecot.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">haproxy_trusted_networks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;your-proxy-ip&gt;, &lt;optional-cidr-notation&gt;</span>
