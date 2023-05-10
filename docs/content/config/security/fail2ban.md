@@ -16,7 +16,7 @@ hide:
 
 !!! warning
 
-    DMS must be launched with the `NET_ADMIN` capability in order to be able to install the NFTables rules that actually ban IP addresses. Thus, either include `--cap-add=NET_ADMIN` in the `docker run` command, or the equivalent in the `compose.yml`:
+    DMS must be launched with the `NET_ADMIN` capability in order to be able to install the NFTables rules that actually ban IP addresses. Thus, either include `--cap-add=NET_ADMIN` in the `docker run` command, or the equivalent in the `compose.yaml`:
 
     ```yaml
     cap_add:
@@ -106,7 +106,7 @@ It is necessary for F2B to have access to the real source IP addresses in order 
 
 === "Podman"
 
-    [Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `compose.yml`:
+    [Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `compose.yaml`:
 
     !!! example
 

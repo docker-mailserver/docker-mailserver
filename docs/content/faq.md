@@ -21,9 +21,9 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 Then, run the following commands:
 
 ``` BASH
-docker-compose pull
-docker-compose down
-docker-compose up -d
+docker compose pull
+docker compose down
+docker compose up -d
 ```
 
 You should see the new version number on startup, for example: `[   INF   ]  Welcome to docker-mailserver 11.3.1`. And you're done! Don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
@@ -97,7 +97,7 @@ DMS supports multiple domains out of the box, so you can do this:
 
 #### Bind mounts (default)
 
-From the location of your `docker-compose.yml`, create a compressed archive of your `docker-data/dms/config/` and `docker-data/dms/mail-*` folders:
+From the location of your `compose.yaml`, create a compressed archive of your `docker-data/dms/config/` and `docker-data/dms/mail-*` folders:
 
 ```bash
 tar --gzip -cf "backup-$(date +%F).tar.gz" ./docker-data/dms
@@ -167,7 +167,7 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
-Also you need to define `hostname: example.com` in your `docker-compose.yml`.
+Also you need to define `hostname: example.com` in your `compose.yaml`.
 
 !!! tip "You might not want a bare domain"
 
@@ -281,7 +281,7 @@ Suppose you want to change a number of settings that are not listed as variables
 
 DMS has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
 
-It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
+It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `compose.yaml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
 Add or create the script file to your config directory:
 
@@ -376,7 +376,7 @@ Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
 For no subject set `SA_SPAM_SUBJECT=undef`.
 
-For a trailing white-space subject one can define the whole variable with quotes in `docker-compose.yml`:
+For a trailing white-space subject one can define the whole variable with quotes in `compose.yaml`:
 
 ```yaml
 environment:
@@ -411,7 +411,7 @@ The following configuration works nicely:
     Create a _system_ cron file:
 
     ```sh
-    # in the docker-compose.yml root directory
+    # in the compose.yaml root directory
     mkdir -p ./docker-data/dms/cron
     touch ./docker-data/dms/cron/sa-learn
     chown root:root ./docker-data/dms/cron/sa-learn
@@ -445,7 +445,7 @@ The following configuration works nicely:
     30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     ```
 
-    Then with `docker-compose.yml`:
+    Then with `compose.yaml`:
 
     ```yaml
     services:

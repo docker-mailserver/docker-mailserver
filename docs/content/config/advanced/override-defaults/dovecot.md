@@ -14,7 +14,7 @@ Your DMS folder structure should look like this example:
 │   ├── dovecot.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── docker-compose.yml
+├── compose.yaml
 └── README.md
 ```
 

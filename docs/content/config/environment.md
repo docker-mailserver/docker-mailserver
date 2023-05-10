@@ -10,7 +10,7 @@ title: Environment Variables
 
 ##### OVERRIDE_HOSTNAME
 
-If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `docker-compose.yml`.
+If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `compose.yaml`.
 
 - **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
 - => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
@@ -132,7 +132,7 @@ Enabled `policyd-spf` in Postfix's configuration. You will likely want to set th
 - **0** => fail2ban service disabled
 - 1 => Enables fail2ban service
 
-If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
+If you enable Fail2Ban, don't forget to add the following lines to your `compose.yaml`:
 
 ``` BASH
 cap_add:
@@ -458,7 +458,7 @@ Changes the interval in which log files are rotated.
 
     The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
 
-    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
+    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker compose down && docker compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
 
 !!! note
 
@@ -562,7 +562,7 @@ Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 - **empty** => mail.example.com
 - => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
-- NOTE: If you going to use DMS in combination with `docker-compose.yml` you can set the service name here
+- NOTE: If you going to use DMS in combination with `compose.yaml` you can set the service name here
 
 ##### LDAP_SEARCH_BASE
 

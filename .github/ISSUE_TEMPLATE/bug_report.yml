@@ -125,8 +125,8 @@ body:
   - type: textarea
     id: important-environment-variables
     attributes:
-      label: docker-compose.yml
-      description: Show us your `docker-compose.yml` file or your equivalent `docker run` command, if applicable. This filed is formatted as YAML.
+      label: compose.yaml
+      description: Show us your `compose.yaml` file or your equivalent `docker run` command, if applicable. This filed is formatted as YAML.
       render: yml
   - type: textarea
     id: relevant-log-output
