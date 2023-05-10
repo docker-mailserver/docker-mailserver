@@ -77,13 +77,13 @@ function _setup_ssl
     # Postfix configuration
     # NOTE: This operation doesn't replace the line, it appends to the end of the line.
     # Thus this method should only be used when this line has explicitly been replaced earlier in the script.
-    # Otherwise without `docker-compose down` first, a `docker-compose up` may
+    # Otherwise without `docker compose down` first, a `docker compose up` may
     # persist previous container state and cause a failure in postfix configuration.
     sedfile -i "s|^smtpd_tls_chain_files =.*|& ${PRIVATE_KEY_ALT} ${CERT_CHAIN_ALT}|" "${POSTFIX_CONFIG_MAIN}"
 
     # Dovecot configuration
     # Conditionally checks for `#`, in the event that internal container state is accidentally persisted,
-    # can be caused by: `docker-compose up` run again after a `ctrl+c`, without running `docker-compose down`
+    # can be caused by: `docker compose up` run again after a `ctrl+c`, without running `docker compose down`
     sedfile -i -r \
       -e "s|^#?(ssl_alt_key =).*|\1 <${PRIVATE_KEY_ALT}|" \
       -e "s|^#?(ssl_alt_cert =).*|\1 <${CERT_CHAIN_ALT}|" \
@@ -342,7 +342,7 @@ function _setup_ssl
       # | http://www.postfix.org/postconf.5.html#smtpd_tls_auth_only | http://www.postfix.org/TLS_README.html#server_tls_auth
       #
       # smtp_tls_wrappermode (default: not applied, 'no') | http://www.postfix.org/postconf.5.html#smtp_tls_wrappermode
-      # smtpd_tls_wrappermode (default: 'yes' for service port 'smtps') | http://www.postfix.org/postconf.5.html#smtpd_tls_wrappermode
+      # smtpd_tls_wrappermode (default: 'yes' for service port 'submissions') | http://www.postfix.org/postconf.5.html#smtpd_tls_wrappermode
       # NOTE: Enabling wrappermode requires a security_level of 'encrypt' or stronger. Port 465 presently does not meet this condition.
       #
       # Postfix main.cf (base config):
@@ -353,7 +353,7 @@ function _setup_ssl
       #
       # Postfix master.cf (per connection overrides):
       # Disables implicit TLS on port 465 for inbound (smtpd) and outbound (smtp) traffic. Treats it as equivalent to port 25 SMTP with explicit STARTTLS.
-      # Inbound 465 (aka service port aliases: submissions / smtps) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
+      # Inbound 465 (aka service port aliases: submissions) for Postfix to receive over implicit TLS (eg from MUA or functioning as a relay host).
       # Outbound 465 as alternative to port 587 when sending to another MTA (with authentication), such as a relay service (eg SendGrid).
       sedfile -i -r \
         -e "/smtpd?_tls_security_level/s|=.*|=none|" \

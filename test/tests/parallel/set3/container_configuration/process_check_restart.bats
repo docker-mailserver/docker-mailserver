@@ -197,7 +197,7 @@ function _check_if_process_is_running() {
 # The process manager (supervisord) should perform a graceful shutdown:
 # NOTE: Time limit should never be below these configured values:
 # - supervisor-app.conf:stopwaitsecs
-# - docker-compose.yml:stop_grace_period
+# - compose.yaml:stop_grace_period
 function _should_stop_cleanly() {
   run docker stop -t 60 "${CONTAINER_NAME}"
   assert_success
