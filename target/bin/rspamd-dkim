@@ -1,0 +1,279 @@
+#!/bin/bash
+
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
+_trap_err_signal
+
+set -u -eE -o pipefail
+shopt -s inherit_errexit
+
+# shellcheck source=/dev/null
+source /etc/dms-settings
+
+function __usage
+{
+  _log 'trace' 'Showing usage message now'
+  echo -e "${PURPLE}RSPAMD-DKIM${RED}(${YELLOW}8${RED})
+
+${ORANGE}NAME${RESET}
+    rspamd-dkim - Configure DomainKeys Identified Mail (DKIM) via Rspamd
+
+${ORANGE}SYNOPSIS${RESET}
+    setup config dkim [ OPTIONS${RED}...${RESET} ]
+
+${ORANGE}DESCRIPTION${RESET}
+    This script aids in creating DKIM signing keys. The keys are created and managed by Rspamd.
+    OPTIONS can be used to configure a more complex setup.
+
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
+        -v        Enable verbose logging (setting the log level to 'debug').
+        -vv       Enable very verbose logging (setting the log level to 'trace').
+        help      Print the usage information.
+
+    ${BLUE}Configuration adjustments${RESET}
+        keytype   Set the type of key you want to use
+                  Possible values: rsa, ed25519
+                  Default: rsa
+        keysize   Set the size of the keys to be generated
+                  Possible values: 1024, 2048 and 4096
+                  Default: 2048
+                  Only applies when using keytype=rsa
+        selector  Set a manual selector for the key
+                  Default: mail
+        domain    Provide the domain for which keys are to be generated
+                  Default: primary domain name of DMS
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}setup config dkim keysize 2048${RESET}
+        Creates keys of length 2048 bit in a default setup where domains are obtained from
+        your accounts.
+
+    ${LWHITE}setup config dkim keysize 512 selector 2023-dkim${RESET}
+        Creates keys of length 512 bit in a default setup where domains are obtained from
+        your accounts. The DKIM selector used is '2023-dkim'.
+
+    ${LWHITE}setup config dkim keysize 1024 selector 2023-dkim domain whoami.com${RESET}
+        Creates keys of length 1024 bit in a default setup where domains are obtained from your accounts.
+        The DKIM selector used is '2023-dkim'. The domain for which DKIM keys are generated is whoami.com.
+
+${ORANGE}EXIT STATUS${RESET}
+    Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
+    errors, the script will exit early with a non-zero exit status.
+
+"
+}
+
+function __do_as_rspamd_user
+{
+  local COMMAND=${1:?Command required when using __do_as_rspamd_user}
+  _log 'trace' "Running '${*}' as user '_rspamd' now"
+  shift 1
+  su -l '_rspamd' -s "$(command -v "${COMMAND}")" -- "${@}"
+}
+
+function _parse_arguments
+{
+  KEYTYPE='rsa'
+  KEYSIZE='2048'
+  SELECTOR='mail'
+  DOMAIN=${DOMAINNAME}
+
+  _log 'trace' "Options given to this script: '${*}'"
+
+  while [[ ${#} -gt 0 ]]
+  do
+    case "${1}" in
+
+      ( 'keytype' )
+        [[ -n ${2:-} ]] || _exit_with_error "No keytype provided after 'keytype' argument"
+        if [[ ${2} == 'rsa' ]] || [[ ${2} == 'ed25519' ]]
+        then
+          KEYTYPE=${2}
+          _log 'debug' "Keytype set to '${KEYTYPE}'"
+        else
+          _exit_with_error "Unknown keytype '${2}'"
+        fi
+        ;;
+
+      ( 'keysize' )
+        [[ -n ${2:-} ]] || _exit_with_error "No keysize provided after 'keysize' argument"
+        KEYSIZE=${2}
+        _log 'debug' "Keysize set to '${KEYSIZE}'"
+        ;;
+
+      ( 'selector' )
+        [[ -n ${2:-} ]] || _exit_with_error "No selector provided after 'selector' argument"
+        SELECTOR=${2}
+        _log 'debug' "Selector set to '${SELECTOR}'"
+        ;;
+
+      ( 'domain' )
+        [[ -n ${2:-} ]] || _exit_with_error "No domain provided after 'domain' argument"
+        DOMAIN=${2}
+        _log 'debug' "Domain set to '${DOMAIN}'"
+        ;;
+
+      ( 'help' )
+        __usage
+        exit 0
+        ;;
+
+      ( '-vv' )
+        # shellcheck disable=SC2034
+        LOG_LEVEL='trace'
+        shift 1
+        _log 'trace' 'Enabled trace-logging'
+        continue
+        ;;
+
+      ( '-v' )
+        # shellcheck disable=SC2034
+        LOG_LEVEL='debug'
+        shift 1
+        _log 'debug' 'Enabled debug-logging'
+        continue
+        ;;
+
+      ( * )
+        __usage
+        _exit_with_error "Unknown option(s) '${1}' ${2:+"and '${2}'"}"
+        ;;
+
+    esac
+
+    shift 2
+  done
+
+  if [[ ${KEYTYPE} == 'ed25519' ]] && [[ ${KEYSIZE} -ne 2048 ]]
+  then
+    _exit_with_error "Chosen keytype does not accept the 'keysize' argument"
+  fi
+
+  return 0
+}
+
+function _create_keys
+{
+  # Note: Variables not marked with `local` are used
+  # in other functions (after this function was called).
+  BASE_DIR='/tmp/docker-mailserver/rspamd/dkim'
+
+  if [[ ${KEYTYPE} == 'rsa' ]]
+  then
+    local BASE_FILE_NAME="${BASE_DIR}/${KEYTYPE}-${KEYSIZE}-${SELECTOR}-${DOMAIN}"
+    KEYTYPE_OPTIONS=('-b' "${KEYSIZE}")
+    _log 'info' "Creating DKIM keys of type '${KEYTYPE}' and lenght '${KEYSIZE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
+  else
+    local BASE_FILE_NAME="${BASE_DIR}/${KEYTYPE}-${SELECTOR}-${DOMAIN}"
+    KEYTYPE_OPTIONS=('-t' "${KEYTYPE}")
+    _log 'info' "Creating DKIM keys of type '${KEYTYPE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
+  fi
+
+  PUBLIC_KEY_FILE="${BASE_FILE_NAME}.public.txt"
+  PUBLIC_KEY_DNS_FILE="${BASE_FILE_NAME}.public.dns.txt"
+  PRIVATE_KEY_FILE="${BASE_FILE_NAME}.private.txt"
+
+  mkdir -p "${BASE_DIR}"
+  chown _rspamd:_rspamd "${BASE_DIR}"
+
+  # shellcheck disable=SC2310
+  if __do_as_rspamd_user rspamadm \
+      dkim_keygen                 \
+      -s "${SELECTOR}"            \
+      -d "${DOMAIN}"              \
+      "${KEYTYPE_OPTIONS[@]}"     \
+      -k "${PRIVATE_KEY_FILE}"    \
+      >"${PUBLIC_KEY_FILE}"
+  then
+      _log 'info' 'Successfully created DKIM keys'
+      _log 'debug' "Public key written to '${PUBLIC_KEY_FILE}'"
+      _log 'debug' "Private key written to '${PRIVATE_KEY_FILE}'"
+  else
+    _exit_with_error 'Creating keys failed'
+  fi
+}
+
+function _check_permissions
+{
+  # shellcheck disable=SC2310
+  if ! __do_as_rspamd_user ls "${BASE_DIR}" >/dev/null
+  then
+    _log 'warn' "The Rspamd user ('_rspamd') seems to be unable to list files in the keys directory ('${BASE_DIR}') - Rspamd may experience permission errors later"
+  elif ! __do_as_rspamd_user cat "${PRIVATE_KEY_FILE}" >/dev/null
+  then
+    _log 'warn' "The Rspamd user ('_rspamd') seems to be unable to read the private key file - Rspamd may experience permission errors later"
+  else
+    _log 'debug' 'Permissions on files and directories seem ok'
+  fi
+}
+
+function _setup_default_signing_conf
+{
+  local DEFAULT_CONFIG_FILE='/etc/rspamd/override.d/dkim_signing.conf'
+  if [[ -f ${DEFAULT_CONFIG_FILE} ]]
+  then
+    _log 'debug' "'${DEFAULT_CONFIG_FILE}' exists, not supplying a default"
+  else
+    _log 'info' "Supplying a default configuration ('${DEFAULT_CONFIG_FILE}')"
+    cat >"${DEFAULT_CONFIG_FILE}" << EOF
+# documentation: https://rspamd.com/doc/modules/dkim_signing.html
+
+enabled = true;
+
+sign_authenticated = true;
+sign_local = true;
+
+use_domain = "header";
+use_redis = false;   # don't change unless Redis also provides the DKIM keys
+use_esld = true;
+
+check_pubkey = true; # you wan't to use this in the beginning
+
+domain {
+    ${DOMAIN} {
+        path = "${PRIVATE_KEY_FILE}";
+        selector = "${SELECTOR}";
+    }
+}
+
+EOF
+    chown _rspamd:_rspamd "${DEFAULT_CONFIG_FILE}"
+  fi
+}
+
+function _transform_public_key_file_to_dns_record_contents
+{
+  _log 'trace' 'Transforming DNS zone format to DNS record content now'
+  : >"${PUBLIC_KEY_DNS_FILE}"
+  grep -o '".*"' "${PUBLIC_KEY_FILE}" | tr -d '"\n' >>"${PUBLIC_KEY_DNS_FILE}"
+  echo '' >>"${PUBLIC_KEY_DNS_FILE}"
+
+  if ! _log_level_is '(warn|error)'
+  then
+    _log 'info' "Here is the content of the TXT DNS record ${SELECTOR}._domainkey.${DOMAIN} that you need to create:\n"
+    cat "${PUBLIC_KEY_DNS_FILE}"
+    printf '\n'
+  fi
+}
+
+function _final_steps
+{
+  # We need to restart Rspamd so the changes take effect immediately.
+  if ! supervisorctl restart rspamd
+  then
+    _log 'warn' 'Could not restart Rspamd via Supervisord'
+  fi
+
+  _log 'trace' 'Finished DKIM key creation'
+}
+
+_obtain_hostname_and_domainname
+_require_n_parameters_or_print_usage 0 "${@}"
+_parse_arguments "${@}"
+_create_keys
+_check_permissions
+_setup_default_signing_conf
+_transform_public_key_file_to_dns_record_contents
+_final_steps
