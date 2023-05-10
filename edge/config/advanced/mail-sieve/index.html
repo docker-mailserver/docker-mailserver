@@ -1548,7 +1548,7 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
 <p>The <a href="https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_server/">Manage Sieve</a> extension allows users to modify their Sieve script by themselves. The authentication mechanisms are the same as for the main dovecot service. ManageSieve runs on port <code>4190</code> and needs to be enabled using the <code>ENABLE_MANAGESIEVE=1</code> environment variable.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># compose.yaml</span>
 <span class="nt">ports</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4190:4190&quot;</span>
 <span class="nt">environment</span><span class="p">:</span>

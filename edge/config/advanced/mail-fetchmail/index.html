@@ -1525,7 +1525,7 @@
 
   <h1>Email Gathering with Fetchmail</h1>
 
-<p>To enable the <a href="https://www.fetchmail.info">fetchmail</a> service to retrieve e-mails set the environment variable <code>ENABLE_FETCHMAIL</code> to <code>1</code>. Your <code>docker-compose.yml</code> file should look like following snippet:</p>
+<p>To enable the <a href="https://www.fetchmail.info">fetchmail</a> service to retrieve e-mails set the environment variable <code>ENABLE_FETCHMAIL</code> to <code>1</code>. Your <code>compose.yaml</code> file should look like following snippet:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FETCHMAIL=1</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FETCHMAIL_POLL=300</span>
@@ -1536,7 +1536,7 @@
 │   ├── fetchmail.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── docker-compose.yml
+├── compose.yaml
 └── README.md
 </code></pre></div>
 <h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>

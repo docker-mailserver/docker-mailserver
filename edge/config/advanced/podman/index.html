@@ -1622,7 +1622,7 @@ Make sure to read the related documentation.</p>
 </div>
 <h2 id="installation-in-rootfull-mode"><a class="toclink" href="#installation-in-rootfull-mode">Installation in Rootfull Mode</a></h2>
 <p>While using Podman, you can just manage docker-mailserver as what you did with Docker. Your best friend <code>setup.sh</code> includes the minimum code in order to support Podman since it's 100% compatible with the Docker CLI.</p>
-<p>The installation is basically the same. Podman v3.2 introduced a RESTful API that is 100% compatible with the Docker API, so you can use docker-compose with Podman easily. Install Podman and docker-compose with your package manager first.</p>
+<p>The installation is basically the same. Podman v3.2 introduced a RESTful API that is 100% compatible with the Docker API, so you can use Docker Compose with Podman easily. Install Podman and Docker Compose with your package manager first.</p>
 <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>podman<span class="w"> </span>docker-compose
 </code></pre></div>
 <p>Then enable <code>podman.socket</code> using <code>systemctl</code>.</p>
@@ -1630,8 +1630,8 @@ Make sure to read the related documentation.</p>
 </code></pre></div>
 <p>This will create a unix socket locate under <code>/run/podman/podman.sock</code>, which is the entrypoint of Podman's API. Now, configure docker-mailserver and start it.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:///run/podman/podman.sock&quot;</span>
-docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>mailserver
-docker-compose<span class="w"> </span>ps
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>mailserver
+docker<span class="w"> </span>compose<span class="w"> </span>ps
 </code></pre></div>
 <p>You should see that docker-mailserver is running now.</p>
 <h3 id="self-start-in-rootfull-mode"><a class="toclink" href="#self-start-in-rootfull-mode">Self-start in Rootfull Mode</a></h3>
@@ -1655,7 +1655,7 @@ systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> 
 <p>First, enable <code>podman.socket</code> in systemd's userspace with a non-root user.</p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>--user<span class="w"> </span>podman.socket
 </code></pre></div>
-<p>The socket file should be located at <code>/var/run/user/$(id -u)/podman/podman.sock</code>. Then, modify <code>docker-compose.yml</code> to make sure all ports are bindings are on non-privileged ports.</p>
+<p>The socket file should be located at <code>/var/run/user/$(id -u)/podman/podman.sock</code>. Then, modify <code>compose.yaml</code> to make sure all ports are bindings are on non-privileged ports.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
@@ -1665,21 +1665,21 @@ systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10587:587&quot;</span><span class="w">  </span><span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10993:993&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (implicit TLS)</span>
 </code></pre></div>
-<p>Then, setup your <code>mailserver.env</code> file follow the documentation and use docker-compose to start the container.</p>
+<p>Then, setup your <code>mailserver.env</code> file follow the documentation and use Docker Compose to start the container.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;unix:///var/run/user/</span><span class="k">$(</span>id<span class="w"> </span>-u<span class="k">)</span><span class="s2">/podman/podman.sock&quot;</span>
-docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>mailserver
-docker-compose<span class="w"> </span>ps
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>mailserver
+docker<span class="w"> </span>compose<span class="w"> </span>ps
 </code></pre></div>
 <h3 id="security-in-rootless-mode"><a class="toclink" href="#security-in-rootless-mode">Security in Rootless Mode</a></h3>
 <p>In rootless mode, podman resolves all incoming IPs as localhost, which results in an open gateway in the default configuration. There are two workarounds to fix this problem, both of which have their own drawbacks.</p>
 <h4 id="enforce-authentication-from-localhost"><a class="toclink" href="#enforce-authentication-from-localhost">Enforce authentication from localhost</a></h4>
 <p>The <code>PERMIT_DOCKER</code> variable in the <code>mailserver.env</code> file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting <code>PERMIT_DOCKER=none</code> enforces authentication also from localhost, which prevents sending unauthenticated emails.</p>
 <h4 id="use-the-slip4netns-network-driver"><a class="toclink" href="#use-the-slip4netns-network-driver">Use the slip4netns network driver</a></h4>
-<p>The second workaround is slightly more complicated because the <code>docker-compose.yml</code> has to be modified.
+<p>The second workaround is slightly more complicated because the <code>compose.yaml</code> has to be modified.
 As shown in the <a href="../../security/fail2ban/#podman-with-slirp4netns-port-driver">fail2ban section</a> the <code>slirp4netns</code> network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.</p>
-<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>docker-compose.yml</code>.</p>
+<p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>compose.yaml</code>.</p>
 <p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
@@ -1719,7 +1719,7 @@ firewall-cmd<span class="w"> </span>--reload
 <span class="c1"># After you set all ports up.</span>
 firewall-cmd<span class="w"> </span>--reload
 </code></pre></div>
-<p>Just map all the privilege port with non-privilege port you set in docker-compose.yml before as root user.</p>
+<p>Just map all the privilege port with non-privilege port you set in compose.yaml before as root user.</p>
 
 
 

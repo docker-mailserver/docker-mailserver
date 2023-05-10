@@ -1474,7 +1474,7 @@
 <h2 id="automatic-update"><a class="toclink" href="#automatic-update">Automatic Update</a></h2>
 <p>Docker images are handy but it can become a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.</p>
 <p>One could setup a complex action/hook-based workflow using probes, but there is a nice, easy to use docker image that solves this issue and could prove useful: <a href="https://hub.docker.com/r/containrrr/watchtower"><code>watchtower</code></a>.</p>
-<p>A docker-compose example:</p>
+<p>A Docker Compose example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">watchtower</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
@@ -1485,7 +1485,7 @@
 <p>For more details, see the <a href="https://containrrr.github.io/watchtower/">manual</a></p>
 <h2 id="automatic-cleanup"><a class="toclink" href="#automatic-cleanup">Automatic Cleanup</a></h2>
 <p>When you are pulling new images in automatically, it would be nice to have them cleaned up as well. There is also a docker image for this: <a href="https://hub.docker.com/r/spotify/docker-gc/"><code>spotify/docker-gc</code></a>.</p>
-<p>A docker-compose example:</p>
+<p>A Docker Compose example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">docker-gc</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>

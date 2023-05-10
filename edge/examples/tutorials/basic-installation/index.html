@@ -1486,7 +1486,7 @@
   <h1>Basic Installation</h1>
 
 <h2 id="a-basic-example-with-relevant-environmental-variables"><a class="toclink" href="#a-basic-example-with-relevant-environmental-variables">A Basic Example With Relevant Environmental Variables</a></h2>
-<p>This example provides you only with a basic example of what a minimal setup could look like. We <strong>strongly recommend</strong> that you go through the configuration file yourself and adjust everything to your needs. The default <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml">docker-compose.yml</a> can be used for the purpose out-of-the-box, see the <a href="../../../usage/"><em>Usage</em> chapter</a>.</p>
+<p>This example provides you only with a basic example of what a minimal setup could look like. We <strong>strongly recommend</strong> that you go through the configuration file yourself and adjust everything to your needs. The default <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml">compose.yaml</a> can be used for the purpose out-of-the-box, see the <a href="../../../usage/"><em>Usage</em> chapter</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
@@ -1570,7 +1570,7 @@
 </div>
 <ol>
 <li>
-<p>Create the file <code>docker-compose.yml</code> with a content like this:</p>
+<p>Create the file <code>compose.yaml</code> with a content like this:</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
@@ -1647,7 +1647,7 @@ mail  IN  A      10.11.12.13
 <p>Get an SSL certificate, <a href="../../../config/security/ssl/#lets-encrypt-recommended">we have a guide for you here</a> (<em>Let's Encrypt</em> is a popular service to get free SSL certificates).</p>
 </li>
 <li>
-<p>Start DMS and check the terminal output for any errors: <code>docker-compose up</code>.</p>
+<p>Start DMS and check the terminal output for any errors: <code>docker compose up</code>.</p>
 </li>
 <li>
 <p>Create email accounts and aliases:</p>
@@ -1677,7 +1677,7 @@ setup<span class="w"> </span><span class="nb">alias</span><span class="w"> </spa
 </div>
 </li>
 <li>
-<p>Send some test emails to these addresses and make other tests. Once everything is working well, stop the container with <code>ctrl+c</code> and start it again as a daemon: <code>docker-compose up -d</code>.</p>
+<p>Send some test emails to these addresses and make other tests. Once everything is working well, stop the container with <code>ctrl+c</code> and start it again as a daemon: <code>docker compose up -d</code>.</p>
 </li>
 </ol>
 

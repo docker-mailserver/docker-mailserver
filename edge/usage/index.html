@@ -1689,9 +1689,9 @@
 <li>The host should be able to send/receive on the <a href="../config/security/understanding-the-ports/#overview-of-email-ports">necessary ports for mail</a></li>
 <li>You should be able to set a <code>PTR</code> record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.</li>
 </ol>
-<p>On the host, you should have a suitable container runtime (like <em>Docker</em> or <em>Podman</em>) installed. We assume <a href="https://docs.docker.com/compose/"><em>Docker Compose</em></a> is <a href="https://docs.docker.com/compose/install/">installed</a>.</p>
-<div class="admonition info">
-<p class="admonition-title">Podman Support</p>
+<div class="admonition note">
+<p class="admonition-title">About the Container Runtime</p>
+<p>On the host, you need to have a suitable container runtime (like <em>Docker</em> or <em>Podman</em>) installed. We assume <a href="https://docs.docker.com/compose/"><em>Docker Compose</em></a> is <a href="https://docs.docker.com/compose/install/">installed</a>. We have aligned file names and configuration conventions with the latest <a href="https://docs.docker.com/compose/compose-file/">Docker Compose (currently V2) specification</a>.</p>
 <p>If you're using podman, make sure to read the related <a href="../config/advanced/podman/">documentation</a>.</p>
 </div>
 <h3 id="minimal-dns-setup"><a class="toclink" href="#minimal-dns-setup">Minimal DNS Setup</a></h3>
@@ -1748,12 +1748,12 @@
 <h3 id="get-all-files"><a class="toclink" href="#get-all-files">Get All Files</a></h3>
 <p>Issue the following commands to acquire the necessary files:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">DMS_GITHUB_URL</span><span class="o">=</span><span class="s2">&quot;https://github.com/docker-mailserver/docker-mailserver/blob/latest&quot;</span>
-wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/docker-compose.yml&quot;</span>
+wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/compose.yaml&quot;</span>
 wget<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DMS_GITHUB_URL</span><span class="si">}</span><span class="s2">/mailserver.env&quot;</span>
 </code></pre></div>
 <h3 id="configuration-steps"><a class="toclink" href="#configuration-steps">Configuration Steps</a></h3>
 <ol>
-<li>First edit <code>docker-compose.yml</code> to your liking<ul>
+<li>First edit <code>compose.yaml</code> to your liking<ul>
 <li>Substitute <code>mail.example.com</code> according to your FQDN.</li>
 <li>If you want to use SELinux for the <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code> mount, append <code>-z</code> or <code>-Z</code>.</li>
 </ul>

@@ -3413,7 +3413,7 @@
 </div>
 <h4 id="general"><a class="toclink" href="#general">General</a></h4>
 <h5 id="override_hostname"><a class="toclink" href="#override_hostname">OVERRIDE_HOSTNAME</a></h5>
-<p>If you can't set your hostname (<em>eg: you're in a container platform that doesn't let you</em>) specify it via this environment variable. It will have priority over <code>docker run --hostname</code>, or the equivalent <code>hostname:</code> field in <code>docker-compose.yml</code>.</p>
+<p>If you can't set your hostname (<em>eg: you're in a container platform that doesn't let you</em>) specify it via this environment variable. It will have priority over <code>docker run --hostname</code>, or the equivalent <code>hostname:</code> field in <code>compose.yaml</code>.</p>
 <ul>
 <li><strong>empty</strong> =&gt; Uses the <code>hostname -f</code> command to get canonical hostname for DMS to use.</li>
 <li>=&gt; Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.</li>
@@ -3516,7 +3516,7 @@
 <li><strong>0</strong> =&gt; fail2ban service disabled</li>
 <li>1 =&gt; Enables fail2ban service</li>
 </ul>
-<p>If you enable Fail2Ban, don't forget to add the following lines to your <code>docker-compose.yml</code>:</p>
+<p>If you enable Fail2Ban, don't forget to add the following lines to your <code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code>cap_add:
 <span class="w">  </span>-<span class="w"> </span>NET_ADMIN
 </code></pre></div>
@@ -3786,7 +3786,7 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <p class="admonition-title">Note</p>
 <p><code>LOGROTATE_INTERVAL</code> only manages <code>logrotate</code> within the container for services we manage internally.</p>
 <p>The entire log output for the container is still available via <code>docker logs mailserver</code> (or your respective container name). If you want to configure external log rotation for that container output as well, : <a href="https://docs.docker.com/config/containers/logging/configure/">Docker Logging Drivers</a>.</p>
-<p>By default, the logs are lost when the container is destroyed (eg: re-creating via <code>docker-compose down &amp;&amp; docker-compose up -d</code>). To keep the logs, mount a volume (to <code>/var/log/mail/</code>).</p>
+<p>By default, the logs are lost when the container is destroyed (eg: re-creating via <code>docker compose down &amp;&amp; docker compose up -d</code>). To keep the logs, mount a volume (to <code>/var/log/mail/</code>).</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3872,7 +3872,7 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <ul>
 <li><strong>empty</strong> =&gt; mail.example.com</li>
 <li>=&gt; Specify the dns-name/ip-address where the ldap-server is listening, or an URI like <code>ldaps://mail.example.com</code></li>
-<li>NOTE: If you going to use DMS in combination with <code>docker-compose.yml</code> you can set the service name here</li>
+<li>NOTE: If you going to use DMS in combination with <code>compose.yaml</code> you can set the service name here</li>
 </ul>
 <h5 id="ldap_search_base"><a class="toclink" href="#ldap_search_base">LDAP_SEARCH_BASE</a></h5>
 <ul>

@@ -1479,7 +1479,7 @@ plugin {
 </code></pre></div>
 </li>
 <li>
-<p>Shutdown your mailserver (<code>docker-compose down</code>)</p>
+<p>Shutdown your mailserver (<code>docker compose down</code>)</p>
 </li>
 <li>
 <p>You then need to <a href="https://doc.dovecot.org/configuration_manual/mail_crypt_plugin/#ec-key">generate your global EC key</a>. We named them <code>/certs/ecprivkey.pem</code> and <code>/certs/ecpubkey.pem</code> in step #1.</p>
@@ -1496,7 +1496,7 @@ plugin {
 </code></pre></div></p>
 </li>
 <li>
-<p>While you're editing the <code>docker-compose.yml</code>, add the configuration file:
+<p>While you're editing the <code>compose.yaml</code>, add the configuration file:
     <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>

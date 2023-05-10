@@ -1751,7 +1751,7 @@
 docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="w"> </span>mail.example.com
 </code></pre></div>
 <p>or</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># compose.yaml</span>
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
@@ -1778,7 +1778,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--hostname<span class="
 </div>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>:</p>
+<p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml"><code>compose.yaml</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
@@ -1805,7 +1805,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <p>Add a volume for DMS that maps the <em>local <code>certbot/certs/</code> folder</em> to the container path <code>/etc/letsencrypt/</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml"><code>docker-compose.yml</code></a>:</p>
+<p>Add these additions to the <code>mailserver</code> service in your <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml"><code>compose.yaml</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
@@ -1862,7 +1862,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 </li>
 <li>Store the file in a folder if you like, such as <code>docker-data/certbot/secrets/</code>.</li>
 <li>
-<p>Your <code>docker-compose.yml</code> should include the following:</p>
+<p>Your <code>compose.yaml</code> should include the following:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">environments</span><span class="p">:</span>
@@ -1899,7 +1899,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 </li>
 <li>
 <p>Run the service to provision a certificate:</p>
-<div class="highlight"><pre><span></span><code>docker-compose<span class="w"> </span>run<span class="w"> </span>certbot-cloudflare
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>run<span class="w"> </span>certbot-cloudflare
 </code></pre></div>
 </li>
 <li>
@@ -1920,7 +1920,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <details class="tip">
 <summary>Renewing a certificate (Optional)</summary>
 <p>We've only demonstrated how to provision a certificate, but it will expire in 90 days and need to be renewed before then.</p>
-<p>In the following example, add a new service (<code>certbot-cloudflare-renew</code>) into <code>docker-compose.yml</code> that will handle certificate renewals:</p>
+<p>In the following example, add a new service (<code>certbot-cloudflare-renew</code>) into <code>compose.yaml</code> that will handle certificate renewals:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">certbot-cloudflare-renew</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">certbot/dns-cloudflare:latest</span>
@@ -1932,7 +1932,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cloudflare-api-token</span>
 </code></pre></div>
 <p>You can manually run this service to renew the cert within 90 days:</p>
-<div class="highlight"><pre><span></span><code>docker-compose<span class="w"> </span>run<span class="w"> </span>certbot-cloudflare-renew
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>run<span class="w"> </span>certbot-cloudflare-renew
 </code></pre></div>
 <p>You should see the following output
 (The following log was generated with <code>--dry-run</code> options)</p>
@@ -1952,7 +1952,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 </code></pre></div>
 <p>It is recommended to automate this renewal via a task scheduler like a <em>systemd timer</em> or in <code>crontab</code>
 (<code>crontab</code> example: Checks every day if the certificate should be renewed)</p>
-<div class="highlight"><pre><span></span><code><span class="m">0</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>docker-compose<span class="w"> </span>-f<span class="w"> </span>PATH_TO_YOUR_DOCKER_COMPOSE_YML<span class="w"> </span>up<span class="w"> </span>certbot-cloudflare-renew
+<div class="highlight"><pre><span></span><code><span class="m">0</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>PATH_TO_YOUR_DOCKER_COMPOSE_YML<span class="w"> </span>up<span class="w"> </span>certbot-cloudflare-renew
 </code></pre></div>
 </details>
 <h4 id="example-using-nginx-proxy-and-acme-companion-with-docker"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with Docker</a></h4>
@@ -2002,7 +2002,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <p>You may want to add <code>--env LETSENCRYPT_TEST=true</code> to the above while testing, to avoid the <em>Let's Encrypt</em> certificate generation rate limits.</p>
 </li>
 <li>
-<p>Make sure your mount path to the <code>letsencrypt</code> certificates directory is correct. Edit your <code>docker-compose.yml</code> for the <code>mailserver</code> service to have volumes added like below:</p>
+<p>Make sure your mount path to the <code>letsencrypt</code> certificates directory is correct. Edit your <code>compose.yaml</code> for the <code>mailserver</code> service to have volumes added like below:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
@@ -2011,14 +2011,14 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 </code></pre></div>
 </li>
 <li>
-<p>Then from the <code>docker-compose.yml</code> project directory, run: <code>docker-compose up -d mailserver</code>.</p>
+<p>Then from the <code>compose.yaml</code> project directory, run: <code>docker compose up -d mailserver</code>.</p>
 </li>
 </ol>
 <h4 id="example-using-nginx-proxy-and-acme-companion-with-docker-compose"><a class="toclink" href="#example-using-nginx-proxy-and-acme-companion-with-docker-compose">Example using <code>nginx-proxy</code> and <code>acme-companion</code> with <code>docker-compose</code></a></h4>
 <p>The following example is the <a href="https://github.com/nginx-proxy/acme-companion#basic-usage-with-the-nginx-proxy-container">basic setup</a> you need for using <code>nginx-proxy</code> and <code>acme-companion</code> with DMS (<em>Referencing: <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs"><code>acme-companion</code> documentation</a></em>):</p>
 <details class="example" open="open">
-<summary>Example: <code>docker-compose.yml</code></summary>
-<p>You should have an existing <code>docker-compose.yml</code> with a <code>mailserver</code> service. Below are the modifications to add for integrating with <code>nginx-proxy</code> and <code>acme-companion</code> services:</p>
+<summary>Example: <code>compose.yaml</code></summary>
+<p>You should have an existing <code>compose.yaml</code> with a <code>mailserver</code> service. Below are the modifications to add for integrating with <code>nginx-proxy</code> and <code>acme-companion</code> services:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># Add the following `environment` and `volumes` to your existing `mailserver` service:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
@@ -2056,7 +2056,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx-proxy-acme</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="c1"># Only docker-compose v2 supports: `volumes_from: [nginx-proxy]`,</span>
+<span class="w">      </span><span class="c1"># When `volumes_from: [nginx-proxy]` is not supported,</span>
 <span class="w">      </span><span class="c1"># reference the _reverse-proxy_ `container_name` here:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NGINX_PROXY_CONTAINER=nginx-proxy</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
@@ -2124,7 +2124,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <h4 id="example-using-lets-encrypt-certificates-with-a-synology-nas"><a class="toclink" href="#example-using-lets-encrypt-certificates-with-a-synology-nas">Example using <em>Let's Encrypt</em> Certificates with a <em>Synology NAS</em></a></h4>
 <p>Version 6.2 and later of the Synology NAS DSM OS now come with an interface to generate and renew letencrypt certificates. Navigation into your DSM control panel and go to Security, then click on the tab Certificate to generate and manage letsencrypt certificates.</p>
 <p>Amongst other things, you can use these to secure your mail server. DSM locates the generated certificates in a folder below <code>/usr/syno/etc/certificate/_archive/</code>.</p>
-<p>Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your <code>docker-compose.yml</code> declaration file:</p>
+<p>Navigate to that folder and note the 6 character random folder name of the certificate you'd like to use. Then, add the following to your <code>compose.yaml</code> declaration file:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/syno/etc/certificate/_archive/&lt;your-folder&gt;/:/tmp/dms/custom-certs/</span>
 <span class="nt">environment</span><span class="p">:</span>
@@ -2319,7 +2319,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <span class="w">  </span>smallstep/step-ca
 </code></pre></div>
 <h3 id="bring-your-own-certificates"><a class="toclink" href="#bring-your-own-certificates">Bring Your Own Certificates</a></h3>
-<p>You can also provide your own certificate files. Add these entries to your <code>docker-compose.yml</code>:</p>
+<p>You can also provide your own certificate files. Add these entries to your <code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/custom-certs/:/tmp/dms/custom-certs/:ro</span>
 <span class="nt">environment</span><span class="p">:</span>

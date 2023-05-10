@@ -1607,7 +1607,7 @@ service indexer-worker {
 <p>adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments</p>
 </li>
 <li>
-<p>Update <code>docker-compose.yml</code> to load the previously created dovecot plugin config file:</p>
+<p>Update <code>compose.yaml</code> to load the previously created dovecot plugin config file:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">services</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
@@ -1635,18 +1635,18 @@ service indexer-worker {
 </li>
 <li>
 <p>Recreate containers:</p>
-<div class="highlight"><pre><span></span><code>docker-compose down
-docker-compose up -d
+<div class="highlight"><pre><span></span><code>docker compose down
+docker compose up -d
 </code></pre></div>
 </li>
 <li>
 <p>Initialize indexing on all users for all mail:</p>
-<div class="highlight"><pre><span></span><code>docker-compose exec mailserver doveadm index -A -q \*
+<div class="highlight"><pre><span></span><code>docker compose exec mailserver doveadm index -A -q \*
 </code></pre></div>
 </li>
 <li>
 <p>Run the following command in a daily cron job:</p>
-<p><div class="highlight"><pre><span></span><code>docker-compose exec mailserver doveadm fts optimize -A
+<p><div class="highlight"><pre><span></span><code>docker compose exec mailserver doveadm fts optimize -A
 </code></pre></div>
 Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within DMS to avoid potential errors if the mail server is not running:</p>
 </li>
@@ -1654,7 +1654,7 @@ Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-
 <details class="example">
 <summary>Example</summary>
 <p>Create a <em>system</em> cron file:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># in the docker-compose.yml root directory</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># in the compose.yaml root directory</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/cron<span class="w"> </span><span class="c1"># if you didn&#39;t have this folder before</span>
 touch<span class="w"> </span>./docker-data/dms/cron/fts_xapian
 chown<span class="w"> </span>root:root<span class="w"> </span>./docker-data/dms/cron/fts_xapian
@@ -1669,7 +1669,7 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
 <span class="c1"># Everyday 4:00AM, optimize index files</span>
 <span class="na">0  4 * * * root  doveadm fts optimize -A</span>
 </code></pre></div>
-<p>Then with <code>docker-compose.yml</code>:</p>
+<p>Then with <code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
@@ -1684,7 +1684,7 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
 <h4 id="setup_1"><a class="toclink" href="#setup_1">Setup</a></h4>
 <ol>
 <li>
-<p><code>docker-compose.yml</code>:</p>
+<p><code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lmmdock/dovecot-solr:latest</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
@@ -1714,10 +1714,10 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
 </code></pre></div>
 </li>
 <li>
-<p>Recreate containers: <code>docker-compose down ; docker-compose up -d</code></p>
+<p>Recreate containers: <code>docker compose down ; docker compose up -d</code></p>
 </li>
 <li>
-<p>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker-compose exec mailserver doveadm fts rescan -A</code></p>
+<p>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker compose exec mailserver doveadm fts rescan -A</code></p>
 </li>
 </ol>
 <h4 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h4>

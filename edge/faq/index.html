@@ -2046,9 +2046,9 @@
 <h3 id="how-do-i-update-dms"><a class="toclink" href="#how-do-i-update-dms">How do I update DMS?</a></h3>
 <p><strong>Make sure to read the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md">CHANGELOG</a></strong> before updating to new versions, to be prepared for possible breaking changes.</p>
 <p>Then, run the following commands:</p>
-<div class="highlight"><pre><span></span><code>docker-compose<span class="w"> </span>pull
-docker-compose<span class="w"> </span>down
-docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>pull
+docker<span class="w"> </span>compose<span class="w"> </span>down
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 <p>You should see the new version number on startup, for example: <code>[   INF   ]  Welcome to docker-mailserver 11.3.1</code>. And you're done! Don't forget to have a look at the remaining functions of the <code>setup.sh</code> script with <code>./setup.sh help</code>.</p>
 <h3 id="which-operating-systems-are-supported"><a class="toclink" href="#which-operating-systems-are-supported">Which operating systems are supported?</a></h3>
@@ -2100,7 +2100,7 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 <h3 id="what-about-backups"><a class="toclink" href="#what-about-backups">What about backups?</a></h3>
 <h4 id="bind-mounts-default"><a class="toclink" href="#bind-mounts-default">Bind mounts (default)</a></h4>
-<p>From the location of your <code>docker-compose.yml</code>, create a compressed archive of your <code>docker-data/dms/config/</code> and <code>docker-data/dms/mail-*</code> folders:</p>
+<p>From the location of your <code>compose.yaml</code>, create a compressed archive of your <code>docker-data/dms/config/</code> and <code>docker-data/dms/mail-*</code> folders:</p>
 <div class="highlight"><pre><span></span><code>tar<span class="w"> </span>--gzip<span class="w"> </span>-cf<span class="w"> </span><span class="s2">&quot;backup-</span><span class="k">$(</span>date<span class="w"> </span>+%F<span class="k">)</span><span class="s2">.tar.gz&quot;</span><span class="w"> </span>./docker-data/dms
 </code></pre></div>
 <p>Then to restore <code>docker-data/dms/config/</code> and <code>docker-data/dms/mail-*</code> folders from your backup file:</p>
@@ -2147,7 +2147,7 @@ find<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</s
 <div class="highlight"><pre><span></span><code><span class="go">warning: do not list domain example.com in BOTH mydestination and virtual_mailbox_domains</span>
 </code></pre></div>
 <p>Plus of course mail delivery fails.</p>
-<p>Also you need to define <code>hostname: example.com</code> in your <code>docker-compose.yml</code>.</p>
+<p>Also you need to define <code>hostname: example.com</code> in your <code>compose.yaml</code>.</p>
 <div class="admonition tip">
 <p class="admonition-title">You might not want a bare domain</p>
 <p>We encourage you to consider using a subdomain where possible.</p>
@@ -2220,7 +2220,7 @@ Few examples of symptoms can be found <a href="https://github.com/docker-mailser
 <h3 id="how-to-adjust-settings-with-the-user-patchessh-script"><a class="toclink" href="#how-to-adjust-settings-with-the-user-patchessh-script">How to adjust settings with the <code>user-patches.sh</code> script</a></h3>
 <p>Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?</p>
 <p>DMS has a built-in way to do post-install processes. If you place a script called <strong><code>user-patches.sh</code></strong> in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.</p>
-<p>It is common to use a local directory for config added to <code>docker-mailsever</code> via a volume mount in your <code>docker-compose.yml</code> (eg: <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
+<p>It is common to use a local directory for config added to <code>docker-mailsever</code> via a volume mount in your <code>compose.yaml</code> (eg: <code>./docker-data/dms/config/:/tmp/docker-mailserver/</code>).</p>
 <p>Add or create the script file to your config directory:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>./docker-data/dms/config
 touch<span class="w"> </span>user-patches.sh
@@ -2282,7 +2282,7 @@ supervisorctl<span class="w"> </span>update
 <p>Antispam rules are managed in <code>docker-data/dms/config/spamassassin-rules.cf</code>.</p>
 <h4 id="what-are-acceptable-sa_spam_subject-values"><a class="toclink" href="#what-are-acceptable-sa_spam_subject-values">What are acceptable <code>SA_SPAM_SUBJECT</code> values?</a></h4>
 <p>For no subject set <code>SA_SPAM_SUBJECT=undef</code>.</p>
-<p>For a trailing white-space subject one can define the whole variable with quotes in <code>docker-compose.yml</code>:</p>
+<p>For a trailing white-space subject one can define the whole variable with quotes in <code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;SA_SPAM_SUBJECT=[SPAM]</span><span class="nv"> </span><span class="s">&quot;</span>
 </code></pre></div>
@@ -2303,7 +2303,7 @@ supervisorctl<span class="w"> </span>update
 <details class="example">
 <summary>Example</summary>
 <p>Create a <em>system</em> cron file:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># in the docker-compose.yml root directory</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># in the compose.yaml root directory</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/cron
 touch<span class="w"> </span>./docker-data/dms/cron/sa-learn
 chown<span class="w"> </span>root:root<span class="w"> </span>./docker-data/dms/cron/sa-learn
@@ -2333,7 +2333,7 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
 <span class="c1"># ham: inbox subdirectories</span>
 <span class="na">30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin &gt; /dev/null</span>
 </code></pre></div>
-<p>Then with <code>docker-compose.yml</code>:</p>
+<p>Then with <code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
