@@ -136,8 +136,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         use_domain = "header";
         use_redis = false; # don't change unless Redis also provides the DKIM keys
         use_esld = true;
-
-        check_pubkey = true; # you wan't to use this in the beginning
+        check_pubkey = true; # you want to use this in the beginning
 
         domain {
             example.com {
@@ -193,7 +192,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         When `check_pubkey = true;` is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
 
-        If there is a mismatch, a warning will be omitted to the Rspamd log `/var/log/supervisor/rspamd.log`.
+        If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/supervisor/rspamd.log`.
 
     [docs-rspamd-override-d]: ../security/rspamd.md#manually
 
@@ -327,7 +326,6 @@ Then add this line to `compose.yaml`:
 volumes:
   - ./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf
 ```
-
 
 [docs-accounts-add]: ../user-management.md#adding-a-new-account
 [docs-volumes-config]: ../advanced/optional-config.md
