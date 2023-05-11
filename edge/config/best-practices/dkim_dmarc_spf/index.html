@@ -1691,8 +1691,7 @@
 <span class="na">use_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="c1">;</span>
 <span class="na">use_redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="c1">; # don&#39;t change unless Redis also provides the DKIM keys</span>
 <span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
-
-<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">; # you wan&#39;t to use this in the beginning</span>
+<span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">; # you want to use this in the beginning</span>
 
 <span class="na">domain {</span>
 <span class="w">    </span><span class="na">example.com {</span>
@@ -1744,7 +1743,7 @@
 <details class="tip">
 <summary>Let Rspamd Check Your Keys</summary>
 <p>When <code>check_pubkey = true;</code> is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.</p>
-<p>If there is a mismatch, a warning will be omitted to the Rspamd log <code>/var/log/supervisor/rspamd.log</code>.</p>
+<p>If there is a mismatch, a warning will be emitted to the Rspamd log <code>/var/log/supervisor/rspamd.log</code>.</p>
 </details>
 </div>
 </div>
