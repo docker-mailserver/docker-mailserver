@@ -51,7 +51,7 @@ function _setup_opendkim
   fi
 }
 
-# Set up OpenDKIM
+# Set up OpenDMARC
 #
 # ## Attention
 #
