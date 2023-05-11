@@ -1670,6 +1670,10 @@
 </code></pre></div>
 <p>will execute the helper script with default parameters.</p>
 </div>
+<details class="warning">
+<summary>Using Multiple Domains</summary>
+<p>Unlike the current script for OpenDKIM, the Rspamd script will <strong>not</strong> create keys for all domains DMS is managing, but only for the one it assumes to be the main domain (derived from DMS' domain name). Moreover, the default <code>dkim_signing.conf</code> configuration file that DMS ships will also only contain one domain. If you have multiple domains, you need to run the command <code>docker exec -ti &lt;CONTAINER NAME&gt; setup config dkim domain &lt;DOMAIN&gt;</code> multiple times to create all the keys for all domains, and then provide a custom <code>dkim_signing.conf</code> (for which an example is shown below).</p>
+</details>
 <div class="admonition info">
 <p class="admonition-title">About the Helper Script</p>
 <p>The script will persist the keys in <code>/tmp/docker-mailserver/rspamd/dkim/</code>. Hence, if you are already using the default volume mounts, the keys are persisted in a volume. The script also restarts Rspamd directly, so changes take effect without restarting DMS.</p>
@@ -1702,23 +1706,15 @@
 </code></pre></div>
 <p>As shown next:</p>
 <ul>
-<li>You can add more domains into the <code>domain { ... }</code> section.</li>
-<li>A domain can also be configured with multiple selectors and keys within a <code>selectors [ ... ]</code> array.</li>
+<li>You can add more domains into the <code>domain { ... }</code> section (in the following example: <code>example.com</code> and <code>example.org</code>).</li>
+<li>A domain can also be configured with multiple selectors and keys within a <code>selectors [ ... ]</code> array (in the following example, this is done for <code>example.org</code>).</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
 
 <span class="na">domain {</span>
 <span class="w">    </span><span class="na">example.com {</span>
-<span class="w">        </span><span class="na">selectors [</span>
-<span class="w">            </span><span class="na">{</span>
-<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/rspamd/dkim/example.com/rsa.private&quot;</span><span class="c1">;</span>
-<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-rsa&quot;</span><span class="c1">;</span>
-<span class="w">            </span><span class="na">},</span>
-<span class="w">            </span><span class="na">{</span>
-<span class="w">                </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/tmp/docker-mailserver/rspamd/example.com/ed25519.private&quot;</span><span class="c1">;</span>
-<span class="w">                </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;</span><span class="c1">;</span>
-<span class="w">            </span><span class="na">}</span>
-<span class="w">        </span><span class="na">]</span>
+<span class="w">        </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/tmp/docker-mailserver/rspamd/example.com/ed25519.private&quot;</span><span class="c1">;</span>
+<span class="w">        </span><span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dkim-ed25519&quot;</span><span class="c1">;</span>
 <span class="w">    </span><span class="na">}</span>
 <span class="w">    </span><span class="na">example.org {</span>
 <span class="w">        </span><span class="na">selectors [</span>
