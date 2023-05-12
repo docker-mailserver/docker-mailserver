@@ -80,7 +80,7 @@ body:
       label: What happened and when does this occur?
       description: >
         Tell us what happened.
-        **It would also help immensely if you can share precise steps on how to reproduce the issue! ** :heart: 
+        **It would also help immensely if you can share precise steps on how to reproduce the issue!** :heart:
         Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
     validations:
