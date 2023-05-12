@@ -50,7 +50,7 @@ body:
       label: What computer architecture is the host running?
       options:
         - AMD64 (x86_64)
-        - ARM64 (ARMv8 and newer)
+        - ARM64 (AArch64)
         - Other (unsupported)
     validations:
       required: true
@@ -80,7 +80,7 @@ body:
       label: What happened and when does this occur?
       description: >
         Tell us what happened.
-        **Make sure to give us instruction on how we replicate the issue! Be precise and include as much information as possible!**
+        **It would also help immensely if you can share precise steps on how to reproduce the issue! ** :heart: 
         Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
     validations:
@@ -111,7 +111,7 @@ body:
   - type: checkboxes
     id: experience
     attributes:
-      label: What level of experience do you have with containers, mail servers and command line interfaces?
+      label: What level of experience do you have with containers, mail servers, and using a terminal?
       description: >
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
@@ -122,8 +122,8 @@ body:
         - label: I am rather experienced with containers
         - label: I am inexperienced with mail servers
         - label: I am rather experienced with mail servers
-        - label: I am uncomfortable with command line interfaces
-        - label: I am rather comfortable with command line interfaces
+        - label: I am uncomfortable with using a terminal (CLI)
+        - label: I am rather comfortable with using a terminal (CLI)
   - type: input
     id: form-improvements
     attributes:
