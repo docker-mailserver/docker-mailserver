@@ -188,7 +188,7 @@ function __setup__security__clamav
       _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
 
       # do a short sanity checks; ClamAV stops scanning at more that 4GB file size
-      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") > $(numfmt --from=si 4G) ]]
+      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -gt $(numfmt --from=si 4G) ]]
       then
         _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 4 Gigabyte which ClamAV does not support - you should correct your configuration"
       fi
