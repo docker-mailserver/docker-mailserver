@@ -20,6 +20,7 @@ function setup_file() {
     --env ENABLE_OPENDMARC=0
     --env ENABLE_POLICYD_SPF=0
     --env ENABLE_POSTGREY=0
+    --env CLAMAV_MESSAGE_SIZE_LIMIT=42M
     --env PERMIT_DOCKER=host
     --env LOG_LEVEL=trace
     --env MOVE_SPAM_TO_JUNK=1
@@ -78,6 +79,7 @@ function teardown_file() { _default_teardown ; }
   run docker logs "${CONTAINER_NAME}"
   assert_success
   assert_line --partial 'Enabling ClamAV integration'
+  assert_line --partial 'Adjusting maximum size for ClamAV to 42000000 bytes (42M)'
   assert_line --partial 'Setting up intelligent learning of spam and ham'
   assert_line --partial 'Enabling greylisting'
   assert_line --partial 'Hfilter (group) module is enabled'
@@ -94,6 +96,11 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'lua module spamassassin is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module url_redirector is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module metric_exporter is disabled in the configuration'
+}
+
+@test 'antivirus maximum size was adjusted' {
+  _run_in_container grep 'max_size = 42000000' /etc/rspamd/local.d/antivirus.conf
+  assert_success
 }
 
 @test 'normal mail passes fine' {

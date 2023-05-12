@@ -164,6 +164,14 @@ function __rspamd__setup_clamav
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' "${RSPAMD_LOCAL_D}/antivirus.conf"
     # Rspamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
     usermod -a -G clamav _rspamd
+
+    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]
+    then
+      local SIZE_IN_BYTES
+      SIZE_IN_BYTES=$(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}")
+      __rspamd__log 'trace' "Adjusting maximum size for ClamAV to ${SIZE_IN_BYTES} bytes (${CLAMAV_MESSAGE_SIZE_LIMIT})"
+      sedfile -i -E "s|(.*max_size =).*|\1 ${SIZE_IN_BYTES};|" "${RSPAMD_LOCAL_D}/antivirus.conf"
+    fi
   else
     __rspamd__log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
