@@ -368,7 +368,7 @@ When enabled,
 
 ##### RSPAMD_HFILTER
 
-Can be used to enable or disable the [Hfilter group module][rspamd-docs-hfilter-group-module]. This is used by DMS to adjust the `HFILTER_HOSTNAME_UNKNOWN` symbol, increasing it's default weight to act similar to Postfix's `reject_unknown_client_hostname`, without the need to outright reject a message.
+Can be used to enable or disable the [Hfilter group module][rspamd-docs-hfilter-group-module]. This is used by DMS to adjust the `HFILTER_HOSTNAME_UNKNOWN` symbol, increasing its default weight to act similar to Postfix's `reject_unknown_client_hostname`, without the need to outright reject a message.
 
 - 0 => Disabled
 - **1** => Enabled

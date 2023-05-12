@@ -78,11 +78,11 @@ function __rspamd__run_early_setup_and_checks
   if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]
   then
     __rspamd__log 'debug' "Found directory '${RSPAMD_DMS_OVERRIDE_D}' - linking it to '${RSPAMD_OVERRIDE_D}'"
-    if rmdir "${RSPAMD_OVERRIDE_D}"
+    if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null
     then
       ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
     else
-      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
+      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty? not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
     fi
   fi
 
