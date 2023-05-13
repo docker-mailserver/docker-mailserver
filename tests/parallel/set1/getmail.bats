@@ -13,7 +13,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'default configuration exists and is correct' {
-  _run_in_container cat /etc/getmailrc_general 
+  _run_in_container cat /etc/getmailrc_general
   assert_success
   assert_output '[options]
 verbose = 0
