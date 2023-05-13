@@ -24,10 +24,10 @@ function _setup_dovecot
 
     ( 'sdbox' | 'mdbox' )
       _log 'trace' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
-      sed -i -e \
-        "s|^mail_location = .*$|mail_location = ${DOVECOT_MAILBOX_FORMAT}:\/var\/mail\/%d\/%n|g" \
+      sedfile -i -E "s|^(mail_home =).*|\1 /var/mail/%d/%n|" /etc/dovecot/conf.d/10-mail.conf
+      sedfile -i -E \
+        "s|^(mail_location =).*|\1 ${DOVECOT_MAILBOX_FORMAT}:/var/mail/%d/%n|" \
         /etc/dovecot/conf.d/10-mail.conf
-
       _log 'trace' 'Enabling cron job for dbox purge'
       mv /etc/cron.d/dovecot-purge.disabled /etc/cron.d/dovecot-purge
       chmod 644 /etc/cron.d/dovecot-purge
@@ -35,7 +35,6 @@ function _setup_dovecot
 
     ( * )
       _log 'trace' 'Dovecot default format (maildir) configured'
-      sed -i -e 's|^mail_location = .*$|mail_location = maildir:\/var\/mail\/%d\/%n|g' /etc/dovecot/conf.d/10-mail.conf
       ;;
 
   esac
