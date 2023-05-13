@@ -109,6 +109,10 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         will execute the helper script with default parameters.
 
+    ??? warning "Using Multiple Domains"
+
+        Unlike the current script for OpenDKIM, the Rspamd script will **not** create keys for all domains DMS is managing, but only for the one it assumes to be the main domain (derived from DMS' domain name). Moreover, the default `dkim_signing.conf` configuration file that DMS ships will also only contain one domain. If you have multiple domains, you need to run the command `docker exec -ti <CONTAINER NAME> setup config dkim domain <DOMAIN>` multiple times to create all the keys for all domains, and then provide a custom `dkim_signing.conf` (for which an example is shown below).
+
     !!! info "About the Helper Script"
 
         The script will persist the keys in `/tmp/docker-mailserver/rspamd/dkim/`. Hence, if you are already using the default volume mounts, the keys are persisted in a volume. The script also restarts Rspamd directly, so changes take effect without restarting DMS.
@@ -136,8 +140,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         use_domain = "header";
         use_redis = false; # don't change unless Redis also provides the DKIM keys
         use_esld = true;
-
-        check_pubkey = true; # you wan't to use this in the beginning
+        check_pubkey = true; # you want to use this in the beginning
 
         domain {
             example.com {
@@ -149,24 +152,16 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         As shown next:
 
-        - You can add more domains into the `domain { ... }` section.
-        - A domain can also be configured with multiple selectors and keys within a `selectors [ ... ]` array.
+        - You can add more domains into the `domain { ... }` section (in the following example: `example.com` and `example.org`).
+        - A domain can also be configured with multiple selectors and keys within a `selectors [ ... ]` array (in the following example, this is done for `example.org`).
 
         ```cf
         # ...
 
         domain {
             example.com {
-                selectors [
-                    {
-                        path = "/tmp/docker-mailserver/rspamd/dkim/example.com/rsa.private";
-                        selector = "dkim-rsa";
-                    },
-                    {
-                        path = /tmp/docker-mailserver/rspamd/example.com/ed25519.private";
-                        selector = "dkim-ed25519";
-                    }
-                ]
+                path = /tmp/docker-mailserver/rspamd/example.com/ed25519.private";
+                selector = "dkim-ed25519";
             }
             example.org {
                 selectors [
@@ -193,7 +188,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         When `check_pubkey = true;` is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
 
-        If there is a mismatch, a warning will be omitted to the Rspamd log `/var/log/supervisor/rspamd.log`.
+        If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/supervisor/rspamd.log`.
 
     [docs-rspamd-override-d]: ../security/rspamd.md#manually
 
@@ -321,13 +316,12 @@ Whitelist = 192.168.0.0/31,192.168.1.0/30
 # Domain_Whitelist = mx1.not-example.com,mx2.not-example.com
 ```
 
-Then add this line to `docker-compose.yml`:
+Then add this line to `compose.yaml`:
 
 ```yaml
 volumes:
   - ./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf
 ```
-
 
 [docs-accounts-add]: ../user-management.md#adding-a-new-account
 [docs-volumes-config]: ../advanced/optional-config.md

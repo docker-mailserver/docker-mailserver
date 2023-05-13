@@ -27,8 +27,8 @@ submission     inet  n       -       n       -       -       smtpd
   -o milter_macro_daemon_name=ORIGINATING
   -o cleanup_service_name=sender-cleanup
 
-smtps          inet  n       -       n       -       -       smtpd
-  -o syslog_name=postfix/smtps
+submissions    inet  n       -       n       -       -       smtpd
+  -o syslog_name=postfix/submissions
   -o smtpd_tls_wrappermode=yes
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_sasl_type=dovecot

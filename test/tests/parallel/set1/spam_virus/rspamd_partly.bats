@@ -57,6 +57,11 @@ function teardown_file() { _default_teardown ; }
   assert_line --partial 'Disabling Hfilter (group) module'
 }
 
+@test 'antivirus maximum size was not adjusted unnecessarily' {
+  _run_in_container grep 'max_size = 25000000' /etc/rspamd/local.d/antivirus.conf
+  assert_success
+}
+
 @test 'learning is properly disabled' {
   for FILE in learn-{ham,spam}.{sieve,svbin}
   do

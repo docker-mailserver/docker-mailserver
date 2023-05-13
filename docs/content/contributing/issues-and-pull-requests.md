@@ -20,6 +20,18 @@ By raising issues, I agree to these terms and I understand, that the rules set f
 
 Maintainers take the time to improve on this project and help by solving issues together. It is therefore expected from others to make an effort and **comply with the rules**.
 
+### Filing a Bug Report
+
+Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts!
+
+Maintainers and moderators are volunteers. We greatly appreciate reports that take the time to provide detailed information via the template, enabling us to help you in the best and quickest way. Ignoring the template provided may seem easier, but discourages receiving any support (_via assignment of the label `meta/no template - no support`_).
+
+Markdown formatting can be used in almost all text fields (_unless stated otherwise in the description_).
+
+Be as precise as possible, and if in doubt, it's best to add more information that too few.
+
+When an option is marked with "not officially supported" / "unsupported", then support is dependent on availability from specific maintainers.
+
 ## Pull Requests
 
 !!! question "Motivation"

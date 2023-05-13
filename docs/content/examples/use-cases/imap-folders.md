@@ -16,7 +16,7 @@ See [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] for ex
 
 The `Archive` special IMAP folder may be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
 
-With the provided [docker-compose.yml][github-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
+With the provided [compose.yaml][github-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
 
 ```yaml
 volumes:
@@ -60,12 +60,12 @@ Take care to test localized names work well as well.
 !!! note "Needs citation"
 
     This information is provided by the community.
-    
+
     It presently lacks references to confirm the behaviour. If any information is incorrect please let us know! :smile:
 
 
 [docs-config-overrides-dovecot]: ../../config/advanced/override-defaults/dovecot.md#override-configuration
-[github-config-dockercompose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml
+[github-config-dockercompose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml
 [github-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
 [dovecot-docs-namespaces]: https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox
 [dovecot-docs-mailboxes]: https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings

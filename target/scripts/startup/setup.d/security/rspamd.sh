@@ -78,11 +78,11 @@ function __rspamd__run_early_setup_and_checks
   if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]
   then
     __rspamd__log 'debug' "Found directory '${RSPAMD_DMS_OVERRIDE_D}' - linking it to '${RSPAMD_OVERRIDE_D}'"
-    if rmdir "${RSPAMD_OVERRIDE_D}"
+    if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null
     then
       ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
     else
-      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
+      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty? not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
     fi
   fi
 
@@ -164,6 +164,14 @@ function __rspamd__setup_clamav
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' "${RSPAMD_LOCAL_D}/antivirus.conf"
     # Rspamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
     usermod -a -G clamav _rspamd
+
+    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]
+    then
+      local SIZE_IN_BYTES
+      SIZE_IN_BYTES=$(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}")
+      __rspamd__log 'trace' "Adjusting maximum size for ClamAV to ${SIZE_IN_BYTES} bytes (${CLAMAV_MESSAGE_SIZE_LIMIT})"
+      sedfile -i -E "s|(.*max_size =).*|\1 ${SIZE_IN_BYTES};|" "${RSPAMD_LOCAL_D}/antivirus.conf"
+    fi
   else
     __rspamd__log 'debug' 'Rspamd will not use ClamAV (which has not been enabled)'
   fi
@@ -214,13 +222,13 @@ function __rspamd__setup_learning
     sedfile -i -E '/^}/d' /etc/dovecot/conf.d/90-sieve.conf
     cat >>/etc/dovecot/conf.d/90-sieve.conf << EOF
 
-  # From elsewhere to Junk folder
+  # From anyhwere to Junk
   imapsieve_mailbox1_name = Junk
   imapsieve_mailbox1_causes = COPY
   imapsieve_mailbox1_before = file:${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve
 
-  # From Junk folder to elsewhere
-  imapsieve_mailbox2_name = *
+  # From Junk to Inbox
+  imapsieve_mailbox2_name = INBOX
   imapsieve_mailbox2_from = Junk
   imapsieve_mailbox2_causes = COPY
   imapsieve_mailbox2_before = file:${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve

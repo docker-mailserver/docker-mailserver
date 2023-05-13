@@ -4,7 +4,7 @@ title: 'Tutorials | Basic Installation'
 
 ## A Basic Example With Relevant Environmental Variables
 
-This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [docker-compose.yml](https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml) can be used for the purpose out-of-the-box, see the [_Usage_ chapter](../../usage.md).
+This example provides you only with a basic example of what a minimal setup could look like. We **strongly recommend** that you go through the configuration file yourself and adjust everything to your needs. The default [compose.yaml](https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml) can be used for the purpose out-of-the-box, see the [_Usage_ chapter](../../usage.md).
 
 ``` YAML
 services:
@@ -96,7 +96,7 @@ In this setup DMS is not intended to receive email from the outside world, so no
 
     Adding the docker network's gateway to the list of trusted hosts (_eg: using the `network` or `connected-networks` option_), can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay). For instance [if IPv6 is enabled on the host machine, but not in Docker][github-issue-1405-comment].
 
-1. Create the file `docker-compose.yml` with a content like this:
+1. Create the file `compose.yaml` with a content like this:
 
     !!! example
 
@@ -182,7 +182,7 @@ In this setup DMS is not intended to receive email from the outside world, so no
 
 4. Get an SSL certificate, [we have a guide for you here][docs-ssl] (_Let's Encrypt_ is a popular service to get free SSL certificates).
 
-5. Start DMS and check the terminal output for any errors: `docker-compose up`.
+5. Start DMS and check the terminal output for any errors: `docker compose up`.
 
 6. Create email accounts and aliases:
 
@@ -214,7 +214,7 @@ In this setup DMS is not intended to receive email from the outside world, so no
 
         This extra step is required to avoid the `553 5.7.1 Sender address rejected: not owned by user` error (_the accounts used for submitting mail to Gmail are `admin.gmail@example.com` and `info.gmail@example.com`_)
 
-7. Send some test emails to these addresses and make other tests. Once everything is working well, stop the container with `ctrl+c` and start it again as a daemon: `docker-compose up -d`.
+7. Send some test emails to these addresses and make other tests. Once everything is working well, stop the container with `ctrl+c` and start it again as a daemon: `docker compose up -d`.
 
 [docs-ports]: ../../config/security/understanding-the-ports.md
 [docs-environment]: ../../config/environment.md

@@ -9,6 +9,9 @@ readme_directory = no
 # myhostname =
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
+# Take the following concerns into consideration if adjusting `mydestination`:
+# https://github.com/docker-mailserver/docker-mailserver/pull/3264#pullrequestreview-1396816109
+# https://github.com/docker-mailserver/docker-mailserver/pull/3264#issuecomment-1518993555
 mydestination = $myhostname, localhost.$mydomain, localhost
 relayhost =
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64

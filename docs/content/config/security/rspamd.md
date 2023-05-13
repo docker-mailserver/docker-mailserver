@@ -101,12 +101,13 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 !!! question "What is [`docker-data/dms/config/`][docs-dms-config-volume]?"
 
-If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/` (a directory that is linked to `/etc/rspamd/override.d/`, if it exists) to override Rspamd and DMS default settings.
+If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/` (a directory that is linked to `/etc/rspamd/override.d/`, if it exists) to override Rspamd and DMS default settings. This directory will not do a complete file override, but a [forced override of the specific settings in that file][rspamd-docs-override-dir].
 
 !!! warning "Clashing Overrides"
 
     Note that when also [using the `rspamd-commands` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
 
+[rspamd-docs-override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory
 
 ### With the Help of a Custom File
@@ -156,15 +157,30 @@ ENABLE_AMAVIS=0
 ENABLE_SPAMASSASSIN=0
 ```
 
-This will enable Rspamd and disable services you don't need when using Rspamd. Note that with this setup, the default DKIM signing that DMS provides does not work (as it is disabled)! To solve this issue, look at [this subsection](#dkim-signing).
+This will enable Rspamd and disable services you don't need when using Rspamd.
 
 ### Adjusting and Extending The Very Basic Configuration
 
-Rspamd is running, but you want or need to adjust it?
+Rspamd is running, but you want or need to adjust it? First, create a file named `custom-commands.conf` under `docker-data/dms/config/rspamd` (which translates to `/tmp/docker-mailserver/rspamd/` inside the container). Then add you changes:
 
-1. Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: create a file called `custom-commands.conf` and add the line `set-option-for-controller secure_ip "0.0.0.0/0"`. Place the file `custom-commands.conf` inside the directory on the host you mount to `/tmp/docker-mailserver/rspamd/` inside the container (in our documentation, we use `docker-data/dms/config/rspamd/` on the host for this purpose). And you're done! Note: this disables authentication on the website - make sure you know what you're doing!
-2. You additionally want to enable the auto-spam-learning for the Bayes module? No problem, just add another line to `custom-commands.conf` that looks like this: `set-option-for-module classifier-bayes autolearn true`.
-3. But the chartable module gets on your nerves? Just disable it by adding another line: `disable-module chartable`.
+1. Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: `set-option-for-controller secure_ip "0.0.0.0/0"`.
+2. You additionally want to enable the auto-spam-learning for the Bayes module? No problem: `set-option-for-module classifier-bayes autolearn true`.
+3. But the chartable module gets on your nerves? Easy: `disable-module chartable`.
+
+??? example "What Does the Result Look Like?"
+    Here is what the file looks like in the end:
+
+    ```bash
+    # See 1.
+    # ATTENTION: this disables authentication on the website - make sure you know what you're doing!
+    set-option-for-controller secure_ip "0.0.0.0/0"
+
+    # See 2.
+    set-option-for-module classifier-bayes autolearn true
+
+    # See 3.
+    disable-module chartable
+    ```
 
 ### DKIM Signing
 

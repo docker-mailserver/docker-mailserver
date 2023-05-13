@@ -85,7 +85,7 @@ The [Manage Sieve](https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_s
 !!! example
 
     ```yaml
-    # docker-compose.yml
+    # compose.yaml
     ports:
       - "4190:4190"
     environment:

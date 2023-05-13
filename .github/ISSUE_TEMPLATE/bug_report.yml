@@ -6,20 +6,6 @@ labels:
   - meta/needs triage
 
 body:
-  - type: markdown
-    attributes:
-      value: |
-        # Filing a report
-
-        Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts. Maintainers and moderators are volunteers that need you to fill this template with accurate information in order to help you in the best and quickest way. We will have to label your request with `meta/no template - no support` if your request is sloppy and provides no way to help you correctly.
-
-        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
-
-        Be as precise as possible, and if in doubt, it's best to add more information that too few.
-
-        We provide official support for all options not marked with "not officially supported" or "unsupported". When something is "not officially supported", support for these cases is dependent on specific maintainers.
-
-        ---
   - type: checkboxes
     id: preliminary-checks
     attributes:
@@ -32,60 +18,18 @@ body:
           required: true
         - label: I searched the issue tracker but was unable to find my issue.
           required: true
-        - label: I read the [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue.
+        - label: |
+            I read
+
+              - the [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue;
+              - the [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue;
+              - this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree;
+              - the [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
           required: true
-        - label: I read the [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue.
-          required: true
-        - label: I have read this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree
-          required: true
-  - type: input
-    id: affected-components
-    attributes:
-      label: Affected Component(s)
-      description: What is affected by this bug? Please describe it with only a few words here. Detailed description can be given later.
-      placeholder: No debug output is shown.
-    validations:
-      required: true
-  - type: textarea
-    id: when-does-it-occur
-    attributes:
-      label: What happened and when does this occur?
-      description: Tell us what happened. Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
-      placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
-    validations:
-      required: true
-  - type: textarea
-    id: what-did-you-expect-to-happen
-    attributes:
-      label: What did you expect to happen?
-      description: Tell us what you expected.
-      placeholder: I expected to see debug messages.
-    validations:
-      required: true
-  - type: textarea
-    id: how-do-we-replicate-this-issue
-    attributes:
-      label: How do we replicate the issue?
-      description: What did you do and how can we replicate this issue?
-      value: |
-        1.
-        2.
-        3.
-        ...
-    validations:
-      required: true
-  - type: input
-    id: mailserver-version
-    attributes:
-      label: DMS version
-      description: On which version (image tag) did you encounter this bug?
-      placeholder: v10.1.2
-    validations:
-      required: true
   - type: dropdown
     id: operating-system
     attributes:
-      label: What operating system is DMS running on?
+      label: What operating system is the host running?
       options:
         - Linux
         - macOS (not officially supported)
@@ -97,16 +41,16 @@ body:
     id: operating-system-version
     attributes:
       label: Which operating system version?
-      placeholder: e.g. Debian 11
+      placeholder: Debian 11 (Bullseye)
     validations:
       required: true
   - type: dropdown
     id: isa
     attributes:
-      label: What instruction set architecture is DMS running on?
+      label: What computer architecture is the host running?
       options:
-        - AMD64 / x86_64
-        - ARM64 / AArch64 (ARM v8 and newer)
+        - AMD64 (x86_64)
+        - ARM64 (AArch64)
         - Other (unsupported)
     validations:
       required: true
@@ -122,11 +66,41 @@ body:
         - Other (unsupported)
     validations:
       required: true
-  - type: textarea
-    id: important-environment-variables
+  - type: input
+    id: mailserver-version
     attributes:
-      label: docker-compose.yml
-      description: Show us your `docker-compose.yml` file or your equivalent `docker run` command, if applicable. This filed is formatted as YAML.
+      label: DMS version
+      description: On which version (image tag) did you encounter this bug?
+      placeholder: v12.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: when-does-it-occur
+    attributes:
+      label: What happened and when does this occur?
+      description: >
+        Tell us what happened.
+        **It would also help immensely if you can share precise steps on how to reproduce the issue!** :heart:
+        Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
+      placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
+    validations:
+      required: true
+  - type: textarea
+    id: what-did-you-expect-to-happen
+    attributes:
+      label: What did you expect to happen?
+      description: Tell us what you expected.
+      placeholder: I expected to see debug messages.
+    validations:
+      required: true
+  - type: textarea
+    id: container-configuration-files
+    attributes:
+      label: Container configuration files
+      description: >
+        Show us the file that you use to run DMS (and possibly other related services).
+        This is most likely your `compose.yaml` file, but you can also show us your equivalent `docker run` command, if applicable. If you are using Kubernetes, you can also put your manifest files here.
+        This filed is formatted as YAML.
       render: yml
   - type: textarea
     id: relevant-log-output
@@ -134,27 +108,22 @@ body:
       label: Relevant log output
       description: Show us relevant log output here. You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`. This field's contents are interpreted as pure text.
       render: Text
-  - type: textarea
-    id: other-relevant-information
-    attributes:
-      label: Other relevant information
-      description: If there is more, you can tell us here.
   - type: checkboxes
     id: experience
     attributes:
-      label: What level of experience do you have with Docker and mail servers?
+      label: What level of experience do you have with containers, mail servers, and using a terminal?
       description: >
         **You are not obliged to answer this question**.
         We do encourage answering though as it provides context to better assist you.
         Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily. If you are experienced, we can skip basic questions and save time.
 
       options:
-        - label: I am inexperienced with docker
-        - label: I am rather experienced with docker
+        - label: I am inexperienced with containers
+        - label: I am rather experienced with containers
         - label: I am inexperienced with mail servers
         - label: I am rather experienced with mail servers
-        - label: I am uncomfortable with the CLI
-        - label: I am rather comfortable with the CLI
+        - label: I am uncomfortable with using a terminal (CLI)
+        - label: I am rather comfortable with using a terminal (CLI)
   - type: input
     id: form-improvements
     attributes:
