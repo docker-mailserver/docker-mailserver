@@ -144,6 +144,7 @@ EOF
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
+  mkdir -p /var/log/mail
   ln -s  /var/log/mail/mail.log     /var/log/mail.log
   ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
   # disable sshd jail
@@ -193,7 +194,6 @@ EOF
 
 RUN <<EOF
   sedfile -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
-  mkdir /var/log/mail
   chown syslog:root /var/log/mail
   touch /var/log/mail/clamav.log
   chown -R clamav:root /var/log/mail/clamav.log
