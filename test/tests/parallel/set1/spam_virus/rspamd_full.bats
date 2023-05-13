@@ -237,14 +237,8 @@ function teardown_file() { _default_teardown ; }
   _run_in_container grep -F 'sieve_pipe_bin_dir = /usr/lib/dovecot/sieve-pipe' "${SIEVE_CONFIG_FILE}"
   assert_success
 
-  # Move an email to the "Junk" folder from "INBOX"; the first email we
-  # sent should pass fine, hence we can now move it
-  _send_email 'nc_templates/rspamd_imap_move_to_junk' '0.0.0.0 143'
-  sleep 1 # wait for the transaction to finish
-
-  local MOVE_TO_JUNK_LINES=(
+  local LEARN_SPAM_LINES=(
     'imapsieve: mailbox Junk: MOVE event'
-    'imapsieve: Matched static mailbox rule [1]'
     "sieve: file storage: script: Opened script \`learn-spam'"
     'sieve: file storage: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve'
     "sieve: Executing script from \`/usr/lib/dovecot/sieve-pipe/learn-spam.svbin'"
@@ -254,20 +248,7 @@ function teardown_file() { _default_teardown ; }
     "left message in mailbox 'Junk'"
   )
 
-  _run_in_container cat /var/log/mail/mail.log
-  assert_success
-  for LINE in "${MOVE_TO_JUNK_LINES[@]}"
-  do
-    assert_output --partial "${LINE}"
-  done
-
-  # Move an email to the "INBOX" folder from "Junk"; there should be two mails
-  # in the "Junk" folder
-  _send_email 'nc_templates/rspamd_imap_move_to_inbox' '0.0.0.0 143'
-  sleep 1 # wait for the transaction to finish
-
-  local MOVE_TO_JUNK_LINES=(
-    'imapsieve: Matched static mailbox rule [2]'
+  local LEARN_HAM_LINES=(
     "sieve: file storage: script: Opened script \`learn-ham'"
     'sieve: file storage: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-ham.sieve'
     "sieve: Executing script from \`/usr/lib/dovecot/sieve-pipe/learn-ham.svbin'"
@@ -275,9 +256,30 @@ function teardown_file() { _default_teardown ; }
     "left message in mailbox 'INBOX'"
   )
 
+  # Move an email to the "Junk" folder from "INBOX"; the first email we
+  # sent should pass fine, hence we can now move it.
+  _send_email 'nc_templates/rspamd_imap_move_to_junk' '0.0.0.0 143'
+  sleep 1 # wait for the transaction to finish
+
   _run_in_container cat /var/log/mail/mail.log
   assert_success
-  for LINE in "${MOVE_TO_JUNK_LINES[@]}"
+  assert_output --partial 'imapsieve: Matched static mailbox rule [1]'
+  refute_output --partial 'imapsieve: Matched static mailbox rule [2]'
+  for LINE in "${LEARN_SPAM_LINES[@]}"
+  do
+    assert_output --partial "${LINE}"
+  done
+
+  # Move an email to the "INBOX" folder from "Junk"; there should be two mails
+  # in the "Junk" folder, since the second email we sent during setup should
+  # have landed in the Junk folder already.
+  _send_email 'nc_templates/rspamd_imap_move_to_inbox' '0.0.0.0 143'
+  sleep 1 # wait for the transaction to finish
+
+  _run_in_container cat /var/log/mail/mail.log
+  assert_success
+  assert_output --partial 'imapsieve: Matched static mailbox rule [2]'
+  for LINE in "${LEARN_HAM_LINES[@]}"
   do
     assert_output --partial "${LINE}"
   done
