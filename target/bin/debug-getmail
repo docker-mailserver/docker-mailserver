@@ -9,5 +9,5 @@ _setup_getmail
 
 for FILE in /etc/getmailrc.d/getmailrc*
 do
-    /usr/bin/getmail --getmaildir /var/lib/getmail --rcfile "${FILE}" --dump
+  /usr/local/bin/getmail --getmaildir /var/lib/getmail --rcfile "${FILE}" --dump
 done
