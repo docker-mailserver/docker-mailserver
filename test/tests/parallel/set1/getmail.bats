@@ -59,13 +59,7 @@ arguments =("-d","user3@example.test")
 
   _run_in_container /usr/local/bin/debug-getmail
   assert_success
-  assert_output = 'getmail version 6.18.12
-Copyright (C) 1998-2023 Charles Cazabon and others. Licensed under GNU GPL version 2.
-getmail configuration:
-  getmail version 6.18.12
-  Python version 3.9.2 (default, Feb 28 2021, 17:03:44)
-[GCC 10.2.1 20210110]
-  retriever:  SimpleIMAPSSLRetriever(ca_certs="None", certfile="None", getmaildir="/var/lib/getmail", imap_on_delete="None", imap_search="None", keyfile="None", mailboxes="('INBOX',)", move_on_delete="None", password="*", password_command="()", port="993", record_mailbox="True", server="imap.remote-service.test", ssl_cert_hostname="None", ssl_ciphers="None", ssl_fingerprints="()", ssl_version="None", timeout="180", use_cram_md5="False", use_kerberos="False", use_peek="True", use_xoauth2="False", username="user3")
+  assert_output = '  retriever:  SimpleIMAPSSLRetriever(ca_certs="None", certfile="None", getmaildir="/var/lib/getmail", imap_on_delete="None", imap_search="None", keyfile="None", mailboxes="('INBOX',)", move_on_delete="None", password="*", password_command="()", port="993", record_mailbox="True", server="imap.remote-service.test", ssl_cert_hostname="None", ssl_ciphers="None", ssl_fingerprints="()", ssl_version="None", timeout="180", use_cram_md5="False", use_kerberos="False", use_peek="True", use_xoauth2="False", username="user3")
   destination:  MDA_external(allow_root_commands="True", arguments="('-d', 'user3@example.test')", command="deliver", group="None", ignore_stderr="False", path="/usr/lib/dovecot/deliver", pipe_stdout="True", unixfrom="False", user="None")
   options:
     delete : False
