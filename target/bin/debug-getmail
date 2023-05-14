@@ -13,6 +13,7 @@ then
 else
   mkdir /tmp/docker-mailserver/getmail
   GETMAILDIR=/tmp/docker-mailserver/getmail
+fi
 
 for FILE in /etc/getmailrc.d/getmailrc*
 do
