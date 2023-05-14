@@ -5,9 +5,9 @@ BATS_TEST_NAME_PREFIX='[Getmail] '
 CONTAINER_NAME='dms-test_getmail'
 
 function setup_file() {
-  _init_with_defaults
-  local CUSTOM_SETUP_ARGUMENTS=(--env 'ENABLE_GETMAIL=1')
 
+  local CUSTOM_SETUP_ARGUMENTS=(--env 'ENABLE_GETMAIL=1')
+  _init_with_defaults
   mv "${TEST_TMP_CONFIG}/getmail/getmail-user3.cf" "${TEST_TMP_CONFIG}/getmail-user3.cf"
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
@@ -71,7 +71,7 @@ function teardown_file() { _default_teardown ; }
   assert_line '  message_log_verbose : False'
   assert_line '  netrc_file : None'
   assert_line '  read_all : False'
-  assert_line ' received : False'
+  assert_line '  received : False'
   assert_line '  skip_imap_fetch_size : False'
   assert_line '  to_oldmail_on_each_mail : False'
   assert_line '  use_netrc : False'
