@@ -1493,7 +1493,8 @@
 <li>Use <code>/bin/bash</code> instead of <code>/bin/sh</code> in scripts</li>
 </ol>
 <h2 id="documentation"><a class="toclink" href="#documentation">Documentation</a></h2>
-<p>You will need to have Docker installed. Navigate into the <code>docs/</code> directory. Then run:</p>
+<p>Make sure to select <code>edge</code> in the dropdown menu at the top. Navigate to the page you would like to edit and click the edit button in the top right. This allows you to make changes and create a pull-request.</p>
+<p>Alternatively you can make the changes locally. For that you'll need to have Docker installed. Navigate into the <code>docs/</code> directory. Then run:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>-p<span class="w"> </span><span class="m">8000</span>:8000<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">:/docs&quot;</span><span class="w"> </span>squidfunk/mkdocs-material
 </code></pre></div>
 <p>This serves the documentation on your local machine on port <code>8000</code>. Each change will be hot-reloaded onto the page you view, just edit, save and look at the result.</p>
