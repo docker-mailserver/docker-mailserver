@@ -353,7 +353,9 @@ Controls whether the [Rspamd Greylisting module][rspamd-greylisting-module] is e
 When enabled,
 
 1. the "[autolearning][rspamd-autolearn]" feature is turned on;
-2. the Bayes classifier will be trained when moving mails from or to the Junk folder (with the help of Sieve scripts).
+2. the Bayes classifier will be trained (with the help of Sieve scripts) when moving mails
+    1. from anywhere to the `Junk` folder (learning this email as spam);
+    2. from the `Junk` folder into the `INBOX` (learning this email as ham).
 
 !!! warning "Attention"
 
