@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
   build-images:
@@ -21,6 +22,7 @@ jobs:
     uses: docker-mailserver/docker-mailserver/.github/workflows/generic_vulnerability-scan.yml@master
     with:
       cache-key: ${{ needs.build-images.outputs.build-cache-key }}
+    secrets: inherit
 
   publish-images:
     name: 'Publish Images'
