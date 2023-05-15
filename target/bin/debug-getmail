@@ -11,11 +11,8 @@ if [[ -d /var/lib/getmail ]]
 then
   GETMAILDIR=/var/lib/getmail
 else
-  if [[ -d /tmp/docker-mailserver/getmail ]]
-  then
-    mkdir -p /tmp/docker-mailserver/getmail
-  fi
-    GETMAILDIR=/tmp/docker-mailserver/getmail
+  mkdir -p /tmp/docker-mailserver/getmail
+  GETMAILDIR=/tmp/docker-mailserver/getmail
 fi
 
 for FILE in /etc/getmailrc.d/getmailrc*
