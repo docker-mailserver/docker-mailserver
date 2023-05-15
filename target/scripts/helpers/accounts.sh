@@ -77,7 +77,7 @@ function _create_accounts
 
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
-      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}::${USER_ATTRIBUTES}"
+      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}/home::${USER_ATTRIBUTES}"
       if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
       then
         _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
@@ -85,12 +85,12 @@ function _create_accounts
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
 
-      mkdir -p "/var/mail/${DOMAIN}/${USER}"
+      mkdir -p "/var/mail/${DOMAIN}/${USER}/home"
 
       # copy user provided sieve file, if present
       if [[ -e "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" ]]
       then
-        cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/.dovecot.sieve"
+        cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/home/.dovecot.sieve"
       fi
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 
