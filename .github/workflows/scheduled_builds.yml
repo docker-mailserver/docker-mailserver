@@ -1,6 +1,7 @@
 name: 'Deploy :edge on Schedule'
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 0 * * 5
 
@@ -22,7 +23,6 @@ jobs:
     uses: docker-mailserver/docker-mailserver/.github/workflows/generic_vulnerability-scan.yml@master
     with:
       cache-key: ${{ needs.build-images.outputs.build-cache-key }}
-    secrets: inherit
 
   publish-images:
     name: 'Publish Images'
