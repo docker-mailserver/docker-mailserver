@@ -193,6 +193,7 @@ function _should_be_configured_to_fqdn() {
   assert_success
 
   # Amavis
+  # shellcheck disable=SC2016
   _run_in_container grep '^\$myhostname' /etc/amavis/conf.d/05-node_id
   assert_output "\$myhostname = \"${EXPECTED_FQDN}\";"
   assert_success
