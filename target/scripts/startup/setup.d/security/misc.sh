@@ -196,7 +196,7 @@ function __setup__security__clamav
       # https://github.com/docker-mailserver/docker-mailserver/pull/3341
       if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -ge $(numfmt --from=iec 2G) ]]
       then
-        _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 2 GiBiByte but ClamAV does not scan files larger or equal to 2GiBiByte"
+        _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 2 Gibibyte but ClamAV does not scan files larger or equal to 2 Gibibyte"
       fi
 
       sedfile -i -E \
