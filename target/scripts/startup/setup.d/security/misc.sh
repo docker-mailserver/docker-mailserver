@@ -187,10 +187,16 @@ function __setup__security__clamav
     then
       _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
 
-      # do a short sanity checks; ClamAV stops scanning at more that 4GB file size
-      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -gt $(numfmt --from=si 4G) ]]
+      # do a short sanity check: ClamAV does not support setting a maximum size greater than 4000M (at all)
+      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -gt $(numfmt --from=si 4000M) ]]
       then
-        _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 4 Gigabyte which ClamAV does not support - you should correct your configuration"
+        _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 4 Gigabyte, but the maximum value is 4000M for this value - you should correct your configuration"
+      fi
+      # For more details, see
+      # https://github.com/docker-mailserver/docker-mailserver/pull/3341
+      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -ge $(numfmt --from=iec 2G) ]]
+      then
+        _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 2 GiBiByte but ClamAV does not scan files larger or equal to 2GiBiByte"
       fi
 
       sedfile -i -E \
