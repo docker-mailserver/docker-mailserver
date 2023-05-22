@@ -132,11 +132,11 @@ function __db_list_already_contains_value
 {
   # Avoids accidentally matching a substring (case-insensitive acceptable):
   # 1. Extract the current value of the entry (`\1`),
-  # 2. If a value list, split into separate lines (`\n`+`g`) at V_DELIMITER,
+  # 2. Value list support: Split values into separate lines (`\n`+`g`) at V_DELIMITER,
   # 3. Check each line for an exact match of the target VALUE
-  sed -e "s/^${KEY_LOOKUP}\(.*\)/\1/" \
-      -e "s/${V_DELIMITER}/\n/g"      \
-      "${DATABASE}" | grep -qi "^${_VALUE_}$"
+  sed -ne "s/^${KEY_LOOKUP}\+\(.*\)/\1/p" "${DATABASE}" \
+    | sed -e "s/${V_DELIMITER}/\n/g" \
+    | grep -qi "^${_VALUE_}$"
 }
 
 
