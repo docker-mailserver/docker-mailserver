@@ -64,7 +64,7 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial "Finished DKIM key creation"
   _run_in_container_bash "[[ -f ${SIGNING_CONF_FILE} ]]"
   assert_success
-  _exec_in_container_bash "echo "blabla" >${SIGNING_CONF_FILE}"
+  _exec_in_container_bash "echo 'blabla' >${SIGNING_CONF_FILE}"
   local INITIAL_SHA512_SUM=$(_exec_in_container sha512sum "${SIGNING_CONF_FILE}")
 
   __create_key

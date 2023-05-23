@@ -548,6 +548,18 @@ Note: activate this only if you are confident in your bayes database for identif
   **1** => `/etc/fetchmailrc` is split per poll entry. For every poll entry a separate fetchmail instance is started  to allow having multiple imap idle configurations defined.
 
 Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate `fetchmail` instances.
+#### Getmail
+
+##### ENABLE_GETMAIL
+
+Enable or disable `getmail`.
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### GETMAIL_POLL
+
+- **5** => `getmail` The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
 
 #### LDAP
 

@@ -158,15 +158,16 @@ COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 
-# -----------------------------------------------
-# --- Fetchmail, Postfix & Let'sEncrypt ---------
-# -----------------------------------------------
+# --------------------------------------------------
+# --- Fetchmail, Getmail, Postfix & Let'sEncrypt ---
+# --------------------------------------------------
 
 # Remove invalid URL from SPF message
 # https://bugs.launchpad.net/spf-engine/+bug/1896912
 RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-policyd-spf-python/policyd-spf.conf
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
+COPY target/getmail/getmailrc /etc/getmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
