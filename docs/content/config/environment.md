@@ -559,7 +559,7 @@ Enable or disable `getmail`.
 
 ##### GETMAIL_POLL
 
-The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
+- **5** => `getmail` The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
 
 #### LDAP
 
