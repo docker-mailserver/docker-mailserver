@@ -58,6 +58,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test "Postfix's main.cf was adjusted" {
+  # shellcheck disable=SC2016
   _run_in_container grep -F 'smtpd_milters = $rspamd_milter' /etc/postfix/main.cf
   assert_success
   _run_in_container postconf rspamd_milter
@@ -171,6 +172,7 @@ function teardown_file() { _default_teardown ; }
   MODULE_PATH='/etc/rspamd/override.d/testmodule4.something'
   _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
   assert_success
+  # shellcheck disable=SC2016
   _run_in_container grep -F 'some very long line with "weird $charact"ers' "${MODULE_PATH}"
   assert_success
   _run_in_container grep -F 'and! ano. ther &line' "${MODULE_PATH}"
