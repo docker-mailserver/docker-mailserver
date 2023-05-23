@@ -12,20 +12,20 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-fetchmail/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-getmail/">
       
       
-        <link rel="prev" href="../mail-sieve/">
+        <link rel="prev" href="../mail-fetchmail/">
       
       
-        <link rel="next" href="../mail-getmail/">
+        <link rel="next" href="../mail-forwarding/relay-hosts/">
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.5">
     
     
       
-        <title>Advanced | Email Gathering with Fetchmail - Docker Mailserver</title>
+        <title>Advanced | Email Gathering with Getmail - Docker Mailserver</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Advanced | Email Gathering with Fetchmail
+              Advanced | Email Gathering with Getmail
             
           </span>
         </div>
@@ -895,6 +895,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../mail-fetchmail/" class="md-nav__link">
+        Email Gathering with Fetchmail
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -905,12 +919,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Email Gathering with Fetchmail
+          Email Gathering with Getmail
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Email Gathering with Fetchmail
+        Email Gathering with Getmail
       </a>
       
         
@@ -935,15 +949,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#imap-configuration" class="md-nav__link">
-    IMAP Configuration
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pop3-configuration" class="md-nav__link">
-    POP3 Configuration
+  <a href="#common-options" class="md-nav__link">
+    Common Options
   </a>
   
 </li>
@@ -955,15 +962,15 @@
   
 </li>
         
-      </ul>
-    </nav>
+          <li class="md-nav__item">
+  <a href="#xoauth2-authentication" class="md-nav__link">
+    XOAUTH2 Authentication
+  </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#debugging" class="md-nav__link">
-    Debugging
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -971,20 +978,6 @@
   
 </nav>
       
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../mail-getmail/" class="md-nav__link">
-        Email Gathering with Getmail
-      </a>
     </li>
   
 
@@ -1487,15 +1480,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#imap-configuration" class="md-nav__link">
-    IMAP Configuration
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pop3-configuration" class="md-nav__link">
-    POP3 Configuration
+  <a href="#common-options" class="md-nav__link">
+    Common Options
   </a>
   
 </li>
@@ -1507,15 +1493,15 @@
   
 </li>
         
-      </ul>
-    </nav>
+          <li class="md-nav__item">
+  <a href="#xoauth2-authentication" class="md-nav__link">
+    XOAUTH2 Authentication
+  </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#debugging" class="md-nav__link">
-    Debugging
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1534,7 +1520,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/mail-fetchmail.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/mail-getmail.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -1543,106 +1529,85 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/mail-fetchmail.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/mail-getmail.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Email Gathering with Fetchmail</h1>
+  <h1>Email Gathering with Getmail</h1>
 
-<p>To enable the <a href="https://www.fetchmail.info">fetchmail</a> service to retrieve e-mails set the environment variable <code>ENABLE_FETCHMAIL</code> to <code>1</code>. Your <code>compose.yaml</code> file should look like following snippet:</p>
+<p>To enable the <a href="https://www.getmail.org">getmail</a> service to retrieve e-mails set the environment variable <code>ENABLE_GETMAIL</code> to <code>1</code>. Your <code>compose.yaml</code> file should include the following:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FETCHMAIL=1</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FETCHMAIL_POLL=300</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_GETMAIL=1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GETMAIL_POLL=5</span>
 </code></pre></div>
-<p>Generate a file called <code>fetchmail.cf</code> and place it in the <code>docker-data/dms/config/</code> folder. Your DMS folder should look like this example:</p>
+<p>In your DMS config volume (eg: <code>docker-data/dms/config/</code>), create a <code>getmail-&lt;ID&gt;.cf</code> file for each remote account that you want to retrieve mail and store into a local DMS account. <code>&lt;ID&gt;</code> should be replaced by you, and is just the rest of the filename (eg: <code>getmail-example.cf</code>). The contents of each file should be configuration like documented below.</p>
+<p>The directory structure should similar to this:</p>
 <div class="highlight"><pre><span></span><code>├── docker-data/dms/config
 │   ├── dovecot.cf
-│   ├── fetchmail.cf
+│   ├── getmail-example.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── compose.yaml
+├── docker-compose.yml
 └── README.md
 </code></pre></div>
 <h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
-<p>A detailed description of the configuration options can be found in the <a href="https://www.fetchmail.info/fetchmail-man.html">online version of the manual page</a>.</p>
-<h3 id="imap-configuration"><a class="toclink" href="#imap-configuration">IMAP Configuration</a></h3>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code>poll &#39;imap.gmail.com&#39; proto imap
-  user &#39;username&#39;
-  pass &#39;secret&#39;
-  is &#39;user1@example.com&#39;
-  ssl
+<p>A detailed description of the configuration options can be found in the <a href="https://getmail6.org/configuration.html">online version of the manual page</a>.</p>
+<h3 id="common-options"><a class="toclink" href="#common-options">Common Options</a></h3>
+<p>The default options added to each <code>getmail</code> config are:</p>
+<div class="highlight"><pre><span></span><code>[options]
+verbose = 0
+read_all = false
+delete = false
+max_messages_per_session = 500
+received = false
+delivered_to = false
 </code></pre></div>
-</div>
-<h3 id="pop3-configuration"><a class="toclink" href="#pop3-configuration">POP3 Configuration</a></h3>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code>poll &#39;pop3.gmail.com&#39; proto pop3
-  user &#39;username&#39;
-  pass &#39;secret&#39;
-  is &#39;user2@example.com&#39;
-  ssl
+<p>If you want to use a different base config, mount a file to <code>/etc/getmailrc_general</code>. This file will replace the default "Common Options" base config above, that all <code>getmail-&lt;ID&gt;.cf</code> files will extend with their configs when used.</p>
+<details class="example">
+<summary>IMAP Configuration</summary>
+<p>This example will:</p>
+<ol>
+<li>Connect to the remote IMAP server from Gmail.</li>
+<li>Retrieve mail from the gmail account <code>alice</code> with password <code>notsecure</code>.</li>
+<li>Store any mail retrieved from the remote mail-server into DMS for the <code>user1@example.com</code> account that DMS manages.</li>
+</ol>
+<div class="highlight"><pre><span></span><code>[retriever]
+type = SimpleIMAPRetriever
+server = imap.gmail.com
+username = alice
+password = notsecure
+[destination]
+type = MDA_external
+path = /usr/lib/dovecot/deliver
+allow_root_commands = true
+arguments =(&quot;-d&quot;,&quot;user1@example.com&quot;)
 </code></pre></div>
-</div>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>Don’t forget the last line! (<em>eg: <code>is 'user1@example.com'</code></em>). After <code>is</code>, you have to specify an email address from the configuration file: <code>docker-data/dms/config/postfix-accounts.cf</code>.</p>
-</div>
-<p>More details how to configure fetchmail can be found in the <a href="https://www.fetchmail.info/fetchmail-man.html#31">fetchmail man page in the chapter “The run control file”</a>.</p>
+</details>
+<details class="example">
+<summary>POP3 Configuration</summary>
+<p>Just like the IMAP example above, but instead via POP3 protocol if you prefer that over IMAP.</p>
+<div class="highlight"><pre><span></span><code>[retriever]
+type = SimplePOP3Retriever
+server = pop3.gmail.com
+username = alice
+password = notsecure
+[destination]
+type = MDA_external
+path = /usr/lib/dovecot/deliver
+allow_root_commands = true
+arguments =(&quot;-d&quot;,&quot;user1@example.com&quot;)
+</code></pre></div>
+</details>
 <h3 id="polling-interval"><a class="toclink" href="#polling-interval">Polling Interval</a></h3>
-<p>By default the fetchmail service searches every 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable <code>FETCHMAIL_POLL</code>:</p>
+<p>By default the <code>getmail</code> service checks external mail accounts for new mail every 5 minutes. That polling interval is configurable via the <code>GETMAIL_POLL</code> ENV variable, with a value in minutes (<em>default: 5, min: 1, max: 30</em>):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FETCHMAIL_POLL=60</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GETMAIL_POLL=1</span>
 </code></pre></div>
-<p>You must specify a numeric argument which is a polling interval in seconds. The example above polls every minute for new mails.</p>
-<h2 id="debugging"><a class="toclink" href="#debugging">Debugging</a></h2>
-<p>To debug your <code>fetchmail.cf</code> configuration run this command:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh<span class="w"> </span>debug<span class="w"> </span>fetchmail
-</code></pre></div>
-<p>For more informations about the configuration script <code>setup.sh</code> <a href="../../setup.sh/">read the corresponding docs</a>.</p>
-<p>Here a sample output of <code>./setup.sh debug fetchmail</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="go">fetchmail: 6.3.26 querying outlook.office365.com (protocol POP3) at Mon Aug 29 22:11:09 2016: poll started</span>
-<span class="go">Trying to connect to 132.245.48.18/995...connected.</span>
-<span class="go">fetchmail: Server certificate:</span>
-<span class="go">fetchmail: Issuer Organization: Microsoft Corporation</span>
-<span class="go">fetchmail: Issuer CommonName: Microsoft IT SSL SHA2</span>
-<span class="go">fetchmail: Subject CommonName: outlook.com</span>
-<span class="go">fetchmail: Subject Alternative Name: outlook.com</span>
-<span class="go">fetchmail: Subject Alternative Name: *.outlook.com</span>
-<span class="go">fetchmail: Subject Alternative Name: office365.com</span>
-<span class="go">fetchmail: Subject Alternative Name: *.office365.com</span>
-<span class="go">fetchmail: Subject Alternative Name: *.live.com</span>
-<span class="go">fetchmail: Subject Alternative Name: *.internal.outlook.com</span>
-<span class="go">fetchmail: Subject Alternative Name: *.outlook.office365.com</span>
-<span class="go">fetchmail: Subject Alternative Name: outlook.office.com</span>
-<span class="go">fetchmail: Subject Alternative Name: attachment.outlook.office.net</span>
-<span class="go">fetchmail: Subject Alternative Name: attachment.outlook.officeppe.net</span>
-<span class="go">fetchmail: Subject Alternative Name: *.office.com</span>
-<span class="go">fetchmail: outlook.office365.com key fingerprint: 3A:A4:58:42:56:CD:BD:11:19:5B:CF:1E:85:16:8E:4D</span>
-<span class="go">fetchmail: POP3&lt; +OK The Microsoft Exchange POP3 service is ready. [SABFADEAUABSADAAMQBDAEEAMAAwADAANwAuAGUAdQByAHAAcgBkADAAMQAuAHAAcgBvAGQALgBlAHgAYwBoAGEAbgBnAGUAbABhAGIAcwAuAGMAbwBtAA==]</span>
-<span class="go">fetchmail: POP3&gt; CAPA</span>
-<span class="go">fetchmail: POP3&lt; +OK</span>
-<span class="go">fetchmail: POP3&lt; TOP</span>
-<span class="go">fetchmail: POP3&lt; UIDL</span>
-<span class="go">fetchmail: POP3&lt; SASL PLAIN</span>
-<span class="go">fetchmail: POP3&lt; USER</span>
-<span class="go">fetchmail: POP3&lt; .</span>
-<span class="go">fetchmail: POP3&gt; USER user1@outlook.com</span>
-<span class="go">fetchmail: POP3&lt; +OK</span>
-<span class="go">fetchmail: POP3&gt; PASS *</span>
-<span class="go">fetchmail: POP3&lt; +OK User successfully logged on.</span>
-<span class="go">fetchmail: POP3&gt; STAT</span>
-<span class="go">fetchmail: POP3&lt; +OK 0 0</span>
-<span class="go">fetchmail: No mail for user1@outlook.com at outlook.office365.com</span>
-<span class="go">fetchmail: POP3&gt; QUIT</span>
-<span class="go">fetchmail: POP3&lt; +OK Microsoft Exchange Server 2016 POP3 server signing off.</span>
-<span class="go">fetchmail: 6.3.26 querying outlook.office365.com (protocol POP3) at Mon Aug 29 22:11:11 2016: poll completed</span>
-<span class="go">fetchmail: normal termination, status 1</span>
-</code></pre></div>
+<h3 id="xoauth2-authentication"><a class="toclink" href="#xoauth2-authentication">XOAUTH2 Authentication</a></h3>
+<p>It is possible to utilize the <code>getmail-gmail-xoauth-tokens</code> helper to provide authentication using <code>xoauth2</code> for <a href="https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L286">gmail (example 12)</a> or <a href="https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L351">Microsoft Office 365 (example 13)</a></p>
 
 
 

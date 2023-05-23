@@ -1015,6 +1015,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#getmail" class="md-nav__link">
+    Getmail
+  </a>
+  
+    <nav class="md-nav" aria-label="Getmail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_getmail" class="md-nav__link">
+    ENABLE_GETMAIL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmail_poll" class="md-nav__link">
+    GETMAIL_POLL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ldap" class="md-nav__link">
     LDAP
   </a>
@@ -1922,6 +1949,20 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../advanced/mail-getmail/" class="md-nav__link">
+        Email Gathering with Getmail
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
@@ -1930,17 +1971,17 @@
       
         
       
-      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_7" >
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_8" >
       
       
       
-        <label class="md-nav__link" for="__nav_4_8_7" id="__nav_4_8_7_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_4_8_8" id="__nav_4_8_8_label" tabindex="0">
           Email Forwarding
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_7_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_4_8_7">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4_8_8">
           <span class="md-nav__icon md-icon"></span>
           Email Forwarding
         </label>
@@ -2933,6 +2974,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#getmail" class="md-nav__link">
+    Getmail
+  </a>
+  
+    <nav class="md-nav" aria-label="Getmail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_getmail" class="md-nav__link">
+    ENABLE_GETMAIL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmail_poll" class="md-nav__link">
+    GETMAIL_POLL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ldap" class="md-nav__link">
     LDAP
   </a>
@@ -3877,6 +3945,17 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <p><strong>0</strong> =&gt; <code>fetchmail</code> runs with a single config file <code>/etc/fetchmailrc</code>
   <strong>1</strong> =&gt; <code>/etc/fetchmailrc</code> is split per poll entry. For every poll entry a separate fetchmail instance is started  to allow having multiple imap idle configurations defined.</p>
 <p>Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate <code>fetchmail</code> instances.</p>
+<h4 id="getmail"><a class="toclink" href="#getmail">Getmail</a></h4>
+<h5 id="enable_getmail"><a class="toclink" href="#enable_getmail">ENABLE_GETMAIL</a></h5>
+<p>Enable or disable <code>getmail</code>.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="getmail_poll"><a class="toclink" href="#getmail_poll">GETMAIL_POLL</a></h5>
+<ul>
+<li><strong>5</strong> =&gt; <code>getmail</code> The number of minutes for the interval. Min: 1; Max: 30; Default: 5.</li>
+</ul>
 <h4 id="ldap"><a class="toclink" href="#ldap">LDAP</a></h4>
 <h5 id="enable_ldap"><a class="toclink" href="#enable_ldap">ENABLE_LDAP</a></h5>
 <p>Deprecated. See <a href="#account_provisioner"><code>ACCOUNT_PROVISIONER</code></a>.</p>
