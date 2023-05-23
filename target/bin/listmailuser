@@ -71,12 +71,10 @@ function _quota_show_for
 function _bytes_to_human_readable_size
 {
   # `-` represents a non-applicable value (eg: Like when `SIZE_LIMIT` is not set):
-  if [[ ${1:-} == '-' ]]
-  then
+  if [[ ${1:-} == '-' ]]; then
     echo '~'
   # Otherwise a value in KibiBytes (1024 bytes == 1k) is expected (Dovecots internal representation):
-  elif [[ ${1:-} =~ ^[0-9]+$ ]]
-  then
+  elif [[ ${1:-} =~ ^[0-9]+$ ]]; then
     # kibibytes to bytes, converted to approproate IEC unit (eg: MiB):
     echo $(( 1024 * ${1} )) | numfmt --to=iec
   else
@@ -105,8 +103,7 @@ function _alias_list_for_account
     "${DATABASE_VIRTUAL}"
   )
 
-  if grep --quiet --no-messages "${GREP_OPTIONS[@]}"
-  then
+  if grep --quiet --no-messages "${GREP_OPTIONS[@]}"; then
     grep "${GREP_OPTIONS[@]}" | awk '{print $1;}' | sed ':a;N;$!ba;s/\n/, /g'
   fi
 }

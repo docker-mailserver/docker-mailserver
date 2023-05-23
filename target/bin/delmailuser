@@ -91,14 +91,12 @@ function _parse_options
 
 function _maildel_request_if_missing
 {
-  if [[ ${MAILDEL} -eq 0 ]]
-  then
+  if [[ ${MAILDEL} -eq 0 ]]; then
     local MAILDEL_CHOSEN
     read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
 
     # TODO: Why would MAILDEL be set to true if MAILDEL_CHOSEN is empty?
-    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
-    then
+    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]; then
       MAILDEL=1
     fi
   fi

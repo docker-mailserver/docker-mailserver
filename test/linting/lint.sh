@@ -111,8 +111,7 @@ function _shellcheck
     "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" \
     "${BATS_EXTRA_ARGS[@]}" "${F_BATS[@]}" || ERROR=1
 
-  if [[ ${ERROR} -eq 0 ]]
-  then
+  if [[ ${ERROR} -eq 0 ]]; then
     _log 'info' 'ShellCheck succeeded'
   else
     _log 'error' 'ShellCheck failed'

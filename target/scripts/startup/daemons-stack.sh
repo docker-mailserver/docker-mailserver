@@ -26,8 +26,7 @@ function _default_start_daemon
   RESULT=$(supervisorctl start "${1}" 2>&1)
 
   # shellcheck disable=SC2181
-  if [[ ${?} -ne 0 ]]
-  then
+  if [[ ${?} -ne 0 ]]; then
     _log 'error' "${RESULT}"
     _dms_panic__fail_init "${1}"
   fi
@@ -61,8 +60,7 @@ function _start_daemon_postfix
 
 function _start_daemon_fetchmail
 {
-  if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
-  then
+  if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]; then
     local COUNTER=0
     for _ in /etc/fetchmailrc.d/fetchmail-*.rc
     do

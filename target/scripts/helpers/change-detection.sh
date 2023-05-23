@@ -31,8 +31,7 @@ function _monitored_files_checksums
 
   # Supported user provided configs:
   local DMS_DIR=/tmp/docker-mailserver
-  if [[ -d ${DMS_DIR} ]]
-  then
+  if [[ -d ${DMS_DIR} ]]; then
     STAGING_FILES+=(
       "${DMS_DIR}/postfix-accounts.cf"
       "${DMS_DIR}/postfix-virtual.cf"
@@ -46,8 +45,7 @@ function _monitored_files_checksums
   fi
 
   # SSL certs:
-  if [[ ${SSL_TYPE:-} == 'manual' ]]
-  then
+  if [[ ${SSL_TYPE:-} == 'manual' ]]; then
     # When using "manual" as the SSL type,
     # the following variables may contain the certificate files
     STAGING_FILES+=(
@@ -56,8 +54,7 @@ function _monitored_files_checksums
       "${SSL_ALT_CERT_PATH:-}"
       "${SSL_ALT_KEY_PATH:-}"
     )
-  elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]
-  then
+  elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]; then
     # React to any cert changes within the following LetsEncrypt locations:
     STAGING_FILES+=(
       /etc/letsencrypt/acme.json
@@ -74,8 +71,7 @@ function _monitored_files_checksums
     [[ -f "${FILE}" ]] && CHANGED_FILES+=("${FILE}")
   done
 
-  if [[ -n ${CHANGED_FILES:-} ]]
-  then
+  if [[ -n ${CHANGED_FILES:-} ]]; then
     sha512sum -- "${CHANGED_FILES[@]}"
   fi
 }

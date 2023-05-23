@@ -21,8 +21,7 @@ function _check_improper_restart
 {
   _log 'debug' 'Checking for improper restart'
 
-  if [[ -f /CONTAINER_START ]]
-  then
+  if [[ -f /CONTAINER_START ]]; then
     _log 'warn' 'This container was (likely) improperly restarted which can result in undefined behavior'
     _log 'warn' 'Please destroy the container properly and then start DMS again'
   fi
@@ -36,8 +35,7 @@ function _check_hostname
   _log 'debug' "Hostname has been set to ${HOSTNAME}"
 
   # HOSTNAME should be an FQDN (eg: hostname.domain)
-  if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"
-  then
+  if ! grep -q -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}"; then
     _dms_panic__general 'Setting hostname/domainname is required'
   fi
 }

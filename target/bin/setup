@@ -155,8 +155,7 @@ function _main
         ( show-mail-logs ) cat /var/log/mail/mail.log ;;
         ( login          )
           shift 2
-          if [[ -z ${1:-} ]]
-          then
+          if [[ -z ${1:-} ]]; then
             /bin/bash
           else
             /bin/bash -c "${@}"
@@ -171,8 +170,7 @@ function _main
   esac
 }
 
-if [[ -z ${1:-} ]]
-then
+if [[ -z ${1:-} ]]; then
   _usage
 else
   _main "${@}"

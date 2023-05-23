@@ -42,8 +42,7 @@ function _register_functions
   _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
-  if [[ ${SMTP_ONLY} -ne 1 ]]
-  then
+  if [[ ${SMTP_ONLY} -ne 1 ]]; then
     _register_setup_function '_setup_dovecot'
     _register_setup_function '_setup_dovecot_sieve'
     _register_setup_function '_setup_dovecot_dhparam'
@@ -69,8 +68,7 @@ function _register_functions
       ;;
   esac
 
-  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]
-  then
+  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]; then
     _environment_variables_saslauthd
     _register_setup_function '_setup_saslauthd'
   fi
@@ -99,8 +97,7 @@ function _register_functions
 
 _register_setup_function '_setup_getmail'
 
-  if [[ ${ENABLE_SRS} -eq 1  ]]
-  then
+  if [[ ${ENABLE_SRS} -eq 1  ]]; then
     _register_setup_function '_setup_SRS'
     _register_start_daemon '_start_daemon_postsrsd'
   fi

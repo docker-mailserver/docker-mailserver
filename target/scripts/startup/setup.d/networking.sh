@@ -19,8 +19,7 @@ function _setup_docker_permit
     grep 'inet ' | sed 's|[^0-9\.\/]*||g' | cut -d '/' -f 1)
   CONTAINER_NETWORK=$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0
 
-  if [[ -z ${CONTAINER_IP} ]]
-  then
+  if [[ -z ${CONTAINER_IP} ]]; then
     _log 'error' 'Detecting the container IP address failed'
     _dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]'
   fi

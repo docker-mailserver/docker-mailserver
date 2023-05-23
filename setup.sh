@@ -71,11 +71,9 @@ function _show_local_usage
 
 function _get_absolute_script_directory
 {
-  if dirname "$(readlink -f "${0}")" &>/dev/null
-  then
+  if dirname "$(readlink -f "${0}")" &>/dev/null; then
     DIR=$(dirname "$(readlink -f "${0}")")
-  elif realpath -e -L "${0}" &>/dev/null
-  then
+  elif realpath -e -L "${0}" &>/dev/null; then
     DIR=$(realpath -e -L "${0}")
     DIR="${DIR%/setup.sh}"
   fi
@@ -83,8 +81,7 @@ function _get_absolute_script_directory
 
 function _set_default_config_path
 {
-  if [[ -d "${DIR}/config" ]]
-  then
+  if [[ -d "${DIR}/config" ]]; then
     # legacy path (pre v10.2.0)
     DEFAULT_CONFIG_PATH="${DIR}/config"
   else
@@ -94,23 +91,19 @@ function _set_default_config_path
 
 function _handle_config_path
 {
-  if [[ -z ${DESIRED_CONFIG_PATH} ]]
-  then
+  if [[ -z ${DESIRED_CONFIG_PATH} ]]; then
     # no desired config path
-    if [[ -n ${CONTAINER_NAME} ]]
-    then
+    if [[ -n ${CONTAINER_NAME} ]]; then
       VOLUME=$(${CRI} inspect "${CONTAINER_NAME}" \
         --format="{{range .Mounts}}{{ println .Source .Destination}}{{end}}" | \
         grep "${DMS_CONFIG}$" 2>/dev/null || :)
     fi
 
-    if [[ -n ${VOLUME} ]]
-    then
+    if [[ -n ${VOLUME} ]]; then
       CONFIG_PATH=$(echo "${VOLUME}" | awk '{print $1}')
     fi
 
-    if [[ -z ${CONFIG_PATH} ]]
-    then
+    if [[ -z ${CONFIG_PATH} ]]; then
       CONFIG_PATH=${DEFAULT_CONFIG_PATH}
     fi
   else
@@ -121,8 +114,7 @@ function _handle_config_path
 function _run_in_new_container
 {
   # start temporary container with specified image
-  if ! ${CRI} history -q "${IMAGE_NAME}" &>/dev/null
-  then
+  if ! ${CRI} history -q "${IMAGE_NAME}" &>/dev/null; then
     echo "Image '${IMAGE_NAME}' not found. Pulling ..."
     ${CRI} pull "${IMAGE_NAME}"
   fi
@@ -151,8 +143,7 @@ function _main
           ( *  ) DESIRED_CONFIG_PATH="${DIR}/${OPTARG}" ;;
         esac
 
-        if [[ ! -d ${DESIRED_CONFIG_PATH} ]]
-        then
+        if [[ ! -d ${DESIRED_CONFIG_PATH} ]]; then
           echo "Specified directory '${DESIRED_CONFIG_PATH}' doesn't exist" >&2
           exit 1
         fi
@@ -169,14 +160,11 @@ function _main
   done
   shift $(( OPTIND - 1 ))
 
-  if command -v docker &>/dev/null
-  then
+  if command -v docker &>/dev/null; then
     CRI=docker
-  elif command -v podman &>/dev/null
-  then
+  elif command -v podman &>/dev/null; then
     CRI=podman
-    if ! ${PODMAN_ROOTLESS} && [[ ${EUID} -ne 0 ]]
-    then
+    if ! ${PODMAN_ROOTLESS} && [[ ${EUID} -ne 0 ]]; then
       read -r -p "You are running Podman in rootless mode. Continue? [Y/n] "
       [[ -n ${REPLY} ]] && [[ ${REPLY} =~ (n|N) ]] && exit 0
     fi
@@ -190,13 +178,11 @@ function _main
 
   [[ -z ${CONTAINER_NAME} ]] && CONTAINER_NAME=${INFO#*;}
   [[ -z ${IMAGE_NAME} ]] && IMAGE_NAME=${INFO%;*}
-  if [[ -z ${IMAGE_NAME} ]]
-  then
+  if [[ -z ${IMAGE_NAME} ]]; then
     IMAGE_NAME=${NAME:-${DEFAULT_IMAGE_NAME}}
   fi
 
-  if test -t 0
-  then
+  if test -t 0; then
     USE_TTY="-it"
   else
     # GitHub Actions will fail (or really anything else
@@ -207,8 +193,7 @@ function _main
 
   _handle_config_path
 
-  if [[ -n ${CONTAINER_NAME} ]]
-  then
+  if [[ -n ${CONTAINER_NAME} ]]; then
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" setup "${@}"
   else
     _run_in_new_container setup "${@}"

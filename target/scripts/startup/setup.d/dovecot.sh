@@ -14,8 +14,7 @@ function _setup_dovecot
   sed -i -e 's|#ssl = yes|ssl = required|g' /etc/dovecot/conf.d/10-ssl.conf
   sed -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
 
-  if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf
-  then
+  if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
     printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
   fi
 
@@ -39,8 +38,7 @@ function _setup_dovecot
 
   esac
 
-  if [[ ${ENABLE_POP3} -eq 1 ]]
-  then
+  if [[ ${ENABLE_POP3} -eq 1 ]]; then
     _log 'debug' 'Enabling POP3 services'
     mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
   fi
@@ -55,30 +53,25 @@ function _setup_dovecot_sieve
 
   # enable Managesieve service by setting the symlink
   # to the configuration file Dovecot will actually find
-  if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]
-  then
+  if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]; then
     _log 'trace' 'Sieve management enabled'
     mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
   fi
 
-  if [[ -d /tmp/docker-mailserver/sieve-filter ]]
-  then
+  if [[ -d /tmp/docker-mailserver/sieve-filter ]]; then
     cp /tmp/docker-mailserver/sieve-filter/* /usr/lib/dovecot/sieve-filter/
   fi
-  if [[ -d /tmp/docker-mailserver/sieve-pipe ]]
-  then
+  if [[ -d /tmp/docker-mailserver/sieve-pipe ]]; then
     cp /tmp/docker-mailserver/sieve-pipe/* /usr/lib/dovecot/sieve-pipe/
   fi
 
-  if [[ -f /tmp/docker-mailserver/before.dovecot.sieve ]]
-  then
+  if [[ -f /tmp/docker-mailserver/before.dovecot.sieve ]]; then
     cp \
       /tmp/docker-mailserver/before.dovecot.sieve \
       /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
     sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
   fi
-  if [[ -f /tmp/docker-mailserver/after.dovecot.sieve ]]
-  then
+  if [[ -f /tmp/docker-mailserver/after.dovecot.sieve ]]; then
     cp \
       /tmp/docker-mailserver/after.dovecot.sieve \
       /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
@@ -95,11 +88,9 @@ function _setup_dovecot_quota
   _log 'debug' 'Setting up Dovecot quota'
 
   # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
-  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]
-  then
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]; then
     # disable dovecot quota in docevot confs
-    if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]
-    then
+    if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]; then
       mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
       sed -i \
         "s|mail_plugins = \$mail_plugins quota|mail_plugins = \$mail_plugins|g" \
@@ -112,8 +103,7 @@ function _setup_dovecot_quota
     # disable quota policy check in postfix
     sed -i "s|check_policy_service inet:localhost:65265||g" /etc/postfix/main.cf
   else
-    if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]
-    then
+    if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]; then
       mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
       sed -i \
         "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins quota|g" \
@@ -134,8 +124,7 @@ function _setup_dovecot_quota
       "s|quota_rule = \*:storage=.*|quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
       /etc/dovecot/conf.d/90-quota.conf
 
-    if [[ -d /tmp/docker-mailserver ]] && [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-    then
+    if [[ -d /tmp/docker-mailserver ]] && [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
       _log 'trace' "'/tmp/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
       : >/tmp/docker-mailserver/dovecot-quotas.cf
     fi
@@ -154,8 +143,7 @@ function _setup_dovecot_local_user
 
   _log 'debug' 'Setting up Dovecot Local User'
 
-  if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]
-  then
+  if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]; then
     _log 'trace' "No mail accounts to create - '/tmp/docker-mailserver/postfix-accounts.cf' is missing"
   fi
 
@@ -165,8 +153,7 @@ function _setup_dovecot_local_user
 
     for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
     do
-      if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]
-      then
+      if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]; then
         return 0
       else
         _log 'warn' "You need at least one mail account to start Dovecot ($(( ( COUNTER + 1 ) * SLEEP_PERIOD ))s left for account creation before shutdown)"
@@ -190,11 +177,9 @@ function _setup_dovecot_inet_protocols
 
   local PROTOCOL
   # https://dovecot.org/doc/dovecot-example.conf
-  if [[ ${DOVECOT_INET_PROTOCOLS} == "ipv4" ]]
-  then
+  if [[ ${DOVECOT_INET_PROTOCOLS} == "ipv4" ]]; then
     PROTOCOL='*' # IPv4 only
-  elif [[ ${DOVECOT_INET_PROTOCOLS} == "ipv6" ]]
-  then
+  elif [[ ${DOVECOT_INET_PROTOCOLS} == "ipv6" ]]; then
     PROTOCOL='[::]' # IPv6 only
   else
     # Unknown value, panic.

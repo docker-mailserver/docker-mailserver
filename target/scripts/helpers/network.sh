@@ -2,11 +2,9 @@
 
 function _mask_ip_digit
 {
-  if [[ ${1} -ge 8 ]]
-  then
+  if [[ ${1} -ge 8 ]]; then
     MASK=255
-  elif [[ ${1} -le 0 ]]
-  then
+  elif [[ ${1} -le 0 ]]; then
     MASK=0
   else
     VALUES=(0 128 192 224 240 248 252 254 255)

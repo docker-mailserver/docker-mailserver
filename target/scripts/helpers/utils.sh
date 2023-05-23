@@ -16,8 +16,7 @@ function _get_valid_lines_from_file
 # and it will return its value stored in /etc/dms-settings
 function _get_dms_env_value
 {
-  if [[ -f /etc/dms-settings ]]
-  then
+  if [[ -f /etc/dms-settings ]]; then
     grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
   else
     _log 'warn' "Call to '_get_dms_env_value' but '/etc/dms-settings' is not present"
@@ -34,8 +33,7 @@ function _get_dms_env_value
 function _chown_var_mail_if_necessary
 {
   # fix permissions, but skip this if 3 levels deep the user id is already set
-  if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r
-  then
+  if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r; then
     _log 'trace' 'Fixing /var/mail permissions'
     chown -R 5000:5000 /var/mail || return 1
   fi
@@ -59,8 +57,7 @@ function _require_n_parameters_or_print_usage
 # https://github.com/docker-mailserver/docker-mailserver/issues/2985
 function _adjust_mtime_for_postfix_maincf
 {
-  if [[ $(( $(date '+%s') - $(stat -c '%Y' '/etc/postfix/main.cf') )) -lt 2 ]]
-  then
+  if [[ $(( $(date '+%s') - $(stat -c '%Y' '/etc/postfix/main.cf') )) -lt 2 ]]; then
     touch -d '2 seconds ago' /etc/postfix/main.cf
   fi
 }
@@ -97,14 +94,11 @@ function _reload_postfix
 # 2. The second argument is a path to a file that does not exist
 function _replace_by_env_in_file
 {
-  if [[ -z ${1+set} ]]
-  then
+  if [[ -z ${1+set} ]]; then
     _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
-  elif [[ -z ${2+set} ]]
-  then
+  elif [[ -z ${2+set} ]]; then
     _dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
-  elif [[ ! -f ${2} ]]
-  then
+  elif [[ ! -f ${2} ]]; then
     _dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file'
   fi
 

@@ -42,8 +42,7 @@ SCRIPTNAME="/etc/init.d/${DAEMON_NAME}"
 
 POSTGREY_OPTS="--pidfile=${PIDFILE} --daemonize ${POSTGREY_OPTS}"
 
-if [ -z "${POSTGREY_TEXT}" ]
-then
+if [ -z "${POSTGREY_TEXT}" ]; then
     POSTGREY_TEXT_OPT=""
 else
     POSTGREY_TEXT_OPT="--greylist-text=${POSTGREY_TEXT}"

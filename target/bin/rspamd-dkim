@@ -88,8 +88,7 @@ function _parse_arguments
 
       ( 'keytype' )
         [[ -n ${2:-} ]] || _exit_with_error "No keytype provided after 'keytype' argument"
-        if [[ ${2} == 'rsa' ]] || [[ ${2} == 'ed25519' ]]
-        then
+        if [[ ${2} == 'rsa' ]] || [[ ${2} == 'ed25519' ]]; then
           KEYTYPE=${2}
           _log 'debug' "Keytype set to '${KEYTYPE}'"
         else
@@ -146,8 +145,7 @@ function _parse_arguments
     shift 2
   done
 
-  if [[ ${KEYTYPE} == 'ed25519' ]] && [[ ${KEYSIZE} -ne 2048 ]]
-  then
+  if [[ ${KEYTYPE} == 'ed25519' ]] && [[ ${KEYSIZE} -ne 2048 ]]; then
     _exit_with_error "Chosen keytype does not accept the 'keysize' argument"
   fi
 
@@ -160,8 +158,7 @@ function _create_keys
   # in other functions (after this function was called).
   BASE_DIR='/tmp/docker-mailserver/rspamd/dkim'
 
-  if [[ ${KEYTYPE} == 'rsa' ]]
-  then
+  if [[ ${KEYTYPE} == 'rsa' ]]; then
     local BASE_FILE_NAME="${BASE_DIR}/${KEYTYPE}-${KEYSIZE}-${SELECTOR}-${DOMAIN}"
     KEYTYPE_OPTIONS=('-b' "${KEYSIZE}")
     _log 'info' "Creating DKIM keys of type '${KEYTYPE}' and lenght '${KEYSIZE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
@@ -198,11 +195,9 @@ function _create_keys
 function _check_permissions
 {
   # shellcheck disable=SC2310
-  if ! __do_as_rspamd_user ls "${BASE_DIR}" >/dev/null
-  then
+  if ! __do_as_rspamd_user ls "${BASE_DIR}" >/dev/null; then
     _log 'warn' "The Rspamd user ('_rspamd') seems to be unable to list files in the keys directory ('${BASE_DIR}') - Rspamd may experience permission errors later"
-  elif ! __do_as_rspamd_user cat "${PRIVATE_KEY_FILE}" >/dev/null
-  then
+  elif ! __do_as_rspamd_user cat "${PRIVATE_KEY_FILE}" >/dev/null; then
     _log 'warn' "The Rspamd user ('_rspamd') seems to be unable to read the private key file - Rspamd may experience permission errors later"
   else
     _log 'debug' 'Permissions on files and directories seem ok'
@@ -212,8 +207,7 @@ function _check_permissions
 function _setup_default_signing_conf
 {
   local DEFAULT_CONFIG_FILE='/etc/rspamd/override.d/dkim_signing.conf'
-  if [[ -f ${DEFAULT_CONFIG_FILE} ]]
-  then
+  if [[ -f ${DEFAULT_CONFIG_FILE} ]]; then
     _log 'debug' "'${DEFAULT_CONFIG_FILE}' exists, not supplying a default"
   else
     _log 'info' "Supplying a default configuration ('${DEFAULT_CONFIG_FILE}')"
@@ -250,8 +244,7 @@ function _transform_public_key_file_to_dns_record_contents
   grep -o '".*"' "${PUBLIC_KEY_FILE}" | tr -d '"\n' >>"${PUBLIC_KEY_DNS_FILE}"
   echo '' >>"${PUBLIC_KEY_DNS_FILE}"
 
-  if ! _log_level_is '(warn|error)'
-  then
+  if ! _log_level_is '(warn|error)'; then
     _log 'info' "Here is the content of the TXT DNS record ${SELECTOR}._domainkey.${DOMAIN} that you need to create:\n"
     cat "${PUBLIC_KEY_DNS_FILE}"
     printf '\n'
@@ -261,8 +254,7 @@ function _transform_public_key_file_to_dns_record_contents
 function _final_steps
 {
   # We need to restart Rspamd so the changes take effect immediately.
-  if ! supervisorctl restart rspamd
-  then
+  if ! supervisorctl restart rspamd; then
     _log 'warn' 'Could not restart Rspamd via Supervisord'
   fi
 
