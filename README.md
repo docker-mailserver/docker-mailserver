@@ -42,6 +42,7 @@ If you have issues, please search through [the documentation][documentation::web
 - [OpenDKIM](http://www.opendkim.org) & [OpenDMARC](https://github.com/trusteddomainproject/OpenDMARC)
 - [Fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page)
 - [Fetchmail](http://www.fetchmail.info/fetchmail-man.html)
+- [Getmail6](https://getmail6.org/documentation.html)
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
 - Support for [LetsEncrypt](https://letsencrypt.org/), manual and self-signed certificates
