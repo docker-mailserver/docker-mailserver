@@ -48,21 +48,24 @@ function _hadolint
 
 function _shellcheck
 {
+  local F_SH F_BIN F_BATS
+
   # File paths for shellcheck:
-  F_SH=$(find . -type f -iname '*.sh' \
+  readarray -d '' F_SH < <(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
     -not -path './test/test_helper/*' \
-    -not -path './.git/*'
+    -not -path './.git/*' \
+    -print0 \
   )
   # shellcheck disable=SC2248
-  F_BIN=$(find 'target/bin' -type f -not -name '*.py')
-  F_BATS=$(find 'test' -maxdepth 1 -type f -iname '*.bats')
+  readarray -d '' F_BIN < <(find 'target/bin' -type f -not -name '*.py' -print0)
+  readarray -d '' F_BATS < <(find 'test/tests/' -type f -iname '*.bats' -print0)
 
   # This command is a bit easier to grok as multi-line.
   # There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
   # `SCRIPTDIR` is a special value that represents the path of the script being linted,
   # all sourced scripts share the same SCRIPTDIR source-path of the original script being linted.
-  CMD_SHELLCHECK=(shellcheck
+  local CMD_SHELLCHECK=(shellcheck
     --external-sources
     --check-sourced
     --severity=style
@@ -74,7 +77,13 @@ function _shellcheck
     --exclude=SC2311
     --exclude=SC2312
     --source-path=SCRIPTDIR
-    "${F_SH} ${F_BIN} ${F_BATS}"
+  )
+
+  local BATS_EXTRA_ARGS=(
+    --exclude=SC2030
+    --exclude=SC2031
+    --exclude=SC2034
+    --exclude=SC2155
   )
 
   # The linter can reference additional source-path values declared in scripts,
@@ -87,11 +96,22 @@ function _shellcheck
   # Otherwise it only applies to the line below it. You can declare multiple source-paths, they don't override the previous.
   # `source=relative/path/to/file.sh` will check the source value in each source-path as well.
   # shellcheck disable=SC2068
-  if docker run --rm --tty \
+  local ERROR=0
+
+  docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
     --name dms-test_shellcheck \
-    "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
+    "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" "${F_SH[@]}" "${F_BIN[@]}" || ERROR=1
+
+  docker run --rm --tty \
+    --volume "${REPOSITORY_ROOT}:/ci:ro" \
+    --workdir "/ci" \
+    --name dms-test_shellcheck \
+    "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" \
+    "${BATS_EXTRA_ARGS[@]}" "${F_BATS[@]}" || ERROR=1
+
+  if [[ ${ERROR} -eq 0 ]]
   then
     _log 'info' 'ShellCheck succeeded'
   else

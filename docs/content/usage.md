@@ -88,7 +88,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 Issue the following commands to acquire the necessary files:
 
 ``` BASH
-DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/latest"
+DMS_GITHUB_URL="https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master"
 wget "${DMS_GITHUB_URL}/compose.yaml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
 ```

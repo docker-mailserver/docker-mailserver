@@ -35,6 +35,8 @@ theme:
     - navigation.top
     - navigation.expand
     - navigation.instant
+    - content.action.edit
+    - content.action.view
     - content.code.annotate
   palette:
     # Light mode

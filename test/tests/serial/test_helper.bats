@@ -1,3 +1,5 @@
+# shellcheck disable=SC2314,SC2317
+
 load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 BATS_TEST_NAME_PREFIX='test helper functions:'

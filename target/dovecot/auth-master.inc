@@ -6,4 +6,3 @@ passdb {
   result_success = continue
   #auth_bind = yes
 }
-

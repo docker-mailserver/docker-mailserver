@@ -6,7 +6,7 @@ CONTAINER1_NAME='dms-test_postscreen_enforce'
 CONTAINER2_NAME='dms-test_postscreen_sender'
 
 function setup() {
-  CONTAINER1_IP=$(_get_container_ip ${CONTAINER1_NAME})
+  CONTAINER1_IP=$(_get_container_ip "${CONTAINER1_NAME}")
 }
 
 function setup_file() {
@@ -70,6 +70,7 @@ function _should_wait_turn_speaking_smtp() {
   local SMTP_TEMPLATE=$3
   local EXPECTED=$4
 
+  # shellcheck disable=SC2016
   local UGLY_WORKAROUND='exec 3<>/dev/tcp/'"${TARGET_CONTAINER_IP}"'/25 && \
     while IFS= read -r cmd; do \
       head -1 <&3; \
