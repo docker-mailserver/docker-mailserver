@@ -27,8 +27,7 @@ function _obtain_hostname_and_domainname
 
   # If the container is misconfigured.. `hostname -f` (which derives it's return value from `/etc/hosts` or DNS query),
   # will result in an error that returns an empty value. This warrants a panic.
-  if [[ -z ${HOSTNAME} ]]
-  then
+  if [[ -z ${HOSTNAME} ]]; then
     _dms_panic__misconfigured 'obtain_hostname' '/etc/hosts'
   fi
 
@@ -39,10 +38,8 @@ function _obtain_hostname_and_domainname
   # `hostname -d` was probably not the correct command for this intention either.
   # Needs further investigation for relevance, and if `/etc/hosts` is important for consumers
   # of this variable or if a more deterministic approach with `cut` should be relied on.
-  if [[ $(_get_label_count "${HOSTNAME}") -gt 2 ]]
-  then
-    if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
-    then
+  if [[ $(_get_label_count "${HOSTNAME}") -gt 2 ]]; then
+    if [[ -n ${OVERRIDE_HOSTNAME:-} ]]; then
       # Emulates the intended behaviour of `hostname -d`:
       # Assign the HOSTNAME value minus everything up to and including the first `.`
       DOMAINNAME=${HOSTNAME#*.}

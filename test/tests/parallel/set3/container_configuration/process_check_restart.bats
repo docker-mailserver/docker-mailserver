@@ -184,8 +184,7 @@ function _check_if_process_is_running() {
   local IS_RUNNING=$(docker exec "${CONTAINER_NAME}" pgrep --list-full "${MIN_SECS_RUNNING[@]}" "${PROCESS}")
 
   # When no matches are found, nothing is returned. Provide something we can assert on (helpful for debugging):
-  if [[ ! ${IS_RUNNING} =~ ${PROCESS} ]]
-  then
+  if [[ ! ${IS_RUNNING} =~ ${PROCESS} ]]; then
     echo "'${PROCESS}' is not running"
     return 1
   fi

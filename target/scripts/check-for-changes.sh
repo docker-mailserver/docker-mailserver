@@ -22,8 +22,7 @@ source /etc/dms-settings
 _obtain_hostname_and_domainname
 
 # verify checksum file exists; must be prepared by start-mailserver.sh
-if [[ ! -f ${CHKSUM_FILE} ]]
-then
+if [[ ! -f ${CHKSUM_FILE} ]]; then
   _exit_with_error "'${CHKSUM_FILE}' is missing" 0
 fi
 
@@ -41,8 +40,7 @@ function _check_for_changes
   # 0 – files are identical
   # 1 – files differ
   # 2 – inaccessible or missing argument
-  if [[ ${?} -eq 1 ]]
-  then
+  if [[ ${?} -eq 1 ]]; then
     _log_with_date 'info' 'Change detected'
     _create_lock # Shared config safety lock
 
@@ -85,8 +83,7 @@ function _get_changed_files
 
 function _reload_amavis
 {
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]
-  then
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]; then
     # /etc/postfix/vhost was updated, amavis must refresh it's config by
     # reading this file again in case of new domains, otherwise they will be ignored.
     amavisd-new reload
@@ -152,8 +149,7 @@ function _ssl_changes
   # manual - copy to internal DMS_TLS_PATH (/etc/dms/tls) that Postfix and Dovecot are configured to use.
   # acme.json - presently uses /etc/letsencrypt/live/<FQDN> instead of DMS_TLS_PATH,
   # path may change requiring Postfix/Dovecot config update.
-  if [[ ${SSL_TYPE} == 'manual' ]]
-  then
+  if [[ ${SSL_TYPE} == 'manual' ]]; then
     # only run the SSL setup again if certificates have really changed.
     if [[ ${CHANGED} =~ ${SSL_CERT_PATH:-${REGEX_NEVER_MATCH}} ]]     \
     || [[ ${CHANGED} =~ ${SSL_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]      \
@@ -166,8 +162,7 @@ function _ssl_changes
   # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
   # When a change is detected it's assumed to be a possible cert renewal that needs to be
   # extracted for `docker-mailserver` services to adjust to.
-  elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
-  then
+  elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]; then
     _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
     _setup_ssl
 

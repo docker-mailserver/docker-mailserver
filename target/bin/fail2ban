@@ -19,16 +19,14 @@ do
   JAILS+=("${LIST}")
 done
 
-if [[ -z ${1} ]]
-then
+if [[ -z ${1} ]]; then
   IPS_BANNED=0
 
   for JAIL in "${JAILS[@]}"
   do
     BANNED_IPS=$(fail2ban-client status "${JAIL}" | grep -oP '(?<=Banned IP list:\s).+')
 
-    if [[ -n ${BANNED_IPS} ]]
-    then
+    if [[ -n ${BANNED_IPS} ]]; then
       echo "Banned in ${JAIL}: ${BANNED_IPS}"
       IPS_BANNED=1
     fi
@@ -43,11 +41,9 @@ else
 
     ( 'ban' )
       shift
-      if [[ -n ${1} ]]
-      then
+      if [[ -n ${1} ]]; then
         RESULT=$(fail2ban-client set custom banip "${@}")
-        if [[ ${RESULT} -gt 0 ]]
-        then
+        if [[ ${RESULT} -gt 0 ]]; then
           echo "Banned custom IP: ${RESULT}"
         else
           _log 'error' "Banning '${*}' failed. Already banned?"
@@ -61,8 +57,7 @@ else
 
     ( 'unban' )
       shift
-      if [[ -n ${1} ]]
-      then
+      if [[ -n ${1} ]]; then
 
         for JAIL in "${JAILS[@]}"
         do

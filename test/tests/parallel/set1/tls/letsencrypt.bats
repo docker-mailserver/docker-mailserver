@@ -240,8 +240,7 @@ function _copy_to_letsencrypt_storage() {
   FQDN_DIR=$(echo "${DEST}" | cut -d '/' -f1)
   mkdir -p "${TEST_TMP_CONFIG}/letsencrypt/${FQDN_DIR}"
 
-  if ! cp "${PWD}/test/test-files/ssl/${SRC}" "${TEST_TMP_CONFIG}/letsencrypt/${DEST}"
-  then
+  if ! cp "${PWD}/test/test-files/ssl/${SRC}" "${TEST_TMP_CONFIG}/letsencrypt/${DEST}"; then
     echo "Could not copy cert file '${SRC}'' to '${DEST}'" >&2
     exit 1
   fi

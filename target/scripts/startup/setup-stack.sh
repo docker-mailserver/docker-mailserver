@@ -32,8 +32,7 @@ function _early_supervisor_setup
 {
   SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:-warn}"
 
-  if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf
-  then
+  if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf; then
     case "${SUPERVISOR_LOGLEVEL}" in
       ( 'critical' | 'error' | 'info' | 'debug' )
         sed -i -E \
@@ -64,8 +63,7 @@ function _setup_timezone
 
   local ZONEINFO_FILE="/usr/share/zoneinfo/${TZ}"
 
-  if [[ ! -e ${ZONEINFO_FILE} ]]
-  then
+  if [[ ! -e ${ZONEINFO_FILE} ]]; then
     _log 'warn' "Cannot find timezone '${TZ}'"
     return 1
   fi
@@ -87,8 +85,7 @@ function _setup_apply_fixes_after_configuration
   touch /dev/shm/supervisor.sock
 
   _log 'debug' 'Checking /var/mail permissions'
-  if ! _chown_var_mail_if_necessary
-  then
+  if ! _chown_var_mail_if_necessary; then
     _dms_panic__general 'Failed to fix /var/mail permissions'
   fi
 
@@ -100,8 +97,7 @@ function _run_user_patches
 {
   local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
 
-  if [[ -f ${USER_PATCHES} ]]
-  then
+  if [[ -f ${USER_PATCHES} ]]; then
     _log 'debug' 'Applying user patches'
     /bin/bash "${USER_PATCHES}"
   else

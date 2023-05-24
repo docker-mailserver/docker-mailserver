@@ -33,8 +33,7 @@ function _create_vhost
 {
   : >"${DATABASE_VHOST}"
 
-  if [[ -f ${TMP_VHOST} ]]
-  then
+  if [[ -f ${TMP_VHOST} ]]; then
     sort < "${TMP_VHOST}" | uniq >>"${DATABASE_VHOST}"
     rm "${TMP_VHOST}"
   fi
@@ -48,8 +47,7 @@ function _vhost_collect_postfix_domains
   local DOMAIN UNAME
 
   # getting domains FROM mail accounts
-  if [[ -f ${DATABASE_ACCOUNTS} ]]
-  then
+  if [[ -f ${DATABASE_ACCOUNTS} ]]; then
     while IFS=$'|' read -r LOGIN _
     do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
@@ -58,8 +56,7 @@ function _vhost_collect_postfix_domains
   fi
 
   # getting domains FROM mail aliases
-  if [[ -f ${DATABASE_VIRTUAL} ]]
-  then
+  if [[ -f ${DATABASE_VIRTUAL} ]]; then
     while read -r FROM _
     do
       UNAME=$(echo "${FROM}" | cut -d @ -f1)

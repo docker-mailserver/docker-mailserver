@@ -44,14 +44,12 @@ RESET=$(echo -ne   '\e[0m')
 # is missing. Both failures will return with exit code '1'.
 function _log
 {
-  if [[ -z ${1+set} ]]
-  then
+  if [[ -z ${1+set} ]]; then
     _log 'error' "Call to '_log' is missing a valid log level"
     return 1
   fi
 
-  if [[ -z ${2+set} ]]
-  then
+  if [[ -z ${2+set} ]]; then
     _log 'error' "Call to '_log' is missing a message to log"
     return 1
   fi
@@ -100,8 +98,7 @@ function _log
 
   MESSAGE+="${RESET}]  ${2}"
 
-  if [[ ${1} =~ ^(warn|error)$ ]]
-  then
+  if [[ ${1} =~ ^(warn|error)$ ]]; then
     echo -e "${MESSAGE}" >&2
   else
     echo -e "${MESSAGE}"
@@ -120,11 +117,9 @@ function _log_with_date
 # use the default log level.
 function _get_log_level_or_default
 {
-  if [[ -n ${LOG_LEVEL+set} ]]
-  then
+  if [[ -n ${LOG_LEVEL+set} ]]; then
     echo "${LOG_LEVEL}"
-  elif [[ -e /etc/dms-settings ]] && grep -q -E "^LOG_LEVEL='[a-z]+'" /etc/dms-settings
-  then
+  elif [[ -e /etc/dms-settings ]] && grep -q -E "^LOG_LEVEL='[a-z]+'" /etc/dms-settings; then
     grep '^LOG_LEVEL=' /etc/dms-settings | cut -d "'" -f 2
   else
     echo 'info'

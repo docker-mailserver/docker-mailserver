@@ -107,8 +107,7 @@ function wait_for_smtp_port_in_container() {
 function wait_for_smtp_port_in_container_to_respond() {
   local COUNT=0
   until [[ $(docker exec "${1}" timeout 10 /bin/sh -c "echo QUIT | nc localhost 25") == *"221 2.0.0 Bye"* ]]; do
-    if [[ $COUNT -eq 20 ]]
-    then
+    if [[ $COUNT -eq 20 ]]; then
       echo "Unable to receive a valid response from 'nc localhost 25' within 20 seconds"
       return 1
     fi

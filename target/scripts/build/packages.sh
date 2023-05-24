@@ -103,8 +103,7 @@ function _install_dovecot
     dovecot-pop3d dovecot-sieve dovecot-solr
   )
 
-  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]
-  then
+  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]; then
     # The package dovecot-fts-xapian is installed from the debian repository.
     # Starting with version 1.4.9a-1+deb11u1, a new dependency was added: dovecot-abi-2.3.abiv13
     # dovecot-abi-2.3.abiv13 is a virtual package provided by dovecot-core (from the debian repository).
@@ -144,8 +143,7 @@ function _install_rspamd
   #
   # Not removing it later is fine as you have to explicitly opt into installing a backports package
   # which is not something you could be doing by accident.
-  if [[ $(uname --machine) == 'aarch64' ]]
-  then
+  if [[ $(uname --machine) == 'aarch64' ]]; then
     echo '# Official Rspamd PPA does not support aarch64, so we use the Bullseye backports' >"${DEB_FILE}"
     echo 'deb [arch=arm64] http://deb.debian.org/debian bullseye-backports main' >>"${DEB_FILE}"
     RSPAMD_PACKAGE_NAME='rspamd/bullseye-backports'
@@ -180,14 +178,12 @@ function _install_fail2ban
 
   FINGERPRINT=$(LANG=C gpg --verify fail2ban.deb.asc fail2ban.deb |& sed -n 's#Primary key fingerprint: \(.*\)#\1#p')
 
-  if [[ -z ${FINGERPRINT} ]]
-  then
+  if [[ -z ${FINGERPRINT} ]]; then
     echo 'ERROR: Invalid GPG signature!' >&2
     exit 1
   fi
 
-  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]
-  then
+  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then
     echo "ERROR: Wrong GPG fingerprint!" >&2
     exit 1
   fi

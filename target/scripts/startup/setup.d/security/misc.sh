@@ -25,8 +25,7 @@ function _setup_security_stack
 
 function __setup__security__postgrey
 {
-  if [[ ${ENABLE_POSTGREY} -eq 1 ]]
-  then
+  if [[ ${ENABLE_POSTGREY} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Postgrey'
 
     sedfile -i -E \
@@ -37,18 +36,15 @@ function __setup__security__postgrey
       "s|\"--inet=127.0.0.1:10023\"|\"--inet=127.0.0.1:10023 --delay=${POSTGREY_DELAY} --max-age=${POSTGREY_MAX_AGE} --auto-whitelist-clients=${POSTGREY_AUTO_WHITELIST_CLIENTS}\"|" \
       /etc/default/postgrey
 
-    if ! grep -i 'POSTGREY_TEXT' /etc/default/postgrey
-    then
+    if ! grep -i 'POSTGREY_TEXT' /etc/default/postgrey; then
       printf 'POSTGREY_TEXT=\"%s\"\n\n' "${POSTGREY_TEXT}" >>/etc/default/postgrey
     fi
 
-    if [[ -f /tmp/docker-mailserver/whitelist_clients.local ]]
-    then
+    if [[ -f /tmp/docker-mailserver/whitelist_clients.local ]]; then
       cp -f /tmp/docker-mailserver/whitelist_clients.local /etc/postgrey/whitelist_clients.local
     fi
 
-    if [[ -f /tmp/docker-mailserver/whitelist_recipients ]]
-    then
+    if [[ -f /tmp/docker-mailserver/whitelist_recipients ]]; then
       cp -f /tmp/docker-mailserver/whitelist_recipients /etc/postgrey/whitelist_recipients
     fi
   else
@@ -64,8 +60,7 @@ function __setup__security__postscreen
     -e "s|postscreen_greet_action = enforce|postscreen_greet_action = ${POSTSCREEN_ACTION}|" \
     -e "s|postscreen_bare_newline_action = enforce|postscreen_bare_newline_action = ${POSTSCREEN_ACTION}|" /etc/postfix/main.cf
 
-  if [[ ${ENABLE_DNSBL} -eq 0 ]]
-  then
+  if [[ ${ENABLE_DNSBL} -eq 0 ]]; then
     _log 'debug' 'Disabling Postscreen DNSBLs'
     postconf 'postscreen_dnsbl_action = ignore'
     postconf 'postscreen_dnsbl_sites = '
@@ -76,8 +71,7 @@ function __setup__security__postscreen
 
 function __setup__security__spamassassin
 {
-  if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
-  then
+  if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
     # shellcheck disable=SC2016
@@ -94,8 +88,7 @@ function __setup__security__spamassassin
       's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
       /etc/cron.daily/spamassassin
 
-    if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]
-    then
+    if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]; then
       # shellcheck disable=SC2016
       sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults
     else
@@ -104,27 +97,23 @@ function __setup__security__spamassassin
     fi
 
     # activate short circuits when SA BAYES is certain it has spam or ham.
-    if [[ ${SA_SHORTCIRCUIT_BAYES_SPAM} -eq 1 ]]
-    then
+    if [[ ${SA_SHORTCIRCUIT_BAYES_SPAM} -eq 1 ]]; then
       # automatically activate the Shortcircuit Plugin
       sed -i -r 's|^# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit|loadplugin Mail::SpamAssassin::Plugin::Shortcircuit|g' /etc/spamassassin/v320.pre
       sed -i -r 's|^# shortcircuit BAYES_99|shortcircuit BAYES_99|g' /etc/spamassassin/local.cf
     fi
 
-    if [[ ${SA_SHORTCIRCUIT_BAYES_HAM} -eq 1 ]]
-    then
+    if [[ ${SA_SHORTCIRCUIT_BAYES_HAM} -eq 1 ]]; then
       # automatically activate the Shortcircuit Plugin
       sed -i -r 's|^# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit|loadplugin Mail::SpamAssassin::Plugin::Shortcircuit|g' /etc/spamassassin/v320.pre
       sed -i -r 's|^# shortcircuit BAYES_00|shortcircuit BAYES_00|g' /etc/spamassassin/local.cf
     fi
 
-    if [[ -e /tmp/docker-mailserver/spamassassin-rules.cf ]]
-    then
+    if [[ -e /tmp/docker-mailserver/spamassassin-rules.cf ]]; then
       cp /tmp/docker-mailserver/spamassassin-rules.cf /etc/spamassassin/
     fi
 
-    if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]
-    then
+    if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]; then
       _log 'trace' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
       _log 'debug'  'SPAM_TO_INBOX=1 is set. SA_KILL will be ignored.'
 
@@ -137,8 +126,7 @@ function __setup__security__spamassassin
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_BOUNCE;|g" /etc/amavis/conf.d/49-docker-mailserver
     fi
 
-    if [[ ${ENABLE_SPAMASSASSIN_KAM} -eq 1 ]]
-    then
+    if [[ ${ENABLE_SPAMASSASSIN_KAM} -eq 1 ]]; then
       _log 'trace' 'Configuring Spamassassin KAM'
       local SPAMASSASSIN_KAM_CRON_FILE=/etc/cron.daily/spamassassin_kam
 
@@ -151,8 +139,7 @@ RESULT=$(sa-update --gpgkey 24C063D8 --channel kam.sa-channels.mcgrail.com 2>&1)
 EXIT_CODE=${?}
 
 # see https://spamassassin.apache.org/full/3.1.x/doc/sa-update.html#exit_codes
-if [[ ${EXIT_CODE} -ge 4 ]]
-then
+if [[ ${EXIT_CODE} -ge 4 ]]; then
   echo -e "Updating SpamAssassin KAM failed:\n${RESULT}\n" >&2
   exit 1
 fi
@@ -172,8 +159,7 @@ EOF
 
 function __setup__security__clamav
 {
-  if [[ ${ENABLE_CLAMAV} -eq 1 ]]
-  then
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring ClamAV'
 
     local FILE
@@ -184,19 +170,16 @@ function __setup__security__clamav
       chmod 640 "${FILE}"
     done
 
-    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]
-    then
+    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]; then
       _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
 
       # do a short sanity check: ClamAV does not support setting a maximum size greater than 4000M (at all)
-      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -gt $(numfmt --from=si 4000M) ]]
-      then
+      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -gt $(numfmt --from=si 4000M) ]]; then
         _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 4 Gigabyte, but the maximum value is 4000M for this value - you should correct your configuration"
       fi
       # For more details, see
       # https://github.com/docker-mailserver/docker-mailserver/pull/3341
-      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -ge $(numfmt --from=iec 2G) ]]
-      then
+      if [[ $(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}") -ge $(numfmt --from=iec 2G) ]]; then
         _log 'warn' "You set 'CLAMAV_MESSAGE_SIZE_LIMIT' to a value larger than 2 Gibibyte but ClamAV does not scan files larger or equal to 2 Gibibyte"
       fi
 
@@ -216,22 +199,18 @@ function __setup__security__clamav
 
 function __setup__security__fail2ban
 {
-  if [[ ${ENABLE_FAIL2BAN} -eq 1 ]]
-  then
+  if [[ ${ENABLE_FAIL2BAN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Fail2Ban'
 
-    if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]
-    then
+    if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]; then
       cp /tmp/docker-mailserver/fail2ban-fail2ban.cf /etc/fail2ban/fail2ban.local
     fi
 
-    if [[ -e /tmp/docker-mailserver/fail2ban-jail.cf ]]
-    then
+    if [[ -e /tmp/docker-mailserver/fail2ban-jail.cf ]]; then
       cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.d/user-jail.local
     fi
 
-    if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]
-    then
+    if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]; then
       echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
     fi
 
@@ -244,11 +223,9 @@ function __setup__security__fail2ban
 
 function __setup__security__amavis
 {
-  if [[ ${ENABLE_AMAVIS} -eq 1 ]]
-  then
+  if [[ ${ENABLE_AMAVIS} -eq 1 ]]; then
     _log 'debug' 'Configuring Amavis'
-    if [[ -f /tmp/docker-mailserver/amavis.cf ]]
-    then
+    if [[ -f /tmp/docker-mailserver/amavis.cf ]]; then
       cp /tmp/docker-mailserver/amavis.cf /etc/amavis/conf.d/50-user
     fi
 
@@ -269,13 +246,11 @@ function __setup__security__amavis
     mv /etc/cron.d/amavisd-new /etc/cron.d/amavisd-new.disabled
     chmod 0 /etc/cron.d/amavisd-new.disabled
 
-    if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]
-    then
+    if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]; then
       _log 'warn' 'ClamAV will not work when Amavis & rspamd are disabled. Enable either Amavis or rspamd to fix it.'
     fi
 
-    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
-    then
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
       _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
     fi
   fi
@@ -284,8 +259,7 @@ function __setup__security__amavis
 # We can use Sieve to move spam emails to the "Junk" folder.
 function _setup_spam_to_junk
 {
-  if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]
-  then
+  if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]; then
     _log 'debug' 'Spam emails will be moved to the Junk folder'
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
 require ["fileinto","mailbox"];
@@ -298,8 +272,7 @@ EOF
     sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
 
-    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]
-    then
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
       _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
     fi
   else

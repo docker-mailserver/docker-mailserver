@@ -8,8 +8,7 @@
 # `smtpd_milters` milters options.
 function _setup_opendkim
 {
-  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
-  then
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]; then
     _log 'debug' 'Configuring DKIM'
 
     mkdir -p /etc/opendkim/keys/
@@ -24,8 +23,7 @@ function _setup_opendkim
       /etc/postfix/main.cf
 
     # check if any keys are available
-    if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]
-    then
+    if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]; then
       cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
       _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')"
       chown -R opendkim:opendkim /etc/opendkim/
@@ -35,8 +33,7 @@ function _setup_opendkim
     fi
 
     # setup nameservers parameter from /etc/resolv.conf if not defined
-    if ! grep -q '^Nameservers' /etc/opendkim.conf
-    then
+    if ! grep -q '^Nameservers' /etc/opendkim.conf; then
       local NAMESERVER_IPS
       NAMESERVER_IPS=$(grep '^nameserver' /etc/resolv.conf | awk -F " " '{print $2}' | paste -sd ',' -)
       echo "Nameservers ${NAMESERVER_IPS}" >>/etc/opendkim.conf
@@ -59,8 +56,7 @@ function _setup_opendkim
 # `smtpd_milters` milters options.
 function _setup_opendmarc
 {
-  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
-  then
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]; then
     # TODO When disabling SPF is possible, add a check whether DKIM and SPF is disabled
     #      for DMARC to work, you should have at least one enabled
     #      (see RFC 7489 https://www.rfc-editor.org/rfc/rfc7489#page-24)
@@ -89,8 +85,7 @@ function _setup_opendmarc
 # using Rspamd, you will likely want to turn that off.
 function _setup_policyd_spf
 {
-  if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]
-  then
+  if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]; then
     _log 'debug' 'Configuring policyd-spf'
     cat >>/etc/postfix/master.cf <<EOF
 

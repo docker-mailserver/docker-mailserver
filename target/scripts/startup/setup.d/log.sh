@@ -96,8 +96,7 @@ function _setup_logwatch
       LOGWATCH_FILE="/etc/cron.${LOGWATCH_INTERVAL}/logwatch"
       INTERVAL='--range Yesterday'
 
-      if [[ ${LOGWATCH_INTERVAL} == 'weekly' ]]
-      then
+      if [[ ${LOGWATCH_INTERVAL} == 'weekly' ]]; then
         INTERVAL="--range 'between -7 days and -1 days'"
       fi
 

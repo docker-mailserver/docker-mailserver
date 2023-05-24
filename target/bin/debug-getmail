@@ -7,8 +7,7 @@ source /usr/local/bin/setup.d/getmail.sh
 
 _setup_getmail
 
-if [[ -d /var/lib/getmail ]]
-then
+if [[ -d /var/lib/getmail ]]; then
   GETMAILDIR=/var/lib/getmail
 else
   mkdir -p /tmp/docker-mailserver/getmail

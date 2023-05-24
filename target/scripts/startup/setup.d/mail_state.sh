@@ -8,8 +8,7 @@ function _setup_save_states
 
   STATEDIR='/var/mail-state'
 
-  if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]
-  then
+  if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]; then
     _log 'debug' "Consolidating all state onto ${STATEDIR}"
 
     # Always enabled features:
@@ -42,13 +41,11 @@ function _setup_save_states
       DESTDIR="${DEST%/*}"
 
       mkdir -p "${DESTDIR}"
-      if [[ -f ${DEST} ]]
-      then
+      if [[ -f ${DEST} ]]; then
         _log 'trace' "Destination ${DEST} exists, linking ${SERVICEFILE} to it"
         # Original content from image no longer relevant, remove it:
         rm -f "${SERVICEFILE}"
-      elif [[ -f "${SERVICEFILE}" ]]
-      then
+      elif [[ -f "${SERVICEFILE}" ]]; then
         _log 'trace' "Moving ${SERVICEFILE} to ${DEST}"
         # Empty volume was mounted, or new content from enabling a feature ENV:
         mv "${SERVICEFILE}" "${DEST}"
@@ -66,13 +63,11 @@ function _setup_save_states
 
       # If relevant content is found in /var/mail-state (presumably a volume mount),
       # use it instead. Otherwise copy over any missing directories checked.
-      if [[ -d ${DEST} ]]
-      then
+      if [[ -d ${DEST} ]]; then
         _log 'trace' "Destination ${DEST} exists, linking ${SERVICEDIR} to it"
         # Original content from image no longer relevant, remove it:
         rm -rf "${SERVICEDIR}"
-      elif [[ -d ${SERVICEDIR} ]]
-      then
+      elif [[ -d ${SERVICEDIR} ]]; then
         _log 'trace' "Moving contents of ${SERVICEDIR} to ${DEST}"
         # Empty volume was mounted, or new content from enabling a feature ENV:
         mv "${SERVICEDIR}" "${DEST}"
@@ -117,8 +112,7 @@ function _setup_save_states
     # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3149#issuecomment-1454981309
     chmod 1730 "${STATEDIR}/spool-postfix/maildrop"
     chmod 2710 "${STATEDIR}/spool-postfix/public"
-  elif [[ ${ONE_DIR} -eq 1 ]]
-  then
+  elif [[ ${ONE_DIR} -eq 1 ]]; then
     _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
   else
     _log 'debug' 'Not consolidating state (because it has been disabled)'

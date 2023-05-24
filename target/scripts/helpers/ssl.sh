@@ -8,8 +8,7 @@ function _setup_dhparam
 
   _log 'debug' "Setting up ${DH_SERVICE} dhparam"
 
-  if [[ -f ${DH_CUSTOM} ]]
-  then # use custom supplied dh params (assumes they're probably insecure)
+  if [[ -f ${DH_CUSTOM} ]]; then # use custom supplied dh params (assumes they're probably insecure)
     _log 'trace' "${DH_SERVICE} will use custom provided DH paramters"
     _log 'warn' "Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove '${DH_CUSTOM}'"
 
@@ -39,8 +38,7 @@ function _setup_ssl
     local DOVECOT_CERT=${1}
 
     # If a 2nd param is provided, a separate key and cert was received instead of a fullkeychain
-    if [[ -n ${2} ]]
-    then
+    if [[ -n ${2} ]]; then
       local PRIVATE_KEY=$1
       local CERT_CHAIN=$2
 
@@ -117,22 +115,18 @@ function _setup_ssl
   # NOTE: See the `SSL_TYPE=letsencrypt` case below for more details.
   function _traefik_support
   {
-    if [[ -f /etc/letsencrypt/acme.json ]]
-    then
+    if [[ -f /etc/letsencrypt/acme.json ]]; then
       # Variable only intended for troubleshooting via debug output
       local EXTRACTED_DOMAIN
 
       # Conditional handling depends on the success of `_extract_certs_from_acme`,
       # Failure tries the next fallback FQDN to try extract a certificate from.
       # Subshell not used in conditional to ensure extraction log output is still captured
-      if [[ -n ${SSL_DOMAIN} ]] && _extract_certs_from_acme "${SSL_DOMAIN}"
-      then
+      if [[ -n ${SSL_DOMAIN} ]] && _extract_certs_from_acme "${SSL_DOMAIN}"; then
         EXTRACTED_DOMAIN=('SSL_DOMAIN' "${SSL_DOMAIN}")
-      elif _extract_certs_from_acme "${HOSTNAME}"
-      then
+      elif _extract_certs_from_acme "${HOSTNAME}"; then
         EXTRACTED_DOMAIN=('HOSTNAME' "${HOSTNAME}")
-      elif _extract_certs_from_acme "${DOMAINNAME}"
-      then
+      elif _extract_certs_from_acme "${DOMAINNAME}"; then
         EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
       else
         _log 'warn' "letsencrypt (acme.json) failed to identify a certificate to extract"
@@ -220,8 +214,7 @@ function _setup_ssl
       local TMP_KEY_WITH_FULLCHAIN="${TMP_DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
       local KEY_WITH_FULLCHAIN="${DMS_TLS_PATH}/${COMBINED_PEM_NAME}"
 
-      if [[ -f ${TMP_KEY_WITH_FULLCHAIN} ]]
-      then
+      if [[ -f ${TMP_KEY_WITH_FULLCHAIN} ]]; then
         cp "${TMP_KEY_WITH_FULLCHAIN}" "${KEY_WITH_FULLCHAIN}"
         chmod 600 "${KEY_WITH_FULLCHAIN}"
 
@@ -241,8 +234,7 @@ function _setup_ssl
       local CERT_CHAIN="${DMS_TLS_PATH}/cert"
 
       # Fail early:
-      if [[ -z ${SSL_KEY_PATH} ]] && [[ -z ${SSL_CERT_PATH} ]]
-      then
+      if [[ -z ${SSL_KEY_PATH} ]] && [[ -z ${SSL_CERT_PATH} ]]; then
         _dms_panic__no_env 'SSL_KEY_PATH or SSL_CERT_PATH' "${SCOPE_SSL_TYPE}"
       fi
 
@@ -254,8 +246,7 @@ function _setup_ssl
         _dms_panic__no_file "(ALT) ${SSL_ALT_KEY_PATH} or ${SSL_ALT_CERT_PATH}" "${SCOPE_SSL_TYPE}"
       fi
 
-      if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]
-      then
+      if [[ -f ${SSL_KEY_PATH} ]] && [[ -f ${SSL_CERT_PATH} ]]; then
         cp "${SSL_KEY_PATH}" "${PRIVATE_KEY}"
         cp "${SSL_CERT_PATH}" "${CERT_CHAIN}"
         chmod 600 "${PRIVATE_KEY}"
@@ -264,8 +255,7 @@ function _setup_ssl
         _set_certificate "${PRIVATE_KEY}" "${CERT_CHAIN}"
 
         # Support for a fallback certificate, useful for hybrid/dual ECDSA + RSA certs
-        if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]
-        then
+        if [[ -n ${SSL_ALT_KEY_PATH} ]] && [[ -n ${SSL_ALT_CERT_PATH} ]]; then
           _log 'trace' "Configuring fallback certificates using key ${SSL_ALT_KEY_PATH} and cert ${SSL_ALT_CERT_PATH}"
 
           _set_alt_certificate "${SSL_ALT_KEY_PATH}" "${SSL_ALT_CERT_PATH}"
@@ -393,14 +383,11 @@ function _find_letsencrypt_domain
 {
   local LETSENCRYPT_DOMAIN
 
-  if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]
-  then
+  if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]; then
     LETSENCRYPT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
-  elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]
-  then
+  elif [[ -e /etc/letsencrypt/live/${HOSTNAME}/fullchain.pem ]]; then
     LETSENCRYPT_DOMAIN=${HOSTNAME}
-  elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]
-  then
+  elif [[ -e /etc/letsencrypt/live/${DOMAINNAME}/fullchain.pem ]]; then
     LETSENCRYPT_DOMAIN=${DOMAINNAME}
   else
     _log 'error' "Cannot find a valid DOMAIN for '/etc/letsencrypt/live/<DOMAIN>/', tried: '${SSL_DOMAIN}', '${HOSTNAME}', '${DOMAINNAME}'"
@@ -416,16 +403,13 @@ function _find_letsencrypt_key
   local LETSENCRYPT_KEY
 
   local LETSENCRYPT_DOMAIN=${1}
-  if [[ -z ${LETSENCRYPT_DOMAIN} ]]
-  then
+  if [[ -z ${LETSENCRYPT_DOMAIN} ]]; then
     _dms_panic__misconfigured 'LETSENCRYPT_DOMAIN' '_find_letsencrypt_key'
   fi
 
-  if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]
-  then
+  if [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem ]]; then
     LETSENCRYPT_KEY='privkey'
-  elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]
-  then
+  elif [[ -e /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/key.pem ]]; then
     LETSENCRYPT_KEY='key'
   else
     _log 'error' "Cannot find key file ('privkey.pem' or 'key.pem') in '/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/'"
@@ -438,8 +422,7 @@ function _find_letsencrypt_key
 function _extract_certs_from_acme
 {
   local CERT_DOMAIN=${1}
-  if [[ -z ${CERT_DOMAIN} ]]
-  then
+  if [[ -z ${CERT_DOMAIN} ]]; then
     _log 'warn' "_extract_certs_from_acme | CERT_DOMAIN is empty"
     return 1
   fi
@@ -448,16 +431,14 @@ function _extract_certs_from_acme
   KEY=$(acme_extract.py /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --key)
   CERT=$(acme_extract.py /etc/letsencrypt/acme.json "${CERT_DOMAIN}" --cert)
 
-  if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]
-  then
+  if [[ -z ${KEY} ]] || [[ -z ${CERT} ]]; then
     _log 'warn' "_extract_certs_from_acme | Unable to find key and/or cert for '${CERT_DOMAIN}' in '/etc/letsencrypt/acme.json'"
     return 1
   fi
 
   # Currently we advise SSL_DOMAIN for wildcard support using a `*.example.com` value,
   # The filepath however should be `example.com`, avoiding the wildcard part:
-  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]
-  then
+  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]; then
     CERT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
   fi
 

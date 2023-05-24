@@ -3,8 +3,7 @@
 # Function called during global setup to handle the complete setup of Rspamd.
 function _setup_rspamd
 {
-  if _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]
-  then
+  if _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Rspamd'
     __rspamd__log 'trace' '----------  Setup started  ----------'
 
@@ -44,8 +43,7 @@ function __rspamd__helper__enable_disable_module
   local LOCAL_OR_OVERRIDE=${3:-local}
   local MESSAGE='Enabling'
 
-  if [[ ! ${ENABLE_MODULE} =~ ^(true|false)$ ]]
-  then
+  if [[ ! ${ENABLE_MODULE} =~ ^(true|false)$ ]]; then
     __rspamd__log 'warn' "__rspamd__helper__enable_disable_module got non-boolean argument for deciding whether module should be enabled or not"
     return 1
   fi
@@ -75,39 +73,32 @@ function __rspamd__run_early_setup_and_checks
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
 
-  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]
-  then
+  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]; then
     __rspamd__log 'debug' "Found directory '${RSPAMD_DMS_OVERRIDE_D}' - linking it to '${RSPAMD_OVERRIDE_D}'"
-    if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null
-    then
+    if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null; then
       ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
     else
       __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty? not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
     fi
   fi
 
-  if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]
-  then
+  if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     __rspamd__log 'warn' 'Running Amavis/SA & Rspamd at the same time is discouraged'
   fi
 
-  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]
-  then
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]; then
     __rspamd__log 'warn' 'Running OpenDKIM & Rspamd at the same time is discouraged - we recommend Rspamd for DKIM checks (enabled with Rspamd by default) & signing'
   fi
 
-  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]
-  then
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]; then
     __rspamd__log 'warn' 'Running OpenDMARC & Rspamd at the same time is discouraged - we recommend Rspamd for DMARC checks (enabled with Rspamd by default)'
   fi
 
-  if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]
-  then
+  if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]; then
     __rspamd__log 'warn' 'Running policyd-spf & Rspamd at the same time is discouraged - we recommend Rspamd for SPF checks (enabled with Rspamd by default)'
   fi
 
-  if [[ ${ENABLE_POSTGREY} -eq 1 ]] && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
-  then
+  if [[ ${ENABLE_POSTGREY} -eq 1 ]] && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]; then
     __rspamd__log 'warn' 'Running Postgrey & Rspamd at the same time is discouraged - we recommend Rspamd for greylisting'
   fi
 }
@@ -116,8 +107,7 @@ function __rspamd__run_early_setup_and_checks
 # supply a configuration for our local Redis instance which is started later.
 function __rspamd__setup_redis
 {
-  if _env_var_expect_zero_or_one 'ENABLE_RSPAMD_REDIS' && [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]
-  then
+  if _env_var_expect_zero_or_one 'ENABLE_RSPAMD_REDIS' && [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]; then
     __rspamd__log 'debug' 'Internal Redis is enabled, adding configuration'
     cat >"${RSPAMD_LOCAL_D}/redis.conf" << "EOF"
 # documentation: https://rspamd.com/doc/configuration/redis.html
@@ -158,15 +148,13 @@ function __rspamd__setup_postfix
 # If ClamAV is enabled, we will integrate it into Rspamd.
 function __rspamd__setup_clamav
 {
-  if _env_var_expect_zero_or_one 'ENABLE_CLAMAV' && [[ ${ENABLE_CLAMAV} -eq 1 ]]
-  then
+  if _env_var_expect_zero_or_one 'ENABLE_CLAMAV' && [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     __rspamd__log 'debug' 'Enabling ClamAV integration'
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' "${RSPAMD_LOCAL_D}/antivirus.conf"
     # Rspamd uses ClamAV's UNIX socket, and to be able to read it, it must be in the same group
     usermod -a -G clamav _rspamd
 
-    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]
-    then
+    if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]; then
       local SIZE_IN_BYTES
       SIZE_IN_BYTES=$(numfmt --from=si "${CLAMAV_MESSAGE_SIZE_LIMIT}")
       __rspamd__log 'trace' "Adjusting maximum size for ClamAV to ${SIZE_IN_BYTES} bytes (${CLAMAV_MESSAGE_SIZE_LIMIT})"
@@ -211,8 +199,7 @@ function __rspamd__setup_default_modules
 #    from or to the "Junk" folder, and learning them as ham or spam.
 function __rspamd__setup_learning
 {
-  if _env_var_expect_zero_or_one 'RSPAMD_LEARN' && [[ ${RSPAMD_LEARN} -eq 1 ]]
-  then
+  if _env_var_expect_zero_or_one 'RSPAMD_LEARN' && [[ ${RSPAMD_LEARN} -eq 1 ]]; then
     __rspamd__log 'debug' 'Setting up intelligent learning of spam and ham'
 
     local SIEVE_PIPE_BIN_DIR='/usr/lib/dovecot/sieve-pipe'
@@ -256,8 +243,7 @@ EOF
 # https://rspamd.com/doc/modules/greylisting.html).
 function __rspamd__setup_greylisting
 {
-  if _env_var_expect_zero_or_one 'RSPAMD_GREYLISTING' && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]
-  then
+  if _env_var_expect_zero_or_one 'RSPAMD_GREYLISTING' && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]; then
     __rspamd__log 'debug' 'Enabling greylisting'
     sedfile -i -E "s|(enabled =).*|\1 true;|g" "${RSPAMD_LOCAL_D}/greylist.conf"
   else
@@ -272,12 +258,10 @@ function __rspamd__setup_greylisting
 function __rspamd__setup_hfilter_group
 {
   local MODULE_FILE="${RSPAMD_LOCAL_D}/hfilter_group.conf"
-  if _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]
-  then
+  if _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]; then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
     # Check if we received a number first
-    if _env_var_expect_integer 'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' && [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]
-    then
+    if _env_var_expect_integer 'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' && [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]; then
       __rspamd__log 'trace' "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}"
       sed -i -E \
         "s|(.*score =).*(# __TAG__HFILTER_HOSTNAME_UNKNOWN)|\1 ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}; \2|g" \
@@ -321,8 +305,7 @@ function __rspamd__handle_user_modules_adjustments
     local FILE="${RSPAMD_OVERRIDE_D}/${MODULE_FILE}"
     [[ -f ${FILE} ]] || touch "${FILE}"
 
-    if grep -q -E "${OPTION}.*=.*" "${FILE}"
-    then
+    if grep -q -E "${OPTION}.*=.*" "${FILE}"; then
       __rspamd__log 'trace' "Overwriting option '${OPTION}' with value '${VALUE}' for ${MODULE_LOG_NAME}"
       sed -i -E "s|([[:space:]]*${OPTION}).*|\1 = ${VALUE};|g" "${FILE}"
     else
@@ -336,15 +319,13 @@ function __rspamd__handle_user_modules_adjustments
 
   # We check for usage of the previous location of the commands file.
   # This can be removed after the release of v14.0.0.
-  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]
-  then
+  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]; then
     __rspamd__log 'warn' "Detected usage of old file location for modules adjustment ('${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}') - please use the new location ('${RSPAMD_CUSTOM_COMMANDS_FILE}')"
     __rspamd__log 'warn' "Using old file location now (deprecated) - this will prevent startup in v13.0.0"
     RSPAMD_CUSTOM_COMMANDS_FILE=${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}
   fi
 
-  if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]
-  then
+  if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]; then
     __rspamd__log 'debug' "Found file '${RSPAMD_CUSTOM_COMMANDS_FILE}' - parsing and applying it"
 
     while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3

@@ -63,8 +63,7 @@ function _db_operation
   [[ ${DATABASE} == "${DATABASE_VIRTUAL}" ]] && V_DELIMITER=','
 
   # Perform requested operation:
-  if _db_has_entry_with_key "${KEY}" "${DATABASE}"
-  then
+  if _db_has_entry_with_key "${KEY}" "${DATABASE}"; then
     # Find entry for key and return status code:
     case "${DB_ACTION}" in
       ( 'append' )
@@ -79,8 +78,7 @@ function _db_operation
         ;;
 
       ( 'remove' )
-        if [[ -z ${VALUE} ]]
-        then # Remove entry for KEY:
+        if [[ -z ${VALUE} ]]; then # Remove entry for KEY:
           sedfile --strict -i "/^${KEY_LOOKUP}/d" "${DATABASE}"
         else # Remove target VALUE from entry:
           __db_list_already_contains_value || return 0

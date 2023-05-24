@@ -19,8 +19,7 @@ function _create_accounts
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   _create_masters
 
-  if [[ -f ${DATABASE_ACCOUNTS} ]]
-  then
+  if [[ -f ${DATABASE_ACCOUNTS} ]]; then
     _log 'trace' "Checking file line endings"
     sed -i 's|\r||g' "${DATABASE_ACCOUNTS}"
 
@@ -47,19 +46,16 @@ function _create_accounts
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
 
       # test if user has a defined quota
-      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-      then
+      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
         declare -a USER_QUOTA
         IFS=':' read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
 
-        if [[ ${#USER_QUOTA[@]} -eq 2 ]]
-        then
+        if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
           USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
         fi
       fi
 
-      if [[ -z ${USER_ATTRIBUTES} ]]
-      then
+      if [[ -z ${USER_ATTRIBUTES} ]]; then
         _log 'debug' "Creating user '${USER}' for domain '${DOMAIN}'"
       else
         _log 'debug' "Creating user '${USER}' for domain '${DOMAIN}' with attributes '${USER_ATTRIBUTES}'"
@@ -68,8 +64,7 @@ function _create_accounts
       local POSTFIX_VMAILBOX_LINE DOVECOT_USERDB_LINE
 
       POSTFIX_VMAILBOX_LINE="${LOGIN} ${DOMAIN}/${USER}/"
-      if grep -qF "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox
-      then
+      if grep -qF "${POSTFIX_VMAILBOX_LINE}" /etc/postfix/vmailbox; then
         _log 'warn' "User '${USER}@${DOMAIN}' will not be added to '/etc/postfix/vmailbox' twice"
       else
         echo "${POSTFIX_VMAILBOX_LINE}" >>/etc/postfix/vmailbox
@@ -78,8 +73,7 @@ function _create_accounts
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
       DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}/home::${USER_ATTRIBUTES}"
-      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"
-      then
+      if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"; then
         _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
@@ -88,8 +82,7 @@ function _create_accounts
       mkdir -p "/var/mail/${DOMAIN}/${USER}/home"
 
       # copy user provided sieve file, if present
-      if [[ -e "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" ]]
-      then
+      if [[ -e "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" ]]; then
         cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/home/.dovecot.sieve"
       fi
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
@@ -109,8 +102,7 @@ function _create_dovecot_alias_dummy_accounts
 {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
-  if [[ -f ${DATABASE_VIRTUAL} ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]
-  then
+  if [[ -f ${DATABASE_VIRTUAL} ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]; then
     # adding aliases to Dovecot's userdb
     # ${REAL_FQUN} is a user's fully-qualified username
     local ALIAS REAL_FQUN DOVECOT_USERDB_LINE
@@ -129,8 +121,7 @@ function _create_dovecot_alias_dummy_accounts
       REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
       REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
 
-      if ! grep -q "${REAL_FQUN}" "${DATABASE_ACCOUNTS}"
-      then
+      if ! grep -q "${REAL_FQUN}" "${DATABASE_ACCOUNTS}"; then
         _log 'debug' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
         continue
       fi
@@ -142,24 +133,20 @@ function _create_dovecot_alias_dummy_accounts
       # ${REAL_ACC[2]} => optional user attributes
       IFS='|' read -r -a REAL_ACC < <(grep "${REAL_FQUN}" "${DATABASE_ACCOUNTS}")
 
-      if [[ -z ${REAL_ACC[1]} ]]
-      then
+      if [[ -z ${REAL_ACC[1]} ]]; then
         _dms_panic__misconfigured 'postfix-accounts.cf' 'alias configuration'
       fi
 
       # test if user has a defined quota
-      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
-      then
+      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
         IFS=':' read -r -a USER_QUOTA < <(grep "${REAL_FQUN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-        if [[ ${#USER_QUOTA[@]} -eq 2 ]]
-        then
+        if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
           REAL_ACC[2]="${REAL_ACC[2]:+${REAL_ACC[2]} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
         fi
       fi
 
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
-      if grep -qi "^${ALIAS}:" "${DOVECOT_USERDB_FILE}"
-      then
+      if grep -qi "^${ALIAS}:" "${DOVECOT_USERDB_FILE}"; then
         _log 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
@@ -175,8 +162,7 @@ function _create_masters
   : >"${DOVECOT_MASTERDB_FILE}"
 
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
-  if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]
-  then
+  if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]; then
     _log 'trace' "Checking file line endings"
     sed -i 's|\r||g' "${DATABASE_DOVECOT_MASTERS}"
 
@@ -203,8 +189,7 @@ function _create_masters
       # Dovecot's masterdb has the following format
       # user:password
       DOVECOT_MASTERDB_LINE="${LOGIN}:${PASS}"
-      if grep -qF "${DOVECOT_MASTERDB_LINE}" "${DOVECOT_MASTERDB_FILE}"
-      then
+      if grep -qF "${DOVECOT_MASTERDB_LINE}" "${DOVECOT_MASTERDB_FILE}"; then
         _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_MASTERDB_FILE}' twice"
       else
         echo "${DOVECOT_MASTERDB_LINE}" >>"${DOVECOT_MASTERDB_FILE}"

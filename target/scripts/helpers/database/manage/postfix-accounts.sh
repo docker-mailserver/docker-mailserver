@@ -74,8 +74,7 @@ function _arg_expect_mail_account
 function _account_should_not_exist_yet
 {
   __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
-  if [[ -f ${DATABASE_VIRTUAL} ]] && grep -q "^${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"
-  then
+  if [[ -f ${DATABASE_VIRTUAL} ]] && grep -q "^${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"; then
     _exit_with_error "'${MAIL_ACCOUNT}' is already defined as an alias"
   fi
 }
@@ -95,8 +94,7 @@ function __account_already_exists
 # Also used by addsaslpassword
 function _password_request_if_missing
 {
-  if [[ -z ${PASSWD} ]]
-  then
+  if [[ -z ${PASSWD} ]]; then
     read -r -s -p 'Enter Password: ' PASSWD
     echo
     [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'

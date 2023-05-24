@@ -2,8 +2,7 @@
 
 function _setup_fetchmail
 {
-  if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]
-  then
+  if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring Fetchmail'
 
     local CONFIGURATION FETCHMAILRC
@@ -11,8 +10,7 @@ function _setup_fetchmail
     CONFIGURATION='/tmp/docker-mailserver/fetchmail.cf'
     FETCHMAILRC='/etc/fetchmailrc'
 
-    if [[ -f ${CONFIGURATION} ]]
-    then
+    if [[ -f ${CONFIGURATION} ]]; then
       cat /etc/fetchmailrc_general "${CONFIGURATION}" >"${FETCHMAILRC}"
     else
       cat /etc/fetchmailrc_general >"${FETCHMAILRC}"
@@ -27,8 +25,7 @@ function _setup_fetchmail
 
 function _setup_fetchmail_parallel
 {
-  if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
-  then
+  if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring Fetchmail parallel'
     mkdir /etc/fetchmailrc.d/
 
@@ -44,16 +41,13 @@ function _setup_fetchmail_parallel
       local FETCHMAILRCD='/etc/fetchmailrc.d'
       local DEFAULT_FILE="${FETCHMAILRCD}/defaults"
 
-      if [[ ! -r ${FETCHMAILRC} ]]
-      then
+      if [[ ! -r ${FETCHMAILRC} ]]; then
         _log 'warn' "File '${FETCHMAILRC}' not found"
         return 1
       fi
 
-      if [[ ! -d ${FETCHMAILRCD} ]]
-      then
-        if ! mkdir "${FETCHMAILRCD}"
-        then
+      if [[ ! -d ${FETCHMAILRCD} ]]; then
+        if ! mkdir "${FETCHMAILRCD}"; then
           _log 'warn' "Unable to create folder '${FETCHMAILRCD}'"
           return 1
         fi
@@ -62,8 +56,7 @@ function _setup_fetchmail_parallel
       local COUNTER=0 SERVER=0
       while read -r LINE
       do
-        if [[ ${LINE} =~ poll ]]
-        then
+        if [[ ${LINE} =~ poll ]]; then
           # If we read "poll" then we reached a new server definition
           # We need to create a new file with fetchmail defaults from
           # /etc/fetcmailrc
@@ -71,8 +64,7 @@ function _setup_fetchmail_parallel
           SERVER=1
           cat "${DEFAULT_FILE}" >"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
           echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
-        elif [[ ${SERVER} -eq 0 ]]
-        then
+        elif [[ ${SERVER} -eq 0 ]]; then
           # We have not yet found "poll". Let's assume we are still reading
           # the default settings from /etc/fetchmailrc file
           echo "${LINE}" >>"${DEFAULT_FILE}"
