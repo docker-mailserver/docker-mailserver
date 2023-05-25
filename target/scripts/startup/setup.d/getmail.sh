@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_getmail
-{
+function _setup_getmail() {
   if [[ ${ENABLE_GETMAIL} -eq 1 ]]; then
     _log 'trace' 'Preparing Getmail configuration'
 

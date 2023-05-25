@@ -27,8 +27,7 @@ source /usr/local/bin/daemons-stack.sh
 # ? >> Registering functions
 # ------------------------------------------------------------
 
-function _register_functions
-{
+function _register_functions() {
   _log 'debug' 'Registering functions'
 
   # ? >> Checks

@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_security_stack
-{
+function _setup_security_stack() {
   _log 'debug' 'Setting up Security Stack'
 
   __setup__security__postgrey
@@ -23,8 +22,7 @@ function _setup_security_stack
   __setup__security__amavis
 }
 
-function __setup__security__postgrey
-{
+function __setup__security__postgrey() {
   if [[ ${ENABLE_POSTGREY} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Postgrey'
 
@@ -52,8 +50,7 @@ function __setup__security__postgrey
   fi
 }
 
-function __setup__security__postscreen
-{
+function __setup__security__postscreen() {
   _log 'debug' 'Configuring Postscreen'
   sed -i \
     -e "s|postscreen_dnsbl_action = enforce|postscreen_dnsbl_action = ${POSTSCREEN_ACTION}|" \
@@ -69,8 +66,7 @@ function __setup__security__postscreen
   fi
 }
 
-function __setup__security__spamassassin
-{
+function __setup__security__spamassassin() {
   if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
@@ -157,8 +153,7 @@ EOF
   fi
 }
 
-function __setup__security__clamav
-{
+function __setup__security__clamav() {
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring ClamAV'
 
@@ -197,8 +192,7 @@ function __setup__security__clamav
   fi
 }
 
-function __setup__security__fail2ban
-{
+function __setup__security__fail2ban() {
   if [[ ${ENABLE_FAIL2BAN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Fail2Ban'
 
@@ -221,8 +215,7 @@ function __setup__security__fail2ban
   fi
 }
 
-function __setup__security__amavis
-{
+function __setup__security__amavis() {
   if [[ ${ENABLE_AMAVIS} -eq 1 ]]; then
     _log 'debug' 'Configuring Amavis'
     if [[ -f /tmp/docker-mailserver/amavis.cf ]]; then
@@ -257,8 +250,7 @@ function __setup__security__amavis
 }
 
 # We can use Sieve to move spam emails to the "Junk" folder.
-function _setup_spam_to_junk
-{
+function _setup_spam_to_junk() {
   if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]; then
     _log 'debug' 'Spam emails will be moved to the Junk folder'
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF

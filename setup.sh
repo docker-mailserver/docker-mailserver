@@ -27,8 +27,7 @@ RESET=$(echo -ne '\e[0m')
 set -euEo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
 
-function _show_local_usage
-{
+function _show_local_usage() {
   # shellcheck disable=SC2059
   printf '%s' "${ORANGE}OPTIONS${RESET}
     ${LBLUE}Config path, container or image adjustments${RESET}
@@ -69,8 +68,7 @@ function _show_local_usage
 "
 }
 
-function _get_absolute_script_directory
-{
+function _get_absolute_script_directory() {
   if dirname "$(readlink -f "${0}")" &>/dev/null; then
     DIR=$(dirname "$(readlink -f "${0}")")
   elif realpath -e -L "${0}" &>/dev/null; then
@@ -79,8 +77,7 @@ function _get_absolute_script_directory
   fi
 }
 
-function _set_default_config_path
-{
+function _set_default_config_path() {
   if [[ -d "${DIR}/config" ]]; then
     # legacy path (pre v10.2.0)
     DEFAULT_CONFIG_PATH="${DIR}/config"
@@ -89,8 +86,7 @@ function _set_default_config_path
   fi
 }
 
-function _handle_config_path
-{
+function _handle_config_path() {
   if [[ -z ${DESIRED_CONFIG_PATH} ]]; then
     # no desired config path
     if [[ -n ${CONTAINER_NAME} ]]; then
@@ -111,8 +107,7 @@ function _handle_config_path
   fi
 }
 
-function _run_in_new_container
-{
+function _run_in_new_container() {
   # start temporary container with specified image
   if ! ${CRI} history -q "${IMAGE_NAME}" &>/dev/null; then
     echo "Image '${IMAGE_NAME}' not found. Pulling ..."
@@ -124,8 +119,7 @@ function _run_in_new_container
     "${IMAGE_NAME}" "${@}"
 }
 
-function _main
-{
+function _main() {
   _get_absolute_script_directory
   _set_default_config_path
 

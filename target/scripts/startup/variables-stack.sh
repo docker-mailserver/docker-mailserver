@@ -3,8 +3,7 @@
 # shellcheck disable=SC2034
 declare -A VARS
 
-function _early_variables_setup
-{
+function _early_variables_setup() {
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
@@ -13,8 +12,7 @@ function _early_variables_setup
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
-function __environment_variables_backwards_compatibility
-{
+function __environment_variables_backwards_compatibility() {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]; then
     _log 'warn' "'ENABLE_LDAP=1' is deprecated (and will be removed in v13.0.0) => use 'ACCOUNT_PROVISIONER=LDAP' instead"
     ACCOUNT_PROVISIONER='LDAP'
@@ -32,8 +30,7 @@ function __environment_variables_backwards_compatibility
 # This function sets almost all environment variables. This involves setting
 # a default if no value was provided and writing the variable and its value
 # to the VARS map.
-function __environment_variables_general_setup
-{
+function __environment_variables_general_setup() {
   _log 'debug' 'Handling general environment variable setup'
 
   # these variables must be defined first
@@ -143,8 +140,7 @@ function __environment_variables_general_setup
 }
 
 # This function handles environment variables related to LDAP.
-function _environment_variables_ldap
-{
+function _environment_variables_ldap() {
   _log 'debug' 'Setting LDAP-related environment variables now'
 
   VARS[LDAP_BIND_DN]="${LDAP_BIND_DN:=}"
@@ -156,8 +152,7 @@ function _environment_variables_ldap
 
 # This function handles environment variables related to SASLAUTHD
 # and, if activated, variables related to SASLAUTHD and LDAP.
-function _environment_variables_saslauthd
-{
+function _environment_variables_saslauthd() {
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
   VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
@@ -210,8 +205,7 @@ function _environment_variables_saslauthd
 # This function Writes the contents of the `VARS` map (associative array)
 # to locations where they can be sourced from (e.g. `/etc/dms-settings`)
 # or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export
-{
+function _environment_variables_export() {
   _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses

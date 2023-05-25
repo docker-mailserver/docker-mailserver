@@ -17,8 +17,7 @@
 #   Should not be a concern for most types used by `docker-mailserver`: texthash, ldap, pcre, tcp, unionmap, unix.
 #   The only other type in use by `docker-mailserver` is the hash type for /etc/aliases, which `postalias` handles.
 
-function _create_postfix_vhost
-{
+function _create_postfix_vhost() {
   # `main.cf` configures `virtual_mailbox_domains = /etc/postfix/vhost`
   # NOTE: Amavis also consumes this file.
   local DATABASE_VHOST='/etc/postfix/vhost'
@@ -29,8 +28,7 @@ function _create_postfix_vhost
 }
 
 # Filter unique values into a proper DATABASE_VHOST config:
-function _create_vhost
-{
+function _create_vhost() {
   : >"${DATABASE_VHOST}"
 
   if [[ -f ${TMP_VHOST} ]]; then
@@ -40,8 +38,7 @@ function _create_vhost
 }
 
 # Collects domains from configs (DATABASE_) into TMP_VHOST
-function _vhost_collect_postfix_domains
-{
+function _vhost_collect_postfix_domains() {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   local DOMAIN UNAME
@@ -75,8 +72,7 @@ function _vhost_collect_postfix_domains
 # - `main.cf:mydestination` setting removes `$mydestination` as an LDAP bugfix.
 # - `main.cf:virtual_mailbox_domains` uses `/etc/postfix/vhost`, but may
 #   conditionally include a 2nd table (ldap:/etc/postfix/ldap-domains.cf).
-function _vhost_ldap_support
-{
+function _vhost_ldap_support() {
   [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]] && echo "${DOMAINNAME}" >>"${TMP_VHOST}"
 }
 

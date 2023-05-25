@@ -10,8 +10,7 @@ source /usr/local/bin/helpers/log.sh
 
 _log_level_is 'trace' && QUIET='-y' || QUIET='-qq'
 
-function _pre_installation_steps
-{
+function _pre_installation_steps() {
   _log 'info' 'Starting package installation'
   _log 'debug' 'Running pre-installation steps'
 
@@ -25,8 +24,7 @@ function _pre_installation_steps
   apt-get "${QUIET}" upgrade
 }
 
-function _install_postfix
-{
+function _install_postfix() {
   _log 'debug' 'Installing Postfix'
 
   _log 'warn' 'Applying workaround for Postfix bug (see https://github.com//issues/2023#issuecomment-855326403)'
@@ -42,8 +40,7 @@ function _install_postfix
   rm /etc/rsyslog.d/postfix.conf
 }
 
-function _install_packages
-{
+function _install_packages() {
   _log 'debug' 'Installing all packages now'
 
   declare -a ANTI_VIRUS_SPAM_PACKAGES
@@ -93,8 +90,7 @@ function _install_packages
     "${MAIL_PROGRAMS_PACKAGES[@]}"
 }
 
-function _install_dovecot
-{
+function _install_dovecot() {
   declare -a DOVECOT_PACKAGES
 
   DOVECOT_PACKAGES=(
@@ -131,8 +127,7 @@ function _install_dovecot
   apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
 }
 
-function _install_rspamd
-{
+function _install_rspamd() {
   _log 'trace' 'Adding Rspamd package signatures'
   local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
   local RSPAMD_PACKAGE_NAME
@@ -160,8 +155,7 @@ function _install_rspamd
   apt-get "${QUIET}" --no-install-recommends install "${RSPAMD_PACKAGE_NAME}" 'redis-server'
 }
 
-function _install_fail2ban
-{
+function _install_fail2ban() {
   local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/1.0.2/fail2ban_1.0.2-1.upstream1_all.deb'
   local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
   local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
@@ -201,8 +195,7 @@ function _install_fail2ban
 # v6.18 contains fixes for Google and Microsoft OAuth support.
 # using pip to install getmail.
 # TODO This can be removed when the base image is updated to Debian 12 (Bookworm)
-function _install_getmail
-{
+function _install_getmail() {
   _log 'debug' 'Installing getmail6'
   apt-get "${QUIET}" --no-install-recommends install python3-pip
   pip3 install --no-cache-dir 'getmail6~=6.18.12'
@@ -212,8 +205,7 @@ function _install_getmail
   apt-get "${QUIET}" autoremove
 }
 
-function _remove_data_after_package_installations
-{
+function _remove_data_after_package_installations() {
   _log 'debug' 'Deleting sensitive files (secrets)'
   rm /etc/postsrsd.secret
 
@@ -221,8 +213,7 @@ function _remove_data_after_package_installations
   rm /etc/cron.daily/00logwatch
 }
 
-function _post_installation_steps
-{
+function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*

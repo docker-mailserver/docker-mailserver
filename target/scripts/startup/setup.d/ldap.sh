@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_ldap
-{
+function _setup_ldap() {
   _log 'debug' 'Setting up LDAP'
   _log 'trace' 'Checking for custom configs'
 

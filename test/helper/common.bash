@@ -396,8 +396,7 @@ function _container_is_running() {
 #
 # @param ${1} = directory
 # @param ${2} = number of files that should be in ${1}
-function _count_files_in_directory_in_container()
-{
+function _count_files_in_directory_in_container() {
   local DIRECTORY=${1:?No directory provided}
   local NUMBER_OF_LINES=${2:?No line count provided}
 

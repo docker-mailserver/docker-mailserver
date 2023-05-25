@@ -7,8 +7,7 @@
 # @param ${2} = message
 function __postfix__log { _log "${1:-}" "(Postfix setup) ${2:-}" ; }
 
-function _setup_postfix_early
-{
+function _setup_postfix_early() {
   _log 'debug' 'Configuring Postfix (early setup)'
 
   __postfix__log 'trace' 'Applying hostname and domainname'
@@ -66,8 +65,7 @@ EOF
   fi
 }
 
-function _setup_postfix_late
-{
+function _setup_postfix_late() {
   _log 'debug' 'Configuring Postfix (late setup)'
 
   __postfix__log 'trace' 'Configuring user access'
@@ -91,8 +89,7 @@ function _setup_postfix_late
   __postfix__setup_override_configuration
 }
 
-function __postfix__setup_override_configuration
-{
+function __postfix__setup_override_configuration() {
   __postfix__log 'debug' 'Overriding / adjusting configuration with user-supplied values'
 
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]; then
@@ -122,8 +119,7 @@ function __postfix__setup_override_configuration
   fi
 }
 
-function _setup_SRS
-{
+function _setup_SRS() {
   _log 'debug' 'Setting up SRS'
 
   postconf 'sender_canonical_maps = tcp:localhost:10001'
@@ -131,8 +127,7 @@ function _setup_SRS
   postconf 'recipient_canonical_maps = tcp:localhost:10002'
   postconf 'recipient_canonical_classes = envelope_recipient,header_recipient'
 
-  function __generate_secret
-  {
+  function __generate_secret() {
     (
       umask 0077
       dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 -w0 >"${1}"

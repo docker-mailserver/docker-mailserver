@@ -12,8 +12,7 @@ KEYSIZE=4096
 SELECTOR=mail
 DOMAINS=
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}OPEN-DKIM${RED}(${YELLOW}8${RED})
 
 ${ORANGE}NAME${RESET}
@@ -102,8 +101,7 @@ done
 
 DATABASE_VHOST='/tmp/vhost.dkim'
 # Prepare a file with one domain per line:
-function _generate_domains_config
-{
+function _generate_domains_config() {
   local TMP_VHOST='/tmp/vhost.dkim.tmp'
 
   # Generate the default vhost (equivalent to /etc/postfix/vhost),

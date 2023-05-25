@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _exit_with_error
-{
+function _exit_with_error() {
   if [[ -n ${1+set} ]]; then
     _log 'error' "${1}"
   else
@@ -19,8 +18,7 @@ function _exit_with_error
 # PANIC_TYPE => (Internal value for matching). You should use the convenience methods below based on your panic type.
 # PANIC_INFO => Provide your own message string to insert into the error message for that PANIC_TYPE.
 # PANIC_SCOPE => Optionally provide a string for debugging to better identify/locate the source of the panic.
-function dms_panic
-{
+function dms_panic() {
   local PANIC_TYPE=${1:-}
   local PANIC_INFO=${2:-}
   local PANIC_SCOPE=${3:-}
@@ -76,8 +74,7 @@ function _dms_panic__general       { dms_panic 'general'       "${1:-}" "${2:-}"
 # `dms_panic` methods should be preferred if your failure type is supported.
 trap "exit 1" SIGUSR1
 SCRIPT_PID=${$}
-function _shutdown
-{
+function _shutdown() {
   _log 'error' "${1:-_shutdown called without message}"
   _log 'error' 'Shutting down'
 
@@ -91,13 +88,11 @@ function _shutdown
 #
 # This is mostly useful for debugging. It also helps when using something like `set -eE`,
 # as it shows where the script aborts.
-function _trap_err_signal
-{
+function _trap_err_signal() {
   trap '__log_unexpected_error "${FUNCNAME[0]:-}" "${BASH_COMMAND:-}" "${LINENO:-}" "${?:-}"' ERR
 
   # shellcheck disable=SC2317
-  function __log_unexpected_error
-  {
+  function __log_unexpected_error() {
     local MESSAGE="Unexpected error occured :: script = ${SCRIPT:-${0}} "
     MESSAGE+=" | function = ${1:-none (global)}"
     MESSAGE+=" | command = ${2:-?}"

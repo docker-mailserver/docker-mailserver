@@ -2,15 +2,13 @@
 
 # Outputs the DNS label count (delimited by `.`) for the given input string.
 # Useful for determining an FQDN like `mail.example.com` (3), vs `example.com` (2).
-function _get_label_count
-{
+function _get_label_count() {
   awk -F '.' '{ print NF }' <<< "${1}"
 }
 
 # Sets HOSTNAME and DOMAINNAME globals used throughout the scripts,
 # and any subprocesses called that intereact with it.
-function _obtain_hostname_and_domainname
-{
+function _obtain_hostname_and_domainname() {
   # Normally this value would match the output of `hostname` which mirrors `/proc/sys/kernel/hostname`,
   # However for legacy reasons, the system ENV `HOSTNAME` was replaced here with `hostname -f` instead.
   #

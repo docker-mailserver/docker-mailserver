@@ -6,8 +6,7 @@
 # `setup-stack.sh:_setup_ldap` does not seem to configure for `/etc/postfix/virtual however.`
 
 # NOTE: `accounts.sh` and `relay.sh:_populate_relayhost_map` also process on `postfix-virtual.cf`.
-function _handle_postfix_virtual_config
-{
+function _handle_postfix_virtual_config() {
   : >/etc/postfix/virtual
 
   local DATABASE_VIRTUAL=/tmp/docker-mailserver/postfix-virtual.cf
@@ -24,8 +23,7 @@ function _handle_postfix_virtual_config
   fi
 }
 
-function _handle_postfix_regexp_config
-{
+function _handle_postfix_regexp_config() {
   : >/etc/postfix/regexp
 
   if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]; then
@@ -41,8 +39,7 @@ function _handle_postfix_regexp_config
   fi
 }
 
-function _handle_postfix_aliases_config
-{
+function _handle_postfix_aliases_config() {
   _log 'trace' 'Configuring root alias'
 
   echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
@@ -55,8 +52,7 @@ function _handle_postfix_aliases_config
 }
 
 # Other scripts should call this method, rather than the ones above:
-function _create_aliases
-{
+function _create_aliases() {
   _handle_postfix_virtual_config
   _handle_postfix_regexp_config
   _handle_postfix_aliases_config

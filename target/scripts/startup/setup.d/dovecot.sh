@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_dovecot
-{
+function _setup_dovecot() {
   _log 'debug' 'Setting up Dovecot'
 
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
@@ -46,8 +45,7 @@ function _setup_dovecot
   [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 }
 
-function _setup_dovecot_sieve
-{
+function _setup_dovecot_sieve() {
   mkdir -p /usr/lib/dovecot/sieve-{filter,global,pipe}
   mkdir -p /usr/lib/dovecot/sieve-global/{before,after}
 
@@ -83,8 +81,7 @@ function _setup_dovecot_sieve
   find /usr/lib/dovecot/sieve-{filter,pipe} -type f -exec chmod +x {} +
 }
 
-function _setup_dovecot_quota
-{
+function _setup_dovecot_quota() {
   _log 'debug' 'Setting up Dovecot quota'
 
   # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
@@ -136,8 +133,7 @@ function _setup_dovecot_quota
   fi
 }
 
-function _setup_dovecot_local_user
-{
+function _setup_dovecot_local_user() {
   [[ ${SMTP_ONLY} -eq 1 ]] && return 0
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] || return 0
 
@@ -147,8 +143,7 @@ function _setup_dovecot_local_user
     _log 'trace' "No mail accounts to create - '/tmp/docker-mailserver/postfix-accounts.cf' is missing"
   fi
 
-  function __wait_until_an_account_is_added_or_shutdown
-  {
+  function __wait_until_an_account_is_added_or_shutdown() {
     local SLEEP_PERIOD='10'
 
     for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
@@ -169,8 +164,7 @@ function _setup_dovecot_local_user
   _create_accounts
 }
 
-function _setup_dovecot_inet_protocols
-{
+function _setup_dovecot_inet_protocols() {
   [[ ${DOVECOT_INET_PROTOCOLS} == 'all' ]] && return 0
 
   _log 'trace' 'Setting up DOVECOT_INET_PROTOCOLS option'
@@ -189,13 +183,11 @@ function _setup_dovecot_inet_protocols
   sedfile -i "s|^#listen =.*|listen = ${PROTOCOL}|g" /etc/dovecot/dovecot.conf
 }
 
-function _setup_dovecot_dhparam
-{
+function _setup_dovecot_dhparam() {
   _setup_dhparam 'Dovecot' '/etc/dovecot/dh.pem'
 }
 
-function _setup_dovecot_hostname
-{
+function _setup_dovecot_hostname() {
   _log 'debug' 'Applying hostname to Dovecot'
   sed -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
 }

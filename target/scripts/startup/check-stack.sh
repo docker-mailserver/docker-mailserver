@@ -2,14 +2,12 @@
 
 declare -a FUNCS_CHECK
 
-function _register_check_function
-{
+function _register_check_function() {
   FUNCS_CHECK+=("${1}")
   _log 'trace' "${1}() registered"
 }
 
-function _check
-{
+function _check() {
   _log 'info' 'Checking configuration'
   for FUNC in "${FUNCS_CHECK[@]}"
   do
@@ -17,8 +15,7 @@ function _check
   done
 }
 
-function _check_improper_restart
-{
+function _check_improper_restart() {
   _log 'debug' 'Checking for improper restart'
 
   if [[ -f /CONTAINER_START ]]; then
@@ -27,8 +24,7 @@ function _check_improper_restart
   fi
 }
 
-function _check_hostname
-{
+function _check_hostname() {
   _log 'debug' 'Checking that hostname/domainname is provided or overridden'
 
   _log 'debug' "Domain has been set to ${DOMAINNAME}"
@@ -40,8 +36,7 @@ function _check_hostname
   fi
 }
 
-function _check_log_level
-{
+function _check_log_level() {
   if [[ ${LOG_LEVEL} == 'trace' ]] \
   || [[ ${LOG_LEVEL} == 'debug' ]] \
   || [[ ${LOG_LEVEL} == 'info' ]]  \

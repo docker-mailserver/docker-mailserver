@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Function called during global setup to handle the complete setup of Rspamd.
-function _setup_rspamd
-{
+function _setup_rspamd() {
   if _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Rspamd'
     __rspamd__log 'trace' '----------  Setup started  ----------'
@@ -36,8 +35,7 @@ function __rspamd__log { _log "${1:-}" "(Rspamd setup) ${2:-}" ; }
 # @param ${2} = `true` when you want to enable the module (default),
 #               `false` when you want to disable the module [OPTIONAL]
 # @param ${3} = whether to use `local` (default) or `override` [OPTIONAL]
-function __rspamd__helper__enable_disable_module
-{
+function __rspamd__helper__enable_disable_module() {
   local MODULE=${1:?Module name must be provided}
   local ENABLE_MODULE=${2:-true}
   local LOCAL_OR_OVERRIDE=${3:-local}
@@ -61,8 +59,7 @@ EOF
 
 # Run miscellaneous early setup tasks and checks, such as creating files needed at runtime
 # or checking for other anti-spam/anti-virus software.
-function __rspamd__run_early_setup_and_checks
-{
+function __rspamd__run_early_setup_and_checks() {
   # Note: Variables not marked with `local` are
   # used in other functions as well.
   RSPAMD_LOCAL_D='/etc/rspamd/local.d'
@@ -105,8 +102,7 @@ function __rspamd__run_early_setup_and_checks
 
 # Sets up Redis. In case the user does not use a dedicated Redis instance, we
 # supply a configuration for our local Redis instance which is started later.
-function __rspamd__setup_redis
-{
+function __rspamd__setup_redis() {
   if _env_var_expect_zero_or_one 'ENABLE_RSPAMD_REDIS' && [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]; then
     __rspamd__log 'debug' 'Internal Redis is enabled, adding configuration'
     cat >"${RSPAMD_LOCAL_D}/redis.conf" << "EOF"
@@ -136,8 +132,7 @@ EOF
 
 # Adjust Postfix's configuration files. We only need to append Rspamd at the end of
 # `smtpd_milters` in `/etc/postfix/main.cf`.
-function __rspamd__setup_postfix
-{
+function __rspamd__setup_postfix() {
   __rspamd__log 'debug' "Adjusting Postfix's configuration"
 
   postconf 'rspamd_milter = inet:localhost:11332'
@@ -146,8 +141,7 @@ function __rspamd__setup_postfix
 }
 
 # If ClamAV is enabled, we will integrate it into Rspamd.
-function __rspamd__setup_clamav
-{
+function __rspamd__setup_clamav() {
   if _env_var_expect_zero_or_one 'ENABLE_CLAMAV' && [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     __rspamd__log 'debug' 'Enabling ClamAV integration'
     sedfile -i -E 's|^(enabled).*|\1 = true;|g' "${RSPAMD_LOCAL_D}/antivirus.conf"
@@ -169,8 +163,7 @@ function __rspamd__setup_clamav
 # We disable the modules listed in `DISABLE_MODULES` as we believe these modules
 # are not commonly used and the average user does not need them. As a consequence,
 # disabling them saves resources.
-function __rspamd__setup_default_modules
-{
+function __rspamd__setup_default_modules() {
   __rspamd__log 'debug' 'Disabling default modules'
 
   # This array contains all the modules we disable by default. They
@@ -197,8 +190,7 @@ function __rspamd__setup_default_modules
 # 1. enabling auto-learn for the classifier-bayes module
 # 2. setting up sieve scripts that detect when a user is moving e-mail
 #    from or to the "Junk" folder, and learning them as ham or spam.
-function __rspamd__setup_learning
-{
+function __rspamd__setup_learning() {
   if _env_var_expect_zero_or_one 'RSPAMD_LEARN' && [[ ${RSPAMD_LEARN} -eq 1 ]]; then
     __rspamd__log 'debug' 'Setting up intelligent learning of spam and ham'
 
@@ -241,8 +233,7 @@ EOF
 
 # Sets up greylisting with the greylisting module (see
 # https://rspamd.com/doc/modules/greylisting.html).
-function __rspamd__setup_greylisting
-{
+function __rspamd__setup_greylisting() {
   if _env_var_expect_zero_or_one 'RSPAMD_GREYLISTING' && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]; then
     __rspamd__log 'debug' 'Enabling greylisting'
     sedfile -i -E "s|(enabled =).*|\1 true;|g" "${RSPAMD_LOCAL_D}/greylist.conf"
@@ -255,8 +246,7 @@ function __rspamd__setup_greylisting
 # https://www.rspamd.com/doc/modules/hfilter.html). This module is mainly
 # used for hostname checks, and whether or not a reverse-DNS check
 # succeeds.
-function __rspamd__setup_hfilter_group
-{
+function __rspamd__setup_hfilter_group() {
   local MODULE_FILE="${RSPAMD_LOCAL_D}/hfilter_group.conf"
   if _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]; then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
@@ -278,8 +268,7 @@ function __rspamd__setup_hfilter_group
 # Parses `RSPAMD_CUSTOM_COMMANDS_FILE` and executed the directives given by the file.
 # To get a detailed explanation of the commands and how the file works, visit
 # https://docker-mailserver.github.io/docker-mailserver/edge/config/security/rspamd/#with-the-help-of-a-custom-file
-function __rspamd__handle_user_modules_adjustments
-{
+function __rspamd__handle_user_modules_adjustments() {
   # Adds an option with a corresponding value to a module, or, in case the option
   # is already present, overwrites it.
   #
@@ -293,8 +282,7 @@ function __rspamd__handle_user_modules_adjustments
   # While this function is currently bound to the scope of `__rspamd__handle_user_modules_adjustments`,
   # it is written in a versatile way (taking 4 arguments instead of assuming `ARGUMENT2` / `ARGUMENT3`
   # are set) so that it may be used elsewhere if needed.
-  function __add_or_replace
-  {
+  function __add_or_replace() {
     local MODULE_FILE=${1:?Module file name must be provided}
     local MODULE_LOG_NAME=${2:?Module log name must be provided}
     local OPTION=${3:?Option name must be provided}
