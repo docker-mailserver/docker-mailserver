@@ -182,8 +182,7 @@ function _repeat_until_success_or_timeout() {
 
   local STARTTIME=${SECONDS}
 
-  until "${@}"
-  do
+  until "${@}"; do
     if [[ -n ${FATAL_FAILURE_TEST_COMMAND} ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"; then
       echo "\`${FATAL_FAILURE_TEST_COMMAND}\` failed, early aborting repeat_until_success of \`${*}\`" >&2
       return 1
@@ -215,8 +214,7 @@ function _run_until_success_or_timeout() {
   local STARTTIME=${SECONDS}
 
   # shellcheck disable=SC2154
-  until run "${@}" && [[ ${status} -eq 0 ]]
-  do
+  until run "${@}" && [[ ${status} -eq 0 ]]; do
     sleep 1
 
     if (( SECONDS - STARTTIME > TIMEOUT )); then
@@ -260,8 +258,7 @@ function _wait_for_smtp_port_in_container_to_respond() {
   local CONTAINER_NAME=$(__handle_container_name "${1:-}")
 
   local COUNT=0
-  until [[ $(_exec_in_container timeout 10 /bin/bash -c 'echo QUIT | nc localhost 25') == *'221 2.0.0 Bye'* ]]
-  do
+  until [[ $(_exec_in_container timeout 10 /bin/bash -c 'echo QUIT | nc localhost 25') == *'221 2.0.0 Bye'* ]]; do
     if [[ ${COUNT} -eq 20 ]]; then
       echo "Unable to receive a valid response from 'nc localhost 25' within 20 seconds"
       return 1
