@@ -45,8 +45,7 @@ function _vhost_collect_postfix_domains() {
 
   # getting domains FROM mail accounts
   if [[ -f ${DATABASE_ACCOUNTS} ]]; then
-    while IFS=$'|' read -r LOGIN _
-    do
+    while IFS=$'|' read -r LOGIN _; do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
       echo "${DOMAIN}" >>"${TMP_VHOST}"
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
@@ -54,8 +53,7 @@ function _vhost_collect_postfix_domains() {
 
   # getting domains FROM mail aliases
   if [[ -f ${DATABASE_VIRTUAL} ]]; then
-    while read -r FROM _
-    do
+    while read -r FROM _; do
       UNAME=$(echo "${FROM}" | cut -d @ -f1)
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 

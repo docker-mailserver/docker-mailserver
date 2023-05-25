@@ -79,8 +79,7 @@ function _parse_arguments() {
 
   _log 'trace' "Options given to this script: '${*}'"
 
-  while [[ ${#} -gt 0 ]]
-  do
+  while [[ ${#} -gt 0 ]]; do
     case "${1}" in
 
       ( 'keytype' )

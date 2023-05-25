@@ -51,8 +51,7 @@ function _setup_fetchmail_parallel() {
       fi
 
       local COUNTER=0 SERVER=0
-      while read -r LINE
-      do
+      while read -r LINE; do
         if [[ ${LINE} =~ poll ]]; then
           # If we read "poll" then we reached a new server definition
           # We need to create a new file with fetchmail defaults from

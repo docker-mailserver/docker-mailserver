@@ -174,8 +174,7 @@ function _ssl_changes() {
   # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
 }
 
-while true
-do
+while true; do
   _check_for_changes
   sleep 2
 done

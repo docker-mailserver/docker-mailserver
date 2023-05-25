@@ -316,8 +316,7 @@ function __rspamd__handle_user_modules_adjustments() {
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]; then
     __rspamd__log 'debug' "Found file '${RSPAMD_CUSTOM_COMMANDS_FILE}' - parsing and applying it"
 
-    while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
-    do
+    while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3; do
       case "${COMMAND}" in
 
         ('disable-module')

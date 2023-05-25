@@ -70,8 +70,7 @@ ${ORANGE}EXIT STATUS${RESET}
 }
 
 function _parse_options() {
-  while getopts ":yY" OPT
-  do
+  while getopts ":yY" OPT; do
     case "${OPT}" in
       ( 'y' | 'Y' )
         MAILDEL=1
