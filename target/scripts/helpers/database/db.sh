@@ -18,8 +18,7 @@ DATABASE_PASSWD="${DMS_CONFIG}/postfix-sasl-password.cf"
 DATABASE_RELAY="${DMS_CONFIG}/postfix-relaymap.cf"
 
 # Individual scripts with convenience methods to manage operations easier:
-function _db_import_scripts
-{
+function _db_import_scripts() {
   # This var is stripped by shellcheck from source paths below,
   # like the shellcheck source-path above, it shouold match this scripts
   # parent directory, with the rest of the relative path in the source lines:
@@ -35,8 +34,7 @@ function _db_entry_add_or_append  { _db_operation 'append'  "${@}" ; } # Only us
 function _db_entry_add_or_replace { _db_operation 'replace' "${@}" ; }
 function _db_entry_remove         { _db_operation 'remove'  "${@}" ; }
 
-function _db_operation
-{
+function _db_operation() {
   local DB_ACTION=${1}
   local DATABASE=${2}
   local KEY=${3}
@@ -126,8 +124,7 @@ function _db_operation
 }
 
 # Internal method for: _db_operation
-function __db_list_already_contains_value
-{
+function __db_list_already_contains_value() {
   # Avoids accidentally matching a substring (case-insensitive acceptable):
   # 1. Extract the current value of the entry (`\1`),
   # 2. Value list support: Split values into separate lines (`\n`+`g`) at V_DELIMITER,
@@ -140,8 +137,7 @@ function __db_list_already_contains_value
 
 # Internal method for: _db_operation + _db_has_entry_with_key
 # References global vars `DATABASE_*`:
-function __db_get_delimiter_for
-{
+function __db_get_delimiter_for() {
   local DATABASE=${1}
 
   case "${DATABASE}" in
@@ -171,8 +167,7 @@ function __db_get_delimiter_for
 # `\` can escape these (`/` exists in postfix-account.cf base64 encoded pw hash),
 # But otherwise care should be taken with `\`, which should be forbidden for input here?
 # NOTE: Presently only `.` is escaped with `\` via `_escape`.
-function __escape_sed_replacement
-{
+function __escape_sed_replacement() {
   # Matches any `/` or `&`, and escapes them with `\` (`\\\1`):
   sed 's/\([/&]\)/\\\1/g' <<< "${ENTRY}"
 }
@@ -181,8 +176,7 @@ function __escape_sed_replacement
 # Validation Methods
 #
 
-function _db_has_entry_with_key
-{
+function _db_has_entry_with_key() {
   local KEY=${1}
   local DATABASE=${2}
 
@@ -202,8 +196,7 @@ function _db_has_entry_with_key
   grep --quiet --no-messages --ignore-case "^${KEY_LOOKUP}" "${DATABASE}"
 }
 
-function _db_should_exist_with_content
-{
+function _db_should_exist_with_content() {
   local DATABASE=${1}
 
   [[ -f ${DATABASE} ]] || _exit_with_error "'${DATABASE}' does not exist"

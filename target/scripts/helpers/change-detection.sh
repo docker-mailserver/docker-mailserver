@@ -12,8 +12,7 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # Once container startup scripts complete, take a snapshot of
 # the config state via storing a list of files content hashes.
-function _prepare_for_change_detection
-{
+function _prepare_for_change_detection() {
   _log 'debug' 'Setting up configuration checksum file'
 
   _log 'trace' "Creating '${CHKSUM_FILE}'"
@@ -22,8 +21,7 @@ function _prepare_for_change_detection
 
 # Returns a list of changed files, each line is a value pair of:
 # <SHA-512 content hash> <changed file path>
-function _monitored_files_checksums
-{
+function _monitored_files_checksums() {
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
   # or no results, `shopt -s nullglob` prevents it from being added.
   shopt -s nullglob

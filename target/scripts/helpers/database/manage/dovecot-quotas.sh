@@ -3,8 +3,7 @@
 # Manage DB writes for: DATABASE_QUOTA
 
 # Logic to perform for requested operations handled here:
-function _manage_dovecot_quota
-{
+function _manage_dovecot_quota() {
   local ACTION=${1}
   local MAIL_ACCOUNT=${2}
   # Only for ACTION 'update':

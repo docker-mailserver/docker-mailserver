@@ -9,8 +9,7 @@
 DOVECOT_USERDB_FILE=/etc/dovecot/userdb
 DOVECOT_MASTERDB_FILE=/etc/dovecot/masterdb
 
-function _create_accounts
-{
+function _create_accounts() {
   : >/etc/postfix/vmailbox
   : >"${DOVECOT_USERDB_FILE}"
 
@@ -98,8 +97,7 @@ function _create_accounts
 #
 # see https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852
 # for more details on this method
-function _create_dovecot_alias_dummy_accounts
-{
+function _create_dovecot_alias_dummy_accounts() {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
   if [[ -f ${DATABASE_VIRTUAL} ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]; then
@@ -157,8 +155,7 @@ function _create_dovecot_alias_dummy_accounts
 
 # Support Dovecot master user: https://doc.dovecot.org/configuration_manual/authentication/master_users/
 # Supporting LDAP users requires `auth_bind = yes` in `dovecot-ldap.conf.ext`, see docker-mailserver/docker-mailserver/pull/2535 for details
-function _create_masters
-{
+function _create_masters() {
   : >"${DOVECOT_MASTERDB_FILE}"
 
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'

@@ -53,15 +53,13 @@
 # That shouldn't be a breaking change, as long as the mapping is maintained correctly.
 # TODO: RELAY_HOST should consider dropping `[]` and require the user to include that?
 # Future refactor for _populate_relayhost_map may warrant dropping these two ENV in favor of DEFAULT_RELAY_HOST?
-function _env_relay_host
-{
+function _env_relay_host() {
   echo "[${RELAY_HOST}]:${RELAY_PORT:-25}"
 }
 
 # Responsible for `postfix-sasl-password.cf` support:
 # `/etc/postfix/sasl_passwd` example at end of file.
-function _relayhost_sasl
-{
+function _relayhost_sasl() {
   if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] \
     && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
   then
@@ -108,8 +106,7 @@ function _relayhost_sasl
 # to a separate transport (which can drop the `relayhost` setting) would be more appropriate.
 # TODO: With `sender_dependent_default_transport_maps`, we can extract out the excluded domains and route them through a separate transport.
 # while deprecating that support in favor of a transport config, similar to what is offered currently via sasl_passwd and relayhost_map.
-function _populate_relayhost_map
-{
+function _populate_relayhost_map() {
   # Create the relayhost_map config file:
   : >/etc/postfix/relayhost_map
   chown root:root /etc/postfix/relayhost_map
@@ -142,8 +139,7 @@ function _populate_relayhost_map
   # map to a different relay-host, or use a separate transport (needs feature support added).
 
   # Args: <PRINT_DOMAIN_PART_> <config filepath>
-  function _list_domain_parts
-  {
+  function _list_domain_parts() {
     [[ -f $2 ]] && sed -n -r "/${MATCH_VALID}/ ${1}" "${2}"
   }
   # Matches and outputs (capture group via `/\1/p`) the domain part (value of address after `@`) in the config file.
@@ -167,16 +163,14 @@ function _populate_relayhost_map
   postconf 'sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map'
 }
 
-function _relayhost_configure_postfix
-{
+function _relayhost_configure_postfix() {
   postconf \
     'smtp_sasl_auth_enable = yes' \
     'smtp_sasl_security_options = noanonymous' \
     'smtp_tls_security_level = encrypt'
 }
 
-function _setup_relayhost
-{
+function _setup_relayhost() {
   _log 'debug' 'Setting up Postfix Relay Hosts'
 
   if [[ -n ${DEFAULT_RELAY_HOST} ]]; then
@@ -194,8 +188,7 @@ function _setup_relayhost
   fi
 }
 
-function _rebuild_relayhost
-{
+function _rebuild_relayhost() {
   if [[ -n ${RELAY_HOST} ]]; then
     _relayhost_sasl
     _populate_relayhost_map

@@ -5,8 +5,7 @@ set -euE -o pipefail
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _usage
-{
+function _usage() {
   # shellcheck disable=SC2059
   printf '%s' "${PURPLE}SETUP${RED}(${YELLOW}1${RED})
 
@@ -82,15 +81,13 @@ ${ORANGE}EXAMPLES${RESET}
 
 "
 }
-function _invalid_command
-{
+function _invalid_command() {
   echo "The command '${*}' is invalid.
 Use \`setup help\` to get an overview of all commands." >&2
   exit 2
 }
 
-function _main
-{
+function _main() {
   case ${1:-} in
 
     ( email )

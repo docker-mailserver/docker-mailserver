@@ -30,8 +30,7 @@ _log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
 _log_with_date 'debug' "Changedetector is ready"
 
-function _check_for_changes
-{
+function _check_for_changes() {
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
@@ -65,8 +64,7 @@ function _check_for_changes
   fi
 }
 
-function _get_changed_files
-{
+function _get_changed_files() {
   local CHKSUM_CURRENT=${1}
   local CHKSUM_NEW=${2}
 
@@ -81,8 +79,7 @@ function _get_changed_files
   grep -Fxvf "${CHKSUM_CURRENT}" "${CHKSUM_NEW}" | sed -r 's/^\S+[[:space:]]+//'
 }
 
-function _reload_amavis
-{
+function _reload_amavis() {
   if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]; then
     # /etc/postfix/vhost was updated, amavis must refresh it's config by
     # reading this file again in case of new domains, otherwise they will be ignored.
@@ -92,8 +89,7 @@ function _reload_amavis
 
 # Also note that changes are performed in place and are not atomic
 # We should fix that and write to temporary files, stop, swap and start
-function _postfix_dovecot_changes
-{
+function _postfix_dovecot_changes() {
   local DMS_DIR=/tmp/docker-mailserver
 
   # Regenerate accounts via `helpers/accounts.sh`:
@@ -141,8 +137,7 @@ function _postfix_dovecot_changes
   _chown_var_mail_if_necessary
 }
 
-function _ssl_changes
-{
+function _ssl_changes() {
   local REGEX_NEVER_MATCH='(?\!)'
 
   # _setup_ssl is required for:

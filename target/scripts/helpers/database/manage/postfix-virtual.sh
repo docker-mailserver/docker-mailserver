@@ -11,8 +11,7 @@
 # mail to an alias address.
 
 # Logic to perform for requested operations handled here:
-function _manage_virtual_aliases
-{
+function _manage_virtual_aliases() {
   local ACTION=${1}
   local MAIL_ALIAS=${2}
   local RECIPIENT=${3}

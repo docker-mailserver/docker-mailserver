@@ -2,8 +2,7 @@
 
 # Consolidate all states into a single directory
 # (/var/mail-state) to allow persistence using docker volumes
-function _setup_save_states
-{
+function _setup_save_states() {
   local DEST DESTDIR STATEDIR SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
 
   STATEDIR='/var/mail-state'

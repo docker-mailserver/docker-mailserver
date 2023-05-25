@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_dhparam
-{
+function _setup_dhparam() {
   local DH_SERVICE=$1
   local DH_DEST=$2
   local DH_CUSTOM='/tmp/docker-mailserver/dhparams.pem'
@@ -18,8 +17,7 @@ function _setup_dhparam
   fi
 }
 
-function _setup_ssl
-{
+function _setup_ssl() {
   _log 'debug' 'Setting up SSL'
 
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
@@ -31,8 +29,7 @@ function _setup_ssl
   mkdir -p "${DMS_TLS_PATH}"
 
   # Primary certificate to serve for TLS
-  function _set_certificate
-  {
+  function _set_certificate() {
     local POSTFIX_KEY_WITH_FULLCHAIN=${1}
     local DOVECOT_KEY=${1}
     local DOVECOT_CERT=${1}
@@ -60,8 +57,7 @@ function _setup_ssl
   }
 
   # Enables supporting two certificate types such as ECDSA with an RSA fallback
-  function _set_alt_certificate
-  {
+  function _set_alt_certificate() {
     local COPY_KEY_FROM_PATH=$1
     local COPY_CERT_FROM_PATH=$2
     local PRIVATE_KEY_ALT="${DMS_TLS_PATH}/fallback_key"
@@ -88,8 +84,7 @@ function _setup_ssl
       "${DOVECOT_CONFIG_SSL}"
   }
 
-  function _apply_tls_level
-  {
+  function _apply_tls_level() {
     local TLS_CIPHERS_ALLOW=$1
     local TLS_PROTOCOL_IGNORE=$2
     local TLS_PROTOCOL_MINIMUM=$3
@@ -113,8 +108,7 @@ function _setup_ssl
   # Extracts files `key.pem` and `fullchain.pem`.
   # `_extract_certs_from_acme` is located in `helpers/ssl.sh`
   # NOTE: See the `SSL_TYPE=letsencrypt` case below for more details.
-  function _traefik_support
-  {
+  function _traefik_support() {
     if [[ -f /etc/letsencrypt/acme.json ]]; then
       # Variable only intended for troubleshooting via debug output
       local EXTRACTED_DOMAIN
@@ -379,8 +373,7 @@ function _setup_ssl
 
 
 # Identify a valid letsencrypt FQDN folder to use.
-function _find_letsencrypt_domain
-{
+function _find_letsencrypt_domain() {
   local LETSENCRYPT_DOMAIN
 
   if [[ -n ${SSL_DOMAIN} ]] && [[ -e /etc/letsencrypt/live/$(_strip_wildcard_prefix "${SSL_DOMAIN}")/fullchain.pem ]]; then
@@ -398,8 +391,7 @@ function _find_letsencrypt_domain
 }
 
 # Verify the FQDN folder also includes a valid private key (`privkey.pem` for Certbot, `key.pem` for extraction by Traefik)
-function _find_letsencrypt_key
-{
+function _find_letsencrypt_key() {
   local LETSENCRYPT_KEY
 
   local LETSENCRYPT_DOMAIN=${1}
@@ -419,8 +411,7 @@ function _find_letsencrypt_key
   echo "${LETSENCRYPT_KEY}"
 }
 
-function _extract_certs_from_acme
-{
+function _extract_certs_from_acme() {
   local CERT_DOMAIN=${1}
   if [[ -z ${CERT_DOMAIN} ]]; then
     _log 'warn' "_extract_certs_from_acme | CERT_DOMAIN is empty"

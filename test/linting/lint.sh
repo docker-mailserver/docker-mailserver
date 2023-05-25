@@ -16,8 +16,7 @@ SHELLCHECK_VERSION='0.9.0'
 # shellcheck source=./../../target/scripts/helpers/log.sh
 source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
 
-function _eclint
-{
+function _eclint() {
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
@@ -31,8 +30,7 @@ function _eclint
   fi
 }
 
-function _hadolint
-{
+function _hadolint() {
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
@@ -46,8 +44,7 @@ function _hadolint
   fi
 }
 
-function _shellcheck
-{
+function _shellcheck() {
   local F_SH F_BIN F_BATS
 
   # File paths for shellcheck:
@@ -119,8 +116,7 @@ function _shellcheck
   fi
 }
 
-function _main
-{
+function _main() {
   case "${1:-}" in
     ( 'eclint'     ) _eclint     ;;
     ( 'hadolint'   ) _hadolint   ;;

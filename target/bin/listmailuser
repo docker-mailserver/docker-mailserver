@@ -7,16 +7,14 @@ source /usr/local/bin/helpers/index.sh
 # shellcheck source=/dev/null
 source /etc/dms-settings 2>/dev/null
 
-function _main
-{
+function _main() {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
   _list_entries "${DATABASE_ACCOUNTS}"
 }
 
-function _list_entries
-{
+function _list_entries() {
   local DATABASE=${1}
   _db_should_exist_with_content "${DATABASE}"
 
@@ -29,8 +27,7 @@ function _list_entries
   done < <(_get_valid_lines_from_file "${DATABASE}")
 }
 
-function _format_list_item
-{
+function _format_list_item() {
   local LINE=${1}
 
   local MAIL_ACCOUNT
@@ -49,8 +46,7 @@ function _format_list_item
   echo "${ACCOUNT_ENTRY}"
 }
 
-function _quota_show_for
-{
+function _quota_show_for() {
   local MAIL_ACCOUNT=${1}
 
   [[ ${ENABLE_QUOTAS} -ne 1 ]] && return 0
@@ -68,8 +64,7 @@ function _quota_show_for
   echo "( ${CURRENT_SIZE} / ${SIZE_LIMIT} ) [${PERCENT_USED}]"
 }
 
-function _bytes_to_human_readable_size
-{
+function _bytes_to_human_readable_size() {
   # `-` represents a non-applicable value (eg: Like when `SIZE_LIMIT` is not set):
   if [[ ${1:-} == '-' ]]; then
     echo '~'
@@ -83,8 +78,7 @@ function _bytes_to_human_readable_size
 }
 
 # Returns a comma delimited list of aliases associated to a recipient (ideally the recipient is a mail account):
-function _alias_list_for_account
-{
+function _alias_list_for_account() {
   local GREP_OPTIONS
   local MAIL_ACCOUNT=${1}
 

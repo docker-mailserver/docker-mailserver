@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _mask_ip_digit
-{
+function _mask_ip_digit() {
   if [[ ${1} -ge 8 ]]; then
     MASK=255
   elif [[ ${1} -le 0 ]]; then
@@ -21,8 +20,7 @@ function _mask_ip_digit
 # like 1.2.3.4/16 to subnet with cidr suffix
 # like 1.2.0.0/16.
 # Assumes correct IP and subnet are provided.
-function _sanitize_ipv4_to_subnet_cidr
-{
+function _sanitize_ipv4_to_subnet_cidr() {
   local DIGIT_PREFIX_LENGTH="${1#*/}"
 
   declare -a MASKED_DIGITS DIGITS

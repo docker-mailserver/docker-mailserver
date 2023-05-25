@@ -42,8 +42,7 @@ RESET=$(echo -ne   '\e[0m')
 # If the first argument is not set or invalid, an error
 # message is logged. Likewise when the second argument
 # is missing. Both failures will return with exit code '1'.
-function _log
-{
+function _log() {
   if [[ -z ${1+set} ]]; then
     _log 'error' "Call to '_log' is missing a valid log level"
     return 1
@@ -106,8 +105,7 @@ function _log
 }
 
 # Like `_log` but adds a timestamp in front of the message.
-function _log_with_date
-{
+function _log_with_date() {
   _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}"
 }
 
@@ -115,8 +113,7 @@ function _log_with_date
 # it is set. Otherwise, try to query the common environment
 # variables file. If this does not yield a value either,
 # use the default log level.
-function _get_log_level_or_default
-{
+function _get_log_level_or_default() {
   if [[ -n ${LOG_LEVEL+set} ]]; then
     echo "${LOG_LEVEL}"
   elif [[ -e /etc/dms-settings ]] && grep -q -E "^LOG_LEVEL='[a-z]+'" /etc/dms-settings; then
@@ -128,7 +125,6 @@ function _get_log_level_or_default
 
 # This function checks whether the log level is the one
 # provided as the first argument.
-function _log_level_is
-{
+function _log_level_is() {
   [[ $(_get_log_level_or_default) =~ ^${1}$ ]]
 }

@@ -6,8 +6,7 @@
 #
 # The OpenDKIM milter must come before the OpenDMARC milter in Postfix's
 # `smtpd_milters` milters options.
-function _setup_opendkim
-{
+function _setup_opendkim() {
   if [[ ${ENABLE_OPENDKIM} -eq 1 ]]; then
     _log 'debug' 'Configuring DKIM'
 
@@ -54,8 +53,7 @@ function _setup_opendkim
 #
 # The OpenDMARC milter must come after the OpenDKIM milter in Postfix's
 # `smtpd_milters` milters options.
-function _setup_opendmarc
-{
+function _setup_opendmarc() {
   if [[ ${ENABLE_OPENDMARC} -eq 1 ]]; then
     # TODO When disabling SPF is possible, add a check whether DKIM and SPF is disabled
     #      for DMARC to work, you should have at least one enabled
@@ -83,8 +81,7 @@ function _setup_opendmarc
 
 # Configures the SPF check inside Postfix's configuration via policyd-spf. When
 # using Rspamd, you will likely want to turn that off.
-function _setup_policyd_spf
-{
+function _setup_policyd_spf() {
   if [[ ${ENABLE_POLICYD_SPF} -eq 1 ]]; then
     _log 'debug' 'Configuring policyd-spf'
     cat >>/etc/postfix/master.cf <<EOF

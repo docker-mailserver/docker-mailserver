@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_fetchmail
-{
+function _setup_fetchmail() {
   if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring Fetchmail'
 
@@ -23,8 +22,7 @@ function _setup_fetchmail
   fi
 }
 
-function _setup_fetchmail_parallel
-{
+function _setup_fetchmail_parallel() {
   if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring Fetchmail parallel'
     mkdir /etc/fetchmailrc.d/
@@ -35,8 +33,7 @@ function _setup_fetchmail_parallel
     #
     # The sole purpose for this is to work around what is known
     # as the Fetchmail IMAP idle issue.
-    function _fetchmailrc_split
-    {
+    function _fetchmailrc_split() {
       local FETCHMAILRC='/etc/fetchmailrc'
       local FETCHMAILRCD='/etc/fetchmailrc.d'
       local DEFAULT_FILE="${FETCHMAILRCD}/defaults"

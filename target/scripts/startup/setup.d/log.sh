@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_logs_general
-{
+function _setup_logs_general() {
   _log 'debug' 'Setting up general log files'
 
   # File/folder permissions are fine when using docker volumes, but may be wrong
@@ -11,8 +10,7 @@ function _setup_logs_general
   chown syslog:root /var/log/mail
 }
 
-function _setup_logrotate
-{
+function _setup_logrotate() {
   _log 'debug' 'Setting up logrotate'
 
   LOGROTATE='/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n'
@@ -42,8 +40,7 @@ function _setup_logrotate
   echo -e "${LOGROTATE}}" >/etc/logrotate.d/maillog
 }
 
-function _setup_mail_summary
-{
+function _setup_mail_summary() {
   local ENABLED_MESSAGE
   ENABLED_MESSAGE="Enabling Postfix log summary reports with recipient '${PFLOGSUMM_RECIPIENT}'"
 
@@ -80,8 +77,7 @@ EOF
   esac
 }
 
-function _setup_logwatch
-{
+function _setup_logwatch() {
   echo 'LogFile = /var/log/mail/freshclam.log' >>/etc/logwatch/conf/logfiles/clam-update.conf
   echo "MailFrom = ${LOGWATCH_SENDER}" >>/etc/logwatch/conf/logwatch.conf
   echo "Mailer = \"sendmail -t -f ${LOGWATCH_SENDER}\"" >>/etc/logwatch/conf/logwatch.conf

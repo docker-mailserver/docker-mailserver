@@ -1,21 +1,18 @@
 #!/bin/bash
 
-function _escape
-{
+function _escape() {
   echo "${1//./\\.}"
 }
 
 # Returns input after filtering out lines that are:
 # empty, white-space, comments (`#` as the first non-whitespace character)
-function _get_valid_lines_from_file
-{
+function _get_valid_lines_from_file() {
   grep --extended-regexp --invert-match "^\s*$|^\s*#" "${1}" || true
 }
 
 # Provide the name of an environment variable to this function
 # and it will return its value stored in /etc/dms-settings
-function _get_dms_env_value
-{
+function _get_dms_env_value() {
   if [[ -f /etc/dms-settings ]]; then
     grep "^${1}=" /etc/dms-settings | cut -d "'" -f 2
   else
@@ -30,8 +27,7 @@ function _get_dms_env_value
 #
 # `helpers/accounts.sh:_create_accounts` (mkdir, cp) appears to be the only writer to
 # /var/mail folders (used during startup and change detection handling).
-function _chown_var_mail_if_necessary
-{
+function _chown_var_mail_if_necessary() {
   # fix permissions, but skip this if 3 levels deep the user id is already set
   if find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | read -r; then
     _log 'trace' 'Fixing /var/mail permissions'
@@ -39,8 +35,7 @@ function _chown_var_mail_if_necessary
   fi
 }
 
-function _require_n_parameters_or_print_usage
-{
+function _require_n_parameters_or_print_usage() {
   local COUNT
   COUNT=${1}
   shift
@@ -55,15 +50,13 @@ function _require_n_parameters_or_print_usage
 # After we modify the config explicitly, we can safely assume (reasonably)
 # that the write stream has completed, and it is safe to read the config.
 # https://github.com/docker-mailserver/docker-mailserver/issues/2985
-function _adjust_mtime_for_postfix_maincf
-{
+function _adjust_mtime_for_postfix_maincf() {
   if [[ $(( $(date '+%s') - $(stat -c '%Y' '/etc/postfix/main.cf') )) -lt 2 ]]; then
     touch -d '2 seconds ago' /etc/postfix/main.cf
   fi
 }
 
-function _reload_postfix
-{
+function _reload_postfix() {
   _adjust_mtime_for_postfix_maincf
   postfix reload
 }
@@ -92,8 +85,7 @@ function _reload_postfix
 #
 # 1. No first and second argument is supplied
 # 2. The second argument is a path to a file that does not exist
-function _replace_by_env_in_file
-{
+function _replace_by_env_in_file() {
   if [[ -z ${1+set} ]]; then
     _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ -z ${2+set} ]]; then
@@ -123,8 +115,7 @@ function _replace_by_env_in_file
 # is not zero or one.
 #
 # @param ${1} = name of the ENV variable to check
-function _env_var_expect_zero_or_one
-{
+function _env_var_expect_zero_or_one() {
   local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_zero_or_one}
 
   [[ ${!ENV_VAR_NAME} =~ ^(0|1)$ ]] && return 0
@@ -138,8 +129,7 @@ function _env_var_expect_zero_or_one
 # is not an integer.
 #
 # @param ${1} = name of the ENV variable to check
-function _env_var_expect_integer
-{
+function _env_var_expect_integer() {
   local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_integer}
 
   [[ ${!ENV_VAR_NAME} =~ ^-?[0-9][0-9]*$ ]] && return 0

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 
-function _setup_saslauthd
-{
+function _setup_saslauthd() {
   _log 'debug' 'Setting up SASLAUTHD'
 
   if [[ ! -f /etc/saslauthd.conf ]]; then

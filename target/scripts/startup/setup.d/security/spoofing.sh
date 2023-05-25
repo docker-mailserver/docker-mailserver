@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function _setup_spoof_protection
-{
+function _setup_spoof_protection() {
   if [[ ${SPOOF_PROTECTION} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring spoof protection'
 

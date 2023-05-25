@@ -1,13 +1,11 @@
 #!/bin/bash
 
-function _setup_mailname
-{
+function _setup_mailname() {
   _log 'debug' "Setting up mailname and creating '/etc/mailname'"
   echo "${DOMAINNAME}" >/etc/mailname
 }
 
-function _setup_docker_permit
-{
+function _setup_docker_permit() {
   _log 'debug' 'Setting up PERMIT_DOCKER option'
 
   local CONTAINER_IP CONTAINER_NETWORK
@@ -29,14 +27,12 @@ function _setup_docker_permit
     CONTAINER_NETWORKS+=("${IP}")
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
-  function __clear_postfix_mynetworks
-  {
+  function __clear_postfix_mynetworks() {
     _log 'trace' "Clearing Postfix's 'mynetworks'"
     postconf "mynetworks ="
   }
 
-  function __add_to_postfix_mynetworks
-  {
+  function __add_to_postfix_mynetworks() {
     local NETWORK_TYPE=$1
     local NETWORK=$2
 
