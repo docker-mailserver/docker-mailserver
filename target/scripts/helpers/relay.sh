@@ -149,8 +149,7 @@ function _populate_relayhost_map() {
   {
     _list_domain_parts "${PRINT_DOMAIN_PART_ACCOUNTS}" /tmp/docker-mailserver/postfix-accounts.cf
     _list_domain_parts "${PRINT_DOMAIN_PART_VIRTUAL}" /tmp/docker-mailserver/postfix-virtual.cf
-  } | sort -u | while read -r DOMAIN_PART
-  do
+  } | sort -u | while read -r DOMAIN_PART; do
     # DOMAIN_PART not already present in `/etc/postfix/relayhost_map`, and not listed as a relay opt-out domain in `postfix-relaymap.cf`
     # `^@${DOMAIN_PART}\b` - To check for existing entry, the `\b` avoids accidental partial matches on similar domain parts.
     # `^\s*@${DOMAIN_PART}\s*$` - Matches line with only a domain part (eg: @example.test) to avoid including a mapping for those domains to the RELAY_HOST.

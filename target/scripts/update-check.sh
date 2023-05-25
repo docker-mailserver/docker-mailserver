@@ -15,8 +15,7 @@ if [[ ! ${UPDATE_CHECK_INTERVAL} =~ ^[0-9]+[smhd]{1}$ ]]; then
   UPDATE_CHECK_INTERVAL='1d'
 fi
 
-while true
-do
+while true; do
   # get remote version information
   LATEST=$(curl -Lsf "${VERSION_URL}")
 

@@ -9,8 +9,7 @@ LOCK_ID=$(uuid)
 
 function _create_lock() {
   LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
-  while [[ -e "${LOCK_FILE}" ]]
-  do
+  while [[ -e "${LOCK_FILE}" ]]; do
     # Handle stale lock files left behind on crashes
     # or premature/non-graceful exits of containers while they're making changes
     if [[ -n "$(find "${LOCK_FILE}" -mmin +1 2>/dev/null)" ]]; then

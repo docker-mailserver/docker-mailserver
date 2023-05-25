@@ -124,8 +124,7 @@ function _main() {
   _set_default_config_path
 
   local OPTIND
-  while getopts ":c:i:p:zZR" OPT
-  do
+  while getopts ":c:i:p:zZR" OPT; do
     case ${OPT} in
       ( i )     IMAGE_NAME="${OPTARG}"     ;;
       ( z | Z ) USE_SELINUX=":${OPT}"      ;;

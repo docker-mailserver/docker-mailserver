@@ -38,8 +38,7 @@ function _create_accounts() {
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored
     local LOGIN PASS USER_ATTRIBUTES
-    while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES
-    do
+    while IFS=$'|' read -r LOGIN PASS USER_ATTRIBUTES; do
       # Setting variables for better readability
       USER=$(echo "${LOGIN}" | cut -d @ -f1)
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
@@ -104,8 +103,7 @@ function _create_dovecot_alias_dummy_accounts() {
     # adding aliases to Dovecot's userdb
     # ${REAL_FQUN} is a user's fully-qualified username
     local ALIAS REAL_FQUN DOVECOT_USERDB_LINE
-    while read -r ALIAS REAL_FQUN
-    do
+    while read -r ALIAS REAL_FQUN; do
       # alias is assumed to not be a proper e-mail
       # these aliases do not need to be added to Dovecot's userdb
       [[ ! ${ALIAS} == *@* ]] && continue
@@ -177,8 +175,7 @@ function _create_masters() {
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored
     local LOGIN PASS
-    while IFS=$'|' read -r LOGIN PASS
-    do
+    while IFS=$'|' read -r LOGIN PASS; do
       _log 'debug' "Creating master user '${LOGIN}'"
 
       local DOVECOT_MASTERDB_LINE

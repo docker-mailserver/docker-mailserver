@@ -57,8 +57,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 _require_n_parameters_or_print_usage 0 "${@}"
 
-while [[ ${#} -gt 0 ]]
-do
+while [[ ${#} -gt 0 ]]; do
   case "${1}" in
     ( 'keysize' )
       if [[ -n ${2+set} ]]; then
@@ -124,8 +123,7 @@ if [[ ! -s ${DATABASE_VHOST} ]]; then
   exit 0
 fi
 
-while read -r DKIM_DOMAIN
-do
+while read -r DKIM_DOMAIN; do
   mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
 
   if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]; then

@@ -97,8 +97,7 @@ function _replace_by_env_in_file() {
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
   local ESCAPED_VALUE ESCAPED_KEY
 
-  while IFS='=' read -r KEY VALUE
-  do
+  while IFS='=' read -r KEY VALUE; do
     KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
     ESCAPED_KEY=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${KEY,,}")
     ESCAPED_VALUE=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${VALUE}")

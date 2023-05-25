@@ -22,8 +22,7 @@ function _setup_docker_permit() {
     _dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]'
   fi
 
-  while read -r IP
-  do
+  while read -r IP; do
     CONTAINER_NETWORKS+=("${IP}")
   done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
 
