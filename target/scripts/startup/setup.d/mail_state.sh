@@ -34,7 +34,7 @@ function _setup_save_states() {
     # Single service files
     [[ ${ENABLE_SRS}          -eq 1 ]] && SERVICEFILES+=('/etc/postsrsd.secret')
 
-    for SERVICEFILE in "${SERVICEFILES[@]}";; do
+    for SERVICEFILE in "${SERVICEFILES[@]}"; do
       DEST="${STATEDIR}/${SERVICEFILE}"
       DESTDIR="${DEST%/*}"
 
