@@ -9,8 +9,7 @@ function _register_check_function() {
 
 function _check() {
   _log 'info' 'Checking configuration'
-  for FUNC in "${FUNCS_CHECK[@]}"
-  do
+  for FUNC in "${FUNCS_CHECK[@]}"; do
     ${FUNC}
   done
 }

@@ -158,8 +158,7 @@ function __setup__security__clamav() {
     _log 'debug' 'Enabling and configuring ClamAV'
 
     local FILE
-    for FILE in /var/log/mail/{clamav,freshclam}.log
-    do
+    for FILE in /var/log/mail/{clamav,freshclam}.log; do
       touch "${FILE}"
       chown clamav:adm "${FILE}"
       chmod 640 "${FILE}"

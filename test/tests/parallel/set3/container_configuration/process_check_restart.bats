@@ -72,16 +72,14 @@ ENV_PROCESS_LIST=(
   # Required for Postfix (when launched by wrapper script which is slow to start)
   _wait_for_smtp_port_in_container
 
-  for PROCESS in "${CORE_PROCESS_LIST[@]}"
-  do
+  for PROCESS in "${CORE_PROCESS_LIST[@]}"; do
     run _check_if_process_is_running "${PROCESS}"
     assert_success
     assert_output --partial "${PROCESS}"
     refute_output --partial "is not running"
   done
 
-  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd
-  do
+  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd; do
     run _check_if_process_is_running "${PROCESS}"
     assert_failure
     assert_output --partial "'${PROCESS}' is not running"
@@ -116,8 +114,7 @@ ENV_PROCESS_LIST=(
     "${ENV_PROCESS_LIST[@]}"
   )
 
-  for PROCESS in "${ENABLED_PROCESS_LIST[@]}"
-  do
+  for PROCESS in "${ENABLED_PROCESS_LIST[@]}"; do
     _should_restart_when_killed "${PROCESS}"
   done
 

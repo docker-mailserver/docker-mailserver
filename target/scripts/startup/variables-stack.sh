@@ -212,8 +212,7 @@ function _environment_variables_export() {
   : >/etc/dms-settings # this file can be sourced by other scripts
 
   local VAR
-  for VAR in "${!VARS[@]}"
-  do
+  for VAR in "${!VARS[@]}"; do
     echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
     echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
   done

@@ -13,8 +13,7 @@ function _setup_getmail() {
 
     # Generate getmailrc configs, starting with the `/etc/getmailrc_general` base config,
     # Add a unique `message_log` config, then append users own config to the end.
-    for FILE in /tmp/docker-mailserver/getmail-*.cf
-    do
+    for FILE in /tmp/docker-mailserver/getmail-*.cf; do
       if [[ -f ${FILE} ]]; then
         CONFIGS=1
         ID=$(cut -d '-' -f 3 <<< "${FILE}" | cut -d '.' -f 1)

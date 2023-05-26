@@ -64,8 +64,7 @@ function _monitored_files_checksums() {
 
   # If the file actually exists, add to CHANGED_FILES
   # and generate a content hash entry:
-  for FILE in "${STAGING_FILES[@]}"
-  do
+  for FILE in "${STAGING_FILES[@]}"; do
     [[ -f "${FILE}" ]] && CHANGED_FILES+=("${FILE}")
   done
 
