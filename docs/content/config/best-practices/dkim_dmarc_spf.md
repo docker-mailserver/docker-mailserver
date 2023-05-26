@@ -262,7 +262,7 @@ The only thing you need to do in order to enable DMARC on a "DNS-level" is to ad
 Typically something like this should be good to start with:
 
 ```txt
-_dmarc.example.com. IN TXT "v=DMARC1; p=none; sp=none; fo=0; adkim=4; aspf=r; pct=100; rf=afrf; ri=86400; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com"
+_dmarc.example.com. IN TXT "v=DMARC1; p=none; sp=none; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com"
 ```
 
 Or a bit more strict policies (_mind `p=quarantine` and `sp=quarantine`_):
