@@ -92,9 +92,10 @@ The [Manage Sieve](https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_s
       - ENABLE_MANAGESIEVE=1
     ```
 
-All user defined sieve scripts that are managed by ManageSieve are stored in the user's home folder in `/var/mail/example.com/user1/sieve`. Just one sieve script might be active for a user and is sym-linked to `/var/mail/example.com/user1/.dovecot.sieve` automatically.
+All user defined sieve scripts that are managed by ManageSieve are stored in the user's home folder in `/var/mail/example.com/user1/home/sieve`. Just one Sieve script might be active for a user and is sym-linked to `/var/mail/example.com/user1/home/.dovecot.sieve` automatically.
 
 !!! note
+
     ManageSieve makes sure to not overwrite an existing `.dovecot.sieve` file. If a user activates a new sieve script the old one is backuped and moved to the `sieve` folder.
 
 The extension is known to work with the following ManageSieve clients:
