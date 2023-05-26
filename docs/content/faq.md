@@ -176,7 +176,6 @@ Also you need to define `hostname: example.com` in your `compose.yaml`.
     - There are [benefits][github-comment-baredomain] to preferring a subdomain.
     - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
 
-
 ### How can I configure a catch-all?
 
 Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
@@ -250,22 +249,15 @@ See [#1247][github-issue-1247] for an example.
 
 ### Common Errors
 
+Due to the way we set `mydestination`, you might encounter the following issue:
+
 ```log
-warning: connect to Milter service inet:localhost:8893: Connection refused
-# DMARC not running
-# => /etc/init.d/opendmarc restart
-
-warning: connect to Milter service inet:localhost:8891: Connection refused
-# DKIM not running
-# => /etc/init.d/opendkim restart
-
-mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can't connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory
-mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)
-mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.
-mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
-# Clamav is not running (not started or because you don't have enough memory)
-# => check requirements and/or start Clamav
+warning: do not list domain email.example.com in BOTH mydestination and virtual_mailbox_domains
+...
+NOQUEUE: reject: RCPT from HOST[IP]: 550 5.1.1 <RECIPIENT>: Recipient address rejected: User unknown in local recipient table; ...
 ```
+
+You may solve this problem by running `sed -i 's|mydestination\s=\s\$myhostname,\slocalhost\.\$mydomain,\slocalhost|mydestination=localhost.$mydomain,localhost|g' /etc/postfix/main.cf` in [`user-patches.sh`][docs-userpatches].
 
 ### How to use DMS behind a proxy
 
