@@ -179,8 +179,7 @@ function __rspamd__setup_default_modules() {
     metric_exporter
   )
 
-  for MODULE in "${DISABLE_MODULES[@]}"
-  do
+  for MODULE in "${DISABLE_MODULES[@]}"; do
     __rspamd__helper__enable_disable_module "${MODULE}" 'false'
   done
 }

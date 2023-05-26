@@ -48,8 +48,7 @@ function _setup_docker_permit() {
       ;;
 
     ( 'connected-networks' )
-      for CONTAINER_NETWORK in "${CONTAINER_NETWORKS[@]}"
-      do
+      for CONTAINER_NETWORK in "${CONTAINER_NETWORKS[@]}"; do
         CONTAINER_NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${CONTAINER_NETWORK}")
         __add_to_postfix_mynetworks 'Docker Network' "${CONTAINER_NETWORK}"
       done

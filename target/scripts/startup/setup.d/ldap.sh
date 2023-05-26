@@ -4,8 +4,7 @@ function _setup_ldap() {
   _log 'debug' 'Setting up LDAP'
   _log 'trace' 'Checking for custom configs'
 
-  for i in 'users' 'groups' 'aliases' 'domains'
-  do
+  for i in 'users' 'groups' 'aliases' 'domains'; do
     local FPATH="/tmp/docker-mailserver/ldap-${i}.cf"
     if [[ -f ${FPATH} ]]; then
       cp "${FPATH}" "/etc/postfix/ldap-${i}.cf"
@@ -23,8 +22,7 @@ function _setup_ldap() {
     /etc/postfix/maps/sender_login_maps.ldap
   )
 
-  for FILE in "${FILES[@]}"
-  do
+  for FILE in "${FILES[@]}"; do
     [[ ${FILE} =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
     [[ ${FILE} =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
@@ -51,8 +49,7 @@ function _setup_ldap() {
   # Default DOVECOT_PASS_FILTER to the same value as DOVECOT_USER_FILTER
   DOVECOT_LDAP_MAPPING['DOVECOT_PASS_FILTER']="${DOVECOT_PASS_FILTER:="${DOVECOT_USER_FILTER}"}"
 
-  for VAR in "${!DOVECOT_LDAP_MAPPING[@]}"
-  do
+  for VAR in "${!DOVECOT_LDAP_MAPPING[@]}"; do
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
