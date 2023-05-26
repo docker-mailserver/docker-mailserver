@@ -29,8 +29,7 @@ function _should_succesfully_negotiate_tls() {
   assert_success
 
   local PORTS=(25 587 465 143 993)
-  for PORT in "${PORTS[@]}"
-  do
+  for PORT in "${PORTS[@]}"; do
     _negotiate_tls "${FQDN}" "${PORT}"
   done
 }

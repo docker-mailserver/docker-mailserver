@@ -10,8 +10,7 @@ function _register_start_daemon() {
 function _start_daemons() {
   _log 'info' 'Starting daemons'
 
-  for FUNCTION in "${DAEMONS_START[@]}"
-  do
+  for FUNCTION in "${DAEMONS_START[@]}"; do
     ${FUNCTION}
   done
 }
@@ -56,8 +55,7 @@ function _start_daemon_postfix() {
 function _start_daemon_fetchmail() {
   if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]; then
     local COUNTER=0
-    for _ in /etc/fetchmailrc.d/fetchmail-*.rc
-    do
+    for _ in /etc/fetchmailrc.d/fetchmail-*.rc; do
       COUNTER=$(( COUNTER + 1 ))
       _default_start_daemon "fetchmail-${COUNTER}"
     done

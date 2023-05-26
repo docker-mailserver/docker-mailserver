@@ -29,8 +29,7 @@ function __initialize_variables() {
     'CONTAINER_NAME'
   )
 
-  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS[@]}"
-  do
+  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS[@]}"; do
     __check_if_set "${VARIABLE}"
   done
 

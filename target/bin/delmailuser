@@ -16,8 +16,7 @@ function _main() {
   _create_lock
 
   # Actual command to perform:
-  for MAIL_ACCOUNT in "${@}"
-  do
+  for MAIL_ACCOUNT in "${@}"; do
     _account_should_already_exist
 
     [[ ${MAILDEL} -eq 1 ]] && _remove_maildir "${MAIL_ACCOUNT}"

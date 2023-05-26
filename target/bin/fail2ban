@@ -13,16 +13,14 @@ fail2ban-client ping &>/dev/null || _exit_with_error "Fail2ban not running"
 unset JAILS
 declare -a JAILS
 
-for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g')
-do
+for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g'); do
   JAILS+=("${LIST}")
 done
 
 if [[ -z ${1} ]]; then
   IPS_BANNED=0
 
-  for JAIL in "${JAILS[@]}"
-  do
+  for JAIL in "${JAILS[@]}"; do
     BANNED_IPS=$(fail2ban-client status "${JAIL}" | grep -oP '(?<=Banned IP list:\s).+')
 
     if [[ -n ${BANNED_IPS} ]]; then
@@ -58,8 +56,7 @@ else
       shift
       if [[ -n ${1} ]]; then
 
-        for JAIL in "${JAILS[@]}"
-        do
+        for JAIL in "${JAILS[@]}"; do
           RESULT=$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)
 
           [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo "Unbanned IP from ${JAIL}: ${RESULT}"

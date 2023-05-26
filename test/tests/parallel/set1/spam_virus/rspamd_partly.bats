@@ -42,8 +42,7 @@ function teardown_file() { _default_teardown ; }
 @test "log warns about interfering features" {
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  for SERVICE in 'Amavis/SA' 'OpenDKIM' 'OpenDMARC' 'policyd-spf'
-  do
+  for SERVICE in 'Amavis/SA' 'OpenDKIM' 'OpenDMARC' 'policyd-spf'; do
     assert_output --regexp ".*WARNING.*Running ${SERVICE} & Rspamd at the same time is discouraged"
   done
 }
@@ -63,8 +62,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'learning is properly disabled' {
-  for FILE in learn-{ham,spam}.{sieve,svbin}
-  do
+  for FILE in learn-{ham,spam}.{sieve,svbin}; do
     _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
     assert_failure
   done

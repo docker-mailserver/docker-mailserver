@@ -89,8 +89,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "argument 'domain' is applied correctly" {
-  for DOMAIN in 'blabla.org' 'someother.com' 'random.de'
-  do
+  for DOMAIN in 'blabla.org' 'someother.com' 'random.de'; do
     _run_in_container setup config dkim domain "${DOMAIN}"
     assert_success
     assert_line --partial "Domain set to '${DOMAIN}'"
@@ -107,8 +106,7 @@ function teardown_file() { _default_teardown ; }
   assert_failure
   assert_line --partial "Unknown keytype 'foobar'"
 
-  for KEYTYPE in 'rsa' 'ed25519'
-  do
+  for KEYTYPE in 'rsa' 'ed25519'; do
     _run_in_container setup config dkim keytype "${KEYTYPE}"
     assert_success
     assert_line --partial "Keytype set to '${KEYTYPE}'"
@@ -127,8 +125,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "argument 'selector' is applied correctly" {
-  for SELECTOR in 'foo' 'bar' 'baz'
-  do
+  for SELECTOR in 'foo' 'bar' 'baz'; do
     __create_key 'rsa' "${SELECTOR}"
     assert_success
     assert_line --partial "Selector set to '${SELECTOR}'"
@@ -146,8 +143,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "argument 'keysize' is applied correctly for RSA keys" {
-  for KEYSIZE in 512 1024 2048 4096
-  do
+  for KEYSIZE in 512 1024 2048 4096; do
     __create_key 'rsa' 'mail' "${DOMAIN_NAME}" "${KEYSIZE}"
     assert_success
     __log_is_free_of_warnings_and_errors
@@ -234,8 +230,7 @@ function __check_rsa_keys() {
 # @param ${1} = base file name that all DKIM key files have
 function __check_key_files_are_present() {
   local BASE_FILE_NAME="${1:?Base file name must be supplied to __check_key_files_are_present}"
-  for FILE in ${BASE_FILE_NAME}.{public.txt,public.dns.txt,private.txt}
-  do
+  for FILE in ${BASE_FILE_NAME}.{public.txt,public.dns.txt,private.txt}; do
     _run_in_container_bash "[[ -f ${FILE} ]]"
     assert_success
   done

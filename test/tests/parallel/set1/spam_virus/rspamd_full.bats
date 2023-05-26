@@ -49,8 +49,7 @@ function setup_file() {
   export MAIL_ID3=$(_send_email_and_get_id 'email-templates/rspamd-virus')
   export MAIL_ID4=$(_send_email_and_get_id 'email-templates/rspamd-spam-header')
 
-  for ID in MAIL_ID{1,2,3,4}
-  do
+  for ID in MAIL_ID{1,2,3,4}; do
     [[ -n ${!ID} ]] || { echo "${ID} is empty - aborting!" ; return 1 ; }
   done
 }
@@ -225,8 +224,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'RSPAMD_LEARN works' {
-  for FILE in learn-{ham,spam}.{sieve,svbin}
-  do
+  for FILE in learn-{ham,spam}.{sieve,svbin}; do
     _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
     assert_success
   done
@@ -267,8 +265,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
   assert_output --partial 'imapsieve: Matched static mailbox rule [1]'
   refute_output --partial 'imapsieve: Matched static mailbox rule [2]'
-  for LINE in "${LEARN_SPAM_LINES[@]}"
-  do
+  for LINE in "${LEARN_SPAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done
 
@@ -281,8 +278,7 @@ function teardown_file() { _default_teardown ; }
   _run_in_container cat /var/log/mail/mail.log
   assert_success
   assert_output --partial 'imapsieve: Matched static mailbox rule [2]'
-  for LINE in "${LEARN_HAM_LINES[@]}"
-  do
+  for LINE in "${LEARN_HAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done
 }

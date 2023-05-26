@@ -14,7 +14,6 @@ else
   GETMAILDIR=/tmp/docker-mailserver/getmail
 fi
 
-for FILE in /etc/getmailrc.d/getmailrc*
-do
+for FILE in /etc/getmailrc.d/getmailrc*; do
   /usr/local/bin/getmail --getmaildir "${GETMAILDIR}" --rcfile "${FILE}" --dump | tail -n +7
 done

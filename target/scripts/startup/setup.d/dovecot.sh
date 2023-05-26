@@ -146,8 +146,7 @@ function _setup_dovecot_local_user() {
   function __wait_until_an_account_is_added_or_shutdown() {
     local SLEEP_PERIOD='10'
 
-    for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- ))
-    do
+    for (( COUNTER = 11 ; COUNTER >= 0 ; COUNTER-- )); do
       if [[ $(grep -cE '.+@.+\|' /tmp/docker-mailserver/postfix-accounts.cf 2>/dev/null || printf '%s' '0') -ge 1 ]]; then
         return 0
       else

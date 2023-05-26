@@ -26,8 +26,7 @@ function _sanitize_ipv4_to_subnet_cidr() {
   declare -a MASKED_DIGITS DIGITS
   IFS='.' ; read -r -a DIGITS < <(echo "${1%%/*}") ; unset IFS
 
-  for ((i = 0 ; i < 4 ; i++))
-  do
+  for ((i = 0 ; i < 4 ; i++)); do
     MASKED_DIGITS[i]=$(_mask_ip_digit "${DIGIT_PREFIX_LENGTH}" "${DIGITS[i]}")
     DIGIT_PREFIX_LENGTH=$((DIGIT_PREFIX_LENGTH - 8))
   done
