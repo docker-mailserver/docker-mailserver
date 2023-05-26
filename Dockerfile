@@ -28,7 +28,7 @@ EOF
 COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
-RUN /bin/bash /build/packages.sh
+RUN /bin/bash /build/packages.sh && rm -r /build
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
