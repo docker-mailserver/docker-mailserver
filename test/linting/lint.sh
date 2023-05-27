@@ -9,8 +9,8 @@ shopt -s inherit_errexit
 
 REPOSITORY_ROOT=$(realpath "$(dirname "$(readlink -f "${0}")")"/../../)
 LOG_LEVEL=${LOG_LEVEL:-debug}
-HADOLINT_VERSION='2.9.2'
-ECLINT_VERSION='2.4.0'
+HADOLINT_VERSION='2.12.0'
+ECLINT_VERSION='2.7.0'
 SHELLCHECK_VERSION='0.9.0'
 
 # shellcheck source=./../../target/scripts/helpers/log.sh
