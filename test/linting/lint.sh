@@ -44,20 +44,37 @@ function _hadolint() {
   fi
 }
 
-function _shellcheck() {
-  local F_SH F_BIN F_BATS
-
-  # File paths for shellcheck:
+# Create three arrays (F_SH, F_BIN, F_BATS) containing our BASH scripts
+function _getBashScripts() {
   readarray -d '' F_SH < <(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
     -not -path './test/test_helper/*' \
     -not -path './.git/*' \
     -print0 \
   )
+
   # shellcheck disable=SC2248
   readarray -d '' F_BIN < <(find 'target/bin' -type f -not -name '*.py' -print0)
   readarray -d '' F_BATS < <(find 'test/tests/' -type f -iname '*.bats' -print0)
+}
 
+# Check BASH files for correct syntax
+function _bashcheck() {
+  local ERROR=0 SCRIPT
+  # .bats files are excluded from the test below: Due to their custom syntax ( @test ), .bats files are not standard bash
+  for SCRIPT in "${F_SH[@]}" "${F_BIN[@]}"; do
+    bash -n "${SCRIPT}" || ERROR=1
+  done
+
+  if [[ ${ERROR} -eq 0 ]]; then
+    _log 'info' 'BASH syntax check succeeded'
+  else
+    _log 'error' 'BASH syntax check failed'
+    return 1
+  fi
+}
+
+function _shellcheck() {
   # This command is a bit easier to grok as multi-line.
   # There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
   # `SCRIPTDIR` is a special value that represents the path of the script being linted,
@@ -118,9 +135,10 @@ function _shellcheck() {
 
 function _main() {
   case "${1:-}" in
-    ( 'eclint'     ) _eclint     ;;
-    ( 'hadolint'   ) _hadolint   ;;
-    ( 'shellcheck' ) _shellcheck ;;
+    ( 'eclint'     ) _eclint                      ;;
+    ( 'hadolint'   ) _hadolint                    ;;
+    ( 'bashcheck'  ) _getBashScripts; _bashcheck  ;;
+    ( 'shellcheck' ) _getBashScripts; _shellcheck ;;
     ( * )
       _log 'error' "'${1:-}' is not a command nor an option"
       return 3
