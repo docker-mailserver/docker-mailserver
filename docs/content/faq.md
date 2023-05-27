@@ -249,15 +249,31 @@ See [#1247][github-issue-1247] for an example.
 
 ### Common Errors
 
-Due to the way we set `mydestination`, you might encounter the following issue:
+Normally you will assign DMS a `hostname` such as `mail.example.com`. If you instead use a bare domain (_such as `example.com`_) or add an alias / account with the same value as your `hostname`, this can cause a conflict due to mail addressed to `hostname` being configured for system account mail only via Postfix `main.cf` setting `mydestination`.
+
+When this conflict is detected you'll find logs similar to this:
 
 ```log
-warning: do not list domain email.example.com in BOTH mydestination and virtual_mailbox_domains
+warning: do not list domain mail.example.com in BOTH mydestination and virtual_mailbox_domains
 ...
 NOQUEUE: reject: RCPT from HOST[IP]: 550 5.1.1 <RECIPIENT>: Recipient address rejected: User unknown in local recipient table; ...
 ```
 
-You may solve this problem by running `sed -i 's|mydestination\s=\s\$myhostname,\slocalhost\.\$mydomain,\slocalhost|mydestination=localhost.$mydomain,localhost|g' /etc/postfix/main.cf` in [`user-patches.sh`][docs-userpatches].
+Opt-out of mail being directed to services by excluding `$myhostname` as a destination with a [`postfix-main.cf`][docs-override-postfix] override config:
+
+```cf
+mydestination = localhost.$mydomain, localhost
+```
+
+!!! tip
+
+    You may want to configure a `postmaster` alias via `setup alias add` to receive system notifications.
+
+!!! warning
+
+    Internal mail destined for `root`, `amavis` or other accounts will now no longer be received without an alias or account created for them.
+
+[docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 
 ### How to use DMS behind a proxy
 
