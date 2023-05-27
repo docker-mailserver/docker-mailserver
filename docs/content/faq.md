@@ -249,7 +249,9 @@ See [#1247][github-issue-1247] for an example.
 
 ### Common Errors
 
-Normally you will assign DMS a `hostname` such as `mail.example.com`. If you instead use a bare domain (_such as `example.com`_) or add an alias / account with the same value as your `hostname`, this can cause a conflict due to mail addressed to `hostname` being configured for system account mail only via Postfix `main.cf` setting `mydestination`.
+#### Creating an alias or account with an address for `hostname`
+
+Normally you will assign DMS a `hostname` such as `mail.example.com`. If you instead use a bare domain (_such as `example.com`_) or add an alias / account with the same value as your `hostname`, this can cause a conflict for mail addressed to `@hostname` as Postfix gets confused where to deliver the mail (_`hostname` is configured for only system accounts via the Postfix `main.cf` setting `mydestination`_).
 
 When this conflict is detected you'll find logs similar to this:
 
@@ -272,8 +274,6 @@ mydestination = localhost.$mydomain, localhost
 !!! warning
 
     Internal mail destined for `root`, `amavis` or other accounts will now no longer be received without an alias or account created for them.
-
-[docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 
 ### How to use DMS behind a proxy
 
@@ -529,6 +529,7 @@ $spam_quarantine_to       = "amavis\@example.com";
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
+[docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
 [github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
