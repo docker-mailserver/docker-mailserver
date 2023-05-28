@@ -123,6 +123,7 @@ RUN <<EOF
 EOF
 
 # overcomplication necessary for CI
+# hadolint ignore=SC2086
 RUN <<EOF
   for _ in {1..10}; do
     su - amavis -c "razor-admin -create"
