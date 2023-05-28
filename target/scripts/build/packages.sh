@@ -94,7 +94,7 @@ function _install_dovecot() {
   declare -a DOVECOT_PACKAGES
 
   DOVECOT_PACKAGES=(
-    dovecot-core dovecot-fts-xapian dovecot-imapd
+    dovecot-core dovecot-imapd dovecot-dev
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
   )
@@ -191,6 +191,16 @@ function _install_fail2ban() {
   sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
+function _install_dovecot_fts_xapian() {
+  apt-get "${QUIET}" --no-install-recommends install automake libtool pkg-config libicu-dev libsqlite3-dev libxapian-dev make build-essential
+  curl -Lso dovecot-fts-xapian.tar.gz https://github.com/grosjo/fts-xapian/releases/download/1.5.5/dovecot-fts-xapian-1.5.5.tar.gz
+  tar xzvf dovecot-fts-xapian.tar.gz
+  cd fts-xapian-1.5.5
+  autoreconf -vi
+  ./configure --with-dovecot=/usr/lib/dovecot
+  make install
+}
+
 # Presently the getmail6 package is v6.14, which is too old.
 # v6.18 contains fixes for Google and Microsoft OAuth support.
 # using pip to install getmail.
@@ -225,6 +235,7 @@ _pre_installation_steps
 _install_postfix
 _install_packages
 _install_dovecot
+_install_dovecot_fts_xapian
 _install_rspamd
 _install_fail2ban
 _install_getmail
