@@ -199,6 +199,7 @@ function _install_dovecot_fts_xapian() {
   autoreconf -vi
   ./configure --with-dovecot=/usr/lib/dovecot
   make install
+  apt-get "${QUIET}" remove automake libtool pkg-config make build-essential
 }
 
 # Presently the getmail6 package is v6.14, which is too old.
