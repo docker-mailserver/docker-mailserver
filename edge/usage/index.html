@@ -1738,6 +1738,15 @@
 <li>The <strong>A record</strong> tells everyone which IP address the DNS name <code>mail.example.com</code> resolves to.</li>
 <li>The <strong>PTR record</strong> is the counterpart of the A record, telling everyone what name the IP address <code>11.22.33.44</code> resolves to.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">About The Mail Server's Fully Qualified Domain Name</p>
+<p>The mail server's fully qualified domain name (FQDN) in our example above is <code>mail.example.com</code>. Please note though that this is more of a convention, and not due to technical restrictions. One could also run the mail server</p>
+<ol>
+<li>on <code>foo.example.com</code>: you would just need to change your <code>MX</code> record;</li>
+<li>on <code>example.com</code> directly: you would need to change your <code>MX</code> record and probably <a href="../faq/#can-i-use-a-nakedbare-domain-ie-no-hostname">read our docs on bare domain setups</a>, as these setups are called "bare domain" setups.</li>
+</ol>
+<p>The FQDN is what is relevant for TLS certificates, it has no (inherent/technical) relation to the email addresses and accounts DMS manages. That is to say: even though DMS runs on <code>mail.example.com</code>, or <code>foo.example.com</code>, or <code>example.com</code>, there is nothing that prevents it from managing mail for <code>barbaz.org</code> - <code>barbaz.org</code> will just need to set its <code>MX</code> record to <code>mail.example.com</code> (or <code>foo.example.com</code> or <code>example.com</code>).</p>
+</div>
 <p>If you setup everything, it should roughly look like this:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>MX<span class="w"> </span>example.com
 <span class="go">mail.example.com</span>
