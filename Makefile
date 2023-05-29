@@ -61,10 +61,13 @@ test/%: ALWAYS_RUN
 # --- Lints -------------------------------------
 # -----------------------------------------------
 
-lint: ALWAYS_RUN eclint hadolint shellcheck
+lint: ALWAYS_RUN eclint hadolint bashcheck shellcheck
 
 hadolint: ALWAYS_RUN
 	@ ./test/linting/lint.sh hadolint
+
+bashcheck: ALWAYS_RUN
+	@ ./test/linting/lint.sh bashcheck
 
 shellcheck: ALWAYS_RUN
 	@ ./test/linting/lint.sh shellcheck
