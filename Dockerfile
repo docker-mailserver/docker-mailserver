@@ -28,7 +28,7 @@ EOF
 COPY target/scripts/build/* /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
-RUN /bin/bash /build/packages.sh
+RUN /bin/bash /build/packages.sh && rm -r /build
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -41,6 +41,9 @@ RUN /bin/bash /build/packages.sh
 COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 RUN <<EOF
+  # `COPY --link --chown=200` has a bug that affects image pulls. Restore ownership of parent dirs:
+  # https://github.com/moby/buildkit/issues/3912
+  chown root:root /var /var/lib
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf
