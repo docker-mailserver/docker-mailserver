@@ -1481,6 +1481,19 @@
     Common Errors
   </a>
   
+    <nav class="md-nav" aria-label="Common Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-an-alias-or-account-with-an-address-for-hostname" class="md-nav__link">
+    Creating an alias or account with an address for hostname
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1919,6 +1932,19 @@
     Common Errors
   </a>
   
+    <nav class="md-nav" aria-label="Common Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-an-alias-or-account-with-an-address-for-hostname" class="md-nav__link">
+    Creating an alias or account with an address for hostname
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2225,21 +2251,24 @@ Few examples of symptoms can be found <a href="https://github.com/docker-mailser
 <p>Write a How-to / Use-Case / Tutorial about authentication with <code>SMTP_ONLY</code>.</p>
 </div>
 <h3 id="common-errors"><a class="toclink" href="#common-errors">Common Errors</a></h3>
-<div class="highlight"><pre><span></span><code><span class="go">warning: connect to Milter service inet:localhost:8893: Connection refused</span>
-<span class="gp"># </span>DMARC<span class="w"> </span>not<span class="w"> </span><span class="nv">running</span>
-<span class="gp"># </span><span class="o">=</span>&gt;<span class="w"> </span>/etc/init.d/opendmarc<span class="w"> </span>restart
-
-<span class="go">warning: connect to Milter service inet:localhost:8891: Connection refused</span>
-<span class="gp"># </span>DKIM<span class="w"> </span>not<span class="w"> </span><span class="nv">running</span>
-<span class="gp"># </span><span class="o">=</span>&gt;<span class="w"> </span>/etc/init.d/opendkim<span class="w"> </span>restart
-
-<span class="go">mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can&#39;t connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory</span>
-<span class="go">mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)</span>
-<span class="go">mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.</span>
-<span class="go">mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED</span>
-<span class="gp"># </span>Clamav<span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>running<span class="w"> </span><span class="o">(</span>not<span class="w"> </span>started<span class="w"> </span>or<span class="w"> </span>because<span class="w"> </span>you<span class="w"> </span>don<span class="err">&#39;</span>t<span class="w"> </span>have<span class="w"> </span>enough<span class="w"> </span>memory<span class="o">)</span>
-<span class="gp"># </span><span class="o">=</span>&gt;<span class="w"> </span>check<span class="w"> </span>requirements<span class="w"> </span>and/or<span class="w"> </span>start<span class="w"> </span>Clamav
+<h4 id="creating-an-alias-or-account-with-an-address-for-hostname"><a class="toclink" href="#creating-an-alias-or-account-with-an-address-for-hostname">Creating an alias or account with an address for <code>hostname</code></a></h4>
+<p>Normally you will assign DMS a <code>hostname</code> such as <code>mail.example.com</code>. If you instead use a bare domain (<em>such as <code>example.com</code></em>) or add an alias / account with the same value as your <code>hostname</code>, this can cause a conflict for mail addressed to <code>@hostname</code> as Postfix gets confused where to deliver the mail (<em><code>hostname</code> is configured for only system accounts via the Postfix <code>main.cf</code> setting <code>mydestination</code></em>).</p>
+<p>When this conflict is detected you'll find logs similar to this:</p>
+<div class="highlight"><pre><span></span><code><span class="go">warning: do not list domain mail.example.com in BOTH mydestination and virtual_mailbox_domains</span>
+<span class="go">...</span>
+<span class="go">NOQUEUE: reject: RCPT from HOST[IP]: 550 5.1.1 &lt;RECIPIENT&gt;: Recipient address rejected: User unknown in local recipient table; ...</span>
 </code></pre></div>
+<p>Opt-out of mail being directed to services by excluding <code>$myhostname</code> as a destination with a <a href="../config/advanced/override-defaults/postfix/"><code>postfix-main.cf</code></a> override config:</p>
+<div class="highlight"><pre><span></span><code><span class="na">mydestination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">localhost.$mydomain, localhost</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You may want to configure a <code>postmaster</code> alias via <code>setup alias add</code> to receive system notifications.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Internal mail destined for <code>root</code>, <code>amavis</code> or other accounts will now no longer be received without an alias or account created for them.</p>
+</div>
 <h3 id="how-to-use-dms-behind-a-proxy"><a class="toclink" href="#how-to-use-dms-behind-a-proxy">How to use DMS behind a proxy</a></h3>
 <p><a href="../config/advanced/override-defaults/user-patches/">Using <code>user-patches.sh</code></a>, update the container file <code>/etc/postfix/main.cf</code> to include:</p>
 <div class="highlight"><pre><span></span><code><span class="na">proxy_interfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">X.X.X.X (your public IP)</span>
