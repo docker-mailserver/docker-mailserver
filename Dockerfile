@@ -1,17 +1,17 @@
 # syntax=docker.io/docker/dockerfile:1
 
-# This Dockerfile provides two stages: stage-base and stage-final
+# This Dockerfile provides three stages: stage-dep, stage-base and stage-final
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
-
-#
-# Base stage provides all packages, config, and adds scripts
-#
-
-FROM docker.io/debian:11-slim AS stage-base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
+
+FROM docker.io/debian:11-slim AS stage-compile
+
+ARG DEBIAN_FRONTEND
+ARG DOVECOT_COMMUNITY_REPO
+ARG LOG_LEVEL
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
@@ -25,10 +25,51 @@ RUN <<EOF
   adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
 EOF
 
-COPY target/scripts/build/* /build/
+COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh
+
+# -----------------------------------------------
+# --- Compile deb packages ----------------------
+# -----------------------------------------------
+
+COPY target/scripts/build/compile.sh /build/
+RUN /bin/bash /build/compile.sh
+
+#
+# Base stage provides all packages, config, and adds scripts
+#
+
+FROM docker.io/debian:11-slim AS stage-base
+
+ARG DEBIAN_FRONTEND
+ARG DOVECOT_COMMUNITY_REPO
+ARG LOG_LEVEL
+
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
+# -----------------------------------------------
+# --- Install Basic Software --------------------
+# -----------------------------------------------
+
+COPY target/bin/sedfile /usr/local/bin/sedfile
+RUN <<EOF
+  chmod +x /usr/local/bin/sedfile
+  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
+EOF
+
+COPY target/scripts/build/packages.sh /build/
+COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
+
+RUN /bin/bash /build/packages.sh
+
+# -----------------------------------------------
+# --- Install xapian Software -------------------
+# -----------------------------------------------
+
+COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_amd64.deb /
+RUN apt install libxapian30 && dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_amd64.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_amd64.deb
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
