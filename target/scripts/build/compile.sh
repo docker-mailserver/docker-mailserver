@@ -28,8 +28,6 @@ function _compile_dovecot_fts_xapian() {
   sed -i 's/1\.4\.11-6/1.5.5/g' debian/changelog
 
   debuild -us -uc -B | tee /tmp/debuild.log 2>&1
-  pwd
-  ls
 }
 
 _compile_dovecot_fts_xapian
