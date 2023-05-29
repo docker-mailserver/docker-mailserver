@@ -16,9 +16,6 @@ function _compile_dovecot_fts_xapian() {
   curl -Lso dovecot-fts-xapian.tar.gz https://github.com/grosjo/fts-xapian/releases/download/1.5.5/dovecot-fts-xapian-1.5.5.tar.gz
   tar xzvf dovecot-fts-xapian.tar.gz
   cd fts-xapian-1.5.5
-  autoreconf -vi
-  ./configure --with-dovecot=/usr/lib/dovecot
-  make
   USER=root dh_make -p dovecot-fts-xapian-1.5.5 --single --native --copyright gpl2 -y
   rm debian/*.ex debian/*.EX
   cp PACKAGES/DEB/control debian/
