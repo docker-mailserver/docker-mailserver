@@ -52,6 +52,17 @@ We will later dig into DKIM, DMARC & SPF, but for now, these are the records tha
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
 - The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
 
+!!! note "About The Mail Server's Fully Qualified Domain Name"
+
+    The mail server's fully qualified domain name (FQDN) in our example above is `mail.example.com`. Please note though that this is more of a convention, and not due to technical restrictions. One could also run the mail server
+
+    1. on `foo.example.com`: you would just need to change your `MX` record;
+    2. on `example.com` directly: you would need to change your `MX` record and probably [read our docs on bare domain setups][docs-faq-bare-domain], as these setups are called "bare domain" setups.
+
+    The FQDN is what is relevant for TLS certificates, it has no (inherent/technical) relation to the email addresses and accounts DMS manages. That is to say: even though DMS runs on `mail.example.com`, or `foo.example.com`, or `example.com`, there is nothing that prevents it from managing mail for `barbaz.org` - `barbaz.org` will just need to set its `MX` record to `mail.example.com` (or `foo.example.com` or `example.com`).
+
+    [docs-faq-bare-domain]: ./faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
+
 If you setup everything, it should roughly look like this:
 
 ```console

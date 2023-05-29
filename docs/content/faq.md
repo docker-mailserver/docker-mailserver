@@ -176,7 +176,6 @@ Also you need to define `hostname: example.com` in your `compose.yaml`.
     - There are [benefits][github-comment-baredomain] to preferring a subdomain.
     - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
 
-
 ### How can I configure a catch-all?
 
 Considering you want to redirect all incoming e-mails for the domain `example.com` to `user1@example.com`, add the following line to `docker-data/dms/config/postfix-virtual.cf`:
@@ -250,22 +249,31 @@ See [#1247][github-issue-1247] for an example.
 
 ### Common Errors
 
+#### Creating an alias or account with an address for `hostname`
+
+Normally you will assign DMS a `hostname` such as `mail.example.com`. If you instead use a bare domain (_such as `example.com`_) or add an alias / account with the same value as your `hostname`, this can cause a conflict for mail addressed to `@hostname` as Postfix gets confused where to deliver the mail (_`hostname` is configured for only system accounts via the Postfix `main.cf` setting `mydestination`_).
+
+When this conflict is detected you'll find logs similar to this:
+
 ```log
-warning: connect to Milter service inet:localhost:8893: Connection refused
-# DMARC not running
-# => /etc/init.d/opendmarc restart
-
-warning: connect to Milter service inet:localhost:8891: Connection refused
-# DKIM not running
-# => /etc/init.d/opendkim restart
-
-mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can't connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory
-mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)
-mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.
-mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
-# Clamav is not running (not started or because you don't have enough memory)
-# => check requirements and/or start Clamav
+warning: do not list domain mail.example.com in BOTH mydestination and virtual_mailbox_domains
+...
+NOQUEUE: reject: RCPT from HOST[IP]: 550 5.1.1 <RECIPIENT>: Recipient address rejected: User unknown in local recipient table; ...
 ```
+
+Opt-out of mail being directed to services by excluding `$myhostname` as a destination with a [`postfix-main.cf`][docs-override-postfix] override config:
+
+```cf
+mydestination = localhost.$mydomain, localhost
+```
+
+!!! tip
+
+    You may want to configure a `postmaster` alias via `setup alias add` to receive system notifications.
+
+!!! warning
+
+    Internal mail destined for `root`, `amavis` or other accounts will now no longer be received without an alias or account created for them.
 
 ### How to use DMS behind a proxy
 
@@ -521,6 +529,7 @@ $spam_quarantine_to       = "amavis\@example.com";
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
+[docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
 [github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425

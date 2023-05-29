@@ -1,6 +1,7 @@
 #!/bin/bash
 
-shopt -s globstar
+set -o pipefail
+shopt -s globstar inherit_errexit
 
 # ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks
