@@ -59,8 +59,8 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # --- Install xapian Software -------------------
 # -----------------------------------------------
 
-COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_amd64.deb /
-RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_amd64.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_amd64.deb
+COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
+RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
