@@ -41,8 +41,8 @@ RUN /bin/bash /build/packages.sh && rm -r /build
 COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 RUN <<EOF
-  # `COPY --link --chown=200` has a bug that affects image pulls. Restore ownership of parent dirs:
-  # https://github.com/moby/buildkit/issues/3912
+  # `COPY --link --chown=200` has a bug when built by the buildx docker-container driver.
+  # Restore ownership of parent dirs (Bug: https://github.com/moby/buildkit/issues/3912)
   chown root:root /var /var/lib
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
