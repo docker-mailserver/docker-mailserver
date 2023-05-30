@@ -82,7 +82,7 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
-# install ftp_xapian plugin
+# install fts_xapian plugin
 
 COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
 RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
