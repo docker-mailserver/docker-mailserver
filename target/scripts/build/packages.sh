@@ -94,7 +94,7 @@ function _install_dovecot() {
   declare -a DOVECOT_PACKAGES
 
   DOVECOT_PACKAGES=(
-    dovecot-core dovecot-imapd dovecot-dev
+    dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
   )
