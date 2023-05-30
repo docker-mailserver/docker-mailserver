@@ -38,6 +38,7 @@ RUN /bin/bash /build/packages.sh && rm -r /build
 
 FROM stage-base AS stage-compile
 
+ARG LOG_LEVEL
 ARG DEBIAN_FRONTEND
 
 COPY target/scripts/build/compile.sh /build/
@@ -50,17 +51,10 @@ RUN /bin/bash /build/compile.sh
 FROM stage-base AS stage-main
 
 ARG DEBIAN_FRONTEND
-ARG DOVECOT_COMMUNITY_REPO
 ARG LOG_LEVEL
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
-# -----------------------------------------------
-# --- Install xapian Software -------------------
-# -----------------------------------------------
-
-COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
-RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -87,6 +81,11 @@ EOF
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
+
+# install ftp_xapian plugin
+
+COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
+RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled

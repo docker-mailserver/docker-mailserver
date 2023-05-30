@@ -111,6 +111,9 @@ function _install_dovecot() {
 
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
+
+  # dependency for fts_xapian
+  apt-get "${QUIET}" --no-install-recommends install libxapian30
 }
 
 function _install_rspamd() {
@@ -191,10 +194,6 @@ function _install_getmail() {
   apt-get "${QUIET}" autoremove
 }
 
-function _install_dovecot_fts_xapian_dependency() {
-  apt-get "${QUIET}" --no-install-recommends install libxapian30
-}
-
 function _remove_data_after_package_installations() {
   _log 'debug' 'Deleting sensitive files (secrets)'
   rm /etc/postsrsd.secret
@@ -218,6 +217,5 @@ _install_dovecot
 _install_rspamd
 _install_fail2ban
 _install_getmail
-_install_dovecot_fts_xapian_dependency
 _remove_data_after_package_installations
 _post_installation_steps
