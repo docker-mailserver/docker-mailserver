@@ -19,41 +19,12 @@ body:
         - label: I searched the issue tracker but was unable to find my issue.
           required: true
         - label: |
-            I have read:
+            I have read:  
               - The [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue;
               - The [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue;
               - This project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree;
               - The [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
           required: true
-  - type: input
-    id: operating-system
-    attributes:
-      label: 💻 Operating System and Architecture
-      description: |
-        Which OS is your docker host running on?
-        **NOTE:** Windows and macOS have limited support.
-      placeholder: Debian 11 (Bullseye) x86_64, Fedora 38 ARM64
-    validations:
-      required: true
-  - type: dropdown
-    id: container-orchestrator
-    attributes:
-      label: What container orchestration tool are you using?
-      options:
-        - Docker
-        - Docker Compose
-        - Podman (not officially supported)
-        - Kubernetes (not officially supported)
-    validations:
-      required: true
-  - type: input
-    id: mailserver-version
-    attributes:
-      label: 🐋 DMS Version
-      description: On which version (image tag) did you encounter this bug?
-      placeholder: v12.1.0
-    validations:
-      required: true
   - type: textarea
     id: what-happened
     attributes:
@@ -70,10 +41,28 @@ body:
         How did you trigger this bug? Please walk us through it step by step.
         Please use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
       placeholder: The easier it is for us to reproduce your issue, the sooner we can help resolve it 😉
+  - type: input
+    id: mailserver-version
+    attributes:
+      label: 🐋 DMS Version
+      description: On which version (image tag) did you encounter this bug?
+      placeholder: v12.1.0
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: 💻 Operating System and Architecture
+      description: |
+        Which OS is your docker host running on?
+        **NOTE:** Windows and macOS have limited support.
+      placeholder: Debian 11 (Bullseye) x86_64, Fedora 38 ARM64
+    validations:
+      required: true
   - type: textarea
     id: container-configuration-files
     attributes:
-      label: Container configuration files
+      label: ⚙️ Container configuration files
       description: |
         Show us the file that you use to run DMS (and possibly other related services).
         - This field is formatted as YAML.
@@ -83,7 +72,7 @@ body:
   - type: textarea
     id: relevant-log-output
     attributes:
-      label: Relevant log output
+      label: 📜 Relevant log output
       description: |
         Show us relevant log output here.
         - This field expects only plain text (_rendered as a fenced code block_).
