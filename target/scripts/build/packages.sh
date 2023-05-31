@@ -113,7 +113,7 @@ function _install_dovecot() {
   apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
 
   # dependency for fts_xapian
-  apt-get "${QUIET}" --no-install-recommends install libxapian30 dovecot-dev
+  apt-get "${QUIET}" --no-install-recommends install libxapian30
 }
 
 function _install_rspamd() {

@@ -12,7 +12,7 @@ _log_level_is 'trace' && QUIET='-y' || QUIET='-qq'
 
 function _compile_dovecot_fts_xapian() {
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" --no-install-recommends install automake libtool pkg-config libicu-dev libsqlite3-dev libxapian-dev make build-essential dh-make devscripts
+  apt-get "${QUIET}" --no-install-recommends install automake libtool pkg-config libicu-dev libsqlite3-dev libxapian-dev make build-essential dh-make devscripts dovecot-dev
   curl -Lso dovecot-fts-xapian.tar.gz https://github.com/grosjo/fts-xapian/releases/download/1.5.5/dovecot-fts-xapian-1.5.5.tar.gz
   tar xzvf dovecot-fts-xapian.tar.gz
   cd fts-xapian-1.5.5
