@@ -1,17 +1,17 @@
 # syntax=docker.io/docker/dockerfile:1
 
-# This Dockerfile provides two stages: stage-base and stage-final
+# This Dockerfile provides four stages: stage-base, stage-compile, stage-main and stage-final
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
-
-#
-# Base stage provides all packages, config, and adds scripts
-#
-
-FROM docker.io/debian:11-slim AS stage-base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
+
+FROM docker.io/debian:11-slim AS stage-base
+
+ARG DEBIAN_FRONTEND
+ARG DOVECOT_COMMUNITY_REPO
+ARG LOG_LEVEL
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
@@ -25,10 +25,36 @@ RUN <<EOF
   adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
 EOF
 
-COPY target/scripts/build/* /build/
+COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh && rm -r /build
+
+
+
+# -----------------------------------------------
+# --- Compile deb packages ----------------------
+# -----------------------------------------------
+
+FROM stage-base AS stage-compile
+
+ARG LOG_LEVEL
+ARG DEBIAN_FRONTEND
+
+COPY target/scripts/build/compile.sh /build/
+RUN /bin/bash /build/compile.sh
+
+#
+# main stage provides all packages, config, and adds scripts
+#
+
+FROM stage-base AS stage-main
+
+ARG DEBIAN_FRONTEND
+ARG LOG_LEVEL
+
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -55,6 +81,11 @@ EOF
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
+
+# install fts_xapian plugin
+
+COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
+RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
@@ -265,7 +296,7 @@ COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
 # Final stage focuses only on image config
 #
 
-FROM stage-base AS stage-final
+FROM stage-main AS stage-final
 ARG VCS_REVISION=unknown
 ARG VCS_VERSION=edge
 
