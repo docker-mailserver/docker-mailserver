@@ -1,5 +1,5 @@
 name: Bug Report
-description: File a bug report
+description: Submit a bug report to help us improve
 title: 'bug report: '
 labels:
   - kind/bug/report
@@ -9,7 +9,7 @@ body:
   - type: checkboxes
     id: preliminary-checks
     attributes:
-      label: Preliminary Checks
+      label: 📝 Preliminary Checks
       description: Please read these carefully.
       options:
         - label: I checked that all ports are open and not blocked by my ISP / hosting provider.
@@ -19,111 +19,65 @@ body:
         - label: I searched the issue tracker but was unable to find my issue.
           required: true
         - label: |
-            I read
-
-              - the [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue;
-              - the [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue;
-              - this project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree;
-              - the [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
+            I have read:  
+              - The [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue;
+              - The [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue;
+              - This project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree;
+              - The [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
           required: true
-  - type: dropdown
-    id: operating-system
+  - type: textarea
+    id: what-happened
     attributes:
-      label: What operating system is the host running?
-      options:
-        - Linux
-        - macOS (not officially supported)
-        - Windows (unsupported)
-        - Other (unsupported)
+      label: 👀 What Happened?
+      description: How did this differ from your expectations?
+      placeholder: Although `LOG_LEVEL=debug` is set, the logs are missing debug output.
     validations:
       required: true
-  - type: input
-    id: operating-system-version
+  - type: textarea
+    id: steps-to-reproduce
     attributes:
-      label: Which operating system version?
-      placeholder: Debian 11 (Bullseye)
-    validations:
-      required: true
-  - type: dropdown
-    id: isa
-    attributes:
-      label: What computer architecture is the host running?
-      options:
-        - AMD64 (x86_64)
-        - ARM64 (AArch64)
-        - Other (unsupported)
-    validations:
-      required: true
-  - type: dropdown
-    id: container-orchestrator
-    attributes:
-      label: What container orchestration tool are you using?
-      options:
-        - Docker
-        - Docker Compose
-        - Podman (not officially supported)
-        - Kubernetes (not officially supported)
-        - Other (unsupported)
-    validations:
-      required: true
+      label: 👟 Reproduction Steps
+      description: |
+        How did you trigger this bug? Please walk us through it step by step.
+        Please use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
+      placeholder: The easier it is for us to reproduce your issue, the sooner we can help resolve it 😉
   - type: input
     id: mailserver-version
     attributes:
-      label: DMS version
+      label: 🐋 DMS Version
       description: On which version (image tag) did you encounter this bug?
       placeholder: v12.1.0
     validations:
       required: true
-  - type: textarea
-    id: when-does-it-occur
+  - type: input
+    id: operating-system
     attributes:
-      label: What happened and when does this occur?
-      description: >
-        Tell us what happened.
-        **It would also help immensely if you can share precise steps on how to reproduce the issue!** :heart:
-        Use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
-      placeholder: Although `LOG_LEVEL=debug` is set, I see no debug output.
-    validations:
-      required: true
-  - type: textarea
-    id: what-did-you-expect-to-happen
-    attributes:
-      label: What did you expect to happen?
-      description: Tell us what you expected.
-      placeholder: I expected to see debug messages.
+      label: 💻 Operating System and Architecture
+      description: |
+        Which OS is your docker host running on?
+        **NOTE:** Windows and macOS have limited support.
+      placeholder: Debian 11 (Bullseye) x86_64, Fedora 38 ARM64
     validations:
       required: true
   - type: textarea
     id: container-configuration-files
     attributes:
-      label: Container configuration files
-      description: >
+      label: ⚙️ Container configuration files
+      description: |
         Show us the file that you use to run DMS (and possibly other related services).
-        This is most likely your `compose.yaml` file, but you can also show us your equivalent `docker run` command, if applicable. If you are using Kubernetes, you can also put your manifest files here.
-        This filed is formatted as YAML.
+        - This field is formatted as YAML.
+        - This is most likely your `compose.yaml` file, but you can also show us your equivalent `docker run` command, if applicable.
+        - If you are using Kubernetes, you can also put your manifest files here.
       render: yml
   - type: textarea
     id: relevant-log-output
     attributes:
-      label: Relevant log output
-      description: Show us relevant log output here. You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`. This field's contents are interpreted as pure text.
+      label: 📜 Relevant log output
+      description: |
+        Show us relevant log output here.
+        - This field expects only plain text (_rendered as a fenced code block_).
+        - You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`.
       render: Text
-  - type: checkboxes
-    id: experience
-    attributes:
-      label: What level of experience do you have with containers, mail servers, and using a terminal?
-      description: >
-        **You are not obliged to answer this question**.
-        We do encourage answering though as it provides context to better assist you.
-        Less experienced users tend to make common mistakes, which is ok; by letting us know we can spot those more easily. If you are experienced, we can skip basic questions and save time.
-
-      options:
-        - label: I am inexperienced with containers
-        - label: I am rather experienced with containers
-        - label: I am inexperienced with mail servers
-        - label: I am rather experienced with mail servers
-        - label: I am uncomfortable with using a terminal (CLI)
-        - label: I am rather comfortable with using a terminal (CLI)
   - type: input
     id: form-improvements
     attributes:
