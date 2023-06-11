@@ -47,6 +47,7 @@ function _register_functions() {
     _register_setup_function '_setup_dovecot_sieve'
     _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
+    _register_setup_function '_setup_spam_to_junk'
   fi
 
   case "${ACCOUNT_PROVISIONER}" in
@@ -80,7 +81,6 @@ function _register_functions() {
   _register_setup_function '_setup_policyd_spf'
 
   _register_setup_function '_setup_security_stack'
-  _register_setup_function '_setup_spam_to_junk'
   _register_setup_function '_setup_rspamd'
 
   _register_setup_function '_setup_ssl'
@@ -95,7 +95,7 @@ function _register_functions() {
   # needs to come after _setup_postfix_early
   _register_setup_function '_setup_spoof_protection'
 
-_register_setup_function '_setup_getmail'
+  _register_setup_function '_setup_getmail'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]; then
     _register_setup_function '_setup_SRS'
