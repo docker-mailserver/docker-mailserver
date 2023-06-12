@@ -23,7 +23,7 @@ jobs:
 
       - name: 'Prepare tags'
         id: prep
-        uses: docker/metadata-action@v4.4.0
+        uses: docker/metadata-action@v4.5.0
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
