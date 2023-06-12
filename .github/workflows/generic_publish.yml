@@ -72,7 +72,7 @@ jobs:
         run: echo "version=$(<VERSION)" >>"${GITHUB_OUTPUT}"
 
       - name: 'Build and publish images'
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v4.1.0
         with:
           context: .
           build-args: |
