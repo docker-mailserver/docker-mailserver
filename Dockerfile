@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
 
-FROM docker.io/debian:11-slim AS stage-base
+FROM docker.io/debian:12-slim AS stage-base
 
 ARG DEBIAN_FRONTEND
 ARG DOVECOT_COMMUNITY_REPO
