@@ -103,7 +103,7 @@ function _install_dovecot() {
     _log 'trace' 'Using Dovecot community repository'
     curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
-    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/bullseye bullseye main" > /etc/apt/sources.list.d/dovecot.list
+    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/bookworm bookworm main" > /etc/apt/sources.list.d/dovecot.list
 
     _log 'trace' 'Updating Dovecot package signatures'
     apt-get "${QUIET}" update
@@ -121,19 +121,15 @@ function _install_rspamd() {
   local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
   local RSPAMD_PACKAGE_NAME
 
-  # We try getting the most recent version of Rspamd for aarch64 (from an official source, which
-  # is the backports repository). The version for aarch64 is 3.2; the most recent version for amd64
-  # that we get with the official PPA is 3.4.
-  #
-  # Not removing it later is fine as you have to explicitly opt into installing a backports package
-  # which is not something you could be doing by accident.
+  # The Debian version for aarch64 is 3.4; the most recent version for amd64
+  # that we get with the official PPA is 3.5.
   if [[ $(uname --machine) == 'aarch64' ]]; then
-    echo '# Official Rspamd PPA does not support aarch64, so we use the Bullseye backports' >"${DEB_FILE}"
-    echo 'deb [arch=arm64] http://deb.debian.org/debian bullseye-backports main' >>"${DEB_FILE}"
-    RSPAMD_PACKAGE_NAME='rspamd/bullseye-backports'
+    echo '# Official Rspamd PPA does not support aarch64, so we use the Debian package' >"${DEB_FILE}"
+    echo 'deb [arch=arm64] http://deb.debian.org/debian bookworm main' >>"${DEB_FILE}"
+    RSPAMD_PACKAGE_NAME='rspamd/bookworm'
   else
     curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-    local URL='[arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
+    local URL='[arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bookworm main'
     echo "deb ${URL}" >"${DEB_FILE}"
     echo "deb-src ${URL}" >>"${DEB_FILE}"
     RSPAMD_PACKAGE_NAME='rspamd'
