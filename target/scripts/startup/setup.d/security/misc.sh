@@ -252,6 +252,7 @@ function __setup__security__amavis() {
 function _setup_spam_to_junk() {
   if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]; then
     _log 'debug' 'Spam emails will be moved to the Junk folder'
+    mkdir -p /usr/lib/dovecot/sieve-global/after/
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
 require ["fileinto","mailbox"];
 
