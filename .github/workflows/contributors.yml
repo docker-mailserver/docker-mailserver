@@ -49,7 +49,7 @@ jobs:
 
       # See https://github.com/marketplace/actions/create-pull-request for reference of the action.
       - name: 'Create Pull Request'
-        uses: peter-evans/create-pull-request@v5.0.1
+        uses: peter-evans/create-pull-request@v5.0.2
         id: create-pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
