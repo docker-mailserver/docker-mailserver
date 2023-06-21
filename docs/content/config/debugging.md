@@ -57,23 +57,20 @@ This could be from outdated software updates, or running a system that isn't abl
 - **`userland-proxy`:** Prior to Docker `v23`, [changing the `userland-proxy` setting did not reliably remove NAT rules][network::docker-userlandproxy].
 - **UFW / firewalld:** Some users expect only their firewall frontend to manage the firewall rules, but these will be bypassed when Docker publishes a container port as there is no integration between the two.
 - **`iptables` / `nftables`:**
-
-  - Docker [only manages the NAT rules via `iptables`][network::docker-nftables], relying on compatibility shims for supporting the successor `nftables`. Internally DMS expects `nftables` support on the host kernel for services like Fail2Ban to function correctly.
-  - [Kernels older than 5.2 may affect management of NAT rules via `nftables`][network::kernel-nftables]. Other software outside of DMS may also manipulate these rules, such as firewall frontends.
+    - Docker [only manages the NAT rules via `iptables`][network::docker-nftables], relying on compatibility shims for supporting the successor `nftables`. Internally DMS expects `nftables` support on the host kernel for services like Fail2Ban to function correctly.
+    - [Kernels older than 5.2 may affect management of NAT rules via `nftables`][network::kernel-nftables]. Other software outside of DMS may also manipulate these rules, such as firewall frontends.
 - **IPv6:**
-
-  - Requires [additional configuration][docs-ipv6] to prevent or properly support IPv6 connections (eg: Preservering the Client IP).
-  - Support in 2023 is still considered experimental. You are advised to use at least Docker Engine `v23` (2023Q1).
-  - Various networking bug fixes have been addressed since the intitial IPv6 support arrived in Docker Engine `v20.10.0` (2020Q4).
+    - Requires [additional configuration][docs-ipv6] to prevent or properly support IPv6 connections (eg: Preservering the Client IP).
+    - Support in 2023 is still considered experimental. You are advised to use at least Docker Engine `v23` (2023Q1).
+    - Various networking bug fixes have been addressed since the intitial IPv6 support arrived in Docker Engine `v20.10.0` (2020Q4).
 
 ### System
 
 - **Kernel:** Some systems provide [kernels with modifications (_replacing defaults and backporting patches_)][network::kernels-modified] to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.
 - **CGroups v2:** Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 `unified` hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed. 
 - **Rootless containers** have additional constraints that vary by container runtime (_Docker, Podman, etc - which already have subtle differences_).
-
-  - This can introduce differences such as for container networking which may further impact support for IPv6 and preserving the client IP (Remote address).
-  - cgroup v2 is required for supporting rootless containers.
+    - This can introduce differences such as for container networking which may further impact support for IPv6 and preserving the client IP (Remote address).
+    - cgroup v2 is required for supporting rootless containers.
 	
 [network::docker-userlandproxy]: https://github.com/moby/moby/issues/44721
 [network::docker-nftables]: https://github.com/moby/moby/issues/26824
