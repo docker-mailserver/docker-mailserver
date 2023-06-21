@@ -43,7 +43,8 @@ To install additional software:
 
 1. `apt-get update` to update repository metadata.
 2. `apt-get install <PACKAGE>`
-3. For example a text editor you can use in the terminal: `apt-get install nano`
+
+For example a text editor you can use in the terminal: `apt-get install nano`
 
 ## Compatibility
 
