@@ -1,9 +1,7 @@
 #!/bin/bash
 
-function _exit_with_error
-{
-  if [[ -n ${1+set} ]]
-  then
+function _exit_with_error() {
+  if [[ -n ${1+set} ]]; then
     _log 'error' "${1}"
   else
     _log 'error' "Call to '_exit_with_error' is missing a message to log"
@@ -20,12 +18,10 @@ function _exit_with_error
 # PANIC_TYPE => (Internal value for matching). You should use the convenience methods below based on your panic type.
 # PANIC_INFO => Provide your own message string to insert into the error message for that PANIC_TYPE.
 # PANIC_SCOPE => Optionally provide a string for debugging to better identify/locate the source of the panic.
-function dms_panic
-{
+function dms_panic() {
   local PANIC_TYPE=${1:-}
   local PANIC_INFO=${2:-}
-  local PANIC_SCOPE=${3-} # optional, must not be :- but just -
-  local PANIC_STRATEGY=${4:-} # optional
+  local PANIC_SCOPE=${3:-}
 
   local SHUTDOWN_MESSAGE
 
@@ -59,11 +55,10 @@ function dms_panic
       ;;
   esac
 
-  if [[ -n ${PANIC_SCOPE:-} ]]
-  then
-    _shutdown "${PANIC_SCOPE} | ${SHUTDOWN_MESSAGE}" "${PANIC_STRATEGY}"
+  if [[ -n ${PANIC_SCOPE:-} ]]; then
+    _shutdown "${PANIC_SCOPE} | ${SHUTDOWN_MESSAGE}"
   else
-    _shutdown "${SHUTDOWN_MESSAGE}" "${PANIC_STRATEGY}"
+    _shutdown "${SHUTDOWN_MESSAGE}"
   fi
 }
 
@@ -77,22 +72,34 @@ function _dms_panic__general       { dms_panic 'general'       "${1:-}" "${2:-}"
 
 # Call this method when you want to panic (i.e. emit an 'ERROR' log, and exit uncleanly).
 # `dms_panic` methods should be preferred if your failure type is supported.
-function _shutdown
-{
+trap "exit 1" SIGUSR1
+SCRIPT_PID=${$}
+function _shutdown() {
   _log 'error' "${1:-_shutdown called without message}"
   _log 'error' 'Shutting down'
 
   sleep 1
-  kill 1
+  kill -SIGTERM 1               # Trigger graceful DMS shutdown.
+  kill -SIGUSR1 "${SCRIPT_PID}" # Stop start-mailserver.sh execution, even when _shutdown() is called from a subshell.
+}
 
-  if [[ ${2:-wait} == 'immediate' ]]
-  then
-    # In case the user requested an immediate exit, he ensure he is not in a subshell
-    # call and exiting the whole script is safe. This way, we make the shutdown quicker.
-    exit 1
-  else
-    # We can simply wait until Supervisord has terminated all processes; this way,
-    # we do not return from a subshell call and continue as if nothing happened.
-    sleep 1000
-  fi
+# Calling this function sets up a handler for the `ERR` signal, that occurs when
+# an error is not properly checked (e.g., in an `if`-clause or in an `&&` block).
+#
+# This is mostly useful for debugging. It also helps when using something like `set -eE`,
+# as it shows where the script aborts.
+function _trap_err_signal() {
+  trap '__log_unexpected_error "${FUNCNAME[0]:-}" "${BASH_COMMAND:-}" "${LINENO:-}" "${?:-}"' ERR
+
+  # shellcheck disable=SC2317
+  function __log_unexpected_error() {
+    local MESSAGE="Unexpected error occured :: script = ${SCRIPT:-${0}} "
+    MESSAGE+=" | function = ${1:-none (global)}"
+    MESSAGE+=" | command = ${2:-?}"
+    MESSAGE+=" | line = ${3:-?}"
+    MESSAGE+=" | exit code = ${4:-?}"
+
+    _log 'error' "${MESSAGE}"
+    return 0
+  }
 }

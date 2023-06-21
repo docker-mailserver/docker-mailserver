@@ -3,12 +3,16 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
+if [[ -f /etc/dms-settings ]] && [[ $(_get_dms_env_value 'ENABLE_RSPAMD') -eq 1 ]]; then
+  /usr/local/bin/rspamd-dkim "${@}"
+  exit
+fi
+
 KEYSIZE=4096
 SELECTOR=mail
 DOMAINS=
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}OPEN-DKIM${RED}(${YELLOW}8${RED})
 
 ${ORANGE}NAME${RESET}
@@ -53,12 +57,10 @@ ${ORANGE}EXIT STATUS${RESET}
 
 _require_n_parameters_or_print_usage 0 "${@}"
 
-while [[ ${#} -gt 0 ]]
-do
+while [[ ${#} -gt 0 ]]; do
   case "${1}" in
     ( 'keysize' )
-      if [[ -n ${2+set} ]]
-      then
+      if [[ -n ${2+set} ]]; then
         KEYSIZE="${2}"
         shift
         shift
@@ -68,8 +70,7 @@ do
       ;;
 
     ( 'selector' )
-      if [[ -n ${2+set} ]]
-      then
+      if [[ -n ${2+set} ]]; then
         # shellcheck disable=SC2034
         SELECTOR="${2}"
         shift
@@ -80,8 +81,7 @@ do
       ;;
 
     ( 'domain' )
-      if [[ -n ${2+set} ]]
-      then
+      if [[ -n ${2+set} ]]; then
         DOMAINS="${2}"
         shift
         shift
@@ -100,14 +100,12 @@ done
 
 DATABASE_VHOST='/tmp/vhost.dkim'
 # Prepare a file with one domain per line:
-function _generate_domains_config
-{
+function _generate_domains_config() {
   local TMP_VHOST='/tmp/vhost.dkim.tmp'
 
   # Generate the default vhost (equivalent to /etc/postfix/vhost),
   # unless CLI arg DOMAINS provided an alternative list to use instead:
-  if [[ -z ${DOMAINS} ]]
-  then
+  if [[ -z ${DOMAINS} ]]; then
     _obtain_hostname_and_domainname
     # uses TMP_VHOST:
     _vhost_collect_postfix_domains
@@ -120,18 +118,15 @@ function _generate_domains_config
 }
 
 _generate_domains_config
-if [[ ! -s ${DATABASE_VHOST} ]]
-then
+if [[ ! -s ${DATABASE_VHOST} ]]; then
   _log 'warn' 'No entries found, no keys to make'
   exit 0
 fi
 
-while read -r DKIM_DOMAIN
-do
+while read -r DKIM_DOMAIN; do
   mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
 
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]
-  then
+  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]; then
     _log 'info' "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private'"
 
     opendkim-genkey \
@@ -144,34 +139,29 @@ do
 
   # write to KeyTable if necessary
   KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]
-  then
+  if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]; then
     _log 'debug' 'Creating DKIM KeyTable'
     echo "${KEYTABLEENTRY}" >/tmp/docker-mailserver/opendkim/KeyTable
   else
-    if ! grep -q "${KEYTABLEENTRY}" "/tmp/docker-mailserver/opendkim/KeyTable"
-    then
+    if ! grep -q "${KEYTABLEENTRY}" "/tmp/docker-mailserver/opendkim/KeyTable"; then
       echo "${KEYTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/KeyTable
     fi
   fi
 
   # write to SigningTable if necessary
   SIGNINGTABLEENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
-  if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]
-  then
+  if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]; then
     _log 'debug' 'Creating DKIM SigningTable'
     echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" >/tmp/docker-mailserver/opendkim/SigningTable
   else
-    if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable
-    then
+    if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable; then
       echo "${SIGNINGTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/SigningTable
     fi
   fi
 done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
 
 # create TrustedHosts if missing
-if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]
-then
+if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]; then
   _log 'debug' 'Creating DKIM TrustedHosts'
   echo "127.0.0.1" >/tmp/docker-mailserver/opendkim/TrustedHosts
   echo "localhost" >>/tmp/docker-mailserver/opendkim/TrustedHosts

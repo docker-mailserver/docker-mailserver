@@ -1,17 +1,17 @@
 # syntax=docker.io/docker/dockerfile:1
 
-# This Dockerfile provides two stages: stage-base and stage-final
+# This Dockerfile provides four stages: stage-base, stage-compile, stage-main and stage-final
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
-
-#
-# Base stage provides all packages, config, and adds scripts
-#
-
-FROM docker.io/debian:11-slim AS stage-base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
+
+FROM docker.io/debian:11-slim AS stage-base
+
+ARG DEBIAN_FRONTEND
+ARG DOVECOT_COMMUNITY_REPO
+ARG LOG_LEVEL
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 
@@ -25,10 +25,36 @@ RUN <<EOF
   adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
 EOF
 
-COPY target/scripts/build/* /build/
+COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
-RUN /bin/bash /build/packages.sh
+RUN /bin/bash /build/packages.sh && rm -r /build
+
+
+
+# -----------------------------------------------
+# --- Compile deb packages ----------------------
+# -----------------------------------------------
+
+FROM stage-base AS stage-compile
+
+ARG LOG_LEVEL
+ARG DEBIAN_FRONTEND
+
+COPY target/scripts/build/compile.sh /build/
+RUN /bin/bash /build/compile.sh
+
+#
+# main stage provides all packages, config, and adds scripts
+#
+
+FROM stage-base AS stage-main
+
+ARG DEBIAN_FRONTEND
+ARG LOG_LEVEL
+
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -41,6 +67,9 @@ RUN /bin/bash /build/packages.sh
 COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
 
 RUN <<EOF
+  # `COPY --link --chown=200` has a bug when built by the buildx docker-container driver.
+  # Restore ownership of parent dirs (Bug: https://github.com/moby/buildkit/issues/3912)
+  chown root:root /var /var/lib
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf
@@ -52,6 +81,11 @@ EOF
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
+
+# install fts_xapian plugin
+
+COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
+RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
@@ -90,7 +124,7 @@ COPY \
 RUN <<EOF
   sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
-  mkdir -p /etc/spamassassin/kam/
+  mkdir /etc/spamassassin/kam/
   curl -sSfLo /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key
 EOF
 
@@ -123,6 +157,7 @@ RUN <<EOF
 EOF
 
 # overcomplication necessary for CI
+# hadolint ignore=SC2086
 RUN <<EOF
   for _ in {1..10}; do
     su - amavis -c "razor-admin -create"
@@ -144,7 +179,8 @@ EOF
 COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
 COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
-  ln -s /var/log/mail/mail.log /var/log/mail.log
+  ln -s  /var/log/mail/mail.log     /var/log/mail.log
+  ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
   # disable sshd jail
   rm /etc/fail2ban/jail.d/defaults-debian.conf
   mkdir /var/run/fail2ban
@@ -157,15 +193,16 @@ COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 
-# -----------------------------------------------
-# --- Fetchmail, Postfix & Let'sEncrypt ---------
-# -----------------------------------------------
+# --------------------------------------------------
+# --- Fetchmail, Getmail, Postfix & Let'sEncrypt ---
+# --------------------------------------------------
 
 # Remove invalid URL from SPF message
 # https://bugs.launchpad.net/spf-engine/+bug/1896912
 RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-policyd-spf-python/policyd-spf.conf
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
+COPY target/getmail/getmailrc /etc/getmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
@@ -192,7 +229,7 @@ EOF
 
 RUN <<EOF
   sedfile -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
-  mkdir -p /var/log/mail
+  mkdir /var/log/mail
   chown syslog:root /var/log/mail
   touch /var/log/mail/clamav.log
   chown -R clamav:root /var/log/mail/clamav.log
@@ -208,6 +245,7 @@ RUN <<EOF
   sedfile -i -r '/postrotate/,/endscript/d' /etc/logrotate.d/clamav-freshclam
   sedfile -i -r 's|/var/log/mail|/var/log/mail/mail|g' /etc/logrotate.d/rsyslog
   sedfile -i -r '/\/var\/log\/mail\/mail.log/d' /etc/logrotate.d/rsyslog
+  sedfile -i    's|^/var/log/fail2ban.log {$|/var/log/mail/fail2ban.log {|' /etc/logrotate.d/fail2ban
   # prevent syslog logrotate warnings
   sedfile -i -e 's/\(printerror "could not determine current runlevel"\)/#\1/' /usr/sbin/invoke-rc.d
   sedfile -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d
@@ -258,7 +296,7 @@ COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
 # Final stage focuses only on image config
 #
 
-FROM stage-base AS stage-final
+FROM stage-main AS stage-final
 ARG VCS_REVISION=unknown
 ARG VCS_VERSION=edge
 

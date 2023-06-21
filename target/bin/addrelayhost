@@ -3,8 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   _require_n_parameters_or_print_usage 2 "${@}"
 
   local DOMAIN="${1}"
@@ -15,8 +14,7 @@ function _main
   _add_relayhost
 }
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}addrelayhost${RED}(${YELLOW}8${RED})
 
 ${ORANGE}USAGE${RESET}
@@ -47,8 +45,7 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-function _validate_parameters
-{
+function _validate_parameters() {
   [[ -z ${DOMAIN} ]] && { __usage ; _exit_with_error 'No domain specified'     ; }
   [[ -z ${HOST}   ]] && { __usage ; _exit_with_error 'No relay host specified' ; }
   [[ -z ${PORT}   ]] && PORT=25
@@ -56,8 +53,7 @@ function _validate_parameters
 
 # Config is for sender dependent relay-host mapping,
 # current support restricts senders to domain scope (port is also enforced).
-function _add_relayhost
-{
+function _add_relayhost() {
   local SENDER="@${DOMAIN}"
   local RELAY_HOST_ENTRY="[${HOST}]:${PORT}"
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'

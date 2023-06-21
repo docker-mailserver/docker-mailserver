@@ -29,8 +29,7 @@ function _should_succesfully_negotiate_tls() {
   assert_success
 
   local PORTS=(25 587 465 143 993)
-  for PORT in "${PORTS[@]}"
-  do
+  for PORT in "${PORTS[@]}"; do
     _negotiate_tls "${FQDN}" "${PORT}"
   done
 }
@@ -71,14 +70,11 @@ function _generate_openssl_cmd() {
   local CMD_OPENSSL="timeout 1 openssl s_client -connect ${HOST}:${PORT}"
 
   # STARTTLS ports need to add a hint:
-  if [[ ${PORT} =~ ^(25|587)$ ]]
-  then
+  if [[ ${PORT} =~ ^(25|587)$ ]]; then
     CMD_OPENSSL="${CMD_OPENSSL} -starttls smtp"
-  elif [[ ${PORT} == 143 ]]
-  then
+  elif [[ ${PORT} == 143 ]]; then
     CMD_OPENSSL="${CMD_OPENSSL} -starttls imap"
-  elif [[ ${PORT} == 110 ]]
-  then
+  elif [[ ${PORT} == 110 ]]; then
     CMD_OPENSSL="${CMD_OPENSSL} -starttls pop3"
   fi
 

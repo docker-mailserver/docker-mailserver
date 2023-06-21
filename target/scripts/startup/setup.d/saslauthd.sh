@@ -1,12 +1,10 @@
 #!/bin/bash
 
 
-function _setup_saslauthd
-{
+function _setup_saslauthd() {
   _log 'debug' 'Setting up SASLAUTHD'
 
-  if [[ ! -f /etc/saslauthd.conf ]]
-  then
+  if [[ ! -f /etc/saslauthd.conf ]]; then
     _log 'trace' 'Creating /etc/saslauthd.conf'
     cat > /etc/saslauthd.conf << EOF
 ldap_servers: ${SASLAUTHD_LDAP_SERVER}

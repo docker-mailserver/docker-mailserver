@@ -7,14 +7,14 @@ title: 'Override the Default Configs | Dovecot'
 The Dovecot default configuration can easily be extended providing a `docker-data/dms/config/dovecot.cf` file.
 [Dovecot documentation](https://doc.dovecot.org/configuration_manual/) remains the best place to find configuration options.
 
-Your `docker-mailserver` folder should look like this example:
+Your DMS folder structure should look like this example:
 
 ```txt
 ├── docker-data/dms/config
 │   ├── dovecot.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── docker-compose.yml
+├── compose.yaml
 └── README.md
 ```
 
@@ -26,7 +26,7 @@ mail_max_userip_connections = 100
 
 Another important option is the `default_process_limit` (defaults to `100`). If high-security mode is enabled you'll need to make sure this count is higher than the maximum number of users that can be logged in simultaneously.
 
-This limit is quickly reached if users connect to the `docker-mailserver` with multiple end devices.
+This limit is quickly reached if users connect to DMS with multiple end devices.
 
 ## Override Configuration
 
@@ -55,7 +55,7 @@ To debug your dovecot configuration you can use:
 - Or: `docker exec -it mailserver doveconf | grep <some-keyword>`
 
 !!! note
-    [`setup.sh`][github-file-setupsh] is included in the `docker-mailserver` repository. Make sure to use the one matching your image version release.
+    [`setup.sh`][github-file-setupsh] is included in the DMS repository. Make sure to use the one matching your image version release.
 
 The file `docker-data/dms/config/dovecot.cf` is copied internally to `/etc/dovecot/local.conf`. To verify the file content, run:
 

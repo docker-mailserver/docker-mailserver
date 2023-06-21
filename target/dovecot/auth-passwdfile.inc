@@ -15,5 +15,5 @@ passdb {
 userdb {
   driver = passwd-file
   args = username_format=%u /etc/dovecot/userdb
-  default_fields = uid=docker gid=docker home=/var/mail/%d/%u
+  default_fields = uid=docker gid=docker home=/var/mail/%d/%u/home/
 }

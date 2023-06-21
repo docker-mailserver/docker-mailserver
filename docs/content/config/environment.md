@@ -10,10 +10,10 @@ title: Environment Variables
 
 ##### OVERRIDE_HOSTNAME
 
-If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `docker-compose.yml`.
+If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `compose.yaml`.
 
-- **empty** => Uses the `hostname -f` command to get canonical hostname for `docker-mailserver` to use.
-- => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for `docker-mailserver` to function correctly.
+- **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
+- => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
 
 ##### LOG_LEVEL
 
@@ -110,6 +110,13 @@ Enables the OpenDMARC service.
 - **1** => Enabled
 - 0 => Disabled
 
+##### ENABLE_POLICYD_SPF
+
+Enabled `policyd-spf` in Postfix's configuration. You will likely want to set this to `0` in case you're using Rspamd ([`ENABLE_RSPAMD=1`](#enable_rspamd)).
+
+- 0 => Disabled
+- **1** => Enabled
+
 ##### ENABLE_POP3
 
 - **empty** => POP3 service disabled
@@ -125,7 +132,7 @@ Enables the OpenDMARC service.
 - **0** => fail2ban service disabled
 - 1 => Enables fail2ban service
 
-If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
+If you enable Fail2Ban, don't forget to add the following lines to your `compose.yaml`:
 
 ``` BASH
 cap_add:
@@ -176,7 +183,7 @@ Configures the handling of creating mails with forged sender addresses.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if `docker-mailserver` acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -267,6 +274,13 @@ Customize the update check interval. Number + Suffix. Suffix must be 's' for sec
 
 This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://wiki2.dovecot.org/MailboxFormat).
 
+##### POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+
+If enabled, employs `reject_unknown_client_hostname` to sender restrictions in Postfix's configuration.
+
+- **0** => Disabled
+- 1 => Enabled
+
 ##### POSTFIX_INET_PROTOCOLS
 
 - **all** => Listen on all interfaces.
@@ -299,11 +313,7 @@ will be automatically moved to the Junk folder (with the help of a Sieve script)
 
 ##### ENABLE_RSPAMD
 
-Enable or disable Rspamd.
-
-!!! warning "Current State"
-
-    Rspamd-support is under active development. Be aware that breaking changes can happen at any time. To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
+Enable or disable [Rspamd][docs-rspamd].
 
 - **0** => disabled
 - 1 => enabled
@@ -328,14 +338,26 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 - 0 => Disabled
 - 1 => Enabled
 
+##### RSPAMD_GREYLISTING
+
+Controls whether the [Rspamd Greylisting module][rspamd-greylisting-module] is enabled. This module can further assist in avoiding spam emails by [greylisting] e-mails with a certain spam score.
+
+- **0** => Disabled
+- 1 => Enabled
+
+[rspamd-greylisting-module]: https://rspamd.com/doc/modules/greylisting.html
+[greylisting]: https://en.wikipedia.org/wiki/Greylisting_(email)
+
 ##### RSPAMD_LEARN
 
 When enabled,
 
 1. the "[autolearning][rspamd-autolearn]" feature is turned on;
-2. the Bayes classifier will be trained when moving mails from or to the Junk folder (with the help of Sieve scripts).
+2. the Bayes classifier will be trained (with the help of Sieve scripts) when moving mails
+    1. from anywhere to the `Junk` folder (learning this email as spam);
+    2. from the `Junk` folder into the `INBOX` (learning this email as ham).
 
-!!! attention
+!!! warning "Attention"
 
     As of now, the spam learning database is global (i.e. available to all users). If one user deliberately trains it with malicious data, then it will ruin your detection rate.
 
@@ -345,6 +367,21 @@ When enabled,
 
 - **0** => Disabled
 - 1 => Enabled
+
+##### RSPAMD_HFILTER
+
+Can be used to enable or disable the [Hfilter group module][rspamd-docs-hfilter-group-module]. This is used by DMS to adjust the `HFILTER_HOSTNAME_UNKNOWN` symbol, increasing its default weight to act similar to Postfix's `reject_unknown_client_hostname`, without the need to outright reject a message.
+
+- 0 => Disabled
+- **1** => Enabled
+
+[rspamd-docs-hfilter-group-module]: https://www.rspamd.com/doc/modules/hfilter.html
+
+##### RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+
+Can be used to control the score when the [`HFILTER_HOSTNAME_UNKNOWN` symbol](#rspamd_hfilter) applies. A higher score is more punishing. Setting it to 15 (the default score for rejecting an e-mail) is equivalent to rejecting the email when the check fails.
+
+Default: 6 (which corresponds to the `add_header` action)
 
 #### Reports
 
@@ -423,7 +460,7 @@ Changes the interval in which log files are rotated.
 
     The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
 
-    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
+    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker compose down && docker compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
 
 !!! note
 
@@ -466,7 +503,7 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 !!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
 
-    By default, `docker-mailserver` is configured to quarantine spam emails.
+    By default, DMS is configured to quarantine spam emails.
 
     If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
 
@@ -511,6 +548,18 @@ Note: activate this only if you are confident in your bayes database for identif
   **1** => `/etc/fetchmailrc` is split per poll entry. For every poll entry a separate fetchmail instance is started  to allow having multiple imap idle configurations defined.
 
 Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate `fetchmail` instances.
+#### Getmail
+
+##### ENABLE_GETMAIL
+
+Enable or disable `getmail`.
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### GETMAIL_POLL
+
+- **5** => `getmail` The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
 
 #### LDAP
 
@@ -527,7 +576,7 @@ Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 - **empty** => mail.example.com
 - => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
-- NOTE: If you going to use `docker-mailserver` in combination with `docker-compose.yml` you can set the service name here
+- NOTE: If you going to use DMS in combination with `compose.yaml` you can set the service name here
 
 ##### LDAP_SEARCH_BASE
 

@@ -1,0 +1,11 @@
+[retriever]
+type = SimpleIMAPSSLRetriever
+server =  imap.remote-service.test
+username = user3
+password=secret
+
+[destination]
+type = MDA_external
+path = /usr/lib/dovecot/deliver
+allow_root_commands = true
+arguments =("-d","user3@example.test")

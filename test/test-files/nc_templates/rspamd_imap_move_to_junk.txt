@@ -1,4 +1,4 @@
 A LOGIN user1@localhost.localdomain 123
 B SELECT INBOX
-A UID MOVE 1:1 Junk
-A4 LOGOUT
+A MOVE 1:1 Junk
+A LOGOUT

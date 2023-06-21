@@ -3,8 +3,7 @@
 # shellcheck disable=SC2034
 declare -A VARS
 
-function _early_variables_setup
-{
+function _early_variables_setup() {
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
@@ -13,10 +12,8 @@ function _early_variables_setup
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
-function __environment_variables_backwards_compatibility
-{
-  if [[ ${ENABLE_LDAP:-0} -eq 1 ]]
-  then
+function __environment_variables_backwards_compatibility() {
+  if [[ ${ENABLE_LDAP:-0} -eq 1 ]]; then
     _log 'warn' "'ENABLE_LDAP=1' is deprecated (and will be removed in v13.0.0) => use 'ACCOUNT_PROVISIONER=LDAP' instead"
     ACCOUNT_PROVISIONER='LDAP'
   fi
@@ -33,8 +30,7 @@ function __environment_variables_backwards_compatibility
 # This function sets almost all environment variables. This involves setting
 # a default if no value was provided and writing the variable and its value
 # to the VARS map.
-function __environment_variables_general_setup
-{
+function __environment_variables_general_setup() {
   _log 'debug' 'Handling general environment variable setup'
 
   # these variables must be defined first
@@ -55,6 +51,9 @@ function __environment_variables_general_setup
   VARS[POSTGREY_MAX_AGE]="${POSTGREY_MAX_AGE:=35}"
   VARS[POSTGREY_TEXT]="${POSTGREY_TEXT:=Delayed by Postgrey}"
   VARS[POSTSCREEN_ACTION]="${POSTSCREEN_ACTION:=enforce}"
+  VARS[RSPAMD_GREYLISTING]="${RSPAMD_GREYLISTING:=0}"
+  VARS[RSPAMD_HFILTER]="${RSPAMD_HFILTER:=1}"
+  VARS[RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE]="${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE:=6}"
   VARS[RSPAMD_LEARN]="${RSPAMD_LEARN:=0}"
   VARS[SA_KILL]=${SA_KILL:="10.0"}
   VARS[SA_SPAM_SUBJECT]=${SA_SPAM_SUBJECT:="***SPAM*** "}
@@ -71,9 +70,11 @@ function __environment_variables_general_setup
   VARS[ENABLE_DNSBL]="${ENABLE_DNSBL:=0}"
   VARS[ENABLE_FAIL2BAN]="${ENABLE_FAIL2BAN:=0}"
   VARS[ENABLE_FETCHMAIL]="${ENABLE_FETCHMAIL:=0}"
+  VARS[ENABLE_GETMAIL]="${ENABLE_GETMAIL:=0}"
   VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
   VARS[ENABLE_OPENDKIM]="${ENABLE_OPENDKIM:=1}"
   VARS[ENABLE_OPENDMARC]="${ENABLE_OPENDMARC:=1}"
+  VARS[ENABLE_POLICYD_SPF]="${ENABLE_POLICYD_SPF:=1}"
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
   VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
@@ -103,10 +104,11 @@ function __environment_variables_general_setup
   VARS[DOVECOT_MAILBOX_FORMAT]="${DOVECOT_MAILBOX_FORMAT:=maildir}"
   VARS[DOVECOT_TLS]="${DOVECOT_TLS:=no}"
 
+  VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
   VARS[POSTFIX_INET_PROTOCOLS]="${POSTFIX_INET_PROTOCOLS:=all}"
   VARS[POSTFIX_MAILBOX_SIZE_LIMIT]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"
   VARS[POSTFIX_MESSAGE_SIZE_LIMIT]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}" # ~10 MB
-  VARS[POSTFIX_DAGENT]="${POSTFIX_DAGENT:=}"
+  VARS[POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME]="${POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME:=0}"
 
   _log 'trace' 'Setting SRS specific environment variables'
 
@@ -120,6 +122,7 @@ function __environment_variables_general_setup
   VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
+  VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
   VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
   VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=weekly}"
   VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
@@ -137,8 +140,7 @@ function __environment_variables_general_setup
 }
 
 # This function handles environment variables related to LDAP.
-function _environment_variables_ldap
-{
+function _environment_variables_ldap() {
   _log 'debug' 'Setting LDAP-related environment variables now'
 
   VARS[LDAP_BIND_DN]="${LDAP_BIND_DN:=}"
@@ -150,16 +152,14 @@ function _environment_variables_ldap
 
 # This function handles environment variables related to SASLAUTHD
 # and, if activated, variables related to SASLAUTHD and LDAP.
-function _environment_variables_saslauthd
-{
+function _environment_variables_saslauthd() {
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
   VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
 
   # SASL ENV for configuring an LDAP specific
   # `saslauthd.conf` via `setup-stack.sh:_setup_sasulauthd()`
-  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]
-  then
+  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]; then
     _log 'trace' 'Setting SASLSAUTH-LDAP variables nnow'
 
     VARS[SASLAUTHD_LDAP_AUTH_METHOD]="${SASLAUTHD_LDAP_AUTH_METHOD:=bind}"
@@ -172,32 +172,28 @@ function _environment_variables_saslauthd
     VARS[SASLAUTHD_LDAP_START_TLS]="${SASLAUTHD_LDAP_START_TLS:=no}"
     VARS[SASLAUTHD_LDAP_TLS_CHECK_PEER]="${SASLAUTHD_LDAP_TLS_CHECK_PEER:=no}"
 
-    if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]
-    then
+    if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]; then
       SASLAUTHD_LDAP_TLS_CACERT_FILE=''
     else
       SASLAUTHD_LDAP_TLS_CACERT_FILE="ldap_tls_cacert_file: ${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
     fi
     VARS[SASLAUTHD_LDAP_TLS_CACERT_FILE]="${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
 
-    if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_DIR} ]]
-    then
+    if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_DIR} ]]; then
       SASLAUTHD_LDAP_TLS_CACERT_DIR=''
     else
       SASLAUTHD_LDAP_TLS_CACERT_DIR="ldap_tls_cacert_dir: ${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
     fi
     VARS[SASLAUTHD_LDAP_TLS_CACERT_DIR]="${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
 
-    if [[ -z ${SASLAUTHD_LDAP_PASSWORD_ATTR} ]]
-    then
+    if [[ -z ${SASLAUTHD_LDAP_PASSWORD_ATTR} ]]; then
       SASLAUTHD_LDAP_PASSWORD_ATTR=''
     else
       SASLAUTHD_LDAP_PASSWORD_ATTR="ldap_password_attr: ${SASLAUTHD_LDAP_PASSWORD_ATTR}"
     fi
     VARS[SASLAUTHD_LDAP_PASSWORD_ATTR]="${SASLAUTHD_LDAP_PASSWORD_ATTR}"
 
-    if [[ -z ${SASLAUTHD_LDAP_MECH} ]]
-    then
+    if [[ -z ${SASLAUTHD_LDAP_MECH} ]]; then
       SASLAUTHD_LDAP_MECH=''
     else
       SASLAUTHD_LDAP_MECH="ldap_mech: ${SASLAUTHD_LDAP_MECH}"
@@ -209,16 +205,14 @@ function _environment_variables_saslauthd
 # This function Writes the contents of the `VARS` map (associative array)
 # to locations where they can be sourced from (e.g. `/etc/dms-settings`)
 # or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export
-{
+function _environment_variables_export() {
   _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
   : >/etc/dms-settings # this file can be sourced by other scripts
 
   local VAR
-  for VAR in "${!VARS[@]}"
-  do
+  for VAR in "${!VARS[@]}"; do
     echo "export ${VAR}='${VARS[${VAR}]}'" >>/root/.bashrc
     echo "${VAR}='${VARS[${VAR}]}'"        >>/etc/dms-settings
   done

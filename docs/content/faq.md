@@ -21,9 +21,9 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 Then, run the following commands:
 
 ``` BASH
-docker-compose pull
-docker-compose down
-docker-compose up -d
+docker compose pull
+docker compose down
+docker compose up -d
 ```
 
 You should see the new version number on startup, for example: `[   INF   ]  Welcome to docker-mailserver 11.3.1`. And you're done! Don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
@@ -57,7 +57,7 @@ As you'll realistically be deploying to production on a Linux host, if you are o
 
 ### How to alter a running DMS instance _without_ relaunching the container?
 
-`docker-mailserver` aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail-server.
+DMS aggregates multiple "sub-services", such as Postfix, Dovecot, Fail2ban, SpamAssassin, etc. In many cases, one may edit a sub-service's config and reload that very sub-service, without stopping and relaunching the whole mail server.
 
 In order to do so, you'll probably want to push your config updates to your server through a Docker volume (these docs use: `./docker-data/dms/config/:/tmp/docker-mailserver/`), then restart the sub-service to apply your changes, using `supervisorctl`. For instance, after editing fail2ban's config: `supervisorctl restart fail2ban`.
 
@@ -97,7 +97,7 @@ DMS supports multiple domains out of the box, so you can do this:
 
 #### Bind mounts (default)
 
-From the location of your `docker-compose.yml`, create a compressed archive of your `docker-data/dms/config/` and `docker-data/dms/mail-*` folders:
+From the location of your `compose.yaml`, create a compressed archive of your `docker-data/dms/config/` and `docker-data/dms/mail-*` folders:
 
 ```bash
 tar --gzip -cf "backup-$(date +%F).tar.gz" ./docker-data/dms
@@ -125,15 +125,6 @@ docker run --rm -it \
 # delete backups older than 30 days
 find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 ```
-
-### What about the `./docker-data/dms/mail-state` folder?
-
-When you run DMS with the ENV variable `ONE_DIR=1` (default), this folder will:
-
-- Provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated.
-- To persist that container state properly this folder should be **volume mounted to `/var/mail-state/` internally**.
-
-Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin.
 
 ### I Want to Know More About the Ports
 
@@ -176,15 +167,14 @@ warning: do not list domain example.com in BOTH mydestination and virtual_mailbo
 
 Plus of course mail delivery fails.
 
-Also you need to define `hostname: example.com` in your `docker-compose.yml`.
+Also you need to define `hostname: example.com` in your `compose.yaml`.
 
 !!! tip "You might not want a bare domain"
 
     We encourage you to consider using a subdomain where possible.
-    
+
     - There are [benefits][github-comment-baredomain] to preferring a subdomain.
     - A bare domain is not required to have `user@example.com`, that is distinct from your hostname which is identified by a DNS MX record.
-
 
 ### How can I configure a catch-all?
 
@@ -233,14 +223,6 @@ If everything is OK regarding DNS, please provide [formatted logs](https://guide
 
 If we're blind, we won't be able to do anything.
 
-### Can DMS run in a Rancher environment?
-
-Yes, by adding the environment variable `PERMIT_DOCKER: network`.
-
-!!! warning
-
-    Adding the Docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance [if IPv6 is enabled on the host machine but not in Docker][github-issue-1405-comment].
-
 ### Connection refused or No response at all
 
 You see errors like "Connection Refused" and "Connection closed by foreign host", or you cannot connect at all? You may not be able to connect with your mail client (MUA)? Make sure to check Fail2Ban did not ban you (for exceeding the number of tried logins for example)! You can run
@@ -267,22 +249,31 @@ See [#1247][github-issue-1247] for an example.
 
 ### Common Errors
 
+#### Creating an alias or account with an address for `hostname`
+
+Normally you will assign DMS a `hostname` such as `mail.example.com`. If you instead use a bare domain (_such as `example.com`_) or add an alias / account with the same value as your `hostname`, this can cause a conflict for mail addressed to `@hostname` as Postfix gets confused where to deliver the mail (_`hostname` is configured for only system accounts via the Postfix `main.cf` setting `mydestination`_).
+
+When this conflict is detected you'll find logs similar to this:
+
 ```log
-warning: connect to Milter service inet:localhost:8893: Connection refused
-# DMARC not running
-# => /etc/init.d/opendmarc restart
-
-warning: connect to Milter service inet:localhost:8891: Connection refused
-# DKIM not running
-# => /etc/init.d/opendkim restart
-
-mail amavis[1459]: (01459-01) (!)connect to /var/run/clamav/clamd.ctl failed, attempt #1: Can't connect to a UNIX socket /var/run/clamav/clamd.ctl: No such file or directory
-mail amavis[1459]: (01459-01) (!)ClamAV-clamd: All attempts (1) failed connecting to /var/run/clamav/clamd.ctl, retrying (2)
-mail amavis[1459]: (01459-01) (!)ClamAV-clamscan av-scanner FAILED: /usr/bin/clamscan KILLED, signal 9 (0009) at (eval 100) line 905.
-mail amavis[1459]: (01459-01) (!!)AV: ALL VIRUS SCANNERS FAILED
-# Clamav is not running (not started or because you don't have enough memory)
-# => check requirements and/or start Clamav
+warning: do not list domain mail.example.com in BOTH mydestination and virtual_mailbox_domains
+...
+NOQUEUE: reject: RCPT from HOST[IP]: 550 5.1.1 <RECIPIENT>: Recipient address rejected: User unknown in local recipient table; ...
 ```
+
+Opt-out of mail being directed to services by excluding `$myhostname` as a destination with a [`postfix-main.cf`][docs-override-postfix] override config:
+
+```cf
+mydestination = localhost.$mydomain, localhost
+```
+
+!!! tip
+
+    You may want to configure a `postmaster` alias via `setup alias add` to receive system notifications.
+
+!!! warning
+
+    Internal mail destined for `root`, `amavis` or other accounts will now no longer be received without an alias or account created for them.
 
 ### How to use DMS behind a proxy
 
@@ -296,9 +287,9 @@ proxy_interfaces = X.X.X.X (your public IP)
 
 Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
 
-`docker-mailserver` has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
+DMS has a built-in way to do post-install processes. If you place a script called **`user-patches.sh`** in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.
 
-It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `docker-compose.yml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
+It is common to use a local directory for config added to `docker-mailsever` via a volume mount in your `compose.yaml` (eg: `./docker-data/dms/config/:/tmp/docker-mailserver/`).
 
 Add or create the script file to your config directory:
 
@@ -369,6 +360,20 @@ DMS does not manage those concerns, verify they are not causing your delivery pr
 - [mail-tester](https://www.mail-tester.com/) can test your deliverability.
 - [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
+### Special Directories
+
+#### What About the `docker-data/dms/config/` Directory?
+
+This documentation and all example configuration files in the GitHub repository use `docker-data/dms/config/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/tmp/docker-mailserver/` inside the container.
+
+Most configuration files for Postfix, Dovecot, etc. are persisted here. [Optional configuration][docs-optional-configuration] is stored here as well.
+
+#### What About the `docker-data/dms/mail-state/` Directory?
+
+This documentation and all example configuration files in the GitHub repository use `docker-data/dms/mail-state/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/var/mail-state/` inside the container.
+
+When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd & Redis.
+
 ### SpamAssasin
 
 #### How can I manage my custom SpamAssassin rules?
@@ -379,7 +384,7 @@ Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
 For no subject set `SA_SPAM_SUBJECT=undef`.
 
-For a trailing white-space subject one can define the whole variable with quotes in `docker-compose.yml`:
+For a trailing white-space subject one can define the whole variable with quotes in `compose.yaml`:
 
 ```yaml
 environment:
@@ -405,7 +410,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
 ```
 
-With `docker-compose` you can more easily use the internal instance of `cron` within `docker-mailserver`. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which `docker-mailserver` is running, and avoids errors if the mail-server is not running.
+With `docker-compose` you can more easily use the internal instance of `cron` within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 
@@ -414,7 +419,7 @@ The following configuration works nicely:
     Create a _system_ cron file:
 
     ```sh
-    # in the docker-compose.yml root directory
+    # in the compose.yaml root directory
     mkdir -p ./docker-data/dms/cron
     touch ./docker-data/dms/cron/sa-learn
     chown root:root ./docker-data/dms/cron/sa-learn
@@ -448,7 +453,7 @@ The following configuration works nicely:
     30 3 * * * root  sa-learn --ham /var/mail/not-example.com/*/cur* --dbpath /var/mail-state/lib-amavis/.spamassassin > /dev/null
     ```
 
-    Then with `docker-compose.yml`:
+    Then with `compose.yaml`:
 
     ```yaml
     services:
@@ -524,6 +529,7 @@ $spam_quarantine_to       = "amavis\@example.com";
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
+[docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
 [github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
@@ -535,3 +541,4 @@ $spam_quarantine_to       = "amavis\@example.com";
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
 [mail-state-folders]: https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33
+[docs-optional-configuration]: ./config/advanced/optional-config.md

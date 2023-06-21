@@ -52,12 +52,10 @@ __load_bats_helper
 #
 # This function is internal and should not be used in tests.
 function __handle_container_name() {
-  if [[ -n ${1:-} ]] && [[ ${1:-} =~ ^dms-test_ ]]
-  then
+  if [[ -n ${1:-} ]] && [[ ${1:-} =~ ^dms-test_ ]]; then
     printf '%s' "${1}"
     return 0
-  elif [[ -n ${CONTAINER_NAME+set} ]]
-  then
+  elif [[ -n ${CONTAINER_NAME+set} ]]; then
     printf '%s' "${CONTAINER_NAME}"
     return 0
   else
@@ -169,8 +167,7 @@ function _repeat_in_container_until_success_or_timeout() {
 function _repeat_until_success_or_timeout() {
   local FATAL_FAILURE_TEST_COMMAND
 
-  if [[ "${1:-}" == "--fatal-test" ]]
-  then
+  if [[ "${1:-}" == "--fatal-test" ]]; then
     FATAL_FAILURE_TEST_COMMAND="${2:?Provided --fatal-test but no command}"
     shift 2
   fi
@@ -178,26 +175,22 @@ function _repeat_until_success_or_timeout() {
   local TIMEOUT=${1:?Timeout duration must be provided}
   shift 1
 
-  if ! [[ "${TIMEOUT}" =~ ^[0-9]+$ ]]
-  then
+  if ! [[ "${TIMEOUT}" =~ ^[0-9]+$ ]]; then
     echo "First parameter for timeout must be an integer, received \"${TIMEOUT}\""
     return 1
   fi
 
   local STARTTIME=${SECONDS}
 
-  until "${@}"
-  do
-    if [[ -n ${FATAL_FAILURE_TEST_COMMAND} ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"
-    then
+  until "${@}"; do
+    if [[ -n ${FATAL_FAILURE_TEST_COMMAND} ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"; then
       echo "\`${FATAL_FAILURE_TEST_COMMAND}\` failed, early aborting repeat_until_success of \`${*}\`" >&2
       return 1
     fi
 
     sleep 1
 
-    if [[ $(( SECONDS - STARTTIME )) -gt ${TIMEOUT} ]]
-    then
+    if [[ $(( SECONDS - STARTTIME )) -gt ${TIMEOUT} ]]; then
       echo "Timed out on command: ${*}" >&2
       return 1
     fi
@@ -213,8 +206,7 @@ function _run_until_success_or_timeout() {
   local TIMEOUT=${1:?Timeout duration must be provided}
   shift 1
 
-  if [[ ! ${TIMEOUT} =~ ^[0-9]+$ ]]
-  then
+  if [[ ! ${TIMEOUT} =~ ^[0-9]+$ ]]; then
     echo "First parameter for timeout must be an integer, received \"${TIMEOUT}\""
     return 1
   fi
@@ -222,12 +214,10 @@ function _run_until_success_or_timeout() {
   local STARTTIME=${SECONDS}
 
   # shellcheck disable=SC2154
-  until run "${@}" && [[ ${status} -eq 0 ]]
-  do
+  until run "${@}" && [[ ${status} -eq 0 ]]; do
     sleep 1
 
-    if (( SECONDS - STARTTIME > TIMEOUT ))
-    then
+    if (( SECONDS - STARTTIME > TIMEOUT )); then
       echo "Timed out on command: ${*}" >&2
       return 1
     fi
@@ -268,10 +258,8 @@ function _wait_for_smtp_port_in_container_to_respond() {
   local CONTAINER_NAME=$(__handle_container_name "${1:-}")
 
   local COUNT=0
-  until [[ $(_exec_in_container timeout 10 /bin/bash -c 'echo QUIT | nc localhost 25') == *'221 2.0.0 Bye'* ]]
-  do
-    if [[ ${COUNT} -eq 20 ]]
-    then
+  until [[ $(_exec_in_container timeout 10 /bin/bash -c 'echo QUIT | nc localhost 25') == *'221 2.0.0 Bye'* ]]; do
+    if [[ ${COUNT} -eq 20 ]]; then
       echo "Unable to receive a valid response from 'nc localhost 25' within 20 seconds"
       return 1
     fi
@@ -405,8 +393,7 @@ function _container_is_running() {
 #
 # @param ${1} = directory
 # @param ${2} = number of files that should be in ${1}
-function _count_files_in_directory_in_container()
-{
+function _count_files_in_directory_in_container() {
   local DIRECTORY=${1:?No directory provided}
   local NUMBER_OF_LINES=${2:?No line count provided}
 
