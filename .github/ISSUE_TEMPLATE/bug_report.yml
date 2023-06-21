@@ -12,18 +12,13 @@ body:
       label: 📝 Preliminary Checks
       description: Please read these carefully.
       options:
-        - label: I checked that all ports are open and not blocked by my ISP / hosting provider.
-          required: true
-        - label: I know that SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself. I'm confident my setup is correct.
+        - label: The [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue.
           required: true
         - label: I searched the issue tracker but was unable to find my issue.
           required: true
-        - label: |
-            I have read:  
-              - The [extended documentation in general](https://docker-mailserver.github.io/docker-mailserver/latest/) but found nothing to resolve the issue;
-              - The [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue;
-              - This project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree;
-              - The [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
+        - label: The [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
+          required: true
+        - label: This project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree.
           required: true
   - type: textarea
     id: what-happened
