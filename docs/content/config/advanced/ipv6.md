@@ -6,9 +6,7 @@ title: 'Advanced | IPv6'
 
     Numerous bug reports have been raised in the past about IPv6. Please make sure your setup around DMS is correct when using IPv6!
 
-## Issues with Docker
-
-### Background
+## IPv6 networking problems with Docker defaults
 
 If your host system supports IPv6 and an `AAAA` DNS record exists to direct IPv6 traffic to DMS, you may experience compatibility issues.
 
@@ -22,17 +20,9 @@ The impact of losing the real IP of the client connection can negatively affect 
 - Rejecting inbound mail (_[SPF verification failure][gh-issue-1438-spf], IP mismatch_)
 - Delivery failures from [sender reputation][sender-score] being reduced (_due to [bouncing inbound mail][gh-issue-3057-bounce] from rejected IPv6 clients_)
 
-[wikipedia-nat64]: https://en.wikipedia.org/wiki/NAT64
-[docker-subnets]: https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools
-[sender-score]: https://senderscore.org/assess/get-your-score/
-[gh-issue-1438-spf]: https://github.com/docker-mailserver/docker-mailserver/issues/1438
-[gh-issue-3057-bounce]: https://github.com/docker-mailserver/docker-mailserver/pull/3057#issuecomment-1416700046
-
-### Solution
+## Proper IPv6 configuration
 
 You can enable IPv6 support in Docker for container networks, however [compatibility concerns][docs-compat] may affect your success.
-
-[docs-compat]: ../debugging.md#compatibility
 
 The [official Docker documentation on enabling IPv6][docker-docs-enable-ipv6] has been improving and is a good resource to reference.
 
@@ -51,24 +41,41 @@ Enable `ip6tables` so that Docker will manage IPv6 networking rules as well. Thi
     - `experimental: true` is currently required for `ip6tables: true` to work.
     - `userland-proxy: true` may provide better compatibility (_presently default in Docker_).
 
-    Restart the daemon if it's running: `systemctl restart docker`.
+    Now restart the daemon if it's running: `systemctl restart docker`.
 
 Next, configure a network for your container with any of these:
 
 - [User-defined networks via `docker network create` or `compose.yaml`][docker-docs-ipv6-create-custom]
-- [Default docker bridge][docker-docs-ipv6-create-default] (_docker CLI only, not `compose.yaml`_)
+- [Default docker bridge][docker-docs-ipv6-create-default] (_docker CLI only, not helpful for `compose.yaml`_)
 - [Default network for a `compose.yaml`][ipv6-config-example] (_ `/etc/docker/daemon.json` settings for default bridge do not apply, instead override the generated `default` network_)
+
+!!! danger "Do not use `2001:db8:1::/64` for your private subnet"
+
+    The `2001:db8` address prefix is [reserved for documentation][wikipedia-ipv6-reserved]. Avoid using a subnet with this prefix.
 
 ### Configuring an IPv6 subnet
 
 If you've [configured IPv6 address pools in `/etc/docker/daemon.json`][docker-docs-ipv6-supernets], you do not need to specify a subnet explicitly. Otherwise if you're unsure what value to provide, here's a quick guide (_Tip: Prefer IPv6 ULA, it's the least hassle_):
 
-- `2001:db8` and similar looking addresses are [reserved for documentation][wikipedia-ipv6-reserved]. **Do not use this** for your private subnet.
 - `fd00:cafe:face:feed::/64` is an example of a [IPv6 ULA subnet][wikipedia-ipv6-ula]. ULA addresses are akin to the [private IPv4 subnets][wikipedia-ipv4-private] you may already be familiar with. You can use that example, or choose your own ULA address. This is a good choice for getting Docker containers to their have networks support IPv6 via NAT like they already do by default with IPv4.
 - IPv6 without NAT, using public address space like your server is assigned belongs to an [IPv6 GUA subnet][wikipedia-ipv6-gua].
     - Typically these will be a `/64` block assigned to your host, but this varies by provider.
     - These addresses do not need to publish ports of a container to another IP to be publicly reached, you will want a firewall configured to manage which ports are accessible instead as no NAT is involved. Note that this may not be desired if the container should also be reachable via the host IPv4 public address.
     - You may want to subdivide the `/64` into smaller subnets for Docker to use only portions of the `/64`. This can reduce some routing features, and [require additional setup / management via a NDP Proxy][gh-pull-3244-gua] for your public interface to know of IPv6 assignments managed by Docker and accept external traffic.
+
+!!! info "IPv6 ULA addresses priority"
+
+    IPv6 ULA have lower priority than IPv4 private addresses when a DNS lookup could return either IP (eg: `localhost`).
+
+    This shouldn't cause any issues, but the behaviour differs from other IPv6 addresses priority and should only be relevant to internal networking.
+
+[wikipedia-nat64]: https://en.wikipedia.org/wiki/NAT64
+[docker-subnets]: https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools
+[sender-score]: https://senderscore.org/assess/get-your-score/
+[gh-issue-1438-spf]: https://github.com/docker-mailserver/docker-mailserver/issues/1438
+[gh-issue-3057-bounce]: https://github.com/docker-mailserver/docker-mailserver/pull/3057#issuecomment-1416700046
+
+[docs-compat]: ../debugging.md#compatibility
 
 [docker-docs-enable-ipv6]: https://docs.docker.com/config/daemon/ipv6/
 [docker-docs-ipv6-create-custom]: https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network
