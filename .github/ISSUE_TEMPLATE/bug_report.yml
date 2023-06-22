@@ -10,15 +10,10 @@ body:
     id: preliminary-checks
     attributes:
       label: 📝 Preliminary Checks
-      description: Please read these carefully.
+      description: |
+        By submitting this issue, you agree to our [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md).
       options:
-        - label: The [documentation on debugging](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/), tried the proposed steps to debug the problem, but was still unable to resolve the issue.
-          required: true
-        - label: I searched the issue tracker but was unable to find my issue.
-          required: true
-        - label: The [documentation about filing a bug report](https://docker-mailserver.github.io/docker-mailserver/latest/contributing/issues-and-pull-requests/#filing-a-bug-report).
-          required: true
-        - label: This project's [Code of Conduct](https://github.com/docker-mailserver/docker-mailserver/blob/master/CODE_OF_CONDUCT.md) and I agree.
+        - label: I tried searching for an existing issue and followed the [debugging docs](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/) advice, but still need assistance.
           required: true
   - type: textarea
     id: what-happened
@@ -59,10 +54,9 @@ body:
     attributes:
       label: ⚙️ Container configuration files
       description: |
-        Show us the file that you use to run DMS (and possibly other related services).
+        Show us the `compose.yaml` file or command that you used to run DMS (and possibly other related services).
         - This field is formatted as YAML.
-        - This is most likely your `compose.yaml` file, but you can also show us your equivalent `docker run` command, if applicable.
-        - If you are using Kubernetes, you can also put your manifest files here.
+        - If you are using Kubernetes, you can alternatively share your manifest files here.
       render: yml
   - type: textarea
     id: relevant-log-output
