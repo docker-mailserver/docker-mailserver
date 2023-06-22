@@ -19,16 +19,14 @@ Internally, the container is no longer aware of the original client IPv6 address
 The impact of losing the real IP of the client connection can negatively affect DMS:
 
 - Users unable to login (_Fail2Ban action triggered by repeated failures using the same internal Gateway IP_)
-- Rejecting inbound mail (_[SPF verification failure][github-issue-1438], IP mismatch_)
-- Delivery failures from [sender reputation][sender-score] being reduced (_due to [bouncing inbound mail][github-issue-3057] from rejected IPv6 clients_)
-
-[docker-subnets]: https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools
-[sender-score]: https://senderscore.org/assess/get-your-score/
-
+- Rejecting inbound mail (_[SPF verification failure][gh-issue-1438-spf], IP mismatch_)
+- Delivery failures from [sender reputation][sender-score] being reduced (_due to [bouncing inbound mail][gh-issue-3057-bounce] from rejected IPv6 clients_)
 
 [wikipedia-nat64]: https://en.wikipedia.org/wiki/NAT64
-[github-issue-1438]: https://github.com/docker-mailserver/docker-mailserver/issues/1438
-[github-issue-3057]: https://github.com/docker-mailserver/docker-mailserver/pull/3057#issuecomment-1416700046
+[docker-subnets]: https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools
+[sender-score]: https://senderscore.org/assess/get-your-score/
+[gh-issue-1438-spf]: https://github.com/docker-mailserver/docker-mailserver/issues/1438
+[gh-issue-3057-bounce]: https://github.com/docker-mailserver/docker-mailserver/pull/3057#issuecomment-1416700046
 
 ### Solution
 
@@ -40,27 +38,32 @@ The [official Docker documentation on enabling IPv6][docker-docs-enable-ipv6] ha
 
 Enable `ip6tables` so that Docker will manage IPv6 networking rules as well. This will allow for IPv6 NAT to work like IPv4 does for your containers, avoiding the above issue with external connections having their IP address seen as the containers network gateway IP.
 
-Configure the following in `/etc/docker/daemon.json`:
+!!! example "Configure the following in `/etc/docker/daemon.json`"
 
-```json
-{
-  "ip6tables": true,
-  "experimental" : true,
-  "userland-proxy": true
-}
-```
+    ```json
+    {
+      "ip6tables": true,
+      "experimental" : true,
+      "userland-proxy": true
+    }
+    ```
 
-- You'll need to restart the daemon if it's running, not just reload it.
-- `experimental: true` is currently required for `ip6tables: true` to work.
-- `userland-proxy: true` may provide better compatibility (_Docker will eventually phase this setting out_).
+    - `experimental: true` is currently required for `ip6tables: true` to work.
+    - `userland-proxy: true` may provide better compatibility (_presently default in Docker_).
+
+    Restart the daemon if it's running: `systemctl restart docker`.
 
 Next, configure a network for your container with any of these:
+
 - [User-defined networks via `docker network create` or `compose.yaml`][docker-docs-ipv6-create-custom]
 - [Default docker bridge][docker-docs-ipv6-create-default] (_docker CLI only, not `compose.yaml`_)
 - [Default network for a `compose.yaml`][ipv6-config-example] (_ `/etc/docker/daemon.json` settings for default bridge do not apply, instead override the generated `default` network_)
 
+### Configuring an IPv6 subnet
+
 If you've [configured IPv6 address pools in `/etc/docker/daemon.json`][docker-docs-ipv6-supernets], you do not need to specify a subnet explicitly. Otherwise if you're unsure what value to provide, here's a quick guide (_Tip: Prefer IPv6 ULA, it's the least hassle_):
-- `2001:db8` and similar looking addresses are [reserved for documentation][wikipedia-ipv6-reserved]. **Don't use this** for your private subnet.
+
+- `2001:db8` and similar looking addresses are [reserved for documentation][wikipedia-ipv6-reserved]. **Do not use this** for your private subnet.
 - `fd00:cafe:face:feed::/64` is an example of a [IPv6 ULA subnet][wikipedia-ipv6-ula]. ULA addresses are akin to the [private IPv4 subnets][wikipedia-ipv4-private] you may already be familiar with. You can use that example, or choose your own ULA address. This is a good choice for getting Docker containers to their have networks support IPv6 via NAT like they already do by default with IPv4.
 - IPv6 without NAT, using public address space like your server is assigned belongs to an [IPv6 GUA subnet][wikipedia-ipv6-gua].
     - Typically these will be a `/64` block assigned to your host, but this varies by provider.
