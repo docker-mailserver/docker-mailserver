@@ -79,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#preliminary-information" class="md-skip">
+        <a href="#preliminary-checks" class="md-skip">
           Skip to content
         </a>
       
@@ -688,11 +688,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#preliminary-information" class="md-nav__link">
-    Preliminary Information
+  <a href="#preliminary-checks" class="md-nav__link">
+    Preliminary Checks
   </a>
   
-    <nav class="md-nav" aria-label="Preliminary Information">
+    <nav class="md-nav" aria-label="Preliminary Checks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -718,6 +718,33 @@
           <li class="md-nav__item">
   <a href="#debug-a-running-container" class="md-nav__link">
     Debug a running container
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compatibility" class="md-nav__link">
+    Compatibility
+  </a>
+  
+    <nav class="md-nav" aria-label="Compatibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network" class="md-nav__link">
+    Network
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system" class="md-nav__link">
+    System
   </a>
   
 </li>
@@ -1482,11 +1509,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#preliminary-information" class="md-nav__link">
-    Preliminary Information
+  <a href="#preliminary-checks" class="md-nav__link">
+    Preliminary Checks
   </a>
   
-    <nav class="md-nav" aria-label="Preliminary Information">
+    <nav class="md-nav" aria-label="Preliminary Checks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1512,6 +1539,33 @@
           <li class="md-nav__item">
   <a href="#debug-a-running-container" class="md-nav__link">
     Debug a running container
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compatibility" class="md-nav__link">
+    Compatibility
+  </a>
+  
+    <nav class="md-nav" aria-label="Compatibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network" class="md-nav__link">
+    Network
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system" class="md-nav__link">
+    System
   </a>
   
 </li>
@@ -1559,7 +1613,11 @@
 <p class="admonition-title">Contributions Welcome!</p>
 <p>Please consider contributing solutions to the <a href="../../faq/">FAQ</a> <img alt="❤" class="twemoji" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2764.svg" title=":heart:" /></p>
 </div>
-<h2 id="preliminary-information"><a class="toclink" href="#preliminary-information">Preliminary Information</a></h2>
+<h2 id="preliminary-checks"><a class="toclink" href="#preliminary-checks">Preliminary Checks</a></h2>
+<ul>
+<li>Check that all published DMS ports are actually open and not blocked by your ISP / hosting provider.</li>
+<li>SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself.</li>
+</ul>
 <h3 id="mail-sent-from-dms-does-not-arrive-at-destination"><a class="toclink" href="#mail-sent-from-dms-does-not-arrive-at-destination">Mail sent from DMS does not arrive at destination</a></h3>
 <p>Some service providers block outbound traffic on port 25. Common hosting providers known to have this issue:</p>
 <ul>
@@ -1571,7 +1629,7 @@
 <h2 id="steps-for-debugging-dms"><a class="toclink" href="#steps-for-debugging-dms">Steps for Debugging DMS</a></h2>
 <ol>
 <li><strong>Increase log verbosity</strong>: Very helpful for troubleshooting problems during container startup. Set the environment variable <a href="../environment/#log_level"><code>LOG_LEVEL</code></a> to <code>debug</code> or <code>trace</code>.</li>
-<li><strong>Use error logs as a search query</strong>: Try finding an <em>existing issue</em> or <em>search engine result</em> from any errors in your container log output. Often you'll find answers or more insights. If you still need to open an issue, sharing links from your search may help us assist you. The mail server log can be acquired by running <code>docker log &lt;CONTAINER NAME&gt;</code> (<em>or <code>docker logs -f &lt;CONTAINER NAME&gt;</code> if you want to follow the log</em>).</li>
+<li><strong>Use error logs as a search query</strong>: Try <a href="https://github.com/docker-mailserver/docker-mailserver/issues">finding an <em>existing issue</em></a> or <em>search engine result</em> from any errors in your container log output. Often you'll find answers or more insights. If you still need to open an issue, sharing links from your search may help us assist you. The mail server log can be acquired by running <code>docker log &lt;CONTAINER NAME&gt;</code> (<em>or <code>docker logs -f &lt;CONTAINER NAME&gt;</code> if you want to follow the log</em>).</li>
 <li><strong>Understand the basics of mail servers</strong>: Especially for beginners, make sure you read our <a href="../../introduction/">Introduction</a> and <a href="../../usage/">Usage</a> articles.</li>
 <li><strong>Search the whole FAQ</strong>: Our <a href="../../faq/">FAQ</a> contains answers for common problems. Make sure you go through the list.</li>
 <li><strong>Reduce the scope</strong>: Ensure that you can run a basic setup of DMS first. Then incrementally restore parts of your original configuration until the problem is reproduced again. If you're new to DMS, it is common to find the cause is misunderstanding how to configure a minimal setup.</li>
@@ -1580,10 +1638,39 @@
 <p>To get a shell inside the container run: <code>docker exec -it &lt;CONTAINER NAME&gt; bash</code>.</p>
 <p>If you need more flexibility than <code>docker logs</code> offers, within the container <code>/var/log/mail/mail.log</code> and <code>/var/log/supervisor/</code> are the most useful locations to get relevant DMS logs. Use the <code>tail</code> or <code>cat</code> commands to view their contents.</p>
 <p>To install additional software:</p>
-<ul>
-<li><code>apt-get update</code> is needed to update repository metadata.</li>
+<ol>
+<li><code>apt-get update</code> to update repository metadata.</li>
 <li><code>apt-get install &lt;PACKAGE&gt;</code></li>
-<li>For example if you need a text editor, <code>nano</code> is a good package choice for beginners.</li>
+</ol>
+<p>For example a text editor you can use in the terminal: <code>apt-get install nano</code></p>
+<h2 id="compatibility"><a class="toclink" href="#compatibility">Compatibility</a></h2>
+<p>It's possible that the issue you're experiencing is due to a compatibility conflict.</p>
+<p>This could be from outdated software updates, or running a system that isn't able to provide you newer software and kernels. You may want to verify if you can reproduce the issue on a system that is not affected by these concerns.</p>
+<h3 id="network"><a class="toclink" href="#network">Network</a></h3>
+<ul>
+<li><strong><code>userland-proxy</code>:</strong> Prior to Docker <code>v23</code>, <a href="https://github.com/moby/moby/issues/44721">changing the <code>userland-proxy</code> setting did not reliably remove NAT rules</a>.</li>
+<li><strong>UFW / firewalld:</strong> Some users expect only their firewall frontend to manage the firewall rules, but these will be bypassed when Docker publishes a container port as there is no integration between the two.</li>
+<li><strong><code>iptables</code> / <code>nftables</code>:</strong><ul>
+<li>Docker <a href="https://github.com/moby/moby/issues/26824">only manages the NAT rules via <code>iptables</code></a>, relying on compatibility shims for supporting the successor <code>nftables</code>. Internally DMS expects <code>nftables</code> support on the host kernel for services like Fail2Ban to function correctly.</li>
+<li><a href="https://unix.stackexchange.com/questions/596493/can-nftables-and-iptables-ip6tables-rules-be-applied-at-the-same-time-if-so-wh/596497#596497">Kernels older than 5.2 may affect management of NAT rules via <code>nftables</code></a>. Other software outside of DMS may also manipulate these rules, such as firewall frontends.</li>
+</ul>
+</li>
+<li><strong>IPv6:</strong><ul>
+<li>Requires <a href="../advanced/ipv6/">additional configuration</a> to prevent or properly support IPv6 connections (eg: Preservering the Client IP).</li>
+<li>Support in 2023 is still considered experimental. You are advised to use at least Docker Engine <code>v23</code> (2023Q1).</li>
+<li>Various networking bug fixes have been addressed since the intitial IPv6 support arrived in Docker Engine <code>v20.10.0</code> (2020Q4).</li>
+</ul>
+</li>
+</ul>
+<h3 id="system"><a class="toclink" href="#system">System</a></h3>
+<ul>
+<li><strong>Kernel:</strong> Some systems provide <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2662#issuecomment-1168435970">kernels with modifications (<em>replacing defaults and backporting patches</em>)</a> to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.</li>
+<li><strong>CGroups v2:</strong> Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 <code>unified</code> hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed. </li>
+<li><strong>Rootless containers</strong> have additional constraints that vary by container runtime (<em>Docker, Podman, etc - which already have subtle differences</em>).<ul>
+<li>This can introduce differences such as for container networking which may further impact support for IPv6 and preserving the client IP (Remote address).</li>
+<li>cgroup v2 is required for supporting rootless containers.</li>
+</ul>
+</li>
 </ul>
 
 
