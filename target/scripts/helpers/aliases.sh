@@ -6,17 +6,14 @@
 # `setup-stack.sh:_setup_ldap` does not seem to configure for `/etc/postfix/virtual however.`
 
 # NOTE: `accounts.sh` and `relay.sh:_populate_relayhost_map` also process on `postfix-virtual.cf`.
-function _handle_postfix_virtual_config
-{
+function _handle_postfix_virtual_config() {
   : >/etc/postfix/virtual
 
   local DATABASE_VIRTUAL=/tmp/docker-mailserver/postfix-virtual.cf
 
-  if [[ -f ${DATABASE_VIRTUAL} ]]
-  then
+  if [[ -f ${DATABASE_VIRTUAL} ]]; then
     # fixing old virtual user file
-    if grep -q ",$" "${DATABASE_VIRTUAL}"
-    then
+    if grep -q ",$" "${DATABASE_VIRTUAL}"; then
       sed -i -e "s|, |,|g" -e "s|,$||g" "${DATABASE_VIRTUAL}"
     fi
 
@@ -26,18 +23,15 @@ function _handle_postfix_virtual_config
   fi
 }
 
-function _handle_postfix_regexp_config
-{
+function _handle_postfix_regexp_config() {
   : >/etc/postfix/regexp
 
-  if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]
-  then
+  if [[ -f /tmp/docker-mailserver/postfix-regexp.cf ]]; then
     _log 'trace' "Adding regexp alias file postfix-regexp.cf"
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
 
-    if ! grep 'virtual_alias_maps.*pcre:/etc/postfix/regexp' /etc/postfix/main.cf
-    then
+    if ! grep 'virtual_alias_maps.*pcre:/etc/postfix/regexp' /etc/postfix/main.cf; then
       sed -i -E \
         's|virtual_alias_maps(.*)|virtual_alias_maps\1 pcre:/etc/postfix/regexp|g' \
         /etc/postfix/main.cf
@@ -45,8 +39,7 @@ function _handle_postfix_regexp_config
   fi
 }
 
-function _handle_postfix_aliases_config
-{
+function _handle_postfix_aliases_config() {
   _log 'trace' 'Configuring root alias'
 
   echo "root: ${POSTMASTER_ADDRESS}" >/etc/aliases
@@ -59,8 +52,7 @@ function _handle_postfix_aliases_config
 }
 
 # Other scripts should call this method, rather than the ones above:
-function _create_aliases
-{
+function _create_aliases() {
   _handle_postfix_virtual_config
   _handle_postfix_regexp_config
   _handle_postfix_aliases_config

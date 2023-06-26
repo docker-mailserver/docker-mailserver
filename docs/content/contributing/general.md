@@ -13,7 +13,9 @@ When refactoring, writing or altering scripts or other files, adhere to these ru
 
 ## Documentation
 
-You will need to have Docker installed. Navigate into the `docs/` directory. Then run:
+Make sure to select `edge` in the dropdown menu at the top. Navigate to the page you would like to edit and click the edit button in the top right. This allows you to make changes and create a pull-request.
+
+Alternatively you can make the changes locally. For that you'll need to have Docker installed. Navigate into the `docs/` directory. Then run:
 
 ```sh
 docker run --rm -it -p 8000:8000 -v "${PWD}:/docs" squidfunk/mkdocs-material

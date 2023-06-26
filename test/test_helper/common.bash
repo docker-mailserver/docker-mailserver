@@ -37,8 +37,7 @@ function repeat_until_success_or_timeout {
   local STARTTIME=${SECONDS}
   shift 1
 
-  until "${@}"
-  do
+  until "${@}"; do
     if [[ -n ${FATAL_FAILURE_TEST_COMMAND} ]] && ! eval "${FATAL_FAILURE_TEST_COMMAND}"; then
       echo "\`${FATAL_FAILURE_TEST_COMMAND}\` failed, early aborting repeat_until_success of \`${*}\`" >&2
       return 1
@@ -66,8 +65,7 @@ function run_until_success_or_timeout {
   local STARTTIME=${SECONDS}
   shift 1
 
-  until run "${@}" && [[ $status -eq 0 ]]
-  do
+  until run "${@}" && [[ $status -eq 0 ]]; do
     sleep 1
 
     if (( SECONDS - STARTTIME > TIMEOUT )); then
@@ -107,8 +105,7 @@ function wait_for_smtp_port_in_container() {
 function wait_for_smtp_port_in_container_to_respond() {
   local COUNT=0
   until [[ $(docker exec "${1}" timeout 10 /bin/sh -c "echo QUIT | nc localhost 25") == *"221 2.0.0 Bye"* ]]; do
-    if [[ $COUNT -eq 20 ]]
-    then
+    if [[ $COUNT -eq 20 ]]; then
       echo "Unable to receive a valid response from 'nc localhost 25' within 20 seconds"
       return 1
     fi

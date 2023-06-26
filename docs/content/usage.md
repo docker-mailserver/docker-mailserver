@@ -4,7 +4,7 @@ title: Usage
 
 This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs-dms-config-volume] to `/tmp/docker-mailserver/` inside the container.
 
-[docs-dms-config-volume]: ./config/advanced/optional-config.md
+[docs-dms-config-volume]: ./faq.md#what-about-the-docker-datadmsconfig-directory
 
 ## Preliminary Steps
 
@@ -21,16 +21,17 @@ There are a few requirements for a suitable host system:
 2. The host should be able to send/receive on the [necessary ports for mail][docs-ports-overview]
 3. You should be able to set a `PTR` record for your host; security-hardened mail servers might otherwise reject your mail server as the IP address of your host does not resolve correctly/at all to the DNS name of your server.
 
-On the host, you should have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation].
+!!! note "About the Container Runtime"
 
-!!! info "Podman Support"
+    On the host, you need to have a suitable container runtime (like _Docker_ or _Podman_) installed. We assume [_Docker Compose_][docker-compose] is [installed][docker-compose-installation]. We have aligned file names and configuration conventions with the latest [Docker Compose (currently V2) specification][docker-compose-specification].
 
     If you're using podman, make sure to read the related [documentation][docs-podman].
 
-[docs-podman]: ./config/advanced/podman.md
 [docs-ports-overview]: ./config/security/understanding-the-ports.md#overview-of-email-ports
 [docker-compose]: https://docs.docker.com/compose/
 [docker-compose-installation]: https://docs.docker.com/compose/install/
+[docker-compose-specification]: https://docs.docker.com/compose/compose-file/
+[docs-podman]: ./config/advanced/podman.md
 
 ### Minimal DNS Setup
 
@@ -50,6 +51,17 @@ We will later dig into DKIM, DMARC & SPF, but for now, these are the records tha
     In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
 - The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
+
+!!! note "About The Mail Server's Fully Qualified Domain Name"
+
+    The mail server's fully qualified domain name (FQDN) in our example above is `mail.example.com`. Please note though that this is more of a convention, and not due to technical restrictions. One could also run the mail server
+
+    1. on `foo.example.com`: you would just need to change your `MX` record;
+    2. on `example.com` directly: you would need to change your `MX` record and probably [read our docs on bare domain setups][docs-faq-bare-domain], as these setups are called "bare domain" setups.
+
+    The FQDN is what is relevant for TLS certificates, it has no (inherent/technical) relation to the email addresses and accounts DMS manages. That is to say: even though DMS runs on `mail.example.com`, or `foo.example.com`, or `example.com`, there is nothing that prevents it from managing mail for `barbaz.org` - `barbaz.org` will just need to set its `MX` record to `mail.example.com` (or `foo.example.com` or `example.com`).
+
+    [docs-faq-bare-domain]: ./faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
 
 If you setup everything, it should roughly look like this:
 
@@ -87,14 +99,14 @@ All workflows are using the tagging convention listed below. It is subsequently 
 Issue the following commands to acquire the necessary files:
 
 ``` BASH
-DMS_GITHUB_URL="https://github.com/docker-mailserver/docker-mailserver/blob/latest"
-wget "${DMS_GITHUB_URL}/docker-compose.yml"
+DMS_GITHUB_URL="https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master"
+wget "${DMS_GITHUB_URL}/compose.yaml"
 wget "${DMS_GITHUB_URL}/mailserver.env"
 ```
 
 ### Configuration Steps
 
-1. First edit `docker-compose.yml` to your liking
+1. First edit `compose.yaml` to your liking
     - Substitute `mail.example.com` according to your FQDN.
     - If you want to use SELinux for the `./docker-data/dms/config/:/tmp/docker-mailserver/` mount, append `-z` or `-Z`.
 2. Then configure the environment specific to the mail server by editing [`mailserver.env`][docs-environment], but keep in mind that:

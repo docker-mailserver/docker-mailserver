@@ -132,5 +132,5 @@ function _should_have_log_entry() {
 
 # `lines` is a special BATS variable updated via `run`:
 function _should_output_number_of_lines() {
-  assert_equal "${#lines[@]}" $1
+  assert_equal "${#lines[@]}" "${1}"
 }

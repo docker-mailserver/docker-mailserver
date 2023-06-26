@@ -10,8 +10,7 @@ source /usr/local/bin/helpers/log.sh
 
 _log_level_is 'trace' && QUIET='-y' || QUIET='-qq'
 
-function _pre_installation_steps
-{
+function _pre_installation_steps() {
   _log 'info' 'Starting package installation'
   _log 'debug' 'Running pre-installation steps'
 
@@ -25,8 +24,7 @@ function _pre_installation_steps
   apt-get "${QUIET}" upgrade
 }
 
-function _install_postfix
-{
+function _install_postfix() {
   _log 'debug' 'Installing Postfix'
 
   _log 'warn' 'Applying workaround for Postfix bug (see https://github.com//issues/2023#issuecomment-855326403)'
@@ -42,8 +40,7 @@ function _install_postfix
   rm /etc/rsyslog.d/postfix.conf
 }
 
-function _install_packages
-{
+function _install_packages() {
   _log 'debug' 'Installing all packages now'
 
   declare -a ANTI_VIRUS_SPAM_PACKAGES
@@ -93,32 +90,16 @@ function _install_packages
     "${MAIL_PROGRAMS_PACKAGES[@]}"
 }
 
-function _install_dovecot
-{
+function _install_dovecot() {
   declare -a DOVECOT_PACKAGES
 
   DOVECOT_PACKAGES=(
-    dovecot-core dovecot-fts-xapian dovecot-imapd
+    dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
   )
 
-  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]
-  then
-    # The package dovecot-fts-xapian is installed from the debian repository.
-    # Starting with version 1.4.9a-1+deb11u1, a new dependency was added: dovecot-abi-2.3.abiv13
-    # dovecot-abi-2.3.abiv13 is a virtual package provided by dovecot-core (from the debian repository).
-    # However dovecot-core from the community repository provides dovecot-abi-2.3.abiv19.
-    _log 'trace' "Create and install dummy package 'dovecot-abi-2.3.abiv13' to satisfy 'dovecot-fts-xapian' dependency"
-    apt-get "${QUIET}" --no-install-recommends install checkinstall
-    echo -e 'install:\n\t@true' > Makefile
-    echo 'Dummy package to satisfy dovecot-fts-xapian dependency' > description-pak
-    checkinstall -y --install=yes --pkgname="dovecot-abi-2.3.abiv13" --pkgversion=1 --maintainer=Nobody --pkggroup=mail
-    # Cleanup
-    rm description-pak dovecot-abi-2.3.abiv13*.deb Makefile
-    apt-get "${QUIET}" purge checkinstall
-    apt-get "${QUIET}" autoremove
-
+  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]; then
     _log 'trace' 'Using Dovecot community repository'
     curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
@@ -130,10 +111,12 @@ function _install_dovecot
 
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
+
+  # dependency for fts_xapian
+  apt-get "${QUIET}" --no-install-recommends install libxapian30
 }
 
-function _install_rspamd
-{
+function _install_rspamd() {
   _log 'trace' 'Adding Rspamd package signatures'
   local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
   local RSPAMD_PACKAGE_NAME
@@ -144,8 +127,7 @@ function _install_rspamd
   #
   # Not removing it later is fine as you have to explicitly opt into installing a backports package
   # which is not something you could be doing by accident.
-  if [[ $(uname --machine) == 'aarch64' ]]
-  then
+  if [[ $(uname --machine) == 'aarch64' ]]; then
     echo '# Official Rspamd PPA does not support aarch64, so we use the Bullseye backports' >"${DEB_FILE}"
     echo 'deb [arch=arm64] http://deb.debian.org/debian bullseye-backports main' >>"${DEB_FILE}"
     RSPAMD_PACKAGE_NAME='rspamd/bullseye-backports'
@@ -162,8 +144,7 @@ function _install_rspamd
   apt-get "${QUIET}" --no-install-recommends install "${RSPAMD_PACKAGE_NAME}" 'redis-server'
 }
 
-function _install_fail2ban
-{
+function _install_fail2ban() {
   local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/1.0.2/fail2ban_1.0.2-1.upstream1_all.deb'
   local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
   local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
@@ -180,14 +161,12 @@ function _install_fail2ban
 
   FINGERPRINT=$(LANG=C gpg --verify fail2ban.deb.asc fail2ban.deb |& sed -n 's#Primary key fingerprint: \(.*\)#\1#p')
 
-  if [[ -z ${FINGERPRINT} ]]
-  then
+  if [[ -z ${FINGERPRINT} ]]; then
     echo 'ERROR: Invalid GPG signature!' >&2
     exit 1
   fi
 
-  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]
-  then
+  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then
     echo "ERROR: Wrong GPG fingerprint!" >&2
     exit 1
   fi
@@ -201,8 +180,21 @@ function _install_fail2ban
   sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
-function _remove_data_after_package_installations
-{
+# Presently the getmail6 package is v6.14, which is too old.
+# v6.18 contains fixes for Google and Microsoft OAuth support.
+# using pip to install getmail.
+# TODO This can be removed when the base image is updated to Debian 12 (Bookworm)
+function _install_getmail() {
+  _log 'debug' 'Installing getmail6'
+  apt-get "${QUIET}" --no-install-recommends install python3-pip
+  pip3 install --no-cache-dir 'getmail6~=6.18.12'
+  ln -s /usr/local/bin/getmail /usr/bin/getmail
+  ln -s /usr/local/bin/getmail-gmail-xoauth-tokens /usr/bin/getmail-gmail-xoauth-tokens
+  apt-get "${QUIET}" purge python3-pip
+  apt-get "${QUIET}" autoremove
+}
+
+function _remove_data_after_package_installations() {
   _log 'debug' 'Deleting sensitive files (secrets)'
   rm /etc/postsrsd.secret
 
@@ -210,8 +202,7 @@ function _remove_data_after_package_installations
   rm /etc/cron.daily/00logwatch
 }
 
-function _post_installation_steps
-{
+function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
@@ -225,5 +216,6 @@ _install_packages
 _install_dovecot
 _install_rspamd
 _install_fail2ban
+_install_getmail
 _remove_data_after_package_installations
 _post_installation_steps

@@ -49,8 +49,7 @@ function teardown_file() {
 }
 
 @test "fail2ban-jail.cf overrides" {
-  for FILTER in 'dovecot' 'postfix' 'postfix-sasl'
-  do
+  for FILTER in 'dovecot' 'postfix' 'postfix-sasl'; do
     _run_in_container fail2ban-client get "${FILTER}" bantime
     assert_output 1234
 

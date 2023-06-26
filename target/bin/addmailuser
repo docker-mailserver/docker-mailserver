@@ -3,8 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   _require_n_parameters_or_print_usage 1 "${@}"
 
   local MAIL_ACCOUNT="${1}"
@@ -18,8 +17,7 @@ function _main
   # where the actual account is created in Dovecot. Expect a delay.
 }
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}addmailuser${RED}(${YELLOW}8${RED})
 
 ${ORANGE}USAGE${RESET}

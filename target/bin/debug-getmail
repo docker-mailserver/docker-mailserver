@@ -1,0 +1,19 @@
+#! /bin/bash
+
+# shellcheck source=../scripts/helpers/log.sh
+source /usr/local/bin/helpers/log.sh
+# shellcheck source=../scripts/startup/setup-stack.sh
+source /usr/local/bin/setup.d/getmail.sh
+
+_setup_getmail
+
+if [[ -d /var/lib/getmail ]]; then
+  GETMAILDIR=/var/lib/getmail
+else
+  mkdir -p /tmp/docker-mailserver/getmail
+  GETMAILDIR=/tmp/docker-mailserver/getmail
+fi
+
+for FILE in /etc/getmailrc.d/getmailrc*; do
+  /usr/local/bin/getmail --getmaildir "${GETMAILDIR}" --rcfile "${FILE}" --dump | tail -n +7
+done

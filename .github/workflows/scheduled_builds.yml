@@ -1,12 +1,14 @@
 name: 'Deploy :edge on Schedule'
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 0 * * 5
 
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
   build-images:

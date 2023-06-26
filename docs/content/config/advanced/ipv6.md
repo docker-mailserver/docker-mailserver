@@ -11,7 +11,7 @@ This can be solved by supporting IPv6 connections all the way to the DMS contain
 ## Setup steps
 
 ```diff
-+++ b/serv/docker-compose.yml
++++ b/serv/compose.yaml
 @@ ... @@ services:
 
 +  ipv6nat:

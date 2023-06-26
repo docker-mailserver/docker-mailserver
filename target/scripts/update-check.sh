@@ -9,26 +9,22 @@ CHANGELOG_URL='https://github.com/docker-mailserver/docker-mailserver/blob/maste
 
 # check for correct syntax
 # number + suffix. suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
-if [[ ! ${UPDATE_CHECK_INTERVAL} =~ ^[0-9]+[smhd]{1}$ ]]
-then
+if [[ ! ${UPDATE_CHECK_INTERVAL} =~ ^[0-9]+[smhd]{1}$ ]]; then
   _log_with_date 'warn' "Invalid 'UPDATE_CHECK_INTERVAL' value '${UPDATE_CHECK_INTERVAL}'"
   _log_with_date 'warn' 'Falling back to daily update checks'
   UPDATE_CHECK_INTERVAL='1d'
 fi
 
-while true
-do
+while true; do
   # get remote version information
   LATEST=$(curl -Lsf "${VERSION_URL}")
 
   # did we get a valid response?
-  if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-  then
+  if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     _log_with_date 'debug' 'Remote version information fetched'
 
     # compare versions
-    if dpkg --compare-versions "${VERSION}" lt "${LATEST}"
-    then
+    if dpkg --compare-versions "${VERSION}" lt "${LATEST}"; then
       # send mail notification to postmaster
       read -r -d '' MAIL << EOF
 Hello ${POSTMASTER_ADDRESS}!

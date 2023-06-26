@@ -3,8 +3,7 @@
 # shellcheck source-path=target/scripts/helpers
 # This file serves as a single import for all helpers
 
-function _import_scripts
-{
+function _import_scripts() {
   local PATH_TO_SCRIPTS='/usr/local/bin/helpers'
 
   source "${PATH_TO_SCRIPTS}/accounts.sh"
