@@ -3,19 +3,16 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   _list_entries "${DATABASE_VIRTUAL}"
 }
 
-function _list_entries
-{
+function _list_entries() {
   local DATABASE=${1}
   _db_should_exist_with_content "${DATABASE}"
 
-  while read -r LINE
-  do
+  while read -r LINE; do
     echo -e "* ${LINE}\n"
   done < <(_get_valid_lines_from_file "${DATABASE}")
 }

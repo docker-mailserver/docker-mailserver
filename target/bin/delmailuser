@@ -3,8 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   _require_n_parameters_or_print_usage 1 "${@}"
 
   # Tests expect early exit without error if no DB exists:
@@ -17,8 +16,7 @@ function _main
   _create_lock
 
   # Actual command to perform:
-  for MAIL_ACCOUNT in "${@}"
-  do
+  for MAIL_ACCOUNT in "${@}"; do
     _account_should_already_exist
 
     [[ ${MAILDEL} -eq 1 ]] && _remove_maildir "${MAIL_ACCOUNT}"
@@ -37,8 +35,7 @@ function _main
   done
 }
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}delmailuser${RED}(${YELLOW}8${RED})
 
 ${ORANGE}USAGE${RESET}
@@ -71,10 +68,8 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-function _parse_options
-{
-  while getopts ":yY" OPT
-  do
+function _parse_options() {
+  while getopts ":yY" OPT; do
     case "${OPT}" in
       ( 'y' | 'Y' )
         MAILDEL=1
@@ -89,23 +84,19 @@ function _parse_options
   done
 }
 
-function _maildel_request_if_missing
-{
-  if [[ ${MAILDEL} -eq 0 ]]
-  then
+function _maildel_request_if_missing() {
+  if [[ ${MAILDEL} -eq 0 ]]; then
     local MAILDEL_CHOSEN
     read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
 
     # TODO: Why would MAILDEL be set to true if MAILDEL_CHOSEN is empty?
-    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]
-    then
+    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]; then
       MAILDEL=1
     fi
   fi
 }
 
-function _remove_maildir
-{
+function _remove_maildir() {
   local MAIL_ACCOUNT=${1}
 
   local LOCAL_PART="${MAIL_ACCOUNT%@*}"

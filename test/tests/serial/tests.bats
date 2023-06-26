@@ -164,6 +164,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "amavis: old virusmail is wipped by cron" {
+  # shellcheck disable=SC2016
   _exec_in_container_bash 'touch -d "`date --date=2000-01-01`" /var/lib/amavis/virusmails/should-be-deleted'
   _run_in_container_bash '/usr/local/bin/virus-wiper'
   assert_success
@@ -172,6 +173,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "amavis: recent virusmail is not wipped by cron" {
+  # shellcheck disable=SC2016
   _exec_in_container_bash 'touch -d "`date`"  /var/lib/amavis/virusmails/should-not-be-deleted'
   _run_in_container_bash '/usr/local/bin/virus-wiper'
   assert_success

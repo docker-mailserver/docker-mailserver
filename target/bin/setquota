@@ -3,8 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   _require_n_parameters_or_print_usage 1 "${@}"
 
   local MAIL_ACCOUNT="${1}"
@@ -15,8 +14,7 @@ function _main
   _manage_dovecot_quota_update "${MAIL_ACCOUNT}" "${QUOTA}"
 }
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}setquota${RED}(${YELLOW}8${RED})
 
 ${ORANGE}USAGE${RESET}
@@ -43,8 +41,7 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-function _validate_parameters
-{
+function _validate_parameters() {
   # MAIL_ACCOUNT
   _arg_expect_mail_account
   _account_should_already_exist
@@ -54,20 +51,16 @@ function _validate_parameters
   _quota_unit_is_valid
 }
 
-function _quota_request_if_missing
-{
-  if [[ -z ${QUOTA} ]]
-  then
+function _quota_request_if_missing() {
+  if [[ -z ${QUOTA} ]]; then
     read -r -p 'Enter quota (e.g. 10M): ' QUOTA
     echo
     [[ -z "${QUOTA}" ]] && _exit_with_error 'Quota must not be empty (use 0 for unlimited quota)'
   fi
 }
 
-function _quota_unit_is_valid
-{
-  if ! grep -qE "^([0-9]+(B|k|M|G|T)|0)\$" <<< "${QUOTA}"
-  then
+function _quota_unit_is_valid() {
+  if ! grep -qE "^([0-9]+(B|k|M|G|T)|0)\$" <<< "${QUOTA}"; then
     __usage
     _exit_with_error 'Invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))'
   fi

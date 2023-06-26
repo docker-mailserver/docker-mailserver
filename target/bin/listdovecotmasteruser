@@ -3,20 +3,17 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
   _list_entries "${DATABASE_DOVECOT_MASTERS}"
 }
 
-function _list_entries
-{
+function _list_entries() {
   local DATABASE=${1}
   _db_should_exist_with_content "${DATABASE}"
 
   local MASTER_ACCOUNT
-  while read -r LINE
-  do
+  while read -r LINE; do
     MASTER_ACCOUNT=$(echo "${LINE}" | cut -d'|' -f1)
 
     echo -e "* ${MASTER_ACCOUNT}\n"

@@ -10,16 +10,14 @@ USER=${3:-}
 
 function __usage { _log 'info' "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
 
-if [[ ${DIRECTION} =~ ^(send|receive)$ ]]
-then
+if [[ ${DIRECTION} =~ ^(send|receive)$ ]]; then
   DATABASE="/tmp/docker-mailserver/postfix-${DIRECTION}-access.cf"
 else
   __usage
   _exit_with_error "Unknown or missing second parameter '${DIRECTION}' - specify 'send' or 'receive'"
 fi
 
-if [[ -z ${USER} ]] && [[ ${COMMAND} != list ]]
-then
+if [[ -z ${USER} ]] && [[ ${COMMAND} != list ]]; then
   read -r -p 'Provide a username: ' USER
   [[ -z ${USER} ]] && _exit_with_error 'User must not be empty'
 fi
@@ -27,15 +25,13 @@ fi
 case "${COMMAND}" in
 
   ( 'add' )
-    if [[ -f ${DATABASE} ]] && grep -q -F "${USER}" "${DATABASE}"
-    then
+    if [[ -f ${DATABASE} ]] && grep -q -F "${USER}" "${DATABASE}"; then
       _exit_with_error "User '${USER}' already denied to ${DIRECTION} mails"
     fi
 
     echo -e "${USER} \t\t REJECT" >>"${DATABASE}"
 
-    if [[ ${DIRECTION} == 'send' ]]
-    then
+    if [[ ${DIRECTION} == 'send' ]]; then
       CHECK='check_sender_access'
       POSTFIX_OPTION='smtpd_sender_restrictions'
     else
@@ -45,16 +41,14 @@ case "${COMMAND}" in
 
     # only adjust Postfix's `main.cf` if we haven't adjusted it before
     STRING_TO_BE_ADDED="${CHECK} texthash:/tmp/docker-mailserver/postfix-${DIRECTION}-access.cf"
-    if ! grep -q "${STRING_TO_BE_ADDED}" /etc/postfix/main.cf
-    then
+    if ! grep -q "${STRING_TO_BE_ADDED}" /etc/postfix/main.cf; then
       sed -i -E "s|^(${POSTFIX_OPTION} =)(.*)|\1 ${STRING_TO_BE_ADDED},\2|" /etc/postfix/main.cf
       _reload_postfix
     fi
     ;;
 
   ( 'del' )
-    if ! sed -i "/^$(_escape "${USER}").*/d" "${DATABASE}" 2>/dev/null
-    then
+    if ! sed -i "/^$(_escape "${USER}").*/d" "${DATABASE}" 2>/dev/null; then
       _exit_with_error "User '${USER}' not found"
     fi
     ;;

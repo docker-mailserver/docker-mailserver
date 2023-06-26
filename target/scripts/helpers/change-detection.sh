@@ -12,8 +12,7 @@ CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 # Once container startup scripts complete, take a snapshot of
 # the config state via storing a list of files content hashes.
-function _prepare_for_change_detection
-{
+function _prepare_for_change_detection() {
   _log 'debug' 'Setting up configuration checksum file'
 
   _log 'trace' "Creating '${CHKSUM_FILE}'"
@@ -22,8 +21,7 @@ function _prepare_for_change_detection
 
 # Returns a list of changed files, each line is a value pair of:
 # <SHA-512 content hash> <changed file path>
-function _monitored_files_checksums
-{
+function _monitored_files_checksums() {
   # If a wildcard path pattern (or an empty ENV) would yield an invalid path
   # or no results, `shopt -s nullglob` prevents it from being added.
   shopt -s nullglob
@@ -31,8 +29,7 @@ function _monitored_files_checksums
 
   # Supported user provided configs:
   local DMS_DIR=/tmp/docker-mailserver
-  if [[ -d ${DMS_DIR} ]]
-  then
+  if [[ -d ${DMS_DIR} ]]; then
     STAGING_FILES+=(
       "${DMS_DIR}/postfix-accounts.cf"
       "${DMS_DIR}/postfix-virtual.cf"
@@ -46,8 +43,7 @@ function _monitored_files_checksums
   fi
 
   # SSL certs:
-  if [[ ${SSL_TYPE:-} == 'manual' ]]
-  then
+  if [[ ${SSL_TYPE:-} == 'manual' ]]; then
     # When using "manual" as the SSL type,
     # the following variables may contain the certificate files
     STAGING_FILES+=(
@@ -56,8 +52,7 @@ function _monitored_files_checksums
       "${SSL_ALT_CERT_PATH:-}"
       "${SSL_ALT_KEY_PATH:-}"
     )
-  elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]
-  then
+  elif [[ ${SSL_TYPE:-} == 'letsencrypt' ]]; then
     # React to any cert changes within the following LetsEncrypt locations:
     STAGING_FILES+=(
       /etc/letsencrypt/acme.json
@@ -69,13 +64,11 @@ function _monitored_files_checksums
 
   # If the file actually exists, add to CHANGED_FILES
   # and generate a content hash entry:
-  for FILE in "${STAGING_FILES[@]}"
-  do
+  for FILE in "${STAGING_FILES[@]}"; do
     [[ -f "${FILE}" ]] && CHANGED_FILES+=("${FILE}")
   done
 
-  if [[ -n ${CHANGED_FILES:-} ]]
-  then
+  if [[ -n ${CHANGED_FILES:-} ]]; then
     sha512sum -- "${CHANGED_FILES[@]}"
   fi
 }

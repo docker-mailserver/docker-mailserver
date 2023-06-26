@@ -17,8 +17,7 @@
 # This function is internal and should not be used in tests.
 function __initialize_variables() {
   function __check_if_set() {
-    if [[ ${!1+set} != 'set' ]]
-    then
+    if [[ ${!1+set} != 'set' ]]; then
       echo "ERROR: (helper/setup.sh) '${1:?No variable name given to __check_if_set}' is not set" >&2
       exit 1
     fi
@@ -30,8 +29,7 @@ function __initialize_variables() {
     'CONTAINER_NAME'
   )
 
-  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS[@]}"
-  do
+  for VARIABLE in "${REQUIRED_VARIABLES_FOR_TESTS[@]}"; do
     __check_if_set "${VARIABLE}"
   done
 
@@ -64,8 +62,7 @@ function _duplicate_config_for_container() {
   local OUTPUT_FOLDER
   OUTPUT_FOLDER=$(_print_private_config_path "${2}")
 
-  if [[ -z ${OUTPUT_FOLDER} ]]
-  then
+  if [[ -z ${OUTPUT_FOLDER} ]]; then
     echo "'OUTPUT_FOLDER' in '_duplicate_config_for_container' is empty" >&2
     return 1
   fi

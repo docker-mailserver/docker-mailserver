@@ -2,7 +2,7 @@
 title: 'Advanced | Email Gathering with Fetchmail'
 ---
 
-To enable the [fetchmail][fetchmail-website] service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`. Your `docker-compose.yml` file should look like following snippet:
+To enable the [fetchmail][fetchmail-website] service to retrieve e-mails set the environment variable `ENABLE_FETCHMAIL` to `1`. Your `compose.yaml` file should look like following snippet:
 
 ```yaml
 environment:
@@ -18,7 +18,7 @@ Generate a file called `fetchmail.cf` and place it in the `docker-data/dms/confi
 │   ├── fetchmail.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── docker-compose.yml
+├── compose.yaml
 └── README.md
 ```
 

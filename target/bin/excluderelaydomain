@@ -3,8 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   _require_n_parameters_or_print_usage 1 "${@}"
 
   local DOMAIN="${1}"
@@ -12,8 +11,7 @@ function _main
   _exclude_domain_from_relayhosts
 }
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}excluderelayhost${RED}(${YELLOW}8${RED})
 
 ${ORANGE}USAGE${RESET}
@@ -44,8 +42,7 @@ ${ORANGE}EXIT STATUS${RESET}
 
 # Config is for sender dependent relay-host mapping,
 # excludes appending a sender from the real generated mapping in `helpers/relay.sh`.
-function _exclude_domain_from_relayhosts
-{
+function _exclude_domain_from_relayhosts() {
   local SENDER="@${DOMAIN}"
   local DATABASE_RELAY='/tmp/docker-mailserver/postfix-relaymap.cf'
 

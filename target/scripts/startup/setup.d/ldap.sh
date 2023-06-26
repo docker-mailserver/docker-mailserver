@@ -1,15 +1,12 @@
 #!/bin/bash
 
-function _setup_ldap
-{
+function _setup_ldap() {
   _log 'debug' 'Setting up LDAP'
   _log 'trace' 'Checking for custom configs'
 
-  for i in 'users' 'groups' 'aliases' 'domains'
-  do
+  for i in 'users' 'groups' 'aliases' 'domains'; do
     local FPATH="/tmp/docker-mailserver/ldap-${i}.cf"
-    if [[ -f ${FPATH} ]]
-    then
+    if [[ -f ${FPATH} ]]; then
       cp "${FPATH}" "/etc/postfix/ldap-${i}.cf"
     fi
   done
@@ -25,8 +22,7 @@ function _setup_ldap
     /etc/postfix/maps/sender_login_maps.ldap
   )
 
-  for FILE in "${FILES[@]}"
-  do
+  for FILE in "${FILES[@]}"; do
     [[ ${FILE} =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
     [[ ${FILE} =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
     [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
@@ -46,16 +42,14 @@ function _setup_ldap
 
   # Add protocol to DOVECOT_URIS so that we can use dovecot's "uris" option:
   # https://doc.dovecot.org/configuration_manual/authentication/ldap/
-  if [[ ${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]} != *'://'* ]]
-  then
+  if [[ ${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]} != *'://'* ]]; then
     DOVECOT_LDAP_MAPPING['DOVECOT_URIS']="ldap://${DOVECOT_LDAP_MAPPING["DOVECOT_URIS"]}"
   fi
 
   # Default DOVECOT_PASS_FILTER to the same value as DOVECOT_USER_FILTER
   DOVECOT_LDAP_MAPPING['DOVECOT_PASS_FILTER']="${DOVECOT_PASS_FILTER:="${DOVECOT_USER_FILTER}"}"
 
-  for VAR in "${!DOVECOT_LDAP_MAPPING[@]}"
-  do
+  for VAR in "${!DOVECOT_LDAP_MAPPING[@]}"; do
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
@@ -68,22 +62,19 @@ function _setup_ldap
 
   _log 'trace' "Configuring LDAP"
 
-  if [[ -f /etc/postfix/ldap-users.cf ]]
-  then
+  if [[ -f /etc/postfix/ldap-users.cf ]]; then
     postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-users.cf' not found"
   fi
 
-  if [[ -f /etc/postfix/ldap-domains.cf ]]
-  then
+  if [[ -f /etc/postfix/ldap-domains.cf ]]; then
     postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-domains.cf' not found"
   fi
 
-  if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]
-  then
+  if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]; then
     postconf 'virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf'
   else
     _log 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"

@@ -55,7 +55,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
     adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments
 
-2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
+2. Update `compose.yaml` to load the previously created dovecot plugin config file:
 
     ```yaml
       services:
@@ -86,20 +86,20 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 3. Recreate containers:
 
     ```
-    docker-compose down
-    docker-compose up -d
+    docker compose down
+    docker compose up -d
     ```
 
 4. Initialize indexing on all users for all mail:
 
     ```
-    docker-compose exec mailserver doveadm index -A -q \*
+    docker compose exec mailserver doveadm index -A -q \*
     ```
 
 5. Run the following command in a daily cron job:
 
     ```
-    docker-compose exec mailserver doveadm fts optimize -A
+    docker compose exec mailserver doveadm fts optimize -A
     ```
     Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
 
@@ -108,7 +108,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     Create a _system_ cron file:
 
     ```sh
-    # in the docker-compose.yml root directory
+    # in the compose.yaml root directory
     mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
     touch ./docker-data/dms/cron/fts_xapian
     chown root:root ./docker-data/dms/cron/fts_xapian
@@ -127,7 +127,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     0  4 * * * root  doveadm fts optimize -A
     ```
 
-    Then with `docker-compose.yml`:
+    Then with `compose.yaml`:
 
     ```yaml
     services:
@@ -148,7 +148,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
 
 #### Setup
 
-1. `docker-compose.yml`:
+1. `compose.yaml`:
 
     ```yaml
       solr:
@@ -180,9 +180,9 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
     }
     ```
 
-3. Recreate containers: `docker-compose down ; docker-compose up -d`
+3. Recreate containers: `docker compose down ; docker compose up -d`
 
-4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
+4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker compose exec mailserver doveadm fts rescan -A`
 
 #### Further Discussion
 
