@@ -60,7 +60,7 @@ Enable `ip6tables` so that Docker will manage IPv6 networking rules as well. Thi
     ```
 
     - `experimental: true` is currently required for `ip6tables: true` to work.
-    - `userland-proxy: true` may provide better compatibility (_presently default in Docker_).
+    - `userland-proxy` setting [can potentially affect connection behaviour][gh-pull-3244-proxy] for local connections.
 
     Now restart the daemon if it's running: `systemctl restart docker`.
 
@@ -84,9 +84,19 @@ If you've [configured IPv6 address pools in `/etc/docker/daemon.json`][docker-do
     - These addresses do not need to publish ports of a container to another IP to be publicly reached (_thus `ip6tables: true` is not required_), you will want a firewall configured to manage which ports are accessible instead as no NAT is involved. Note that this may not be desired if the container should also be reachable via the host IPv4 public address.
     - You may want to subdivide the `/64` into smaller subnets for Docker to use only portions of the `/64`. This can reduce some routing features, and [require additional setup / management via a NDP Proxy][gh-pull-3244-gua] for your public interface to know of IPv6 assignments managed by Docker and accept external traffic.
 
+### Verify remote IP is correct
+
+With Docker CLI or Docker Compose, run a `traefik/whoami` container with your IPv6 docker network and port 80 published. You can then send a curl request (or via address in the browser) from another host (as your remote client) with an IPv6 network, the `RemoteAddr` value returned should match your client IPv6 address.
+
+```bash
+docker run --rm -d --network dms-ipv6 -p 80:80 traefik/whoami
+# On a different host, replace `2001:db8::1` with your DMS host IPv6 address
+curl --max-time 5 http://[2001:db8::1]:80
+```
+
 !!! info "IPv6 ULA address priority"
 
-    DNS lookups that have records for both IPv4 and IPv6 addresses (_eg: `localhost`_) may prefer IPv4 over IPv6 (ULA) for private addresses, whereas for public addresses IPv6 has priority. This shouldn't be anything to worry about, but can come across as a surprise when testing your IPv6 setup without a remote client.
+    DNS lookups that have records for both IPv4 and IPv6 addresses (_eg: `localhost`_) may prefer IPv4 over IPv6 (ULA) for private addresses, whereas for public addresses IPv6 has priority. This shouldn't be anything to worry about, but can come across as a surprise when testing your IPv6 setup on the same host instead of from a remote client.
     
     The preference can be controlled with [`/etc/gai.conf`][networking-gai], and appears was configured this way based on [the assumption that IPv6 ULA would never be used with NAT][networking-gai-blog]. It should only affect the destination resolved for outgoing connections, which for IPv6 ULA should only really affect connections between your containers / host. In future [IPv6 ULA may also be prioritized][networking-gai-rfc].
 
@@ -98,6 +108,7 @@ If you've [configured IPv6 address pools in `/etc/docker/daemon.json`][docker-do
 
 [docs-compat]: ../debugging.md#compatibility
 
+[gh-pull-3244-proxy]: https://github.com/docker-mailserver/docker-mailserver/pull/3244#issuecomment-1603436809
 [docker-docs-enable-ipv6]: https://docs.docker.com/config/daemon/ipv6/
 [docker-docs-ipv6-create-custom]: https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network
 [docker-docs-ipv6-create-default]: https://docs.docker.com/config/daemon/ipv6/#use-ipv6-for-the-default-bridge-network
