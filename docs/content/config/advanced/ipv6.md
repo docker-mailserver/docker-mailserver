@@ -20,34 +20,34 @@ The impact of losing the real IP of the client connection can negatively affect 
 - Users unable to login (_Fail2Ban action triggered by repeated login failures all seen as from the same internal Gateway IP_)
 - Mail inbound to DMS is rejected (_[SPF verification failure][gh-issue-1438-spf], IP mismatch_)
 - Delivery failures from [sender reputation][sender-score] being reduced (_due to [bouncing inbound mail][gh-issue-3057-bounce] from rejected IPv6 clients_)
+- Some services may be configured to trust connecting clients within the containers subnet, which includes the Gateway IP. This can risk bypassing or relaxing security measures, such as exposing an [open relay][wikipedia-openrelay].
 
 ### Why does this happen?
 
 When the host network receives a connection to a containers published port, it is routed to the containers internal network managed by Docker (_typically a bridge network_).
 
-By default, the Docker daemon only assigns IPv4 addresses to containers, thus it will only accept IPv4 connections (_unless a `docker-proxy` process is listening, which is the default `userland-proxy: true` daemon setting enables_). IPv6 connections can be accepted too and routed to the containers IPv4 address, however this loses the IPv6 context of the original client connection.
+By default, the Docker daemon only assigns IPv4 addresses to containers, thus it will only accept IPv4 connections (_unless a `docker-proxy` process is listening, which the default daemon setting `userland-proxy: true` enables_). With the daemon setting `userland-proxy: true` (default), IPv6 connections from the host can also be accepted and routed to containers (_even when they only have IPv4 addresses assigned_). `userland-proxy: false` will require the container to have atleast an IPv6 address assigned.
 
-Internally, the container is no longer aware of the original client IPv6 address, it has been proxied through the gateway address of it's connected network (_eg: `172.17.0.1`, Docker allocates networks from a set of [default subnets][docker-subnets]_).
+This can be problematic for IPv6 host connections when internally the container is no longer aware of the original client IPv6 address, as it has been proxied through the IPv4 or IPv6 gateway address of it's connected network (_eg: `172.17.0.1` - Docker allocates networks from a set of [default subnets][docker-subnets]_).
 
 This can be fixed by enabling a Docker network to assign IPv6 addresses to containers, along with some additional configuration. Alternatively you could configure the opposite to prevent IPv6 connections being made.
 
-## Preventing IPv6 connections
+## Prevent IPv6 connections
 
-Avoiding an `AAAA` DNS record for your DMS FQDN would prevent resolving an IPv6 address to connect to.
-
-You can also use `userland-proxy: false`, which will fail to establish a connection to DMS.
+- Avoiding an `AAAA` DNS record for your DMS FQDN would prevent resolving an IPv6 address to connect to.
+- You can also use `userland-proxy: false`, which will fail to establish a remote connection to DMS (_provided no IPv6 address was assigned_).
 
 !!! tip "With UFW or Firewalld"
 
     When one of these firewall frontends are active, remote clients should fail to connect instead of being masqueraded as the docker network gateway IP. Keep in mind that this only affects remote clients, it does not affect local IPv6 connections originating within the same host.
 
-## Configure Docker to properly support IPv6
+## Enable proper IPv6 support
 
 You can enable IPv6 support in Docker for container networks, however [compatibility concerns][docs-compat] may affect your success.
 
 The [official Docker documentation on enabling IPv6][docker-docs-enable-ipv6] has been improving and is a good resource to reference.
 
-Enable `ip6tables` so that Docker will manage IPv6 networking rules as well. This will allow for IPv6 NAT to work like IPv4 does for your containers, avoiding the above issue with external connections having their IP address seen as the containers network gateway IP (_provided an IPv6 address is also assigned to the container_).
+Enable `ip6tables` support so that Docker will manage IPv6 networking rules as well. This will allow for IPv6 NAT to work like the existing IPv4 NAT already does for your containers, avoiding the above issue with external connections having their IP address seen as the container network gateway IP (_provided an IPv6 address is also assigned to the container_).
 
 !!! example "Configure the following in `/etc/docker/daemon.json`"
 
@@ -73,6 +73,25 @@ Next, configure a network for your container with any of these:
 !!! danger "Do not use `2001:db8:1::/64` for your private subnet"
 
     The `2001:db8` address prefix is [reserved for documentation][wikipedia-ipv6-reserved]. Avoid using a subnet with this prefix.
+
+!!! example "User-defined IPv6 ULA subnet"
+
+    - Either of these should work well. You can use a smaller subnet size like `/112` if you prefer.
+    - The network will also include an IPv4 subnet assigned implicitly.
+
+    ```bash
+    # CLI
+    docker network create --ipv6 --subnet fd00:cafe:face:feed::/64 dms-ipv6
+    ```
+
+    ```yaml
+    # compose.yaml
+    networks:
+      # Overrides the `default` compose generated network, avoids needing to attach to each service:
+      default:
+        enable_ipv6: true
+        subnet: fd00:cafe:face:feed::/64
+    ```
 
 ### Configuring an IPv6 subnet
 
@@ -100,11 +119,11 @@ curl --max-time 5 http://[2001:db8::1]:80
     
     The preference can be controlled with [`/etc/gai.conf`][networking-gai], and appears was configured this way based on [the assumption that IPv6 ULA would never be used with NAT][networking-gai-blog]. It should only affect the destination resolved for outgoing connections, which for IPv6 ULA should only really affect connections between your containers / host. In future [IPv6 ULA may also be prioritized][networking-gai-rfc].
 
-[wikipedia-nat64]: https://en.wikipedia.org/wiki/NAT64
 [docker-subnets]: https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools
 [sender-score]: https://senderscore.org/assess/get-your-score/
 [gh-issue-1438-spf]: https://github.com/docker-mailserver/docker-mailserver/issues/1438
 [gh-issue-3057-bounce]: https://github.com/docker-mailserver/docker-mailserver/pull/3057#issuecomment-1416700046
+[wikipedia-openrelay]: https://en.wikipedia.org/wiki/Open_mail_relay
 
 [docs-compat]: ../debugging.md#compatibility
 
