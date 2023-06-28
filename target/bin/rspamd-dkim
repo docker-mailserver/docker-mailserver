@@ -156,7 +156,7 @@ function _create_keys() {
   if [[ ${KEYTYPE} == 'rsa' ]]; then
     local BASE_FILE_NAME="${BASE_DIR}/${KEYTYPE}-${KEYSIZE}-${SELECTOR}-${DOMAIN}"
     KEYTYPE_OPTIONS=('-b' "${KEYSIZE}")
-    _log 'info' "Creating DKIM keys of type '${KEYTYPE}' and lenght '${KEYSIZE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
+    _log 'info' "Creating DKIM keys of type '${KEYTYPE}' and length '${KEYSIZE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
   else
     local BASE_FILE_NAME="${BASE_DIR}/${KEYTYPE}-${SELECTOR}-${DOMAIN}"
     KEYTYPE_OPTIONS=('-t' "${KEYTYPE}")
@@ -216,7 +216,7 @@ use_domain = "header";
 use_redis = false;   # don't change unless Redis also provides the DKIM keys
 use_esld = true;
 
-check_pubkey = true; # you wan't to use this in the beginning
+check_pubkey = true; # you want to use this in the beginning
 
 domain {
     ${DOMAIN} {
