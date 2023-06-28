@@ -68,10 +68,11 @@ This could be from outdated software, or running a system that isn't able to pro
 ### System
 
 - **Kernel:** Some systems provide [kernels with modifications (_replacing defaults and backporting patches_)][network::kernels-modified] to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.
-- **CGroups v2:** Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 `unified` hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed. 
-- **Rootless containers** have additional constraints that vary by container runtime (_Docker, Podman, etc - which already have subtle differences_).
-    - This can introduce differences such as for container networking which may further impact support for IPv6 and preserving the client IP (Remote address). For example in Docker rootless [binding port to a specific interface][docker-rootless-interface] and choice of [port forwarding driver][docs-rootless-portdriver]
+- **CGroups v2:** Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 `unified` hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed.
+- **Container runtime:** Docker and Podman for example have subtle differences. DMS docs are primarily focused on Docker, but we try to document known issues where relevant.
+- **Rootless containers:** Introduces additional differences in behaviour or requirements:
     - cgroup v2 is required for supporting rootless containers.
+    - Differences such as for container networking which may further affect support for IPv6 and preserving the client IP (Remote address). Example with Docker rootless are [binding a port to a specific interface][docker-rootless-interface] and the choice of [port forwarding driver][docs-rootless-portdriver].
 
 [network::docker-userlandproxy]: https://github.com/moby/moby/issues/44721
 [network::docker-nftables]: https://github.com/moby/moby/issues/26824
