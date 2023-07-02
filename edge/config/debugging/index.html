@@ -1645,18 +1645,19 @@
 <p>For example a text editor you can use in the terminal: <code>apt-get install nano</code></p>
 <h2 id="compatibility"><a class="toclink" href="#compatibility">Compatibility</a></h2>
 <p>It's possible that the issue you're experiencing is due to a compatibility conflict.</p>
-<p>This could be from outdated software updates, or running a system that isn't able to provide you newer software and kernels. You may want to verify if you can reproduce the issue on a system that is not affected by these concerns.</p>
+<p>This could be from outdated software, or running a system that isn't able to provide you newer software and kernels. You may want to verify if you can reproduce the issue on a system that is not affected by these concerns.</p>
 <h3 id="network"><a class="toclink" href="#network">Network</a></h3>
 <ul>
+<li>Misconfigured network connections can cause the client IP address to be proxied through a docker network gateway IP, or a <a href="https://github.com/orgs/docker-mailserver/discussions/3273#discussioncomment-5654603">service that acts on behalf of connecting clients for logins</a> where the connections client IP appears to be only from that service (eg: Container IP) instead. This can relay the wrong information to other services (eg: monitoring like Fail2Ban, SPF verification) causing unexpected failures.</li>
 <li><strong><code>userland-proxy</code>:</strong> Prior to Docker <code>v23</code>, <a href="https://github.com/moby/moby/issues/44721">changing the <code>userland-proxy</code> setting did not reliably remove NAT rules</a>.</li>
-<li><strong>UFW / firewalld:</strong> Some users expect only their firewall frontend to manage the firewall rules, but these will be bypassed when Docker publishes a container port as there is no integration between the two.</li>
+<li><strong>UFW / firewalld:</strong> Some users expect only their firewall frontend to manage the firewall rules, but these will be bypassed when Docker publishes a container port (<em>as there is no integration between the two</em>).</li>
 <li><strong><code>iptables</code> / <code>nftables</code>:</strong><ul>
 <li>Docker <a href="https://github.com/moby/moby/issues/26824">only manages the NAT rules via <code>iptables</code></a>, relying on compatibility shims for supporting the successor <code>nftables</code>. Internally DMS expects <code>nftables</code> support on the host kernel for services like Fail2Ban to function correctly.</li>
 <li><a href="https://unix.stackexchange.com/questions/596493/can-nftables-and-iptables-ip6tables-rules-be-applied-at-the-same-time-if-so-wh/596497#596497">Kernels older than 5.2 may affect management of NAT rules via <code>nftables</code></a>. Other software outside of DMS may also manipulate these rules, such as firewall frontends.</li>
 </ul>
 </li>
 <li><strong>IPv6:</strong><ul>
-<li>Requires <a href="../advanced/ipv6/">additional configuration</a> to prevent or properly support IPv6 connections (eg: Preservering the Client IP).</li>
+<li>Requires <a href="../advanced/ipv6/">additional configuration</a> to prevent or properly support IPv6 connections (eg: Preserving the Client IP).</li>
 <li>Support in 2023 is still considered experimental. You are advised to use at least Docker Engine <code>v23</code> (2023Q1).</li>
 <li>Various networking bug fixes have been addressed since the intitial IPv6 support arrived in Docker Engine <code>v20.10.0</code> (2020Q4).</li>
 </ul>
@@ -1665,10 +1666,11 @@
 <h3 id="system"><a class="toclink" href="#system">System</a></h3>
 <ul>
 <li><strong>Kernel:</strong> Some systems provide <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2662#issuecomment-1168435970">kernels with modifications (<em>replacing defaults and backporting patches</em>)</a> to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.</li>
-<li><strong>CGroups v2:</strong> Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 <code>unified</code> hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed. </li>
-<li><strong>Rootless containers</strong> have additional constraints that vary by container runtime (<em>Docker, Podman, etc - which already have subtle differences</em>).<ul>
-<li>This can introduce differences such as for container networking which may further impact support for IPv6 and preserving the client IP (Remote address).</li>
+<li><strong>CGroups v2:</strong> Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 <code>unified</code> hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed.</li>
+<li><strong>Container runtime:</strong> Docker and Podman for example have subtle differences. DMS docs are primarily focused on Docker, but we try to document known issues where relevant.</li>
+<li><strong>Rootless containers:</strong> Introduces additional differences in behaviour or requirements:<ul>
 <li>cgroup v2 is required for supporting rootless containers.</li>
+<li>Differences such as for container networking which may further affect support for IPv6 and preserving the client IP (Remote address). Example with Docker rootless are <a href="https://github.com/moby/moby/issues/45742">binding a port to a specific interface</a> and the choice of <a href="../security/fail2ban/#running-inside-a-rootless-container">port forwarding driver</a>.</li>
 </ul>
 </li>
 </ul>

@@ -79,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#background" class="md-skip">
+        <a href="#ipv6-networking-problems-with-docker-defaults" class="md-skip">
           Skip to content
         </a>
       
@@ -1047,23 +1047,63 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#background" class="md-nav__link">
-    Background
+  <a href="#ipv6-networking-problems-with-docker-defaults" class="md-nav__link">
+    IPv6 networking problems with Docker defaults
+  </a>
+  
+    <nav class="md-nav" aria-label="IPv6 networking problems with Docker defaults">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-can-go-wrong" class="md-nav__link">
+    What can go wrong?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-does-this-happen" class="md-nav__link">
+    Why does this happen?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevent-ipv6-connections" class="md-nav__link">
+    Prevent IPv6 connections
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#setup-steps" class="md-nav__link">
-    Setup steps
+  <a href="#enable-proper-ipv6-support" class="md-nav__link">
+    Enable proper IPv6 support
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable proper IPv6 support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-an-ipv6-subnet" class="md-nav__link">
+    Configuring an IPv6 subnet
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#further-discussion" class="md-nav__link">
-    Further Discussion
+        
+          <li class="md-nav__item">
+  <a href="#verify-remote-ip-is-correct" class="md-nav__link">
+    Verify remote IP is correct
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1459,23 +1499,63 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#background" class="md-nav__link">
-    Background
+  <a href="#ipv6-networking-problems-with-docker-defaults" class="md-nav__link">
+    IPv6 networking problems with Docker defaults
+  </a>
+  
+    <nav class="md-nav" aria-label="IPv6 networking problems with Docker defaults">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-can-go-wrong" class="md-nav__link">
+    What can go wrong?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-does-this-happen" class="md-nav__link">
+    Why does this happen?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevent-ipv6-connections" class="md-nav__link">
+    Prevent IPv6 connections
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#setup-steps" class="md-nav__link">
-    Setup steps
+  <a href="#enable-proper-ipv6-support" class="md-nav__link">
+    Enable proper IPv6 support
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable proper IPv6 support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-an-ipv6-subnet" class="md-nav__link">
+    Configuring an IPv6 subnet
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#further-discussion" class="md-nav__link">
-    Further Discussion
+        
+          <li class="md-nav__item">
+  <a href="#verify-remote-ip-is-correct" class="md-nav__link">
+    Verify remote IP is correct
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1512,37 +1592,105 @@
 
   <h1>IPv6</h1>
 
-<h2 id="background"><a class="toclink" href="#background">Background</a></h2>
-<p>If your container host supports IPv6, then DMS will automatically accept IPv6 connections by way of the docker host's IPv6. However, incoming mail will fail SPF checks because they will appear to come from the IPv4 gateway that docker is using to proxy the IPv6 connection (<code>172.20.0.1</code> is the gateway).</p>
-<p>This can be solved by supporting IPv6 connections all the way to the DMS container.</p>
-<h2 id="setup-steps"><a class="toclink" href="#setup-steps">Setup steps</a></h2>
-<div class="highlight"><pre><span></span><code><span class="gi">+++ b/serv/compose.yaml</span>
-<span class="gu">@@ ... @@ services:</span>
-
-<span class="gi">+  ipv6nat:</span>
-<span class="gi">+    image: robbertkl/ipv6nat</span>
-<span class="gi">+    restart: always</span>
-<span class="gi">+    network_mode: &quot;host&quot;</span>
-<span class="gi">+    cap_add:</span>
-<span class="gi">+      - NET_ADMIN</span>
-<span class="gi">+      - SYS_MODULE</span>
-<span class="gi">+    volumes:</span>
-<span class="gi">+      - /var/run/docker.sock:/var/run/docker.sock:ro</span>
-<span class="gi">+      - /lib/modules:/lib/modules:ro</span>
-
-<span class="gu">@@ ... @@ networks:</span>
-
-<span class="gi">+  default:</span>
-<span class="gi">+    driver: bridge</span>
-<span class="gi">+    enable_ipv6: true</span>
-<span class="gi">+    ipam:</span>
-<span class="gi">+      driver: default</span>
-<span class="gi">+      config:</span>
-<span class="gi">+        - subnet: fd00:0123:4567::/48</span>
-<span class="gi">+          gateway: fd00:0123:4567::1</span>
+<div class="admonition bug">
+<p class="admonition-title">Ample Opportunities for Issues</p>
+<p>Numerous bug reports have been raised in the past about IPv6. Please make sure your setup around DMS is correct when using IPv6!</p>
+</div>
+<h2 id="ipv6-networking-problems-with-docker-defaults"><a class="toclink" href="#ipv6-networking-problems-with-docker-defaults">IPv6 networking problems with Docker defaults</a></h2>
+<h3 id="what-can-go-wrong"><a class="toclink" href="#what-can-go-wrong">What can go wrong?</a></h3>
+<p>If your host system supports IPv6 and an <code>AAAA</code> DNS record exists to direct IPv6 traffic to DMS, you may experience issues when an IPv6 connection is made:</p>
+<ul>
+<li>The original client IP is replaced with the gateway IP of a docker network.</li>
+<li>Connections fail or hang.</li>
+</ul>
+<p>The impact of losing the real IP of the client connection can negatively affect DMS:</p>
+<ul>
+<li>Users unable to login (<em>Fail2Ban action triggered by repeated login failures all seen as from the same internal Gateway IP</em>)</li>
+<li>Mail inbound to DMS is rejected (<em><a href="https://github.com/docker-mailserver/docker-mailserver/issues/1438">SPF verification failure</a>, IP mismatch</em>)</li>
+<li>Delivery failures from <a href="https://senderscore.org/assess/get-your-score/">sender reputation</a> being reduced (<em>due to <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3057#issuecomment-1416700046">bouncing inbound mail</a> from rejected IPv6 clients</em>)</li>
+<li>Some services may be configured to trust connecting clients within the containers subnet, which includes the Gateway IP. This can risk bypassing or relaxing security measures, such as exposing an <a href="https://en.wikipedia.org/wiki/Open_mail_relay">open relay</a>.</li>
+</ul>
+<h3 id="why-does-this-happen"><a class="toclink" href="#why-does-this-happen">Why does this happen?</a></h3>
+<p>When the host network receives a connection to a containers published port, it is routed to the containers internal network managed by Docker (<em>typically a bridge network</em>).</p>
+<p>By default, the Docker daemon only assigns IPv4 addresses to containers, thus it will only accept IPv4 connections (<em>unless a <code>docker-proxy</code> process is listening, which the default daemon setting <code>userland-proxy: true</code> enables</em>). With the daemon setting <code>userland-proxy: true</code> (default), IPv6 connections from the host can also be accepted and routed to containers (<em>even when they only have IPv4 addresses assigned</em>). <code>userland-proxy: false</code> will require the container to have atleast an IPv6 address assigned.</p>
+<p>This can be problematic for IPv6 host connections when internally the container is no longer aware of the original client IPv6 address, as it has been proxied through the IPv4 or IPv6 gateway address of it's connected network (<em>eg: <code>172.17.0.1</code> - Docker allocates networks from a set of <a href="https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools">default subnets</a></em>).</p>
+<p>This can be fixed by enabling a Docker network to assign IPv6 addresses to containers, along with some additional configuration. Alternatively you could configure the opposite to prevent IPv6 connections being made.</p>
+<h2 id="prevent-ipv6-connections"><a class="toclink" href="#prevent-ipv6-connections">Prevent IPv6 connections</a></h2>
+<ul>
+<li>Avoiding an <code>AAAA</code> DNS record for your DMS FQDN would prevent resolving an IPv6 address to connect to.</li>
+<li>You can also use <code>userland-proxy: false</code>, which will fail to establish a remote connection to DMS (<em>provided no IPv6 address was assigned</em>).</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">With UFW or Firewalld</p>
+<p>When one of these firewall frontends are active, remote clients should fail to connect instead of being masqueraded as the docker network gateway IP. Keep in mind that this only affects remote clients, it does not affect local IPv6 connections originating within the same host.</p>
+</div>
+<h2 id="enable-proper-ipv6-support"><a class="toclink" href="#enable-proper-ipv6-support">Enable proper IPv6 support</a></h2>
+<p>You can enable IPv6 support in Docker for container networks, however <a href="../../debugging/#compatibility">compatibility concerns</a> may affect your success.</p>
+<p>The <a href="https://docs.docker.com/config/daemon/ipv6/">official Docker documentation on enabling IPv6</a> has been improving and is a good resource to reference.</p>
+<p>Enable <code>ip6tables</code> support so that Docker will manage IPv6 networking rules as well. This will allow for IPv6 NAT to work like the existing IPv4 NAT already does for your containers, avoiding the above issue with external connections having their IP address seen as the container network gateway IP (<em>provided an IPv6 address is also assigned to the container</em>).</p>
+<div class="admonition example">
+<p class="admonition-title">Configure the following in <code>/etc/docker/daemon.json</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ip6tables&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;experimental&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;userland-proxy&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
 </code></pre></div>
-<h2 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h2>
-<p>See <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1438">#1438</a></p>
+<ul>
+<li><code>experimental: true</code> is currently required for <code>ip6tables: true</code> to work.</li>
+<li><code>userland-proxy</code> setting <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3244#issuecomment-1603436809">can potentially affect connection behaviour</a> for local connections.</li>
+</ul>
+<p>Now restart the daemon if it's running: <code>systemctl restart docker</code>.</p>
+</div>
+<p>Next, configure a network for your container with any of these:</p>
+<ul>
+<li><a href="https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network">User-defined networks via <code>docker network create</code> or <code>compose.yaml</code></a></li>
+<li><a href="https://docs.docker.com/config/daemon/ipv6/#use-ipv6-for-the-default-bridge-network">Default docker bridge</a> (<em>docker CLI only, not helpful for <code>compose.yaml</code></em>)</li>
+<li><a href="https://github.com/nginx-proxy/nginx-proxy/issues/133#issuecomment-1368745843">Default network for a <code>compose.yaml</code></a> (<em><code>/etc/docker/daemon.json</code> settings for default bridge do not apply, instead override the generated <code>default</code> network</em>)</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">Do not use <code>2001:db8:1::/64</code> for your private subnet</p>
+<p>The <code>2001:db8</code> address prefix is <a href="https://en.wikipedia.org/wiki/IPv6_address#Documentation">reserved for documentation</a>. Avoid using a subnet with this prefix.</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">User-defined IPv6 ULA subnet</p>
+<ul>
+<li>Either of these should work well. You can use a smaller subnet size like <code>/112</code> if you prefer.</li>
+<li>The network will also include an IPv4 subnet assigned implicitly.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># CLI</span>
+docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>--ipv6<span class="w"> </span>--subnet<span class="w"> </span>fd00:cafe:face:feed::/64<span class="w"> </span>dms-ipv6
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># compose.yaml</span>
+<span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Overrides the `default` compose generated network, avoids needing to attach to each service:</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enable_ipv6</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">subnet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fd00:cafe:face:feed::/64</span>
+</code></pre></div>
+</div>
+<h3 id="configuring-an-ipv6-subnet"><a class="toclink" href="#configuring-an-ipv6-subnet">Configuring an IPv6 subnet</a></h3>
+<p>If you've <a href="https://docs.docker.com/config/daemon/ipv6/#dynamic-ipv6-subnet-allocation">configured IPv6 address pools in <code>/etc/docker/daemon.json</code></a>, you do not need to specify a subnet explicitly. Otherwise if you're unsure what value to provide, here's a quick guide (<em>Tip: Prefer IPv6 ULA, it's the least hassle</em>):</p>
+<ul>
+<li><code>fd00:cafe:face:feed::/64</code> is an example of a <a href="https://en.wikipedia.org/wiki/Unique_local_address">IPv6 ULA subnet</a>. ULA addresses are akin to the <a href="https://en.wikipedia.org/wiki/Private_network#Private_IPv4_addresses">private IPv4 subnets</a> you may already be familiar with. You can use that example, or choose your own ULA address. This is a good choice for getting Docker containers to their have networks support IPv6 via NAT like they already do by default with IPv4.</li>
+<li>IPv6 without NAT, using public address space like your server is assigned belongs to an <a href="https://en.wikipedia.org/wiki/IPv6#Global_addressing">IPv6 GUA subnet</a>.<ul>
+<li>Typically these will be a <code>/64</code> block assigned to your host, but this varies by provider.</li>
+<li>These addresses do not need to publish ports of a container to another IP to be publicly reached (<em>thus <code>ip6tables: true</code> is not required</em>), you will want a firewall configured to manage which ports are accessible instead as no NAT is involved. Note that this may not be desired if the container should also be reachable via the host IPv4 public address.</li>
+<li>You may want to subdivide the <code>/64</code> into smaller subnets for Docker to use only portions of the <code>/64</code>. This can reduce some routing features, and <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3244#issuecomment-1528984894">require additional setup / management via a NDP Proxy</a> for your public interface to know of IPv6 assignments managed by Docker and accept external traffic.</li>
+</ul>
+</li>
+</ul>
+<h3 id="verify-remote-ip-is-correct"><a class="toclink" href="#verify-remote-ip-is-correct">Verify remote IP is correct</a></h3>
+<p>With Docker CLI or Docker Compose, run a <code>traefik/whoami</code> container with your IPv6 docker network and port 80 published. You can then send a curl request (or via address in the browser) from another host (as your remote client) with an IPv6 network, the <code>RemoteAddr</code> value returned should match your client IPv6 address.</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-d<span class="w"> </span>--network<span class="w"> </span>dms-ipv6<span class="w"> </span>-p<span class="w"> </span><span class="m">80</span>:80<span class="w"> </span>traefik/whoami
+<span class="c1"># On a different host, replace `2001:db8::1` with your DMS host IPv6 address</span>
+curl<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://<span class="o">[</span><span class="m">2001</span>:db8::1<span class="o">]</span>:80
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">IPv6 ULA address priority</p>
+<p>DNS lookups that have records for both IPv4 and IPv6 addresses (<em>eg: <code>localhost</code></em>) may prefer IPv4 over IPv6 (ULA) for private addresses, whereas for public addresses IPv6 has priority. This shouldn't be anything to worry about, but can come across as a surprise when testing your IPv6 setup on the same host instead of from a remote client.</p>
+<p>The preference can be controlled with <a href="https://linux.die.net/man/5/gai.conf"><code>/etc/gai.conf</code></a>, and appears was configured this way based on <a href="https://thomas-leister.de/en/lxd-prefer-ipv6-outgoing/">the assumption that IPv6 ULA would never be used with NAT</a>. It should only affect the destination resolved for outgoing connections, which for IPv6 ULA should only really affect connections between your containers / host. In future <a href="https://datatracker.ietf.org/doc/html/draft-ietf-v6ops-ula">IPv6 ULA may also be prioritized</a>.</p>
+</div>
 
 
 
