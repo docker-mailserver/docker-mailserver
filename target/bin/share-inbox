@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
+# $1: The source account name
+# $2: The account name of who receives access
+# $3, $4 and so on: list of permissions - one of: lookup read write write-seen write-deleted insert post expunge
+# Call me like this: share_inbox.sh office bob lookup read
+
+# NOTE: HOSTNAME is set via `helpers/dns.sh`, it is not the original system HOSTNAME ENV anymore.
+
+if [[ "${DOVECOT_ENABLE_INBOX_SHARING}" = 0 ]]
+then
+  echo "You have to enable inbox sharing by means of 'DOVECOT_ENABLE_INBOX_SHARING' before actually sharing anything." >&2
+  exit 1
+fi
+
+DATABASE_VHOST='/tmp/vhost.sharedinbox'
+# Prepare a file with one domain per line:
+function _generate_domains_config() {
+  local TMP_VHOST='/tmp/vhost.sharedinbox.tmp'
+
+  # Generate the default vhost (equivalent to /etc/postfix/vhost),
+  # unless CLI arg DOMAINS provided an alternative list to use instead:
+  if [[ -z ${DOMAINS} ]]; then
+    _obtain_hostname_and_domainname
+    # uses TMP_VHOST:
+    _vhost_collect_postfix_domains
+  else
+    tr ',' '\n' <<< "${DOMAINS}" >"${TMP_VHOST}"
+  fi
+
+  # uses DATABASE_VHOST + TMP_VHOST:
+  _create_vhost
+}
+
+_generate_domains_config
+if [[ ! -s ${DATABASE_VHOST} ]]; then
+  _log 'warn' 'No entries found'
+  exit 0
+fi
+
+SHARING=$1
+shift
+SHARED_TO=$1
+shift
+
+doveadm acl add -u "${SHARING}@${DOMAINNAME}" 'Inbox' "user=${SHARED_TO}@${DOMAINNAME}" "$@"
