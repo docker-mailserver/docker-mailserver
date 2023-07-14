@@ -9,4 +9,6 @@ pass_attrs          = uniqueIdentifier=user,userPassword=password
 pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
 user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
 user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+iterate_filter      = (objectClass=PostfixBookMailAccount)
+iterate_attrs       = mail=user
 auth_bind           = no
