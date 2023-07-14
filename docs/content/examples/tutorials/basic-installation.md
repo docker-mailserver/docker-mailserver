@@ -67,6 +67,8 @@ services:
       - LDAP_QUERY_FILTER_DOMAIN=(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))
       - DOVECOT_PASS_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
       - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+      - DOVECOT_ITERATE_FILTER=(objectClass=PostfixBookMailAccount)
+      - DOVECOT_ITERATE_ATTRS=mail=user
       - ENABLE_SASLAUTHD=1
       - SASLAUTHD_MECHANISMS=ldap
       - SASLAUTHD_LDAP_SERVER=ldap

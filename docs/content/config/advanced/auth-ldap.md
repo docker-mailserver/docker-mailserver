@@ -78,6 +78,8 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     - DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
     - DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password
     - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+    - DOVECOT_ITERATE_FILTER=(objectClass=PostfixBookMailAccount)
+    - DOVECOT_ITERATE_ATTRS=uniqueIdentifier=user
     ```
 
 ???+ example
@@ -88,6 +90,8 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
     - DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
     - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+    - DOVECOT_ITERATE_FILTER=(objectClass=qmailUser)
+    - DOVECOT_ITERATE_ATTRS=uid=user
     ```
 
 The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in [the environment section in the docs][docs-environment].
@@ -181,6 +185,8 @@ The changes on the configurations necessary to work with Active Directory (**onl
 # At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
 - DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
 - DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
+- DOVECOT_ITERATE_FILTER=(objectClass=person)
+- DOVECOT_ITERATE_ATTRS=uid=user
 - SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
 ```
 
@@ -233,6 +239,8 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - DOVECOT_USER_FILTER=(&(objectClass=inetOrgPerson)(mail=%u))
           - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
           - DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid
+          - DOVECOT_ITERATE_FILTER=(objectClass=PostfixBookMailAccount)
+          - DOVECOT_ITERATE_ATTRS=mail=user
           # <<< Dovecot LDAP Integration
 
           # >>> SASL LDAP Authentication

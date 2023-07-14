@@ -703,6 +703,16 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
 - **empty** => same as `DOVECOT_USER_FILTER`
 
+##### DOVECOT_ITERATE_FILTER
+
+- e.g. `(objectClass=PostfixBookMailAccount)`
+- The filter to apply to list all users.
+
+##### DOVECOT_ITERATE_ATTRS
+
+- e.g. `uniqueIdentifier=user` or `mail=user`
+- Specify the attribute to use while listing all users.
+
 ##### DOVECOT_PASS_ATTRS
 
 - e.g. `uid=user,userPassword=password`
