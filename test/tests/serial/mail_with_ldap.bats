@@ -158,6 +158,53 @@ function teardown_file() {
   done
 }
 
+
+@test "dovecot: ldap email listing works" {
+  _run_in_container doveadm user '*'
+  assert_success
+  assert_line --index 0 'some.user@localhost.localdomain'
+  assert_line --index 1 'some.other.user@localhost.otherdomain'
+  assert_line --index 2 'some.user.email@localhost.localdomain'
+  _should_output_number_of_lines 3
+}
+
+@test "dovecot: (ENV DOVECOT_ITERATE_ATTRS=uniqueIdentifier=user) ldap email listing works" {
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env DOVECOT_ITERATE_ATTRS='uniqueIdentifier=user'
+  )
+
+  _run_in_container doveadm user '*'
+  assert_success
+  assert_line --index 0 'some.user'
+  assert_line --index 1 'some.other.user'
+  assert_line --index 2 'some.user.id'
+  _should_output_number_of_lines 3
+}
+
+@test "dovecot: (ENV DOVECOT_ITERATE_FILTER=(objectClass=PostfixBookMailAccount)) ldap email listing works" {
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env DOVECOT_ITERATE_FILTER='(objectClass=PostfixBookMailAccount)'
+  )
+
+  _run_in_container doveadm user '*'
+  assert_success
+  assert_line --index 0 'some.user@localhost.localdomain'
+  assert_line --index 1 'some.other.user@localhost.otherdomain'
+  assert_line --index 2 'some.user.email@localhost.localdomain'
+  _should_output_number_of_lines 3
+}
+
+@test "dovecot: (ENV DOVECOT_ITERATE_FILTER=(uniqueIdentifier=some.user.id)) ldap email listing works" {
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env DOVECOT_ITERATE_FILTER='(uniqueIdentifier=some.user.id)'
+  )
+
+  _run_in_container doveadm user '*'
+  assert_success
+  assert_line --index 0 'some.user.email@localhost.localdomain'
+  _should_output_number_of_lines 1
+}
+
 # dovecot
 @test "dovecot: ldap imap connection and authentication works" {
   _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt'
