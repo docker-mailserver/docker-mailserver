@@ -66,7 +66,7 @@ Enable `ip6tables` support so that Docker will manage IPv6 networking rules as w
 
 Next, configure a network with an IPv6 subnet for your container with any of these examples:
 
-??? example "Create an IPv6 ULA subnet"
+???+ example "Create an IPv6 ULA subnet"
 
     !!! info
 
@@ -99,7 +99,7 @@ Next, configure a network with an IPv6 subnet for your container with any of the
 
                 You can optionally avoid the service assignment by [overriding the `default` user-defined network that Docker Compose generates](docker-docs-network-compose-default). Just replace `dms-ipv6` with `default`.
 
-                `/etc/docker/daemon.json` settings for the default bridge (`docker0`) do not apply to the Docker Compose `default` bridge.
+                The Docker Compose `default` bridge is not affected by settings for the default `bridge` (aka `docker0`) in `/etc/docker/daemon.json`.
 
             !!! tip "Using the network outside of this `compose.yaml`"
 
@@ -132,7 +132,7 @@ Next, configure a network with an IPv6 subnet for your container with any of the
 
              The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
 
-        Add these two settings to your daemon config. They only apply to the [default docker bridge][docker-docs-ipv6-create-default] network (`docker0`) that containers are attached to when using `docker run`.
+        Add these two extra IPv6 settings to your daemon config. They only apply to the [default `bridge` docker network][docker-docs-ipv6-create-default] aka `docker0` (_which containers are attached to by default when using `docker run`_).
 
         ```json title="/etc/docker/daemon.json"
         {
