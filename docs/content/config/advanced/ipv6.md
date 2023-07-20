@@ -66,12 +66,16 @@ Enable `ip6tables` support so that Docker will manage IPv6 networking rules as w
 
 Next, configure a network with an IPv6 subnet for your container with any of these examples:
 
-!!! example "Configure an IPv6 ULA subnet"
+??? example "Create an IPv6 ULA subnet"
 
-    - You can choose a subnet size smaller than `/64` (eg: `/112`, which still provides over 65k IPv6 addresses).
-    - The network will also include an IPv4 subnet (_assigned implicitly from the Docker daemon config `default-address-pools`_).
+    !!! info
 
-    === "User-defined network"
+        These examples are focused on a [IPv6 ULA subnet][wikipedia-ipv6-ula] which is suitable for most users as described in the next section.
+
+        - You may prefer a subnet size smaller than `/64` (eg: `/112`, which still provides over 65k IPv6 addresses), especially if instead configuring for an IPv6 GUA subnet.
+        - The network will also implicitly be assigned an IPv4 subnet (_from the Docker daemon config `default-address-pools`_).
+
+    === "User-defined Network"
 
         The preferred approach is with [user-defined networks][docker-docs-ipv6-create-custom] via `compose.yaml` (recommended) or CLI with `docker network create`:
 
@@ -91,15 +95,15 @@ Next, configure a network with an IPv6 subnet for your container with any of the
                 subnet: fd00:cafe:face:feed::/64
             ```
 
-            !!! tip
-
-                To reference this network externally (_from other compose files or `docker run`_), assign the [networks `name` key in `compose.yaml`][docker-docs-network-external].
-
-            !!! tip
+            !!! tip "Override the implicit `default` network"
 
                 You can optionally avoid the service assignment by [overriding the `default` user-defined network that Docker Compose generates](docker-docs-network-compose-default). Just replace `dms-ipv6` with `default`.
 
                 `/etc/docker/daemon.json` settings for the default bridge (`docker0`) do not apply to the Docker Compose `default` bridge.
+
+            !!! tip "Using the network outside of this `compose.yaml`"
+
+                To reference this network externally (_from other compose files or `docker run`_), assign the [networks `name` key in `compose.yaml`][docker-docs-network-external].
 
         === "CLI"
 
@@ -124,9 +128,9 @@ Next, configure a network with an IPv6 subnet for your container with any of the
 
     === "Default Bridge (daemon)"
 
-        !!! caution
+        !!! warning "This approach is discouraged"
 
-            This approach is discouraged as the [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
+             The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
 
         Add these two settings to your daemon config. They only apply to the [default docker bridge][docker-docs-ipv6-create-default] network (`docker0`) that containers are attached to when using `docker run`.
 
