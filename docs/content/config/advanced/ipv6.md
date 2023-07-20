@@ -68,7 +68,7 @@ Next, configure a network with an IPv6 subnet for your container with any of the
 
 ???+ example "Create an IPv6 ULA subnet"
 
-    !!! info
+    ??? info "About these examples"
 
         These examples are focused on a [IPv6 ULA subnet][wikipedia-ipv6-ula] which is suitable for most users as described in the next section.
 
@@ -95,13 +95,13 @@ Next, configure a network with an IPv6 subnet for your container with any of the
                 subnet: fd00:cafe:face:feed::/64
             ```
 
-            !!! tip "Override the implicit `default` network"
+            ??? tip "Override the implicit `default` network"
 
                 You can optionally avoid the service assignment by [overriding the `default` user-defined network that Docker Compose generates](docker-docs-network-compose-default). Just replace `dms-ipv6` with `default`.
 
                 The Docker Compose `default` bridge is not affected by settings for the default `bridge` (aka `docker0`) in `/etc/docker/daemon.json`.
 
-            !!! tip "Using the network outside of this `compose.yaml`"
+            ??? tip "Using the network outside of this `compose.yaml`"
 
                 To reference this network externally (_from other compose files or `docker run`_), assign the [networks `name` key in `compose.yaml`][docker-docs-network-external].
 
