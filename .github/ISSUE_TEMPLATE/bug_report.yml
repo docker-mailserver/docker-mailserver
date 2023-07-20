@@ -36,7 +36,7 @@ body:
     attributes:
       label: 🐋 DMS Version
       description: On which version (image tag) did you encounter this bug?
-      placeholder: v12.1.0
+      placeholder: v12.1.0 (do not put "latest")
     validations:
       required: true
   - type: input
