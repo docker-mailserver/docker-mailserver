@@ -64,34 +64,96 @@ Enable `ip6tables` support so that Docker will manage IPv6 networking rules as w
 
     Now restart the daemon if it's running: `systemctl restart docker`.
 
-Next, configure a network for your container with any of these:
+Next, configure a network with an IPv6 subnet for your container with any of these examples:
 
-- [User-defined networks via `docker network create` or `compose.yaml`][docker-docs-ipv6-create-custom]
-- [Default docker bridge][docker-docs-ipv6-create-default] (_docker CLI only, not helpful for `compose.yaml`_)
-- [Default network for a `compose.yaml`][ipv6-config-example] (_`/etc/docker/daemon.json` settings for default bridge do not apply, instead override the generated `default` network_)
+???+ example "Create an IPv6 ULA subnet"
+
+    ??? info "About these examples"
+
+        These examples are focused on a [IPv6 ULA subnet][wikipedia-ipv6-ula] which is suitable for most users as described in the next section.
+
+        - You may prefer a subnet size smaller than `/64` (eg: `/112`, which still provides over 65k IPv6 addresses), especially if instead configuring for an IPv6 GUA subnet.
+        - The network will also implicitly be assigned an IPv4 subnet (_from the Docker daemon config `default-address-pools`_).
+
+    === "User-defined Network"
+
+        The preferred approach is with [user-defined networks][docker-docs-ipv6-create-custom] via `compose.yaml` (recommended) or CLI with `docker network create`:
+
+        === "Compose"
+
+            Create the network in `compose.yaml` and attach a service to it:
+
+            ```yaml title="compose.yaml"
+            services:
+              mailserver:
+                networks:
+                  - dms-ipv6
+
+            networks:
+              dms-ipv6:
+                enable_ipv6: true
+                subnet: fd00:cafe:face:feed::/64
+            ```
+
+            ??? tip "Override the implicit `default` network"
+
+                You can optionally avoid the service assignment by [overriding the `default` user-defined network that Docker Compose generates](docker-docs-network-compose-default). Just replace `dms-ipv6` with `default`.
+
+                The Docker Compose `default` bridge is not affected by settings for the default `bridge` (aka `docker0`) in `/etc/docker/daemon.json`.
+
+            ??? tip "Using the network outside of this `compose.yaml`"
+
+                To reference this network externally (_from other compose files or `docker run`_), assign the [networks `name` key in `compose.yaml`][docker-docs-network-external].
+
+        === "CLI"
+
+            Create the network via a CLI command (_which can then be used with `docker run --network dms-ipv6`_):
+
+            ```bash
+            docker network create --ipv6 --subnet fd00:cafe:face:feed::/64 dms-ipv6
+            ```
+
+            Optionally reference it from one or more `compose.yaml` files:
+
+            ```yaml title="compose.yaml"
+            services:
+              mailserver:
+                networks:
+                  - dms-ipv6
+
+            networks:
+              dms-ipv6:
+                external: true
+            ```
+
+    === "Default Bridge (daemon)"
+
+        !!! warning "This approach is discouraged"
+
+             The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
+
+        Add these two extra IPv6 settings to your daemon config. They only apply to the [default `bridge` docker network][docker-docs-ipv6-create-default] aka `docker0` (_which containers are attached to by default when using `docker run`_).
+
+        ```json title="/etc/docker/daemon.json"
+        {
+          "ipv6": true,
+          "fixed-cidr-v6": "fd00:cafe:face:feed::/64",
+        }
+        ```
+
+        Compose projects can also use this network via `network_mode`:
+
+        ```yaml title="compose.yaml"
+        services:
+          mailserver:
+            network_mode: bridge
+        ```
 
 !!! danger "Do not use `2001:db8:1::/64` for your private subnet"
 
-    The `2001:db8` address prefix is [reserved for documentation][wikipedia-ipv6-reserved]. Avoid using a subnet with this prefix.
+    The `2001:db8` address prefix is [reserved for documentation][wikipedia-ipv6-reserved]. Avoid creating a subnet with this prefix.
 
-!!! example "User-defined IPv6 ULA subnet"
-
-    - Either of these should work well. You can use a smaller subnet size like `/112` if you prefer.
-    - The network will also include an IPv4 subnet assigned implicitly.
-
-    ```bash
-    # CLI
-    docker network create --ipv6 --subnet fd00:cafe:face:feed::/64 dms-ipv6
-    ```
-
-    ```yaml
-    # compose.yaml
-    networks:
-      # Overrides the `default` compose generated network, avoids needing to attach to each service:
-      default:
-        enable_ipv6: true
-        subnet: fd00:cafe:face:feed::/64
-    ```
+    Presently this is used in examples for Dockers IPv6 docs as a placeholder, while mixed in with private IPv4 addresses which can be misleading.
 
 ### Configuring an IPv6 subnet
 
@@ -132,8 +194,10 @@ curl --max-time 5 http://[2001:db8::1]:80
 [docker-docs-ipv6-create-custom]: https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network
 [docker-docs-ipv6-create-default]: https://docs.docker.com/config/daemon/ipv6/#use-ipv6-for-the-default-bridge-network
 [docker-docs-ipv6-supernets]: https://docs.docker.com/config/daemon/ipv6/#dynamic-ipv6-subnet-allocation
+[docker-docs-network-external]: https://docs.docker.com/compose/compose-file/06-networks/#name
+[docker-docs-network-compose-default]: https://docs.docker.com/compose/networking/#configure-the-default-network
+[docker-docs-network-bridge-legacy]: https://docs.docker.com/network/drivers/bridge/#use-the-default-bridge-network
 
-[ipv6-config-example]: https://github.com/nginx-proxy/nginx-proxy/issues/133#issuecomment-1368745843
 [wikipedia-ipv6-reserved]: https://en.wikipedia.org/wiki/IPv6_address#Documentation
 [wikipedia-ipv4-private]: https://en.wikipedia.org/wiki/Private_network#Private_IPv4_addresses
 [wikipedia-ipv6-ula]: https://en.wikipedia.org/wiki/Unique_local_address
