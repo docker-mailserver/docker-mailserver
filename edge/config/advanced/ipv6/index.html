@@ -1642,32 +1642,87 @@
 </ul>
 <p>Now restart the daemon if it's running: <code>systemctl restart docker</code>.</p>
 </div>
-<p>Next, configure a network for your container with any of these:</p>
+<p>Next, configure a network with an IPv6 subnet for your container with any of these examples:</p>
+<details class="example" open="open">
+<summary>Create an IPv6 ULA subnet</summary>
+<details class="info">
+<summary>About these examples</summary>
+<p>These examples are focused on a <a href="https://en.wikipedia.org/wiki/Unique_local_address">IPv6 ULA subnet</a> which is suitable for most users as described in the next section.</p>
 <ul>
-<li><a href="https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network">User-defined networks via <code>docker network create</code> or <code>compose.yaml</code></a></li>
-<li><a href="https://docs.docker.com/config/daemon/ipv6/#use-ipv6-for-the-default-bridge-network">Default docker bridge</a> (<em>docker CLI only, not helpful for <code>compose.yaml</code></em>)</li>
-<li><a href="https://github.com/nginx-proxy/nginx-proxy/issues/133#issuecomment-1368745843">Default network for a <code>compose.yaml</code></a> (<em><code>/etc/docker/daemon.json</code> settings for default bridge do not apply, instead override the generated <code>default</code> network</em>)</li>
+<li>You may prefer a subnet size smaller than <code>/64</code> (eg: <code>/112</code>, which still provides over 65k IPv6 addresses), especially if instead configuring for an IPv6 GUA subnet.</li>
+<li>The network will also implicitly be assigned an IPv4 subnet (<em>from the Docker daemon config <code>default-address-pools</code></em>).</li>
 </ul>
-<div class="admonition danger">
-<p class="admonition-title">Do not use <code>2001:db8:1::/64</code> for your private subnet</p>
-<p>The <code>2001:db8</code> address prefix is <a href="https://en.wikipedia.org/wiki/IPv6_address#Documentation">reserved for documentation</a>. Avoid using a subnet with this prefix.</p>
-</div>
-<div class="admonition example">
-<p class="admonition-title">User-defined IPv6 ULA subnet</p>
-<ul>
-<li>Either of these should work well. You can use a smaller subnet size like <code>/112</code> if you prefer.</li>
-<li>The network will also include an IPv4 subnet assigned implicitly.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="c1"># CLI</span>
-docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>--ipv6<span class="w"> </span>--subnet<span class="w"> </span>fd00:cafe:face:feed::/64<span class="w"> </span>dms-ipv6
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># compose.yaml</span>
+</details>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">User-defined Network</label><label for="__tabbed_1_2">Default Bridge (daemon)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The preferred approach is with <a href="https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network">user-defined networks</a> via <code>compose.yaml</code> (recommended) or CLI with <code>docker network create</code>:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Compose</label><label for="__tabbed_2_2">CLI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Create the network in <code>compose.yaml</code> and attach a service to it:</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-ipv6</span>
+
 <span class="nt">networks</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># Overrides the `default` compose generated network, avoids needing to attach to each service:</span>
-<span class="w">  </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dms-ipv6</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enable_ipv6</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">subnet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fd00:cafe:face:feed::/64</span>
 </code></pre></div>
+<details class="tip">
+<summary>Override the implicit <code>default</code> network</summary>
+<p>You can optionally avoid the service assignment by <a href="docker-docs-network-compose-default">overriding the <code>default</code> user-defined network that Docker Compose generates</a>. Just replace <code>dms-ipv6</code> with <code>default</code>.</p>
+<p>The Docker Compose <code>default</code> bridge is not affected by settings for the default <code>bridge</code> (aka <code>docker0</code>) in <code>/etc/docker/daemon.json</code>.</p>
+</details>
+<details class="tip">
+<summary>Using the network outside of this <code>compose.yaml</code></summary>
+<p>To reference this network externally (<em>from other compose files or <code>docker run</code></em>), assign the <a href="https://docs.docker.com/compose/compose-file/06-networks/#name">networks <code>name</code> key in <code>compose.yaml</code></a>.</p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>Create the network via a CLI command (<em>which can then be used with <code>docker run --network dms-ipv6</code></em>):</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>--ipv6<span class="w"> </span>--subnet<span class="w"> </span>fd00:cafe:face:feed::/64<span class="w"> </span>dms-ipv6
+</code></pre></div>
+<p>Optionally reference it from one or more <code>compose.yaml</code> files:</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-ipv6</span>
+
+<span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dms-ipv6</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="tabbed-block">
+<div class="admonition warning">
+<p class="admonition-title">This approach is discouraged</p>
+<p>The <a href="https://docs.docker.com/network/drivers/bridge/#use-the-default-bridge-network"><code>bridge</code> network is considered legacy</a>.</p>
+</div>
+<p>Add these two extra IPv6 settings to your daemon config. They only apply to the <a href="https://docs.docker.com/config/daemon/ipv6/#use-ipv6-for-the-default-bridge-network">default <code>bridge</code> docker network</a> aka <code>docker0</code> (<em>which containers are attached to by default when using <code>docker run</code></em>).</p>
+<div class="highlight"><span class="filename">/etc/docker/daemon.json</span><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ipv6&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fixed-cidr-v6&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fd00:cafe:face:feed::/64&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Compose projects can also use this network via <code>network_mode</code>:</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</details>
+<div class="admonition danger">
+<p class="admonition-title">Do not use <code>2001:db8:1::/64</code> for your private subnet</p>
+<p>The <code>2001:db8</code> address prefix is <a href="https://en.wikipedia.org/wiki/IPv6_address#Documentation">reserved for documentation</a>. Avoid creating a subnet with this prefix.</p>
+<p>Presently this is used in examples for Dockers IPv6 docs as a placeholder, while mixed in with private IPv4 addresses which can be misleading.</p>
 </div>
 <h3 id="configuring-an-ipv6-subnet"><a class="toclink" href="#configuring-an-ipv6-subnet">Configuring an IPv6 subnet</a></h3>
 <p>If you've <a href="https://docs.docker.com/config/daemon/ipv6/#dynamic-ipv6-subnet-allocation">configured IPv6 address pools in <code>/etc/docker/daemon.json</code></a>, you do not need to specify a subnet explicitly. Otherwise if you're unsure what value to provide, here's a quick guide (<em>Tip: Prefer IPv6 ULA, it's the least hassle</em>):</p>
