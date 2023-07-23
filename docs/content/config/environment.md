@@ -338,6 +338,15 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 - 0 => Disabled
 - 1 => Enabled
 
+##### RSPAMD_CHECK_AUTHENTICATED
+
+This settings controls whether checks should be performed on emails coming from authenticated users (i.e. most likely outgoing emails). The default value is `0` in order to align better with SpamAssassin. **We recommend** reading through [the Rspamd documentation on scanning outbound emails][rspamd-scanning-outbound] though to decide for yourself whether you need and want this feature.
+
+- **0** => No checks will be performed for authenticated users
+- 1 => All default checks will be performed for authenticated users
+
+[rspamd-scanning-outbound]: https://rspamd.com/doc/tutorials/scanning_outbound.html
+
 ##### RSPAMD_GREYLISTING
 
 Controls whether the [Rspamd Greylisting module][rspamd-greylisting-module] is enabled. This module can further assist in avoiding spam emails by [greylisting] e-mails with a certain spam score.
