@@ -645,7 +645,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_DNPASS
 
 - **empty** => same as `LDAP_BIND_PW`
-- => Password for LDAP dn sepecifified in `DOVECOT_DN`.
+- => Password for LDAP dn specified in `DOVECOT_DN`.
 
 ##### DOVECOT_URIS
 

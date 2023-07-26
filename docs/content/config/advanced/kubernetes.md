@@ -163,7 +163,7 @@ metadata:
     ignore-check.kube-linter.io/run-as-non-root: >-
       'mailserver' needs to run as root
     ignore-check.kube-linter.io/privileged-ports: >-
-      'mailserver' needs privilegdes ports
+      'mailserver' needs privileged ports
     ignore-check.kube-linter.io/no-read-only-root-fs: >-
       There are too many files written to make The
       root FS read-only

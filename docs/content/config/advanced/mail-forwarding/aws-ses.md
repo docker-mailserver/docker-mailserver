@@ -2,7 +2,7 @@
 title: 'Mail Forwarding | AWS SES'
 ---
 
-[Amazon SES (Simple Email Service)](https://aws.amazon.com/ses/) is intended to provide a simple way for cloud based applications to send email and receive email. For the purposes of this project only sending email via SES is supported.  Older versions of docker-mailserver used `AWS_SES_HOST` and `AWS_SES_USERPASS` to configure sending, this has changed and the setup is mananged through [Configure Relay Hosts][docs-relay].
+[Amazon SES (Simple Email Service)](https://aws.amazon.com/ses/) is intended to provide a simple way for cloud based applications to send email and receive email. For the purposes of this project only sending email via SES is supported.  Older versions of docker-mailserver used `AWS_SES_HOST` and `AWS_SES_USERPASS` to configure sending, this has changed and the setup is managed through [Configure Relay Hosts][docs-relay].
 
 You will need to create some [Amazon SES SMTP credentials](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html). The SMTP credentials you create will be used to populate the `RELAY_USER` and `RELAY_PASSWORD` environment variables.
 
