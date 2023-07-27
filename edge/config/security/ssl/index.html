@@ -1939,7 +1939,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <span class="go">This certificate expires on YYYY-MM-DD.</span>
 <span class="go">These files will be updated when the certificate renews.</span>
 <span class="go">NEXT STEPS:</span>
-<span class="go">- The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal structions.</span>
+<span class="go">- The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal instructions.</span>
 </code></pre></div>
 </li>
 </ol>
@@ -2467,7 +2467,7 @@ openssl<span class="w"> </span>s_client<span class="w"> </span><span class="se">
 <p>You can of course run the script by cron once a week or something. In that way you could automate cert renewal. If you do so it is probably wise to run an automated check on certificate expiry as well. Such a check could look something like this:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># This script is run inside docker-mailserver via &#39;docker exec ...&#39;, using the &#39;mail&#39; command to send alerts.</span>
 <span class="c1">## code below will alert if certificate expires in less than two weeks</span>
-<span class="c1">## please adjust varables!</span>
+<span class="c1">## please adjust variables!</span>
 <span class="c1">## make sure the &#39;mail -s&#39; command works! Test!</span>
 
 <span class="nb">export</span><span class="w"> </span><span class="nv">SITE_URL</span><span class="o">=</span><span class="s2">&quot;mail.example.com&quot;</span>

@@ -1435,7 +1435,7 @@
 
   <h1>AWS SES</h1>
 
-<p><a href="https://aws.amazon.com/ses/">Amazon SES (Simple Email Service)</a> is intended to provide a simple way for cloud based applications to send email and receive email. For the purposes of this project only sending email via SES is supported.  Older versions of docker-mailserver used <code>AWS_SES_HOST</code> and <code>AWS_SES_USERPASS</code> to configure sending, this has changed and the setup is mananged through <a href="../relay-hosts/">Configure Relay Hosts</a>.</p>
+<p><a href="https://aws.amazon.com/ses/">Amazon SES (Simple Email Service)</a> is intended to provide a simple way for cloud based applications to send email and receive email. For the purposes of this project only sending email via SES is supported.  Older versions of docker-mailserver used <code>AWS_SES_HOST</code> and <code>AWS_SES_USERPASS</code> to configure sending, this has changed and the setup is managed through <a href="../relay-hosts/">Configure Relay Hosts</a>.</p>
 <p>You will need to create some <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html">Amazon SES SMTP credentials</a>. The SMTP credentials you create will be used to populate the <code>RELAY_USER</code> and <code>RELAY_PASSWORD</code> environment variables.</p>
 <p>The <code>RELAY_HOST</code> should match your <a href="https://docs.aws.amazon.com/general/latest/gr/ses.html">AWS SES region</a>, the <code>RELAY_PORT</code> will be 587.</p>
 <p>If all of your email is being forwarded through AWS SES, <code>DEFAULT_RELAY_HOST</code> should be set accordingly.</p>
