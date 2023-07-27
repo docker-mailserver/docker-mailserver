@@ -192,3 +192,4 @@ Here are some tools you can use to verify your configuration:
 2. [DMARC Analyzer](https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/)
 3. [mail-tester.com](https://www.mail-tester.com/)
 4. [multiRBL.valli.org](https://multirbl.valli.org/)
+5. [internet.nl](https://internet.nl/test-mail/)
