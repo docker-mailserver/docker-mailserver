@@ -63,7 +63,7 @@ This could be from outdated software, or running a system that isn't able to pro
 - **IPv6:**
     - Requires [additional configuration][docs-ipv6] to prevent or properly support IPv6 connections (eg: Preserving the Client IP).
     - Support in 2023 is still considered experimental. You are advised to use at least Docker Engine `v23` (2023Q1).
-    - Various networking bug fixes have been addressed since the intitial IPv6 support arrived in Docker Engine `v20.10.0` (2020Q4).
+    - Various networking bug fixes have been addressed since the initial IPv6 support arrived in Docker Engine `v20.10.0` (2020Q4).
 
 ### System
 
