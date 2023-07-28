@@ -39,7 +39,7 @@ In a nutshell, DMS provides you with the following components:
 - A MDA: [Dovecot](https://dovecot.org/)
 - A bunch of additional programs to improve security and emails processing
 
-Here's where DMS's toochain fits within the delivery chain:
+Here's where DMS's toolchain fits within the delivery chain:
 
 ```txt
                                     docker-mailserver is here:

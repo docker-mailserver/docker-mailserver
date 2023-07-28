@@ -493,7 +493,7 @@ SA_TAG2=3.75
 SA_KILL=100000.0
 ```
 
-- The very negative vaue in `SA_TAG` makes sure, that all emails have the SpamAssassin headers included.
+- The very negative value in `SA_TAG` makes sure, that all emails have the SpamAssassin headers included.
 - `SA_TAG2` is the actual threshold to set the YES/NO flag for spam detection.
 - `SA_KILL` needs to be very high, to make sure nothing is bounced at all (`SA_KILL` superseeds `SPAMASSASSIN_SPAM_TO_INBOX`)
 
