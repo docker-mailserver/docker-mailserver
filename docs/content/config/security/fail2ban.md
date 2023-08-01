@@ -58,7 +58,7 @@ setup fail2ban
 
 the script will show all banned IP addresses.
 
-To get Fail2ban's more detailed `status` view, run
+To get a more detailed `status` view, run
 
 ```bash
 setup fail2ban status
