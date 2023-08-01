@@ -75,8 +75,7 @@ else
 
     ( 'status' )
       for JAIL in "${JAILS[@]}"; do
-        RESULT=$(fail2ban-client status "${JAIL}" 2>&1)
-        echo -e "$RESULT\n"
+        printf '%s\n\n' "$(fail2ban-client status "${JAIL}" 2>&1)"
       done
       ;;
 
