@@ -1625,6 +1625,9 @@
 <div class="highlight"><pre><span></span><code>setup<span class="w"> </span>fail2ban
 </code></pre></div>
 <p>the script will show all banned IP addresses.</p>
+<p>To get a more detailed <code>status</code> view, run</p>
+<div class="highlight"><pre><span></span><code>setup<span class="w"> </span>fail2ban<span class="w"> </span>status
+</code></pre></div>
 <h3 id="managing-bans"><a class="toclink" href="#managing-bans">Managing Bans</a></h3>
 <p>You can manage F2B with the <code>setup</code> script. The usage looks like this:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span><span class="o">[</span>&lt;ban<span class="p">|</span>unban&gt;<span class="w"> </span>&lt;IP&gt;<span class="o">]</span>
