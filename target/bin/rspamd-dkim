@@ -216,6 +216,7 @@ try_fallback = false;
 use_domain = "header";
 use_redis = false; # don't change unless Redis also provides the DKIM keys
 use_esld = true;
+allow_username_mismatch = true;
 
 check_pubkey = true; # you want to use this in the beginning
 
