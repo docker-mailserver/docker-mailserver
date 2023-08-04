@@ -60,6 +60,7 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         setup fail2ban ${CYAN}ban${RESET} <IP>
         setup fail2ban ${CYAN}unban${RESET} <IP>
         setup fail2ban ${CYAN}log${RESET}
+        setup fail2ban ${CYAN}status${RESET}
 
     ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
         setup debug ${CYAN}fetchmail${RESET}
