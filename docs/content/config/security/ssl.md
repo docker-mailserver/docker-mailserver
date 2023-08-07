@@ -220,7 +220,7 @@ Obtain a Cloudflare API token:
     This certificate expires on YYYY-MM-DD.
     These files will be updated when the certificate renews.
     NEXT STEPS:
-    - The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal structions.
+    - The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal instructions.
     ```
 
 After completing the steps above, your certificate should be ready to use.
@@ -835,7 +835,7 @@ You can of course run the script by cron once a week or something. In that way y
 ```sh
 # This script is run inside docker-mailserver via 'docker exec ...', using the 'mail' command to send alerts.
 ## code below will alert if certificate expires in less than two weeks
-## please adjust varables!
+## please adjust variables!
 ## make sure the 'mail -s' command works! Test!
 
 export SITE_URL="mail.example.com"

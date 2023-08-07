@@ -58,6 +58,12 @@ setup fail2ban
 
 the script will show all banned IP addresses.
 
+To get a more detailed `status` view, run
+
+```bash
+setup fail2ban status
+```
+
 ### Managing Bans
 
 You can manage F2B with the `setup` script. The usage looks like this:

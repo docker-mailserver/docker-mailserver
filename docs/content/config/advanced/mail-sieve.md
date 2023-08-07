@@ -96,7 +96,7 @@ All user defined sieve scripts that are managed by ManageSieve are stored in the
 
 !!! note
 
-    ManageSieve makes sure to not overwrite an existing `.dovecot.sieve` file. If a user activates a new sieve script the old one is backuped and moved to the `sieve` folder.
+    ManageSieve makes sure to not overwrite an existing `.dovecot.sieve` file. If a user activates a new sieve script the old one is backed up and moved to the `sieve` folder.
 
 The extension is known to work with the following ManageSieve clients:
 

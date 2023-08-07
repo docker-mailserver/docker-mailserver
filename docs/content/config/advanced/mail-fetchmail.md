@@ -75,7 +75,7 @@ To debug your `fetchmail.cf` configuration run this command:
 ./setup.sh debug fetchmail
 ```
 
-For more informations about the configuration script `setup.sh` [read the corresponding docs][docs-setup].
+For more information about the configuration script `setup.sh` [read the corresponding docs][docs-setup].
 
 Here a sample output of `./setup.sh debug fetchmail`:
 
