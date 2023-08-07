@@ -153,6 +153,8 @@ nav:
         - 'IPv6': config/advanced/ipv6.md
         - 'Podman': config/advanced/podman.md
         - 'Dovecot Master Accounts': config/advanced/dovecot-master-accounts.md
+        - 'Tips':
+          - 'Server with multiple IP-addresses and docker configuration using network: host': config/advanced/tips/server-multiple-ip-addresses.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
