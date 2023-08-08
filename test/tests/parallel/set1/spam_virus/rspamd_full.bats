@@ -25,6 +25,7 @@ function setup_file() {
     --env LOG_LEVEL=trace
     --env MOVE_SPAM_TO_JUNK=1
     --env RSPAMD_LEARN=1
+    --env RSPAMD_CHECK_AUTHENTICATED=0
     --env RSPAMD_GREYLISTING=1
     --env RSPAMD_HFILTER=1
     --env RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE=7
@@ -292,10 +293,22 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'hfilter group module is configured correctly' {
-  _run_in_container_bash '[[ -f /etc/rspamd/local.d/hfilter_group.conf ]]'
+  local MODULE_FILE='/etc/rspamd/local.d/hfilter_group.conf'
+  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
   assert_success
 
-  _run_in_container grep '__TAG__HFILTER_HOSTNAME_UNKNOWN' /etc/rspamd/local.d/hfilter_group.conf
+  _run_in_container grep '__TAG__HFILTER_HOSTNAME_UNKNOWN' "${MODULE_FILE}"
   assert_success
   assert_output --partial 'score = 7;'
+}
+
+@test 'checks on authenticated users are disabled' {
+  local MODULE_FILE='/etc/rspamd/local.d/settings.conf'
+  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
+  assert_success
+
+  _run_in_container grep -E -A 6 'authenticated \{' "${MODULE_FILE}"
+  assert_success
+  assert_output --partial 'authenticated = yes;'
+  assert_output --partial 'groups_enabled = [];'
 }
