@@ -14,6 +14,7 @@ function _setup_rspamd() {
     __rspamd__setup_learning
     __rspamd__setup_greylisting
     __rspamd__setup_hfilter_group
+    __rspamd__setup_check_authenticated
     __rspamd__handle_user_modules_adjustments # must run last
 
     __rspamd__log 'trace' '----------  Setup finished  ----------'
@@ -250,7 +251,8 @@ function __rspamd__setup_hfilter_group() {
   if _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]; then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
     # Check if we received a number first
-    if _env_var_expect_integer 'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' && [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]; then
+    if _env_var_expect_integer 'RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE' \
+    && [[ ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE} -ne 6 ]]; then
       __rspamd__log 'trace' "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}"
       sed -i -E \
         "s|(.*score =).*(# __TAG__HFILTER_HOSTNAME_UNKNOWN)|\1 ${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE}; \2|g" \
@@ -261,6 +263,20 @@ function __rspamd__setup_hfilter_group() {
   else
     __rspamd__log 'debug' 'Disabling Hfilter (group) module'
     rm -f "${MODULE_FILE}"
+  fi
+}
+
+function __rspamd__setup_check_authenticated() {
+  local MODULE_FILE="${RSPAMD_LOCAL_D}/settings.conf"
+  if _env_var_expect_zero_or_one 'RSPAMD_CHECK_AUTHENTICATED' \
+  && [[ ${RSPAMD_CHECK_AUTHENTICATED} -eq 0 ]]
+  then
+    __rspamd__log 'debug' 'Content checks for authenticated users are disabled'
+  else
+    __rspamd__log 'debug' 'Enabling content checks for authenticated users'
+    sed -i -E \
+      '/DMS::SED_TAG::1::START/{:a;N;/DMS::SED_TAG::1::END/!ba};/authenticated/d' \
+      "${MODULE_FILE}"
   fi
 }
 
