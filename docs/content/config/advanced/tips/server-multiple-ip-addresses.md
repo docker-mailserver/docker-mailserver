@@ -35,7 +35,7 @@ the `smtp_bind_address` as source address when "forwarding" email for filtering 
     ```title="postfix-master.cf"
     smtp-amavis/unix/smtp_bind_address=127.0.0.1
     smtp-amavis/unix/smtp_bind_address6=::1
-   ```
+    ```
 
 This seems to be a better approach than adding your bind-addresses to `mynetworks` parameter in
 Postfix `postfix-main.cf`.
