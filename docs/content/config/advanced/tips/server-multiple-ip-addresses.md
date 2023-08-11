@@ -1,8 +1,8 @@
 ---
-title: 'Advanced | Tips | Server with multiple IP-addresses'
+title: 'Use Cases | Binding DMS to a specific network'
+hide:
+  - toc
 ---
-
-## Server with multiple IP-addresses
 
 !!! warning "Advice not extensively tested"
 
