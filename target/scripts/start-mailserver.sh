@@ -62,8 +62,9 @@ function _register_functions() {
       _register_setup_function '_setup_ldap'
       ;;
 
-    ( 'OIDC' )
-      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented'
+    ( 'OAUTH2' )
+      _environment_variables_oauth2
+      _register_setup_function '_setup_oauth2'
       ;;
 
     ( * )

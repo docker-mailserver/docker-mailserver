@@ -108,6 +108,13 @@ EOF
 COPY target/rspamd/local.d/ /etc/rspamd/local.d/
 
 # -----------------------------------------------
+# --- OAUTH2 ------------------------------------
+# -----------------------------------------------
+
+COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
+COPY target/dovecot/dovecot-oauth2.conf.ext /etc/dovecot
+
+# -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
 # -----------------------------------------------
 

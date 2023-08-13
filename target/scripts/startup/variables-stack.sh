@@ -151,6 +151,14 @@ function __environment_variables_general_setup() {
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 }
 
+function _environment_variables_oauth2() {
+  _log 'debug' 'Setting OAUTH2-related environment variables now'
+
+  VARS[OAUTH2_CLIENT_ID]="${OAUTH2_CLIENT_ID:=}"
+  VARS[OAUTH2_CLIENT_SECRET]="${OAUTH2_CLIENT_SECRET:=}"
+  VARS[OAUTH2_TOKENINFO_URL]="${OAUTH2_TOKENINFO_URL:=}"
+}
+
 # This function handles environment variables related to LDAP.
 # NOTE: SASLAuthd and Dovecot LDAP support inherit these common ENV.
 function _environment_variables_ldap() {
