@@ -94,32 +94,21 @@ function teardown_file() {
 }
 
 # postfix
+# NOTE: Each of the 3 user accounts tested below are defined in separate LDIF config files,
+# Those are bundled into the locally built OpenLDAP Dockerfile.
 @test "checking postfix: ldap lookup works correctly" {
-  _run_in_container postmap -q "some.user@${FQDN_LOCALHOST_A}" ldap:/etc/postfix/ldap-users.cf
-  assert_success
-  assert_output "some.user@${FQDN_LOCALHOST_A}"
-  _run_in_container postmap -q "postmaster@${FQDN_LOCALHOST_A}" ldap:/etc/postfix/ldap-aliases.cf
-  assert_success
-  assert_output "some.user@${FQDN_LOCALHOST_A}"
-  _run_in_container postmap -q "employees@${FQDN_LOCALHOST_A}" ldap:/etc/postfix/ldap-groups.cf
-  assert_success
-  assert_output "some.user@${FQDN_LOCALHOST_A}"
-
-  # Test of the user part of the domain is not the same as the uniqueIdentifier part in the ldap
-  _run_in_container postmap -q "some.user.email@${FQDN_LOCALHOST_A}" ldap:/etc/postfix/ldap-users.cf
-  assert_success
-  assert_output "some.user.email@${FQDN_LOCALHOST_A}"
+  _should_exist_in_ldap_tables "some.user@${FQDN_LOCALHOST_A}"
 
   # Test email receiving from a other domain then the primary domain of the mailserver
-  _run_in_container postmap -q "some.other.user@${FQDN_LOCALHOST_B}" ldap:/etc/postfix/ldap-users.cf
+  _should_exist_in_ldap_tables "some.other.user@${FQDN_LOCALHOST_B}"
+
+  # Should not require `uniqueIdentifier` to match the local part of `mail` (`.ldif` defined settings):
+  # REF: https://github.com/docker-mailserver/docker-mailserver/pull/642#issuecomment-313916384
+  # NOTE: This account has no `mailAlias` or `mailGroupMember` defined in it's `.ldif`.
+  local MAIL_ACCOUNT="some.user.email@${FQDN_LOCALHOST_A}"
+  _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap-users.cf
   assert_success
-  assert_output "some.other.user@${FQDN_LOCALHOST_B}"
-  _run_in_container postmap -q "postmaster@${FQDN_LOCALHOST_B}" ldap:/etc/postfix/ldap-aliases.cf
-  assert_success
-  assert_output "some.other.user@${FQDN_LOCALHOST_B}"
-  _run_in_container postmap -q "employees@${FQDN_LOCALHOST_B}" ldap:/etc/postfix/ldap-groups.cf
-  assert_success
-  assert_output "some.other.user@${FQDN_LOCALHOST_B}"
+  assert_output "${MAIL_ACCOUNT}"
 }
 
 @test "checking postfix: ldap custom config files copied" {
@@ -274,4 +263,29 @@ function teardown_file() {
   # checking default logrotation setup
   _run_in_container grep 'weekly' /etc/logrotate.d/maillog
   assert_success
+}
+
+# Test helper methods:
+
+function _should_exist_in_ldap_tables() {
+  local MAIL_ACCOUNT=${1:?Mail account is required}
+  local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
+
+  # Each LDAP config file sets `query_filter` to lookup a key in LDAP (values defined in `.ldif` test files)
+  # `mail` (ldap-users), `mailAlias` (ldap-aliases), `mailGroupMember` (ldap-groups)
+  # `postmap` is queried with the mail account address, and the LDAP service should respond with
+  # `result_attribute` which is the LDAP `mail` value (should match what we'r'e quering `postmap` with)
+
+  _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap-users.cf
+  assert_success
+  assert_output "${MAIL_ACCOUNT}"
+
+  # Check which account has the `postmaster` virtual alias:
+  _run_in_container postmap -q "postmaster@${DOMAIN_PART}" ldap:/etc/postfix/ldap-aliases.cf
+  assert_success
+  assert_output "${MAIL_ACCOUNT}"
+
+  _run_in_container postmap -q "employees@${DOMAIN_PART}" ldap:/etc/postfix/ldap-groups.cf
+  assert_success
+  assert_output "${MAIL_ACCOUNT}"
 }
