@@ -82,8 +82,7 @@ function setup_file() {
   )
 
   # Set default implicit container fallback for helpers:
-  export CONTAINER_NAME
-  CONTAINER_NAME=${CONTAINER1_NAME}
+  export CONTAINER_NAME=${CONTAINER1_NAME}
 
   _init_with_defaults
   # NOTE: `test/config/` has now been duplicated, can move test specific files to host-side `/tmp/docker-mailserver`:
@@ -202,9 +201,9 @@ function teardown_file() {
   assert_failure
 
   # Dovecot Quota config only present with disabled extension:
-  _run_in_container [ -f /etc/dovecot/conf.d/90-quota.conf ]
+  _run_in_container_bash '[[ -f /etc/dovecot/conf.d/90-quota.conf ]]'
   assert_failure
-  _run_in_container [ -f /etc/dovecot/conf.d/90-quota.conf.disab ]
+  _run_in_container_bash '[[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]'
   assert_success
 
   # Postfix quotas policy service not configured in `main.cf`:
@@ -256,7 +255,7 @@ function teardown_file() {
 
 @test "saslauthd: ldap smtp authentication" {
   # Requires ENV `PERMIT_DOCKER=container`
-  _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  _send_email 'auth/sasl-ldap-smtp-auth' '-w 5 0.0.0.0 25'
   assert_output --partial 'Error: authentication not enabled'
 
   _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
