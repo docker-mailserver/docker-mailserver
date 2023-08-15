@@ -182,27 +182,53 @@ function teardown_file() {
   done
 }
 
+# Requires ENV `POSTMASTER_ADDRESS`
+# NOTE: Not important to LDAP feature tests?
 @test "checking dovecot: postmaster address" {
   _run_in_container grep "postmaster_address = postmaster@${FQDN_LOCALHOST_A}" /etc/dovecot/conf.d/15-lda.conf
   assert_success
 }
 
+# NOTE: `target/scripts/startup/setup.d/dovecot.sh` should prevent enabling the quotas feature when using LDAP:
 @test "checking dovecot: quota plugin is disabled" {
- _run_in_container grep '\$mail_plugins quota' /etc/dovecot/conf.d/10-mail.conf
- assert_failure
- _run_in_container grep '\$mail_plugins imap_quota' /etc/dovecot/conf.d/20-imap.conf
- assert_failure
- _run_in_container ls /etc/dovecot/conf.d/90-quota.conf
- assert_failure
- _run_in_container ls /etc/dovecot/conf.d/90-quota.conf.disab
- assert_success
-}
+  # Dovecot configs have not enabled the quota plugins:
+  _run_in_container grep '\$mail_plugins quota' /etc/dovecot/conf.d/10-mail.conf
+  assert_failure
+  _run_in_container grep '\$mail_plugins imap_quota' /etc/dovecot/conf.d/20-imap.conf
+  assert_failure
 
-@test "checking postfix: dovecot quota absent in postconf" {
-  _run_in_container postconf
+  # Dovecot Quota config only present with disabled extension:
+  _run_in_container [ -f /etc/dovecot/conf.d/90-quota.conf ]
+  assert_failure
+  _run_in_container [ -f /etc/dovecot/conf.d/90-quota.conf.disab ]
+  assert_success
+
+  # Postfix quotas policy service not configured in `main.cf`:
+  _run_in_container postconf smtpd_recipient_restrictions
   refute_output --partial 'check_policy_service inet:localhost:65265'
 }
 
+@test "checking saslauthd: sasl ldap authentication works" {
+  _run_in_container testsaslauthd -u some.user -p secret
+  assert_success
+}
+
+# Requires ENV `PFLOGSUMM_TRIGGER=logrotate`
+@test "checking pflogsumm delivery" {
+  # Verify default sender is `mailserver-report` when ENV `PFLOGSUMM_SENDER` + `REPORT_SENDER` are unset:
+  # NOTE: Mail is sent from Postfix (configured hostname used as domain part)
+  _run_in_container grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
+  assert_success
+
+  # When `LOGROTATE_INTERVAL` is unset, the default should be configured as `weekly`:
+  _run_in_container grep 'weekly' /etc/logrotate.d/maillog
+  assert_success
+}
+
+# ATTENTION: Remaining tests must come after "checking dovecot: ldap mail delivery works" since the below tests would affect the expected count (by delivering extra mail),
+# Thus not friendly for running testcases in this file in parallel
+
+# Requires ENV `SPOOF_PROTECTION=1` for the expected assert_output
 @test "checking spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
@@ -210,26 +236,22 @@ function teardown_file() {
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
-# ATTENTION: these tests must come after "checking dovecot: ldap mail delivery works" since they will deliver an email which skews the count in said test, leading to failure
-@test "checking spoofing: accepts sending as alias (with LDAP)" {
+@test "checking spoofing (with LDAP): accepts sending as alias" {
   _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-alias.txt'
   assert_output --partial 'End data with'
 }
-@test "checking spoofing: uses senders filter" {
+
+@test "checking spoofing (with LDAP): uses senders filter" {
   # skip introduced with #3006, changing port 25 to 465
+  # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
   _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-sender-with-filter-exception.txt'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
-# saslauthd
-@test "checking saslauthd: sasl ldap authentication works" {
-  _run_in_container testsaslauthd -u some.user -p secret
-  assert_success
-}
-
 @test "checking saslauthd: ldap smtp authentication" {
+  # Requires ENV `PERMIT_DOCKER=container`
   _run_in_container_bash 'nc -w 5 0.0.0.0 25 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
   assert_output --partial 'Error: authentication not enabled'
 
@@ -241,20 +263,8 @@ function teardown_file() {
 }
 
 #
-# Pflogsumm delivery check
-#
-
-@test "checking pflogsum delivery" {
-  # checking default sender is correctly set when env variable not defined
-  _run_in_container grep "mailserver-report@${FQDN_MAIL}" /etc/logrotate.d/maillog
-  assert_success
-
-  # checking default logrotation setup
-  _run_in_container grep 'weekly' /etc/logrotate.d/maillog
-  assert_success
-}
-
 # Test helper methods:
+#
 
 function _should_exist_in_ldap_tables() {
   local MAIL_ACCOUNT=${1:?Mail account is required}
