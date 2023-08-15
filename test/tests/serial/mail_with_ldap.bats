@@ -159,19 +159,12 @@ function teardown_file() {
 }
 
 @test "checking dovecot: ldap mail delivery works" {
-  _run_in_container_bash "sendmail -f user@external.tld some.user@${FQDN_LOCALHOST_A} < /tmp/docker-mailserver-test/email-templates/test-email.txt"
-  sleep 10
-  _run_in_container grep -R 'This is a test mail.' "/var/mail/${FQDN_LOCALHOST_A}/some.user/new/"
-  assert_success
-  _should_output_number_of_lines 1
-}
+  _should_successfully_deliver_mail_to "some.user@${FQDN_LOCALHOST_A}" "/var/mail/${FQDN_LOCALHOST_A}/some.user/new/"
 
-@test "checking dovecot: ldap mail delivery works for a different domain then the mailserver" {
-  _run_in_container_bash "sendmail -f user@external.tld some.other.user@${FQDN_LOCALHOST_B} < /tmp/docker-mailserver-test/email-templates/test-email.txt"
-  sleep 10
-  _run_in_container ls -A "/var/mail/${FQDN_LOCALHOST_A}/some.other.user/new"
-  assert_success
-  _should_output_number_of_lines 1
+  # Should support delivering to a local recipient with a different domain (and disjoint mail location):
+  # NOTE: Mail is delivered to location defined in `.ldif` (an account config setting, either `mailHomeDirectory` or `mailStorageDirectory`).
+  # `some.other.user` has been configured to use a mailbox domain different from it's address domain part, hence the difference here:
+  _should_successfully_deliver_mail_to "some.other.user@${FQDN_LOCALHOST_B}" "/var/mail/${FQDN_LOCALHOST_A}/some.other.user/new/"
 }
 
 @test "checking dovecot: ldap config overwrites success" {
@@ -284,4 +277,24 @@ function _should_exist_in_ldap_tables() {
   _run_in_container postmap -q "employees@${DOMAIN_PART}" ldap:/etc/postfix/ldap-groups.cf
   assert_success
   assert_output "${MAIL_ACCOUNT}"
+}
+
+# NOTE: `test-email.txt` is only used for these two LDAP tests with `sendmail` command.
+# The file excludes sender/recipient addresses, thus not usable with `_send_email()` helper (`nc` command)?
+# TODO: Could probably adapt?
+function _should_successfully_deliver_mail_to() {
+  local SENDER_ADDRESS='user@external.tld'
+  local RECIPIENT_ADDRESS=${1:?Recipient address is required}
+  local MAIL_STORAGE_RECIPIENT=${2:?Recipient storage location is required}
+  local MAIL_TEMPLATE='/tmp/docker-mailserver-test/email-templates/test-email.txt'
+
+  _run_in_container_bash "sendmail -f ${SENDER_ADDRESS} ${RECIPIENT_ADDRESS} < ${MAIL_TEMPLATE}"
+  _wait_for_empty_mail_queue_in_container
+
+  _run_in_container grep -R 'This is a test mail.' "${MAIL_STORAGE_RECIPIENT}"
+  assert_success
+  _should_output_number_of_lines 1
+
+  # NOTE: Prevents compatibility for running testcases in parallel (for same container) when the count could become racey:
+  _count_files_in_directory_in_container "${MAIL_STORAGE_RECIPIENT}" 1
 }
