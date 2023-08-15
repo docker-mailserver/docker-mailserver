@@ -111,53 +111,45 @@ function teardown_file() {
   assert_output "${MAIL_ACCOUNT}"
 }
 
+# Custom LDAP config files support:
+# TODO: Compare to provided configs and if they're just including a test comment,
+# could just copy the config and append without carrying a separate test config?
 @test "checking postfix: ldap custom config files copied" {
-  _run_in_container grep '# Testconfig for ldap integration' /etc/postfix/ldap-users.cf
-  assert_success
+  local LDAP_CONFIGS_POSTFIX=(
+    /etc/postfix/ldap-users.cf
+    /etc/postfix/ldap-groups.cf
+    /etc/postfix/ldap-aliases.cf
+  )
 
-  _run_in_container grep '# Testconfig for ldap integration' /etc/postfix/ldap-groups.cf
-  assert_success
-
-  _run_in_container grep '# Testconfig for ldap integration' /etc/postfix/ldap-aliases.cf
-  assert_success
+  for LDAP_CONFIG in "${LDAP_CONFIGS_POSTFIX[@]}"; do
+    _run_in_container grep '# Testconfig for ldap integration' "${LDAP_CONFIG}"
+    assert_success
+  done
 }
 
 @test "checking postfix: ldap config overwrites success" {
-  _run_in_container grep 'server_host = ldap' /etc/postfix/ldap-users.cf
-  assert_success
+  local LDAP_SETTINGS_POSTFIX=(
+    "server_host = ${FQDN_LDAP}"
+    'start_tls = no'
+    'search_base = ou=people,dc=localhost,dc=localdomain'
+    'bind_dn = cn=admin,dc=localhost,dc=localdomain'
+  )
 
-  _run_in_container grep 'start_tls = no' /etc/postfix/ldap-users.cf
-  assert_success
+  for LDAP_SETTING in "${LDAP_SETTINGS_POSTFIX[@]}"; do
+    # "${LDAP_SETTING%=*}" is to match only the key portion of the var (helpful for assert_output error messages)
+    # NOTE: `start_tls = no` is a default setting, but the white-space differs when ENV `LDAP_START_TLS` is not set explicitly.
+    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap-users.cf
+    assert_output "${LDAP_SETTING}"
+    assert_success
 
-  _run_in_container grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf
-  assert_success
+    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap-groups.cf
+    assert_output "${LDAP_SETTING}"
+    assert_success
 
-  _run_in_container grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-users.cf
-  assert_success
-
-  _run_in_container grep 'server_host = ldap' /etc/postfix/ldap-groups.cf
-  assert_success
-
-  _run_in_container grep 'start_tls = no' /etc/postfix/ldap-groups.cf
-  assert_success
-
-  _run_in_container grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf
-  assert_success
-
-  _run_in_container grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-groups.cf
-  assert_success
-
-  _run_in_container grep 'server_host = ldap' /etc/postfix/ldap-aliases.cf
-  assert_success
-
-  _run_in_container grep 'start_tls = no' /etc/postfix/ldap-aliases.cf
-  assert_success
-
-  _run_in_container grep 'search_base = ou=people,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf
-  assert_success
-
-  _run_in_container grep 'bind_dn = cn=admin,dc=localhost,dc=localdomain' /etc/postfix/ldap-aliases.cf
-  assert_success
+    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap-aliases.cf
+    assert_output "${LDAP_SETTING}"
+    assert_success
+  done
 }
 
 # dovecot
@@ -183,14 +175,18 @@ function teardown_file() {
 }
 
 @test "checking dovecot: ldap config overwrites success" {
-  _run_in_container grep 'uris = ldap://ldap' /etc/dovecot/dovecot-ldap.conf.ext
-  assert_success
-  _run_in_container grep 'tls = no' /etc/dovecot/dovecot-ldap.conf.ext
-  assert_success
-  _run_in_container grep 'base = ou=people,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext
-  assert_success
-  _run_in_container grep 'dn = cn=admin,dc=localhost,dc=localdomain' /etc/dovecot/dovecot-ldap.conf.ext
-  assert_success
+  local LDAP_SETTINGS_DOVECOT=(
+    "uris = ldap://${FQDN_LDAP}"
+    'tls = no'
+    'base = ou=people,dc=localhost,dc=localdomain'
+    'dn = cn=admin,dc=localhost,dc=localdomain'
+  )
+
+  for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
+    _run_in_container grep "${LDAP_SETTING%=*}" /etc/dovecot/dovecot-ldap.conf.ext
+    assert_output "${LDAP_SETTING}"
+    assert_success
+  done
 }
 
 @test "checking dovecot: postmaster address" {
