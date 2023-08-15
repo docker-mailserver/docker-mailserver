@@ -196,9 +196,9 @@ function teardown_file() {
 # NOTE: `target/scripts/startup/setup.d/dovecot.sh` should prevent enabling the quotas feature when using LDAP:
 @test "dovecot: quota plugin is disabled" {
   # Dovecot configs have not enabled the quota plugins:
-  _run_in_container grep '\$mail_plugins quota' /etc/dovecot/conf.d/10-mail.conf
+  _run_in_container grep "\$mail_plugins quota" /etc/dovecot/conf.d/10-mail.conf
   assert_failure
-  _run_in_container grep '\$mail_plugins imap_quota' /etc/dovecot/conf.d/20-imap.conf
+  _run_in_container grep "\$mail_plugins imap_quota" /etc/dovecot/conf.d/20-imap.conf
   assert_failure
 
   # Dovecot Quota config only present with disabled extension:
