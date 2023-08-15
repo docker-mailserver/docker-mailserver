@@ -6,61 +6,83 @@ CONTAINER1_NAME='dms-test_ldap'
 CONTAINER2_NAME='dms-test_ldap_provider'
 
 function setup_file() {
-  pushd test/docker-openldap/ || return 1
-  docker build -f Dockerfile -t dms-openldap --no-cache .
-  popd || return 1
-
+  export DMS_TEST_NETWORK='test-network-ldap'
   export DOMAIN='example.test'
   export FQDN_MAIL="mail.${DOMAIN}"
   export FQDN_LDAP="ldap.${DOMAIN}"
+  # LDAP is provisioned with two domains (via `.ldif` files) unrelated to the FQDN of DMS:
   export FQDN_LOCALHOST_A='localhost.localdomain'
   export FQDN_LOCALHOST_B='localhost.otherdomain'
-  export DMS_TEST_NETWORK='test-network-ldap'
 
   # Link the test containers to separate network:
   # NOTE: If the network already exists, test will fail to start.
   docker network create "${DMS_TEST_NETWORK}"
 
   # Setup local openldap service:
+  # NOTE: Building via Dockerfile is required? Image won't accept read-only if it needs to adjust permissions for bootstrap files.
+  # TODO: Upstream image is no longer maintained, may want to migrate?
+  pushd test/docker-openldap/ || return 1
+  docker build -f Dockerfile -t dms-openldap --no-cache .
+  popd || return 1
+
   docker run -d --name "${CONTAINER2_NAME}" \
     --env LDAP_DOMAIN="${FQDN_LOCALHOST_A}" \
     --hostname "${FQDN_LDAP}" \
     --network "${DMS_TEST_NETWORK}" \
-    --network-alias 'ldap' \
-    --tty \
-    dms-openldap # Image name
+    dms-openldap
 
-  export CONTAINER_NAME
-
-  # _setup_ldap uses _replace_by_env_in_file with ENV vars like DOVECOT_TLS with a prefix (eg. DOVECOT_ or LDAP_)
-  # Set default implicit container fallback for helpers:
-  CONTAINER_NAME=${CONTAINER1_NAME}
-  local CUSTOM_SETUP_ARGUMENTS=(
-    --env DOVECOT_PASS_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
-    --env DOVECOT_TLS=no
-    --env DOVECOT_USER_FILTER="(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))"
+  local ENV_LDAP_CONFIG=(
+    # Configure for LDAP account provisioner and alternative to Dovecot SASL:
     --env ACCOUNT_PROVISIONER=LDAP
-    --env PFLOGSUMM_TRIGGER=logrotate
     --env ENABLE_SASLAUTHD=1
-    --env LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
-    --env LDAP_BIND_PW=admin
-    --env LDAP_QUERY_FILTER_ALIAS="(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))"
-    --env LDAP_QUERY_FILTER_DOMAIN="(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))"
-    --env LDAP_QUERY_FILTER_GROUP="(&(mailGroupMember=%s)(mailEnabled=TRUE))"
-    --env LDAP_QUERY_FILTER_SENDERS="(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))"
-    --env LDAP_QUERY_FILTER_USER="(&(mail=%s)(mailEnabled=TRUE))"
-    --env LDAP_START_TLS=no
-    --env LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
-    --env LDAP_SERVER_HOST=ldap
-    --env PERMIT_DOCKER=container
-    --env POSTMASTER_ADDRESS="postmaster@${FQDN_LOCALHOST_A}"
-    --env REPORT_RECIPIENT=1
     --env SASLAUTHD_MECHANISMS=ldap
-    --env SPOOF_PROTECTION=1
+
+    # ENV to configure LDAP configs for Dovecot + Postfix:
+    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
+    # Dovecot:
+    --env DOVECOT_PASS_FILTER='(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))'
+    --env DOVECOT_TLS=no
+    --env DOVECOT_USER_FILTER='(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))'
+    # Postfix:
+    --env LDAP_BIND_DN='cn=admin,dc=localhost,dc=localdomain'
+    --env LDAP_BIND_PW='admin'
+    --env LDAP_QUERY_FILTER_ALIAS='(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))'
+    --env LDAP_QUERY_FILTER_DOMAIN='(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))'
+    --env LDAP_QUERY_FILTER_GROUP='(&(mailGroupMember=%s)(mailEnabled=TRUE))'
+    --env LDAP_QUERY_FILTER_SENDERS='(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))'
+    --env LDAP_QUERY_FILTER_USER='(&(mail=%s)(mailEnabled=TRUE))'
+    --env LDAP_SEARCH_BASE='ou=people,dc=localhost,dc=localdomain'
+    --env LDAP_SERVER_HOST="${FQDN_LDAP}"
+    --env LDAP_START_TLS=no
+  )
+
+  # Extra ENV needed to support specific testcases:
+  local ENV_SUPPORT=(
+    --env PERMIT_DOCKER=container # Required for attempting SMTP auth on port 25 via nc
+    # Required for openssl commands to be successul:
+    # NOTE: snakeoil cert is created (for `docker-mailserver.invalid`) via Debian post-install script for Postfix package.
+    # TODO: Use proper TLS cert
     --env SSL_TYPE='snakeoil'
+
+    # TODO; All below are questionable value to LDAP tests?
+    --env POSTMASTER_ADDRESS="postmaster@${FQDN_LOCALHOST_A}" # TODO: Only required because LDAP accounts use unrelated domain part. FQDN_LOCALHOST_A / ldif files can be adjusted to FQDN_MAIL
+    --env PFLOGSUMM_TRIGGER=logrotate
+    --env REPORT_RECIPIENT=1 # TODO: Invalid value, should be a recipient address (if not default postmaster), remove?
+    --env SPOOF_PROTECTION=1
+  )
+
+  local CUSTOM_SETUP_ARGUMENTS=(
     --hostname "${FQDN_MAIL}"
     --network "${DMS_TEST_NETWORK}"
+
+    "${ENV_LDAP_CONFIG[@]}"
+    "${ENV_SUPPORT[@]}"
   )
+
+  # Set default implicit container fallback for helpers:
+  export CONTAINER_NAME
+  CONTAINER_NAME=${CONTAINER1_NAME}
+
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
