@@ -21,13 +21,17 @@ function setup_file() {
   # Setup local openldap service:
   # NOTE: Building via Dockerfile is required? Image won't accept read-only if it needs to adjust permissions for bootstrap files.
   # TODO: Upstream image is no longer maintained, may want to migrate?
-  docker build -t dms-openldap test/docker-openldap/
+  docker build -t dms-openldap test/config/ldap/docker-openldap/
 
   docker run -d --name "${CONTAINER2_NAME}" \
     --env LDAP_DOMAIN="${FQDN_LOCALHOST_A}" \
     --hostname "${FQDN_LDAP}" \
     --network "${DMS_TEST_NETWORK}" \
     dms-openldap
+
+  #
+  # Setup DMS container
+  #
 
   local ENV_LDAP_CONFIG=(
     # Configure for LDAP account provisioner and alternative to Dovecot SASL:
@@ -82,6 +86,8 @@ function setup_file() {
   CONTAINER_NAME=${CONTAINER1_NAME}
 
   _init_with_defaults
+  # NOTE: `test/config/` has now been duplicated, can move test specific files to host-side `/tmp/docker-mailserver`:
+  mv "${TEST_TMP_CONFIG}/ldap/overrides/"*.cf "${TEST_TMP_CONFIG}/"
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 }
