@@ -30,12 +30,7 @@ function _handle_postfix_regexp_config() {
     _log 'trace' "Adding regexp alias file postfix-regexp.cf"
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-
-    if ! grep 'virtual_alias_maps.*pcre:/etc/postfix/regexp' /etc/postfix/main.cf; then
-      sed -i -E \
-        's|virtual_alias_maps(.*)|virtual_alias_maps\1 pcre:/etc/postfix/regexp|g' \
-        /etc/postfix/main.cf
-    fi
+    _add_to_or_update_postfix_main 'virtual_alias_maps' 'pcre:/etc/postfix/regexp'
   fi
 }
 

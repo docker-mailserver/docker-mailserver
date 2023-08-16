@@ -138,7 +138,7 @@ function __rspamd__setup_postfix() {
 
   postconf 'rspamd_milter = inet:localhost:11332'
   # shellcheck disable=SC2016
-  sed -i -E 's|^(smtpd_milters =.*)|\1 \$rspamd_milter|g' /etc/postfix/main.cf
+  _add_to_or_update_postfix_main 'smtpd_milters' '$rspamd_milter'
 }
 
 # If ClamAV is enabled, we will integrate it into Rspamd.
@@ -180,6 +180,7 @@ function __rspamd__setup_default_modules() {
     metric_exporter
   )
 
+  local MODULE
   for MODULE in "${DISABLE_MODULES[@]}"; do
     __rspamd__helper__enable_disable_module "${MODULE}" 'false'
   done
@@ -289,7 +290,7 @@ function __rspamd__handle_user_modules_adjustments() {
   #
   # @param ${1} = file name in ${RSPAMD_OVERRIDE_D}/
   # @param ${2} = module name as it should appear in the log
-  # @patam ${3} = option name in the module
+  # @param ${3} = option name in the module
   # @param ${4} = value of the option
   #
   # ## Note
@@ -333,7 +334,6 @@ function __rspamd__handle_user_modules_adjustments() {
 
     while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3; do
       case "${COMMAND}" in
-
         ('disable-module')
           __rspamd__helper__enable_disable_module "${ARGUMENT1}" 'false' 'override'
           ;;
@@ -367,7 +367,6 @@ function __rspamd__handle_user_modules_adjustments() {
           __rspamd__log 'warn' "Command '${COMMAND}' is invalid"
           continue
           ;;
-
       esac
     done < <(_get_valid_lines_from_file "${RSPAMD_CUSTOM_COMMANDS_FILE}")
   fi
