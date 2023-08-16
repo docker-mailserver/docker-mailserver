@@ -471,10 +471,13 @@ function _extract_certs_from_acme() {
 
 function _extract_certs_from_caddy_data() {
   local CERT_DOMAIN=${1}
+  local SANITIZED_CERT_DOMAIN
   if [[ -z ${CERT_DOMAIN} ]]; then
     _log 'warn' "_extract_certs_from_caddy_data | CERT_DOMAIN is empty"
     return 1
   fi
+
+  SANITIZED_CERT_DOMAIN=$(_caddy_sanitize_domain "${CERT_DOMAIN}")
 
   # Currently we advise SSL_DOMAIN for wildcard support using a `*.example.com` value,
   # The filepath however should be `example.com`, avoiding the wildcard part:
@@ -486,10 +489,32 @@ function _extract_certs_from_caddy_data() {
   # Caddy can use different CA to obtain a certificate (Lets Encrypt, ZeroSSL or
   # local). We don't know which one was used, so we use a '*' to match both. In
   # case both exist (improbable), just the first one will be copied by GNU cp
-  cp -v /caddy_data/caddy/certificates/*"/${CERT_DOMAIN}/${CERT_DOMAIN}.key" "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
-  cp -v /caddy_data/caddy/certificates/*"/${CERT_DOMAIN}/${CERT_DOMAIN}.crt" "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
+  cp -v /caddy_data/caddy/certificates/*/"${SANITIZED_CERT_DOMAIN}/${SANITIZED_CERT_DOMAIN}.key" "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
+  cp -v /caddy_data/caddy/certificates/*/"${SANITIZED_CERT_DOMAIN}/${SANITIZED_CERT_DOMAIN}.crt" "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
 
   _log 'trace' "_extract_certs_from_caddy_data | Certificate successfully extracted for '${CERT_DOMAIN}'"
+}
+
+# Make the same substitutions that Caddy does on domains
+# This is a translation to sh of the Safe function in
+# https://github.com/caddyserver/certmagic/blob/v0.19.1/storage.go#L242
+function _caddy_sanitize_domain() {
+  local CERT_DOMAIN=${1,,} # lowercase
+  CERT_DOMAIN=${CERT_DOMAIN##+([[:space:]])} # trim leading spaces
+  CERT_DOMAIN=${CERT_DOMAIN%%+([[:space:]])} # trim trailing spaces
+
+  # replace a few specific characters
+  CERT_DOMAIN=$(sed '
+    s/ /_/g;
+    s/+/_plus_/g;
+    s/*/wildcard_/g;
+    s/:/-/g;
+    s/\.\.//g;
+  ' <<< "${CERT_DOMAIN}")
+
+  # Remove all non-word characters and print result to stdout
+  # Note: \w in the original code is equivalent to [:alnum:]_
+  echo "${CERT_DOMAIN//[^[:alnum:]_@.-]/}"
 }
 
 # Remove the `*.` prefix if it exists, else returns the input value

@@ -501,7 +501,7 @@ services:
       caddy.local_certs: # Remove this label when going to production
 
   dms:
-    image: registry.nuiton.org/codelutin/admsys/swarm-stack/docker-mailserver:with_caddy_support
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
     hostname: mail.example.com
     ports:
       - "25:25"
@@ -509,6 +509,7 @@ services:
       - caddy_data:/caddy_data
     environment:
       SSL_TYPE: letsencrypt
+      SSL_DOMAIN: mail.example.com # Ensure this is exactly the same as the domain you pass to Caddy
       LOG_LEVEL: trace
     labels:
       caddy_0: mail.example.com
