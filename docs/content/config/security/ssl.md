@@ -478,94 +478,44 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 ### Caddy
 
-For Caddy v2 you can specify the `key_type` in your server's global settings, which would end up looking something like this if you're using a `Caddyfile`:
+[Caddy](https://caddyserver.com/) is an open-source web server with built-in SSL certificate generation. You can use the [official Docker image](https://hub.docker.com/_/caddy) and write your own Caddyfile, or use [lucaslorentz/caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy), which lets you add labels to your services in order to generate a Caddyfile.
 
-```caddyfile
-{
-  debug
-  admin localhost:2019
-  http_port 80
-  https_port 443
-  default_sni example.com
-  key_type rsa4096
-}
-```
-
-If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
-
-??? example "Caddy v2 JSON example snippet"
-
-    ```json
-    {
-      "apps": {
-        "http": {
-          "servers": {
-            "srv0": {
-              "listen": [
-                ":443"
-              ],
-              "routes": [
-                {
-                  "match": [
-                    {
-                      "host": [
-                        "mail.example.com",
-                      ]
-                    }
-                  ],
-                  "handle": [
-                    {
-                      "handler": "subroute",
-                      "routes": [
-                        {
-                          "handle": [
-                            {
-                              "body": "",
-                              "handler": "static_response"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ],
-                  "terminal": true
-                },
-              ]
-            }
-          }
-        },
-        "tls": {
-          "automation": {
-            "policies": [
-              {
-                "subjects": [
-                  "mail.example.com",
-                ],
-                "key_type": "rsa2048",
-                "issuer": {
-                  "email": "admin@example.com",
-                  "module": "acme"
-                }
-              },
-              {
-                "issuer": {
-                  "email": "admin@example.com",
-                  "module": "acme"
-                }
-              }
-            ]
-          }
-        }
-      }
-    }
-    ```
-
-The generated certificates can then be mounted:
+DMS supports retrieving certificates from Caddy data when the local file system storage is used (the default). You just need to mount your Caddy data and set `SSL_TYPE: letsencrypt` in the DMS container. Here is a minimal example with `lucaslorentz/caddy-docker-proxy`:
 
 ```yaml
+version: "3.7"
+
 volumes:
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
+  caddy_data:
+
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:2.8.5
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - caddy_data:/data
+    labels:
+      caddy.local_certs: # Remove this label when going to production
+
+  dms:
+    image: registry.nuiton.org/codelutin/admsys/swarm-stack/docker-mailserver:with_caddy_support
+    hostname: mail.example.com
+    ports:
+      - "25:25"
+    volumes:
+      - caddy_data:/caddy_data
+    environment:
+      SSL_TYPE: letsencrypt
+      LOG_LEVEL: trace
+    labels:
+      caddy_0: mail.example.com
+      caddy_0.respond: "Hello DMS" # Add a dummy directive so that Caddyfile gets generated correctly
+      # Uncomment to make a proxy for Rspamd
+      # caddy_1: rspamd.example.com
+      # caddy_1.reverse_proxy: "{{upstreams 11334}}"
 ```
 
 ### Traefik v2

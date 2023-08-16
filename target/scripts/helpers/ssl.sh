@@ -113,6 +113,8 @@ function _setup_ssl() {
       # Variable only intended for troubleshooting via debug output
       local EXTRACTED_DOMAIN
 
+      _log 'debug' "Detected traefik certificates"
+
       # Conditional handling depends on the success of `_extract_certs_from_acme`,
       # Failure tries the next fallback FQDN to try extract a certificate from.
       # Subshell not used in conditional to ensure extraction log output is still captured
@@ -124,9 +126,35 @@ function _setup_ssl() {
         EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
       else
         _log 'warn' "letsencrypt (acme.json) failed to identify a certificate to extract"
+        exit 1
       fi
 
       _log 'trace' "letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
+    fi
+  }
+
+  function _caddy_support() {
+    if [[ -d /caddy_data/caddy/certificates ]]; then
+      # Variable only intended for troubleshooting via debug output
+      local EXTRACTED_DOMAIN
+
+      _log 'debug' "Detected caddy certificates"
+
+      # Conditional handling depends on the success of `_extract_certs_from_caddy_data`,
+      # Failure tries the next fallback FQDN to try extract a certificate from.
+      # Subshell not used in conditional to ensure extraction log output is still captured
+      if [[ -n ${SSL_DOMAIN} ]] && _extract_certs_from_caddy_data "${SSL_DOMAIN}"; then
+        EXTRACTED_DOMAIN=('SSL_DOMAIN' "${SSL_DOMAIN}")
+      elif _extract_certs_from_caddy_data "${HOSTNAME}"; then
+        EXTRACTED_DOMAIN=('HOSTNAME' "${HOSTNAME}")
+      elif _extract_certs_from_caddy_data "${DOMAINNAME}"; then
+        EXTRACTED_DOMAIN=('DOMAINNAME' "${DOMAINNAME}")
+      else
+        _log 'warn' "letsencrypt (caddy data) failed to identify a certificate to extract"
+        exit 1
+      fi
+
+      _log 'trace' "letsencrypt (caddy data) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
     fi
   }
 
@@ -179,6 +207,7 @@ function _setup_ssl() {
       # TODO: SSL_DOMAIN is Traefik specific, it no longer seems relevant and should be considered for removal.
 
       _traefik_support
+      _caddy_support
 
       # checks folders in /etc/letsencrypt/live to identify which one to implicitly use:
       local LETSENCRYPT_DOMAIN LETSENCRYPT_KEY
@@ -438,6 +467,29 @@ function _extract_certs_from_acme() {
   echo "${CERT}" | base64 -d > "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
 
   _log 'trace' "_extract_certs_from_acme | Certificate successfully extracted for '${CERT_DOMAIN}'"
+}
+
+function _extract_certs_from_caddy_data() {
+  local CERT_DOMAIN=${1}
+  if [[ -z ${CERT_DOMAIN} ]]; then
+    _log 'warn' "_extract_certs_from_caddy_data | CERT_DOMAIN is empty"
+    return 1
+  fi
+
+  # Currently we advise SSL_DOMAIN for wildcard support using a `*.example.com` value,
+  # The filepath however should be `example.com`, avoiding the wildcard part:
+  if [[ ${SSL_DOMAIN} == "${CERT_DOMAIN}" ]]; then
+    CERT_DOMAIN=$(_strip_wildcard_prefix "${SSL_DOMAIN}")
+  fi
+
+  mkdir -p "/etc/letsencrypt/live/${CERT_DOMAIN}/"
+  # Caddy can use different CA to obtain a certificate (Lets Encrypt, ZeroSSL or
+  # local). We don't know which one was used, so we use a '*' to match both. In
+  # case both exist (improbable), just the first one will be copied by GNU cp
+  cp -v /caddy_data/caddy/certificates/*"/${CERT_DOMAIN}/${CERT_DOMAIN}.key" "/etc/letsencrypt/live/${CERT_DOMAIN}/key.pem" || exit 1
+  cp -v /caddy_data/caddy/certificates/*"/${CERT_DOMAIN}/${CERT_DOMAIN}.crt" "/etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem" || exit 1
+
+  _log 'trace' "_extract_certs_from_caddy_data | Certificate successfully extracted for '${CERT_DOMAIN}'"
 }
 
 # Remove the `*.` prefix if it exists, else returns the input value
